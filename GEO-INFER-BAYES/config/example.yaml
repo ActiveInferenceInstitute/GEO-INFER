@@ -1,0 +1,192 @@
+# GEO-INFER-BAYES Example Configuration
+# This is a template configuration file that should be copied to local.yaml and modified
+
+# API Configuration
+api:
+  host: 0.0.0.0
+  port: 8015
+  workers: 4
+  timeout: 60
+  max_request_size: 100MB  # Maximum size for data uploads
+
+# Bayesian Inference Configuration
+inference:
+  # Default computational methods
+  default_method: mcmc  # mcmc, hmc, vi, smc, abc
+  
+  # MCMC settings
+  mcmc:
+    sampler: nuts  # nuts, metropolis, slice
+    chains: 4
+    warmup: 1000
+    samples: 2000
+    target_accept: 0.8
+    adapt_delta: 0.8
+    max_treedepth: 10
+    random_seed: 42
+  
+  # Hamiltonian Monte Carlo settings
+  hmc:
+    step_size: 0.01
+    num_steps: 50
+    chains: 4
+    warmup: 1000
+    samples: 2000
+    random_seed: 42
+  
+  # Variational Inference settings
+  vi:
+    algorithm: advi  # advi, fullrank_advi, svgd
+    learning_rate: 0.01
+    num_samples: 1000
+    max_iter: 50000
+    convergence_threshold: 0.01
+    random_seed: 42
+  
+  # Sequential Monte Carlo settings
+  smc:
+    particles: 1000
+    steps: 100
+    resampler: systematic  # systematic, multinomial, stratified
+    ess_threshold: 0.5
+    random_seed: 42
+  
+  # Approximate Bayesian Computation settings
+  abc:
+    algorithm: smc  # rejection, mcmc, smc
+    num_samples: 1000
+    epsilon: 0.1
+    summary_statistics: default
+    distance_metric: euclidean  # euclidean, mahalanobis
+    random_seed: 42
+
+# Model Configuration
+models:
+  # Gaussian Process model settings
+  gaussian_process:
+    kernel: matern  # rbf, matern, exponential, periodic
+    lengthscale_prior: lognormal
+    noise_prior: halfnormal
+    jitter: 1e-6
+    verbose: true
+  
+  # Hierarchical model settings
+  hierarchical:
+    pooling: partial  # none, partial, complete
+    group_var_prior: halfcauchy
+    beta_prior: normal
+    verbose: true
+  
+  # Spatial model settings
+  spatial:
+    neighborhood_type: queen  # queen, rook, distance
+    neighborhood_order: 1
+    spatial_effect: car  # car, sar, icar
+    error_model: gaussian  # gaussian, poisson, binomial
+    verbose: true
+
+# Spatial Prior Configuration
+spatial_priors:
+  # Intrinsic Conditional Autoregressive (ICAR) prior
+  icar:
+    alpha: 0.8  # Spatial autocorrelation parameter
+    tau_prior: gamma  # Precision prior
+    scale: true  # Scale the precision parameter
+  
+  # Besag-York-Mollié (BYM) model
+  bym:
+    alpha: 0.5  # Mixing parameter between spatial and non-spatial components
+    tau_prior: gamma  # Precision prior
+    scale: true  # Scale the spatial component
+  
+  # Leroux model
+  leroux:
+    rho_prior: beta  # Spatial autocorrelation parameter prior
+    tau_prior: gamma  # Precision prior
+    scale: true  # Scale the model
+
+# Computational Resources
+computation:
+  # CPU settings
+  cpu:
+    enabled: true
+    threads: auto  # auto will use all available cores
+    affinity: none  # none, compact, scatter
+  
+  # GPU settings
+  gpu:
+    enabled: false
+    device_id: 0
+    precision: float32  # float32, float64, mixed
+    memory_limit: 0.8  # 80% of GPU memory
+  
+  # Parallel computing settings
+  parallel:
+    backend: multiprocessing  # multiprocessing, joblib, dask
+    max_workers: auto  # auto will use all available cores
+    batch_size: 100
+
+# Data Management
+data:
+  # Cache settings
+  cache:
+    enabled: true
+    location: .cache
+    max_size: 5GB
+    ttl: 3600  # seconds
+  
+  # Data format settings
+  formats:
+    spatial:
+      - geojson
+      - shapefile
+      - geopackage
+      - netcdf
+    tabular:
+      - csv
+      - parquet
+      - feather
+    raster:
+      - geotiff
+      - netcdf
+      - hdf5
+
+# Visualization Configuration
+visualization:
+  # Default settings
+  defaults:
+    backend: matplotlib  # matplotlib, plotly, bokeh
+    style: geo_infer
+    colormap: viridis
+    dpi: 300
+    show_uncertainty: true
+  
+  # Map settings
+  maps:
+    basemap: cartodb_positron  # cartodb_positron, osm, satellite
+    projection: mercator  # mercator, equal_area, equidistant
+    interactive: true
+    simplify: true
+    simplify_tolerance: 0.001
+  
+  # Posterior visualization
+  posterior:
+    plot_trace: true
+    plot_posterior: true
+    plot_forest: true
+    plot_ppc: true
+    plot_pair: false  # Can be resource intensive
+    credible_interval: 0.95
+
+# Monitoring
+monitoring:
+  enabled: true
+  prometheus_port: 9015
+  metrics_path: /metrics
+  collection_interval: 15  # seconds
+
+# Logging Configuration
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: json  # console, json
+  file: null  # null or path to log file 

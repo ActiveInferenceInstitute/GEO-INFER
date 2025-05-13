@@ -1,0 +1,23 @@
+Metadata-Version: 2.1
+Name: geo-infer-space
+Version: 0.1.0
+Summary: Advanced spatial methods for the GEO-INFER framework
+Home-page: https://github.com/geo-infer/geo-infer-space
+Author: GEO-INFER Team
+Author-email: info@geo-infer.org
+License: UNKNOWN
+Keywords: geospatial,h3,active inference,geoinformatics
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Topic :: Scientific/Engineering :: GIS
+Requires-Python: >=3.9
+Provides-Extra: dev
+
+UNKNOWN
+

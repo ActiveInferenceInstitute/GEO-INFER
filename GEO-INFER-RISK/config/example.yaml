@@ -1,0 +1,172 @@
+# GEO-INFER-RISK Example Configuration
+
+# General settings
+general:
+  log_level: INFO
+  output_directory: "./outputs"
+  cache_directory: "./cache"
+  enable_caching: true
+  parallel_processing: true
+  num_workers: 4
+
+# Risk model parameters
+risk_model:
+  confidence_level: 0.95
+  time_horizon: 50  # years
+  spatial_resolution: 1.0  # km
+  monte_carlo_iterations: 1000
+  random_seed: 42
+  
+# Hazard models configuration
+hazards:
+  # Flood hazard model
+  flood:
+    enabled: true
+    type: "riverine"  # riverine, pluvial, coastal, combined
+    return_periods: [10, 25, 50, 100, 500]
+    data_source: "noaa_nws"
+    dem_resolution: 30  # meters
+    include_climate_change: true
+    climate_scenario: "rcp8.5"
+    
+  # Earthquake hazard model
+  earthquake:
+    enabled: true
+    type: "probabilistic"  # deterministic, probabilistic
+    return_periods: [475, 975, 2475]
+    include_secondary_perils: true
+    secondary_perils: ["liquefaction", "landslide"]
+    data_source: "usgs"
+    
+  # Wildfire hazard model
+  wildfire:
+    enabled: false
+    fuel_model: "standard"
+    include_climate_factors: true
+    climate_scenario: "rcp4.5"
+    
+  # Hurricane/cyclone hazard model
+  hurricane:
+    enabled: true
+    include_components: ["wind", "storm_surge", "rainfall"]
+    track_data_source: "hurdat2"
+    return_periods: [10, 25, 50, 100]
+
+# Vulnerability models configuration
+vulnerability:
+  # Building vulnerability
+  building:
+    enabled: true
+    classification_scheme: "hazus"
+    include_factors: ["construction_type", "year_built", "stories", "foundation_type"]
+    uncertainty_method: "monte_carlo"
+    
+  # Infrastructure vulnerability
+  infrastructure:
+    enabled: true
+    classification_scheme: "custom"
+    types: ["roads", "bridges", "power_lines", "water_supply"]
+    
+  # Population vulnerability
+  population:
+    enabled: true
+    demographic_factors: ["age", "income", "mobility", "housing_quality"]
+    social_vulnerability_index: true
+
+# Exposure models configuration
+exposure:
+  # Property exposure
+  property:
+    enabled: true
+    data_sources: ["openstreetmap", "custom_property_db"]
+    value_type: "replacement_cost"
+    include_contents: true
+    aggregation_level: "building"
+    
+  # Population exposure
+  population:
+    enabled: true
+    data_sources: ["census", "worldpop"]
+    time_of_day_scenarios: ["day", "night", "commute"]
+    aggregation_level: "census_block"
+    
+  # Infrastructure exposure
+  infrastructure:
+    enabled: true
+    data_sources: ["openstreetmap", "custom_lifeline_db"]
+    types: ["transportation", "utilities", "communications"]
+    valuation_method: "replacement_cost"
+
+# Insurance models
+insurance:
+  # Pricing models
+  pricing:
+    enabled: true
+    methods: ["technical_price", "risk_loaded", "market_adjusted"]
+    include_expenses: true
+    expense_ratio: 0.25
+    profit_loading: 0.15
+    
+  # Claims models
+  claims:
+    enabled: true
+    frequency_severity_method: true
+    claims_inflation: 0.03
+    claims_development: true
+    development_years: 10
+    
+  # Policy conditions
+  policy:
+    deductible_types: ["flat", "percentage"]
+    default_deductible: 0.02
+    limit_types: ["flat", "percentage"]
+    default_limit: 1000000
+    apply_sublimits: true
+
+# Catastrophe modeling
+catastrophe:
+  # Event generation
+  event_generation:
+    enabled: true
+    method: "monte_carlo"
+    catalog_size: 10000
+    years_simulated: 50000
+    historical_catalog: true
+    
+  # Correlation modeling
+  correlation:
+    spatial_correlation: true
+    temporal_correlation: true
+    peril_correlation: true
+    correlation_method: "copula"
+    
+  # Financial modeling
+  financial:
+    apply_policy_terms: true
+    apply_reinsurance: true
+    reinsurance_structures: ["quota_share", "excess_of_loss", "cat_xl"]
+    aggregation_levels: ["location", "county", "state", "portfolio"]
+
+# Output formats
+output:
+  formats: ["geojson", "csv", "shapefile", "netcdf"]
+  metrics: ["aal", "oep", "ep_curve", "return_period_losses"]
+  exceedance_probabilities: [0.5, 0.2, 0.1, 0.04, 0.02, 0.01, 0.004, 0.002]
+  include_uncertainty: true
+  uncertainty_metrics: ["mean", "median", "stdev", "percentile_5", "percentile_95"]
+  
+# Integration with other GEO-INFER modules
+integrations:
+  geo_infer_space:
+    enabled: true
+    spatial_indexing: "h3"
+    resolution: 9
+  geo_infer_time:
+    enabled: true
+    temporal_resolution: "daily"
+  geo_infer_ai:
+    enabled: false
+    models: ["damage_classification", "claims_prediction"]
+  geo_infer_viz:
+    enabled: true
+    map_styles: ["risk_heatmap", "loss_contour", "exposure_concentration"] 

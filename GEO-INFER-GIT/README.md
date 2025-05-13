@@ -1,0 +1,149 @@
+# GEO-INFER-GIT
+
+## Repository Cloning Tool for Geospatial Git Repositories
+
+GEO-INFER-GIT is a module of the GEO-INFER framework that provides tools for cloning and managing Git repositories, with a focus on geospatial data and applications.
+
+### Key Features
+
+- **Bulk Repository Cloning**: Clone multiple repositories from GitHub
+- **User Repository Cloning**: Clone all repositories from specific GitHub users
+- **Parallel Cloning**: Speed up the process with concurrent operations
+- **Selective Filtering**: Include or exclude repositories based on patterns
+- **Comprehensive Reporting**: Generate reports on cloning results
+- **Configurable Options**: Customize cloning behavior via YAML configuration
+
+### Featured Repositories
+
+GEO-INFER-GIT is configured to clone and integrate with several high-quality open source projects:
+
+#### Geospatial & Climate
+- **[kraina-ai/srai](https://github.com/kraina-ai/srai)**: Spatial Representations for Artificial Intelligence - library to extract, process, and transform spatial data into ML-ready representations
+- **[koito19960406/ZenSVI](https://github.com/koito19960406/ZenSVI)**: Zero-code framework for downloading, processing, and analyzing street view imagery
+- **[os-climate](https://github.com/os-climate)**: Open-source climate analytics and tools for climate risk assessment and alignment
+
+#### Agent Systems
+- **[SamuelSchmidgall/AgentLaboratory](https://github.com/SamuelSchmidgall/AgentLaboratory)**: Research platform for developing, testing, and evaluating multi-agent systems
+- **[Significant-Gravitas/AutoGPT](https://github.com/Significant-Gravitas/AutoGPT)**: Autonomous AI agent system for task execution
+
+#### Bayesian & Active Inference
+- **[biaslab/ForneyLab.jl](https://github.com/biaslab/ForneyLab.jl)**: Julia package for factor graph modeling and automated inference
+- **[ReactiveBayes/ReactiveMP.jl](https://github.com/ReactiveBayes/ReactiveMP.jl)**: Message passing framework for reactive Bayesian inference
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.8 or higher
+- Git command-line tools
+
+### Installation
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/yourusername/GEO-INFER-GIT.git
+   cd GEO-INFER-GIT
+   ```
+
+2. Install dependencies:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## Usage
+
+### Basic Usage
+
+To clone repositories based on the default configuration:
+
+```bash
+python clone_repos.py
+```
+
+### Configuration
+
+The module uses YAML configuration files in the `config/` directory:
+
+- **target_repos.yaml**: Specific repositories to clone
+- **target_users.yaml**: GitHub users whose repositories should be cloned
+- **clone_config.yaml**: General cloning configuration
+
+### Command-line Options
+
+```bash
+python clone_repos.py --help
+```
+
+Available options:
+
+- `--config-dir`: Directory containing configuration files
+- `--output-dir`: Directory to store cloned repositories
+- `--clone-repos`: Clone repositories from target_repos.yaml
+- `--clone-users`: Clone repositories from users in target_users.yaml
+- `--github-token`: GitHub API token for authentication
+- `--parallel`: Clone repositories in parallel
+- `--max-workers`: Maximum number of parallel workers
+- `--verbose`: Enable verbose logging
+- `--generate-report`: Generate a report after cloning
+
+## Configuration Examples
+
+### Adding Repositories
+
+To add repositories to clone, edit `config/target_repos.yaml`:
+
+```yaml
+repositories:
+  - owner: username
+    repo: reponame
+    branch: main
+    tags: ["category", "type"]
+```
+
+### Adding Users
+
+To add users whose repositories should be cloned, edit `config/target_users.yaml`:
+
+```yaml
+users:
+  - username: githubuser
+    include_repos:
+      - specific-repo-to-include
+    exclude_repos:
+      - "*-docs"  # Wildcards supported
+    max_repos: 10
+    tags: ["category", "type"]
+```
+
+## GitHub Authentication
+
+For higher API rate limits, use a GitHub personal access token:
+
+```bash
+python clone_repos.py --github-token YOUR_TOKEN
+```
+
+## Directory Structure
+
+```
+GEO-INFER-GIT/
+├── config/               # Configuration files
+│   ├── clone_config.yaml   # General cloning configuration
+│   ├── target_repos.yaml   # Specific repositories to clone
+│   └── target_users.yaml   # Users whose repositories to clone
+├── src/                  # Source code
+│   └── geo_infer_git/      # Main package
+│       ├── core/           # Core functionality
+│       └── utils/          # Utility functions
+├── clone_repos.py        # Convenience script
+├── requirements.txt      # Dependencies
+└── README.md             # This file
+```
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License - see the LICENSE file for details. 

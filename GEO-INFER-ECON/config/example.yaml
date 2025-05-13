@@ -1,0 +1,263 @@
+# GEO-INFER-ECON Example Configuration
+# This is a template configuration file that should be copied to local.yaml and modified
+
+# API Configuration
+api:
+  host: 0.0.0.0
+  port: 8016
+  workers: 4
+  timeout: 60
+  max_request_size: 100MB  # Maximum size for data uploads
+
+# Economic Modeling Configuration
+economic_modeling:
+  # Default model type
+  default_model: spatial_equilibrium  # spatial_equilibrium, agent_based, input_output
+  
+  # Spatial Equilibrium Model settings
+  spatial_equilibrium:
+    solver: ipopt  # ipopt, cplex, gurobi, osqp
+    max_iterations: 1000
+    convergence_tolerance: 1e-6
+    constraint_tolerance: 1e-6
+    output_level: 1  # 0=none, 1=basic, 2=detailed
+    random_seed: 42
+  
+  # Agent-Based Model settings
+  agent_based:
+    num_agents: 1000
+    time_steps: 100
+    burn_in_period: 20
+    heterogeneity: true
+    interaction_network: spatial  # spatial, random, scale_free, small_world
+    random_seed: 42
+  
+  # Input-Output Model settings
+  input_output:
+    regional: true
+    sectors: 20
+    year: 2022
+    price_model: true
+    multipliers: true
+    leontief_inverse: true
+
+# Market Configuration
+markets:
+  # Market simulation settings
+  simulation:
+    type: spatial_price  # spatial_price, auction, matching
+    friction: 0.05
+    transaction_costs: true
+    learning_rate: 0.1
+    price_adjustment_speed: 0.2
+  
+  # Spatial market settings
+  spatial:
+    distance_function: euclidean  # euclidean, manhattan, network
+    distance_decay: exponential  # linear, exponential, power
+    distance_coefficient: -0.1
+    transport_costs: true
+    transport_mode: road  # road, rail, sea, air, multimodal
+
+# Policy Analysis Configuration
+policy:
+  # Tax analysis settings
+  tax:
+    types:
+      - income
+      - property
+      - sales
+      - carbon
+    incidence_analysis: true
+    revenue_projection: true
+    behavioral_response: true
+  
+  # Infrastructure analysis settings
+  infrastructure:
+    cost_benefit_analysis: true
+    discount_rate: 0.05
+    time_horizon: 30  # years
+    benefit_transfer: true
+    counterfactual: true
+  
+  # Regulation analysis settings
+  regulation:
+    impact_assessment: true
+    compliance_costs: true
+    distributional_analysis: true
+    uncertainty_analysis: true
+
+# Spatial Econometrics Configuration
+spatial_econometrics:
+  # Model settings
+  models:
+    - ols
+    - spatial_lag
+    - spatial_error
+    - spatial_durbin
+    - geographically_weighted
+  
+  # Weight matrix settings
+  weights:
+    type: contiguity  # contiguity, distance, k_nearest
+    standardization: row  # row, none
+    distance_threshold: auto
+    k_nearest: 5
+  
+  # Estimation settings
+  estimation:
+    method: ml  # ml, gmm, bayesian
+    heteroskedasticity: robust
+    diagnostics: true
+    spatial_diagnostics: true
+
+# Urban Economics Configuration
+urban:
+  # Land use models
+  land_use:
+    model: bid_rent  # bid_rent, monocentric, polycentric
+    zoning: true
+    land_value_capture: true
+  
+  # Housing market models
+  housing:
+    price_model: hedonic  # hedonic, supply_demand, filtering
+    tenure_choice: true
+    housing_quality: true
+  
+  # Transportation models
+  transportation:
+    mode_choice: true
+    congestion: true
+    accessibility_measures: true
+    value_of_time: 15  # dollars per hour
+
+# Environmental Economics Configuration
+environmental:
+  # Valuation methods
+  valuation:
+    methods:
+      - contingent_valuation
+      - hedonic_pricing
+      - travel_cost
+      - benefit_transfer
+    uncertainty_analysis: true
+  
+  # Externality modeling
+  externalities:
+    air_pollution: true
+    water_pollution: true
+    noise: true
+    ecosystem_services: true
+    carbon: true
+  
+  # Resource management
+  resources:
+    renewable: true
+    non_renewable: true
+    optimal_extraction: true
+    sustainability_constraints: true
+
+# Integration with Other Modules
+integration:
+  geo_infer_space:
+    enabled: true
+    shared_coordinate_system: true
+    spatial_aggregation: true
+  
+  geo_infer_time:
+    enabled: true
+    time_series_analysis: true
+    panel_data_methods: true
+  
+  geo_infer_data:
+    enabled: true
+    data_sources: true
+    etl_pipelines: true
+  
+  geo_infer_bayes:
+    enabled: true
+    bayesian_econometrics: true
+    uncertainty_propagation: true
+
+# Data Sources
+data_sources:
+  # Economic data sources
+  economic:
+    gdp: true
+    employment: true
+    income: true
+    prices: true
+    trade: true
+  
+  # Demographic data sources
+  demographic:
+    population: true
+    age_structure: true
+    migration: true
+    education: true
+  
+  # Geospatial data sources
+  geospatial:
+    administrative_boundaries: true
+    land_use: true
+    infrastructure: true
+    natural_resources: true
+
+# Computational Resources
+computation:
+  # CPU settings
+  cpu:
+    enabled: true
+    threads: auto  # auto will use all available cores
+    affinity: none  # none, compact, scatter
+  
+  # GPU settings
+  gpu:
+    enabled: false
+    device_id: 0
+    precision: float32  # float32, float64, mixed
+    memory_limit: 0.8  # 80% of GPU memory
+  
+  # Parallel computing settings
+  parallel:
+    backend: multiprocessing  # multiprocessing, joblib, dask
+    max_workers: auto  # auto will use all available cores
+    batch_size: 100
+
+# Visualization Configuration
+visualization:
+  # Default settings
+  defaults:
+    backend: matplotlib  # matplotlib, plotly, bokeh
+    style: geo_infer
+    colormap: viridis
+    dpi: 300
+  
+  # Map settings
+  maps:
+    basemap: cartodb_positron  # cartodb_positron, osm, satellite
+    projection: mercator  # mercator, equal_area, equidistant
+    interactive: true
+    choropleth: true
+    bubble: true
+  
+  # Graph settings
+  graphs:
+    network_visualization: true
+    sankey_diagrams: true
+    heatmaps: true
+    bubble_charts: true
+
+# Monitoring
+monitoring:
+  enabled: true
+  prometheus_port: 9016
+  metrics_path: /metrics
+  collection_interval: 15  # seconds
+
+# Logging Configuration
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: json  # console, json
+  file: null  # null or path to log file 

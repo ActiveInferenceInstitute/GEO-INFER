@@ -1,0 +1,114 @@
+# GEO-INFER-GIT Target Repositories Configuration
+# List of specific repositories to clone
+
+repositories:
+  # AI and LLM Agents
+  - owner: All-Hands-AI
+    repo: OpenHands
+    branch: main
+    tags: ["ai", "agent", "development"]
+  
+  - owner: Significant-Gravitas
+    repo: AutoGPT
+    branch: master
+    tags: ["ai", "agent", "autonomous"]
+  
+  - owner: huggingface
+    repo: smolagents
+    branch: main
+    tags: ["ai", "agent", "lightweight"]
+  
+  - owner: mannaandpoem
+    repo: OpenManus
+    branch: main
+    tags: ["ai", "text"]
+  
+  - owner: danielmiessler
+    repo: fabric
+    branch: main
+    tags: ["ai", "productivity"]
+  
+  # Cryptography and Security
+  - owner: dyne
+    repo: Zenroom
+    branch: master
+    tags: ["cryptography", "security"]
+  
+  # Press Freedom and Security
+  - owner: freedomofpress
+    repo: securedrop
+    branch: develop
+    tags: ["security", "privacy", "journalism"]
+  
+  # Education and Learning
+  - owner: 4dsolutions
+    repo: School_of_Tomorrow
+    branch: master
+    tags: ["education", "learning"]
+  
+  # Climate and Sustainability
+  - owner: os-climate
+    repo: os-climate-project
+    branch: main
+    tags: ["climate", "sustainability"]
+  
+  # Alignment and Safety
+  - owner: Alignment-Lab-AI
+    repo: KnowledgeBase
+    branch: main
+    tags: ["ai", "alignment", "knowledge"]
+
+  # Agentic AI and Developer Tools
+  - owner: s-smits
+    repo: agentic-cursorrules
+    branch: main
+    tags: ["ai", "developer-tools", "cursor"]
+  
+  - owner: grp06
+    repo: cursor-boost
+    branch: main
+    tags: ["ai", "developer-tools", "cursor"]
+  
+  - owner: lockfale
+    repo: OSINT-Framework
+    branch: master
+    tags: ["security", "osint", "framework"]
+  
+  - owner: entropy-research
+    repo: Devon
+    branch: main
+    tags: ["ai", "framework"]
+  
+  - owner: Metta-AI
+    repo: metta
+    branch: main
+    tags: ["ai", "framework"]
+  
+  # Active Inference and Bayesian Methods
+  - owner: biaslab
+    repo: ForneyLab.jl
+    branch: master
+    tags: ["bayesian", "inference", "julia"]
+  
+  - owner: ReactiveBayes
+    repo: ReactiveMP.jl
+    branch: main
+    tags: ["bayesian", "inference", "julia"]
+  
+  # Spatial AI and Geospatial
+  - owner: kraina-ai
+    repo: srai
+    branch: main
+    tags: ["geospatial", "ai", "spatial-data"]
+  
+  # Street View Imagery
+  - owner: koito19960406
+    repo: ZenSVI
+    branch: main
+    tags: ["geospatial", "computer-vision", "street-view"]
+  
+  # Agent Development and Research
+  - owner: SamuelSchmidgall
+    repo: AgentLaboratory
+    branch: main
+    tags: ["ai", "agent", "research"] 

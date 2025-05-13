@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geo-infer-ops
+  namespace: geo-infer
+  labels:
+    app: geo-infer-ops
+    component: core
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: geo-infer-ops
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: geo-infer-ops
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9090"
+        prometheus.io/path: "/metrics"
+    spec:
+      containers:
+      - name: geo-infer-ops
+        image: geo-infer-ops:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 8000
+          name: http
+        - containerPort: 9090
+          name: metrics
+        env:
+        - name: GEO_INFER_OPS_LOGGING_LEVEL
+          value: "INFO"
+        - name: GEO_INFER_OPS_CONFIG
+          value: "/app/config/local.yaml"
+        volumeMounts:
+        - name: config-volume
+          mountPath: /app/config
+        resources:
+          limits:
+            cpu: "1"
+            memory: "512Mi"
+          requests:
+            cpu: "200m"
+            memory: "256Mi"
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 30
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /health
+            port: http
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: config-volume
+        configMap:
+          name: geo-infer-ops-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geo-infer-ops
+  namespace: geo-infer
+  labels:
+    app: geo-infer-ops
+spec:
+  selector:
+    app: geo-infer-ops
+  ports:
+  - port: 8000
+    targetPort: http
+    name: http
+  - port: 9090
+    targetPort: metrics
+    name: metrics
+  type: ClusterIP
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: geo-infer-ops-config
+  namespace: geo-infer
+data:
+  local.yaml: |
+    logging:
+      level: INFO
+      format: json
+      file: null
+    service:
+      host: 0.0.0.0
+      port: 8000
+      workers: 4
+      timeout: 30
+    monitoring:
+      enabled: true
+      prometheus_port: 9090
+      metrics_path: /metrics
+    security:
+      cors_origins:
+        - https://geo-infer.org
+    development:
+      debug: false 

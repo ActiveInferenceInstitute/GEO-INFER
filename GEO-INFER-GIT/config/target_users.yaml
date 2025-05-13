@@ -1,0 +1,173 @@
+# GEO-INFER-GIT Target Users Configuration
+# List of GitHub users whose repositories should be cloned
+
+users:
+  # AI Alignment and Safety
+  - username: Alignment-Lab-AI
+    include_repos: []  # Empty means all repos
+    exclude_repos: []
+    max_repos: 10
+    tags: ["ai", "alignment", "safety"]
+  
+  # AI Agents and Frameworks
+  - username: All-Hands-AI
+    include_repos:
+      - OpenHands
+    exclude_repos: []
+    max_repos: 5
+    tags: ["ai", "agent", "development"]
+  
+  - username: Significant-Gravitas
+    include_repos:
+      - AutoGPT
+    exclude_repos: []
+    max_repos: 5
+    tags: ["ai", "agent", "autonomous"]
+  
+  - username: huggingface
+    include_repos:
+      - smolagents
+    exclude_repos: []
+    max_repos: 1
+    tags: ["ai", "agent", "lightweight"]
+  
+  - username: mannaandpoem
+    include_repos:
+      - OpenManus
+    exclude_repos: []
+    max_repos: 5
+    tags: ["ai", "text"]
+  
+  # Cryptography and Security
+  - username: dyne
+    include_repos:
+      - Zenroom
+    exclude_repos: []
+    max_repos: 3
+    tags: ["cryptography", "security"]
+  
+  # Press Freedom and Security
+  - username: freedomofpress
+    include_repos: []  # All repos
+    exclude_repos:
+      - "*-docs"
+      - "*-ansible"
+    max_repos: 10
+    tags: ["security", "privacy", "journalism"]
+  
+  # Productivity and Automation
+  - username: danielmiessler
+    include_repos:
+      - fabric
+    exclude_repos: []
+    max_repos: 3
+    tags: ["ai", "productivity"]
+  
+  # Education and Learning
+  - username: 4dsolutions
+    include_repos:
+      - School_of_Tomorrow
+    exclude_repos: []
+    max_repos: 5
+    tags: ["education", "learning"]
+  
+  # Climate and Sustainability
+  - username: os-climate
+    include_repos: []  # All repos
+    exclude_repos: []
+    max_repos: 15
+    tags: ["climate", "sustainability", "open-source"]
+
+  # Developer Tools and Cursor Extensions
+  - username: s-smits
+    include_repos:
+      - agentic-cursorrules
+    exclude_repos: []
+    max_repos: 5
+    tags: ["ai", "developer-tools", "cursor"]
+  
+  - username: tsotchke
+    include_repos: []  # All repos
+    exclude_repos: []
+    max_repos: 10
+    tags: ["developer", "tools"]
+  
+  - username: grp06
+    include_repos:
+      - cursor-boost
+    exclude_repos: []
+    max_repos: 3
+    tags: ["ai", "developer-tools", "cursor"]
+  
+  # AI Research and Frameworks
+  - username: agentic-ai
+    include_repos: []  # All repos
+    exclude_repos: []
+    max_repos: 10
+    tags: ["ai", "agentic", "research"]
+  
+  - username: entropy-research
+    include_repos:
+      - Devon
+    exclude_repos: []
+    max_repos: 3
+    tags: ["ai", "framework"]
+  
+  - username: Metta-AI
+    include_repos:
+      - metta
+    exclude_repos: []
+    max_repos: 3
+    tags: ["ai", "framework"]
+  
+  # Security Research
+  - username: lockfale
+    include_repos:
+      - OSINT-Framework
+    exclude_repos: []
+    max_repos: 3
+    tags: ["security", "osint", "framework"]
+  
+  # Communities and Research Labs
+  - username: kernel-community
+    include_repos: []  # All repos
+    exclude_repos: []
+    max_repos: 10
+    tags: ["community", "research"]
+  
+  # Bayesian Inference and Active Inference
+  - username: biaslab
+    include_repos: []  # All repos
+    exclude_repos: []
+    max_repos: 10
+    tags: ["bayesian", "inference", "research"]
+  
+  - username: ReactiveBayes
+    include_repos: []  # All repos
+    exclude_repos: []
+    max_repos: 10
+    tags: ["bayesian", "inference", "research"]
+  
+  # Spatial AI and Geospatial
+  - username: kraina-ai
+    include_repos: 
+      - srai
+    exclude_repos: []
+    max_repos: 5
+    tags: ["geospatial", "ai", "spatial-data"]
+  
+  # Street View Imagery and Urban Analysis
+  - username: koito19960406
+    include_repos:
+      - ZenSVI
+    exclude_repos: []
+    max_repos: 3
+    tags: ["geospatial", "computer-vision", "street-view"]
+  
+  # Agent Development and Research
+  - username: SamuelSchmidgall
+    include_repos:
+      - AgentLaboratory
+    exclude_repos: []
+    max_repos: 5
+    tags: ["ai", "agent", "research"] 

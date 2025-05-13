@@ -1,0 +1,143 @@
+# GEO-INFER-TIME Example Configuration
+# This is a template configuration file that should be copied to local.yaml and modified
+
+# API Configuration
+api:
+  host: 0.0.0.0
+  port: 8003
+  workers: 4
+  timeout: 30
+
+# Time Series Configuration
+time_series:
+  # Date/Time Handling
+  datetime:
+    default_timezone: UTC
+    supported_timezones: all  # 'all' or list of specific timezones
+    datetime_format: ISO8601  # ISO8601, RFC3339, or custom format
+    store_timezone: true
+  
+  # Time Scales
+  scales:
+    default_scale: minutes
+    supported_scales:
+      - seconds
+      - minutes
+      - hours
+      - days
+      - weeks
+      - months
+      - years
+    custom_scales: true
+  
+  # Interpolation and Gap Filling
+  interpolation:
+    enabled: true
+    default_method: linear  # linear, cubic, nearest, spline, etc.
+    extrapolation: false
+    max_gap_size: 24h  # maximum gap size to interpolate
+
+# Temporal Analysis Configuration
+analysis:
+  # Decomposition
+  decomposition:
+    enabled: true
+    methods:
+      - stl
+      - seasonal_decompose
+      - hp_filter
+    seasonal_periods: auto  # auto or specific value (e.g., 24 for hourly data with daily seasonality)
+  
+  # Autocorrelation
+  autocorrelation:
+    enabled: true
+    max_lag: 50
+    compute_pacf: true
+  
+  # Change Point Detection
+  changepoint:
+    enabled: true
+    methods:
+      - pelt
+      - binseg
+      - window
+    sensitivity: medium  # low, medium, high
+  
+  # Anomaly Detection
+  anomaly:
+    enabled: true
+    methods:
+      - iqr
+      - z_score
+      - isolation_forest
+      - lstm
+    threshold: 3.0  # for statistical methods
+
+# Real-time Processing
+realtime:
+  # WebSocket Configuration
+  websocket:
+    enabled: true
+    host: 0.0.0.0
+    port: 8103
+    path: /ws
+    max_connections: 1000
+  
+  # Stream Processing
+  stream:
+    enabled: true
+    buffer_size: 1000
+    processing_interval: 1s
+    window_size: 5m
+  
+  # Alerting
+  alerting:
+    enabled: false
+    channels:
+      - websocket
+      - http_webhook
+      - email
+    throttling: 5m  # minimum time between repeated alerts
+
+# Integration Configuration
+integration:
+  # GEO-INFER-SPACE Integration
+  space:
+    enabled: true
+    host: localhost
+    port: 8002
+    timeout: 5
+  
+  # GEO-INFER-DATA Integration
+  data:
+    enabled: true
+    host: localhost
+    port: 8001
+    timeout: 5
+    storage_engine: timescaledb  # timescaledb, postgres, influxdb
+
+# Performance Configuration
+performance:
+  cache:
+    enabled: true
+    backend: redis  # memory, redis, disk
+    max_size: 1GB
+    ttl: 3600  # seconds
+  
+  parallel_processing:
+    enabled: true
+    workers: auto  # auto or specific number
+    strategy: thread  # thread or process
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  prometheus_port: 9093
+  metrics_path: /metrics
+  collection_interval: 15  # seconds
+
+# Logging Configuration
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: json  # console, json
+  file: null  # null or path to log file 

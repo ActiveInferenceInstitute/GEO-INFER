@@ -1,0 +1,136 @@
+# GEO-INFER-SPACE Example Configuration
+# This is a template configuration file that should be copied to local.yaml and modified
+
+# API Configuration
+api:
+  host: 0.0.0.0
+  port: 8002
+  workers: 4
+  timeout: 30
+
+# Spatial Indexing Configuration
+indexing:
+  # H3 Hexagonal Grid Configuration
+  h3:
+    enabled: true
+    default_resolution: 9  # 0 (largest) to 15 (smallest)
+    max_resolution: 12
+  
+  # QuadTree Configuration
+  quadtree:
+    enabled: true
+    max_depth: 12
+    max_items: 100
+  
+  # R-Tree Configuration
+  rtree:
+    enabled: true
+    min_children: 8
+    max_children: 20
+  
+  # Geohash Configuration
+  geohash:
+    enabled: true
+    default_precision: 8  # 1 (lowest) to 12 (highest)
+  
+  # S2 Cell Configuration
+  s2:
+    enabled: false
+    default_level: 12  # 0 (largest) to 30 (smallest)
+
+# Coordinate Systems Configuration
+coordinate_systems:
+  default: EPSG:4326  # WGS84
+  supported:
+    - EPSG:4326  # WGS84
+    - EPSG:3857  # Web Mercator
+    - EPSG:3395  # World Mercator
+  auto_transform: true
+  strict_validation: false
+
+# Spatial Analytics Configuration
+analytics:
+  # Proximity Analysis
+  proximity:
+    buffer_method: geodesic  # euclidean, geodesic, or projected
+    max_distance: 100km
+  
+  # Clustering
+  clustering:
+    algorithms:
+      - dbscan
+      - kmeans
+      - hdbscan
+    parallel: true
+  
+  # Interpolation
+  interpolation:
+    methods:
+      - idw
+      - kriging
+      - natural_neighbor
+    validation: cross_validation
+  
+  # Network Analysis
+  network:
+    enabled: true
+    cache_networks: true
+    max_network_size: 1000000
+
+# Input/Output Configuration
+io:
+  # Vector Data
+  vector:
+    formats:
+      - geojson
+      - shapefile
+      - geopackage
+      - wkt
+      - wkb
+    preprocessing: true
+  
+  # Raster Data
+  raster:
+    formats:
+      - geotiff
+      - netcdf
+      - hdf5
+      - cog
+    resampling_method: bilinear  # nearest, bilinear, cubic, lanczos
+    chunking: true
+  
+  # STAC Integration
+  stac:
+    enabled: true
+    default_endpoint: https://earth-search.aws.element84.com/v0
+    max_items: 1000
+
+# Performance Configuration
+performance:
+  cache:
+    enabled: true
+    backend: redis  # memory, redis, disk
+    max_size: 1GB
+    ttl: 3600  # seconds
+  
+  parallel_processing:
+    enabled: true
+    workers: auto  # auto or specific number
+    strategy: process  # thread or process
+  
+  gpu_acceleration:
+    enabled: false
+    device_id: 0
+
+# Monitoring Configuration
+monitoring:
+  enabled: true
+  prometheus_port: 9092
+  metrics_path: /metrics
+  collection_interval: 15  # seconds
+
+# Logging Configuration
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: json  # console, json
+  file: null  # null or path to log file 

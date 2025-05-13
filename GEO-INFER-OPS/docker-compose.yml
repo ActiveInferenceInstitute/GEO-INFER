@@ -1,0 +1,189 @@
+version: '3.8'
+
+services:
+  geo-infer-ops:
+    build: .
+    image: geo-infer-ops:latest
+    container_name: geo-infer-ops
+    ports:
+      - "8000:8000"  # API port
+      - "9090:9090"  # Prometheus metrics
+    volumes:
+      - ./config:/app/config
+      - ./logs:/app/logs
+    environment:
+      - GEO_INFER_OPS_LOGGING_LEVEL=INFO
+      - GEO_INFER_OPS_CONFIG=/app/config/local.yaml
+    restart: unless-stopped
+    networks:
+      - geo-infer-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    depends_on:
+      - prometheus
+      - grafana
+      - redis
+      - postgres
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: geo-infer-ops-prometheus
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - ./monitoring/rules:/etc/prometheus/rules
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    networks:
+      - geo-infer-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: geo-infer-ops-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./monitoring/grafana/provisioning:/etc/grafana/provisioning
+      - ./monitoring/grafana/dashboards:/var/lib/grafana/dashboards
+      - grafana-data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel,grafana-worldmap-panel
+    networks:
+      - geo-infer-network
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  alertmanager:
+    image: prom/alertmanager:latest
+    container_name: geo-infer-ops-alertmanager
+    ports:
+      - "9093:9093"
+    volumes:
+      - ./monitoring/alertmanager.yml:/etc/alertmanager/alertmanager.yml
+      - alertmanager-data:/alertmanager
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+    networks:
+      - geo-infer-network
+    depends_on:
+      - prometheus
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  redis:
+    image: redis:latest
+    container_name: geo-infer-ops-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - geo-infer-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  postgres:
+    image: postgres:latest
+    container_name: geo-infer-ops-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=geo_infer
+      - POSTGRES_USER=geo_infer
+      - POSTGRES_PASSWORD=geo_infer
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - geo-infer-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U geo_infer"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  node-exporter:
+    image: prom/node-exporter:latest
+    container_name: geo-infer-ops-node-exporter
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - geo-infer-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9100/metrics"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: geo-infer-ops-cadvisor
+    ports:
+      - "8080:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+    networks:
+      - geo-infer-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:8080/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+
+volumes:
+  prometheus-data:
+  grafana-data:
+  alertmanager-data:
+  redis-data:
+  postgres-data:
+
+networks:
+  geo-infer-network:
+    name: geo-infer-network
+    driver: bridge 

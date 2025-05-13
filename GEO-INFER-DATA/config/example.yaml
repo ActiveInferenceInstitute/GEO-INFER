@@ -1,0 +1,109 @@
+# GEO-INFER-DATA Example Configuration
+# This is a template configuration file that should be copied to local.yaml and modified
+
+# API Configuration
+api:
+  host: 0.0.0.0
+  port: 8001
+  workers: 4
+  timeout: 30
+
+# Database Configuration
+database:
+  # PostgreSQL/PostGIS Configuration
+  postgres:
+    host: localhost
+    port: 5432
+    user: geo_infer
+    password: change_me
+    database: geo_infer_data
+    schema: public
+    ssl_mode: prefer
+    max_connections: 20
+  
+  # TimescaleDB Configuration (for time series)
+  timescale:
+    enabled: true
+    host: localhost
+    port: 5432
+    user: geo_infer
+    password: change_me
+    database: geo_infer_timeseries
+    schema: public
+    ssl_mode: prefer
+    max_connections: 10
+  
+  # Redis Configuration (for caching and pub/sub)
+  redis:
+    enabled: true
+    host: localhost
+    port: 6379
+    password: null
+    db: 0
+    ssl: false
+
+# Object Storage Configuration
+storage:
+  # MinIO/S3 Configuration
+  s3:
+    endpoint: localhost:9000
+    access_key: minioadmin
+    secret_key: minioadmin
+    secure: false
+    region: us-east-1
+    default_bucket: geo-infer-data
+    create_bucket_if_not_exists: true
+
+# ETL Pipeline Configuration
+etl:
+  # Airflow Configuration
+  airflow:
+    enabled: false
+    host: localhost
+    port: 8080
+    workers: 4
+  
+  # Batch Processing
+  batch:
+    max_file_size: 1GB
+    threads: 4
+    temp_dir: /tmp/geo-infer-etl
+  
+  # Stream Processing
+  stream:
+    enabled: false
+    kafka_bootstrap_servers: localhost:9092
+    consumer_group: geo-infer-data
+    auto_offset_reset: latest
+
+# Data Validation
+validation:
+  enabled: true
+  schema_validation: true
+  spatial_validation: true
+  temporal_validation: true
+  error_handling: log_and_skip  # Options: fail, log_and_skip, repair
+
+# Security Configuration
+security:
+  encryption:
+    enabled: true
+    key_management: environment  # Options: environment, vault, aws_kms
+  
+  data_masking:
+    enabled: true
+    pii_detection: true
+    geospatial_privacy: true
+
+# Monitoring
+monitoring:
+  enabled: true
+  prometheus_port: 9091
+  metrics_path: /metrics
+  collection_interval: 15  # seconds
+
+# Logging Configuration
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: json  # console, json
+  file: null  # null or path to log file 

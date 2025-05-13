@@ -1,0 +1,374 @@
+# GEO-INFER-AG Example Configuration
+# This is a template configuration file that should be copied to local.yaml and modified
+
+# API Configuration
+api:
+  host: 0.0.0.0
+  port: 8017
+  workers: 4
+  timeout: 60
+  max_request_size: 200MB  # Maximum size for data uploads (larger for remote sensing data)
+
+# Agricultural Modeling Configuration
+agricultural_modeling:
+  # Default model type
+  default_model: crop_growth  # crop_growth, soil_water, pest_risk, land_suitability
+  
+  # Crop Growth Model settings
+  crop_growth:
+    model: apsim  # apsim, dssat, aquacrop, wofost
+    time_step: daily  # hourly, daily, weekly, monthly
+    output_variables:
+      - biomass
+      - yield
+      - leaf_area_index
+      - water_stress
+      - nitrogen_stress
+    random_seed: 42
+  
+  # Soil Water Balance Model settings
+  soil_water:
+    model: bucket  # bucket, richards, swat
+    layers: 5
+    time_step: daily
+    processes:
+      - infiltration
+      - percolation
+      - evapotranspiration
+      - runoff
+      - lateral_flow
+    random_seed: 42
+  
+  # Pest and Disease Model settings
+  pest_risk:
+    model: process_based  # process_based, statistical, machine_learning
+    pests:
+      - aphids
+      - weeds
+      - fungi
+      - bacteria
+    time_step: daily
+    spatial_spread: true
+    host_interactions: true
+    random_seed: 42
+  
+  # Land Suitability Model settings  
+  land_suitability:
+    model: multi_criteria  # multi_criteria, fuzzy_logic, machine_learning
+    criteria:
+      - soil_quality
+      - climate_suitability
+      - topography
+      - water_availability
+    normalization: min_max  # min_max, z_score, rank
+    weighting: ahp  # ahp, equal, custom
+    random_seed: 42
+
+# Precision Agriculture Configuration
+precision_ag:
+  # Variable Rate Application settings
+  variable_rate:
+    enabled: true
+    resolution: 10  # meters
+    prescription_map: true
+    real_time_adjustment: false
+    application_lag: 2  # seconds
+  
+  # Field Monitoring settings
+  monitoring:
+    sensors:
+      - soil_moisture
+      - temperature
+      - leaf_wetness
+      - spectral
+    frequency: hourly  # minutely, hourly, daily
+    spatial_density: medium  # low, medium, high
+    transmission: lora  # lora, cellular, wifi, satellite
+  
+  # Machinery settings
+  machinery:
+    guidance: auto_steer  # manual, auto_steer, fully_autonomous
+    implement_control: true
+    machine_data_collection: true
+    maintenance_prediction: true
+
+# Remote Sensing Configuration
+remote_sensing:
+  # Data sources
+  sources:
+    - sentinel2
+    - landsat
+    - modis
+    - planet
+    - drone
+  
+  # Processing settings
+  processing:
+    atmospheric_correction: true
+    cloud_masking: true
+    resolution_enhancement: true
+    time_series_gap_filling: true
+    compositing: median  # mean, median, max, min
+  
+  # Indices settings
+  indices:
+    - ndvi
+    - evi
+    - ndwi
+    - ndre
+    - savi
+    custom_indices:
+      enabled: true
+      definition_file: custom_indices.yaml
+
+# Water Management Configuration
+water_management:
+  # Irrigation settings
+  irrigation:
+    scheduler: soil_moisture  # soil_moisture, et_based, growth_stage
+    efficiency: 0.85
+    methods:
+      - drip
+      - sprinkler
+      - flood
+      - pivot
+    deficit_tolerance: 0.2  # fraction of readily available water
+  
+  # Drainage settings
+  drainage:
+    model: hooghoudt  # hooghoudt, glover_dumm
+    analysis: true
+    design: true
+  
+  # Water Quality settings
+  water_quality:
+    model: swat  # swat, apex, gleams
+    pollutants:
+      - nitrogen
+      - phosphorus
+      - pesticides
+      - sediment
+    best_management_practices: true
+
+# Soil Management Configuration
+soil_management:
+  # Soil Health Assessment
+  soil_health:
+    indicators:
+      - organic_matter
+      - aggregate_stability
+      - microbial_activity
+      - infiltration_rate
+      - bulk_density
+    sampling_strategy: grid  # grid, zone, stratified
+    sampling_frequency: annual  # annual, seasonal, monthly
+  
+  # Fertility Management
+  fertility:
+    nutrient_balance: true
+    fertilizer_optimization: true
+    soil_test_interpretation: true
+    organic_matter_dynamics: true
+  
+  # Erosion Control
+  erosion:
+    model: rusle2  # usle, rusle2, wepp
+    practices:
+      - cover_crops
+      - conservation_tillage
+      - contour_farming
+      - terracing
+    scenario_analysis: true
+
+# Climate and Weather Configuration
+climate:
+  # Weather Data settings
+  weather:
+    sources:
+      - station
+      - gridded
+      - forecast
+      - historical
+    variables:
+      - temperature
+      - precipitation
+      - solar_radiation
+      - humidity
+      - wind_speed
+    temporal_resolution: hourly  # hourly, daily
+    spatial_interpolation: true
+  
+  # Climate Change Assessment
+  climate_change:
+    scenarios:
+      - rcp4.5
+      - rcp8.5
+    downscaling: true
+    impact_assessment: true
+    adaptation_strategies: true
+
+# Sustainability Assessment
+sustainability:
+  # Carbon Footprint
+  carbon:
+    soil_carbon_model: century  # century, roth-c, dndc
+    ghg_accounting: ipcc_tier2  # ipcc_tier1, ipcc_tier2, ipcc_tier3
+    carbon_credits: true
+  
+  # Biodiversity Assessment
+  biodiversity:
+    indicators:
+      - species_richness
+      - habitat_quality
+      - connectivity
+      - functional_diversity
+    monitoring: true
+    enhancement_strategies: true
+  
+  # Energy Efficiency
+  energy:
+    energy_balance: true
+    renewable_integration: true
+    efficiency_measures: true
+  
+  # Water Footprint
+  water_footprint:
+    model: water_footprint_network  # water_footprint_network, life_cycle_assessment
+    blue_water: true
+    green_water: true
+    gray_water: true
+
+# Integration with Other Modules
+integration:
+  geo_infer_space:
+    enabled: true
+    shared_coordinate_system: true
+    spatial_aggregation: true
+  
+  geo_infer_time:
+    enabled: true
+    time_series_analysis: true
+    seasonal_decomposition: true
+  
+  geo_infer_data:
+    enabled: true
+    data_sources: true
+    etl_pipelines: true
+  
+  geo_infer_econ:
+    enabled: true
+    farm_economics: true
+    market_integration: true
+  
+  geo_infer_bayes:
+    enabled: true
+    uncertainty_quantification: true
+    risk_assessment: true
+
+# Data Sources
+data_sources:
+  # Remote Sensing Platforms
+  remote_sensing:
+    sentinel:
+      enabled: true
+      bands: all
+      resolution: 10  # meters
+    landsat:
+      enabled: true
+      bands: all
+      resolution: 30  # meters
+    drone:
+      enabled: false
+      sensors:
+        - rgb
+        - multispectral
+        - thermal
+  
+  # Ground Data
+  ground:
+    soil_sampling:
+      enabled: true
+      depth_intervals:
+        - [0, 15]
+        - [15, 30]
+        - [30, 60]
+      parameters:
+        - texture
+        - ph
+        - organic_matter
+        - nutrients
+    yield_monitoring:
+      enabled: true
+      clean_data: true
+      standardization: true
+  
+  # Weather Data
+  weather:
+    stations:
+      enabled: true
+      max_distance: 20  # km
+    gridded:
+      enabled: true
+      sources:
+        - era5
+        - chirps
+        - power
+
+# Computational Resources
+computation:
+  # CPU settings
+  cpu:
+    enabled: true
+    threads: auto  # auto will use all available cores
+    affinity: none  # none, compact, scatter
+  
+  # GPU settings
+  gpu:
+    enabled: false
+    device_id: 0
+    precision: float32  # float32, float64, mixed
+    memory_limit: 0.8  # 80% of GPU memory
+  
+  # Parallel computing settings
+  parallel:
+    backend: multiprocessing  # multiprocessing, joblib, dask
+    max_workers: auto  # auto will use all available cores
+    batch_size: 100
+
+# Visualization Configuration
+visualization:
+  # Default settings
+  defaults:
+    backend: matplotlib  # matplotlib, plotly, bokeh
+    style: geo_infer
+    colormap: viridis
+    dpi: 300
+  
+  # Map settings
+  maps:
+    basemap: satellite  # cartodb_positron, osm, satellite
+    projection: mercator  # mercator, equal_area, equidistant
+    interactive: true
+    field_boundaries: true
+    management_zones: true
+  
+  # Plot settings
+  plots:
+    time_series: true
+    boxplots: true
+    histograms: true
+    correlation_matrices: true
+    spatial_variability: true
+
+# Monitoring
+monitoring:
+  enabled: true
+  prometheus_port: 9017
+  metrics_path: /metrics
+  collection_interval: 15  # seconds
+
+# Logging Configuration
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: json  # console, json
+  file: null  # null or path to log file 

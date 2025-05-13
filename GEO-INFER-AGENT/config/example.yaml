@@ -1,0 +1,173 @@
+# GEO-INFER-AGENT Example Configuration
+# This is a template configuration file that should be copied to local.yaml and modified
+
+# API Configuration
+api:
+  host: 0.0.0.0
+  port: 8011
+  workers: 4
+  timeout: 30
+
+# Agent Configuration
+agents:
+  # Base settings for all agents
+  defaults:
+    memory_capacity: 1000
+    decision_frequency: 5  # seconds
+    logging_level: INFO
+    max_runtime: 86400  # seconds (24 hours)
+    auto_restart: false
+  
+  # Agent types configuration
+  types:
+    # Data Collection Agent
+    data_collector:
+      enabled: true
+      sensors:
+        - type: satellite
+          provider: sentinel2
+          resolution: 10  # meters
+        - type: iot
+          protocol: mqtt
+          topic: geo-infer/sensors/#
+      collection_interval: 300  # seconds
+      filters:
+        cloud_cover_max: 20  # percent
+        quality_threshold: 0.8
+    
+    # Analysis Agent
+    analyzer:
+      enabled: true
+      models:
+        - type: classification
+          path: models/land_cover_classifier.pkl
+        - type: segmentation
+          path: models/feature_segmentation.h5
+      batch_size: 16
+      precision: float32
+      accelerator: cpu  # cpu, cuda, tpu
+    
+    # Monitoring Agent
+    monitor:
+      enabled: true
+      targets:
+        - type: area
+          geometry: POLYGON((...))
+          alert_conditions:
+            - metric: ndvi
+              operator: "<"
+              threshold: 0.3
+        - type: point
+          coordinates: [lon, lat]
+          radius: 5000  # meters
+      check_interval: 3600  # seconds
+      alerting:
+        channels:
+          - email
+          - webhook
+        throttling: 1800  # seconds
+    
+    # Decision Agent
+    decision_maker:
+      enabled: false
+      model: models/decision_model.zip
+      decision_threshold: 0.7
+      max_options: 5
+      constraints_file: constraints.yaml
+      human_approval: true
+
+# Multi-Agent System Configuration
+multi_agent_system:
+  coordination:
+    method: centralized  # centralized or distributed
+    communication_protocol: rest  # rest, grpc, mqtt
+    leader_election: static  # static or dynamic
+  
+  collaboration:
+    task_allocation: auction  # auction, contract_net, hierarchical
+    information_sharing: true
+    consensus_algorithm: paxos
+  
+  security:
+    authentication: token
+    authorization: role_based
+    encryption: true
+
+# Active Inference Configuration
+active_inference:
+  enabled: true
+  precision: 1.0  # precision parameter for free energy
+  planning_horizon: 5  # steps to look ahead
+  optimization:
+    method: gradient_descent
+    iterations: 100
+    learning_rate: 0.01
+  
+  # Generative model configuration
+  generative_model:
+    type: bayesian_network
+    path: models/gen_model.pkl
+    training:
+      enabled: true
+      learning_rate: 0.001
+      batch_size: 32
+      epochs: 10
+
+# Environment Integration
+environment:
+  # Spatial environment
+  spatial:
+    default_crs: EPSG:4326
+    extent: [-180, -90, 180, 90]  # [min_x, min_y, max_x, max_y]
+    resolution: 0.001  # degrees
+  
+  # Temporal environment
+  temporal:
+    start_time: now
+    time_step: 3600  # seconds
+    simulation_speed: 1.0  # 1.0 = real-time, >1 = faster, <1 = slower
+  
+  # Interaction with external systems
+  external_systems:
+    - name: weather_api
+      url: https://api.weather.gov
+      auth_method: api_key
+      auth_key_env: WEATHER_API_KEY
+    - name: osm
+      url: https://www.openstreetmap.org
+      auth_method: none
+
+# Learning Configuration
+learning:
+  enabled: true
+  method: reinforcement  # reinforcement, supervised, or unsupervised
+  
+  # Reinforcement Learning
+  reinforcement:
+    algorithm: ppo  # ppo, dqn, a2c
+    gamma: 0.99
+    entropy_coef: 0.01
+    value_loss_coef: 0.5
+    max_grad_norm: 0.5
+    use_gae: true
+    gae_lambda: 0.95
+  
+  # Experience replay
+  experience_replay:
+    enabled: true
+    buffer_size: 10000
+    batch_size: 64
+    min_samples: 1000
+
+# Monitoring
+monitoring:
+  enabled: true
+  prometheus_port: 9011
+  metrics_path: /metrics
+  collection_interval: 15  # seconds
+
+# Logging Configuration
+logging:
+  level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+  format: json  # console, json
+  file: null  # null or path to log file 
