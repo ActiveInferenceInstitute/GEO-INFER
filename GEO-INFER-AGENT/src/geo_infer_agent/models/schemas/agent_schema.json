@@ -1,0 +1,538 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GEO-INFER-AGENT Configuration Schema",
+  "description": "Schema for configuring agents in the GEO-INFER-AGENT module",
+  "type": "object",
+  "required": ["agent_type"],
+  "properties": {
+    "agent_type": {
+      "type": "string",
+      "enum": ["bdi", "active_inference", "rl", "rule_based", "hybrid"],
+      "description": "Type of agent to create"
+    },
+    "agent_id": {
+      "type": "string",
+      "description": "Unique identifier for the agent (if not provided, will be auto-generated)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable name for the agent"
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the agent's purpose and functionality"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": { "agent_type": { "enum": ["bdi"] } }
+      },
+      "then": {
+        "$ref": "#/definitions/bdi_config"
+      }
+    },
+    {
+      "if": {
+        "properties": { "agent_type": { "enum": ["active_inference"] } }
+      },
+      "then": {
+        "$ref": "#/definitions/active_inference_config"
+      }
+    },
+    {
+      "if": {
+        "properties": { "agent_type": { "enum": ["rl"] } }
+      },
+      "then": {
+        "$ref": "#/definitions/rl_config"
+      }
+    },
+    {
+      "if": {
+        "properties": { "agent_type": { "enum": ["rule_based"] } }
+      },
+      "then": {
+        "$ref": "#/definitions/rule_based_config"
+      }
+    },
+    {
+      "if": {
+        "properties": { "agent_type": { "enum": ["hybrid"] } }
+      },
+      "then": {
+        "$ref": "#/definitions/hybrid_config"
+      }
+    }
+  ],
+  "definitions": {
+    "bdi_config": {
+      "type": "object",
+      "properties": {
+        "initial_beliefs": {
+          "type": "array",
+          "description": "Initial beliefs for the agent",
+          "items": {
+            "type": "object",
+            "required": ["name", "value"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the belief"
+              },
+              "value": {
+                "description": "Value of the belief (any type)"
+              },
+              "confidence": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "default": 1.0,
+                "description": "Confidence level (0-1)"
+              },
+              "metadata": {
+                "type": "object",
+                "description": "Additional metadata for the belief"
+              }
+            }
+          }
+        },
+        "initial_desires": {
+          "type": "array",
+          "description": "Initial desires for the agent",
+          "items": {
+            "type": "object",
+            "required": ["name", "description"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the desire"
+              },
+              "description": {
+                "type": "string",
+                "description": "Description of the desire"
+              },
+              "priority": {
+                "type": "number",
+                "minimum": 0,
+                "maximum": 1,
+                "default": 0.5,
+                "description": "Priority level (0-1)"
+              },
+              "deadline": {
+                "type": "string",
+                "format": "date-time",
+                "description": "Deadline for the desire (ISO format)"
+              },
+              "conditions": {
+                "type": "object",
+                "description": "Conditions for the desire to be satisfied"
+              }
+            }
+          }
+        },
+        "plans": {
+          "type": "array",
+          "description": "Plans for the agent",
+          "items": {
+            "type": "object",
+            "required": ["name", "desire_name", "actions"],
+            "properties": {
+              "name": {
+                "type": "string",
+                "description": "Name of the plan"
+              },
+              "desire_name": {
+                "type": "string",
+                "description": "Name of the desire this plan addresses"
+              },
+              "actions": {
+                "type": "array",
+                "description": "Actions to execute in the plan",
+                "items": {
+                  "type": "object",
+                  "required": ["action_type", "action_id"],
+                  "properties": {
+                    "action_type": {
+                      "type": "string",
+                      "description": "Type of action"
+                    },
+                    "action_id": {
+                      "type": "string",
+                      "description": "Unique identifier for the action"
+                    },
+                    "parameters": {
+                      "type": "object",
+                      "description": "Parameters for the action"
+                    }
+                  }
+                }
+              },
+              "context_conditions": {
+                "type": "object",
+                "description": "Conditions that must be true for the plan to be applicable"
+              }
+            }
+          }
+        }
+      }
+    },
+    "active_inference_config": {
+      "type": "object",
+      "properties": {
+        "state_dimensions": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 10,
+          "description": "Number of dimensions in the state space"
+        },
+        "observation_dimensions": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 10,
+          "description": "Number of dimensions in the observation space"
+        },
+        "control_dimensions": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 5,
+          "description": "Number of possible control actions"
+        },
+        "learning_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.01,
+          "description": "Learning rate for model updates"
+        },
+        "planning_horizon": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 3,
+          "description": "How many steps to look ahead when planning"
+        },
+        "default_preferences": {
+          "type": "array",
+          "description": "Default preferences over observations",
+          "items": {
+            "type": "number",
+            "description": "Preference value"
+          }
+        },
+        "model_path": {
+          "type": "string",
+          "description": "Path to load model from"
+        },
+        "model_save_path": {
+          "type": "string",
+          "description": "Path to save model to"
+        },
+        "action_mapping": {
+          "type": "object",
+          "description": "Mapping from action indices to action dictionaries",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "action_type": {
+                "type": "string",
+                "description": "Type of action"
+              },
+              "action_id": {
+                "type": "string",
+                "description": "Unique identifier for the action"
+              },
+              "parameters": {
+                "type": "object",
+                "description": "Parameters for the action"
+              }
+            }
+          }
+        }
+      }
+    },
+    "rl_config": {
+      "type": "object",
+      "properties": {
+        "state_size": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 100,
+          "description": "Size of the state space"
+        },
+        "action_size": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 5,
+          "description": "Size of the action space"
+        },
+        "buffer_capacity": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 10000,
+          "description": "Capacity of replay buffer"
+        },
+        "learning_rate": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.1,
+          "description": "Learning rate"
+        },
+        "discount_factor": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.99,
+          "description": "Discount factor for future rewards"
+        },
+        "epsilon": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 1.0,
+          "description": "Initial exploration rate"
+        },
+        "epsilon_decay": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.995,
+          "description": "Decay rate for exploration"
+        },
+        "epsilon_min": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "default": 0.01,
+          "description": "Minimum exploration rate"
+        },
+        "batch_size": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 32,
+          "description": "Batch size for training"
+        },
+        "train_frequency": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 4,
+          "description": "How often to train (in steps)"
+        },
+        "train_batch_size": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 32,
+          "description": "Batch size for training"
+        },
+        "model_path": {
+          "type": "string",
+          "description": "Path to load model from"
+        },
+        "model_save_path": {
+          "type": "string",
+          "description": "Path to save model to"
+        },
+        "initial_state": {
+          "description": "Initial state for the agent"
+        },
+        "action_mapping": {
+          "type": "object",
+          "description": "Mapping from action indices to action dictionaries",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "action_type": {
+                "type": "string",
+                "description": "Type of action"
+              },
+              "action_id": {
+                "type": "string",
+                "description": "Unique identifier for the action"
+              },
+              "parameters": {
+                "type": "object",
+                "description": "Parameters for the action"
+              }
+            }
+          }
+        }
+      }
+    },
+    "rule_based_config": {
+      "type": "object",
+      "properties": {
+        "max_history_size": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 100,
+          "description": "Maximum size of execution history"
+        },
+        "rules": {
+          "type": "array",
+          "description": "Rules for the agent",
+          "items": {
+            "type": "object",
+            "required": ["id", "condition", "action"],
+            "properties": {
+              "id": {
+                "type": "string",
+                "description": "Unique identifier for the rule"
+              },
+              "condition": {
+                "description": "Condition for the rule (object, string, or function)"
+              },
+              "action": {
+                "type": "object",
+                "required": ["action_type", "action_id"],
+                "properties": {
+                  "action_type": {
+                    "type": "string",
+                    "description": "Type of action"
+                  },
+                  "action_id": {
+                    "type": "string",
+                    "description": "Unique identifier for the action"
+                  },
+                  "parameters": {
+                    "type": "object",
+                    "description": "Parameters for the action"
+                  }
+                }
+              },
+              "priority": {
+                "type": "integer",
+                "default": 0,
+                "description": "Priority level (higher numbers have higher priority)"
+              },
+              "description": {
+                "type": "string",
+                "description": "Description of the rule"
+              },
+              "enabled": {
+                "type": "boolean",
+                "default": true,
+                "description": "Whether the rule is enabled"
+              }
+            }
+          }
+        },
+        "initial_facts": {
+          "type": "object",
+          "description": "Initial facts for the agent",
+          "additionalProperties": true
+        },
+        "default_action": {
+          "type": "object",
+          "description": "Default action when no rules match",
+          "properties": {
+            "action_type": {
+              "type": "string",
+              "description": "Type of action"
+            },
+            "action_id": {
+              "type": "string",
+              "description": "Unique identifier for the action"
+            },
+            "parameters": {
+              "type": "object",
+              "description": "Parameters for the action"
+            }
+          }
+        },
+        "state_path": {
+          "type": "string",
+          "description": "Path to load state from"
+        },
+        "state_save_path": {
+          "type": "string",
+          "description": "Path to save state to"
+        }
+      }
+    },
+    "hybrid_config": {
+      "type": "object",
+      "properties": {
+        "max_history_size": {
+          "type": "integer",
+          "minimum": 1,
+          "default": 100,
+          "description": "Maximum size of decision history"
+        },
+        "decision_policy": {
+          "type": "string",
+          "enum": ["priority", "voting", "negotiation"],
+          "default": "priority",
+          "description": "Policy for selecting between sub-agent decisions"
+        },
+        "sub_agents": {
+          "type": "array",
+          "description": "Sub-agents for the hybrid agent",
+          "items": {
+            "type": "object",
+            "required": ["type"],
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": ["bdi", "active_inference", "rl", "rule_based"],
+                "description": "Type of sub-agent"
+              },
+              "id": {
+                "type": "string",
+                "description": "Unique identifier for the sub-agent"
+              },
+              "priority": {
+                "type": "integer",
+                "default": 0,
+                "description": "Priority level (higher numbers have higher priority)"
+              },
+              "activation_conditions": {
+                "type": "object",
+                "description": "Conditions that determine when this agent is active",
+                "additionalProperties": true
+              },
+              "description": {
+                "type": "string",
+                "description": "Description of the sub-agent"
+              },
+              "config": {
+                "type": "object",
+                "description": "Configuration for the sub-agent"
+              }
+            }
+          }
+        },
+        "initial_context": {
+          "type": "object",
+          "description": "Initial context for the hybrid agent",
+          "additionalProperties": true
+        },
+        "default_action": {
+          "type": "object",
+          "description": "Default action when no sub-agent is active",
+          "properties": {
+            "action_type": {
+              "type": "string",
+              "description": "Type of action"
+            },
+            "action_id": {
+              "type": "string",
+              "description": "Unique identifier for the action"
+            },
+            "parameters": {
+              "type": "object",
+              "description": "Parameters for the action"
+            }
+          }
+        },
+        "state_path": {
+          "type": "string",
+          "description": "Path to load state from"
+        },
+        "state_save_path": {
+          "type": "string",
+          "description": "Path to save state to"
+        }
+      }
+    }
+  }
+} 
