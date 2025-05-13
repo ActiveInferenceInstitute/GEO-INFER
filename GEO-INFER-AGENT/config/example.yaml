@@ -171,3 +171,126 @@ logging:
   level: INFO  # DEBUG, INFO, WARNING, ERROR, CRITICAL
   format: json  # console, json
   file: null  # null or path to log file 
+
+################################
+# GEO-INFER-AGENT Configuration
+################################
+
+# Common settings
+agent_type: data_collector  # Type of agent to create
+log_level: INFO  # DEBUG, INFO, WARNING, ERROR
+storage_path: data  # Path to store collected data
+collection_interval: 300  # Data collection interval (seconds)
+max_retries: 3  # Maximum number of retries for failed operations
+timeout: 30  # Timeout for operations (seconds)
+
+# Geospatial region of interest (GeoJSON format)
+# This is a sample region for New York City
+region: "POLYGON((-74.0326 40.7382, -73.9030 40.7382, -73.9030 40.6866, -74.0326 40.6866, -74.0326 40.7382))"
+
+# Data sources configuration
+data_sources:
+  - id: weather_api
+    name: Weather API
+    type: api
+    url: https://api.example.com/weather
+    auth:
+      type: api_key
+      key_name: api_key
+      key_value: YOUR_API_KEY_HERE
+    format: json
+    
+  - id: traffic_sensors
+    name: Traffic Sensors
+    type: sensor
+    sensor_id: traffic_network_1
+    update_frequency: 60  # seconds
+    
+  - id: satellite_imagery
+    name: Satellite Imagery
+    type: file
+    path: /data/satellite
+    format: geotiff
+    resolution: 10m
+    update_frequency: 86400  # daily
+
+# Agent-specific settings
+agent_settings:
+  # BDI agent settings
+  bdi:
+    deliberation_interval: 5  # seconds
+    commitment_strategy: single_minded  # single_minded, open_minded
+    memory_capacity: 1000
+    
+  # Data collector settings
+  data_collector:
+    storage_format: json
+    validate_data: true
+    compression: false
+    
+  # Active inference settings
+  active_inference:
+    precision: 10.0
+    learning_rate: 0.1
+    discount_factor: 0.95
+    
+  # Reinforcement learning settings
+  reinforcement_learning:
+    learning_rate: 0.1
+    discount_factor: 0.95
+    exploration_rate: 0.2
+    
+  # Rules engine settings
+  rule_based:
+    rules_file: rules/default_rules.yaml
+    facts_file: facts/initial_facts.yaml
+
+# Initial desires for BDI agents
+initial_desires:
+  - name: collect_data
+    description: Collect data from all configured sources
+    priority: 0.8
+    
+  - name: monitor_sources
+    description: Monitor data sources for availability
+    priority: 0.6
+    
+  - name: process_data
+    description: Process collected data
+    priority: 0.7
+
+# Initial beliefs for BDI agents
+initial_beliefs:
+  system_start_time:
+    value: "AUTO_TIMESTAMP"
+    confidence: 1.0
+  
+  has_unprocessed_data:
+    value: false
+    confidence: 1.0
+
+# API settings
+api:
+  enabled: true
+  host: 0.0.0.0
+  port: 8000
+  auth:
+    enabled: false
+    type: basic
+    username: admin
+    password: password
+
+# Telemetry settings
+telemetry:
+  enabled: true
+  reporting_interval: 60  # seconds
+  metrics:
+    - name: system.cpu.usage
+      description: System CPU usage
+      type: gauge
+    - name: system.memory.usage
+      description: System memory usage
+      type: gauge
+    - name: agent.collections
+      description: Number of data collections
+      type: counter 

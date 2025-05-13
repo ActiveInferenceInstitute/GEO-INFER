@@ -1,0 +1,96 @@
+# Default configuration for GEO-INFER-BAYES
+
+# Paths
+paths:
+  data_dir: "data"
+  output_dir: "output"
+  logs_dir: "logs"
+
+# MCMC Settings
+mcmc:
+  n_chains: 4
+  n_samples: 1000
+  n_warmup: 500
+  thin: 1
+  step_size: 0.1
+  adapt_step_size: true
+  max_steps: 1000
+  random_seed: 42
+
+# HMC Settings
+hmc:
+  n_chains: 4
+  n_samples: 1000
+  n_warmup: 500
+  step_size: 0.01
+  n_steps: 50
+  adapt_step_size: true
+  max_tree_depth: 10
+  random_seed: 42
+
+# Variational Inference Settings
+variational:
+  n_samples: 1000
+  learning_rate: 0.01
+  n_iterations: 10000
+  convergence_tol: 1e-6
+  n_mc_samples: 10
+  random_seed: 42
+
+# Default Prior Settings
+priors:
+  lengthscale:
+    distribution: "log_normal"
+    mu: 0.0
+    sigma: 1.0
+  variance:
+    distribution: "log_normal"
+    mu: 0.0
+    sigma: 1.0
+  noise:
+    distribution: "log_normal"
+    mu: -2.0
+    sigma: 1.0
+  degree:  # For Matern kernel
+    distribution: "uniform"
+    low: 0.5
+    high: 3.0
+
+# Model Defaults
+models:
+  spatial_gp:
+    kernel: "matern"
+    lengthscale: 1.0
+    variance: 1.0
+    noise: 0.1
+    degree: 1.5
+    jitter: 1.0e-6
+
+  hierarchical_bayes:
+    n_levels: 2
+    group_level_variance: 1.0
+    residual_variance: 0.1
+
+  dirichlet_process:
+    alpha: 1.0
+    max_clusters: 10
+    base_variance: 1.0
+
+# Integration with Other Modules
+integration:
+  geo_infer_space:
+    enabled: true
+    projection: "EPSG:4326"
+  
+  geo_infer_time:
+    enabled: true
+    time_format: "ISO8601"
+
+# Visualization Settings
+visualization:
+  theme: "viridis"
+  figure_width: 10
+  figure_height: 8
+  dpi: 300
+  save_format: "png"
+  backend: "matplotlib" 
