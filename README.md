@@ -62,6 +62,7 @@ mindmap
       RISK - Risk management
       LOG - Logistics
       BIO - Bioinformatics
+      HEALTH - Health Applications
     Operations
       OPS - Orchestration
       INTRA - Documentation
@@ -78,7 +79,7 @@ mindmap
 | **🧪 Simulation & Modeling** | [SIM](./GEO-INFER-SIM/), [ANT](./GEO-INFER-ANT/)                                                                                                             |
 | **👥 People & Community**    | [CIV](./GEO-INFER-CIV/), [PEP](./GEO-INFER-PEP/), [ORG](./GEO-INFER-ORG/), [COMMS](./GEO-INFER-COMMS/)                                                       |
 | **🖥️ Applications**         | [APP](./GEO-INFER-APP/), [ART](./GEO-INFER-ART/)                                                                                                             |
-| **🏢 Domain-Specific**       | [AG](./GEO-INFER-AG/), [ECON](./GEO-INFER-ECON/), [RISK](./GEO-INFER-RISK/), [LOG](./GEO-INFER-LOG/), [BIO](./GEO-INFER-BIO/)                               |
+| **🏢 Domain-Specific**       | [AG](./GEO-INFER-AG/), [ECON](./GEO-INFER-ECON/), [RISK](./GEO-INFER-RISK/), [LOG](./GEO-INFER-LOG/), [BIO](./GEO-INFER-BIO/), [HEALTH](./GEO-INFER-HEALTH/)                               |
 | **⚙️ Operations**            | [OPS](./GEO-INFER-OPS/), [INTRA](./GEO-INFER-INTRA/), [GIT](./GEO-INFER-GIT/)                                                                                |
 
 
@@ -103,6 +104,7 @@ mindmap
 | **GEO-INFER-DATA**  | Data management, ETL processes, and storage optimization for geospatial data.                      | - [Distributed geospatial data warehousing](./GEO-INFER-DATA/README.md#warehousing)<br>- [ETL pipelines](./GEO-INFER-DATA/README.md#etl) for heterogeneous data sources<br>- [Version control](./GEO-INFER-DATA/README.md#version-control) for geospatial datasets<br>- [Data quality assurance](./GEO-INFER-DATA/README.md#quality-assurance) workflows                                    |
 | **GEO-INFER-ECON**  | Economic modeling with spatial dimensions.                                                         | - [Spatial economics](./GEO-INFER-ECON/README.md#spatial-economics)<br>- [Market simulation](./GEO-INFER-ECON/README.md#market-simulation)<br>- [Policy analysis](./GEO-INFER-ECON/README.md#policy-analysis)                                                                                                                                                   |
 | **GEO-INFER-GIT**   | Git integration and version control workflows for data and code.                                   | - [Automated versioning](./GEO-INFER-GIT/README.md#automated-versioning) for geospatial datasets<br>- [Branching strategies](./GEO-INFER-GIT/README.md#branching)<br>- [Integration with CI/CD](./GEO-INFER-GIT/README.md#ci-cd)<br>- [Repository management tools](./GEO-INFER-GIT/README.md#repository-tools)                               |
+| **GEO-INFER-HEALTH** | Geospatial applications for public health, epidemiology, and healthcare accessibility. | - [Disease Surveillance & Outbreak Modeling](./GEO-INFER-HEALTH/README.md#disease-surveillance--outbreak-modeling)<br>- [Healthcare Accessibility Analysis](./GEO-INFER-HEALTH/README.md#healthcare-accessibility-analysis)<br>- [Environmental Health Risk Assessment](./GEO-INFER-HEALTH/README.md#environmental-health-risk-assessment)<br>- [Spatial Epidemiology](./GEO-INFER-HEALTH/README.md#spatial-epidemiology)<br>- [Health Disparities Mapping](./GEO-INFER-HEALTH/README.md#health-disparities-mapping) |
 | **GEO-INFER-INTRA** | Project documentation, workflows, processes, and ontology management.                              | - [Standardized ontologies](./GEO-INFER-INTRA/README.md#ontologies) for cross-domain interoperability<br>- [Visual programming](./GEO-INFER-INTRA/README.md#visual-programming) tools to simplify learning curves<br>- [Open-source documentation](./GEO-INFER-INTRA/README.md#documentation) adhering to FAIR principles                                  |
 | **GEO-INFER-MATH**  | Analytical and mathematical basis for all other packages.                                          | - [Mathematical formulations](./GEO-INFER-MATH/README.md#formulations) of geospatial relationships<br>- [Statistical methods](./GEO-INFER-MATH/README.md#statistics) for spatial data analysis<br>- [Algebraic structures](./GEO-INFER-MATH/README.md#algebraic-structures) for spatial modeling<br>- [Category theory](./GEO-INFER-MATH/README.md#category-theory) applications to geospatial systems |
 | **GEO-INFER-NORMS** | Social-technical compliance modeling with deterministic and probabilistic aspects.                 | - [Compliance tracking](./GEO-INFER-NORMS/README.md#compliance) using geospatial frameworks<br>- [Probabilistic modeling](./GEO-INFER-NORMS/README.md#probabilistic-modeling) of social norms in urban planning<br>- [Tools for mapping](./GEO-INFER-NORMS/README.md#mapping-tools) regulatory impacts on ecological systems                                   |
@@ -229,6 +231,15 @@ result = act.analyze(space, time)
 - Complex system analysis
 - Multi-scale ecological studies
 - Interdisciplinary research
+
+- **Cultural interpretations of spatial data**
+
+- **Health and Epidemiology**
+  - Disease surveillance and outbreak modeling
+  - Healthcare accessibility analysis
+  - Environmental health risk assessment
+
+### Advanced Spatial Methods and Analytics
 
 ## 👥 Contributing
 
@@ -462,6 +473,7 @@ graph TB
     %% Domain-Specific
     AG[GEO-INFER-AG]:::domain
     ECON[GEO-INFER-ECON]:::domain
+    HEALTH[GEO-INFER-HEALTH]:::domain
 
     %% Operations & Documentation
     INTRA[GEO-INFER-INTRA]:::utilities
@@ -564,6 +576,15 @@ graph TB
     ECON --> SIM
     ECON --> APP
     ECON <--> AG
+    HEALTH --> SPACE
+    HEALTH --> TIME
+    HEALTH --> SIM
+    HEALTH --> APP
+    HEALTH --> AI
+    HEALTH --> AGENT
+    HEALTH --> SPM
+    HEALTH <--> RISK
+    HEALTH <--> BIO
     
     %% Documentation & Standards
     INTRA -.-> DATA
@@ -589,20 +610,10 @@ graph TB
     INTRA -.-> AG
     INTRA -.-> ECON
     INTRA -.-> SPM
+    INTRA -.-> HEALTH
     
     %% Version Control Integrations
     GIT -.-> ALL
-
-    subgraph Legend
-        COREL[Core Orchestration]:::core
-        DATAL[Data & Space-Time]:::data
-        ANALL[Analysis & Intelligence]:::analysis
-        PRESL[User Interfaces]:::presentation
-        GOVL[Governance & Compliance]:::governance
-        UTIL[Utilities & Infrastructure]:::utilities
-        SOCL[Social & Community]:::social
-        DOML[Domain-Specific Applications]:::domain
-    end
 ```
 
 ## Module Interaction Flow
@@ -635,9 +646,11 @@ flowchart TD
     N --> O[Compliance & Regulatory Models]
     I --> P[GEO-INFER-BIO]:::process
     P --> Q[Biological System Models]
+    I --> HEALTH_MOD[GEO-INFER-HEALTH]:::process
+    HEALTH_MOD --> HEALTH_MOD_OUT[Health System Models]
     
     %% Presentation & Interaction
-    K & M & O & Q --> R[Integrated Insights]
+    K & M & O & Q & HEALTH_MOD_OUT --> R[Integrated Insights]
     R --> S[GEO-INFER-APP]:::output
     S --> T[User Interfaces]
     S --> U[GEO-INFER-CIV]:::output
@@ -786,204 +799,6 @@ graph BT
     end
 ```
 
-## Integration Architecture 🔄
-
-The GEO-INFER framework features a sophisticated integration architecture that connects all modules through standardized interfaces and protocols:
-
-```mermaid
-graph TB
-    classDef core fill:#e1bee7,stroke:#8e24aa,stroke-width:2px
-    classDef data fill:#bbdefb,stroke:#1976d2,stroke-width:1px
-    classDef analysis fill:#c8e6c9,stroke:#388e3c,stroke-width:1px
-    classDef presentation fill:#ffccbc,stroke:#e64a19,stroke-width:1px
-    classDef governance fill:#fff9c4,stroke:#fbc02d,stroke-width:1px
-    classDef utilities fill:#b3e5fc,stroke:#0288d1,stroke-width:1px
-    classDef social fill:#f8bbd0,stroke:#c2185b,stroke-width:1px
-    classDef domain fill:#d7ccc8,stroke:#5d4037,stroke-width:1px
-
-    %% Core Module
-    OPS[GEO-INFER-OPS]:::core
-
-    %% Data Layer
-    DATA[GEO-INFER-DATA]:::data
-    SPACE[GEO-INFER-SPACE]:::data
-    TIME[GEO-INFER-TIME]:::data
-    API[GEO-INFER-API]:::utilities
-
-    %% Analysis & Intelligence Layer
-    ACT[GEO-INFER-ACT]:::analysis
-    AI[GEO-INFER-AI]:::analysis
-    AGENT[GEO-INFER-AGENT]:::analysis
-    BAYES[GEO-INFER-BAYES]:::analysis
-    MATH[GEO-INFER-MATH]:::analysis
-    COG[GEO-INFER-COG]:::analysis
-    SPM[GEO-INFER-SPM]:::analysis
-    
-    %% Simulation & Modeling
-    SIM[GEO-INFER-SIM]:::analysis
-    ANT[GEO-INFER-ANT]:::analysis
-    
-    %% Governance & Compliance
-    SEC[GEO-INFER-SEC]:::governance
-    NORMS[GEO-INFER-NORMS]:::governance
-    REQ[GEO-INFER-REQ]:::governance
-
-    %% Social & Community
-    CIV[GEO-INFER-CIV]:::social
-    PEP[GEO-INFER-PEP]:::social
-    ORG[GEO-INFER-ORG]:::social
-    COMMS[GEO-INFER-COMMS]:::social
-
-    %% Applications
-    APP[GEO-INFER-APP]:::presentation
-    ART[GEO-INFER-ART]:::presentation
-
-    %% Domain-Specific
-    AG[GEO-INFER-AG]:::domain
-    ECON[GEO-INFER-ECON]:::domain
-
-    %% Operations & Documentation
-    INTRA[GEO-INFER-INTRA]:::utilities
-    GIT[GEO-INFER-GIT]:::utilities
-
-    %% Core Orchestration
-    OPS --> DATA
-    OPS --> API
-    OPS --> SEC
-    OPS --> INTRA
-    OPS --> GIT
-    
-    %% Data Layer Connections
-    DATA <--> SPACE
-    DATA <--> TIME
-    DATA <--> API
-    
-    %% Spatial-Temporal to Analysis
-    SPACE --> ACT
-    SPACE --> AI
-    SPACE --> SIM
-    SPACE --> BAYES
-    SPACE --> SPM
-    TIME --> ACT
-    TIME --> AI
-    TIME --> SIM
-    TIME --> BAYES
-    TIME --> SPM
-    
-    %% Analysis Interconnections
-    ACT <--> AI
-    ACT <--> BAYES
-    ACT <--> MATH
-    ACT <--> COG
-    ACT <--> AGENT
-    ACT <--> SPM
-    AI <--> BAYES
-    AI <--> COG
-    AI <--> AGENT
-    AI <--> SPM
-    AGENT <--> COG
-    BAYES <--> MATH
-    BAYES <--> SPM
-    MATH <--> COG
-    MATH <--> SPM
-    
-    %% Analysis to Simulation
-    ACT --> ANT
-    ACT --> SIM
-    AI --> SIM
-    AI --> ANT
-    AGENT --> ANT
-    AGENT --> SIM
-    SIM <--> ANT
-    BAYES --> SIM
-    SPM --> SIM
-    
-    %% Governance Connections
-    SEC --> DATA
-    SEC --> API
-    SEC --> APP
-    NORMS <--> SEC
-    NORMS --> SIM
-    NORMS --> CIV
-    REQ --> ACT
-    REQ --> AI
-    REQ --> SIM
-    REQ --> APP
-    REQ <--> NORMS
-    REQ <--> SEC
-    
-    %% Social & Community Connections
-    CIV <--> APP
-    CIV <--> COMMS
-    PEP <--> ORG
-    PEP <--> COMMS
-    ORG <--> COMMS
-    CIV <--> ORG
-    
-    %% Applications Connections
-    APP --> API
-    APP <--> ART
-    APP --> SPACE
-    APP --> TIME
-    APP --> ANT
-    APP --> AI
-    APP --> AGENT
-    APP --> SIM
-    APP --> NORMS
-    APP --> SPM
-    
-    %% Domain-Specific Connections
-    AG --> SPACE
-    AG --> TIME
-    AG --> SIM
-    AG --> APP
-    AG --> SPM
-    ECON --> SPACE
-    ECON --> TIME
-    ECON --> SIM
-    ECON --> APP
-    ECON <--> AG
-    
-    %% Documentation & Standards
-    INTRA -.-> DATA
-    INTRA -.-> SPACE
-    INTRA -.-> TIME
-    INTRA -.-> ACT
-    INTRA -.-> AI
-    INTRA -.-> AGENT
-    INTRA -.-> BAYES
-    INTRA -.-> MATH
-    INTRA -.-> COG
-    INTRA -.-> SIM
-    INTRA -.-> ANT
-    INTRA -.-> SEC
-    INTRA -.-> NORMS
-    INTRA -.-> REQ
-    INTRA -.-> APP
-    INTRA -.-> ART
-    INTRA -.-> CIV
-    INTRA -.-> PEP
-    INTRA -.-> ORG
-    INTRA -.-> COMMS
-    INTRA -.-> AG
-    INTRA -.-> ECON
-    INTRA -.-> SPM
-    
-    %% Version Control Integrations
-    GIT -.-> ALL
-
-    subgraph Legend
-        COREL[Core Orchestration]:::core
-        DATAL[Data & Space-Time]:::data
-        ANALL[Analysis & Intelligence]:::analysis
-        PRESL[User Interfaces]:::presentation
-        GOVL[Governance & Compliance]:::governance
-        UTIL[Utilities & Infrastructure]:::utilities
-        SOCL[Social & Community]:::social
-        DOML[Domain-Specific Applications]:::domain
-    end
-```
-
 ## Domain-Specific Use Cases
 
 The GEO-INFER framework supports a wide range of domain-specific use cases, including but not limited to:
@@ -1004,444 +819,9 @@ The GEO-INFER framework supports a wide range of domain-specific use cases, incl
   - Spatial economics for market simulation and policy analysis
   - Economic impact assessment and policy development
 
+- **Health and Epidemiology**
+  - Disease surveillance and outbreak modeling
+  - Healthcare accessibility analysis
+  - Environmental health risk assessment
+
 - **Artistic Expression and Cultural Interpretation**
-  - Geospatial data visualization as art
-  - Place-based artistic expression tools
-  - Cultural interpretations of spatial data
-
-- **Advanced Spatial Methods and Analytics**
-  - Multi-resolution spatial indexing and geospatial analytics
-  - Real-time geospatial analytics using IoT and edge computing
-
-- **Data Management and ETL Processes**
-  - Distributed geospatial data warehousing
-  - Intelligent ETL pipelines for heterogeneous data sources
-
-- **Security and Privacy Frameworks**
-  - Geospatial data anonymization techniques
-  - Role-based access control for location data
-
-- **Governance and Compliance Modeling**
-  - Compliance tracking using geospatial ESG frameworks
-  - Probabilistic modeling of social norms in urban planning scenarios
-
-- **Simulation and Modeling Environments**
-  - Digital twin technology for simulating urban or ecological scenarios
-  - Agent-based models for behavior prediction under various conditions
-
-- **Cognitive Modeling and AI Integration**
-  - Attention mechanisms for spatial focus
-  - Memory models for spatial-temporal knowledge representation
-  - Trust modeling across geographic networks
-
-- **Community Engagement and Participation**
-  - Tools like STEW-MAP for community-driven spatial planning
-  - Platforms enabling community-driven initiatives
-
-## Implementation Guidelines 🛠️
-
-### Module Development Standards
-
-To ensure consistency and interoperability across the GEO-INFER framework, all module development should adhere to the following standards:
-
-1. **API Contract Specifications**
-   - All modules must implement standardized interfaces as defined in GEO-INFER-API
-   - Use OpenAPI 3.0+ for RESTful services documentation
-   - GraphQL schema must be version-controlled and backward compatible
-
-2. **Containerization Requirements**
-   - Each module should be containerized using Docker
-   - Helm charts should be provided for Kubernetes deployment
-   - Multi-architecture support (amd64, arm64) required for edge computing scenarios
-
-3. **Testing Protocol**
-   - Minimum 95% test coverage for core functionality
-   - Integration tests validating interoperability with dependent modules
-   - Performance benchmarks for geospatial operations
-   - Security scanning integrated into CI/CD pipeline
-
-4. **Documentation Standards**
-   - API reference using standard formats (OpenAPI, GraphQL schema)
-   - Technical documentation for developers
-   - User-friendly guides for end-users
-   - Interactive examples where applicable
-
-### Cross-Module Integration Patterns
-
-The GEO-INFER architecture uses several key integration patterns to ensure robust, scalable communication between modules:
-
-```mermaid
-flowchart LR
-    classDef pattern fill:#f0f0f0,stroke:#333,stroke-width:1px
-    
-    A[Event Streaming]:::pattern
-    B[API Gateway]:::pattern
-    C[Service Mesh]:::pattern
-    D[Shared Data Fabric]:::pattern
-    E[Message Queue]:::pattern
-    F[Function-as-a-Service]:::pattern
-    
-    subgraph "Integration Patterns"
-        A --> B
-        B --> C
-        C --> D
-        D --> E
-        E --> F
-        F --> A
-    end
-    
-    subgraph "Usage Contexts"
-        G[Real-time Updates]
-        H[Client Access Control]
-        I[Service Discovery]
-        J[Data Access]
-        K[Async Processing]
-        L[Serverless Compute]
-    end
-    
-    A -.-> G
-    B -.-> H
-    C -.-> I
-    D -.-> J
-    E -.-> K
-    F -.-> L
-```
-
-## 🚀 Quick Start Code Examples
-
-Get started quickly with these practical examples:
-
-<details>
-<summary><b>Basic Spatial Analysis</b></summary>
-
-```python
-import geoinfer.space as gis
-import geoinfer.data as gid
-import matplotlib.pyplot as plt
-
-# Load and prepare geospatial data
-dataset = gid.load_dataset("urban_heat_islands")
-cities = dataset.filter(population_gt=500000)
-
-# Perform spatial analysis
-heat_clusters = gis.cluster_analysis(
-    data=cities,
-    method="dbscan",
-    feature="surface_temp",
-    spatial_resolution="30m"
-)
-
-# Visualize results
-fig = plt.figure(figsize=(12, 8))
-gis.plot_clusters(
-    heat_clusters,
-    basemap="osm",
-    color_by="intensity",
-    title="Urban Heat Island Clusters"
-)
-plt.show()
-
-# Export results
-heat_clusters.export_geojson("heat_clusters.geojson")
-```
-
-</details>
-
-<details>
-<summary><b>Time Series Forecasting</b></summary>
-
-```python
-import geoinfer.time as git
-import geoinfer.data as gid
-import geoinfer.ai as gia
-import pandas as pd
-
-# Load temporal geospatial data
-stations = gid.load_dataset("weather_stations")
-rainfall = stations.get_time_series("precipitation", "2010-01-01", "2023-01-01")
-
-# Create spatial-temporal model
-model = gia.create_model(
-    model_type="spatial_temporal_lstm",
-    spatial_features=["elevation", "distance_to_coast", "land_cover"],
-    temporal_features=["precipitation", "temperature"],
-    target="precipitation",
-    forecast_horizon="7d"
-)
-
-# Train model
-model.train(
-    train_data=rainfall.filter(date_lt="2022-01-01"),
-    validation_data=rainfall.filter(date_between=["2022-01-01", "2022-06-01"]),
-    epochs=50,
-    batch_size=32
-)
-
-# Generate predictions
-predictions = model.predict(
-    test_data=rainfall.filter(date_gt="2022-06-01"),
-    return_confidence=True
-)
-
-# Evaluate results
-evaluation = model.evaluate(actual=rainfall, predicted=predictions)
-print(f"RMSE: {evaluation.rmse}, MAE: {evaluation.mae}")
-
-# Export forecast visualization
-git.plot_forecast(
-    actual=rainfall,
-    predicted=predictions,
-    uncertainty=True,
-    export_path="rainfall_forecast.png"
-)
-```
-
-</details>
-
-<details>
-<summary><b>Agent-Based Simulation</b></summary>
-
-```python
-import geoinfer.agent as gia
-import geoinfer.sim as gis
-import geoinfer.space as gsp
-
-# Setup simulation environment
-city_grid = gsp.create_grid(
-    bounds=[-74.02, 40.70, -73.95, 40.78],  # Manhattan bounds
-    resolution="100m",
-    crs="EPSG:4326"
-)
-
-# Define agent behaviors
-pedestrian_behavior = gia.define_behavior(
-    type="active_inference",
-    goals=["minimize_travel_time", "maximize_pleasant_routes"],
-    perception_radius="200m",
-    adaptation_rate=0.3
-)
-
-# Initialize agents
-population = gia.create_agents(
-    count=5000,
-    type="pedestrian",
-    behavior=pedestrian_behavior,
-    initial_distribution="population_density"
-)
-
-# Setup simulation parameters
-simulation = gis.Simulation(
-    environment=city_grid,
-    agents=population,
-    duration="24h",
-    time_step="5min",
-    external_factors={
-        "weather": "rainy",
-        "time_of_day": "workday_morning",
-        "events": ["concert_central_park"]
-    }
-)
-
-# Run simulation
-results = simulation.run(realtime_visualization=False)
-
-# Analyze results
-hotspots = gis.analyze_density(
-    agent_positions=results.get_agent_positions(),
-    method="kernel_density",
-    time_slices=["morning", "noon", "evening"]
-)
-
-# Visualize flows
-gis.plot_flows(
-    agent_trajectories=results.get_trajectories(),
-    basemap="cartodb_dark",
-    animate=True,
-    save_path="pedestrian_flows.gif"
-)
-```
-
-</details>
-
-<details>
-<summary><b>Community Engagement Platform</b></summary>
-
-```python
-import geoinfer.civ as gic
-import geoinfer.app as gia
-import geoinfer.space as gis
-
-# Initialize community project
-project = gic.Project(
-    name="Neighborhood Green Space Planning",
-    area=gis.load_geometry("neighborhood_boundaries.geojson"),
-    description="Collaborative planning for new urban green spaces"
-)
-
-# Setup stakeholder groups
-project.add_stakeholder_group("residents", weight=0.4)
-project.add_stakeholder_group("local_business", weight=0.2)
-project.add_stakeholder_group("city_planners", weight=0.3)
-project.add_stakeholder_group("environmental_experts", weight=0.1)
-
-# Create participatory mapping application
-mapping_app = gia.create_app(
-    type="participatory_mapping",
-    project=project,
-    base_layers=["satellite", "streets", "heat"],
-    tools=["draw", "comment", "vote", "measure"]
-)
-
-# Add survey for data collection
-survey = gic.create_survey(
-    questions=[
-        "What types of green space would you prefer?",
-        "How far would you walk to a green space?",
-        "What activities would you like to do there?"
-    ],
-    spatial_context=True
-)
-mapping_app.add_component(survey)
-
-# Deploy application
-deployment = mapping_app.deploy(
-    platform="web",
-    authentication="email",
-    analytics=True,
-    url="greenspace-planning.example.org"
-)
-
-# Generate participation report after 30 days
-report = gic.generate_report(
-    project=project,
-    metrics=["participation_rate", "demographic_representation", "consensus_areas"],
-    format="pdf"
-)
-```
-
-</details>
-
-<details>
-<summary><b>Risk Assessment Integration</b></summary>
-
-```python
-import geoinfer.risk as gir
-import geoinfer.data as gid
-import geoinfer.space as gis
-import geoinfer.sim as gim
-
-# Load infrastructure and hazard data
-power_grid = gid.load_infrastructure("power_grid.gpkg")
-flood_zones = gid.load_hazard_layer("flood_zones.tif")
-historical_events = gid.load_timeseries("historical_floods.csv")
-
-# Define vulnerability model
-vulnerability_model = gir.create_vulnerability_model(
-    infrastructure_type="power_grid",
-    hazard_type="flooding",
-    construction_data=power_grid.attributes["construction_year"],
-    maintenance_data=power_grid.attributes["last_maintenance"],
-    failure_history=historical_events
-)
-
-# Calculate risk scores
-risk_assessment = gir.assess_risk(
-    assets=power_grid,
-    hazard=flood_zones,
-    vulnerability_model=vulnerability_model,
-    scenarios=["10yr", "50yr", "100yr"],
-    include_uncertainty=True
-)
-
-# Identify critical points
-critical_points = gir.identify_critical_nodes(
-    network=power_grid,
-    risk_scores=risk_assessment,
-    methodology="network_centrality",
-    cascade_potential=True
-)
-
-# Generate mitigation strategies
-strategies = gir.generate_strategies(
-    critical_assets=critical_points,
-    budget_constraint="10M",
-    time_horizon="5yr",
-    prioritization="cost_benefit"
-)
-
-# Create decision support dashboard
-dashboard = gir.create_dashboard(
-    risk_data=risk_assessment,
-    critical_nodes=critical_points,
-    strategies=strategies,
-    interactive=True,
-    export_path="risk_dashboard.html"
-)
-```
-
-</details>
-
-## Contributing 🤝
-
-We welcome contributions from the community! To contribute to the GEO-INFER framework:
-
-1. Fork the repository you wish to contribute to
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes using conventional commits (`git commit -m 'feat: Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-Please see our [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines on code style, testing requirements, and the review process.
-
-## Community 👪
-
-Join our community to collaborate, ask questions, and share your work:
-
-- **GitHub Discussions**: For feature requests, Q&A, and general discussion
-- **Issue Tracker**: For bug reports and specific implementation issues
-- **Slack Channel**: For real-time collaboration and community support
-- **Monthly Webinars**: Learn about the latest developments and use cases
-
-To stay updated on GEO-INFER development:
-
-- Watch this repository for notifications on new releases
-- Star the repository to show your support
-- Follow our blog for in-depth articles and tutorials
-
-## Future Research Directions 🔬
-
-The GEO-INFER framework continues to evolve, with several key areas of ongoing and future research:
-
-- **Federated Active Inference** 🧠
-  - Distributed perception-action loops across geospatial networks
-  - Multi-agent collaborative belief updating mechanisms
-  - Cross-domain generative model sharing and validation
-
-- **Quantum Computing Applications** ⚛️
-  - Quantum algorithms for complex spatial optimization problems
-  - Quantum machine learning for geospatial pattern recognition
-  - Quantum-secured geospatial data transmission protocols
-
-- **Neuromorphic Processing for Spatial Data** 🔄
-  - Spike-based computing for real-time spatial data processing
-  - Energy-efficient edge computing for remote sensing applications
-  - Biologically-inspired spatial memory systems
-
-- **Digital Twin Integration** 🌐
-  - High-fidelity simulation environments for policy testing
-  - Real-time synchronization between physical and digital representations
-  - Multi-scale modeling from microhabitats to planetary systems
-
-- **Cross-DAO Geospatial Governance** 🔗
-  - Interoperable decision-making frameworks across jurisdictions
-  - Token-engineering for spatial resource allocation
-  - On-chain spatial rights and responsibilities
-
-- **Extended Reality Interfaces** 👓
-  - Immersive visualization of complex geospatial data
-  - Haptic interfaces for intuitive interaction with spatial information
-  - AR/VR/MR tools for collaborative spatial planning
-
-## License 📄
-
-This project is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0) - see the [LICENSE](LICENSE) file for details. 
