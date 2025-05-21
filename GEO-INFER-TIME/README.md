@@ -1,94 +1,158 @@
-# GEO-INFER-TIME
+# GEO-INFER-TIME 🕒🌐
 
-**Temporal Methods for Dynamic Geospatial Data**
+**Temporal Methods for Dynamic Geospatial Data: Analysis, Fusion, and Forecasting**
 
 ## Overview
 
-GEO-INFER-TIME is a specialized module within the GEO-INFER framework focused on providing robust **temporal methods for timeline expression, analysis, and fusion of dynamic geospatial data**. Time is a critical dimension in understanding most ecological, civic, and environmental phenomena, from tracking climate change impacts and urban growth to monitoring species migration and real-time incident response. This module equips the GEO-INFER ecosystem with the tools to handle various forms of time-series data, perform sophisticated temporal analysis, model dynamic processes, and integrate real-time data streams for timely decision-making.
+GEO-INFER-TIME is a pivotal module within the GEO-INFER framework, specifically engineered to provide robust **temporal methods for timeline expression, sophisticated analysis, fusion, and forecasting of dynamic geospatial data**. Time is an indispensable dimension for understanding the vast majority of ecological, socio-economic, civic, and environmental phenomena. These range from tracking climate change impacts, urban expansion, and resource depletion to monitoring species migration, agricultural cycles, and real-time incident response.
+
+This module equips the GEO-INFER ecosystem with a comprehensive suite of tools to ingest, manage, and process various forms of time-series data. It enables sophisticated temporal analysis, the modeling of complex dynamic processes, the integration of real-time data streams, and the generation of actionable forecasts, all crucial for informed and timely decision-making in a rapidly changing world.
+
+## Core Objectives
+
+*   **Comprehensive Temporal Data Management**: To provide a unified framework for ingesting, storing, aligning, and managing diverse spatio-temporal datasets from various sources, ensuring data quality and accessibility.
+*   **Advanced Temporal Analysis & Pattern Recognition**: To offer a rich set of analytical tools for uncovering trends, seasonality, cyclical patterns, anomalies, and causal relationships within time-series data.
+*   **Robust Dynamic Process Modeling**: To enable the development and application of models that can simulate and predict the behavior of dynamic geospatial systems over time.
+*   **Real-Time Data Integration & Processing**: To facilitate the ingestion and analysis of high-velocity, real-time data streams for immediate situational awareness and rapid response.
+*   **Predictive Spatio-Temporal Forecasting**: To implement and validate advanced statistical and machine learning models for forecasting future states and trends of geospatial phenomena.
+*   **Timeline Construction & Event Synthesis**: To enable the automated detection of significant events and the construction of meaningful, expressive timelines from complex temporal data.
+*   **Interoperability & Standardization**: To ensure seamless integration with other GEO-INFER modules and adherence to relevant standards for temporal data (e.g., OGC, STAC).
 
 ## Core Concepts
 
--   **Time Series:** A sequence of data points indexed in time order. In geospatial contexts, this often means observations of a variable at a specific location or for a specific spatial feature over time.
--   **Temporal Dynamics:** The patterns of change, trends, seasonality, and events that characterize how systems evolve over time.
--   **Temporal Resolution & Granularity:** The level of detail at which time is measured or represented (e.g., seconds, days, years).
--   **Real-time Processing:** The ability to ingest, analyze, and react to data as it is generated or received, with minimal delay.
--   **Temporal Databases:** Database systems optimized for storing and querying time-stamped data (e.g., TimescaleDB).
+-   **Time Series Data**: A sequence of observations or measurements recorded at successive points in time, often associated with specific geospatial locations or features.
+-   **Spatio-Temporal Dynamics**: The complex interplay of spatial patterns and temporal processes, describing how systems change across both space and time.
+-   **Temporal Resolution & Granularity**: The precision and scale at which time is measured, aggregated, or represented (e.g., milliseconds, daily, decadal).
+-   **Real-Time Systems**: Systems that process data and respond to events as they occur, with minimal latency, critical for operational intelligence.
+-   **Temporal Databases & Indexing**: Specialized database systems (e.g., TimescaleDB, InfluxDB) and indexing techniques (e.g., R*-tree with time, ST-tree) optimized for efficient storage, querying, and retrieval of time-stamped data.
+-   **Change Detection & Anomaly Detection**: Identifying statistically significant changes, shifts, or unusual patterns in time series relative to expected behavior.
+-   **Forecasting Horizons**: The future time period for which predictions are made (short-term, medium-term, long-term).
+-   **Event Modeling**: Representing discrete occurrences in time and their relationships, often with associated spatial footprints.
 
 ## Key Features
 
--   **Comprehensive Time-Series Geospatial Dataset Integration:** Tools for ingesting, aligning, and managing time-series data from various sources (e.g., satellite image archives, sensor networks, historical records) associated with geospatial features.
-    -   Support for standard formats and protocols (e.g., STAC for spatio-temporal assets).
--   **Advanced Predictive Modeling of Temporal Trends:** Implementation of statistical and machine learning models (e.g., ARIMA, Prophet, LSTMs, Temporal Convolutional Networks) to forecast future values and trends in ecological, civic, and environmental systems.
--   **Real-time Data Ingestion & Updates:** Capabilities for handling high-velocity data streams, including WebSocket integration for pushing real-time updates to applications and other modules.
--   **Temporal Interpolation & Gap-Filling Methods:** Algorithms to estimate missing data points in time series, crucial for creating complete datasets for analysis (e.g., linear interpolation, spline interpolation, kriging for spatio-temporal data).
--   **Event Detection & Timeline Expression:** Methods for identifying significant events, anomalies, or change points within time series and constructing structured timelines of these occurrences.
--   **Temporal Aggregation & Resampling:** Tools to change the temporal resolution of time series data (e.g., aggregating daily data to monthly, or downsampling high-frequency sensor data).
+### 1. 📊 Comprehensive Time-Series Geospatial Data Integration
+-   **Description**: Tools for ingesting, validating, cleaning, aligning, and managing diverse time-series datasets associated with geospatial features. This includes data from satellite image archives, IoT sensor networks, historical records, climate models, and socio-economic databases.
+-   **Techniques**: Support for standard formats (e.g., NetCDF, GeoTIFF with time bands, CSV with timestamps) and protocols (e.g., STAC API for spatio-temporal assets, OGC SOS/STA). Automated temporal resampling, synchronization of irregular time series, and handling of missing data.
+-   **Benefits**: Creates a consistent and analysis-ready foundation for all temporal operations, ensures data quality, and facilitates interoperability between different data sources.
 
-## Temporal Data Processing & Analysis Workflow (Conceptual)
+### 2. 📈 Advanced Predictive Modeling of Temporal Trends
+-   **Description**: Implementation and evaluation of a wide range of statistical and machine learning models to forecast future values, trends, and seasonality in ecological, civic, and environmental systems.
+-   **Models**: Classical methods (ARIMA, SARIMA, Exponential Smoothing), machine learning approaches (Random Forests, Gradient Boosting for time series), deep learning models (LSTMs, GRUs, Temporal Convolutional Networks - TCNs), and specialized libraries (e.g., Prophet, Darts, PyTorch Forecasting).
+-   **Benefits**: Enables proactive decision-making, risk assessment, resource planning, and scenario analysis by providing data-driven predictions of future conditions.
+
+### 3. 📡 Real-Time Data Ingestion, Processing & Updates
+-   **Description**: Capabilities for ingesting, processing, and disseminating high-velocity, real-time data streams. This includes live sensor feeds, social media updates, and other dynamic data sources relevant to ongoing events or monitoring.
+-   **Techniques**: WebSocket integration, Kafka/MQTT connectors, stream processing engines (e.g., Apache Flink, Spark Streaming integration points), and efficient in-memory data structures for real-time analytics.
+-   **Benefits**: Provides up-to-the-minute situational awareness, enables immediate response to critical events, and allows for dynamic model updating.
+
+### 4. 🔗 Temporal Interpolation, Imputation & Gap-Filling
+-   **Description**: A suite of algorithms to estimate missing data points or create continuous time series from irregularly sampled data. This is crucial for creating complete and consistent datasets required for many analytical techniques.
+-   **Methods**: Linear interpolation, spline interpolation, Gaussian processes, kriging (for spatio-temporal interpolation), machine learning-based imputation (e.g., MICE, KNN imputer adapted for time series), and model-based imputation.
+-   **Benefits**: Improves the quality and completeness of time-series data, reduces bias in subsequent analyses, and enables the use of algorithms that require complete data.
+
+### 5. 🗓️ Event Detection, Timeline Expression & Causal Inference
+-   **Description**: Methods for automatically identifying significant events, anomalies, change points, or regime shifts within time series. Tools for constructing structured, queryable timelines of these occurrences and exploring potential causal relationships.
+-   **Techniques**: Statistical process control, Bayesian change point detection, anomaly detection algorithms (e.g., Isolation Forest, One-Class SVM), event pattern mining, and preliminary support for causal inference methods (e.g., Granger causality, Convergent Cross Mapping) adapted for geo-contexts.
+-   **Benefits**: Distills complex time-series data into meaningful events and narratives, aids in understanding system dynamics, and supports root cause analysis.
+
+### 6. 🔄 Temporal Aggregation, Resampling & Transformation
+-   **Description**: Flexible tools to change the temporal resolution of time series data (e.g., aggregating daily data to monthly averages, or downsampling high-frequency sensor data to hourly summaries) and apply various temporal transformations.
+-   **Operations**: Upsampling, downsampling, rolling window statistics (mean, median, std dev), calculating temporal lags and leads, Fourier transforms for frequency domain analysis, and wavelet transforms for multi-resolution analysis.
+-   **Benefits**: Allows data to be analyzed at appropriate time scales for different questions, facilitates feature engineering for predictive models, and helps in identifying periodicities.
+
+## Module Architecture
 
 ```mermaid
 graph TD
-    subgraph Data_Ingestion_Preparation as "Data Ingestion & Preparation"
-        DS[Data Sources (Sensors, Satellites, APIs, Databases)] --> RAW[Raw Time-Series Data]
-        RAW --> PRE[Preprocessing (Cleaning, Validation)]
-        PRE --> ALIGN[Temporal Alignment & Synchronization]
-        ALIGN --> GAP[Gap Filling & Interpolation]
-        GAP --> AGG[Aggregation / Resampling (Optional)]
-        AGG --> TDS[Prepared Time-Series Datasets]
+    A[External Data Sources (Sensors, APIs, Files, Databases, STAC)] --> B{Temporal Data I/O & Connectors};
+    B -- Raw Time Series --> C{Data Preprocessing & Validation Engine};
+    C -- Validated Time Series --> D{Temporal Alignment & Synchronization Core};
+    D -- Aligned Time Series --> E[Temporal Storage (Time-Series DB, Cache)];
+
+    E --> F{Feature Engineering & Transformation};
+    F -- Prepared Features & Series --> G[Temporal Analysis & Pattern Mining Engine];
+    G -- Patterns, Anomalies, Events --> H[Timeline Synthesis & Event Management];
+    F -- Prepared Features & Series --> I[Predictive Modeling & Forecasting Engine];
+    I -- Forecasts, Scenarios --> J[Model Evaluation & Validation Framework];
+
+    subgraph RealTime_Pipeline as "Real-Time Processing Pipeline"
+        direction LR
+        K[Real-Time Data Ingestor (WebSocket, Kafka, MQTT)] --> L{Stream Processing & Analytics};
+        L -- Live Insights, Alerts --> M[Real-Time Output & Alerting Service];
+        L --> E; %% Update temporal storage
+        L --> I; %% Update models
     end
 
-    subgraph Temporal_Analysis_Modeling as "Temporal Analysis & Modeling"
-        TDS --> EDA[Exploratory Data Analysis (Decomposition, Autocorrelation)]
-        EDA --> FEAT[Feature Engineering (Lags, Rolling Stats)]
-        FEAT --> MODEL[Temporal Modeling (ARIMA, LSTM, Prophet)]
-        MODEL --> EVAL[Model Evaluation & Validation]
-        EVAL --> FORECAST[Forecasting & Prediction]
-        EVAL --> INSIGHTS[Insights & Anomaly Detection]
-    end
+    N[GEO-INFER Modules (SPACE, DATA, AI, SIM, APP)] <--> O{Temporal API & Services Facade};
+    O <--> E;
+    O <--> G;
+    O <--> H;
+    O <--> I;
+    O <--> M;
 
-    subgraph Realtime_Processing as "Real-time Stream Processing (Optional)"
-        STREAM_IN[Incoming Real-time Data (e.g., WebSockets)] --> RT_PROC[Real-time Analysis & Event Detection]
-        RT_PROC --> RT_ALERT[Real-time Alerts / Updates]
-        RT_PROC --> TDS %% Can update datasets
-    end
+    P[Configuration & Orchestration] --> B; P --> C; P --> D; P --> F; P --> G; P --> I; P --> L;
 
-    subgraph Output_Integration as "Output & Integration"
-        FORECAST --> APP[Applications / Dashboards]
-        INSIGHTS --> APP
-        RT_ALERT --> APP
-        FORECAST --> OTHER_MODULES[Other GEO-INFER Modules]
-        INSIGHTS --> OTHER_MODULES
-        TDS --> OTHER_MODULES
-    end
-    
-    classDef timeprocess fill:#d2f8d2,stroke:#27ae60,stroke-width:2px;
-    class Data_Ingestion_Preparation,Temporal_Analysis_Modeling,Realtime_Processing timeprocess;
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style N fill:#ccf,stroke:#333,stroke-width:2px
+    style K fill:#ffcc99,stroke:#333,stroke-width:2px;
+    classDef coreengine fill:#d2f8d2,stroke:#27ae60,stroke-width:2px;
+    class C,D,F,G,I,L coreengine;
+    classDef storage fill:#e0e0e0,stroke:#555,stroke-width:2px;
+    class E storage;
 ```
 
-## Directory Structure
+**Key Components**:
+
+1.  **Temporal Data I/O & Connectors**: Interfaces for ingesting data from diverse sources.
+2.  **Data Preprocessing & Validation Engine**: Cleans, validates, and standardizes incoming temporal data.
+3.  **Temporal Alignment & Synchronization Core**: Ensures time series are properly aligned and synchronized for joint analysis.
+4.  **Temporal Storage**: Manages efficient storage and retrieval, often leveraging specialized time-series databases.
+5.  **Feature Engineering & Transformation**: Creates relevant features from time series for analysis and modeling.
+6.  **Temporal Analysis & Pattern Mining Engine**: Contains algorithms for decomposition, autocorrelation, change point detection, etc.
+7.  **Timeline Synthesis & Event Management**: Constructs and manages timelines of significant detected events.
+8.  **Predictive Modeling & Forecasting Engine**: Implements various forecasting algorithms and manages model lifecycles.
+9.  **Model Evaluation & Validation Framework**: Assesses the performance and reliability of predictive models.
+10. **Real-Time Processing Pipeline**: Handles live data streams for immediate analysis and alerting.
+11. **Temporal API & Services Facade**: Exposes functionalities to other GEO-INFER modules and external applications.
+12. **Configuration & Orchestration**: Manages module settings and coordinates temporal workflows.
+
+## Directory Structure (Enhanced)
 ```
 GEO-INFER-TIME/
-├── config/              # Configuration files for data sources, models
-├── docs/                # Detailed documentation, tutorials
-├── examples/            # Example scripts and notebooks for time-series analysis
-├── src/                 # Source code
-│   └── geo_infer_time/  # Main Python package
-│       ├── api/         # API endpoints for temporal services
-│       ├── core/        # Core temporal analysis algorithms, model implementations
-│       ├── models/      # Data structures for time series, events
-│       ├── io/          # Data ingestion and output utilities
-│       └── utils/       # Helper functions, date/time utilities
-└── tests/               # Unit and integration tests for temporal functions
+├── config/                 # Configuration files (DB connections, model params, API keys)
+├── docs/                   # Detailed documentation, tutorials, papers
+├── examples/               # Example scripts, notebooks (e.g., climate trend analysis, urban mobility forecasting)
+├── src/                    # Source code
+│   └── geo_infer_time/     # Main Python package
+│       ├── api/            # External API endpoints (e.g., Flask/FastAPI for temporal services)
+│       ├── core/           # Core temporal analysis, modeling, and processing algorithms
+│       │   ├── analysis.py   # Trend, seasonality, anomaly detection
+│       │   ├── forecasting.py# Predictive model implementations (ARIMA, LSTM, Prophet etc.)
+│       │   ├── interpolation.py # Gap filling and imputation methods
+│       │   ├── event_detection.py # Change point and event identification
+│       │   └── stream_processing.py # Real-time data handling logic
+│       ├── models/         # Data structures (e.g., TimeSeries objects, Event objects)
+│       ├── io/             # Data ingestion, connectors (STAC, databases), and output utilities
+│       ├── db/             # Interfaces for time-series databases (e.g., TimescaleDB adaptors)
+│       └── utils/          # Helper functions, date/time manipulation, validation
+├── tests/                  # Unit and integration tests
+│   ├── core/
+│   ├── io/
+│   └── models/
+├── requirements.txt        # Python dependencies
+└── README.md               # This file
 ```
 
 ## Getting Started
 
 ### Prerequisites
 - Python 3.9+
-- Pandas, NumPy, SciPy
-- Statsmodels, Scikit-learn
-- Optionally, libraries like Prophet, PyTorch/TensorFlow for advanced forecasting.
-- Access to time-series databases (e.g., TimescaleDB, InfluxDB) might be required for certain use cases.
+- Core scientific libraries: Pandas, NumPy, SciPy
+- Statistical modeling: Statsmodels, Scikit-learn
+- Forecasting libraries (optional, based on needs): Prophet, Pmdarima, Darts, PyTorch/TensorFlow (for LSTMs, TCNs)
+- Database connectors (if using specialized time-series DBs): e.g., `psycopg2-binary` for TimescaleDB/PostgreSQL, `influxdb-client`.
+- Ensure Git is installed for cloning.
 
 ### Installation
 ```bash
@@ -96,77 +160,91 @@ GEO-INFER-TIME/
 # git clone https://github.com/activeinference/GEO-INFER.git
 # cd GEO-INFER/GEO-INFER-TIME
 
+# Install the package and its dependencies (preferably in a virtual environment)
 pip install -e .
-# or poetry install if pyproject.toml is configured
+# Alternatively, if using Poetry and a pyproject.toml is set up:
+# poetry install
 ```
 
 ### Configuration
-Module configuration (e.g., database connection strings, API keys for data services, default model parameters) can be managed via YAML files in `config/` or through environment variables.
+Module configurations (e.g., database connection strings for TimescaleDB/InfluxDB, API keys for external data services, default model hyperparameters) are typically managed via YAML files in the `config/` directory or through environment variables. It's recommended to copy example configurations and customize them:
+
 ```bash
 # cp config/example_timescaledb_config.yaml config/local_timescaledb_config.yaml
-# Edit local_timescaledb_config.yaml
+# nano config/local_timescaledb_config.yaml # Then edit with your local settings
 ```
 
 ### Running Tests
+To ensure the module is functioning correctly after installation and setup:
 ```bash
 pytest tests/
+# For coverage reports:
+# pytest --cov=src/geo_infer_time tests/
 ```
 
-## Temporal Analysis Capabilities
+## Temporal Analysis Capabilities (Expanded)
 
-GEO-INFER-TIME provides a rich set of tools for understanding temporal patterns:
+GEO-INFER-TIME provides a rich set of tools for a deep understanding of temporal patterns:
 
--   **Time Series Decomposition:** Breaking down a time series into trend, seasonal, and residual components (e.g., using moving averages, STL decomposition).
--   **Temporal Autocorrelation Analysis:** Measuring the correlation of a time series with lagged versions of itself (ACF and PACF plots) to identify seasonality and inform model selection.
--   **Change Point Detection:** Identifying abrupt changes or structural breaks in time series data.
--   **Seasonal Pattern Identification & Adjustment:** Detecting and quantifying regular seasonal variations, and methods for seasonal adjustment.
--   **Temporal Clustering:** Grouping similar time series based on their patterns or features.
--   **Anomaly Detection in Time Series:** Identifying unusual data points or subsequences that deviate from normal behavior (e.g., using statistical methods, isolation forests).
--   **Frequency Domain Analysis:** Techniques like Fourier transforms to analyze periodic components in time series.
+-   **Time Series Decomposition**: Classical (moving averages), STL decomposition, X-13ARIMA-SEATS for robust trend, seasonal, and residual component extraction.
+-   **Autocorrelation & Cross-Correlation Analysis**: ACF, PACF plots for seasonality identification and model order selection; cross-correlation for identifying lagged relationships between multiple time series.
+-   **Stationarity Testing & Transformation**: Augmented Dickey-Fuller, KPSS tests for stationarity; differencing, log transforms to achieve stationarity.
+-   **Change Point & Structural Break Detection**: Bayesian methods, Pruned Exact Linear Time (PELT), CUSUM charts.
+-   **Seasonal Pattern Analysis & Adjustment**: Sophisticated seasonal decomposition, seasonal dummy variables, Fourier analysis for complex seasonalities.
+-   **Temporal Clustering & Classification**: Grouping time series based on shape (e.g., DTW-based clustering) or features; classifying time series into predefined categories.
+-   **Anomaly & Outlier Detection**: Statistical methods (e.g., Z-score, IQR), distance-based methods (e.g., k-NN), density-based methods (e.g., LOF), and model-based approaches (e.g., residuals from forecasts).
+-   **Frequency Domain Analysis**: Fourier transforms, Lomb-Scargle periodograms (for unevenly spaced data), wavelet analysis for time-frequency localization of patterns.
+-   **Persistence Analysis**: Hurst exponent calculation to measure long-range dependence.
 
-## Data Handling
+## Data Handling (Expanded)
 
-The module is designed to handle diverse temporal data characteristics:
+The module is architected to handle the diverse and often challenging characteristics of temporal data in geospatial contexts:
 
--   **Regular Time Series:** Data points collected at fixed, consistent intervals (e.g., daily temperature readings).
--   **Irregular Time Series:** Data points collected at variable or non-uniform intervals (e.g., event timestamps, sensor readings triggered by thresholds).
--   **Event-Based Data:** Timestamps marking specific occurrences or events.
--   **Cyclical/Periodic Data:** Data exhibiting recurring patterns that are not necessarily tied to standard calendar seasons (e.g., economic cycles).
--   **Multi-Resolution Temporal Data:** Integrating and analyzing data collected at different time scales.
--   **Time-Stamped Geospatial Features:** Handling vector or raster data where each feature or pixel has an associated time series of attributes.
+-   **Regular & Irregular Time Series**: Robust handling of both fixed-interval and variable-interval data, including methods for converting between them.
+-   **Event-Based & Point Process Data**: Timestamps marking specific occurrences, and tools for analyzing rates, inter-event times, and clustering of events (e.g., Hawkes processes for self-exciting phenomena).
+-   **Panel Data / Longitudinal Data**: Managing and analyzing multiple time series observed for the same set of spatial units (e.g., regions, plots).
+-   **Multi-Resolution & Multi-Scale Temporal Data**: Integrating and analyzing data collected or aggregated at different time scales, potentially using wavelet-based approaches.
+-   **Time-Stamped Geospatial Features**: Efficiently linking temporal attributes to vector geometries (points, lines, polygons) or raster pixel time series.
+-   **Handling of Censored & Truncated Data**: Methods to deal with time series where observations are incomplete due to censoring or truncation.
 
 ## Integration with Other Modules
 
-GEO-INFER-TIME plays a crucial role in the broader GEO-INFER ecosystem:
+GEO-INFER-TIME serves as a critical temporal engine for the GEO-INFER ecosystem:
 
--   **GEO-INFER-SPACE:** Essential for spatio-temporal analysis, where TIME provides the temporal dimension to spatial data managed by SPACE. This enables tracking changes in spatial patterns over time, spatio-temporal interpolation, and modeling of moving objects or spreading phenomena.
--   **GEO-INFER-DATA:** TIME relies on DATA for accessing and managing underlying storage of time-series datasets, whether from files, databases, or APIs. DATA may also handle archival of processed temporal data.
--   **GEO-INFER-ACT:** Dynamic active inference models in ACT require robust temporal representations of the environment and agent states. TIME provides the tools to model these temporal dynamics and feed them into agent generative models.
--   **GEO-INFER-AI:** Many AI techniques, particularly those for forecasting (LSTMs, TCNs) or sequence analysis, are applied to time-series data. TIME provides the preprocessed temporal data and features for these AI models.
--   **GEO-INFER-SIM:** Simulations often evolve over time. TIME can be used to analyze simulation outputs, compare simulated time series with real-world data, or provide temporal drivers (e.g., historical weather patterns) for simulations.
--   **GEO-INFER-APP:** Applications often need to display time-varying data, dashboards with temporal trends, or real-time updates. TIME provides the backend services for these frontend components.
+-   **GEO-INFER-SPACE**: Indispensable for spatio-temporal analysis. TIME provides the temporal dimension, models, and analytics for spatial data managed by SPACE. This enables tracking changes in spatial patterns over time, spatio-temporal kriging/interpolation, modeling object movement, and analyzing diffusion or spreading phenomena (e.g., wildfires, disease outbreaks).
+-   **GEO-INFER-DATA**: TIME relies on DATA for accessing, storing, and managing the persistence of raw and processed time-series datasets. DATA may handle versioning, archival, and metadata for temporal data assets, including STAC catalogs.
+-   **GEO-INFER-ACT & GEO-INFER-AGENT**: Dynamic active inference models (ACT) and agent-based models (AGENT) require robust temporal representations of the environment and agent states/histories. TIME provides tools to model these temporal dynamics, generate forecasts for agent planning, and analyze agent interaction patterns over time.
+-   **GEO-INFER-AI & GEO-INFER-ML**: Many AI/ML techniques are inherently temporal (e.g., LSTMs, TCNs for forecasting, Reinforcement Learning with temporal state spaces). TIME provides preprocessed temporal data, feature engineering, and specialized temporal cross-validation strategies for these AI/ML models.
+-   **GEO-INFER-SIM**: Simulations intrinsically evolve over time. TIME can be used to analyze simulation outputs (time series of model variables), compare simulated trajectories with real-world data for model validation, or provide dynamic temporal drivers (e.g., historical climate scenarios) for simulations.
+-   **GEO-INFER-APP & GEO-INFER-VIS**: Applications frequently need to display time-varying data, interactive dashboards with temporal trends, real-time updates, and animations. TIME provides the backend services, query capabilities, and aggregated data to power these frontend components and visualizations.
+-   **GEO-INFER-ECON**: Economic models often involve time-series analysis of indicators, asset prices, or policy impacts. TIME can provide econometric time-series tools for these analyses.
+-   **GEO-INFER-RISK**: Assessing risks often involves understanding temporal probabilities of events (e.g., flood recurrence intervals) and forecasting potential future hazards, for which TIME provides essential tools.
 
-## Use Cases
+## Use Cases (Expanded Examples)
 
--   **Environmental Monitoring:** Analyzing trends in air/water quality, deforestation rates from satellite imagery time series, tracking glacial melt.
--   **Urban Mobility Pattern Analysis:** Understanding daily, weekly, and seasonal traffic flows, public transport usage, and pedestrian movement from location-based service data or sensor networks.
--   **Ecological Phenology Tracking:** Monitoring the timing of seasonal biological events (e.g., plant flowering, bird migration) and their shifts due to climate change.
--   **Temporal Impact Assessment:** Evaluating the changes in environmental or social indicators before and after an intervention or event (e.g., impact of a new policy, effect of a natural disaster over time).
--   **Real-time Sensor Network Data Integration & Alerting:** Processing streams from IoT sensors (e.g., weather stations, flood sensors, air quality monitors) for immediate insights and automated alerts.
--   **Agricultural Crop Growth Monitoring & Yield Prediction:** Analyzing time series of vegetation indices (e.g., NDVI) to track crop development and forecast yields.
--   **Public Health Surveillance:** Tracking the temporal spread of diseases or health-related incidents.
+-   **Climate Change Impact Analysis**: Analyzing long-term trends in temperature, precipitation, sea level rise from instrumental and proxy records; forecasting future climate scenarios and their impacts on ecosystems and infrastructure.
+-   **Urban Dynamics & Smart Cities**: Analyzing real-time traffic flow for congestion prediction and signal optimization; modeling urban growth patterns over decades using satellite imagery; understanding energy consumption dynamics.
+-   **Precision Agriculture & Food Security**: Monitoring crop growth stages and health using time series of satellite-derived vegetation indices (NDVI, EVI); forecasting yields; optimizing irrigation based on temporal soil moisture data.
+-   **Natural Hazard Monitoring & Early Warning**: Real-time processing of seismic sensor data for earthquake detection; analyzing river gauge data for flood forecasting; tracking wildfire spread using thermal imagery time series.
+-   **Epidemiology & Public Health Surveillance**: Tracking the spatio-temporal spread of infectious diseases; forecasting outbreaks; analyzing the impact of interventions on disease incidence over time.
+-   **Financial Geointelligence**: Analyzing time series of economic activity derived from satellite imagery (e.g., nighttime lights, shipping activity) for market insights.
+-   **Ecological Research**: Tracking animal movement patterns from GPS collar data; analyzing long-term changes in biodiversity from survey data; modeling predator-prey dynamics over time.
+-   **Supply Chain & Logistics Optimization**: Analyzing temporal patterns in shipping and transportation networks to identify bottlenecks and improve efficiency.
 
 ## Contributing
 
-Contributions are welcome in areas such as:
--   Implementation of new time-series analysis or forecasting algorithms.
--   Optimizations for real-time data processing.
--   Integration with additional time-series databases or data formats.
--   Development of novel temporal visualization techniques.
--   Adding more example use cases and tutorials.
+We welcome contributions from the community to enhance GEO-INFER-TIME! Areas of particular interest include:
 
-Follow the contribution guidelines in the main GEO-INFER documentation (`CONTRIBUTING.md` in the root repository) and any specific guidelines in `GEO-INFER-TIME/docs/CONTRIBUTING_TIME.md` (to be created).
+-   Implementation of novel or cutting-edge time-series analysis, forecasting, or spatio-temporal algorithms.
+-   Performance optimizations for real-time data processing and large-scale temporal analytics.
+-   Integration with additional time-series databases (e.g., QuestDB, Druid) or data formats/protocols (e.g., Zarr with time dimensions).
+-   Development of advanced temporal visualization techniques and their integration with GEO-INFER-VIS/APP.
+-   Adding more sophisticated methods for causal inference from time series.
+-   Expanding the library of example use cases, tutorials, and benchmark datasets.
+-   Improving documentation and test coverage.
+
+Please follow the main contribution guidelines in `CONTRIBUTING.md` (root repository) and any specific guidelines within `GEO-INFER-TIME/docs/CONTRIBUTING_TIME.md` (if it exists or is created).
 
 ## License
 
-This module is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details. 
+This module is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details. *(Note: Consistency with other modules, many of which use MIT, should be reviewed if a unified licensing strategy is preferred for the entire GEO-INFER project.)* 
