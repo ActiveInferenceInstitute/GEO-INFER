@@ -104,7 +104,7 @@ mindmap
 | **GEO-INFER-DATA**  | Data management, ETL processes, and storage optimization for geospatial data.                      | - [Distributed geospatial data warehousing](./GEO-INFER-DATA/README.md#warehousing)<br>- [ETL pipelines](./GEO-INFER-DATA/README.md#etl) for heterogeneous data sources<br>- [Version control](./GEO-INFER-DATA/README.md#version-control) for geospatial datasets<br>- [Data quality assurance](./GEO-INFER-DATA/README.md#quality-assurance) workflows                                    |
 | **GEO-INFER-ECON**  | Economic modeling with spatial dimensions.                                                         | - [Spatial economics](./GEO-INFER-ECON/README.md#spatial-economics)<br>- [Market simulation](./GEO-INFER-ECON/README.md#market-simulation)<br>- [Policy analysis](./GEO-INFER-ECON/README.md#policy-analysis)                                                                                                                                                   |
 | **GEO-INFER-GIT**   | Git integration and version control workflows for data and code.                                   | - [Automated versioning](./GEO-INFER-GIT/README.md#automated-versioning) for geospatial datasets<br>- [Branching strategies](./GEO-INFER-GIT/README.md#branching)<br>- [Integration with CI/CD](./GEO-INFER-GIT/README.md#ci-cd)<br>- [Repository management tools](./GEO-INFER-GIT/README.md#repository-tools)                               |
-| **GEO-INFER-HEALTH** | Geospatial applications for public health, epidemiology, and healthcare accessibility. | - [Disease Surveillance & Outbreak Modeling](./GEO-INFER-HEALTH/README.md#disease-surveillance--outbreak-modeling)<br>- [Healthcare Accessibility Analysis](./GEO-INFER-HEALTH/README.md#healthcare-accessibility-analysis)<br>- [Environmental Health Risk Assessment](./GEO-INFER-HEALTH/README.md#environmental-health-risk-assessment)<br>- [Spatial Epidemiology](./GEO-INFER-HEALTH/README.md#spatial-epidemiology)<br>- [Health Disparities Mapping](./GEO-INFER-HEALTH/README.md#health-disparities-mapping) |
+| **GEO-INFER-HEALTH** | Geospatial applications for public health, epidemiology, and healthcare accessibility. | - [Advanced Disease Surveillance & Outbreak Modeling](./GEO-INFER-HEALTH/README.md#1-advanced-disease-surveillance--outbreak-modeling)<br>- [Comprehensive Healthcare Accessibility Analysis](./GEO-INFER-HEALTH/README.md#2-comprehensive-healthcare-accessibility-analysis)<br>- [Integrated Environmental Health Risk Assessment](./GEO-INFER-HEALTH/README.md#3-integrated-environmental-health-risk-assessment)<br>- [Robust Spatial Epidemiology Toolkit](./GEO-INFER-HEALTH/README.md#4-robust-spatial-epidemiology-toolkit)<br>- [Health Disparities Mapping & Analysis](./GEO-INFER-HEALTH/README.md#5-health-disparities-mapping--analysis)<br>- [Health Data Standards & Interoperability Support](./GEO-INFER-HEALTH/README.md#6-health-data-standards--interoperability-support) |
 | **GEO-INFER-INTRA** | Project documentation, workflows, processes, and ontology management.                              | - [Standardized ontologies](./GEO-INFER-INTRA/README.md#ontologies) for cross-domain interoperability<br>- [Visual programming](./GEO-INFER-INTRA/README.md#visual-programming) tools to simplify learning curves<br>- [Open-source documentation](./GEO-INFER-INTRA/README.md#documentation) adhering to FAIR principles                                  |
 | **GEO-INFER-MATH**  | Analytical and mathematical basis for all other packages.                                          | - [Mathematical formulations](./GEO-INFER-MATH/README.md#formulations) of geospatial relationships<br>- [Statistical methods](./GEO-INFER-MATH/README.md#statistics) for spatial data analysis<br>- [Algebraic structures](./GEO-INFER-MATH/README.md#algebraic-structures) for spatial modeling<br>- [Category theory](./GEO-INFER-MATH/README.md#category-theory) applications to geospatial systems |
 | **GEO-INFER-NORMS** | Social-technical compliance modeling with deterministic and probabilistic aspects.                 | - [Compliance tracking](./GEO-INFER-NORMS/README.md#compliance) using geospatial frameworks<br>- [Probabilistic modeling](./GEO-INFER-NORMS/README.md#probabilistic-modeling) of social norms in urban planning<br>- [Tools for mapping](./GEO-INFER-NORMS/README.md#mapping-tools) regulatory impacts on ecological systems                                   |
@@ -235,9 +235,12 @@ result = act.analyze(space, time)
 - **Cultural interpretations of spatial data**
 
 - **Health and Epidemiology**
-  - Disease surveillance and outbreak modeling
-  - Healthcare accessibility analysis
-  - Environmental health risk assessment
+  - Advanced Disease Surveillance & Outbreak Modeling
+  - Comprehensive Healthcare Accessibility Analysis
+  - Integrated Environmental Health Risk Assessment
+  - Robust Spatial Epidemiology Toolkit
+  - Health Disparities Mapping & Analysis
+  - Health Data Standards & Interoperability Support
 
 ### Advanced Spatial Methods and Analytics
 
@@ -474,6 +477,9 @@ graph TB
     AG[GEO-INFER-AG]:::domain
     ECON[GEO-INFER-ECON]:::domain
     HEALTH[GEO-INFER-HEALTH]:::domain
+    RISK[GEO-INFER-RISK]:::domain
+    LOG[GEO-INFER-LOG]:::domain
+    BIO[GEO-INFER-BIO]:::domain
 
     %% Operations & Documentation
     INTRA[GEO-INFER-INTRA]:::utilities
@@ -571,11 +577,15 @@ graph TB
     AG --> SIM
     AG --> APP
     AG --> SPM
+    AG --> DATA
+
     ECON --> SPACE
     ECON --> TIME
     ECON --> SIM
     ECON --> APP
+    ECON --> DATA
     ECON <--> AG
+
     HEALTH --> SPACE
     HEALTH --> TIME
     HEALTH --> SIM
@@ -583,8 +593,31 @@ graph TB
     HEALTH --> AI
     HEALTH --> AGENT
     HEALTH --> SPM
+    HEALTH --> DATA
+    HEALTH --> SEC
     HEALTH <--> RISK
     HEALTH <--> BIO
+
+    RISK --> SPACE
+    RISK --> TIME
+    RISK --> SIM
+    RISK --> AI
+    RISK --> DATA
+    RISK --> APP
+
+    LOG --> SPACE
+    LOG --> TIME
+    LOG --> SIM
+    LOG --> AI
+    LOG --> DATA
+    LOG --> APP
+
+    BIO --> SPACE
+    BIO --> TIME
+    BIO --> SIM
+    BIO --> AI
+    BIO --> DATA
+    BIO --> APP
     
     %% Documentation & Standards
     INTRA -.-> DATA
@@ -611,6 +644,9 @@ graph TB
     INTRA -.-> ECON
     INTRA -.-> SPM
     INTRA -.-> HEALTH
+    INTRA -.-> RISK
+    INTRA -.-> LOG
+    INTRA -.-> BIO
     
     %% Version Control Integrations
     GIT -.-> ALL
@@ -647,6 +683,7 @@ flowchart TD
     I --> P[GEO-INFER-BIO]:::process
     P --> Q[Biological System Models]
     I --> HEALTH_MOD[GEO-INFER-HEALTH]:::process
+    B --> HEALTH_MOD
     HEALTH_MOD --> HEALTH_MOD_OUT[Health System Models]
     
     %% Presentation & Interaction
@@ -660,6 +697,7 @@ flowchart TD
     W[GEO-INFER-OPS]:::process --> B & G & S
     X[GEO-INFER-API]:::process --> T & U
     Y[GEO-INFER-SEC]:::process -.-> B & X & S & U
+    Y -.-> HEALTH_MOD
     Z[GEO-INFER-INTRA]:::process -.-> All
 ```
 
@@ -820,8 +858,11 @@ The GEO-INFER framework supports a wide range of domain-specific use cases, incl
   - Economic impact assessment and policy development
 
 - **Health and Epidemiology**
-  - Disease surveillance and outbreak modeling
-  - Healthcare accessibility analysis
-  - Environmental health risk assessment
+  - Advanced Disease Surveillance & Outbreak Modeling
+  - Comprehensive Healthcare Accessibility Analysis
+  - Integrated Environmental Health Risk Assessment
+  - Robust Spatial Epidemiology Toolkit
+  - Health Disparities Mapping & Analysis
+  - Health Data Standards & Interoperability Support
 
 - **Artistic Expression and Cultural Interpretation**

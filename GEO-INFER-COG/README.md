@@ -1,10 +1,19 @@
 # GEO-INFER-COG
 
-Cognitive phenomena and modeling for geospatial systems.
+**Cognitive Modeling and Architectures for Geospatial Intelligence**
 
 ## Overview
 
-The GEO-INFER-COG module is dedicated to the integration of cognitive science principles and computational cognitive modeling within the broader GEO-INFER framework. It aims to equip agents (both human and artificial) with more sophisticated capabilities for perceiving, understanding, reasoning about, and interacting with complex geospatial environments. This involves exploring spatial attention, memory formation and retrieval of spatio-temporal knowledge, trust dynamics in distributed geospatial networks, and the development of anticipatory systems that can predict future states and make proactive decisions. By bridging cognitive science with geospatial AI, this module seeks to enable more intuitive, human-like, and adaptive geospatial intelligence.
+The GEO-INFER-COG module is dedicated to **integrating principles from cognitive science and computational cognitive modeling into the GEO-INFER framework**. Its primary goal is to imbue artificial agents and systems with more sophisticated, human-like capabilities for perceiving, understanding, reasoning about, and interacting with complex and dynamic geospatial environments. This involves developing and implementing models of spatial attention, memory formation and retrieval for spatio-temporal knowledge, trust dynamics in distributed networks, and anticipatory systems capable of predictive cognition. By bridging cognitive science with geospatial AI, GEO-INFER-COG aims to enable the development of more intuitive, adaptive, resilient, and explainable geospatial intelligence, enhancing both autonomous systems and human-agent collaboration.
+
+## Core Objectives
+
+-   **Model Human-like Spatial Cognition:** Develop computational models that emulate how humans perceive, represent, and reason about space and time.
+-   **Enhance Agent Adaptability:** Equip artificial agents with cognitive functions that allow them to learn from experience, adapt to novel situations, and make robust decisions under uncertainty in geospatial contexts.
+-   **Improve Human-Agent Interaction (HAI):** Design agents and interfaces that can understand and respond to human cognitive states, intentions, and limitations, facilitating more natural and effective collaboration on geospatial tasks.
+-   **Enable Explainable Geospatial AI (XAI):** Leverage cognitive architectures to provide more transparent and interpretable reasoning processes for AI-driven geospatial analysis and decision-making.
+-   **Facilitate Predictive Cognition:** Develop systems capable of anticipating future geospatial states or agent behaviors, enabling proactive rather than purely reactive responses.
+-   **Investigate Trust in Geospatial Systems:** Model how trust is formed, maintained, and potentially violated between agents (human or artificial) interacting with shared geospatial information or systems.
 
 ## Core Concepts
 
@@ -26,120 +35,184 @@ GEO-INFER-COG draws upon several key theoretical areas:
 
 ## Key Features
 
-### 1. Attention Mechanisms for Spatial Focus
-- **Description:** Implements algorithms that allow agents to selectively concentrate on relevant geospatial features or areas, filtering out distractions. This is crucial for efficient information processing in data-rich environments.
-- **Techniques:** Saliency mapping, top-down (goal-driven) and bottom-up (stimulus-driven) attention models, foveated rendering for visual attention.
-- **Use Cases:** Prioritizing emergency response targets, highlighting areas of significant change in satellite imagery, guiding user focus in complex GIS interfaces.
+### 1. Dynamic Spatial Attention Mechanisms
+-   **Description:** Implements algorithms that allow agents to selectively focus computational resources on the most relevant geospatial features, areas, or data streams in real-time, filtering out irrelevant information.
+-   **Techniques/Examples:** Biologically-inspired saliency mapping (e.g., Itti-Koch-Niebur model adapted for geospatial data), top-down (goal-driven) and bottom-up (stimulus-driven) attention control, object-based and feature-based attention for vector/raster data, foveated processing for high-resolution sensor data.
+-   **Benefits:** Efficient information processing in data-rich or cluttered environments, improved reaction times for critical events, optimized resource allocation for sensing and analysis, more human-like perceptual filtering.
 
-### 2. Memory Models for Spatial-Temporal Knowledge
-- **Description:** Develops structures and processes for encoding, storing, and retrieving information about "what, where, and when." This includes episodic memory (specific events), semantic memory (general knowledge), and procedural memory (skills).
-- **Techniques:** Knowledge graphs with spatial and temporal dimensions, hippocampal-inspired models for spatial memory, long short-term memory (LSTM) networks for sequential spatio-temporal data.
-- **Use Cases:** Enabling agents to recall past routes, understand historical land-use changes, learn from previous interactions with the environment.
+### 2. Robust Spatio-Temporal Memory Systems
+-   **Description:** Develops computational structures and processes for encoding, storing, consolidating, and retrieving knowledge about "what, where, and when." This encompasses episodic (events), semantic (facts), and procedural (skills) memory related to geospatial entities and dynamics.
+-   **Techniques/Examples:** Geospatial knowledge graphs (integrating with GEO-INFER-INTRA's ontology), hippocampal-inspired models for episodic spatial memory and navigation (e.g., cognitive maps, place cells), Long Short-Term Memory (LSTM) or Transformer networks for learning from sequential spatio-temporal data, case-based reasoning for spatial problem-solving.
+-   **Benefits:** Enables agents to learn from past experiences, recall relevant historical context, understand long-term trends, and perform complex spatial reasoning based on accumulated knowledge.
 
-### 3. Trust Modeling across Geographic Networks
-- **Description:** Focuses on how trust is established, maintained, and updated between agents (human or artificial) operating within a geospatial network (e.g., distributed sensor networks, collaborative mapping platforms).
-- **Techniques:** Bayesian trust models, reputation systems, provenance tracking for geospatial data, modeling of belief, disbelief, and uncertainty.
-- **Use Cases:** Assessing reliability of crowdsourced data, enabling secure data sharing in multi-stakeholder projects, managing trust in autonomous vehicle networks.
+### 3. Computational Trust & Reputation Modeling
+-   **Description:** Focuses on modeling how trust and reputation are established, updated, and utilized in interactions between agents (human or artificial) within distributed geospatial networks or collaborative platforms.
+-   **Techniques/Examples:** Bayesian trust models incorporating uncertainty, Dempster-Shafer theory for belief fusion, reputation systems based on past performance and peer reviews, provenance tracking for assessing data reliability (linking with GEO-INFER-DATA), modeling of deception detection.
+-   **Benefits:** Facilitates reliable information sharing in decentralized systems, helps agents assess the credibility of data from diverse sources (e.g., crowdsourcing, IoT sensors), supports secure collaboration and decision-making in multi-agent systems.
 
-### 4. Anticipatory Systems for Predictive Cognition
-- **Description:** Enables agents to forecast future states of the geospatial environment or the behavior of other agents, allowing for proactive decision-making rather than purely reactive responses.
-- **Techniques:** Predictive processing frameworks, generative models (e.g., GANs for predicting land cover change), reinforcement learning for long-term planning.
-- **Use Cases:** Predicting traffic congestion, forecasting spread of wildfires or pollutants, anticipating resource needs in urban planning.
+### 4. Anticipatory Systems & Predictive Processing
+-   **Description:** Enables agents to generate predictions about future states of the geospatial environment, the behavior of other agents, or the consequences of their own actions, facilitating proactive decision-making.
+-   **Techniques/Examples:** Predictive processing frameworks (e.g., based on Active Inference principles), generative adversarial networks (GANs) for forecasting land cover changes or urban sprawl, reinforcement learning for long-term planning and policy optimization, Kalman filters or particle filters for tracking and predicting object trajectories.
+-   **Benefits:** Allows for proactive risk mitigation, optimized resource planning, improved strategic decision-making, and more adaptive behavior in dynamic environments.
 
-## Architecture
+### 5. Cognitive Architectures for Geospatial Agents
+-   **Description:** Provides frameworks and templates for constructing integrated cognitive systems for geospatial agents, specifying how different cognitive functions (perception, memory, attention, reasoning, learning, action) are organized and interact.
+-   **Examples:** SOAR, ACT-R (adapted for spatial tasks), custom architectures combining symbolic reasoning with connectionist learning, architectures inspired by the Free Energy Principle for active inference agents.
+-   **Benefits:** Provides a principled way to design complex intelligent agents, facilitates modularity and reusability of cognitive components, supports the development of more holistic and integrated AI.
 
-The GEO-INFER-COG module is designed to be modular and extensible. Its core components typically include:
+## Conceptual Module Architecture
 
 ```mermaid
 graph TD
-    subgraph Agent Cognitive Architecture
-        P[Perception Interface] --> SM[Sensory Memory]
-        SM --> WM[Working Memory]
-        WM <--> LTM[Long-Term Memory]
-        WM --> DM[Decision Making & Reasoning]
-        DM --> AM[Action Selection]
-        AM --> AI[Action Interface]
+    subgraph Agent_Cognitive_Core as "Agent Cognitive Architecture (GEO-INFER-COG)"
+        PERCEPTION[Perception & Feature Extraction]
+        ATTENTION[Spatial Attention Control]
+        WORKING_MEM[Working Memory (Active State)]
+        LTM_KB[Long-Term Memory / Knowledge Base]
+        REASONING_DECISION[Reasoning, Planning & Decision Making]
+        LEARNING_ADAPT[Learning & Adaptation Engine]
+        ACTION_CONTROL[Action Selection & Control]
+        ANTICIPATION_MOD[Anticipatory System / Predictive Models]
+        TRUST_MOD[Trust & Reputation Engine]
     end
 
-    subgraph Cognitive Processes
-        ATT[Attention Mechanisms] --> P
-        ATT --> WM
-        ANT[Anticipatory Systems] --> DM
-        TRUST[Trust Models] --> DM
-    end
-    
-    LTM --> ANT
-    LTM --> TRUST
-    
-    subgraph External World & Other Modules
-        ENV[Geospatial Environment / Data]
-        OMA[Other GEO-INFER Modules]
+    subgraph External_Interfaces as "Interfaces to GEO-INFER & Environment"
+        GI_SPACE_TIME[GEO-INFER-SPACE / TIME (Sensory Input, Environmental State)]
+        GI_AGENT_API[GEO-INFER-AGENT (Agent Embodiment, Action Execution)]
+        GI_AI_TOOLS[GEO-INFER-AI (ML Algorithms, Learning Tools)]
+        GI_INTRA_ONTO[GEO-INFER-INTRA (Ontology, Knowledge Representation)]
+        GI_APP_USER[GEO-INFER-APP (User Interaction, Cognitive Load Monitoring)]
     end
 
-    P <--> ENV
-    AI <--> ENV
-    DM <--> OMA
-    P <--> OMA
+    %% Connections within Cognitive Core
+    PERCEPTION --> ATTENTION
+    ATTENTION --> WORKING_MEM
+    WORKING_MEM <--> LTM_KB
+    WORKING_MEM --> REASONING_DECISION
+    LTM_KB --> REASONING_DECISION
+    REASONING_DECISION --> ACTION_CONTROL
+    LEARNING_ADAPT <--> LTM_KB
+    LEARNING_ADAPT <--> REASONING_DECISION
+    ANTICIPATION_MOD --> REASONING_DECISION
+    TRUST_MOD --> REASONING_DECISION
+    LTM_KB <--> ANTICIPATION_MOD; LTM_KB <--> TRUST_MOD
 
-    classDef cogmodule fill:#cceeff,stroke:#339,stroke-width:2px;
-    class Agent Cognitive Architecture,Cognitive Processes cogmodule;
+    %% Connections to External Interfaces
+    GI_SPACE_TIME --> PERCEPTION
+    ACTION_CONTROL --> GI_AGENT_API
+    LEARNING_ADAPT --> GI_AI_TOOLS
+    LTM_KB --> GI_INTRA_ONTO
+    REASONING_DECISION --> GI_APP_USER %% For explanations or collaborative decision making
+    GI_APP_USER --> PERCEPTION %% User input/commands
+
+    classDef cogcore fill:#e1f5fe,stroke:#0277bd,stroke-width:2px;
+    class Agent_Cognitive_Core cogcore;
 ```
 
-- **Perception Interface:** Receives sensory input from the geospatial environment or other GEO-INFER modules.
-- **Sensory Memory:** A very short-term buffer for incoming sensory information.
-- **Attention Mechanisms:** Filters and prioritizes information from Sensory Memory for further processing.
-- **Working Memory:** A limited-capacity system for holding and manipulating information currently in use.
-- **Long-Term Memory:** Stores vast amounts of spatial-temporal knowledge, beliefs, and experiences.
-- **Decision Making & Reasoning:** Utilizes information from Working Memory and Long-Term Memory to infer, plan, and make choices. This component integrates trust models and anticipatory systems.
-- **Action Selection:** Determines the next actions to be taken by the agent.
-- **Action Interface:** Executes actions within the geospatial environment or interacts with other GEO-INFER modules.
+-   **Perception & Feature Extraction:** Processes raw sensor data from `GEO-INFER-SPACE/TIME` to extract meaningful geospatial features.
+-   **Spatial Attention Control:** Directs perceptual and cognitive resources based on goals and environmental saliency.
+-   **Working Memory:** Holds and manipulates currently relevant information.
+-   **Long-Term Memory / Knowledge Base:** Stores learned geospatial knowledge, facts, experiences, and cognitive maps, often structured using ontologies from `GEO-INFER-INTRA`.
+-   **Reasoning, Planning & Decision Making:** Core inference engine, uses information from memory, trust, and anticipation to make decisions.
+-   **Learning & Adaptation Engine:** Modifies knowledge and behaviors based on experience, potentially using ML tools from `GEO-INFER-AI`.
+-   **Action Selection & Control:** Translates decisions into actions executed via `GEO-INFER-AGENT`.
+-   **Anticipatory System / Predictive Models:** Generates forecasts about future states.
+-   **Trust & Reputation Engine:** Assesses reliability of information and other agents.
 
 ## Integration with other GEO-INFER Modules
 
-GEO-INFER-COG interacts with various other modules:
+GEO-INFER-COG acts as an intelligence and reasoning layer, deeply integrated with:
 
-- **GEO-INFER-SPACE & GEO-INFER-TIME:** Provides the fundamental spatial and temporal data that cognitive processes operate upon. COG enhances these by adding a layer of interpretation and understanding.
-- **GEO-INFER-AGENT:** COG provides the "brains" or cognitive capabilities for intelligent agents defined in GEO-INFER-AGENT, enabling them to exhibit more complex and adaptive behaviors.
-- **GEO-INFER-AI:** Leverages AI techniques (e.g., machine learning for pattern recognition in perception, reinforcement learning for decision making) and provides cognitive models as a basis for developing more explainable AI.
-- **GEO-INFER-APP & GEO-INFER-CIV:** Informs the design of user interfaces and civic engagement tools by modeling user cognition, attention, and trust, leading to more intuitive and effective human-computer and human-human collaboration.
-- **GEO-INFER-SIM:** Cognitive models from COG can drive agent behavior in simulations, allowing for more realistic and nuanced explorations of complex system dynamics.
-- **GEO-INFER-NORMS & GEO-INFER-SEC:** Trust models and cognitive understanding of social norms can inform how agents comply with or deviate from established rules and security protocols.
+-   **GEO-INFER-SPACE & GEO-INFER-TIME:** Provide the raw spatio-temporal data that forms the basis of perception and environmental representation for cognitive agents.
+-   **GEO-INFER-AGENT:** COG provides the cognitive models and decision-making logic that drive the behavior of agents defined in AGENT. AGENT provides the "body" or embodiment for COG's "mind".
+-   **GEO-INFER-AI:** COG utilizes machine learning algorithms from AI for tasks like pattern recognition in perception, learning from experience, and building predictive models. COG can also provide cognitive architectures as a basis for developing more explainable and robust AI solutions.
+-   **GEO-INFER-INTRA:** Leverages ontologies and knowledge representation schemes from INTRA to structure its Long-Term Memory and facilitate reasoning.
+-   **GEO-INFER-APP & GEO-INFER-CIV:** Informs the design of user interfaces by modeling user attention, cognitive load, and spatial understanding. Enables more intuitive human-agent collaboration in civic engagement platforms.
+-   **GEO-INFER-SIM:** Cognitive models from COG drive more realistic and adaptive agent behaviors within simulations, leading to richer emergent dynamics.
+-   **GEO-INFER-NORMS & GEO-INFER-SEC:** Trust models and the cognitive representation of social norms or security policies influence agent compliance and decision-making in regulated or adversarial environments.
+-   **GEO-INFER-ACT:** Cognitive capabilities for perception, belief updating, and action selection are central to Active Inference agents, making COG a key partner for advanced ACT implementations.
 
 ## Use Cases & Examples
 
-1.  **Intelligent Urban Navigation for Autonomous Vehicles:**
-    *   **COG Contribution:** Attention to dynamic obstacles, memory of road networks and traffic patterns, anticipation of pedestrian behavior, trust in V2X communication.
-2.  **Cognitive Digital Twins:**
-    *   **COG Contribution:** Endowing digital representations of physical systems with cognitive abilities to understand, predict, and optimize their real-world counterparts.
-3.  **Enhanced Human-GIS Interaction:**
-    *   **COG Contribution:** Systems that adapt to user's cognitive load, direct attention to relevant information on complex maps, and learn user preferences for spatial analysis tasks.
-4.  **Collaborative Environmental Monitoring:**
-    *   **COG Contribution:** Modeling trust in data from diverse human and sensor sources, enabling agents to fuse information and make collective inferences about environmental changes.
-5.  **Emergency Response Coordination:**
-    *   **COG Contribution:** Agents that can anticipate the spread of a disaster, understand team members' cognitive states (e.g., stress, information overload), and facilitate efficient resource allocation.
-
-## API (Conceptual)
-
-While a concrete API will depend on specific implementations, conceptual interactions might include:
-
-- `cog_agent.perceive(spatial_data, temporal_data)`
-- `cog_agent.focus_attention(area_of_interest, saliency_map)`
-- `cog_agent.retrieve_from_memory(query_event, spatial_context, temporal_context)`
-- `cog_agent.update_trust(source_id, data_quality, consistency_score)`
-- `cog_agent.predict_future_state(target_variable, time_horizon, current_evidence)`
-- `cog_agent.decide_action(goal, constraints, available_options)`
+1.  **Cognitively-Aware GIS for Disaster Management:**
+    *   **COG Contribution:** A GIS interface that models the user's attention, highlights critical information based on evolving incident data (via attention mechanisms), retrieves relevant past incidents from memory, and suggests actions based on predictive models of disaster spread.
+2.  **Autonomous Environmental Monitoring Agents:**
+    *   **COG Contribution:** Drones or ground robots that can autonomously navigate complex terrains (spatial memory, cognitive maps), focus attention on anomalies (e.g., pollution plumes, signs of deforestation), learn to identify new environmental threats, and build trust in data shared by other sensors or agents.
+3.  **Collaborative Urban Planning with AI Agents:**
+    *   **COG Contribution:** AI agents that can understand human planners' goals (via cognitive models of intent), retrieve relevant zoning regulations and demographic data (LTM), anticipate the socio-economic impacts of different development scenarios (anticipatory systems), and engage in reasoned dialogue with human stakeholders.
+4.  **Geospatial Intelligence Analysis Support:**
+    *   **COG Contribution:** Systems that help human analysts make sense of vast amounts of satellite imagery and other intelligence data by modeling analyst attention, suggesting areas of interest, retrieving similar past events from a spatio-temporal knowledge base, and assessing the reliability of different intelligence sources (trust modeling).
+5.  **Adaptive Route Guidance for Logistics or Personal Navigation:**
+    *   **COG Contribution:** Navigation systems that learn user preferences, anticipate traffic conditions based on learned patterns and real-time data, dynamically adjust routes, and explain routing decisions in a human-understandable way.
 
 ## Getting Started
 
-(Instructions on how to use this module, including dependencies, installation, and basic examples, will be added here as the module matures.)
+### Prerequisites
+-   Python 3.9+
+-   Core GEO-INFER framework.
+-   Libraries for AI/ML (e.g., PyTorch, TensorFlow, Scikit-learn).
+-   Potentially, libraries for symbolic reasoning or cognitive architectures (e.g., PySOAR, or custom implementations).
+-   Graph database libraries if using knowledge graphs for LTM (e.g., Neo4j drivers, RDFlib).
+
+### Installation
+```bash
+# Ensure the main GEO-INFER repository is cloned
+# git clone https://github.com/activeinference/GEO-INFER.git
+# cd GEO-INFER
+
+pip install -e ./GEO-INFER-COG
+# Or if managed by a broader project build system.
+```
+
+### Configuration
+-   Parameters for specific cognitive models (e.g., learning rates, memory decay factors, attention biases).
+-   Paths to pre-trained models or knowledge bases.
+-   Configuration for connecting to ontology services (GEO-INFER-INTRA).
+-   Managed via YAML files (e.g., `GEO-INFER-COG/config/agent_cognitive_profile.yaml`).
+
+### Basic Usage Example (Conceptual: Agent with Spatial Attention & Memory)
+```python
+# Assuming conceptual classes from geo_infer_cog
+# from geo_infer_cog.agent import CognitiveGeospatialAgent
+# from geo_infer_cog.perception import GeospatialObservation
+
+# --- 1. Initialize Cognitive Agent ---
+# agent_config = "GEO-INFER-COG/config/default_cognitive_agent.yaml"
+# cog_agent = CognitiveGeospatialAgent(config_path=agent_config)
+
+# --- 2. Agent Perceives Environment (e.g., from GEO-INFER-SPACE via GEO-INFER-AGENT) ---
+# current_view_data = {...} # Simulated raster/vector data of current agent view
+# observation = GeospatialObservation(raw_data=current_view_data, timestamp=time.time())
+# cog_agent.perceive(observation)
+
+# --- 3. Agent Directs Attention ---
+# salient_features = cog_agent.direct_attention(goal="find_water_source")
+# if salient_features:
+# print(f"Attention focused on: {salient_features}")
+
+# --- 4. Agent Uses Memory ---
+# past_water_sources = cog_agent.query_memory(concept="water_source", time_window="last_7_days")
+# print(f"Recalled water sources: {past_water_sources}")
+
+# --- 5. Agent Makes a Decision (e.g., where to move next) ---
+# chosen_action = cog_agent.decide_next_action(current_goal="find_water_source")
+# print(f"Chosen action: {chosen_action}")
+
+# # Action would then be executed via GEO-INFER-AGENT
+```
 
 ## Future Development
 
-- Integration with advanced neuromorphic hardware.
-- Development of more sophisticated models of social cognition for multi-agent systems.
-- Tools for visualizing and debugging cognitive states of agents.
-- Frameworks for ethical considerations in cognitive AI for geospatial applications.
+-   Development of more sophisticated models of emotion and motivation for geospatial agents.
+-   Enhanced tools for introspective reasoning and explainability of agent decisions.
+-   Integration with natural language processing for understanding and generating geospatial narratives.
+-   Frameworks for collective intelligence and emergent cognitive capabilities in multi-agent systems.
+-   Ethical AI frameworks specifically tailored for cognitive geospatial agents, addressing bias and responsible decision-making.
 
 ## Contributing
 
-Please refer to the main `CONTRIBUTING.md` file in the root of the GEO-INFER repository. 
+Contributions to GEO-INFER-COG are highly encouraged. This can involve developing new cognitive models, implementing algorithms for attention/memory/trust/anticipation, creating integrations with cognitive architectures, designing use cases that showcase cognitive geospatial intelligence, or improving documentation and theoretical foundations. Please refer to the main `CONTRIBUTING.md` in the GEO-INFER root directory and any specific guidelines in `GEO-INFER-COG/docs/CONTRIBUTING_COG.md` (to be created).
+
+## License
+
+This module, as part of the GEO-INFER framework, is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details. 
