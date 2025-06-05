@@ -207,11 +207,18 @@ Key analysis methods include:
 - Agent-based normative behavior simulation
 
 ## Integration with Other Modules
-GEO-INFER-NORMS integrates with:
-- GEO-INFER-SPACE for spatial analysis and indexing
-- GEO-INFER-TIME for temporal norm evolution
-- GEO-INFER-ACT for normative decision-making models
-- GEO-INFER-SIM for policy scenario simulation
+
+GEO-INFER-NORMS interfaces seamlessly with several other modules in the GEO-INFER ecosystem:
+
+- **GEO-INFER-SPACE**: NORMS utilizes SPACE for spatial representation of jurisdictions, zoning boundaries, and compliance visualization across geographic areas.
+- **GEO-INFER-TIME**: Leverages TIME for tracking regulatory changes over time, analyzing compliance history, and modeling normative evolution.
+- **GEO-INFER-ACT**: Provides normative frameworks that can guide active inference processes, particularly for normative decision-making models.
+- **GEO-INFER-SIM**: Supplies regulatory constraints and compliance models for policy scenario simulations.
+- **GEO-INFER-APP**: Enables visualization and interactive exploration of normative frameworks, compliance status, and regulatory impacts.
+- **GEO-INFER-DATA**: Relies on DATA for storage and retrieval of regulatory databases, compliance records, and jurisdiction information.
+- **GEO-INFER-SEC**: Collaborates on security compliance aspects and regulatory requirements for data privacy.
+- **GEO-INFER-REQ**: Works closely with REQ to formalize normative requirements into technical specifications.
+- **GEO-INFER-ORG**: Provides normative frameworks that inform organizational governance structures and policies.
 
 ## Applications
 - Urban planning policy assessment
@@ -231,8 +238,22 @@ For comprehensive documentation on using GEO-INFER-NORMS for legal tech, zoning 
 - [API Documentation](docs/api/): Detailed API reference
 - [Example Documentation](docs/examples/): Explanation of example use cases
 
+## Future Development
+
+- Advanced machine learning for regulatory compliance prediction
+- Blockchain integration for immutable compliance records
+- Enhanced visualization of normative frameworks
+- Expanded jurisdictional boundary analysis tools
+- Integration with external regulatory databases and APIs
+- Natural language processing for automated regulatory text analysis
+- Improved cross-jurisdictional compliance modeling
+
 ## Contributing
-Follow the contribution guidelines in the main GEO-INFER documentation.
+
+Contributions to GEO-INFER-NORMS are welcome! We especially value expertise in legal frameworks, compliance management, policy analysis, and normative modeling.
+
+Please refer to the main `CONTRIBUTING.md` in the GEO-INFER root directory for contribution guidelines.
 
 ## License
-See the LICENSE file in the repository root. 
+
+This module, as part of the GEO-INFER framework, is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details. 

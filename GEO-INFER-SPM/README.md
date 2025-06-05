@@ -333,4 +333,4 @@ graph TB
 Contributions to GEO-INFER-SPM are welcome! Please see our [Contributing Guidelines](../CONTRIBUTING.md) for details on how to participate in development.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE](../LICENSE) file for details.
+This module, as part of the GEO-INFER framework, is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details.

@@ -158,11 +158,24 @@ def simplify_polygon(polygon: Polygon, tolerance: float = 0.01) -> Polygon:
     # Process each ring
     simplified_rings = []
     for ring in polygon.coordinates:
-        # Ensure the ring is closed after simplification
+        # Apply RDP algorithm to the ring (excluding the closing point)
         simplified_ring = rdp(ring[:-1], tolerance)
+        
+        # Ensure we have at least 3 points in the simplified ring (excluding closing point)
+        # If we have fewer than 3 points, keep the original ring
+        if len(simplified_ring) < 3:
+            simplified_ring = ring[:-1]
+        
+        # Ensure the ring is closed
         if simplified_ring[0] != simplified_ring[-1]:
             simplified_ring.append(simplified_ring[0])
-        simplified_rings.append(simplified_ring)
+        
+        # Final check to ensure we have at least 4 points total (including closing point)
+        if len(simplified_ring) < 4:
+            # If simplification resulted in too few points, use the original ring
+            simplified_rings.append(ring)
+        else:
+            simplified_rings.append(simplified_ring)
     
     # Create a new polygon with simplified coordinates
     return Polygon(type=GeoJSONType.POLYGON, coordinates=simplified_rings)
@@ -188,8 +201,14 @@ def create_polygon_feature(
     if not validate_polygon_rings(coordinates):
         raise ValueError("Invalid polygon coordinates")
     
+    # Convert coordinates from list of tuples to list of lists for proper JSON serialization
+    json_coordinates = []
+    for ring in coordinates:
+        json_ring = [[lon, lat] for lon, lat in ring]
+        json_coordinates.append(json_ring)
+    
     # Create the polygon geometry
-    polygon = Polygon(type=GeoJSONType.POLYGON, coordinates=coordinates)
+    polygon = Polygon(type=GeoJSONType.POLYGON, coordinates=json_coordinates)
     
     # Create the feature
     return PolygonFeature(

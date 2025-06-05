@@ -1,131 +1,312 @@
 # GEO-INFER-REQ
 
-Requirements engineering using the Properties, Processes, and Perspectives Inter-Framework (P3IF).
+**Geospatial Requirements Engineering, User Stories, and Specification Management**
 
 ## Overview
 
-The GEO-INFER-REQ module is dedicated to systematic requirements engineering for the GEO-INFER framework and its constituent modules, as well as for projects utilizing GEO-INFER. It employs the **Properties, Processes, and Perspectives Inter-Framework (P3IF)** as its core methodology. P3IF provides a structured approach to elicit, analyze, specify, validate, and manage requirements by considering multiple viewpoints and their interplay. This module is crucial for ensuring that GEO-INFER effectively meets the needs of its diverse users and stakeholders, maintains internal consistency, and can adapt to evolving demands in the complex geospatial domain.
+GEO-INFER-REQ is a specialized module for managing the entire lifecycle of requirements for geospatial systems and applications. It provides tools, methodologies, and workflows for capturing, analyzing, specifying, validating, and tracking requirements with a focus on the unique challenges of geospatial contexts. This module bridges the gap between stakeholder needs and technical implementation, ensuring that geospatial systems are built according to well-defined, consistent, and traceable requirements. GEO-INFER-REQ emphasizes the importance of accurately capturing spatial elements in requirements specifications and supports systematic approaches to managing changing requirements throughout project lifecycles.
 
-## Core Concepts of P3IF
+## Core Objectives
 
-The P3IF methodology revolves around three core pillars:
+- **Capture Spatial Requirements:** Develop specialized techniques for eliciting and documenting requirements with explicit spatial components.
+- **Ensure Requirement Quality:** Provide frameworks for creating clear, complete, consistent, and testable geospatial requirements.
+- **Support Traceability:** Implement systems for maintaining bidirectional traceability between requirements, design elements, code, and tests.
+- **Manage Requirements Evolution:** Create processes for systematically handling requirement changes throughout the project lifecycle.
+- **Enable Validation & Verification:** Develop methodologies for confirming that requirements are correctly implemented and meet stakeholder needs.
+- **Facilitate Prioritization:** Offer approaches for prioritizing requirements based on stakeholder value, technical constraints, and spatial considerations.
+- **Integrate with Development Processes:** Ensure requirements engineering activities align with agile, traditional, and hybrid development methodologies.
 
--   **Properties:** These are the observable characteristics, qualities, or attributes that a system or its components must exhibit. Properties can be functional (what the system does) or non-functional (how well it does it, e.g., performance, security, usability). In GEO-INFER, properties might relate to spatial accuracy, processing speed, data model integrity, or API responsiveness.
--   **Processes:** These are sequences of actions, operations, or transformations that the system performs or supports. Processes describe the dynamic behavior of the system, including data flows, workflows, and interactions between components or with users. Examples in GEO-INFER include ETL pipelines, spatial analysis workflows, or agent decision-making cycles.
--   **Perspectives:** These represent the different viewpoints or standpoints from which requirements are considered. Perspectives can come from various stakeholders (users, developers, domain experts, project managers, governance bodies) or can relate to different concerns (e.g., security, ethics, operational, developmental). Each perspective may prioritize different properties and processes.
+## Key Features
 
-**Inter-Framework:** The "Inter-Framework" aspect of P3IF emphasizes its role in bridging and harmonizing requirements across different modules, domains, and even potentially disparate existing frameworks that GEO-INFER might integrate with.
+### 1. Geospatial Requirements Specification Framework
+- **Description:** A comprehensive framework for capturing and documenting requirements specific to geospatial systems, with special attention to spatial data, operations, visualizations, and analyses.
+- **Components/Examples:** Templates for use cases with spatial contexts, user story formats for location-based features, spatial acceptance criteria formats, geospatial non-functional requirement patterns.
+- **Benefits:** Ensures consistent documentation of spatial requirements, reduces ambiguity in spatial specifications, creates shared understanding among stakeholders and developers.
 
-## Key Features of GEO-INFER-REQ
+### 2. Spatial Context Modeling
+- **Description:** Tools and techniques for explicitly modeling the spatial contexts in which requirements must be satisfied, including geographic scopes, spatial constraints, and location-based behaviors.
+- **Components/Examples:** Spatial scenario modeling, geographic scope definition tools, location-based constraint specification, spatial interaction patterns.
+- **Benefits:** Clarifies the spatial dimensions of requirements, enables more accurate estimation and planning, improves system design by making spatial aspects explicit.
 
-### 1. P3IF Implementation & Tooling
--   **Description:** Provides tools, templates, and defined procedures for applying the P3IF methodology throughout the requirements lifecycle for GEO-INFER modules and projects.
--   **Components:** Requirements elicitation worksheets (based on P3), traceability matrix templates, validation checklists, a structured requirements database schema.
--   **Benefits:** Consistent and rigorous requirements engineering, improved clarity and completeness of specifications.
+### 3. Requirements Traceability Management
+- **Description:** A system for maintaining bidirectional relationships between requirements and other project artifacts (design elements, code components, tests) with specialized support for spatial elements.
+- **Components/Examples:** Traceability matrices with spatial annotations, impact analysis tools for requirement changes, coverage analysis for spatial requirements.
+- **Benefits:** Enables impact assessment for requirement changes, supports compliance verification, facilitates maintenance and evolution of geospatial systems.
 
-### 2. Modular Abstraction & Inter-Framework Mapping
--   **Description:** Defines interfaces and abstraction layers for requirements, allowing modules to specify their needs and capabilities in a standardized way. Facilitates mapping requirements between different GEO-INFER modules and potentially to external standards or frameworks (e.g., OGC standards, FAIR principles).
--   **Benefits:** Enhanced interoperability, easier integration of new modules, clear dependency management based on fulfilled/required properties and processes.
+### 4. Geospatial Requirements Validation Framework
+- **Description:** Approaches and tools for validating that requirements accurately capture stakeholder needs, with particular focus on spatial aspects that can be difficult to communicate and visualize.
+- **Components/Examples:** Spatial prototyping guidelines, map-based requirement validation techniques, participatory geographic information system (PGIS) approaches for requirement validation.
+- **Benefits:** Reduces rework by identifying misunderstandings early, increases stakeholder satisfaction, ensures systems meet actual spatial needs.
 
-### 3. Multiplexing Factors Across Domains
--   **Description:** A system for identifying, categorizing, and managing "multiplexing factors" – common requirements or constraints (e.g., security levels, data privacy Tiers, performance benchmarks, ethical guidelines) that apply across multiple domains or modules but may have different specific instantiations.
--   **Example:** A "Data Sensitivity Level" factor could be applied to GEO-INFER-DATA, GEO-INFER-SEC, and GEO-INFER-APP, each interpreting it according to their specific context but adhering to a common definition.
--   **Benefits:** Consistent application of cross-cutting concerns, reduced redundancy in specifying common requirements, easier impact analysis of changes to these factors.
+### 5. Requirements-Driven Testing Framework
+- **Description:** Methodologies for deriving test cases directly from geospatial requirements, ensuring comprehensive verification of both functional and spatial correctness.
+- **Components/Examples:** Spatial test case generation patterns, geographic coverage analysis tools, location-based scenario testing approaches.
+- **Benefits:** Improves test coverage, ensures spatial correctness, provides objective verification of requirement implementation.
 
-### 4. Harmonization of Vocabularies & Narratives
--   **Description:** Works in conjunction with GEO-INFER-INTRA (Ontology) to establish and enforce a consistent vocabulary for describing requirements. It also ensures that user stories, use cases, and other requirement narratives are clear, unambiguous, and aligned across different perspectives.
--   **連携:** GEO-INFER-INTRA.
--   **Benefits:** Improved communication among stakeholders, reduced misunderstandings, a shared understanding of system goals.
-
-### 5. Expanded Security Considerations in Requirements
--   **Description:** Places a strong emphasis on integrating security requirements from the earliest stages of development (Security by Design). This involves systematically considering security properties, secure processes, and threat perspectives (e.g., attacker perspective) within the P3IF framework.
--   **連携:** GEO-INFER-SEC.
--   **Benefits:** Proactive identification and mitigation of security risks, more robust and resilient systems.
-
-## P3IF Requirements Engineering Workflow
+## Module Architecture
 
 ```mermaid
 graph TD
-    A[Elicitation] --"Properties, Processes from Perspectives"--> B(Analysis & Negotiation)
-    B --"Refined & Prioritized Requirements"--> C{Specification}
-    C --"Formalized Requirements Document"--> D[Validation]
-    D --"Validated Requirements Baseline"--> E[Management & Traceability]
-    E --"Change Requests & Impact Analysis"--> A
-    E --> F((Requirements Database))
-
-    subgraph Perspectives_Input as "Stakeholder Perspectives"
-        P1[User]
-        P2[Developer]
-        P3[Domain Expert]
-        P4[Security Officer]
-        P5[Ethicist]
-        P6[Operator]
-    end
-    
-    Perspectives_Input ----> A
-
-    subgraph P3IF_Lens as "P3IF Core Lens"
-        PROP[Properties]
-        PROC[Processes]
-        PERSP[Perspectives]
+    subgraph REQ_Core as "GEO-INFER-REQ Core"
+        ELICIT[Requirements Elicitation]
+        SPEC[Requirements Specification]
+        TRACE[Traceability Management]
+        VALID[Validation & Verification]
+        CHANGE[Change Management]
     end
 
-    P3IF_Lens -.-> A
-    P3IF_Lens -.-> B
-    P3IF_Lens -.-> C
-    P3IF_Lens -.-> D
-    P3IF_Lens -.-> E
+    subgraph Supporting_Tools as "Supporting Tools"
+        TEMPLATES[Specification Templates]
+        SPATIAL_MOD[Spatial Context Modeling]
+        PRIORITY[Prioritization Framework]
+        TEST_GEN[Test Case Generation]
+        IMPACT[Impact Analysis]
+    end
 
-    classDef reqProcess fill:#f0e6ff,stroke:#9370db,stroke-width:2px;
-    class A,B,C,D,E reqProcess;
+    subgraph Integration_Points as "Integration Points"
+        ORG[GEO-INFER-ORG]
+        NORMS[GEO-INFER-NORMS]
+        SPACE[GEO-INFER-SPACE]
+        APP[GEO-INFER-APP]
+        DEV[Development Workflow]
+    end
+
+    %% Core connections
+    ELICIT --> SPEC
+    SPEC --> TRACE
+    SPEC --> VALID
+    TRACE --> CHANGE
+    VALID --> CHANGE
+
+    %% Tool connections
+    ELICIT --> TEMPLATES
+    ELICIT --> SPATIAL_MOD
+    SPEC --> TEMPLATES
+    SPEC --> PRIORITY
+    VALID --> TEST_GEN
+    CHANGE --> IMPACT
+
+    %% Integration connections
+    ELICIT <--> ORG
+    SPEC <--> NORMS
+    SPATIAL_MOD <--> SPACE
+    TEMPLATES <--> APP
+    TRACE <--> DEV
+    VALID <--> DEV
+
+    classDef reqcore fill:#f8d7da,stroke:#dc3545,stroke-width:2px;
+    class REQ_Core reqcore;
+    classDef tools fill:#d1ecf1,stroke:#17a2b8,stroke-width:2px;
+    class Supporting_Tools tools;
 ```
-
-1.  **Elicitation:** Gathering raw requirements (desired properties and processes) from various stakeholder perspectives.
-2.  **Analysis & Negotiation:** Clarifying, decomposing, and refining requirements. Identifying conflicts and negotiating resolutions among stakeholders. Prioritizing requirements.
-3.  **Specification:** Documenting the agreed-upon requirements in a clear, concise, and unambiguous manner (e.g., using standardized templates, user stories, formal models).
-4.  **Validation:** Ensuring that the specified requirements accurately reflect stakeholder needs and are feasible, testable, and complete.
-5.  **Management & Traceability:** Maintaining a baseline of requirements, managing changes, and tracking the relationships between requirements, design elements, code, and tests throughout the lifecycle.
 
 ## Integration with other GEO-INFER Modules
 
--   **GEO-INFER-INTRA (Ontology & Documentation):** REQ relies on INTRA for a common ontology and vocabulary. INTRA documents the outputs of the REQ process (e.g., requirements specifications).
--   **GEO-INFER-SEC (Security):** REQ explicitly incorporates security perspectives and properties into the requirements, which are then implemented and verified by SEC.
--   **GEO-INFER-NORMS (Norms & Compliance):** Compliance requirements (e.g., legal, ethical, standards) are treated as specific stakeholder perspectives and properties within REQ.
--   **GEO-INFER-OPS (Operations):** Operational requirements (e.g., deployability, maintainability, monitoring) are elicited from an operational perspective and fed into the design and development of all modules.
--   **All other GEO-INFER Modules:** Each module is a subject of the REQ process, having its requirements defined using P3IF. REQ also helps define the interfaces and interaction contracts between modules based on their required and provided properties/processes.
--   **GEO-INFER-APP (Applications):** User-facing application requirements are a key input, particularly from the user perspective, focusing on usability, functionality, and user experience properties and processes.
+GEO-INFER-REQ interfaces with multiple modules to ensure requirements are properly integrated throughout the framework:
 
-## Use Cases
-
-1.  **Defining Requirements for a New GEO-INFER Module:**
-    *   **REQ Action:** Applying the P3IF workflow to elicit, analyze, specify, validate, and manage requirements for a new module (e.g., GEO-INFER-HYDRO for hydrological modeling), considering perspectives from hydrologists, software developers, and potential users.
-2.  **Harmonizing Data Format Requirements Across Modules:**
-    *   **REQ Action:** Using the "Multiplexing Factors" feature to define a common requirement for geospatial data format compatibility (e.g., "Must support GeoPackage and Cloud-Optimized GeoTIFF") that applies to GEO-INFER-DATA, GEO-INFER-SPACE, GEO-INFER-AI, etc.
-3.  **Incorporating New Security Standards:**
-    *   **REQ Action:** Updating the security perspective within P3IF to reflect a new security standard (e.g., ISO 27001 controls), analyzing its impact on existing requirements, and propagating changes to relevant modules.
-4.  **Validating User Interface Requirements for GEO-INFER-APP:**
-    *   **REQ Action:** Conducting validation sessions (e.g., usability testing, prototype reviews) with target users to confirm that the specified UI/UX properties and processes for a new GEO-INFER-APP feature meet their needs.
-5.  **Managing a Change Request for an Existing Feature:**
-    *   **REQ Action:** Using the requirements database and traceability links to analyze the impact of a requested change on other requirements, system components, and tests before approving and implementing it.
+- **GEO-INFER-ORG:** Coordinates with ORG to establish requirements governance processes and ensure stakeholder representation in requirements activities.
+- **GEO-INFER-NORMS:** Integrates ethical considerations and norms into requirements specifications, ensuring systems meet ethical standards.
+- **GEO-INFER-SPACE:** Leverages SPACE for spatial context modeling within requirements and ensures spatial operations are properly specified.
+- **GEO-INFER-APP:** Provides requirements specifications that drive application development and interfaces with usability requirements.
+- **GEO-INFER-INTRA:** Ensures requirements documentation is properly integrated with broader system documentation.
+- **GEO-INFER-CIV:** Captures community and civil society requirements through appropriate participatory methods.
+- **GEO-INFER-TIME:** Ensures temporal aspects of geospatial requirements are properly specified and managed.
+- **Technical Modules:** Provides clear requirements specifications to all technical implementation modules.
 
 ## Getting Started
 
-(This section will provide guidance on how to engage with the GEO-INFER-REQ process, access requirements documentation, use P3IF templates, and contribute to requirements elicitation and validation activities. It will likely point to resources managed by GEO-INFER-INTRA.)
+### Prerequisites
+- Familiarity with requirements engineering concepts
+- Understanding of geospatial systems and concepts
+- Access to stakeholders for requirement elicitation
+- Knowledge of the target system's domain
+
+### Installation
+```bash
+# Clone the GEO-INFER repository if you haven't already
+# git clone https://github.com/activeinference/GEO-INFER.git
+# cd GEO-INFER
+
+# Install the REQ module
+pip install -e ./GEO-INFER-REQ
+```
+
+### Basic Usage Examples
+
+**1. Creating a Geospatial User Story**
+```python
+from geo_infer_req.specification import GeospatialUserStory
+
+# Create a user story with explicit spatial components
+story = GeospatialUserStory(
+    role="Emergency Response Planner",
+    action="view predicted flood extents",
+    benefit="prioritize evacuation zones",
+    spatial_context={
+        "area_of_interest": "Riverside County",
+        "spatial_resolution": "neighborhood level",
+        "spatial_accuracy": "within 50 meters"
+    }
+)
+
+# Add acceptance criteria
+story.add_acceptance_criteria([
+    "Flood extents are visualized on an interactive map",
+    "Each flood zone shows estimated time of inundation",
+    "Zones can be filtered by predicted water depth",
+    "Population data is overlaid on flood zones"
+])
+
+# Add spatial constraints
+story.add_spatial_constraints([
+    "System must account for levee infrastructure",
+    "Predictions must incorporate digital elevation model data",
+    "Analysis must consider storm drain capacity"
+])
+
+# Export to various formats
+story.export_to_markdown("stories/flood_response_story.md")
+story.export_to_jira()
+```
+
+**2. Establishing Traceability for Spatial Requirements**
+```python
+from geo_infer_req.traceability import RequirementsTraceabilityMatrix
+from geo_infer_req.specification import import_requirements
+
+# Import requirements from various sources
+spatial_requirements = import_requirements("docs/spatial_requirements.xlsx")
+functional_requirements = import_requirements("docs/functional_requirements.json")
+
+# Create a traceability matrix
+matrix = RequirementsTraceabilityMatrix()
+
+# Add requirements to the matrix
+for req in spatial_requirements + functional_requirements:
+    matrix.add_requirement(req)
+
+# Link requirements to design components
+matrix.link_requirement_to_design("REQ-SPATIAL-001", "DesignComponent", "SpatialDataModel")
+matrix.link_requirement_to_design("REQ-FUNC-103", "DesignComponent", "QueryProcessor")
+
+# Link requirements to code implementations
+matrix.link_requirement_to_code("REQ-SPATIAL-001", "GitHub", "geo_infer_space/core/data_model.py")
+
+# Link requirements to test cases
+matrix.link_requirement_to_test("REQ-SPATIAL-001", "TestCase", "test_spatial_data_model.py")
+
+# Generate traceability reports
+matrix.generate_report("docs/traceability/requirements_coverage.html")
+matrix.generate_impact_analysis("REQ-SPATIAL-001", "docs/change_impact_analysis.html")
+```
+
+**3. Validating Spatial Requirements**
+```python
+from geo_infer_req.validation import SpatialRequirementValidator
+import geopandas as gpd
+
+# Load the requirements to validate
+requirements = import_requirements("docs/spatial_requirements.xlsx")
+
+# Initialize the validator
+validator = SpatialRequirementValidator(requirements)
+
+# Check for common issues in spatial requirements
+validation_results = validator.validate()
+
+# Review the results
+for result in validation_results:
+    if result.severity == "critical":
+        print(f"CRITICAL: Requirement {result.req_id}: {result.message}")
+    elif result.severity == "warning":
+        print(f"WARNING: Requirement {result.req_id}: {result.message}")
+
+# Validate against real-world geography
+study_area = gpd.read_file("data/study_area.geojson")
+geographic_validation = validator.validate_against_geography(study_area)
+
+# Generate validation report
+validator.generate_report("docs/validation/requirements_validation.html")
+```
+
+## Directory Structure
+```
+GEO-INFER-REQ/
+├── config/                 # Configuration files
+│   ├── templates/            # Requirement templates
+│   └── validation/           # Validation rule configurations
+├── docs/                   # Documentation
+│   ├── elicitation/          # Guides for requirement elicitation
+│   ├── specification/        # Specification standards and examples
+│   └── validation/           # Validation approach documentation
+├── examples/               # Example requirements and workflows
+│   ├── flood_monitoring/     # Example requirements for flood monitoring
+│   ├── urban_planning/       # Example requirements for urban planning
+│   └── workflows/            # Example requirement management workflows
+├── src/
+│   └── geo_infer_req/
+│       ├── __init__.py
+│       ├── api/            # API endpoints for requirement services
+│       │   ├── __init__.py
+│       │   └── rest_api.py   # RESTful API for requirements management
+│       ├── core/           # Core functionality
+│       │   ├── __init__.py
+│       │   ├── elicitation.py # Requirement elicitation tools
+│       │   ├── specification.py # Requirement specification tools
+│       │   ├── traceability.py # Traceability management
+│       │   ├── validation.py # Validation and verification
+│       │   └── change.py     # Change management
+│       ├── models/         # Data models
+│       │   ├── __init__.py
+│       │   ├── requirement.py # Requirement data models
+│       │   └── traceability.py # Traceability data models
+│       └── utils/          # Utility functions
+│           ├── __init__.py
+│           ├── importers.py  # Requirement import utilities
+│           └── exporters.py  # Requirement export utilities
+└── tests/                  # Unit and integration tests
+```
+
+## Best Practices
+
+### Elicitation
+- Involve diverse stakeholders, especially those with geospatial domain knowledge
+- Use map-based elicitation techniques for spatial requirements
+- Document spatial assumptions explicitly
+- Clarify spatial accuracy and resolution requirements early
+
+### Specification
+- Be explicit about spatial contexts and constraints
+- Include maps, diagrams, or visual references where helpful
+- Specify non-functional requirements for spatial performance
+- Document relationships between spatial and non-spatial requirements
+
+### Validation
+- Prototype spatial interfaces early to validate understanding
+- Use real geographic data in validation exercises
+- Test requirements with different stakeholder perspectives
+- Validate both technical correctness and user value
 
 ## Future Development
 
--   Semi-automated tools for requirements analysis and conflict detection based on P3IF.
--   Integration with formal methods for requirements verification.
--   AI-assisted requirements elicitation from natural language sources.
--   Visual modeling tools specifically for P3IF.
+- Advanced natural language processing for requirements analysis
+- Machine learning for detecting conflicts and inconsistencies in spatial requirements
+- Improved visualization tools for spatial requirements
+- Integration with VR/AR for immersive requirements validation
+- Automated generation of test cases from spatial requirements
+- Enhanced support for evolving requirements in agile geospatial development
 
 ## Contributing
 
-Contributions to GEO-INFER-REQ are vital and can take many forms:
--   Participating in requirements elicitation workshops.
--   Providing domain expertise from specific geospatial or technical perspectives.
--   Reviewing and validating requirements specifications.
--   Developing or improving P3IF tooling and templates.
--   Researching extensions to the P3IF methodology.
+Contributions to GEO-INFER-REQ are welcome! We especially value input from those with experience in:
+- Requirements engineering
+- Geospatial system development
+- User experience design for spatial applications
+- Quality assurance for geospatial systems
+- Stakeholder engagement in technical projects
 
-Please consult the main `CONTRIBUTING.md` in the GEO-INFER root and specific guidelines related to the requirements engineering process, which may be hosted within GEO-INFER-INTRA documentation. 
+Please refer to the main `CONTRIBUTING.md` in the GEO-INFER root directory for contribution guidelines.
+
+## License
+
+This module, as part of the GEO-INFER framework, is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details. 

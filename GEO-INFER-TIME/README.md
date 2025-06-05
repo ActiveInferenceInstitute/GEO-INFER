@@ -247,4 +247,4 @@ Please follow the main contribution guidelines in `CONTRIBUTING.md` (root reposi
 
 ## License
 
-This module is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details. *(Note: Consistency with other modules, many of which use MIT, should be reviewed if a unified licensing strategy is preferred for the entire GEO-INFER project.)* 
+This module, as part of the GEO-INFER framework, is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details. 
