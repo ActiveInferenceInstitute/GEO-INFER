@@ -10,7 +10,9 @@ This module provides comprehensive microeconomic modeling capabilities including
 - Spatial microeconomic modeling
 """
 
+# Import available modules - only consumer_theory exists currently
 from .consumer_theory import (
+    ConsumerProfile,
     UtilityFunctions,
     DemandFunctions,
     ConsumerChoiceModels,
@@ -18,86 +20,40 @@ from .consumer_theory import (
     ConsumerSurplus
 )
 
-from .producer_theory import (
-    ProductionFunctions,
-    CostFunctions,
-    SupplyFunctions,
-    TechnicalEfficiency,
-    ProducerSurplus
-)
+# Placeholder classes for modules not yet implemented
+class ConsumerTheoryModels:
+    """Main consumer theory modeling class."""
+    pass
 
-from .market_structure import (
-    PerfectCompetitionModels,
-    MonopolyModels,
-    OligopolyModels,
-    MonopolisticCompetitionModels,
-    MarketPowerAnalysis
-)
+class ProducerTheoryModels:
+    """Main producer theory modeling class.""" 
+    pass
 
-from .game_theory import (
-    StrategicGames,
-    ExtensiveGames,
-    EvolutionaryGames,
-    AuctionTheory,
-    MechanismDesign
-)
+class MarketStructureAnalysis:
+    """Main market structure analysis class."""
+    pass
 
-from .behavioral_economics import (
-    BoundedRationalityModels,
-    ProspectTheoryModels,
-    SocialPreferenceModels,
-    NudgeAnalysis,
-    BehavioralBiases
-)
+class GameTheoryModels:
+    """Main game theory modeling class."""
+    pass
 
-from .spatial_micro import (
-    SpatialConsumerModels,
-    SpatialProducerModels,
-    LocationChoiceModels,
-    SpatialCompetitionModels,
-    AgglomerationModels
-)
+class BehavioralEconomicsEngine:
+    """Main behavioral economics engine class."""
+    pass
 
 __all__ = [
-    # Consumer Theory
+    # Available consumer theory classes
+    'ConsumerProfile',
     'UtilityFunctions',
     'DemandFunctions', 
     'ConsumerChoiceModels',
     'WelfareAnalysis',
     'ConsumerSurplus',
     
-    # Producer Theory
-    'ProductionFunctions',
-    'CostFunctions',
-    'SupplyFunctions',
-    'TechnicalEfficiency',
-    'ProducerSurplus',
-    
-    # Market Structure
-    'PerfectCompetitionModels',
-    'MonopolyModels',
-    'OligopolyModels',
-    'MonopolisticCompetitionModels',
-    'MarketPowerAnalysis',
-    
-    # Game Theory
-    'StrategicGames',
-    'ExtensiveGames',
-    'EvolutionaryGames',
-    'AuctionTheory',
-    'MechanismDesign',
-    
-    # Behavioral Economics
-    'BoundedRationalityModels',
-    'ProspectTheoryModels',
-    'SocialPreferenceModels',
-    'NudgeAnalysis',
-    'BehavioralBiases',
-    
-    # Spatial Microeconomics
-    'SpatialConsumerModels',
-    'SpatialProducerModels',
-    'LocationChoiceModels',
-    'SpatialCompetitionModels',
-    'AgglomerationModels'
+    # Main modeling classes
+    'ConsumerTheoryModels',
+    'ProducerTheoryModels',
+    'MarketStructureAnalysis',
+    'GameTheoryModels',
+    'BehavioralEconomicsEngine'
 ] 

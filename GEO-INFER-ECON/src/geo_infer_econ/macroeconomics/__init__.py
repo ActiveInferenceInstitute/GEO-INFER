@@ -10,7 +10,9 @@ This module provides comprehensive macroeconomic modeling capabilities including
 - Regional and spatial macroeconomic modeling
 """
 
+# Import available modules - only growth_models exists currently
 from .growth_models import (
+    RegionProfile,
     SolowGrowthModel,
     EndogenousGrowthModels,
     SpatialGrowthModels,
@@ -18,45 +20,26 @@ from .growth_models import (
     TechnologyDiffusionModels
 )
 
-from .business_cycles import (
-    DSGEModels,
-    RealBusinessCycleModels,
-    NewKeynesianModels,
-    SpatialBusinessCycles,
-    RegionalSynchronization
-)
+# Placeholder classes for modules not yet implemented
+class AggregateGrowthModels:
+    """Main aggregate growth modeling class."""
+    pass
 
-from .monetary_policy import (
-    MonetaryPolicyRules,
-    InflationTargeting,
-    ExchangeRateModels,
-    SpatialMonetaryTransmission,
-    RegionalMonetaryEffects
-)
+class BusinessCycleModels:
+    """Main business cycle modeling class."""
+    pass
 
-from .fiscal_policy import (
-    FiscalMultiplierModels,
-    DebtSustainabilityAnalysis,
-    SpatialFiscalPolicy,
-    IntergovernmentalTransfers,
-    TaxCompetitionModels
-)
+class MonetaryPolicyModels:
+    """Main monetary policy modeling class."""
+    pass
 
-from .international_trade import (
-    GravityModels,
-    TradeCreationDiversion,
-    SpatialTradeModels,
-    RegionalTradeAgreements,
-    GlobalValueChains
-)
+class FiscalPolicyModels:
+    """Main fiscal policy modeling class."""
+    pass
 
-from .spatial_macro import (
-    MultiRegionalModels,
-    SpatialEquilibriumMacro,
-    RegionalInterdependence,
-    SpatialShockTransmission,
-    MacroeconomicGeography
-)
+class TradeModels:
+    """Main trade modeling class."""
+    pass
 
 __all__ = [
     # Growth Models
