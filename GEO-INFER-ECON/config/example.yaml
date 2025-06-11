@@ -12,7 +12,7 @@ api:
 # Economic Modeling Configuration
 economic_modeling:
   # Default model type
-  default_model: spatial_equilibrium  # spatial_equilibrium, agent_based, input_output
+  default_model: spatial_equilibrium  # spatial_equilibrium, agent_based, input_output, microeconomic, macroeconomic, bioregional
   
   # Spatial Equilibrium Model settings
   spatial_equilibrium:
@@ -40,6 +40,82 @@ economic_modeling:
     price_model: true
     multipliers: true
     leontief_inverse: true
+
+  # Microeconomic Model settings
+  microeconomic:
+    consumer_theory:
+      utility_function: cobb_douglas  # cobb_douglas, ces, linear, leontief, spatial
+      demand_estimation: aids  # ols, sls, aids
+      welfare_analysis: true
+    producer_theory:
+      production_function: cobb_douglas  # cobb_douglas, ces, translog, spatial
+      cost_minimization: true
+      technical_efficiency: true
+    market_structure:
+      competition_type: spatial  # perfect, monopoly, oligopoly, monopolistic, spatial
+      entry_barriers: true
+      market_power_analysis: true
+    game_theory:
+      solution_concepts: [nash, subgame_perfect, evolutionary]
+      auction_mechanisms: [english, dutch, sealed_bid, combinatorial]
+    behavioral_economics:
+      bounded_rationality: true
+      prospect_theory: true
+      social_preferences: true
+
+  # Macroeconomic Model settings  
+  macroeconomic:
+    growth_models:
+      solow_model: true
+      endogenous_growth: true
+      spatial_growth: true
+      convergence_analysis: true
+    business_cycles:
+      dsge_models: true
+      rbc_models: true
+      new_keynesian: true
+      spatial_cycles: true
+    monetary_policy:
+      policy_rules: taylor  # taylor, inflation_targeting, exchange_rate
+      transmission_mechanisms: true
+      spatial_effects: true
+    fiscal_policy:
+      multiplier_analysis: true
+      debt_sustainability: true
+      spatial_fiscal_policy: true
+      tax_competition: true
+    international_trade:
+      gravity_models: true
+      spatial_trade: true
+      value_chains: true
+
+  # Bioregional Model settings
+  bioregional:
+    ecological_economics:
+      biophysical_equilibrium: true
+      thermodynamic_models: true
+      carrying_capacity: true
+      ecological_footprint: true
+    natural_capital:
+      ecosystem_services_valuation: true
+      biodiversity_credits: true
+      carbon_accounting: true
+      water_accounting: true
+    bioregional_markets:
+      ecosystem_services_markets: true
+      habitat_banking: true
+      carbon_markets: true
+      local_food_systems: true
+    circular_economy:
+      material_flow_analysis: true
+      industrial_ecology: true
+      waste_to_resource: true
+      regenerative_design: true
+    sustainability_metrics:
+      resilience_indicators: true
+      regenerative_metrics: true
+      wellbeing_indicators: true
+      planetary_boundaries: true
 
 # Market Configuration
 markets:

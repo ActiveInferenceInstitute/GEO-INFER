@@ -257,8 +257,7 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 Join our growing community:
 - [Discord Server](https://discord.activeinference.institute/)
 - [GitHub Discussions](https://github.com/activeinference/GEO-INFER/discussions)
-- [Documentation](https://docs.geo-infer.org)
-- [Blog](https://blog.geo-infer.org)
+- [Documentation](https://github.com/activeinference/GEO-INFER)
 
 
 ## 📊 Real-World Case Studies

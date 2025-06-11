@@ -17,7 +17,28 @@ GEO-INFER-ECON is the specialized module within the GEO-INFER framework dedicate
 
 ## Key Features
 
-### 1. Spatial Economic Modeling Engine
+### 1. Comprehensive Microeconomic Analysis
+-   **Consumer Theory:** Utility functions (Cobb-Douglas, CES, spatial), demand analysis, welfare calculations
+-   **Producer Theory:** Production functions, cost optimization, technical efficiency, spatial supply chains
+-   **Market Structure Analysis:** Perfect competition, monopoly, oligopoly, spatial market power
+-   **Game Theory:** Strategic games, auctions, mechanism design, evolutionary dynamics
+-   **Behavioral Economics:** Bounded rationality, prospect theory, social preferences, spatial nudging
+
+### 2. Advanced Macroeconomic Modeling
+-   **Growth Models:** Solow growth, endogenous growth, spatial growth spillovers, regional convergence
+-   **Business Cycle Analysis:** DSGE models, real business cycles, New Keynesian models, spatial synchronization
+-   **Monetary Policy:** Policy rules, transmission mechanisms, spatial monetary effects
+-   **Fiscal Policy:** Multiplier analysis, debt sustainability, tax competition, spatial fiscal policy
+-   **International Trade:** Gravity models, spatial trade patterns, global value chains
+
+### 3. Bioregional Market Design
+-   **Ecosystem Services Markets:** Carbon credits, biodiversity banking, payment for ecosystem services
+-   **Natural Capital Accounting:** Asset valuation, stock and flow analysis, sustainability metrics
+-   **Circular Economy Models:** Material flow analysis, industrial ecology, waste-to-resource systems
+-   **Local Food Systems:** Community-supported agriculture, food miles optimization, nutritional security
+-   **Governance Systems:** Community resource management, adaptive management, stakeholder engagement
+
+### 4. Spatial Economic Modeling Engine
 -   **Description:** A versatile engine for constructing and running various types of spatial economic models.
 -   **Model Types/Examples:**
     -   **Spatial Equilibrium Models:** (e.g., regional CGE models, trade models with transport costs like Armington).
