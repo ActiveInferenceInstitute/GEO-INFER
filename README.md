@@ -56,6 +56,7 @@ mindmap
     Applications
       APP - User interfaces
       ART - Artistic expression
+      SITE - Website management
     Domain-Specific
       AG - Agriculture
       ECON - Economics
@@ -68,6 +69,7 @@ mindmap
       INTRA - Documentation
       GIT - Version control
       TEST - Quality Assurance
+      EXAMPLES - Cross-module demos
 ```
 ## 🧭 Quick Navigation
 
@@ -79,9 +81,9 @@ mindmap
 | **🔒 Security & Governance** | [SEC](./GEO-INFER-SEC/), [NORMS](./GEO-INFER-NORMS/), [REQ](./GEO-INFER-REQ/)                                                                                |
 | **🧪 Simulation & Modeling** | [SIM](./GEO-INFER-SIM/), [ANT](./GEO-INFER-ANT/)                                                                                                             |
 | **👥 People & Community**    | [CIV](./GEO-INFER-CIV/), [PEP](./GEO-INFER-PEP/), [ORG](./GEO-INFER-ORG/), [COMMS](./GEO-INFER-COMMS/)                                                       |
-| **🖥️ Applications**         | [APP](./GEO-INFER-APP/), [ART](./GEO-INFER-ART/)                                                                                                             |
+| **🖥️ Applications**         | [APP](./GEO-INFER-APP/), [ART](./GEO-INFER-ART/), [SITE](./GEO-INFER-SITE/)                                                                                  |
 | **🏢 Domain-Specific**       | [AG](./GEO-INFER-AG/), [ECON](./GEO-INFER-ECON/), [RISK](./GEO-INFER-RISK/), [LOG](./GEO-INFER-LOG/), [BIO](./GEO-INFER-BIO/), [HEALTH](./GEO-INFER-HEALTH/)                               |
-| **⚙️ Operations**            | [OPS](./GEO-INFER-OPS/), [INTRA](./GEO-INFER-INTRA/), [GIT](./GEO-INFER-GIT/), [TEST](./GEO-INFER-TEST/)                                                    |
+| **⚙️ Operations**            | [OPS](./GEO-INFER-OPS/), [INTRA](./GEO-INFER-INTRA/), [GIT](./GEO-INFER-GIT/), [TEST](./GEO-INFER-TEST/), [EXAMPLES](./GEO-INFER-EXAMPLES/)                                                    |
 
 
 
@@ -91,19 +93,21 @@ mindmap
 |--------|------------------|--------------------|-------------------|-------------------|
 | **OPS** | - | SEC | ALL modules | → All |
 | **DATA** | OPS, SEC | - | ALL modules | → All |
-| **SPACE** | DATA, MATH | TIME, AI | AG, HEALTH, SIM, APP, ART | → Domain/App |
+| **SPACE** | DATA, MATH | TIME, AI | AG, HEALTH, SIM, APP, ART, SITE | → Domain/App |
 | **TIME** | DATA, MATH | SPACE, AI | AG, HEALTH, ECON, SIM | → Domain/Analytics |
 | **AI** | DATA, SPACE | TIME, AGENT | All analytical modules | → Analytics/Prediction |
 | **ACT** | MATH, BAYES | AI, AGENT, SIM | AGENT, SIM, decision systems | → Inference/Decision |
 | **BAYES** | MATH | SPACE, TIME | ACT, AI, statistical modules | → Statistical/Inference |
 | **MATH** | - | - | ALL analytical modules | → All analytics |
-| **API** | All modules | - | External systems, APP | ↔ External |
-| **APP** | API, SPACE | All modules | End users | ← All modules |
+| **API** | All modules | - | External systems, APP, SITE | ↔ External |
+| **APP** | API, SPACE | All modules | End users, SITE | ← All modules |
+| **SITE** | API, COMMS | APP, DATA, INTRA | Web users, search engines | ← Content modules |
 | **AGENT** | ACT, AI | SPACE, TIME, SIM | SIM, autonomous systems | ↔ Agent systems |
 | **SIM** | SPACE, TIME | AI, AGENT, ACT | Domain modules, decision support | ↔ Simulation systems |
 | **AG** | SPACE, TIME, DATA | AI, ECON, SIM | APP, ECON, food systems | ↔ Agricultural systems |
 | **HEALTH** | SPACE, TIME, DATA | AI, RISK, BIO, SPM | APP, policy makers | ↔ Health systems |
 | **ECON** | SPACE, TIME, DATA | AI, AG, SIM | Policy makers, RISK | ↔ Economic systems |
+| **EXAMPLES** | All modules | - | New users, developers | ← All modules (demo only) |
 
 ### Legend
 - **→** : Provides data/services to  
@@ -141,11 +145,13 @@ mindmap
 | **GEO-INFER-SEC**   | Security and privacy frameworks for sensitive geospatial information.                              | - [Geospatial data anonymization](./GEO-INFER-SEC/README.md#anonymization) techniques<br>- [Role-based access control](./GEO-INFER-SEC/README.md#access-control) for location data<br>- [Compliance frameworks](./GEO-INFER-SEC/README.md#compliance) for international regulations<br>- [Secure data sharing](./GEO-INFER-SEC/README.md#secure-sharing) protocols across jurisdictions      |
 | **GEO-INFER-SIM**   | Simulation environments for hypothesis testing and policy evaluation.                              | - [Digital twin technology](./GEO-INFER-SIM/README.md#digital-twins) for urban/ecological scenarios<br>- [Agent-based models](./GEO-INFER-SIM/README.md#agent-models) for behavior prediction<br>- [Scenario planning](./GEO-INFER-SIM/README.md#scenario-planning) and policy evaluation tools                                                       |
 | **GEO-INFER-SPM**   | Statistical Parametric Mapping for continuous spatial-temporal field analysis.                     | - [General Linear Model (GLM)](./GEO-INFER-SPM/README.md#general-linear-model-glm-analysis) for geospatial data<br>- [Random Field Theory (RFT)](./GEO-INFER-SPM/README.md#random-field-theory-rft) for multiple comparison correction<br>- [Cluster-level inference](./GEO-INFER-SPM/README.md#statistical-inference) for spatial patterns<br>- [Multi-resolution analysis](./GEO-INFER-SPM/README.md#multi-resolution-analysis) across scales |
+| **GEO-INFER-SITE**  | Website development, content management, and web presence for geospatial projects. | - [Modern web frameworks](./GEO-INFER-SITE/README.md#web-frameworks) for responsive geospatial websites<br>- [Content management systems](./GEO-INFER-SITE/README.md#cms) for documentation and media<br>- [SEO optimization](./GEO-INFER-SITE/README.md#seo) for geospatial content discovery<br>- [Interactive web components](./GEO-INFER-SITE/README.md#interactive-components) for data visualization |
 | **GEO-INFER-SPACE** | Advanced spatial methods for land, water, air, and more. | Vector/raster data, coordinates, geometries, spatial queries | Processed spatial data, analysis results, spatial indices | DATA, MATH | Stable |
 | **GEO-INFER-TIME**  | Temporal methods for timeline expression and fusion of dynamic data. | Time-series data, sensor streams, historical records | Forecasts, trends, temporal patterns, events | DATA, MATH | Stable |
 | **GEO-INFER-RISK**  | Risk modeling, Insurance, and Re-insurance for geospatial applications.                            | - [Catastrophe modeling](./GEO-INFER-RISK/README.md#catastrophe-modeling) and natural disaster risk assessment<br>- [Insurance pricing models](./GEO-INFER-RISK/README.md#insurance-pricing) with spatial components<br>- [Climate change risk](./GEO-INFER-RISK/README.md#climate-risk) forecasting<br>- [Portfolio exposure](./GEO-INFER-RISK/README.md#portfolio-exposure) management                          |
 | **GEO-INFER-LOG**   | Logistics and supply chain optimization with geospatial intelligence.                             | - [Route optimization](./GEO-INFER-LOG/README.md#route-optimization) and fleet management<br>- [Supply chain resilience](./GEO-INFER-LOG/README.md#supply-chain) modeling<br>- [Last-mile delivery](./GEO-INFER-LOG/README.md#last-mile) solutions<br>- [Multimodal transportation](./GEO-INFER-LOG/README.md#multimodal) planning                                                         |
 | **GEO-INFER-TEST**  | Comprehensive testing framework for quality assurance across the GEO-INFER ecosystem. | - [Automated test discovery](./GEO-INFER-TEST/README.md#automated-test-discovery) and execution across all modules<br>- [Cross-module integration](./GEO-INFER-TEST/README.md#cross-module-integration) testing and validation<br>- [Performance benchmarking](./GEO-INFER-TEST/README.md#performance-benchmarking) and regression detection<br>- [Deep LOG integration](./GEO-INFER-TEST/README.md#log-integration) for comprehensive test logging and reporting |
+| **GEO-INFER-EXAMPLES** | Comprehensive demonstration framework showcasing cross-module integration and real-world applications of the GEO-INFER ecosystem. | - [Cross-module integration demos](./GEO-INFER-EXAMPLES/README.md#cross-module-demos) demonstrating the power of combined GEO-INFER capabilities<br>- [Real-world use case implementations](./GEO-INFER-EXAMPLES/README.md#use-case-implementations) with step-by-step documentation<br>- [Entry point tutorials](./GEO-INFER-EXAMPLES/README.md#entry-point-tutorials) for new users to understand module interactions<br>- [Best practices showcase](./GEO-INFER-EXAMPLES/README.md#best-practices) for effective multi-module workflows<br>- [Minimal utilities](./GEO-INFER-EXAMPLES/README.md#utilities) focused on example orchestration and demonstration |
 
 ## 🔄 Framework Position in Geospatial Ecosystem
 
@@ -228,6 +234,18 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
 ```
 ### Quick Start
+
+**Recommended: Start with Examples**
+```bash
+# Explore comprehensive examples demonstrating module integration
+cd GEO-INFER-EXAMPLES
+python examples/getting_started/basic_integration_demo.py
+
+# See cross-module workflows in action
+python examples/health_agriculture_integration/disease_spread_monitoring.py
+```
+
+**Direct Module Usage**
 ```python
 from geo_infer import Space, Time, Act
 
@@ -239,16 +257,19 @@ act = Act()
 # Perform basic spatial-temporal analysis
 result = act.analyze(space, time)
 ```
+
+> 💡 **Pro Tip**: The GEO-INFER-EXAMPLES module provides the best entry point for understanding how modules work together. Each example demonstrates real-world applications using multiple modules in concert.
 ## 🔄 Framework Integration Guide
 
 ### Starting Your GEO-INFER Journey
 
 **For New Users (Start Here):**
-1. **Install Core Infrastructure**: Begin with `GEO-INFER-OPS` for monitoring and `GEO-INFER-DATA` for data management
-2. **Add Foundational Modules**: Install `GEO-INFER-SPACE` and `GEO-INFER-MATH` for basic spatial capabilities
-3. **Choose Domain Module**: Select one domain module (AG, HEALTH, ECON) based on your use case
-4. **Add Analytics**: Include `GEO-INFER-TIME` and/or `GEO-INFER-AI` for advanced analysis
-5. **Create Interface**: Use `GEO-INFER-API` and `GEO-INFER-APP` for user access
+1. **Explore Examples First**: Begin with `GEO-INFER-EXAMPLES` to see the framework in action
+2. **Install Core Infrastructure**: Set up `GEO-INFER-OPS` for monitoring and `GEO-INFER-DATA` for data management
+3. **Add Foundational Modules**: Install `GEO-INFER-SPACE` and `GEO-INFER-MATH` for basic spatial capabilities
+4. **Choose Domain Module**: Select one domain module (AG, HEALTH, ECON) based on your use case
+5. **Add Analytics**: Include `GEO-INFER-TIME` and/or `GEO-INFER-AI` for advanced analysis
+6. **Create Interface**: Use `GEO-INFER-API` and `GEO-INFER-APP` for user access, or `GEO-INFER-SITE` for web presence
 
 ### Common Integration Patterns
 
@@ -273,6 +294,13 @@ OPS → DATA → SPACE → TIME → AI → AGENT → SIM → APP
       SEC → MATH → CIV → RISK → NORMS → API
 ```
 
+#### Pattern 4: Geospatial Web Portal
+```
+OPS → DATA → SPACE → API → SITE → Web Users
+       ↓       ↓       ↓       ↓
+      SEC → INTRA → COMMS → APP
+```
+
 ### Module Compatibility Matrix
 
 | Module | Compatible With | Requires | Enhances |
@@ -284,6 +312,7 @@ OPS → DATA → SPACE → TIME → AI → AGENT → SIM → APP
 | **AI** | All analytical | DATA, SPACE | Predictive capabilities |
 | **HEALTH** | SPACE, TIME, AI | DATA | Health analytics |
 | **AG** | SPACE, TIME, AI | DATA | Agricultural insights |
+| **SITE** | API, COMMS, APP | DATA, INTRA | Web presence & content management |
 
 ### Quick Start by Use Case
 
@@ -316,6 +345,15 @@ pip install -e ./GEO-INFER-SPACE ./GEO-INFER-CIV ./GEO-INFER-SIM ./GEO-INFER-APP
 
 # Launch urban planning tools
 python examples/urban_planning_dashboard.py
+```
+
+#### 🌐 Geospatial Website & Documentation
+```bash
+# Setup for website development
+pip install -e ./GEO-INFER-SITE ./GEO-INFER-API ./GEO-INFER-COMMS ./GEO-INFER-INTRA
+
+# Generate project website
+python examples/generate_geospatial_website.py
 ```
 
 ## 📋 Use Cases
@@ -577,6 +615,7 @@ graph TB
     %% Applications
     APP[GEO-INFER-APP]:::presentation
     ART[GEO-INFER-ART]:::presentation
+    SITE[GEO-INFER-SITE]:::presentation
 
     %% Domain-Specific
     AG[GEO-INFER-AG]:::domain
@@ -667,6 +706,7 @@ graph TB
     %% Applications Connections
     APP --> API
     APP <--> ART
+    APP <--> SITE
     APP --> SPACE
     APP --> TIME
     APP --> ANT
@@ -675,6 +715,14 @@ graph TB
     APP --> SIM
     APP --> NORMS
     APP --> SPM
+    
+    %% SITE Connections
+    SITE --> API
+    SITE --> COMMS
+    SITE --> DATA
+    SITE --> INTRA
+    SITE <--> APP
+    SITE <--> ART
     
     %% Domain-Specific Connections
     AG --> SPACE
@@ -741,6 +789,7 @@ graph TB
     INTRA -.-> REQ
     INTRA -.-> APP
     INTRA -.-> ART
+    INTRA -.-> SITE
     INTRA -.-> CIV
     INTRA -.-> PEP
     INTRA -.-> ORG
@@ -797,13 +846,16 @@ flowchart TD
     S --> T[User Interfaces]
     S --> U[GEO-INFER-CIV]:::output
     U --> V[Community Engagement]
+    R --> SITE_MOD[GEO-INFER-SITE]:::output
+    SITE_MOD --> W_SITE[Web Presence]
     
     %% Core Services
     W[GEO-INFER-OPS]:::process --> B & G & S
-    X[GEO-INFER-API]:::process --> T & U
-    Y[GEO-INFER-SEC]:::process -.-> B & X & S & U
+    X[GEO-INFER-API]:::process --> T & U & SITE_MOD
+    Y[GEO-INFER-SEC]:::process -.-> B & X & S & U & SITE_MOD
     Y -.-> HEALTH_MOD
     Z[GEO-INFER-INTRA]:::process -.-> All
+    COMMS_MOD[GEO-INFER-COMMS]:::process --> SITE_MOD
 ```
 
 ## Technology Stack Architecture

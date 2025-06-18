@@ -1,0 +1,238 @@
+# GEO-INFER-EXAMPLES Configuration
+# This file demonstrates how to configure cross-module examples and orchestration
+
+# Global example configuration
+global:
+  # Base directories for examples
+  examples_dir: "examples"
+  data_dir: "data"
+  output_dir: "output"
+  logs_dir: "logs"
+  
+  # Default logging configuration
+  logging:
+    level: "INFO"
+    format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    file_handler: true
+    console_handler: true
+  
+  # Default timeouts and limits
+  execution:
+    default_timeout: 1800  # 30 minutes
+    max_memory_gb: 8
+    parallel_workers: 4
+
+# Example categories and their default settings
+categories:
+  getting_started:
+    description: "Entry-level examples for new users"
+    complexity: 1
+    estimated_time_minutes: 5
+    required_modules: ["SPACE", "TIME", "DATA"]
+    
+  health_integration:
+    description: "Health and epidemiology integration examples"
+    complexity: 3
+    estimated_time_minutes: 20
+    required_modules: ["HEALTH", "SPACE", "TIME", "AI", "RISK"]
+    
+  agriculture_integration:
+    description: "Agricultural intelligence examples"
+    complexity: 3
+    estimated_time_minutes: 25
+    required_modules: ["AG", "SPACE", "TIME", "AI", "SIM"]
+    
+  urban_integration:
+    description: "Smart cities and urban planning examples"
+    complexity: 4
+    estimated_time_minutes: 30
+    required_modules: ["CIV", "APP", "SPACE", "NORMS", "ORG"]
+    
+  climate_integration:
+    description: "Climate and environmental systems examples"
+    complexity: 4
+    estimated_time_minutes: 25
+    required_modules: ["SPACE", "TIME", "RISK", "SIM", "ECON"]
+    
+  research_integration:
+    description: "Research and analytics workflows examples"
+    complexity: 5
+    estimated_time_minutes: 45
+    required_modules: ["ACT", "SPACE", "TIME", "BAYES", "MATH"]
+
+# Module connection configuration
+module_connections:
+  # Standard data flow patterns
+  data_sources:
+    - "GEO-INFER-DATA"
+    - "External APIs"
+    - "File systems"
+    - "Sensor networks"
+  
+  # Core processing modules
+  core_processors:
+    spatial: "GEO-INFER-SPACE"
+    temporal: "GEO-INFER-TIME"
+    mathematical: "GEO-INFER-MATH"
+    statistical: "GEO-INFER-BAYES"
+  
+  # Analysis modules
+  analytics:
+    ai_ml: "GEO-INFER-AI"
+    active_inference: "GEO-INFER-ACT"
+    cognitive: "GEO-INFER-COG"
+    agents: "GEO-INFER-AGENT"
+    statistical_mapping: "GEO-INFER-SPM"
+  
+  # Domain-specific modules
+  domains:
+    agriculture: "GEO-INFER-AG"
+    health: "GEO-INFER-HEALTH"
+    economics: "GEO-INFER-ECON"
+    risk: "GEO-INFER-RISK"
+    logistics: "GEO-INFER-LOG"
+    biology: "GEO-INFER-BIO"
+  
+  # Simulation and modeling
+  simulation:
+    general: "GEO-INFER-SIM"
+    complex_systems: "GEO-INFER-ANT"
+  
+  # Presentation and interaction
+  interfaces:
+    api: "GEO-INFER-API"
+    applications: "GEO-INFER-APP"
+    artistic: "GEO-INFER-ART"
+    civic: "GEO-INFER-CIV"
+  
+  # Governance and operations
+  governance:
+    security: "GEO-INFER-SEC"
+    norms: "GEO-INFER-NORMS"
+    requirements: "GEO-INFER-REQ"
+    operations: "GEO-INFER-OPS"
+
+# Integration patterns configuration
+integration_patterns:
+  sequential:
+    description: "Sequential processing pattern"
+    pattern: "DATA → SPACE → TIME → AI → RESULTS"
+    use_cases: ["sensor_data_processing", "basic_analysis"]
+    
+  parallel:
+    description: "Parallel analysis pattern"
+    pattern: "DATA → [SPACE + TIME + AI] → INTEGRATION → RESULTS"
+    use_cases: ["multi_dimensional_analysis", "real_time_processing"]
+    
+  feedback:
+    description: "Feedback loop pattern"
+    pattern: "DATA → SPACE → SIM → ACT → [UPDATE] → SPACE"
+    use_cases: ["active_inference", "adaptive_systems"]
+    
+  multi_domain:
+    description: "Multi-domain integration pattern"
+    pattern: "[AG + HEALTH] → SPACE → TIME → [RISK + ECON] → POLICY"
+    use_cases: ["policy_analysis", "complex_decisions"]
+    
+  community_driven:
+    description: "Community-driven pattern"
+    pattern: "CIV → [SPACE + APP] → [NORMS + ORG] → CONSENSUS"
+    use_cases: ["participatory_planning", "community_engagement"]
+
+# Example execution configuration
+execution:
+  # Resource management
+  resources:
+    cpu_cores: 4
+    memory_limit_gb: 8
+    disk_space_gb: 20
+    gpu_enabled: false
+  
+  # Environment settings
+  environment:
+    python_version: ">=3.9"
+    virtual_env_recommended: true
+    conda_env_name: "geo-infer-examples"
+  
+  # Data handling
+  data:
+    auto_download: true
+    cache_enabled: true
+    cache_size_gb: 5
+    cleanup_temp_files: true
+  
+  # Output management
+  output:
+    save_intermediate: true
+    generate_reports: true
+    create_visualizations: true
+    export_formats: ["png", "pdf", "json", "geojson"]
+
+# Validation and testing
+validation:
+  # Dependency checking
+  dependencies:
+    check_modules: true
+    check_data_sources: true
+    check_system_requirements: true
+    
+  # Output validation
+  outputs:
+    validate_formats: true
+    check_file_sizes: true
+    verify_coordinates: true
+    test_visualizations: true
+  
+  # Performance monitoring
+  performance:
+    track_execution_time: true
+    monitor_memory_usage: true
+    log_performance_metrics: true
+
+# Documentation and help
+documentation:
+  # Auto-generation settings
+  auto_generate:
+    readme_files: true
+    api_docs: false  # Examples shouldn't have complex APIs
+    example_index: true
+    
+  # Template settings
+  templates:
+    example_readme: "templates/example_readme_template.md"
+    notebook_template: "templates/notebook_template.ipynb"
+    script_template: "templates/script_template.py"
+  
+  # Help and guidance
+  guidance:
+    show_module_tips: true
+    suggest_related_examples: true
+    provide_troubleshooting: true
+
+# Community and contribution
+community:
+  # Contribution guidelines
+  contributions:
+    require_documentation: true
+    require_tests: false  # Examples are demonstrations
+    require_cross_module: true  # Must use 2+ modules
+    
+  # Quality standards
+  quality:
+    min_complexity_score: 2  # Must demonstrate meaningful integration
+    max_execution_time: 3600  # 1 hour maximum
+    documentation_completeness: 0.8  # 80% documentation coverage
+
+# Development and debugging
+development:
+  # Debug settings
+  debug:
+    verbose_logging: false
+    save_debug_info: false
+    interactive_mode: false
+  
+  # Testing configuration
+  testing:
+    run_smoke_tests: true
+    validate_outputs: true
+    check_dependencies: true 

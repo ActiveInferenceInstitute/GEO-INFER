@@ -1,0 +1,1639 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-AG API
+  description: |
+    Agricultural methods and precision farming applications within the GEO-INFER framework.
+    
+    ## Core Capabilities
+    - **Crop Monitoring**: Satellite-based crop health and growth monitoring
+    - **Yield Prediction**: Machine learning models for yield forecasting
+    - **Precision Agriculture**: Variable rate application and zone management
+    - **Soil Analysis**: Soil health assessment and nutrient mapping
+    - **Weather Integration**: Agricultural weather analytics and forecasting
+    - **Irrigation Management**: Smart irrigation scheduling and water optimization
+    - **Disease Detection**: Early disease and pest detection using remote sensing
+    - **Farm Management**: Comprehensive farm operation planning and optimization
+    
+    ## Key Features
+    - Multi-spectral and hyperspectral image analysis
+    - NDVI, NDWI, and other vegetation indices calculation
+    - Crop classification and field boundary detection
+    - Growth stage monitoring and phenology tracking
+    - Stress detection (water, nutrient, disease)
+    - Economic analysis and cost-benefit optimization
+    - Integration with farm equipment and IoT sensors
+    - Sustainability metrics and carbon footprint tracking
+    
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Development Team
+    url: https://github.com/geo-infer/geo-infer-ag
+    email: dev@geo-infer.org
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/ag/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/ag/v1  
+    description: Staging server
+  - url: http://localhost:8000/api/ag/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+  - OAuth2: [read, write, admin]
+
+tags:
+  - name: farms
+    description: Farm management and field operations
+  - name: crops
+    description: Crop monitoring and classification
+  - name: soil
+    description: Soil analysis and health assessment
+  - name: weather
+    description: Agricultural weather and climate data
+  - name: irrigation
+    description: Irrigation management and water optimization
+  - name: monitoring
+    description: Remote sensing and monitoring operations
+  - name: analytics
+    description: Agricultural analytics and insights
+  - name: planning
+    description: Farm planning and optimization
+  - name: system
+    description: System administration and monitoring
+
+paths:
+  # Farm Management Endpoints
+  /farms:
+    get:
+      tags: [farms]
+      summary: List farms
+      description: Retrieve list of managed farms
+      parameters:
+        - name: region
+          in: query
+          schema:
+            type: string
+        - name: crop_type
+          in: query
+          schema:
+            type: string
+        - name: size_range
+          in: query
+          schema:
+            type: string
+            enum: [small, medium, large]
+      responses:
+        '200':
+          description: Farms retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FarmListResponse'
+
+    post:
+      tags: [farms]
+      summary: Register farm
+      description: Register a new farm in the system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FarmRequest'
+      responses:
+        '201':
+          description: Farm registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FarmResponse'
+
+  /farms/{farm_id}:
+    get:
+      tags: [farms]
+      summary: Get farm details
+      description: Retrieve detailed information about a specific farm
+      parameters:
+        - name: farm_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Farm details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FarmResponse'
+
+    put:
+      tags: [farms]
+      summary: Update farm
+      description: Update farm information and configuration
+      parameters:
+        - name: farm_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FarmUpdateRequest'
+      responses:
+        '200':
+          description: Farm updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FarmResponse'
+
+  /farms/{farm_id}/fields:
+    get:
+      tags: [farms]
+      summary: List farm fields
+      description: Retrieve fields for a specific farm
+      parameters:
+        - name: farm_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Farm fields retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldListResponse'
+
+    post:
+      tags: [farms]
+      summary: Add field
+      description: Add a new field to a farm
+      parameters:
+        - name: farm_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FieldRequest'
+      responses:
+        '201':
+          description: Field added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FieldResponse'
+
+  # Crop Monitoring Endpoints
+  /crops/classify:
+    post:
+      tags: [crops]
+      summary: Classify crops
+      description: Classify crop types from satellite imagery
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                region:
+                  type: object
+                date:
+                  type: string
+                  format: date
+                resolution:
+                  type: number
+      responses:
+        '200':
+          description: Crop classification completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CropClassificationResponse'
+
+  /crops/health:
+    post:
+      tags: [crops]
+      summary: Assess crop health
+      description: Analyze crop health using vegetation indices
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CropHealthRequest'
+      responses:
+        '200':
+          description: Crop health assessment completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CropHealthResponse'
+
+  /crops/yield/predict:
+    post:
+      tags: [crops]
+      summary: Predict yield
+      description: Generate yield predictions for specific fields
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/YieldPredictionRequest'
+      responses:
+        '200':
+          description: Yield prediction completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/YieldPredictionResponse'
+
+  /crops/stress/detect:
+    post:
+      tags: [crops]
+      summary: Detect crop stress
+      description: Detect various types of crop stress
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StressDetectionRequest'
+      responses:
+        '200':
+          description: Stress detection completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StressDetectionResponse'
+
+  # Soil Analysis Endpoints
+  /soil/analyze:
+    post:
+      tags: [soil]
+      summary: Analyze soil
+      description: Perform comprehensive soil analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SoilAnalysisRequest'
+      responses:
+        '200':
+          description: Soil analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SoilAnalysisResponse'
+
+  /soil/nutrients/map:
+    post:
+      tags: [soil]
+      summary: Map soil nutrients
+      description: Generate nutrient maps for fields
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NutrientMappingRequest'
+      responses:
+        '200':
+          description: Nutrient mapping completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NutrientMappingResponse'
+
+  /soil/recommendations:
+    post:
+      tags: [soil]
+      summary: Get soil recommendations
+      description: Generate fertilizer and amendment recommendations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SoilRecommendationRequest'
+      responses:
+        '200':
+          description: Soil recommendations generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SoilRecommendationResponse'
+
+  # Weather Integration Endpoints
+  /weather/forecast:
+    get:
+      tags: [weather]
+      summary: Get agricultural weather forecast
+      description: Retrieve weather forecast for agricultural planning
+      parameters:
+        - name: location
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: days
+          in: query
+          schema:
+            type: integer
+            default: 7
+        - name: variables
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [temperature, precipitation, humidity, wind, solar_radiation]
+      responses:
+        '200':
+          description: Weather forecast retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeatherForecastResponse'
+
+  /weather/analysis:
+    post:
+      tags: [weather]
+      summary: Analyze weather impact
+      description: Analyze weather impact on crop growth and yield
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WeatherAnalysisRequest'
+      responses:
+        '200':
+          description: Weather analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WeatherAnalysisResponse'
+
+  # Irrigation Management Endpoints
+  /irrigation/schedule:
+    post:
+      tags: [irrigation]
+      summary: Create irrigation schedule
+      description: Generate optimal irrigation schedule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IrrigationScheduleRequest'
+      responses:
+        '200':
+          description: Irrigation schedule created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IrrigationScheduleResponse'
+
+  /irrigation/optimize:
+    post:
+      tags: [irrigation]
+      summary: Optimize water usage
+      description: Optimize water usage across multiple fields
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WaterOptimizationRequest'
+      responses:
+        '200':
+          description: Water optimization completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WaterOptimizationResponse'
+
+  /irrigation/efficiency:
+    get:
+      tags: [irrigation]
+      summary: Get irrigation efficiency
+      description: Calculate irrigation efficiency metrics
+      parameters:
+        - name: field_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [daily, weekly, monthly, seasonal]
+      responses:
+        '200':
+          description: Irrigation efficiency calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IrrigationEfficiencyResponse'
+
+  # Monitoring Endpoints
+  /monitoring/indices:
+    post:
+      tags: [monitoring]
+      summary: Calculate vegetation indices
+      description: Calculate various vegetation indices from satellite data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VegetationIndicesRequest'
+      responses:
+        '200':
+          description: Vegetation indices calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VegetationIndicesResponse'
+
+  /monitoring/time-series:
+    get:
+      tags: [monitoring]
+      summary: Get monitoring time series
+      description: Retrieve time series data for field monitoring
+      parameters:
+        - name: field_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: metric
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [ndvi, ndwi, evi, lai, temperature, moisture]
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Time series data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeSeriesResponse'
+
+  # Analytics Endpoints
+  /analytics/performance:
+    get:
+      tags: [analytics]
+      summary: Get farm performance analytics
+      description: Retrieve performance analytics for farms and fields
+      parameters:
+        - name: farm_id
+          in: query
+          schema:
+            type: string
+        - name: field_id
+          in: query
+          schema:
+            type: string
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [current_season, last_season, yearly]
+      responses:
+        '200':
+          description: Performance analytics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerformanceAnalyticsResponse'
+
+  /analytics/economics:
+    post:
+      tags: [analytics]
+      summary: Analyze farm economics
+      description: Perform economic analysis of farming operations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EconomicAnalysisRequest'
+      responses:
+        '200':
+          description: Economic analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EconomicAnalysisResponse'
+
+  /analytics/sustainability:
+    get:
+      tags: [analytics]
+      summary: Get sustainability metrics
+      description: Calculate sustainability and environmental impact metrics
+      parameters:
+        - name: farm_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: metrics
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [carbon_footprint, water_usage, energy_efficiency, biodiversity]
+      responses:
+        '200':
+          description: Sustainability metrics calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SustainabilityMetricsResponse'
+
+  # Planning Endpoints
+  /planning/crop-rotation:
+    post:
+      tags: [planning]
+      summary: Plan crop rotation
+      description: Generate optimal crop rotation plans
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CropRotationRequest'
+      responses:
+        '200':
+          description: Crop rotation plan generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CropRotationResponse'
+
+  /planning/resource-allocation:
+    post:
+      tags: [planning]
+      summary: Optimize resource allocation
+      description: Optimize allocation of resources across farm operations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ResourceAllocationRequest'
+      responses:
+        '200':
+          description: Resource allocation optimized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceAllocationResponse'
+
+  /planning/scenarios:
+    post:
+      tags: [planning]
+      summary: Model farming scenarios
+      description: Model different farming scenarios and their outcomes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScenarioModelingRequest'
+      responses:
+        '200':
+          description: Scenario modeling completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScenarioModelingResponse'
+
+  # System Management Endpoints
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and service status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /system/metrics:
+    get:
+      tags: [system]
+      summary: Get system metrics
+      description: Retrieve system performance and usage metrics
+      responses:
+        '200':
+          description: System metrics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemMetricsResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.geo-infer.org/oauth/authorize
+          tokenUrl: https://auth.geo-infer.org/oauth/token
+          scopes:
+            read: Read access to farm data
+            write: Write access to farm operations
+            admin: Administrative access
+
+  schemas:
+    # Farm Management Schemas
+    FarmListResponse:
+      type: object
+      properties:
+        farms:
+          type: array
+          items:
+            $ref: '#/components/schemas/FarmSummary'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    FarmSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        location:
+          type: object
+        total_area:
+          type: number
+        crop_types:
+          type: array
+          items:
+            type: string
+        field_count:
+          type: integer
+        owner:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    FarmRequest:
+      type: object
+      required: [name, location, total_area]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        location:
+          type: object
+          properties:
+            coordinates:
+              type: array
+              items:
+                type: number
+            address:
+              type: string
+        total_area:
+          type: number
+        owner:
+          type: string
+        contact_info:
+          type: object
+
+    FarmResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        location:
+          type: object
+        total_area:
+          type: number
+        field_count:
+          type: integer
+        crop_types:
+          type: array
+          items:
+            type: string
+        owner:
+          type: string
+        contact_info:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    FarmUpdateRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        contact_info:
+          type: object
+        crop_types:
+          type: array
+          items:
+            type: string
+
+    FieldListResponse:
+      type: object
+      properties:
+        fields:
+          type: array
+          items:
+            $ref: '#/components/schemas/Field'
+        total:
+          type: integer
+
+    Field:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        farm_id:
+          type: string
+        area:
+          type: number
+        geometry:
+          type: object
+        crop_type:
+          type: string
+        planting_date:
+          type: string
+          format: date
+        soil_type:
+          type: string
+        irrigation_type:
+          type: string
+
+    FieldRequest:
+      type: object
+      required: [name, area, geometry]
+      properties:
+        name:
+          type: string
+        area:
+          type: number
+        geometry:
+          type: object
+        crop_type:
+          type: string
+        soil_type:
+          type: string
+        irrigation_type:
+          type: string
+
+    FieldResponse:
+      allOf:
+        - $ref: '#/components/schemas/Field'
+        - type: object
+          properties:
+            created_at:
+              type: string
+              format: date-time
+
+    # Crop Monitoring Schemas
+    CropClassificationResponse:
+      type: object
+      properties:
+        classification_id:
+          type: string
+        detected_crops:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetectedCrop'
+        confidence_map:
+          type: string
+        processing_time:
+          type: number
+
+    DetectedCrop:
+      type: object
+      properties:
+        crop_type:
+          type: string
+        confidence:
+          type: number
+        area:
+          type: number
+        geometry:
+          type: object
+
+    CropHealthRequest:
+      type: object
+      required: [field_id, analysis_date]
+      properties:
+        field_id:
+          type: string
+        analysis_date:
+          type: string
+          format: date
+        imagery_source:
+          type: string
+          enum: [sentinel2, landsat8, drone, field_sensor]
+        indices:
+          type: array
+          items:
+            type: string
+            enum: [ndvi, ndwi, evi, savi, gci]
+
+    CropHealthResponse:
+      type: object
+      properties:
+        health_id:
+          type: string
+        field_id:
+          type: string
+        analysis_date:
+          type: string
+          format: date
+        health_indices:
+          type: object
+        health_score:
+          type: number
+        stress_areas:
+          type: array
+          items:
+            $ref: '#/components/schemas/StressArea'
+        recommendations:
+          type: array
+          items:
+            type: string
+
+    StressArea:
+      type: object
+      properties:
+        stress_type:
+          type: string
+          enum: [water, nutrient, disease, pest]
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        area:
+          type: number
+        geometry:
+          type: object
+
+    YieldPredictionRequest:
+      type: object
+      required: [field_id, crop_type]
+      properties:
+        field_id:
+          type: string
+        crop_type:
+          type: string
+        growth_stage:
+          type: string
+        weather_data:
+          type: object
+        soil_data:
+          type: object
+        management_practices:
+          type: object
+
+    YieldPredictionResponse:
+      type: object
+      properties:
+        prediction_id:
+          type: string
+        field_id:
+          type: string
+        predicted_yield:
+          type: number
+        confidence_interval:
+          type: object
+        yield_map:
+          type: string
+        factors:
+          type: object
+        prediction_date:
+          type: string
+          format: date-time
+
+    StressDetectionRequest:
+      type: object
+      required: [field_id]
+      properties:
+        field_id:
+          type: string
+        stress_types:
+          type: array
+          items:
+            type: string
+            enum: [water, nutrient, disease, pest, heat, cold]
+        sensitivity:
+          type: number
+          default: 0.7
+
+    StressDetectionResponse:
+      type: object
+      properties:
+        detection_id:
+          type: string
+        field_id:
+          type: string
+        detected_stress:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetectedStress'
+        stress_map:
+          type: string
+        analysis_date:
+          type: string
+          format: date-time
+
+    DetectedStress:
+      type: object
+      properties:
+        stress_type:
+          type: string
+        severity:
+          type: number
+        confidence:
+          type: number
+        affected_area:
+          type: number
+        geometry:
+          type: object
+
+    # Soil Analysis Schemas
+    SoilAnalysisRequest:
+      type: object
+      required: [field_id]
+      properties:
+        field_id:
+          type: string
+        analysis_type:
+          type: string
+          enum: [chemical, physical, biological, comprehensive]
+        sampling_points:
+          type: array
+          items:
+            type: object
+        depth_layers:
+          type: array
+          items:
+            type: number
+
+    SoilAnalysisResponse:
+      type: object
+      properties:
+        analysis_id:
+          type: string
+        field_id:
+          type: string
+        soil_properties:
+          type: object
+        nutrient_levels:
+          type: object
+        ph_levels:
+          type: object
+        organic_matter:
+          type: number
+        soil_health_score:
+          type: number
+        recommendations:
+          type: array
+          items:
+            type: string
+
+    NutrientMappingRequest:
+      type: object
+      required: [field_id, nutrients]
+      properties:
+        field_id:
+          type: string
+        nutrients:
+          type: array
+          items:
+            type: string
+            enum: [nitrogen, phosphorus, potassium, calcium, magnesium, sulfur]
+        interpolation_method:
+          type: string
+          enum: [kriging, idw, spline]
+
+    NutrientMappingResponse:
+      type: object
+      properties:
+        mapping_id:
+          type: string
+        field_id:
+          type: string
+        nutrient_maps:
+          type: object
+        deficiency_zones:
+          type: array
+          items:
+            type: object
+        application_zones:
+          type: array
+          items:
+            type: object
+
+    SoilRecommendationRequest:
+      type: object
+      required: [field_id, crop_type]
+      properties:
+        field_id:
+          type: string
+        crop_type:
+          type: string
+        target_yield:
+          type: number
+        current_soil_status:
+          type: object
+        budget_constraints:
+          type: object
+
+    SoilRecommendationResponse:
+      type: object
+      properties:
+        recommendation_id:
+          type: string
+        field_id:
+          type: string
+        fertilizer_recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/FertilizerRecommendation'
+        amendment_recommendations:
+          type: array
+          items:
+            type: object
+        application_timing:
+          type: object
+        estimated_cost:
+          type: number
+
+    FertilizerRecommendation:
+      type: object
+      properties:
+        nutrient:
+          type: string
+        application_rate:
+          type: number
+        fertilizer_type:
+          type: string
+        application_method:
+          type: string
+        timing:
+          type: string
+
+    # Weather Integration Schemas
+    WeatherForecastResponse:
+      type: object
+      properties:
+        location:
+          type: string
+        forecast_period:
+          type: object
+        daily_forecasts:
+          type: array
+          items:
+            $ref: '#/components/schemas/DailyWeatherForecast'
+        growing_degree_days:
+          type: array
+          items:
+            type: number
+        precipitation_forecast:
+          type: object
+
+    DailyWeatherForecast:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date
+        temperature:
+          type: object
+        precipitation:
+          type: number
+        humidity:
+          type: number
+        wind_speed:
+          type: number
+        solar_radiation:
+          type: number
+
+    WeatherAnalysisRequest:
+      type: object
+      required: [field_id, analysis_period]
+      properties:
+        field_id:
+          type: string
+        analysis_period:
+          type: object
+        crop_type:
+          type: string
+        growth_stage:
+          type: string
+
+    WeatherAnalysisResponse:
+      type: object
+      properties:
+        analysis_id:
+          type: string
+        field_id:
+          type: string
+        weather_impact:
+          type: object
+        stress_periods:
+          type: array
+          items:
+            type: object
+        recommendations:
+          type: array
+          items:
+            type: string
+
+    # Irrigation Management Schemas
+    IrrigationScheduleRequest:
+      type: object
+      required: [field_id, irrigation_system]
+      properties:
+        field_id:
+          type: string
+        irrigation_system:
+          type: string
+          enum: [sprinkler, drip, flood, center_pivot]
+        crop_stage:
+          type: string
+        soil_moisture:
+          type: number
+        weather_forecast:
+          type: object
+
+    IrrigationScheduleResponse:
+      type: object
+      properties:
+        schedule_id:
+          type: string
+        field_id:
+          type: string
+        irrigation_events:
+          type: array
+          items:
+            $ref: '#/components/schemas/IrrigationEvent'
+        total_water_volume:
+          type: number
+        schedule_period:
+          type: object
+
+    IrrigationEvent:
+      type: object
+      properties:
+        date:
+          type: string
+          format: date-time
+        duration:
+          type: number
+        water_amount:
+          type: number
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+
+    WaterOptimizationRequest:
+      type: object
+      required: [farm_id]
+      properties:
+        farm_id:
+          type: string
+        available_water:
+          type: number
+        priority_fields:
+          type: array
+          items:
+            type: string
+        optimization_objective:
+          type: string
+          enum: [maximize_yield, minimize_water, balance]
+
+    WaterOptimizationResponse:
+      type: object
+      properties:
+        optimization_id:
+          type: string
+        farm_id:
+          type: string
+        water_allocation:
+          type: object
+        savings_potential:
+          type: number
+        efficiency_improvement:
+          type: number
+
+    IrrigationEfficiencyResponse:
+      type: object
+      properties:
+        field_id:
+          type: string
+        period:
+          type: string
+        water_use_efficiency:
+          type: number
+        irrigation_efficiency:
+          type: number
+        water_savings:
+          type: number
+        recommendations:
+          type: array
+          items:
+            type: string
+
+    # Monitoring Schemas
+    VegetationIndicesRequest:
+      type: object
+      required: [field_id, imagery_data]
+      properties:
+        field_id:
+          type: string
+        imagery_data:
+          type: object
+        indices:
+          type: array
+          items:
+            type: string
+            enum: [ndvi, ndwi, evi, savi, gci, lai]
+        output_format:
+          type: string
+          enum: [raster, statistics, both]
+
+    VegetationIndicesResponse:
+      type: object
+      properties:
+        calculation_id:
+          type: string
+        field_id:
+          type: string
+        indices_results:
+          type: object
+        statistics:
+          type: object
+        raster_outputs:
+          type: object
+
+    TimeSeriesResponse:
+      type: object
+      properties:
+        field_id:
+          type: string
+        metric:
+          type: string
+        time_series:
+          type: array
+          items:
+            type: object
+        statistics:
+          type: object
+        trends:
+          type: object
+
+    # Analytics Schemas
+    PerformanceAnalyticsResponse:
+      type: object
+      properties:
+        entity_id:
+          type: string
+        entity_type:
+          type: string
+          enum: [farm, field]
+        period:
+          type: string
+        yield_performance:
+          type: object
+        resource_efficiency:
+          type: object
+        economic_performance:
+          type: object
+        benchmarks:
+          type: object
+
+    EconomicAnalysisRequest:
+      type: object
+      required: [farm_id, analysis_type]
+      properties:
+        farm_id:
+          type: string
+        analysis_type:
+          type: string
+          enum: [cost_benefit, profitability, roi, break_even]
+        time_period:
+          type: object
+        scenarios:
+          type: array
+          items:
+            type: object
+
+    EconomicAnalysisResponse:
+      type: object
+      properties:
+        analysis_id:
+          type: string
+        farm_id:
+          type: string
+        financial_metrics:
+          type: object
+        cost_breakdown:
+          type: object
+        revenue_projections:
+          type: object
+        recommendations:
+          type: array
+          items:
+            type: string
+
+    SustainabilityMetricsResponse:
+      type: object
+      properties:
+        farm_id:
+          type: string
+        carbon_footprint:
+          type: object
+        water_usage_efficiency:
+          type: object
+        energy_efficiency:
+          type: object
+        biodiversity_index:
+          type: object
+        sustainability_score:
+          type: number
+        improvement_areas:
+          type: array
+          items:
+            type: string
+
+    # Planning Schemas
+    CropRotationRequest:
+      type: object
+      required: [field_id, planning_horizon]
+      properties:
+        field_id:
+          type: string
+        planning_horizon:
+          type: integer
+        crop_preferences:
+          type: array
+          items:
+            type: string
+        constraints:
+          type: object
+        objectives:
+          type: array
+          items:
+            type: string
+
+    CropRotationResponse:
+      type: object
+      properties:
+        plan_id:
+          type: string
+        field_id:
+          type: string
+        rotation_plan:
+          type: array
+          items:
+            $ref: '#/components/schemas/CropRotationYear'
+        benefits:
+          type: object
+        risks:
+          type: object
+
+    CropRotationYear:
+      type: object
+      properties:
+        year:
+          type: integer
+        crop:
+          type: string
+        planting_date:
+          type: string
+          format: date
+        harvest_date:
+          type: string
+          format: date
+        expected_yield:
+          type: number
+
+    ResourceAllocationRequest:
+      type: object
+      required: [farm_id, resources]
+      properties:
+        farm_id:
+          type: string
+        resources:
+          type: object
+        constraints:
+          type: object
+        optimization_goals:
+          type: array
+          items:
+            type: string
+
+    ResourceAllocationResponse:
+      type: object
+      properties:
+        allocation_id:
+          type: string
+        farm_id:
+          type: string
+        resource_allocation:
+          type: object
+        efficiency_gains:
+          type: object
+        cost_savings:
+          type: number
+
+    ScenarioModelingRequest:
+      type: object
+      required: [farm_id, scenarios]
+      properties:
+        farm_id:
+          type: string
+        scenarios:
+          type: array
+          items:
+            type: object
+        modeling_period:
+          type: object
+        variables:
+          type: array
+          items:
+            type: string
+
+    ScenarioModelingResponse:
+      type: object
+      properties:
+        modeling_id:
+          type: string
+        farm_id:
+          type: string
+        scenario_results:
+          type: array
+          items:
+            type: object
+        comparisons:
+          type: object
+        recommendations:
+          type: array
+          items:
+            type: string
+
+    # System Management Schemas
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        components:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ComponentHealth'
+
+    ComponentHealth:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [up, down, degraded]
+        response_time:
+          type: number
+        last_check:
+          type: string
+          format: date-time
+
+    SystemMetricsResponse:
+      type: object
+      properties:
+        active_farms:
+          type: integer
+        total_fields:
+          type: integer
+        monitored_area:
+          type: number
+        daily_analyses:
+          type: integer
+        system_uptime:
+          type: number
+        api_response_time:
+          type: number
+
+    # Common Error Schema
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

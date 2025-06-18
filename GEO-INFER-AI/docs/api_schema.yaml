@@ -1,0 +1,1576 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-AI API
+  description: |
+    Artificial Intelligence and Machine Learning integration for geospatial workflows within the GEO-INFER framework.
+    
+    ## Core Capabilities
+    - **Geospatial Machine Learning**: Specialized ML algorithms for spatial data
+    - **Computer Vision**: Image analysis, object detection, and change detection
+    - **Predictive Modeling**: Time series forecasting and spatial prediction
+    - **Deep Learning**: Neural networks for complex geospatial pattern recognition
+    - **Model Management**: Training, evaluation, and deployment of AI models
+    - **Feature Engineering**: Automated spatial feature extraction and selection
+    - **Transfer Learning**: Pre-trained models for geospatial applications
+    - **Real-time Inference**: Low-latency prediction services
+    
+    ## Key Features
+    - Support for raster and vector data processing
+    - Integration with popular ML frameworks (TensorFlow, PyTorch, scikit-learn)
+    - Specialized geospatial loss functions and metrics
+    - Automated hyperparameter optimization
+    - Model versioning and experiment tracking
+    - Distributed training and inference
+    - GPU acceleration support
+    - Explainable AI for geospatial predictions
+    
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Development Team
+    url: https://github.com/geo-infer/geo-infer-ai
+    email: dev@geo-infer.org
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/ai/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/ai/v1  
+    description: Staging server
+  - url: http://localhost:8000/api/ai/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+  - OAuth2: [read, write, admin]
+
+tags:
+  - name: models
+    description: Machine learning model management
+  - name: training
+    description: Model training and optimization
+  - name: inference
+    description: Model inference and prediction
+  - name: computer-vision
+    description: Computer vision and image analysis
+  - name: feature-engineering
+    description: Feature extraction and engineering
+  - name: time-series
+    description: Time series analysis and forecasting
+  - name: experiments
+    description: Experiment tracking and management
+  - name: deployment
+    description: Model deployment and serving
+  - name: system
+    description: System monitoring and administration
+
+paths:
+  # Model Management Endpoints
+  /models:
+    get:
+      tags: [models]
+      summary: List models
+      description: Retrieve list of available machine learning models
+      parameters:
+        - name: model_type
+          in: query
+          schema:
+            type: string
+            enum: [classification, regression, clustering, detection, segmentation]
+        - name: framework
+          in: query
+          schema:
+            type: string
+            enum: [tensorflow, pytorch, scikit-learn, xgboost, lightgbm]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [training, ready, deployed, archived]
+        - name: tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Models retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelListResponse'
+
+    post:
+      tags: [models]
+      summary: Create model
+      description: Create a new machine learning model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelRequest'
+      responses:
+        '201':
+          description: Model created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+
+  /models/{model_id}:
+    get:
+      tags: [models]
+      summary: Get model details
+      description: Retrieve detailed information about a specific model
+      parameters:
+        - name: model_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Model details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+
+    put:
+      tags: [models]
+      summary: Update model
+      description: Update model configuration and metadata
+      parameters:
+        - name: model_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelUpdateRequest'
+      responses:
+        '200':
+          description: Model updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+
+    delete:
+      tags: [models]
+      summary: Delete model
+      description: Remove model from the system
+      parameters:
+        - name: model_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Model deleted successfully
+
+  # Training Endpoints
+  /training/jobs:
+    get:
+      tags: [training]
+      summary: List training jobs
+      description: Retrieve list of training jobs
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [queued, running, completed, failed, cancelled]
+        - name: model_type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Training jobs retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingJobListResponse'
+
+    post:
+      tags: [training]
+      summary: Start training job
+      description: Start a new model training job
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrainingJobRequest'
+      responses:
+        '202':
+          description: Training job started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingJobResponse'
+
+  /training/jobs/{job_id}:
+    get:
+      tags: [training]
+      summary: Get training job status
+      description: Retrieve status and progress of a training job
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Training job status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingJobResponse'
+
+    delete:
+      tags: [training]
+      summary: Cancel training job
+      description: Cancel a running training job
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Training job cancelled
+
+  /training/jobs/{job_id}/metrics:
+    get:
+      tags: [training]
+      summary: Get training metrics
+      description: Retrieve training metrics and performance data
+      parameters:
+        - name: job_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Training metrics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingMetricsResponse'
+
+  # Inference Endpoints
+  /inference/predict:
+    post:
+      tags: [inference]
+      summary: Make prediction
+      description: Make prediction using a trained model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PredictionRequest'
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                model_id:
+                  type: string
+                data:
+                  type: string
+                  format: binary
+                metadata:
+                  type: object
+      responses:
+        '200':
+          description: Prediction completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PredictionResponse'
+
+  /inference/batch:
+    post:
+      tags: [inference]
+      summary: Batch prediction
+      description: Perform batch predictions on multiple inputs
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BatchPredictionRequest'
+      responses:
+        '202':
+          description: Batch prediction started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BatchPredictionResponse'
+
+  /inference/explain:
+    post:
+      tags: [inference]
+      summary: Explain prediction
+      description: Generate explanation for model predictions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExplanationRequest'
+      responses:
+        '200':
+          description: Explanation generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExplanationResponse'
+
+  # Computer Vision Endpoints
+  /vision/detect:
+    post:
+      tags: [computer-vision]
+      summary: Object detection
+      description: Detect objects in satellite or aerial imagery
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                model_id:
+                  type: string
+                confidence_threshold:
+                  type: number
+                  default: 0.5
+                max_objects:
+                  type: integer
+                  default: 100
+      responses:
+        '200':
+          description: Object detection completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectDetectionResponse'
+
+  /vision/segment:
+    post:
+      tags: [computer-vision]
+      summary: Image segmentation
+      description: Perform semantic or instance segmentation on imagery
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image:
+                  type: string
+                  format: binary
+                model_id:
+                  type: string
+                segmentation_type:
+                  type: string
+                  enum: [semantic, instance, panoptic]
+      responses:
+        '200':
+          description: Image segmentation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SegmentationResponse'
+
+  /vision/change-detection:
+    post:
+      tags: [computer-vision]
+      summary: Change detection
+      description: Detect changes between two temporal images
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                image_before:
+                  type: string
+                  format: binary
+                image_after:
+                  type: string
+                  format: binary
+                model_id:
+                  type: string
+                change_threshold:
+                  type: number
+                  default: 0.1
+      responses:
+        '200':
+          description: Change detection completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChangeDetectionResponse'
+
+  # Feature Engineering Endpoints
+  /features/extract:
+    post:
+      tags: [feature-engineering]
+      summary: Extract features
+      description: Extract spatial and temporal features from data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeatureExtractionRequest'
+      responses:
+        '200':
+          description: Feature extraction completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureExtractionResponse'
+
+  /features/select:
+    post:
+      tags: [feature-engineering]
+      summary: Feature selection
+      description: Perform automated feature selection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeatureSelectionRequest'
+      responses:
+        '200':
+          description: Feature selection completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureSelectionResponse'
+
+  /features/transform:
+    post:
+      tags: [feature-engineering]
+      summary: Transform features
+      description: Apply transformations to features
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeatureTransformRequest'
+      responses:
+        '200':
+          description: Feature transformation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureTransformResponse'
+
+  # Time Series Endpoints
+  /time-series/forecast:
+    post:
+      tags: [time-series]
+      summary: Time series forecast
+      description: Generate forecasts for time series data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForecastRequest'
+      responses:
+        '200':
+          description: Forecast generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForecastResponse'
+
+  /time-series/anomaly-detection:
+    post:
+      tags: [time-series]
+      summary: Anomaly detection
+      description: Detect anomalies in time series data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnomalyDetectionRequest'
+      responses:
+        '200':
+          description: Anomaly detection completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnomalyDetectionResponse'
+
+  # Experiment Management Endpoints
+  /experiments:
+    get:
+      tags: [experiments]
+      summary: List experiments
+      description: Retrieve list of ML experiments
+      parameters:
+        - name: project
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [running, completed, failed]
+      responses:
+        '200':
+          description: Experiments retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperimentListResponse'
+
+    post:
+      tags: [experiments]
+      summary: Create experiment
+      description: Create a new ML experiment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExperimentRequest'
+      responses:
+        '201':
+          description: Experiment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperimentResponse'
+
+  /experiments/{experiment_id}/runs:
+    get:
+      tags: [experiments]
+      summary: List experiment runs
+      description: Retrieve runs for an experiment
+      parameters:
+        - name: experiment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Experiment runs retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExperimentRunListResponse'
+
+  # Deployment Endpoints
+  /deployment/endpoints:
+    get:
+      tags: [deployment]
+      summary: List model endpoints
+      description: Retrieve list of deployed model endpoints
+      responses:
+        '200':
+          description: Model endpoints retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelEndpointListResponse'
+
+    post:
+      tags: [deployment]
+      summary: Deploy model
+      description: Deploy a model to a serving endpoint
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelDeploymentRequest'
+      responses:
+        '202':
+          description: Model deployment started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelDeploymentResponse'
+
+  /deployment/endpoints/{endpoint_id}:
+    get:
+      tags: [deployment]
+      summary: Get endpoint status
+      description: Retrieve status of a model endpoint
+      parameters:
+        - name: endpoint_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Endpoint status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelEndpointResponse'
+
+    delete:
+      tags: [deployment]
+      summary: Undeploy model
+      description: Remove model from serving endpoint
+      parameters:
+        - name: endpoint_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Model undeployed successfully
+
+  # System Management Endpoints
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and ML service status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /system/resources:
+    get:
+      tags: [system]
+      summary: Get system resources
+      description: Retrieve current system resource usage
+      responses:
+        '200':
+          description: System resources retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemResourcesResponse'
+
+  /system/metrics:
+    get:
+      tags: [system]
+      summary: Get system metrics
+      description: Retrieve system performance metrics
+      responses:
+        '200':
+          description: System metrics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemMetricsResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.geo-infer.org/oauth/authorize
+          tokenUrl: https://auth.geo-infer.org/oauth/token
+          scopes:
+            read: Read access to models and data
+            write: Write access to models and training
+            admin: Administrative access
+
+  schemas:
+    # Model Management Schemas
+    ModelListResponse:
+      type: object
+      properties:
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelSummary'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    ModelSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        model_type:
+          type: string
+        framework:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+        accuracy:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ModelRequest:
+      type: object
+      required: [name, model_type, framework]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        model_type:
+          type: string
+          enum: [classification, regression, clustering, detection, segmentation]
+        framework:
+          type: string
+          enum: [tensorflow, pytorch, scikit-learn, xgboost, lightgbm]
+        architecture:
+          type: object
+        hyperparameters:
+          type: object
+        tags:
+          type: array
+          items:
+            type: string
+
+    ModelResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        model_type:
+          type: string
+        framework:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+        architecture:
+          type: object
+        hyperparameters:
+          type: object
+        metrics:
+          type: object
+        tags:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ModelUpdateRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        hyperparameters:
+          type: object
+        tags:
+          type: array
+          items:
+            type: string
+
+    # Training Schemas
+    TrainingJobListResponse:
+      type: object
+      properties:
+        jobs:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrainingJobSummary'
+        total:
+          type: integer
+
+    TrainingJobSummary:
+      type: object
+      properties:
+        job_id:
+          type: string
+        model_id:
+          type: string
+        model_name:
+          type: string
+        status:
+          type: string
+        progress:
+          type: number
+        started_at:
+          type: string
+          format: date-time
+        estimated_completion:
+          type: string
+          format: date-time
+
+    TrainingJobRequest:
+      type: object
+      required: [model_id, dataset_id]
+      properties:
+        model_id:
+          type: string
+        dataset_id:
+          type: string
+        training_config:
+          type: object
+        validation_split:
+          type: number
+          default: 0.2
+        epochs:
+          type: integer
+          default: 100
+        batch_size:
+          type: integer
+          default: 32
+        learning_rate:
+          type: number
+          default: 0.001
+
+    TrainingJobResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+        model_id:
+          type: string
+        dataset_id:
+          type: string
+        status:
+          type: string
+        progress:
+          type: number
+        current_epoch:
+          type: integer
+        total_epochs:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+        estimated_completion:
+          type: string
+          format: date-time
+        logs_url:
+          type: string
+
+    TrainingMetricsResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+        metrics:
+          type: object
+        loss_history:
+          type: array
+          items:
+            type: number
+        validation_history:
+          type: array
+          items:
+            type: number
+        learning_curves:
+          type: object
+
+    # Inference Schemas
+    PredictionRequest:
+      type: object
+      required: [model_id, input_data]
+      properties:
+        model_id:
+          type: string
+        input_data:
+          type: object
+        input_format:
+          type: string
+          enum: [geojson, raster, vector, tabular]
+        output_format:
+          type: string
+          enum: [geojson, raster, json, csv]
+        confidence_threshold:
+          type: number
+        preprocessing:
+          type: object
+
+    PredictionResponse:
+      type: object
+      properties:
+        prediction_id:
+          type: string
+        model_id:
+          type: string
+        predictions:
+          type: object
+        confidence_scores:
+          type: object
+        processing_time:
+          type: number
+        metadata:
+          type: object
+
+    BatchPredictionRequest:
+      type: object
+      required: [model_id, input_dataset]
+      properties:
+        model_id:
+          type: string
+        input_dataset:
+          type: string
+        output_location:
+          type: string
+        batch_size:
+          type: integer
+          default: 100
+        parallelism:
+          type: integer
+          default: 4
+
+    BatchPredictionResponse:
+      type: object
+      properties:
+        batch_job_id:
+          type: string
+        model_id:
+          type: string
+        status:
+          type: string
+        progress:
+          type: number
+        started_at:
+          type: string
+          format: date-time
+        estimated_completion:
+          type: string
+          format: date-time
+
+    ExplanationRequest:
+      type: object
+      required: [model_id, input_data]
+      properties:
+        model_id:
+          type: string
+        input_data:
+          type: object
+        explanation_method:
+          type: string
+          enum: [lime, shap, grad_cam, integrated_gradients]
+        num_features:
+          type: integer
+          default: 10
+
+    ExplanationResponse:
+      type: object
+      properties:
+        explanation_id:
+          type: string
+        model_id:
+          type: string
+        method:
+          type: string
+        feature_importance:
+          type: object
+        visualizations:
+          type: array
+          items:
+            type: string
+        confidence:
+          type: number
+
+    # Computer Vision Schemas
+    ObjectDetectionResponse:
+      type: object
+      properties:
+        detection_id:
+          type: string
+        objects:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetectedObject'
+        processing_time:
+          type: number
+        image_metadata:
+          type: object
+
+    DetectedObject:
+      type: object
+      properties:
+        class:
+          type: string
+        confidence:
+          type: number
+        bounding_box:
+          type: object
+          properties:
+            x:
+              type: number
+            y:
+              type: number
+            width:
+              type: number
+            height:
+              type: number
+        geometry:
+          type: object
+
+    SegmentationResponse:
+      type: object
+      properties:
+        segmentation_id:
+          type: string
+        segments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Segment'
+        mask_url:
+          type: string
+        processing_time:
+          type: number
+
+    Segment:
+      type: object
+      properties:
+        class:
+          type: string
+        confidence:
+          type: number
+        area:
+          type: number
+        geometry:
+          type: object
+
+    ChangeDetectionResponse:
+      type: object
+      properties:
+        change_id:
+          type: string
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DetectedChange'
+        change_percentage:
+          type: number
+        change_map_url:
+          type: string
+
+    DetectedChange:
+      type: object
+      properties:
+        change_type:
+          type: string
+        confidence:
+          type: number
+        geometry:
+          type: object
+        before_class:
+          type: string
+        after_class:
+          type: string
+
+    # Feature Engineering Schemas
+    FeatureExtractionRequest:
+      type: object
+      required: [data_source, feature_types]
+      properties:
+        data_source:
+          type: string
+        feature_types:
+          type: array
+          items:
+            type: string
+            enum: [spatial, temporal, spectral, textural, geometric]
+        parameters:
+          type: object
+
+    FeatureExtractionResponse:
+      type: object
+      properties:
+        feature_id:
+          type: string
+        features:
+          type: object
+        feature_names:
+          type: array
+          items:
+            type: string
+        statistics:
+          type: object
+
+    FeatureSelectionRequest:
+      type: object
+      required: [features, target]
+      properties:
+        features:
+          type: object
+        target:
+          type: array
+        method:
+          type: string
+          enum: [univariate, recursive, lasso, tree_based]
+        num_features:
+          type: integer
+
+    FeatureSelectionResponse:
+      type: object
+      properties:
+        selection_id:
+          type: string
+        selected_features:
+          type: array
+          items:
+            type: string
+        feature_scores:
+          type: object
+        selection_method:
+          type: string
+
+    FeatureTransformRequest:
+      type: object
+      required: [features, transformations]
+      properties:
+        features:
+          type: object
+        transformations:
+          type: array
+          items:
+            type: string
+            enum: [normalize, standardize, log, sqrt, pca, ica]
+
+    FeatureTransformResponse:
+      type: object
+      properties:
+        transform_id:
+          type: string
+        transformed_features:
+          type: object
+        transformation_params:
+          type: object
+
+    # Time Series Schemas
+    ForecastRequest:
+      type: object
+      required: [time_series_data, forecast_horizon]
+      properties:
+        time_series_data:
+          type: object
+        forecast_horizon:
+          type: integer
+        model_type:
+          type: string
+          enum: [arima, lstm, prophet, transformer]
+        confidence_intervals:
+          type: boolean
+          default: true
+
+    ForecastResponse:
+      type: object
+      properties:
+        forecast_id:
+          type: string
+        forecasts:
+          type: array
+          items:
+            type: object
+        confidence_intervals:
+          type: object
+        model_metrics:
+          type: object
+
+    AnomalyDetectionRequest:
+      type: object
+      required: [time_series_data]
+      properties:
+        time_series_data:
+          type: object
+        method:
+          type: string
+          enum: [isolation_forest, one_class_svm, lstm_autoencoder]
+        sensitivity:
+          type: number
+          default: 0.1
+
+    AnomalyDetectionResponse:
+      type: object
+      properties:
+        detection_id:
+          type: string
+        anomalies:
+          type: array
+          items:
+            type: object
+        anomaly_scores:
+          type: array
+          items:
+            type: number
+
+    # Experiment Management Schemas
+    ExperimentListResponse:
+      type: object
+      properties:
+        experiments:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentSummary'
+        total:
+          type: integer
+
+    ExperimentSummary:
+      type: object
+      properties:
+        experiment_id:
+          type: string
+        name:
+          type: string
+        project:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        best_metric:
+          type: number
+
+    ExperimentRequest:
+      type: object
+      required: [name, project]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        project:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    ExperimentResponse:
+      type: object
+      properties:
+        experiment_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        project:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    ExperimentRunListResponse:
+      type: object
+      properties:
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExperimentRun'
+        total:
+          type: integer
+
+    ExperimentRun:
+      type: object
+      properties:
+        run_id:
+          type: string
+        experiment_id:
+          type: string
+        parameters:
+          type: object
+        metrics:
+          type: object
+        artifacts:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+
+    # Deployment Schemas
+    ModelEndpointListResponse:
+      type: object
+      properties:
+        endpoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelEndpointSummary'
+        total:
+          type: integer
+
+    ModelEndpointSummary:
+      type: object
+      properties:
+        endpoint_id:
+          type: string
+        name:
+          type: string
+        model_id:
+          type: string
+        status:
+          type: string
+        url:
+          type: string
+        requests_per_minute:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+
+    ModelDeploymentRequest:
+      type: object
+      required: [model_id, endpoint_name]
+      properties:
+        model_id:
+          type: string
+        endpoint_name:
+          type: string
+        instance_type:
+          type: string
+          enum: [cpu_small, cpu_medium, cpu_large, gpu_small, gpu_medium, gpu_large]
+        auto_scaling:
+          type: boolean
+          default: true
+        min_instances:
+          type: integer
+          default: 1
+        max_instances:
+          type: integer
+          default: 10
+
+    ModelDeploymentResponse:
+      type: object
+      properties:
+        deployment_id:
+          type: string
+        endpoint_id:
+          type: string
+        model_id:
+          type: string
+        status:
+          type: string
+        endpoint_url:
+          type: string
+        estimated_ready_time:
+          type: string
+          format: date-time
+
+    ModelEndpointResponse:
+      type: object
+      properties:
+        endpoint_id:
+          type: string
+        name:
+          type: string
+        model_id:
+          type: string
+        model_version:
+          type: string
+        status:
+          type: string
+        url:
+          type: string
+        instance_type:
+          type: string
+        current_instances:
+          type: integer
+        metrics:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+
+    # System Management Schemas
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        components:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ComponentHealth'
+
+    ComponentHealth:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [up, down, degraded]
+        response_time:
+          type: number
+        last_check:
+          type: string
+          format: date-time
+
+    SystemResourcesResponse:
+      type: object
+      properties:
+        cpu:
+          type: object
+          properties:
+            usage_percent:
+              type: number
+            cores:
+              type: integer
+        memory:
+          type: object
+          properties:
+            usage_percent:
+              type: number
+            total_gb:
+              type: number
+            available_gb:
+              type: number
+        gpu:
+          type: object
+          properties:
+            count:
+              type: integer
+            usage_percent:
+              type: array
+              items:
+                type: number
+            memory_usage_percent:
+              type: array
+              items:
+                type: number
+        storage:
+          type: object
+          properties:
+            usage_percent:
+              type: number
+            total_tb:
+              type: number
+            available_tb:
+              type: number
+
+    SystemMetricsResponse:
+      type: object
+      properties:
+        active_models:
+          type: integer
+        running_training_jobs:
+          type: integer
+        predictions_per_hour:
+          type: number
+        average_response_time:
+          type: number
+        error_rate:
+          type: number
+        uptime:
+          type: integer
+
+    # Common Error Schema
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

@@ -1,0 +1,1704 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-SIM API
+  description: |
+    Geospatial simulation and modeling platform within the GEO-INFER framework.
+    
+    ## Core Capabilities
+    - **Agent-Based Modeling**: Spatial agent simulations and complex systems modeling
+    - **Cellular Automata**: Land use change and spatial dynamics modeling
+    - **System Dynamics**: Feedback loop modeling and policy simulation
+    - **Monte Carlo Simulation**: Uncertainty analysis and risk assessment
+    - **Discrete Event Simulation**: Process modeling and optimization
+    - **Network Simulation**: Infrastructure and connectivity modeling
+    - **Climate Modeling**: Environmental and climate scenario simulation
+    - **Urban Dynamics**: City growth and urban planning simulations
+    
+    ## Key Features
+    - Multi-scale simulation (from local to global)
+    - Real-time and batch simulation execution
+    - Scenario comparison and sensitivity analysis
+    - Integration with GIS data and satellite imagery
+    - Parallel and distributed computing support
+    - Interactive visualization and dashboards
+    - Policy impact assessment and optimization
+    - Uncertainty quantification and validation
+    
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Development Team
+    url: https://github.com/geo-infer/geo-infer-sim
+    email: dev@geo-infer.org
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/sim/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/sim/v1  
+    description: Staging server
+  - url: http://localhost:8000/api/sim/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+  - OAuth2: [read, write, admin]
+
+tags:
+  - name: models
+    description: Simulation model management
+  - name: scenarios
+    description: Scenario definition and management
+  - name: execution
+    description: Simulation execution and control
+  - name: analysis
+    description: Results analysis and comparison
+  - name: visualization
+    description: Visualization and reporting
+  - name: validation
+    description: Model validation and calibration
+  - name: optimization
+    description: Parameter optimization and sensitivity
+  - name: system
+    description: System administration and monitoring
+
+paths:
+  # Model Management Endpoints
+  /models:
+    get:
+      tags: [models]
+      summary: List simulation models
+      description: Retrieve list of available simulation models
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [agent_based, cellular_automata, system_dynamics, monte_carlo, discrete_event, network, climate]
+        - name: domain
+          in: query
+          schema:
+            type: string
+            enum: [urban, environmental, economic, social, transportation, agriculture]
+        - name: scale
+          in: query
+          schema:
+            type: string
+            enum: [local, regional, national, global]
+      responses:
+        '200':
+          description: Models retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelListResponse'
+
+    post:
+      tags: [models]
+      summary: Create simulation model
+      description: Create a new simulation model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelRequest'
+      responses:
+        '201':
+          description: Model created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+
+  /models/{model_id}:
+    get:
+      tags: [models]
+      summary: Get model details
+      description: Retrieve detailed information about a specific model
+      parameters:
+        - name: model_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Model details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+
+    put:
+      tags: [models]
+      summary: Update model
+      description: Update model configuration and parameters
+      parameters:
+        - name: model_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelUpdateRequest'
+      responses:
+        '200':
+          description: Model updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+
+    delete:
+      tags: [models]
+      summary: Delete model
+      description: Remove model from the system
+      parameters:
+        - name: model_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Model deleted successfully
+
+  /models/{model_id}/validate:
+    post:
+      tags: [models]
+      summary: Validate model
+      description: Validate model configuration and parameters
+      parameters:
+        - name: model_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ValidationRequest'
+      responses:
+        '200':
+          description: Model validation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResponse'
+
+  # Scenario Management Endpoints
+  /scenarios:
+    get:
+      tags: [scenarios]
+      summary: List scenarios
+      description: Retrieve list of defined scenarios
+      parameters:
+        - name: model_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, ready, running, completed, failed]
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Scenarios retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScenarioListResponse'
+
+    post:
+      tags: [scenarios]
+      summary: Create scenario
+      description: Create a new simulation scenario
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScenarioRequest'
+      responses:
+        '201':
+          description: Scenario created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScenarioResponse'
+
+  /scenarios/{scenario_id}:
+    get:
+      tags: [scenarios]
+      summary: Get scenario details
+      description: Retrieve detailed information about a specific scenario
+      parameters:
+        - name: scenario_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Scenario details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScenarioResponse'
+
+    put:
+      tags: [scenarios]
+      summary: Update scenario
+      description: Update scenario configuration
+      parameters:
+        - name: scenario_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScenarioUpdateRequest'
+      responses:
+        '200':
+          description: Scenario updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScenarioResponse'
+
+    delete:
+      tags: [scenarios]
+      summary: Delete scenario
+      description: Remove scenario from the system
+      parameters:
+        - name: scenario_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Scenario deleted successfully
+
+  /scenarios/{scenario_id}/clone:
+    post:
+      tags: [scenarios]
+      summary: Clone scenario
+      description: Create a copy of an existing scenario
+      parameters:
+        - name: scenario_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloneRequest'
+      responses:
+        '201':
+          description: Scenario cloned successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScenarioResponse'
+
+  # Execution Management Endpoints
+  /executions:
+    get:
+      tags: [execution]
+      summary: List simulation runs
+      description: Retrieve list of simulation executions
+      parameters:
+        - name: scenario_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [queued, running, completed, failed, cancelled]
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Executions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionListResponse'
+
+    post:
+      tags: [execution]
+      summary: Start simulation
+      description: Start a new simulation execution
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExecutionRequest'
+      responses:
+        '202':
+          description: Simulation started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionResponse'
+
+  /executions/{execution_id}:
+    get:
+      tags: [execution]
+      summary: Get execution status
+      description: Retrieve status and progress of a simulation execution
+      parameters:
+        - name: execution_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Execution status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionResponse'
+
+    delete:
+      tags: [execution]
+      summary: Cancel execution
+      description: Cancel a running simulation
+      parameters:
+        - name: execution_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Execution cancelled
+
+  /executions/{execution_id}/pause:
+    post:
+      tags: [execution]
+      summary: Pause execution
+      description: Pause a running simulation
+      parameters:
+        - name: execution_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Execution paused
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionResponse'
+
+  /executions/{execution_id}/resume:
+    post:
+      tags: [execution]
+      summary: Resume execution
+      description: Resume a paused simulation
+      parameters:
+        - name: execution_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Execution resumed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionResponse'
+
+  /executions/{execution_id}/results:
+    get:
+      tags: [execution]
+      summary: Get execution results
+      description: Retrieve results from a completed simulation
+      parameters:
+        - name: execution_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [json, csv, geojson, netcdf]
+            default: json
+      responses:
+        '200':
+          description: Results retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResultsResponse'
+
+  # Analysis Endpoints
+  /analysis/compare:
+    post:
+      tags: [analysis]
+      summary: Compare scenarios
+      description: Compare results across multiple scenarios
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComparisonRequest'
+      responses:
+        '200':
+          description: Comparison analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComparisonResponse'
+
+  /analysis/sensitivity:
+    post:
+      tags: [analysis]
+      summary: Sensitivity analysis
+      description: Perform sensitivity analysis on model parameters
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SensitivityRequest'
+      responses:
+        '202':
+          description: Sensitivity analysis started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SensitivityResponse'
+
+  /analysis/uncertainty:
+    post:
+      tags: [analysis]
+      summary: Uncertainty analysis
+      description: Quantify uncertainty in simulation results
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UncertaintyRequest'
+      responses:
+        '202':
+          description: Uncertainty analysis started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UncertaintyResponse'
+
+  /analysis/statistics:
+    get:
+      tags: [analysis]
+      summary: Get simulation statistics
+      description: Retrieve statistical summary of simulation results
+      parameters:
+        - name: execution_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: variables
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Statistics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatisticsResponse'
+
+  # Visualization Endpoints
+  /visualizations:
+    get:
+      tags: [visualization]
+      summary: List visualizations
+      description: Retrieve available visualizations for simulation results
+      parameters:
+        - name: execution_id
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [map, chart, animation, dashboard]
+      responses:
+        '200':
+          description: Visualizations retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VisualizationListResponse'
+
+    post:
+      tags: [visualization]
+      summary: Create visualization
+      description: Create a new visualization of simulation results
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VisualizationRequest'
+      responses:
+        '201':
+          description: Visualization created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VisualizationResponse'
+
+  /visualizations/{viz_id}:
+    get:
+      tags: [visualization]
+      summary: Get visualization
+      description: Retrieve a specific visualization
+      parameters:
+        - name: viz_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Visualization retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VisualizationResponse'
+
+  /visualizations/{viz_id}/render:
+    post:
+      tags: [visualization]
+      summary: Render visualization
+      description: Generate rendered output of visualization
+      parameters:
+        - name: viz_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RenderRequest'
+      responses:
+        '200':
+          description: Visualization rendered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RenderResponse'
+
+  # Model Validation Endpoints
+  /validation/calibration:
+    post:
+      tags: [validation]
+      summary: Calibrate model
+      description: Calibrate model parameters against observed data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalibrationRequest'
+      responses:
+        '202':
+          description: Calibration started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CalibrationResponse'
+
+  /validation/verification:
+    post:
+      tags: [validation]
+      summary: Verify model
+      description: Verify model implementation and behavior
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerificationRequest'
+      responses:
+        '200':
+          description: Verification completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VerificationResponse'
+
+  /validation/goodness-of-fit:
+    post:
+      tags: [validation]
+      summary: Assess model fit
+      description: Assess goodness of fit against validation data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GoodnessOfFitRequest'
+      responses:
+        '200':
+          description: Goodness of fit assessment completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoodnessOfFitResponse'
+
+  # Optimization Endpoints
+  /optimization/parameters:
+    post:
+      tags: [optimization]
+      summary: Optimize parameters
+      description: Optimize model parameters for specified objectives
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ParameterOptimizationRequest'
+      responses:
+        '202':
+          description: Parameter optimization started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptimizationResponse'
+
+  /optimization/objectives:
+    post:
+      tags: [optimization]
+      summary: Multi-objective optimization
+      description: Optimize multiple objectives simultaneously
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MultiObjectiveRequest'
+      responses:
+        '202':
+          description: Multi-objective optimization started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptimizationResponse'
+
+  /optimization/{optimization_id}/results:
+    get:
+      tags: [optimization]
+      summary: Get optimization results
+      description: Retrieve results from optimization process
+      parameters:
+        - name: optimization_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Optimization results retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptimizationResultsResponse'
+
+  # System Management Endpoints
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and simulation service status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /system/resources:
+    get:
+      tags: [system]
+      summary: Get system resources
+      description: Retrieve current system resource usage
+      responses:
+        '200':
+          description: System resources retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemResourcesResponse'
+
+  /system/capacity:
+    get:
+      tags: [system]
+      summary: Get system capacity
+      description: Retrieve system capacity and queue status
+      responses:
+        '200':
+          description: System capacity retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemCapacityResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.geo-infer.org/oauth/authorize
+          tokenUrl: https://auth.geo-infer.org/oauth/token
+          scopes:
+            read: Read access to models and simulations
+            write: Write access to simulations and scenarios
+            admin: Administrative access
+
+  schemas:
+    # Model Management Schemas
+    ModelListResponse:
+      type: object
+      properties:
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelSummary'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    ModelSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        domain:
+          type: string
+        scale:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    ModelRequest:
+      type: object
+      required: [name, type, domain]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [agent_based, cellular_automata, system_dynamics, monte_carlo, discrete_event, network, climate]
+        domain:
+          type: string
+          enum: [urban, environmental, economic, social, transportation, agriculture]
+        scale:
+          type: string
+          enum: [local, regional, national, global]
+        parameters:
+          type: object
+        configuration:
+          type: object
+        spatial_extent:
+          type: object
+        temporal_extent:
+          type: object
+
+    ModelResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        domain:
+          type: string
+        scale:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+        parameters:
+          type: object
+        configuration:
+          type: object
+        spatial_extent:
+          type: object
+        temporal_extent:
+          type: object
+        validation_status:
+          type: string
+        performance_metrics:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ModelUpdateRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        parameters:
+          type: object
+        configuration:
+          type: object
+        spatial_extent:
+          type: object
+        temporal_extent:
+          type: object
+
+    ValidationRequest:
+      type: object
+      properties:
+        validation_type:
+          type: string
+          enum: [syntax, logic, data_consistency, performance]
+        test_data:
+          type: object
+        validation_criteria:
+          type: object
+
+    ValidationResponse:
+      type: object
+      properties:
+        validation_id:
+          type: string
+        model_id:
+          type: string
+        validation_type:
+          type: string
+        status:
+          type: string
+        results:
+          type: object
+        errors:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items:
+            type: string
+        performance_metrics:
+          type: object
+
+    # Scenario Management Schemas
+    ScenarioListResponse:
+      type: object
+      properties:
+        scenarios:
+          type: array
+          items:
+            $ref: '#/components/schemas/ScenarioSummary'
+        total:
+          type: integer
+
+    ScenarioSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        model_id:
+          type: string
+        status:
+          type: string
+        execution_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    ScenarioRequest:
+      type: object
+      required: [name, model_id]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        model_id:
+          type: string
+        parameters:
+          type: object
+        initial_conditions:
+          type: object
+        time_horizon:
+          type: object
+        spatial_scope:
+          type: object
+        output_specifications:
+          type: object
+
+    ScenarioResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        model_id:
+          type: string
+        model_name:
+          type: string
+        status:
+          type: string
+        parameters:
+          type: object
+        initial_conditions:
+          type: object
+        time_horizon:
+          type: object
+        spatial_scope:
+          type: object
+        output_specifications:
+          type: object
+        execution_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ScenarioUpdateRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        parameters:
+          type: object
+        initial_conditions:
+          type: object
+        time_horizon:
+          type: object
+        spatial_scope:
+          type: object
+        output_specifications:
+          type: object
+
+    CloneRequest:
+      type: object
+      properties:
+        name:
+          type: string
+        modifications:
+          type: object
+
+    # Execution Management Schemas
+    ExecutionListResponse:
+      type: object
+      properties:
+        executions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExecutionSummary'
+        total:
+          type: integer
+
+    ExecutionSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        scenario_id:
+          type: string
+        scenario_name:
+          type: string
+        status:
+          type: string
+        progress:
+          type: number
+        started_at:
+          type: string
+          format: date-time
+        estimated_completion:
+          type: string
+          format: date-time
+
+    ExecutionRequest:
+      type: object
+      required: [scenario_id]
+      properties:
+        scenario_id:
+          type: string
+        execution_name:
+          type: string
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        parallel_runs:
+          type: integer
+          default: 1
+        resource_requirements:
+          type: object
+        notifications:
+          type: object
+
+    ExecutionResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        scenario_id:
+          type: string
+        scenario_name:
+          type: string
+        execution_name:
+          type: string
+        status:
+          type: string
+        progress:
+          type: number
+        current_step:
+          type: integer
+        total_steps:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+        estimated_completion:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        resource_usage:
+          type: object
+        logs_url:
+          type: string
+
+    ResultsResponse:
+      type: object
+      properties:
+        execution_id:
+          type: string
+        results:
+          type: object
+        summary_statistics:
+          type: object
+        output_files:
+          type: array
+          items:
+            type: string
+        download_urls:
+          type: object
+        metadata:
+          type: object
+
+    # Analysis Schemas
+    ComparisonRequest:
+      type: object
+      required: [execution_ids, comparison_metrics]
+      properties:
+        execution_ids:
+          type: array
+          items:
+            type: string
+        comparison_metrics:
+          type: array
+          items:
+            type: string
+        spatial_aggregation:
+          type: string
+          enum: [none, grid, administrative, custom]
+        temporal_aggregation:
+          type: string
+          enum: [none, daily, weekly, monthly, yearly]
+
+    ComparisonResponse:
+      type: object
+      properties:
+        comparison_id:
+          type: string
+        execution_ids:
+          type: array
+          items:
+            type: string
+        metrics:
+          type: object
+        differences:
+          type: object
+        statistical_tests:
+          type: object
+        visualizations:
+          type: array
+          items:
+            type: string
+
+    SensitivityRequest:
+      type: object
+      required: [model_id, parameters, output_variables]
+      properties:
+        model_id:
+          type: string
+        parameters:
+          type: object
+        output_variables:
+          type: array
+          items:
+            type: string
+        method:
+          type: string
+          enum: [sobol, morris, fast, delta_moment]
+        sample_size:
+          type: integer
+          default: 1000
+
+    SensitivityResponse:
+      type: object
+      properties:
+        analysis_id:
+          type: string
+        model_id:
+          type: string
+        status:
+          type: string
+        progress:
+          type: number
+        started_at:
+          type: string
+          format: date-time
+
+    UncertaintyRequest:
+      type: object
+      required: [execution_id, uncertainty_sources]
+      properties:
+        execution_id:
+          type: string
+        uncertainty_sources:
+          type: object
+        propagation_method:
+          type: string
+          enum: [monte_carlo, polynomial_chaos, interval_arithmetic]
+        confidence_levels:
+          type: array
+          items:
+            type: number
+
+    UncertaintyResponse:
+      type: object
+      properties:
+        analysis_id:
+          type: string
+        execution_id:
+          type: string
+        status:
+          type: string
+        progress:
+          type: number
+        started_at:
+          type: string
+          format: date-time
+
+    StatisticsResponse:
+      type: object
+      properties:
+        execution_id:
+          type: string
+        variables:
+          type: object
+        descriptive_statistics:
+          type: object
+        distributions:
+          type: object
+        correlations:
+          type: object
+        time_series_statistics:
+          type: object
+        spatial_statistics:
+          type: object
+
+    # Visualization Schemas
+    VisualizationListResponse:
+      type: object
+      properties:
+        visualizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/VisualizationSummary'
+        total:
+          type: integer
+
+    VisualizationSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        execution_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    VisualizationRequest:
+      type: object
+      required: [name, type, execution_id]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [map, chart, animation, dashboard, 3d_visualization]
+        execution_id:
+          type: string
+        variables:
+          type: array
+          items:
+            type: string
+        styling:
+          type: object
+        temporal_range:
+          type: object
+        spatial_extent:
+          type: object
+
+    VisualizationResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        execution_id:
+          type: string
+        variables:
+          type: array
+          items:
+            type: string
+        styling:
+          type: object
+        configuration:
+          type: object
+        preview_url:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    RenderRequest:
+      type: object
+      properties:
+        format:
+          type: string
+          enum: [png, pdf, svg, html, mp4, gif]
+        resolution:
+          type: object
+        quality:
+          type: string
+          enum: [low, medium, high, ultra]
+
+    RenderResponse:
+      type: object
+      properties:
+        render_id:
+          type: string
+        visualization_id:
+          type: string
+        format:
+          type: string
+        download_url:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+
+    # Validation Schemas
+    CalibrationRequest:
+      type: object
+      required: [model_id, observed_data, target_parameters]
+      properties:
+        model_id:
+          type: string
+        observed_data:
+          type: object
+        target_parameters:
+          type: array
+          items:
+            type: string
+        calibration_method:
+          type: string
+          enum: [least_squares, maximum_likelihood, bayesian, genetic_algorithm]
+        objective_function:
+          type: string
+        constraints:
+          type: object
+
+    CalibrationResponse:
+      type: object
+      properties:
+        calibration_id:
+          type: string
+        model_id:
+          type: string
+        status:
+          type: string
+        progress:
+          type: number
+        started_at:
+          type: string
+          format: date-time
+
+    VerificationRequest:
+      type: object
+      required: [model_id, verification_tests]
+      properties:
+        model_id:
+          type: string
+        verification_tests:
+          type: array
+          items:
+            type: string
+        test_cases:
+          type: object
+
+    VerificationResponse:
+      type: object
+      properties:
+        verification_id:
+          type: string
+        model_id:
+          type: string
+        test_results:
+          type: object
+        passed_tests:
+          type: integer
+        failed_tests:
+          type: integer
+        overall_status:
+          type: string
+
+    GoodnessOfFitRequest:
+      type: object
+      required: [execution_id, validation_data]
+      properties:
+        execution_id:
+          type: string
+        validation_data:
+          type: object
+        metrics:
+          type: array
+          items:
+            type: string
+            enum: [rmse, mae, r2, nash_sutcliffe, kge]
+
+    GoodnessOfFitResponse:
+      type: object
+      properties:
+        assessment_id:
+          type: string
+        execution_id:
+          type: string
+        metrics:
+          type: object
+        fit_quality:
+          type: string
+        recommendations:
+          type: array
+          items:
+            type: string
+
+    # Optimization Schemas
+    ParameterOptimizationRequest:
+      type: object
+      required: [model_id, objective_function, parameters]
+      properties:
+        model_id:
+          type: string
+        objective_function:
+          type: string
+        parameters:
+          type: object
+        constraints:
+          type: object
+        optimization_method:
+          type: string
+          enum: [genetic_algorithm, particle_swarm, simulated_annealing, gradient_descent]
+        convergence_criteria:
+          type: object
+
+    MultiObjectiveRequest:
+      type: object
+      required: [model_id, objectives, parameters]
+      properties:
+        model_id:
+          type: string
+        objectives:
+          type: array
+          items:
+            type: object
+        parameters:
+          type: object
+        constraints:
+          type: object
+        optimization_method:
+          type: string
+          enum: [nsga2, spea2, mopso, moea_d]
+
+    OptimizationResponse:
+      type: object
+      properties:
+        optimization_id:
+          type: string
+        model_id:
+          type: string
+        status:
+          type: string
+        progress:
+          type: number
+        current_generation:
+          type: integer
+        best_objective_value:
+          type: number
+        started_at:
+          type: string
+          format: date-time
+
+    OptimizationResultsResponse:
+      type: object
+      properties:
+        optimization_id:
+          type: string
+        optimal_parameters:
+          type: object
+        objective_values:
+          type: object
+        pareto_front:
+          type: array
+          items:
+            type: object
+        convergence_history:
+          type: object
+        sensitivity_analysis:
+          type: object
+
+    # System Management Schemas
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        components:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ComponentHealth'
+
+    ComponentHealth:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [up, down, degraded]
+        response_time:
+          type: number
+        last_check:
+          type: string
+          format: date-time
+
+    SystemResourcesResponse:
+      type: object
+      properties:
+        cpu:
+          type: object
+          properties:
+            usage_percent:
+              type: number
+            cores_available:
+              type: integer
+            cores_in_use:
+              type: integer
+        memory:
+          type: object
+          properties:
+            usage_percent:
+              type: number
+            total_gb:
+              type: number
+            available_gb:
+              type: number
+        storage:
+          type: object
+          properties:
+            usage_percent:
+              type: number
+            total_tb:
+              type: number
+            available_tb:
+              type: number
+        gpu:
+          type: object
+          properties:
+            available:
+              type: boolean
+            count:
+              type: integer
+            usage_percent:
+              type: array
+              items:
+                type: number
+
+    SystemCapacityResponse:
+      type: object
+      properties:
+        max_concurrent_simulations:
+          type: integer
+        running_simulations:
+          type: integer
+        queued_simulations:
+          type: integer
+        available_capacity:
+          type: integer
+        queue_wait_time:
+          type: number
+        resource_allocation:
+          type: object
+
+    # Common Error Schema
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
