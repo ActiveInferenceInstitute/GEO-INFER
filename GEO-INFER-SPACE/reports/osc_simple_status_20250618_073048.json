@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-03-25T07:52:57.751005",
+  "timestamp": "2025-06-18T07:30:48.631299",
   "repositories": {
     "h3grid": {
       "key": "h3grid",
       "name": "OS Climate H3 Grid Server",
-      "path": "/home/trim/Documents/GitHub/INFER-GEO/GEO-INFER-SPACE/ext/os-climate/osc-geo-h3grid-srv",
+      "path": "/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/ext/os-climate/osc-geo-h3grid-srv",
       "clone_url": "https://github.com/os-climate/osc-geo-h3grid-srv.git",
       "exists": true,
       "is_git_repo": true,
@@ -15,7 +15,7 @@
     "h3loader": {
       "key": "h3loader",
       "name": "OS Climate H3 Loader CLI",
-      "path": "/home/trim/Documents/GitHub/INFER-GEO/GEO-INFER-SPACE/ext/os-climate/osc-geo-h3loader-cli",
+      "path": "/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/ext/os-climate/osc-geo-h3loader-cli",
       "clone_url": "https://github.com/os-climate/osc-geo-h3loader-cli.git",
       "exists": true,
       "is_git_repo": true,

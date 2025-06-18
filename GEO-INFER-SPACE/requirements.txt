@@ -17,5 +17,11 @@ python-multipart>=0.0.5
 pytest>=6.2.5
 pytest-cov>=2.12.1
 
+# Visualization dependencies
+matplotlib>=3.5.0
+seaborn>=0.11.0
+plotly>=5.0.0
+folium>=0.12.0
+
 # For integrating with GEO-INFER-GIT
 # Note: GEO-INFER-GIT should be installed separately 

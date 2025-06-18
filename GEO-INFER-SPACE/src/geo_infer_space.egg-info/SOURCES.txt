@@ -1,3 +1,4 @@
+README.md
 setup.py
 bin/osc_status
 src/geo_infer_space/__init__.py
