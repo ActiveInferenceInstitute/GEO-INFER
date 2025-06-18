@@ -1,0 +1,14 @@
+{
+  "error": "'list' object has no attribute 'get'",
+  "timestamp": "2025-06-18T13:40:47.517704",
+  "parameters": {
+    "region_bbox": [
+      -130,
+      25,
+      -65,
+      55
+    ],
+    "max_samples": 1000,
+    "h3_resolution": 7
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "analysis_region": [
+    -130,
+    25,
+    -65,
+    55
+  ],
+  "max_samples": 1000,
+  "h3_resolution": 7,
+  "coordinates_count": 1000,
+  "microbiome_source": "Demo Earth Microbiome Project (Clustered)",
+  "climate_source": "WorldClim-style Climate Data (Realistic Patterns)",
+  "soil_source": "ISRIC SoilGrids-style Synthetic Data",
+  "processing_time": "0:00:01.496584",
+  "visualization_path": "output/spatial_biological_integration_20250618_131949.html",
+  "timestamp": "2025-06-18T13:19:50.940353"
+}
