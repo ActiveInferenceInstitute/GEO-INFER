@@ -11,7 +11,7 @@
   "microbiome_source": "Demo Earth Microbiome Project (Clustered)",
   "climate_source": "WorldClim-style Climate Data (Realistic Patterns)",
   "soil_source": "ISRIC SoilGrids-style Synthetic Data",
-  "processing_time": "0:00:01.161015",
-  "visualization_path": "output/spatial_biological_integration_20250618_150016.html",
-  "timestamp": "2025-06-18T15:00:18.050526"
+  "processing_time": "0:00:01.208654",
+  "visualization_path": "output/spatial_biological_integration_20250618_150832.html",
+  "timestamp": "2025-06-18T15:08:34.017107"
 }
