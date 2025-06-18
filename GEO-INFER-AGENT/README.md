@@ -93,7 +93,121 @@ GEO-INFER-AGENT/
 └── tests/                  # Unit and integration tests for agent components and behaviors
 ```
 
-## Getting Started
+## 🚀 Quick Start (5 minutes)
+
+### 1. Prerequisites Check
+```bash
+# Verify Python version
+python --version  # Should be 3.9+
+
+# Check agent framework dependencies
+python -c "import numpy, pandas; print('✅ Basic libraries available')"
+
+# Check required GEO-INFER modules
+pip list | grep geo-infer
+```
+
+### 2. Installation
+```bash
+# Install GEO-INFER-AGENT and dependencies
+pip install -e ./GEO-INFER-AGENT
+
+# Install agent-specific libraries
+pip install stable-baselines3 gym pymdp  # For RL and Active Inference agents
+
+# Verify installation
+python -c "import geo_infer_agent; print('✅ AGENT installation successful')"
+```
+
+### 3. Basic Configuration
+```bash
+# Copy example configuration
+cp config/example.yaml config/local.yaml
+
+# Set up agent environment
+mkdir -p ./agent_workspace/{logs,models,data}
+
+# Edit agent configuration
+nano config/local.yaml
+```
+
+### 4. Create Your First Agent
+```python
+# Simple geospatial data collection agent
+from geo_infer_agent.agents import DataCollectionAgent
+from geo_infer_agent.core import AgentEnvironment
+import geopandas as gpd
+
+# Initialize agent environment
+env = AgentEnvironment(
+    spatial_bounds=(-74.1, 40.6, -73.9, 40.8),  # NYC bounding box
+    temporal_range=("2024-01-01", "2024-12-31")
+)
+
+# Create a data collection agent
+agent = DataCollectionAgent(
+    name="nyc_data_collector",
+    environment=env,
+    collection_goals=["traffic_data", "air_quality"]
+)
+
+# Start agent
+agent.start()
+print(f"✅ Agent {agent.name} started successfully")
+
+# Check agent status
+status = agent.get_status()
+print(f"Agent status: {status}")
+```
+
+### 5. Run Multi-Agent Example
+```python
+# Multi-agent coordination example
+from geo_infer_agent.coordination import MultiAgentSystem
+from geo_infer_agent.agents import MonitoringAgent, AnalysisAgent
+
+# Create multi-agent system
+mas = MultiAgentSystem()
+
+# Add monitoring agent
+monitor_agent = MonitoringAgent(
+    name="environmental_monitor",
+    monitoring_area="POLYGON((-74.0 40.7, -73.95 40.7, -73.95 40.75, -74.0 40.75, -74.0 40.7))"
+)
+
+# Add analysis agent
+analysis_agent = AnalysisAgent(
+    name="data_analyzer",
+    analysis_types=["anomaly_detection", "trend_analysis"]
+)
+
+# Deploy agents
+mas.add_agent(monitor_agent)
+mas.add_agent(analysis_agent)
+mas.start_coordination()
+
+print("✅ Multi-agent system deployed successfully")
+```
+
+### 6. Monitor Agent Performance
+```bash
+# Check agent logs
+tail -f agent_workspace/logs/agent_activity.log
+
+# View agent dashboard (if running)
+open http://localhost:8080/agent-dashboard
+
+# Test agent communication
+python -m geo_infer_agent.cli test-communication
+```
+
+### 7. Next Steps
+- 📖 See [agent examples](./examples/) for BDI, RL, and Active Inference agents
+- 🔗 Check [integration guide](./docs/integration.md) for connecting with other modules
+- 🛠️ Visit [agent architectures](./docs/agent_architectures.md) for advanced configurations
+- 📋 Review [ethical guidelines](./docs/ethics.md) for responsible agent development
+
+## Getting Started (Detailed)
 
 ### Prerequisites
 - Python 3.9+

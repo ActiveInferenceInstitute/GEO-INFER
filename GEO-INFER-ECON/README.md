@@ -79,6 +79,70 @@ GEO-INFER-ECON is the specialized module within the GEO-INFER framework dedicate
     -   Spatially explicit resource management models (e.g., for water, forests, fisheries) incorporating economic values.
 -   **Benefits:** Helps in making cost-effective investment decisions, improving service delivery, and ensuring sustainable resource use by considering geographical constraints and opportunities.
 
+## Data Flow
+
+### Inputs
+- **Economic Data Sources**:
+  - Macroeconomic indicators (GDP, employment, prices) from statistical agencies
+  - Microeconomic data (firm-level, household surveys) from GEO-INFER-DATA
+  - Trade and transportation data for spatial economic modeling
+  - Infrastructure and accessibility data from GEO-INFER-SPACE
+  - Temporal economic series from GEO-INFER-TIME
+
+- **Spatial Economic Inputs**:
+  - Regional boundaries and administrative divisions
+  - Network data (transportation, communication, trade routes)
+  - Land use and zoning information for location modeling
+  - Demographic and labor market data by geographic units
+  - Environmental and resource data for natural capital accounting
+
+- **Configuration Requirements**:
+  - `economic_config.yaml`: Model parameters, regional definitions
+  - `market_definitions.yaml`: Industry classifications, market boundaries
+  - Economic theory specifications (equilibrium models, agent behaviors)
+
+- **Dependencies**:
+  - **Required**: GEO-INFER-DATA (economic datasets), GEO-INFER-SPACE (spatial operations), GEO-INFER-MATH (optimization)
+  - **Optional**: GEO-INFER-TIME (dynamic modeling), GEO-INFER-AI (forecasting), GEO-INFER-AGENT (behavioral models)
+
+### Processes
+- **Spatial Economic Modeling**:
+  - Computable General Equilibrium (CGE) model construction
+  - Input-output analysis with spatial disaggregation  
+  - Market equilibrium calculations with transport costs
+  - Location-allocation optimization for economic activities
+
+- **Econometric Analysis**:
+  - Spatial econometric estimation (SAR, SEM, SDM models)
+  - Geographically Weighted Regression (GWR) analysis
+  - Panel data analysis with spatial effects
+  - Causal inference with spatial instruments
+
+- **Policy Impact Assessment**:
+  - Ex-ante policy simulation and scenario analysis
+  - Cost-benefit analysis with spatial distribution of impacts
+  - Welfare analysis and distributional effects
+  - Regional development and convergence analysis
+
+### Outputs
+- **Economic Models & Results**:
+  - Calibrated spatial economic models (CGE, I-O, equilibrium)
+  - Econometric estimates with spatial effects and standard errors
+  - Policy impact assessments with confidence intervals
+  - Resource allocation recommendations and optimization results
+
+- **Spatial Economic Maps & Visualizations**:
+  - Regional economic indicator maps (GDP, employment, productivity)
+  - Market access and potential maps
+  - Policy impact visualization (winners/losers by region)
+  - Economic flow maps (trade, commuting, migration)
+
+- **Integration Points**:
+  - Economic forecasts for GEO-INFER-RISK assessments
+  - Market analysis for GEO-INFER-AG agricultural economics
+  - Cost data for GEO-INFER-HEALTH healthcare accessibility analysis
+  - Economic dashboards via GEO-INFER-APP
+
 ## Module Architecture (Conceptual)
 
 ```mermaid
@@ -165,7 +229,91 @@ GEO-INFER-ECON relies on and complements several other modules:
 -   **GEO-INFER-RISK:** Economic impacts are a key component of overall risk assessment. ECON can model the economic consequences of natural disasters or other risks analyzed by RISK.
 -   **Domain-Specific Modules (e.g., GEO-INFER-AG, GEO-INFER-HEALTH, GEO-INFER-LOG):** ECON can provide the economic modeling framework for these domains (e.g., agricultural economics, health economics, logistics cost-benefit analysis).
 
-## Getting Started
+## 🚀 Quick Start (5 minutes)
+
+### 1. Prerequisites Check
+```bash
+# Verify Python version
+python --version  # Should be 3.9+
+
+# Check required GEO-INFER modules
+pip list | grep geo-infer
+
+# Verify economic analysis libraries
+python -c "import pandas, numpy, statsmodels, geopandas; print('✅ Libraries available')"
+```
+
+### 2. Installation
+```bash
+# Install GEO-INFER-ECON and dependencies
+pip install -e ./GEO-INFER-ECON
+
+# Install spatial econometrics libraries
+pip install pysal libpysal esda spreg
+
+# Verify installation
+python -c "import geo_infer_econ; print('✅ ECON installation successful')"
+```
+
+### 3. Basic Configuration
+```bash
+# Copy example configuration
+cp config/example.yaml config/local.yaml
+
+# Download sample economic data
+python -m geo_infer_econ.cli download-sample-data ./data/
+
+# Edit with your regional definitions
+nano config/local.yaml
+```
+
+### 4. Run First Economic Analysis
+```python
+# Spatial econometric analysis example
+from geo_infer_econ.analysis import SpatialEconometrics
+from geo_infer_econ.data import load_regional_data
+import geopandas as gpd
+
+# Load sample regional economic data
+regions = gpd.read_file("data/sample_regions.geojson")
+econ_data = load_regional_data("data/regional_gdp.csv")
+
+# Initialize spatial econometrics
+analyzer = SpatialEconometrics()
+
+# Run spatial regression
+result = analyzer.spatial_lag_model(
+    y=econ_data['gdp_per_capita'],
+    x=econ_data[['employment_rate', 'education_index']],
+    geometry=regions
+)
+
+print(f"✅ Spatial analysis complete: R² = {result.r2:.3f}")
+print(f"Spatial autocorrelation: {result.spatial_lag_coeff:.3f}")
+```
+
+### 5. Visualize Results
+```python
+# Create economic maps
+from geo_infer_econ.viz import EconomicMapper
+
+mapper = EconomicMapper()
+mapper.choropleth_map(
+    regions, 
+    values=econ_data['gdp_per_capita'],
+    title="GDP per Capita by Region"
+)
+mapper.save("output/gdp_map.html")
+print("✅ Economic map saved to output/gdp_map.html")
+```
+
+### 6. Next Steps
+- 📊 Open the generated map: `output/gdp_map.html`
+- 📖 See [economic modeling examples](./examples/) for CGE and I-O models
+- 🔗 Check [integration guide](./docs/integration.md) for connecting with other modules
+- 🛠️ Visit [model reference](./docs/models.md) for available economic models
+
+## Getting Started (Detailed)
 
 ### Prerequisites
 -   Python 3.9+

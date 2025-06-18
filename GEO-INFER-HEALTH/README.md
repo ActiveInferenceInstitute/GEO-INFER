@@ -47,6 +47,63 @@ The GEO-INFER-HEALTH module provides a specialized suite of tools and methodolog
 -   **Techniques/Examples:** Adapters for health data standards (e.g., de-identified extracts, aggregate data from systems using HL7 FHIR where location is a key attribute), tools for geocoding health records (with appropriate privacy safeguards from GEO-INFER-SEC), integration with public health databases.
 -   **Benefits:** Enables the use of existing health data for geospatial analysis, promotes data sharing (where appropriate and secure), and enhances the utility of the GEO-INFER framework in real-world public health settings.
 
+## Data Flow
+
+### Inputs
+- **Health Data Sources**:
+  - De-identified disease surveillance data (case reports, laboratory results)
+  - Healthcare facility locations and service information
+  - Population demographics and census data from GEO-INFER-DATA
+  - Environmental data (air quality, water quality, climate) from GEO-INFER-SPACE
+  - Social determinants of health indicators
+
+- **Configuration Requirements**:
+  - `health_config.yaml`: Analysis parameters, privacy settings
+  - `data_sources.yaml`: Connection details for health databases
+  - Privacy and security configurations via GEO-INFER-SEC
+
+- **Dependencies**:
+  - **Required**: GEO-INFER-DATA (base data), GEO-INFER-SPACE (spatial analysis), GEO-INFER-TIME (temporal trends)
+  - **Optional**: GEO-INFER-AI (predictive models), GEO-INFER-RISK (hazard data), GEO-INFER-BIO (biological data)
+
+### Processes
+- **Disease Surveillance & Monitoring**:
+  - Spatial cluster detection and hotspot analysis
+  - Temporal trend analysis and outbreak detection
+  - Disease mapping and epidemiological curve analysis
+  - Contact tracing network analysis
+
+- **Healthcare Accessibility Analysis**:
+  - Travel time and distance calculations to facilities
+  - Service area delineation and catchment analysis
+  - Equity assessment across demographic groups
+  - Resource allocation optimization
+
+- **Environmental Health Assessment**:
+  - Exposure modeling and risk mapping
+  - Correlation analysis between environmental factors and health outcomes
+  - Vulnerable population identification
+  - Environmental justice analysis
+
+### Outputs
+- **Surveillance Products**:
+  - Disease distribution maps and epidemiological reports
+  - Outbreak alerts and early warning systems
+  - Cluster detection results and statistical significance testing
+  - Temporal trend visualizations and forecasts
+
+- **Accessibility Maps & Reports**:
+  - Healthcare accessibility scores and rankings
+  - Service gap analysis and underserved area identification
+  - Equity metrics and disparity assessments
+  - Facility planning recommendations
+
+- **Integration Points**:
+  - Health maps and dashboards via GEO-INFER-APP
+  - Risk assessments feed into GEO-INFER-RISK
+  - Public health alerts via GEO-INFER-API
+  - Policy recommendations for decision makers
+
 ## Module Architecture & Components
 
 ```mermaid

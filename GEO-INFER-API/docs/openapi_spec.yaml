@@ -1,0 +1,1000 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-API
+  description: |
+    Standardized Interfaces for Geospatial Interoperability
+    
+    The central nervous system for communication and interoperability within the GEO-INFER framework.
+    Provides unified gateway, OGC-compliant APIs, and standardized access to all framework functionalities.
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Development Team
+    url: https://github.com/geo-infer/geo-infer-api
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/v1
+    description: Staging server
+  - url: http://localhost:8000/v1
+    description: Local development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+  - OAuth2: [read, write]
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      description: Returns the health status of the API gateway
+      operationId: getHealth
+      tags:
+        - System
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /collections:
+    get:
+      summary: List feature collections (OGC API - Features)
+      description: Returns a list of available feature collections following OGC API Features standard
+      operationId: getCollections
+      tags:
+        - OGC Features
+      responses:
+        '200':
+          description: List of available collections
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collections'
+
+  /collections/{collectionId}:
+    get:
+      summary: Get collection metadata
+      description: Returns metadata about a specific feature collection
+      operationId: getCollection
+      tags:
+        - OGC Features
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Collection identifier
+      responses:
+        '200':
+          description: Collection metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Collection'
+        '404':
+          description: Collection not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /collections/{collectionId}/items:
+    get:
+      summary: Get collection features
+      description: Returns features from a specific collection
+      operationId: getCollectionItems
+      tags:
+        - OGC Features
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: bbox
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: number
+            minItems: 4
+            maxItems: 6
+          description: Bounding box filter (minLon,minLat,maxLon,maxLat[,minElev,maxElev])
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 10000
+            default: 10
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+      responses:
+        '200':
+          description: Feature collection
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+    post:
+      summary: Create new feature
+      description: Creates a new feature in the collection
+      operationId: createFeature
+      tags:
+        - OGC Features
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/geo+json:
+            schema:
+              $ref: '#/components/schemas/Feature'
+      responses:
+        '201':
+          description: Feature created successfully
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/Feature'
+        '400':
+          description: Invalid feature data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /collections/{collectionId}/items/{featureId}:
+    get:
+      summary: Get specific feature
+      description: Returns a specific feature by ID
+      operationId: getFeature
+      tags:
+        - OGC Features
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: featureId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Feature data
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/Feature'
+        '404':
+          description: Feature not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Update feature
+      description: Updates an existing feature
+      operationId: updateFeature
+      tags:
+        - OGC Features
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: featureId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/geo+json:
+            schema:
+              $ref: '#/components/schemas/Feature'
+      responses:
+        '200':
+          description: Feature updated successfully
+        '404':
+          description: Feature not found
+    delete:
+      summary: Delete feature
+      description: Deletes a specific feature
+      operationId: deleteFeature
+      tags:
+        - OGC Features
+      parameters:
+        - name: collectionId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: featureId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Feature deleted successfully
+        '404':
+          description: Feature not found
+
+  /processes:
+    get:
+      summary: List available processes (OGC API - Processes)
+      description: Returns list of available geospatial processing operations
+      operationId: getProcesses
+      tags:
+        - OGC Processes
+      responses:
+        '200':
+          description: List of available processes
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Processes'
+
+  /processes/{processId}:
+    get:
+      summary: Get process description
+      description: Returns detailed description of a specific process
+      operationId: getProcess
+      tags:
+        - OGC Processes
+      parameters:
+        - name: processId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Process description
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Process'
+
+  /processes/{processId}/execution:
+    post:
+      summary: Execute process
+      description: Executes a geospatial processing operation
+      operationId: executeProcess
+      tags:
+        - OGC Processes
+      parameters:
+        - name: processId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProcessExecution'
+      responses:
+        '201':
+          description: Process execution started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusInfo'
+        '400':
+          description: Invalid execution parameters
+
+  /jobs/{jobId}:
+    get:
+      summary: Get job status
+      description: Returns the status of an asynchronous job
+      operationId: getJobStatus
+      tags:
+        - Job Management
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job status information
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatusInfo'
+
+  /jobs/{jobId}/results:
+    get:
+      summary: Get job results
+      description: Returns the results of a completed job
+      operationId: getJobResults
+      tags:
+        - Job Management
+      parameters:
+        - name: jobId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Job results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobResults'
+
+  /data/upload:
+    post:
+      summary: Upload geospatial data
+      description: Uploads geospatial data files to the system
+      operationId: uploadData
+      tags:
+        - Data Management
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Geospatial data file
+                metadata:
+                  type: string
+                  description: JSON metadata for the uploaded file
+      responses:
+        '201':
+          description: File uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UploadResponse'
+
+  /search:
+    get:
+      summary: Search geospatial data
+      description: Search for geospatial data using various criteria
+      operationId: searchData
+      tags:
+        - Search
+      parameters:
+        - name: q
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Text search query
+        - name: bbox
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: number
+            minItems: 4
+            maxItems: 4
+        - name: datetime
+          in: query
+          required: false
+          schema:
+            type: string
+          description: Temporal filter (RFC 3339)
+        - name: collections
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.geo-infer.org/oauth/authorize
+          tokenUrl: https://auth.geo-infer.org/oauth/token
+          scopes:
+            read: Read access to data
+            write: Write access to data
+            admin: Administrative access
+
+  schemas:
+    HealthStatus:
+      type: object
+      required:
+        - status
+        - timestamp
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        version:
+          type: string
+        uptime:
+          type: integer
+        dependencies:
+          type: object
+          additionalProperties:
+            type: string
+            enum: [available, unavailable]
+
+    Collections:
+      type: object
+      required:
+        - collections
+      properties:
+        collections:
+          type: array
+          items:
+            $ref: '#/components/schemas/Collection'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+
+    Collection:
+      type: object
+      required:
+        - id
+        - title
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        extent:
+          $ref: '#/components/schemas/Extent'
+        itemType:
+          type: string
+          enum: [feature, record]
+        crs:
+          type: array
+          items:
+            type: string
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+
+    Extent:
+      type: object
+      properties:
+        spatial:
+          type: object
+          properties:
+            bbox:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                minItems: 4
+                maxItems: 6
+            crs:
+              type: string
+              default: 'http://www.opengis.net/def/crs/OGC/1.3/CRS84'
+        temporal:
+          type: object
+          properties:
+            interval:
+              type: array
+              items:
+                type: array
+                items:
+                  type: string
+                  format: date-time
+                  nullable: true
+                minItems: 2
+                maxItems: 2
+            trs:
+              type: string
+              default: 'http://www.opengis.net/def/uom/ISO-8601/0/Gregorian'
+
+    Feature:
+      type: object
+      required:
+        - type
+        - geometry
+        - properties
+      properties:
+        type:
+          type: string
+          enum: [Feature]
+        id:
+          oneOf:
+            - type: string
+            - type: integer
+        geometry:
+          $ref: '#/components/schemas/Geometry'
+        properties:
+          type: object
+          nullable: true
+        bbox:
+          type: array
+          items:
+            type: number
+          minItems: 4
+          maxItems: 6
+
+    FeatureCollection:
+      type: object
+      required:
+        - type
+        - features
+      properties:
+        type:
+          type: string
+          enum: [FeatureCollection]
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feature'
+        bbox:
+          type: array
+          items:
+            type: number
+          minItems: 4
+          maxItems: 6
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        numberMatched:
+          type: integer
+          minimum: 0
+        numberReturned:
+          type: integer
+          minimum: 0
+
+    Geometry:
+      oneOf:
+        - $ref: '#/components/schemas/Point'
+        - $ref: '#/components/schemas/LineString'
+        - $ref: '#/components/schemas/Polygon'
+        - $ref: '#/components/schemas/MultiPoint'
+        - $ref: '#/components/schemas/MultiLineString'
+        - $ref: '#/components/schemas/MultiPolygon'
+        - $ref: '#/components/schemas/GeometryCollection'
+
+    Point:
+      type: object
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum: [Point]
+        coordinates:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 3
+
+    LineString:
+      type: object
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum: [LineString]
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 3
+          minItems: 2
+
+    Polygon:
+      type: object
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum: [Polygon]
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 3
+            minItems: 4
+
+    MultiPoint:
+      type: object
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum: [MultiPoint]
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 3
+
+    MultiLineString:
+      type: object
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum: [MultiLineString]
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 3
+            minItems: 2
+
+    MultiPolygon:
+      type: object
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum: [MultiPolygon]
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                minItems: 2
+                maxItems: 3
+              minItems: 4
+
+    GeometryCollection:
+      type: object
+      required:
+        - type
+        - geometries
+      properties:
+        type:
+          type: string
+          enum: [GeometryCollection]
+        geometries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Geometry'
+
+    Link:
+      type: object
+      required:
+        - href
+        - rel
+      properties:
+        href:
+          type: string
+          format: uri
+        rel:
+          type: string
+        type:
+          type: string
+        title:
+          type: string
+        hreflang:
+          type: string
+        length:
+          type: integer
+
+    Processes:
+      type: object
+      required:
+        - processes
+      properties:
+        processes:
+          type: array
+          items:
+            $ref: '#/components/schemas/ProcessSummary'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+
+    ProcessSummary:
+      type: object
+      required:
+        - id
+        - title
+        - version
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+
+    Process:
+      allOf:
+        - $ref: '#/components/schemas/ProcessSummary'
+        - type: object
+          properties:
+            inputs:
+              type: object
+              additionalProperties:
+                $ref: '#/components/schemas/InputDescription'
+            outputs:
+              type: object
+              additionalProperties:
+                $ref: '#/components/schemas/OutputDescription'
+
+    InputDescription:
+      type: object
+      required:
+        - title
+        - schema
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        minOccurs:
+          type: integer
+          default: 1
+        maxOccurs:
+          oneOf:
+            - type: integer
+            - type: string
+              enum: [unbounded]
+          default: 1
+        schema:
+          type: object
+
+    OutputDescription:
+      type: object
+      required:
+        - title
+        - schema
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        schema:
+          type: object
+
+    ProcessExecution:
+      type: object
+      required:
+        - inputs
+      properties:
+        inputs:
+          type: object
+        outputs:
+          type: object
+        response:
+          type: string
+          enum: [raw, document]
+          default: raw
+
+    StatusInfo:
+      type: object
+      required:
+        - jobID
+        - status
+        - type
+      properties:
+        jobID:
+          type: string
+        status:
+          type: string
+          enum: [accepted, running, successful, failed, dismissed]
+        type:
+          type: string
+          enum: [process]
+        message:
+          type: string
+        created:
+          type: string
+          format: date-time
+        started:
+          type: string
+          format: date-time
+        finished:
+          type: string
+          format: date-time
+        updated:
+          type: string
+          format: date-time
+        progress:
+          type: integer
+          minimum: 0
+          maximum: 100
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+
+    JobResults:
+      type: object
+      properties:
+        outputs:
+          type: object
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+
+    UploadResponse:
+      type: object
+      required:
+        - id
+        - status
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum: [uploaded, processing, ready, failed]
+        filename:
+          type: string
+        size:
+          type: integer
+        contentType:
+          type: string
+        metadata:
+          type: object
+
+    SearchResults:
+      type: object
+      required:
+        - type
+        - features
+      properties:
+        type:
+          type: string
+          enum: [FeatureCollection]
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feature'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+        context:
+          type: object
+          properties:
+            returned:
+              type: integer
+            limit:
+              type: integer
+            matched:
+              type: integer
+
+    Error:
+      type: object
+      required:
+        - code
+        - description
+      properties:
+        code:
+          type: string
+        description:
+          type: string
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
+
+tags:
+  - name: System
+    description: System health and status endpoints
+  - name: OGC Features
+    description: OGC API Features compliant endpoints
+  - name: OGC Processes
+    description: OGC API Processes compliant endpoints
+  - name: Job Management
+    description: Asynchronous job management
+  - name: Data Management
+    description: Data upload and management
+  - name: Search
+    description: Data search and discovery 

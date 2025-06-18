@@ -1,0 +1,1151 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-COG API
+  description: |
+    Comprehensive cognitive processing and decision support API for geospatial intelligence applications.
+    
+    This API provides tools for:
+    - Natural language processing and understanding
+    - Cognitive reasoning and decision support
+    - Knowledge extraction and representation
+    - Semantic analysis and interpretation
+    - Contextual understanding and inference
+    - Multi-modal cognitive processing
+  version: 1.0.0
+  contact:
+    name: GEO-INFER-COG Support
+    email: cog-support@geo-infer.org
+  license:
+    name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/cog/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/cog/v1
+    description: Staging server
+  - url: http://localhost:8000/cog/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+tags:
+  - name: nlp
+    description: Natural language processing operations
+  - name: reasoning
+    description: Cognitive reasoning and inference
+  - name: knowledge
+    description: Knowledge extraction and management
+  - name: decision-support
+    description: Decision support systems
+  - name: semantic-analysis
+    description: Semantic analysis and understanding
+  - name: context
+    description: Contextual processing and interpretation
+  - name: system
+    description: System management and health monitoring
+
+paths:
+  # Natural Language Processing Endpoints
+  /nlp/analyze:
+    post:
+      tags: [nlp]
+      summary: Analyze text
+      description: Perform comprehensive natural language analysis on text input
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TextAnalysisRequest'
+      responses:
+        '200':
+          description: Text analysis completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TextAnalysisResponse'
+
+  /nlp/entities/extract:
+    post:
+      tags: [nlp]
+      summary: Extract entities
+      description: Extract named entities and geographic references from text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityExtractionRequest'
+      responses:
+        '200':
+          description: Entity extraction completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityExtractionResponse'
+
+  /nlp/sentiment/analyze:
+    post:
+      tags: [nlp]
+      summary: Analyze sentiment
+      description: Perform sentiment analysis on text input
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SentimentAnalysisRequest'
+      responses:
+        '200':
+          description: Sentiment analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SentimentAnalysisResponse'
+
+  # Cognitive Reasoning Endpoints
+  /reasoning/infer:
+    post:
+      tags: [reasoning]
+      summary: Perform cognitive inference
+      description: Apply cognitive reasoning to derive conclusions from premises
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CognitiveInferenceRequest'
+      responses:
+        '200':
+          description: Cognitive inference completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CognitiveInferenceResponse'
+
+  /reasoning/models:
+    get:
+      tags: [reasoning]
+      summary: List reasoning models
+      description: Retrieve available cognitive reasoning models
+      responses:
+        '200':
+          description: Reasoning models retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReasoningModelListResponse'
+
+    post:
+      tags: [reasoning]
+      summary: Create reasoning model
+      description: Create a new cognitive reasoning model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReasoningModelRequest'
+      responses:
+        '201':
+          description: Reasoning model created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReasoningModelResponse'
+
+  # Knowledge Management Endpoints
+  /knowledge/extract:
+    post:
+      tags: [knowledge]
+      summary: Extract knowledge
+      description: Extract structured knowledge from unstructured data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeExtractionRequest'
+      responses:
+        '200':
+          description: Knowledge extraction completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeExtractionResponse'
+
+  /knowledge/graphs:
+    get:
+      tags: [knowledge]
+      summary: List knowledge graphs
+      description: Retrieve available knowledge graphs
+      responses:
+        '200':
+          description: Knowledge graphs retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeGraphListResponse'
+
+    post:
+      tags: [knowledge]
+      summary: Create knowledge graph
+      description: Create a new knowledge graph
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeGraphRequest'
+      responses:
+        '201':
+          description: Knowledge graph created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeGraphResponse'
+
+  /knowledge/graphs/{graph_id}/query:
+    post:
+      tags: [knowledge]
+      summary: Query knowledge graph
+      description: Query knowledge graph using SPARQL or similar query language
+      parameters:
+        - name: graph_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeQueryRequest'
+      responses:
+        '200':
+          description: Query executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeQueryResponse'
+
+  # Decision Support Endpoints
+  /decision-support/analyze:
+    post:
+      tags: [decision-support]
+      summary: Analyze decision scenario
+      description: Analyze decision scenarios and provide recommendations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecisionAnalysisRequest'
+      responses:
+        '200':
+          description: Decision analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecisionAnalysisResponse'
+
+  /decision-support/models:
+    get:
+      tags: [decision-support]
+      summary: List decision models
+      description: Retrieve available decision support models
+      responses:
+        '200':
+          description: Decision models retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecisionModelListResponse'
+
+  /decision-support/recommendations:
+    post:
+      tags: [decision-support]
+      summary: Generate recommendations
+      description: Generate decision recommendations based on input criteria
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RecommendationRequest'
+      responses:
+        '200':
+          description: Recommendations generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendationResponse'
+
+  # Semantic Analysis Endpoints
+  /semantic/concepts/extract:
+    post:
+      tags: [semantic-analysis]
+      summary: Extract concepts
+      description: Extract semantic concepts and relationships from text
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConceptExtractionRequest'
+      responses:
+        '200':
+          description: Concept extraction completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConceptExtractionResponse'
+
+  /semantic/similarity/compute:
+    post:
+      tags: [semantic-analysis]
+      summary: Compute semantic similarity
+      description: Compute semantic similarity between texts or concepts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimilarityComputationRequest'
+      responses:
+        '200':
+          description: Similarity computation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimilarityComputationResponse'
+
+  # Context Processing Endpoints
+  /context/analyze:
+    post:
+      tags: [context]
+      summary: Analyze context
+      description: Analyze contextual information and derive insights
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContextAnalysisRequest'
+      responses:
+        '200':
+          description: Context analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContextAnalysisResponse'
+
+  /context/understanding/enhance:
+    post:
+      tags: [context]
+      summary: Enhance understanding
+      description: Enhance understanding through contextual processing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnderstandingEnhancementRequest'
+      responses:
+        '200':
+          description: Understanding enhancement completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UnderstandingEnhancementResponse'
+
+  # Health Check
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # NLP Schemas
+    TextAnalysisRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+          description: Text to analyze
+        language:
+          type: string
+          default: en
+        analysis_types:
+          type: array
+          items:
+            type: string
+            enum: [tokenization, pos_tagging, parsing, ner, sentiment, topic_modeling]
+        options:
+          type: object
+          additionalProperties: true
+
+    TextAnalysisResponse:
+      type: object
+      properties:
+        analysis_id:
+          type: string
+        text:
+          type: string
+        language:
+          type: string
+        tokens:
+          type: array
+          items:
+            $ref: '#/components/schemas/Token'
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Entity'
+        sentiment:
+          $ref: '#/components/schemas/SentimentScore'
+        topics:
+          type: array
+          items:
+            $ref: '#/components/schemas/Topic'
+        parse_tree:
+          type: object
+          additionalProperties: true
+
+    EntityExtractionRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+        entity_types:
+          type: array
+          items:
+            type: string
+            enum: [person, organization, location, geopolitical, facility, event, temporal]
+        include_coordinates:
+          type: boolean
+          default: true
+
+    EntityExtractionResponse:
+      type: object
+      properties:
+        extraction_id:
+          type: string
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExtractedEntity'
+        geographic_entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/GeographicEntity'
+        confidence_scores:
+          type: object
+          additionalProperties:
+            type: number
+
+    SentimentAnalysisRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+        granularity:
+          type: string
+          enum: [document, sentence, aspect]
+          default: document
+        include_emotions:
+          type: boolean
+          default: false
+
+    SentimentAnalysisResponse:
+      type: object
+      properties:
+        analysis_id:
+          type: string
+        overall_sentiment:
+          $ref: '#/components/schemas/SentimentScore'
+        sentence_sentiments:
+          type: array
+          items:
+            $ref: '#/components/schemas/SentenceSentiment'
+        emotions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Emotion'
+
+    # Cognitive Reasoning Schemas
+    CognitiveInferenceRequest:
+      type: object
+      required: [premises, reasoning_type]
+      properties:
+        premises:
+          type: array
+          items:
+            type: string
+        reasoning_type:
+          type: string
+          enum: [deductive, inductive, abductive, analogical]
+        domain_knowledge:
+          type: string
+        confidence_threshold:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    CognitiveInferenceResponse:
+      type: object
+      properties:
+        inference_id:
+          type: string
+        conclusions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Conclusion'
+        reasoning_chain:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReasoningStep'
+        confidence_scores:
+          type: object
+          additionalProperties:
+            type: number
+
+    ReasoningModelRequest:
+      type: object
+      required: [name, model_type]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        model_type:
+          type: string
+          enum: [rule_based, neural, hybrid, probabilistic]
+        configuration:
+          type: object
+          additionalProperties: true
+        training_data:
+          type: string
+
+    ReasoningModelResponse:
+      type: object
+      properties:
+        model_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        model_type:
+          type: string
+        status:
+          type: string
+          enum: [training, ready, error]
+        accuracy_metrics:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+
+    # Knowledge Management Schemas
+    KnowledgeExtractionRequest:
+      type: object
+      required: [source_data, extraction_type]
+      properties:
+        source_data:
+          type: object
+          description: Source data for knowledge extraction
+        extraction_type:
+          type: string
+          enum: [entities, relationships, facts, concepts, patterns]
+        domain:
+          type: string
+        output_format:
+          type: string
+          enum: [rdf, json_ld, turtle, owl]
+
+    KnowledgeExtractionResponse:
+      type: object
+      properties:
+        extraction_id:
+          type: string
+        extracted_knowledge:
+          type: object
+          description: Extracted knowledge in specified format
+        knowledge_graph:
+          type: string
+          description: Knowledge graph representation
+        confidence_scores:
+          type: object
+          additionalProperties: true
+        statistics:
+          $ref: '#/components/schemas/ExtractionStatistics'
+
+    KnowledgeGraphRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        ontology:
+          type: string
+        initial_data:
+          type: object
+          additionalProperties: true
+        schema:
+          type: object
+          additionalProperties: true
+
+    KnowledgeGraphResponse:
+      type: object
+      properties:
+        graph_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        ontology:
+          type: string
+        node_count:
+          type: integer
+        edge_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    KnowledgeQueryRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+          description: SPARQL or similar query
+        query_language:
+          type: string
+          enum: [sparql, cypher, gremlin]
+          default: sparql
+        limit:
+          type: integer
+          default: 100
+
+    KnowledgeQueryResponse:
+      type: object
+      properties:
+        query_id:
+          type: string
+        results:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        execution_time:
+          type: number
+        result_count:
+          type: integer
+
+    # Decision Support Schemas
+    DecisionAnalysisRequest:
+      type: object
+      required: [scenario, criteria]
+      properties:
+        scenario:
+          type: object
+          description: Decision scenario description
+        criteria:
+          type: array
+          items:
+            $ref: '#/components/schemas/DecisionCriterion'
+        alternatives:
+          type: array
+          items:
+            $ref: '#/components/schemas/Alternative'
+        constraints:
+          type: array
+          items:
+            type: string
+        preferences:
+          type: object
+          additionalProperties: true
+
+    DecisionAnalysisResponse:
+      type: object
+      properties:
+        analysis_id:
+          type: string
+        recommended_alternative:
+          type: string
+        ranking:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlternativeRanking'
+        analysis_summary:
+          type: object
+          additionalProperties: true
+        sensitivity_analysis:
+          type: object
+          additionalProperties: true
+
+    RecommendationRequest:
+      type: object
+      required: [context, objective]
+      properties:
+        context:
+          type: object
+          description: Contextual information for recommendation
+        objective:
+          type: string
+        constraints:
+          type: array
+          items:
+            type: string
+        preferences:
+          type: object
+          additionalProperties: true
+        recommendation_type:
+          type: string
+          enum: [action, resource, strategy, option]
+
+    RecommendationResponse:
+      type: object
+      properties:
+        recommendation_id:
+          type: string
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recommendation'
+        confidence_scores:
+          type: object
+          additionalProperties: true
+        rationale:
+          type: string
+
+    # Common Schemas
+    Token:
+      type: object
+      properties:
+        text:
+          type: string
+        pos_tag:
+          type: string
+        lemma:
+          type: string
+        start_offset:
+          type: integer
+        end_offset:
+          type: integer
+
+    Entity:
+      type: object
+      properties:
+        text:
+          type: string
+        label:
+          type: string
+        confidence:
+          type: number
+        start_offset:
+          type: integer
+        end_offset:
+          type: integer
+
+    ExtractedEntity:
+      type: object
+      properties:
+        text:
+          type: string
+        entity_type:
+          type: string
+        confidence:
+          type: number
+        context:
+          type: string
+        attributes:
+          type: object
+          additionalProperties: true
+
+    GeographicEntity:
+      type: object
+      properties:
+        name:
+          type: string
+        entity_type:
+          type: string
+        coordinates:
+          type: object
+          properties:
+            latitude:
+              type: number
+            longitude:
+              type: number
+        confidence:
+          type: number
+
+    SentimentScore:
+      type: object
+      properties:
+        polarity:
+          type: string
+          enum: [positive, negative, neutral]
+        score:
+          type: number
+          minimum: -1
+          maximum: 1
+        confidence:
+          type: number
+
+    SentenceSentiment:
+      type: object
+      properties:
+        sentence:
+          type: string
+        sentiment:
+          $ref: '#/components/schemas/SentimentScore'
+        start_offset:
+          type: integer
+        end_offset:
+          type: integer
+
+    Emotion:
+      type: object
+      properties:
+        emotion:
+          type: string
+          enum: [joy, sadness, anger, fear, surprise, disgust]
+        intensity:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    Topic:
+      type: object
+      properties:
+        topic_id:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        probability:
+          type: number
+
+    Conclusion:
+      type: object
+      properties:
+        statement:
+          type: string
+        confidence:
+          type: number
+        supporting_evidence:
+          type: array
+          items:
+            type: string
+
+    ReasoningStep:
+      type: object
+      properties:
+        step_number:
+          type: integer
+        operation:
+          type: string
+        input:
+          type: array
+          items:
+            type: string
+        output:
+          type: string
+        confidence:
+          type: number
+
+    DecisionCriterion:
+      type: object
+      properties:
+        name:
+          type: string
+        weight:
+          type: number
+        type:
+          type: string
+          enum: [benefit, cost, constraint]
+
+    Alternative:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        attributes:
+          type: object
+          additionalProperties: true
+
+    AlternativeRanking:
+      type: object
+      properties:
+        alternative:
+          type: string
+        rank:
+          type: integer
+        score:
+          type: number
+        explanation:
+          type: string
+
+    Recommendation:
+      type: object
+      properties:
+        recommendation:
+          type: string
+        priority:
+          type: string
+          enum: [high, medium, low]
+        confidence:
+          type: number
+        expected_outcome:
+          type: string
+
+    ExtractionStatistics:
+      type: object
+      properties:
+        entities_extracted:
+          type: integer
+        relationships_identified:
+          type: integer
+        facts_discovered:
+          type: integer
+        confidence_average:
+          type: number
+
+    ConceptExtractionRequest:
+      type: object
+      required: [text]
+      properties:
+        text:
+          type: string
+        concept_types:
+          type: array
+          items:
+            type: string
+        include_relationships:
+          type: boolean
+          default: true
+
+    ConceptExtractionResponse:
+      type: object
+      properties:
+        concepts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Concept'
+        relationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/ConceptRelationship'
+
+    Concept:
+      type: object
+      properties:
+        concept_id:
+          type: string
+        name:
+          type: string
+        definition:
+          type: string
+        confidence:
+          type: number
+
+    ConceptRelationship:
+      type: object
+      properties:
+        source_concept:
+          type: string
+        target_concept:
+          type: string
+        relationship_type:
+          type: string
+        confidence:
+          type: number
+
+    SimilarityComputationRequest:
+      type: object
+      required: [text1, text2]
+      properties:
+        text1:
+          type: string
+        text2:
+          type: string
+        similarity_type:
+          type: string
+          enum: [semantic, syntactic, conceptual]
+
+    SimilarityComputationResponse:
+      type: object
+      properties:
+        similarity_score:
+          type: number
+          minimum: 0
+          maximum: 1
+        similarity_type:
+          type: string
+        explanation:
+          type: string
+
+    ContextAnalysisRequest:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          description: Data to analyze for context
+        context_types:
+          type: array
+          items:
+            type: string
+            enum: [temporal, spatial, social, cultural, domain_specific]
+
+    ContextAnalysisResponse:
+      type: object
+      properties:
+        context_insights:
+          type: object
+          additionalProperties: true
+        contextual_factors:
+          type: array
+          items:
+            type: string
+        relevance_scores:
+          type: object
+          additionalProperties: true
+
+    UnderstandingEnhancementRequest:
+      type: object
+      required: [content, context]
+      properties:
+        content:
+          type: object
+          description: Content to enhance understanding for
+        context:
+          type: object
+          description: Contextual information
+        enhancement_types:
+          type: array
+          items:
+            type: string
+
+    UnderstandingEnhancementResponse:
+      type: object
+      properties:
+        enhanced_content:
+          type: object
+          additionalProperties: true
+        insights:
+          type: array
+          items:
+            type: string
+        confidence_improvement:
+          type: number
+
+    ReasoningModelListResponse:
+      type: object
+      properties:
+        models:
+          type: array
+          items:
+            $ref: '#/components/schemas/ReasoningModelResponse'
+
+    KnowledgeGraphListResponse:
+      type: object
+      properties:
+        graphs:
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgeGraphResponse'
+
+    DecisionModelListResponse:
+      type: object
+      properties:
+        models:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

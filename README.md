@@ -67,6 +67,7 @@ mindmap
       OPS - Orchestration
       INTRA - Documentation
       GIT - Version control
+      TEST - Quality Assurance
 ```
 ## 🧭 Quick Navigation
 
@@ -80,23 +81,48 @@ mindmap
 | **👥 People & Community**    | [CIV](./GEO-INFER-CIV/), [PEP](./GEO-INFER-PEP/), [ORG](./GEO-INFER-ORG/), [COMMS](./GEO-INFER-COMMS/)                                                       |
 | **🖥️ Applications**         | [APP](./GEO-INFER-APP/), [ART](./GEO-INFER-ART/)                                                                                                             |
 | **🏢 Domain-Specific**       | [AG](./GEO-INFER-AG/), [ECON](./GEO-INFER-ECON/), [RISK](./GEO-INFER-RISK/), [LOG](./GEO-INFER-LOG/), [BIO](./GEO-INFER-BIO/), [HEALTH](./GEO-INFER-HEALTH/)                               |
-| **⚙️ Operations**            | [OPS](./GEO-INFER-OPS/), [INTRA](./GEO-INFER-INTRA/), [GIT](./GEO-INFER-GIT/)                                                                                |
+| **⚙️ Operations**            | [OPS](./GEO-INFER-OPS/), [INTRA](./GEO-INFER-INTRA/), [GIT](./GEO-INFER-GIT/), [TEST](./GEO-INFER-TEST/)                                                    |
 
 
 
-##  Core Modules
+## 📊 Module Dependencies Matrix
 
-| **Module Name**     | **Purpose**                                                                                        | **Key Features**                                                                                                                                                                                                  |
-| ------------------- | -------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **GEO-INFER-ACT**   | Analytical and formal Active Inference modeling for nested and interacting systems.                | - [Generative models](./GEO-INFER-ACT/README.md#generative-models) for spatial-temporal dynamics<br>- [Free-energy minimization](./GEO-INFER-ACT/README.md#free-energy-minimization) frameworks for adaptive decision-making<br>- [Probabilistic programming](./GEO-INFER-ACT/README.md#probabilistic-programming) tools for uncertainty quantification                       |
-| **GEO-INFER-AG**    | Agricultural methods and farming applications.                                                     | - [Precision agriculture](./GEO-INFER-AG/README.md#precision-agriculture)<br>- [Crop modeling](./GEO-INFER-AG/README.md#crop-modeling)<br>- [Soil & water management](./GEO-INFER-AG/README.md#soil-and-water-management)                                                                                                                                           |
-| **GEO-INFER-AI**    | Artificial Intelligence and Machine Learning integration into geospatial workflows.                | - [Automated feature extraction](./GEO-INFER-AI/README.md#feature-extraction) from satellite imagery<br>- [Predictive analytics](./GEO-INFER-AI/README.md#predictive-analytics) for climate change mitigation<br>- [Spatial pattern recognition](./GEO-INFER-AI/README.md#pattern-recognition) and classification                                                 |
-| **GEO-INFER-AGENT** | Intelligent agent frameworks for autonomous geospatial decision-making and interaction.            | - [Multi-agent systems](./GEO-INFER-AGENT/README.md#multi-agent-systems) for distributed spatial reasoning<br>- [Autonomous agent architectures](./GEO-INFER-AGENT/README.md#agent-architectures) for geospatial tasks<br>- [Agent-based interfaces](./GEO-INFER-AGENT/README.md#agent-interfaces) and assistants<br>- [Collaborative agent networks](./GEO-INFER-AGENT/README.md#agent-networks) for spatial problems |
-| **GEO-INFER-ANT**   | Specialized module for complex systems modeling, using Active Inference principles.                | - [Multi-scale "Ant" entities](./GEO-INFER-ANT/README.md#ant-entities) with movement data integration<br>- [Simulation environments](./GEO-INFER-ANT/README.md#simulation) for colony dynamics<br>- [Ant-inspired algorithms](./GEO-INFER-ANT/README.md#algorithms) for geospatial optimization                                             |
-| **GEO-INFER-API**   | API development and integration services for interoperability.                                     | - [OGC-compliant API](./GEO-INFER-API/README.md#ogc-compliance) development<br>- [RESTful and GraphQL](./GEO-INFER-API/README.md#api-interfaces) interfaces for geospatial data<br>- [Webhook integration](./GEO-INFER-API/README.md#webhooks) for real-time updates                                                                            |
-| **GEO-INFER-APP**   | User interfaces, accessibility tools, and application development.                                 | - [Map-centric GIS interfaces](./GEO-INFER-APP/README.md#gis-interfaces) with interactive visualizations<br>- [Mobile-friendly data collection](./GEO-INFER-APP/README.md#mobile-collection) tools<br>- [Multilingual support](./GEO-INFER-APP/README.md#multilingual) and accessibility features                                                      |
-| **GEO-INFER-ART**   | Art production and aesthetics with geospatial dimensions.                                          | - [Geospatial data visualization](./GEO-INFER-ART/README.md#visualization) as art<br>- [Place-based artistic expression](./GEO-INFER-ART/README.md#artistic-expression) tools<br>- [Aesthetic frameworks](./GEO-INFER-ART/README.md#aesthetics) for map design<br>- [Generative art systems](./GEO-INFER-ART/README.md#generative-art) using geographic inputs                                    |
-| **GEO-INFER-BAYES** | Generalized Bayesian inference processes.                                                          | - [Hierarchical models](./GEO-INFER-BAYES/README.md#hierarchical-models)<br>- [MCMC methods](./GEO-INFER-BAYES/README.md#mcmc)<br>- [Variational inference](./GEO-INFER-BAYES/README.md#variational-inference)<br>- [Spatial priors](./GEO-INFER-BAYES/README.md#spatial-priors)                                                                                                                            |
+| Module | Core Dependencies | Optional Dependencies | Provides Services To | Data Flow Direction |
+|--------|------------------|--------------------|-------------------|-------------------|
+| **OPS** | - | SEC | ALL modules | → All |
+| **DATA** | OPS, SEC | - | ALL modules | → All |
+| **SPACE** | DATA, MATH | TIME, AI | AG, HEALTH, SIM, APP, ART | → Domain/App |
+| **TIME** | DATA, MATH | SPACE, AI | AG, HEALTH, ECON, SIM | → Domain/Analytics |
+| **AI** | DATA, SPACE | TIME, AGENT | All analytical modules | → Analytics/Prediction |
+| **ACT** | MATH, BAYES | AI, AGENT, SIM | AGENT, SIM, decision systems | → Inference/Decision |
+| **BAYES** | MATH | SPACE, TIME | ACT, AI, statistical modules | → Statistical/Inference |
+| **MATH** | - | - | ALL analytical modules | → All analytics |
+| **API** | All modules | - | External systems, APP | ↔ External |
+| **APP** | API, SPACE | All modules | End users | ← All modules |
+| **AGENT** | ACT, AI | SPACE, TIME, SIM | SIM, autonomous systems | ↔ Agent systems |
+| **SIM** | SPACE, TIME | AI, AGENT, ACT | Domain modules, decision support | ↔ Simulation systems |
+| **AG** | SPACE, TIME, DATA | AI, ECON, SIM | APP, ECON, food systems | ↔ Agricultural systems |
+| **HEALTH** | SPACE, TIME, DATA | AI, RISK, BIO, SPM | APP, policy makers | ↔ Health systems |
+| **ECON** | SPACE, TIME, DATA | AI, AG, SIM | Policy makers, RISK | ↔ Economic systems |
+
+### Legend
+- **→** : Provides data/services to  
+- **←** : Consumes data/services from  
+- **↔** : Bidirectional data exchange
+
+##  Core Modules (Enhanced)
+
+| **Module Name**     | **Purpose**                                                                                        | **Input Types** | **Output Types** | **Dependencies** | **Status** |
+| ------------------- | -------------------------------------------------------------------------------------------------- | --------------- | ---------------- | ---------------- | ---------- |
+| **GEO-INFER-ACT**   | Analytical and formal Active Inference modeling for nested and interacting systems. | Observations, beliefs, policies, generative models | Belief updates, action selections, free energy estimates | MATH, BAYES | Stable |
+| **GEO-INFER-AG**    | Agricultural methods and farming applications. | Satellite imagery, soil data, weather data, field boundaries | Yield predictions, crop health maps, precision agriculture recommendations | SPACE, TIME, DATA | Beta |
+| **GEO-INFER-AI**    | Artificial Intelligence and Machine Learning integration into geospatial workflows. | Imagery, spatial features, training labels, time-series data | Trained models, predictions, classifications, forecasts | DATA, SPACE | Beta |
+| **GEO-INFER-AGENT** | Intelligent agent frameworks for autonomous geospatial decision-making and interaction. | Agent configurations, spatial environments, behavior rules | Autonomous decisions, agent interactions, simulation results | ACT, AI | Beta |
+| **GEO-INFER-ANT**   | Specialized module for complex systems modeling, using Active Inference principles. | Movement data, colony parameters, environmental conditions | Emergent behaviors, optimization solutions, swarm dynamics | ACT, SIM | Alpha |
+| **GEO-INFER-API**   | API development and integration services for interoperability. | Module functions, data requests, external API calls | REST/GraphQL APIs, webhooks, standardized responses | All modules | Beta |
+| **GEO-INFER-APP**   | User interfaces, accessibility tools, and application development. | Analysis results, data products, user interactions | Interactive maps, dashboards, reports, mobile apps | API, SPACE | Beta |
+| **GEO-INFER-ART**   | Art production and aesthetics with geospatial dimensions. | Geospatial data, artistic parameters, aesthetic rules | Artistic visualizations, generative maps, aesthetic frameworks | SPACE, APP | Alpha |
+| **GEO-INFER-BAYES** | Generalized Bayesian inference processes. | Observations, priors, model specifications | Posterior distributions, uncertainty estimates, model evidence | MATH | Stable |
 | **GEO-INFER-BIO**   | Bioinformatics analysis with spatial context.                                                      | - [Sequence analysis](./GEO-INFER-BIO/README.md#sequence-analysis) with spatial distribution<br>- [Network analysis](./GEO-INFER-BIO/README.md#network-analysis) for biological systems<br>- [Population dynamics](./GEO-INFER-BIO/README.md#population-dynamics) modeling<br>- [Metabolic pathway](./GEO-INFER-BIO/README.md#metabolic-pathways) visualization                                                      |
 | **GEO-INFER-CIV**   | Community engagement and participatory mapping tools.                                              | - [STEW-MAP tools](./GEO-INFER-CIV/README.md#stew-map) for visualizing stewardship networks<br>- [Platforms for community-driven](./GEO-INFER-CIV/README.md#community-platforms) spatial planning<br>- [Participatory sensing](./GEO-INFER-CIV/README.md#participatory-sensing) and data collection frameworks                                              |
 | **GEO-INFER-COG**   | Cognitive phenomena and modeling for geospatial systems.                                           | - [Attention mechanisms](./GEO-INFER-COG/README.md#attention) for spatial focus<br>- [Memory models](./GEO-INFER-COG/README.md#memory) for spatial-temporal knowledge<br>- [Trust modeling](./GEO-INFER-COG/README.md#trust) across geographic networks<br>- [Anticipatory systems](./GEO-INFER-COG/README.md#anticipatory) for predictive cognition                      |
@@ -115,10 +141,11 @@ mindmap
 | **GEO-INFER-SEC**   | Security and privacy frameworks for sensitive geospatial information.                              | - [Geospatial data anonymization](./GEO-INFER-SEC/README.md#anonymization) techniques<br>- [Role-based access control](./GEO-INFER-SEC/README.md#access-control) for location data<br>- [Compliance frameworks](./GEO-INFER-SEC/README.md#compliance) for international regulations<br>- [Secure data sharing](./GEO-INFER-SEC/README.md#secure-sharing) protocols across jurisdictions      |
 | **GEO-INFER-SIM**   | Simulation environments for hypothesis testing and policy evaluation.                              | - [Digital twin technology](./GEO-INFER-SIM/README.md#digital-twins) for urban/ecological scenarios<br>- [Agent-based models](./GEO-INFER-SIM/README.md#agent-models) for behavior prediction<br>- [Scenario planning](./GEO-INFER-SIM/README.md#scenario-planning) and policy evaluation tools                                                       |
 | **GEO-INFER-SPM**   | Statistical Parametric Mapping for continuous spatial-temporal field analysis.                     | - [General Linear Model (GLM)](./GEO-INFER-SPM/README.md#general-linear-model-glm-analysis) for geospatial data<br>- [Random Field Theory (RFT)](./GEO-INFER-SPM/README.md#random-field-theory-rft) for multiple comparison correction<br>- [Cluster-level inference](./GEO-INFER-SPM/README.md#statistical-inference) for spatial patterns<br>- [Multi-resolution analysis](./GEO-INFER-SPM/README.md#multi-resolution-analysis) across scales |
-| **GEO-INFER-SPACE** | Advanced spatial methods for land, water, air, and more.                                           | - [Multi-resolution spatial indexing](./GEO-INFER-SPACE/README.md#spatial-indexing) (e.g., H3 hexagonal grids)<br>- [Real-time geospatial analytics](./GEO-INFER-SPACE/README.md#real-time-analytics) using IoT<br>- [Support for Earth Observation](./GEO-INFER-SPACE/README.md#earth-observation) data via STAC protocols                                           |
-| **GEO-INFER-TIME**  | Temporal methods for timeline expression and fusion of dynamic data.                               | - [Integration of time-series](./GEO-INFER-TIME/README.md#time-series) geospatial datasets<br>- [Predictive modeling](./GEO-INFER-TIME/README.md#predictive-modeling) of temporal trends<br>- [Real-time updates](./GEO-INFER-TIME/README.md#real-time) using WebSocket technologies                                                                  |
+| **GEO-INFER-SPACE** | Advanced spatial methods for land, water, air, and more. | Vector/raster data, coordinates, geometries, spatial queries | Processed spatial data, analysis results, spatial indices | DATA, MATH | Stable |
+| **GEO-INFER-TIME**  | Temporal methods for timeline expression and fusion of dynamic data. | Time-series data, sensor streams, historical records | Forecasts, trends, temporal patterns, events | DATA, MATH | Stable |
 | **GEO-INFER-RISK**  | Risk modeling, Insurance, and Re-insurance for geospatial applications.                            | - [Catastrophe modeling](./GEO-INFER-RISK/README.md#catastrophe-modeling) and natural disaster risk assessment<br>- [Insurance pricing models](./GEO-INFER-RISK/README.md#insurance-pricing) with spatial components<br>- [Climate change risk](./GEO-INFER-RISK/README.md#climate-risk) forecasting<br>- [Portfolio exposure](./GEO-INFER-RISK/README.md#portfolio-exposure) management                          |
 | **GEO-INFER-LOG**   | Logistics and supply chain optimization with geospatial intelligence.                             | - [Route optimization](./GEO-INFER-LOG/README.md#route-optimization) and fleet management<br>- [Supply chain resilience](./GEO-INFER-LOG/README.md#supply-chain) modeling<br>- [Last-mile delivery](./GEO-INFER-LOG/README.md#last-mile) solutions<br>- [Multimodal transportation](./GEO-INFER-LOG/README.md#multimodal) planning                                                         |
+| **GEO-INFER-TEST**  | Comprehensive testing framework for quality assurance across the GEO-INFER ecosystem. | - [Automated test discovery](./GEO-INFER-TEST/README.md#automated-test-discovery) and execution across all modules<br>- [Cross-module integration](./GEO-INFER-TEST/README.md#cross-module-integration) testing and validation<br>- [Performance benchmarking](./GEO-INFER-TEST/README.md#performance-benchmarking) and regression detection<br>- [Deep LOG integration](./GEO-INFER-TEST/README.md#log-integration) for comprehensive test logging and reporting |
 
 ## 🔄 Framework Position in Geospatial Ecosystem
 
@@ -212,6 +239,85 @@ act = Act()
 # Perform basic spatial-temporal analysis
 result = act.analyze(space, time)
 ```
+## 🔄 Framework Integration Guide
+
+### Starting Your GEO-INFER Journey
+
+**For New Users (Start Here):**
+1. **Install Core Infrastructure**: Begin with `GEO-INFER-OPS` for monitoring and `GEO-INFER-DATA` for data management
+2. **Add Foundational Modules**: Install `GEO-INFER-SPACE` and `GEO-INFER-MATH` for basic spatial capabilities
+3. **Choose Domain Module**: Select one domain module (AG, HEALTH, ECON) based on your use case
+4. **Add Analytics**: Include `GEO-INFER-TIME` and/or `GEO-INFER-AI` for advanced analysis
+5. **Create Interface**: Use `GEO-INFER-API` and `GEO-INFER-APP` for user access
+
+### Common Integration Patterns
+
+#### Pattern 1: Health Surveillance System
+```
+OPS → DATA → SPACE → TIME → HEALTH → API → APP
+       ↓       ↓       ↓       ↓        ↓
+      SEC → MATH → AI → RISK → SPM
+```
+
+#### Pattern 2: Agricultural Monitoring
+```
+OPS → DATA → SPACE → TIME → AG → AI → SIM → APP
+       ↓       ↓       ↓      ↓    ↓    ↓
+      SEC → MATH → BAYES → ECON → API
+```
+
+#### Pattern 3: Smart City Analytics
+```
+OPS → DATA → SPACE → TIME → AI → AGENT → SIM → APP
+       ↓       ↓       ↓       ↓      ↓       ↓
+      SEC → MATH → CIV → RISK → NORMS → API
+```
+
+### Module Compatibility Matrix
+
+| Module | Compatible With | Requires | Enhances |
+|--------|----------------|----------|----------|
+| **OPS** | All modules | - | System reliability |
+| **DATA** | All modules | OPS | Data availability |
+| **SPACE** | All modules | DATA, MATH | Spatial capabilities |
+| **TIME** | All analytical | DATA, MATH | Temporal analysis |
+| **AI** | All analytical | DATA, SPACE | Predictive capabilities |
+| **HEALTH** | SPACE, TIME, AI | DATA | Health analytics |
+| **AG** | SPACE, TIME, AI | DATA | Agricultural insights |
+
+### Quick Start by Use Case
+
+#### 🏥 Public Health Surveillance
+```bash
+# Minimal setup for health surveillance
+pip install -e ./GEO-INFER-OPS ./GEO-INFER-DATA ./GEO-INFER-SPACE ./GEO-INFER-HEALTH
+
+# Configure health data sources
+cp GEO-INFER-HEALTH/config/example.yaml config/health-surveillance.yaml
+# Edit to add your health data connections
+
+# Run disease surveillance
+python examples/health_surveillance_basic.py
+```
+
+#### 🌾 Agricultural Monitoring
+```bash
+# Setup for crop monitoring
+pip install -e ./GEO-INFER-SPACE ./GEO-INFER-TIME ./GEO-INFER-AG ./GEO-INFER-AI
+
+# Run crop analysis
+python examples/crop_monitoring_pipeline.py
+```
+
+#### 🏙️ Urban Planning
+```bash
+# Setup for urban analysis
+pip install -e ./GEO-INFER-SPACE ./GEO-INFER-CIV ./GEO-INFER-SIM ./GEO-INFER-APP
+
+# Launch urban planning tools
+python examples/urban_planning_dashboard.py
+```
+
 ## 📋 Use Cases
 
 ### Ecological Applications

@@ -1,0 +1,1059 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-APP API
+  description: |
+    Comprehensive application framework API for building geospatial intelligence applications.
+    
+    This API provides tools for:
+    - Application lifecycle management
+    - UI component orchestration
+    - Agent integration and coordination
+    - User interface state management
+    - Dashboard and visualization management
+    - Application configuration and deployment
+  version: 1.0.0
+  contact:
+    name: GEO-INFER-APP Support
+    email: app-support@geo-infer.org
+  license:
+    name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/app/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/app/v1
+    description: Staging server
+  - url: http://localhost:8000/app/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+tags:
+  - name: applications
+    description: Application lifecycle management
+  - name: components
+    description: UI component management
+  - name: agents
+    description: Agent integration and coordination
+  - name: dashboards
+    description: Dashboard configuration and management
+  - name: layouts
+    description: Layout and interface management
+  - name: configurations
+    description: Application configuration management
+  - name: system
+    description: System management and health monitoring
+
+paths:
+  # Application Management Endpoints
+  /applications:
+    get:
+      tags: [applications]
+      summary: List applications
+      description: Retrieve list of deployed applications
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, maintenance]
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Applications retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationListResponse'
+
+    post:
+      tags: [applications]
+      summary: Create application
+      description: Create a new application instance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationRequest'
+      responses:
+        '201':
+          description: Application created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationResponse'
+
+  /applications/{app_id}:
+    get:
+      tags: [applications]
+      summary: Get application details
+      description: Retrieve detailed information about a specific application
+      parameters:
+        - name: app_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Application details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationResponse'
+
+    put:
+      tags: [applications]
+      summary: Update application
+      description: Update application configuration
+      parameters:
+        - name: app_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApplicationRequest'
+      responses:
+        '200':
+          description: Application updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationResponse'
+
+  /applications/{app_id}/deploy:
+    post:
+      tags: [applications]
+      summary: Deploy application
+      description: Deploy application to specified environment
+      parameters:
+        - name: app_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+      responses:
+        '200':
+          description: Application deployment initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentResponse'
+
+  # Component Management Endpoints
+  /components:
+    get:
+      tags: [components]
+      summary: List UI components
+      description: Retrieve list of available UI components
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [map, chart, form, layout, navigation, agent]
+        - name: framework
+          in: query
+          schema:
+            type: string
+            enum: [react, vue, angular, vanilla]
+      responses:
+        '200':
+          description: Components retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentListResponse'
+
+    post:
+      tags: [components]
+      summary: Create component
+      description: Create a new UI component
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComponentRequest'
+      responses:
+        '201':
+          description: Component created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentResponse'
+
+  /components/{component_id}/render:
+    post:
+      tags: [components]
+      summary: Render component
+      description: Render component with specified configuration
+      parameters:
+        - name: component_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComponentRenderRequest'
+      responses:
+        '200':
+          description: Component rendered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentRenderResponse'
+
+  # Agent Integration Endpoints
+  /agents/integrate:
+    post:
+      tags: [agents]
+      summary: Integrate agent
+      description: Integrate an agent into the application framework
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentIntegrationRequest'
+      responses:
+        '201':
+          description: Agent integrated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentIntegrationResponse'
+
+  /agents/{agent_id}/status:
+    get:
+      tags: [agents]
+      summary: Get agent status
+      description: Retrieve current status of an integrated agent
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Agent status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentStatusResponse'
+
+  /agents/{agent_id}/control:
+    post:
+      tags: [agents]
+      summary: Control agent
+      description: Send control commands to an agent
+      parameters:
+        - name: agent_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentControlRequest'
+      responses:
+        '200':
+          description: Agent control command sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgentControlResponse'
+
+  # Dashboard Management Endpoints
+  /dashboards:
+    get:
+      tags: [dashboards]
+      summary: List dashboards
+      description: Retrieve list of available dashboards
+      parameters:
+        - name: application_id
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dashboards retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardListResponse'
+
+    post:
+      tags: [dashboards]
+      summary: Create dashboard
+      description: Create a new dashboard configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DashboardRequest'
+      responses:
+        '201':
+          description: Dashboard created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DashboardResponse'
+
+  /dashboards/{dashboard_id}/widgets:
+    get:
+      tags: [dashboards]
+      summary: Get dashboard widgets
+      description: Retrieve widgets for a specific dashboard
+      parameters:
+        - name: dashboard_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dashboard widgets retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetListResponse'
+
+    post:
+      tags: [dashboards]
+      summary: Add widget to dashboard
+      description: Add a new widget to an existing dashboard
+      parameters:
+        - name: dashboard_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WidgetRequest'
+      responses:
+        '201':
+          description: Widget added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WidgetResponse'
+
+  # Layout Management Endpoints
+  /layouts:
+    get:
+      tags: [layouts]
+      summary: List layouts
+      description: Retrieve list of available layouts
+      responses:
+        '200':
+          description: Layouts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayoutListResponse'
+
+    post:
+      tags: [layouts]
+      summary: Create layout
+      description: Create a new layout template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LayoutRequest'
+      responses:
+        '201':
+          description: Layout created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LayoutResponse'
+
+  # Configuration Management Endpoints
+  /configurations:
+    get:
+      tags: [configurations]
+      summary: Get application configurations
+      description: Retrieve application configuration settings
+      parameters:
+        - name: application_id
+          in: query
+          schema:
+            type: string
+        - name: environment
+          in: query
+          schema:
+            type: string
+            enum: [development, staging, production]
+      responses:
+        '200':
+          description: Configurations retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationResponse'
+
+    put:
+      tags: [configurations]
+      summary: Update configurations
+      description: Update application configuration settings
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigurationRequest'
+      responses:
+        '200':
+          description: Configurations updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConfigurationResponse'
+
+  # Health Check
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Application Schemas
+    ApplicationRequest:
+      type: object
+      required: [name, type]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [dashboard, map_viewer, analysis_tool, monitoring_system]
+        framework:
+          type: string
+          enum: [react, vue, angular, vanilla]
+        configuration:
+          type: object
+          additionalProperties: true
+        components:
+          type: array
+          items:
+            type: string
+        agents:
+          type: array
+          items:
+            type: string
+
+    ApplicationResponse:
+      type: object
+      properties:
+        application_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        framework:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive, maintenance]
+        configuration:
+          type: object
+          additionalProperties: true
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentSummary'
+        agents:
+          type: array
+          items:
+            $ref: '#/components/schemas/AgentSummary'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    DeploymentRequest:
+      type: object
+      required: [environment]
+      properties:
+        environment:
+          type: string
+          enum: [development, staging, production]
+        deployment_config:
+          type: object
+          additionalProperties: true
+        auto_scale:
+          type: boolean
+          default: true
+
+    DeploymentResponse:
+      type: object
+      properties:
+        deployment_id:
+          type: string
+        status:
+          type: string
+          enum: [pending, in_progress, completed, failed]
+        environment:
+          type: string
+        deployment_url:
+          type: string
+          format: uri
+        started_at:
+          type: string
+          format: date-time
+
+    # Component Schemas
+    ComponentRequest:
+      type: object
+      required: [name, type, framework]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [map, chart, form, layout, navigation, agent_interface]
+        framework:
+          type: string
+          enum: [react, vue, angular, vanilla]
+        source_code:
+          type: string
+        properties:
+          type: object
+          additionalProperties: true
+        dependencies:
+          type: array
+          items:
+            type: string
+
+    ComponentResponse:
+      type: object
+      properties:
+        component_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        framework:
+          type: string
+        version:
+          type: string
+        properties:
+          type: object
+          additionalProperties: true
+        dependencies:
+          type: array
+          items:
+            type: string
+        usage_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    ComponentRenderRequest:
+      type: object
+      required: [configuration]
+      properties:
+        configuration:
+          type: object
+          additionalProperties: true
+        data_source:
+          type: string
+        styling:
+          type: object
+          additionalProperties: true
+        interactions:
+          type: object
+          additionalProperties: true
+
+    ComponentRenderResponse:
+      type: object
+      properties:
+        rendered_component:
+          type: string
+          description: Rendered component HTML/JSON
+        assets:
+          type: array
+          items:
+            type: string
+        performance_metrics:
+          type: object
+          additionalProperties: true
+
+    # Agent Integration Schemas
+    AgentIntegrationRequest:
+      type: object
+      required: [agent_id, integration_type]
+      properties:
+        agent_id:
+          type: string
+        integration_type:
+          type: string
+          enum: [embedded, api_client, event_driven, real_time]
+        configuration:
+          type: object
+          additionalProperties: true
+        ui_components:
+          type: array
+          items:
+            type: string
+        event_handlers:
+          type: object
+          additionalProperties: true
+
+    AgentIntegrationResponse:
+      type: object
+      properties:
+        integration_id:
+          type: string
+        agent_id:
+          type: string
+        integration_type:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive, error]
+        configuration:
+          type: object
+          additionalProperties: true
+        ui_endpoints:
+          type: array
+          items:
+            type: string
+        created_at:
+          type: string
+          format: date-time
+
+    AgentStatusResponse:
+      type: object
+      properties:
+        agent_id:
+          type: string
+        status:
+          type: string
+          enum: [running, stopped, error, maintenance]
+        health:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        performance_metrics:
+          type: object
+          additionalProperties: true
+        last_activity:
+          type: string
+          format: date-time
+
+    AgentControlRequest:
+      type: object
+      required: [command]
+      properties:
+        command:
+          type: string
+          enum: [start, stop, restart, pause, resume, configure]
+        parameters:
+          type: object
+          additionalProperties: true
+
+    AgentControlResponse:
+      type: object
+      properties:
+        command_id:
+          type: string
+        status:
+          type: string
+          enum: [accepted, executing, completed, failed]
+        result:
+          type: object
+          additionalProperties: true
+
+    # Dashboard Schemas
+    DashboardRequest:
+      type: object
+      required: [name, layout]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        layout:
+          $ref: '#/components/schemas/DashboardLayout'
+        widgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/WidgetConfiguration'
+        permissions:
+          type: array
+          items:
+            type: string
+        refresh_interval:
+          type: integer
+          minimum: 1
+
+    DashboardResponse:
+      type: object
+      properties:
+        dashboard_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        layout:
+          $ref: '#/components/schemas/DashboardLayout'
+        widgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/WidgetResponse'
+        permissions:
+          type: array
+          items:
+            type: string
+        refresh_interval:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    DashboardLayout:
+      type: object
+      properties:
+        rows:
+          type: integer
+        columns:
+          type: integer
+        grid_system:
+          type: string
+          enum: [css_grid, flexbox, bootstrap]
+        responsive:
+          type: boolean
+        theme:
+          type: string
+
+    WidgetRequest:
+      type: object
+      required: [type, position]
+      properties:
+        type:
+          type: string
+          enum: [map, chart, table, metric, agent_control, status_indicator]
+        position:
+          $ref: '#/components/schemas/WidgetPosition'
+        configuration:
+          type: object
+          additionalProperties: true
+        data_source:
+          type: string
+        update_frequency:
+          type: integer
+
+    WidgetResponse:
+      type: object
+      properties:
+        widget_id:
+          type: string
+        type:
+          type: string
+        position:
+          $ref: '#/components/schemas/WidgetPosition'
+        configuration:
+          type: object
+          additionalProperties: true
+        data_source:
+          type: string
+        status:
+          type: string
+          enum: [active, loading, error]
+        last_updated:
+          type: string
+          format: date-time
+
+    WidgetPosition:
+      type: object
+      properties:
+        x:
+          type: integer
+        y:
+          type: integer
+        width:
+          type: integer
+        height:
+          type: integer
+
+    WidgetConfiguration:
+      type: object
+      properties:
+        widget_type:
+          type: string
+        settings:
+          type: object
+          additionalProperties: true
+
+    # Layout Schemas
+    LayoutRequest:
+      type: object
+      required: [name, template]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        template:
+          type: string
+        framework:
+          type: string
+          enum: [react, vue, angular, vanilla]
+        responsive:
+          type: boolean
+        theme_support:
+          type: boolean
+
+    LayoutResponse:
+      type: object
+      properties:
+        layout_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        template:
+          type: string
+        framework:
+          type: string
+        responsive:
+          type: boolean
+        theme_support:
+          type: boolean
+        usage_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    # Configuration Schemas
+    ConfigurationRequest:
+      type: object
+      properties:
+        application_settings:
+          type: object
+          additionalProperties: true
+        ui_settings:
+          type: object
+          additionalProperties: true
+        agent_settings:
+          type: object
+          additionalProperties: true
+        security_settings:
+          type: object
+          additionalProperties: true
+
+    ConfigurationResponse:
+      type: object
+      properties:
+        configuration_id:
+          type: string
+        application_settings:
+          type: object
+          additionalProperties: true
+        ui_settings:
+          type: object
+          additionalProperties: true
+        agent_settings:
+          type: object
+          additionalProperties: true
+        security_settings:
+          type: object
+          additionalProperties: true
+        updated_at:
+          type: string
+          format: date-time
+
+    # Common Schemas
+    ComponentSummary:
+      type: object
+      properties:
+        component_id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+
+    AgentSummary:
+      type: object
+      properties:
+        agent_id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+
+    ApplicationListResponse:
+      type: object
+      properties:
+        applications:
+          type: array
+          items:
+            $ref: '#/components/schemas/ApplicationResponse'
+        total_count:
+          type: integer
+
+    ComponentListResponse:
+      type: object
+      properties:
+        components:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComponentResponse'
+        total_count:
+          type: integer
+
+    DashboardListResponse:
+      type: object
+      properties:
+        dashboards:
+          type: array
+          items:
+            $ref: '#/components/schemas/DashboardResponse'
+        total_count:
+          type: integer
+
+    WidgetListResponse:
+      type: object
+      properties:
+        widgets:
+          type: array
+          items:
+            $ref: '#/components/schemas/WidgetResponse'
+        total_count:
+          type: integer
+
+    LayoutListResponse:
+      type: object
+      properties:
+        layouts:
+          type: array
+          items:
+            $ref: '#/components/schemas/LayoutResponse'
+        total_count:
+          type: integer
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

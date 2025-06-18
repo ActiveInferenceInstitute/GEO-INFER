@@ -1,0 +1,971 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-COMMS API
+  description: |
+    Comprehensive communication and messaging API for geospatial collaboration and real-time coordination.
+    
+    This API provides tools for:
+    - Real-time messaging and communication
+    - Event-driven communication protocols
+    - Collaboration and coordination tools
+    - Notification and alert systems
+    - WebSocket and streaming communication
+    - Cross-module messaging infrastructure
+  version: 1.0.0
+  contact:
+    name: GEO-INFER-COMMS Support
+    email: comms-support@geo-infer.org
+  license:
+    name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/comms/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/comms/v1
+    description: Staging server
+  - url: http://localhost:8000/comms/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+tags:
+  - name: messaging
+    description: Real-time messaging operations
+  - name: notifications
+    description: Notification and alert systems
+  - name: channels
+    description: Communication channel management
+  - name: events
+    description: Event-driven communication
+  - name: collaboration
+    description: Collaboration and coordination tools
+  - name: streaming
+    description: Real-time data streaming
+  - name: system
+    description: System management and health monitoring
+
+paths:
+  # Messaging Endpoints
+  /messages:
+    get:
+      tags: [messaging]
+      summary: Get messages
+      description: Retrieve messages with filtering options
+      parameters:
+        - name: channel_id
+          in: query
+          schema:
+            type: string
+        - name: sender_id
+          in: query
+          schema:
+            type: string
+        - name: start_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: end_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Messages retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageListResponse'
+
+    post:
+      tags: [messaging]
+      summary: Send message
+      description: Send a new message
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageRequest'
+      responses:
+        '201':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /messages/{message_id}:
+    get:
+      tags: [messaging]
+      summary: Get message details
+      description: Retrieve detailed information about a specific message
+      parameters:
+        - name: message_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Message details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+  /messages/broadcast:
+    post:
+      tags: [messaging]
+      summary: Broadcast message
+      description: Broadcast a message to multiple recipients or channels
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BroadcastRequest'
+      responses:
+        '200':
+          description: Broadcast sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BroadcastResponse'
+
+  # Channel Management Endpoints
+  /channels:
+    get:
+      tags: [channels]
+      summary: List channels
+      description: Retrieve list of communication channels
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [public, private, direct, group]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, archived, suspended]
+      responses:
+        '200':
+          description: Channels retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelListResponse'
+
+    post:
+      tags: [channels]
+      summary: Create channel
+      description: Create a new communication channel
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChannelRequest'
+      responses:
+        '201':
+          description: Channel created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChannelResponse'
+
+  /channels/{channel_id}/subscribe:
+    post:
+      tags: [channels]
+      summary: Subscribe to channel
+      description: Subscribe to a communication channel
+      parameters:
+        - name: channel_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscriptionRequest'
+      responses:
+        '200':
+          description: Subscription successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SubscriptionResponse'
+
+  # Notification Endpoints
+  /notifications:
+    get:
+      tags: [notifications]
+      summary: Get notifications
+      description: Retrieve notifications for the current user
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [read, unread, all]
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notifications retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationListResponse'
+
+    post:
+      tags: [notifications]
+      summary: Send notification
+      description: Send a notification to specified recipients
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NotificationRequest'
+      responses:
+        '201':
+          description: Notification sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationResponse'
+
+  /notifications/{notification_id}/read:
+    post:
+      tags: [notifications]
+      summary: Mark notification as read
+      description: Mark a specific notification as read
+      parameters:
+        - name: notification_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Notification marked as read
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotificationStatusResponse'
+
+  # Event Communication Endpoints
+  /events/publish:
+    post:
+      tags: [events]
+      summary: Publish event
+      description: Publish an event to the communication system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventPublishRequest'
+      responses:
+        '200':
+          description: Event published successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventPublishResponse'
+
+  /events/subscribe:
+    post:
+      tags: [events]
+      summary: Subscribe to events
+      description: Subscribe to specific event types
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventSubscriptionRequest'
+      responses:
+        '200':
+          description: Event subscription successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventSubscriptionResponse'
+
+  # Collaboration Endpoints
+  /collaboration/sessions:
+    get:
+      tags: [collaboration]
+      summary: List collaboration sessions
+      description: Retrieve active collaboration sessions
+      responses:
+        '200':
+          description: Collaboration sessions retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollaborationSessionListResponse'
+
+    post:
+      tags: [collaboration]
+      summary: Create collaboration session
+      description: Create a new collaboration session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CollaborationSessionRequest'
+      responses:
+        '201':
+          description: Collaboration session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CollaborationSessionResponse'
+
+  /collaboration/sessions/{session_id}/join:
+    post:
+      tags: [collaboration]
+      summary: Join collaboration session
+      description: Join an existing collaboration session
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully joined session
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JoinSessionResponse'
+
+  # Streaming Endpoints
+  /streaming/websocket:
+    get:
+      tags: [streaming]
+      summary: WebSocket connection info
+      description: Get WebSocket connection information
+      responses:
+        '200':
+          description: WebSocket connection info retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WebSocketInfoResponse'
+
+  /streaming/streams:
+    get:
+      tags: [streaming]
+      summary: List active streams
+      description: Retrieve list of active data streams
+      responses:
+        '200':
+          description: Active streams retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamListResponse'
+
+    post:
+      tags: [streaming]
+      summary: Create stream
+      description: Create a new data stream
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StreamRequest'
+      responses:
+        '201':
+          description: Stream created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamResponse'
+
+  # Health Check
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Message Schemas
+    MessageRequest:
+      type: object
+      required: [content, recipients]
+      properties:
+        content:
+          type: string
+        recipients:
+          type: array
+          items:
+            type: string
+        channel_id:
+          type: string
+        message_type:
+          type: string
+          enum: [text, image, file, location, alert]
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+        metadata:
+          type: object
+          additionalProperties: true
+
+    MessageResponse:
+      type: object
+      properties:
+        message_id:
+          type: string
+        content:
+          type: string
+        sender_id:
+          type: string
+        recipients:
+          type: array
+          items:
+            type: string
+        channel_id:
+          type: string
+        message_type:
+          type: string
+        priority:
+          type: string
+        status:
+          type: string
+          enum: [sent, delivered, read, failed]
+        timestamp:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          additionalProperties: true
+
+    BroadcastRequest:
+      type: object
+      required: [content, target_type]
+      properties:
+        content:
+          type: string
+        target_type:
+          type: string
+          enum: [all_users, channel, role, location_based]
+        target_criteria:
+          type: object
+          additionalProperties: true
+        message_type:
+          type: string
+          enum: [announcement, alert, emergency, notification]
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+
+    BroadcastResponse:
+      type: object
+      properties:
+        broadcast_id:
+          type: string
+        status:
+          type: string
+          enum: [sent, in_progress, completed, failed]
+        recipient_count:
+          type: integer
+        delivery_stats:
+          type: object
+          additionalProperties: true
+
+    # Channel Schemas
+    ChannelRequest:
+      type: object
+      required: [name, type]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [public, private, direct, group]
+        permissions:
+          type: object
+          additionalProperties: true
+        settings:
+          type: object
+          additionalProperties: true
+
+    ChannelResponse:
+      type: object
+      properties:
+        channel_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        status:
+          type: string
+          enum: [active, archived, suspended]
+        member_count:
+          type: integer
+        permissions:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    SubscriptionRequest:
+      type: object
+      properties:
+        subscription_type:
+          type: string
+          enum: [all_messages, mentions_only, important_only]
+        notification_preferences:
+          type: object
+          additionalProperties: true
+
+    SubscriptionResponse:
+      type: object
+      properties:
+        subscription_id:
+          type: string
+        channel_id:
+          type: string
+        user_id:
+          type: string
+        subscription_type:
+          type: string
+        status:
+          type: string
+          enum: [active, paused, cancelled]
+        created_at:
+          type: string
+          format: date-time
+
+    # Notification Schemas
+    NotificationRequest:
+      type: object
+      required: [title, content, recipients]
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        recipients:
+          type: array
+          items:
+            type: string
+        notification_type:
+          type: string
+          enum: [info, warning, error, success, reminder]
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+        delivery_method:
+          type: array
+          items:
+            type: string
+            enum: [in_app, email, sms, push]
+        schedule_time:
+          type: string
+          format: date-time
+        expiry_time:
+          type: string
+          format: date-time
+
+    NotificationResponse:
+      type: object
+      properties:
+        notification_id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        notification_type:
+          type: string
+        priority:
+          type: string
+        status:
+          type: string
+          enum: [pending, sent, delivered, read, expired]
+        delivery_stats:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+
+    NotificationStatusResponse:
+      type: object
+      properties:
+        notification_id:
+          type: string
+        status:
+          type: string
+        read_at:
+          type: string
+          format: date-time
+
+    # Event Communication Schemas
+    EventPublishRequest:
+      type: object
+      required: [event_type, payload]
+      properties:
+        event_type:
+          type: string
+        payload:
+          type: object
+          additionalProperties: true
+        source:
+          type: string
+        target_channels:
+          type: array
+          items:
+            type: string
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+        persistence:
+          type: boolean
+          default: false
+
+    EventPublishResponse:
+      type: object
+      properties:
+        event_id:
+          type: string
+        status:
+          type: string
+          enum: [published, queued, failed]
+        timestamp:
+          type: string
+          format: date-time
+        delivery_count:
+          type: integer
+
+    EventSubscriptionRequest:
+      type: object
+      required: [event_types]
+      properties:
+        event_types:
+          type: array
+          items:
+            type: string
+        filter_criteria:
+          type: object
+          additionalProperties: true
+        delivery_mode:
+          type: string
+          enum: [real_time, batched, on_demand]
+        callback_url:
+          type: string
+          format: uri
+
+    EventSubscriptionResponse:
+      type: object
+      properties:
+        subscription_id:
+          type: string
+        event_types:
+          type: array
+          items:
+            type: string
+        status:
+          type: string
+          enum: [active, paused, error]
+        created_at:
+          type: string
+          format: date-time
+
+    # Collaboration Schemas
+    CollaborationSessionRequest:
+      type: object
+      required: [name, session_type]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        session_type:
+          type: string
+          enum: [meeting, workshop, planning, review]
+        participants:
+          type: array
+          items:
+            type: string
+        duration:
+          type: integer
+          description: Duration in minutes
+        features:
+          type: array
+          items:
+            type: string
+            enum: [screen_share, whiteboard, file_share, voice, video]
+
+    CollaborationSessionResponse:
+      type: object
+      properties:
+        session_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        session_type:
+          type: string
+        status:
+          type: string
+          enum: [scheduled, active, paused, ended]
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/Participant'
+        join_url:
+          type: string
+          format: uri
+        created_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+
+    JoinSessionResponse:
+      type: object
+      properties:
+        session_id:
+          type: string
+        participant_id:
+          type: string
+        join_status:
+          type: string
+          enum: [joined, waiting, rejected]
+        session_info:
+          type: object
+          additionalProperties: true
+
+    # Streaming Schemas
+    StreamRequest:
+      type: object
+      required: [name, stream_type]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        stream_type:
+          type: string
+          enum: [data, video, audio, geospatial, sensor]
+        source:
+          type: string
+        configuration:
+          type: object
+          additionalProperties: true
+        quality_settings:
+          type: object
+          additionalProperties: true
+
+    StreamResponse:
+      type: object
+      properties:
+        stream_id:
+          type: string
+        name:
+          type: string
+        stream_type:
+          type: string
+        status:
+          type: string
+          enum: [active, paused, stopped, error]
+        connection_url:
+          type: string
+          format: uri
+        viewer_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    WebSocketInfoResponse:
+      type: object
+      properties:
+        websocket_url:
+          type: string
+          format: uri
+        protocols:
+          type: array
+          items:
+            type: string
+        connection_token:
+          type: string
+        heartbeat_interval:
+          type: integer
+
+    # Common Schemas
+    Participant:
+      type: object
+      properties:
+        user_id:
+          type: string
+        name:
+          type: string
+        role:
+          type: string
+          enum: [host, moderator, participant, observer]
+        status:
+          type: string
+          enum: [online, offline, away, busy]
+        joined_at:
+          type: string
+          format: date-time
+
+    MessageListResponse:
+      type: object
+      properties:
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/MessageResponse'
+        total_count:
+          type: integer
+        pagination:
+          type: object
+          additionalProperties: true
+
+    ChannelListResponse:
+      type: object
+      properties:
+        channels:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChannelResponse'
+        total_count:
+          type: integer
+
+    NotificationListResponse:
+      type: object
+      properties:
+        notifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/NotificationResponse'
+        unread_count:
+          type: integer
+        total_count:
+          type: integer
+
+    CollaborationSessionListResponse:
+      type: object
+      properties:
+        sessions:
+          type: array
+          items:
+            $ref: '#/components/schemas/CollaborationSessionResponse'
+        total_count:
+          type: integer
+
+    StreamListResponse:
+      type: object
+      properties:
+        streams:
+          type: array
+          items:
+            $ref: '#/components/schemas/StreamResponse'
+        total_count:
+          type: integer
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        connections:
+          type: object
+          additionalProperties: true
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

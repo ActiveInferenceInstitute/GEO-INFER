@@ -1,0 +1,1331 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-ECON API
+  description: |
+    Spatial Economics and Urban Economic Analysis
+    
+    Provides economic modeling, analysis, and simulation tools for
+    spatial economics, urban planning, and regional development.
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Economics Team
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://econ-api.geo-infer.org/v1
+    description: Production economics server
+  - url: http://localhost:8007/v1
+    description: Local development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+paths:
+  # Economic Data Management
+  /economic-data/indicators:
+    get:
+      summary: List economic indicators
+      description: Returns available economic indicators and datasets
+      operationId: listEconomicIndicators
+      tags:
+        - Economic Data
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [demographic, employment, income, housing, business, infrastructure]
+        - name: spatial_level
+          in: query
+          schema:
+            type: string
+            enum: [country, region, city, neighborhood, block]
+        - name: temporal_coverage
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of economic indicators
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EconomicIndicator'
+
+  /economic-data/datasets/{datasetId}:
+    get:
+      summary: Get economic dataset
+      description: Returns economic data for specified dataset
+      operationId: getEconomicDataset
+      tags:
+        - Economic Data
+      parameters:
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: spatial_filter
+          in: query
+          schema:
+            type: string
+        - name: temporal_filter
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Economic dataset
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EconomicDataset'
+
+  # Urban Economics
+  /urban-economics/land-use:
+    post:
+      summary: Analyze land use patterns
+      description: Performs land use economic analysis
+      operationId: analyzeLandUse
+      tags:
+        - Urban Economics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LandUseAnalysisRequest'
+      responses:
+        '200':
+          description: Land use analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LandUseAnalysisResponse'
+
+  /urban-economics/accessibility:
+    post:
+      summary: Calculate accessibility measures
+      description: Calculates economic accessibility indicators
+      operationId: calculateAccessibility
+      tags:
+        - Urban Economics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessibilityRequest'
+      responses:
+        '200':
+          description: Accessibility analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessibilityResponse'
+
+  /urban-economics/agglomeration:
+    post:
+      summary: Analyze agglomeration effects
+      description: Analyzes economic agglomeration and clustering
+      operationId: analyzeAgglomeration
+      tags:
+        - Urban Economics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgglomerationRequest'
+      responses:
+        '200':
+          description: Agglomeration analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AgglomerationResponse'
+
+  # Regional Economics
+  /regional-economics/input-output:
+    post:
+      summary: Input-output analysis
+      description: Performs regional input-output economic analysis
+      operationId: performInputOutputAnalysis
+      tags:
+        - Regional Economics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InputOutputRequest'
+      responses:
+        '200':
+          description: Input-output analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InputOutputResponse'
+
+  /regional-economics/multipliers:
+    post:
+      summary: Calculate economic multipliers
+      description: Calculates regional economic multipliers
+      operationId: calculateEconomicMultipliers
+      tags:
+        - Regional Economics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MultiplierRequest'
+      responses:
+        '200':
+          description: Economic multiplier results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultiplierResponse'
+
+  /regional-economics/trade-flows:
+    post:
+      summary: Analyze trade flows
+      description: Analyzes regional trade flow patterns
+      operationId: analyzeTradeFlows
+      tags:
+        - Regional Economics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TradeFlowRequest'
+      responses:
+        '200':
+          description: Trade flow analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TradeFlowResponse'
+
+  # Economic Modeling
+  /models/spatial-equilibrium:
+    post:
+      summary: Spatial equilibrium modeling
+      description: Runs spatial economic equilibrium models
+      operationId: runSpatialEquilibriumModel
+      tags:
+        - Economic Modeling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpatialEquilibriumRequest'
+      responses:
+        '200':
+          description: Spatial equilibrium model results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpatialEquilibriumResponse'
+
+  /models/computable-general-equilibrium:
+    post:
+      summary: CGE modeling
+      description: Runs computable general equilibrium models
+      operationId: runCGEModel
+      tags:
+        - Economic Modeling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CGERequest'
+      responses:
+        '200':
+          description: CGE model results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CGEResponse'
+
+  /models/gravity:
+    post:
+      summary: Gravity model analysis
+      description: Performs gravity model analysis for spatial interactions
+      operationId: runGravityModel
+      tags:
+        - Economic Modeling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GravityModelRequest'
+      responses:
+        '200':
+          description: Gravity model results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GravityModelResponse'
+
+  # Market Analysis
+  /market-analysis/retail:
+    post:
+      summary: Retail market analysis
+      description: Analyzes retail market potential and competition
+      operationId: analyzeRetailMarket
+      tags:
+        - Market Analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RetailAnalysisRequest'
+      responses:
+        '200':
+          description: Retail market analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetailAnalysisResponse'
+
+  /market-analysis/real-estate:
+    post:
+      summary: Real estate market analysis
+      description: Analyzes real estate market conditions and pricing
+      operationId: analyzeRealEstateMarket
+      tags:
+        - Market Analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RealEstateAnalysisRequest'
+      responses:
+        '200':
+          description: Real estate market analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealEstateAnalysisResponse'
+
+  /market-analysis/catchment:
+    post:
+      summary: Catchment area analysis
+      description: Analyzes market catchment areas and penetration
+      operationId: analyzeCatchmentArea
+      tags:
+        - Market Analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CatchmentAnalysisRequest'
+      responses:
+        '200':
+          description: Catchment area analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CatchmentAnalysisResponse'
+
+  # Economic Impact Assessment
+  /impact-assessment/projects:
+    post:
+      summary: Project impact assessment
+      description: Assesses economic impact of development projects
+      operationId: assessProjectImpact
+      tags:
+        - Impact Assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectImpactRequest'
+      responses:
+        '200':
+          description: Project impact assessment results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectImpactResponse'
+
+  /impact-assessment/policies:
+    post:
+      summary: Policy impact assessment
+      description: Assesses economic impact of policy changes
+      operationId: assessPolicyImpact
+      tags:
+        - Impact Assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyImpactRequest'
+      responses:
+        '200':
+          description: Policy impact assessment results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyImpactResponse'
+
+  # Economic Forecasting
+  /forecasting/econometric:
+    post:
+      summary: Econometric forecasting
+      description: Performs econometric forecasting of economic indicators
+      operationId: performEconometricForecast
+      tags:
+        - Economic Forecasting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EconometricForecastRequest'
+      responses:
+        '200':
+          description: Econometric forecast results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EconometricForecastResponse'
+
+  /forecasting/scenario:
+    post:
+      summary: Scenario-based forecasting
+      description: Performs scenario-based economic forecasting
+      operationId: performScenarioForecast
+      tags:
+        - Economic Forecasting
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ScenarioForecastRequest'
+      responses:
+        '200':
+          description: Scenario forecast results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ScenarioForecastResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Economic Data schemas
+    EconomicIndicator:
+      type: object
+      required:
+        - id
+        - name
+        - category
+        - unit
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [demographic, employment, income, housing, business, infrastructure]
+        unit:
+          type: string
+        spatial_coverage:
+          type: string
+        temporal_coverage:
+          type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+            end_date:
+              type: string
+              format: date
+            frequency:
+              type: string
+              enum: [daily, weekly, monthly, quarterly, yearly]
+        data_source:
+          type: string
+        last_updated:
+          type: string
+          format: date-time
+
+    EconomicDataset:
+      type: object
+      required:
+        - indicator_id
+        - data_points
+      properties:
+        indicator_id:
+          type: string
+        data_points:
+          $ref: '#/components/schemas/FeatureCollection'
+        metadata:
+          type: object
+          properties:
+            collection_method:
+              type: string
+            quality_score:
+              type: number
+            completeness:
+              type: number
+        temporal_index:
+          type: array
+          items:
+            type: string
+            format: date
+
+    # Urban Economics schemas
+    LandUseAnalysisRequest:
+      type: object
+      required:
+        - study_area
+        - land_use_data
+      properties:
+        study_area:
+          $ref: '#/components/schemas/Geometry'
+        land_use_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        economic_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        analysis_type:
+          type: string
+          enum: [density, value, efficiency, transition]
+        parameters:
+          type: object
+
+    LandUseAnalysisResponse:
+      type: object
+      required:
+        - analysis_results
+      properties:
+        analysis_results:
+          $ref: '#/components/schemas/FeatureCollection'
+        summary_statistics:
+          type: object
+          properties:
+            total_area:
+              type: number
+            average_density:
+              type: number
+            land_value_total:
+              type: number
+            efficiency_index:
+              type: number
+        recommendations:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              description:
+                type: string
+              priority:
+                type: string
+                enum: [low, medium, high]
+
+    AccessibilityRequest:
+      type: object
+      required:
+        - origins
+        - destinations
+        - transport_network
+      properties:
+        origins:
+          $ref: '#/components/schemas/FeatureCollection'
+        destinations:
+          $ref: '#/components/schemas/FeatureCollection'
+        transport_network:
+          oneOf:
+            - type: string
+              description: Network dataset ID
+            - $ref: '#/components/schemas/FeatureCollection'
+        accessibility_measures:
+          type: array
+          items:
+            type: string
+            enum: [gravity, cumulative_opportunity, potential, competition]
+        impedance_function:
+          type: string
+          enum: [linear, exponential, power, gaussian]
+        parameters:
+          type: object
+
+    AccessibilityResponse:
+      type: object
+      required:
+        - accessibility_scores
+      properties:
+        accessibility_scores:
+          $ref: '#/components/schemas/FeatureCollection'
+        accessibility_surfaces:
+          $ref: '#/components/schemas/FeatureCollection'
+        equity_analysis:
+          type: object
+          properties:
+            gini_coefficient:
+              type: number
+            accessibility_gaps:
+              $ref: '#/components/schemas/FeatureCollection'
+
+    AgglomerationRequest:
+      type: object
+      required:
+        - economic_activities
+        - study_area
+      properties:
+        economic_activities:
+          $ref: '#/components/schemas/FeatureCollection'
+        study_area:
+          $ref: '#/components/schemas/Geometry'
+        agglomeration_measures:
+          type: array
+          items:
+            type: string
+            enum: [employment_density, diversity, specialization, competition]
+        spatial_scale:
+          type: number
+        industry_classification:
+          type: string
+
+    AgglomerationResponse:
+      type: object
+      required:
+        - agglomeration_indices
+      properties:
+        agglomeration_indices:
+          $ref: '#/components/schemas/FeatureCollection'
+        clustering_analysis:
+          type: object
+          properties:
+            clusters:
+              $ref: '#/components/schemas/FeatureCollection'
+            cluster_statistics:
+              type: object
+        spillover_effects:
+          type: object
+
+    # Regional Economics schemas
+    InputOutputRequest:
+      type: object
+      required:
+        - region_id
+        - io_table
+        - shock_vector
+      properties:
+        region_id:
+          type: string
+        io_table:
+          type: object
+          properties:
+            sectors:
+              type: array
+              items:
+                type: string
+            transaction_matrix:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+            final_demand:
+              type: array
+              items:
+                type: number
+        shock_vector:
+          type: object
+          properties:
+            sector_changes:
+              type: object
+              additionalProperties:
+                type: number
+            final_demand_changes:
+              type: object
+              additionalProperties:
+                type: number
+        analysis_type:
+          type: string
+          enum: [impact, linkage, key_sector]
+
+    InputOutputResponse:
+      type: object
+      required:
+        - total_impacts
+        - sectoral_impacts
+      properties:
+        total_impacts:
+          type: object
+          properties:
+            output_impact:
+              type: number
+            employment_impact:
+              type: number
+            income_impact:
+              type: number
+            tax_impact:
+              type: number
+        sectoral_impacts:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              direct_impact:
+                type: number
+              indirect_impact:
+                type: number
+              induced_impact:
+                type: number
+              total_impact:
+                type: number
+        multipliers:
+          $ref: '#/components/schemas/MultiplierResponse'
+        linkage_analysis:
+          type: object
+
+    MultiplierRequest:
+      type: object
+      required:
+        - region_id
+        - sectors
+      properties:
+        region_id:
+          type: string
+        sectors:
+          type: array
+          items:
+            type: string
+        multiplier_types:
+          type: array
+          items:
+            type: string
+            enum: [output, employment, income, value_added]
+        aggregation_level:
+          type: string
+          enum: [sector, region, total]
+
+    MultiplierResponse:
+      type: object
+      required:
+        - multipliers
+      properties:
+        multipliers:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              type_i:
+                type: number
+              type_ii:
+                type: number
+              type_iii:
+                type: number
+        comparative_analysis:
+          type: object
+        confidence_intervals:
+          type: object
+
+    TradeFlowRequest:
+      type: object
+      required:
+        - origin_regions
+        - destination_regions
+        - commodities
+      properties:
+        origin_regions:
+          type: array
+          items:
+            type: string
+        destination_regions:
+          type: array
+          items:
+            type: string
+        commodities:
+          type: array
+          items:
+            type: string
+        time_period:
+          type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+            end_date:
+              type: string
+              format: date
+        analysis_methods:
+          type: array
+          items:
+            type: string
+            enum: [gravity_model, network_analysis, specialization_index]
+
+    TradeFlowResponse:
+      type: object
+      required:
+        - trade_flows
+      properties:
+        trade_flows:
+          type: object
+          properties:
+            flow_matrix:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+            flow_maps:
+              $ref: '#/components/schemas/FeatureCollection'
+        trade_intensity:
+          type: object
+        comparative_advantage:
+          type: object
+        network_metrics:
+          type: object
+
+    # Economic Modeling schemas
+    SpatialEquilibriumRequest:
+      type: object
+      required:
+        - regions
+        - sectors
+        - model_specification
+      properties:
+        regions:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              characteristics:
+                type: object
+        sectors:
+          type: array
+          items:
+            type: string
+        model_specification:
+          type: object
+          properties:
+            production_functions:
+              type: object
+            utility_functions:
+              type: object
+            transport_costs:
+              type: object
+            trade_elasticities:
+              type: object
+        scenarios:
+          type: array
+          items:
+            type: object
+
+    SpatialEquilibriumResponse:
+      type: object
+      required:
+        - equilibrium_solution
+      properties:
+        equilibrium_solution:
+          type: object
+          properties:
+            prices:
+              type: object
+            quantities:
+              type: object
+            trade_flows:
+              type: object
+            welfare_effects:
+              type: object
+        sensitivity_analysis:
+          type: object
+        model_diagnostics:
+          type: object
+
+    CGERequest:
+      type: object
+      required:
+        - social_accounting_matrix
+        - model_closure
+        - shock_specification
+      properties:
+        social_accounting_matrix:
+          type: object
+        model_closure:
+          type: object
+          properties:
+            savings_investment:
+              type: string
+            government_balance:
+              type: string
+            external_balance:
+              type: string
+        shock_specification:
+          type: object
+        regions:
+          type: array
+          items:
+            type: string
+
+    CGEResponse:
+      type: object
+      required:
+        - simulation_results
+      properties:
+        simulation_results:
+          type: object
+          properties:
+            macro_variables:
+              type: object
+            sectoral_results:
+              type: object
+            household_results:
+              type: object
+            regional_results:
+              type: object
+        welfare_analysis:
+          type: object
+        decomposition_analysis:
+          type: object
+
+    GravityModelRequest:
+      type: object
+      required:
+        - origins
+        - destinations
+        - interaction_data
+      properties:
+        origins:
+          $ref: '#/components/schemas/FeatureCollection'
+        destinations:
+          $ref: '#/components/schemas/FeatureCollection'
+        interaction_data:
+          type: object
+          properties:
+            flows:
+              type: array
+              items:
+                type: object
+            impedance_measures:
+              type: object
+        model_specification:
+          type: object
+          properties:
+            functional_form:
+              type: string
+              enum: [simple, constrained, competing_destinations]
+            variables:
+              type: array
+              items:
+                type: string
+        calibration_method:
+          type: string
+          enum: [ols, poisson, negative_binomial]
+
+    GravityModelResponse:
+      type: object
+      required:
+        - model_parameters
+        - predicted_flows
+      properties:
+        model_parameters:
+          type: object
+        predicted_flows:
+          $ref: '#/components/schemas/FeatureCollection'
+        model_fit:
+          type: object
+          properties:
+            r_squared:
+              type: number
+            rmse:
+              type: number
+            log_likelihood:
+              type: number
+        residual_analysis:
+          type: object
+
+    # Market Analysis schemas
+    RetailAnalysisRequest:
+      type: object
+      required:
+        - study_area
+        - retail_locations
+        - demographic_data
+      properties:
+        study_area:
+          $ref: '#/components/schemas/Geometry'
+        retail_locations:
+          $ref: '#/components/schemas/FeatureCollection'
+        demographic_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        analysis_type:
+          type: string
+          enum: [market_potential, competition, site_selection, trade_area]
+        retail_category:
+          type: string
+
+    RetailAnalysisResponse:
+      type: object
+      required:
+        - market_analysis
+      properties:
+        market_analysis:
+          $ref: '#/components/schemas/FeatureCollection'
+        competition_analysis:
+          type: object
+          properties:
+            competition_index:
+              $ref: '#/components/schemas/FeatureCollection'
+            market_share:
+              type: object
+        site_recommendations:
+          type: array
+          items:
+            type: object
+        trade_areas:
+          $ref: '#/components/schemas/FeatureCollection'
+
+    RealEstateAnalysisRequest:
+      type: object
+      required:
+        - study_area
+        - property_data
+      properties:
+        study_area:
+          $ref: '#/components/schemas/Geometry'
+        property_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        market_factors:
+          $ref: '#/components/schemas/FeatureCollection'
+        analysis_type:
+          type: string
+          enum: [valuation, market_trends, investment_potential, risk_assessment]
+        property_type:
+          type: string
+          enum: [residential, commercial, industrial, mixed_use]
+
+    RealEstateAnalysisResponse:
+      type: object
+      required:
+        - valuation_results
+      properties:
+        valuation_results:
+          $ref: '#/components/schemas/FeatureCollection'
+        market_trends:
+          type: object
+          properties:
+            price_trends:
+              type: array
+              items:
+                type: object
+            market_indicators:
+              type: object
+        investment_metrics:
+          type: object
+        risk_assessment:
+          type: object
+
+    CatchmentAnalysisRequest:
+      type: object
+      required:
+        - facility_locations
+        - customer_base
+        - service_area_method
+      properties:
+        facility_locations:
+          $ref: '#/components/schemas/FeatureCollection'
+        customer_base:
+          $ref: '#/components/schemas/FeatureCollection'
+        service_area_method:
+          type: string
+          enum: [drive_time, distance, gravity_model, huff_model]
+        parameters:
+          type: object
+        competitor_locations:
+          $ref: '#/components/schemas/FeatureCollection'
+
+    CatchmentAnalysisResponse:
+      type: object
+      required:
+        - catchment_areas
+      properties:
+        catchment_areas:
+          $ref: '#/components/schemas/FeatureCollection'
+        market_penetration:
+          type: object
+        customer_allocation:
+          $ref: '#/components/schemas/FeatureCollection'
+        performance_metrics:
+          type: object
+
+    # Impact Assessment schemas
+    ProjectImpactRequest:
+      type: object
+      required:
+        - project_description
+        - project_location
+        - impact_area
+      properties:
+        project_description:
+          type: object
+          properties:
+            project_type:
+              type: string
+            investment_amount:
+              type: number
+            employment_creation:
+              type: integer
+            timeline:
+              type: object
+        project_location:
+          $ref: '#/components/schemas/Geometry'
+        impact_area:
+          $ref: '#/components/schemas/Geometry'
+        baseline_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        assessment_scope:
+          type: array
+          items:
+            type: string
+            enum: [employment, income, tax_revenue, population, business]
+
+    ProjectImpactResponse:
+      type: object
+      required:
+        - impact_estimates
+      properties:
+        impact_estimates:
+          type: object
+          properties:
+            direct_impacts:
+              type: object
+            indirect_impacts:
+              type: object
+            induced_impacts:
+              type: object
+            total_impacts:
+              type: object
+        spatial_distribution:
+          $ref: '#/components/schemas/FeatureCollection'
+        temporal_profile:
+          type: array
+          items:
+            type: object
+        cost_benefit_analysis:
+          type: object
+
+    PolicyImpactRequest:
+      type: object
+      required:
+        - policy_description
+        - affected_area
+        - baseline_scenario
+      properties:
+        policy_description:
+          type: object
+          properties:
+            policy_type:
+              type: string
+            policy_instruments:
+              type: array
+              items:
+                type: string
+            implementation_timeline:
+              type: object
+        affected_area:
+          $ref: '#/components/schemas/Geometry'
+        baseline_scenario:
+          $ref: '#/components/schemas/FeatureCollection'
+        alternative_scenarios:
+          type: array
+          items:
+            type: object
+
+    PolicyImpactResponse:
+      type: object
+      required:
+        - policy_impacts
+      properties:
+        policy_impacts:
+          type: object
+          additionalProperties:
+            type: object
+        scenario_comparison:
+          type: object
+        distributional_effects:
+          $ref: '#/components/schemas/FeatureCollection'
+        policy_recommendations:
+          type: array
+          items:
+            type: object
+
+    # Forecasting schemas
+    EconometricForecastRequest:
+      type: object
+      required:
+        - dependent_variable
+        - explanatory_variables
+        - forecast_horizon
+      properties:
+        dependent_variable:
+          type: string
+        explanatory_variables:
+          type: array
+          items:
+            type: string
+        historical_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        model_specification:
+          type: object
+          properties:
+            model_type:
+              type: string
+              enum: [linear, logistic, panel, spatial_lag, spatial_error]
+            estimation_method:
+              type: string
+            lag_structure:
+              type: object
+        forecast_horizon:
+          type: integer
+
+    EconometricForecastResponse:
+      type: object
+      required:
+        - forecasts
+        - model_summary
+      properties:
+        forecasts:
+          $ref: '#/components/schemas/FeatureCollection'
+        model_summary:
+          type: object
+          properties:
+            coefficients:
+              type: object
+            model_fit:
+              type: object
+            diagnostics:
+              type: object
+        uncertainty_bands:
+          $ref: '#/components/schemas/FeatureCollection'
+        scenario_analysis:
+          type: object
+
+    ScenarioForecastRequest:
+      type: object
+      required:
+        - base_scenario
+        - alternative_scenarios
+        - forecast_variables
+      properties:
+        base_scenario:
+          type: object
+        alternative_scenarios:
+          type: array
+          items:
+            type: object
+        forecast_variables:
+          type: array
+          items:
+            type: string
+        scenario_probabilities:
+          type: object
+        time_horizon:
+          type: integer
+
+    ScenarioForecastResponse:
+      type: object
+      required:
+        - scenario_forecasts
+      properties:
+        scenario_forecasts:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FeatureCollection'
+        probability_weighted_forecast:
+          $ref: '#/components/schemas/FeatureCollection'
+        risk_analysis:
+          type: object
+        sensitivity_analysis:
+          type: object
+
+    # Utility schemas
+    FeatureCollection:
+      type: object
+      required:
+        - type
+        - features
+      properties:
+        type:
+          type: string
+          enum: [FeatureCollection]
+        features:
+          type: array
+          items:
+            type: object
+
+    Geometry:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+        coordinates:
+          type: array
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+tags:
+  - name: Economic Data
+    description: Economic data management and access
+  - name: Urban Economics
+    description: Urban economic analysis methods
+  - name: Regional Economics
+    description: Regional economic analysis and modeling
+  - name: Economic Modeling
+    description: Economic modeling and simulation
+  - name: Market Analysis
+    description: Market analysis and research
+  - name: Impact Assessment
+    description: Economic impact assessment
+  - name: Economic Forecasting
+    description: Economic forecasting and prediction 

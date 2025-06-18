@@ -1,0 +1,1179 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-ORG API
+  description: |
+    Comprehensive organizational management API for geospatial intelligence institutions and governance structures.
+    
+    This API provides tools for:
+    - Organizational structure management
+    - Governance and policy administration
+    - Institutional coordination and collaboration
+    - Roles and permissions management
+    - Department and division management
+    - Strategic planning and coordination
+  version: 1.0.0
+  contact:
+    name: GEO-INFER-ORG Support
+    email: org-support@geo-infer.org
+  license:
+    name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/org/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/org/v1
+    description: Staging server
+  - url: http://localhost:8000/org/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+tags:
+  - name: organizations
+    description: Organization management and structure
+  - name: departments
+    description: Department and division management
+  - name: roles
+    description: Role and permission management
+  - name: governance
+    description: Governance and policy administration
+  - name: coordination
+    description: Inter-organizational coordination
+  - name: planning
+    description: Strategic planning and management
+  - name: system
+    description: System management and health monitoring
+
+paths:
+  # Organization Management Endpoints
+  /organizations:
+    get:
+      tags: [organizations]
+      summary: List organizations
+      description: Retrieve list of organizations in the system
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [government, private, ngo, academic, international]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, pending]
+        - name: location
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Organizations retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationListResponse'
+
+    post:
+      tags: [organizations]
+      summary: Create organization
+      description: Create a new organization in the system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationRequest'
+      responses:
+        '201':
+          description: Organization created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationResponse'
+
+  /organizations/{org_id}:
+    get:
+      tags: [organizations]
+      summary: Get organization details
+      description: Retrieve detailed information about a specific organization
+      parameters:
+        - name: org_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Organization details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationResponse'
+
+    put:
+      tags: [organizations]
+      summary: Update organization
+      description: Update organization information
+      parameters:
+        - name: org_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationRequest'
+      responses:
+        '200':
+          description: Organization updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationResponse'
+
+  /organizations/{org_id}/hierarchy:
+    get:
+      tags: [organizations]
+      summary: Get organizational hierarchy
+      description: Retrieve the hierarchical structure of an organization
+      parameters:
+        - name: org_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Organizational hierarchy retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HierarchyResponse'
+
+  # Department Management Endpoints
+  /departments:
+    get:
+      tags: [departments]
+      summary: List departments
+      description: Retrieve list of departments across organizations
+      parameters:
+        - name: organization_id
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Departments retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentListResponse'
+
+    post:
+      tags: [departments]
+      summary: Create department
+      description: Create a new department within an organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DepartmentRequest'
+      responses:
+        '201':
+          description: Department created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentResponse'
+
+  /departments/{dept_id}:
+    get:
+      tags: [departments]
+      summary: Get department details
+      description: Retrieve detailed information about a specific department
+      parameters:
+        - name: dept_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Department details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DepartmentResponse'
+
+  # Role Management Endpoints
+  /roles:
+    get:
+      tags: [roles]
+      summary: List roles
+      description: Retrieve list of organizational roles
+      parameters:
+        - name: organization_id
+          in: query
+          schema:
+            type: string
+        - name: department_id
+          in: query
+          schema:
+            type: string
+        - name: level
+          in: query
+          schema:
+            type: string
+            enum: [executive, senior, mid, junior, entry]
+      responses:
+        '200':
+          description: Roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleListResponse'
+
+    post:
+      tags: [roles]
+      summary: Create role
+      description: Create a new organizational role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleRequest'
+      responses:
+        '201':
+          description: Role created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleResponse'
+
+  /roles/{role_id}/permissions:
+    get:
+      tags: [roles]
+      summary: Get role permissions
+      description: Retrieve permissions associated with a specific role
+      parameters:
+        - name: role_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Role permissions retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionListResponse'
+
+    put:
+      tags: [roles]
+      summary: Update role permissions
+      description: Update permissions for a specific role
+      parameters:
+        - name: role_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionUpdateRequest'
+      responses:
+        '200':
+          description: Role permissions updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionListResponse'
+
+  # Governance Endpoints
+  /governance/policies:
+    get:
+      tags: [governance]
+      summary: List policies
+      description: Retrieve organizational policies and governance documents
+      parameters:
+        - name: organization_id
+          in: query
+          schema:
+            type: string
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [security, privacy, operational, compliance]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, active, archived, under_review]
+      responses:
+        '200':
+          description: Policies retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyListResponse'
+
+    post:
+      tags: [governance]
+      summary: Create policy
+      description: Create a new organizational policy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyRequest'
+      responses:
+        '201':
+          description: Policy created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyResponse'
+
+  /governance/compliance:
+    get:
+      tags: [governance]
+      summary: Get compliance status
+      description: Retrieve organizational compliance status and reports
+      parameters:
+        - name: organization_id
+          in: query
+          schema:
+            type: string
+        - name: framework
+          in: query
+          schema:
+            type: string
+            enum: [iso27001, gdpr, hipaa, sox, custom]
+      responses:
+        '200':
+          description: Compliance status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceResponse'
+
+  # Coordination Endpoints
+  /coordination/partnerships:
+    get:
+      tags: [coordination]
+      summary: List partnerships
+      description: Retrieve inter-organizational partnerships and collaborations
+      parameters:
+        - name: organization_id
+          in: query
+          schema:
+            type: string
+        - name: partnership_type
+          in: query
+          schema:
+            type: string
+            enum: [strategic, operational, research, data_sharing]
+      responses:
+        '200':
+          description: Partnerships retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartnershipListResponse'
+
+    post:
+      tags: [coordination]
+      summary: Create partnership
+      description: Create a new inter-organizational partnership
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PartnershipRequest'
+      responses:
+        '201':
+          description: Partnership created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PartnershipResponse'
+
+  /coordination/meetings:
+    get:
+      tags: [coordination]
+      summary: List coordination meetings
+      description: Retrieve scheduled coordination meetings and events
+      parameters:
+        - name: organization_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [scheduled, in_progress, completed, cancelled]
+      responses:
+        '200':
+          description: Meetings retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeetingListResponse'
+
+  # Strategic Planning Endpoints
+  /planning/strategies:
+    get:
+      tags: [planning]
+      summary: List strategic plans
+      description: Retrieve organizational strategic plans and initiatives
+      parameters:
+        - name: organization_id
+          in: query
+          schema:
+            type: string
+        - name: time_horizon
+          in: query
+          schema:
+            type: string
+            enum: [short_term, medium_term, long_term]
+      responses:
+        '200':
+          description: Strategic plans retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrategicPlanListResponse'
+
+    post:
+      tags: [planning]
+      summary: Create strategic plan
+      description: Create a new strategic plan or initiative
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StrategicPlanRequest'
+      responses:
+        '201':
+          description: Strategic plan created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StrategicPlanResponse'
+
+  /planning/objectives:
+    get:
+      tags: [planning]
+      summary: List objectives
+      description: Retrieve organizational objectives and KPIs
+      parameters:
+        - name: plan_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [not_started, in_progress, completed, on_hold]
+      responses:
+        '200':
+          description: Objectives retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ObjectiveListResponse'
+
+  # Health Check
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Organization Schemas
+    OrganizationRequest:
+      type: object
+      required: [name, type]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [government, private, ngo, academic, international]
+        industry:
+          type: string
+        size:
+          type: string
+          enum: [small, medium, large, enterprise]
+        headquarters:
+          $ref: '#/components/schemas/Address'
+        contact_info:
+          $ref: '#/components/schemas/ContactInfo'
+        website:
+          type: string
+          format: uri
+        legal_structure:
+          type: string
+        jurisdiction:
+          type: string
+
+    OrganizationResponse:
+      type: object
+      properties:
+        organization_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        industry:
+          type: string
+        size:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive, pending]
+        headquarters:
+          $ref: '#/components/schemas/Address'
+        contact_info:
+          $ref: '#/components/schemas/ContactInfo'
+        website:
+          type: string
+        legal_structure:
+          type: string
+        jurisdiction:
+          type: string
+        employee_count:
+          type: integer
+        department_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # Department Schemas
+    DepartmentRequest:
+      type: object
+      required: [name, organization_id]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        organization_id:
+          type: string
+        parent_department_id:
+          type: string
+        department_type:
+          type: string
+          enum: [operational, support, strategic, administrative]
+        head_of_department:
+          type: string
+        budget:
+          type: number
+        responsibilities:
+          type: array
+          items:
+            type: string
+
+    DepartmentResponse:
+      type: object
+      properties:
+        department_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        organization_id:
+          type: string
+        parent_department_id:
+          type: string
+        department_type:
+          type: string
+        head_of_department:
+          type: string
+        budget:
+          type: number
+        responsibilities:
+          type: array
+          items:
+            type: string
+        employee_count:
+          type: integer
+        subdepartment_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    # Role Schemas
+    RoleRequest:
+      type: object
+      required: [title, organization_id]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        organization_id:
+          type: string
+        department_id:
+          type: string
+        level:
+          type: string
+          enum: [executive, senior, mid, junior, entry]
+        responsibilities:
+          type: array
+          items:
+            type: string
+        required_skills:
+          type: array
+          items:
+            type: string
+        reporting_structure:
+          type: object
+          additionalProperties: true
+
+    RoleResponse:
+      type: object
+      properties:
+        role_id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        organization_id:
+          type: string
+        department_id:
+          type: string
+        level:
+          type: string
+        responsibilities:
+          type: array
+          items:
+            type: string
+        required_skills:
+          type: array
+          items:
+            type: string
+        reporting_structure:
+          type: object
+          additionalProperties: true
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+        created_at:
+          type: string
+          format: date-time
+
+    # Permission Schemas
+    Permission:
+      type: object
+      properties:
+        permission_id:
+          type: string
+        name:
+          type: string
+        resource:
+          type: string
+        actions:
+          type: array
+          items:
+            type: string
+            enum: [create, read, update, delete, execute, approve]
+        conditions:
+          type: object
+          additionalProperties: true
+
+    PermissionUpdateRequest:
+      type: object
+      required: [permissions]
+      properties:
+        permissions:
+          type: array
+          items:
+            type: string
+
+    # Governance Schemas
+    PolicyRequest:
+      type: object
+      required: [title, category, content]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [security, privacy, operational, compliance]
+        content:
+          type: string
+        version:
+          type: string
+        effective_date:
+          type: string
+          format: date
+        review_date:
+          type: string
+          format: date
+        approver:
+          type: string
+        organization_id:
+          type: string
+
+    PolicyResponse:
+      type: object
+      properties:
+        policy_id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        content:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+          enum: [draft, active, archived, under_review]
+        effective_date:
+          type: string
+          format: date
+        review_date:
+          type: string
+          format: date
+        approver:
+          type: string
+        organization_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        last_reviewed:
+          type: string
+          format: date-time
+
+    ComplianceResponse:
+      type: object
+      properties:
+        organization_id:
+          type: string
+        compliance_frameworks:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplianceFramework'
+        overall_score:
+          type: number
+        last_assessment:
+          type: string
+          format: date-time
+        next_assessment:
+          type: string
+          format: date-time
+
+    ComplianceFramework:
+      type: object
+      properties:
+        framework_name:
+          type: string
+        compliance_score:
+          type: number
+        status:
+          type: string
+          enum: [compliant, non_compliant, partially_compliant]
+        requirements:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplianceRequirement'
+
+    ComplianceRequirement:
+      type: object
+      properties:
+        requirement_id:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+          enum: [met, not_met, partially_met]
+        evidence:
+          type: array
+          items:
+            type: string
+
+    # Coordination Schemas
+    PartnershipRequest:
+      type: object
+      required: [name, partner_organizations, partnership_type]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        partner_organizations:
+          type: array
+          items:
+            type: string
+        partnership_type:
+          type: string
+          enum: [strategic, operational, research, data_sharing]
+        objectives:
+          type: array
+          items:
+            type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        governance_structure:
+          type: object
+          additionalProperties: true
+
+    PartnershipResponse:
+      type: object
+      properties:
+        partnership_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        partner_organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationSummary'
+        partnership_type:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive, pending, terminated]
+        objectives:
+          type: array
+          items:
+            type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        governance_structure:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+
+    # Strategic Planning Schemas
+    StrategicPlanRequest:
+      type: object
+      required: [name, organization_id, time_horizon]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        organization_id:
+          type: string
+        time_horizon:
+          type: string
+          enum: [short_term, medium_term, long_term]
+        vision:
+          type: string
+        mission:
+          type: string
+        strategic_themes:
+          type: array
+          items:
+            type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+
+    StrategicPlanResponse:
+      type: object
+      properties:
+        plan_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        organization_id:
+          type: string
+        time_horizon:
+          type: string
+        status:
+          type: string
+          enum: [draft, active, completed, cancelled]
+        vision:
+          type: string
+        mission:
+          type: string
+        strategic_themes:
+          type: array
+          items:
+            type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        progress:
+          type: number
+        objectives_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    # Common Schemas
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+
+    ContactInfo:
+      type: object
+      properties:
+        phone:
+          type: string
+        email:
+          type: string
+        fax:
+          type: string
+
+    OrganizationSummary:
+      type: object
+      properties:
+        organization_id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+
+    HierarchyResponse:
+      type: object
+      properties:
+        organization_id:
+          type: string
+        hierarchy:
+          type: object
+          additionalProperties: true
+        depth_levels:
+          type: integer
+        total_nodes:
+          type: integer
+
+    # List Response Schemas
+    OrganizationListResponse:
+      type: object
+      properties:
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationResponse'
+        total_count:
+          type: integer
+
+    DepartmentListResponse:
+      type: object
+      properties:
+        departments:
+          type: array
+          items:
+            $ref: '#/components/schemas/DepartmentResponse'
+        total_count:
+          type: integer
+
+    RoleListResponse:
+      type: object
+      properties:
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/RoleResponse'
+        total_count:
+          type: integer
+
+    PermissionListResponse:
+      type: object
+      properties:
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+        total_count:
+          type: integer
+
+    PolicyListResponse:
+      type: object
+      properties:
+        policies:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyResponse'
+        total_count:
+          type: integer
+
+    PartnershipListResponse:
+      type: object
+      properties:
+        partnerships:
+          type: array
+          items:
+            $ref: '#/components/schemas/PartnershipResponse'
+        total_count:
+          type: integer
+
+    MeetingListResponse:
+      type: object
+      properties:
+        meetings:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        total_count:
+          type: integer
+
+    StrategicPlanListResponse:
+      type: object
+      properties:
+        plans:
+          type: array
+          items:
+            $ref: '#/components/schemas/StrategicPlanResponse'
+        total_count:
+          type: integer
+
+    ObjectiveListResponse:
+      type: object
+      properties:
+        objectives:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        total_count:
+          type: integer
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

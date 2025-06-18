@@ -1,0 +1,1333 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-AGENT API
+  description: |
+    Autonomous Spatial Agents and Active Inference Systems
+    
+    Provides intelligent autonomous agents for spatial reasoning, multi-agent
+    coordination, and active inference in geospatial environments.
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Agent Team
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://agent-api.geo-infer.org/v1
+    description: Production agent server
+  - url: http://localhost:8006/v1
+    description: Local development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+paths:
+  # Agent Management
+  /agents:
+    get:
+      summary: List agents
+      description: Returns a list of available agents
+      operationId: listAgents
+      tags:
+        - Agent Management
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, stopped, error]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [autonomous, reactive, deliberative, hybrid]
+      responses:
+        '200':
+          description: List of agents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Agent'
+    post:
+      summary: Create agent
+      description: Creates a new autonomous agent
+      operationId: createAgent
+      tags:
+        - Agent Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentCreate'
+      responses:
+        '201':
+          description: Agent created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+
+  /agents/{agentId}:
+    get:
+      summary: Get agent details
+      description: Returns detailed information about a specific agent
+      operationId: getAgent
+      tags:
+        - Agent Management
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Agent details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Agent'
+    put:
+      summary: Update agent
+      description: Updates agent configuration
+      operationId: updateAgent
+      tags:
+        - Agent Management
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentUpdate'
+      responses:
+        '200':
+          description: Agent updated successfully
+    delete:
+      summary: Delete agent
+      description: Removes an agent from the system
+      operationId: deleteAgent
+      tags:
+        - Agent Management
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Agent deleted successfully
+
+  /agents/{agentId}/start:
+    post:
+      summary: Start agent
+      description: Starts an agent's execution
+      operationId: startAgent
+      tags:
+        - Agent Control
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Agent started successfully
+
+  /agents/{agentId}/stop:
+    post:
+      summary: Stop agent
+      description: Stops an agent's execution
+      operationId: stopAgent
+      tags:
+        - Agent Control
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Agent stopped successfully
+
+  /agents/{agentId}/pause:
+    post:
+      summary: Pause agent
+      description: Pauses an agent's execution
+      operationId: pauseAgent
+      tags:
+        - Agent Control
+      parameters:
+        - name: agentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Agent paused successfully
+
+  # Active Inference
+  /active-inference/models:
+    get:
+      summary: List active inference models
+      description: Returns available active inference model templates
+      operationId: listActiveInferenceModels
+      tags:
+        - Active Inference
+      responses:
+        '200':
+          description: List of active inference models
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ActiveInferenceModel'
+    post:
+      summary: Create active inference model
+      description: Creates a new active inference model for an agent
+      operationId: createActiveInferenceModel
+      tags:
+        - Active Inference
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ActiveInferenceModelCreate'
+      responses:
+        '201':
+          description: Model created successfully
+
+  /active-inference/beliefs:
+    post:
+      summary: Update beliefs
+      description: Updates agent beliefs using active inference
+      operationId: updateBeliefs
+      tags:
+        - Active Inference
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BeliefUpdate'
+      responses:
+        '200':
+          description: Beliefs updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BeliefState'
+
+  /active-inference/planning:
+    post:
+      summary: Generate action plan
+      description: Generates action plan using active inference planning
+      operationId: generateActionPlan
+      tags:
+        - Active Inference
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlanningRequest'
+      responses:
+        '200':
+          description: Action plan generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ActionPlan'
+
+  # Multi-Agent Systems
+  /multi-agent/simulations:
+    get:
+      summary: List simulations
+      description: Returns list of multi-agent simulations
+      operationId: listSimulations
+      tags:
+        - Multi-Agent Systems
+      responses:
+        '200':
+          description: List of simulations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Simulation'
+    post:
+      summary: Create simulation
+      description: Creates a new multi-agent simulation
+      operationId: createSimulation
+      tags:
+        - Multi-Agent Systems
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulationCreate'
+      responses:
+        '201':
+          description: Simulation created successfully
+
+  /multi-agent/simulations/{simulationId}/run:
+    post:
+      summary: Run simulation
+      description: Executes a multi-agent simulation
+      operationId: runSimulation
+      tags:
+        - Multi-Agent Systems
+      parameters:
+        - name: simulationId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                steps:
+                  type: integer
+                  default: 100
+                real_time:
+                  type: boolean
+                  default: false
+      responses:
+        '200':
+          description: Simulation execution started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationRun'
+
+  /multi-agent/coordination:
+    post:
+      summary: Coordinate agents
+      description: Coordinates multiple agents for collaborative tasks
+      operationId: coordinateAgents
+      tags:
+        - Multi-Agent Systems
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoordinationRequest'
+      responses:
+        '200':
+          description: Coordination successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoordinationResult'
+
+  # Spatial Reasoning
+  /spatial-reasoning/environment:
+    post:
+      summary: Analyze spatial environment
+      description: Performs spatial reasoning on environment data
+      operationId: analyzeSpatialEnvironment
+      tags:
+        - Spatial Reasoning
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpatialEnvironmentAnalysis'
+      responses:
+        '200':
+          description: Spatial analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpatialAnalysisResult'
+
+  /spatial-reasoning/navigation:
+    post:
+      summary: Plan navigation path
+      description: Plans optimal navigation path for spatial agents
+      operationId: planNavigation
+      tags:
+        - Spatial Reasoning
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NavigationRequest'
+      responses:
+        '200':
+          description: Navigation plan generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NavigationPlan'
+
+  # Learning and Adaptation
+  /learning/reinforcement:
+    post:
+      summary: Train reinforcement learning
+      description: Trains agent using reinforcement learning
+      operationId: trainReinforcementLearning
+      tags:
+        - Learning
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReinforcementLearningRequest'
+      responses:
+        '200':
+          description: Training started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingStatus'
+
+  /learning/adaptation:
+    post:
+      summary: Adapt agent behavior
+      description: Adapts agent behavior based on environmental feedback
+      operationId: adaptAgentBehavior
+      tags:
+        - Learning
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdaptationRequest'
+      responses:
+        '200':
+          description: Adaptation applied
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdaptationResult'
+
+  # Communication
+  /communication/messages:
+    get:
+      summary: Get agent messages
+      description: Retrieves messages between agents
+      operationId: getAgentMessages
+      tags:
+        - Communication
+      parameters:
+        - name: agent_id
+          in: query
+          schema:
+            type: string
+        - name: from_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Agent messages
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AgentMessage'
+    post:
+      summary: Send message
+      description: Sends a message between agents
+      operationId: sendAgentMessage
+      tags:
+        - Communication
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageSend'
+      responses:
+        '201':
+          description: Message sent successfully
+
+  /communication/protocols:
+    get:
+      summary: List communication protocols
+      description: Returns available agent communication protocols
+      operationId: listCommunicationProtocols
+      tags:
+        - Communication
+      responses:
+        '200':
+          description: Communication protocols
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CommunicationProtocol'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Agent schemas
+    Agent:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - status
+        - created_at
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [autonomous, reactive, deliberative, hybrid]
+        status:
+          type: string
+          enum: [active, inactive, stopped, error]
+        configuration:
+          $ref: '#/components/schemas/AgentConfiguration'
+        spatial_context:
+          $ref: '#/components/schemas/SpatialContext'
+        capabilities:
+          type: array
+          items:
+            type: string
+        performance_metrics:
+          $ref: '#/components/schemas/PerformanceMetrics'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    AgentCreate:
+      type: object
+      required:
+        - name
+        - type
+        - configuration
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [autonomous, reactive, deliberative, hybrid]
+        configuration:
+          $ref: '#/components/schemas/AgentConfiguration'
+        spatial_context:
+          $ref: '#/components/schemas/SpatialContext'
+        capabilities:
+          type: array
+          items:
+            type: string
+
+    AgentUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        configuration:
+          $ref: '#/components/schemas/AgentConfiguration'
+        capabilities:
+          type: array
+          items:
+            type: string
+
+    AgentConfiguration:
+      type: object
+      properties:
+        reasoning_engine:
+          type: string
+          enum: [rule_based, neural_network, active_inference, hybrid]
+        decision_making:
+          type: object
+          properties:
+            algorithm:
+              type: string
+              enum: [random, greedy, minimax, mcts, deep_q]
+            parameters:
+              type: object
+        learning:
+          type: object
+          properties:
+            enabled:
+              type: boolean
+            algorithm:
+              type: string
+              enum: [q_learning, actor_critic, ppo, sac]
+            learning_rate:
+              type: number
+        perception:
+          type: object
+          properties:
+            sensor_range:
+              type: number
+            sensor_types:
+              type: array
+              items:
+                type: string
+            noise_level:
+              type: number
+        action_space:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [discrete, continuous, hybrid]
+            actions:
+              type: array
+              items:
+                type: string
+
+    SpatialContext:
+      type: object
+      properties:
+        environment_id:
+          type: string
+        initial_position:
+          $ref: '#/components/schemas/Position'
+        operating_area:
+          $ref: '#/components/schemas/Geometry'
+        constraints:
+          type: object
+          properties:
+            movement_speed:
+              type: number
+            energy_capacity:
+              type: number
+            payload_capacity:
+              type: number
+
+    Position:
+      type: object
+      required:
+        - x
+        - y
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+        z:
+          type: number
+        heading:
+          type: number
+        timestamp:
+          type: string
+          format: date-time
+
+    PerformanceMetrics:
+      type: object
+      properties:
+        uptime:
+          type: number
+        tasks_completed:
+          type: integer
+        success_rate:
+          type: number
+        average_response_time:
+          type: number
+        energy_efficiency:
+          type: number
+        learning_progress:
+          type: number
+
+    # Active Inference schemas
+    ActiveInferenceModel:
+      type: object
+      required:
+        - id
+        - name
+        - model_type
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        model_type:
+          type: string
+          enum: [discrete, continuous, hybrid]
+        state_space:
+          $ref: '#/components/schemas/StateSpace'
+        observation_model:
+          $ref: '#/components/schemas/ObservationModel'
+        transition_model:
+          $ref: '#/components/schemas/TransitionModel'
+        preference_model:
+          $ref: '#/components/schemas/PreferenceModel'
+
+    ActiveInferenceModelCreate:
+      type: object
+      required:
+        - name
+        - model_type
+        - state_space
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        model_type:
+          type: string
+          enum: [discrete, continuous, hybrid]
+        state_space:
+          $ref: '#/components/schemas/StateSpace'
+        observation_model:
+          $ref: '#/components/schemas/ObservationModel'
+        transition_model:
+          $ref: '#/components/schemas/TransitionModel'
+        preference_model:
+          $ref: '#/components/schemas/PreferenceModel'
+
+    StateSpace:
+      type: object
+      required:
+        - dimensions
+      properties:
+        dimensions:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              type:
+                type: string
+                enum: [continuous, discrete, categorical]
+              range:
+                type: array
+                items:
+                  type: number
+              categories:
+                type: array
+                items:
+                  type: string
+
+    ObservationModel:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [gaussian, categorical, mixture]
+        parameters:
+          type: object
+        noise_model:
+          type: object
+
+    TransitionModel:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [linear, nonlinear, learned]
+        parameters:
+          type: object
+        uncertainty:
+          type: object
+
+    PreferenceModel:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [utility_function, cost_function, reward_function]
+        parameters:
+          type: object
+        temporal_discount:
+          type: number
+
+    BeliefUpdate:
+      type: object
+      required:
+        - agent_id
+        - observations
+      properties:
+        agent_id:
+          type: string
+        observations:
+          type: object
+        prior_beliefs:
+          type: object
+        update_method:
+          type: string
+          enum: [variational_bayes, particle_filter, kalman_filter]
+
+    BeliefState:
+      type: object
+      required:
+        - agent_id
+        - beliefs
+        - uncertainty
+      properties:
+        agent_id:
+          type: string
+        beliefs:
+          type: object
+        uncertainty:
+          type: object
+        confidence:
+          type: number
+        timestamp:
+          type: string
+          format: date-time
+
+    PlanningRequest:
+      type: object
+      required:
+        - agent_id
+        - goal_state
+        - planning_horizon
+      properties:
+        agent_id:
+          type: string
+        current_state:
+          type: object
+        goal_state:
+          type: object
+        planning_horizon:
+          type: integer
+        constraints:
+          type: object
+        planning_algorithm:
+          type: string
+          enum: [value_iteration, policy_iteration, mcts, rrt]
+
+    ActionPlan:
+      type: object
+      required:
+        - agent_id
+        - actions
+        - expected_utility
+      properties:
+        agent_id:
+          type: string
+        actions:
+          type: array
+          items:
+            type: object
+            properties:
+              action:
+                type: string
+              parameters:
+                type: object
+              expected_outcome:
+                type: object
+              utility:
+                type: number
+        expected_utility:
+          type: number
+        confidence:
+          type: number
+        alternative_plans:
+          type: array
+          items:
+            type: object
+
+    # Multi-Agent schemas
+    Simulation:
+      type: object
+      required:
+        - id
+        - name
+        - agents
+        - environment
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        agents:
+          type: array
+          items:
+            type: string
+        environment:
+          $ref: '#/components/schemas/Environment'
+        coordination_protocol:
+          type: string
+        simulation_parameters:
+          type: object
+        status:
+          type: string
+          enum: [created, running, paused, completed, error]
+
+    SimulationCreate:
+      type: object
+      required:
+        - name
+        - agents
+        - environment
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        agents:
+          type: array
+          items:
+            oneOf:
+              - type: string
+              - $ref: '#/components/schemas/AgentCreate'
+        environment:
+          $ref: '#/components/schemas/Environment'
+        coordination_protocol:
+          type: string
+        simulation_parameters:
+          type: object
+
+    SimulationRun:
+      type: object
+      required:
+        - run_id
+        - simulation_id
+        - status
+      properties:
+        run_id:
+          type: string
+        simulation_id:
+          type: string
+        status:
+          type: string
+          enum: [starting, running, paused, completed, error]
+        current_step:
+          type: integer
+        total_steps:
+          type: integer
+        start_time:
+          type: string
+          format: date-time
+        estimated_completion:
+          type: string
+          format: date-time
+
+    Environment:
+      type: object
+      required:
+        - type
+        - boundaries
+      properties:
+        type:
+          type: string
+          enum: [grid, continuous, network, hybrid]
+        boundaries:
+          $ref: '#/components/schemas/Geometry'
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+        obstacles:
+          $ref: '#/components/schemas/FeatureCollection'
+        dynamic_elements:
+          type: array
+          items:
+            type: object
+        physics:
+          type: object
+          properties:
+            gravity:
+              type: number
+            friction:
+              type: number
+            time_step:
+              type: number
+
+    CoordinationRequest:
+      type: object
+      required:
+        - agents
+        - task
+      properties:
+        agents:
+          type: array
+          items:
+            type: string
+        task:
+          type: object
+          properties:
+            type:
+              type: string
+            objectives:
+              type: array
+              items:
+                type: object
+            constraints:
+              type: object
+        coordination_method:
+          type: string
+          enum: [centralized, distributed, auction, consensus]
+
+    CoordinationResult:
+      type: object
+      required:
+        - coordination_id
+        - assignments
+      properties:
+        coordination_id:
+          type: string
+        assignments:
+          type: object
+          additionalProperties:
+            type: object
+        coordination_quality:
+          type: number
+        execution_plan:
+          type: object
+        estimated_completion_time:
+          type: number
+
+    # Spatial Reasoning schemas
+    SpatialEnvironmentAnalysis:
+      type: object
+      required:
+        - environment_data
+        - analysis_type
+      properties:
+        environment_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        analysis_type:
+          type: string
+          enum: [accessibility, visibility, connectivity, coverage]
+        parameters:
+          type: object
+        agent_context:
+          type: object
+
+    SpatialAnalysisResult:
+      type: object
+      required:
+        - analysis_type
+        - results
+      properties:
+        analysis_type:
+          type: string
+        results:
+          $ref: '#/components/schemas/FeatureCollection'
+        metrics:
+          type: object
+        recommendations:
+          type: array
+          items:
+            type: string
+
+    NavigationRequest:
+      type: object
+      required:
+        - agent_id
+        - start_position
+        - goal_position
+      properties:
+        agent_id:
+          type: string
+        start_position:
+          $ref: '#/components/schemas/Position'
+        goal_position:
+          $ref: '#/components/schemas/Position'
+        waypoints:
+          type: array
+          items:
+            $ref: '#/components/schemas/Position'
+        constraints:
+          type: object
+        preferences:
+          type: object
+        algorithm:
+          type: string
+          enum: [a_star, dijkstra, rrt, potential_field]
+
+    NavigationPlan:
+      type: object
+      required:
+        - agent_id
+        - path
+        - total_distance
+        - estimated_time
+      properties:
+        agent_id:
+          type: string
+        path:
+          type: array
+          items:
+            $ref: '#/components/schemas/Position'
+        total_distance:
+          type: number
+        estimated_time:
+          type: number
+        waypoint_times:
+          type: array
+          items:
+            type: number
+        alternative_paths:
+          type: array
+          items:
+            type: object
+
+    # Learning schemas
+    ReinforcementLearningRequest:
+      type: object
+      required:
+        - agent_id
+        - algorithm
+        - environment
+      properties:
+        agent_id:
+          type: string
+        algorithm:
+          type: string
+          enum: [q_learning, sarsa, actor_critic, ppo, sac, td3]
+        environment:
+          type: string
+        training_parameters:
+          type: object
+          properties:
+            episodes:
+              type: integer
+            learning_rate:
+              type: number
+            discount_factor:
+              type: number
+            exploration_rate:
+              type: number
+
+    TrainingStatus:
+      type: object
+      required:
+        - training_id
+        - agent_id
+        - status
+      properties:
+        training_id:
+          type: string
+        agent_id:
+          type: string
+        status:
+          type: string
+          enum: [starting, training, paused, completed, error]
+        current_episode:
+          type: integer
+        total_episodes:
+          type: integer
+        performance_metrics:
+          type: object
+        estimated_completion:
+          type: string
+          format: date-time
+
+    AdaptationRequest:
+      type: object
+      required:
+        - agent_id
+        - feedback
+      properties:
+        agent_id:
+          type: string
+        feedback:
+          type: object
+          properties:
+            performance_score:
+              type: number
+            environmental_changes:
+              type: object
+            user_preferences:
+              type: object
+        adaptation_type:
+          type: string
+          enum: [parameter_tuning, behavior_modification, capability_enhancement]
+
+    AdaptationResult:
+      type: object
+      required:
+        - agent_id
+        - changes_applied
+      properties:
+        agent_id:
+          type: string
+        changes_applied:
+          type: object
+        performance_improvement:
+          type: number
+        confidence:
+          type: number
+
+    # Communication schemas
+    AgentMessage:
+      type: object
+      required:
+        - id
+        - sender_id
+        - receiver_id
+        - content
+        - timestamp
+      properties:
+        id:
+          type: string
+        sender_id:
+          type: string
+        receiver_id:
+          type: string
+        content:
+          type: object
+        message_type:
+          type: string
+          enum: [inform, request, propose, accept, reject, query]
+        protocol:
+          type: string
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+        timestamp:
+          type: string
+          format: date-time
+
+    MessageSend:
+      type: object
+      required:
+        - sender_id
+        - receiver_id
+        - content
+      properties:
+        sender_id:
+          type: string
+        receiver_id:
+          type: string
+        content:
+          type: object
+        message_type:
+          type: string
+          enum: [inform, request, propose, accept, reject, query]
+        protocol:
+          type: string
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+
+    CommunicationProtocol:
+      type: object
+      required:
+        - name
+        - type
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [fipa_acl, simple_message, contract_net, auction]
+        message_formats:
+          type: array
+          items:
+            type: object
+        interaction_patterns:
+          type: array
+          items:
+            type: object
+
+    # Utility schemas
+    Geometry:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+        coordinates:
+          type: array
+
+    FeatureCollection:
+      type: object
+      required:
+        - type
+        - features
+      properties:
+        type:
+          type: string
+          enum: [FeatureCollection]
+        features:
+          type: array
+          items:
+            type: object
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+tags:
+  - name: Agent Management
+    description: Agent lifecycle management
+  - name: Agent Control
+    description: Agent execution control
+  - name: Active Inference
+    description: Active inference methods
+  - name: Multi-Agent Systems
+    description: Multi-agent coordination and simulation
+  - name: Spatial Reasoning
+    description: Spatial reasoning capabilities
+  - name: Learning
+    description: Agent learning and adaptation
+  - name: Communication
+    description: Inter-agent communication 

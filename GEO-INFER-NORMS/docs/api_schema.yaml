@@ -1,0 +1,1235 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-NORMS API
+  description: |
+    Comprehensive normative analysis and legal framework API for geospatial compliance and regulatory management.
+    
+    This API provides tools for:
+    - Legal framework analysis and interpretation
+    - Zoning and land use compliance checking
+    - Normative inference and rule-based reasoning
+    - Regulatory compliance assessment
+    - Policy impact analysis
+    - Legal document processing and analysis
+  version: 1.0.0
+  contact:
+    name: GEO-INFER-NORMS Support
+    email: norms-support@geo-infer.org
+  license:
+    name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/norms/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/norms/v1
+    description: Staging server
+  - url: http://localhost:8000/norms/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+tags:
+  - name: legal-frameworks
+    description: Legal framework analysis and management
+  - name: zoning
+    description: Zoning analysis and compliance checking
+  - name: normative-inference
+    description: Rule-based reasoning and normative inference
+  - name: compliance
+    description: Regulatory compliance assessment
+  - name: policy-analysis
+    description: Policy impact analysis and modeling
+  - name: document-processing
+    description: Legal document processing and analysis
+  - name: jurisdictions
+    description: Jurisdiction management and analysis
+  - name: system
+    description: System management and health monitoring
+
+paths:
+  # Legal Framework Endpoints
+  /legal/frameworks:
+    get:
+      tags: [legal-frameworks]
+      summary: List legal frameworks
+      description: Retrieve list of available legal frameworks
+      parameters:
+        - name: jurisdiction
+          in: query
+          schema:
+            type: string
+          description: Filter by jurisdiction
+        - name: domain
+          in: query
+          schema:
+            type: string
+            enum: [zoning, environmental, building, transportation, land_use]
+          description: Filter by legal domain
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, proposed, repealed, under_review]
+          description: Filter by framework status
+      responses:
+        '200':
+          description: Legal frameworks retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalFrameworkListResponse'
+
+    post:
+      tags: [legal-frameworks]
+      summary: Create legal framework
+      description: Create a new legal framework definition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LegalFrameworkRequest'
+      responses:
+        '201':
+          description: Legal framework created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalFrameworkResponse'
+
+  /legal/frameworks/{framework_id}:
+    get:
+      tags: [legal-frameworks]
+      summary: Get legal framework
+      description: Retrieve detailed information about a specific legal framework
+      parameters:
+        - name: framework_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the legal framework
+      responses:
+        '200':
+          description: Legal framework retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalFrameworkResponse'
+
+    put:
+      tags: [legal-frameworks]
+      summary: Update legal framework
+      description: Update an existing legal framework
+      parameters:
+        - name: framework_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LegalFrameworkRequest'
+      responses:
+        '200':
+          description: Legal framework updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LegalFrameworkResponse'
+
+  /legal/frameworks/{framework_id}/analyze:
+    post:
+      tags: [legal-frameworks]
+      summary: Analyze legal framework
+      description: Perform comprehensive analysis of a legal framework
+      parameters:
+        - name: framework_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FrameworkAnalysisRequest'
+      responses:
+        '200':
+          description: Framework analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FrameworkAnalysisResponse'
+
+  # Zoning Endpoints
+  /zoning/zones:
+    get:
+      tags: [zoning]
+      summary: List zoning districts
+      description: Retrieve list of zoning districts within specified area
+      parameters:
+        - name: bbox
+          in: query
+          schema:
+            type: string
+          description: Bounding box (minx,miny,maxx,maxy)
+        - name: jurisdiction
+          in: query
+          schema:
+            type: string
+          description: Jurisdiction identifier
+        - name: zone_type
+          in: query
+          schema:
+            type: string
+            enum: [residential, commercial, industrial, mixed_use, agricultural, conservation]
+          description: Filter by zone type
+      responses:
+        '200':
+          description: Zoning districts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoningDistrictListResponse'
+
+  /zoning/compliance/check:
+    post:
+      tags: [zoning]
+      summary: Check zoning compliance
+      description: Check proposed development against zoning regulations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoningComplianceRequest'
+      responses:
+        '200':
+          description: Compliance check completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoningComplianceResponse'
+
+  /zoning/variances/assess:
+    post:
+      tags: [zoning]
+      summary: Assess variance requirements
+      description: Assess what variances would be needed for proposed development
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VarianceAssessmentRequest'
+      responses:
+        '200':
+          description: Variance assessment completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VarianceAssessmentResponse'
+
+  /zoning/impact/analyze:
+    post:
+      tags: [zoning]
+      summary: Analyze zoning impact
+      description: Analyze impact of proposed zoning changes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ZoningImpactRequest'
+      responses:
+        '200':
+          description: Impact analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ZoningImpactResponse'
+
+  # Normative Inference Endpoints
+  /normative/rules:
+    get:
+      tags: [normative-inference]
+      summary: List normative rules
+      description: Retrieve list of available normative rules
+      parameters:
+        - name: domain
+          in: query
+          schema:
+            type: string
+          description: Filter by rule domain
+        - name: jurisdiction
+          in: query
+          schema:
+            type: string
+          description: Filter by jurisdiction
+      responses:
+        '200':
+          description: Normative rules retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NormativeRuleListResponse'
+
+    post:
+      tags: [normative-inference]
+      summary: Create normative rule
+      description: Create a new normative rule
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NormativeRuleRequest'
+      responses:
+        '201':
+          description: Normative rule created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NormativeRuleResponse'
+
+  /normative/inference/process:
+    post:
+      tags: [normative-inference]
+      summary: Process normative inference
+      description: Apply normative rules to given facts and derive conclusions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NormativeInferenceRequest'
+      responses:
+        '200':
+          description: Normative inference completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NormativeInferenceResponse'
+
+  /normative/conflicts/detect:
+    post:
+      tags: [normative-inference]
+      summary: Detect rule conflicts
+      description: Detect conflicts between normative rules
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConflictDetectionRequest'
+      responses:
+        '200':
+          description: Conflict detection completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConflictDetectionResponse'
+
+  # Compliance Endpoints
+  /compliance/assessments:
+    post:
+      tags: [compliance]
+      summary: Create compliance assessment
+      description: Create a new regulatory compliance assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplianceAssessmentRequest'
+      responses:
+        '201':
+          description: Compliance assessment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceAssessmentResponse'
+
+  /compliance/assessments/{assessment_id}:
+    get:
+      tags: [compliance]
+      summary: Get compliance assessment
+      description: Retrieve detailed compliance assessment results
+      parameters:
+        - name: assessment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Compliance assessment retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceAssessmentResponse'
+
+  /compliance/monitoring/setup:
+    post:
+      tags: [compliance]
+      summary: Setup compliance monitoring
+      description: Setup automated compliance monitoring for an area or project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplianceMonitoringRequest'
+      responses:
+        '201':
+          description: Compliance monitoring setup completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceMonitoringResponse'
+
+  # Policy Analysis Endpoints
+  /policy/impact/model:
+    post:
+      tags: [policy-analysis]
+      summary: Model policy impact
+      description: Model potential impacts of proposed policy changes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyImpactRequest'
+      responses:
+        '200':
+          description: Policy impact modeling completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyImpactResponse'
+
+  /policy/scenarios/analyze:
+    post:
+      tags: [policy-analysis]
+      summary: Analyze policy scenarios
+      description: Analyze multiple policy implementation scenarios
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyScenarioRequest'
+      responses:
+        '200':
+          description: Policy scenario analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyScenarioResponse'
+
+  # Document Processing Endpoints
+  /documents/legal/parse:
+    post:
+      tags: [document-processing]
+      summary: Parse legal document
+      description: Parse and extract structure from legal documents
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                document:
+                  type: string
+                  format: binary
+                document_type:
+                  type: string
+                  enum: [ordinance, statute, regulation, case_law]
+                jurisdiction:
+                  type: string
+      responses:
+        '200':
+          description: Document parsing completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentParsingResponse'
+
+  /documents/legal/extract:
+    post:
+      tags: [document-processing]
+      summary: Extract legal provisions
+      description: Extract specific legal provisions from documents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProvisionExtractionRequest'
+      responses:
+        '200':
+          description: Provision extraction completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProvisionExtractionResponse'
+
+  # Jurisdiction Endpoints
+  /jurisdictions:
+    get:
+      tags: [jurisdictions]
+      summary: List jurisdictions
+      description: Retrieve list of available jurisdictions
+      parameters:
+        - name: level
+          in: query
+          schema:
+            type: string
+            enum: [federal, state, county, municipal, special_district]
+          description: Filter by jurisdiction level
+        - name: bbox
+          in: query
+          schema:
+            type: string
+          description: Filter by bounding box
+      responses:
+        '200':
+          description: Jurisdictions retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JurisdictionListResponse'
+
+  /jurisdictions/{jurisdiction_id}/boundaries:
+    get:
+      tags: [jurisdictions]
+      summary: Get jurisdiction boundaries
+      description: Retrieve geometric boundaries for a jurisdiction
+      parameters:
+        - name: jurisdiction_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Jurisdiction boundaries retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JurisdictionBoundariesResponse'
+
+  # System Management Endpoints
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Legal Framework Schemas
+    LegalFrameworkRequest:
+      type: object
+      required: [name, jurisdiction, domain, provisions]
+      properties:
+        name:
+          type: string
+          description: Name of the legal framework
+        jurisdiction:
+          type: string
+          description: Jurisdiction identifier
+        domain:
+          type: string
+          enum: [zoning, environmental, building, transportation, land_use]
+        provisions:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalProvision'
+        effective_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [active, proposed, repealed, under_review]
+        metadata:
+          type: object
+          additionalProperties: true
+
+    LegalFrameworkResponse:
+      type: object
+      properties:
+        framework_id:
+          type: string
+        name:
+          type: string
+        jurisdiction:
+          type: string
+        domain:
+          type: string
+        provisions:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalProvision'
+        effective_date:
+          type: string
+          format: date
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    LegalFrameworkListResponse:
+      type: object
+      properties:
+        frameworks:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalFrameworkSummary'
+        total_count:
+          type: integer
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    LegalFrameworkSummary:
+      type: object
+      properties:
+        framework_id:
+          type: string
+        name:
+          type: string
+        jurisdiction:
+          type: string
+        domain:
+          type: string
+        status:
+          type: string
+        effective_date:
+          type: string
+          format: date
+
+    LegalProvision:
+      type: object
+      required: [provision_id, text, type]
+      properties:
+        provision_id:
+          type: string
+        text:
+          type: string
+        type:
+          type: string
+          enum: [requirement, prohibition, permission, exemption, procedure]
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalCondition'
+        penalties:
+          type: array
+          items:
+            $ref: '#/components/schemas/LegalPenalty'
+        references:
+          type: array
+          items:
+            type: string
+
+    LegalCondition:
+      type: object
+      required: [condition_type, expression]
+      properties:
+        condition_type:
+          type: string
+          enum: [spatial, temporal, numeric, categorical]
+        expression:
+          type: string
+        parameters:
+          type: object
+          additionalProperties: true
+
+    LegalPenalty:
+      type: object
+      properties:
+        penalty_type:
+          type: string
+          enum: [fine, suspension, revocation, criminal]
+        amount:
+          type: number
+        currency:
+          type: string
+        description:
+          type: string
+
+    # Zoning Schemas
+    ZoningComplianceRequest:
+      type: object
+      required: [location, proposed_development]
+      properties:
+        location:
+          $ref: '#/components/schemas/Location'
+        proposed_development:
+          $ref: '#/components/schemas/ProposedDevelopment'
+        jurisdiction:
+          type: string
+        assessment_level:
+          type: string
+          enum: [basic, detailed, comprehensive]
+
+    ProposedDevelopment:
+      type: object
+      required: [development_type, specifications]
+      properties:
+        development_type:
+          type: string
+          enum: [residential, commercial, industrial, mixed_use, institutional]
+        specifications:
+          $ref: '#/components/schemas/DevelopmentSpecifications'
+        timeline:
+          $ref: '#/components/schemas/DevelopmentTimeline'
+
+    DevelopmentSpecifications:
+      type: object
+      properties:
+        building_height:
+          type: number
+        floor_area_ratio:
+          type: number
+        lot_coverage:
+          type: number
+        parking_spaces:
+          type: integer
+        units:
+          type: integer
+        use_categories:
+          type: array
+          items:
+            type: string
+
+    ZoningComplianceResponse:
+      type: object
+      properties:
+        compliance_id:
+          type: string
+        overall_compliance:
+          type: string
+          enum: [compliant, non_compliant, conditional]
+        violations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplianceViolation'
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplianceRecommendation'
+        applicable_zones:
+          type: array
+          items:
+            $ref: '#/components/schemas/ZoningDistrict'
+
+    ComplianceViolation:
+      type: object
+      properties:
+        violation_type:
+          type: string
+        severity:
+          type: string
+          enum: [minor, major, critical]
+        description:
+          type: string
+        applicable_provision:
+          type: string
+        suggested_remediation:
+          type: string
+
+    ZoningDistrict:
+      type: object
+      properties:
+        district_id:
+          type: string
+        name:
+          type: string
+        zone_type:
+          type: string
+        regulations:
+          $ref: '#/components/schemas/ZoningRegulations'
+        geometry:
+          type: object
+          description: GeoJSON geometry
+
+    ZoningRegulations:
+      type: object
+      properties:
+        permitted_uses:
+          type: array
+          items:
+            type: string
+        conditional_uses:
+          type: array
+          items:
+            type: string
+        prohibited_uses:
+          type: array
+          items:
+            type: string
+        height_limits:
+          $ref: '#/components/schemas/HeightLimits'
+        density_limits:
+          $ref: '#/components/schemas/DensityLimits'
+        setback_requirements:
+          $ref: '#/components/schemas/SetbackRequirements'
+
+    # Normative Inference Schemas
+    NormativeRuleRequest:
+      type: object
+      required: [rule_id, conditions, conclusions]
+      properties:
+        rule_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        domain:
+          type: string
+        jurisdiction:
+          type: string
+        conditions:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleCondition'
+        conclusions:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleConclusion'
+        priority:
+          type: integer
+          minimum: 1
+          maximum: 10
+
+    RuleCondition:
+      type: object
+      required: [variable, operator, value]
+      properties:
+        variable:
+          type: string
+        operator:
+          type: string
+          enum: [equals, not_equals, greater_than, less_than, contains, within, intersects]
+        value:
+          oneOf:
+            - type: string
+            - type: number
+            - type: boolean
+            - type: object
+        negated:
+          type: boolean
+          default: false
+
+    RuleConclusion:
+      type: object
+      required: [action, target]
+      properties:
+        action:
+          type: string
+          enum: [permit, deny, require, recommend, warn]
+        target:
+          type: string
+        parameters:
+          type: object
+          additionalProperties: true
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+
+    NormativeInferenceRequest:
+      type: object
+      required: [facts, rule_sets]
+      properties:
+        facts:
+          type: object
+          additionalProperties: true
+          description: Current facts to reason about
+        rule_sets:
+          type: array
+          items:
+            type: string
+          description: Rule set identifiers to apply
+        inference_mode:
+          type: string
+          enum: [forward_chaining, backward_chaining, hybrid]
+          default: forward_chaining
+
+    NormativeInferenceResponse:
+      type: object
+      properties:
+        inference_id:
+          type: string
+        conclusions:
+          type: array
+          items:
+            $ref: '#/components/schemas/InferenceConclusion'
+        applied_rules:
+          type: array
+          items:
+            type: string
+        conflicts:
+          type: array
+          items:
+            $ref: '#/components/schemas/RuleConflict'
+        execution_trace:
+          type: array
+          items:
+            $ref: '#/components/schemas/InferenceStep'
+
+    InferenceConclusion:
+      type: object
+      properties:
+        conclusion_id:
+          type: string
+        action:
+          type: string
+        target:
+          type: string
+        justification:
+          type: string
+        confidence:
+          type: number
+        supporting_rules:
+          type: array
+          items:
+            type: string
+
+    # Policy Analysis Schemas
+    PolicyImpactRequest:
+      type: object
+      required: [policy_proposal, analysis_scope]
+      properties:
+        policy_proposal:
+          $ref: '#/components/schemas/PolicyProposal'
+        analysis_scope:
+          $ref: '#/components/schemas/AnalysisScope'
+        impact_categories:
+          type: array
+          items:
+            type: string
+            enum: [economic, environmental, social, legal, administrative]
+        modeling_parameters:
+          type: object
+          additionalProperties: true
+
+    PolicyProposal:
+      type: object
+      required: [title, description, provisions]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        provisions:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyProvision'
+        implementation_timeline:
+          $ref: '#/components/schemas/ImplementationTimeline'
+        affected_stakeholders:
+          type: array
+          items:
+            type: string
+
+    PolicyProvision:
+      type: object
+      properties:
+        provision_id:
+          type: string
+        text:
+          type: string
+        type:
+          type: string
+          enum: [regulatory, incentive, procedural, enforcement]
+        affected_areas:
+          type: array
+          items:
+            type: object
+            description: GeoJSON geometry
+
+    # Common Schemas
+    Location:
+      type: object
+      required: [coordinates]
+      properties:
+        coordinates:
+          type: object
+          description: GeoJSON geometry
+        address:
+          type: string
+        parcel_id:
+          type: string
+        jurisdiction:
+          type: string
+
+    DevelopmentTimeline:
+      type: object
+      properties:
+        start_date:
+          type: string
+          format: date
+        completion_date:
+          type: string
+          format: date
+        phases:
+          type: array
+          items:
+            $ref: '#/components/schemas/DevelopmentPhase'
+
+    DevelopmentPhase:
+      type: object
+      properties:
+        phase_id:
+          type: string
+        name:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        deliverables:
+          type: array
+          items:
+            type: string
+
+    AnalysisScope:
+      type: object
+      properties:
+        geographic_extent:
+          type: object
+          description: GeoJSON geometry
+        temporal_scope:
+          $ref: '#/components/schemas/TemporalScope'
+        stakeholder_groups:
+          type: array
+          items:
+            type: string
+
+    TemporalScope:
+      type: object
+      properties:
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        evaluation_periods:
+          type: array
+          items:
+            type: string
+
+    ImplementationTimeline:
+      type: object
+      properties:
+        phases:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImplementationPhase'
+        milestones:
+          type: array
+          items:
+            $ref: '#/components/schemas/PolicyMilestone'
+
+    ImplementationPhase:
+      type: object
+      properties:
+        phase_name:
+          type: string
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        activities:
+          type: array
+          items:
+            type: string
+
+    PolicyMilestone:
+      type: object
+      properties:
+        milestone_name:
+          type: string
+        target_date:
+          type: string
+          format: date
+        success_criteria:
+          type: array
+          items:
+            type: string
+
+    HeightLimits:
+      type: object
+      properties:
+        maximum_height:
+          type: number
+        measurement_method:
+          type: string
+        exceptions:
+          type: array
+          items:
+            type: string
+
+    DensityLimits:
+      type: object
+      properties:
+        floor_area_ratio:
+          type: number
+        lot_coverage:
+          type: number
+        units_per_acre:
+          type: number
+
+    SetbackRequirements:
+      type: object
+      properties:
+        front_setback:
+          type: number
+        rear_setback:
+          type: number
+        side_setback:
+          type: number
+        corner_setback:
+          type: number
+
+    RuleConflict:
+      type: object
+      properties:
+        conflict_type:
+          type: string
+          enum: [contradictory, inconsistent, circular]
+        conflicting_rules:
+          type: array
+          items:
+            type: string
+        description:
+          type: string
+        resolution_strategy:
+          type: string
+
+    InferenceStep:
+      type: object
+      properties:
+        step_number:
+          type: integer
+        rule_applied:
+          type: string
+        input_facts:
+          type: object
+          additionalProperties: true
+        output_facts:
+          type: object
+          additionalProperties: true
+
+    PaginationInfo:
+      type: object
+      properties:
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total_pages:
+          type: integer
+        has_next:
+          type: boolean
+        has_previous:
+          type: boolean
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        dependencies:
+          type: object
+          additionalProperties:
+            type: string
+
+    # Error Schemas
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

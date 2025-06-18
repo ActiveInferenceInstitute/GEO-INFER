@@ -1,0 +1,1256 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-SEC API
+  description: |
+    Comprehensive security and privacy protection API for geospatial data security management.
+    
+    This API provides tools for:
+    - Data anonymization and privacy protection
+    - Access control and authentication
+    - Security policy management
+    - Encryption and key management
+    - Audit logging and compliance
+    - Threat detection and response
+    - Secure data sharing protocols
+  version: 1.0.0
+  contact:
+    name: GEO-INFER-SEC Support
+    email: sec-support@geo-infer.org
+  license:
+    name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/sec/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/sec/v1
+    description: Staging server
+  - url: http://localhost:8000/sec/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+  - OAuth2: [read, write, admin]
+
+tags:
+  - name: anonymization
+    description: Data anonymization and privacy protection
+  - name: access-control
+    description: Access control and permission management
+  - name: encryption
+    description: Encryption and key management
+  - name: audit
+    description: Audit logging and compliance tracking
+  - name: threat-detection
+    description: Security threat detection and response
+  - name: policy-management
+    description: Security policy management
+  - name: secure-sharing
+    description: Secure data sharing protocols
+  - name: compliance
+    description: Regulatory compliance and privacy standards
+  - name: system
+    description: System management and health monitoring
+
+paths:
+  # Anonymization Endpoints
+  /anonymization/geospatial:
+    post:
+      tags: [anonymization]
+      summary: Anonymize geospatial data
+      description: Apply anonymization techniques to geospatial datasets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GeospatialAnonymizationRequest'
+      responses:
+        '200':
+          description: Anonymization completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnonymizationResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /anonymization/trajectories:
+    post:
+      tags: [anonymization]
+      summary: Anonymize trajectory data
+      description: Apply privacy-preserving techniques to movement trajectories
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TrajectoryAnonymizationRequest'
+      responses:
+        '200':
+          description: Trajectory anonymization completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnonymizationResponse'
+
+  /anonymization/k-anonymity:
+    post:
+      tags: [anonymization]
+      summary: Apply k-anonymity
+      description: Apply k-anonymity privacy model to datasets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KAnonymityRequest'
+      responses:
+        '200':
+          description: K-anonymity applied successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnonymizationResponse'
+
+  /anonymization/differential-privacy:
+    post:
+      tags: [anonymization]
+      summary: Apply differential privacy
+      description: Apply differential privacy mechanisms to datasets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DifferentialPrivacyRequest'
+      responses:
+        '200':
+          description: Differential privacy applied successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnonymizationResponse'
+
+  # Access Control Endpoints
+  /access-control/users:
+    get:
+      tags: [access-control]
+      summary: List users
+      description: Retrieve list of system users
+      parameters:
+        - name: role
+          in: query
+          schema:
+            type: string
+          description: Filter by user role
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, suspended]
+          description: Filter by user status
+      responses:
+        '200':
+          description: Users retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserListResponse'
+
+    post:
+      tags: [access-control]
+      summary: Create user
+      description: Create a new system user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreationRequest'
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+
+  /access-control/users/{user_id}/permissions:
+    get:
+      tags: [access-control]
+      summary: Get user permissions
+      description: Retrieve permissions for a specific user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: User permissions retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionsResponse'
+
+    put:
+      tags: [access-control]
+      summary: Update user permissions
+      description: Update permissions for a specific user
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PermissionsUpdateRequest'
+      responses:
+        '200':
+          description: Permissions updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PermissionsResponse'
+
+  /access-control/roles:
+    get:
+      tags: [access-control]
+      summary: List roles
+      description: Retrieve list of available roles
+      responses:
+        '200':
+          description: Roles retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleListResponse'
+
+    post:
+      tags: [access-control]
+      summary: Create role
+      description: Create a new role
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RoleCreationRequest'
+      responses:
+        '201':
+          description: Role created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RoleResponse'
+
+  /access-control/policies:
+    get:
+      tags: [access-control]
+      summary: List access policies
+      description: Retrieve list of access control policies
+      responses:
+        '200':
+          description: Policies retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyListResponse'
+
+    post:
+      tags: [access-control]
+      summary: Create access policy
+      description: Create a new access control policy
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicyCreationRequest'
+      responses:
+        '201':
+          description: Policy created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyResponse'
+
+  # Encryption Endpoints
+  /encryption/keys:
+    get:
+      tags: [encryption]
+      summary: List encryption keys
+      description: Retrieve list of encryption keys (metadata only)
+      responses:
+        '200':
+          description: Key metadata retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyListResponse'
+
+    post:
+      tags: [encryption]
+      summary: Generate encryption key
+      description: Generate a new encryption key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KeyGenerationRequest'
+      responses:
+        '201':
+          description: Key generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyResponse'
+
+  /encryption/keys/{key_id}/rotate:
+    post:
+      tags: [encryption]
+      summary: Rotate encryption key
+      description: Rotate an existing encryption key
+      parameters:
+        - name: key_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Key rotated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KeyResponse'
+
+  /encryption/data/encrypt:
+    post:
+      tags: [encryption]
+      summary: Encrypt data
+      description: Encrypt data using specified key and algorithm
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EncryptionRequest'
+      responses:
+        '200':
+          description: Data encrypted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EncryptionResponse'
+
+  /encryption/data/decrypt:
+    post:
+      tags: [encryption]
+      summary: Decrypt data
+      description: Decrypt data using specified key
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DecryptionRequest'
+      responses:
+        '200':
+          description: Data decrypted successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DecryptionResponse'
+
+  # Audit Endpoints
+  /audit/logs:
+    get:
+      tags: [audit]
+      summary: Retrieve audit logs
+      description: Retrieve system audit logs with filtering options
+      parameters:
+        - name: start_date
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: Start date for log retrieval
+        - name: end_date
+          in: query
+          schema:
+            type: string
+            format: date-time
+          description: End date for log retrieval
+        - name: user_id
+          in: query
+          schema:
+            type: string
+          description: Filter by user ID
+        - name: action
+          in: query
+          schema:
+            type: string
+          description: Filter by action type
+        - name: resource
+          in: query
+          schema:
+            type: string
+          description: Filter by resource
+      responses:
+        '200':
+          description: Audit logs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogResponse'
+
+  /audit/compliance/report:
+    post:
+      tags: [audit]
+      summary: Generate compliance report
+      description: Generate compliance report for specified timeframe
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplianceReportRequest'
+      responses:
+        '200':
+          description: Compliance report generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceReportResponse'
+
+  # Threat Detection Endpoints
+  /threat-detection/scan:
+    post:
+      tags: [threat-detection]
+      summary: Scan for threats
+      description: Perform security threat scan on specified resources
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThreatScanRequest'
+      responses:
+        '200':
+          description: Threat scan completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatScanResponse'
+
+  /threat-detection/alerts:
+    get:
+      tags: [threat-detection]
+      summary: Get security alerts
+      description: Retrieve active security alerts
+      parameters:
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+          description: Filter by alert severity
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, investigating, resolved]
+          description: Filter by alert status
+      responses:
+        '200':
+          description: Security alerts retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityAlertsResponse'
+
+  /threat-detection/anomalies/detect:
+    post:
+      tags: [threat-detection]
+      summary: Detect anomalies
+      description: Detect anomalous behavior patterns in data access
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnomalyDetectionRequest'
+      responses:
+        '200':
+          description: Anomaly detection completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnomalyDetectionResponse'
+
+  # Secure Sharing Endpoints
+  /secure-sharing/sessions:
+    post:
+      tags: [secure-sharing]
+      summary: Create secure sharing session
+      description: Create a secure session for data sharing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecureSharingRequest'
+      responses:
+        '201':
+          description: Secure sharing session created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureSharingResponse'
+
+  /secure-sharing/sessions/{session_id}:
+    get:
+      tags: [secure-sharing]
+      summary: Get sharing session
+      description: Retrieve information about a secure sharing session
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Sharing session retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecureSharingResponse'
+
+    delete:
+      tags: [secure-sharing]
+      summary: Revoke sharing session
+      description: Revoke access to a secure sharing session
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Sharing session revoked
+
+  # System Management Endpoints
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /security/status:
+    get:
+      tags: [system]
+      summary: Get security status
+      description: Retrieve overall security status and metrics
+      responses:
+        '200':
+          description: Security status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityStatusResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.geo-infer.org/oauth/authorize
+          tokenUrl: https://auth.geo-infer.org/oauth/token
+          scopes:
+            read: Read access to resources
+            write: Write access to resources
+            admin: Administrative access
+
+  schemas:
+    # Anonymization Schemas
+    GeospatialAnonymizationRequest:
+      type: object
+      required: [data, anonymization_methods]
+      properties:
+        data:
+          $ref: '#/components/schemas/GeospatialDataset'
+        anonymization_methods:
+          type: array
+          items:
+            type: string
+            enum: [spatial_cloaking, location_perturbation, generalization, suppression, k_anonymity]
+        privacy_parameters:
+          $ref: '#/components/schemas/PrivacyParameters'
+        output_format:
+          type: string
+          enum: [geojson, shapefile, geopackage]
+
+    TrajectoryAnonymizationRequest:
+      type: object
+      required: [trajectories, anonymization_method]
+      properties:
+        trajectories:
+          type: array
+          items:
+            $ref: '#/components/schemas/Trajectory'
+        anonymization_method:
+          type: string
+          enum: [spatial_cloaking, temporal_cloaking, trajectory_mixing, dummy_trajectories]
+        privacy_level:
+          type: string
+          enum: [low, medium, high]
+        parameters:
+          type: object
+          additionalProperties: true
+
+    KAnonymityRequest:
+      type: object
+      required: [dataset, k_value, quasi_identifiers]
+      properties:
+        dataset:
+          $ref: '#/components/schemas/Dataset'
+        k_value:
+          type: integer
+          minimum: 2
+          description: Minimum group size for k-anonymity
+        quasi_identifiers:
+          type: array
+          items:
+            type: string
+          description: Attributes that could be used for identification
+        generalization_hierarchies:
+          type: object
+          additionalProperties: true
+
+    DifferentialPrivacyRequest:
+      type: object
+      required: [dataset, epsilon, query_type]
+      properties:
+        dataset:
+          $ref: '#/components/schemas/Dataset'
+        epsilon:
+          type: number
+          minimum: 0
+          description: Privacy budget parameter
+        delta:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Failure probability parameter
+        query_type:
+          type: string
+          enum: [count, sum, mean, histogram, range]
+        sensitivity:
+          type: number
+          minimum: 0
+
+    AnonymizationResponse:
+      type: object
+      properties:
+        anonymization_id:
+          type: string
+        anonymized_data:
+          type: object
+          description: Anonymized dataset
+        privacy_metrics:
+          $ref: '#/components/schemas/PrivacyMetrics'
+        utility_metrics:
+          $ref: '#/components/schemas/UtilityMetrics'
+        processing_time:
+          type: number
+        metadata:
+          type: object
+          additionalProperties: true
+
+    # Access Control Schemas
+    UserCreationRequest:
+      type: object
+      required: [username, email, roles]
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        full_name:
+          type: string
+        roles:
+          type: array
+          items:
+            type: string
+        department:
+          type: string
+        expires_at:
+          type: string
+          format: date-time
+
+    UserResponse:
+      type: object
+      properties:
+        user_id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        full_name:
+          type: string
+        roles:
+          type: array
+          items:
+            $ref: '#/components/schemas/Role'
+        status:
+          type: string
+          enum: [active, inactive, suspended]
+        created_at:
+          type: string
+          format: date-time
+        last_login:
+          type: string
+          format: date-time
+
+    PermissionsUpdateRequest:
+      type: object
+      required: [permissions]
+      properties:
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+        effective_date:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+
+    Permission:
+      type: object
+      required: [resource, action]
+      properties:
+        resource:
+          type: string
+        action:
+          type: string
+          enum: [read, write, delete, execute, admin]
+        conditions:
+          type: object
+          additionalProperties: true
+
+    Role:
+      type: object
+      properties:
+        role_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        permissions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Permission'
+        inherits_from:
+          type: array
+          items:
+            type: string
+
+    # Encryption Schemas
+    KeyGenerationRequest:
+      type: object
+      required: [key_type, algorithm]
+      properties:
+        key_type:
+          type: string
+          enum: [symmetric, asymmetric, signing]
+        algorithm:
+          type: string
+          enum: [AES-256, RSA-2048, RSA-4096, ECDSA-P256, ECDSA-P384]
+        purpose:
+          type: string
+          enum: [data_encryption, key_encryption, digital_signature]
+        expiration_date:
+          type: string
+          format: date-time
+
+    KeyResponse:
+      type: object
+      properties:
+        key_id:
+          type: string
+        key_type:
+          type: string
+        algorithm:
+          type: string
+        purpose:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum: [active, inactive, revoked, expired]
+
+    EncryptionRequest:
+      type: object
+      required: [data, key_id]
+      properties:
+        data:
+          type: string
+          description: Data to encrypt (base64 encoded)
+        key_id:
+          type: string
+        algorithm:
+          type: string
+          enum: [AES-256-GCM, RSA-OAEP, ChaCha20-Poly1305]
+        additional_data:
+          type: string
+          description: Additional authenticated data
+
+    EncryptionResponse:
+      type: object
+      properties:
+        encrypted_data:
+          type: string
+          description: Encrypted data (base64 encoded)
+        encryption_metadata:
+          $ref: '#/components/schemas/EncryptionMetadata'
+
+    EncryptionMetadata:
+      type: object
+      properties:
+        algorithm:
+          type: string
+        key_id:
+          type: string
+        iv:
+          type: string
+          description: Initialization vector (base64 encoded)
+        tag:
+          type: string
+          description: Authentication tag (base64 encoded)
+        timestamp:
+          type: string
+          format: date-time
+
+    # Audit Schemas
+    AuditLogResponse:
+      type: object
+      properties:
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditLogEntry'
+        total_count:
+          type: integer
+        pagination:
+          $ref: '#/components/schemas/PaginationInfo'
+
+    AuditLogEntry:
+      type: object
+      properties:
+        log_id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        user_id:
+          type: string
+        user_ip:
+          type: string
+        action:
+          type: string
+        resource:
+          type: string
+        outcome:
+          type: string
+          enum: [success, failure, error]
+        details:
+          type: object
+          additionalProperties: true
+
+    ComplianceReportRequest:
+      type: object
+      required: [report_type, start_date, end_date]
+      properties:
+        report_type:
+          type: string
+          enum: [gdpr, hipaa, sox, pci_dss, iso27001]
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        scope:
+          type: array
+          items:
+            type: string
+        include_details:
+          type: boolean
+          default: false
+
+    # Threat Detection Schemas
+    ThreatScanRequest:
+      type: object
+      required: [scan_type, targets]
+      properties:
+        scan_type:
+          type: string
+          enum: [vulnerability, malware, intrusion, data_leak]
+        targets:
+          type: array
+          items:
+            type: string
+        scan_depth:
+          type: string
+          enum: [surface, deep, comprehensive]
+        parameters:
+          type: object
+          additionalProperties: true
+
+    ThreatScanResponse:
+      type: object
+      properties:
+        scan_id:
+          type: string
+        status:
+          type: string
+          enum: [completed, in_progress, failed]
+        threats_found:
+          type: array
+          items:
+            $ref: '#/components/schemas/ThreatInfo'
+        scan_summary:
+          $ref: '#/components/schemas/ScanSummary'
+
+    ThreatInfo:
+      type: object
+      properties:
+        threat_id:
+          type: string
+        threat_type:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        description:
+          type: string
+        affected_resources:
+          type: array
+          items:
+            type: string
+        recommended_actions:
+          type: array
+          items:
+            type: string
+
+    # Secure Sharing Schemas
+    SecureSharingRequest:
+      type: object
+      required: [data_reference, recipients]
+      properties:
+        data_reference:
+          type: string
+          description: Reference to data to be shared
+        recipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+        access_level:
+          type: string
+          enum: [read, read_write, full]
+        expiration_date:
+          type: string
+          format: date-time
+        conditions:
+          type: object
+          additionalProperties: true
+
+    Recipient:
+      type: object
+      required: [identifier, type]
+      properties:
+        identifier:
+          type: string
+        type:
+          type: string
+          enum: [user, organization, api_client]
+        permissions:
+          type: array
+          items:
+            type: string
+
+    SecureSharingResponse:
+      type: object
+      properties:
+        session_id:
+          type: string
+        access_token:
+          type: string
+        access_url:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        recipients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recipient'
+
+    # Common Schemas
+    GeospatialDataset:
+      type: object
+      properties:
+        data:
+          type: object
+          description: GeoJSON or other geospatial data
+        metadata:
+          type: object
+          additionalProperties: true
+        coordinate_system:
+          type: string
+
+    Trajectory:
+      type: object
+      properties:
+        trajectory_id:
+          type: string
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/TrajectoryPoint'
+        metadata:
+          type: object
+          additionalProperties: true
+
+    TrajectoryPoint:
+      type: object
+      required: [longitude, latitude, timestamp]
+      properties:
+        longitude:
+          type: number
+        latitude:
+          type: number
+        timestamp:
+          type: string
+          format: date-time
+        attributes:
+          type: object
+          additionalProperties: true
+
+    Dataset:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+        schema:
+          type: object
+          additionalProperties: true
+        metadata:
+          type: object
+          additionalProperties: true
+
+    PrivacyParameters:
+      type: object
+      properties:
+        anonymization_level:
+          type: string
+          enum: [low, medium, high]
+        preserve_utility:
+          type: boolean
+          default: true
+        custom_parameters:
+          type: object
+          additionalProperties: true
+
+    PrivacyMetrics:
+      type: object
+      properties:
+        anonymization_score:
+          type: number
+          minimum: 0
+          maximum: 1
+        risk_score:
+          type: number
+          minimum: 0
+          maximum: 1
+        privacy_level:
+          type: string
+          enum: [low, medium, high]
+
+    UtilityMetrics:
+      type: object
+      properties:
+        data_utility_score:
+          type: number
+          minimum: 0
+          maximum: 1
+        information_loss:
+          type: number
+          minimum: 0
+          maximum: 1
+        usability_assessment:
+          type: string
+
+    ScanSummary:
+      type: object
+      properties:
+        total_targets:
+          type: integer
+        threats_detected:
+          type: integer
+        vulnerabilities_found:
+          type: integer
+        scan_duration:
+          type: number
+        last_scan_date:
+          type: string
+          format: date-time
+
+    PaginationInfo:
+      type: object
+      properties:
+        page:
+          type: integer
+        page_size:
+          type: integer
+        total_pages:
+          type: integer
+        has_next:
+          type: boolean
+        has_previous:
+          type: boolean
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        dependencies:
+          type: object
+          additionalProperties:
+            type: string
+
+    SecurityStatusResponse:
+      type: object
+      properties:
+        overall_status:
+          type: string
+          enum: [secure, at_risk, compromised]
+        active_threats:
+          type: integer
+        security_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        last_security_scan:
+          type: string
+          format: date-time
+        compliance_status:
+          type: object
+          additionalProperties:
+            type: string
+
+    # Error Schemas
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Forbidden:
+      description: Access denied
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

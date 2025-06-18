@@ -61,6 +61,63 @@ This module equips the GEO-INFER ecosystem with a comprehensive suite of tools t
 -   **Operations**: Upsampling, downsampling, rolling window statistics (mean, median, std dev), calculating temporal lags and leads, Fourier transforms for frequency domain analysis, and wavelet transforms for multi-resolution analysis.
 -   **Benefits**: Allows data to be analyzed at appropriate time scales for different questions, facilitates feature engineering for predictive models, and helps in identifying periodicities.
 
+## Data Flow
+
+### Inputs
+- **Primary Data Sources**:
+  - Time-series datasets from sensors, weather stations, IoT devices
+  - Historical records from GEO-INFER-DATA archives
+  - Real-time streams via WebSocket, Kafka, MQTT
+  - Satellite imagery time-series from STAC catalogs
+  - Temporal environmental data (climate, hydrology, air quality)
+
+- **Configuration Requirements**:
+  - `temporal_config.yaml`: Time zone settings, aggregation rules
+  - Database connections: TimescaleDB, InfluxDB connection strings
+  - Stream processing: Kafka broker configurations
+
+- **Dependencies**:
+  - **Required**: GEO-INFER-DATA (data storage), GEO-INFER-MATH (statistical functions)
+  - **Optional**: GEO-INFER-SPACE (spatial-temporal analysis), GEO-INFER-AI (forecasting models)
+
+### Processes
+- **Time-Series Analysis**:
+  - Trend detection and seasonal decomposition
+  - Autocorrelation and cross-correlation analysis
+  - Change point and anomaly detection
+  - Temporal clustering and pattern recognition
+
+- **Forecasting & Prediction**:
+  - ARIMA, SARIMA, and exponential smoothing models
+  - LSTM and GRU networks for deep learning forecasting
+  - Prophet for trend and seasonality modeling
+  - Ensemble methods for improved accuracy
+
+- **Real-Time Processing**:
+  - Stream ingestion and preprocessing
+  - Real-time anomaly detection
+  - Dynamic model updating
+  - Alert generation and notification
+
+### Outputs
+- **Analytical Results**:
+  - Trend analysis reports and visualizations
+  - Seasonal patterns and cyclic behavior identification
+  - Anomaly detection alerts and outlier reports
+  - Temporal correlation matrices
+
+- **Forecasts & Predictions**:
+  - Short-term, medium-term, and long-term forecasts
+  - Uncertainty estimates and confidence intervals
+  - Scenario-based predictions
+  - Model performance metrics
+
+- **Integration Points**:
+  - Temporal features for GEO-INFER-AI model training
+  - Forecasts for GEO-INFER-SIM scenario modeling
+  - Real-time alerts for GEO-INFER-APP dashboards
+  - Temporal analysis for all domain modules
+
 ## Module Architecture
 
 ```mermaid

@@ -25,6 +25,78 @@ GEO-INFER-API is the **central nervous system for communication and interoperabi
 -   **Security & Access Control:** Robust implementation of authentication (e.g., API keys, OAuth 2.0, JWT) and authorization (e.g., role-based access control - RBAC) mechanisms, integrated with GEO-INFER-SEC.
 -   **Geospatial Data Streaming:** Capabilities for streaming large geospatial datasets or real-time sensor data efficiently over APIs.
 
+## Data Flow
+
+### Inputs
+- **Client Requests**:
+  - HTTP/HTTPS requests from web applications, mobile apps, GIS tools
+  - GraphQL queries for flexible data retrieval
+  - WebSocket connections for real-time data streams
+  - SDK calls from Python, JavaScript, R, and CLI applications
+  - Webhook subscriptions for event notifications
+
+- **Backend Module Services**:
+  - Data services from GEO-INFER-DATA (spatial datasets, metadata)
+  - Analysis services from GEO-INFER-SPACE, TIME, AI modules
+  - Processing workflows from GEO-INFER-ACT, SIM, AGENT
+  - Configuration and monitoring from GEO-INFER-OPS
+  - Security policies from GEO-INFER-SEC
+
+- **Configuration Requirements**:
+  - `api_config.yaml`: Server settings, rate limits, authentication
+  - `endpoints.yaml`: API route definitions and permissions
+  - OpenAPI specifications for automated documentation generation
+  - Authentication provider configurations (OAuth, JWT)
+
+- **Dependencies**:
+  - **Required**: All GEO-INFER modules (for service exposure), GEO-INFER-SEC (authentication)
+  - **Optional**: GEO-INFER-OPS (monitoring), GEO-INFER-INTRA (documentation)
+
+### Processes
+- **Request Processing & Routing**:
+  - Authentication and authorization validation
+  - Rate limiting and request throttling
+  - Input validation and sanitization
+  - Request routing to appropriate backend services
+  - Load balancing across service instances
+
+- **Data Transformation & Serialization**:
+  - Format conversion (GeoJSON, WKT, raster formats)
+  - Response pagination and streaming for large datasets
+  - Coordinate reference system transformations
+  - Error handling and standardized error responses
+
+- **Standards Compliance & Interoperability**:
+  - OGC API standards implementation (Features, Processes, Maps, Tiles)
+  - STAC (SpatioTemporal Asset Catalog) compliance
+  - OpenAPI specification generation and validation
+  - Cross-origin resource sharing (CORS) handling
+
+### Outputs
+- **RESTful API Services**:
+  - OGC-compliant endpoints for geospatial data access
+  - CRUD operations for spatial features and datasets
+  - Asynchronous processing endpoints for long-running analyses
+  - File upload/download endpoints for data exchange
+
+- **GraphQL Services**:
+  - Flexible query interface for complex data relationships
+  - Real-time subscriptions for live data updates
+  - Type-safe schema with introspection capabilities
+  - Efficient data fetching with custom resolvers
+
+- **Documentation & Developer Tools**:
+  - Interactive API documentation (Swagger UI, ReDoc)
+  - Auto-generated client SDKs for multiple languages
+  - Code examples and integration tutorials
+  - API testing tools and validation utilities
+
+- **Integration Points**:
+  - Service endpoints for all GEO-INFER modules
+  - Real-time data streams for GEO-INFER-APP dashboards
+  - Webhook integrations for external system notifications
+  - API gateway functionality for microservices orchestration
+
 ## API Gateway Architecture (Conceptual)
 
 ```mermaid
@@ -105,7 +177,104 @@ GEO-INFER-API/
 └── tests/               # Unit and integration tests for API endpoints
 ```
 
-## Getting Started
+## 🚀 Quick Start (5 minutes)
+
+### 1. Prerequisites Check
+```bash
+# Verify Python version
+python --version  # Should be 3.9+
+
+# Check web framework dependencies
+python -c "import fastapi, uvicorn; print('✅ Web framework available')"
+
+# Check required GEO-INFER modules
+pip list | grep geo-infer
+```
+
+### 2. Installation
+```bash
+# Install GEO-INFER-API and dependencies
+pip install -e ./GEO-INFER-API
+
+# Install additional API dependencies
+pip install fastapi uvicorn strawberry-graphql
+
+# Verify installation
+python -c "import geo_infer_api; print('✅ API installation successful')"
+```
+
+### 3. Basic Configuration
+```bash
+# Copy example configuration
+cp config/example.yaml config/local.yaml
+
+# Set environment variables
+export GEO_INFER_API_HOST=localhost
+export GEO_INFER_API_PORT=8000
+export GEO_INFER_JWT_SECRET=your-secret-key
+
+# Edit configuration with your settings
+nano config/local.yaml
+```
+
+### 4. Start the API Server
+```bash
+# Start development server with auto-reload
+uvicorn geo_infer_api.app:main_app --host 0.0.0.0 --port 8000 --reload
+
+# Check server status
+curl http://localhost:8000/health
+```
+
+### 5. Test API Endpoints
+```bash
+# Test basic endpoints
+curl http://localhost:8000/api/v1/info
+
+# Test OGC API compliance
+curl http://localhost:8000/ogc/collections
+
+# Test GraphQL endpoint
+curl -X POST http://localhost:8000/graphql \
+  -H "Content-Type: application/json" \
+  -d '{"query": "{ apiInfo { version } }"}'
+```
+
+### 6. Explore API Documentation
+```bash
+# Open interactive documentation
+open http://localhost:8000/docs          # Swagger UI
+open http://localhost:8000/redoc         # ReDoc
+open http://localhost:8000/graphql       # GraphQL Playground
+
+# Validate API endpoints
+python -m geo_infer_api.cli validate-endpoints
+```
+
+### 7. Test with Python SDK
+```python
+# Test API with Python client
+from geo_infer_api.client import GeoInferClient
+
+# Initialize client
+client = GeoInferClient(base_url="http://localhost:8000")
+
+# Test basic functionality
+info = client.get_api_info()
+print(f"✅ API Info: {info['name']} v{info['version']}")
+
+# Test spatial data access
+collections = client.get_collections()
+print(f"✅ Available collections: {len(collections)}")
+```
+
+### 8. Next Steps
+- 📖 Explore [API documentation](http://localhost:8000/docs) 
+- 🔧 Review [client SDKs](./examples/) for different languages
+- 🛠️ See [integration examples](./examples/) for connecting with other modules
+- 📋 Check [OGC compliance](./docs/ogc_standards.md) for standards implementation
+
+## Getting Started (Detailed)
 
 ### Prerequisites
 - Python 3.9+

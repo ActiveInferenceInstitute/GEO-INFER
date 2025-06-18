@@ -77,6 +77,63 @@ GEO-INFER-ACT leverages and provides tools for working with advanced mathematica
 -   **Predictive Coding Networks:** Neural network architectures inspired by the principle of minimizing prediction error, which can be seen as a specific implementation of active inference.
 -   **Stochastic Optimal Control:** Provides a link between expected free energy minimization and established control theory principles.
 
+## Data Flow
+
+### Inputs
+- **Primary Data Sources**:
+  - Observations and sensory data from geospatial environments
+  - Prior beliefs and generative model specifications
+  - Policy spaces and action repertoires
+  - Historical data for model training and validation
+  - Environmental state information from GEO-INFER-SPACE/TIME
+
+- **Configuration Requirements**:
+  - `active_inference_config.yaml`: Model parameters, learning rates
+  - `generative_models/`: Pre-defined model architectures
+  - Precision parameters and uncertainty specifications
+
+- **Dependencies**:
+  - **Required**: GEO-INFER-MATH (optimization), GEO-INFER-BAYES (inference)
+  - **Optional**: GEO-INFER-AI (neural architectures), GEO-INFER-AGENT (multi-agent), GEO-INFER-SIM (environments)
+
+### Processes
+- **Perception (Belief Updating)**:
+  - Inverting generative models to update posterior beliefs
+  - Minimizing variational free energy for belief updates
+  - Processing sensory evidence and environmental observations
+  - Handling uncertainty and prediction errors
+
+- **Action Selection (Policy Optimization)**:
+  - Expected free energy minimization for policy selection
+  - Balancing epistemic value (exploration) and pragmatic value (exploitation)
+  - Planning under uncertainty with temporal horizons
+  - Multi-scale decision making across spatial-temporal scales
+
+- **Model Learning & Adaptation**:
+  - Updating generative model parameters
+  - Learning new environmental dynamics
+  - Adapting to changing conditions
+  - Meta-learning across similar environments
+
+### Outputs
+- **Belief States**:
+  - Updated posterior distributions over environmental states
+  - Uncertainty estimates and confidence measures
+  - Predictive distributions for future states
+  - Model evidence and surprise measures
+
+- **Actions & Policies**:
+  - Selected actions and policy sequences
+  - Expected free energy calculations
+  - Exploration-exploitation trade-offs
+  - Adaptive decision strategies
+
+- **Integration Points**:
+  - Belief states inform GEO-INFER-AGENT behaviors
+  - Actions feed into GEO-INFER-SIM environments
+  - Models support GEO-INFER-AI predictive systems
+  - Decision frameworks guide domain-specific modules
+
 ## Directory Structure
 ```
 GEO-INFER-ACT/

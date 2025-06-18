@@ -1,0 +1,698 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-RISK API
+  description: |
+    Comprehensive risk assessment and management API for geospatial intelligence security.
+    
+    This API provides tools for:
+    - Risk assessment and analysis
+    - Threat identification and monitoring
+    - Vulnerability management
+    - Risk mitigation planning
+    - Security risk modeling
+    - Compliance risk evaluation
+  version: 1.0.0
+  contact:
+    name: GEO-INFER-RISK Support
+    email: risk-support@geo-infer.org
+  license:
+    name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/risk/v1
+    description: Production server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+tags:
+  - name: assessments
+    description: Risk assessment operations
+  - name: threats
+    description: Threat identification and monitoring
+  - name: vulnerabilities
+    description: Vulnerability management
+  - name: mitigation
+    description: Risk mitigation planning
+  - name: monitoring
+    description: Continuous risk monitoring
+  - name: system
+    description: System management and health monitoring
+
+paths:
+  /assessments:
+    get:
+      tags: [assessments]
+      summary: List risk assessments
+      description: Retrieve list of risk assessments
+      parameters:
+        - name: project_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, in_progress, completed, approved]
+        - name: risk_level
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+      responses:
+        '200':
+          description: Risk assessments retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentListResponse'
+
+    post:
+      tags: [assessments]
+      summary: Create risk assessment
+      description: Create a new risk assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssessmentRequest'
+      responses:
+        '201':
+          description: Risk assessment created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentResponse'
+
+  /assessments/{assessment_id}:
+    get:
+      tags: [assessments]
+      summary: Get assessment details
+      description: Retrieve detailed information about a specific risk assessment
+      parameters:
+        - name: assessment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Assessment details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AssessmentResponse'
+
+  /threats:
+    get:
+      tags: [threats]
+      summary: List threats
+      description: Retrieve list of identified threats
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [cyber, physical, operational, strategic, environmental]
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, mitigated, monitoring, resolved]
+      responses:
+        '200':
+          description: Threats retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatListResponse'
+
+    post:
+      tags: [threats]
+      summary: Create threat
+      description: Create a new threat entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ThreatRequest'
+      responses:
+        '201':
+          description: Threat created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ThreatResponse'
+
+  /vulnerabilities:
+    get:
+      tags: [vulnerabilities]
+      summary: List vulnerabilities
+      description: Retrieve list of system vulnerabilities
+      parameters:
+        - name: system_id
+          in: query
+          schema:
+            type: string
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, in_progress, resolved, false_positive]
+      responses:
+        '200':
+          description: Vulnerabilities retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VulnerabilityListResponse'
+
+    post:
+      tags: [vulnerabilities]
+      summary: Create vulnerability
+      description: Create a new vulnerability entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VulnerabilityRequest'
+      responses:
+        '201':
+          description: Vulnerability created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VulnerabilityResponse'
+
+  /mitigation/plans:
+    get:
+      tags: [mitigation]
+      summary: List mitigation plans
+      description: Retrieve list of risk mitigation plans
+      parameters:
+        - name: risk_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, approved, in_progress, completed]
+      responses:
+        '200':
+          description: Mitigation plans retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MitigationPlanListResponse'
+
+    post:
+      tags: [mitigation]
+      summary: Create mitigation plan
+      description: Create a new risk mitigation plan
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MitigationPlanRequest'
+      responses:
+        '201':
+          description: Mitigation plan created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MitigationPlanResponse'
+
+  /monitoring/dashboard:
+    get:
+      tags: [monitoring]
+      summary: Get risk monitoring dashboard
+      description: Retrieve risk monitoring dashboard data
+      responses:
+        '200':
+          description: Dashboard data retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskDashboardResponse'
+
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    AssessmentRequest:
+      type: object
+      required: [name, scope, methodology]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        scope:
+          type: object
+          additionalProperties: true
+        methodology:
+          type: string
+          enum: [qualitative, quantitative, hybrid]
+        project_id:
+          type: string
+        assessor:
+          type: string
+        stakeholders:
+          type: array
+          items:
+            type: string
+        timeline:
+          type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+            end_date:
+              type: string
+              format: date
+
+    AssessmentResponse:
+      type: object
+      properties:
+        assessment_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        scope:
+          type: object
+          additionalProperties: true
+        methodology:
+          type: string
+        status:
+          type: string
+          enum: [draft, in_progress, completed, approved]
+        risk_level:
+          type: string
+          enum: [low, medium, high, critical]
+        project_id:
+          type: string
+        assessor:
+          type: string
+        stakeholders:
+          type: array
+          items:
+            type: string
+        timeline:
+          type: object
+          additionalProperties: true
+        risks_identified:
+          type: integer
+        high_risks:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    ThreatRequest:
+      type: object
+      required: [name, category, description]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [cyber, physical, operational, strategic, environmental]
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        likelihood:
+          type: string
+          enum: [very_low, low, medium, high, very_high]
+        impact:
+          type: string
+          enum: [negligible, minor, moderate, major, catastrophic]
+        source:
+          type: string
+        indicators:
+          type: array
+          items:
+            type: string
+        affected_assets:
+          type: array
+          items:
+            type: string
+
+    ThreatResponse:
+      type: object
+      properties:
+        threat_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        severity:
+          type: string
+        likelihood:
+          type: string
+        impact:
+          type: string
+        risk_score:
+          type: number
+        status:
+          type: string
+          enum: [active, mitigated, monitoring, resolved]
+        source:
+          type: string
+        indicators:
+          type: array
+          items:
+            type: string
+        affected_assets:
+          type: array
+          items:
+            type: string
+        first_detected:
+          type: string
+          format: date-time
+        last_updated:
+          type: string
+          format: date-time
+
+    VulnerabilityRequest:
+      type: object
+      required: [title, description, severity]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        cvss_score:
+          type: number
+          minimum: 0
+          maximum: 10
+        cve_id:
+          type: string
+        system_id:
+          type: string
+        component:
+          type: string
+        exploit_available:
+          type: boolean
+        patch_available:
+          type: boolean
+        discovery_method:
+          type: string
+          enum: [scan, manual, reported, automated]
+
+    VulnerabilityResponse:
+      type: object
+      properties:
+        vulnerability_id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+        cvss_score:
+          type: number
+        cve_id:
+          type: string
+        status:
+          type: string
+          enum: [open, in_progress, resolved, false_positive]
+        system_id:
+          type: string
+        component:
+          type: string
+        exploit_available:
+          type: boolean
+        patch_available:
+          type: boolean
+        discovery_method:
+          type: string
+        discovered_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: string
+          format: date-time
+
+    MitigationPlanRequest:
+      type: object
+      required: [name, risk_id, strategies]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        risk_id:
+          type: string
+        strategies:
+          type: array
+          items:
+            $ref: '#/components/schemas/MitigationStrategy'
+        priority:
+          type: string
+          enum: [low, medium, high, urgent]
+        budget:
+          type: number
+        timeline:
+          type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+            target_completion:
+              type: string
+              format: date
+        responsible_party:
+          type: string
+
+    MitigationStrategy:
+      type: object
+      properties:
+        strategy_type:
+          type: string
+          enum: [avoid, mitigate, transfer, accept]
+        actions:
+          type: array
+          items:
+            type: string
+        resources_required:
+          type: array
+          items:
+            type: string
+        expected_effectiveness:
+          type: string
+          enum: [low, medium, high]
+        cost_estimate:
+          type: number
+
+    MitigationPlanResponse:
+      type: object
+      properties:
+        plan_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        risk_id:
+          type: string
+        status:
+          type: string
+          enum: [draft, approved, in_progress, completed]
+        strategies:
+          type: array
+          items:
+            $ref: '#/components/schemas/MitigationStrategy'
+        priority:
+          type: string
+        budget:
+          type: number
+        timeline:
+          type: object
+          additionalProperties: true
+        responsible_party:
+          type: string
+        progress:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    RiskDashboardResponse:
+      type: object
+      properties:
+        overall_risk_level:
+          type: string
+          enum: [low, medium, high, critical]
+        total_risks:
+          type: integer
+        risks_by_level:
+          type: object
+          properties:
+            critical:
+              type: integer
+            high:
+              type: integer
+            medium:
+              type: integer
+            low:
+              type: integer
+        active_threats:
+          type: integer
+        open_vulnerabilities:
+          type: integer
+        mitigation_plans_active:
+          type: integer
+        trend_data:
+          type: object
+          additionalProperties: true
+        recent_activities:
+          type: array
+          items:
+            type: object
+            additionalProperties: true
+
+    AssessmentListResponse:
+      type: object
+      properties:
+        assessments:
+          type: array
+          items:
+            $ref: '#/components/schemas/AssessmentResponse'
+        total_count:
+          type: integer
+
+    ThreatListResponse:
+      type: object
+      properties:
+        threats:
+          type: array
+          items:
+            $ref: '#/components/schemas/ThreatResponse'
+        total_count:
+          type: integer
+
+    VulnerabilityListResponse:
+      type: object
+      properties:
+        vulnerabilities:
+          type: array
+          items:
+            $ref: '#/components/schemas/VulnerabilityResponse'
+        total_count:
+          type: integer
+
+    MitigationPlanListResponse:
+      type: object
+      properties:
+        plans:
+          type: array
+          items:
+            $ref: '#/components/schemas/MitigationPlanResponse'
+        total_count:
+          type: integer
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

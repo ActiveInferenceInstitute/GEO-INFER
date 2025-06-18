@@ -1,0 +1,1888 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-INTRA API
+  description: |
+    Advanced intranet and knowledge management system for the GEO-INFER framework.
+    
+    ## Core Capabilities
+    - **Knowledge Management**: Comprehensive knowledge base with semantic search
+    - **Documentation System**: Automated documentation generation and management  
+    - **Workflow Orchestration**: Process automation and workflow management
+    - **Ontology Management**: Semantic modeling and relationship management
+    - **Collaboration Tools**: Team coordination and communication systems
+    - **Content Management**: Document lifecycle and version control
+    - **Search & Discovery**: Advanced semantic search and content discovery
+    - **Integration Hub**: Cross-module integration and API orchestration
+    
+    ## Key Features
+    - Semantic knowledge graphs with SPARQL query support
+    - Automated documentation generation from code and schemas
+    - Visual workflow designer with execution engine
+    - Multi-modal content management (text, images, spatial data)
+    - Real-time collaboration and communication
+    - Advanced search with ML-powered recommendations
+    - Role-based access control and permissions
+    - Integration with external knowledge sources
+    
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Development Team
+    url: https://github.com/geo-infer/geo-infer-intra
+    email: dev@geo-infer.org
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/intra/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/intra/v1  
+    description: Staging server
+  - url: http://localhost:8000/api/intra/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+  - OAuth2: [read, write, admin]
+
+tags:
+  - name: knowledge-base
+    description: Knowledge management and semantic operations
+  - name: documentation
+    description: Documentation generation and management
+  - name: workflows
+    description: Process automation and workflow management
+  - name: ontology
+    description: Semantic modeling and ontology management
+  - name: collaboration
+    description: Team coordination and communication
+  - name: content
+    description: Content and document management
+  - name: search
+    description: Search and discovery operations
+  - name: integration
+    description: Cross-module integration and orchestration
+  - name: system
+    description: System administration and health monitoring
+
+paths:
+  # Knowledge Base Endpoints
+  /knowledge/graphs:
+    get:
+      tags: [knowledge-base]
+      summary: List knowledge graphs
+      description: Retrieve available knowledge graphs with metadata
+      parameters:
+        - name: domain
+          in: query
+          schema:
+            type: string
+            enum: [spatial, temporal, health, economic, environmental, general]
+        - name: access_level
+          in: query
+          schema:
+            type: string
+            enum: [public, private, restricted]
+      responses:
+        '200':
+          description: Knowledge graphs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeGraphListResponse'
+
+    post:
+      tags: [knowledge-base]
+      summary: Create knowledge graph
+      description: Create a new knowledge graph with initial ontology
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KnowledgeGraphRequest'
+      responses:
+        '201':
+          description: Knowledge graph created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/KnowledgeGraphResponse'
+
+  /knowledge/graphs/{graph_id}/query:
+    post:
+      tags: [knowledge-base]
+      summary: Query knowledge graph
+      description: Execute SPARQL queries against knowledge graph
+      parameters:
+        - name: graph_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SPARQLQueryRequest'
+      responses:
+        '200':
+          description: Query executed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SPARQLQueryResponse'
+
+  /knowledge/entities:
+    get:
+      tags: [knowledge-base]
+      summary: Search entities
+      description: Search for entities across knowledge graphs
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: entity_type
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Entities found successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntitySearchResponse'
+
+    post:
+      tags: [knowledge-base]
+      summary: Create entity
+      description: Create a new entity in knowledge graph
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EntityRequest'
+      responses:
+        '201':
+          description: Entity created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EntityResponse'
+
+  # Documentation Endpoints
+  /documentation/generate:
+    post:
+      tags: [documentation]
+      summary: Generate documentation
+      description: Automatically generate documentation from code and schemas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentationGenerationRequest'
+      responses:
+        '202':
+          description: Documentation generation started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentationJobResponse'
+
+  /documentation/projects:
+    get:
+      tags: [documentation]
+      summary: List documentation projects
+      description: Retrieve available documentation projects
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, archived, draft]
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Documentation projects retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentationProjectListResponse'
+
+    post:
+      tags: [documentation]
+      summary: Create documentation project
+      description: Create a new documentation project
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DocumentationProjectRequest'
+      responses:
+        '201':
+          description: Documentation project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentationProjectResponse'
+
+  /documentation/projects/{project_id}/pages:
+    get:
+      tags: [documentation]
+      summary: List documentation pages
+      description: Retrieve pages for a documentation project
+      parameters:
+        - name: project_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Documentation pages retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentationPageListResponse'
+
+  # Workflow Endpoints
+  /workflows:
+    get:
+      tags: [workflows]
+      summary: List workflows
+      description: Retrieve available workflow templates and instances
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, paused, completed, failed]
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [data-processing, documentation, integration, analysis]
+      responses:
+        '200':
+          description: Workflows retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowListResponse'
+
+    post:
+      tags: [workflows]
+      summary: Create workflow
+      description: Create a new workflow from template or definition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowRequest'
+      responses:
+        '201':
+          description: Workflow created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowResponse'
+
+  /workflows/{workflow_id}/execute:
+    post:
+      tags: [workflows]
+      summary: Execute workflow
+      description: Start workflow execution with specified parameters
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowExecutionRequest'
+      responses:
+        '202':
+          description: Workflow execution started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowExecutionResponse'
+
+  /workflows/{workflow_id}/status:
+    get:
+      tags: [workflows]
+      summary: Get workflow status
+      description: Retrieve current status and progress of workflow execution
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Workflow status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowStatusResponse'
+
+  # Ontology Management Endpoints
+  /ontology/schemas:
+    get:
+      tags: [ontology]
+      summary: List ontology schemas
+      description: Retrieve available ontology schemas and vocabularies
+      parameters:
+        - name: domain
+          in: query
+          schema:
+            type: string
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [owl, rdf, skos, json-ld]
+      responses:
+        '200':
+          description: Ontology schemas retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OntologySchemaListResponse'
+
+    post:
+      tags: [ontology]
+      summary: Create ontology schema
+      description: Create or import a new ontology schema
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OntologySchemaRequest'
+      responses:
+        '201':
+          description: Ontology schema created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OntologySchemaResponse'
+
+  /ontology/mappings:
+    get:
+      tags: [ontology]
+      summary: List ontology mappings
+      description: Retrieve mappings between different ontologies
+      responses:
+        '200':
+          description: Ontology mappings retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OntologyMappingListResponse'
+
+    post:
+      tags: [ontology]
+      summary: Create ontology mapping
+      description: Create mapping between different ontological concepts
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OntologyMappingRequest'
+      responses:
+        '201':
+          description: Ontology mapping created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OntologyMappingResponse'
+
+  # Collaboration Endpoints
+  /collaboration/teams:
+    get:
+      tags: [collaboration]
+      summary: List teams
+      description: Retrieve user teams and collaboration groups
+      responses:
+        '200':
+          description: Teams retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamListResponse'
+
+    post:
+      tags: [collaboration]
+      summary: Create team
+      description: Create a new collaboration team
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeamRequest'
+      responses:
+        '201':
+          description: Team created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeamResponse'
+
+  /collaboration/discussions:
+    get:
+      tags: [collaboration]
+      summary: List discussions
+      description: Retrieve discussion threads and comments
+      parameters:
+        - name: team_id
+          in: query
+          schema:
+            type: string
+        - name: topic
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, closed, archived]
+      responses:
+        '200':
+          description: Discussions retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionListResponse'
+
+    post:
+      tags: [collaboration]
+      summary: Create discussion
+      description: Start a new discussion thread
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiscussionRequest'
+      responses:
+        '201':
+          description: Discussion created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiscussionResponse'
+
+  # Content Management Endpoints
+  /content/documents:
+    get:
+      tags: [content]
+      summary: List documents
+      description: Retrieve managed documents with filtering options
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [text, image, spatial, dataset, model]
+        - name: category
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, published, archived, deleted]
+      responses:
+        '200':
+          description: Documents retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentListResponse'
+
+    post:
+      tags: [content]
+      summary: Upload document
+      description: Upload and index a new document
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                metadata:
+                  $ref: '#/components/schemas/DocumentMetadata'
+      responses:
+        '201':
+          description: Document uploaded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentResponse'
+
+  /content/documents/{document_id}/versions:
+    get:
+      tags: [content]
+      summary: List document versions
+      description: Retrieve version history for a document
+      parameters:
+        - name: document_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Document versions retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DocumentVersionListResponse'
+
+  # Search and Discovery Endpoints
+  /search:
+    post:
+      tags: [search]
+      summary: Semantic search
+      description: Perform semantic search across all content types
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SearchRequest'
+      responses:
+        '200':
+          description: Search completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResponse'
+
+  /search/recommendations:
+    get:
+      tags: [search]
+      summary: Get recommendations
+      description: Get personalized content recommendations
+      parameters:
+        - name: user_id
+          in: query
+          schema:
+            type: string
+        - name: context
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+      responses:
+        '200':
+          description: Recommendations retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RecommendationResponse'
+
+  /search/facets:
+    get:
+      tags: [search]
+      summary: Get search facets
+      description: Retrieve available search facets and filters
+      parameters:
+        - name: content_type
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Search facets retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchFacetResponse'
+
+  # Integration Endpoints
+  /integration/modules:
+    get:
+      tags: [integration]
+      summary: List integrated modules
+      description: Retrieve status of integrated GEO-INFER modules
+      responses:
+        '200':
+          description: Module integration status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleIntegrationListResponse'
+
+  /integration/modules/{module_id}/sync:
+    post:
+      tags: [integration]
+      summary: Sync module data
+      description: Synchronize data and metadata from integrated module
+      parameters:
+        - name: module_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModuleSyncRequest'
+      responses:
+        '202':
+          description: Module sync initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModuleSyncResponse'
+
+  /integration/apis:
+    get:
+      tags: [integration]
+      summary: List API integrations
+      description: Retrieve external API integrations and their status
+      responses:
+        '200':
+          description: API integrations retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIIntegrationListResponse'
+
+    post:
+      tags: [integration]
+      summary: Create API integration
+      description: Configure integration with external API
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/APIIntegrationRequest'
+      responses:
+        '201':
+          description: API integration created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/APIIntegrationResponse'
+
+  # System Management Endpoints
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and component status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /system/status:
+    get:
+      tags: [system]
+      summary: System status
+      description: Get comprehensive system status and metrics
+      responses:
+        '200':
+          description: System status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemStatusResponse'
+
+  /system/config:
+    get:
+      tags: [system]
+      summary: Get system configuration
+      description: Retrieve current system configuration
+      responses:
+        '200':
+          description: Configuration retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemConfigResponse'
+
+    put:
+      tags: [system]
+      summary: Update system configuration
+      description: Update system configuration parameters
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SystemConfigRequest'
+      responses:
+        '200':
+          description: Configuration updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemConfigResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.geo-infer.org/oauth/authorize
+          tokenUrl: https://auth.geo-infer.org/oauth/token
+          scopes:
+            read: Read access to resources
+            write: Write access to resources
+            admin: Administrative access
+
+  schemas:
+    # Knowledge Base Schemas
+    KnowledgeGraphListResponse:
+      type: object
+      properties:
+        graphs:
+          type: array
+          items:
+            $ref: '#/components/schemas/KnowledgeGraphSummary'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    KnowledgeGraphSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        domain:
+          type: string
+        entity_count:
+          type: integer
+        relation_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    KnowledgeGraphRequest:
+      type: object
+      required: [name, domain]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        domain:
+          type: string
+        ontology_uri:
+          type: string
+        access_level:
+          type: string
+          enum: [public, private, restricted]
+        initial_data:
+          type: object
+
+    KnowledgeGraphResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        domain:
+          type: string
+        endpoint_url:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    SPARQLQueryRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+          description: SPARQL query string
+        format:
+          type: string
+          enum: [json, xml, turtle, n3]
+          default: json
+        reasoning:
+          type: boolean
+          default: false
+        timeout:
+          type: integer
+          default: 30
+
+    SPARQLQueryResponse:
+      type: object
+      properties:
+        results:
+          type: object
+        query_time:
+          type: number
+        result_count:
+          type: integer
+        format:
+          type: string
+
+    EntitySearchResponse:
+      type: object
+      properties:
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/Entity'
+        total:
+          type: integer
+        query:
+          type: string
+        suggestions:
+          type: array
+          items:
+            type: string
+
+    Entity:
+      type: object
+      properties:
+        id:
+          type: string
+        uri:
+          type: string
+        label:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        properties:
+          type: object
+        relationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/Relationship'
+        graph_id:
+          type: string
+
+    Relationship:
+      type: object
+      properties:
+        predicate:
+          type: string
+        object:
+          type: string
+        object_label:
+          type: string
+        confidence:
+          type: number
+
+    EntityRequest:
+      type: object
+      required: [label, type]
+      properties:
+        label:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        properties:
+          type: object
+        graph_id:
+          type: string
+
+    EntityResponse:
+      allOf:
+        - $ref: '#/components/schemas/Entity'
+        - type: object
+          properties:
+            created_at:
+              type: string
+              format: date-time
+
+    # Documentation Schemas
+    DocumentationGenerationRequest:
+      type: object
+      required: [source_type, source_path]
+      properties:
+        source_type:
+          type: string
+          enum: [code, api_schema, database, module]
+        source_path:
+          type: string
+        output_format:
+          type: string
+          enum: [markdown, html, pdf, wiki]
+        template_id:
+          type: string
+        options:
+          type: object
+
+    DocumentationJobResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+        status:
+          type: string
+          enum: [queued, processing, completed, failed]
+        progress:
+          type: number
+        estimated_completion:
+          type: string
+          format: date-time
+
+    DocumentationProjectListResponse:
+      type: object
+      properties:
+        projects:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentationProjectSummary'
+        total:
+          type: integer
+
+    DocumentationProjectSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        page_count:
+          type: integer
+        last_updated:
+          type: string
+          format: date-time
+
+    DocumentationProjectRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        template_id:
+          type: string
+        configuration:
+          type: object
+
+    DocumentationProjectResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        url:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    DocumentationPageListResponse:
+      type: object
+      properties:
+        pages:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentationPage'
+        total:
+          type: integer
+
+    DocumentationPage:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        path:
+          type: string
+        content_type:
+          type: string
+        last_modified:
+          type: string
+          format: date-time
+        word_count:
+          type: integer
+
+    # Workflow Schemas
+    WorkflowListResponse:
+      type: object
+      properties:
+        workflows:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowSummary'
+        total:
+          type: integer
+
+    WorkflowSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        category:
+          type: string
+        execution_count:
+          type: integer
+        last_executed:
+          type: string
+          format: date-time
+
+    WorkflowRequest:
+      type: object
+      required: [name, definition]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        definition:
+          type: object
+        template_id:
+          type: string
+        category:
+          type: string
+
+    WorkflowResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        definition:
+          type: object
+
+    WorkflowExecutionRequest:
+      type: object
+      properties:
+        parameters:
+          type: object
+        priority:
+          type: string
+          enum: [low, normal, high, urgent]
+        schedule:
+          type: string
+          format: date-time
+
+    WorkflowExecutionResponse:
+      type: object
+      properties:
+        execution_id:
+          type: string
+        workflow_id:
+          type: string
+        status:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+        estimated_completion:
+          type: string
+          format: date-time
+
+    WorkflowStatusResponse:
+      type: object
+      properties:
+        execution_id:
+          type: string
+        workflow_id:
+          type: string
+        status:
+          type: string
+        progress:
+          type: number
+        current_step:
+          type: string
+        steps_completed:
+          type: integer
+        steps_total:
+          type: integer
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        results:
+          type: object
+
+    # Ontology Schemas
+    OntologySchemaListResponse:
+      type: object
+      properties:
+        schemas:
+          type: array
+          items:
+            $ref: '#/components/schemas/OntologySchemaSummary'
+        total:
+          type: integer
+
+    OntologySchemaSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        namespace:
+          type: string
+        version:
+          type: string
+        domain:
+          type: string
+        format:
+          type: string
+        concept_count:
+          type: integer
+
+    OntologySchemaRequest:
+      type: object
+      required: [name, namespace]
+      properties:
+        name:
+          type: string
+        namespace:
+          type: string
+        version:
+          type: string
+        domain:
+          type: string
+        format:
+          type: string
+        content:
+          type: string
+        import_url:
+          type: string
+
+    OntologySchemaResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        namespace:
+          type: string
+        version:
+          type: string
+        url:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    OntologyMappingListResponse:
+      type: object
+      properties:
+        mappings:
+          type: array
+          items:
+            $ref: '#/components/schemas/OntologyMapping'
+        total:
+          type: integer
+
+    OntologyMapping:
+      type: object
+      properties:
+        id:
+          type: string
+        source_schema:
+          type: string
+        target_schema:
+          type: string
+        mapping_type:
+          type: string
+          enum: [exact, broad, narrow, related]
+        confidence:
+          type: number
+        created_by:
+          type: string
+
+    OntologyMappingRequest:
+      type: object
+      required: [source_concept, target_concept, mapping_type]
+      properties:
+        source_concept:
+          type: string
+        target_concept:
+          type: string
+        mapping_type:
+          type: string
+          enum: [exact, broad, narrow, related]
+        confidence:
+          type: number
+        notes:
+          type: string
+
+    OntologyMappingResponse:
+      allOf:
+        - $ref: '#/components/schemas/OntologyMapping'
+        - type: object
+          properties:
+            created_at:
+              type: string
+              format: date-time
+
+    # Collaboration Schemas
+    TeamListResponse:
+      type: object
+      properties:
+        teams:
+          type: array
+          items:
+            $ref: '#/components/schemas/Team'
+        total:
+          type: integer
+
+    Team:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        member_count:
+          type: integer
+        visibility:
+          type: string
+          enum: [public, private, restricted]
+        created_at:
+          type: string
+          format: date-time
+
+    TeamRequest:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        visibility:
+          type: string
+          enum: [public, private, restricted]
+        initial_members:
+          type: array
+          items:
+            type: string
+
+    TeamResponse:
+      allOf:
+        - $ref: '#/components/schemas/Team'
+        - type: object
+          properties:
+            invite_code:
+              type: string
+
+    DiscussionListResponse:
+      type: object
+      properties:
+        discussions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Discussion'
+        total:
+          type: integer
+
+    Discussion:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: string
+        author:
+          type: string
+        reply_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        last_activity:
+          type: string
+          format: date-time
+
+    DiscussionRequest:
+      type: object
+      required: [title, content]
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+        team_id:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    DiscussionResponse:
+      allOf:
+        - $ref: '#/components/schemas/Discussion'
+        - type: object
+          properties:
+            content:
+              type: string
+            tags:
+              type: array
+              items:
+                type: string
+
+    # Content Management Schemas
+    DocumentListResponse:
+      type: object
+      properties:
+        documents:
+          type: array
+          items:
+            $ref: '#/components/schemas/Document'
+        total:
+          type: integer
+        facets:
+          type: object
+
+    Document:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        category:
+          type: string
+        status:
+          type: string
+        file_size:
+          type: integer
+        uploaded_by:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    DocumentMetadata:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        access_level:
+          type: string
+          enum: [public, private, restricted]
+
+    DocumentResponse:
+      allOf:
+        - $ref: '#/components/schemas/Document'
+        - type: object
+          properties:
+            download_url:
+              type: string
+            preview_url:
+              type: string
+
+    DocumentVersionListResponse:
+      type: object
+      properties:
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DocumentVersion'
+        total:
+          type: integer
+
+    DocumentVersion:
+      type: object
+      properties:
+        version:
+          type: string
+        description:
+          type: string
+        size:
+          type: integer
+        checksum:
+          type: string
+        created_by:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    # Search Schemas
+    SearchRequest:
+      type: object
+      required: [query]
+      properties:
+        query:
+          type: string
+        content_types:
+          type: array
+          items:
+            type: string
+        facets:
+          type: object
+        sort:
+          type: string
+          enum: [relevance, date, popularity]
+        limit:
+          type: integer
+          default: 20
+        offset:
+          type: integer
+          default: 0
+
+    SearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SearchResult'
+        total:
+          type: integer
+        query:
+          type: string
+        took:
+          type: integer
+        facets:
+          type: object
+        suggestions:
+          type: array
+          items:
+            type: string
+
+    SearchResult:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        score:
+          type: number
+        url:
+          type: string
+        highlights:
+          type: array
+          items:
+            type: string
+        metadata:
+          type: object
+
+    RecommendationResponse:
+      type: object
+      properties:
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Recommendation'
+        context:
+          type: string
+        generated_at:
+          type: string
+          format: date-time
+
+    Recommendation:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        confidence:
+          type: number
+        reason:
+          type: string
+        url:
+          type: string
+
+    SearchFacetResponse:
+      type: object
+      properties:
+        facets:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/Facet'
+
+    Facet:
+      type: object
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [term, range, date]
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/FacetValue'
+
+    FacetValue:
+      type: object
+      properties:
+        value:
+          type: string
+        count:
+          type: integer
+        selected:
+          type: boolean
+
+    # Integration Schemas
+    ModuleIntegrationListResponse:
+      type: object
+      properties:
+        modules:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModuleIntegration'
+        total:
+          type: integer
+
+    ModuleIntegration:
+      type: object
+      properties:
+        module_id:
+          type: string
+        name:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive, error, syncing]
+        last_sync:
+          type: string
+          format: date-time
+        data_count:
+          type: integer
+        api_url:
+          type: string
+
+    ModuleSyncRequest:
+      type: object
+      properties:
+        sync_type:
+          type: string
+          enum: [full, incremental, metadata_only]
+        since:
+          type: string
+          format: date-time
+        options:
+          type: object
+
+    ModuleSyncResponse:
+      type: object
+      properties:
+        sync_id:
+          type: string
+        status:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+        estimated_completion:
+          type: string
+          format: date-time
+
+    APIIntegrationListResponse:
+      type: object
+      properties:
+        integrations:
+          type: array
+          items:
+            $ref: '#/components/schemas/APIIntegration'
+        total:
+          type: integer
+
+    APIIntegration:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        endpoint:
+          type: string
+        status:
+          type: string
+        last_request:
+          type: string
+          format: date-time
+        request_count:
+          type: integer
+
+    APIIntegrationRequest:
+      type: object
+      required: [name, endpoint, auth_type]
+      properties:
+        name:
+          type: string
+        endpoint:
+          type: string
+        auth_type:
+          type: string
+          enum: [none, api_key, oauth2, basic]
+        credentials:
+          type: object
+        configuration:
+          type: object
+
+    APIIntegrationResponse:
+      allOf:
+        - $ref: '#/components/schemas/APIIntegration'
+        - type: object
+          properties:
+            created_at:
+              type: string
+              format: date-time
+
+    # System Schemas
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        components:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ComponentHealth'
+
+    ComponentHealth:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [up, down, degraded]
+        response_time:
+          type: number
+        last_check:
+          type: string
+          format: date-time
+        details:
+          type: object
+
+    SystemStatusResponse:
+      type: object
+      properties:
+        version:
+          type: string
+        uptime:
+          type: integer
+        memory_usage:
+          type: object
+        cpu_usage:
+          type: number
+        disk_usage:
+          type: object
+        active_users:
+          type: integer
+        request_count:
+          type: integer
+        error_rate:
+          type: number
+
+    SystemConfigResponse:
+      type: object
+      properties:
+        knowledge_base:
+          type: object
+        documentation:
+          type: object
+        workflows:
+          type: object
+        search:
+          type: object
+        collaboration:
+          type: object
+        integrations:
+          type: object
+
+    SystemConfigRequest:
+      type: object
+      properties:
+        knowledge_base:
+          type: object
+        documentation:
+          type: object
+        workflows:
+          type: object
+        search:
+          type: object
+        collaboration:
+          type: object
+        integrations:
+          type: object
+
+    # Common Error Schema
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

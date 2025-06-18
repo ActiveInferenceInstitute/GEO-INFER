@@ -1,0 +1,606 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-PEP API
+  description: |
+    Comprehensive people and organizational management API for geospatial workforce and stakeholder management.
+    
+    This API provides tools for:
+    - People and contact management
+    - Organizational structure management
+    - Human resources operations
+    - Customer relationship management (CRM)
+    - Stakeholder engagement tracking
+    - Competency and skills management
+    - Geographic team coordination
+  version: 1.0.0
+  contact:
+    name: GEO-INFER-PEP Support
+    email: pep-support@geo-infer.org
+  license:
+    name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/pep/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/pep/v1
+    description: Staging server
+  - url: http://localhost:8000/pep/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+tags:
+  - name: people
+    description: People and contact management
+  - name: organizations
+    description: Organizational structure management
+  - name: hr
+    description: Human resources operations
+  - name: crm
+    description: Customer relationship management
+  - name: teams
+    description: Team and project management
+  - name: competencies
+    description: Skills and competency management
+  - name: stakeholders
+    description: Stakeholder engagement and management
+  - name: system
+    description: System management and health monitoring
+
+paths:
+  # People Management Endpoints
+  /people:
+    get:
+      tags: [people]
+      summary: List people
+      description: Retrieve list of people with filtering options
+      parameters:
+        - name: organization_id
+          in: query
+          schema:
+            type: string
+        - name: role
+          in: query
+          schema:
+            type: string
+        - name: location
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, inactive, pending]
+      responses:
+        '200':
+          description: People list retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PeopleListResponse'
+
+    post:
+      tags: [people]
+      summary: Create person record
+      description: Create a new person record in the system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonRequest'
+      responses:
+        '201':
+          description: Person created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonResponse'
+
+  /people/{person_id}:
+    get:
+      tags: [people]
+      summary: Get person details
+      description: Retrieve detailed information about a specific person
+      parameters:
+        - name: person_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Person details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonResponse'
+
+    put:
+      tags: [people]
+      summary: Update person
+      description: Update person information
+      parameters:
+        - name: person_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PersonRequest'
+      responses:
+        '200':
+          description: Person updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PersonResponse'
+
+  # Organization Management Endpoints
+  /organizations:
+    get:
+      tags: [organizations]
+      summary: List organizations
+      description: Retrieve list of organizations
+      parameters:
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [company, government, ngo, academic, partnership]
+        - name: location
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Organizations retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationListResponse'
+
+    post:
+      tags: [organizations]
+      summary: Create organization
+      description: Create a new organization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OrganizationRequest'
+      responses:
+        '201':
+          description: Organization created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationResponse'
+
+  /organizations/{org_id}/structure:
+    get:
+      tags: [organizations]
+      summary: Get organizational structure
+      description: Retrieve organizational hierarchy and structure
+      parameters:
+        - name: org_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Organizational structure retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OrganizationalStructureResponse'
+
+  # HR Management Endpoints
+  /hr/employees:
+    get:
+      tags: [hr]
+      summary: List employees
+      description: Retrieve list of employees with HR information
+      parameters:
+        - name: department
+          in: query
+          schema:
+            type: string
+        - name: position
+          in: query
+          schema:
+            type: string
+        - name: employment_status
+          in: query
+          schema:
+            type: string
+            enum: [full_time, part_time, contract, intern]
+      responses:
+        '200':
+          description: Employee list retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EmployeeListResponse'
+
+  /hr/employees/{employee_id}/performance:
+    get:
+      tags: [hr]
+      summary: Get employee performance
+      description: Retrieve performance data for an employee
+      parameters:
+        - name: employee_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Performance data retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PerformanceResponse'
+
+  # CRM Endpoints
+  /crm/contacts:
+    get:
+      tags: [crm]
+      summary: List CRM contacts
+      description: Retrieve list of CRM contacts and leads
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [lead, prospect, customer, inactive]
+        - name: industry
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: CRM contacts retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CRMContactListResponse'
+
+    post:
+      tags: [crm]
+      summary: Create CRM contact
+      description: Create a new CRM contact or lead
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CRMContactRequest'
+      responses:
+        '201':
+          description: CRM contact created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CRMContactResponse'
+
+  # Health Check
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Person Schemas
+    PersonRequest:
+      type: object
+      required: [first_name, last_name, email]
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        organization_id:
+          type: string
+        role:
+          type: string
+        skills:
+          type: array
+          items:
+            type: string
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+
+    PersonResponse:
+      type: object
+      properties:
+        person_id:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        organization:
+          $ref: '#/components/schemas/OrganizationSummary'
+        role:
+          type: string
+        skills:
+          type: array
+          items:
+            $ref: '#/components/schemas/Skill'
+        location:
+          $ref: '#/components/schemas/GeoLocation'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # Organization Schemas
+    OrganizationRequest:
+      type: object
+      required: [name, type]
+      properties:
+        name:
+          type: string
+        type:
+          type: string
+          enum: [company, government, ngo, academic, partnership]
+        description:
+          type: string
+        industry:
+          type: string
+        size:
+          type: string
+          enum: [startup, small, medium, large, enterprise]
+        headquarters:
+          $ref: '#/components/schemas/Address'
+        website:
+          type: string
+          format: uri
+
+    OrganizationResponse:
+      type: object
+      properties:
+        organization_id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        description:
+          type: string
+        industry:
+          type: string
+        size:
+          type: string
+        headquarters:
+          $ref: '#/components/schemas/Address'
+        website:
+          type: string
+        employee_count:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+
+    # Common Schemas
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        postal_code:
+          type: string
+        country:
+          type: string
+
+    GeoLocation:
+      type: object
+      properties:
+        latitude:
+          type: number
+        longitude:
+          type: number
+        accuracy:
+          type: number
+
+    Skill:
+      type: object
+      properties:
+        skill_name:
+          type: string
+        proficiency_level:
+          type: string
+          enum: [beginner, intermediate, advanced, expert]
+        years_experience:
+          type: integer
+
+    OrganizationSummary:
+      type: object
+      properties:
+        organization_id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    # Placeholder schemas for remaining endpoints
+    PeopleListResponse:
+      type: object
+      properties:
+        people:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonResponse'
+        total_count:
+          type: integer
+
+    OrganizationListResponse:
+      type: object
+      properties:
+        organizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrganizationResponse'
+        total_count:
+          type: integer
+
+    OrganizationalStructureResponse:
+      type: object
+      properties:
+        structure:
+          type: object
+          additionalProperties: true
+
+    EmployeeListResponse:
+      type: object
+      properties:
+        employees:
+          type: array
+          items:
+            $ref: '#/components/schemas/PersonResponse'
+
+    PerformanceResponse:
+      type: object
+      properties:
+        performance_data:
+          type: object
+          additionalProperties: true
+
+    CRMContactListResponse:
+      type: object
+      properties:
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/CRMContactResponse'
+
+    CRMContactRequest:
+      type: object
+      required: [name, email]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        company:
+          type: string
+        status:
+          type: string
+          enum: [lead, prospect, customer, inactive]
+
+    CRMContactResponse:
+      type: object
+      properties:
+        contact_id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+        company:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

@@ -51,6 +51,62 @@ GEO-INFER-SPACE is the **foundational geospatial processing and analysis engine*
 -   **Components:** Wrappers or direct usage of `osc-geo-h3grid-srv` for H3 grid generation/management and `osc-geo-h3loader-cli` for loading data into H3 grids.
 -   **Benefits:** Facilitates interoperability with OS-Climate workflows, leverages standardized H3-based approaches for climate data, promotes collaboration within the climate finance and science community.
 
+## Data Flow
+
+### Inputs
+- **Primary Data Sources**:
+  - Vector data (GeoJSON, Shapefile, GeoPackage) from GEO-INFER-DATA
+  - Raster data (GeoTIFF, NetCDF, COG) from Earth observation archives
+  - Real-time sensor streams via GEO-INFER-TIME
+  - Point cloud data (LAS/LAZ files) for 3D analysis
+  - Network data (road networks, utilities) for connectivity analysis
+
+- **Configuration Requirements**:
+  - `spatial_config.yaml`: CRS definitions, indexing parameters
+  - Environment variables: GDAL_DATA, PROJ_LIB paths
+  - Database connections: PostGIS connection strings
+
+- **Dependencies**:
+  - **Required**: GEO-INFER-DATA (data storage), GEO-INFER-MATH (calculations)
+  - **Optional**: GEO-INFER-TIME (temporal analysis), GEO-INFER-AI (ML features)
+
+### Processes
+- **Core Spatial Operations**:
+  - Geometric calculations (area, perimeter, distance)
+  - Spatial relationships (intersects, contains, overlaps)
+  - Coordinate reference system transformations
+  - Spatial indexing (H3, QuadTree, R-Tree) for performance optimization
+
+- **Analytical Methods**:
+  - Buffer analysis and proximity calculations
+  - Overlay operations (union, intersection, difference)
+  - Network analysis (shortest path, service areas)
+  - Raster analysis (map algebra, terrain analysis, focal statistics)
+
+- **Transformation Steps**:
+  1. Data validation and CRS harmonization
+  2. Spatial indexing for query optimization
+  3. Geometric processing and analysis
+  4. Result aggregation and output formatting
+
+### Outputs
+- **Data Products**:
+  - Processed spatial datasets (vector/raster)
+  - Spatial analysis results (statistics, measurements)
+  - Derived spatial features (buffers, centroids, boundaries)
+  - Spatial indices and optimized data structures
+
+- **Visualization**:
+  - Interactive maps via GEO-INFER-APP
+  - Spatial analysis visualizations (heat maps, choropleth maps)
+  - 3D visualizations for elevation and point cloud data
+
+- **Integration Points**:
+  - Spatial features for GEO-INFER-AI model training
+  - Processed geometries for GEO-INFER-SIM simulations
+  - Analysis results for GEO-INFER-HEALTH accessibility studies
+  - Optimized spatial queries for all domain-specific modules
+
 ## Module Architecture (Conceptual)
 
 ```mermaid
@@ -121,7 +177,56 @@ GEO-INFER-SPACE is a critical enabling module for most other parts of the framew
 -   **GEO-INFER-APP & GEO-INFER-ART:** SPACE provides the processed and analyzed geospatial data that is then visualized by APP (maps, dashboards) or used as input for ART (geospatial art generation).
 -   **Domain-Specific Modules (AG, ECON, HEALTH, RISK, LOG, etc.):** All these modules heavily rely on SPACE for their core spatial data processing and analytical needs (e.g., field delineation in AG, market area analysis in ECON, accessibility in HEALTH, hazard zone mapping in RISK).
 
-## Getting Started
+## 🚀 Quick Start (5 minutes)
+
+### 1. Prerequisites Check
+```bash
+# Verify Python version
+python --version  # Should be 3.9+
+
+# Check required GEO-INFER modules
+pip list | grep geo-infer
+```
+
+### 2. Installation
+```bash
+# Install this module
+pip install -e ./GEO-INFER-SPACE
+
+# Verify installation
+python -c "import geo_infer_space; print('✅ Installation successful')"
+```
+
+### 3. Basic Configuration
+```bash
+# Copy example configuration
+cp config/example.yaml config/local.yaml
+
+# Edit with your settings (minimal required changes marked with TODO)
+nano config/local.yaml
+```
+
+### 4. Run First Example
+```python
+# Minimal working example
+from geo_infer_space.core import SpatialProcessor
+import geopandas as gpd
+
+# Initialize with default settings
+processor = SpatialProcessor(config_path="config/local.yaml")
+
+# Create a simple buffer analysis
+point_data = gpd.read_file("path/to/points.geojson")
+buffered = processor.buffer_analysis(point_data, buffer_distance=1000)
+print(f"✅ Created buffers for {len(buffered)} points")
+```
+
+### 5. Next Steps
+- 📖 See [detailed examples](./examples/) for advanced usage
+- 🔗 Check [integration guide](./docs/integration.md) for connecting with other modules
+- 🛠️ Visit [configuration reference](./docs/configuration.md) for all options
+
+## Getting Started (Detailed)
 
 ### Prerequisites
 -   Python 3.9+

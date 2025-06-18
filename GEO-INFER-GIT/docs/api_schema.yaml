@@ -1,0 +1,1877 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-GIT API
+  description: |
+    Version control integration and repository management system for the GEO-INFER framework.
+    
+    ## Core Capabilities
+    - **Repository Management**: Automated cloning, syncing, and version control
+    - **Git Workflow Automation**: CI/CD integration and automated workflows
+    - **Data Versioning**: Specialized versioning for geospatial datasets
+    - **Collaboration Tools**: Branch management and merge request automation
+    - **Integration Hub**: Seamless integration with external Git platforms
+    - **Backup & Archive**: Automated backup and archival strategies
+    - **Code Analysis**: Static analysis and quality metrics
+    - **Deployment Pipeline**: Automated deployment and release management
+    
+    ## Key Features
+    - Multi-platform Git integration (GitHub, GitLab, Bitbucket, local)
+    - Large file handling with Git LFS support
+    - Geospatial data versioning with specialized diff algorithms
+    - Automated documentation generation from repositories
+    - Branch protection and merge policies
+    - Webhook-based automation and notifications
+    - Code quality metrics and reporting
+    - Secure credential management
+    
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Development Team
+    url: https://github.com/geo-infer/geo-infer-git
+    email: dev@geo-infer.org
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/git/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/git/v1  
+    description: Staging server
+  - url: http://localhost:8000/api/git/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+  - OAuth2: [read, write, admin]
+
+tags:
+  - name: repositories
+    description: Repository management and operations
+  - name: branches
+    description: Branch management and versioning
+  - name: commits
+    description: Commit operations and history
+  - name: workflows
+    description: CI/CD workflows and automation
+  - name: integrations
+    description: External platform integrations
+  - name: data-versioning
+    description: Specialized geospatial data versioning
+  - name: analysis
+    description: Code analysis and quality metrics
+  - name: deployment
+    description: Deployment and release management
+  - name: system
+    description: System administration and monitoring
+
+paths:
+  # Repository Management Endpoints
+  /repositories:
+    get:
+      tags: [repositories]
+      summary: List repositories
+      description: Retrieve list of managed repositories
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, archived, syncing, error]
+        - name: platform
+          in: query
+          schema:
+            type: string
+            enum: [github, gitlab, bitbucket, local]
+        - name: organization
+          in: query
+          schema:
+            type: string
+        - name: language
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Repositories retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepositoryListResponse'
+
+    post:
+      tags: [repositories]
+      summary: Add repository
+      description: Add a new repository to management system
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RepositoryRequest'
+      responses:
+        '201':
+          description: Repository added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepositoryResponse'
+
+  /repositories/{repo_id}:
+    get:
+      tags: [repositories]
+      summary: Get repository details
+      description: Retrieve detailed information about a specific repository
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Repository details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepositoryResponse'
+
+    put:
+      tags: [repositories]
+      summary: Update repository
+      description: Update repository configuration and settings
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RepositoryUpdateRequest'
+      responses:
+        '200':
+          description: Repository updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RepositoryResponse'
+
+    delete:
+      tags: [repositories]
+      summary: Remove repository
+      description: Remove repository from management system
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: force
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '204':
+          description: Repository removed successfully
+
+  /repositories/{repo_id}/clone:
+    post:
+      tags: [repositories]
+      summary: Clone repository
+      description: Clone repository to local storage
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CloneRequest'
+      responses:
+        '202':
+          description: Clone operation started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CloneResponse'
+
+  /repositories/{repo_id}/sync:
+    post:
+      tags: [repositories]
+      summary: Sync repository
+      description: Synchronize repository with remote origin
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SyncRequest'
+      responses:
+        '202':
+          description: Sync operation started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SyncResponse'
+
+  # Branch Management Endpoints
+  /repositories/{repo_id}/branches:
+    get:
+      tags: [branches]
+      summary: List branches
+      description: Retrieve list of branches for a repository
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, merged, stale]
+        - name: protected
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: Branches retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchListResponse'
+
+    post:
+      tags: [branches]
+      summary: Create branch
+      description: Create a new branch from specified base
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BranchRequest'
+      responses:
+        '201':
+          description: Branch created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchResponse'
+
+  /repositories/{repo_id}/branches/{branch_name}:
+    get:
+      tags: [branches]
+      summary: Get branch details
+      description: Retrieve detailed information about a specific branch
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: branch_name
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Branch details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BranchResponse'
+
+    delete:
+      tags: [branches]
+      summary: Delete branch
+      description: Delete a branch from repository
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: branch_name
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: force
+          in: query
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '204':
+          description: Branch deleted successfully
+
+  /repositories/{repo_id}/branches/{branch_name}/merge:
+    post:
+      tags: [branches]
+      summary: Merge branch
+      description: Merge branch into target branch
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: branch_name
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MergeRequest'
+      responses:
+        '200':
+          description: Merge completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MergeResponse'
+
+  # Commit Operations Endpoints
+  /repositories/{repo_id}/commits:
+    get:
+      tags: [commits]
+      summary: List commits
+      description: Retrieve commit history for repository or branch
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: branch
+          in: query
+          schema:
+            type: string
+        - name: since
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: until
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: author
+          in: query
+          schema:
+            type: string
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 50
+      responses:
+        '200':
+          description: Commits retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommitListResponse'
+
+    post:
+      tags: [commits]
+      summary: Create commit
+      description: Create a new commit with changes
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommitRequest'
+      responses:
+        '201':
+          description: Commit created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommitResponse'
+
+  /repositories/{repo_id}/commits/{commit_sha}:
+    get:
+      tags: [commits]
+      summary: Get commit details
+      description: Retrieve detailed information about a specific commit
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: commit_sha
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Commit details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommitResponse'
+
+  /repositories/{repo_id}/commits/{commit_sha}/diff:
+    get:
+      tags: [commits]
+      summary: Get commit diff
+      description: Retrieve diff for a specific commit
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: commit_sha
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [unified, context, geospatial]
+            default: unified
+      responses:
+        '200':
+          description: Commit diff retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiffResponse'
+
+  # Workflow Automation Endpoints
+  /workflows:
+    get:
+      tags: [workflows]
+      summary: List workflows
+      description: Retrieve available CI/CD workflows
+      parameters:
+        - name: repo_id
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, disabled, failed]
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [ci, cd, test, deploy, analysis]
+      responses:
+        '200':
+          description: Workflows retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowListResponse'
+
+    post:
+      tags: [workflows]
+      summary: Create workflow
+      description: Create a new CI/CD workflow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowRequest'
+      responses:
+        '201':
+          description: Workflow created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowResponse'
+
+  /workflows/{workflow_id}/runs:
+    get:
+      tags: [workflows]
+      summary: List workflow runs
+      description: Retrieve execution history for a workflow
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [queued, in_progress, completed, failed, cancelled]
+        - name: branch
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Workflow runs retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowRunListResponse'
+
+    post:
+      tags: [workflows]
+      summary: Trigger workflow
+      description: Manually trigger a workflow execution
+      parameters:
+        - name: workflow_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkflowTriggerRequest'
+      responses:
+        '202':
+          description: Workflow triggered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkflowRunResponse'
+
+  # Platform Integration Endpoints
+  /integrations:
+    get:
+      tags: [integrations]
+      summary: List platform integrations
+      description: Retrieve configured platform integrations
+      responses:
+        '200':
+          description: Integrations retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationListResponse'
+
+    post:
+      tags: [integrations]
+      summary: Create integration
+      description: Configure integration with external Git platform
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntegrationRequest'
+      responses:
+        '201':
+          description: Integration created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationResponse'
+
+  /integrations/{integration_id}/test:
+    post:
+      tags: [integrations]
+      summary: Test integration
+      description: Test connectivity and authentication for integration
+      parameters:
+        - name: integration_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Integration test completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationTestResponse'
+
+  # Data Versioning Endpoints
+  /data-versioning/datasets:
+    get:
+      tags: [data-versioning]
+      summary: List versioned datasets
+      description: Retrieve list of datasets under version control
+      parameters:
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [geojson, shapefile, raster, netcdf]
+        - name: repository
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Datasets retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetListResponse'
+
+    post:
+      tags: [data-versioning]
+      summary: Add dataset to version control
+      description: Add a new dataset to version control system
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                metadata:
+                  $ref: '#/components/schemas/DatasetMetadata'
+      responses:
+        '201':
+          description: Dataset added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetResponse'
+
+  /data-versioning/datasets/{dataset_id}/versions:
+    get:
+      tags: [data-versioning]
+      summary: List dataset versions
+      description: Retrieve version history for a dataset
+      parameters:
+        - name: dataset_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dataset versions retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetVersionListResponse'
+
+  /data-versioning/datasets/{dataset_id}/diff:
+    post:
+      tags: [data-versioning]
+      summary: Compare dataset versions
+      description: Generate diff between two dataset versions
+      parameters:
+        - name: dataset_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatasetDiffRequest'
+      responses:
+        '200':
+          description: Dataset diff generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetDiffResponse'
+
+  # Code Analysis Endpoints
+  /analysis/repositories/{repo_id}/quality:
+    get:
+      tags: [analysis]
+      summary: Get code quality metrics
+      description: Retrieve code quality metrics for repository
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: branch
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Quality metrics retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QualityMetricsResponse'
+
+    post:
+      tags: [analysis]
+      summary: Run quality analysis
+      description: Run comprehensive code quality analysis
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QualityAnalysisRequest'
+      responses:
+        '202':
+          description: Quality analysis started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QualityAnalysisResponse'
+
+  /analysis/repositories/{repo_id}/security:
+    post:
+      tags: [analysis]
+      summary: Run security scan
+      description: Perform security vulnerability scan on repository
+      parameters:
+        - name: repo_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SecurityScanRequest'
+      responses:
+        '202':
+          description: Security scan started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SecurityScanResponse'
+
+  # Deployment Management Endpoints
+  /deployments:
+    get:
+      tags: [deployment]
+      summary: List deployments
+      description: Retrieve deployment history and status
+      parameters:
+        - name: repo_id
+          in: query
+          schema:
+            type: string
+        - name: environment
+          in: query
+          schema:
+            type: string
+            enum: [development, staging, production]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_progress, completed, failed, rolled_back]
+      responses:
+        '200':
+          description: Deployments retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentListResponse'
+
+    post:
+      tags: [deployment]
+      summary: Create deployment
+      description: Create a new deployment from repository
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentRequest'
+      responses:
+        '202':
+          description: Deployment started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DeploymentResponse'
+
+  /deployments/{deployment_id}/rollback:
+    post:
+      tags: [deployment]
+      summary: Rollback deployment
+      description: Rollback to previous deployment version
+      parameters:
+        - name: deployment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Rollback initiated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RollbackResponse'
+
+  # System Management Endpoints
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and Git service status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /system/status:
+    get:
+      tags: [system]
+      summary: System status
+      description: Get comprehensive system status and metrics
+      responses:
+        '200':
+          description: System status retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemStatusResponse'
+
+  /system/config:
+    get:
+      tags: [system]
+      summary: Get system configuration
+      description: Retrieve current Git system configuration
+      responses:
+        '200':
+          description: Configuration retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemConfigResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://auth.geo-infer.org/oauth/authorize
+          tokenUrl: https://auth.geo-infer.org/oauth/token
+          scopes:
+            read: Read access to repositories
+            write: Write access to repositories
+            admin: Administrative access
+
+  schemas:
+    # Repository Schemas
+    RepositoryListResponse:
+      type: object
+      properties:
+        repositories:
+          type: array
+          items:
+            $ref: '#/components/schemas/RepositorySummary'
+        total:
+          type: integer
+        page:
+          type: integer
+        limit:
+          type: integer
+
+    RepositorySummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        full_name:
+          type: string
+        description:
+          type: string
+        platform:
+          type: string
+        clone_url:
+          type: string
+        default_branch:
+          type: string
+        language:
+          type: string
+        size:
+          type: integer
+        status:
+          type: string
+        last_sync:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+
+    RepositoryRequest:
+      type: object
+      required: [clone_url]
+      properties:
+        clone_url:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        platform:
+          type: string
+          enum: [github, gitlab, bitbucket, local]
+        credentials:
+          type: object
+        auto_sync:
+          type: boolean
+          default: true
+        sync_interval:
+          type: integer
+          default: 3600
+
+    RepositoryResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        full_name:
+          type: string
+        description:
+          type: string
+        platform:
+          type: string
+        clone_url:
+          type: string
+        ssh_url:
+          type: string
+        default_branch:
+          type: string
+        language:
+          type: string
+        size:
+          type: integer
+        branch_count:
+          type: integer
+        commit_count:
+          type: integer
+        status:
+          type: string
+        last_sync:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    RepositoryUpdateRequest:
+      type: object
+      properties:
+        description:
+          type: string
+        auto_sync:
+          type: boolean
+        sync_interval:
+          type: integer
+        default_branch:
+          type: string
+
+    CloneRequest:
+      type: object
+      properties:
+        branch:
+          type: string
+        depth:
+          type: integer
+        recursive:
+          type: boolean
+          default: false
+        lfs:
+          type: boolean
+          default: true
+
+    CloneResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+        status:
+          type: string
+        progress:
+          type: number
+        estimated_completion:
+          type: string
+          format: date-time
+
+    SyncRequest:
+      type: object
+      properties:
+        force:
+          type: boolean
+          default: false
+        prune:
+          type: boolean
+          default: true
+        branches:
+          type: array
+          items:
+            type: string
+
+    SyncResponse:
+      type: object
+      properties:
+        job_id:
+          type: string
+        status:
+          type: string
+        changes_detected:
+          type: boolean
+        started_at:
+          type: string
+          format: date-time
+
+    # Branch Schemas
+    BranchListResponse:
+      type: object
+      properties:
+        branches:
+          type: array
+          items:
+            $ref: '#/components/schemas/Branch'
+        total:
+          type: integer
+
+    Branch:
+      type: object
+      properties:
+        name:
+          type: string
+        commit_sha:
+          type: string
+        commit_message:
+          type: string
+        author:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        protected:
+          type: boolean
+        ahead:
+          type: integer
+        behind:
+          type: integer
+
+    BranchRequest:
+      type: object
+      required: [name, base]
+      properties:
+        name:
+          type: string
+        base:
+          type: string
+        protected:
+          type: boolean
+          default: false
+
+    BranchResponse:
+      allOf:
+        - $ref: '#/components/schemas/Branch'
+        - type: object
+          properties:
+            repository_id:
+              type: string
+
+    MergeRequest:
+      type: object
+      required: [target_branch]
+      properties:
+        target_branch:
+          type: string
+        message:
+          type: string
+        strategy:
+          type: string
+          enum: [merge, squash, rebase]
+          default: merge
+        delete_source:
+          type: boolean
+          default: false
+
+    MergeResponse:
+      type: object
+      properties:
+        merge_commit_sha:
+          type: string
+        merged:
+          type: boolean
+        message:
+          type: string
+        conflicts:
+          type: array
+          items:
+            type: string
+
+    # Commit Schemas
+    CommitListResponse:
+      type: object
+      properties:
+        commits:
+          type: array
+          items:
+            $ref: '#/components/schemas/Commit'
+        total:
+          type: integer
+        page:
+          type: integer
+        has_more:
+          type: boolean
+
+    Commit:
+      type: object
+      properties:
+        sha:
+          type: string
+        message:
+          type: string
+        author:
+          $ref: '#/components/schemas/CommitAuthor'
+        committer:
+          $ref: '#/components/schemas/CommitAuthor'
+        timestamp:
+          type: string
+          format: date-time
+        tree_sha:
+          type: string
+        parent_shas:
+          type: array
+          items:
+            type: string
+        files_changed:
+          type: integer
+        insertions:
+          type: integer
+        deletions:
+          type: integer
+
+    CommitAuthor:
+      type: object
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        date:
+          type: string
+          format: date-time
+
+    CommitRequest:
+      type: object
+      required: [message, changes]
+      properties:
+        message:
+          type: string
+        description:
+          type: string
+        branch:
+          type: string
+        author:
+          $ref: '#/components/schemas/CommitAuthor'
+        changes:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileChange'
+
+    FileChange:
+      type: object
+      required: [path, action]
+      properties:
+        path:
+          type: string
+        action:
+          type: string
+          enum: [add, modify, delete, rename]
+        content:
+          type: string
+        encoding:
+          type: string
+          enum: [text, base64]
+        previous_path:
+          type: string
+
+    CommitResponse:
+      allOf:
+        - $ref: '#/components/schemas/Commit'
+        - type: object
+          properties:
+            repository_id:
+              type: string
+            url:
+              type: string
+
+    DiffResponse:
+      type: object
+      properties:
+        commit_sha:
+          type: string
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/FileDiff'
+        stats:
+          $ref: '#/components/schemas/DiffStats'
+
+    FileDiff:
+      type: object
+      properties:
+        filename:
+          type: string
+        status:
+          type: string
+          enum: [added, modified, deleted, renamed]
+        additions:
+          type: integer
+        deletions:
+          type: integer
+        changes:
+          type: integer
+        patch:
+          type: string
+        binary:
+          type: boolean
+
+    DiffStats:
+      type: object
+      properties:
+        total_files:
+          type: integer
+        total_additions:
+          type: integer
+        total_deletions:
+          type: integer
+        total_changes:
+          type: integer
+
+    # Workflow Schemas
+    WorkflowListResponse:
+      type: object
+      properties:
+        workflows:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowSummary'
+        total:
+          type: integer
+
+    WorkflowSummary:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        repository_id:
+          type: string
+        status:
+          type: string
+        trigger:
+          type: string
+        last_run:
+          type: string
+          format: date-time
+        success_rate:
+          type: number
+
+    WorkflowRequest:
+      type: object
+      required: [name, type, repository_id, definition]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [ci, cd, test, deploy, analysis]
+        repository_id:
+          type: string
+        trigger:
+          type: object
+        definition:
+          type: object
+        enabled:
+          type: boolean
+          default: true
+
+    WorkflowResponse:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        repository_id:
+          type: string
+        status:
+          type: string
+        trigger:
+          type: object
+        definition:
+          type: object
+        enabled:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    WorkflowRunListResponse:
+      type: object
+      properties:
+        runs:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkflowRun'
+        total:
+          type: integer
+
+    WorkflowRun:
+      type: object
+      properties:
+        id:
+          type: string
+        workflow_id:
+          type: string
+        run_number:
+          type: integer
+        status:
+          type: string
+        conclusion:
+          type: string
+        branch:
+          type: string
+        commit_sha:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        duration:
+          type: integer
+        logs_url:
+          type: string
+
+    WorkflowTriggerRequest:
+      type: object
+      properties:
+        branch:
+          type: string
+        inputs:
+          type: object
+
+    WorkflowRunResponse:
+      allOf:
+        - $ref: '#/components/schemas/WorkflowRun'
+        - type: object
+          properties:
+            url:
+              type: string
+
+    # Integration Schemas
+    IntegrationListResponse:
+      type: object
+      properties:
+        integrations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Integration'
+        total:
+          type: integer
+
+    Integration:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        platform:
+          type: string
+        endpoint:
+          type: string
+        status:
+          type: string
+        last_sync:
+          type: string
+          format: date-time
+        repository_count:
+          type: integer
+
+    IntegrationRequest:
+      type: object
+      required: [name, platform, credentials]
+      properties:
+        name:
+          type: string
+        platform:
+          type: string
+          enum: [github, gitlab, bitbucket, custom]
+        endpoint:
+          type: string
+        credentials:
+          type: object
+        configuration:
+          type: object
+
+    IntegrationResponse:
+      allOf:
+        - $ref: '#/components/schemas/Integration'
+        - type: object
+          properties:
+            created_at:
+              type: string
+              format: date-time
+
+    IntegrationTestResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+        response_time:
+          type: number
+        details:
+          type: object
+
+    # Data Versioning Schemas
+    DatasetListResponse:
+      type: object
+      properties:
+        datasets:
+          type: array
+          items:
+            $ref: '#/components/schemas/Dataset'
+        total:
+          type: integer
+
+    Dataset:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        format:
+          type: string
+        size:
+          type: integer
+        version_count:
+          type: integer
+        repository_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    DatasetMetadata:
+      type: object
+      required: [name, format]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        format:
+          type: string
+          enum: [geojson, shapefile, raster, netcdf, csv]
+        crs:
+          type: string
+        extent:
+          type: object
+        tags:
+          type: array
+          items:
+            type: string
+
+    DatasetResponse:
+      allOf:
+        - $ref: '#/components/schemas/Dataset'
+        - type: object
+          properties:
+            download_url:
+              type: string
+            metadata:
+              $ref: '#/components/schemas/DatasetMetadata'
+
+    DatasetVersionListResponse:
+      type: object
+      properties:
+        versions:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasetVersion'
+        total:
+          type: integer
+
+    DatasetVersion:
+      type: object
+      properties:
+        version:
+          type: string
+        commit_sha:
+          type: string
+        size:
+          type: integer
+        checksum:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+        message:
+          type: string
+
+    DatasetDiffRequest:
+      type: object
+      required: [from_version, to_version]
+      properties:
+        from_version:
+          type: string
+        to_version:
+          type: string
+        diff_type:
+          type: string
+          enum: [geometric, attribute, full]
+
+    DatasetDiffResponse:
+      type: object
+      properties:
+        from_version:
+          type: string
+        to_version:
+          type: string
+        changes:
+          type: object
+        statistics:
+          type: object
+        spatial_changes:
+          type: object
+
+    # Analysis Schemas
+    QualityMetricsResponse:
+      type: object
+      properties:
+        repository_id:
+          type: string
+        branch:
+          type: string
+        metrics:
+          type: object
+        score:
+          type: number
+        trends:
+          type: object
+        generated_at:
+          type: string
+          format: date-time
+
+    QualityAnalysisRequest:
+      type: object
+      properties:
+        branch:
+          type: string
+        include_tests:
+          type: boolean
+          default: true
+        include_documentation:
+          type: boolean
+          default: true
+
+    QualityAnalysisResponse:
+      type: object
+      properties:
+        analysis_id:
+          type: string
+        status:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+
+    SecurityScanRequest:
+      type: object
+      properties:
+        scan_type:
+          type: string
+          enum: [vulnerability, dependency, secrets]
+        branch:
+          type: string
+
+    SecurityScanResponse:
+      type: object
+      properties:
+        scan_id:
+          type: string
+        status:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+
+    # Deployment Schemas
+    DeploymentListResponse:
+      type: object
+      properties:
+        deployments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Deployment'
+        total:
+          type: integer
+
+    Deployment:
+      type: object
+      properties:
+        id:
+          type: string
+        repository_id:
+          type: string
+        environment:
+          type: string
+        commit_sha:
+          type: string
+        status:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        deployed_at:
+          type: string
+          format: date-time
+        deployed_by:
+          type: string
+
+    DeploymentRequest:
+      type: object
+      required: [repository_id, environment, commit_sha]
+      properties:
+        repository_id:
+          type: string
+        environment:
+          type: string
+        commit_sha:
+          type: string
+        configuration:
+          type: object
+
+    DeploymentResponse:
+      allOf:
+        - $ref: '#/components/schemas/Deployment'
+        - type: object
+          properties:
+            url:
+              type: string
+
+    RollbackResponse:
+      type: object
+      properties:
+        rollback_id:
+          type: string
+        target_deployment_id:
+          type: string
+        status:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+
+    # System Schemas
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        timestamp:
+          type: string
+          format: date-time
+        components:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ComponentHealth'
+
+    ComponentHealth:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [up, down, degraded]
+        response_time:
+          type: number
+        last_check:
+          type: string
+          format: date-time
+
+    SystemStatusResponse:
+      type: object
+      properties:
+        version:
+          type: string
+        uptime:
+          type: integer
+        repository_count:
+          type: integer
+        active_workflows:
+          type: integer
+        storage_usage:
+          type: object
+        git_version:
+          type: string
+
+    SystemConfigResponse:
+      type: object
+      properties:
+        git:
+          type: object
+        storage:
+          type: object
+        workflows:
+          type: object
+        integrations:
+          type: object
+
+    # Common Error Schema
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

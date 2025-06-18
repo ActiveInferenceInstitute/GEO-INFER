@@ -1,0 +1,1410 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-ART API
+  description: |
+    Comprehensive artistic and creative visualization API for geospatial aesthetic content generation.
+    
+    This API provides tools for:
+    - Artistic map generation and styling
+    - Creative geospatial visualizations
+    - Aesthetic data representation
+    - Interactive art installations
+    - Generative geographic art
+    - Cultural mapping and visualization
+    - Artistic data storytelling
+  version: 1.0.0
+  contact:
+    name: GEO-INFER-ART Support
+    email: art-support@geo-infer.org
+  license:
+    name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/art/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/art/v1
+    description: Staging server
+  - url: http://localhost:8000/art/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+tags:
+  - name: map-generation
+    description: Artistic map generation and styling
+  - name: visualization
+    description: Creative geospatial visualizations
+  - name: generative-art
+    description: Algorithmic and generative geographic art
+  - name: interactive-art
+    description: Interactive artistic installations
+  - name: cultural-mapping
+    description: Cultural and heritage mapping visualization
+  - name: storytelling
+    description: Artistic data storytelling and narrative visualization
+  - name: style-transfer
+    description: Artistic style transfer for maps and visualizations
+  - name: system
+    description: System management and health monitoring
+
+paths:
+  # Map Generation Endpoints
+  /maps/artistic/generate:
+    post:
+      tags: [map-generation]
+      summary: Generate artistic map
+      description: Create artistic renderings of geographic areas
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ArtisticMapRequest'
+      responses:
+        '200':
+          description: Artistic map generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtisticMapResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /maps/styles:
+    get:
+      tags: [map-generation]
+      summary: List available artistic styles
+      description: Retrieve list of available artistic styles for map generation
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [classical, modern, abstract, photorealistic, impressionist, minimalist]
+          description: Filter by style category
+        - name: complexity
+          in: query
+          schema:
+            type: string
+            enum: [simple, moderate, complex, highly_detailed]
+          description: Filter by complexity level
+      responses:
+        '200':
+          description: Artistic styles retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtisticStyleListResponse'
+
+    post:
+      tags: [map-generation]
+      summary: Create custom artistic style
+      description: Create a new custom artistic style definition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CustomStyleRequest'
+      responses:
+        '201':
+          description: Custom style created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ArtisticStyleResponse'
+
+  /maps/styles/{style_id}/apply:
+    post:
+      tags: [map-generation]
+      summary: Apply artistic style to map
+      description: Apply specific artistic style to existing map data
+      parameters:
+        - name: style_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the artistic style
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StyleApplicationRequest'
+      responses:
+        '200':
+          description: Style applied successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyledMapResponse'
+
+  # Visualization Endpoints
+  /visualizations/creative:
+    post:
+      tags: [visualization]
+      summary: Create creative visualization
+      description: Generate creative visualizations of geospatial data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreativeVisualizationRequest'
+      responses:
+        '200':
+          description: Creative visualization generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VisualizationResponse'
+
+  /visualizations/data-art:
+    post:
+      tags: [visualization]
+      summary: Generate data art
+      description: Transform data into artistic visualizations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DataArtRequest'
+      responses:
+        '200':
+          description: Data art generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DataArtResponse'
+
+  /visualizations/animations:
+    post:
+      tags: [visualization]
+      summary: Create animated visualizations
+      description: Generate animated artistic visualizations of temporal geospatial data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnimationRequest'
+      responses:
+        '200':
+          description: Animation created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AnimationResponse'
+
+  # Generative Art Endpoints
+  /generative/patterns:
+    post:
+      tags: [generative-art]
+      summary: Generate artistic patterns
+      description: Create algorithmic patterns based on geographic data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatternGenerationRequest'
+      responses:
+        '200':
+          description: Patterns generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PatternResponse'
+
+  /generative/fractals:
+    post:
+      tags: [generative-art]
+      summary: Generate geographic fractals
+      description: Create fractal art based on geographic features
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FractalGenerationRequest'
+      responses:
+        '200':
+          description: Fractals generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FractalResponse'
+
+  /generative/landscapes:
+    post:
+      tags: [generative-art]
+      summary: Generate artistic landscapes
+      description: Create artistic interpretations of landscape data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LandscapeGenerationRequest'
+      responses:
+        '200':
+          description: Artistic landscapes generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LandscapeResponse'
+
+  # Interactive Art Endpoints
+  /interactive/installations:
+    post:
+      tags: [interactive-art]
+      summary: Create interactive installation
+      description: Design interactive artistic installations using geospatial data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InteractiveInstallationRequest'
+      responses:
+        '201':
+          description: Interactive installation created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InteractiveInstallationResponse'
+
+  /interactive/installations/{installation_id}:
+    get:
+      tags: [interactive-art]
+      summary: Get interactive installation
+      description: Retrieve details of an interactive installation
+      parameters:
+        - name: installation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Installation details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InteractiveInstallationResponse'
+
+    put:
+      tags: [interactive-art]
+      summary: Update interactive installation
+      description: Update an existing interactive installation
+      parameters:
+        - name: installation_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InteractiveInstallationRequest'
+      responses:
+        '200':
+          description: Installation updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InteractiveInstallationResponse'
+
+  /interactive/experiences:
+    post:
+      tags: [interactive-art]
+      summary: Create interactive experience
+      description: Design immersive interactive experiences with geospatial art
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InteractiveExperienceRequest'
+      responses:
+        '201':
+          description: Interactive experience created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InteractiveExperienceResponse'
+
+  # Cultural Mapping Endpoints
+  /cultural/heritage-maps:
+    post:
+      tags: [cultural-mapping]
+      summary: Generate heritage maps
+      description: Create artistic visualizations of cultural heritage sites
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HeritageMapRequest'
+      responses:
+        '200':
+          description: Heritage map generated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HeritageMapResponse'
+
+  /cultural/community-stories:
+    post:
+      tags: [cultural-mapping]
+      summary: Visualize community stories
+      description: Create artistic representations of community narratives and local knowledge
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommunityStoryRequest'
+      responses:
+        '200':
+          description: Community story visualization created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityStoryResponse'
+
+  /cultural/migration-flows:
+    post:
+      tags: [cultural-mapping]
+      summary: Visualize migration flows
+      description: Create artistic representations of cultural migration patterns
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MigrationFlowRequest'
+      responses:
+        '200':
+          description: Migration flow visualization created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MigrationFlowResponse'
+
+  # Storytelling Endpoints
+  /storytelling/narratives:
+    post:
+      tags: [storytelling]
+      summary: Create narrative visualization
+      description: Generate artistic data stories with geographic context
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NarrativeVisualizationRequest'
+      responses:
+        '200':
+          description: Narrative visualization created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NarrativeVisualizationResponse'
+
+  /storytelling/journeys:
+    post:
+      tags: [storytelling]
+      summary: Create journey visualization
+      description: Visualize journeys and paths as artistic narratives
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JourneyVisualizationRequest'
+      responses:
+        '200':
+          description: Journey visualization created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JourneyVisualizationResponse'
+
+  /storytelling/temporal-stories:
+    post:
+      tags: [storytelling]
+      summary: Create temporal story visualization
+      description: Generate artistic visualizations showing change over time
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemporalStoryRequest'
+      responses:
+        '200':
+          description: Temporal story visualization created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemporalStoryResponse'
+
+  # Style Transfer Endpoints
+  /style-transfer/apply:
+    post:
+      tags: [style-transfer]
+      summary: Apply artistic style transfer
+      description: Apply neural style transfer to geographic visualizations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StyleTransferRequest'
+      responses:
+        '200':
+          description: Style transfer applied successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleTransferResponse'
+
+  /style-transfer/models:
+    get:
+      tags: [style-transfer]
+      summary: List style transfer models
+      description: Retrieve available neural style transfer models
+      responses:
+        '200':
+          description: Style transfer models retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StyleTransferModelListResponse'
+
+    post:
+      tags: [style-transfer]
+      summary: Train custom style model
+      description: Train a custom neural style transfer model
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StyleModelTrainingRequest'
+      responses:
+        '202':
+          description: Model training started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TrainingJobResponse'
+
+  # System Management Endpoints
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /gallery:
+    get:
+      tags: [system]
+      summary: Browse art gallery
+      description: Browse generated artistic content gallery
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+          description: Filter by art category
+        - name: style
+          in: query
+          schema:
+            type: string
+          description: Filter by artistic style
+        - name: date_range
+          in: query
+          schema:
+            type: string
+          description: Filter by creation date range
+      responses:
+        '200':
+          description: Gallery content retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GalleryResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Map Generation Schemas
+    ArtisticMapRequest:
+      type: object
+      required: [region, style_preferences]
+      properties:
+        region:
+          $ref: '#/components/schemas/GeographicRegion'
+        style_preferences:
+          $ref: '#/components/schemas/StylePreferences'
+        output_format:
+          type: string
+          enum: [svg, png, pdf, webgl, canvas]
+          default: svg
+        resolution:
+          $ref: '#/components/schemas/OutputResolution'
+        artistic_parameters:
+          $ref: '#/components/schemas/ArtisticParameters'
+
+    GeographicRegion:
+      type: object
+      required: [geometry]
+      properties:
+        geometry:
+          type: object
+          description: GeoJSON geometry defining the region
+        bounds:
+          $ref: '#/components/schemas/BoundingBox'
+        zoom_level:
+          type: integer
+          minimum: 1
+          maximum: 20
+        center_point:
+          $ref: '#/components/schemas/Point'
+
+    StylePreferences:
+      type: object
+      properties:
+        style_name:
+          type: string
+        color_palette:
+          type: array
+          items:
+            type: string
+            pattern: '^#[0-9A-Fa-f]{6}$'
+        artistic_movement:
+          type: string
+          enum: [impressionist, abstract, minimalist, baroque, art_nouveau, cubist, surrealist]
+        texture_style:
+          type: string
+          enum: [smooth, rough, painterly, geometric, organic]
+        detail_level:
+          type: string
+          enum: [minimal, moderate, detailed, highly_detailed]
+
+    ArtisticParameters:
+      type: object
+      properties:
+        brush_size:
+          type: number
+          minimum: 0.1
+          maximum: 10.0
+        opacity:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        blend_mode:
+          type: string
+          enum: [normal, multiply, screen, overlay, soft_light, hard_light]
+        artistic_intensity:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+        randomness_factor:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+
+    ArtisticMapResponse:
+      type: object
+      properties:
+        map_id:
+          type: string
+        artwork_data:
+          type: string
+          description: Base64 encoded artwork or URL reference
+        metadata:
+          $ref: '#/components/schemas/ArtworkMetadata'
+        style_applied:
+          $ref: '#/components/schemas/StylePreferences'
+        generation_time:
+          type: number
+        preview_url:
+          type: string
+          format: uri
+
+    # Visualization Schemas
+    CreativeVisualizationRequest:
+      type: object
+      required: [data_source, visualization_type]
+      properties:
+        data_source:
+          $ref: '#/components/schemas/DataSource'
+        visualization_type:
+          type: string
+          enum: [flow_field, particle_system, network_graph, heat_map, contour_art, dot_density, voronoi_art]
+        aesthetic_settings:
+          $ref: '#/components/schemas/AestheticSettings'
+        animation_settings:
+          $ref: '#/components/schemas/AnimationSettings'
+
+    DataArtRequest:
+      type: object
+      required: [dataset, transformation_type]
+      properties:
+        dataset:
+          type: object
+          description: Input dataset for artistic transformation
+        transformation_type:
+          type: string
+          enum: [statistical_sculpture, data_landscape, information_mural, metric_mandala]
+        artistic_interpretation:
+          $ref: '#/components/schemas/ArtisticInterpretation'
+        output_medium:
+          type: string
+          enum: [digital, print, sculpture, installation]
+
+    VisualizationResponse:
+      type: object
+      properties:
+        visualization_id:
+          type: string
+        artwork_url:
+          type: string
+          format: uri
+        metadata:
+          $ref: '#/components/schemas/ArtworkMetadata'
+        interactive_elements:
+          type: array
+          items:
+            $ref: '#/components/schemas/InteractiveElement'
+
+    # Generative Art Schemas
+    PatternGenerationRequest:
+      type: object
+      required: [geographic_data, pattern_algorithm]
+      properties:
+        geographic_data:
+          type: object
+          description: Geographic data for pattern generation
+        pattern_algorithm:
+          type: string
+          enum: [cellular_automata, perlin_noise, voronoi_patterns, delaunay_triangulation, recursive_subdivision]
+        pattern_parameters:
+          $ref: '#/components/schemas/PatternParameters'
+        artistic_constraints:
+          $ref: '#/components/schemas/ArtisticConstraints'
+
+    FractalGenerationRequest:
+      type: object
+      required: [seed_geometry, fractal_type]
+      properties:
+        seed_geometry:
+          type: object
+          description: Initial geometric seed for fractal generation
+        fractal_type:
+          type: string
+          enum: [mandelbrot, julia, dragon_curve, sierpinski, barnsley_fern, coastline_fractal]
+        iterations:
+          type: integer
+          minimum: 1
+          maximum: 1000
+        complexity_factor:
+          type: number
+          minimum: 0.1
+          maximum: 5.0
+
+    LandscapeGenerationRequest:
+      type: object
+      required: [terrain_data, artistic_style]
+      properties:
+        terrain_data:
+          $ref: '#/components/schemas/TerrainData'
+        artistic_style:
+          type: string
+          enum: [impressionist_landscape, abstract_topography, minimalist_terrain, photorealistic_render]
+        environmental_factors:
+          $ref: '#/components/schemas/EnvironmentalFactors'
+        time_of_day:
+          type: string
+          enum: [dawn, morning, midday, afternoon, dusk, night]
+        weather_conditions:
+          type: string
+          enum: [clear, cloudy, rainy, snowy, foggy, stormy]
+
+    # Interactive Art Schemas
+    InteractiveInstallationRequest:
+      type: object
+      required: [name, installation_type, geographic_context]
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        installation_type:
+          type: string
+          enum: [projection_mapping, augmented_reality, virtual_reality, sensor_responsive, touch_interactive]
+        geographic_context:
+          $ref: '#/components/schemas/GeographicContext'
+        interaction_methods:
+          type: array
+          items:
+            type: string
+            enum: [touch, gesture, voice, movement, proximity, environmental]
+        technical_requirements:
+          $ref: '#/components/schemas/TechnicalRequirements'
+
+    InteractiveExperienceRequest:
+      type: object
+      required: [experience_type, content_elements]
+      properties:
+        experience_type:
+          type: string
+          enum: [immersive_journey, data_exploration, cultural_narrative, educational_tour]
+        content_elements:
+          type: array
+          items:
+            $ref: '#/components/schemas/ContentElement'
+        user_interaction_flow:
+          $ref: '#/components/schemas/InteractionFlow'
+        accessibility_features:
+          type: array
+          items:
+            type: string
+
+    # Cultural Mapping Schemas
+    HeritageMapRequest:
+      type: object
+      required: [heritage_sites, visualization_approach]
+      properties:
+        heritage_sites:
+          type: array
+          items:
+            $ref: '#/components/schemas/HeritageSite'
+        visualization_approach:
+          type: string
+          enum: [historical_timeline, cultural_layers, artistic_interpretation, interactive_exploration]
+        cultural_context:
+          $ref: '#/components/schemas/CulturalContext'
+        storytelling_elements:
+          type: array
+          items:
+            $ref: '#/components/schemas/StorytellingElement'
+
+    CommunityStoryRequest:
+      type: object
+      required: [community_data, narrative_structure]
+      properties:
+        community_data:
+          $ref: '#/components/schemas/CommunityData'
+        narrative_structure:
+          type: string
+          enum: [linear_timeline, circular_narrative, network_connections, layered_stories]
+        visual_metaphors:
+          type: array
+          items:
+            type: string
+        community_voices:
+          type: array
+          items:
+            $ref: '#/components/schemas/CommunityVoice'
+
+    # Storytelling Schemas
+    NarrativeVisualizationRequest:
+      type: object
+      required: [story_data, narrative_type]
+      properties:
+        story_data:
+          type: object
+          description: Data forming the basis of the narrative
+        narrative_type:
+          type: string
+          enum: [journey, transformation, discovery, conflict, resolution, cyclical]
+        visual_narrative_techniques:
+          type: array
+          items:
+            type: string
+            enum: [color_progression, size_variation, animation_sequence, spatial_arrangement]
+        pacing_control:
+          $ref: '#/components/schemas/PacingControl'
+
+    JourneyVisualizationRequest:
+      type: object
+      required: [path_data, journey_theme]
+      properties:
+        path_data:
+          type: array
+          items:
+            $ref: '#/components/schemas/PathPoint'
+        journey_theme:
+          type: string
+          enum: [migration, exploration, pilgrimage, trade_route, life_path, historical_journey]
+        visual_style:
+          type: string
+          enum: [flowing_lines, stepped_progression, organic_growth, geometric_precision]
+        emotional_mapping:
+          $ref: '#/components/schemas/EmotionalMapping'
+
+    # Style Transfer Schemas
+    StyleTransferRequest:
+      type: object
+      required: [source_image, style_reference]
+      properties:
+        source_image:
+          type: string
+          description: Base64 encoded source image or URL
+        style_reference:
+          type: string
+          description: Reference style image or style model ID
+        transfer_intensity:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          default: 0.7
+        preserve_details:
+          type: boolean
+          default: true
+        color_preservation:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+
+    StyleTransferResponse:
+      type: object
+      properties:
+        transfer_id:
+          type: string
+        result_image_url:
+          type: string
+          format: uri
+        processing_time:
+          type: number
+        style_application_metrics:
+          $ref: '#/components/schemas/StyleMetrics'
+
+    # Common Schemas
+    DataSource:
+      type: object
+      properties:
+        source_type:
+          type: string
+          enum: [geojson, csv, database, api, real_time_stream]
+        source_location:
+          type: string
+        data_schema:
+          type: object
+          additionalProperties: true
+        update_frequency:
+          type: string
+
+    AestheticSettings:
+      type: object
+      properties:
+        color_scheme:
+          $ref: '#/components/schemas/ColorScheme'
+        visual_density:
+          type: string
+          enum: [sparse, moderate, dense, very_dense]
+        artistic_style:
+          type: string
+        texture_application:
+          type: boolean
+        lighting_effects:
+          $ref: '#/components/schemas/LightingEffects'
+
+    AnimationSettings:
+      type: object
+      properties:
+        duration:
+          type: number
+          minimum: 0.1
+        frame_rate:
+          type: integer
+          minimum: 1
+          maximum: 60
+        easing_function:
+          type: string
+          enum: [linear, ease_in, ease_out, ease_in_out, bounce, elastic]
+        loop_behavior:
+          type: string
+          enum: [none, repeat, reverse, ping_pong]
+
+    ArtisticInterpretation:
+      type: object
+      properties:
+        metaphorical_mapping:
+          type: object
+          additionalProperties: true
+        symbolic_representation:
+          type: object
+          additionalProperties: true
+        emotional_tone:
+          type: string
+          enum: [joyful, melancholic, energetic, serene, dramatic, mysterious]
+
+    InteractiveElement:
+      type: object
+      properties:
+        element_id:
+          type: string
+        element_type:
+          type: string
+          enum: [button, slider, hotspot, gesture_zone, voice_command]
+        interaction_trigger:
+          type: string
+        response_behavior:
+          type: string
+
+    PatternParameters:
+      type: object
+      properties:
+        scale:
+          type: number
+        density:
+          type: number
+        symmetry_type:
+          type: string
+          enum: [radial, bilateral, translational, rotational]
+        color_variation:
+          type: number
+
+    ArtisticConstraints:
+      type: object
+      properties:
+        geometric_bounds:
+          $ref: '#/components/schemas/BoundingBox'
+        color_limitations:
+          type: array
+          items:
+            type: string
+        style_restrictions:
+          type: array
+          items:
+            type: string
+
+    TerrainData:
+      type: object
+      properties:
+        elevation_data:
+          type: array
+          items:
+            type: number
+        surface_features:
+          type: array
+          items:
+            type: string
+        vegetation_data:
+          type: object
+          additionalProperties: true
+        water_features:
+          type: object
+          additionalProperties: true
+
+    EnvironmentalFactors:
+      type: object
+      properties:
+        climate:
+          type: string
+        season:
+          type: string
+          enum: [spring, summer, autumn, winter]
+        atmospheric_conditions:
+          type: string
+        lighting_conditions:
+          $ref: '#/components/schemas/LightingConditions'
+
+    GeographicContext:
+      type: object
+      properties:
+        location:
+          $ref: '#/components/schemas/Point'
+        spatial_extent:
+          $ref: '#/components/schemas/BoundingBox'
+        environmental_setting:
+          type: string
+        cultural_significance:
+          type: string
+
+    TechnicalRequirements:
+      type: object
+      properties:
+        hardware_requirements:
+          type: array
+          items:
+            type: string
+        software_dependencies:
+          type: array
+          items:
+            type: string
+        space_requirements:
+          type: object
+          additionalProperties: true
+        power_requirements:
+          type: string
+
+    ContentElement:
+      type: object
+      properties:
+        element_type:
+          type: string
+          enum: [visual, audio, textual, interactive, multimedia]
+        content_data:
+          type: object
+          additionalProperties: true
+        presentation_style:
+          type: string
+        timing_parameters:
+          type: object
+          additionalProperties: true
+
+    InteractionFlow:
+      type: object
+      properties:
+        flow_steps:
+          type: array
+          items:
+            $ref: '#/components/schemas/FlowStep'
+        branching_logic:
+          type: object
+          additionalProperties: true
+        user_choice_points:
+          type: array
+          items:
+            type: string
+
+    HeritageSite:
+      type: object
+      properties:
+        site_id:
+          type: string
+        name:
+          type: string
+        location:
+          $ref: '#/components/schemas/Point'
+        historical_period:
+          type: string
+        cultural_significance:
+          type: string
+        current_status:
+          type: string
+
+    CulturalContext:
+      type: object
+      properties:
+        cultural_group:
+          type: string
+        historical_period:
+          type: string
+        cultural_practices:
+          type: array
+          items:
+            type: string
+        symbolic_meanings:
+          type: object
+          additionalProperties: true
+
+    StorytellingElement:
+      type: object
+      properties:
+        element_type:
+          type: string
+          enum: [narrative_text, visual_symbol, audio_clip, interactive_component]
+        content:
+          type: string
+        placement_strategy:
+          type: string
+        emotional_weight:
+          type: number
+
+    CommunityData:
+      type: object
+      properties:
+        demographic_info:
+          type: object
+          additionalProperties: true
+        cultural_traditions:
+          type: array
+          items:
+            type: string
+        social_networks:
+          type: object
+          additionalProperties: true
+        local_knowledge:
+          type: array
+          items:
+            type: string
+
+    CommunityVoice:
+      type: object
+      properties:
+        contributor_id:
+          type: string
+        story_fragment:
+          type: string
+        media_type:
+          type: string
+          enum: [text, audio, video, image]
+        cultural_context:
+          type: string
+
+    PacingControl:
+      type: object
+      properties:
+        narrative_rhythm:
+          type: string
+          enum: [slow, moderate, fast, variable]
+        emphasis_points:
+          type: array
+          items:
+            type: string
+
+    PathPoint:
+      type: object
+      properties:
+        location:
+          $ref: '#/components/schemas/Point'
+        timestamp:
+          type: string
+          format: date-time
+        significance:
+          type: string
+        emotional_state:
+          type: string
+        contextual_data:
+          type: object
+          additionalProperties: true
+
+    EmotionalMapping:
+      type: object
+      properties:
+        emotion_color_mapping:
+          type: object
+          additionalProperties:
+            type: string
+        intensity_scaling:
+          type: string
+        transition_effects:
+          type: array
+          items:
+            type: string
+
+    StyleMetrics:
+      type: object
+      properties:
+        style_transfer_quality:
+          type: number
+        content_preservation:
+          type: number
+        artistic_enhancement:
+          type: number
+        computational_efficiency:
+          type: number
+
+    ColorScheme:
+      type: object
+      properties:
+        primary_colors:
+          type: array
+          items:
+            type: string
+        secondary_colors:
+          type: array
+          items:
+            type: string
+        accent_colors:
+          type: array
+          items:
+            type: string
+        color_harmony:
+          type: string
+          enum: [monochromatic, analogous, complementary, triadic, tetradic]
+
+    LightingEffects:
+      type: object
+      properties:
+        ambient_lighting:
+          type: number
+        directional_lighting:
+          type: object
+          additionalProperties: true
+        shadow_effects:
+          type: boolean
+        highlight_effects:
+          type: boolean
+
+    LightingConditions:
+      type: object
+      properties:
+        light_source:
+          type: string
+          enum: [natural, artificial, mixed]
+        intensity:
+          type: number
+        direction:
+          type: number
+        color_temperature:
+          type: number
+
+    FlowStep:
+      type: object
+      properties:
+        step_id:
+          type: string
+        action_type:
+          type: string
+        content:
+          type: object
+          additionalProperties: true
+        next_steps:
+          type: array
+          items:
+            type: string
+
+    ArtworkMetadata:
+      type: object
+      properties:
+        creation_date:
+          type: string
+          format: date-time
+        artist_attribution:
+          type: string
+        style_analysis:
+          type: object
+          additionalProperties: true
+        technical_details:
+          type: object
+          additionalProperties: true
+        cultural_tags:
+          type: array
+          items:
+            type: string
+
+    OutputResolution:
+      type: object
+      properties:
+        width:
+          type: integer
+          minimum: 100
+        height:
+          type: integer
+          minimum: 100
+        dpi:
+          type: integer
+          minimum: 72
+        quality:
+          type: string
+          enum: [low, medium, high, ultra]
+
+    BoundingBox:
+      type: object
+      required: [min_x, min_y, max_x, max_y]
+      properties:
+        min_x:
+          type: number
+        min_y:
+          type: number
+        max_x:
+          type: number
+        max_y:
+          type: number
+
+    Point:
+      type: object
+      required: [x, y]
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+        z:
+          type: number
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        dependencies:
+          type: object
+          additionalProperties:
+            type: string
+
+    # Error Schemas
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

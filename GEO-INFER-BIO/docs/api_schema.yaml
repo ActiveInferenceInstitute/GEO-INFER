@@ -1,0 +1,959 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-BIO API
+  description: |
+    Comprehensive biological and ecological analysis API for geospatial biological data processing.
+    
+    This API provides tools for:
+    - Biological sequence analysis and genomics
+    - Ecological modeling and biodiversity assessment
+    - Phylogenetic analysis and evolutionary modeling
+    - Environmental genomics and metagenomics
+    - Biogeographical analysis
+    - Conservation biology tools
+  version: 1.0.0
+  contact:
+    name: GEO-INFER-BIO Support
+    email: bio-support@geo-infer.org
+  license:
+    name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/bio/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/bio/v1
+    description: Staging server
+  - url: http://localhost:8000/bio/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+tags:
+  - name: sequence-analysis
+    description: DNA/RNA/Protein sequence analysis operations
+  - name: genomics
+    description: Genomic data processing and analysis
+  - name: phylogenetics
+    description: Phylogenetic reconstruction and analysis
+  - name: ecology
+    description: Ecological modeling and analysis
+  - name: biodiversity
+    description: Biodiversity assessment and conservation
+  - name: environmental-genomics
+    description: Environmental DNA and metagenomics
+  - name: biogeography
+    description: Biogeographical analysis and modeling
+  - name: system
+    description: System management and health monitoring
+
+paths:
+  # Sequence Analysis Endpoints
+  /sequences/analyze:
+    post:
+      tags: [sequence-analysis]
+      summary: Analyze biological sequences
+      description: Perform comprehensive analysis of DNA, RNA, or protein sequences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SequenceAnalysisRequest'
+      responses:
+        '200':
+          description: Analysis completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SequenceAnalysisResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+
+  /sequences/blast:
+    post:
+      tags: [sequence-analysis]
+      summary: BLAST sequence search
+      description: Perform BLAST search against specified databases
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BlastSearchRequest'
+      responses:
+        '200':
+          description: BLAST search completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BlastSearchResponse'
+
+  /sequences/alignment:
+    post:
+      tags: [sequence-analysis]
+      summary: Multiple sequence alignment
+      description: Perform multiple sequence alignment using various algorithms
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlignmentRequest'
+      responses:
+        '200':
+          description: Alignment completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlignmentResponse'
+
+  # Genomics Endpoints
+  /genomics/variants/call:
+    post:
+      tags: [genomics]
+      summary: Variant calling
+      description: Call genetic variants from sequencing data
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariantCallingRequest'
+      responses:
+        '200':
+          description: Variant calling completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariantCallingResponse'
+
+  /genomics/variants/annotate:
+    post:
+      tags: [genomics]
+      summary: Variant annotation
+      description: Annotate genetic variants with functional information
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariantAnnotationRequest'
+      responses:
+        '200':
+          description: Annotation completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariantAnnotationResponse'
+
+  /genomics/expression/analyze:
+    post:
+      tags: [genomics]
+      summary: Gene expression analysis
+      description: Analyze gene expression data from RNA-seq or microarray
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpressionAnalysisRequest'
+      responses:
+        '200':
+          description: Expression analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpressionAnalysisResponse'
+
+  # Phylogenetics Endpoints
+  /phylogenetics/reconstruct:
+    post:
+      tags: [phylogenetics]
+      summary: Phylogenetic reconstruction
+      description: Reconstruct phylogenetic trees using various methods
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhylogenyRequest'
+      responses:
+        '200':
+          description: Phylogeny reconstruction completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PhylogenyResponse'
+
+  /phylogenetics/trees/{tree_id}/visualize:
+    get:
+      tags: [phylogenetics]
+      summary: Visualize phylogenetic tree
+      description: Generate visualization of phylogenetic tree
+      parameters:
+        - name: tree_id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Unique identifier for the phylogenetic tree
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [newick, nexus, phyloxml, svg, png]
+            default: newick
+          description: Output format for tree visualization
+      responses:
+        '200':
+          description: Tree visualization generated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TreeVisualizationResponse'
+
+  # Ecology Endpoints
+  /ecology/habitats/model:
+    post:
+      tags: [ecology]
+      summary: Habitat suitability modeling
+      description: Model habitat suitability for species or ecosystems
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HabitatModelingRequest'
+      responses:
+        '200':
+          description: Habitat modeling completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HabitatModelingResponse'
+
+  /ecology/species/distribution:
+    post:
+      tags: [ecology]
+      summary: Species distribution modeling
+      description: Model current and future species distributions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpeciesDistributionRequest'
+      responses:
+        '200':
+          description: Distribution modeling completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpeciesDistributionResponse'
+
+  /ecology/communities/analyze:
+    post:
+      tags: [ecology]
+      summary: Community analysis
+      description: Analyze ecological communities and their structure
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CommunityAnalysisRequest'
+      responses:
+        '200':
+          description: Community analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityAnalysisResponse'
+
+  # Biodiversity Endpoints
+  /biodiversity/indices/calculate:
+    post:
+      tags: [biodiversity]
+      summary: Calculate biodiversity indices
+      description: Calculate various biodiversity indices and metrics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BiodiversityIndicesRequest'
+      responses:
+        '200':
+          description: Biodiversity indices calculated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BiodiversityIndicesResponse'
+
+  /biodiversity/hotspots/identify:
+    post:
+      tags: [biodiversity]
+      summary: Identify biodiversity hotspots
+      description: Identify and map biodiversity hotspots
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HotspotIdentificationRequest'
+      responses:
+        '200':
+          description: Hotspot identification completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HotspotIdentificationResponse'
+
+  # Environmental Genomics Endpoints
+  /environmental/edna/analyze:
+    post:
+      tags: [environmental-genomics]
+      summary: Environmental DNA analysis
+      description: Analyze environmental DNA samples for biodiversity assessment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EDNAAnalysisRequest'
+      responses:
+        '200':
+          description: eDNA analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EDNAAnalysisResponse'
+
+  /environmental/metagenomics/classify:
+    post:
+      tags: [environmental-genomics]
+      summary: Metagenomic classification
+      description: Classify metagenomic sequences and assess community composition
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MetagenomicsRequest'
+      responses:
+        '200':
+          description: Metagenomic classification completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetagenomicsResponse'
+
+  # Biogeography Endpoints
+  /biogeography/barriers/analyze:
+    post:
+      tags: [biogeography]
+      summary: Biogeographic barrier analysis
+      description: Analyze barriers to species movement and gene flow
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BarrierAnalysisRequest'
+      responses:
+        '200':
+          description: Barrier analysis completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BarrierAnalysisResponse'
+
+  /biogeography/connectivity/model:
+    post:
+      tags: [biogeography]
+      summary: Landscape connectivity modeling
+      description: Model landscape connectivity for wildlife movement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConnectivityModelingRequest'
+      responses:
+        '200':
+          description: Connectivity modeling completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ConnectivityModelingResponse'
+
+  # System Management Endpoints
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+  /databases:
+    get:
+      tags: [system]
+      summary: List available databases
+      description: List all available biological databases
+      responses:
+        '200':
+          description: Database list retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatabaseListResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Sequence Analysis Schemas
+    SequenceAnalysisRequest:
+      type: object
+      required: [sequences, analysis_type]
+      properties:
+        sequences:
+          type: array
+          items:
+            $ref: '#/components/schemas/BioSequence'
+        analysis_type:
+          type: array
+          items:
+            type: string
+            enum: [composition, gc_content, orf_prediction, motif_search, secondary_structure]
+        parameters:
+          type: object
+          additionalProperties: true
+
+    BioSequence:
+      type: object
+      required: [id, sequence, type]
+      properties:
+        id:
+          type: string
+          description: Unique sequence identifier
+        sequence:
+          type: string
+          description: Sequence data (DNA, RNA, or protein)
+        type:
+          type: string
+          enum: [dna, rna, protein]
+        metadata:
+          type: object
+          additionalProperties: true
+
+    SequenceAnalysisResponse:
+      type: object
+      properties:
+        analysis_id:
+          type: string
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/SequenceAnalysisResult'
+        summary:
+          $ref: '#/components/schemas/AnalysisSummary'
+
+    SequenceAnalysisResult:
+      type: object
+      properties:
+        sequence_id:
+          type: string
+        composition:
+          $ref: '#/components/schemas/SequenceComposition'
+        gc_content:
+          type: number
+          minimum: 0
+          maximum: 1
+        orfs:
+          type: array
+          items:
+            $ref: '#/components/schemas/OpenReadingFrame'
+        motifs:
+          type: array
+          items:
+            $ref: '#/components/schemas/SequenceMotif'
+
+    # BLAST Search Schemas
+    BlastSearchRequest:
+      type: object
+      required: [query_sequence, database, program]
+      properties:
+        query_sequence:
+          type: string
+        database:
+          type: string
+          enum: [nr, nt, refseq_protein, refseq_genomic, swissprot]
+        program:
+          type: string
+          enum: [blastn, blastp, blastx, tblastn, tblastx]
+        parameters:
+          $ref: '#/components/schemas/BlastParameters'
+
+    BlastParameters:
+      type: object
+      properties:
+        evalue:
+          type: number
+          default: 10.0
+        word_size:
+          type: integer
+        max_target_seqs:
+          type: integer
+          default: 100
+        task:
+          type: string
+
+    BlastSearchResponse:
+      type: object
+      properties:
+        search_id:
+          type: string
+        hits:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlastHit'
+        statistics:
+          $ref: '#/components/schemas/BlastStatistics'
+
+    BlastHit:
+      type: object
+      properties:
+        hit_id:
+          type: string
+        hit_description:
+          type: string
+        evalue:
+          type: number
+        bit_score:
+          type: number
+        identity:
+          type: number
+        coverage:
+          type: number
+        alignments:
+          type: array
+          items:
+            $ref: '#/components/schemas/BlastAlignment'
+
+    # Phylogenetics Schemas
+    PhylogenyRequest:
+      type: object
+      required: [sequences, method]
+      properties:
+        sequences:
+          type: array
+          items:
+            $ref: '#/components/schemas/BioSequence'
+        method:
+          type: string
+          enum: [neighbor_joining, maximum_likelihood, maximum_parsimony, bayesian]
+        parameters:
+          $ref: '#/components/schemas/PhylogenyParameters'
+
+    PhylogenyParameters:
+      type: object
+      properties:
+        substitution_model:
+          type: string
+          enum: [JC69, K80, HKY85, GTR]
+        bootstrap_replicates:
+          type: integer
+          default: 1000
+        outgroup:
+          type: string
+
+    PhylogenyResponse:
+      type: object
+      properties:
+        tree_id:
+          type: string
+        tree_data:
+          type: string
+          description: Tree in Newick format
+        bootstrap_values:
+          type: array
+          items:
+            type: number
+        statistics:
+          $ref: '#/components/schemas/PhylogenyStatistics'
+
+    # Ecology Schemas
+    HabitatModelingRequest:
+      type: object
+      required: [species_data, environmental_layers]
+      properties:
+        species_data:
+          $ref: '#/components/schemas/SpeciesOccurrenceData'
+        environmental_layers:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnvironmentalLayer'
+        modeling_method:
+          type: string
+          enum: [maxent, bioclim, domain, svm, random_forest]
+        parameters:
+          type: object
+          additionalProperties: true
+
+    SpeciesOccurrenceData:
+      type: object
+      required: [species_name, occurrences]
+      properties:
+        species_name:
+          type: string
+        occurrences:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpeciesOccurrence'
+
+    SpeciesOccurrence:
+      type: object
+      required: [longitude, latitude]
+      properties:
+        longitude:
+          type: number
+          minimum: -180
+          maximum: 180
+        latitude:
+          type: number
+          minimum: -90
+          maximum: 90
+        date:
+          type: string
+          format: date
+        abundance:
+          type: integer
+          minimum: 0
+
+    EnvironmentalLayer:
+      type: object
+      required: [name, data_source]
+      properties:
+        name:
+          type: string
+        data_source:
+          type: string
+        resolution:
+          type: number
+        units:
+          type: string
+
+    # Biodiversity Schemas
+    BiodiversityIndicesRequest:
+      type: object
+      required: [community_data, indices]
+      properties:
+        community_data:
+          $ref: '#/components/schemas/CommunityMatrix'
+        indices:
+          type: array
+          items:
+            type: string
+            enum: [shannon, simpson, berger_parker, chao1, ace, jack1, jack2]
+        parameters:
+          type: object
+          additionalProperties: true
+
+    CommunityMatrix:
+      type: object
+      required: [sites, species, abundance_matrix]
+      properties:
+        sites:
+          type: array
+          items:
+            type: string
+        species:
+          type: array
+          items:
+            type: string
+        abundance_matrix:
+          type: array
+          items:
+            type: array
+            items:
+              type: integer
+              minimum: 0
+
+    BiodiversityIndicesResponse:
+      type: object
+      properties:
+        analysis_id:
+          type: string
+        indices:
+          type: object
+          additionalProperties:
+            type: number
+        confidence_intervals:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/ConfidenceInterval'
+
+    # Environmental Genomics Schemas
+    EDNAAnalysisRequest:
+      type: object
+      required: [samples, analysis_pipeline]
+      properties:
+        samples:
+          type: array
+          items:
+            $ref: '#/components/schemas/EDNASample'
+        analysis_pipeline:
+          type: string
+          enum: [metabarcoding, shotgun_metagenomics, targeted_amplicon]
+        reference_database:
+          type: string
+          enum: [silva, greengenes, unite, pr2]
+        parameters:
+          type: object
+          additionalProperties: true
+
+    EDNASample:
+      type: object
+      required: [sample_id, location, sequence_data]
+      properties:
+        sample_id:
+          type: string
+        location:
+          $ref: '#/components/schemas/SampleLocation'
+        sequence_data:
+          type: string
+          format: uri
+        metadata:
+          type: object
+          additionalProperties: true
+
+    SampleLocation:
+      type: object
+      required: [longitude, latitude]
+      properties:
+        longitude:
+          type: number
+        latitude:
+          type: number
+        depth:
+          type: number
+        habitat:
+          type: string
+
+    # Common Schemas
+    AnalysisSummary:
+      type: object
+      properties:
+        total_sequences:
+          type: integer
+        processing_time:
+          type: number
+        software_versions:
+          type: object
+          additionalProperties: true
+
+    SequenceComposition:
+      type: object
+      properties:
+        a_count:
+          type: integer
+        t_count:
+          type: integer
+        g_count:
+          type: integer
+        c_count:
+          type: integer
+        n_count:
+          type: integer
+
+    OpenReadingFrame:
+      type: object
+      properties:
+        start:
+          type: integer
+        end:
+          type: integer
+        strand:
+          type: string
+          enum: ['+', '-']
+        frame:
+          type: integer
+          minimum: 1
+          maximum: 3
+
+    SequenceMotif:
+      type: object
+      properties:
+        motif_id:
+          type: string
+        pattern:
+          type: string
+        positions:
+          type: array
+          items:
+            type: integer
+        score:
+          type: number
+
+    BlastAlignment:
+      type: object
+      properties:
+        query_start:
+          type: integer
+        query_end:
+          type: integer
+        subject_start:
+          type: integer
+        subject_end:
+          type: integer
+        query_sequence:
+          type: string
+        subject_sequence:
+          type: string
+        midline:
+          type: string
+
+    BlastStatistics:
+      type: object
+      properties:
+        database_size:
+          type: integer
+        database_sequences:
+          type: integer
+        effective_search_space:
+          type: integer
+        lambda:
+          type: number
+        kappa:
+          type: number
+        entropy:
+          type: number
+
+    PhylogenyStatistics:
+      type: object
+      properties:
+        log_likelihood:
+          type: number
+        tree_length:
+          type: number
+        substitution_rate:
+          type: number
+
+    ConfidenceInterval:
+      type: object
+      properties:
+        lower:
+          type: number
+        upper:
+          type: number
+        confidence_level:
+          type: number
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        dependencies:
+          type: object
+          additionalProperties:
+            type: string
+
+    DatabaseListResponse:
+      type: object
+      properties:
+        databases:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatabaseInfo'
+
+    DatabaseInfo:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        version:
+          type: string
+        size:
+          type: string
+        last_updated:
+          type: string
+          format: date
+        type:
+          type: string
+          enum: [nucleotide, protein, structure, pathway]
+
+    # Error Schemas
+    Error:
+      type: object
+      required: [error, message]
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

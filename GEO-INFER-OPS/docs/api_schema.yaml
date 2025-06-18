@@ -1,0 +1,1407 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-OPS API
+  description: |
+    Operations and Infrastructure Management
+    
+    Provides system operations, monitoring, caching, deployment,
+    and infrastructure management for the GEO-INFER framework.
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Operations Team
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://ops-api.geo-infer.org/v1
+    description: Production operations server
+  - url: http://localhost:8009/v1
+    description: Local development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+paths:
+  # System Health and Monitoring
+  /health:
+    get:
+      summary: System health check
+      description: Returns overall system health status
+      operationId: getSystemHealth
+      tags:
+        - System Health
+      responses:
+        '200':
+          description: System health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemHealth'
+
+  /health/components:
+    get:
+      summary: Component health status
+      description: Returns health status of all system components
+      operationId: getComponentHealth
+      tags:
+        - System Health
+      responses:
+        '200':
+          description: Component health status
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ComponentHealth'
+
+  /health/components/{componentId}:
+    get:
+      summary: Specific component health
+      description: Returns health status of a specific component
+      operationId: getSpecificComponentHealth
+      tags:
+        - System Health
+      parameters:
+        - name: componentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Component health details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComponentHealth'
+
+  # Performance Monitoring
+  /monitoring/metrics:
+    get:
+      summary: System metrics
+      description: Returns system performance metrics
+      operationId: getSystemMetrics
+      tags:
+        - Monitoring
+      parameters:
+        - name: timerange
+          in: query
+          schema:
+            type: string
+            description: "Time range (e.g., '1h', '24h', '7d')"
+        - name: metrics
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: resolution
+          in: query
+          schema:
+            type: string
+            enum: [1m, 5m, 15m, 1h, 1d]
+      responses:
+        '200':
+          description: System metrics data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsData'
+
+  /monitoring/logs:
+    get:
+      summary: System logs
+      description: Retrieves system logs with filtering
+      operationId: getSystemLogs
+      tags:
+        - Monitoring
+      parameters:
+        - name: level
+          in: query
+          schema:
+            type: string
+            enum: [debug, info, warn, error, fatal]
+        - name: component
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+      responses:
+        '200':
+          description: System logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogData'
+
+  /monitoring/alerts:
+    get:
+      summary: Active alerts
+      description: Returns active system alerts
+      operationId: getActiveAlerts
+      tags:
+        - Monitoring
+      parameters:
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, acknowledged, resolved]
+      responses:
+        '200':
+          description: Active alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Alert'
+    post:
+      summary: Create alert
+      description: Creates a new system alert
+      operationId: createAlert
+      tags:
+        - Monitoring
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertCreate'
+      responses:
+        '201':
+          description: Alert created successfully
+
+  /monitoring/alerts/{alertId}/acknowledge:
+    post:
+      summary: Acknowledge alert
+      description: Acknowledges a system alert
+      operationId: acknowledgeAlert
+      tags:
+        - Monitoring
+      parameters:
+        - name: alertId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Alert acknowledged
+
+  # Caching Management
+  /cache/status:
+    get:
+      summary: Cache status
+      description: Returns cache system status and statistics
+      operationId: getCacheStatus
+      tags:
+        - Cache Management
+      responses:
+        '200':
+          description: Cache status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CacheStatus'
+
+  /cache/invalidate:
+    post:
+      summary: Invalidate cache
+      description: Invalidates cache entries based on patterns
+      operationId: invalidateCache
+      tags:
+        - Cache Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CacheInvalidation'
+      responses:
+        '200':
+          description: Cache invalidated successfully
+
+  /cache/preload:
+    post:
+      summary: Preload cache
+      description: Preloads frequently accessed data into cache
+      operationId: preloadCache
+      tags:
+        - Cache Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CachePreload'
+      responses:
+        '200':
+          description: Cache preload initiated
+
+  # Configuration Management
+  /config:
+    get:
+      summary: System configuration
+      description: Returns current system configuration
+      operationId: getSystemConfig
+      tags:
+        - Configuration
+      responses:
+        '200':
+          description: System configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SystemConfig'
+    put:
+      summary: Update configuration
+      description: Updates system configuration
+      operationId: updateSystemConfig
+      tags:
+        - Configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigUpdate'
+      responses:
+        '200':
+          description: Configuration updated successfully
+
+  /config/validate:
+    post:
+      summary: Validate configuration
+      description: Validates configuration changes before applying
+      operationId: validateConfig
+      tags:
+        - Configuration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConfigValidation'
+      responses:
+        '200':
+          description: Configuration validation results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ValidationResult'
+
+  # Deployment Management
+  /deployments:
+    get:
+      summary: List deployments
+      description: Returns list of system deployments
+      operationId: listDeployments
+      tags:
+        - Deployment
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, in_progress, completed, failed, rolled_back]
+        - name: environment
+          in: query
+          schema:
+            type: string
+            enum: [development, staging, production]
+      responses:
+        '200':
+          description: List of deployments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Deployment'
+    post:
+      summary: Create deployment
+      description: Creates a new deployment
+      operationId: createDeployment
+      tags:
+        - Deployment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DeploymentCreate'
+      responses:
+        '201':
+          description: Deployment created successfully
+
+  /deployments/{deploymentId}:
+    get:
+      summary: Get deployment details
+      description: Returns detailed information about a deployment
+      operationId: getDeployment
+      tags:
+        - Deployment
+      parameters:
+        - name: deploymentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deployment details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Deployment'
+
+  /deployments/{deploymentId}/rollback:
+    post:
+      summary: Rollback deployment
+      description: Rolls back a deployment to previous version
+      operationId: rollbackDeployment
+      tags:
+        - Deployment
+      parameters:
+        - name: deploymentId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Rollback initiated
+
+  # Resource Management
+  /resources/usage:
+    get:
+      summary: Resource usage
+      description: Returns current resource usage statistics
+      operationId: getResourceUsage
+      tags:
+        - Resource Management
+      parameters:
+        - name: timerange
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resource usage data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceUsage'
+
+  /resources/quotas:
+    get:
+      summary: Resource quotas
+      description: Returns resource quotas and limits
+      operationId: getResourceQuotas
+      tags:
+        - Resource Management
+      responses:
+        '200':
+          description: Resource quotas
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceQuotas'
+    put:
+      summary: Update quotas
+      description: Updates resource quotas and limits
+      operationId: updateResourceQuotas
+      tags:
+        - Resource Management
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuotaUpdate'
+      responses:
+        '200':
+          description: Quotas updated successfully
+
+  # Backup and Recovery
+  /backup/snapshots:
+    get:
+      summary: List snapshots
+      description: Returns list of system snapshots
+      operationId: listSnapshots
+      tags:
+        - Backup & Recovery
+      parameters:
+        - name: component
+          in: query
+          schema:
+            type: string
+        - name: from_date
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: List of snapshots
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Snapshot'
+    post:
+      summary: Create snapshot
+      description: Creates a system snapshot
+      operationId: createSnapshot
+      tags:
+        - Backup & Recovery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SnapshotCreate'
+      responses:
+        '201':
+          description: Snapshot creation initiated
+
+  /backup/restore:
+    post:
+      summary: Restore from snapshot
+      description: Restores system from a snapshot
+      operationId: restoreFromSnapshot
+      tags:
+        - Backup & Recovery
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RestoreRequest'
+      responses:
+        '200':
+          description: Restore initiated
+
+  # Security Management
+  /security/audit-logs:
+    get:
+      summary: Security audit logs
+      description: Returns security audit logs
+      operationId: getAuditLogs
+      tags:
+        - Security
+      parameters:
+        - name: user_id
+          in: query
+          schema:
+            type: string
+        - name: action
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Audit logs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogs'
+
+  /security/access-control:
+    get:
+      summary: Access control status
+      description: Returns access control configuration
+      operationId: getAccessControlStatus
+      tags:
+        - Security
+      responses:
+        '200':
+          description: Access control status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessControlStatus'
+
+  /security/vulnerabilities:
+    get:
+      summary: Security vulnerabilities
+      description: Returns detected security vulnerabilities
+      operationId: getVulnerabilities
+      tags:
+        - Security
+      parameters:
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [open, in_progress, resolved, false_positive]
+      responses:
+        '200':
+          description: Security vulnerabilities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Vulnerability'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # System Health schemas
+    SystemHealth:
+      type: object
+      required:
+        - status
+        - timestamp
+        - uptime
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy, maintenance]
+        timestamp:
+          type: string
+          format: date-time
+        uptime:
+          type: integer
+          description: System uptime in seconds
+        version:
+          type: string
+        environment:
+          type: string
+          enum: [development, staging, production]
+        overall_score:
+          type: number
+          minimum: 0
+          maximum: 100
+        component_summary:
+          type: object
+          properties:
+            total_components:
+              type: integer
+            healthy_components:
+              type: integer
+            degraded_components:
+              type: integer
+            unhealthy_components:
+              type: integer
+
+    ComponentHealth:
+      type: object
+      required:
+        - component_id
+        - component_name
+        - status
+        - last_check
+      properties:
+        component_id:
+          type: string
+        component_name:
+          type: string
+        component_type:
+          type: string
+          enum: [service, database, cache, storage, network, external_api]
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy, unknown]
+        last_check:
+          type: string
+          format: date-time
+        response_time:
+          type: number
+        error_rate:
+          type: number
+        throughput:
+          type: number
+        dependencies:
+          type: array
+          items:
+            type: string
+        health_checks:
+          type: array
+          items:
+            type: object
+            properties:
+              check_name:
+                type: string
+              status:
+                type: string
+              message:
+                type: string
+              duration:
+                type: number
+
+    # Monitoring schemas
+    MetricsData:
+      type: object
+      required:
+        - metrics
+        - timerange
+      properties:
+        metrics:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              values:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    timestamp:
+                      type: string
+                      format: date-time
+                    value:
+                      type: number
+              unit:
+                type: string
+              description:
+                type: string
+        timerange:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+        resolution:
+          type: string
+
+    LogData:
+      type: object
+      required:
+        - logs
+        - total_count
+      properties:
+        logs:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                format: date-time
+              level:
+                type: string
+                enum: [debug, info, warn, error, fatal]
+              component:
+                type: string
+              message:
+                type: string
+              metadata:
+                type: object
+              trace_id:
+                type: string
+        total_count:
+          type: integer
+        has_more:
+          type: boolean
+
+    Alert:
+      type: object
+      required:
+        - id
+        - title
+        - severity
+        - status
+        - created_at
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        status:
+          type: string
+          enum: [active, acknowledged, resolved]
+        component:
+          type: string
+        metric:
+          type: string
+        threshold:
+          type: number
+        current_value:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+        acknowledged_at:
+          type: string
+          format: date-time
+        resolved_at:
+          type: string
+          format: date-time
+        acknowledged_by:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+
+    AlertCreate:
+      type: object
+      required:
+        - title
+        - severity
+        - component
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        component:
+          type: string
+        metric:
+          type: string
+        threshold:
+          type: number
+        current_value:
+          type: number
+        tags:
+          type: array
+          items:
+            type: string
+
+    # Cache Management schemas
+    CacheStatus:
+      type: object
+      required:
+        - total_entries
+        - hit_rate
+        - miss_rate
+        - memory_usage
+      properties:
+        total_entries:
+          type: integer
+        hit_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+        miss_rate:
+          type: number
+          minimum: 0
+          maximum: 1
+        memory_usage:
+          type: object
+          properties:
+            used:
+              type: integer
+            available:
+              type: integer
+            percentage:
+              type: number
+        cache_layers:
+          type: array
+          items:
+            type: object
+            properties:
+              layer_name:
+                type: string
+              entries:
+                type: integer
+              hit_rate:
+                type: number
+              average_ttl:
+                type: integer
+        performance_metrics:
+          type: object
+          properties:
+            average_get_time:
+              type: number
+            average_set_time:
+              type: number
+            eviction_rate:
+              type: number
+
+    CacheInvalidation:
+      type: object
+      required:
+        - pattern
+      properties:
+        pattern:
+          type: string
+          description: "Cache key pattern to invalidate (supports wildcards)"
+        cache_layer:
+          type: string
+        reason:
+          type: string
+
+    CachePreload:
+      type: object
+      required:
+        - data_sources
+      properties:
+        data_sources:
+          type: array
+          items:
+            type: object
+            properties:
+              source_type:
+                type: string
+              source_id:
+                type: string
+              priority:
+                type: string
+                enum: [low, medium, high]
+        cache_layer:
+          type: string
+        ttl:
+          type: integer
+
+    # Configuration schemas
+    SystemConfig:
+      type: object
+      properties:
+        database:
+          type: object
+          properties:
+            connection_pool_size:
+              type: integer
+            timeout:
+              type: integer
+            retry_attempts:
+              type: integer
+        cache:
+          type: object
+          properties:
+            default_ttl:
+              type: integer
+            max_memory:
+              type: integer
+            eviction_policy:
+              type: string
+        api:
+          type: object
+          properties:
+            rate_limit:
+              type: integer
+            timeout:
+              type: integer
+            max_request_size:
+              type: integer
+        monitoring:
+          type: object
+          properties:
+            metrics_retention:
+              type: integer
+            log_level:
+              type: string
+            alert_thresholds:
+              type: object
+        security:
+          type: object
+          properties:
+            session_timeout:
+              type: integer
+            password_policy:
+              type: object
+            encryption_settings:
+              type: object
+
+    ConfigUpdate:
+      type: object
+      properties:
+        config_section:
+          type: string
+        updates:
+          type: object
+        validate_before_apply:
+          type: boolean
+          default: true
+
+    ConfigValidation:
+      type: object
+      required:
+        - config
+      properties:
+        config:
+          type: object
+        validation_mode:
+          type: string
+          enum: [syntax, semantic, full]
+
+    ValidationResult:
+      type: object
+      required:
+        - valid
+      properties:
+        valid:
+          type: boolean
+        errors:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
+              severity:
+                type: string
+                enum: [warning, error, critical]
+        warnings:
+          type: array
+          items:
+            type: object
+
+    # Deployment schemas
+    Deployment:
+      type: object
+      required:
+        - id
+        - version
+        - environment
+        - status
+        - created_at
+      properties:
+        id:
+          type: string
+        version:
+          type: string
+        environment:
+          type: string
+          enum: [development, staging, production]
+        status:
+          type: string
+          enum: [pending, in_progress, completed, failed, rolled_back]
+        components:
+          type: array
+          items:
+            type: object
+            properties:
+              component_name:
+                type: string
+              version:
+                type: string
+              status:
+                type: string
+        deployment_strategy:
+          type: string
+          enum: [rolling, blue_green, canary]
+        rollback_version:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+        deployment_notes:
+          type: string
+
+    DeploymentCreate:
+      type: object
+      required:
+        - version
+        - environment
+        - components
+      properties:
+        version:
+          type: string
+        environment:
+          type: string
+          enum: [development, staging, production]
+        components:
+          type: array
+          items:
+            type: object
+            properties:
+              component_name:
+                type: string
+              version:
+                type: string
+        deployment_strategy:
+          type: string
+          enum: [rolling, blue_green, canary]
+          default: rolling
+        deployment_notes:
+          type: string
+
+    # Resource Management schemas
+    ResourceUsage:
+      type: object
+      required:
+        - timestamp
+        - cpu
+        - memory
+        - storage
+        - network
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        cpu:
+          type: object
+          properties:
+            usage_percentage:
+              type: number
+            cores_used:
+              type: number
+            load_average:
+              type: array
+              items:
+                type: number
+        memory:
+          type: object
+          properties:
+            used:
+              type: integer
+            available:
+              type: integer
+            usage_percentage:
+              type: number
+            swap_usage:
+              type: integer
+        storage:
+          type: object
+          properties:
+            used:
+              type: integer
+            available:
+              type: integer
+            usage_percentage:
+              type: number
+            iops:
+              type: integer
+        network:
+          type: object
+          properties:
+            bytes_in:
+              type: integer
+            bytes_out:
+              type: integer
+            packets_in:
+              type: integer
+            packets_out:
+              type: integer
+            connections:
+              type: integer
+
+    ResourceQuotas:
+      type: object
+      properties:
+        cpu:
+          type: object
+          properties:
+            max_cores:
+              type: number
+            max_usage_percentage:
+              type: number
+        memory:
+          type: object
+          properties:
+            max_memory:
+              type: integer
+            max_usage_percentage:
+              type: number
+        storage:
+          type: object
+          properties:
+            max_storage:
+              type: integer
+            max_usage_percentage:
+              type: number
+        network:
+          type: object
+          properties:
+            max_bandwidth:
+              type: integer
+            max_connections:
+              type: integer
+        requests:
+          type: object
+          properties:
+            max_requests_per_second:
+              type: integer
+            max_concurrent_requests:
+              type: integer
+
+    QuotaUpdate:
+      type: object
+      properties:
+        resource_type:
+          type: string
+          enum: [cpu, memory, storage, network, requests]
+        limits:
+          type: object
+        apply_immediately:
+          type: boolean
+          default: false
+
+    # Backup schemas
+    Snapshot:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - status
+        - created_at
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [full, incremental, differential]
+        status:
+          type: string
+          enum: [creating, completed, failed, restoring]
+        size:
+          type: integer
+        components:
+          type: array
+          items:
+            type: string
+        retention_period:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        expires_at:
+          type: string
+          format: date-time
+        storage_location:
+          type: string
+
+    SnapshotCreate:
+      type: object
+      required:
+        - name
+        - type
+        - components
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [full, incremental, differential]
+        components:
+          type: array
+          items:
+            type: string
+        retention_period:
+          type: integer
+          default: 30
+
+    RestoreRequest:
+      type: object
+      required:
+        - snapshot_id
+        - target_environment
+      properties:
+        snapshot_id:
+          type: string
+        target_environment:
+          type: string
+          enum: [development, staging, production]
+        components:
+          type: array
+          items:
+            type: string
+        restore_point:
+          type: string
+          format: date-time
+
+    # Security schemas
+    AuditLogs:
+      type: object
+      required:
+        - logs
+        - total_count
+      properties:
+        logs:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                format: date-time
+              user_id:
+                type: string
+              action:
+                type: string
+              resource:
+                type: string
+              result:
+                type: string
+                enum: [success, failure, unauthorized]
+              ip_address:
+                type: string
+              user_agent:
+                type: string
+              metadata:
+                type: object
+        total_count:
+          type: integer
+
+    AccessControlStatus:
+      type: object
+      properties:
+        authentication:
+          type: object
+          properties:
+            method:
+              type: string
+            mfa_enabled:
+              type: boolean
+            session_timeout:
+              type: integer
+        authorization:
+          type: object
+          properties:
+            model:
+              type: string
+              enum: [rbac, abac, acl]
+            policies_count:
+              type: integer
+        encryption:
+          type: object
+          properties:
+            data_at_rest:
+              type: boolean
+            data_in_transit:
+              type: boolean
+            key_rotation:
+              type: boolean
+
+    Vulnerability:
+      type: object
+      required:
+        - id
+        - title
+        - severity
+        - status
+        - discovered_at
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        cvss_score:
+          type: number
+        status:
+          type: string
+          enum: [open, in_progress, resolved, false_positive]
+        component:
+          type: string
+        version:
+          type: string
+        cve_id:
+          type: string
+        discovered_at:
+          type: string
+          format: date-time
+        remediation:
+          type: object
+          properties:
+            recommendation:
+              type: string
+            patch_available:
+              type: boolean
+            patch_version:
+              type: string
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+tags:
+  - name: System Health
+    description: System health monitoring and status
+  - name: Monitoring
+    description: Performance monitoring and alerting
+  - name: Cache Management
+    description: Cache system management
+  - name: Configuration
+    description: System configuration management
+  - name: Deployment
+    description: Deployment and release management
+  - name: Resource Management
+    description: Resource usage and quota management
+  - name: Backup & Recovery
+    description: Backup and recovery operations
+  - name: Security
+    description: Security monitoring and management 

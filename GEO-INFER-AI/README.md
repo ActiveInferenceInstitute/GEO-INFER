@@ -69,6 +69,62 @@ graph TD
     class Data_Phase,Model_Development_Phase,Deployment_Inference_Phase aiPhase;
 ```
 
+## Data Flow
+
+### Inputs
+- **Primary Data Sources**:
+  - Satellite/aerial imagery from GEO-INFER-SPACE and external STAC catalogs
+  - Vector features and spatial context from GEO-INFER-SPACE
+  - Time-series data from GEO-INFER-TIME for temporal modeling
+  - Domain-specific datasets from AG, HEALTH, ECON modules
+  - Pre-labeled training datasets for supervised learning
+
+- **Configuration Requirements**:
+  - `ai_config.yaml`: Model hyperparameters, training settings
+  - `model_registry.yaml`: Pre-trained model definitions and paths
+  - GPU/CPU configuration for model training and inference
+
+- **Dependencies**:
+  - **Required**: GEO-INFER-DATA (training data), GEO-INFER-SPACE (spatial features)
+  - **Optional**: GEO-INFER-TIME (temporal features), domain modules for specialized models
+
+### Processes
+- **Data Preprocessing**:
+  - Image normalization and augmentation for computer vision
+  - Feature engineering from spatial and temporal data
+  - Data splitting for training/validation/testing
+  - Handling spatial autocorrelation in cross-validation
+
+- **Model Development**:
+  - CNN architectures for satellite image analysis
+  - LSTM/GRU networks for time-series forecasting
+  - Ensemble methods for improved predictions
+  - Transfer learning from pre-trained geospatial models
+
+- **Training & Validation**:
+  - Distributed training across multiple GPUs
+  - Hyperparameter optimization with spatial validation
+  - Model evaluation with geospatial metrics
+  - Bias detection and fairness assessment
+
+### Outputs
+- **Model Artifacts**:
+  - Trained models (.pth, .h5, .pkl formats)
+  - Model metadata and performance metrics
+  - Feature importance and explainability reports
+
+- **Predictions & Classifications**:
+  - Land cover classification maps
+  - Object detection results (buildings, roads, vegetation)
+  - Time-series forecasts with uncertainty estimates
+  - Anomaly detection alerts and spatial hotspots
+
+- **Integration Points**:
+  - Model serving via GEO-INFER-API for real-time inference
+  - Predictions feed into GEO-INFER-SIM for scenario modeling
+  - Classification results support GEO-INFER-APP visualizations
+  - Forecasts inform decision-making in domain modules
+
 ## Directory Structure
 ```
 GEO-INFER-AI/

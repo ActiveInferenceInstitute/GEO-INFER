@@ -1,0 +1,1100 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-SPACE API
+  description: |
+    Core Geospatial Engine for Advanced Spatial Methods and Analytics
+    
+    Provides comprehensive spatial processing, analysis, indexing, and coordinate
+    reference system management for the GEO-INFER framework.
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Spatial Team
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://space-api.geo-infer.org/v1
+    description: Production spatial server
+  - url: http://localhost:8002/v1
+    description: Local development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+paths:
+  # Spatial Operations
+  /operations/buffer:
+    post:
+      summary: Buffer operation
+      description: Creates buffer zones around input geometries
+      operationId: bufferGeometry
+      tags:
+        - Spatial Operations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BufferRequest'
+      responses:
+        '200':
+          description: Buffered geometries
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+
+  /operations/intersection:
+    post:
+      summary: Intersection operation
+      description: Computes geometric intersection between input features
+      operationId: intersectGeometries
+      tags:
+        - Spatial Operations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntersectionRequest'
+      responses:
+        '200':
+          description: Intersection results
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+
+  /operations/union:
+    post:
+      summary: Union operation
+      description: Computes geometric union of input features
+      operationId: unionGeometries
+      tags:
+        - Spatial Operations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UnionRequest'
+      responses:
+        '200':
+          description: Union results
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+
+  /operations/difference:
+    post:
+      summary: Difference operation
+      description: Computes geometric difference between input features
+      operationId: differenceGeometries
+      tags:
+        - Spatial Operations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DifferenceRequest'
+      responses:
+        '200':
+          description: Difference results
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+
+  # Spatial Analysis
+  /analysis/distance:
+    post:
+      summary: Distance calculation
+      description: Calculates distances between geometries or points
+      operationId: calculateDistance
+      tags:
+        - Spatial Analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DistanceRequest'
+      responses:
+        '200':
+          description: Distance calculation results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DistanceResponse'
+
+  /analysis/area:
+    post:
+      summary: Area calculation
+      description: Calculates area of polygon geometries
+      operationId: calculateArea
+      tags:
+        - Spatial Analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AreaRequest'
+      responses:
+        '200':
+          description: Area calculation results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AreaResponse'
+
+  /analysis/centroid:
+    post:
+      summary: Centroid calculation
+      description: Calculates centroids of input geometries
+      operationId: calculateCentroid
+      tags:
+        - Spatial Analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CentroidRequest'
+      responses:
+        '200':
+          description: Centroid calculation results
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+
+  /analysis/convex-hull:
+    post:
+      summary: Convex hull calculation
+      description: Calculates convex hull of input geometries
+      operationId: calculateConvexHull
+      tags:
+        - Spatial Analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ConvexHullRequest'
+      responses:
+        '200':
+          description: Convex hull results
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+
+  # Spatial Indexing
+  /indexing/h3:
+    post:
+      summary: H3 hexagonal indexing
+      description: Converts geometries to H3 hexagonal grid indices
+      operationId: indexH3
+      tags:
+        - Spatial Indexing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/H3IndexRequest'
+      responses:
+        '200':
+          description: H3 indexing results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/H3IndexResponse'
+
+  /indexing/quadtree:
+    post:
+      summary: QuadTree indexing
+      description: Creates QuadTree spatial index for geometries
+      operationId: indexQuadTree
+      tags:
+        - Spatial Indexing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/QuadTreeIndexRequest'
+      responses:
+        '200':
+          description: QuadTree indexing results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QuadTreeIndexResponse'
+
+  /indexing/rtree:
+    post:
+      summary: R-Tree indexing
+      description: Creates R-Tree spatial index for efficient querying
+      operationId: indexRTree
+      tags:
+        - Spatial Indexing
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RTreeIndexRequest'
+      responses:
+        '200':
+          description: R-Tree indexing results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RTreeIndexResponse'
+
+  # Coordinate Reference Systems
+  /crs/transform:
+    post:
+      summary: Coordinate transformation
+      description: Transforms coordinates between different CRS
+      operationId: transformCoordinates
+      tags:
+        - Coordinate Systems
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransformRequest'
+      responses:
+        '200':
+          description: Transformed coordinates
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+
+  /crs/supported:
+    get:
+      summary: List supported CRS
+      description: Returns list of supported coordinate reference systems
+      operationId: listSupportedCRS
+      tags:
+        - Coordinate Systems
+      responses:
+        '200':
+          description: List of supported CRS
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CRSInfo'
+
+  # Raster Operations
+  /raster/clip:
+    post:
+      summary: Clip raster
+      description: Clips raster data to specified geometry
+      operationId: clipRaster
+      tags:
+        - Raster Operations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RasterClipRequest'
+      responses:
+        '200':
+          description: Clipped raster data
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /raster/resample:
+    post:
+      summary: Resample raster
+      description: Resamples raster to different resolution or CRS
+      operationId: resampleRaster
+      tags:
+        - Raster Operations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RasterResampleRequest'
+      responses:
+        '200':
+          description: Resampled raster data
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+
+  /raster/statistics:
+    post:
+      summary: Calculate raster statistics
+      description: Calculates statistical metrics for raster data
+      operationId: calculateRasterStatistics
+      tags:
+        - Raster Operations
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RasterStatsRequest'
+      responses:
+        '200':
+          description: Raster statistics
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RasterStatsResponse'
+
+  # Network Analysis
+  /network/shortest-path:
+    post:
+      summary: Shortest path calculation
+      description: Calculates shortest path between points on a network
+      operationId: calculateShortestPath
+      tags:
+        - Network Analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ShortestPathRequest'
+      responses:
+        '200':
+          description: Shortest path result
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+
+  /network/service-area:
+    post:
+      summary: Service area calculation
+      description: Calculates service areas (isochrones) around points
+      operationId: calculateServiceArea
+      tags:
+        - Network Analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAreaRequest'
+      responses:
+        '200':
+          description: Service area polygons
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+
+  # Spatial Queries
+  /query/spatial:
+    post:
+      summary: Spatial query
+      description: Performs spatial queries using various predicates
+      operationId: spatialQuery
+      tags:
+        - Spatial Queries
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpatialQueryRequest'
+      responses:
+        '200':
+          description: Query results
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+
+  /query/bbox:
+    post:
+      summary: Bounding box query
+      description: Queries features within a bounding box
+      operationId: bboxQuery
+      tags:
+        - Spatial Queries
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BboxQueryRequest'
+      responses:
+        '200':
+          description: Features within bounding box
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Request/Response schemas for spatial operations
+    BufferRequest:
+      type: object
+      required:
+        - features
+        - distance
+      properties:
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+        distance:
+          type: number
+          description: Buffer distance in map units
+        units:
+          type: string
+          enum: [meters, kilometers, feet, miles, degrees]
+          default: meters
+        quadrant_segments:
+          type: integer
+          minimum: 1
+          default: 8
+
+    IntersectionRequest:
+      type: object
+      required:
+        - features_a
+        - features_b
+      properties:
+        features_a:
+          $ref: '#/components/schemas/FeatureCollection'
+        features_b:
+          $ref: '#/components/schemas/FeatureCollection'
+        preserve_attributes:
+          type: boolean
+          default: true
+
+    UnionRequest:
+      type: object
+      required:
+        - features
+      properties:
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+        cascade_union:
+          type: boolean
+          default: true
+
+    DifferenceRequest:
+      type: object
+      required:
+        - features_a
+        - features_b
+      properties:
+        features_a:
+          $ref: '#/components/schemas/FeatureCollection'
+        features_b:
+          $ref: '#/components/schemas/FeatureCollection'
+
+    DistanceRequest:
+      type: object
+      required:
+        - from
+        - to
+      properties:
+        from:
+          oneOf:
+            - $ref: '#/components/schemas/Point'
+            - $ref: '#/components/schemas/FeatureCollection'
+        to:
+          oneOf:
+            - $ref: '#/components/schemas/Point'
+            - $ref: '#/components/schemas/FeatureCollection'
+        method:
+          type: string
+          enum: [euclidean, haversine, geodesic]
+          default: haversine
+
+    DistanceResponse:
+      type: object
+      required:
+        - distances
+      properties:
+        distances:
+          type: array
+          items:
+            type: object
+            properties:
+              from_id:
+                type: string
+              to_id:
+                type: string
+              distance:
+                type: number
+              units:
+                type: string
+
+    AreaRequest:
+      type: object
+      required:
+        - features
+      properties:
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+        units:
+          type: string
+          enum: [square_meters, square_kilometers, hectares, acres, square_feet]
+          default: square_meters
+
+    AreaResponse:
+      type: object
+      required:
+        - areas
+      properties:
+        areas:
+          type: array
+          items:
+            type: object
+            properties:
+              feature_id:
+                type: string
+              area:
+                type: number
+              units:
+                type: string
+
+    CentroidRequest:
+      type: object
+      required:
+        - features
+      properties:
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+
+    ConvexHullRequest:
+      type: object
+      required:
+        - features
+      properties:
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+        individual:
+          type: boolean
+          default: false
+          description: Calculate individual hulls or single hull for all features
+
+    # Indexing schemas
+    H3IndexRequest:
+      type: object
+      required:
+        - features
+        - resolution
+      properties:
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+        resolution:
+          type: integer
+          minimum: 0
+          maximum: 15
+
+    H3IndexResponse:
+      type: object
+      required:
+        - indices
+      properties:
+        indices:
+          type: array
+          items:
+            type: object
+            properties:
+              feature_id:
+                type: string
+              h3_indices:
+                type: array
+                items:
+                  type: string
+
+    QuadTreeIndexRequest:
+      type: object
+      required:
+        - features
+      properties:
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+        max_depth:
+          type: integer
+          minimum: 1
+          maximum: 20
+          default: 10
+        max_items_per_node:
+          type: integer
+          minimum: 1
+          default: 10
+
+    QuadTreeIndexResponse:
+      type: object
+      required:
+        - index_id
+      properties:
+        index_id:
+          type: string
+        metadata:
+          type: object
+          properties:
+            total_nodes:
+              type: integer
+            max_depth_reached:
+              type: integer
+            bounding_box:
+              type: array
+              items:
+                type: number
+              minItems: 4
+              maxItems: 4
+
+    RTreeIndexRequest:
+      type: object
+      required:
+        - features
+      properties:
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+        max_entries:
+          type: integer
+          minimum: 2
+          default: 9
+
+    RTreeIndexResponse:
+      type: object
+      required:
+        - index_id
+      properties:
+        index_id:
+          type: string
+        metadata:
+          type: object
+          properties:
+            total_entries:
+              type: integer
+            tree_height:
+              type: integer
+
+    # CRS schemas
+    TransformRequest:
+      type: object
+      required:
+        - features
+        - source_crs
+        - target_crs
+      properties:
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+        source_crs:
+          type: string
+          description: Source CRS (EPSG code or PROJ string)
+        target_crs:
+          type: string
+          description: Target CRS (EPSG code or PROJ string)
+
+    CRSInfo:
+      type: object
+      required:
+        - code
+        - name
+      properties:
+        code:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        authority:
+          type: string
+        type:
+          type: string
+          enum: [geographic, projected, compound]
+        units:
+          type: string
+
+    # Raster schemas
+    RasterClipRequest:
+      type: object
+      required:
+        - raster_url
+        - clip_geometry
+      properties:
+        raster_url:
+          type: string
+          format: uri
+        clip_geometry:
+          $ref: '#/components/schemas/Geometry'
+        output_format:
+          type: string
+          enum: [geotiff, netcdf, png, jpeg]
+          default: geotiff
+
+    RasterResampleRequest:
+      type: object
+      required:
+        - raster_url
+      properties:
+        raster_url:
+          type: string
+          format: uri
+        target_resolution:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+        target_crs:
+          type: string
+        resampling_method:
+          type: string
+          enum: [nearest, bilinear, cubic, lanczos]
+          default: bilinear
+
+    RasterStatsRequest:
+      type: object
+      required:
+        - raster_url
+      properties:
+        raster_url:
+          type: string
+          format: uri
+        geometry:
+          $ref: '#/components/schemas/Geometry'
+        statistics:
+          type: array
+          items:
+            type: string
+            enum: [min, max, mean, median, std, count, sum]
+          default: [min, max, mean, std, count]
+
+    RasterStatsResponse:
+      type: object
+      required:
+        - statistics
+      properties:
+        statistics:
+          type: object
+          properties:
+            min:
+              type: number
+            max:
+              type: number
+            mean:
+              type: number
+            median:
+              type: number
+            std:
+              type: number
+            count:
+              type: integer
+            sum:
+              type: number
+
+    # Network analysis schemas
+    ShortestPathRequest:
+      type: object
+      required:
+        - network
+        - start
+        - end
+      properties:
+        network:
+          type: string
+          description: Network dataset ID or URL
+        start:
+          $ref: '#/components/schemas/Point'
+        end:
+          $ref: '#/components/schemas/Point'
+        algorithm:
+          type: string
+          enum: [dijkstra, a_star, bidirectional]
+          default: dijkstra
+        impedance:
+          type: string
+          enum: [length, time, cost]
+          default: length
+
+    ServiceAreaRequest:
+      type: object
+      required:
+        - network
+        - origins
+        - impedance_values
+      properties:
+        network:
+          type: string
+        origins:
+          type: array
+          items:
+            $ref: '#/components/schemas/Point'
+        impedance_values:
+          type: array
+          items:
+            type: number
+        impedance_type:
+          type: string
+          enum: [time, distance, cost]
+          default: time
+
+    # Query schemas
+    SpatialQueryRequest:
+      type: object
+      required:
+        - target_features
+        - query_geometry
+        - predicate
+      properties:
+        target_features:
+          oneOf:
+            - type: string
+              description: Dataset ID
+            - $ref: '#/components/schemas/FeatureCollection'
+        query_geometry:
+          $ref: '#/components/schemas/Geometry'
+        predicate:
+          type: string
+          enum: [intersects, contains, within, touches, crosses, overlaps, equals, disjoint]
+
+    BboxQueryRequest:
+      type: object
+      required:
+        - target_features
+        - bbox
+      properties:
+        target_features:
+          oneOf:
+            - type: string
+              description: Dataset ID
+            - $ref: '#/components/schemas/FeatureCollection'
+        bbox:
+          type: array
+          items:
+            type: number
+          minItems: 4
+          maxItems: 4
+        crs:
+          type: string
+          default: "EPSG:4326"
+
+    # GeoJSON schemas
+    FeatureCollection:
+      type: object
+      required:
+        - type
+        - features
+      properties:
+        type:
+          type: string
+          enum: [FeatureCollection]
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feature'
+        bbox:
+          type: array
+          items:
+            type: number
+          minItems: 4
+          maxItems: 6
+
+    Feature:
+      type: object
+      required:
+        - type
+        - geometry
+        - properties
+      properties:
+        type:
+          type: string
+          enum: [Feature]
+        id:
+          oneOf:
+            - type: string
+            - type: integer
+        geometry:
+          $ref: '#/components/schemas/Geometry'
+        properties:
+          type: object
+          nullable: true
+
+    Geometry:
+      oneOf:
+        - $ref: '#/components/schemas/Point'
+        - $ref: '#/components/schemas/LineString'
+        - $ref: '#/components/schemas/Polygon'
+        - $ref: '#/components/schemas/MultiPoint'
+        - $ref: '#/components/schemas/MultiLineString'
+        - $ref: '#/components/schemas/MultiPolygon'
+
+    Point:
+      type: object
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum: [Point]
+        coordinates:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 3
+
+    LineString:
+      type: object
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum: [LineString]
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 3
+          minItems: 2
+
+    Polygon:
+      type: object
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum: [Polygon]
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 3
+            minItems: 4
+
+    MultiPoint:
+      type: object
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum: [MultiPoint]
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 3
+
+    MultiLineString:
+      type: object
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum: [MultiLineString]
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 3
+            minItems: 2
+
+    MultiPolygon:
+      type: object
+      required:
+        - type
+        - coordinates
+      properties:
+        type:
+          type: string
+          enum: [MultiPolygon]
+        coordinates:
+          type: array
+          items:
+            type: array
+            items:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+                minItems: 2
+                maxItems: 3
+              minItems: 4
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+tags:
+  - name: Spatial Operations
+    description: Core geometric operations
+  - name: Spatial Analysis
+    description: Spatial analysis and calculations
+  - name: Spatial Indexing
+    description: Spatial indexing systems
+  - name: Coordinate Systems
+    description: CRS management and transformations
+  - name: Raster Operations
+    description: Raster data processing
+  - name: Network Analysis
+    description: Network and routing analysis
+  - name: Spatial Queries
+    description: Spatial query operations 

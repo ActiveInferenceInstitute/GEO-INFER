@@ -1,0 +1,750 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-LOG API
+  description: |
+    Comprehensive logging and monitoring API for geospatial intelligence systems.
+    
+    This API provides tools for:
+    - System logging and event tracking
+    - Audit trails and compliance logging
+    - Performance monitoring and metrics
+    - Error tracking and debugging
+    - Log analysis and search
+    - Real-time log streaming
+  version: 1.0.0
+  contact:
+    name: GEO-INFER-LOG Support
+    email: log-support@geo-infer.org
+  license:
+    name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/log/v1
+    description: Production server
+  - url: https://staging-api.geo-infer.org/log/v1
+    description: Staging server
+  - url: http://localhost:8000/log/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+tags:
+  - name: logs
+    description: Log entry management and retrieval
+  - name: audit
+    description: Audit trail and compliance logging
+  - name: metrics
+    description: Performance metrics and monitoring
+  - name: alerts
+    description: Alert and notification management
+  - name: analysis
+    description: Log analysis and search
+  - name: streaming
+    description: Real-time log streaming
+  - name: system
+    description: System management and health monitoring
+
+paths:
+  # Log Management Endpoints
+  /logs:
+    get:
+      tags: [logs]
+      summary: Retrieve logs
+      description: Retrieve log entries with filtering and pagination
+      parameters:
+        - name: level
+          in: query
+          schema:
+            type: string
+            enum: [debug, info, warn, error, fatal]
+        - name: source
+          in: query
+          schema:
+            type: string
+        - name: start_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: end_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 100
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            default: 0
+      responses:
+        '200':
+          description: Logs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogListResponse'
+
+    post:
+      tags: [logs]
+      summary: Create log entry
+      description: Create a new log entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogEntryRequest'
+      responses:
+        '201':
+          description: Log entry created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogEntryResponse'
+
+  /logs/search:
+    post:
+      tags: [analysis]
+      summary: Search logs
+      description: Search logs using query parameters and filters
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LogSearchRequest'
+      responses:
+        '200':
+          description: Search completed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogSearchResponse'
+
+  # Audit Trail Endpoints
+  /audit:
+    get:
+      tags: [audit]
+      summary: Retrieve audit logs
+      description: Retrieve audit trail entries
+      parameters:
+        - name: user_id
+          in: query
+          schema:
+            type: string
+        - name: action
+          in: query
+          schema:
+            type: string
+        - name: resource
+          in: query
+          schema:
+            type: string
+        - name: start_time
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Audit logs retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditLogListResponse'
+
+    post:
+      tags: [audit]
+      summary: Create audit entry
+      description: Create a new audit trail entry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuditEntryRequest'
+      responses:
+        '201':
+          description: Audit entry created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuditEntryResponse'
+
+  # Metrics Endpoints
+  /metrics:
+    get:
+      tags: [metrics]
+      summary: Get system metrics
+      description: Retrieve system performance metrics
+      parameters:
+        - name: metric_type
+          in: query
+          schema:
+            type: string
+            enum: [cpu, memory, disk, network, application]
+        - name: time_range
+          in: query
+          schema:
+            type: string
+            enum: [1h, 6h, 24h, 7d, 30d]
+      responses:
+        '200':
+          description: Metrics retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricsResponse'
+
+    post:
+      tags: [metrics]
+      summary: Record metric
+      description: Record a new performance metric
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MetricRequest'
+      responses:
+        '201':
+          description: Metric recorded successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MetricResponse'
+
+  # Alert Management Endpoints
+  /alerts:
+    get:
+      tags: [alerts]
+      summary: Get alerts
+      description: Retrieve system alerts and notifications
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, resolved, acknowledged]
+        - name: severity
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+      responses:
+        '200':
+          description: Alerts retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertListResponse'
+
+    post:
+      tags: [alerts]
+      summary: Create alert
+      description: Create a new system alert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlertRequest'
+      responses:
+        '201':
+          description: Alert created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertResponse'
+
+  /alerts/{alert_id}/acknowledge:
+    post:
+      tags: [alerts]
+      summary: Acknowledge alert
+      description: Acknowledge an alert
+      parameters:
+        - name: alert_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Alert acknowledged successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AlertAckResponse'
+
+  # Streaming Endpoints
+  /streaming/logs:
+    get:
+      tags: [streaming]
+      summary: Stream logs
+      description: Get real-time log streaming connection info
+      parameters:
+        - name: filter
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Streaming connection info retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StreamingInfoResponse'
+
+  # Health Check
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Log Entry Schemas
+    LogEntryRequest:
+      type: object
+      required: [level, message, source]
+      properties:
+        level:
+          type: string
+          enum: [debug, info, warn, error, fatal]
+        message:
+          type: string
+        source:
+          type: string
+        module:
+          type: string
+        user_id:
+          type: string
+        session_id:
+          type: string
+        metadata:
+          type: object
+          additionalProperties: true
+        tags:
+          type: array
+          items:
+            type: string
+
+    LogEntryResponse:
+      type: object
+      properties:
+        log_id:
+          type: string
+        level:
+          type: string
+        message:
+          type: string
+        source:
+          type: string
+        module:
+          type: string
+        user_id:
+          type: string
+        session_id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          additionalProperties: true
+        tags:
+          type: array
+          items:
+            type: string
+
+    LogSearchRequest:
+      type: object
+      properties:
+        query:
+          type: string
+        filters:
+          type: object
+          properties:
+            level:
+              type: array
+              items:
+                type: string
+            source:
+              type: array
+              items:
+                type: string
+            tags:
+              type: array
+              items:
+                type: string
+            time_range:
+              type: object
+              properties:
+                start:
+                  type: string
+                  format: date-time
+                end:
+                  type: string
+                  format: date-time
+        sort:
+          type: object
+          properties:
+            field:
+              type: string
+              enum: [timestamp, level, source]
+            order:
+              type: string
+              enum: [asc, desc]
+        limit:
+          type: integer
+          default: 100
+
+    LogSearchResponse:
+      type: object
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/LogEntryResponse'
+        total_count:
+          type: integer
+        query_time:
+          type: number
+        facets:
+          type: object
+          additionalProperties: true
+
+    # Audit Schemas
+    AuditEntryRequest:
+      type: object
+      required: [user_id, action, resource]
+      properties:
+        user_id:
+          type: string
+        action:
+          type: string
+          enum: [create, read, update, delete, access, login, logout]
+        resource:
+          type: string
+        resource_id:
+          type: string
+        details:
+          type: object
+          additionalProperties: true
+        ip_address:
+          type: string
+        user_agent:
+          type: string
+        success:
+          type: boolean
+
+    AuditEntryResponse:
+      type: object
+      properties:
+        audit_id:
+          type: string
+        user_id:
+          type: string
+        action:
+          type: string
+        resource:
+          type: string
+        resource_id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        details:
+          type: object
+          additionalProperties: true
+        ip_address:
+          type: string
+        user_agent:
+          type: string
+        success:
+          type: boolean
+
+    # Metrics Schemas
+    MetricRequest:
+      type: object
+      required: [metric_name, value]
+      properties:
+        metric_name:
+          type: string
+        value:
+          type: number
+        unit:
+          type: string
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+        source:
+          type: string
+
+    MetricResponse:
+      type: object
+      properties:
+        metric_id:
+          type: string
+        metric_name:
+          type: string
+        value:
+          type: number
+        unit:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+        source:
+          type: string
+
+    MetricsResponse:
+      type: object
+      properties:
+        metrics:
+          type: array
+          items:
+            $ref: '#/components/schemas/MetricDataPoint'
+        summary:
+          type: object
+          additionalProperties: true
+        time_range:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+
+    MetricDataPoint:
+      type: object
+      properties:
+        timestamp:
+          type: string
+          format: date-time
+        value:
+          type: number
+        tags:
+          type: object
+          additionalProperties: true
+
+    # Alert Schemas
+    AlertRequest:
+      type: object
+      required: [title, severity, source]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+          enum: [low, medium, high, critical]
+        source:
+          type: string
+        category:
+          type: string
+          enum: [system, security, performance, application, user]
+        conditions:
+          type: object
+          additionalProperties: true
+        notification_channels:
+          type: array
+          items:
+            type: string
+
+    AlertResponse:
+      type: object
+      properties:
+        alert_id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        severity:
+          type: string
+        status:
+          type: string
+          enum: [active, resolved, acknowledged]
+        source:
+          type: string
+        category:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        acknowledged_by:
+          type: string
+        resolved_by:
+          type: string
+
+    AlertAckResponse:
+      type: object
+      properties:
+        alert_id:
+          type: string
+        status:
+          type: string
+        acknowledged_at:
+          type: string
+          format: date-time
+        acknowledged_by:
+          type: string
+
+    # Streaming Schemas
+    StreamingInfoResponse:
+      type: object
+      properties:
+        websocket_url:
+          type: string
+          format: uri
+        connection_token:
+          type: string
+        filters:
+          type: object
+          additionalProperties: true
+        format:
+          type: string
+          enum: [json, text, structured]
+
+    # List Response Schemas
+    LogListResponse:
+      type: object
+      properties:
+        logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/LogEntryResponse'
+        total_count:
+          type: integer
+        pagination:
+          type: object
+          properties:
+            offset:
+              type: integer
+            limit:
+              type: integer
+            has_more:
+              type: boolean
+
+    AuditLogListResponse:
+      type: object
+      properties:
+        audit_logs:
+          type: array
+          items:
+            $ref: '#/components/schemas/AuditEntryResponse'
+        total_count:
+          type: integer
+
+    AlertListResponse:
+      type: object
+      properties:
+        alerts:
+          type: array
+          items:
+            $ref: '#/components/schemas/AlertResponse'
+        summary:
+          type: object
+          properties:
+            active_count:
+              type: integer
+            critical_count:
+              type: integer
+            high_count:
+              type: integer
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        storage_usage:
+          type: object
+          properties:
+            used:
+              type: string
+            available:
+              type: string
+            percentage:
+              type: number
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

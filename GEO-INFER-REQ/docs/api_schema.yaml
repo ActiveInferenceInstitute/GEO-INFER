@@ -1,0 +1,619 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-REQ API
+  description: |
+    Comprehensive requirements management API for geospatial intelligence projects and systems.
+    
+    This API provides tools for:
+    - Requirements capture and management
+    - Specifications tracking and versioning
+    - Compliance verification and validation
+    - Requirements traceability and analysis
+    - Stakeholder requirements coordination
+    - Quality assurance and testing requirements
+  version: 1.0.0
+  contact:
+    name: GEO-INFER-REQ Support
+    email: req-support@geo-infer.org
+  license:
+    name: Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://api.geo-infer.org/req/v1
+    description: Production server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+tags:
+  - name: requirements
+    description: Requirements management and tracking
+  - name: specifications
+    description: Technical specifications management
+  - name: traceability
+    description: Requirements traceability and mapping
+  - name: compliance
+    description: Compliance verification and validation
+  - name: system
+    description: System management and health monitoring
+
+paths:
+  /requirements:
+    get:
+      tags: [requirements]
+      summary: List requirements
+      description: Retrieve list of project requirements
+      parameters:
+        - name: project_id
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [functional, non_functional, business, technical, regulatory]
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, approved, implemented, verified, rejected]
+        - name: priority
+          in: query
+          schema:
+            type: string
+            enum: [low, medium, high, critical]
+      responses:
+        '200':
+          description: Requirements retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequirementListResponse'
+
+    post:
+      tags: [requirements]
+      summary: Create requirement
+      description: Create a new project requirement
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequirementRequest'
+      responses:
+        '201':
+          description: Requirement created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequirementResponse'
+
+  /requirements/{req_id}:
+    get:
+      tags: [requirements]
+      summary: Get requirement details
+      description: Retrieve detailed information about a specific requirement
+      parameters:
+        - name: req_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Requirement details retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequirementResponse'
+
+    put:
+      tags: [requirements]
+      summary: Update requirement
+      description: Update an existing requirement
+      parameters:
+        - name: req_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RequirementRequest'
+      responses:
+        '200':
+          description: Requirement updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RequirementResponse'
+
+  /requirements/{req_id}/approve:
+    post:
+      tags: [requirements]
+      summary: Approve requirement
+      description: Approve a requirement for implementation
+      parameters:
+        - name: req_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ApprovalRequest'
+      responses:
+        '200':
+          description: Requirement approved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApprovalResponse'
+
+  /specifications:
+    get:
+      tags: [specifications]
+      summary: List specifications
+      description: Retrieve list of technical specifications
+      parameters:
+        - name: project_id
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [system, interface, data, security, performance]
+      responses:
+        '200':
+          description: Specifications retrieved successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecificationListResponse'
+
+    post:
+      tags: [specifications]
+      summary: Create specification
+      description: Create a new technical specification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpecificationRequest'
+      responses:
+        '201':
+          description: Specification created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpecificationResponse'
+
+  /traceability/matrix:
+    get:
+      tags: [traceability]
+      summary: Get traceability matrix
+      description: Retrieve requirements traceability matrix
+      parameters:
+        - name: project_id
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Traceability matrix retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TraceabilityMatrixResponse'
+
+  /compliance/verify:
+    post:
+      tags: [compliance]
+      summary: Verify compliance
+      description: Verify requirements compliance against standards
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ComplianceVerificationRequest'
+      responses:
+        '200':
+          description: Compliance verification completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ComplianceVerificationResponse'
+
+  /health:
+    get:
+      tags: [system]
+      summary: Health check
+      description: Check system health and status
+      responses:
+        '200':
+          description: System is healthy
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    RequirementRequest:
+      type: object
+      required: [title, description, type, priority]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [functional, non_functional, business, technical, regulatory]
+        priority:
+          type: string
+          enum: [low, medium, high, critical]
+        project_id:
+          type: string
+        stakeholder:
+          type: string
+        acceptance_criteria:
+          type: array
+          items:
+            type: string
+        dependencies:
+          type: array
+          items:
+            type: string
+        constraints:
+          type: array
+          items:
+            type: string
+        rationale:
+          type: string
+        source:
+          type: string
+        verification_method:
+          type: string
+          enum: [inspection, analysis, demonstration, test]
+
+    RequirementResponse:
+      type: object
+      properties:
+        requirement_id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        priority:
+          type: string
+        status:
+          type: string
+          enum: [draft, approved, implemented, verified, rejected]
+        project_id:
+          type: string
+        stakeholder:
+          type: string
+        acceptance_criteria:
+          type: array
+          items:
+            type: string
+        dependencies:
+          type: array
+          items:
+            type: string
+        constraints:
+          type: array
+          items:
+            type: string
+        rationale:
+          type: string
+        source:
+          type: string
+        verification_method:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        created_by:
+          type: string
+        approved_by:
+          type: string
+        approval_date:
+          type: string
+          format: date-time
+
+    ApprovalRequest:
+      type: object
+      required: [approver_id]
+      properties:
+        approver_id:
+          type: string
+        comments:
+          type: string
+        conditions:
+          type: array
+          items:
+            type: string
+
+    ApprovalResponse:
+      type: object
+      properties:
+        requirement_id:
+          type: string
+        status:
+          type: string
+        approved_by:
+          type: string
+        approval_date:
+          type: string
+          format: date-time
+        comments:
+          type: string
+
+    SpecificationRequest:
+      type: object
+      required: [title, type, content]
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [system, interface, data, security, performance]
+        content:
+          type: string
+        version:
+          type: string
+        project_id:
+          type: string
+        related_requirements:
+          type: array
+          items:
+            type: string
+        technical_details:
+          type: object
+          additionalProperties: true
+
+    SpecificationResponse:
+      type: object
+      properties:
+        specification_id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+        content:
+          type: string
+        version:
+          type: string
+        status:
+          type: string
+          enum: [draft, review, approved, implemented]
+        project_id:
+          type: string
+        related_requirements:
+          type: array
+          items:
+            type: string
+        technical_details:
+          type: object
+          additionalProperties: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    TraceabilityMatrixResponse:
+      type: object
+      properties:
+        project_id:
+          type: string
+        matrix:
+          type: array
+          items:
+            $ref: '#/components/schemas/TraceabilityLink'
+        coverage_percentage:
+          type: number
+        orphaned_requirements:
+          type: array
+          items:
+            type: string
+
+    TraceabilityLink:
+      type: object
+      properties:
+        requirement_id:
+          type: string
+        linked_items:
+          type: array
+          items:
+            $ref: '#/components/schemas/LinkedItem'
+        coverage_status:
+          type: string
+          enum: [covered, partial, not_covered]
+
+    LinkedItem:
+      type: object
+      properties:
+        item_id:
+          type: string
+        item_type:
+          type: string
+          enum: [specification, test_case, design_element, implementation]
+        relationship:
+          type: string
+          enum: [implements, verifies, derives_from, conflicts_with]
+
+    ComplianceVerificationRequest:
+      type: object
+      required: [requirements, standards]
+      properties:
+        requirements:
+          type: array
+          items:
+            type: string
+        standards:
+          type: array
+          items:
+            type: string
+            enum: [iso_27001, gdpr, hipaa, nist, custom]
+        verification_scope:
+          type: string
+          enum: [full, partial, specific]
+
+    ComplianceVerificationResponse:
+      type: object
+      properties:
+        verification_id:
+          type: string
+        overall_compliance:
+          type: string
+          enum: [compliant, non_compliant, partially_compliant]
+        compliance_score:
+          type: number
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ComplianceResult'
+        recommendations:
+          type: array
+          items:
+            type: string
+        verified_at:
+          type: string
+          format: date-time
+
+    ComplianceResult:
+      type: object
+      properties:
+        requirement_id:
+          type: string
+        standard:
+          type: string
+        compliance_status:
+          type: string
+          enum: [compliant, non_compliant, partially_compliant]
+        gaps:
+          type: array
+          items:
+            type: string
+        evidence:
+          type: array
+          items:
+            type: string
+
+    RequirementListResponse:
+      type: object
+      properties:
+        requirements:
+          type: array
+          items:
+            $ref: '#/components/schemas/RequirementResponse'
+        total_count:
+          type: integer
+        summary:
+          type: object
+          properties:
+            by_status:
+              type: object
+              additionalProperties:
+                type: integer
+            by_priority:
+              type: object
+              additionalProperties:
+                type: integer
+
+    SpecificationListResponse:
+      type: object
+      properties:
+        specifications:
+          type: array
+          items:
+            $ref: '#/components/schemas/SpecificationResponse'
+        total_count:
+          type: integer
+
+    HealthResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        version:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    Unauthorized:
+      description: Authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error' 

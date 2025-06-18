@@ -1,0 +1,1036 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-MATH API
+  description: |
+    Spatial Statistics and Mathematical Modeling Framework
+    
+    Provides advanced mathematical and statistical methods for geospatial
+    analysis, including spatial statistics, optimization, and modeling.
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Math Team
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://math-api.geo-infer.org/v1
+    description: Production math server
+  - url: http://localhost:8004/v1
+    description: Local development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+paths:
+  # Spatial Statistics
+  /statistics/descriptive:
+    post:
+      summary: Descriptive spatial statistics
+      description: Calculates descriptive statistics for spatial data
+      operationId: calculateDescriptiveStats
+      tags:
+        - Spatial Statistics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DescriptiveStatsRequest'
+      responses:
+        '200':
+          description: Descriptive statistics results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DescriptiveStatsResponse'
+
+  /statistics/autocorrelation:
+    post:
+      summary: Spatial autocorrelation analysis
+      description: Performs spatial autocorrelation analysis (Moran's I, Geary's C)
+      operationId: calculateAutocorrelation
+      tags:
+        - Spatial Statistics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AutocorrelationRequest'
+      responses:
+        '200':
+          description: Autocorrelation analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AutocorrelationResponse'
+
+  /statistics/hotspots:
+    post:
+      summary: Hot spot analysis
+      description: Identifies statistically significant hot and cold spots
+      operationId: analyzeHotspots
+      tags:
+        - Spatial Statistics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HotspotAnalysisRequest'
+      responses:
+        '200':
+          description: Hot spot analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HotspotAnalysisResponse'
+
+  /statistics/clustering:
+    post:
+      summary: Spatial clustering analysis
+      description: Performs spatial clustering using various algorithms
+      operationId: performClustering
+      tags:
+        - Spatial Statistics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClusteringRequest'
+      responses:
+        '200':
+          description: Clustering analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusteringResponse'
+
+  # Interpolation Methods
+  /interpolation/kriging:
+    post:
+      summary: Kriging interpolation
+      description: Performs kriging spatial interpolation
+      operationId: performKriging
+      tags:
+        - Interpolation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/KrigingRequest'
+      responses:
+        '200':
+          description: Kriging interpolation results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterpolationResponse'
+
+  /interpolation/idw:
+    post:
+      summary: Inverse Distance Weighting
+      description: Performs IDW spatial interpolation
+      operationId: performIDW
+      tags:
+        - Interpolation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IDWRequest'
+      responses:
+        '200':
+          description: IDW interpolation results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterpolationResponse'
+
+  /interpolation/splines:
+    post:
+      summary: Spline interpolation
+      description: Performs spline-based spatial interpolation
+      operationId: performSplineInterpolation
+      tags:
+        - Interpolation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SplineRequest'
+      responses:
+        '200':
+          description: Spline interpolation results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterpolationResponse'
+
+  # Regression Analysis
+  /regression/spatial:
+    post:
+      summary: Spatial regression
+      description: Performs spatial regression analysis
+      operationId: performSpatialRegression
+      tags:
+        - Regression
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpatialRegressionRequest'
+      responses:
+        '200':
+          description: Spatial regression results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegressionResponse'
+
+  /regression/gwr:
+    post:
+      summary: Geographically Weighted Regression
+      description: Performs GWR analysis
+      operationId: performGWR
+      tags:
+        - Regression
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GWRRequest'
+      responses:
+        '200':
+          description: GWR analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GWRResponse'
+
+  # Optimization
+  /optimization/location:
+    post:
+      summary: Location optimization
+      description: Optimizes facility locations using spatial criteria
+      operationId: optimizeLocations
+      tags:
+        - Optimization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LocationOptimizationRequest'
+      responses:
+        '200':
+          description: Location optimization results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/OptimizationResponse'
+
+  /optimization/routing:
+    post:
+      summary: Route optimization
+      description: Optimizes routes using various algorithms
+      operationId: optimizeRoutes
+      tags:
+        - Optimization
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RouteOptimizationRequest'
+      responses:
+        '200':
+          description: Route optimization results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RouteOptimizationResponse'
+
+  # Mathematical Modeling
+  /modeling/cellular-automata:
+    post:
+      summary: Cellular automata modeling
+      description: Runs cellular automata spatial models
+      operationId: runCellularAutomata
+      tags:
+        - Mathematical Modeling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CellularAutomataRequest'
+      responses:
+        '200':
+          description: Cellular automata model results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelingResponse'
+
+  /modeling/agent-based:
+    post:
+      summary: Agent-based modeling
+      description: Runs agent-based spatial models
+      operationId: runAgentBasedModel
+      tags:
+        - Mathematical Modeling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AgentBasedModelRequest'
+      responses:
+        '200':
+          description: Agent-based model results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelingResponse'
+
+  # Computational Geometry
+  /geometry/voronoi:
+    post:
+      summary: Voronoi diagram generation
+      description: Generates Voronoi diagrams from point sets
+      operationId: generateVoronoi
+      tags:
+        - Computational Geometry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VoronoiRequest'
+      responses:
+        '200':
+          description: Voronoi diagram
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+
+  /geometry/delaunay:
+    post:
+      summary: Delaunay triangulation
+      description: Generates Delaunay triangulation from point sets
+      operationId: generateDelaunay
+      tags:
+        - Computational Geometry
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DelaunayRequest'
+      responses:
+        '200':
+          description: Delaunay triangulation
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Spatial Statistics schemas
+    DescriptiveStatsRequest:
+      type: object
+      required:
+        - data
+      properties:
+        data:
+          $ref: '#/components/schemas/SpatialDataset'
+        variables:
+          type: array
+          items:
+            type: string
+        statistics:
+          type: array
+          items:
+            type: string
+            enum: [mean, median, mode, std, var, min, max, range, skewness, kurtosis]
+
+    DescriptiveStatsResponse:
+      type: object
+      properties:
+        statistics:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              mean:
+                type: number
+              median:
+                type: number
+              mode:
+                type: number
+              std:
+                type: number
+              variance:
+                type: number
+              min:
+                type: number
+              max:
+                type: number
+              range:
+                type: number
+              skewness:
+                type: number
+              kurtosis:
+                type: number
+
+    AutocorrelationRequest:
+      type: object
+      required:
+        - data
+        - weights_matrix
+      properties:
+        data:
+          $ref: '#/components/schemas/SpatialDataset'
+        weights_matrix:
+          type: string
+          enum: [queen, rook, distance, k_nearest]
+        variable:
+          type: string
+        method:
+          type: string
+          enum: [morans_i, gearys_c, getis_ord]
+          default: morans_i
+
+    AutocorrelationResponse:
+      type: object
+      required:
+        - statistic
+        - p_value
+      properties:
+        statistic:
+          type: number
+        p_value:
+          type: number
+        z_score:
+          type: number
+        expected_value:
+          type: number
+        variance:
+          type: number
+        interpretation:
+          type: string
+          enum: [positive_autocorrelation, negative_autocorrelation, random]
+
+    HotspotAnalysisRequest:
+      type: object
+      required:
+        - data
+        - weights_matrix
+      properties:
+        data:
+          $ref: '#/components/schemas/SpatialDataset'
+        weights_matrix:
+          type: string
+          enum: [queen, rook, distance, k_nearest]
+        variable:
+          type: string
+        method:
+          type: string
+          enum: [getis_ord_gi, getis_ord_gi_star, lisa]
+          default: getis_ord_gi_star
+        significance_level:
+          type: number
+          default: 0.05
+
+    HotspotAnalysisResponse:
+      type: object
+      required:
+        - features
+      properties:
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+        summary:
+          type: object
+          properties:
+            hot_spots:
+              type: integer
+            cold_spots:
+              type: integer
+            not_significant:
+              type: integer
+
+    ClusteringRequest:
+      type: object
+      required:
+        - data
+        - algorithm
+      properties:
+        data:
+          $ref: '#/components/schemas/SpatialDataset'
+        algorithm:
+          type: string
+          enum: [kmeans, dbscan, hierarchical, skater]
+        parameters:
+          type: object
+        variables:
+          type: array
+          items:
+            type: string
+
+    ClusteringResponse:
+      type: object
+      required:
+        - features
+        - cluster_info
+      properties:
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+        cluster_info:
+          type: object
+          properties:
+            number_of_clusters:
+              type: integer
+            silhouette_score:
+              type: number
+            inertia:
+              type: number
+
+    # Interpolation schemas
+    KrigingRequest:
+      type: object
+      required:
+        - data_points
+        - prediction_grid
+        - variable
+      properties:
+        data_points:
+          $ref: '#/components/schemas/FeatureCollection'
+        prediction_grid:
+          oneOf:
+            - $ref: '#/components/schemas/RegularGrid'
+            - $ref: '#/components/schemas/FeatureCollection'
+        variable:
+          type: string
+        kriging_type:
+          type: string
+          enum: [ordinary, simple, universal]
+          default: ordinary
+        variogram_model:
+          type: string
+          enum: [spherical, exponential, gaussian, linear]
+          default: spherical
+
+    IDWRequest:
+      type: object
+      required:
+        - data_points
+        - prediction_grid
+        - variable
+      properties:
+        data_points:
+          $ref: '#/components/schemas/FeatureCollection'
+        prediction_grid:
+          oneOf:
+            - $ref: '#/components/schemas/RegularGrid'
+            - $ref: '#/components/schemas/FeatureCollection'
+        variable:
+          type: string
+        power:
+          type: number
+          default: 2
+        search_radius:
+          type: number
+        min_points:
+          type: integer
+          default: 1
+
+    SplineRequest:
+      type: object
+      required:
+        - data_points
+        - prediction_grid
+        - variable
+      properties:
+        data_points:
+          $ref: '#/components/schemas/FeatureCollection'
+        prediction_grid:
+          oneOf:
+            - $ref: '#/components/schemas/RegularGrid'
+            - $ref: '#/components/schemas/FeatureCollection'
+        variable:
+          type: string
+        spline_type:
+          type: string
+          enum: [thin_plate, regularized, tension]
+          default: thin_plate
+        smoothing_parameter:
+          type: number
+
+    InterpolationResponse:
+      type: object
+      required:
+        - predictions
+      properties:
+        predictions:
+          $ref: '#/components/schemas/FeatureCollection'
+        validation_metrics:
+          type: object
+          properties:
+            rmse:
+              type: number
+            mae:
+              type: number
+            r_squared:
+              type: number
+        uncertainty:
+          $ref: '#/components/schemas/FeatureCollection'
+
+    # Regression schemas
+    SpatialRegressionRequest:
+      type: object
+      required:
+        - data
+        - dependent_variable
+        - independent_variables
+      properties:
+        data:
+          $ref: '#/components/schemas/SpatialDataset'
+        dependent_variable:
+          type: string
+        independent_variables:
+          type: array
+          items:
+            type: string
+        model_type:
+          type: string
+          enum: [ols, spatial_lag, spatial_error, spatial_durbin]
+          default: ols
+        weights_matrix:
+          type: string
+          enum: [queen, rook, distance, k_nearest]
+
+    RegressionResponse:
+      type: object
+      required:
+        - coefficients
+        - model_statistics
+      properties:
+        coefficients:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              estimate:
+                type: number
+              std_error:
+                type: number
+              t_value:
+                type: number
+              p_value:
+                type: number
+        model_statistics:
+          type: object
+          properties:
+            r_squared:
+              type: number
+            adjusted_r_squared:
+              type: number
+            f_statistic:
+              type: number
+            aic:
+              type: number
+            bic:
+              type: number
+        residuals:
+          $ref: '#/components/schemas/FeatureCollection'
+        diagnostics:
+          type: object
+
+    GWRRequest:
+      type: object
+      required:
+        - data
+        - dependent_variable
+        - independent_variables
+      properties:
+        data:
+          $ref: '#/components/schemas/SpatialDataset'
+        dependent_variable:
+          type: string
+        independent_variables:
+          type: array
+          items:
+            type: string
+        kernel:
+          type: string
+          enum: [gaussian, exponential, bisquare, tricube]
+          default: gaussian
+        bandwidth_selection:
+          type: string
+          enum: [cv, aic, bic]
+          default: cv
+
+    GWRResponse:
+      type: object
+      required:
+        - local_coefficients
+        - model_statistics
+      properties:
+        local_coefficients:
+          $ref: '#/components/schemas/FeatureCollection'
+        model_statistics:
+          type: object
+          properties:
+            bandwidth:
+              type: number
+            aic:
+              type: number
+            r_squared:
+              type: number
+        residuals:
+          $ref: '#/components/schemas/FeatureCollection'
+
+    # Optimization schemas
+    LocationOptimizationRequest:
+      type: object
+      required:
+        - demand_points
+        - candidate_locations
+        - objective
+      properties:
+        demand_points:
+          $ref: '#/components/schemas/FeatureCollection'
+        candidate_locations:
+          $ref: '#/components/schemas/FeatureCollection'
+        objective:
+          type: string
+          enum: [minimize_cost, maximize_coverage, minimize_distance]
+        constraints:
+          type: object
+          properties:
+            max_facilities:
+              type: integer
+            budget_limit:
+              type: number
+            capacity_constraints:
+              type: object
+
+    OptimizationResponse:
+      type: object
+      required:
+        - optimal_locations
+        - objective_value
+      properties:
+        optimal_locations:
+          $ref: '#/components/schemas/FeatureCollection'
+        objective_value:
+          type: number
+        solution_quality:
+          type: object
+          properties:
+            gap:
+              type: number
+            solve_time:
+              type: number
+            iterations:
+              type: integer
+
+    RouteOptimizationRequest:
+      type: object
+      required:
+        - start_location
+        - destinations
+      properties:
+        start_location:
+          $ref: '#/components/schemas/Point'
+        destinations:
+          $ref: '#/components/schemas/FeatureCollection'
+        end_location:
+          $ref: '#/components/schemas/Point'
+        optimization_type:
+          type: string
+          enum: [tsp, vrp, shortest_path]
+        constraints:
+          type: object
+
+    RouteOptimizationResponse:
+      type: object
+      required:
+        - optimal_route
+        - total_distance
+      properties:
+        optimal_route:
+          $ref: '#/components/schemas/FeatureCollection'
+        total_distance:
+          type: number
+        total_time:
+          type: number
+        route_segments:
+          type: array
+          items:
+            type: object
+
+    # Modeling schemas
+    CellularAutomataRequest:
+      type: object
+      required:
+        - initial_state
+        - rules
+        - iterations
+      properties:
+        initial_state:
+          $ref: '#/components/schemas/GridData'
+        rules:
+          type: object
+        iterations:
+          type: integer
+        neighborhood:
+          type: string
+          enum: [moore, von_neumann]
+          default: moore
+
+    AgentBasedModelRequest:
+      type: object
+      required:
+        - agents
+        - environment
+        - rules
+        - steps
+      properties:
+        agents:
+          type: array
+          items:
+            type: object
+        environment:
+          $ref: '#/components/schemas/SpatialEnvironment'
+        rules:
+          type: object
+        steps:
+          type: integer
+
+    ModelingResponse:
+      type: object
+      required:
+        - results
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/ModelState'
+        statistics:
+          type: object
+        visualizations:
+          type: array
+          items:
+            type: object
+
+    # Computational Geometry schemas
+    VoronoiRequest:
+      type: object
+      required:
+        - points
+      properties:
+        points:
+          $ref: '#/components/schemas/FeatureCollection'
+        bounding_box:
+          type: array
+          items:
+            type: number
+          minItems: 4
+          maxItems: 4
+        clip_to_boundary:
+          type: boolean
+          default: true
+
+    DelaunayRequest:
+      type: object
+      required:
+        - points
+      properties:
+        points:
+          $ref: '#/components/schemas/FeatureCollection'
+        include_edges:
+          type: boolean
+          default: true
+
+    # Utility schemas
+    SpatialDataset:
+      type: object
+      required:
+        - features
+      properties:
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+        metadata:
+          type: object
+
+    RegularGrid:
+      type: object
+      required:
+        - bbox
+        - resolution
+      properties:
+        bbox:
+          type: array
+          items:
+            type: number
+          minItems: 4
+          maxItems: 4
+        resolution:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+        crs:
+          type: string
+          default: "EPSG:4326"
+
+    GridData:
+      type: object
+      required:
+        - grid
+        - values
+      properties:
+        grid:
+          $ref: '#/components/schemas/RegularGrid'
+        values:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+
+    SpatialEnvironment:
+      type: object
+      required:
+        - boundary
+      properties:
+        boundary:
+          $ref: '#/components/schemas/Geometry'
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+        properties:
+          type: object
+
+    ModelState:
+      type: object
+      required:
+        - step
+        - state
+      properties:
+        step:
+          type: integer
+        state:
+          oneOf:
+            - $ref: '#/components/schemas/GridData'
+            - $ref: '#/components/schemas/FeatureCollection'
+        metrics:
+          type: object
+
+    # GeoJSON schemas (simplified)
+    FeatureCollection:
+      type: object
+      required:
+        - type
+        - features
+      properties:
+        type:
+          type: string
+          enum: [FeatureCollection]
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feature'
+
+    Feature:
+      type: object
+      required:
+        - type
+        - geometry
+        - properties
+      properties:
+        type:
+          type: string
+          enum: [Feature]
+        id:
+          oneOf:
+            - type: string
+            - type: integer
+        geometry:
+          $ref: '#/components/schemas/Geometry'
+        properties:
+          type: object
+
+    Geometry:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+        coordinates:
+          type: array
+
+    Point:
+      allOf:
+        - $ref: '#/components/schemas/Geometry'
+        - type: object
+          properties:
+            type:
+              type: string
+              enum: [Point]
+            coordinates:
+              type: array
+              items:
+                type: number
+              minItems: 2
+              maxItems: 3
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+tags:
+  - name: Spatial Statistics
+    description: Spatial statistical analysis methods
+  - name: Interpolation
+    description: Spatial interpolation techniques
+  - name: Regression
+    description: Spatial regression analysis
+  - name: Optimization
+    description: Spatial optimization algorithms
+  - name: Mathematical Modeling
+    description: Mathematical modeling approaches
+  - name: Computational Geometry
+    description: Computational geometry methods 

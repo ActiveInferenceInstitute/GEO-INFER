@@ -1,0 +1,124 @@
+---
+# GEO-INFER-TEST Configuration Example
+
+test_execution:
+  # Modules to test (use 'ALL' for all available modules)
+  modules_to_test:
+    - SPACE
+    - TIME
+    - AI
+    - AGENT
+    - BAYES
+    - DATA
+    - API
+  
+  # Types of tests to run
+  test_types:
+    - unit
+    - integration
+    - performance
+  
+  # Execution settings
+  parallel_execution: true
+  max_workers: 4
+  timeout_seconds: 300
+  fail_fast: false
+  
+  # Coverage settings
+  coverage_enabled: true
+  coverage_threshold: 80.0  # Minimum coverage percentage
+  
+  # Performance benchmarking
+  performance_benchmarks: true
+  benchmark_iterations: 3
+
+logging:
+  # Logging configuration
+  level: INFO  # DEBUG, INFO, WARNING, ERROR
+  log_dir: logs
+  log_integration_enabled: true
+  performance_logging: true
+  
+  # Log formatting
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  
+  # File rotation
+  max_log_size_mb: 100
+  backup_count: 5
+
+reporting:
+  # Report generation settings
+  generate_html: true
+  generate_json: true
+  generate_xml: true  # JUnit-compatible format
+  
+  # Report content
+  include_coverage: true
+  include_performance_metrics: true
+  include_trend_analysis: true
+  
+  # Output settings
+  output_directory: reports
+  report_retention_days: 30
+
+health_monitoring:
+  # Health check settings
+  enabled: true
+  check_interval: 300  # seconds
+  
+  # Alert thresholds
+  alert_thresholds:
+    response_time: 5.0  # seconds
+    error_rate: 0.05    # 5%
+    memory_usage: 0.8   # 80%
+    cpu_usage: 0.9      # 90%
+  
+  # Notification settings
+  notifications:
+    enabled: true
+    email_recipients:
+      - admin@geo-infer.org
+    slack_webhook: null
+
+integration:
+  # GEO-INFER-LOG integration
+  log_module:
+    enabled: true
+    performance_tracking: true
+    cross_module_logging: true
+  
+  # CI/CD integration
+  ci_cd:
+    junit_output: true
+    github_actions_annotations: true
+    jenkins_reporting: true
+  
+  # External tools
+  external_tools:
+    sonarqube: false
+    codecov: false
+    datadog: false
+
+advanced:
+  # Advanced testing features
+  property_based_testing: true
+  mutation_testing: false
+  fuzz_testing: false
+  
+  # Database testing
+  database_testing:
+    enabled: true
+    test_databases:
+      - postgresql
+      - redis
+  
+  # Load testing
+  load_testing:
+    enabled: true
+    max_concurrent_users: 100
+    test_duration: 300  # seconds
+  
+  # Security testing
+  security_testing:
+    enabled: false
+    vulnerability_scanning: false 

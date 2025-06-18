@@ -1,0 +1,992 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-DATA API
+  description: |
+    Comprehensive Data Management and Storage for Geospatial Systems
+    
+    Provides unified access to diverse geospatial datasets, metadata management,
+    ETL processes, and data quality assurance across the GEO-INFER framework.
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Data Team
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://data-api.geo-infer.org/v1
+    description: Production data server
+  - url: http://localhost:8001/v1
+    description: Local development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+paths:
+  /datasets:
+    get:
+      summary: List all datasets
+      description: Returns a paginated list of available datasets
+      operationId: listDatasets
+      tags:
+        - Datasets
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 1000
+            default: 50
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [vector, raster, point_cloud, time_series, network]
+        - name: bbox
+          in: query
+          schema:
+            type: array
+            items:
+              type: number
+            minItems: 4
+            maxItems: 4
+        - name: temporal
+          in: query
+          schema:
+            type: string
+            description: "ISO 8601 interval (e.g., 2020-01-01/2021-01-01)"
+      responses:
+        '200':
+          description: List of datasets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetList'
+    post:
+      summary: Create new dataset
+      description: Creates a new dataset entry
+      operationId: createDataset
+      tags:
+        - Datasets
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatasetCreate'
+      responses:
+        '201':
+          description: Dataset created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dataset'
+
+  /datasets/{datasetId}:
+    get:
+      summary: Get dataset details
+      description: Returns detailed information about a specific dataset
+      operationId: getDataset
+      tags:
+        - Datasets
+      parameters:
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dataset details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dataset'
+        '404':
+          description: Dataset not found
+    put:
+      summary: Update dataset
+      description: Updates dataset metadata and configuration
+      operationId: updateDataset
+      tags:
+        - Datasets
+      parameters:
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatasetUpdate'
+      responses:
+        '200':
+          description: Dataset updated successfully
+    delete:
+      summary: Delete dataset
+      description: Removes a dataset and all associated data
+      operationId: deleteDataset
+      tags:
+        - Datasets
+      parameters:
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Dataset deleted successfully
+
+  /datasets/{datasetId}/data:
+    get:
+      summary: Access dataset data
+      description: Returns the actual data content of the dataset
+      operationId: getDatasetData
+      tags:
+        - Data Access
+      parameters:
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [geojson, geotiff, netcdf, csv, parquet]
+        - name: bbox
+          in: query
+          schema:
+            type: array
+            items:
+              type: number
+            minItems: 4
+            maxItems: 4
+        - name: crs
+          in: query
+          schema:
+            type: string
+            default: "EPSG:4326"
+      responses:
+        '200':
+          description: Dataset data
+          content:
+            application/geo+json:
+              schema:
+                type: object
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+    post:
+      summary: Upload data to dataset
+      description: Uploads data content to an existing dataset
+      operationId: uploadDatasetData
+      tags:
+        - Data Access
+      parameters:
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                overwrite:
+                  type: boolean
+                  default: false
+      responses:
+        '201':
+          description: Data uploaded successfully
+        '409':
+          description: Data already exists (when overwrite=false)
+
+  /datasets/{datasetId}/metadata:
+    get:
+      summary: Get dataset metadata
+      description: Returns comprehensive metadata for the dataset
+      operationId: getDatasetMetadata
+      tags:
+        - Metadata
+      parameters:
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dataset metadata
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DatasetMetadata'
+    put:
+      summary: Update dataset metadata
+      description: Updates dataset metadata
+      operationId: updateDatasetMetadata
+      tags:
+        - Metadata
+      parameters:
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DatasetMetadata'
+      responses:
+        '200':
+          description: Metadata updated successfully
+
+  /storage/backends:
+    get:
+      summary: List storage backends
+      description: Returns available storage backend configurations
+      operationId: listStorageBackends
+      tags:
+        - Storage
+      responses:
+        '200':
+          description: List of storage backends
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StorageBackend'
+
+  /storage/backends/{backendId}/health:
+    get:
+      summary: Check storage backend health
+      description: Returns health status of a specific storage backend
+      operationId: getStorageBackendHealth
+      tags:
+        - Storage
+      parameters:
+        - name: backendId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Backend health status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthStatus'
+
+  /etl/pipelines:
+    get:
+      summary: List ETL pipelines
+      description: Returns available ETL pipeline configurations
+      operationId: listETLPipelines
+      tags:
+        - ETL
+      responses:
+        '200':
+          description: List of ETL pipelines
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ETLPipeline'
+    post:
+      summary: Create ETL pipeline
+      description: Creates a new ETL pipeline configuration
+      operationId: createETLPipeline
+      tags:
+        - ETL
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ETLPipelineCreate'
+      responses:
+        '201':
+          description: ETL pipeline created
+
+  /etl/pipelines/{pipelineId}/execute:
+    post:
+      summary: Execute ETL pipeline
+      description: Triggers execution of an ETL pipeline
+      operationId: executeETLPipeline
+      tags:
+        - ETL
+      parameters:
+        - name: pipelineId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                parameters:
+                  type: object
+                  description: Runtime parameters for the pipeline
+      responses:
+        '202':
+          description: Pipeline execution started
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionStatus'
+
+  /etl/executions/{executionId}:
+    get:
+      summary: Get execution status
+      description: Returns status and progress of an ETL execution
+      operationId: getETLExecutionStatus
+      tags:
+        - ETL
+      parameters:
+        - name: executionId
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Execution status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExecutionStatus'
+
+  /quality/validate/{datasetId}:
+    post:
+      summary: Validate dataset quality
+      description: Runs quality validation checks on a dataset
+      operationId: validateDatasetQuality
+      tags:
+        - Quality Assurance
+      parameters:
+        - name: datasetId
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                checks:
+                  type: array
+                  items:
+                    type: string
+                    enum: [completeness, accuracy, consistency, validity]
+      responses:
+        '200':
+          description: Validation results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/QualityReport'
+
+  /search:
+    get:
+      summary: Search datasets
+      description: Search for datasets using various criteria
+      operationId: searchDatasets
+      tags:
+        - Search
+      parameters:
+        - name: q
+          in: query
+          schema:
+            type: string
+          description: Text search query
+        - name: bbox
+          in: query
+          schema:
+            type: array
+            items:
+              type: number
+            minItems: 4
+            maxItems: 4
+        - name: temporal
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+            enum: [vector, raster, point_cloud, time_series, network]
+        - name: tags
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Search results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SearchResults'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    DatasetList:
+      type: object
+      required:
+        - datasets
+        - pagination
+      properties:
+        datasets:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasetSummary'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    DatasetSummary:
+      type: object
+      required:
+        - id
+        - title
+        - type
+        - created_at
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [vector, raster, point_cloud, time_series, network]
+        format:
+          type: string
+        size:
+          type: integer
+        bbox:
+          type: array
+          items:
+            type: number
+          minItems: 4
+          maxItems: 4
+        temporal_extent:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        tags:
+          type: array
+          items:
+            type: string
+
+    Dataset:
+      allOf:
+        - $ref: '#/components/schemas/DatasetSummary'
+        - type: object
+          properties:
+            metadata:
+              $ref: '#/components/schemas/DatasetMetadata'
+            quality_score:
+              type: number
+              minimum: 0
+              maximum: 1
+            access_url:
+              type: string
+              format: uri
+            download_url:
+              type: string
+              format: uri
+            storage_backend:
+              type: string
+            permissions:
+              type: object
+              properties:
+                read:
+                  type: array
+                  items:
+                    type: string
+                write:
+                  type: array
+                  items:
+                    type: string
+                admin:
+                  type: array
+                  items:
+                    type: string
+
+    DatasetCreate:
+      type: object
+      required:
+        - title
+        - type
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        type:
+          type: string
+          enum: [vector, raster, point_cloud, time_series, network]
+        format:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        storage_backend:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/DatasetMetadata'
+
+    DatasetUpdate:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        metadata:
+          $ref: '#/components/schemas/DatasetMetadata'
+
+    DatasetMetadata:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        keywords:
+          type: array
+          items:
+            type: string
+        spatial:
+          type: object
+          properties:
+            bbox:
+              type: array
+              items:
+                type: number
+              minItems: 4
+              maxItems: 6
+            crs:
+              type: string
+            resolution:
+              type: number
+        temporal:
+          type: object
+          properties:
+            start:
+              type: string
+              format: date-time
+            end:
+              type: string
+              format: date-time
+            resolution:
+              type: string
+        lineage:
+          type: object
+          properties:
+            source:
+              type: string
+            process:
+              type: string
+            created_by:
+              type: string
+            created_at:
+              type: string
+              format: date-time
+        quality:
+          type: object
+          properties:
+            completeness:
+              type: number
+            accuracy:
+              type: number
+            consistency:
+              type: number
+            validity:
+              type: number
+        contact:
+          type: object
+          properties:
+            name:
+              type: string
+            organization:
+              type: string
+            email:
+              type: string
+              format: email
+        license:
+          type: string
+        rights:
+          type: string
+
+    StorageBackend:
+      type: object
+      required:
+        - id
+        - type
+        - status
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+          enum: [local, s3, gcs, azure_blob, postgresql, mongodb]
+        status:
+          type: string
+          enum: [available, unavailable, degraded]
+        configuration:
+          type: object
+        capacity:
+          type: object
+          properties:
+            total:
+              type: integer
+            used:
+              type: integer
+            available:
+              type: integer
+
+    ETLPipeline:
+      type: object
+      required:
+        - id
+        - name
+        - source
+        - destination
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        source:
+          $ref: '#/components/schemas/DataSource'
+        destination:
+          $ref: '#/components/schemas/DataDestination'
+        transformations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transformation'
+        schedule:
+          type: object
+          properties:
+            cron:
+              type: string
+            timezone:
+              type: string
+        status:
+          type: string
+          enum: [active, inactive, disabled]
+
+    ETLPipelineCreate:
+      type: object
+      required:
+        - name
+        - source
+        - destination
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        source:
+          $ref: '#/components/schemas/DataSource'
+        destination:
+          $ref: '#/components/schemas/DataDestination'
+        transformations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transformation'
+        schedule:
+          type: object
+          properties:
+            cron:
+              type: string
+            timezone:
+              type: string
+
+    DataSource:
+      type: object
+      required:
+        - type
+        - configuration
+      properties:
+        type:
+          type: string
+          enum: [file, database, api, stream]
+        configuration:
+          type: object
+        credentials:
+          type: object
+
+    DataDestination:
+      type: object
+      required:
+        - type
+        - configuration
+      properties:
+        type:
+          type: string
+          enum: [dataset, database, file, api]
+        configuration:
+          type: object
+
+    Transformation:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [filter, transform, aggregate, validate, clean]
+        parameters:
+          type: object
+
+    ExecutionStatus:
+      type: object
+      required:
+        - id
+        - status
+        - created_at
+      properties:
+        id:
+          type: string
+        pipeline_id:
+          type: string
+        status:
+          type: string
+          enum: [pending, running, completed, failed, cancelled]
+        progress:
+          type: number
+          minimum: 0
+          maximum: 100
+        message:
+          type: string
+        started_at:
+          type: string
+          format: date-time
+        completed_at:
+          type: string
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+        logs:
+          type: array
+          items:
+            type: object
+            properties:
+              timestamp:
+                type: string
+                format: date-time
+              level:
+                type: string
+                enum: [debug, info, warning, error]
+              message:
+                type: string
+
+    QualityReport:
+      type: object
+      required:
+        - dataset_id
+        - overall_score
+        - checks
+      properties:
+        dataset_id:
+          type: string
+        overall_score:
+          type: number
+          minimum: 0
+          maximum: 1
+        checks:
+          type: object
+          properties:
+            completeness:
+              $ref: '#/components/schemas/QualityCheck'
+            accuracy:
+              $ref: '#/components/schemas/QualityCheck'
+            consistency:
+              $ref: '#/components/schemas/QualityCheck'
+            validity:
+              $ref: '#/components/schemas/QualityCheck'
+        generated_at:
+          type: string
+          format: date-time
+
+    QualityCheck:
+      type: object
+      required:
+        - score
+        - status
+      properties:
+        score:
+          type: number
+          minimum: 0
+          maximum: 1
+        status:
+          type: string
+          enum: [pass, fail, warning]
+        issues:
+          type: array
+          items:
+            type: object
+            properties:
+              type:
+                type: string
+              message:
+                type: string
+              severity:
+                type: string
+                enum: [low, medium, high, critical]
+
+    SearchResults:
+      type: object
+      required:
+        - results
+        - total
+      properties:
+        results:
+          type: array
+          items:
+            $ref: '#/components/schemas/DatasetSummary'
+        total:
+          type: integer
+        facets:
+          type: object
+          properties:
+            types:
+              type: object
+              additionalProperties:
+                type: integer
+            tags:
+              type: object
+              additionalProperties:
+                type: integer
+
+    Pagination:
+      type: object
+      required:
+        - page
+        - limit
+        - total
+      properties:
+        page:
+          type: integer
+          minimum: 1
+        limit:
+          type: integer
+          minimum: 1
+        total:
+          type: integer
+        has_next:
+          type: boolean
+        has_prev:
+          type: boolean
+
+    HealthStatus:
+      type: object
+      required:
+        - status
+      properties:
+        status:
+          type: string
+          enum: [healthy, degraded, unhealthy]
+        message:
+          type: string
+        checked_at:
+          type: string
+          format: date-time
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+tags:
+  - name: Datasets
+    description: Dataset management operations
+  - name: Data Access
+    description: Data content access and upload
+  - name: Metadata
+    description: Dataset metadata management
+  - name: Storage
+    description: Storage backend management
+  - name: ETL
+    description: Extract, Transform, Load operations
+  - name: Quality Assurance
+    description: Data quality validation
+  - name: Search
+    description: Dataset search and discovery 

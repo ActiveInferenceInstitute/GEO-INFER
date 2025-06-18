@@ -1,0 +1,1142 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-BAYES API
+  description: |
+    Bayesian Spatial Analysis and Probabilistic Modeling
+    
+    Provides Bayesian statistical methods, spatial Gaussian processes,
+    and probabilistic inference for geospatial uncertainty analysis.
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Bayes Team
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://bayes-api.geo-infer.org/v1
+    description: Production Bayesian server
+  - url: http://localhost:8005/v1
+    description: Local development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+paths:
+  # Bayesian Spatial Models
+  /models/gaussian-process:
+    post:
+      summary: Gaussian Process modeling
+      description: Fits Gaussian Process models for spatial prediction
+      operationId: fitGaussianProcess
+      tags:
+        - Bayesian Models
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GaussianProcessRequest'
+      responses:
+        '200':
+          description: Gaussian Process model results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GaussianProcessResponse'
+
+  /models/spatial-gp:
+    post:
+      summary: Spatial Gaussian Process
+      description: Fits spatial GP models with specific covariance functions
+      operationId: fitSpatialGP
+      tags:
+        - Bayesian Models
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpatialGPRequest'
+      responses:
+        '200':
+          description: Spatial GP model results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpatialGPResponse'
+
+  /models/hierarchical:
+    post:
+      summary: Hierarchical Bayesian models
+      description: Fits hierarchical Bayesian spatial models
+      operationId: fitHierarchicalModel
+      tags:
+        - Bayesian Models
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HierarchicalModelRequest'
+      responses:
+        '200':
+          description: Hierarchical model results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HierarchicalModelResponse'
+
+  # Inference Methods
+  /inference/mcmc:
+    post:
+      summary: MCMC inference
+      description: Performs Markov Chain Monte Carlo inference
+      operationId: performMCMC
+      tags:
+        - Inference
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MCMCRequest'
+      responses:
+        '200':
+          description: MCMC inference results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MCMCResponse'
+
+  /inference/variational:
+    post:
+      summary: Variational inference
+      description: Performs variational Bayesian inference
+      operationId: performVariationalInference
+      tags:
+        - Inference
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VariationalInferenceRequest'
+      responses:
+        '200':
+          description: Variational inference results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/VariationalInferenceResponse'
+
+  /inference/approximate:
+    post:
+      summary: Approximate Bayesian computation
+      description: Performs ABC for complex spatial models
+      operationId: performABC
+      tags:
+        - Inference
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ABCRequest'
+      responses:
+        '200':
+          description: ABC inference results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ABCResponse'
+
+  # Uncertainty Quantification
+  /uncertainty/spatial-prediction:
+    post:
+      summary: Spatial prediction uncertainty
+      description: Quantifies uncertainty in spatial predictions
+      operationId: quantifySpatialUncertainty
+      tags:
+        - Uncertainty
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SpatialUncertaintyRequest'
+      responses:
+        '200':
+          description: Spatial uncertainty quantification
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpatialUncertaintyResponse'
+
+  /uncertainty/propagation:
+    post:
+      summary: Uncertainty propagation
+      description: Propagates uncertainty through spatial models
+      operationId: propagateUncertainty
+      tags:
+        - Uncertainty
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UncertaintyPropagationRequest'
+      responses:
+        '200':
+          description: Uncertainty propagation results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UncertaintyPropagationResponse'
+
+  # Model Selection and Comparison
+  /model-selection/comparison:
+    post:
+      summary: Bayesian model comparison
+      description: Compares multiple Bayesian models using information criteria
+      operationId: compareBayesianModels
+      tags:
+        - Model Selection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelComparisonRequest'
+      responses:
+        '200':
+          description: Model comparison results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelComparisonResponse'
+
+  /model-selection/averaging:
+    post:
+      summary: Bayesian model averaging
+      description: Performs Bayesian model averaging across multiple models
+      operationId: averageBayesianModels
+      tags:
+        - Model Selection
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelAveragingRequest'
+      responses:
+        '200':
+          description: Model averaging results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelAveragingResponse'
+
+  # Prior Specification
+  /priors/elicitation:
+    post:
+      summary: Prior elicitation
+      description: Assists in eliciting prior distributions
+      operationId: elicitPriors
+      tags:
+        - Priors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriorElicitationRequest'
+      responses:
+        '200':
+          description: Elicited prior distributions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriorElicitationResponse'
+
+  /priors/sensitivity:
+    post:
+      summary: Prior sensitivity analysis
+      description: Performs sensitivity analysis on prior specifications
+      operationId: analyzePriorSensitivity
+      tags:
+        - Priors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PriorSensitivityRequest'
+      responses:
+        '200':
+          description: Prior sensitivity analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PriorSensitivityResponse'
+
+  # Spatial Point Processes
+  /point-processes/cox:
+    post:
+      summary: Cox process modeling
+      description: Fits Cox process models for spatial point patterns
+      operationId: fitCoxProcess
+      tags:
+        - Point Processes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CoxProcessRequest'
+      responses:
+        '200':
+          description: Cox process model results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointProcessResponse'
+
+  /point-processes/cluster:
+    post:
+      summary: Cluster process modeling
+      description: Fits cluster process models for spatial point patterns
+      operationId: fitClusterProcess
+      tags:
+        - Point Processes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClusterProcessRequest'
+      responses:
+        '200':
+          description: Cluster process model results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PointProcessResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Gaussian Process schemas
+    GaussianProcessRequest:
+      type: object
+      required:
+        - training_data
+        - prediction_locations
+      properties:
+        training_data:
+          $ref: '#/components/schemas/SpatialDataset'
+        prediction_locations:
+          oneOf:
+            - $ref: '#/components/schemas/FeatureCollection'
+            - $ref: '#/components/schemas/RegularGrid'
+        response_variable:
+          type: string
+        covariate_variables:
+          type: array
+          items:
+            type: string
+        kernel:
+          $ref: '#/components/schemas/KernelSpecification'
+        mean_function:
+          type: string
+          enum: [constant, linear, quadratic]
+          default: constant
+        noise_model:
+          type: string
+          enum: [gaussian, student_t, gamma]
+          default: gaussian
+
+    GaussianProcessResponse:
+      type: object
+      required:
+        - predictions
+        - uncertainty
+        - model_parameters
+      properties:
+        predictions:
+          $ref: '#/components/schemas/FeatureCollection'
+        uncertainty:
+          $ref: '#/components/schemas/FeatureCollection'
+        model_parameters:
+          type: object
+          properties:
+            kernel_parameters:
+              type: object
+            noise_variance:
+              type: number
+            log_likelihood:
+              type: number
+        diagnostics:
+          type: object
+          properties:
+            convergence:
+              type: boolean
+            effective_sample_size:
+              type: number
+            r_hat:
+              type: number
+
+    SpatialGPRequest:
+      type: object
+      required:
+        - spatial_data
+        - covariance_function
+      properties:
+        spatial_data:
+          $ref: '#/components/schemas/SpatialDataset'
+        covariance_function:
+          type: string
+          enum: [matern, exponential, squared_exponential, rational_quadratic]
+        range_prior:
+          $ref: '#/components/schemas/PriorDistribution'
+        variance_prior:
+          $ref: '#/components/schemas/PriorDistribution'
+        nugget_prior:
+          $ref: '#/components/schemas/PriorDistribution'
+
+    SpatialGPResponse:
+      type: object
+      required:
+        - posterior_samples
+        - predictive_distribution
+      properties:
+        posterior_samples:
+          type: object
+          properties:
+            range:
+              type: array
+              items:
+                type: number
+            variance:
+              type: array
+              items:
+                type: number
+            nugget:
+              type: array
+              items:
+                type: number
+        predictive_distribution:
+          $ref: '#/components/schemas/PredictiveDistribution'
+        model_fit:
+          type: object
+          properties:
+            dic:
+              type: number
+            waic:
+              type: number
+            loo:
+              type: number
+
+    # Hierarchical Models
+    HierarchicalModelRequest:
+      type: object
+      required:
+        - data
+        - model_structure
+      properties:
+        data:
+          $ref: '#/components/schemas/HierarchicalData'
+        model_structure:
+          type: object
+          properties:
+            levels:
+              type: array
+              items:
+                type: object
+                properties:
+                  level_name:
+                    type: string
+                  variables:
+                    type: array
+                    items:
+                      type: string
+                  priors:
+                    type: object
+        spatial_structure:
+          type: boolean
+          default: false
+
+    HierarchicalModelResponse:
+      type: object
+      required:
+        - level_estimates
+        - random_effects
+      properties:
+        level_estimates:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              mean:
+                type: number
+              credible_interval:
+                type: array
+                items:
+                  type: number
+                minItems: 2
+                maxItems: 2
+        random_effects:
+          $ref: '#/components/schemas/FeatureCollection'
+        hyperparameters:
+          type: object
+
+    # MCMC schemas
+    MCMCRequest:
+      type: object
+      required:
+        - model_specification
+        - data
+      properties:
+        model_specification:
+          type: object
+        data:
+          $ref: '#/components/schemas/SpatialDataset'
+        mcmc_settings:
+          type: object
+          properties:
+            n_samples:
+              type: integer
+              default: 10000
+            n_warmup:
+              type: integer
+              default: 5000
+            n_chains:
+              type: integer
+              default: 4
+            thin:
+              type: integer
+              default: 1
+            algorithm:
+              type: string
+              enum: [nuts, hmc, gibbs, metropolis]
+              default: nuts
+
+    MCMCResponse:
+      type: object
+      required:
+        - posterior_samples
+        - diagnostics
+      properties:
+        posterior_samples:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: number
+        diagnostics:
+          type: object
+          properties:
+            r_hat:
+              type: object
+              additionalProperties:
+                type: number
+            effective_sample_size:
+              type: object
+              additionalProperties:
+                type: number
+            divergences:
+              type: integer
+            energy_diagnostics:
+              type: object
+        summary_statistics:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              mean:
+                type: number
+              std:
+                type: number
+              quantiles:
+                type: object
+
+    # Variational Inference
+    VariationalInferenceRequest:
+      type: object
+      required:
+        - model_specification
+        - data
+      properties:
+        model_specification:
+          type: object
+        data:
+          $ref: '#/components/schemas/SpatialDataset'
+        variational_family:
+          type: string
+          enum: [mean_field, full_rank, normalizing_flow]
+          default: mean_field
+        optimization_settings:
+          type: object
+          properties:
+            max_iterations:
+              type: integer
+              default: 10000
+            learning_rate:
+              type: number
+              default: 0.01
+            convergence_tolerance:
+              type: number
+              default: 1e-6
+
+    VariationalInferenceResponse:
+      type: object
+      required:
+        - variational_parameters
+        - elbo
+      properties:
+        variational_parameters:
+          type: object
+        elbo:
+          type: number
+        approximate_posterior:
+          type: object
+        diagnostics:
+          type: object
+          properties:
+            convergence:
+              type: boolean
+            final_elbo:
+              type: number
+            iterations:
+              type: integer
+
+    # ABC schemas
+    ABCRequest:
+      type: object
+      required:
+        - model_simulator
+        - observed_data
+        - prior_distributions
+      properties:
+        model_simulator:
+          type: object
+        observed_data:
+          $ref: '#/components/schemas/SpatialDataset'
+        prior_distributions:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PriorDistribution'
+        abc_settings:
+          type: object
+          properties:
+            n_samples:
+              type: integer
+              default: 10000
+            tolerance:
+              type: number
+            distance_metric:
+              type: string
+              enum: [euclidean, wasserstein, energy]
+              default: euclidean
+
+    ABCResponse:
+      type: object
+      required:
+        - posterior_samples
+        - acceptance_rate
+      properties:
+        posterior_samples:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: number
+        acceptance_rate:
+          type: number
+        summary_statistics:
+          type: object
+
+    # Uncertainty schemas
+    SpatialUncertaintyRequest:
+      type: object
+      required:
+        - model
+        - prediction_locations
+      properties:
+        model:
+          oneOf:
+            - type: string
+              description: Model ID
+            - type: object
+              description: Model specification
+        prediction_locations:
+          $ref: '#/components/schemas/FeatureCollection'
+        uncertainty_type:
+          type: string
+          enum: [epistemic, aleatoric, total]
+          default: total
+        confidence_level:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 0.95
+
+    SpatialUncertaintyResponse:
+      type: object
+      required:
+        - uncertainty_maps
+      properties:
+        uncertainty_maps:
+          type: object
+          properties:
+            prediction_mean:
+              $ref: '#/components/schemas/FeatureCollection'
+            prediction_variance:
+              $ref: '#/components/schemas/FeatureCollection'
+            confidence_intervals:
+              $ref: '#/components/schemas/FeatureCollection'
+            probability_exceedance:
+              $ref: '#/components/schemas/FeatureCollection'
+
+    UncertaintyPropagationRequest:
+      type: object
+      required:
+        - input_uncertainties
+        - model_chain
+      properties:
+        input_uncertainties:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/UncertaintyDistribution'
+        model_chain:
+          type: array
+          items:
+            type: object
+            properties:
+              model_id:
+                type: string
+              inputs:
+                type: array
+                items:
+                  type: string
+              outputs:
+                type: array
+                items:
+                  type: string
+        propagation_method:
+          type: string
+          enum: [monte_carlo, polynomial_chaos, delta_method]
+          default: monte_carlo
+
+    UncertaintyPropagationResponse:
+      type: object
+      required:
+        - output_uncertainties
+      properties:
+        output_uncertainties:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/UncertaintyDistribution'
+        sensitivity_indices:
+          type: object
+        correlation_matrix:
+          type: array
+          items:
+            type: array
+            items:
+              type: number
+
+    # Model Selection schemas
+    ModelComparisonRequest:
+      type: object
+      required:
+        - models
+        - data
+      properties:
+        models:
+          type: array
+          items:
+            type: object
+            properties:
+              model_id:
+                type: string
+              model_specification:
+                type: object
+        data:
+          $ref: '#/components/schemas/SpatialDataset'
+        comparison_metrics:
+          type: array
+          items:
+            type: string
+            enum: [dic, waic, loo, bayes_factor]
+          default: [dic, waic, loo]
+
+    ModelComparisonResponse:
+      type: object
+      required:
+        - model_rankings
+      properties:
+        model_rankings:
+          type: array
+          items:
+            type: object
+            properties:
+              model_id:
+                type: string
+              rank:
+                type: integer
+              scores:
+                type: object
+                additionalProperties:
+                  type: number
+        best_model:
+          type: string
+        model_weights:
+          type: object
+          additionalProperties:
+            type: number
+
+    ModelAveragingRequest:
+      type: object
+      required:
+        - models
+        - model_weights
+        - prediction_locations
+      properties:
+        models:
+          type: array
+          items:
+            type: string
+        model_weights:
+          type: object
+          additionalProperties:
+            type: number
+        prediction_locations:
+          $ref: '#/components/schemas/FeatureCollection'
+        averaging_method:
+          type: string
+          enum: [bayesian, information_criterion, stacking]
+          default: bayesian
+
+    ModelAveragingResponse:
+      type: object
+      required:
+        - averaged_predictions
+      properties:
+        averaged_predictions:
+          $ref: '#/components/schemas/FeatureCollection'
+        model_contributions:
+          type: object
+          additionalProperties:
+            type: number
+        uncertainty_decomposition:
+          type: object
+
+    # Prior schemas
+    PriorElicitationRequest:
+      type: object
+      required:
+        - parameters
+        - expert_knowledge
+      properties:
+        parameters:
+          type: array
+          items:
+            type: string
+        expert_knowledge:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              quantiles:
+                type: object
+              moments:
+                type: object
+              constraints:
+                type: object
+        elicitation_method:
+          type: string
+          enum: [quantile_matching, moment_matching, maximum_entropy]
+          default: quantile_matching
+
+    PriorElicitationResponse:
+      type: object
+      required:
+        - elicited_priors
+      properties:
+        elicited_priors:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PriorDistribution'
+        goodness_of_fit:
+          type: object
+        sensitivity_analysis:
+          type: object
+
+    PriorSensitivityRequest:
+      type: object
+      required:
+        - base_model
+        - prior_variations
+      properties:
+        base_model:
+          type: object
+        prior_variations:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              $ref: '#/components/schemas/PriorDistribution'
+        sensitivity_measures:
+          type: array
+          items:
+            type: string
+            enum: [kl_divergence, wasserstein_distance, posterior_variance]
+
+    PriorSensitivityResponse:
+      type: object
+      required:
+        - sensitivity_results
+      properties:
+        sensitivity_results:
+          type: object
+          additionalProperties:
+            type: object
+            properties:
+              sensitivity_index:
+                type: number
+              posterior_change:
+                type: number
+        robust_conclusions:
+          type: array
+          items:
+            type: string
+
+    # Point Process schemas
+    CoxProcessRequest:
+      type: object
+      required:
+        - point_pattern
+        - intensity_covariates
+      properties:
+        point_pattern:
+          $ref: '#/components/schemas/FeatureCollection'
+        intensity_covariates:
+          $ref: '#/components/schemas/FeatureCollection'
+        log_intensity_model:
+          type: string
+          enum: [linear, gaussian_process, neural_network]
+          default: linear
+
+    ClusterProcessRequest:
+      type: object
+      required:
+        - point_pattern
+      properties:
+        point_pattern:
+          $ref: '#/components/schemas/FeatureCollection'
+        cluster_model:
+          type: string
+          enum: [thomas, matern, lgcp]
+        parent_intensity:
+          $ref: '#/components/schemas/PriorDistribution'
+        cluster_parameters:
+          type: object
+
+    PointProcessResponse:
+      type: object
+      required:
+        - fitted_model
+        - intensity_surface
+      properties:
+        fitted_model:
+          type: object
+        intensity_surface:
+          $ref: '#/components/schemas/FeatureCollection'
+        residual_analysis:
+          type: object
+        goodness_of_fit:
+          type: object
+
+    # Utility schemas
+    KernelSpecification:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+          enum: [rbf, matern, exponential, linear, polynomial]
+        parameters:
+          type: object
+        priors:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/PriorDistribution'
+
+    PriorDistribution:
+      type: object
+      required:
+        - distribution
+        - parameters
+      properties:
+        distribution:
+          type: string
+          enum: [normal, gamma, beta, uniform, lognormal, inverse_gamma]
+        parameters:
+          type: object
+        truncation:
+          type: object
+          properties:
+            lower:
+              type: number
+            upper:
+              type: number
+
+    PredictiveDistribution:
+      type: object
+      required:
+        - mean
+        - variance
+      properties:
+        mean:
+          $ref: '#/components/schemas/FeatureCollection'
+        variance:
+          $ref: '#/components/schemas/FeatureCollection'
+        quantiles:
+          type: object
+          additionalProperties:
+            $ref: '#/components/schemas/FeatureCollection'
+        samples:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeatureCollection'
+
+    UncertaintyDistribution:
+      type: object
+      required:
+        - type
+        - parameters
+      properties:
+        type:
+          type: string
+          enum: [normal, lognormal, beta, uniform, empirical]
+        parameters:
+          type: object
+        correlation:
+          type: object
+
+    SpatialDataset:
+      type: object
+      required:
+        - features
+      properties:
+        features:
+          $ref: '#/components/schemas/FeatureCollection'
+        metadata:
+          type: object
+
+    HierarchicalData:
+      type: object
+      required:
+        - data
+        - grouping_structure
+      properties:
+        data:
+          $ref: '#/components/schemas/SpatialDataset'
+        grouping_structure:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+
+    RegularGrid:
+      type: object
+      required:
+        - bbox
+        - resolution
+      properties:
+        bbox:
+          type: array
+          items:
+            type: number
+          minItems: 4
+          maxItems: 4
+        resolution:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+
+    # GeoJSON schemas (simplified)
+    FeatureCollection:
+      type: object
+      required:
+        - type
+        - features
+      properties:
+        type:
+          type: string
+          enum: [FeatureCollection]
+        features:
+          type: array
+          items:
+            $ref: '#/components/schemas/Feature'
+
+    Feature:
+      type: object
+      required:
+        - type
+        - geometry
+        - properties
+      properties:
+        type:
+          type: string
+          enum: [Feature]
+        id:
+          oneOf:
+            - type: string
+            - type: integer
+        geometry:
+          type: object
+        properties:
+          type: object
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+tags:
+  - name: Bayesian Models
+    description: Bayesian spatial modeling methods
+  - name: Inference
+    description: Bayesian inference algorithms
+  - name: Uncertainty
+    description: Uncertainty quantification methods
+  - name: Model Selection
+    description: Model comparison and averaging
+  - name: Priors
+    description: Prior specification and analysis
+  - name: Point Processes
+    description: Spatial point process modeling 

@@ -1,0 +1,1256 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-HEALTH API
+  description: |
+    Spatial Health Analytics and Epidemiological Intelligence
+    
+    Provides spatial epidemiology, disease surveillance, health accessibility,
+    and environmental health analysis capabilities.
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Health Team
+  license:
+    name: CC BY-NC-SA 4.0
+    url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+servers:
+  - url: https://health-api.geo-infer.org/v1
+    description: Production health server
+  - url: http://localhost:8008/v1
+    description: Local development server
+
+security:
+  - ApiKeyAuth: []
+  - BearerAuth: []
+
+paths:
+  # Disease Surveillance
+  /surveillance/outbreaks:
+    get:
+      summary: List disease outbreaks
+      description: Returns current and historical disease outbreak data
+      operationId: listOutbreaks
+      tags:
+        - Disease Surveillance
+      parameters:
+        - name: disease
+          in: query
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [active, resolved, monitoring]
+        - name: bbox
+          in: query
+          schema:
+            type: array
+            items:
+              type: number
+            minItems: 4
+            maxItems: 4
+        - name: date_range
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of disease outbreaks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DiseaseOutbreak'
+    post:
+      summary: Report disease outbreak
+      description: Reports a new disease outbreak event
+      operationId: reportOutbreak
+      tags:
+        - Disease Surveillance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/OutbreakReport'
+      responses:
+        '201':
+          description: Outbreak reported successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiseaseOutbreak'
+
+  /surveillance/early-warning:
+    post:
+      summary: Early warning detection
+      description: Detects early warning signals for disease outbreaks
+      operationId: detectEarlyWarning
+      tags:
+        - Disease Surveillance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EarlyWarningRequest'
+      responses:
+        '200':
+          description: Early warning analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EarlyWarningResponse'
+
+  /surveillance/contact-tracing:
+    post:
+      summary: Contact tracing analysis
+      description: Performs spatial contact tracing analysis
+      operationId: performContactTracing
+      tags:
+        - Disease Surveillance
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactTracingRequest'
+      responses:
+        '200':
+          description: Contact tracing results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ContactTracingResponse'
+
+  # Spatial Epidemiology
+  /epidemiology/disease-mapping:
+    post:
+      summary: Disease mapping analysis
+      description: Creates disease incidence and prevalence maps
+      operationId: performDiseaseMapping
+      tags:
+        - Spatial Epidemiology
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiseaseMappingRequest'
+      responses:
+        '200':
+          description: Disease mapping results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiseaseMappingResponse'
+
+  /epidemiology/cluster-detection:
+    post:
+      summary: Disease cluster detection
+      description: Detects spatial and temporal disease clusters
+      operationId: detectDiseaseClusters
+      tags:
+        - Spatial Epidemiology
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClusterDetectionRequest'
+      responses:
+        '200':
+          description: Cluster detection results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClusterDetectionResponse'
+
+  /epidemiology/risk-assessment:
+    post:
+      summary: Spatial risk assessment
+      description: Performs spatial disease risk assessment
+      operationId: assessSpatialRisk
+      tags:
+        - Spatial Epidemiology
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RiskAssessmentRequest'
+      responses:
+        '200':
+          description: Risk assessment results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RiskAssessmentResponse'
+
+  # Health Services Access
+  /access/healthcare-facilities:
+    get:
+      summary: List healthcare facilities
+      description: Returns healthcare facility locations and services
+      operationId: listHealthcareFacilities
+      tags:
+        - Health Access
+      parameters:
+        - name: facility_type
+          in: query
+          schema:
+            type: string
+            enum: [hospital, clinic, pharmacy, emergency, specialist]
+        - name: bbox
+          in: query
+          schema:
+            type: array
+            items:
+              type: number
+            minItems: 4
+            maxItems: 4
+        - name: services
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: List of healthcare facilities
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeatureCollection'
+
+  /access/accessibility-analysis:
+    post:
+      summary: Healthcare accessibility analysis
+      description: Analyzes accessibility to healthcare services
+      operationId: analyzeHealthcareAccessibility
+      tags:
+        - Health Access
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessibilityAnalysisRequest'
+      responses:
+        '200':
+          description: Accessibility analysis results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessibilityAnalysisResponse'
+
+  /access/service-areas:
+    post:
+      summary: Healthcare service areas
+      description: Calculates service areas for healthcare facilities
+      operationId: calculateServiceAreas
+      tags:
+        - Health Access
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ServiceAreaRequest'
+      responses:
+        '200':
+          description: Service area results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ServiceAreaResponse'
+
+  # Environmental Health
+  /environmental-health/exposure-assessment:
+    post:
+      summary: Environmental exposure assessment
+      description: Assesses population exposure to environmental hazards
+      operationId: assessEnvironmentalExposure
+      tags:
+        - Environmental Health
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExposureAssessmentRequest'
+      responses:
+        '200':
+          description: Exposure assessment results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExposureAssessmentResponse'
+
+  /environmental-health/air-quality:
+    post:
+      summary: Air quality health impact
+      description: Analyzes health impacts of air quality
+      operationId: analyzeAirQualityImpact
+      tags:
+        - Environmental Health
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AirQualityAnalysisRequest'
+      responses:
+        '200':
+          description: Air quality impact analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AirQualityAnalysisResponse'
+
+  /environmental-health/water-quality:
+    post:
+      summary: Water quality health assessment
+      description: Assesses health risks from water quality issues
+      operationId: assessWaterQuality
+      tags:
+        - Environmental Health
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WaterQualityAssessmentRequest'
+      responses:
+        '200':
+          description: Water quality assessment results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WaterQualityAssessmentResponse'
+
+  # Health Data Analytics
+  /analytics/health-indicators:
+    get:
+      summary: Health indicators
+      description: Returns available health indicators and metrics
+      operationId: getHealthIndicators
+      tags:
+        - Health Analytics
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+            enum: [mortality, morbidity, behavioral, environmental, social]
+        - name: spatial_level
+          in: query
+          schema:
+            type: string
+            enum: [country, state, county, city, neighborhood]
+      responses:
+        '200':
+          description: Health indicators
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/HealthIndicator'
+
+  /analytics/health-disparities:
+    post:
+      summary: Health disparities analysis
+      description: Analyzes spatial health disparities and inequities
+      operationId: analyzeHealthDisparities
+      tags:
+        - Health Analytics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HealthDisparitiesRequest'
+      responses:
+        '200':
+          description: Health disparities analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthDisparitiesResponse'
+
+  /analytics/social-determinants:
+    post:
+      summary: Social determinants analysis
+      description: Analyzes social determinants of health
+      operationId: analyzeSocialDeterminants
+      tags:
+        - Health Analytics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SocialDeterminantsRequest'
+      responses:
+        '200':
+          description: Social determinants analysis
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SocialDeterminantsResponse'
+
+  # Disease Modeling
+  /modeling/epidemic:
+    post:
+      summary: Epidemic modeling
+      description: Runs epidemic spread models
+      operationId: runEpidemicModel
+      tags:
+        - Disease Modeling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EpidemicModelRequest'
+      responses:
+        '200':
+          description: Epidemic model results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EpidemicModelResponse'
+
+  /modeling/intervention:
+    post:
+      summary: Intervention modeling
+      description: Models health intervention effectiveness
+      operationId: modelInterventions
+      tags:
+        - Disease Modeling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InterventionModelRequest'
+      responses:
+        '200':
+          description: Intervention model results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InterventionModelResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    # Disease Surveillance schemas
+    DiseaseOutbreak:
+      type: object
+      required:
+        - id
+        - disease
+        - location
+        - start_date
+        - status
+      properties:
+        id:
+          type: string
+        disease:
+          type: string
+        disease_code:
+          type: string
+        location:
+          $ref: '#/components/schemas/Geometry'
+        affected_area:
+          $ref: '#/components/schemas/Geometry'
+        start_date:
+          type: string
+          format: date
+        end_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [active, resolved, monitoring, suspected]
+        case_count:
+          type: integer
+        death_count:
+          type: integer
+        attack_rate:
+          type: number
+        case_fatality_rate:
+          type: number
+        transmission_mode:
+          type: string
+        source_investigation:
+          type: object
+        control_measures:
+          type: array
+          items:
+            type: object
+        reporting_agency:
+          type: string
+        last_updated:
+          type: string
+          format: date-time
+
+    OutbreakReport:
+      type: object
+      required:
+        - disease
+        - location
+        - case_count
+        - start_date
+      properties:
+        disease:
+          type: string
+        disease_code:
+          type: string
+        location:
+          $ref: '#/components/schemas/Geometry'
+        case_count:
+          type: integer
+        death_count:
+          type: integer
+        start_date:
+          type: string
+          format: date
+        symptoms:
+          type: array
+          items:
+            type: string
+        transmission_mode:
+          type: string
+        reporter_contact:
+          type: object
+        additional_details:
+          type: string
+
+    EarlyWarningRequest:
+      type: object
+      required:
+        - surveillance_data
+        - baseline_period
+      properties:
+        surveillance_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        baseline_period:
+          type: object
+          properties:
+            start_date:
+              type: string
+              format: date
+            end_date:
+              type: string
+              format: date
+        detection_methods:
+          type: array
+          items:
+            type: string
+            enum: [cusum, ewma, statistical_process_control, aberration_detection]
+        alert_thresholds:
+          type: object
+        spatial_aggregation:
+          type: string
+          enum: [point, administrative, grid]
+
+    EarlyWarningResponse:
+      type: object
+      required:
+        - alerts
+        - analysis_results
+      properties:
+        alerts:
+          type: array
+          items:
+            type: object
+            properties:
+              location:
+                $ref: '#/components/schemas/Geometry'
+              alert_level:
+                type: string
+                enum: [low, medium, high, critical]
+              disease:
+                type: string
+              alert_date:
+                type: string
+                format: date
+              confidence:
+                type: number
+              expected_cases:
+                type: number
+              observed_cases:
+                type: number
+        analysis_results:
+          $ref: '#/components/schemas/FeatureCollection'
+        performance_metrics:
+          type: object
+
+    ContactTracingRequest:
+      type: object
+      required:
+        - index_cases
+        - contact_data
+        - tracing_parameters
+      properties:
+        index_cases:
+          $ref: '#/components/schemas/FeatureCollection'
+        contact_data:
+          type: array
+          items:
+            type: object
+            properties:
+              person_id:
+                type: string
+              contact_id:
+                type: string
+              contact_type:
+                type: string
+              contact_date:
+                type: string
+                format: date
+              location:
+                $ref: '#/components/schemas/Geometry'
+              duration:
+                type: number
+        tracing_parameters:
+          type: object
+          properties:
+            max_degrees:
+              type: integer
+            time_window:
+              type: integer
+            distance_threshold:
+              type: number
+
+    ContactTracingResponse:
+      type: object
+      required:
+        - contact_network
+        - transmission_chains
+      properties:
+        contact_network:
+          type: object
+          properties:
+            nodes:
+              type: array
+              items:
+                type: object
+            edges:
+              type: array
+              items:
+                type: object
+        transmission_chains:
+          $ref: '#/components/schemas/FeatureCollection'
+        risk_assessment:
+          $ref: '#/components/schemas/FeatureCollection'
+        quarantine_recommendations:
+          type: array
+          items:
+            type: object
+
+    # Spatial Epidemiology schemas
+    DiseaseMappingRequest:
+      type: object
+      required:
+        - case_data
+        - population_data
+        - mapping_method
+      properties:
+        case_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        population_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        mapping_method:
+          type: string
+          enum: [standardized_incidence, age_adjusted, bayesian_smoothing]
+        temporal_aggregation:
+          type: string
+          enum: [daily, weekly, monthly, yearly]
+        spatial_resolution:
+          type: string
+        standardization_population:
+          type: string
+
+    DiseaseMappingResponse:
+      type: object
+      required:
+        - disease_maps
+        - statistics
+      properties:
+        disease_maps:
+          $ref: '#/components/schemas/FeatureCollection'
+        statistics:
+          type: object
+          properties:
+            total_cases:
+              type: integer
+            incidence_rate:
+              type: number
+            prevalence_rate:
+              type: number
+            spatial_autocorrelation:
+              type: object
+        uncertainty_maps:
+          $ref: '#/components/schemas/FeatureCollection'
+
+    ClusterDetectionRequest:
+      type: object
+      required:
+        - case_data
+        - detection_method
+      properties:
+        case_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        population_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        detection_method:
+          type: string
+          enum: [kulldorff_scan, flexiscan, besag_newell, tango]
+        cluster_types:
+          type: array
+          items:
+            type: string
+            enum: [spatial, temporal, spatiotemporal]
+        significance_level:
+          type: number
+          default: 0.05
+        max_cluster_size:
+          type: number
+
+    ClusterDetectionResponse:
+      type: object
+      required:
+        - clusters
+      properties:
+        clusters:
+          type: array
+          items:
+            type: object
+            properties:
+              cluster_id:
+                type: string
+              geometry:
+                $ref: '#/components/schemas/Geometry'
+              p_value:
+                type: number
+              likelihood_ratio:
+                type: number
+              observed_cases:
+                type: integer
+              expected_cases:
+                type: number
+              relative_risk:
+                type: number
+              time_period:
+                type: object
+        significance_testing:
+          type: object
+        cluster_maps:
+          $ref: '#/components/schemas/FeatureCollection'
+
+    RiskAssessmentRequest:
+      type: object
+      required:
+        - exposure_data
+        - outcome_data
+        - risk_factors
+      properties:
+        exposure_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        outcome_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        risk_factors:
+          type: array
+          items:
+            type: object
+        assessment_method:
+          type: string
+          enum: [logistic_regression, spatial_regression, machine_learning]
+        confounding_variables:
+          type: array
+          items:
+            type: string
+
+    RiskAssessmentResponse:
+      type: object
+      required:
+        - risk_maps
+        - risk_estimates
+      properties:
+        risk_maps:
+          $ref: '#/components/schemas/FeatureCollection'
+        risk_estimates:
+          type: object
+          properties:
+            relative_risks:
+              type: object
+            odds_ratios:
+              type: object
+            confidence_intervals:
+              type: object
+        model_performance:
+          type: object
+        vulnerability_assessment:
+          $ref: '#/components/schemas/FeatureCollection'
+
+    # Health Access schemas
+    AccessibilityAnalysisRequest:
+      type: object
+      required:
+        - population_locations
+        - facility_locations
+        - accessibility_measure
+      properties:
+        population_locations:
+          $ref: '#/components/schemas/FeatureCollection'
+        facility_locations:
+          $ref: '#/components/schemas/FeatureCollection'
+        transportation_network:
+          oneOf:
+            - type: string
+            - $ref: '#/components/schemas/FeatureCollection'
+        accessibility_measure:
+          type: string
+          enum: [travel_time, distance, gravity_model, two_step_floating_catchment]
+        transport_mode:
+          type: string
+          enum: [driving, walking, public_transit, cycling]
+        impedance_function:
+          type: string
+        facility_capacity:
+          type: boolean
+          default: false
+
+    AccessibilityAnalysisResponse:
+      type: object
+      required:
+        - accessibility_scores
+      properties:
+        accessibility_scores:
+          $ref: '#/components/schemas/FeatureCollection'
+        equity_analysis:
+          type: object
+          properties:
+            gini_coefficient:
+              type: number
+            accessibility_gaps:
+              $ref: '#/components/schemas/FeatureCollection'
+        underserved_areas:
+          $ref: '#/components/schemas/FeatureCollection'
+        recommendations:
+          type: array
+          items:
+            type: object
+
+    ServiceAreaRequest:
+      type: object
+      required:
+        - facility_locations
+        - service_parameters
+      properties:
+        facility_locations:
+          $ref: '#/components/schemas/FeatureCollection'
+        service_parameters:
+          type: object
+          properties:
+            max_travel_time:
+              type: number
+            max_distance:
+              type: number
+            capacity:
+              type: number
+        transportation_network:
+          oneOf:
+            - type: string
+            - $ref: '#/components/schemas/FeatureCollection'
+        transport_mode:
+          type: string
+          enum: [driving, walking, public_transit]
+
+    ServiceAreaResponse:
+      type: object
+      required:
+        - service_areas
+      properties:
+        service_areas:
+          $ref: '#/components/schemas/FeatureCollection'
+        coverage_analysis:
+          type: object
+          properties:
+            population_covered:
+              type: integer
+            coverage_percentage:
+              type: number
+        facility_utilization:
+          $ref: '#/components/schemas/FeatureCollection'
+
+    # Environmental Health schemas
+    ExposureAssessmentRequest:
+      type: object
+      required:
+        - hazard_data
+        - population_data
+        - exposure_pathways
+      properties:
+        hazard_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        population_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        exposure_pathways:
+          type: array
+          items:
+            type: string
+            enum: [inhalation, ingestion, dermal, multiple]
+        vulnerability_factors:
+          type: array
+          items:
+            type: string
+        assessment_method:
+          type: string
+          enum: [deterministic, probabilistic, hybrid]
+
+    ExposureAssessmentResponse:
+      type: object
+      required:
+        - exposure_estimates
+      properties:
+        exposure_estimates:
+          $ref: '#/components/schemas/FeatureCollection'
+        health_risk_estimates:
+          $ref: '#/components/schemas/FeatureCollection'
+        vulnerable_populations:
+          $ref: '#/components/schemas/FeatureCollection'
+        uncertainty_analysis:
+          type: object
+
+    AirQualityAnalysisRequest:
+      type: object
+      required:
+        - air_quality_data
+        - population_data
+        - health_endpoints
+      properties:
+        air_quality_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        population_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        health_endpoints:
+          type: array
+          items:
+            type: string
+            enum: [respiratory, cardiovascular, mortality, hospital_admissions]
+        exposure_response_functions:
+          type: object
+        pollutants:
+          type: array
+          items:
+            type: string
+
+    AirQualityAnalysisResponse:
+      type: object
+      required:
+        - health_impacts
+      properties:
+        health_impacts:
+          $ref: '#/components/schemas/FeatureCollection'
+        attributable_cases:
+          type: object
+        economic_impacts:
+          type: object
+        scenario_analysis:
+          type: object
+
+    WaterQualityAssessmentRequest:
+      type: object
+      required:
+        - water_quality_data
+        - population_served
+        - health_standards
+      properties:
+        water_quality_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        population_served:
+          $ref: '#/components/schemas/FeatureCollection'
+        health_standards:
+          type: object
+        contaminants:
+          type: array
+          items:
+            type: string
+        risk_assessment_method:
+          type: string
+
+    WaterQualityAssessmentResponse:
+      type: object
+      required:
+        - risk_assessment
+      properties:
+        risk_assessment:
+          $ref: '#/components/schemas/FeatureCollection'
+        compliance_analysis:
+          type: object
+        health_risk_estimates:
+          type: object
+        recommendations:
+          type: array
+          items:
+            type: object
+
+    # Health Analytics schemas
+    HealthIndicator:
+      type: object
+      required:
+        - id
+        - name
+        - category
+        - unit
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        category:
+          type: string
+          enum: [mortality, morbidity, behavioral, environmental, social]
+        unit:
+          type: string
+        data_source:
+          type: string
+        spatial_coverage:
+          type: string
+        temporal_coverage:
+          type: object
+        last_updated:
+          type: string
+          format: date-time
+
+    HealthDisparitiesRequest:
+      type: object
+      required:
+        - health_outcomes
+        - demographic_data
+        - socioeconomic_data
+      properties:
+        health_outcomes:
+          $ref: '#/components/schemas/FeatureCollection'
+        demographic_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        socioeconomic_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        disparity_measures:
+          type: array
+          items:
+            type: string
+            enum: [absolute_difference, relative_difference, concentration_index, slope_index]
+        stratification_variables:
+          type: array
+          items:
+            type: string
+
+    HealthDisparitiesResponse:
+      type: object
+      required:
+        - disparity_analysis
+      properties:
+        disparity_analysis:
+          $ref: '#/components/schemas/FeatureCollection'
+        summary_measures:
+          type: object
+        inequality_trends:
+          type: object
+        priority_areas:
+          $ref: '#/components/schemas/FeatureCollection'
+
+    SocialDeterminantsRequest:
+      type: object
+      required:
+        - health_outcomes
+        - social_determinants
+        - analysis_method
+      properties:
+        health_outcomes:
+          $ref: '#/components/schemas/FeatureCollection'
+        social_determinants:
+          $ref: '#/components/schemas/FeatureCollection'
+        analysis_method:
+          type: string
+          enum: [correlation, regression, structural_equation, causal_inference]
+        mediating_variables:
+          type: array
+          items:
+            type: string
+
+    SocialDeterminantsResponse:
+      type: object
+      required:
+        - association_analysis
+      properties:
+        association_analysis:
+          type: object
+        pathway_analysis:
+          type: object
+        intervention_targets:
+          $ref: '#/components/schemas/FeatureCollection'
+        policy_recommendations:
+          type: array
+          items:
+            type: object
+
+    # Disease Modeling schemas
+    EpidemicModelRequest:
+      type: object
+      required:
+        - model_type
+        - initial_conditions
+        - model_parameters
+      properties:
+        model_type:
+          type: string
+          enum: [sir, seir, spatial_sir, agent_based, network]
+        initial_conditions:
+          type: object
+        model_parameters:
+          type: object
+          properties:
+            transmission_rate:
+              type: number
+            recovery_rate:
+              type: number
+            incubation_period:
+              type: number
+            infectious_period:
+              type: number
+        population_data:
+          $ref: '#/components/schemas/FeatureCollection'
+        contact_patterns:
+          type: object
+        simulation_period:
+          type: integer
+
+    EpidemicModelResponse:
+      type: object
+      required:
+        - simulation_results
+      properties:
+        simulation_results:
+          type: object
+          properties:
+            time_series:
+              type: array
+              items:
+                type: object
+            spatial_maps:
+              $ref: '#/components/schemas/FeatureCollection'
+        peak_analysis:
+          type: object
+        scenario_comparison:
+          type: object
+        uncertainty_bounds:
+          type: object
+
+    InterventionModelRequest:
+      type: object
+      required:
+        - baseline_scenario
+        - intervention_scenarios
+        - effectiveness_measures
+      properties:
+        baseline_scenario:
+          type: object
+        intervention_scenarios:
+          type: array
+          items:
+            type: object
+        effectiveness_measures:
+          type: array
+          items:
+            type: string
+        cost_data:
+          type: object
+        implementation_constraints:
+          type: object
+
+    InterventionModelResponse:
+      type: object
+      required:
+        - intervention_effectiveness
+      properties:
+        intervention_effectiveness:
+          type: object
+        cost_effectiveness:
+          type: object
+        implementation_feasibility:
+          type: object
+        recommendations:
+          type: array
+          items:
+            type: object
+
+    # Utility schemas
+    FeatureCollection:
+      type: object
+      required:
+        - type
+        - features
+      properties:
+        type:
+          type: string
+          enum: [FeatureCollection]
+        features:
+          type: array
+          items:
+            type: object
+
+    Geometry:
+      type: object
+      required:
+        - type
+      properties:
+        type:
+          type: string
+        coordinates:
+          type: array
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string
+        details:
+          type: object
+
+tags:
+  - name: Disease Surveillance
+    description: Disease outbreak surveillance and reporting
+  - name: Spatial Epidemiology
+    description: Spatial epidemiological analysis methods
+  - name: Health Access
+    description: Healthcare accessibility analysis
+  - name: Environmental Health
+    description: Environmental health risk assessment
+  - name: Health Analytics
+    description: Health data analytics and indicators
+  - name: Disease Modeling
+    description: Epidemiological modeling and simulation 
