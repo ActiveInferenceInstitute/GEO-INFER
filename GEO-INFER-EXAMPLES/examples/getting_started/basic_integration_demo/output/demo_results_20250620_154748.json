@@ -1,0 +1,44 @@
+{
+  "demo_results": {
+    "summary": {
+      "total_locations": 50,
+      "spatial_clusters": 3,
+      "temporal_trends": 1,
+      "anomalies_detected": 1,
+      "data_quality": 0.95
+    },
+    "insights": [
+      "Identified 3 distinct spatial clusters",
+      "Detected 1 temporal anomalies requiring attention",
+      "Overall data quality is excellent (95.0%)"
+    ],
+    "recommendations": [
+      "Consider zone-based analysis for spatial clusters",
+      "Investigate temporal anomalies for data quality issues",
+      "Expand analysis with additional modules (AI, RISK)"
+    ],
+    "api_endpoints": [
+      {
+        "method": "GET",
+        "path": "/api/v1/results/spatial",
+        "description": "Spatial analysis results"
+      },
+      {
+        "method": "GET",
+        "path": "/api/v1/results/temporal",
+        "description": "Temporal analysis results"
+      }
+    ]
+  },
+  "execution_metadata": {
+    "execution_time": 0.001968860626220703,
+    "timestamp": "2025-06-20T15:47:48.912383",
+    "modules_used": [
+      "DATA",
+      "SPACE",
+      "TIME",
+      "API"
+    ],
+    "integration_pattern": "linear_pipeline"
+  }
+}

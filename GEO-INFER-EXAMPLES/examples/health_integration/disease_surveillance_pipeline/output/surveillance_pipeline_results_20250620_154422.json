@@ -1,0 +1,2359 @@
+{
+  "pipeline_results": {
+    "data_ingestion": {
+      "cases": [
+        {
+          "case_id": "case_0000",
+          "disease": "measles",
+          "latitude": 37.72471604753895,
+          "longitude": -122.14897141615404,
+          "report_date": "2025-05-23 15:44:22.231290",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "True",
+          "zip_code": "94184",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0001",
+          "disease": "covid-19",
+          "latitude": 37.70838344445561,
+          "longitude": -122.63367990924684,
+          "report_date": "2025-05-31 15:44:22.231382",
+          "age_group": "65+",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94173",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0002",
+          "disease": "covid-19",
+          "latitude": 37.648261803941374,
+          "longitude": -122.53685465422427,
+          "report_date": "2025-06-09 15:44:22.231419",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94169",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0003",
+          "disease": "covid-19",
+          "latitude": 37.668008536172124,
+          "longitude": -122.6650361392803,
+          "report_date": "2025-06-09 15:44:22.231450",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "True",
+          "zip_code": "94160",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0004",
+          "disease": "tuberculosis",
+          "latitude": 37.643109649474916,
+          "longitude": -122.68036904420883,
+          "report_date": "2025-05-24 15:44:22.231489",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "True",
+          "zip_code": "94111",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0005",
+          "disease": "covid-19",
+          "latitude": 37.67131018641041,
+          "longitude": -122.30944188870473,
+          "report_date": "2025-06-13 15:44:22.231516",
+          "age_group": "0-17",
+          "severity": "severe",
+          "hospitalized": "False",
+          "zip_code": "94113",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0006",
+          "disease": "covid-19",
+          "latitude": 37.7449623497965,
+          "longitude": -122.59463500227908,
+          "report_date": "2025-05-23 15:44:22.231545",
+          "age_group": "65+",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94171",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0007",
+          "disease": "influenza",
+          "latitude": 37.81405999152444,
+          "longitude": -122.16627545898612,
+          "report_date": "2025-05-29 15:44:22.231570",
+          "age_group": "18-64",
+          "severity": "severe",
+          "hospitalized": "False",
+          "zip_code": "94191",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0008",
+          "disease": "influenza",
+          "latitude": 37.906395003660776,
+          "longitude": -122.50534800398384,
+          "report_date": "2025-05-24 15:44:22.231603",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94198",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0009",
+          "disease": "influenza",
+          "latitude": 37.74426059228255,
+          "longitude": -122.48247108909466,
+          "report_date": "2025-06-10 15:44:22.231636",
+          "age_group": "0-17",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94114",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0010",
+          "disease": "measles",
+          "latitude": 37.71828629141771,
+          "longitude": -122.64987856428492,
+          "report_date": "2025-06-13 15:44:22.231663",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94171",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0011",
+          "disease": "influenza",
+          "latitude": 37.841268942647,
+          "longitude": -122.36462132737536,
+          "report_date": "2025-06-18 15:44:22.231687",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94110",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0012",
+          "disease": "covid-19",
+          "latitude": 37.7994108790278,
+          "longitude": -122.25681969202726,
+          "report_date": "2025-06-12 15:44:22.231716",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94160",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0013",
+          "disease": "covid-19",
+          "latitude": 37.93320543826941,
+          "longitude": -122.43417786609074,
+          "report_date": "2025-06-17 15:44:22.231749",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94152",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0014",
+          "disease": "influenza",
+          "latitude": 37.66641926619665,
+          "longitude": -122.67321205410272,
+          "report_date": "2025-05-30 15:44:22.231774",
+          "age_group": "65+",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94115",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0015",
+          "disease": "measles",
+          "latitude": 37.89636883075965,
+          "longitude": -122.60745796466837,
+          "report_date": "2025-06-10 15:44:22.231800",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94171",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0016",
+          "disease": "influenza",
+          "latitude": 37.683752899753856,
+          "longitude": -122.33078592767518,
+          "report_date": "2025-06-08 15:44:22.231824",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94118",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0017",
+          "disease": "influenza",
+          "latitude": 37.663743124188294,
+          "longitude": -122.64748077959979,
+          "report_date": "2025-06-06 15:44:22.231854",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94161",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0018",
+          "disease": "influenza",
+          "latitude": 37.600856898843595,
+          "longitude": -122.56705075163939,
+          "report_date": "2025-06-14 15:44:22.231884",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94190",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0019",
+          "disease": "influenza",
+          "latitude": 37.81872573359196,
+          "longitude": -122.41779258606267,
+          "report_date": "2025-06-16 15:44:22.231910",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94162",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0020",
+          "disease": "covid-19",
+          "latitude": 37.754013265829236,
+          "longitude": -122.3876641465572,
+          "report_date": "2025-05-29 15:44:22.231937",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94133",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0021",
+          "disease": "covid-19",
+          "latitude": 37.82782233223743,
+          "longitude": -122.33928217354345,
+          "report_date": "2025-06-05 15:44:22.231963",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94189",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0022",
+          "disease": "influenza",
+          "latitude": 37.91824352192549,
+          "longitude": -122.52382465687886,
+          "report_date": "2025-05-26 15:44:22.231989",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94161",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0023",
+          "disease": "tuberculosis",
+          "latitude": 37.851275095240986,
+          "longitude": -122.48735879221968,
+          "report_date": "2025-06-20 15:44:22.232015",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94140",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0024",
+          "disease": "influenza",
+          "latitude": 37.85321375973803,
+          "longitude": -122.58226998692162,
+          "report_date": "2025-06-05 15:44:22.232041",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94157",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0025",
+          "disease": "covid-19",
+          "latitude": 37.933786303181336,
+          "longitude": -122.179149165702,
+          "report_date": "2025-06-12 15:44:22.232070",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94129",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0026",
+          "disease": "measles",
+          "latitude": 37.736703250848876,
+          "longitude": -122.18673794074343,
+          "report_date": "2025-06-04 15:44:22.232096",
+          "age_group": "0-17",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94198",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0027",
+          "disease": "influenza",
+          "latitude": 37.96436553470213,
+          "longitude": -122.54904741515752,
+          "report_date": "2025-06-19 15:44:22.232123",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94142",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0028",
+          "disease": "measles",
+          "latitude": 37.669799634998725,
+          "longitude": -122.52416018110443,
+          "report_date": "2025-06-13 15:44:22.232149",
+          "age_group": "65+",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94185",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0029",
+          "disease": "influenza",
+          "latitude": 37.721986321223774,
+          "longitude": -122.56027857939097,
+          "report_date": "2025-06-15 15:44:22.232174",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94136",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0030",
+          "disease": "covid-19",
+          "latitude": 37.71493136307787,
+          "longitude": -122.33233798278165,
+          "report_date": "2025-06-20 15:44:22.232200",
+          "age_group": "0-17",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94144",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0031",
+          "disease": "tuberculosis",
+          "latitude": 37.83308891836287,
+          "longitude": -122.61313359235577,
+          "report_date": "2025-05-23 15:44:22.232237",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94146",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0032",
+          "disease": "covid-19",
+          "latitude": 37.707200121868205,
+          "longitude": -122.3877410198987,
+          "report_date": "2025-05-24 15:44:22.232264",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94196",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0033",
+          "disease": "covid-19",
+          "latitude": 37.701668802062514,
+          "longitude": -122.61770435198834,
+          "report_date": "2025-05-30 15:44:22.232290",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "True",
+          "zip_code": "94141",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0034",
+          "disease": "covid-19",
+          "latitude": 37.97092154004171,
+          "longitude": -122.63534959085808,
+          "report_date": "2025-06-19 15:44:22.232316",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "True",
+          "zip_code": "94157",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0035",
+          "disease": "measles",
+          "latitude": 37.6923367377058,
+          "longitude": -122.2337833067129,
+          "report_date": "2025-05-27 15:44:22.232341",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "True",
+          "zip_code": "94145",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0036",
+          "disease": "influenza",
+          "latitude": 37.65260958140482,
+          "longitude": -122.67683544980004,
+          "report_date": "2025-06-07 15:44:22.232367",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94175",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0037",
+          "disease": "covid-19",
+          "latitude": 37.80621205639847,
+          "longitude": -122.69783463572195,
+          "report_date": "2025-05-22 15:44:22.232393",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "True",
+          "zip_code": "94161",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0038",
+          "disease": "influenza",
+          "latitude": 37.90394022426386,
+          "longitude": -122.50328561515323,
+          "report_date": "2025-06-20 15:44:22.232419",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94177",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0039",
+          "disease": "covid-19",
+          "latitude": 37.59557268846744,
+          "longitude": -122.40058722105911,
+          "report_date": "2025-05-29 15:44:22.232445",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94139",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0040",
+          "disease": "covid-19",
+          "latitude": 37.89297447790749,
+          "longitude": -122.55690064924275,
+          "report_date": "2025-05-29 15:44:22.232471",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "True",
+          "zip_code": "94118",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0041",
+          "disease": "influenza",
+          "latitude": 37.73848117776571,
+          "longitude": -122.6154234079575,
+          "report_date": "2025-06-19 15:44:22.232497",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94110",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0042",
+          "disease": "covid-19",
+          "latitude": 37.78157850297063,
+          "longitude": -122.32513320289989,
+          "report_date": "2025-05-23 15:44:22.232522",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94195",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0043",
+          "disease": "influenza",
+          "latitude": 37.711651866686566,
+          "longitude": -122.66432056051192,
+          "report_date": "2025-05-22 15:44:22.232548",
+          "age_group": "65+",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94157",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0044",
+          "disease": "covid-19",
+          "latitude": 37.76428870831223,
+          "longitude": -122.61547887805399,
+          "report_date": "2025-05-29 15:44:22.232574",
+          "age_group": "0-17",
+          "severity": "severe",
+          "hospitalized": "False",
+          "zip_code": "94161",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0045",
+          "disease": "covid-19",
+          "latitude": 37.581021816116156,
+          "longitude": -122.1593382151523,
+          "report_date": "2025-05-28 15:44:22.232600",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "True",
+          "zip_code": "94111",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0046",
+          "disease": "measles",
+          "latitude": 37.921779573422,
+          "longitude": -122.33755784153239,
+          "report_date": "2025-06-09 15:44:22.232625",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94160",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0047",
+          "disease": "tuberculosis",
+          "latitude": 37.95148592351061,
+          "longitude": -122.48773841731953,
+          "report_date": "2025-06-11 15:44:22.232651",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94155",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0048",
+          "disease": "influenza",
+          "latitude": 37.5904852529241,
+          "longitude": -122.34844766939726,
+          "report_date": "2025-05-26 15:44:22.232677",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "True",
+          "zip_code": "94143",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0049",
+          "disease": "covid-19",
+          "latitude": 37.68764190990936,
+          "longitude": -122.64850110342701,
+          "report_date": "2025-06-08 15:44:22.232702",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94145",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0050",
+          "disease": "covid-19",
+          "latitude": 37.74428837692325,
+          "longitude": -122.37828782975002,
+          "report_date": "2025-06-18 15:44:22.232728",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94133",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0051",
+          "disease": "covid-19",
+          "latitude": 37.94720293024143,
+          "longitude": -122.20435234889419,
+          "report_date": "2025-06-08 15:44:22.232754",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94171",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0052",
+          "disease": "measles",
+          "latitude": 37.9054829864431,
+          "longitude": -122.52737023938163,
+          "report_date": "2025-06-04 15:44:22.232783",
+          "age_group": "0-17",
+          "severity": "severe",
+          "hospitalized": "False",
+          "zip_code": "94118",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0053",
+          "disease": "covid-19",
+          "latitude": 37.95762035405058,
+          "longitude": -122.31333805734542,
+          "report_date": "2025-05-26 15:44:22.232809",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94134",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0054",
+          "disease": "measles",
+          "latitude": 37.84390738243082,
+          "longitude": -122.26797528233739,
+          "report_date": "2025-05-27 15:44:22.232835",
+          "age_group": "0-17",
+          "severity": "severe",
+          "hospitalized": "False",
+          "zip_code": "94123",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0055",
+          "disease": "covid-19",
+          "latitude": 37.59724846187094,
+          "longitude": -122.27717866592539,
+          "report_date": "2025-06-10 15:44:22.232860",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94126",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0056",
+          "disease": "influenza",
+          "latitude": 37.9102923055056,
+          "longitude": -122.46374511497183,
+          "report_date": "2025-06-12 15:44:22.232886",
+          "age_group": "65+",
+          "severity": "moderate",
+          "hospitalized": "True",
+          "zip_code": "94146",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0057",
+          "disease": "influenza",
+          "latitude": 37.96955583140047,
+          "longitude": -122.49483752254632,
+          "report_date": "2025-06-01 15:44:22.232912",
+          "age_group": "18-64",
+          "severity": "severe",
+          "hospitalized": "False",
+          "zip_code": "94145",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0058",
+          "disease": "influenza",
+          "latitude": 37.858172478233286,
+          "longitude": -122.43039980722153,
+          "report_date": "2025-06-14 15:44:22.232938",
+          "age_group": "18-64",
+          "severity": "severe",
+          "hospitalized": "True",
+          "zip_code": "94176",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0059",
+          "disease": "influenza",
+          "latitude": 37.57944145790697,
+          "longitude": -122.43820361480353,
+          "report_date": "2025-05-24 15:44:22.232963",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94112",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0060",
+          "disease": "covid-19",
+          "latitude": 37.66990258851699,
+          "longitude": -122.47926626427679,
+          "report_date": "2025-05-27 15:44:22.232989",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94153",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0061",
+          "disease": "measles",
+          "latitude": 37.96285153068306,
+          "longitude": -122.69350405282965,
+          "report_date": "2025-05-30 15:44:22.233014",
+          "age_group": "65+",
+          "severity": "severe",
+          "hospitalized": "False",
+          "zip_code": "94128",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0062",
+          "disease": "influenza",
+          "latitude": 37.60507381883591,
+          "longitude": -122.61967074085445,
+          "report_date": "2025-06-06 15:44:22.233040",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94125",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0063",
+          "disease": "tuberculosis",
+          "latitude": 37.59307855213658,
+          "longitude": -122.55082208624466,
+          "report_date": "2025-06-13 15:44:22.233066",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94145",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0064",
+          "disease": "influenza",
+          "latitude": 37.73020735359595,
+          "longitude": -122.58176315257703,
+          "report_date": "2025-06-16 15:44:22.233091",
+          "age_group": "65+",
+          "severity": "severe",
+          "hospitalized": "False",
+          "zip_code": "94126",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0065",
+          "disease": "covid-19",
+          "latitude": 37.69871104651453,
+          "longitude": -122.23112298817583,
+          "report_date": "2025-05-23 15:44:22.233120",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94178",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0066",
+          "disease": "measles",
+          "latitude": 37.94257062073422,
+          "longitude": -122.66975094797881,
+          "report_date": "2025-05-25 15:44:22.233146",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94174",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0067",
+          "disease": "covid-19",
+          "latitude": 37.969810451725984,
+          "longitude": -122.62914986533788,
+          "report_date": "2025-05-27 15:44:22.233171",
+          "age_group": "65+",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94110",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0068",
+          "disease": "measles",
+          "latitude": 37.597450198660376,
+          "longitude": -122.20056657424696,
+          "report_date": "2025-06-16 15:44:22.233196",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94146",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0069",
+          "disease": "covid-19",
+          "latitude": 37.914758956270965,
+          "longitude": -122.57099113895407,
+          "report_date": "2025-06-07 15:44:22.233222",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94174",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0070",
+          "disease": "influenza",
+          "latitude": 37.87769965286889,
+          "longitude": -122.69126211932526,
+          "report_date": "2025-06-14 15:44:22.233248",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94159",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0071",
+          "disease": "influenza",
+          "latitude": 37.90145429408523,
+          "longitude": -122.1386157407361,
+          "report_date": "2025-05-25 15:44:22.233273",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "True",
+          "zip_code": "94188",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0072",
+          "disease": "influenza",
+          "latitude": 37.82302382054139,
+          "longitude": -122.29695213914046,
+          "report_date": "2025-06-15 15:44:22.233299",
+          "age_group": "18-64",
+          "severity": "severe",
+          "hospitalized": "False",
+          "zip_code": "94191",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0073",
+          "disease": "measles",
+          "latitude": 37.796826243416895,
+          "longitude": -122.6647987453692,
+          "report_date": "2025-05-27 15:44:22.233329",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94160",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0074",
+          "disease": "tuberculosis",
+          "latitude": 37.95470824946306,
+          "longitude": -122.63115591144258,
+          "report_date": "2025-06-11 15:44:22.233355",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "True",
+          "zip_code": "94115",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0075",
+          "disease": "covid-19",
+          "latitude": 37.71386536329017,
+          "longitude": -122.59392152535288,
+          "report_date": "2025-06-10 15:44:22.233381",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "True",
+          "zip_code": "94184",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0076",
+          "disease": "covid-19",
+          "latitude": 37.853967029478774,
+          "longitude": -122.61135963659042,
+          "report_date": "2025-05-27 15:44:22.233406",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94159",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0077",
+          "disease": "influenza",
+          "latitude": 37.651815607523474,
+          "longitude": -122.69487883024011,
+          "report_date": "2025-05-24 15:44:22.233435",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94114",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0078",
+          "disease": "influenza",
+          "latitude": 37.717296593708795,
+          "longitude": -122.18286964226245,
+          "report_date": "2025-05-26 15:44:22.233461",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94195",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0079",
+          "disease": "influenza",
+          "latitude": 37.779562805418905,
+          "longitude": -122.62521339037028,
+          "report_date": "2025-06-04 15:44:22.233487",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94161",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0080",
+          "disease": "influenza",
+          "latitude": 37.78953625839493,
+          "longitude": -122.16497494453553,
+          "report_date": "2025-05-24 15:44:22.233512",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94123",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0081",
+          "disease": "measles",
+          "latitude": 37.67587477773761,
+          "longitude": -122.29139024846927,
+          "report_date": "2025-06-07 15:44:22.233538",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94147",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0082",
+          "disease": "measles",
+          "latitude": 37.73376553300164,
+          "longitude": -122.65647850008051,
+          "report_date": "2025-05-24 15:44:22.233563",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94153",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0083",
+          "disease": "covid-19",
+          "latitude": 37.93111091229596,
+          "longitude": -122.36324452786756,
+          "report_date": "2025-06-18 15:44:22.233589",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94195",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0084",
+          "disease": "covid-19",
+          "latitude": 37.79799690638018,
+          "longitude": -122.36747873920353,
+          "report_date": "2025-06-11 15:44:22.233614",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94168",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0085",
+          "disease": "tuberculosis",
+          "latitude": 37.77419907913958,
+          "longitude": -122.52119091123144,
+          "report_date": "2025-05-31 15:44:22.233640",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94113",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0086",
+          "disease": "influenza",
+          "latitude": 37.649526809620525,
+          "longitude": -122.54834289878369,
+          "report_date": "2025-05-29 15:44:22.233665",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "True",
+          "zip_code": "94145",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0087",
+          "disease": "tuberculosis",
+          "latitude": 37.61971556086722,
+          "longitude": -122.48068664057256,
+          "report_date": "2025-06-17 15:44:22.233691",
+          "age_group": "0-17",
+          "severity": "severe",
+          "hospitalized": "False",
+          "zip_code": "94160",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0088",
+          "disease": "covid-19",
+          "latitude": 37.946650395651034,
+          "longitude": -122.38534226419164,
+          "report_date": "2025-06-02 15:44:22.233716",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94177",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0089",
+          "disease": "covid-19",
+          "latitude": 37.65470277093533,
+          "longitude": -122.2776516897809,
+          "report_date": "2025-06-20 15:44:22.233742",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94120",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0090",
+          "disease": "influenza",
+          "latitude": 37.76735604074193,
+          "longitude": -122.39984634046904,
+          "report_date": "2025-06-03 15:44:22.233767",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94111",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0091",
+          "disease": "influenza",
+          "latitude": 37.848728619151935,
+          "longitude": -122.6666791332544,
+          "report_date": "2025-06-12 15:44:22.233793",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94144",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0092",
+          "disease": "measles",
+          "latitude": 37.617579700045376,
+          "longitude": -122.20896352399012,
+          "report_date": "2025-06-03 15:44:22.233823",
+          "age_group": "0-17",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94185",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0093",
+          "disease": "covid-19",
+          "latitude": 37.60149850694671,
+          "longitude": -122.27472761042596,
+          "report_date": "2025-05-23 15:44:22.233849",
+          "age_group": "0-17",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94139",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0094",
+          "disease": "covid-19",
+          "latitude": 37.6406063191724,
+          "longitude": -122.23065516786117,
+          "report_date": "2025-05-26 15:44:22.233875",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94127",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0095",
+          "disease": "measles",
+          "latitude": 37.75567944051962,
+          "longitude": -122.2911305270868,
+          "report_date": "2025-05-23 15:44:22.233903",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94134",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0096",
+          "disease": "covid-19",
+          "latitude": 37.93472982930983,
+          "longitude": -122.48906526717607,
+          "report_date": "2025-06-13 15:44:22.233931",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94176",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0097",
+          "disease": "influenza",
+          "latitude": 37.86711965472372,
+          "longitude": -122.30316943555799,
+          "report_date": "2025-06-06 15:44:22.233956",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94145",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0098",
+          "disease": "influenza",
+          "latitude": 37.6355699518931,
+          "longitude": -122.53236675932267,
+          "report_date": "2025-05-29 15:44:22.233982",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94114",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0099",
+          "disease": "covid-19",
+          "latitude": 37.876754116744046,
+          "longitude": -122.65765038155351,
+          "report_date": "2025-06-06 15:44:22.234007",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94138",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0100",
+          "disease": "measles",
+          "latitude": 37.63486697093951,
+          "longitude": -122.58184916286041,
+          "report_date": "2025-06-19 15:44:22.234033",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94135",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0101",
+          "disease": "tuberculosis",
+          "latitude": 37.814511745910934,
+          "longitude": -122.22332070331456,
+          "report_date": "2025-06-13 15:44:22.234059",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94155",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0102",
+          "disease": "covid-19",
+          "latitude": 37.63624056124643,
+          "longitude": -122.36766210078991,
+          "report_date": "2025-05-27 15:44:22.234084",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94177",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0103",
+          "disease": "influenza",
+          "latitude": 37.94389975247092,
+          "longitude": -122.29505681941195,
+          "report_date": "2025-05-24 15:44:22.234112",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "True",
+          "zip_code": "94187",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0104",
+          "disease": "influenza",
+          "latitude": 37.91107585279217,
+          "longitude": -122.17298828104657,
+          "report_date": "2025-06-16 15:44:22.234138",
+          "age_group": "65+",
+          "severity": "moderate",
+          "hospitalized": "True",
+          "zip_code": "94166",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0105",
+          "disease": "covid-19",
+          "latitude": 37.922858544824855,
+          "longitude": -122.40809716572436,
+          "report_date": "2025-05-31 15:44:22.234164",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94166",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0106",
+          "disease": "covid-19",
+          "latitude": 37.81638861269206,
+          "longitude": -122.65083961996659,
+          "report_date": "2025-05-26 15:44:22.234189",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94143",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0107",
+          "disease": "covid-19",
+          "latitude": 37.75578717635592,
+          "longitude": -122.584637106236,
+          "report_date": "2025-06-02 15:44:22.234215",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94197",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0108",
+          "disease": "covid-19",
+          "latitude": 37.719857559646655,
+          "longitude": -122.37104698983318,
+          "report_date": "2025-05-24 15:44:22.234240",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94158",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0109",
+          "disease": "tuberculosis",
+          "latitude": 37.74074964949081,
+          "longitude": -122.6681901991528,
+          "report_date": "2025-06-04 15:44:22.234266",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94160",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0110",
+          "disease": "covid-19",
+          "latitude": 37.89481280882971,
+          "longitude": -122.5097678005704,
+          "report_date": "2025-06-04 15:44:22.234292",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94127",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0111",
+          "disease": "covid-19",
+          "latitude": 37.885111046678006,
+          "longitude": -122.44742669915118,
+          "report_date": "2025-05-24 15:44:22.234319",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94113",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0112",
+          "disease": "measles",
+          "latitude": 37.708645124524196,
+          "longitude": -122.67409798171767,
+          "report_date": "2025-06-11 15:44:22.234346",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94196",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0113",
+          "disease": "covid-19",
+          "latitude": 37.63736103894648,
+          "longitude": -122.28981666269156,
+          "report_date": "2025-06-20 15:44:22.234372",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94181",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0114",
+          "disease": "measles",
+          "latitude": 37.71060849835848,
+          "longitude": -122.3777338893419,
+          "report_date": "2025-05-24 15:44:22.234398",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94187",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0115",
+          "disease": "influenza",
+          "latitude": 37.91717858724252,
+          "longitude": -122.22126808125981,
+          "report_date": "2025-06-16 15:44:22.234424",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94191",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0116",
+          "disease": "measles",
+          "latitude": 37.82819630996438,
+          "longitude": -122.2778572320824,
+          "report_date": "2025-06-05 15:44:22.234450",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94111",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0117",
+          "disease": "influenza",
+          "latitude": 37.90187742469538,
+          "longitude": -122.51430958898128,
+          "report_date": "2025-06-19 15:44:22.234476",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94146",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0118",
+          "disease": "measles",
+          "latitude": 37.88443380928054,
+          "longitude": -122.50174526320043,
+          "report_date": "2025-06-18 15:44:22.234502",
+          "age_group": "65+",
+          "severity": "moderate",
+          "hospitalized": "True",
+          "zip_code": "94183",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0119",
+          "disease": "measles",
+          "latitude": 37.769872479299806,
+          "longitude": -122.18266866386354,
+          "report_date": "2025-06-04 15:44:22.234528",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94175",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0120",
+          "disease": "covid-19",
+          "latitude": 37.735920017438794,
+          "longitude": -122.58858613550355,
+          "report_date": "2025-06-07 15:44:22.234554",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94196",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0121",
+          "disease": "influenza",
+          "latitude": 37.58225627061899,
+          "longitude": -122.1708207160637,
+          "report_date": "2025-06-17 15:44:22.234580",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94185",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0122",
+          "disease": "influenza",
+          "latitude": 37.61753149205147,
+          "longitude": -122.63538887680373,
+          "report_date": "2025-06-15 15:44:22.234606",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94162",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0123",
+          "disease": "covid-19",
+          "latitude": 37.804217751271764,
+          "longitude": -122.21653582209302,
+          "report_date": "2025-05-22 15:44:22.234632",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94174",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0124",
+          "disease": "influenza",
+          "latitude": 37.611034784231045,
+          "longitude": -122.25680844467871,
+          "report_date": "2025-06-10 15:44:22.234658",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94148",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0125",
+          "disease": "covid-19",
+          "latitude": 37.80146185611876,
+          "longitude": -122.43376975868054,
+          "report_date": "2025-05-30 15:44:22.234684",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94129",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0126",
+          "disease": "covid-19",
+          "latitude": 37.8129311722801,
+          "longitude": -122.68854451190944,
+          "report_date": "2025-06-08 15:44:22.234710",
+          "age_group": "0-17",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94182",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0127",
+          "disease": "measles",
+          "latitude": 37.71551606445369,
+          "longitude": -122.47172386963595,
+          "report_date": "2025-06-13 15:44:22.234736",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94153",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0128",
+          "disease": "influenza",
+          "latitude": 37.68375805489199,
+          "longitude": -122.36526159987855,
+          "report_date": "2025-06-09 15:44:22.234762",
+          "age_group": "65+",
+          "severity": "severe",
+          "hospitalized": "False",
+          "zip_code": "94166",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0129",
+          "disease": "tuberculosis",
+          "latitude": 37.78342026696543,
+          "longitude": -122.66737687288268,
+          "report_date": "2025-06-02 15:44:22.234789",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94189",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0130",
+          "disease": "covid-19",
+          "latitude": 37.967130720072,
+          "longitude": -122.17738171241838,
+          "report_date": "2025-05-25 15:44:22.234814",
+          "age_group": "65+",
+          "severity": "severe",
+          "hospitalized": "True",
+          "zip_code": "94119",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0131",
+          "disease": "covid-19",
+          "latitude": 37.94499932696627,
+          "longitude": -122.6110547929236,
+          "report_date": "2025-05-26 15:44:22.234839",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94157",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0132",
+          "disease": "covid-19",
+          "latitude": 37.96332329806615,
+          "longitude": -122.15284010653194,
+          "report_date": "2025-05-22 15:44:22.234865",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94126",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0133",
+          "disease": "influenza",
+          "latitude": 37.813407951392826,
+          "longitude": -122.58139469762737,
+          "report_date": "2025-06-19 15:44:22.234891",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94196",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0134",
+          "disease": "covid-19",
+          "latitude": 37.80387110377339,
+          "longitude": -122.23701381235946,
+          "report_date": "2025-05-30 15:44:22.234916",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94151",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0135",
+          "disease": "measles",
+          "latitude": 37.66808378990146,
+          "longitude": -122.70475953106607,
+          "report_date": "2025-05-22 15:44:22.234941",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94148",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0136",
+          "disease": "covid-19",
+          "latitude": 37.71518472618069,
+          "longitude": -122.25908702664132,
+          "report_date": "2025-05-31 15:44:22.234967",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94119",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0137",
+          "disease": "measles",
+          "latitude": 37.74200671286694,
+          "longitude": -122.46658579863376,
+          "report_date": "2025-05-22 15:44:22.234992",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94177",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0138",
+          "disease": "influenza",
+          "latitude": 37.66834310041997,
+          "longitude": -122.69414408621817,
+          "report_date": "2025-06-07 15:44:22.235017",
+          "age_group": "0-17",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94177",
+          "source": "self_report"
+        },
+        {
+          "case_id": "case_0139",
+          "disease": "influenza",
+          "latitude": 37.95746627902377,
+          "longitude": -122.24060640671397,
+          "report_date": "2025-05-24 15:44:22.235043",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94120",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0140",
+          "disease": "tuberculosis",
+          "latitude": 37.82026455568428,
+          "longitude": -122.61917963234475,
+          "report_date": "2025-05-25 15:44:22.235068",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94183",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0141",
+          "disease": "influenza",
+          "latitude": 37.645511212802205,
+          "longitude": -122.58710827455789,
+          "report_date": "2025-06-18 15:44:22.235093",
+          "age_group": "65+",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94196",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0142",
+          "disease": "covid-19",
+          "latitude": 37.78220414667056,
+          "longitude": -122.3610355565418,
+          "report_date": "2025-05-25 15:44:22.235119",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94197",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0143",
+          "disease": "influenza",
+          "latitude": 37.90123324999625,
+          "longitude": -122.584735656898,
+          "report_date": "2025-06-06 15:44:22.235144",
+          "age_group": "0-17",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94120",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0144",
+          "disease": "covid-19",
+          "latitude": 37.731367906432155,
+          "longitude": -122.55562437508621,
+          "report_date": "2025-06-18 15:44:22.235169",
+          "age_group": "65+",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94149",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0145",
+          "disease": "covid-19",
+          "latitude": 37.79524294824366,
+          "longitude": -122.66720794405315,
+          "report_date": "2025-06-06 15:44:22.235195",
+          "age_group": "0-17",
+          "severity": "moderate",
+          "hospitalized": "True",
+          "zip_code": "94127",
+          "source": "clinic"
+        },
+        {
+          "case_id": "case_0146",
+          "disease": "measles",
+          "latitude": 37.95974878903682,
+          "longitude": -122.65371868396733,
+          "report_date": "2025-06-08 15:44:22.235220",
+          "age_group": "65+",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94167",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0147",
+          "disease": "covid-19",
+          "latitude": 37.71402368316088,
+          "longitude": -122.31259030846456,
+          "report_date": "2025-06-08 15:44:22.235245",
+          "age_group": "18-64",
+          "severity": "mild",
+          "hospitalized": "False",
+          "zip_code": "94168",
+          "source": "lab"
+        },
+        {
+          "case_id": "case_0148",
+          "disease": "influenza",
+          "latitude": 37.63906004213203,
+          "longitude": -122.51899467275285,
+          "report_date": "2025-05-31 15:44:22.235271",
+          "age_group": "18-64",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94116",
+          "source": "hospital"
+        },
+        {
+          "case_id": "case_0149",
+          "disease": "influenza",
+          "latitude": 37.927248303679576,
+          "longitude": -122.19629388335285,
+          "report_date": "2025-05-29 15:44:22.235296",
+          "age_group": "0-17",
+          "severity": "moderate",
+          "hospitalized": "False",
+          "zip_code": "94148",
+          "source": "lab"
+        }
+      ],
+      "quality_metrics": {
+        "total_cases": 150,
+        "completeness_rate": 0.95,
+        "accuracy_rate": 0.92,
+        "timeliness_score": 0.88
+      }
+    },
+    "spatial_analysis": {
+      "disease_clusters": [
+        {
+          "cluster_id": "covid-19_cluster_0",
+          "disease": "covid-19",
+          "case_count": 20,
+          "center_lat": 37.78222564359054,
+          "center_lon": -122.41442371693184,
+          "radius_km": 0.5028002787002737,
+          "severity_distribution": {
+            "moderate": 6,
+            "severe": 3,
+            "mild": 11
+          }
+        },
+        {
+          "cluster_id": "covid-19_cluster_1",
+          "disease": "covid-19",
+          "case_count": 20,
+          "center_lat": 37.79482303026041,
+          "center_lon": -122.43138659092965,
+          "radius_km": 1.8904543375993925,
+          "severity_distribution": {
+            "mild": 15,
+            "moderate": 5
+          }
+        },
+        {
+          "cluster_id": "covid-19_cluster_2",
+          "disease": "covid-19",
+          "case_count": 20,
+          "center_lat": 37.78219621858243,
+          "center_lon": -122.45113956541722,
+          "radius_km": 2.3915895094623365,
+          "severity_distribution": {
+            "mild": 17,
+            "moderate": 3
+          }
+        },
+        {
+          "cluster_id": "influenza_cluster_0",
+          "disease": "influenza",
+          "case_count": 26,
+          "center_lat": 37.79874218007332,
+          "center_lon": -122.41527929616034,
+          "radius_km": 1.14672082674477,
+          "severity_distribution": {
+            "severe": 3,
+            "moderate": 9,
+            "mild": 14
+          }
+        },
+        {
+          "cluster_id": "influenza_cluster_1",
+          "disease": "influenza",
+          "case_count": 25,
+          "center_lat": 37.74837914896037,
+          "center_lon": -122.50761924130953,
+          "radius_km": 0.9828321614682327,
+          "severity_distribution": {
+            "mild": 15,
+            "moderate": 7,
+            "severe": 3
+          }
+        },
+        {
+          "cluster_id": "measles_cluster_0",
+          "disease": "measles",
+          "case_count": 27,
+          "center_lat": 37.770887308481115,
+          "center_lon": -122.44641540493852,
+          "radius_km": 0.7102455611699616,
+          "severity_distribution": {
+            "mild": 16,
+            "moderate": 8,
+            "severe": 3
+          }
+        },
+        {
+          "cluster_id": "tuberculosis_cluster_0",
+          "disease": "tuberculosis",
+          "case_count": 12,
+          "center_lat": 37.78163393718727,
+          "center_lon": -122.55254356694081,
+          "radius_km": 1.3160839412582324,
+          "severity_distribution": {
+            "mild": 7,
+            "moderate": 4,
+            "severe": 1
+          }
+        }
+      ],
+      "geographic_distribution": {
+        "zip_code_distribution": {
+          "94184": 2,
+          "94173": 1,
+          "94169": 1,
+          "94160": 6,
+          "94111": 4,
+          "94113": 3,
+          "94171": 4,
+          "94191": 3,
+          "94198": 2,
+          "94114": 3,
+          "94110": 3,
+          "94152": 1,
+          "94115": 2,
+          "94118": 3,
+          "94161": 5,
+          "94190": 1,
+          "94162": 2,
+          "94133": 2,
+          "94189": 2,
+          "94140": 1,
+          "94157": 4,
+          "94129": 2,
+          "94142": 1,
+          "94185": 3,
+          "94136": 1,
+          "94144": 2,
+          "94146": 4,
+          "94196": 5,
+          "94141": 1,
+          "94145": 6,
+          "94175": 2,
+          "94177": 5,
+          "94139": 2,
+          "94195": 3,
+          "94155": 2,
+          "94143": 2,
+          "94134": 2,
+          "94123": 2,
+          "94126": 3,
+          "94176": 2,
+          "94112": 1,
+          "94153": 3,
+          "94128": 1,
+          "94125": 1,
+          "94178": 1,
+          "94174": 3,
+          "94159": 2,
+          "94188": 1,
+          "94147": 1,
+          "94168": 2,
+          "94120": 3,
+          "94127": 3,
+          "94138": 1,
+          "94135": 1,
+          "94187": 2,
+          "94166": 3,
+          "94197": 2,
+          "94158": 1,
+          "94181": 1,
+          "94183": 2,
+          "94148": 3,
+          "94182": 1,
+          "94119": 2,
+          "94151": 1,
+          "94149": 1,
+          "94167": 1,
+          "94116": 1
+        },
+        "disease_distribution": {
+          "measles": 27,
+          "covid-19": 60,
+          "tuberculosis": 12,
+          "influenza": 51
+        },
+        "geographic_spread": "moderate",
+        "population_density_correlation": 0.75
+      },
+      "hotspots": [],
+      "spatial_statistics": {
+        "center_lat": 37.77903491886548,
+        "center_lon": -122.45406985956738,
+        "spatial_spread": 0.2860273638727546
+      }
+    },
+    "temporal_analysis": {
+      "time_series": {
+        "2025-05-23": {
+          "measles": 2,
+          "covid-19": 4,
+          "tuberculosis": 1
+        },
+        "2025-05-31": {
+          "covid-19": 3,
+          "tuberculosis": 1,
+          "influenza": 1
+        },
+        "2025-06-09": {
+          "covid-19": 2,
+          "measles": 1,
+          "influenza": 1
+        },
+        "2025-05-24": {
+          "tuberculosis": 1,
+          "influenza": 6,
+          "covid-19": 3,
+          "measles": 2
+        },
+        "2025-06-13": {
+          "covid-19": 2,
+          "measles": 3,
+          "tuberculosis": 2
+        },
+        "2025-05-29": {
+          "influenza": 4,
+          "covid-19": 4
+        },
+        "2025-06-10": {
+          "influenza": 2,
+          "measles": 1,
+          "covid-19": 2
+        },
+        "2025-06-18": {
+          "influenza": 2,
+          "covid-19": 3,
+          "measles": 1
+        },
+        "2025-06-12": {
+          "covid-19": 2,
+          "influenza": 2
+        },
+        "2025-06-17": {
+          "covid-19": 1,
+          "tuberculosis": 1,
+          "influenza": 1
+        },
+        "2025-05-30": {
+          "influenza": 1,
+          "covid-19": 3,
+          "measles": 1
+        },
+        "2025-06-08": {
+          "influenza": 1,
+          "covid-19": 4,
+          "measles": 1
+        },
+        "2025-06-06": {
+          "influenza": 4,
+          "covid-19": 2
+        },
+        "2025-06-14": {
+          "influenza": 3
+        },
+        "2025-06-16": {
+          "influenza": 4,
+          "measles": 1
+        },
+        "2025-06-05": {
+          "covid-19": 1,
+          "influenza": 1,
+          "measles": 1
+        },
+        "2025-05-26": {
+          "influenza": 3,
+          "covid-19": 4
+        },
+        "2025-06-20": {
+          "tuberculosis": 1,
+          "covid-19": 3,
+          "influenza": 1
+        },
+        "2025-06-04": {
+          "measles": 3,
+          "influenza": 1,
+          "tuberculosis": 1,
+          "covid-19": 1
+        },
+        "2025-06-19": {
+          "influenza": 4,
+          "covid-19": 1,
+          "measles": 1
+        },
+        "2025-06-15": {
+          "influenza": 3
+        },
+        "2025-05-27": {
+          "measles": 3,
+          "covid-19": 4
+        },
+        "2025-06-07": {
+          "influenza": 2,
+          "covid-19": 2,
+          "measles": 1
+        },
+        "2025-05-22": {
+          "covid-19": 3,
+          "influenza": 1,
+          "measles": 2
+        },
+        "2025-05-28": {
+          "covid-19": 1
+        },
+        "2025-06-11": {
+          "tuberculosis": 2,
+          "covid-19": 1,
+          "measles": 1
+        },
+        "2025-06-01": {
+          "influenza": 1
+        },
+        "2025-05-25": {
+          "measles": 1,
+          "influenza": 1,
+          "covid-19": 2,
+          "tuberculosis": 1
+        },
+        "2025-06-02": {
+          "covid-19": 2,
+          "tuberculosis": 1
+        },
+        "2025-06-03": {
+          "influenza": 1,
+          "measles": 1
+        }
+      },
+      "trends": [
+        {
+          "trend": "increasing",
+          "disease": "influenza",
+          "confidence": 0.85
+        }
+      ],
+      "seasonal_patterns": {
+        "seasonal_peak": "winter",
+        "confidence": 0.75
+      },
+      "potential_outbreaks": [
+        {
+          "outbreak_id": "outbreak_covid-19_00",
+          "disease": "covid-19",
+          "location": "Cluster covid-19_cluster_0",
+          "case_count": 20,
+          "recent_cases": 10,
+          "severity": "high",
+          "investigation_status": "pending",
+          "alert_level": "orange"
+        },
+        {
+          "outbreak_id": "outbreak_covid-19_01",
+          "disease": "covid-19",
+          "location": "Cluster covid-19_cluster_1",
+          "case_count": 20,
+          "recent_cases": 10,
+          "severity": "high",
+          "investigation_status": "pending",
+          "alert_level": "orange"
+        },
+        {
+          "outbreak_id": "outbreak_covid-19_02",
+          "disease": "covid-19",
+          "location": "Cluster covid-19_cluster_2",
+          "case_count": 20,
+          "recent_cases": 10,
+          "severity": "high",
+          "investigation_status": "pending",
+          "alert_level": "orange"
+        },
+        {
+          "outbreak_id": "outbreak_influenza_03",
+          "disease": "influenza",
+          "location": "Cluster influenza_cluster_0",
+          "case_count": 26,
+          "recent_cases": 18,
+          "severity": "high",
+          "investigation_status": "pending",
+          "alert_level": "orange"
+        },
+        {
+          "outbreak_id": "outbreak_influenza_04",
+          "disease": "influenza",
+          "location": "Cluster influenza_cluster_1",
+          "case_count": 25,
+          "recent_cases": 18,
+          "severity": "high",
+          "investigation_status": "pending",
+          "alert_level": "orange"
+        },
+        {
+          "outbreak_id": "outbreak_measles_05",
+          "disease": "measles",
+          "location": "Cluster measles_cluster_0",
+          "case_count": 27,
+          "recent_cases": 6,
+          "severity": "moderate",
+          "investigation_status": "pending",
+          "alert_level": "yellow"
+        }
+      ],
+      "reporting_delays": {
+        "average_delay_hours": 24,
+        "median_delay_hours": 18
+      }
+    },
+    "disease_analysis": {
+      "severity_analysis": {
+        "hospitalization_rate": 0.15,
+        "severe_case_rate": 0.1
+      },
+      "transmission_patterns": {
+        "primary_transmission": "community",
+        "transmission_rate": 0.35
+      },
+      "population_impact": {
+        "affected_population": 50000,
+        "impact_level": "moderate"
+      },
+      "intervention_recommendations": [
+        {
+          "action": "Increase surveillance in hotspot areas",
+          "priority": "high"
+        },
+        {
+          "action": "Deploy mobile testing units",
+          "priority": "medium"
+        },
+        {
+          "action": "Launch public awareness campaign",
+          "priority": "medium"
+        }
+      ],
+      "disease_burden": {
+        "total_burden_score": 7.5,
+        "economic_impact": "moderate"
+      }
+    },
+    "ai_predictions": {
+      "case_forecasts": {
+        "7_day_forecast": 45,
+        "14_day_forecast": 78,
+        "confidence": 0.75
+      },
+      "risk_predictions": {
+        "community_risk": "moderate",
+        "healthcare_risk": "low"
+      },
+      "resource_needs": {
+        "hospital_beds": 15,
+        "testing_kits": 200,
+        "staff_hours": 120
+      },
+      "intervention_effectiveness": {
+        "containment_probability": 0.85,
+        "timeline_days": 14
+      }
+    },
+    "risk_assessment": {
+      "risk_levels": {
+        "community_risk": {
+          "level": "moderate",
+          "score": 6.5
+        },
+        "healthcare_system_risk": {
+          "level": "low",
+          "score": 3.2
+        },
+        "economic_risk": {
+          "level": "moderate",
+          "score": 5.8
+        },
+        "vulnerable_population_risk": {
+          "level": "high",
+          "score": 8.1
+        }
+      },
+      "overall_risk": {
+        "level": "moderate",
+        "score": 5.9
+      },
+      "risk_mitigation_strategies": [
+        "Enhance disease surveillance systems",
+        "Strengthen healthcare system capacity",
+        "Improve community preparedness"
+      ]
+    },
+    "api_integration": {
+      "endpoints": [
+        {
+          "method": "GET",
+          "path": "/api/v1/surveillance/dashboard",
+          "description": "Real-time surveillance dashboard"
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/surveillance/alerts",
+          "description": "Active disease alerts"
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/surveillance/clusters",
+          "description": "Disease cluster information"
+        },
+        {
+          "method": "GET",
+          "path": "/api/v1/surveillance/predictions",
+          "description": "AI-powered predictions"
+        },
+        {
+          "method": "POST",
+          "path": "/api/v1/surveillance/report",
+          "description": "Submit new case report"
+        }
+      ],
+      "data_formats": [
+        "json",
+        "geojson",
+        "csv"
+      ]
+    },
+    "app_interface": {
+      "dashboard": {
+        "real_time_map": "Interactive disease case mapping",
+        "alert_panel": "Active outbreak alerts and notifications",
+        "trend_charts": "Disease trend visualization",
+        "risk_indicators": "Community risk level indicators"
+      },
+      "reporting_module": {
+        "case_entry_form": "New case reporting interface",
+        "bulk_upload": "Batch case data import",
+        "validation_checks": "Real-time data validation"
+      },
+      "analysis_tools": {
+        "cluster_analysis": "Interactive cluster investigation",
+        "temporal_analysis": "Time-based pattern analysis",
+        "prediction_viewer": "AI prediction visualization"
+      }
+    }
+  },
+  "execution_metadata": {
+    "execution_time": 0.005338907241821289,
+    "timestamp": "2025-06-20T15:44:22.236388",
+    "modules_used": [
+      "DATA",
+      "SPACE",
+      "TIME",
+      "HEALTH",
+      "AI",
+      "RISK",
+      "API",
+      "APP"
+    ],
+    "integration_pattern": "linear_pipeline_with_feedback",
+    "complexity_level": 5
+  }
+}
