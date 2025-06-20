@@ -12,9 +12,11 @@ src/geo_infer_space/osc_geo/main.py
 src/geo_infer_space/osc_geo/api/__init__.py
 src/geo_infer_space/osc_geo/api/rest.py
 src/geo_infer_space/osc_geo/utils/__init__.py
+src/geo_infer_space/osc_geo/utils/enhanced_reporting.py
 src/geo_infer_space/osc_geo/utils/h3_utils.py
 src/geo_infer_space/osc_geo/utils/osc_diagnostics.py
 src/geo_infer_space/osc_geo/utils/osc_setup_all.py
 src/geo_infer_space/osc_geo/utils/osc_simple_status.py
 src/geo_infer_space/osc_geo/utils/osc_status.py
 src/geo_infer_space/osc_geo/utils/osc_wrapper.py
+src/geo_infer_space/osc_geo/utils/visualization.py

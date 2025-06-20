@@ -1,0 +1,38 @@
+{
+  "demo_timestamp": "2025-06-20T15:20:24.237206+00:00",
+  "sensor_data_summary": {
+    "total_sensors": 100,
+    "data_quality_score": 1.0,
+    "validation_errors": 0
+  },
+  "spatial_analysis": {
+    "h3_cells_created": 100,
+    "spatial_validation_passed": true,
+    "processing_time": 0.00020194053649902344
+  },
+  "bayesian_inference": {
+    "predictions_generated": 100,
+    "inference_converged": true,
+    "mean_prediction": 0.31826193851833373,
+    "processing_time": 6.103515625e-05
+  },
+  "anomaly_detection": {
+    "total_anomalies": 4,
+    "alert_breakdown": {
+      "mild": 0,
+      "severe": 2,
+      "critical": 2
+    },
+    "anomaly_rate": 0.04
+  },
+  "system_performance": {
+    "runtime_seconds": 0.002130270004272461,
+    "measurements_per_second": 100.0,
+    "anomaly_detection_rate": 0.06,
+    "spatial_processing_efficiency": 100.0,
+    "measurements_processed": 100,
+    "anomalies_detected": 6,
+    "spatial_cells_created": 100,
+    "processing_time": 0.00020194053649902344
+  }
+}

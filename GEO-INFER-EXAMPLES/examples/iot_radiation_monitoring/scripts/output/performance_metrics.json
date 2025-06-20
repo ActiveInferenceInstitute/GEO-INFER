@@ -1,0 +1,14 @@
+{
+  "timestamp": "2025-06-20T15:39:33.380503+00:00",
+  "processing_times": {
+    "spatial_indexing": 0.0028629302978515625,
+    "bayesian_inference": 0.009306192398071289,
+    "anomaly_detection": 0.0017940998077392578
+  },
+  "data_volumes": {
+    "input_sensors": 100,
+    "h3_cells": 100,
+    "prediction_cells": 613,
+    "anomalies_detected": 5
+  }
+}

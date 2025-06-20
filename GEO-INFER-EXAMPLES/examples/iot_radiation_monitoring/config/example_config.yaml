@@ -1,0 +1,409 @@
+# GEO-INFER Examples: IoT Radiation Monitoring Configuration
+# This configuration demonstrates integration of IoT, BAYES, SPACE, LOG, and TEST modules
+
+radiation_monitoring:
+  # Project metadata
+  project_name: "Global Radiation Surveillance Network"
+  version: "1.0.0"
+  description: "Real-time global radiation monitoring using IoT sensors with Bayesian spatial inference"
+  
+  # Spatial configuration
+  spatial:
+    # H3 spatial indexing resolution (3=~1367km², 4=~182km², 5=~26km², 6=~3.7km²)
+    h3_resolution: 5
+    coordinate_system: "EPSG:4326"  # WGS84
+    global_bounds:
+      min_lat: -90.0
+      max_lat: 90.0
+      min_lon: -180.0
+      max_lon: 180.0
+    
+    # Spatial analysis parameters
+    neighbor_rings: 2  # Number of H3 neighbor rings to consider
+    max_distance_km: 100  # Maximum distance for spatial correlation
+
+  # Temporal configuration
+  temporal:
+    processing_window: "1h"  # Window for batch processing
+    retention_period: "30d"  # How long to keep detailed data
+    aggregation_intervals: ["1h", "1d", "1w"]  # Time intervals for aggregation
+    timezone: "UTC"
+
+  # IoT sensor networks configuration
+  sensor_networks:
+    safecast:
+      name: "Safecast Global Network"
+      protocol: "simulation"  # Options: simulation, http, mqtt
+      api_endpoint: "https://api.safecast.org/measurements.json"
+      update_frequency: "5min"
+      coverage: "global"
+      data_format: "json"
+      quality_control: true
+      authentication:
+        type: "none"  # For simulation
+      
+    eurdep:
+      name: "European Radiological Data Exchange Platform"
+      protocol: "simulation"
+      coverage_region: "europe"
+      update_frequency: "1h"
+      data_format: "xml"
+      quality_control: true
+      
+    ctbto:
+      name: "Comprehensive Test Ban Treaty Organization"
+      protocol: "simulation"
+      coverage_region: "global"
+      update_frequency: "1d"
+      data_format: "binary"
+      quality_control: true
+      security_level: "high"
+
+  # Simulated sensor configuration (for demonstration)
+  simulation:
+    sensor_count: 1500  # Number of simulated sensors globally
+    update_interval: "1min"  # How often simulated data updates
+    background_radiation: 0.1  # μSv/h - typical background
+    noise_level: 0.02  # Standard deviation of measurement noise
+    
+    # Anomaly simulation for testing
+    anomalies:
+      enable: true
+      count: 5  # Number of simulated anomalies
+      locations:
+        - {lat: 51.389, lon: 30.099, intensity: 5.0, name: "Chernobyl"}
+        - {lat: 37.421, lon: 141.033, intensity: 3.0, name: "Fukushima"}
+        - {lat: 49.975, lon: 81.826, intensity: 2.0, name: "Semipalatinsk"}
+
+  # Bayesian spatial inference configuration
+  bayesian_inference:
+    # Prior distribution parameters
+    prior:
+      mean: 0.1  # μSv/h - expected background radiation
+      variance: 0.05  # Prior uncertainty
+      
+    # Spatial covariance function
+    covariance:
+      function: "matern_52"  # Options: exponential, matern_32, matern_52, squared_exponential
+      length_scale: 50000  # meters - spatial correlation distance
+      variance: 0.1  # Spatial process variance
+      noise_variance: 0.01  # Measurement noise variance
+      
+    # Inference settings
+    inference:
+      method: "variational"  # Options: mcmc, variational, laplace
+      max_iterations: 1000
+      convergence_tolerance: 1e-4
+      confidence_levels: [0.68, 0.95, 0.99]  # Credible intervals to compute
+      
+    # Grid configuration for spatial prediction
+    prediction_grid:
+      resolution: 5  # H3 resolution for prediction
+      max_cells: 50000  # Maximum number of cells to process at once
+      chunk_size: 5000  # Process in chunks for memory efficiency
+
+  # Quality control and data validation
+  quality_control:
+    # Sensor validation rules
+    sensor_validation:
+      min_radiation: 0.0  # μSv/h
+      max_radiation: 100.0  # μSv/h (anything above is flagged)
+      max_change_rate: 5.0  # Maximum change between consecutive measurements
+      
+    # Spatial validation
+    spatial_validation:
+      max_neighbors_deviation: 3.0  # Standard deviations from neighbors
+      min_neighbor_count: 3  # Minimum neighbors for spatial validation
+      
+    # Temporal validation
+    temporal_validation:
+      window_size: "24h"  # Time window for temporal checks
+      max_temporal_deviation: 2.0  # Standard deviations from temporal trend
+
+  # Anomaly detection configuration
+  anomaly_detection:
+    methods: ["statistical", "spatial", "temporal", "combined"]
+    
+    # Statistical anomaly detection
+    statistical:
+      threshold_mild: 2.0      # 2 sigma from normal
+      threshold_severe: 3.0    # 3 sigma from normal
+      threshold_critical: 5.0  # 5 sigma from normal
+      
+    # Spatial anomaly detection
+    spatial:
+      neighbor_threshold: 2.5  # Standard deviations from spatial neighbors
+      min_neighbors: 5  # Minimum neighbors required for spatial analysis
+      
+    # Temporal anomaly detection
+    temporal:
+      window_size: "7d"  # Time window for temporal analysis
+      trend_threshold: 2.0  # Threshold for trend-based anomalies
+      
+    # Combined method weights
+    combined:
+      weights:
+        statistical: 0.4
+        spatial: 0.3
+        temporal: 0.3
+      threshold: 2.0
+
+  # Data storage configuration
+  storage:
+    # Primary database (sensor measurements)
+    primary_db:
+      type: "postgresql"
+      host: "localhost"
+      port: 5432
+      database: "geo_infer_radiation"
+      schema: "sensors"
+      connection_pool_size: 10
+      
+    # Time-series database (for high-frequency data)
+    timeseries_db:
+      type: "timescaledb"
+      retention_policy: "90d"
+      compression: true
+      
+    # Spatial index database
+    spatial_db:
+      type: "postgis"
+      spatial_index: "h3"
+      
+    # Cache configuration
+    cache:
+      type: "redis"
+      host: "localhost"
+      port: 6379
+      ttl: "1h"  # Cache time-to-live
+
+  # Logging configuration (GEO-INFER-LOG integration)
+  logging:
+    # Global logging settings
+    level: "INFO"  # DEBUG, INFO, WARNING, ERROR, CRITICAL
+    format: "json"  # json, text
+    
+    # Output destinations
+    outputs:
+      console:
+        enabled: true
+        level: "INFO"
+        format: "text"
+      file:
+        enabled: true
+        level: "DEBUG"
+        format: "json"
+        path: "logs/radiation_monitoring.log"
+        rotation: "daily"
+        retention: "30d"
+      database:
+        enabled: true
+        level: "WARNING"
+        table: "application_logs"
+        
+    # Module-specific logging
+    modules:
+      iot:
+        level: "DEBUG"
+        extra_fields: ["sensor_id", "h3_index", "protocol"]
+      bayes:
+        level: "INFO"
+        extra_fields: ["convergence_status", "prediction_uncertainty"]
+      space:
+        level: "INFO"
+        extra_fields: ["h3_operations", "spatial_queries"]
+      test:
+        level: "DEBUG"
+        extra_fields: ["test_type", "validation_result"]
+        
+    # Performance metrics collection
+    metrics:
+      enabled: true
+      collection_interval: "30s"
+      metrics:
+        - "sensor_ingestion_rate"
+        - "inference_latency"
+        - "spatial_query_time"
+        - "memory_usage"
+        - "anomaly_detection_rate"
+
+  # Testing configuration (GEO-INFER-TEST integration)
+  testing:
+    # Automated testing settings
+    automated_tests:
+      enabled: true
+      schedule: "*/15 * * * *"  # Every 15 minutes
+      timeout: "5m"
+      
+    # Test categories
+    test_suites:
+      data_quality:
+        enabled: true
+        tests:
+          - "sensor_data_completeness"
+          - "radiation_value_ranges"
+          - "temporal_consistency"
+          - "spatial_distribution"
+          
+      inference_quality:
+        enabled: true
+        tests:
+          - "bayesian_convergence"
+          - "prediction_accuracy"
+          - "uncertainty_calibration"
+          - "spatial_smoothness"
+          
+      system_performance:
+        enabled: true
+        tests:
+          - "ingestion_throughput"
+          - "inference_latency"
+          - "memory_usage"
+          - "database_performance"
+          
+      integration_tests:
+        enabled: true
+        tests:
+          - "iot_to_space_integration"
+          - "space_to_bayes_integration"
+          - "end_to_end_pipeline"
+          
+    # Test data configuration
+    test_data:
+      synthetic_sensors: 100
+      test_duration: "1h"
+      anomaly_injection: true
+      
+    # Validation thresholds
+    validation:
+      max_inference_time: "30s"
+      min_prediction_accuracy: 0.85
+      max_memory_usage: "4GB"
+      min_sensor_coverage: 0.9
+
+  # API configuration (for external integration)
+  api:
+    # REST API settings
+    rest:
+      host: "0.0.0.0"
+      port: 8000
+      debug: false
+      cors_enabled: true
+      rate_limiting:
+        requests_per_minute: 100
+        
+    # WebSocket settings (for real-time updates)
+    websocket:
+      enabled: true
+      port: 8001
+      max_connections: 100
+      heartbeat_interval: "30s"
+      
+    # Authentication
+    authentication:
+      enabled: false  # Disabled for example
+      method: "jwt"
+      secret_key: "example-secret-key"
+
+  # Visualization configuration
+  visualization:
+    # Dashboard settings
+    dashboard:
+      enabled: true
+      auto_refresh: "30s"
+      default_map_center: [40.0, 0.0]  # [lat, lon]
+      default_zoom: 3
+      
+    # Map layers
+    map_layers:
+      sensors:
+        enabled: true
+        cluster_threshold: 50
+        color_by: "radiation_level"
+      
+      h3_grid:
+        enabled: true
+        resolution: 5
+        opacity: 0.6
+        
+      interpolation:
+        enabled: true
+        contour_levels: 10
+        color_scale: "viridis"
+        
+      anomalies:
+        enabled: true
+        highlight_critical: true
+        alert_animation: true
+        
+    # Export formats
+    export:
+      formats: ["geojson", "shapefile", "kml", "csv"]
+      include_uncertainty: true
+      include_metadata: true
+
+  # Performance optimization
+  performance:
+    # Processing configuration
+    processing:
+      max_workers: 4  # Number of parallel workers
+      chunk_size: 1000  # Records per processing chunk
+      batch_size: 100  # Database batch insert size
+      
+    # Memory management
+    memory:
+      max_cache_size: "2GB"
+      cleanup_threshold: 0.8  # Clean cache when 80% full
+      
+    # Spatial indexing optimization
+    spatial_index:
+      cache_size: "500MB"
+      index_type: "h3"
+      precompute_neighbors: true
+
+  # Security configuration
+  security:
+    # Data encryption
+    encryption:
+      at_rest: false  # Disabled for example
+      in_transit: true
+      
+    # Access control
+    access_control:
+      enabled: false  # Disabled for example
+      default_role: "viewer"
+      
+    # Data privacy
+    privacy:
+      anonymize_locations: false
+      coordinate_fuzzing: false  # Add random noise to coordinates
+      
+# Environment-specific overrides
+environments:
+  development:
+    logging:
+      level: "DEBUG"
+    testing:
+      automated_tests:
+        schedule: "*/5 * * * *"  # Every 5 minutes in dev
+    simulation:
+      update_interval: "10s"  # Faster updates for development
+      
+  production:
+    logging:
+      level: "WARNING"
+    security:
+      encryption:
+        at_rest: true
+        in_transit: true
+      access_control:
+        enabled: true
+    performance:
+      max_workers: 8
+      
+  testing:
+    storage:
+      primary_db:
+        database: "geo_infer_radiation_test"
+    simulation:
+      sensor_count: 50  # Fewer sensors for faster testing 

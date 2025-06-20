@@ -1,0 +1,8 @@
+{"timestamp": "2025-06-20T15:33:41.234449+00:00", "level": "INFO", "module": "MAIN", "operation": "example_start", "elapsed_seconds": 7.128715515136719e-05, "config_file": "../config/example_config.yaml", "h3_resolution": 5, "sensor_count": 1500, "project_name": "Global Radiation Surveillance Network"}
+{"timestamp": "2025-06-20T15:33:41.234805+00:00", "level": "INFO", "module": "DATA", "operation": "generate_sample_data", "elapsed_seconds": 0.0004253387451171875}
+{"timestamp": "2025-06-20T15:33:41.238515+00:00", "level": "INFO", "module": "DATA", "operation": "data_generation_complete", "elapsed_seconds": 0.004138946533203125, "sensor_count": 1500, "background_radiation": 0.1, "anomalies_enabled": true, "h3_resolution": 5}
+{"timestamp": "2025-06-20T15:33:41.238722+00:00", "level": "INFO", "module": "SPACE", "operation": "h3_spatial_indexing", "elapsed_seconds": 0.004342079162597656}
+{"timestamp": "2025-06-20T15:33:41.252682+00:00", "level": "INFO", "module": "SPACE", "operation": "spatial_indexing_complete", "elapsed_seconds": 0.01830601692199707, "unique_h3_cells": 1500, "avg_sensors_per_cell": 1.0, "processing_time_seconds": 0.013762712478637695, "h3_resolution": 5}
+{"timestamp": "2025-06-20T15:33:41.252904+00:00", "level": "INFO", "module": "BAYES", "operation": "spatial_inference", "elapsed_seconds": 0.018523216247558594}
+{"timestamp": "2025-06-20T15:33:41.254380+00:00", "level": "INFO", "module": "BAYES", "operation": "using_simulated_bayesian_inference", "elapsed_seconds": 0.019999265670776367, "method": "distance_weighted"}
+{"timestamp": "2025-06-20T15:33:41.268374+00:00", "level": "ERROR", "module": "MAIN", "operation": "example_failed", "elapsed_seconds": 0.034003257751464844, "error": "'confidence_levels'", "error_type": "KeyError"}

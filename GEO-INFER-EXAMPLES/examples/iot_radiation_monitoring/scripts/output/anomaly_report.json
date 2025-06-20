@@ -1,0 +1,88 @@
+{
+  "detection_timestamp": "2025-06-20T15:39:33.377864+00:00",
+  "total_anomalies": 5,
+  "by_severity": {
+    "mild": 4,
+    "severe": 1,
+    "critical": 0
+  },
+  "anomaly_rate": 0.05,
+  "detection_methods": [
+    "statistical",
+    "spatial",
+    "temporal",
+    "combined"
+  ],
+  "anomalies": [
+    {
+      "id": "anomaly_001",
+      "sensor_id": "sensor_000027",
+      "location": {
+        "lat": 2.419854530313973,
+        "lon": 129.86300997228363
+      },
+      "h3_index": "857382a7fffffff",
+      "radiation_level": 0.15440338333179238,
+      "anomaly_score": 2.597282291142567,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:39:33.340434+00:00"
+    },
+    {
+      "id": "anomaly_002",
+      "sensor_id": "sensor_000057",
+      "location": {
+        "lat": -51.68291338874532,
+        "lon": 94.18306151833833
+      },
+      "h3_index": "85cd25c7fffffff",
+      "radiation_level": 0.17705462981309442,
+      "anomaly_score": 3.723404492184963,
+      "alert_level": "severe",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:39:33.340843+00:00"
+    },
+    {
+      "id": "anomaly_003",
+      "sensor_id": "sensor_000068",
+      "location": {
+        "lat": -72.32639057443896,
+        "lon": -165.320949040285
+      },
+      "h3_index": "85f321abfffffff",
+      "radiation_level": 0.14629317133347017,
+      "anomaly_score": 2.1940775582811693,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:39:33.340992+00:00"
+    },
+    {
+      "id": "anomaly_004",
+      "sensor_id": "sensor_000082",
+      "location": {
+        "lat": -28.74733577504964,
+        "lon": 152.8897025802826
+      },
+      "h3_index": "85bef69bfffffff",
+      "radiation_level": 0.1428788817865065,
+      "anomaly_score": 2.02433381977227,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:39:33.341176+00:00"
+    },
+    {
+      "id": "anomaly_005",
+      "sensor_id": "sensor_000084",
+      "location": {
+        "lat": -32.133005308337424,
+        "lon": -87.14101402254398
+      },
+      "h3_index": "85b783abfffffff",
+      "radiation_level": 0.05949714826684786,
+      "anomaly_score": 2.1210460539313125,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:39:33.341209+00:00"
+    }
+  ]
+}

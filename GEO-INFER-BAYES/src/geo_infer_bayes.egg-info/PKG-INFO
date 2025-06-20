@@ -1,0 +1,35 @@
+Metadata-Version: 2.4
+Name: geo_infer_bayes
+Version: 0.1.0
+Summary: Bayesian inference for geospatial applications
+Author: GEO-INFER Team
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Science/Research
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Requires-Python: >=3.8
+Requires-Dist: numpy
+Requires-Dist: scipy
+Requires-Dist: pandas
+Requires-Dist: matplotlib
+Requires-Dist: pymc
+Requires-Dist: arviz
+Requires-Dist: cmdstanpy
+Requires-Dist: tensorflow-probability
+Requires-Dist: xarray
+Requires-Dist: geopandas
+Requires-Dist: rasterio
+Provides-Extra: dev
+Requires-Dist: pytest; extra == "dev"
+Requires-Dist: pytest-cov; extra == "dev"
+Requires-Dist: black; extra == "dev"
+Requires-Dist: flake8; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+Dynamic: author
+Dynamic: classifier
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

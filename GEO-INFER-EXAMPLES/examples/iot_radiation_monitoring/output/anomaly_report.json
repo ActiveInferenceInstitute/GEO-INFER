@@ -1,0 +1,914 @@
+{
+  "detection_timestamp": "2025-06-20T15:40:37.851181+00:00",
+  "total_anomalies": 64,
+  "by_severity": {
+    "mild": 62,
+    "severe": 2,
+    "critical": 0
+  },
+  "anomaly_rate": 0.042666666666666665,
+  "detection_methods": [
+    "statistical",
+    "spatial",
+    "temporal",
+    "combined"
+  ],
+  "anomalies": [
+    {
+      "id": "anomaly_001",
+      "sensor_id": "sensor_000121",
+      "location": {
+        "lat": 67.33552098699386,
+        "lon": -158.34875666371732
+      },
+      "h3_index": "850c2677fffffff",
+      "radiation_level": 0.14727744989238722,
+      "anomaly_score": 2.347473377718146,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.800101+00:00"
+    },
+    {
+      "id": "anomaly_002",
+      "sensor_id": "sensor_000156",
+      "location": {
+        "lat": 29.263043058999354,
+        "lon": 19.368806656455458
+      },
+      "h3_index": "853e30cffffffff",
+      "radiation_level": 0.1589818885061745,
+      "anomaly_score": 2.9269109723468745,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.800575+00:00"
+    },
+    {
+      "id": "anomaly_003",
+      "sensor_id": "sensor_000167",
+      "location": {
+        "lat": -53.29185323202478,
+        "lon": 155.01427727180985
+      },
+      "h3_index": "85da5c73fffffff",
+      "radiation_level": 0.055613992545049305,
+      "anomaly_score": 2.1903993894669127,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.800727+00:00"
+    },
+    {
+      "id": "anomaly_004",
+      "sensor_id": "sensor_000171",
+      "location": {
+        "lat": -82.18006908226445,
+        "lon": 136.07075536022504
+      },
+      "h3_index": "85f130bbfffffff",
+      "radiation_level": 0.1597051800520682,
+      "anomaly_score": 2.9627180988052304,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.800787+00:00"
+    },
+    {
+      "id": "anomaly_005",
+      "sensor_id": "sensor_000178",
+      "location": {
+        "lat": 74.24409808524487,
+        "lon": -117.53117460485687
+      },
+      "h3_index": "8502f68bfffffff",
+      "radiation_level": 0.14113087129659085,
+      "anomaly_score": 2.0431820883820366,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.800891+00:00"
+    },
+    {
+      "id": "anomaly_006",
+      "sensor_id": "sensor_000194",
+      "location": {
+        "lat": -27.364935521720884,
+        "lon": -47.687607975048685
+      },
+      "h3_index": "85a8341bfffffff",
+      "radiation_level": 0.14853432972691044,
+      "anomaly_score": 2.40969621916187,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.801102+00:00"
+    },
+    {
+      "id": "anomaly_007",
+      "sensor_id": "sensor_000199",
+      "location": {
+        "lat": 47.57884279579606,
+        "lon": 17.830632922206107
+      },
+      "h3_index": "851e0277fffffff",
+      "radiation_level": 0.1417688554573985,
+      "anomaly_score": 2.0747660045140037,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.801178+00:00"
+    },
+    {
+      "id": "anomaly_008",
+      "sensor_id": "sensor_000206",
+      "location": {
+        "lat": -67.74983771277454,
+        "lon": 50.69747328847424
+      },
+      "h3_index": "85e16073fffffff",
+      "radiation_level": 0.04728504521966245,
+      "anomaly_score": 2.6027305881906697,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.801273+00:00"
+    },
+    {
+      "id": "anomaly_009",
+      "sensor_id": "sensor_000224",
+      "location": {
+        "lat": -39.91559749410668,
+        "lon": 69.17808300988749
+      },
+      "h3_index": "85ca48bbfffffff",
+      "radiation_level": 0.15241586182059952,
+      "anomaly_score": 2.6018545698573123,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.801510+00:00"
+    },
+    {
+      "id": "anomaly_010",
+      "sensor_id": "sensor_000245",
+      "location": {
+        "lat": 72.81415563991331,
+        "lon": -6.716105411283495
+      },
+      "h3_index": "8507314bfffffff",
+      "radiation_level": 0.0550622133203079,
+      "anomaly_score": 2.2177156612933673,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.801782+00:00"
+    },
+    {
+      "id": "anomaly_011",
+      "sensor_id": "sensor_000257",
+      "location": {
+        "lat": 33.32506543474541,
+        "lon": -4.372544186509519
+      },
+      "h3_index": "8538328ffffffff",
+      "radiation_level": 0.05588867885801862,
+      "anomaly_score": 2.176800823852934,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.801952+00:00"
+    },
+    {
+      "id": "anomaly_012",
+      "sensor_id": "sensor_000365",
+      "location": {
+        "lat": -19.362551573868377,
+        "lon": 157.4597039389628
+      },
+      "h3_index": "859e41abfffffff",
+      "radiation_level": 0.05799946984696752,
+      "anomaly_score": 2.072304427762665,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.803547+00:00"
+    },
+    {
+      "id": "anomaly_013",
+      "sensor_id": "sensor_000394",
+      "location": {
+        "lat": -27.063398156986967,
+        "lon": 19.83058174882305
+      },
+      "h3_index": "85ad8463fffffff",
+      "radiation_level": 0.04940879844611394,
+      "anomaly_score": 2.497592486165812,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.803943+00:00"
+    },
+    {
+      "id": "anomaly_014",
+      "sensor_id": "sensor_000451",
+      "location": {
+        "lat": 9.928722455086858,
+        "lon": -100.57969702396394
+      },
+      "h3_index": "856d8eaffffffff",
+      "radiation_level": 0.15386067327960995,
+      "anomaly_score": 2.673381116676471,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.804666+00:00"
+    },
+    {
+      "id": "anomaly_015",
+      "sensor_id": "sensor_000488",
+      "location": {
+        "lat": 76.56995229301498,
+        "lon": -22.73374705853536
+      },
+      "h3_index": "850785c7fffffff",
+      "radiation_level": 0.14437560466896268,
+      "anomaly_score": 2.2038152090755827,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.805145+00:00"
+    },
+    {
+      "id": "anomaly_016",
+      "sensor_id": "sensor_000522",
+      "location": {
+        "lat": 79.88544762848254,
+        "lon": 157.25608633191305
+      },
+      "h3_index": "85055e17fffffff",
+      "radiation_level": 0.05825945962795863,
+      "anomaly_score": 2.059433425718357,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.805576+00:00"
+    },
+    {
+      "id": "anomaly_017",
+      "sensor_id": "sensor_000530",
+      "location": {
+        "lat": 53.193171552113185,
+        "lon": -108.68485220649356
+      },
+      "h3_index": "851258dbfffffff",
+      "radiation_level": 0.055235375333500564,
+      "anomaly_score": 2.2091431373376063,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.805682+00:00"
+    },
+    {
+      "id": "anomaly_018",
+      "sensor_id": "sensor_000531",
+      "location": {
+        "lat": 84.95200445864221,
+        "lon": 23.518891645779565
+      },
+      "h3_index": "8500506bfffffff",
+      "radiation_level": 0.057585996947298684,
+      "anomaly_score": 2.092773734350857,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.805701+00:00"
+    },
+    {
+      "id": "anomaly_019",
+      "sensor_id": "sensor_000534",
+      "location": {
+        "lat": 45.72786058068679,
+        "lon": 39.06981817072796
+      },
+      "h3_index": "852d73a3fffffff",
+      "radiation_level": 0.04504990314549531,
+      "anomaly_score": 2.7133830842089988,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.805746+00:00"
+    },
+    {
+      "id": "anomaly_020",
+      "sensor_id": "sensor_000541",
+      "location": {
+        "lat": 18.04968785664961,
+        "lon": 22.04020378170897
+      },
+      "h3_index": "856b25cbfffffff",
+      "radiation_level": 0.05738867040385599,
+      "anomaly_score": 2.102542542703113,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.805840+00:00"
+    },
+    {
+      "id": "anomaly_021",
+      "sensor_id": "sensor_000545",
+      "location": {
+        "lat": -24.112337934417116,
+        "lon": 80.21314915505414
+      },
+      "h3_index": "85aa427bfffffff",
+      "radiation_level": 0.17852475412872654,
+      "anomaly_score": 3.8943961651134056,
+      "alert_level": "severe",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.805897+00:00"
+    },
+    {
+      "id": "anomaly_022",
+      "sensor_id": "sensor_000546",
+      "location": {
+        "lat": -65.69520932606306,
+        "lon": -155.63938971599944
+      },
+      "h3_index": "85eb76b3fffffff",
+      "radiation_level": 0.05831774121002824,
+      "anomaly_score": 2.0565481493851725,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.805916+00:00"
+    },
+    {
+      "id": "anomaly_023",
+      "sensor_id": "sensor_000597",
+      "location": {
+        "lat": -55.70562189572293,
+        "lon": 48.449670318109355
+      },
+      "h3_index": "85e058d7fffffff",
+      "radiation_level": 0.04017728058198554,
+      "anomaly_score": 2.954606161273794,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.806558+00:00"
+    },
+    {
+      "id": "anomaly_024",
+      "sensor_id": "sensor_000639",
+      "location": {
+        "lat": -20.86169227221415,
+        "lon": 128.94373913657904
+      },
+      "h3_index": "85b8d203fffffff",
+      "radiation_level": 0.14823353351156843,
+      "anomaly_score": 2.3948050619485803,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.807184+00:00"
+    },
+    {
+      "id": "anomaly_025",
+      "sensor_id": "sensor_000667",
+      "location": {
+        "lat": -57.684166545875534,
+        "lon": -134.54469303677902
+      },
+      "h3_index": "85e208cbfffffff",
+      "radiation_level": 0.04335688803778861,
+      "anomaly_score": 2.7971971511668197,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.807568+00:00"
+    },
+    {
+      "id": "anomaly_026",
+      "sensor_id": "sensor_000680",
+      "location": {
+        "lat": 53.90225206137759,
+        "lon": -70.08815638917673
+      },
+      "h3_index": "850e4627fffffff",
+      "radiation_level": 0.05023345293174022,
+      "anomaly_score": 2.456767306307274,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.807748+00:00"
+    },
+    {
+      "id": "anomaly_027",
+      "sensor_id": "sensor_000695",
+      "location": {
+        "lat": 18.80540721507754,
+        "lon": -19.060004229686847
+      },
+      "h3_index": "85558a13fffffff",
+      "radiation_level": 0.059001174428450445,
+      "anomaly_score": 2.0227142413064496,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.807958+00:00"
+    },
+    {
+      "id": "anomaly_028",
+      "sensor_id": "sensor_000791",
+      "location": {
+        "lat": 14.65907144285553,
+        "lon": -78.95404241424924
+      },
+      "h3_index": "8567ae93fffffff",
+      "radiation_level": 0.057455451592970094,
+      "anomaly_score": 2.099236486525319,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.809242+00:00"
+    },
+    {
+      "id": "anomaly_029",
+      "sensor_id": "sensor_000802",
+      "location": {
+        "lat": 12.96902122835824,
+        "lon": 4.560381344309907
+      },
+      "h3_index": "85581543fffffff",
+      "radiation_level": 0.04186023561356718,
+      "anomaly_score": 2.8712901264304582,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.809394+00:00"
+    },
+    {
+      "id": "anomaly_030",
+      "sensor_id": "sensor_000842",
+      "location": {
+        "lat": -54.733885632142254,
+        "lon": -151.13519493051476
+      },
+      "h3_index": "85d5a4a3fffffff",
+      "radiation_level": 0.14563303673077685,
+      "anomaly_score": 2.266065388973009,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.809941+00:00"
+    },
+    {
+      "id": "anomaly_031",
+      "sensor_id": "sensor_000891",
+      "location": {
+        "lat": 60.46839957806858,
+        "lon": -119.93032738844899
+      },
+      "h3_index": "8512049bfffffff",
+      "radiation_level": 0.15736806111333537,
+      "anomaly_score": 2.8470171565468463,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.810618+00:00"
+    },
+    {
+      "id": "anomaly_032",
+      "sensor_id": "sensor_000932",
+      "location": {
+        "lat": 82.34837071960386,
+        "lon": 174.24473875576714
+      },
+      "h3_index": "85054c4ffffffff",
+      "radiation_level": 0.0569523291078164,
+      "anomaly_score": 2.1241439675434757,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.811170+00:00"
+    },
+    {
+      "id": "anomaly_033",
+      "sensor_id": "sensor_000941",
+      "location": {
+        "lat": 9.21026042768488,
+        "lon": 15.013732467601443
+      },
+      "h3_index": "856bb47bfffffff",
+      "radiation_level": 0.050243826869298416,
+      "anomaly_score": 2.456253736231519,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.811295+00:00"
+    },
+    {
+      "id": "anomaly_034",
+      "sensor_id": "sensor_000962",
+      "location": {
+        "lat": -43.29065135417544,
+        "lon": 44.42614493739844
+      },
+      "h3_index": "85d692abfffffff",
+      "radiation_level": 0.14172094099074228,
+      "anomaly_score": 2.072393960520839,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.811590+00:00"
+    },
+    {
+      "id": "anomaly_035",
+      "sensor_id": "sensor_000969",
+      "location": {
+        "lat": -4.071431626153057,
+        "lon": 15.488850224758743
+      },
+      "h3_index": "85838e3bfffffff",
+      "radiation_level": 0.1464008144403452,
+      "anomaly_score": 2.304074838543516,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.811692+00:00"
+    },
+    {
+      "id": "anomaly_036",
+      "sensor_id": "sensor_001007",
+      "location": {
+        "lat": 59.363260766104275,
+        "lon": -21.906066011850612
+      },
+      "h3_index": "8519a24ffffffff",
+      "radiation_level": 0.05742531811170376,
+      "anomaly_score": 2.100728268615763,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.812212+00:00"
+    },
+    {
+      "id": "anomaly_037",
+      "sensor_id": "sensor_001030",
+      "location": {
+        "lat": -78.70870209836626,
+        "lon": 63.655667588662425
+      },
+      "h3_index": "85f00e87fffffff",
+      "radiation_level": 0.14330112135613204,
+      "anomaly_score": 2.1506220533165443,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.812530+00:00"
+    },
+    {
+      "id": "anomaly_038",
+      "sensor_id": "sensor_001048",
+      "location": {
+        "lat": 62.91680856315808,
+        "lon": -33.441663914774054
+      },
+      "h3_index": "85064677fffffff",
+      "radiation_level": 0.14542899490845593,
+      "anomaly_score": 2.255964135369096,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.812781+00:00"
+    },
+    {
+      "id": "anomaly_039",
+      "sensor_id": "sensor_001055",
+      "location": {
+        "lat": -25.378991373209274,
+        "lon": 163.8414746250125
+      },
+      "h3_index": "859f6a73fffffff",
+      "radiation_level": 0.0493550782956063,
+      "anomaly_score": 2.500251945181349,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.812882+00:00"
+    },
+    {
+      "id": "anomaly_040",
+      "sensor_id": "sensor_001059",
+      "location": {
+        "lat": 21.675928747122914,
+        "lon": 0.22473650535041578
+      },
+      "h3_index": "855931b7fffffff",
+      "radiation_level": 0.14093724391439116,
+      "anomaly_score": 2.033596409965655,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.812945+00:00"
+    },
+    {
+      "id": "anomaly_041",
+      "sensor_id": "sensor_001084",
+      "location": {
+        "lat": 75.60444378953974,
+        "lon": 30.91132384326691
+      },
+      "h3_index": "85011907fffffff",
+      "radiation_level": 0.14544869440893765,
+      "anomaly_score": 2.2569393748958406,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.813285+00:00"
+    },
+    {
+      "id": "anomaly_042",
+      "sensor_id": "sensor_001104",
+      "location": {
+        "lat": 84.134329849894,
+        "lon": -179.95151051838528
+      },
+      "h3_index": "85056863fffffff",
+      "radiation_level": 0.04141102619995465,
+      "anomaly_score": 2.8935285977230176,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.813556+00:00"
+    },
+    {
+      "id": "anomaly_043",
+      "sensor_id": "sensor_001105",
+      "location": {
+        "lat": -55.43780763268716,
+        "lon": 4.0064901254027285
+      },
+      "h3_index": "85d09ac7fffffff",
+      "radiation_level": 0.14105944049003327,
+      "anomaly_score": 2.0396458491740015,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.813579+00:00"
+    },
+    {
+      "id": "anomaly_044",
+      "sensor_id": "sensor_001127",
+      "location": {
+        "lat": -15.56295377798122,
+        "lon": 67.32693594116739
+      },
+      "h3_index": "85ab2eb7fffffff",
+      "radiation_level": 0.05788706116319351,
+      "anomaly_score": 2.077869309555857,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.813877+00:00"
+    },
+    {
+      "id": "anomaly_045",
+      "sensor_id": "sensor_001131",
+      "location": {
+        "lat": -0.7011250366089627,
+        "lon": 73.38855298835922
+      },
+      "h3_index": "85846d57fffffff",
+      "radiation_level": 0.04793725824345403,
+      "anomaly_score": 2.5704422608166295,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.813935+00:00"
+    },
+    {
+      "id": "anomaly_046",
+      "sensor_id": "sensor_001169",
+      "location": {
+        "lat": -36.203517360264826,
+        "lon": -66.374156245194
+      },
+      "h3_index": "85c36e1bfffffff",
+      "radiation_level": 0.05566362321291871,
+      "anomaly_score": 2.1879423835600944,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.814444+00:00"
+    },
+    {
+      "id": "anomaly_047",
+      "sensor_id": "sensor_001171",
+      "location": {
+        "lat": 81.80165026466199,
+        "lon": -37.75287325985882
+      },
+      "h3_index": "850365dbfffffff",
+      "radiation_level": 0.05013458359339845,
+      "anomaly_score": 2.4616619119762553,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.814476+00:00"
+    },
+    {
+      "id": "anomaly_048",
+      "sensor_id": "sensor_001177",
+      "location": {
+        "lat": -66.81329139941707,
+        "lon": -159.08689725107408
+      },
+      "h3_index": "85eb736bfffffff",
+      "radiation_level": 0.14135812676327106,
+      "anomaly_score": 2.0544325520159177,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.814564+00:00"
+    },
+    {
+      "id": "anomaly_049",
+      "sensor_id": "sensor_001184",
+      "location": {
+        "lat": -67.57334624158453,
+        "lon": -58.555603163126634
+      },
+      "h3_index": "85ee687bfffffff",
+      "radiation_level": 0.1419168700361832,
+      "anomaly_score": 2.0820935846168167,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.814665+00:00"
+    },
+    {
+      "id": "anomaly_050",
+      "sensor_id": "sensor_001203",
+      "location": {
+        "lat": -29.98626274457799,
+        "lon": -173.89884063975083
+      },
+      "h3_index": "85ba8563fffffff",
+      "radiation_level": 0.15023113103168848,
+      "anomaly_score": 2.4936977248338565,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.814924+00:00"
+    },
+    {
+      "id": "anomaly_051",
+      "sensor_id": "sensor_001212",
+      "location": {
+        "lat": -57.18395039741624,
+        "lon": -54.685586459416285
+      },
+      "h3_index": "85de221bfffffff",
+      "radiation_level": 0.05620156590042894,
+      "anomaly_score": 2.161311100575546,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.815050+00:00"
+    },
+    {
+      "id": "anomaly_052",
+      "sensor_id": "sensor_001230",
+      "location": {
+        "lat": 66.99686462545286,
+        "lon": 89.07998637480983
+      },
+      "h3_index": "850a2bcffffffff",
+      "radiation_level": 0.14249542806033924,
+      "anomaly_score": 2.110735562325618,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.815310+00:00"
+    },
+    {
+      "id": "anomaly_053",
+      "sensor_id": "sensor_001242",
+      "location": {
+        "lat": 46.05671358948884,
+        "lon": -109.5000897116628
+      },
+      "h3_index": "85279e1bfffffff",
+      "radiation_level": 0.1460727750420958,
+      "anomaly_score": 2.287834985771663,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.815477+00:00"
+    },
+    {
+      "id": "anomaly_054",
+      "sensor_id": "sensor_001252",
+      "location": {
+        "lat": -65.05760787639294,
+        "lon": -86.43420747258017
+      },
+      "h3_index": "85e811affffffff",
+      "radiation_level": 0.14099624191571852,
+      "anomaly_score": 2.0365171532071766,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.815616+00:00"
+    },
+    {
+      "id": "anomaly_055",
+      "sensor_id": "sensor_001307",
+      "location": {
+        "lat": 51.29377412186461,
+        "lon": -121.79828295469372
+      },
+      "h3_index": "8512d6b3fffffff",
+      "radiation_level": 0.05827044683257831,
+      "anomaly_score": 2.0588894953662407,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.816345+00:00"
+    },
+    {
+      "id": "anomaly_056",
+      "sensor_id": "sensor_001309",
+      "location": {
+        "lat": 53.52026933690708,
+        "lon": 78.59922313392143
+      },
+      "h3_index": "85214b53fffffff",
+      "radiation_level": 0.14425062078794487,
+      "anomaly_score": 2.1976277820853625,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.816377+00:00"
+    },
+    {
+      "id": "anomaly_057",
+      "sensor_id": "sensor_001336",
+      "location": {
+        "lat": -51.07778334204533,
+        "lon": 177.57180555226705
+      },
+      "h3_index": "85dbaab3fffffff",
+      "radiation_level": 0.14970379833357783,
+      "anomaly_score": 2.4675916978602626,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.816746+00:00"
+    },
+    {
+      "id": "anomaly_058",
+      "sensor_id": "sensor_001363",
+      "location": {
+        "lat": 22.365237415728494,
+        "lon": 29.384025476109677
+      },
+      "h3_index": "853ee843fffffff",
+      "radiation_level": 0.05734808747690328,
+      "anomaly_score": 2.104551632959588,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.817131+00:00"
+    },
+    {
+      "id": "anomaly_059",
+      "sensor_id": "sensor_001366",
+      "location": {
+        "lat": 36.69024399595506,
+        "lon": 6.011418681456395
+      },
+      "h3_index": "853875affffffff",
+      "radiation_level": 0.16486185939189466,
+      "anomaly_score": 3.218003633766386,
+      "alert_level": "severe",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.817177+00:00"
+    },
+    {
+      "id": "anomaly_060",
+      "sensor_id": "sensor_001367",
+      "location": {
+        "lat": 69.53552851315897,
+        "lon": 93.15945135263706
+      },
+      "h3_index": "850a738bfffffff",
+      "radiation_level": 0.1461583250123222,
+      "anomaly_score": 2.2920702054694417,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.817196+00:00"
+    },
+    {
+      "id": "anomaly_061",
+      "sensor_id": "sensor_001379",
+      "location": {
+        "lat": 15.801644743937663,
+        "lon": -112.99107680879474
+      },
+      "h3_index": "85492d67fffffff",
+      "radiation_level": 0.053677122740622474,
+      "anomaly_score": 2.2862856782175824,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.817370+00:00"
+    },
+    {
+      "id": "anomaly_062",
+      "sensor_id": "sensor_001396",
+      "location": {
+        "lat": -11.749120977492991,
+        "lon": 14.074038984963133
+      },
+      "h3_index": "85830643fffffff",
+      "radiation_level": 0.05645869907114291,
+      "anomaly_score": 2.148581517307686,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.817600+00:00"
+    },
+    {
+      "id": "anomaly_063",
+      "sensor_id": "sensor_001407",
+      "location": {
+        "lat": 51.96392600150904,
+        "lon": -98.59488075011811
+      },
+      "h3_index": "85273377fffffff",
+      "radiation_level": 0.14084152080287488,
+      "anomaly_score": 2.028857560771979,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.817752+00:00"
+    },
+    {
+      "id": "anomaly_064",
+      "sensor_id": "sensor_001428",
+      "location": {
+        "lat": 23.650389428635062,
+        "lon": 91.52937348554907
+      },
+      "h3_index": "853cc46bfffffff",
+      "radiation_level": 0.05848823981842934,
+      "anomaly_score": 2.048107479413773,
+      "alert_level": "mild",
+      "detection_method": "statistical",
+      "timestamp": "2025-06-20T15:40:37.818039+00:00"
+    }
+  ]
+}

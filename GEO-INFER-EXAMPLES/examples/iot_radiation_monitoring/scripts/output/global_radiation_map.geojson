@@ -1,0 +1,10 @@
+{
+  "type": "FeatureCollection",
+  "features": [],
+  "metadata": {
+    "generated_at": "2025-06-20T15:39:33.377687+00:00",
+    "h3_resolution": 5,
+    "total_features": 0,
+    "inference_method": "variational"
+  }
+}

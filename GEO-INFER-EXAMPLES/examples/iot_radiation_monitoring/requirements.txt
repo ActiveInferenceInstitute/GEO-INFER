@@ -1,0 +1,43 @@
+# GEO-INFER Examples: IoT Radiation Monitoring Dependencies
+# Core scientific computing
+numpy>=1.21.0
+pandas>=1.3.0
+scipy>=1.7.0
+
+# Geospatial libraries
+h3>=3.7.0
+geopandas>=0.12.0
+shapely>=1.8.0
+pyproj>=3.2.0
+fiona>=1.8.0
+
+# Configuration and data handling
+pyyaml>=6.0
+jsonschema>=4.0.0
+
+# Visualization (optional but recommended)
+matplotlib>=3.5.0
+folium>=0.14.0
+plotly>=5.0.0
+
+# Web framework for API (optional)
+fastapi>=0.68.0
+uvicorn>=0.15.0
+
+# Time series and statistics
+statsmodels>=0.13.0
+scikit-learn>=1.0.0
+
+# Development and testing
+pytest>=6.0.0
+pytest-cov>=3.0.0
+
+# Logging and monitoring
+structlog>=21.0.0
+
+# Note: GEO-INFER modules should be installed separately:
+# pip install -e ../../../GEO-INFER-IOT
+# pip install -e ../../../GEO-INFER-BAYES  
+# pip install -e ../../../GEO-INFER-SPACE
+# pip install -e ../../../GEO-INFER-LOG
+# pip install -e ../../../GEO-INFER-TEST 

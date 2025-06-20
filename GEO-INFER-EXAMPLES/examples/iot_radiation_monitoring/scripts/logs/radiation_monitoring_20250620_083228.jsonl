@@ -1,0 +1,3 @@
+{"timestamp": "2025-06-20T15:32:28.263889+00:00", "level": "INFO", "module": "MAIN", "operation": "example_start", "elapsed_seconds": 0.00016427040100097656, "config_file": "../config/example_config.yaml", "h3_resolution": 5, "sensor_count": 1500, "project_name": "Global Radiation Surveillance Network"}
+{"timestamp": "2025-06-20T15:32:28.264133+00:00", "level": "INFO", "module": "DATA", "operation": "generate_sample_data", "elapsed_seconds": 0.00040721893310546875}
+{"timestamp": "2025-06-20T15:32:28.266469+00:00", "level": "ERROR", "module": "MAIN", "operation": "example_failed", "elapsed_seconds": 0.002743244171142578, "error": "module 'h3' has no attribute 'geo_to_h3'", "error_type": "AttributeError"}

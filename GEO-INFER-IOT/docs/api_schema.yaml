@@ -1,0 +1,63 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-IOT API
+  description: Internet of Things sensors and spatial web integration API
+  version: 0.1.0
+  
+paths:
+  /sensors:
+    get:
+      summary: List sensors
+      responses:
+        '200':
+          description: List of sensors
+          
+  /measurements:
+    get:
+      summary: Query measurements
+      responses:
+        '200':
+          description: Measurement data
+          
+    post:
+      summary: Submit measurements
+      responses:
+        '201':
+          description: Measurements accepted
+          
+  /inference/spatial:
+    post:
+      summary: Perform Bayesian spatial inference
+      responses:
+        '200':
+          description: Inference results
+
+components:
+  schemas:
+    Sensor:
+      type: object
+      properties:
+        sensor_id:
+          type: string
+        location:
+          type: object
+          properties:
+            latitude:
+              type: number
+            longitude:
+              type: number
+        h3_index:
+          type: string
+          
+    Measurement:
+      type: object
+      properties:
+        sensor_id:
+          type: string
+        timestamp:
+          type: string
+          format: date-time
+        variable:
+          type: string
+        value:
+          type: number 

@@ -1,0 +1,8 @@
+README.md
+setup.py
+src/geo_infer_iot/__init__.py
+src/geo_infer_iot.egg-info/PKG-INFO
+src/geo_infer_iot.egg-info/SOURCES.txt
+src/geo_infer_iot.egg-info/dependency_links.txt
+src/geo_infer_iot.egg-info/requires.txt
+src/geo_infer_iot.egg-info/top_level.txt

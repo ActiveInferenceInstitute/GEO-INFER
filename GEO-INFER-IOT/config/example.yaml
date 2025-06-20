@@ -1,0 +1,383 @@
+# GEO-INFER-IOT Example Configuration
+# This file demonstrates configuration options for IoT sensor networks
+# with spatial indexing and Bayesian inference capabilities
+
+# Project metadata
+project:
+  name: "Global Environmental IoT Network"
+  description: "Multi-modal IoT sensor network for environmental monitoring"
+  version: "1.0.0"
+  coordinator: "GEO-INFER Team"
+
+# IoT Communication Protocols
+protocols:
+  mqtt:
+    enabled: true
+    broker_host: "mqtt.example.com"
+    broker_port: 1883
+    username: "iot_user"
+    password: "${MQTT_PASSWORD}"  # Environment variable
+    topics:
+      - "sensors/+/soil_moisture"
+      - "sensors/+/air_quality"
+      - "sensors/+/radiation"
+      - "sensors/+/weather"
+    qos: 1
+    keepalive: 60
+    
+  coap:
+    enabled: false
+    server_host: "coap.example.com"
+    server_port: 5683
+    
+  lorawan:
+    enabled: false
+    network_server: "lorawan.example.com"
+    app_key: "${LORAWAN_APP_KEY}"
+    
+  http_polling:
+    enabled: true
+    endpoints:
+      - url: "https://api.safecast.org/measurements"
+        interval_seconds: 300
+        auth_type: "api_key"
+        auth_token: "${SAFECAST_API_KEY}"
+
+# Spatial Configuration
+spatial:
+  # H3 spatial indexing (integrates with GEO-INFER-SPACE)
+  indexing_system: "h3"
+  default_resolution: 8
+  max_resolution: 12
+  min_resolution: 5
+  
+  # Coordinate reference system
+  crs: "EPSG:4326"  # WGS84
+  
+  # Spatial aggregation methods
+  aggregation:
+    method: "inverse_distance_weighted"
+    max_distance_km: 10
+    min_neighbors: 3
+    max_neighbors: 10
+
+# Temporal Configuration  
+temporal:
+  # Time zone handling
+  default_timezone: "UTC"
+  
+  # Data retention
+  retention_policy:
+    raw_data_days: 30
+    aggregated_data_days: 365
+    
+  # Temporal windows for analysis
+  analysis_windows:
+    real_time: "5min"
+    short_term: "1h" 
+    medium_term: "24h"
+    long_term: "7d"
+
+# Bayesian Inference Configuration (integrates with GEO-INFER-BAYES)
+bayesian_inference:
+  enabled: true
+  
+  # Default priors for different variables
+  priors:
+    soil_moisture:
+      mean_function: "seasonal_trend"
+      covariance: "matern_52"
+      length_scale: 1000  # meters
+      noise_variance: 0.01
+      
+    air_quality_pm25:
+      mean_function: "urban_gradient"
+      covariance: "rbf"
+      length_scale: 2000  # meters
+      noise_variance: 0.05
+      
+    background_radiation:
+      mean_function: "constant"
+      covariance: "matern_32"
+      length_scale: 5000  # meters
+      noise_variance: 0.001
+      
+    temperature:
+      mean_function: "elevation_corrected"
+      covariance: "periodic_matern"
+      length_scale: 3000  # meters
+      period: 86400  # daily cycle in seconds
+      noise_variance: 0.02
+  
+  # Inference engine settings
+  inference_engine: "variational"  # or "mcmc", "laplace"
+  update_frequency: "15min"
+  convergence_threshold: 0.001
+  max_iterations: 1000
+  
+  # Uncertainty quantification
+  confidence_levels: [0.68, 0.95, 0.99]
+  prediction_intervals: true
+
+# Sensor Network Definitions
+sensor_networks:
+  # Soil monitoring network
+  soil_monitoring:
+    name: "Agricultural Soil Monitoring Network"
+    protocol: "mqtt"
+    spatial_bounds:
+      lat_min: 40.0
+      lat_max: 41.0
+      lon_min: -74.0
+      lon_max: -73.0
+    sensor_types:
+      - "soil_moisture"
+      - "soil_temperature" 
+      - "soil_ph"
+      - "soil_conductivity"
+    update_frequency: "10min"
+    quality_control:
+      outlier_detection: true
+      range_validation:
+        soil_moisture: [0, 100]  # percentage
+        soil_temperature: [-20, 50]  # celsius
+        soil_ph: [0, 14]
+        soil_conductivity: [0, 2000]  # μS/cm
+        
+  # Air quality network
+  air_quality:
+    name: "Urban Air Quality Network"
+    protocol: "mqtt"
+    spatial_bounds:
+      lat_min: 39.0
+      lat_max: 42.0
+      lon_min: -75.0
+      lon_max: -72.0
+    sensor_types:
+      - "pm25"
+      - "pm10"
+      - "no2"
+      - "o3"
+      - "co"
+    update_frequency: "5min"
+    quality_control:
+      outlier_detection: true
+      temporal_consistency: true
+      cross_correlation: true
+      
+  # Radiation monitoring network
+  radiation_monitoring:
+    name: "Background Radiation Surveillance"
+    protocol: "http_polling"
+    spatial_bounds:
+      global: true
+    sensor_types:
+      - "gamma_radiation"
+      - "neutron_flux"
+    update_frequency: "1h"
+    quality_control:
+      outlier_detection: true
+      threshold_alerts:
+        gamma_radiation: 0.2  # μSv/h
+        neutron_flux: 10  # counts/min
+
+# Data Quality Control
+quality_control:
+  # Global QC settings
+  enabled: true
+  
+  # Outlier detection methods
+  outlier_detection:
+    method: "isolation_forest"
+    contamination: 0.1
+    
+  # Range validation
+  range_validation:
+    enabled: true
+    action: "flag"  # or "reject", "correct"
+    
+  # Temporal consistency checks
+  temporal_consistency:
+    enabled: true
+    max_change_rate: 0.1  # relative change per minute
+    
+  # Spatial consistency checks
+  spatial_consistency:
+    enabled: true
+    neighbor_threshold: 2.0  # standard deviations
+    
+  # Calibration drift detection
+  calibration_drift:
+    enabled: true
+    reference_stations: true
+    drift_threshold: 0.05
+
+# Real-time Processing
+streaming:
+  # Stream processing framework
+  framework: "kafka"  # or "pulsar", "redis"
+  
+  # Kafka configuration
+  kafka:
+    bootstrap_servers: ["kafka1:9092", "kafka2:9092"]
+    topics:
+      input: "sensor_data_raw"
+      processed: "sensor_data_processed"
+      alerts: "sensor_alerts"
+    
+  # Processing pipeline
+  pipeline:
+    - stage: "ingestion"
+      parallelism: 4
+    - stage: "quality_control"
+      parallelism: 2
+    - stage: "spatial_indexing"
+      parallelism: 2
+    - stage: "bayesian_inference"
+      parallelism: 1
+
+# Data Storage
+storage:
+  # Time series database
+  timeseries:
+    type: "influxdb"  # or "timescaledb", "clickhouse"
+    host: "influxdb.example.com"
+    port: 8086
+    database: "iot_sensors"
+    username: "iot_user"
+    password: "${INFLUXDB_PASSWORD}"
+    
+  # Spatial database
+  spatial:
+    type: "postgis"
+    host: "postgis.example.com"
+    port: 5432
+    database: "spatial_iot"
+    username: "spatial_user"
+    password: "${POSTGIS_PASSWORD}"
+    
+  # Object storage for large datasets
+  object:
+    type: "minio"  # S3-compatible
+    endpoint: "minio.example.com:9000"
+    access_key: "${MINIO_ACCESS_KEY}"
+    secret_key: "${MINIO_SECRET_KEY}"
+    bucket: "iot-sensor-data"
+
+# API Configuration
+api:
+  # REST API
+  rest:
+    enabled: true
+    host: "0.0.0.0"
+    port: 8000
+    workers: 4
+    
+  # WebSocket for real-time updates
+  websocket:
+    enabled: true
+    port: 8001
+    
+  # GraphQL endpoint
+  graphql:
+    enabled: false
+    endpoint: "/graphql"
+
+# Visualization and Monitoring
+visualization:
+  # Real-time dashboards
+  dashboard:
+    enabled: true
+    update_interval: "30s"
+    
+  # Map visualization
+  mapping:
+    default_zoom: 10
+    tile_server: "OpenStreetMap"
+    overlay_types:
+      - "sensor_locations"
+      - "h3_grid"
+      - "interpolated_surface"
+      - "uncertainty_overlay"
+      
+  # Alert visualization
+  alerts:
+    enabled: true
+    notification_channels:
+      - "email"
+      - "slack"
+      - "webhook"
+
+# Machine Learning Integration
+ml_integration:
+  # Predictive maintenance
+  predictive_maintenance:
+    enabled: true
+    model_type: "random_forest"
+    features:
+      - "battery_level"
+      - "signal_strength"
+      - "data_quality_score"
+      - "temperature"
+    prediction_horizon: "7d"
+    
+  # Anomaly detection
+  anomaly_detection:
+    enabled: true
+    model_type: "autoencoder"
+    window_size: "1h"
+    threshold: 0.95
+
+# Security Configuration
+security:
+  # Authentication
+  authentication:
+    type: "jwt"
+    secret_key: "${JWT_SECRET}"
+    expiration: "24h"
+    
+  # Authorization
+  authorization:
+    rbac:
+      enabled: true
+      roles:
+        - "sensor_admin"
+        - "data_analyst" 
+        - "viewer"
+        
+  # Data encryption
+  encryption:
+    at_rest: true
+    in_transit: true
+    algorithm: "AES-256-GCM"
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "json"
+  handlers:
+    - type: "console"
+    - type: "file"
+      filename: "/var/log/geo-infer-iot/application.log"
+      rotation: "daily"
+      retention: "30d"
+    - type: "syslog"
+      facility: "local0"
+
+# Performance Optimization
+performance:
+  # Caching
+  cache:
+    enabled: true
+    backend: "redis"
+    ttl: "300s"
+    
+  # Connection pooling
+  connection_pooling:
+    max_connections: 100
+    pool_timeout: "30s"
+    
+  # Batch processing
+  batch_processing:
+    batch_size: 1000
+    flush_interval: "10s" 
