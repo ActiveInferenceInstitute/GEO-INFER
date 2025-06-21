@@ -201,137 +201,1046 @@ pip list | grep geo-infer
 pip install -e ./GEO-INFER-INTRA
 
 # Install documentation dependencies
-pip install -r requirements-dev.txt
+pip install sphinx mkdocs-material mkdocs-mermaid2-plugin
 
-# Verify installation
-python -c "import geo_infer_intra; print('✅ INTRA installation successful')"
+# Install ontology management tools
+pip install rdflib owlready2 sparql-kernel
 ```
 
-### 3. Initialize Documentation Environment
+### 3. Initialize Documentation System
+```bash
+# Setup documentation environment
+cd GEO-INFER-INTRA
+
+# Initialize MkDocs for user documentation
+mkdocs new user-docs
+cp docs/user_guide/* user-docs/docs/
+
+# Initialize Sphinx for API documentation
+sphinx-quickstart api-docs --sep
+
+# Setup ontology workspace
+mkdir -p ontologies/spatial ontologies/temporal ontologies/domain
+```
+
+### 4. Configure Knowledge Base
 ```bash
 # Copy configuration templates
-cp config/example.yaml config/local.yaml
+cp config/example.yaml config/intra_config.yaml
 
-# Initialize documentation structure
-python -m geo_infer_intra.cli init-docs ./docs
+# Edit configuration for your environment
+nano config/intra_config.yaml
 
-# Set up knowledge base
-python -m geo_infer_intra.cli init-kb ./knowledge_base
+# Initialize knowledge base storage
+python -m geo_infer_intra.setup initialize-kb
 ```
 
-### 4. Generate First Documentation
+### 5. Launch INTRA Services
 ```bash
-# Build API documentation from source
-python -m geo_infer_intra.docs.api_generator --source ../GEO-INFER-SPACE/src
+# Start documentation server
+mkdocs serve --config-file config/mkdocs.yml
 
-# Build user guides
-cd docs && mkdocs build
+# Start ontology service
+python -m geo_infer_intra.ontology.server
 
-# View results
-python -m http.server --directory docs/_build/html 8000
+# Start knowledge base API
+python -m geo_infer_intra.api.app
 ```
 
-### 5. Access Documentation Portal
+### 6. Verify Installation
 ```bash
-# Open in browser
-open http://localhost:8000  # macOS
-# firefox http://localhost:8000  # Linux
+# Test documentation generation
+python -m geo_infer_intra.documentation.generate --target=all
 
-# Check documentation quality
-python -m geo_infer_intra.cli validate-docs ./docs
+# Test ontology loading
+python -m geo_infer_intra.ontology.validate --ontology=spatial
+
+# Test knowledge base search
+curl http://localhost:8080/api/v1/search?q="spatial%20analysis"
 ```
 
-### 6. Next Steps
-- 📚 Explore the [knowledge base](http://localhost:8000/kb/)
-- 🔧 Review [ontology browser](http://localhost:8000/ontology/)
-- 📋 Check [workflow templates](http://localhost:8000/workflows/)
-- 🛠️ See [contributor guide](./docs/developer_guide/) for advanced usage
+## 🔧 Configuration
 
-## Getting Started (Detailed)
+### Core Configuration (`config/intra_config.yaml`)
 
-### Prerequisites
-- Python 3.9+
-- Sphinx, MkDocs, or other documentation generation tools.
-- Ontology editing tools (e.g., Protégé) and libraries (e.g., RDFLib, Owlready2).
-- Potentially a graph database for storing ontological relationships (e.g., Neo4j, GraphDB).
-- Workflow engine (e.g., Airflow, Prefect) if managing executable workflows.
+```yaml
+# Documentation System Settings
+documentation:
+  source_directories:
+    - "../*/docs/"
+    - "../*/src/"
+    - "../*/README.md"
+  output_directory: "generated_docs"
+  formats: ["html", "pdf", "markdown"]
+  auto_generation: true
+  update_frequency: "hourly"
+  
+  # Sphinx Configuration
+  sphinx:
+    extensions:
+      - "sphinx.ext.autodoc"
+      - "sphinx.ext.napoleon"
+      - "sphinx.ext.intersphinx"
+      - "sphinx.ext.viewcode"
+      - "myst_parser"
+    theme: "furo"
+    
+  # MkDocs Configuration  
+  mkdocs:
+    theme: "material"
+    plugins:
+      - "search"
+      - "mermaid2"
+      - "git-revision-date-localized"
 
-### Installation
-(Installation of INTRA itself might involve setting up its constituent tools)
+# Ontology Management
+ontology:
+  base_uri: "https://ontology.geo-infer.org/"
+  storage_backend: "rdflib"
+  formats: ["owl", "rdf", "ttl", "n3"]
+  reasoning_engine: "hermit"
+  
+  # Core Ontologies
+  core_ontologies:
+    spatial: "ontologies/spatial/geo_spatial.owl"
+    temporal: "ontologies/temporal/geo_temporal.owl"
+    process: "ontologies/process/geo_process.owl"
+    domain: "ontologies/domain/geo_domain.owl"
+    
+  # External Ontology Integration
+  external_ontologies:
+    - uri: "http://www.opengis.net/ont/geosparql"
+      local_path: "external/geosparql.rdf"
+    - uri: "http://www.w3.org/2006/time"
+      local_path: "external/time.owl"
+
+# Knowledge Base Configuration
+knowledge_base:
+  storage_type: "elasticsearch"
+  elasticsearch:
+    hosts: ["localhost:9200"]
+    index_prefix: "geo_infer_kb"
+  
+  # Content Types
+  content_types:
+    - "documentation"
+    - "code_examples"
+    - "best_practices"
+    - "troubleshooting"
+    - "api_references"
+    
+  # Search Configuration
+  search:
+    engines: ["elasticsearch", "semantic"]
+    ranking_factors:
+      - "relevance"
+      - "recency"
+      - "authority"
+      - "completeness"
+
+# Workflow Management
+workflows:
+  engine: "airflow"
+  airflow:
+    webserver_port: 8081
+    scheduler_interval: "*/30 * * * *"
+    
+  # Predefined Workflows
+  templates:
+    documentation_generation:
+      schedule: "0 2 * * *"  # Daily at 2 AM
+      steps:
+        - "collect_source_docs"
+        - "generate_api_docs" 
+        - "build_user_guides"
+        - "update_search_index"
+        
+    ontology_validation:
+      schedule: "0 */6 * * *"  # Every 6 hours
+      steps:
+        - "validate_ontologies"
+        - "check_consistency"
+        - "update_mappings"
+
+# API Configuration
+api:
+  host: "0.0.0.0"
+  port: 8080
+  workers: 4
+  cors_origins: ["*"]
+  
+  # Authentication
+  auth:
+    enabled: true
+    jwt_secret: "${INTRA_JWT_SECRET}"
+    token_expiry: 3600
+    
+  # Rate Limiting
+  rate_limit:
+    requests_per_minute: 1000
+    burst_size: 100
+
+# Integration Settings
+integrations:
+  # Version Control
+  git:
+    enabled: true
+    auto_commit: true
+    commit_message_template: "docs: auto-generated documentation update"
+    
+  # External Services
+  external_apis:
+    github:
+      enabled: true
+      token: "${GITHUB_TOKEN}"
+      org: "geo-infer"
+    
+    discord:
+      enabled: true
+      webhook_url: "${DISCORD_WEBHOOK_URL}"
+      
+  # Module Integration
+  geo_infer_modules:
+    auto_discovery: true
+    health_check_interval: 300
+    timeout: 30
+```
+
+### Environment Variables
+
 ```bash
-# For specific INTRA tools, e.g., a documentation builder CLI
-# pip install -e .
-# For the documentation itself, typically built from the /docs directory
-# cd GEO-INFER-INTRA/docs
-# make html  # (Example for Sphinx)
+# Core INTRA Configuration
+export INTRA_JWT_SECRET="your-super-secret-intra-key"
+export INTRA_DB_URL="postgresql://user:pass@localhost:5432/geo_infer_intra"
+
+# External Service Integration
+export GITHUB_TOKEN="your-github-personal-access-token"
+export DISCORD_WEBHOOK_URL="your-discord-webhook-url"
+
+# Search & Storage
+export ELASTICSEARCH_URL="http://localhost:9200"
+export REDIS_URL="redis://localhost:6379"
+
+# Workflow Engine
+export AIRFLOW_HOME="/opt/airflow"
+export AIRFLOW__CORE__DAGS_FOLDER="/path/to/geo-infer-intra/workflows"
 ```
 
-### Configuration
-Configuration for documentation builds, ontology server connections, knowledge base indexing, etc., will be in `config/` or managed by the respective tools.
+## 🚀 Usage Examples
 
-### Accessing Documentation & Knowledge Base
-Usually involves navigating to a deployed documentation website (e.g., ReadTheDocs) or a local build.
+### Documentation Generation
+
+```python
+from geo_infer_intra.documentation import DocumentationGenerator
+from geo_infer_intra.core.config import get_settings
+
+# Initialize documentation generator
+settings = get_settings()
+doc_gen = DocumentationGenerator(settings.documentation)
+
+# Generate API documentation for all modules
+api_docs = doc_gen.generate_api_documentation(
+    modules=["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-AI"],
+    output_format="sphinx",
+    include_examples=True
+)
+
+# Generate user guides
+user_guides = doc_gen.generate_user_guides(
+    target_audience="researchers",
+    complexity_level="intermediate",
+    include_tutorials=True
+)
+
+# Auto-generate cross-references
+cross_refs = doc_gen.generate_cross_references(
+    source_modules=api_docs.modules,
+    target_formats=["html", "pdf"]
+)
+
+print(f"Generated documentation for {len(api_docs.modules)} modules")
+print(f"Cross-references: {len(cross_refs)} links created")
+```
+
+### Ontology Management
+
+```python
+from geo_infer_intra.ontology import OntologyManager, SemanticValidator
+from geo_infer_intra.models.ontology import SpatialConcept
+
+# Initialize ontology manager
+ontology_mgr = OntologyManager()
+
+# Load core spatial ontology
+spatial_onto = ontology_mgr.load_ontology("spatial")
+
+# Define new spatial concept
+new_concept = SpatialConcept(
+    uri="http://geo-infer.org/ontology/spatial#SensorNetwork",
+    label="Sensor Network",
+    definition="A collection of spatially distributed sensors",
+    super_classes=["SpatialSystem", "TechnicalSystem"],
+    properties={
+        "hasSensor": "Sensor",
+        "hasGeometry": "Geometry",
+        "hasTemporalExtent": "TemporalEntity"
+    }
+)
+
+# Add concept to ontology
+ontology_mgr.add_concept(spatial_onto, new_concept)
+
+# Validate ontology consistency
+validator = SemanticValidator()
+validation_result = validator.validate_ontology(spatial_onto)
+
+if validation_result.is_consistent:
+    print("✅ Ontology is consistent")
+    ontology_mgr.save_ontology(spatial_onto, "spatial_extended.owl")
+else:
+    print("❌ Validation errors:", validation_result.errors)
+```
+
+### Knowledge Base Operations
+
+```python
+from geo_infer_intra.knowledge_base import KnowledgeBase, SearchEngine
+from geo_infer_intra.models.knowledge import Article, CodeExample
+
+# Initialize knowledge base
+kb = KnowledgeBase()
+
+# Create knowledge articles
+spatial_article = Article(
+    title="Advanced Spatial Indexing with H3",
+    content="Comprehensive guide to H3 hexagonal indexing...",
+    category="best_practices",
+    tags=["spatial", "indexing", "h3", "performance"],
+    author="GEO-INFER Team",
+    modules_referenced=["GEO-INFER-SPACE"]
+)
+
+# Add code example
+code_example = CodeExample(
+    title="H3 Multi-Resolution Analysis",
+    description="Demonstrates multi-resolution spatial analysis using H3",
+    language="python",
+    code="""
+import h3
+from geo_infer_space import H3Index
+
+# Create multi-resolution index
+resolutions = [7, 8, 9, 10]
+multi_index = H3Index.create_multi_resolution(
+    center=(37.7749, -122.4194),
+    radius_km=10,
+    resolutions=resolutions
+)
+
+# Analyze density at different scales
+for res in resolutions:
+    density = multi_index.calculate_density(resolution=res)
+    print(f"Resolution {res}: {density:.2f} points/hex")
+""",
+    related_articles=[spatial_article.id]
+)
+
+# Store in knowledge base
+kb.store_article(spatial_article)
+kb.store_code_example(code_example)
+
+# Search knowledge base
+search_engine = SearchEngine(kb)
+results = search_engine.search(
+    query="spatial indexing performance",
+    content_types=["articles", "code_examples"],
+    modules=["GEO-INFER-SPACE"],
+    limit=10
+)
+
+for result in results:
+    print(f"📄 {result.title} (Score: {result.relevance_score:.2f})")
+```
+
+### Workflow Automation
+
+```python
+from geo_infer_intra.workflow import WorkflowEngine, WorkflowTemplate
+from geo_infer_intra.workflow.tasks import DocumentationTask, ValidationTask
+
+# Create documentation workflow
+doc_workflow = WorkflowTemplate(
+    name="daily_documentation_update",
+    description="Daily automated documentation generation and validation"
+)
+
+# Define workflow steps
+collect_sources = DocumentationTask(
+    name="collect_source_docs",
+    action="collect_documentation_sources",
+    params={
+        "source_patterns": ["*/README.md", "*/docs/**/*.md"],
+        "exclude_patterns": ["*/node_modules/**", "*/.git/**"]
+    }
+)
+
+generate_api_docs = DocumentationTask(
+    name="generate_api_docs", 
+    action="generate_api_documentation",
+    depends_on=["collect_source_docs"],
+    params={
+        "output_format": "sphinx",
+        "include_source_links": True,
+        "auto_module_discovery": True
+    }
+)
+
+validate_docs = ValidationTask(
+    name="validate_documentation",
+    action="validate_documentation_quality",
+    depends_on=["generate_api_docs"],
+    params={
+        "check_links": True,
+        "check_code_examples": True,
+        "minimum_coverage": 0.85
+    }
+)
+
+# Build workflow
+doc_workflow.add_tasks([collect_sources, generate_api_docs, validate_docs])
+
+# Execute workflow
+workflow_engine = WorkflowEngine()
+execution_result = workflow_engine.execute(doc_workflow)
+
+print(f"Workflow completed in {execution_result.duration}s")
+print(f"Status: {execution_result.status}")
+for task_result in execution_result.task_results:
+    print(f"  {task_result.name}: {task_result.status}")
+```
+
+## 🔍 Advanced Knowledge Management
+
+### Semantic Search Implementation
+
+```python
+from geo_infer_intra.knowledge_base.semantic import SemanticSearchEngine
+from geo_infer_intra.models.embeddings import DocumentEmbedding
+
+# Initialize semantic search with custom embeddings
+semantic_search = SemanticSearchEngine(
+    embedding_model="sentence-transformers/all-MiniLM-L6-v2",
+    vector_dimension=384,
+    similarity_threshold=0.7
+)
+
+# Index documents with semantic embeddings
+docs_to_index = [
+    {
+        "id": "spatial_analysis_guide",
+        "title": "Advanced Spatial Analysis Techniques",
+        "content": "Comprehensive guide covering spatial indexing, proximity analysis...",
+        "metadata": {
+            "module": "GEO-INFER-SPACE",
+            "complexity": "advanced",
+            "last_updated": "2024-01-15"
+        }
+    },
+    {
+        "id": "temporal_modeling_tutorial", 
+        "title": "Time Series Modeling for Geospatial Data",
+        "content": "Tutorial on applying temporal analysis to spatial datasets...",
+        "metadata": {
+            "module": "GEO-INFER-TIME",
+            "complexity": "intermediate",
+            "last_updated": "2024-01-10"
+        }
+    }
+]
+
+# Create embeddings and index
+for doc in docs_to_index:
+    embedding = semantic_search.create_embedding(doc["content"])
+    semantic_search.index_document(
+        doc_id=doc["id"],
+        embedding=embedding,
+        metadata=doc["metadata"]
+    )
+
+# Semantic search with natural language queries
+query_results = semantic_search.search(
+    query="How do I optimize spatial queries for large datasets?",
+    top_k=5,
+    include_metadata=True
+)
+
+for result in query_results:
+    print(f"📊 {result.title} (Similarity: {result.score:.3f})")
+    print(f"   Module: {result.metadata['module']}")
+    print(f"   Complexity: {result.metadata['complexity']}")
+```
+
+### Cross-Module Integration Analytics
+
+```python
+from geo_infer_intra.analytics import IntegrationAnalyzer, DependencyMapper
+
+# Analyze module integration patterns
+integration_analyzer = IntegrationAnalyzer()
+
+# Map module dependencies
+dependency_map = DependencyMapper()
+dependencies = dependency_map.analyze_dependencies(
+    source_paths=["../GEO-INFER-*/src/", "../GEO-INFER-*/docs/"],
+    include_imports=True,
+    include_config_refs=True
+)
+
+# Generate integration insights
+insights = integration_analyzer.generate_insights(dependencies)
+
+print("🔗 Module Integration Analysis:")
+print(f"Total modules analyzed: {insights.total_modules}")
+print(f"Integration patterns found: {len(insights.patterns)}")
+
+for pattern in insights.patterns:
+    print(f"\n📋 Pattern: {pattern.name}")
+    print(f"   Frequency: {pattern.frequency}")
+    print(f"   Modules: {', '.join(pattern.modules)}")
+    print(f"   Complexity Score: {pattern.complexity_score:.2f}")
+
+# Identify integration gaps
+gaps = integration_analyzer.identify_gaps(dependencies)
+for gap in gaps:
+    print(f"⚠️  Integration Gap: {gap.description}")
+    print(f"   Affected modules: {', '.join(gap.modules)}")
+    print(f"   Recommended action: {gap.recommendation}")
+```
+
+## 🎯 Quality Assurance & Validation
+
+### Documentation Quality Metrics
+
+```python
+from geo_infer_intra.quality import DocumentationQualityAssessor
+from geo_infer_intra.metrics import QualityMetrics
+
+# Initialize quality assessor
+quality_assessor = DocumentationQualityAssessor()
+
+# Define quality metrics
+metrics = QualityMetrics(
+    completeness_threshold=0.85,
+    accuracy_threshold=0.90,
+    freshness_days=30,
+    consistency_score_min=0.80
+)
+
+# Assess documentation quality across modules
+quality_report = quality_assessor.assess_all_modules(
+    metrics=metrics,
+    include_code_examples=True,
+    check_external_links=True
+)
+
+print("📊 Documentation Quality Report:")
+print(f"Overall Score: {quality_report.overall_score:.2f}/10")
+print(f"Modules Assessed: {quality_report.modules_count}")
+
+# Module-specific scores
+for module_score in quality_report.module_scores:
+    status_icon = "✅" if module_score.score >= 8.0 else "⚠️" if module_score.score >= 6.0 else "❌"
+    print(f"{status_icon} {module_score.module}: {module_score.score:.1f}/10")
+    
+    if module_score.issues:
+        for issue in module_score.issues[:3]:  # Show top 3 issues
+            print(f"     - {issue.description}")
+
+# Generate improvement recommendations
+recommendations = quality_assessor.generate_recommendations(quality_report)
+print(f"\n🎯 Top Improvement Recommendations:")
+for rec in recommendations[:5]:
+    print(f"   {rec.priority}: {rec.description}")
+    print(f"     Impact: {rec.expected_impact}")
+```
+
+### Automated Testing Integration
+
+```python
+from geo_infer_intra.testing import DocumentationTester, LinkValidator
+
+# Setup automated documentation testing
+doc_tester = DocumentationTester()
+
+# Test code examples in documentation
+code_test_results = doc_tester.test_code_examples(
+    source_paths=["docs/**/*.md", "examples/**/*.py"],
+    environments=["python3.9", "python3.10", "python3.11"],
+    timeout_seconds=300
+)
+
+print("🧪 Code Example Testing Results:")
+for result in code_test_results:
+    status = "✅ PASS" if result.success else "❌ FAIL"
+    print(f"{status} {result.file_path}:{result.line_number}")
+    if not result.success:
+        print(f"     Error: {result.error_message}")
+
+# Validate all documentation links
+link_validator = LinkValidator()
+link_results = link_validator.validate_all_links(
+    source_paths=["docs/", "../*/README.md"],
+    check_external_links=True,
+    timeout_seconds=10
+)
+
+broken_links = [r for r in link_results if not r.is_valid]
+if broken_links:
+    print(f"\n🔗 Found {len(broken_links)} broken links:")
+    for link in broken_links[:10]:  # Show first 10
+        print(f"   ❌ {link.url} in {link.source_file}")
+        print(f"      Status: {link.status_code} - {link.error}")
+```
+
+## 🔄 Continuous Integration Workflows
+
+### GitHub Actions Integration
+
+```yaml
+# .github/workflows/intra-documentation.yml
+name: INTRA Documentation Automation
+
+on:
+  push:
+    branches: [ main, develop ]
+    paths: 
+      - 'GEO-INFER-*/docs/**'
+      - 'GEO-INFER-*/README.md'
+      - 'GEO-INFER-*/src/**/*.py'
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+
+jobs:
+  documentation-update:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+        
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install INTRA dependencies
+      run: |
+        pip install -e ./GEO-INFER-INTRA
+        pip install sphinx mkdocs-material elasticsearch
+        
+    - name: Generate Documentation
+      run: |
+        cd GEO-INFER-INTRA
+        python -m geo_infer_intra.workflows.ci_documentation_update
+        
+    - name: Validate Documentation Quality
+      run: |
+        python -m geo_infer_intra.quality.validate_all
+        
+    - name: Test Code Examples
+      run: |
+        python -m geo_infer_intra.testing.test_examples --timeout=300
+        
+    - name: Deploy Documentation
+      if: github.ref == 'refs/heads/main'
+      run: |
+        mkdocs gh-deploy --config-file GEO-INFER-INTRA/config/mkdocs.yml
+        
+    - name: Update Search Index
+      run: |
+        python -m geo_infer_intra.knowledge_base.reindex_all
+        
+    - name: Notify Discord
+      if: failure()
+      uses: sarisia/actions-status-discord@v1
+      with:
+        webhook: ${{ secrets.DISCORD_WEBHOOK }}
+        title: "📚 INTRA Documentation Update Failed"
+        description: "Documentation automation workflow failed. Please check logs."
+```
+
+### Pre-commit Hooks
+
+```yaml
+# .pre-commit-config.yaml (for INTRA module)
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-yaml
+      - id: check-json
+      - id: check-markdown
+      - id: check-merge-conflict
+      
+  - repo: local
+    hooks:
+      - id: intra-doc-validation
+        name: Validate INTRA Documentation
+        entry: python -m geo_infer_intra.validation.pre_commit
+        language: system
+        files: \.(md|rst|py)$
+        
+      - id: intra-ontology-validation
+        name: Validate Ontology Files
+        entry: python -m geo_infer_intra.ontology.validate_on_commit
+        language: system
+        files: \.(owl|rdf|ttl)$
+        
+      - id: intra-link-check
+        name: Check Documentation Links
+        entry: python -m geo_infer_intra.links.check_on_commit
+        language: system
+        files: \.(md|rst)$
+```
+
+## 🌐 Community Integration
+
+### Discord Bot Integration
+
+```python
+from geo_infer_intra.integrations.discord import DocumentationBot
+from geo_infer_intra.knowledge_base import KnowledgeBase
+
+# Initialize Discord bot for documentation assistance
+doc_bot = DocumentationBot(
+    token=os.getenv("DISCORD_BOT_TOKEN"),
+    knowledge_base=KnowledgeBase()
+)
+
+@doc_bot.command(name="docs")
+async def search_docs(ctx, *, query):
+    """Search GEO-INFER documentation"""
+    results = doc_bot.knowledge_base.search(
+        query=query,
+        content_types=["documentation", "examples"],
+        limit=3
+    )
+    
+    if results:
+        embed = discord.Embed(
+            title="📚 Documentation Search Results",
+            description=f"Found {len(results)} results for: '{query}'",
+            color=0x0099ff
+        )
+        
+        for result in results:
+            embed.add_field(
+                name=result.title,
+                value=f"[View Documentation]({result.url})\n"
+                      f"Module: {result.module} | Score: {result.score:.2f}",
+                inline=False
+            )
+        
+        await ctx.send(embed=embed)
+    else:
+        await ctx.send(f"❌ No documentation found for: '{query}'")
+
+@doc_bot.command(name="modules")
+async def list_modules(ctx):
+    """List all GEO-INFER modules with status"""
+    modules = doc_bot.get_module_status()
+    
+    embed = discord.Embed(
+        title="🏗️ GEO-INFER Modules Status",
+        color=0x00ff00
+    )
+    
+    for module in modules:
+        status_emoji = "✅" if module.documentation_complete else "⚠️"
+        embed.add_field(
+            name=f"{status_emoji} {module.name}",
+            value=f"Docs: {module.doc_coverage:.0%} | "
+                  f"Examples: {module.example_count} | "
+                  f"Last Updated: {module.last_updated}",
+            inline=True
+        )
+    
+    await ctx.send(embed=embed)
+```
+
+### GitHub Integration
+
+```python
+from geo_infer_intra.integrations.github import GitHubDocumentationSync
+from github import Github
+
+# Setup GitHub documentation synchronization
+github_sync = GitHubDocumentationSync(
+    github_token=os.getenv("GITHUB_TOKEN"),
+    repo_owner="geo-infer",
+    repo_name="GEO-INFER"
+)
+
+# Auto-create documentation issues for missing content
+missing_docs = github_sync.identify_missing_documentation()
+
+for missing in missing_docs:
+    issue = github_sync.create_documentation_issue(
+        title=f"📚 Missing Documentation: {missing.module} - {missing.section}",
+        body=f"""
+## Missing Documentation Detected
+
+**Module**: {missing.module}
+**Section**: {missing.section}
+**Priority**: {missing.priority}
+**Expected Content**: {missing.description}
+
+### Checklist
+- [ ] Create documentation outline
+- [ ] Write content
+- [ ] Add code examples
+- [ ] Review and test
+- [ ] Update cross-references
+
+**Auto-generated by GEO-INFER-INTRA**
+        """,
+        labels=["documentation", "auto-generated", missing.priority],
+        assignee=missing.suggested_assignee
+    )
+    
+    print(f"📝 Created issue #{issue.number}: {issue.title}")
+
+# Auto-update documentation from pull requests
+@github_sync.on_pull_request_merged
+def update_docs_on_merge(pr):
+    """Automatically update documentation when code changes are merged"""
+    
+    # Check if PR affects modules that need doc updates
+    affected_modules = github_sync.analyze_pr_impact(pr)
+    
+    for module in affected_modules:
+        # Trigger documentation regeneration
+        github_sync.trigger_doc_update(
+            module=module,
+            pr_number=pr.number,
+            changes=pr.get_files()
+        )
+        
+        # Update knowledge base
+        github_sync.update_knowledge_base_from_pr(pr, module)
+```
+
+## 📊 Analytics & Reporting
+
+### Usage Analytics
+
+```python
+from geo_infer_intra.analytics import DocumentationAnalytics, UserBehaviorAnalyzer
+
+# Track documentation usage patterns
+analytics = DocumentationAnalytics()
+
+# Analyze most accessed content
+popular_content = analytics.get_popular_content(
+    time_period="last_30_days",
+    content_types=["documentation", "examples", "tutorials"],
+    group_by="module"
+)
+
+print("📈 Most Popular Documentation (Last 30 Days):")
+for content in popular_content[:10]:
+    print(f"   {content.title}")
+    print(f"   📊 Views: {content.view_count} | Module: {content.module}")
+    print(f"   ⭐ Rating: {content.avg_rating:.1f}/5 | Comments: {content.comment_count}")
+
+# Identify content gaps based on search patterns
+search_analyzer = UserBehaviorAnalyzer()
+search_gaps = search_analyzer.identify_content_gaps(
+    search_logs=analytics.get_search_logs("last_90_days"),
+    min_query_frequency=10,
+    content_availability_threshold=0.3
+)
+
+print(f"\n🔍 Identified {len(search_gaps)} Content Gaps:")
+for gap in search_gaps:
+    print(f"   Missing: {gap.topic}")
+    print(f"   Search frequency: {gap.query_count} times")
+    print(f"   Suggested modules: {', '.join(gap.relevant_modules)}")
+```
+
+### Performance Monitoring
+
+```python
+from geo_infer_intra.monitoring import PerformanceMonitor, HealthChecker
+
+# Monitor INTRA system performance
+monitor = PerformanceMonitor()
+
+# Track documentation generation performance
+@monitor.track_execution_time
+def generate_full_documentation():
+    """Generate complete documentation suite"""
+    # Implementation here
+    pass
+
+# Monitor knowledge base query performance
+@monitor.track_query_performance  
+def search_knowledge_base(query, filters=None):
+    """Search knowledge base with performance tracking"""
+    # Implementation here
+    pass
+
+# Health check for all INTRA components
+health_checker = HealthChecker()
+
+health_status = health_checker.check_all_components()
+print("🏥 INTRA System Health Status:")
+
+for component, status in health_status.items():
+    status_icon = "✅" if status.healthy else "❌"
+    print(f"{status_icon} {component}: {status.status}")
+    
+    if not status.healthy:
+        print(f"   Error: {status.error_message}")
+        print(f"   Last successful check: {status.last_success}")
+
+# Performance metrics dashboard
+metrics = monitor.get_performance_metrics(time_range="last_24_hours")
+print(f"\n📊 Performance Metrics (24h):")
+print(f"   Doc generation avg time: {metrics.doc_generation_avg_time:.2f}s")
+print(f"   Search query avg time: {metrics.search_avg_time:.3f}s")
+print(f"   API response time P95: {metrics.api_p95_response_time:.3f}s")
+print(f"   Error rate: {metrics.error_rate:.2%}")
+```
+
+## 🔧 Troubleshooting & Support
+
+### Common Issues and Solutions
+
+**Issue**: "Documentation generation fails with import errors"
 ```bash
-# Example: Running a local documentation server
-# python -m http.server --directory GEO-INFER-INTRA/docs/_build/html 8000
+# Check Python path and module availability
+python -c "
+import sys
+print('Python path:')
+for p in sys.path:
+    print(f'  {p}')
+
+# Check GEO-INFER modules
+try:
+    import geo_infer_intra
+    print('✅ GEO-INFER-INTRA available')
+except ImportError as e:
+    print(f'❌ GEO-INFER-INTRA import error: {e}')
+"
+
+# Reinstall in development mode
+pip install -e ./GEO-INFER-INTRA[all]
 ```
 
-## Ontology Management
+**Issue**: "Ontology validation errors"
+```python
+# Debug ontology validation
+from geo_infer_intra.ontology import OntologyValidator
 
-GEO-INFER-INTRA manages standardized geospatial and domain-specific ontologies to ensure semantic consistency:
+validator = OntologyValidator()
+result = validator.validate_ontology_file("ontologies/spatial/geo_spatial.owl")
 
--   **Core Geospatial Ontology:** Defines fundamental spatial concepts (features, geometries, topology), relationships, and properties, aligning with standards like OGC Simple Features, GeoSPARQL.
--   **Temporal Ontology:** Complements the spatial ontology with concepts for time instants, intervals, durations, and temporal relationships (aligning with OWL-Time or similar).
--   **Process & Event Taxonomies:** Standardized ways to describe geospatial processes, analytical workflows, and significant events or phenomena.
--   **Domain-Specific Terminologies:** Extensions for specific application areas like ecology (e.g., species, habitats, ecological processes), civic planning (e.g., land use, infrastructure, administrative units), agriculture, etc.
--   **Cross-Domain Alignment Mechanisms:** Tools and methodologies for mapping concepts between different ontologies and ensuring consistency when integrating data or models from diverse domains.
--   **Versioning & Governance:** Processes for managing changes to ontologies, ensuring community review, and maintaining stable versions.
+if result.errors:
+    print("Ontology validation errors:")
+    for error in result.errors:
+        print(f"  Line {error.line}: {error.message}")
+        print(f"  Suggestion: {error.fix_suggestion}")
+```
 
-## Documentation System
+**Issue**: "Knowledge base search returns no results"
+```bash
+# Check Elasticsearch connection and indices
+curl -X GET "localhost:9200/_cluster/health?pretty"
+curl -X GET "localhost:9200/geo_infer_kb*/_stats?pretty"
 
-The module underpins a comprehensive, multi-faceted documentation system:
+# Reindex knowledge base
+python -m geo_infer_intra.knowledge_base.reindex --force
+```
 
--   **Auto-Generated API Documentation:** From source code comments (docstrings) for all GEO-INFER modules, ensuring API references are always up-to-date.
--   **Interactive Tutorials & Examples:** Hands-on guides and runnable code examples (e.g., Jupyter Notebooks) to help users learn how to use different modules and features.
--   **Conceptual & Architectural Diagrams:** Visual explanations of system architecture, module interactions, data flows, and key concepts using tools like Mermaid.js.
--   **Searchable Knowledge Base:** A centralized platform where all documentation, FAQs, troubleshooting guides, and best practices are indexed and easily searchable.
--   **Version-Controlled Documentation:** Documentation is managed under version control (Git), ensuring that changes are tracked and that documentation corresponding to specific software versions is available.
--   **Contribution Guidelines:** Clear instructions on how to contribute to documentation, ensuring quality and consistency.
+**Issue**: "Workflow execution failures"
+```python
+# Debug workflow execution
+from geo_infer_intra.workflow import WorkflowDiagnostics
 
-## Workflow Management
+diagnostics = WorkflowDiagnostics()
+report = diagnostics.diagnose_workflow_failure(
+    workflow_id="daily_documentation_update",
+    execution_id="20240115_020000"
+)
 
-INTRA provides capabilities for defining, managing, and potentially executing standardized workflows:
+print(f"Workflow failure analysis:")
+print(f"  Failed task: {report.failed_task}")
+print(f"  Error: {report.error_message}")
+print(f"  Suggested fix: {report.fix_suggestion}")
 
--   **Visual Workflow Designers (Conceptual/Integration):** Tools that allow users to graphically design complex data processing or analytical workflows by connecting predefined components or modules.
--   **Predefined Workflow Templates:** A library of common geospatial workflows (e.g., satellite image preprocessing, habitat suitability modeling, change detection) that users can adapt and execute.
--   **Execution Tracking & Monitoring:** If an execution engine is part of INTRA or integrated, it provides visibility into workflow status, progress, and any errors.
--   **Parameterization & Reusability:** Workflows are designed to be parameterizable, allowing them to be reused for different datasets or study areas.
--   **Workflow Sharing & Collaboration Tools:** Mechanisms for users and teams to share, version, and collaborate on workflow definitions.
+# Check task dependencies
+dependencies = diagnostics.check_task_dependencies(report.failed_task)
+for dep in dependencies:
+    status = "✅" if dep.satisfied else "❌" 
+    print(f"  {status} Dependency: {dep.name}")
+```
 
-## Integration with Other Modules
+### Getting Help
 
-GEO-INFER-INTRA is fundamentally an integration and enablement module. It serves **all other modules** in the GEO-INFER framework by:
+- 📧 **Email**: intra-support@geo-infer.org
+- 💬 **Discord**: [#intra-support channel](https://discord.gg/geo-infer)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/geo-infer/GEO-INFER-INTRA/issues)
+- 📖 **Full Documentation**: [Complete INTRA Guide](https://docs.geo-infer.org/intra/)
+- 🎥 **Video Tutorials**: [INTRA Tutorial Series](https://youtube.com/geo-infer-tutorials)
 
--   **Providing Consistent Documentation:** Every module's documentation (API, user guides, examples) is managed and structured by INTRA.
--   **Enforcing Standardized Terminology:** The ontologies managed by INTRA ensure all modules use a common language, reducing ambiguity and improving interoperability.
--   **Supplying Process Templates & Best Practices:** Common tasks and operations across modules can be standardized through workflows and best practice guides curated by INTRA.
--   **Facilitating Knowledge Management & Discovery:** The centralized knowledge base makes it easier for developers and users to find information about any part of the GEO-INFER ecosystem.
--   **Guiding Development & Contributions:** Developer guides, coding standards, and contribution processes are documented and maintained by INTRA.
--   **Supporting Training & Onboarding:** Tutorials, user guides, and a clear articulation of concepts help new users and contributors get up to speed quickly.
--   **GEO-INFER-REQ:** INTRA documents the requirements elicited by REQ and the P3IF framework itself. The ontologies from INTRA inform the vocabularies used in REQ.
+### Development Support
 
-## Contributing
+```bash
+# Join development environment setup
+git clone https://github.com/geo-infer/GEO-INFER-INTRA.git
+cd GEO-INFER-INTRA
 
-Contributions to GEO-INFER-INTRA are crucial for the health of the entire framework. This can include:
--   Writing, reviewing, or updating documentation for any module.
--   Developing or refining ontologies and controlled vocabularies.
--   Creating new tutorials or example use cases.
--   Defining and sharing useful workflow templates.
--   Contributing to the knowledge base (e.g., FAQs, troubleshooting tips).
--   Improving the documentation generation tools or knowledge base platform.
+# Setup development environment
+python -m venv venv
+source venv/bin/activate  # Windows: venv\Scripts\activate
+pip install -e ".[dev,test,docs]"
 
-Follow the contribution guidelines in the main GEO-INFER documentation (`CONTRIBUTING.md`) and specific style guides for documentation and ontology development located within `GEO-INFER-INTRA/docs`.
+# Install pre-commit hooks
+pre-commit install
 
-## License
+# Run development server with hot reload
+python -m geo_infer_intra.dev.server --reload --debug
 
-This module is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details. 
+# Run full test suite
+pytest tests/ --cov=geo_infer_intra --cov-report=html
+```
+
+---
+
+## 🎯 INTRA Development Roadmap
+
+### Current Version (v1.0)
+- ✅ Core documentation system with auto-generation
+- ✅ Basic ontology management and validation
+- ✅ Knowledge base with search capabilities
+- ✅ Workflow automation framework
+
+### Next Release (v1.1)
+- 🔄 Advanced semantic search with ML embeddings
+- 🔄 Real-time collaboration features
+- 🔄 Enhanced GitHub/Discord integration
+- 🔄 Interactive documentation components
+
+### Future Enhancements (v2.0)
+- 📋 AI-powered content generation
+- 📋 Multi-language documentation support
+- 📋 Advanced analytics and insights
+- 📋 Federated knowledge base architecture
+
+---
+
+*This comprehensive documentation is maintained by the GEO-INFER development team and community contributors. For the latest updates and detailed technical specifications, visit our [complete documentation portal](https://docs.geo-infer.org/intra/).*
+
+*Last updated: 2024* 
