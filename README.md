@@ -1,14 +1,7 @@
 # GEO-INFER Framework 🌍🔍
 
 [![License: CC BY-ND-SA 4.0](https://img.shields.io/badge/License-CC%20BY--ND--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nd-sa/4.0/)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Documentation Status](https://img.shields.io/badge/docs-production%20ready-brightgreen.svg)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
-[![DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.12345678-blue.svg)](https://doi.org/10.5281/zenodo.12345678)
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)]()
-[![Coverage](https://img.shields.io/badge/coverage-94%25-brightgreen.svg)]()
-[![Security](https://img.shields.io/badge/security-A%2B-brightgreen.svg)]()
-[![Performance](https://img.shields.io/badge/performance-excellent-brightgreen.svg)]()
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289DA.svg)](https://discord.activeinference.institute/)
 
 
@@ -24,17 +17,7 @@
 
 ## Overview 📋
 
-GEO-INFER is a **production-ready**, enterprise-grade geospatial inference framework designed for ecological, civic, and commercial applications. With **18 months of continuous development** and **real-world deployment experience**, it provides a battle-tested modular architecture for spatial-temporal analysis, active inference modeling, and community engagement.
-
-### 🌟 **What's New in 2025**
-- ✅ **Enterprise Production Deployments**: Successfully deployed across 15+ organizations
-- ✅ **Advanced AI Integration**: GPT-4, Claude, and custom LLM integrations
-- ✅ **Quantum-Ready Architecture**: Prepared for quantum computing advances
-- ✅ **Global Scale**: Multi-region deployments with 99.9% uptime
-- ✅ **Industry Recognition**: Winner of 2024 Open Source Geospatial Award
-- ✅ **Academic Validation**: 12+ peer-reviewed publications citing the framework
-
-The framework integrates cutting-edge geospatial analytics, AI/ML capabilities, Bayesian methods, and participatory tools into a cohesive ecosystem that scales from research prototypes to global enterprise deployments.
+GEO-INFER is a geospatial inference framework designed for ecological, civic, and commercial applications. It provides a modular architecture for spatial-temporal analysis, active inference modeling, and community engagement.
 
 ## 📦 Module Categories
 
