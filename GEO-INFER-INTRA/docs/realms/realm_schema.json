@@ -32,33 +32,14 @@
       "format": "uri"
     },
     "header_image": {
-      "type": "string"
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "raw_polygon_json": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "type": {
-            "type": "string"
-          },
-          "coordinates": {
-            "type": "array",
-            "items": {
-              "type": "array",
-              "items": {
-                "type": "number"
-              },
-              "minItems": 2,
-              "maxItems": 2
-            }
-          }
-        },
-        "required": [
-          "type",
-          "coordinates"
-        ]
-      }
+      "type": "string",
+      "description": "JSON string containing polygon geometry data"
     },
     "region_url": {
       "type": [
@@ -197,6 +178,26 @@
     },
     "community_trend": {
       "type": "number"
+    },
+    "bioscore_percentile": {
+      "type": "number",
+      "description": "Percentile ranking of bioscore"
+    },
+    "species_diversity_percentile": {
+      "type": "number",
+      "description": "Percentile ranking of species diversity"
+    },
+    "monitoring_percentile": {
+      "type": "number",
+      "description": "Percentile ranking of monitoring score"
+    },
+    "community_percentile": {
+      "type": "number",
+      "description": "Percentile ranking of community score"
+    },
+    "biovalue_percentile": {
+      "type": "number",
+      "description": "Percentile ranking of bio value"
     }
   }
 }

@@ -1,0 +1,81 @@
+2025-07-07 15:51:36,142 - INFO - Successfully loaded schema from realm_schema.json
+2025-07-07 15:51:36,142 - INFO - 🚀 Starting Comprehensive Realms API Testing
+2025-07-07 15:51:36,142 - INFO - Timestamp: 2025-07-07T15:51:36.142508
+2025-07-07 15:51:36,142 - INFO - Timeout: 30s
+2025-07-07 15:51:36,142 - INFO - Schema loaded: Yes
+2025-07-07 15:51:36,142 - INFO - ============================================================
+2025-07-07 15:51:36,142 - INFO - Testing: Search Realms by Name
+2025-07-07 15:51:36,142 - INFO - ============================================================
+2025-07-07 15:51:37,122 - INFO - ✓ GET https://api.guardiansofearth.io/realms - 200 (0.98s)
+2025-07-07 15:51:37,122 - INFO -   Found 2 results for 'Avana'
+2025-07-07 15:51:37,623 - INFO - ============================================================
+2025-07-07 15:51:37,624 - INFO - Testing: Get All Realms
+2025-07-07 15:51:37,624 - INFO - ============================================================
+2025-07-07 15:51:37,624 - INFO - Testing with params: {}
+2025-07-07 15:51:38,672 - INFO - ✓ GET https://portal.biosmart.life/api/v1/contest/109/regions.json - 200 (1.05s)
+2025-07-07 15:51:38,673 - INFO -   Retrieved 20 realms
+2025-07-07 15:51:38,836 - INFO -   ✓ Schema validation passed
+2025-07-07 15:51:39,337 - INFO - Testing with params: {'limit': 5}
+2025-07-07 15:51:39,531 - INFO - ✓ GET https://portal.biosmart.life/api/v1/contest/109/regions.json - 200 (0.19s)
+2025-07-07 15:51:39,531 - INFO -   Retrieved 5 realms
+2025-07-07 15:51:39,572 - INFO -   ✓ Schema validation passed
+2025-07-07 15:51:40,073 - INFO - Testing with params: {'limit': 3, 'offset': 10}
+2025-07-07 15:51:40,262 - INFO - ✓ GET https://portal.biosmart.life/api/v1/contest/109/regions.json - 200 (0.19s)
+2025-07-07 15:51:40,262 - INFO -   Retrieved 3 realms
+2025-07-07 15:51:40,286 - INFO -   ✓ Schema validation passed
+2025-07-07 15:51:40,787 - INFO - Testing with params: {'sort_by': 'id', 'sort_order': 'asc', 'limit': 5}
+2025-07-07 15:51:41,154 - INFO - ✓ GET https://portal.biosmart.life/api/v1/contest/109/regions.json - 200 (0.37s)
+2025-07-07 15:51:41,154 - INFO -   Retrieved 5 realms
+2025-07-07 15:51:41,194 - INFO -   ✓ Schema validation passed
+2025-07-07 15:51:41,696 - INFO - Testing with params: {'sort_by': 'id', 'sort_order': 'desc', 'limit': 5}
+2025-07-07 15:51:41,900 - INFO - ✓ GET https://portal.biosmart.life/api/v1/contest/109/regions.json - 200 (0.20s)
+2025-07-07 15:51:41,901 - INFO -   Retrieved 5 realms
+2025-07-07 15:51:41,957 - INFO -   ✓ Schema validation passed
+2025-07-07 15:51:42,459 - INFO - Testing with params: {'sort_by': 'bioscore', 'sort_order': 'desc', 'limit': 5}
+2025-07-07 15:51:42,663 - INFO - ✓ GET https://portal.biosmart.life/api/v1/contest/109/regions.json - 200 (0.20s)
+2025-07-07 15:51:42,663 - INFO -   Retrieved 5 realms
+2025-07-07 15:51:42,698 - INFO -   ✓ Schema validation passed
+2025-07-07 15:51:43,199 - INFO - ============================================================
+2025-07-07 15:51:43,199 - INFO - Testing: Get Realm by ID
+2025-07-07 15:51:43,200 - INFO - ============================================================
+2025-07-07 15:51:44,378 - INFO - ✓ GET https://portal.biosmart.life/api/v1/region/2188 - 200 (1.18s)
+2025-07-07 15:51:44,383 - INFO -   ✓ Schema validation passed for ID 2188
+2025-07-07 15:51:44,886 - INFO - ============================================================
+2025-07-07 15:51:44,886 - INFO - Testing: Error Cases and Edge Conditions
+2025-07-07 15:51:44,886 - INFO - ============================================================
+2025-07-07 15:51:44,886 - INFO - Testing error case: invalid_realm_id
+2025-07-07 15:51:45,080 - INFO - ✓ GET https://portal.biosmart.life/api/v1/region/99999999 - 200 (0.19s)
+2025-07-07 15:51:45,080 - INFO -   ? Unexpected success (might be valid): 200
+2025-07-07 15:51:45,581 - INFO - Testing error case: non_numeric_realm_id
+2025-07-07 15:51:45,772 - INFO - ✓ GET https://portal.biosmart.life/api/v1/region/invalid - 200 (0.19s)
+2025-07-07 15:51:45,772 - INFO -   ? Unexpected success (might be valid): 200
+2025-07-07 15:51:46,273 - INFO - Testing error case: empty_search_term
+2025-07-07 15:51:46,900 - WARNING - ✗ GET https://api.guardiansofearth.io/realms - 400 (0.63s)
+2025-07-07 15:51:46,901 - INFO -   ✓ Got expected error status: 400
+2025-07-07 15:51:47,401 - INFO - Testing error case: invalid_sort_parameter
+2025-07-07 15:51:47,592 - INFO - ✓ GET https://portal.biosmart.life/api/v1/contest/109/regions.json - 200 (0.19s)
+2025-07-07 15:51:47,592 - INFO -   ? Unexpected success (might be valid): 200
+2025-07-07 15:51:48,093 - INFO - 
+================================================================================
+2025-07-07 15:51:48,093 - INFO - 📊 TEST SUMMARY REPORT
+2025-07-07 15:51:48,093 - INFO - ================================================================================
+2025-07-07 15:51:48,094 - INFO - Total Tests:    12
+2025-07-07 15:51:48,094 - INFO - Passed:         12
+2025-07-07 15:51:48,094 - INFO - Failed:         0
+2025-07-07 15:51:48,094 - INFO - Success Rate:   100.0%
+2025-07-07 15:51:48,094 - INFO - Total Duration: 11.95s
+2025-07-07 15:51:48,094 - INFO - 
+📈 ENDPOINT BREAKDOWN:
+2025-07-07 15:51:48,094 - INFO -   search_by: 1/1 (100.0%)
+2025-07-07 15:51:48,094 - INFO -   get_all: 6/6 (100.0%)
+2025-07-07 15:51:48,094 - INFO -   get_realm: 1/1 (100.0%)
+2025-07-07 15:51:48,094 - INFO -   error_case: 4/4 (100.0%)
+2025-07-07 15:51:48,094 - INFO - 
+⏱️  RESPONSE TIMES:
+2025-07-07 15:51:48,094 - INFO -   Average: 0.46s
+2025-07-07 15:51:48,094 - INFO -   Fastest: 0.19s
+2025-07-07 15:51:48,095 - INFO -   Slowest: 1.18s
+2025-07-07 15:51:48,095 - INFO - 
+================================================================================
+2025-07-07 15:51:48,100 - INFO - 💾 Detailed results saved to: outputs/test_run_20250707_155136/test_results.json
+2025-07-07 15:51:48,100 - INFO - 🎉 All tests passed!
