@@ -42,32 +42,8 @@ GEO-INFER is a modular geospatial intelligence platform supporting:
 ## 3. Data Model Mapping: Realms → GEO-INFER
 
 ```mermaid
-erDiagram
-    "REALM" ||--o{ "GEO_DATASET" : "has"
-    "REALM" {
-      int id
-      string name
-      string description
-      string logo_image_url
-      string header_image_url
-      array raw_polygon_json
-      float lat
-      float lng
-      float bioscore
-      float physical_health_score
-      float mental_health_score
-      float species_diversity_score
-      int observations_count
-      int species_count
-      int people_count
-      int identifications_count
-    }
-    "GEO_DATASET" {
-      geometry polygon
-      float centroid_lat
-      float centroid_lng
-      dict attributes
-    }
+graph TD
+  REALM["Realm"] -- "geometry, attributes" --> GEO_DATASET["GeospatialDataset"]
 ```
 
 - **raw_polygon_json** → `geometry` in GEO-INFER spatial datasets
@@ -80,13 +56,13 @@ erDiagram
 
 ```mermaid
 graph TD
-    "Realms API / Data Source" -->|"JSON/GeoJSON"| "GEO-INFER-API"
-    "GEO-INFER-API" --> "GEO-INFER-DATA"
-    "GEO-INFER-DATA" --> "GEO-INFER-SPACE"
-    "GEO-INFER-SPACE" --> "GEO-INFER-INTRA (Knowledge Base)"
-    "GEO-INFER-SPACE" --> "GEO-INFER-APP (Visualization)"
-    "GEO-INFER-SPACE" --> "GEO-INFER-AGENT (Modeling/Simulation)"
-    "GEO-INFER-SPACE" --> "GEO-INFER-BIO (Ecological Analysis)"
+    "Realms_API_DataSource" -->|"JSON/GeoJSON"| "GEOINFER_API"
+    "GEOINFER_API" --> "GEOINFER_DATA"
+    "GEOINFER_DATA" --> "GEOINFER_SPACE"
+    "GEOINFER_SPACE" --> "GEOINFER_INTRA_KB"
+    "GEOINFER_SPACE" --> "GEOINFER_APP_Visualization"
+    "GEOINFER_SPACE" --> "GEOINFER_AGENT_Modeling"
+    "GEOINFER_SPACE" --> "GEOINFER_BIO_Ecology"
 ```
 
 - **Ingestion:** Realms data (via API or file) is parsed and validated
@@ -104,9 +80,9 @@ graph TD
 
 ```mermaid
 graph LR
-    "raw_polygon_json" -->|"Parse/Validate"| "GeoDataFrame"
-    "GeoDataFrame" -->|"Index"| "H3/QuadTree/R-Tree"
-    "H3/QuadTree/R-Tree" -->|"Spatial Query"| "Analysis/Visualization"
+    raw_polygon_json -->|"Parse/Validate"| GeoDataFrame
+    GeoDataFrame -->|"Index"| H3_QuadTree_RTree
+    H3_QuadTree_RTree -->|"Spatial Query"| Analysis_Visualization
 ```
 
 ---
@@ -118,9 +94,9 @@ graph LR
 
 ```mermaid
 graph TD
-    "Realm JSON" -->|"Schema Mapping"| "GEO-INFER Ontology"
-    "GEO-INFER Ontology" --> "Knowledge Base"
-    "Knowledge Base" --> "Workflow Engine"
+    Realm_JSON -->|"Schema Mapping"| GEOINFER_Ontology
+    GEOINFER_Ontology --> Knowledge_Base
+    Knowledge_Base --> Workflow_Engine
 ```
 
 ---
@@ -150,28 +126,15 @@ graph TD
 
 ```mermaid
 graph TD
-    subgraph "Realms"
-        "Realm API/JSON"
-        "realm_schema.json"
-    end
-    subgraph "GEO-INFER"
-        "GEO-INFER-API"
-        "GEO-INFER-DATA"
-        "GEO-INFER-SPACE"
-        "GEO-INFER-INTRA"
-        "GEO-INFER-BIO"
-        "GEO-INFER-AGENT"
-        "GEO-INFER-APP"
-    end
-    "Realm API/JSON" -->|"Data"| "GEO-INFER-API"
-    "realm_schema.json" -->|"Schema"| "GEO-INFER-INTRA"
-    "GEO-INFER-API" --> "GEO-INFER-DATA"
-    "GEO-INFER-DATA" --> "GEO-INFER-SPACE"
-    "GEO-INFER-SPACE" --> "GEO-INFER-INTRA"
-    "GEO-INFER-SPACE" --> "GEO-INFER-BIO"
-    "GEO-INFER-SPACE" --> "GEO-INFER-AGENT"
-    "GEO-INFER-SPACE" --> "GEO-INFER-APP"
-    "GEO-INFER-INTRA" --> "GEO-INFER-APP"
+  RealmAPI_JSON -- "Data" --> GEOINFER_API
+  RealmSchema_JSON -- "Schema" --> GEOINFER_INTRA
+  GEOINFER_API --> GEOINFER_DATA
+  GEOINFER_DATA --> GEOINFER_SPACE
+  GEOINFER_SPACE --> GEOINFER_INTRA
+  GEOINFER_SPACE --> GEOINFER_BIO
+  GEOINFER_SPACE --> GEOINFER_AGENT
+  GEOINFER_SPACE --> GEOINFER_APP
+  GEOINFER_INTRA --> GEOINFER_APP
 ```
 
 ---
