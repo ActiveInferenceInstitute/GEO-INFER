@@ -1,3 +1,5 @@
 
 /GEO-INFER-SPACE/repos
 GEO-INFER-API/src/geo_infer_api/__pycache__/__init__.cpython-310.pyc
+GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/__pycache__/osc_simple_status.cpython-312.pyc
+*.pyc

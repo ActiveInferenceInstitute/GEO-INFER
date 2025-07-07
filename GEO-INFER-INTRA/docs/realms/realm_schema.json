@@ -1,0 +1,202 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer"
+    },
+    "name": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "logo_image_url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri"
+    },
+    "logo_image": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "header_image_url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri"
+    },
+    "header_image": {
+      "type": "string"
+    },
+    "raw_polygon_json": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string"
+          },
+          "coordinates": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number"
+              },
+              "minItems": 2,
+              "maxItems": 2
+            }
+          }
+        },
+        "required": [
+          "type",
+          "coordinates"
+        ]
+      }
+    },
+    "region_url": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "uri"
+    },
+    "bioscore": {
+      "type": "number"
+    },
+    "lat": {
+      "type": "number"
+    },
+    "lng": {
+      "type": "number"
+    },
+    "lat_input": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "lng_input": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "polygon_side_length": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "status": {
+      "type": [
+        "string"
+      ],
+      "enum": [
+        "online",
+        "offline",
+        "deleted"
+      ]
+    },
+    "slug": {
+      "type": "string"
+    },
+    "observations_count": {
+      "type": "integer"
+    },
+    "species_count": {
+      "type": "integer"
+    },
+    "people_count": {
+      "type": "integer"
+    },
+    "identifications_count": {
+      "type": "integer"
+    },
+    "physical_health_score": {
+      "type": "number"
+    },
+    "mental_health_score": {
+      "type": "number"
+    },
+    "subscription": {
+      "type": "string"
+    },
+    "display_flag": {
+      "type": "boolean"
+    },
+    "header_thumb": {
+      "type": "string",
+      "format": "uri"
+    },
+    "contest": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "total_vs_greater_region_observations_score": {
+      "type": "number"
+    },
+    "total_vs_locality_observations_score": {
+      "type": "number"
+    },
+    "this_year_vs_total_observations_score": {
+      "type": "number"
+    },
+    "last_2years_vs_total_observations_score": {
+      "type": "number"
+    },
+    "total_vs_greater_region_species_score": {
+      "type": "number"
+    },
+    "total_vs_locality_species_score": {
+      "type": "number"
+    },
+    "this_year_vs_total_species_score": {
+      "type": "number"
+    },
+    "last_2years_vs_total_species_score": {
+      "type": "number"
+    },
+    "total_vs_greater_region_activity_score": {
+      "type": "number"
+    },
+    "total_vs_locality_activity_score": {
+      "type": "number"
+    },
+    "this_year_vs_total_activity_score": {
+      "type": "number"
+    },
+    "last_2years_vs_total_activity_score": {
+      "type": "number"
+    },
+    "bio_value": {
+      "type": "number"
+    },
+    "species_diversity_score": {
+      "type": "number"
+    },
+    "monitoring_score": {
+      "type": "number"
+    },
+    "community_score": {
+      "type": "number"
+    },
+    "species_trend": {
+      "type": "number"
+    },
+    "monitoring_trend": {
+      "type": "number"
+    },
+    "community_trend": {
+      "type": "number"
+    }
+  }
+}
