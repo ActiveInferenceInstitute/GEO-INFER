@@ -185,63 +185,57 @@ engagement_patterns = engagement_analyzer.analyze_interaction_patterns(
 ##### Stakeholder Mapping Architecture:
 
 ```mermaid
-graph LR
-    classDef stakeholder fill:#bbdefb,stroke:#1976d2,stroke-width:1px
-    classDef internal fill:#c8e6c9,stroke:#388e3c,stroke-width:1px
-    classDef external fill:#ffcdd2,stroke:#d32f2f,stroke-width:1px
-    classDef regulatory fill:#fff9c4,stroke:#f57f17,stroke-width:1px
-
-    %% Organization at center
-    ORG["Organization Operations"]:::internal
-
+graph TD
+    ORG[Organization Operations]
+    
     %% Internal stakeholders
-    EMP[Employees]:::internal
-    SHARE[Shareholders]:::internal
-    BOARD[Board]:::internal
-
-    %% External community stakeholders
-    LOCAL[Local Communities]:::stakeholder
-    INDIGE[Indigenous Groups]:::stakeholder
-    YOUTH[Youth Groups]:::stakeholder
-    WOMEN["Women's Groups"]:::stakeholder
-
+    EMP[Employees]
+    SHARE[Shareholders]
+    BOARD[Board]
+    
+    %% Community stakeholders
+    LOCAL[Local Communities]
+    INDIGE[Indigenous Groups]
+    
     %% Environmental stakeholders
-    ENV[Environmental NGOs]:::external
-    CONSERV[Conservation Groups]:::external
-    RESEARCH[Research Institutions]:::external
-
+    ENV[Environmental NGOs]
+    CONSERV[Conservation Groups]
+    
     %% Economic stakeholders
-    CUST[Customers]:::external
-    SUPP[Suppliers]:::external
-    COMPET[Competitors]:::external
-    FINAN[Financial Institutions]:::external
-
+    CUST[Customers]
+    SUPP[Suppliers]
+    FINAN[Financial Institutions]
+    
     %% Regulatory stakeholders
-    REGUL[Regulatory Bodies]:::regulatory
-    GOVT[Government Agencies]:::regulatory
-    INTER[International Bodies]:::regulatory
-
-    %% High influence connections
-    ORG --- REGUL
-    ORG --- FINAN
-    ORG --- CUST
-    ORG --- EMP
-
-    %% Medium influence connections  
-    ORG -- LOCAL
-    ORG -- ENV
-    ORG -- SUPP
-    ORG -- SHARE
-
-    %% Low influence connections
-    ORG -.- INDIGE
-    ORG -.- YOUTH
-    ORG -.- WOMEN
-    ORG -.- CONSERV
-    ORG -.- RESEARCH
-    ORG -.- COMPET
-    ORG -.- GOVT
-    ORG -.- INTER
+    REGUL[Regulatory Bodies]
+    GOVT[Government Agencies]
+    
+    %% Connections
+    ORG --> EMP
+    ORG --> SHARE
+    ORG --> BOARD
+    ORG --> LOCAL
+    ORG --> INDIGE
+    ORG --> ENV
+    ORG --> CONSERV
+    ORG --> CUST
+    ORG --> SUPP
+    ORG --> FINAN
+    ORG --> REGUL
+    ORG --> GOVT
+    
+    %% Styling
+    classDef internal fill:#c8e6c9,stroke:#388e3c
+    classDef community fill:#bbdefb,stroke:#1976d2
+    classDef environmental fill:#ffcdd2,stroke:#d32f2f
+    classDef economic fill:#fff3e0,stroke:#f57c00
+    classDef regulatory fill:#fff9c4,stroke:#f57f17
+    
+    class EMP,SHARE,BOARD internal
+    class LOCAL,INDIGE community
+    class ENV,CONSERV environmental
+    class CUST,SUPP,FINAN economic
+    class REGUL,GOVT regulatory
 ```
 
 ### Step 2: Identify Actual and Potential Impacts
