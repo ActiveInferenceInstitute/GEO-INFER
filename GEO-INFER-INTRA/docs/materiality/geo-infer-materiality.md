@@ -192,7 +192,7 @@ graph LR
     classDef regulatory fill:#fff9c4,stroke:#f57f17,stroke-width:1px
 
     %% Organization at center
-    ORG[Organization<br/>Operations]:::internal
+    ORG["Organization Operations"]:::internal
 
     %% Internal stakeholders
     EMP[Employees]:::internal
@@ -203,7 +203,7 @@ graph LR
     LOCAL[Local Communities]:::stakeholder
     INDIGE[Indigenous Groups]:::stakeholder
     YOUTH[Youth Groups]:::stakeholder
-    WOMEN[Women's Groups]:::stakeholder
+    WOMEN["Women's Groups"]:::stakeholder
 
     %% Environmental stakeholders
     ENV[Environmental NGOs]:::external
@@ -222,9 +222,9 @@ graph LR
     INTER[International Bodies]:::regulatory
 
     %% Spatial proximity relationships
-    ORG -.-> |"<5km"| LOCAL
-    ORG -.-> |"<50km"| INDIGE
-    ORG -.-> |"<2km"| EMP
+    ORG -.-> |"within 5km"| LOCAL
+    ORG -.-> |"within 50km"| INDIGE
+    ORG -.-> |"within 2km"| EMP
     ORG -.-> |"Supply Chain"| SUPP
     ORG -.-> |"Market Area"| CUST
     ORG -.-> |"Watershed"| ENV
@@ -451,32 +451,32 @@ graph TB
         direction TB
         
         subgraph "Magnitude"
-            MAG_HIGH[High<br/>• >1000 people affected<br/>• >$10M economic impact<br/>• >100 ha habitat loss]:::high
-            MAG_MED[Medium<br/>• 100-1000 people<br/>• $1M-$10M economic<br/>• 10-100 ha habitat]:::medium
-            MAG_LOW[Low<br/>• <100 people<br/>• <$1M economic<br/>• <10 ha habitat]:::low
+            MAG_HIGH["High: >1000 people affected, >$10M economic impact, >100 ha habitat loss"]:::high
+            MAG_MED["Medium: 100-1000 people, $1M-$10M economic, 10-100 ha habitat"]:::medium
+            MAG_LOW["Low: <100 people, <$1M economic, <10 ha habitat"]:::low
         end
 
         subgraph "Likelihood"
-            LIKE_HIGH[High<br/>• >70% probability<br/>• Historical precedent<br/>• Current trends]:::high
-            LIKE_MED[Medium<br/>• 30-70% probability<br/>• Some uncertainty<br/>• Mixed evidence]:::medium
-            LIKE_LOW[Low<br/>• <30% probability<br/>• Speculative<br/>• Weak evidence]:::low
+            LIKE_HIGH["High: >70% probability, Historical precedent, Current trends"]:::high
+            LIKE_MED["Medium: 30-70% probability, Some uncertainty, Mixed evidence"]:::medium
+            LIKE_LOW["Low: <30% probability, Speculative, Weak evidence"]:::low
         end
 
         subgraph "Stakeholder Concern"
-            STAKE_HIGH[High<br/>• Media attention<br/>• Regulatory pressure<br/>• Community mobilization]:::high
-            STAKE_MED[Medium<br/>• Moderate attention<br/>• Some complaints<br/>• NGO interest]:::medium
-            STAKE_LOW[Low<br/>• Limited awareness<br/>• Few complaints<br/>• Minimal attention]:::low
+            STAKE_HIGH["High: Media attention, Regulatory pressure, Community mobilization"]:::high
+            STAKE_MED["Medium: Moderate attention, Some complaints, NGO interest"]:::medium
+            STAKE_LOW["Low: Limited awareness, Few complaints, Minimal attention"]:::low
         end
 
         subgraph "Geographic Scope"
-            GEO_HIGH[Global/National<br/>• >500km impact<br/>• Multiple jurisdictions<br/>• Transboundary effects]:::high
-            GEO_MED[Regional<br/>• 50-500km impact<br/>• Multiple communities<br/>• Watershed/ecosystem scale]:::medium
-            GEO_LOW[Local<br/>• <50km impact<br/>• Single community<br/>• Site-specific]:::low
+            GEO_HIGH["Global/National: >500km impact, Multiple jurisdictions, Transboundary effects"]:::high
+            GEO_MED["Regional: 50-500km impact, Multiple communities, Watershed/ecosystem scale"]:::medium
+            GEO_LOW["Local: <50km impact, Single community, Site-specific"]:::low
         end
     end
 
     %% Significance calculation
-    CALC[Significance Score = <br/>f(Magnitude, Likelihood, Stakeholder_Concern, Geographic_Scope)]
+    CALC["Significance Score = Function of Magnitude, Likelihood, Stakeholder Concern, Geographic Scope"]
     
     MAG_HIGH --> CALC
     MAG_MED --> CALC
