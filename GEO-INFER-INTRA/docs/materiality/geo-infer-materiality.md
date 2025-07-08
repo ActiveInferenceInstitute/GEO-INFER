@@ -221,22 +221,27 @@ graph LR
     GOVT[Government Agencies]:::regulatory
     INTER[International Bodies]:::regulatory
 
-    %% Spatial proximity relationships
-    ORG -.-> |"within 5km"| LOCAL
-    ORG -.-> |"within 50km"| INDIGE
-    ORG -.-> |"within 2km"| EMP
-    ORG -.-> |"Supply Chain"| SUPP
-    ORG -.-> |"Market Area"| CUST
-    ORG -.-> |"Watershed"| ENV
-    ORG -.-> |"Jurisdiction"| REGUL
+    %% High influence connections
+    ORG --- REGUL
+    ORG --- FINAN
+    ORG --- CUST
+    ORG --- EMP
 
-    %% Influence strength (line thickness represents influence)
-    ORG === REGUL
-    ORG === FINAN
-    ORG === CUST
+    %% Medium influence connections  
     ORG -- LOCAL
     ORG -- ENV
     ORG -- SUPP
+    ORG -- SHARE
+
+    %% Low influence connections
+    ORG -.- INDIGE
+    ORG -.- YOUTH
+    ORG -.- WOMEN
+    ORG -.- CONSERV
+    ORG -.- RESEARCH
+    ORG -.- COMPET
+    ORG -.- GOVT
+    ORG -.- INTER
 ```
 
 ### Step 2: Identify Actual and Potential Impacts
