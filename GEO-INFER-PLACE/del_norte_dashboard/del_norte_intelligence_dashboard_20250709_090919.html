@@ -1,0 +1,1854 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Del Norte County Geospatial Intelligence Dashboard</title>
+            <style>
+                body {
+                    margin: 0;
+                    padding: 0;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    background-color: #f5f5f5;
+                }
+                .dashboard-header {
+                    background: linear-gradient(135deg, #2c3e50, #3498db);
+                    color: white;
+                    padding: 20px;
+                    text-align: center;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                }
+                .dashboard-container {
+                    display: flex;
+                    height: calc(100vh - 120px);
+                }
+                .sidebar {
+                    width: 400px;
+                    background: white;
+                    overflow-y: auto;
+                    box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+                    z-index: 1000;
+                }
+                .map-container {
+                    flex: 1;
+                    position: relative;
+                }
+                .panel {
+                    margin: 10px;
+                    padding: 15px;
+                    background: white;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+                .status-indicator {
+                    display: inline-block;
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    margin-right: 8px;
+                }
+                .status-online { background-color: #27ae60; }
+                .status-offline { background-color: #e74c3c; }
+                .control-panel {
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    background: white;
+                    padding: 15px;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    z-index: 1000;
+                    min-width: 200px;
+                }
+                .toggle-button {
+                    display: block;
+                    width: 100%;
+                    padding: 8px 12px;
+                    margin: 5px 0;
+                    background: #3498db;
+                    color: white;
+                    border: none;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    transition: background 0.3s;
+                }
+                .toggle-button:hover {
+                    background: #2980b9;
+                }
+                .data-refresh {
+                    background: #27ae60;
+                    color: white;
+                    border: none;
+                    padding: 10px 15px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                    font-weight: bold;
+                }
+                .timestamp {
+                    font-size: 12px;
+                    color: #7f8c8d;
+                    margin-top: 10px;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="dashboard-header">
+                <h1>🗺️ Del Norte County Geospatial Intelligence Dashboard</h1>
+                <p>Climate • Zoning • Agro-Economics • Policy Support Interface</p>
+                <div style="margin-top: 10px;">
+                    <span class="status-indicator status-offline"></span>Fire Data
+                    <span class="status-indicator status-online"></span>Weather Data
+                    <span class="status-indicator status-online"></span>Seismic Data
+                </div>
+            </div>
+            
+            <div class="dashboard-container">
+                <div class="sidebar">
+                    
+        <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h3 style="color: #2c3e50; margin-top: 0;">🌡️ Climate Analysis</h3>
+            <div style="margin: 10px 0;">
+                <h4>Climate Risk Assessment</h4>
+                
+            <div style="margin: 5px 0; padding: 8px; background: #ffaa4420; border-left: 4px solid #ffaa44;">
+                <strong>Heat Wave Risk:</strong> Medium (0.35)
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #ffaa4420; border-left: 4px solid #ffaa44;">
+                <strong>Drought Risk:</strong> Medium (0.42)
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #ff444420; border-left: 4px solid #ff4444;">
+                <strong>Fire Weather Risk:</strong> High (0.58)
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #44ff4420; border-left: 4px solid #44ff44;">
+                <strong>Coastal Flooding Risk:</strong> Low (0.28)
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #ffaa4420; border-left: 4px solid #ffaa44;">
+                <strong>Ecosystem Stress Risk:</strong> Medium (0.45)
+            </div>
+            
+            </div>
+            <div style="margin: 10px 0;">
+                <h4>Key Insights</h4>
+                <ul style="list-style-type: none; padding: 0;">
+                    <li>🔥 Fire weather risk is elevated in summer months</li>
+                    <li>🌊 Coastal flooding risk increasing with sea level rise</li>
+                    <li>🌡️ Temperature increases affecting forest ecosystems</li>
+                    <li>💧 Drought risk requires enhanced water management</li>
+                </ul>
+            </div>
+        </div>
+        
+                    
+        <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h3 style="color: #2c3e50; margin-top: 0;">🏘️ Zoning & Land Use</h3>
+            <div style="margin: 10px 0;">
+                <h4>Land Use Distribution</h4>
+                
+            <div style="margin: 5px 0; padding: 8px; background: #228B2220; border-left: 4px solid #228B22;">
+                <strong>Forest Conservation:</strong> 450,000 acres (76.92%)
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #FFD70020; border-left: 4px solid #FFD700;">
+                <strong>Agricultural:</strong> 85,000 acres (14.53%)
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #DDA0DD20; border-left: 4px solid #DDA0DD;">
+                <strong>Residential Rural:</strong> 25,000 acres (4.27%)
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #FF634720; border-left: 4px solid #FF6347;">
+                <strong>Commercial:</strong> 1,200 acres (0.21%)
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #70809020; border-left: 4px solid #708090;">
+                <strong>Industrial:</strong> 800 acres (0.14%)
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #87CEEB20; border-left: 4px solid #87CEEB;">
+                <strong>Recreation:</strong> 15,000 acres (2.56%)
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #0000FF20; border-left: 4px solid #0000FF;">
+                <strong>Water Bodies:</strong> 8,000 acres (1.37%)
+            </div>
+            
+            </div>
+            <div style="margin: 10px 0;">
+                <h4>Development Insights</h4>
+                <ul style="list-style-type: none; padding: 0;">
+                    <li>🌲 76.92% in forest conservation</li>
+                    <li>🚜 Agricultural areas support rural economy</li>
+                    <li>🏠 Limited residential development pressure</li>
+                    <li>🛡️ Strong environmental protections in place</li>
+                </ul>
+            </div>
+        </div>
+        
+                    
+        <div style="background: white; padding: 15px; border-radius: 8px; margin: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+            <h3 style="color: #2c3e50; margin-top: 0;">💼 Economic Analysis</h3>
+            <div style="margin: 10px 0;">
+                <h4>Employment by Sector (6,500 total jobs)</h4>
+                
+            <div style="margin: 5px 0; padding: 8px; background: #f8f9fa; border-left: 4px solid #3498db;">
+                <strong>Timber Forestry:</strong> 1200 jobs (18.46%) 📉
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #f8f9fa; border-left: 4px solid #3498db;">
+                <strong>Agriculture:</strong> 450 jobs (6.92%) 📈
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #f8f9fa; border-left: 4px solid #3498db;">
+                <strong>Fishing Aquaculture:</strong> 350 jobs (5.38%) 📉
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #f8f9fa; border-left: 4px solid #3498db;">
+                <strong>Tourism Recreation:</strong> 800 jobs (12.31%) 📈
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #f8f9fa; border-left: 4px solid #3498db;">
+                <strong>Government Services:</strong> 2100 jobs (32.31%) 📈
+            </div>
+            
+            <div style="margin: 5px 0; padding: 8px; background: #f8f9fa; border-left: 4px solid #3498db;">
+                <strong>Healthcare Social:</strong> 1600 jobs (24.62%) 📈
+            </div>
+            
+            </div>
+            <div style="margin: 10px 0;">
+                <h4>Economic Health Indicators</h4>
+                <ul style="list-style-type: none; padding: 0;">
+                    <li>📊 Economic Diversity Index: 0.778</li>
+                    <li>💰 Total Revenue: $475,000,000</li>
+                    <li>🌾 Agricultural Productivity: Growing</li>
+                    <li>🏗️ Infrastructure Investment Needed</li>
+                </ul>
+            </div>
+        </div>
+        
+                    
+                    <div class="panel">
+                        <h3 style="color: #2c3e50; margin-top: 0;">📊 Real-Time Status</h3>
+                        <button class="data-refresh" onclick="location.reload();">🔄 Refresh Data</button>
+                        <div class="timestamp">
+                            Last updated: 2025-07-09 09:09:20
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="map-container">
+                    <div style="width:100%;"><div style="position:relative;width:100%;height:0;padding-bottom:60%;"><span style="color:#565656">Make this Notebook Trusted to load map: File -> Trust Notebook</span><iframe srcdoc="&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+    
+    &lt;meta http-equiv=&quot;content-type&quot; content=&quot;text/html; charset=UTF-8&quot; /&gt;
+    
+        &lt;script&gt;
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        &lt;/script&gt;
+    
+    &lt;style&gt;html, body {width: 100%;height: 100%;margin: 0;padding: 0;}&lt;/style&gt;
+    &lt;style&gt;#map {position:absolute;top:0;bottom:0;right:0;left:0;}&lt;/style&gt;
+    &lt;script src=&quot;https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;https://code.jquery.com/jquery-3.7.1.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js&quot;&gt;&lt;/script&gt;
+    &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js&quot;&gt;&lt;/script&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css&quot;/&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css&quot;/&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css&quot;/&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css&quot;/&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css&quot;/&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css&quot;/&gt;
+    
+            &lt;meta name=&quot;viewport&quot; content=&quot;width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no&quot; /&gt;
+            &lt;style&gt;
+                #map_7481d773287537d0a710a9f40cd46942 {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            &lt;/style&gt;
+        
+    &lt;script src=&quot;https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.js&quot;&gt;&lt;/script&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/gh/ljagis/leaflet-measure@2.1.7/dist/leaflet-measure.min.css&quot;/&gt;
+    &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.js&quot;&gt;&lt;/script&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdnjs.cloudflare.com/ajax/libs/leaflet.draw/1.0.2/leaflet.draw.css&quot;/&gt;
+    
+            &lt;style&gt;
+                #export {
+                    position: absolute;
+                    top: 5px;
+                    right: 10px;
+                    z-index: 999;
+                    background: white;
+                    color: black;
+                    padding: 6px;
+                    border-radius: 4px;
+                    font-family: &#x27;Helvetica Neue&#x27;;
+                    cursor: pointer;
+                    font-size: 12px;
+                    text-decoration: none;
+                    top: 90px;
+                }
+            &lt;/style&gt;
+        
+    &lt;script src=&quot;https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.min.js&quot;&gt;&lt;/script&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdn.jsdelivr.net/npm/leaflet.fullscreen@3.0.0/Control.FullScreen.css&quot;/&gt;
+    &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/leaflet-locatecontrol/0.66.2/L.Control.Locate.min.js&quot;&gt;&lt;/script&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdnjs.cloudflare.com/ajax/libs/leaflet-locatecontrol/0.66.2/L.Control.Locate.min.css&quot;/&gt;
+    &lt;script src=&quot;https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.js&quot;&gt;&lt;/script&gt;
+    &lt;link rel=&quot;stylesheet&quot; href=&quot;https://cdnjs.cloudflare.com/ajax/libs/leaflet-minimap/3.6.1/Control.MiniMap.css&quot;/&gt;
+&lt;/head&gt;
+&lt;body&gt;
+    
+    
+            &lt;div class=&quot;folium-map&quot; id=&quot;map_7481d773287537d0a710a9f40cd46942&quot; &gt;&lt;/div&gt;
+        
+    &lt;a href=&#x27;#&#x27; id=&#x27;export&#x27;&gt;Export&lt;/a&gt;
+&lt;/body&gt;
+&lt;script&gt;
+    
+    
+            var map_7481d773287537d0a710a9f40cd46942 = L.map(
+                &quot;map_7481d773287537d0a710a9f40cd46942&quot;,
+                {
+                    center: [41.75, -124.0],
+                    crs: L.CRS.EPSG3857,
+                    zoom: 10,
+                    zoomControl: true,
+                    preferCanvas: false,
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_2e053cca1585c2e9be88406e4f4c1661 = L.tileLayer(
+                &quot;https://tile.openstreetmap.org/{z}/{x}/{y}.png&quot;,
+                {&quot;attribution&quot;: &quot;OpenStreetMap&quot;, &quot;detectRetina&quot;: false, &quot;maxNativeZoom&quot;: 19, &quot;maxZoom&quot;: 19, &quot;minZoom&quot;: 0, &quot;noWrap&quot;: false, &quot;opacity&quot;: 1, &quot;subdomains&quot;: &quot;abc&quot;, &quot;tms&quot;: false}
+            );
+        
+    
+            tile_layer_2e053cca1585c2e9be88406e4f4c1661.addTo(map_7481d773287537d0a710a9f40cd46942);
+        
+    
+            var tile_layer_9072c7f6be454e20640acfc5f0b01a85 = L.tileLayer(
+                &quot;https://stamen-tiles.a.ssl.fastly.net/terrain/{z}/{x}/{y}.png&quot;,
+                {&quot;attribution&quot;: &quot;Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL&quot;, &quot;detectRetina&quot;: false, &quot;maxNativeZoom&quot;: 18, &quot;maxZoom&quot;: 18, &quot;minZoom&quot;: 0, &quot;noWrap&quot;: false, &quot;opacity&quot;: 1, &quot;subdomains&quot;: &quot;abc&quot;, &quot;tms&quot;: false}
+            );
+        
+    
+            tile_layer_9072c7f6be454e20640acfc5f0b01a85.addTo(map_7481d773287537d0a710a9f40cd46942);
+        
+    
+            var tile_layer_f8f2dff6723fe04c090a4dcd3d1c00d1 = L.tileLayer(
+                &quot;https://stamen-tiles.a.ssl.fastly.net/toner/{z}/{x}/{y}.png&quot;,
+                {&quot;attribution&quot;: &quot;Map tiles by Stamen Design, under CC BY 3.0. Data by OpenStreetMap, under ODbL&quot;, &quot;detectRetina&quot;: false, &quot;maxNativeZoom&quot;: 18, &quot;maxZoom&quot;: 18, &quot;minZoom&quot;: 0, &quot;noWrap&quot;: false, &quot;opacity&quot;: 1, &quot;subdomains&quot;: &quot;abc&quot;, &quot;tms&quot;: false}
+            );
+        
+    
+            tile_layer_f8f2dff6723fe04c090a4dcd3d1c00d1.addTo(map_7481d773287537d0a710a9f40cd46942);
+        
+    
+            var tile_layer_7c44dba129619c2b0d3c9a839f237db5 = L.tileLayer(
+                &quot;https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}&quot;,
+                {&quot;attribution&quot;: &quot;Tiles \u0026copy; Esri \u0026mdash; Source: Esri, Maxar, GeoEye, Earthstar Geographics, CNES/Airbus DS, USDA, USGS, AeroGRID, IGN, and the GIS User Community&quot;, &quot;detectRetina&quot;: false, &quot;maxNativeZoom&quot;: 18, &quot;maxZoom&quot;: 18, &quot;minZoom&quot;: 0, &quot;noWrap&quot;: false, &quot;opacity&quot;: 1, &quot;subdomains&quot;: &quot;abc&quot;, &quot;tms&quot;: false}
+            );
+        
+    
+            tile_layer_7c44dba129619c2b0d3c9a839f237db5.addTo(map_7481d773287537d0a710a9f40cd46942);
+        
+    
+            var polygon_e109021ad75f4a297137e37fc42e904c = L.polygon(
+                [[42.006, -124.408], [42.006, -123.536], [41.458, -123.536], [41.458, -124.408], [42.006, -124.408]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: false, &quot;fillColor&quot;: &quot;red&quot;, &quot;fillOpacity&quot;: 0.2, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 3}
+            ).addTo(map_7481d773287537d0a710a9f40cd46942);
+        
+    
+        var popup_4c72ffea05498ee9739bb257805b40f9 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_8bbb01336f10e2e7db33fa580ffb4b9f = $(`&lt;div id=&quot;html_8bbb01336f10e2e7db33fa580ffb4b9f&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;&lt;b&gt;Del Norte County&lt;/b&gt;&lt;br&gt;Area: 1,008 sq mi&lt;br&gt;Population: ~27,000&lt;/div&gt;`)[0];
+                popup_4c72ffea05498ee9739bb257805b40f9.setContent(html_8bbb01336f10e2e7db33fa580ffb4b9f);
+            
+        
+
+        polygon_e109021ad75f4a297137e37fc42e904c.bindPopup(popup_4c72ffea05498ee9739bb257805b40f9)
+        ;
+
+        
+    
+    
+            var marker_347093f76dac2b2d0c83da0edcfc509d = L.marker(
+                [41.745, -124.184],
+                {}
+            ).addTo(map_7481d773287537d0a710a9f40cd46942);
+        
+    
+            var icon_18319cd8e490058771fad80b5e49e021 = L.AwesomeMarkers.icon(
+                {&quot;extraClasses&quot;: &quot;fa-rotate-0&quot;, &quot;icon&quot;: &quot;cloud&quot;, &quot;iconColor&quot;: &quot;white&quot;, &quot;markerColor&quot;: &quot;blue&quot;, &quot;prefix&quot;: &quot;glyphicon&quot;}
+            );
+            marker_347093f76dac2b2d0c83da0edcfc509d.setIcon(icon_18319cd8e490058771fad80b5e49e021);
+        
+    
+        var popup_00f7d9ae1606f9f02a3f83fd2ec11273 = L.popup({&quot;maxWidth&quot;: 300});
+
+        
+            
+                var html_b535bdb6b42d53dadddd914a433e5962 = $(`&lt;div id=&quot;html_b535bdb6b42d53dadddd914a433e5962&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                 &lt;div style=&quot;width: 250px;&quot;&gt;                     &lt;h4&gt;🌤️ Crescent City Weather&lt;/h4&gt;                     &lt;p&gt;&lt;strong&gt;Temperature:&lt;/strong&gt; 11.7°C&lt;/p&gt;                     &lt;p&gt;&lt;strong&gt;Humidity:&lt;/strong&gt; 96.107794274811%&lt;/p&gt;                     &lt;p&gt;&lt;strong&gt;Wind Speed:&lt;/strong&gt; 7.56 km/h&lt;/p&gt;                     &lt;p&gt;&lt;strong&gt;Pressure:&lt;/strong&gt; 102300 Pa&lt;/p&gt;                     &lt;p&gt;&lt;strong&gt;Updated:&lt;/strong&gt; 2025-07-09T14:56:00+00:00&lt;/p&gt;                 &lt;/div&gt;                 &lt;/div&gt;`)[0];
+                popup_00f7d9ae1606f9f02a3f83fd2ec11273.setContent(html_b535bdb6b42d53dadddd914a433e5962);
+            
+        
+
+        marker_347093f76dac2b2d0c83da0edcfc509d.bindPopup(popup_00f7d9ae1606f9f02a3f83fd2ec11273)
+        ;
+
+        
+    
+    
+            marker_347093f76dac2b2d0c83da0edcfc509d.bindTooltip(
+                `&lt;div&gt;
+                     Current Weather Data
+                 &lt;/div&gt;`,
+                {&quot;sticky&quot;: true}
+            );
+        
+    
+            var feature_group_bedbc24f86cb312794c7e736aaf93d5c = L.featureGroup(
+                {}
+            );
+        
+    
+            var feature_group_b7c665d16d365a7d821909f928fd0e30 = L.featureGroup(
+                {}
+            );
+        
+    
+            var polygon_45259e2ab342594d76eb33e9e6d1e0a0 = L.polygon(
+                [[41.59548511784198, -124.15110643112463], [41.59901127638832, -124.14657460413437], [41.60347715465748, -124.14814175911152], [41.60441669533669, -124.1542410761374], [41.600890438653984, -124.15877263308107], [41.59642473943819, -124.15720514310048], [41.59548511784198, -124.15110643112463]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_90f99638d5b7bd7c3657d57d749ef1db = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_37a05f52d0abb44a90915af1d72ee0ee = $(`&lt;div id=&quot;html_37a05f52d0abb44a90915af1d72ee0ee&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cb1c7fffff&lt;br&gt;                         Health Index: 0.37&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_90f99638d5b7bd7c3657d57d749ef1db.setContent(html_37a05f52d0abb44a90915af1d72ee0ee);
+            
+        
+
+        polygon_45259e2ab342594d76eb33e9e6d1e0a0.bindPopup(popup_90f99638d5b7bd7c3657d57d749ef1db)
+        ;
+
+        
+    
+    
+            var polygon_626bcb84b075a778ee8eb865f6138720 = L.polygon(
+                [[41.595004566238956, -124.09324155387434], [41.598529174897365, -124.08870579098227], [41.60299676740179, -124.09027088260973], [41.60393957255648, -124.09637207321171], [41.600414865445565, -124.10090756735516], [41.59594745164229, -124.09934213970033], [41.595004566238956, -124.09324155387434]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;green&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_680c92d1609fe4865c7d1b93c10bd13f = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_6cccc204d464f81238c325b82e522e79 = $(`&lt;div id=&quot;html_6cccc204d464f81238c325b82e522e79&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cb135fffff&lt;br&gt;                         Health Index: 0.90&lt;br&gt;                         Status: Healthy&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_680c92d1609fe4865c7d1b93c10bd13f.setContent(html_6cccc204d464f81238c325b82e522e79);
+            
+        
+
+        polygon_626bcb84b075a778ee8eb865f6138720.bindPopup(popup_680c92d1609fe4865c7d1b93c10bd13f)
+        ;
+
+        
+    
+    
+            var polygon_65ad753015e339dae5c9fc494d02213d = L.polygon(
+                [[41.59191754545179, -124.0459951636415], [41.59544093907397, -124.04145631928286], [41.59991006554535, -124.04301967966751], [41.60085561997826, -124.0491222213094], [41.59733212764176, -124.05366079799612], [41.592863179596506, -124.05209710076785], [41.59191754545179, -124.0459951636415]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;green&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_b42485067385cc5a2c01991af7c4c7a3 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_b5818363d383ce9a79433ca63459fd30 = $(`&lt;div id=&quot;html_b5818363d383ce9a79433ca63459fd30&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cba1dfffff&lt;br&gt;                         Health Index: 0.71&lt;br&gt;                         Status: Healthy&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_b42485067385cc5a2c01991af7c4c7a3.setContent(html_b5818363d383ce9a79433ca63459fd30);
+            
+        
+
+        polygon_65ad753015e339dae5c9fc494d02213d.bindPopup(popup_b42485067385cc5a2c01991af7c4c7a3)
+        ;
+
+        
+    
+    
+            var polygon_a6022ea4cee37186a7514e7132e89c3d = L.polygon(
+                [[41.59680289506945, -123.9957559708831], [41.60032482899595, -123.99121346905709], [41.60479516733918, -123.9927751186252], [41.60574339367499, -123.99887960784245], [41.60222136077146, -124.00342184309783], [41.59775120051903, -124.00185985576167], [41.59680289506945, -123.9957559708831]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;green&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_d85b1a556d63a839379388025ec64896 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_b5e7955d98089f8ad97b2daa6387643e = $(`&lt;div id=&quot;html_b5e7955d98089f8ad97b2daa6387643e&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cba2dfffff&lt;br&gt;                         Health Index: 0.82&lt;br&gt;                         Status: Healthy&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_d85b1a556d63a839379388025ec64896.setContent(html_b5e7955d98089f8ad97b2daa6387643e);
+            
+        
+
+        polygon_a6022ea4cee37186a7514e7132e89c3d.bindPopup(popup_d85b1a556d63a839379388025ec64896)
+        ;
+
+        
+    
+    
+            var polygon_c1da9300340536b58ffc874e5bd483bb = L.polygon(
+                [[41.59367524081006, -123.94847981563983], [41.5971959530551, -123.94393424154677], [41.60166782272207, -123.94549415318828], [41.60261880234032, -123.95159997756085], [41.59909799085815, -123.95614528616427], [41.59462629900479, -123.95458503593979], [41.59367524081006, -123.94847981563983]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_0741ebaf1dcc1b08efd3f23e18eac240 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_85b1e200d6377c07717daa40e03a34b5 = $(`&lt;div id=&quot;html_85b1e200d6377c07717daa40e03a34b5&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cbb47fffff&lt;br&gt;                         Health Index: 0.42&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_0741ebaf1dcc1b08efd3f23e18eac240.setContent(html_85b1e200d6377c07717daa40e03a34b5);
+            
+        
+
+        polygon_c1da9300340536b58ffc874e5bd483bb.bindPopup(popup_0741ebaf1dcc1b08efd3f23e18eac240)
+        ;
+
+        
+    
+    
+            var polygon_c836a9560765184393e76ed585c48630 = L.polygon(
+                [[41.59851997489305, -123.89820080242454], [41.602039219462704, -123.89365157953863], [41.6065122981398, -123.89520977267914], [41.607465954781055, -123.90131752826692], [41.603946610713365, -123.90586648676961], [41.59947370951243, -123.9043079541227], [41.59851997489305, -123.89820080242454]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_661dd651821086e08b66da82746387ed = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_8b44a3399fe200f1a540d5782440f2ab = $(`&lt;div id=&quot;html_8b44a3399fe200f1a540d5782440f2ab&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c8eb7fffff&lt;br&gt;                         Health Index: 0.35&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_661dd651821086e08b66da82746387ed.setContent(html_8b44a3399fe200f1a540d5782440f2ab);
+            
+        
+
+        polygon_c836a9560765184393e76ed585c48630.bindPopup(popup_661dd651821086e08b66da82746387ed)
+        ;
+
+        
+    
+    
+            var polygon_fd29c618b72e5ddab70fc6d91f9e1a5e = L.polygon(
+                [[41.595351608834804, -123.85089512593636], [41.59886962509437, -123.84634284005847], [41.603344232429485, -123.84789928860589], [41.604300646318244, -123.85400836340605], [41.60078253030233, -123.8585603859861], [41.59630810016399, -123.85700359711879], [41.595351608834804, -123.85089512593636]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_747e5fc3eafb73c820b7254a8da08bd1 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_ecb2da83bdab49d05e387191c553fa4c = $(`&lt;div id=&quot;html_ecb2da83bdab49d05e387191c553fa4c&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c8c11fffff&lt;br&gt;                         Health Index: 0.35&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_747e5fc3eafb73c820b7254a8da08bd1.setContent(html_ecb2da83bdab49d05e387191c553fa4c);
+            
+        
+
+        polygon_fd29c618b72e5ddab70fc6d91f9e1a5e.bindPopup(popup_747e5fc3eafb73c820b7254a8da08bd1)
+        ;
+
+        
+    
+    
+            var polygon_a9a2e66fb93c9b1ab89f07dbfc73b145 = L.polygon(
+                [[41.64624522305137, -124.15161668021076], [41.649770377434066, -124.14708249254309], [41.65423365133566, -124.1486504940102], [41.65517159206893, -124.15475301854876], [41.65164633964355, -124.15928693587286], [41.64718324453738, -124.1577185990571], [41.64624522305137, -124.15161668021076]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;green&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_412f3f18f3e68be0bc6dd44a32b00875 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_0adc559dc4ad5293ca3b3790dfb68986 = $(`&lt;div id=&quot;html_0adc559dc4ad5293ca3b3790dfb68986&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281ca35dfffff&lt;br&gt;                         Health Index: 0.83&lt;br&gt;                         Status: Healthy&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_412f3f18f3e68be0bc6dd44a32b00875.setContent(html_0adc559dc4ad5293ca3b3790dfb68986);
+            
+        
+
+        polygon_a9a2e66fb93c9b1ab89f07dbfc73b145.bindPopup(popup_412f3f18f3e68be0bc6dd44a32b00875)
+        ;
+
+        
+    
+    
+            var polygon_afd768f90fe97af42b9ea8bad7c848f7 = L.polygon(
+                [[41.64577544718738, -124.0937214139591], [41.64929904847675, -124.08918328617227], [41.65376403662269, -124.09074922215007], [41.65470524504534, -124.09685362234396], [41.65118154539681, -124.10139148108715], [41.646716735694625, -124.09982520873523], [41.64577544718738, -124.0937214139591]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;green&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_380060c3bad118b403551035cd81fc67 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_645cdb2ce616f0b86764f75c1756dc51 = $(`&lt;div id=&quot;html_645cdb2ce616f0b86764f75c1756dc51&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cbabbfffff&lt;br&gt;                         Health Index: 0.85&lt;br&gt;                         Status: Healthy&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_380060c3bad118b403551035cd81fc67.setContent(html_645cdb2ce616f0b86764f75c1756dc51);
+            
+        
+
+        polygon_afd768f90fe97af42b9ea8bad7c848f7.bindPopup(popup_380060c3bad118b403551035cd81fc67)
+        ;
+
+        
+    
+    
+            var polygon_b2cff4b62409d1bea9f98a0340dd73a4 = L.polygon(
+                [[41.642698586033454, -124.04645018895181], [41.64622096992693, -124.04190897639543], [41.65068749230995, -124.0434731793312], [41.651631452640174, -124.04957893207025], [41.64810897012544, -124.05411987666139], [41.6436426259116, -124.05255533653387], [41.642698586033454, -124.04645018895181]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_6695a0d0ee71b44122419ede0257462c = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_972ccd37aa6b188f76603cc464a9f7fc = $(`&lt;div id=&quot;html_972ccd37aa6b188f76603cc464a9f7fc&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cbaa5fffff&lt;br&gt;                         Health Index: 0.34&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_6695a0d0ee71b44122419ede0257462c.setContent(html_972ccd37aa6b188f76603cc464a9f7fc);
+            
+        
+
+        polygon_b2cff4b62409d1bea9f98a0340dd73a4.bindPopup(popup_6695a0d0ee71b44122419ede0257462c)
+        ;
+
+        
+    
+    
+            var polygon_240853b49df9f0a3496cead9290b6ad1 = L.polygon(
+                [[41.647590458590464, -123.9961846168827], [41.65111137948425, -123.9916397429515], [41.65557911323412, -123.99320223329596], [41.65652574826569, -123.99930993574444], [41.653004728487446, -124.00385454281337], [41.648537172571984, -124.00229171435124], [41.647590458590464, -123.9961846168827]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;green&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_0f0a2d92459dbd142f71dd9e9134599e = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_cc2dcfed67e6267874c016bf4c6c12b3 = $(`&lt;div id=&quot;html_cc2dcfed67e6267874c016bf4c6c12b3&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cb805fffff&lt;br&gt;                         Health Index: 0.86&lt;br&gt;                         Status: Healthy&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_0f0a2d92459dbd142f71dd9e9134599e.setContent(html_cc2dcfed67e6267874c016bf4c6c12b3);
+            
+        
+
+        polygon_240853b49df9f0a3496cead9290b6ad1.bindPopup(popup_0f0a2d92459dbd142f71dd9e9134599e)
+        ;
+
+        
+    
+    
+            var polygon_35911431e63ac8c69efafd2d282a14f0 = L.polygon(
+                [[41.64447292026093, -123.948883594281], [41.64799261710916, -123.944335644794], [41.652461882458844, -123.94589639540203], [41.653411273412566, -123.95200543448601], [41.649891477419594, -123.95655311819345], [41.64542238962756, -123.95499202865157], [41.64447292026093, -123.948883594281]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_3ee93b8b18ce686c0aede2cb737bfdae = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_3ae679764d645d525593529886357dd9 = $(`&lt;div id=&quot;html_3ae679764d645d525593529886357dd9&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cb95dfffff&lt;br&gt;                         Health Index: 0.31&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_3ee93b8b18ce686c0aede2cb737bfdae.setContent(html_3ae679764d645d525593529886357dd9);
+            
+        
+
+        polygon_35911431e63ac8c69efafd2d282a14f0.bindPopup(popup_3ee93b8b18ce686c0aede2cb737bfdae)
+        ;
+
+        
+    
+    
+            var polygon_43ff61b046c4c3402f9157f5a493ea74 = L.polygon(
+                [[41.64932412760713, -123.8985781585829], [41.652842353471215, -123.8940265564091], [41.65731282733132, -123.89558558672908], [41.658264898116684, -123.90169655913667], [41.65474657284648, -123.90624789663912], [41.65027627620702, -123.90468852646039], [41.64932412760713, -123.8985781585829]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_6667b368bcb24f6f3fcefaa36c7ea28b = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_2819dcf5a334b34412a5685871c91cbc = $(`&lt;div id=&quot;html_2819dcf5a334b34412a5685871c91cbc&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cb96dfffff&lt;br&gt;                         Health Index: 0.30&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_6667b368bcb24f6f3fcefaa36c7ea28b.setContent(html_2819dcf5a334b34412a5685871c91cbc);
+            
+        
+
+        polygon_43ff61b046c4c3402f9157f5a493ea74.bindPopup(popup_6667b368bcb24f6f3fcefaa36c7ea28b)
+        ;
+
+        
+    
+    
+            var polygon_e86b3170a6f9b43886d3a7398b56b66b = L.polygon(
+                [[41.64616583362262, -123.85124758253461], [41.64968282880809, -123.84669291409449], [41.65415483160822, -123.84825019800091], [41.65510966229116, -123.85436249107606], [41.651592567441035, -123.85891689593188], [41.64712074158267, -123.85735927135191], [41.64616583362262, -123.85124758253461]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_a80ccd738d946cff4a4fcc1a1f3b55f8 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_5486d0a6746eb756267cc131b8e5ed00 = $(`&lt;div id=&quot;html_5486d0a6746eb756267cc131b8e5ed00&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c8ca7fffff&lt;br&gt;                         Health Index: 0.60&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_a80ccd738d946cff4a4fcc1a1f3b55f8.setContent(html_5486d0a6746eb756267cc131b8e5ed00);
+            
+        
+
+        polygon_e86b3170a6f9b43886d3a7398b56b66b.bindPopup(popup_a80ccd738d946cff4a4fcc1a1f3b55f8)
+        ;
+
+        
+    
+    
+            var polygon_74417ff80c7cba8aa4158872f6219f26 = L.polygon(
+                [[41.69697885293244, -124.1521274671848], [41.70050299826259, -124.14759091638008], [41.7049636628828, -124.14915976525133], [41.705900003644814, -124.15526550067688], [41.70237576036428, -124.15980178084051], [41.6979152742819, -124.15823259627494], [41.69697885293244, -124.1521274671848]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_c591b9399434ef6bc18e9924e00f11f7 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_b85abe97afbf5e1eff924148f6318637 = $(`&lt;div id=&quot;html_b85abe97afbf5e1eff924148f6318637&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281ca065fffff&lt;br&gt;                         Health Index: 0.42&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_c591b9399434ef6bc18e9924e00f11f7.setContent(html_b85abe97afbf5e1eff924148f6318637);
+            
+        
+
+        polygon_74417ff80c7cba8aa4158872f6219f26.bindPopup(popup_c591b9399434ef6bc18e9924e00f11f7)
+        ;
+
+        
+    
+    
+            var polygon_0dfbdcdf13dd2dd7046d0a55b5cf022f = L.polygon(
+                [[41.69651984325583, -124.09420178000514], [41.70004243228677, -124.08966128485712], [41.70450481115625, -124.09122806609598], [41.70544442281794, -124.09733567925961], [41.701921735519754, -124.10187590506854], [41.69745953483698, -124.10030878710813], [41.69651984325583, -124.09420178000514]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_8ae8f3e2ece8dc82329d4cbd713c027d = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_4696e175e0f28642f865d681f646a1ea = $(`&lt;div id=&quot;html_4696e175e0f28642f865d681f646a1ea&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cb893fffff&lt;br&gt;                         Health Index: 0.50&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_8ae8f3e2ece8dc82329d4cbd713c027d.setContent(html_4696e175e0f28642f865d681f646a1ea);
+            
+        
+
+        polygon_0dfbdcdf13dd2dd7046d0a55b5cf022f.bindPopup(popup_8ae8f3e2ece8dc82329d4cbd713c027d)
+        ;
+
+        
+    
+    
+            var polygon_6f946d1f07d0fd4b0211555ef7625317 = L.polygon(
+                [[41.69345313706843, -124.04690569410765], [41.69697450634277, -124.04236211088174], [41.701438419715004, -124.04392715727667], [41.70238078591021, -124.05003612449312], [41.698859318106315, -124.05457943945997], [41.694395582646656, -124.05301405552463], [41.69345313706843, -124.04690569410765]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;green&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_201e131c923f0dba27b8b7ec3cfa2727 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_2080f22838429ba13adb381f7cb90115 = $(`&lt;div id=&quot;html_2080f22838429ba13adb381f7cb90115&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cb8abfffff&lt;br&gt;                         Health Index: 0.86&lt;br&gt;                         Status: Healthy&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_201e131c923f0dba27b8b7ec3cfa2727.setContent(html_2080f22838429ba13adb381f7cb90115);
+            
+        
+
+        polygon_6f946d1f07d0fd4b0211555ef7625317.bindPopup(popup_201e131c923f0dba27b8b7ec3cfa2727)
+        ;
+
+        
+    
+    
+            var polygon_197ffad3fa87f7c081034fa46b8cdfc3 = L.polygon(
+                [[41.69835151810243, -123.99661371501738], [41.70187142107399, -123.99206646650305], [41.70633654530664, -123.99362979852913], [41.70728158899933, -123.99974071759256], [41.703761587234546, -124.00428769895258], [41.699296640580194, -124.00272402845872], [41.69835151810243, -123.99661371501738]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_4ed4316c913487e37924fba5ea9f0514 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_f416064c12b3782cf3929a9edec4ec21 = $(`&lt;div id=&quot;html_f416064c12b3782cf3929a9edec4ec21&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cb98bfffff&lt;br&gt;                         Health Index: 0.39&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_4ed4316c913487e37924fba5ea9f0514.setContent(html_f416064c12b3782cf3929a9edec4ec21);
+            
+        
+
+        polygon_197ffad3fa87f7c081034fa46b8cdfc3.bindPopup(popup_4ed4316c913487e37924fba5ea9f0514)
+        ;
+
+        
+    
+    
+            var polygon_f8944f79d92d1310b3fd19d4730ad640 = L.polygon(
+                [[41.69524409107612, -123.94928779888804], [41.698762767636936, -123.9447374715239], [41.703229423740986, -123.94629906200089], [41.70417722599217, -123.95241131918252], [41.70065845037756, -123.95696138047677], [41.69619197157551, -123.9553994507145], [41.69524409107612, -123.94928779888804]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_05ee73cb29bdc5b41b5eea8396f9a2ca = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_e85b741fce7abf2b78508bbe35842fd9 = $(`&lt;div id=&quot;html_e85b741fce7abf2b78508bbe35842fd9&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cb9e5fffff&lt;br&gt;                         Health Index: 0.62&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_05ee73cb29bdc5b41b5eea8396f9a2ca.setContent(html_e85b741fce7abf2b78508bbe35842fd9);
+            
+        
+
+        polygon_f8944f79d92d1310b3fd19d4730ad640.bindPopup(popup_05ee73cb29bdc5b41b5eea8396f9a2ca)
+        ;
+
+        
+    
+    
+            var polygon_9cd0061348256b0d647ffaed43c0ac9d = L.polygon(
+                [[41.692116123467756, -123.90194946855806], [41.69563357058569, -123.89739606709821], [41.7001017572572, -123.89895591292661], [41.70105231979616, -123.90506950037211], [41.69753477336478, -123.90962263684847], [41.69306676371788, -123.90806245091802], [41.692116123467756, -123.90194946855806]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_62de42dbfcec2e406f75786710391dba = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_67b86f3908ea96e8acd1488f1f592e48 = $(`&lt;div id=&quot;html_67b86f3908ea96e8acd1488f1f592e48&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c16cdfffff&lt;br&gt;                         Health Index: 0.49&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_62de42dbfcec2e406f75786710391dba.setContent(html_67b86f3908ea96e8acd1488f1f592e48);
+            
+        
+
+        polygon_9cd0061348256b0d647ffaed43c0ac9d.bindPopup(popup_62de42dbfcec2e406f75786710391dba)
+        ;
+
+        
+    
+    
+            var polygon_e1e0f68d5d4bcecf78baed9edeb5d001 = L.polygon(
+                [[41.69695353075989, -123.85160041109643], [41.70046949998051, -123.84704335759929], [41.704938893311486, -123.84860147776146], [41.7058921407448, -123.85471699250368], [41.70237607194979, -123.85927378212962], [41.69790685530588, -123.85771532093968], [41.69695353075989, -123.85160041109643]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_b4313a6e67f6c68fc729e14d91578509 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_2347cbd1c37d0e306db2b6e4295244aa = $(`&lt;div id=&quot;html_2347cbd1c37d0e306db2b6e4295244aa&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c163dfffff&lt;br&gt;                         Health Index: 0.37&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_b4313a6e67f6c68fc729e14d91578509.setContent(html_2347cbd1c37d0e306db2b6e4295244aa);
+            
+        
+
+        polygon_e1e0f68d5d4bcecf78baed9edeb5d001.bindPopup(popup_b4313a6e67f6c68fc729e14d91578509)
+        ;
+
+        
+    
+    
+            var polygon_26765eb540caa8a95045b9041b5ac3ff = L.polygon(
+                [[41.74768594868751, -124.15263879289769], [41.751209080089126, -124.1480998764924], [41.7556671305351, -124.14966957368337], [41.75660187130871, -124.1557785233756], [41.75307864204754, -124.1603171688418], [41.748620769882116, -124.15874713561021], [41.74768594868751, -124.15263879289769]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;green&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_094b0797aa3c036bf81e238e4a04ede9 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_68d94d30cbcd68e7bfdb5f1b716abb7b = $(`&lt;div id=&quot;html_68d94d30cbcd68e7bfdb5f1b716abb7b&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281ca1ebfffff&lt;br&gt;                         Health Index: 0.90&lt;br&gt;                         Status: Healthy&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_094b0797aa3c036bf81e238e4a04ede9.setContent(html_68d94d30cbcd68e7bfdb5f1b716abb7b);
+            
+        
+
+        polygon_26765eb540caa8a95045b9041b5ac3ff.bindPopup(popup_094b0797aa3c036bf81e238e4a04ede9)
+        ;
+
+        
+    
+    
+            var polygon_d86546c789b135234fdcb74b396bcb4b = L.polygon(
+                [[41.74723769560793, -124.09468265281298], [41.750759267503966, -124.0901397878335], [41.75521903220003, -124.09170741524576], [41.756157047079945, -124.09781824476224], [41.75263537700714, -124.10236084010666], [41.74817579024104, -124.10079287562496], [41.74723769560793, -124.09468265281298]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_3beb14cae508b1885bc8b47cc35fc5ca = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_ce5b6419e9645e742c02c86c40172856 = $(`&lt;div id=&quot;html_ce5b6419e9645e742c02c86c40172856&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281caac9fffff&lt;br&gt;                         Health Index: 0.46&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_3beb14cae508b1885bc8b47cc35fc5ca.setContent(html_ce5b6419e9645e742c02c86c40172856);
+            
+        
+
+        polygon_d86546c789b135234fdcb74b396bcb4b.bindPopup(popup_3beb14cae508b1885bc8b47cc35fc5ca)
+        ;
+
+        
+    
+    
+            var polygon_49076d6bd9b06d7a0215c662f756c24e = L.polygon(
+                [[41.74418113967691, -124.04736167986833], [41.74770148945454, -124.04281572349731], [41.75216278891457, -124.04438161426089], [41.75310356095049, -124.05049379934037], [41.749583112733525, -124.05503948715804], [41.745121990929846, -124.05347325850485], [41.74418113967691, -124.04736167986833]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_71b93e04263d3f417d9116b7bb49d6df = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_6be3477b970258a9e1ecb2e2acbc5dfb = $(`&lt;div id=&quot;html_6be3477b970258a9e1ecb2e2acbc5dfb&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281caa03fffff&lt;br&gt;                         Health Index: 0.39&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_71b93e04263d3f417d9116b7bb49d6df.setContent(html_6be3477b970258a9e1ecb2e2acbc5dfb);
+            
+        
+
+        polygon_49076d6bd9b06d7a0215c662f756c24e.bindPopup(popup_71b93e04263d3f417d9116b7bb49d6df)
+        ;
+
+        
+    
+    
+            var polygon_675c08649b52a1c52c91e42ebfd18553 = L.polygon(
+                [[41.74908601471594, -123.99704326600292], [41.752604894888705, -123.99249364042355], [41.75706740470133, -123.99405781503793], [41.75801085702859, -124.00017195410547], [41.75449187815235, -124.00472131223803], [41.75002954566228, -124.00315679880514], [41.74908601471594, -123.99704326600292]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_082a15839291b673c6c36b9653f9beb4 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_abe97874609f7dd775adb6e3bfea0230 = $(`&lt;div id=&quot;html_abe97874609f7dd775adb6e3bfea0230&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cab53fffff&lt;br&gt;                         Health Index: 0.59&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_082a15839291b673c6c36b9653f9beb4.setContent(html_abe97874609f7dd775adb6e3bfea0230);
+            
+        
+
+        polygon_675c08649b52a1c52c91e42ebfd18553.bindPopup(popup_082a15839291b673c6c36b9653f9beb4)
+        ;
+
+        
+    
+    
+            var polygon_ca9457e798ab4a875c8df73148f2ca5f = L.polygon(
+                [[41.74598869432263, -123.94969243013541], [41.7495063457184, -123.94513972240688], [41.75397038766954, -123.9467021536567], [41.7549166011882, -123.9528176323276], [41.75139885082816, -123.95737007369539], [41.74693498592374, -123.9558073028083], [41.74598869432263, -123.94969243013541]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_2c52d4c239d4e83c3e39cb61574f1f75 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_569ed65d90f9da1e5b9082534dc1bce2 = $(`&lt;div id=&quot;html_569ed65d90f9da1e5b9082534dc1bce2&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cab6bfffff&lt;br&gt;                         Health Index: 0.53&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_2c52d4c239d4e83c3e39cb61574f1f75.setContent(html_569ed65d90f9da1e5b9082534dc1bce2);
+            
+        
+
+        polygon_ca9457e798ab4a875c8df73148f2ca5f.bindPopup(popup_2c52d4c239d4e83c3e39cb61574f1f75)
+        ;
+
+        
+    
+    
+            var polygon_d15cd3214224bba55cd6cae794182cf3 = L.polygon(
+                [[41.742870812527244, -123.90232916642168], [41.746387232111836, -123.8977733813055], [41.75085280490078, -123.89933406608627], [41.7518017813454, -123.9054508764938], [41.74828526253669, -123.91000639633734], [41.74381986651748, -123.90844537110125], [41.742870812527244, -123.90232916642168]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_381fe837e55ba00b371d44230a3690ed = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_7afced7adfca85ae7f0cee14b1cbbbeb = $(`&lt;div id=&quot;html_7afced7adfca85ae7f0cee14b1cbbbeb&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c16b5fffff&lt;br&gt;                         Health Index: 0.56&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_381fe837e55ba00b371d44230a3690ed.setContent(html_7afced7adfca85ae7f0cee14b1cbbbeb);
+            
+        
+
+        polygon_d15cd3214224bba55cd6cae794182cf3.bindPopup(popup_381fe837e55ba00b371d44230a3690ed)
+        ;
+
+        
+    
+    
+            var polygon_92451b7f5de6f5a4296f1f0ec457a09d = L.polygon(
+                [[41.747714641260636, -123.85195361221083], [41.751229579638725, -123.84739417115802], [41.75569635858743, -123.84895312847422], [41.75664802273539, -123.855071868281], [41.753132984871776, -123.85963104517522], [41.748666382355765, -123.85807174647653], [41.747714641260636, -123.85195361221083]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_1fcf6bf09c7d8b4138dc59f6fd4571b0 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_6219c271fc5596dd2cd044e59871c463 = $(`&lt;div id=&quot;html_6219c271fc5596dd2cd044e59871c463&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c1415fffff&lt;br&gt;                         Health Index: 0.43&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_1fcf6bf09c7d8b4138dc59f6fd4571b0.setContent(html_6219c271fc5596dd2cd044e59871c463);
+            
+        
+
+        polygon_92451b7f5de6f5a4296f1f0ec457a09d.bindPopup(popup_1fcf6bf09c7d8b4138dc59f6fd4571b0)
+        ;
+
+        
+    
+    
+            var polygon_b46308e1218f3a77bf4d47bc82871c45 = L.polygon(
+                [[41.79297687638139, -124.14546866782025], [41.79649889117016, -124.14092711231254], [41.80095482415526, -124.14249729699591], [41.8018885643567, -124.14860937372889], [41.798366451746624, -124.15315065820208], [41.79391069676622, -124.15158013703225], [41.79297687638139, -124.14546866782025]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_d4b58246cd6086d01c305dbb7db92119 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_35308f9b7c188819ff50a2ed09cf2d4a = $(`&lt;div id=&quot;html_35308f9b7c188819ff50a2ed09cf2d4a&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281caf41fffff&lt;br&gt;                         Health Index: 0.41&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_d4b58246cd6086d01c305dbb7db92119.setContent(html_35308f9b7c188819ff50a2ed09cf2d4a);
+            
+        
+
+        polygon_b46308e1218f3a77bf4d47bc82871c45.bindPopup(popup_d4b58246cd6086d01c305dbb7db92119)
+        ;
+
+        
+    
+    
+            var polygon_124f70db9f374ad92d20dc867eb2aa94 = L.polygon(
+                [[41.797928945635256, -124.09516403318489], [41.80144949553291, -124.0906187958998], [41.805906641179625, -124.09218727039924], [41.806843059264935, -124.098301319657], [41.803322411279574, -124.1028462870106], [41.79886544330648, -124.10127747509334], [41.797928945635256, -124.09516403318489]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_67f902a95f02bd50cb2f25631b6b71e0 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_06918c98ba00d3f0b8841acf97c71ec4 = $(`&lt;div id=&quot;html_06918c98ba00d3f0b8841acf97c71ec4&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281caab1fffff&lt;br&gt;                         Health Index: 0.64&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_67f902a95f02bd50cb2f25631b6b71e0.setContent(html_06918c98ba00d3f0b8841acf97c71ec4);
+            
+        
+
+        polygon_124f70db9f374ad92d20dc867eb2aa94.bindPopup(popup_67f902a95f02bd50cb2f25631b6b71e0)
+        ;
+
+        
+    
+    
+            var polygon_749a8c6c9ff2ecc672bc2272b694c24c = L.polygon(
+                [[41.79488253520703, -124.04781814699484], [41.798401860623436, -124.04326981499923], [41.8028605412908, -124.0448365510424], [41.803799719151286, -124.05095195737587], [41.800280295384376, -124.05550002052338], [41.79582179211739, -124.05393294624089], [41.79488253520703, -124.04781814699484]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;green&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_c249c47cf3d24290b881f32133a65eed = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_132cc523cbef186423f162c2cb2cf574 = $(`&lt;div id=&quot;html_132cc523cbef186423f162c2cb2cf574&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281ca819fffff&lt;br&gt;                         Health Index: 0.79&lt;br&gt;                         Status: Healthy&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_c249c47cf3d24290b881f32133a65eed.setContent(html_132cc523cbef186423f162c2cb2cf574);
+            
+        
+
+        polygon_749a8c6c9ff2ecc672bc2272b694c24c.bindPopup(popup_c249c47cf3d24290b881f32133a65eed)
+        ;
+
+        
+    
+    
+            var polygon_aec3d225415c9c8f00bb47bbf5dcbeda = L.polygon(
+                [[41.7918155774774, -124.00045969806119], [41.79533367536787, -123.99590827608824], [41.799793889769774, -123.99747327055648], [41.80073582916507, -124.0035900261131], [41.79721763266218, -124.0081411803234], [41.792757595386355, -124.00657584679509], [41.7918155774774, -124.00045969806119]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;green&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_f4369776f387dcb7c7320501a7f48eb8 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_da2f8808e4b2a40836dd9f0f813fc650 = $(`&lt;div id=&quot;html_da2f8808e4b2a40836dd9f0f813fc650&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281ca863fffff&lt;br&gt;                         Health Index: 0.73&lt;br&gt;                         Status: Healthy&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_f4369776f387dcb7c7320501a7f48eb8.setContent(html_da2f8808e4b2a40836dd9f0f813fc650);
+            
+        
+
+        polygon_aec3d225415c9c8f00bb47bbf5dcbeda.bindPopup(popup_f4369776f387dcb7c7320501a7f48eb8)
+        ;
+
+        
+    
+    
+            var polygon_72eae6ea5234815e5169ba846020aaa5 = L.polygon(
+                [[41.796706671295894, -123.95009748869889], [41.80022329266199, -123.94554239811491], [41.804684715573984, -123.94710567104286], [41.805629340338186, -123.95322437460003], [41.80211262009597, -123.95777919853194], [41.7976513739757, -123.95621558561415], [41.796706671295894, -123.95009748869889]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;green&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_a46a0827a28c2c0863820d8e4d095a65 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_e55755e8c1498e93b22c9f1ec27c5596 = $(`&lt;div id=&quot;html_e55755e8c1498e93b22c9f1ec27c5596&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281ca943fffff&lt;br&gt;                         Health Index: 0.81&lt;br&gt;                         Status: Healthy&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_a46a0827a28c2c0863820d8e4d095a65.setContent(html_e55755e8c1498e93b22c9f1ec27c5596);
+            
+        
+
+        polygon_72eae6ea5234815e5169ba846020aaa5.bindPopup(popup_a46a0827a28c2c0863820d8e4d095a65)
+        ;
+
+        
+    
+    
+            var polygon_858a1a762ffc35ba4b53c2b360455eea = L.polygon(
+                [[41.793598870622766, -123.90270926532693], [41.797114257808296, -123.89815109405811], [41.801577211824, -123.89971261869377], [41.80252460214895, -123.9058326554627], [41.79900911582715, -123.91039056116932], [41.79454633832667, -123.90882869572452], [41.793598870622766, -123.90270926532693]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_7429fbce540884fb2387bf19a003d35d = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_6f5c5aaa62a0ade734bdd32575539fc3 = $(`&lt;div id=&quot;html_6f5c5aaa62a0ade734bdd32575539fc3&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c14bbfffff&lt;br&gt;                         Health Index: 0.60&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_7429fbce540884fb2387bf19a003d35d.setContent(html_6f5c5aaa62a0ade734bdd32575539fc3);
+            
+        
+
+        polygon_858a1a762ffc35ba4b53c2b360455eea.bindPopup(popup_7429fbce540884fb2387bf19a003d35d)
+        ;
+
+        
+    
+    
+            var polygon_5269a959b621e6cde4f4b1232c5330e8 = L.polygon(
+                [[41.79303386523771, -123.8446261506595], [41.79654766846028, -123.84006405530616], [41.801012328434794, -123.84162348670961], [41.801963009038445, -123.8477453553571], [41.79844910636763, -123.85230718646825], [41.7939846225515, -123.8507474132294], [41.79303386523771, -123.8446261506595]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_0b47eb36a449f9c73047abc587680795 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_fafa6c0286161e3f24f3be2e462255c3 = $(`&lt;div id=&quot;html_fafa6c0286161e3f24f3be2e462255c3&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c1599fffff&lt;br&gt;                         Health Index: 0.67&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_0b47eb36a449f9c73047abc587680795.setContent(html_fafa6c0286161e3f24f3be2e462255c3);
+            
+        
+
+        polygon_5269a959b621e6cde4f4b1232c5330e8.bindPopup(popup_0b47eb36a449f9c73047abc587680795)
+        ;
+
+        
+    
+    
+            var polygon_afff21ffa9ef59651b554ce97f788418 = L.polygon(
+                [[41.843634951281196, -124.14597700313219], [41.847155942516444, -124.14143307678671], [41.851609252113136, -124.14300411124592], [41.852541392736185, -124.14911940894017], [41.8490203037677, -124.1536630639525], [41.84456717191921, -124.15209169265927], [41.843634951281196, -124.14597700313219]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_778133f07d5260207ec8567cdd464c6a = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_61f814b2297b972575cea2c35ce2b937 = $(`&lt;div id=&quot;html_61f814b2297b972575cea2c35ce2b937&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281caf37fffff&lt;br&gt;                         Health Index: 0.37&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_778133f07d5260207ec8567cdd464c6a.setContent(html_61f814b2297b972575cea2c35ce2b937);
+            
+        
+
+        polygon_afff21ffa9ef59651b554ce97f788418.bindPopup(popup_778133f07d5260207ec8567cdd464c6a)
+        ;
+
+        
+    
+    
+            var polygon_f2ee6077bbda3003692330245935c06b = L.polygon(
+                [[41.848593534957416, -124.09564592192488], [41.852113058006154, -124.09109830985612], [41.856567579748585, -124.09266763235799], [41.85750240103454, -124.09878490475087], [41.85398277998569, -124.10333224659117], [41.849528435660865, -124.10176258632254], [41.848593534957416, -124.09564592192488]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_0931f9753300afd6480a03707a8d13c9 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_e1bec61c8f1e1242fce64290c6a68f85 = $(`&lt;div id=&quot;html_e1bec61c8f1e1242fce64290c6a68f85&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281ca897fffff&lt;br&gt;                         Health Index: 0.57&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_0931f9753300afd6480a03707a8d13c9.setContent(html_e1bec61c8f1e1242fce64290c6a68f85);
+            
+        
+
+        polygon_f2ee6077bbda3003692330245935c06b.bindPopup(popup_0931f9753300afd6480a03707a8d13c9)
+        ;
+
+        
+    
+    
+            var polygon_22bb20ee50447bbaa57b431dbde5c46a = L.polygon(
+                [[41.845557265235136, -124.04827509624978], [41.84907556143872, -124.0437243861462], [41.8535316184541, -124.04529196838133], [41.85446920213094, -124.0514105993652], [41.85095080766423, -124.05596104032546], [41.846494927793685, -124.05439311950067], [41.845557265235136, -124.04827509624978]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_f6db2a2f2c54b220c75d0b71298b6742 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_23b2edcb41919bda4aaf559f9bf2d851 = $(`&lt;div id=&quot;html_23b2edcb41919bda4aaf559f9bf2d851&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281ca8a1fffff&lt;br&gt;                         Health Index: 0.69&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_f6db2a2f2c54b220c75d0b71298b6742.setContent(html_23b2edcb41919bda4aaf559f9bf2d851);
+            
+        
+
+        polygon_22bb20ee50447bbaa57b431dbde5c46a.bindPopup(popup_f6db2a2f2c54b220c75d0b71298b6742)
+        ;
+
+        
+    
+    
+            var polygon_a534fe48630e48de2c9fe48508e31c28 = L.polygon(
+                [[41.84250042751398, -124.00089169394987], [41.84601749382569, -123.99633789055197], [41.85047508483107, -123.99790372939681], [41.85141543266378, -124.00402371110665], [41.84789826782683, -124.00857724644834], [41.843440853692385, -124.00701106819182], [41.84250042751398, -124.00089169394987]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;green&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_249e93b61a51221378e67824ede00dd9 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_2ae04f299ee4c0ddea9a1f4b5ce644f1 = $(`&lt;div id=&quot;html_2ae04f299ee4c0ddea9a1f4b5ce644f1&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281ca989fffff&lt;br&gt;                         Health Index: 0.78&lt;br&gt;                         Status: Healthy&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_249e93b61a51221378e67824ede00dd9.setContent(html_2ae04f299ee4c0ddea9a1f4b5ce644f1);
+            
+        
+
+        polygon_a534fe48630e48de2c9fe48508e31c28.bindPopup(popup_249e93b61a51221378e67824ede00dd9)
+        ;
+
+        
+    
+    
+            var polygon_c4aa9e3428335866235ba395c0dc9c5f = L.polygon(
+                [[41.84739796351981, -123.95050297525569], [41.85091355000458, -123.94594549932128], [41.85537234901234, -123.94750961483419], [41.856315385008145, -123.9536315466799], [41.852799699733914, -123.95818875567049], [41.848341077263306, -123.95662429981466], [41.84739796351981, -123.95050297525569]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_63f373043d399e11f08c47311411afd2 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_93efcbe8adcd50de704e6015be72751b = $(`&lt;div id=&quot;html_93efcbe8adcd50de704e6015be72751b&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c06d9fffff&lt;br&gt;                         Health Index: 0.56&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_63f373043d399e11f08c47311411afd2.setContent(html_93efcbe8adcd50de704e6015be72751b);
+            
+        
+
+        polygon_c4aa9e3428335866235ba395c0dc9c5f.bindPopup(popup_63f373043d399e11f08c47311411afd2)
+        ;
+
+        
+    
+    
+            var polygon_df2f12aa11aec02a793078588406cb64 = L.polygon(
+                [[41.84430023923491, -123.90308976590956], [41.847814589168756, -123.8985292059878], [41.85227491954159, -123.90009157138225], [41.85322072372956, -123.90621483791745], [41.849706274745905, -123.91077513198692], [41.84524612063412, -123.90921242542892], [41.84430023923491, -123.90308976590956]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_5975a050a96d534cc4a12e065104b701 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_18f7b110b951721cb0ded5c3250d3767 = $(`&lt;div id=&quot;html_18f7b110b951721cb0ded5c3250d3767&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c0613fffff&lt;br&gt;                         Health Index: 0.65&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_5975a050a96d534cc4a12e065104b701.setContent(html_18f7b110b951721cb0ded5c3250d3767);
+            
+        
+
+        polygon_df2f12aa11aec02a793078588406cb64.bindPopup(popup_5975a050a96d534cc4a12e065104b701)
+        ;
+
+        
+    
+    
+            var polygon_ce451372cd5fe231e1ead436d4a9031e = L.polygon(
+                [[41.843745832873545, -123.84497602858721], [41.84725859562326, -123.84041154038103], [41.851720631965975, -123.84197181035613], [41.85266972966428, -123.84809691078424], [41.84915686755235, -123.85266113446023], [41.84469500711445, -123.85110052229372], [41.843745832873545, -123.84497602858721]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_53379cdcd355133863f591257c528504 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_1129e59d69b8ebcdcc54c7871a8e574e = $(`&lt;div id=&quot;html_1129e59d69b8ebcdcc54c7871a8e574e&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c0621fffff&lt;br&gt;                         Health Index: 0.49&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_53379cdcd355133863f591257c528504.setContent(html_1129e59d69b8ebcdcc54c7871a8e574e);
+            
+        
+
+        polygon_ce451372cd5fe231e1ead436d4a9031e.bindPopup(popup_53379cdcd355133863f591257c528504)
+        ;
+
+        
+    
+    
+            var polygon_719e07cf8261feeba4722e5a47f41bd4 = L.polygon(
+                [[41.89426632185727, -124.14648587543182], [41.897786284700544, -124.14193957577298], [41.90223696607622, -124.14351146092758], [41.90316750712643, -124.14962998297867], [41.899647446636585, -124.1541760110052], [41.895196942752946, -124.15260378866857], [41.89426632185727, -124.14648587543182]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;green&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_a63fb04e60ddf6175d66082990a75010 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_11a95b9442fa6d6fb7729b298736e0de = $(`&lt;div id=&quot;html_11a95b9442fa6d6fb7729b298736e0de&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281cadedfffff&lt;br&gt;                         Health Index: 0.88&lt;br&gt;                         Status: Healthy&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_a63fb04e60ddf6175d66082990a75010.setContent(html_11a95b9442fa6d6fb7729b298736e0de);
+            
+        
+
+        polygon_719e07cf8261feeba4722e5a47f41bd4.bindPopup(popup_a63fb04e60ddf6175d66082990a75010)
+        ;
+
+        
+    
+    
+            var polygon_83a4f8ff5b90ed612a1a01d17944ad93 = L.polygon(
+                [[41.89923140542213, -124.09612831983858], [41.90274989678447, -124.09157833050425], [41.907201789788736, -124.09314850192523], [41.90813501427856, -124.09926900085246], [41.90461642500231, -124.1038187196609], [41.900164709160016, -124.10224821012359], [41.89923140542213, -124.09612831983858]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_a2db5c64d019c004fbd211504630fcec = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_1039b6d5abb0512be87cfae30d739db4 = $(`&lt;div id=&quot;html_1039b6d5abb0512be87cfae30d739db4&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c32cdfffff&lt;br&gt;                         Health Index: 0.50&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_a2db5c64d019c004fbd211504630fcec.setContent(html_1039b6d5abb0512be87cfae30d739db4);
+            
+        
+
+        polygon_83a4f8ff5b90ed612a1a01d17944ad93.bindPopup(popup_a2db5c64d019c004fbd211504630fcec)
+        ;
+
+        
+    
+    
+            var polygon_8e05fa901d583ae0dec7a73b39daf8dd = L.polygon(
+                [[41.896205271565876, -124.04873252839732], [41.8997225337181, -124.04417943769849], [41.90417596224313, -124.04574786703958], [41.905111951736224, -124.05186972607552], [41.90159459140681, -124.0564225473353], [41.8971413397714, -124.05485377905376], [41.896205271565876, -124.04873252839732]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_230b35a27583e8baf73b0be3fb31f543 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_062cc9a3be2f0fd65b504f1465e642e4 = $(`&lt;div id=&quot;html_062cc9a3be2f0fd65b504f1465e642e4&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c3207fffff&lt;br&gt;                         Health Index: 0.57&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_230b35a27583e8baf73b0be3fb31f543.setContent(html_062cc9a3be2f0fd65b504f1465e642e4);
+            
+        
+
+        polygon_8e05fa901d583ae0dec7a73b39daf8dd.bindPopup(popup_230b35a27583e8baf73b0be3fb31f543)
+        ;
+
+        
+    
+    
+            var polygon_2783978008b01e6db896f37f154ea0a2 = L.polygon(
+                [[41.893158549036016, -124.00132414642702], [41.89667457892934, -123.9967679591116], [41.90112954169545, -123.9983346432441], [41.902068297961996, -124.00445785451141], [41.89855216962913, -124.00901377347665], [41.894097383479206, -124.00744674958032], [41.893158549036016, -124.00132414642702]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_ccaf22e1220bca2e8e27f5ab89cf3ac7 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_2f056f7a947bb10c34788026be8a256b = $(`&lt;div id=&quot;html_2f056f7a947bb10c34788026be8a256b&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c3351fffff&lt;br&gt;                         Health Index: 0.46&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_ccaf22e1220bca2e8e27f5ab89cf3ac7.setContent(html_2f056f7a947bb10c34788026be8a256b);
+            
+        
+
+        polygon_2783978008b01e6db896f37f154ea0a2.bindPopup(popup_ccaf22e1220bca2e8e27f5ab89cf3ac7)
+        ;
+
+        
+    
+    
+            var polygon_3a80cadff157ea6f671180a5c68e3ae1 = L.polygon(
+                [[41.898062512746876, -123.95090889048444], [41.90157705951179, -123.94634902670067], [41.90603322977115, -123.94791398570683], [41.90697467699273, -123.95403914924884], [41.903460031523615, -123.95859874579656], [41.89900403754715, -123.95703344609386], [41.898062512746876, -123.95090889048444]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightcoral&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_60fd4f89898a893003b64c66138ad102 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_443b376cff6db3957f164935d765d44b = $(`&lt;div id=&quot;html_443b376cff6db3957f164935d765d44b&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c3361fffff&lt;br&gt;                         Health Index: 0.31&lt;br&gt;                         Status: High Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_60fd4f89898a893003b64c66138ad102.setContent(html_443b376cff6db3957f164935d765d44b);
+            
+        
+
+        polygon_3a80cadff157ea6f671180a5c68e3ae1.bindPopup(popup_60fd4f89898a893003b64c66138ad102)
+        ;
+
+        
+    
+    
+            var polygon_4df72c1e6f7a52595da19ca78e4ee4cc = L.polygon(
+                [[41.89497486007311, -123.9034706688066], [41.89848816791567, -123.89890771772764], [41.9029458697971, -123.90047092478632], [41.903890087838796, -123.90659742449792], [41.90037668103144, -123.91116010943404], [41.89591915515727, -123.90959656085688], [41.89497486007311, -123.9034706688066]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;green&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;lightgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_1b5746cb2ac7bd051e03cfe19837468e = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_bdf3cd04fc84b6a488f80a5c67830fd8 = $(`&lt;div id=&quot;html_bdf3cd04fc84b6a488f80a5c67830fd8&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c04c9fffff&lt;br&gt;                         Health Index: 0.81&lt;br&gt;                         Status: Healthy&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_1b5746cb2ac7bd051e03cfe19837468e.setContent(html_bdf3cd04fc84b6a488f80a5c67830fd8);
+            
+        
+
+        polygon_4df72c1e6f7a52595da19ca78e4ee4cc.bindPopup(popup_1b5746cb2ac7bd051e03cfe19837468e)
+        ;
+
+        
+    
+    
+            var polygon_90d135bff70b03d72902f9654d846651 = L.polygon(
+                [[41.89443104315457, -123.84532627652736], [41.89794276059143, -123.84075939295732], [41.90240216844973, -123.84232050240605], [41.90334968322971, -123.84844883802832], [41.89983786651529, -123.85301545677967], [41.895378634308564, -123.85145400478294], [41.89443104315457, -123.84532627652736]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 1}
+            ).addTo(feature_group_b7c665d16d365a7d821909f928fd0e30);
+        
+    
+        var popup_c221b186da9b9451b97ade2886a90520 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_53f4ef0f504eca95120db253cd045881 = $(`&lt;div id=&quot;html_53f4ef0f504eca95120db253cd045881&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                         &lt;b&gt;Forest Health Analysis&lt;/b&gt;&lt;br&gt;                         H3 Cell: 88281c0407fffff&lt;br&gt;                         Health Index: 0.54&lt;br&gt;                         Status: Moderate Stress&lt;br&gt;                         Resolution: 8                         &lt;/div&gt;`)[0];
+                popup_c221b186da9b9451b97ade2886a90520.setContent(html_53f4ef0f504eca95120db253cd045881);
+            
+        
+
+        polygon_90d135bff70b03d72902f9654d846651.bindPopup(popup_c221b186da9b9451b97ade2886a90520)
+        ;
+
+        
+    
+    
+            feature_group_b7c665d16d365a7d821909f928fd0e30.addTo(map_7481d773287537d0a710a9f40cd46942);
+        
+    
+            var feature_group_73e938c05c4b75f8e78b99ad43affbe2 = L.featureGroup(
+                {}
+            );
+        
+    
+            var polygon_3859755705ea45c4709f8b39b8ef73fc = L.polygon(
+                [[41.9, -124.3], [42.0, -123.8], [41.8, -123.7], [41.7, -124.2]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;red&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;red&quot;, &quot;fillOpacity&quot;: 0.2, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 2}
+            ).addTo(feature_group_73e938c05c4b75f8e78b99ad43affbe2);
+        
+    
+        var popup_07d811aee4b4e91edbd9812d83068dd8 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_f73da01f16b881b1bb742bd8905de85e = $(`&lt;div id=&quot;html_f73da01f16b881b1bb742bd8905de85e&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                 &lt;b&gt;High Fire Risk Zone&lt;/b&gt;&lt;br&gt;                 Risk Level: High&lt;br&gt;                 Elevated wildfire risk due to dry conditions and fuel load                 &lt;/div&gt;`)[0];
+                popup_07d811aee4b4e91edbd9812d83068dd8.setContent(html_f73da01f16b881b1bb742bd8905de85e);
+            
+        
+
+        polygon_3859755705ea45c4709f8b39b8ef73fc.bindPopup(popup_07d811aee4b4e91edbd9812d83068dd8)
+        ;
+
+        
+    
+    
+            var polygon_f4561b9166df891025fecfda579a77ca = L.polygon(
+                [[41.85, -124.4], [41.95, -124.3], [41.75, -124.2], [41.65, -124.35]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;blue&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;blue&quot;, &quot;fillOpacity&quot;: 0.2, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 2}
+            ).addTo(feature_group_73e938c05c4b75f8e78b99ad43affbe2);
+        
+    
+        var popup_186b3f5ffdbc8ec9a77b4222193b1e2a = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_76c10a0a8e0b5059b06cdd846f99efa1 = $(`&lt;div id=&quot;html_76c10a0a8e0b5059b06cdd846f99efa1&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                 &lt;b&gt;Coastal Flood Zone&lt;/b&gt;&lt;br&gt;                 Risk Level: Medium&lt;br&gt;                 Sea level rise and storm surge vulnerability                 &lt;/div&gt;`)[0];
+                popup_186b3f5ffdbc8ec9a77b4222193b1e2a.setContent(html_76c10a0a8e0b5059b06cdd846f99efa1);
+            
+        
+
+        polygon_f4561b9166df891025fecfda579a77ca.bindPopup(popup_186b3f5ffdbc8ec9a77b4222193b1e2a)
+        ;
+
+        
+    
+    
+            var polygon_4592cd5c51aba2b0cae4b6321165e3ce = L.polygon(
+                [[41.6, -124.0], [41.7, -123.6], [41.5, -123.5], [41.4, -123.9]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;orange&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;orange&quot;, &quot;fillOpacity&quot;: 0.2, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 2}
+            ).addTo(feature_group_73e938c05c4b75f8e78b99ad43affbe2);
+        
+    
+        var popup_c86e49386964e526b19c7626d3c02621 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_a661c35eead217905b91a35e8e28b1c8 = $(`&lt;div id=&quot;html_a661c35eead217905b91a35e8e28b1c8&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                 &lt;b&gt;Drought Sensitive Area&lt;/b&gt;&lt;br&gt;                 Risk Level: Medium&lt;br&gt;                 Agricultural areas vulnerable to drought conditions                 &lt;/div&gt;`)[0];
+                popup_c86e49386964e526b19c7626d3c02621.setContent(html_a661c35eead217905b91a35e8e28b1c8);
+            
+        
+
+        polygon_4592cd5c51aba2b0cae4b6321165e3ce.bindPopup(popup_c86e49386964e526b19c7626d3c02621)
+        ;
+
+        
+    
+    
+            var feature_group_cab703485e1e8611877e4f96be185d0f = L.featureGroup(
+                {}
+            );
+        
+    
+            var polygon_5d21b5a5124b3d7837c3cdeb5f9ec441 = L.polygon(
+                [[41.8, -124.2], [42.0, -123.7], [41.9, -123.6], [41.7, -124.1]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;#228B22&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;#228B22&quot;, &quot;fillOpacity&quot;: 0.3, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 2}
+            ).addTo(feature_group_cab703485e1e8611877e4f96be185d0f);
+        
+    
+        var popup_c45381e9a2606934e690e42e754e1547 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_1caa76c83d0735e6f1d48508a8915585 = $(`&lt;div id=&quot;html_1caa76c83d0735e6f1d48508a8915585&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                 &lt;b&gt;Forest Conservation&lt;/b&gt;&lt;br&gt;                 Type: Conservation&lt;br&gt;                 Click for zoning details                 &lt;/div&gt;`)[0];
+                popup_c45381e9a2606934e690e42e754e1547.setContent(html_1caa76c83d0735e6f1d48508a8915585);
+            
+        
+
+        polygon_5d21b5a5124b3d7837c3cdeb5f9ec441.bindPopup(popup_c45381e9a2606934e690e42e754e1547)
+        ;
+
+        
+    
+    
+            var polygon_e7fa84db3f8648e39f9135954902cb91 = L.polygon(
+                [[41.6, -124.0], [41.7, -123.7], [41.5, -123.6], [41.4, -123.9]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;#FFD700&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;#FFD700&quot;, &quot;fillOpacity&quot;: 0.3, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 2}
+            ).addTo(feature_group_cab703485e1e8611877e4f96be185d0f);
+        
+    
+        var popup_9f0d6d63c011ae96c5127b012d14c71b = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_3ceaff19449ff2a41027be17223fce6b = $(`&lt;div id=&quot;html_3ceaff19449ff2a41027be17223fce6b&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                 &lt;b&gt;Agricultural Zone&lt;/b&gt;&lt;br&gt;                 Type: Agricultural&lt;br&gt;                 Click for zoning details                 &lt;/div&gt;`)[0];
+                popup_9f0d6d63c011ae96c5127b012d14c71b.setContent(html_3ceaff19449ff2a41027be17223fce6b);
+            
+        
+
+        polygon_e7fa84db3f8648e39f9135954902cb91.bindPopup(popup_9f0d6d63c011ae96c5127b012d14c71b)
+        ;
+
+        
+    
+    
+            var polygon_9748031c32e025d7755d6ffa88000602 = L.polygon(
+                [[41.75, -124.2], [41.78, -124.15], [41.72, -124.12], [41.69, -124.17]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;#DDA0DD&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;#DDA0DD&quot;, &quot;fillOpacity&quot;: 0.3, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 2}
+            ).addTo(feature_group_cab703485e1e8611877e4f96be185d0f);
+        
+    
+        var popup_3b64c160afcbbbfdcfcbabb825d5a9ce = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_ccd8ca9079a7f98d452b35224994a458 = $(`&lt;div id=&quot;html_ccd8ca9079a7f98d452b35224994a458&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                 &lt;b&gt;Residential Rural&lt;/b&gt;&lt;br&gt;                 Type: Residential&lt;br&gt;                 Click for zoning details                 &lt;/div&gt;`)[0];
+                popup_3b64c160afcbbbfdcfcbabb825d5a9ce.setContent(html_ccd8ca9079a7f98d452b35224994a458);
+            
+        
+
+        polygon_9748031c32e025d7755d6ffa88000602.bindPopup(popup_3b64c160afcbbbfdcfcbabb825d5a9ce)
+        ;
+
+        
+    
+    
+            var feature_group_4b564bdc80a08a14c76c9272e9355949 = L.featureGroup(
+                {}
+            );
+        
+    
+            var polygon_9bcafa3873b8f20d8ce5efb18c1d0d76 = L.polygon(
+                [[41.3, -124.1], [41.5, -124.0], [41.4, -123.9], [41.2, -124.0]],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;darkgreen&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;forestgreen&quot;, &quot;fillOpacity&quot;: 0.4, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;noClip&quot;: false, &quot;opacity&quot;: 1.0, &quot;smoothFactor&quot;: 1.0, &quot;stroke&quot;: true, &quot;weight&quot;: 3}
+            ).addTo(feature_group_4b564bdc80a08a14c76c9272e9355949);
+        
+    
+        var popup_c0dffe9fea233d68b44ba620ed6d1e65 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_4d03e0e8b86ecf1a51acc0f14502f5df = $(`&lt;div id=&quot;html_4d03e0e8b86ecf1a51acc0f14502f5df&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;             &lt;div style=&quot;width: 250px;&quot;&gt;                 &lt;h4&gt;Redwood National and State Parks&lt;/h4&gt;                 &lt;p&gt;Home to the world&#x27;s tallest trees&lt;/p&gt;                 &lt;p&gt;&lt;strong&gt;Established:&lt;/strong&gt; 1968&lt;/p&gt;                 &lt;p&gt;&lt;strong&gt;Area:&lt;/strong&gt; 138,999 acres&lt;/p&gt;                 &lt;p&gt;&lt;strong&gt;Status:&lt;/strong&gt; World Heritage Site&lt;/p&gt;             &lt;/div&gt;             &lt;/div&gt;`)[0];
+                popup_c0dffe9fea233d68b44ba620ed6d1e65.setContent(html_4d03e0e8b86ecf1a51acc0f14502f5df);
+            
+        
+
+        polygon_9bcafa3873b8f20d8ce5efb18c1d0d76.bindPopup(popup_c0dffe9fea233d68b44ba620ed6d1e65)
+        ;
+
+        
+    
+    
+            feature_group_4b564bdc80a08a14c76c9272e9355949.addTo(map_7481d773287537d0a710a9f40cd46942);
+        
+    
+            var feature_group_b3a840d46ae9019978d9991da0c89016 = L.featureGroup(
+                {}
+            );
+        
+    
+            var circle_marker_8c6e7f324c0262bf86bddc31e59a8e66 = L.circleMarker(
+                [41.7558, -124.2026],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;gold&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.6, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;opacity&quot;: 1.0, &quot;radius&quot;: 20, &quot;stroke&quot;: true, &quot;weight&quot;: 3}
+            ).addTo(feature_group_b3a840d46ae9019978d9991da0c89016);
+        
+    
+        var popup_c32a5879899aa8781608003c7d139bd6 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_d8c0d4f0a36d9d67b6994057b486f366 = $(`&lt;div id=&quot;html_d8c0d4f0a36d9d67b6994057b486f366&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                 &lt;div style=&quot;width: 200px;&quot;&gt;                     &lt;h4&gt;Crescent City&lt;/h4&gt;                     &lt;p&gt;&lt;strong&gt;Employment:&lt;/strong&gt; ~3,500&lt;/p&gt;                     &lt;p&gt;&lt;strong&gt;Key Sectors:&lt;/strong&gt;&lt;/p&gt;                     &lt;ul&gt;                         &lt;li&gt;Government&lt;/li&gt;&lt;li&gt;Healthcare&lt;/li&gt;&lt;li&gt;Tourism&lt;/li&gt;                     &lt;/ul&gt;                 &lt;/div&gt;                 &lt;/div&gt;`)[0];
+                popup_c32a5879899aa8781608003c7d139bd6.setContent(html_d8c0d4f0a36d9d67b6994057b486f366);
+            
+        
+
+        circle_marker_8c6e7f324c0262bf86bddc31e59a8e66.bindPopup(popup_c32a5879899aa8781608003c7d139bd6)
+        ;
+
+        
+    
+    
+            var circle_marker_ea3ba1d82357b305dadfcb514f27cc19 = L.circleMarker(
+                [41.8478, -123.9725],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;gold&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.6, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;opacity&quot;: 1.0, &quot;radius&quot;: 10, &quot;stroke&quot;: true, &quot;weight&quot;: 3}
+            ).addTo(feature_group_b3a840d46ae9019978d9991da0c89016);
+        
+    
+        var popup_f689e6eac3e6af225c2797bd71a96112 = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_821b18b73dda1526b107b8b4f7961fc5 = $(`&lt;div id=&quot;html_821b18b73dda1526b107b8b4f7961fc5&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                 &lt;div style=&quot;width: 200px;&quot;&gt;                     &lt;h4&gt;Gasquet&lt;/h4&gt;                     &lt;p&gt;&lt;strong&gt;Employment:&lt;/strong&gt; ~250&lt;/p&gt;                     &lt;p&gt;&lt;strong&gt;Key Sectors:&lt;/strong&gt;&lt;/p&gt;                     &lt;ul&gt;                         &lt;li&gt;Forestry&lt;/li&gt;&lt;li&gt;Agriculture&lt;/li&gt;                     &lt;/ul&gt;                 &lt;/div&gt;                 &lt;/div&gt;`)[0];
+                popup_f689e6eac3e6af225c2797bd71a96112.setContent(html_821b18b73dda1526b107b8b4f7961fc5);
+            
+        
+
+        circle_marker_ea3ba1d82357b305dadfcb514f27cc19.bindPopup(popup_f689e6eac3e6af225c2797bd71a96112)
+        ;
+
+        
+    
+    
+            var circle_marker_0de924499eecd91e5c8e2934a1fc3edb = L.circleMarker(
+                [41.5254, -124.0373],
+                {&quot;bubblingMouseEvents&quot;: true, &quot;color&quot;: &quot;gold&quot;, &quot;dashArray&quot;: null, &quot;dashOffset&quot;: null, &quot;fill&quot;: true, &quot;fillColor&quot;: &quot;yellow&quot;, &quot;fillOpacity&quot;: 0.6, &quot;fillRule&quot;: &quot;evenodd&quot;, &quot;lineCap&quot;: &quot;round&quot;, &quot;lineJoin&quot;: &quot;round&quot;, &quot;opacity&quot;: 1.0, &quot;radius&quot;: 10, &quot;stroke&quot;: true, &quot;weight&quot;: 3}
+            ).addTo(feature_group_b3a840d46ae9019978d9991da0c89016);
+        
+    
+        var popup_34b0609dddcb6beb84390e3dc4634bbe = L.popup({&quot;maxWidth&quot;: &quot;100%&quot;});
+
+        
+            
+                var html_46105d979ef98049f7960183740345dc = $(`&lt;div id=&quot;html_46105d979ef98049f7960183740345dc&quot; style=&quot;width: 100.0%; height: 100.0%;&quot;&gt;                 &lt;div style=&quot;width: 200px;&quot;&gt;                     &lt;h4&gt;Klamath&lt;/h4&gt;                     &lt;p&gt;&lt;strong&gt;Employment:&lt;/strong&gt; ~180&lt;/p&gt;                     &lt;p&gt;&lt;strong&gt;Key Sectors:&lt;/strong&gt;&lt;/p&gt;                     &lt;ul&gt;                         &lt;li&gt;Fishing&lt;/li&gt;&lt;li&gt;Tourism&lt;/li&gt;                     &lt;/ul&gt;                 &lt;/div&gt;                 &lt;/div&gt;`)[0];
+                popup_34b0609dddcb6beb84390e3dc4634bbe.setContent(html_46105d979ef98049f7960183740345dc);
+            
+        
+
+        circle_marker_0de924499eecd91e5c8e2934a1fc3edb.bindPopup(popup_34b0609dddcb6beb84390e3dc4634bbe)
+        ;
+
+        
+    
+    
+            var layer_control_10f6c5070f5f06afe99370af723965be_layers = {
+                base_layers : {
+                    &quot;Street Map&quot; : tile_layer_2e053cca1585c2e9be88406e4f4c1661,
+                    &quot;Terrain&quot; : tile_layer_9072c7f6be454e20640acfc5f0b01a85,
+                    &quot;Black \u0026 White&quot; : tile_layer_f8f2dff6723fe04c090a4dcd3d1c00d1,
+                    &quot;Satellite&quot; : tile_layer_7c44dba129619c2b0d3c9a839f237db5,
+                },
+                overlays :  {
+                    &quot;Earthquake Activity \ud83c\udf0d&quot; : feature_group_bedbc24f86cb312794c7e736aaf93d5c,
+                    &quot;Forest Health Analysis \ud83c\udf32&quot; : feature_group_b7c665d16d365a7d821909f928fd0e30,
+                    &quot;Climate Risk Zones \ud83c\udf21\ufe0f&quot; : feature_group_73e938c05c4b75f8e78b99ad43affbe2,
+                    &quot;Zoning \u0026 Land Use \ud83c\udfd8\ufe0f&quot; : feature_group_cab703485e1e8611877e4f96be185d0f,
+                    &quot;Conservation Areas \ud83c\udf32&quot; : feature_group_4b564bdc80a08a14c76c9272e9355949,
+                    &quot;Economic Indicators \ud83d\udcbc&quot; : feature_group_b3a840d46ae9019978d9991da0c89016,
+                },
+            };
+            let layer_control_10f6c5070f5f06afe99370af723965be = L.control.layers(
+                layer_control_10f6c5070f5f06afe99370af723965be_layers.base_layers,
+                layer_control_10f6c5070f5f06afe99370af723965be_layers.overlays,
+                {&quot;autoZIndex&quot;: true, &quot;collapsed&quot;: false, &quot;position&quot;: &quot;topright&quot;}
+            ).addTo(map_7481d773287537d0a710a9f40cd46942);
+
+        
+    
+            var measure_control_58d9aeb0d83f215eb8014a1555807b50 = new L.Control.Measure(
+                {&quot;position&quot;: &quot;topright&quot;, &quot;primaryAreaUnit&quot;: &quot;sqkilometers&quot;, &quot;primaryLengthUnit&quot;: &quot;kilometers&quot;, &quot;secondaryAreaUnit&quot;: &quot;acres&quot;, &quot;secondaryLengthUnit&quot;: &quot;miles&quot;});
+            map_7481d773287537d0a710a9f40cd46942.addControl(measure_control_58d9aeb0d83f215eb8014a1555807b50);
+
+            // Workaround for using this plugin with Leaflet&gt;=1.8.0
+            // https://github.com/ljagis/leaflet-measure/issues/171
+            L.Control.Measure.include({
+                _setCaptureMarkerIcon: function () {
+                    // disable autopan
+                    this._captureMarker.options.autoPanOnFocus = false;
+                    // default function
+                    this._captureMarker.setIcon(
+                        L.divIcon({
+                            iconSize: this._map.getSize().multiplyBy(2)
+                        })
+                    );
+                },
+            });
+
+        
+    
+            var options = {
+              position: &quot;topleft&quot;,
+              draw: {&quot;circle&quot;: true, &quot;circlemarker&quot;: false, &quot;marker&quot;: true, &quot;polygon&quot;: true, &quot;polyline&quot;: true, &quot;rectangle&quot;: true},
+              edit: {&quot;edit&quot;: true},
+            }
+            // FeatureGroup is to store editable layers.
+            var drawnItems_draw_control_da27dbe19761323dfcb3c15f5d727aa5 = new L.featureGroup().addTo(
+                map_7481d773287537d0a710a9f40cd46942
+            );
+            options.edit.featureGroup = drawnItems_draw_control_da27dbe19761323dfcb3c15f5d727aa5;
+            var draw_control_da27dbe19761323dfcb3c15f5d727aa5 = new L.Control.Draw(
+                options
+            ).addTo( map_7481d773287537d0a710a9f40cd46942 );
+            map_7481d773287537d0a710a9f40cd46942.on(L.Draw.Event.CREATED, function(e) {
+                var layer = e.layer,
+                    type = e.layerType;
+                var coords = JSON.stringify(layer.toGeoJSON());
+                layer.on(&#x27;click&#x27;, function() {
+                    alert(coords);
+                    console.log(coords);
+                });
+                drawnItems_draw_control_da27dbe19761323dfcb3c15f5d727aa5.addLayer(layer);
+             });
+            map_7481d773287537d0a710a9f40cd46942.on(&#x27;draw:created&#x27;, function(e) {
+                drawnItems_draw_control_da27dbe19761323dfcb3c15f5d727aa5.addLayer(e.layer);
+            });
+            
+            document.getElementById(&#x27;export&#x27;).onclick = function(e) {
+                var data = drawnItems_draw_control_da27dbe19761323dfcb3c15f5d727aa5.toGeoJSON();
+                var convertedData = &#x27;text/json;charset=utf-8,&#x27;
+                    + encodeURIComponent(JSON.stringify(data));
+                document.getElementById(&#x27;export&#x27;).setAttribute(
+                    &#x27;href&#x27;, &#x27;data:&#x27; + convertedData
+                );
+                document.getElementById(&#x27;export&#x27;).setAttribute(
+                    &#x27;download&#x27;, &quot;del_norte_annotations.geojson&quot;
+                );
+            }
+            
+        
+    
+            L.control.fullscreen(
+                {&quot;forceSeparateButton&quot;: true, &quot;position&quot;: &quot;topleft&quot;, &quot;title&quot;: &quot;Enter fullscreen mode&quot;, &quot;titleCancel&quot;: &quot;Exit fullscreen mode&quot;}
+            ).addTo(map_7481d773287537d0a710a9f40cd46942);
+        
+    
+            var locate_control_4ca17738686904e47a5f69d41d80f1b4 = L.control.locate(
+                {}
+            ).addTo(map_7481d773287537d0a710a9f40cd46942);
+            
+        
+    
+            var tile_layer_f0e2afe3033c795afe713a2f7f55ef5d = L.tileLayer(
+                &quot;https://tile.openstreetmap.org/{z}/{x}/{y}.png&quot;,
+                {&quot;attribution&quot;: &quot;\u0026copy; \u003ca href=\&quot;https://www.openstreetmap.org/copyright\&quot;\u003eOpenStreetMap\u003c/a\u003e contributors&quot;, &quot;detectRetina&quot;: false, &quot;maxNativeZoom&quot;: 19, &quot;maxZoom&quot;: 19, &quot;minZoom&quot;: 0, &quot;noWrap&quot;: false, &quot;opacity&quot;: 1, &quot;subdomains&quot;: &quot;abc&quot;, &quot;tms&quot;: false}
+            );
+            var mini_map_9c5312dc775103343b35f78ea1546827 = new L.Control.MiniMap(
+                tile_layer_f0e2afe3033c795afe713a2f7f55ef5d,
+                {&quot;autoToggleDisplay&quot;: false, &quot;centerFixed&quot;: false, &quot;collapsedHeight&quot;: 25, &quot;collapsedWidth&quot;: 25, &quot;height&quot;: 150, &quot;minimized&quot;: false, &quot;position&quot;: &quot;bottomright&quot;, &quot;toggleDisplay&quot;: true, &quot;width&quot;: 150, &quot;zoomAnimation&quot;: false, &quot;zoomLevelOffset&quot;: -5}
+            );
+            map_7481d773287537d0a710a9f40cd46942.addControl(mini_map_9c5312dc775103343b35f78ea1546827);
+        
+&lt;/script&gt;
+&lt;/html&gt;" style="position:absolute;width:100%;height:100%;left:0;top:0;border:none !important;" allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe></div></div>
+                    
+                    <div class="control-panel">
+                        <h4 style="margin-top: 0;">🎛️ Layer Controls</h4>
+                        <button class="toggle-button" onclick="toggleLayer('fire')">🔥 Fire Incidents</button>
+                        <button class="toggle-button" onclick="toggleLayer('weather')">🌤️ Weather Data</button>
+                        <button class="toggle-button" onclick="toggleLayer('forest')">🌲 Forest Health</button>
+                        <button class="toggle-button" onclick="toggleLayer('climate')">🌡️ Climate Risks</button>
+                        <button class="toggle-button" onclick="toggleLayer('zoning')">🏘️ Zoning</button>
+                        <button class="toggle-button" onclick="toggleLayer('economic')">💼 Economics</button>
+                        
+                        <hr>
+                        <h4>📋 Quick Actions</h4>
+                        <button class="toggle-button" onclick="generateReport()">📄 Generate Report</button>
+                        <button class="toggle-button" onclick="exportData()">💾 Export Data</button>
+                    </div>
+                </div>
+            </div>
+            
+            <script>
+                function toggleLayer(layerType) {
+                    // Layer toggle functionality would be implemented here
+                    console.log('Toggling layer:', layerType);
+                    alert('Layer toggle: ' + layerType);
+                }
+                
+                function generateReport() {
+                    alert('Generating comprehensive report...');
+                }
+                
+                function exportData() {
+                    alert('Exporting dashboard data...');
+                }
+                
+                // Auto-refresh data every 5 minutes
+                setInterval(function() {
+                    console.log('Auto-refreshing data...');
+                    // Implement data refresh logic
+                }, 300000);
+            </script>
+        </body>
+        </html>
+        

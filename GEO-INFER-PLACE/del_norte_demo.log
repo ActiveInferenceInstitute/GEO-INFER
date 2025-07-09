@@ -119,3 +119,297 @@
 2025-07-09 08:55:12,356 - __main__ - INFO - Next Steps:
 2025-07-09 08:55:12,356 - __main__ - INFO - 1. Open the interactive dashboard in a web browser
 2025-07-09 08:55:12,356 - __main__ - INFO - 4. Customize the configuration for your specific needs
+2025-07-09 09:08:14,638 - __main__ - INFO - === Comprehensive Dependency Check ===
+2025-07-09 09:08:14,638 - __main__ - INFO - Checking core required packages...
+2025-07-09 09:08:15,229 - numexpr.utils - INFO - NumExpr defaulting to 12 threads.
+2025-07-09 09:08:15,473 - __main__ - INFO - ✓ folium is available
+2025-07-09 09:08:15,478 - __main__ - INFO - ✓ h3 is available
+2025-07-09 09:08:15,478 - __main__ - INFO - ✓ pandas is available
+2025-07-09 09:08:15,533 - __main__ - INFO - ✓ geopandas is available
+2025-07-09 09:08:15,533 - __main__ - INFO - ✓ numpy is available
+2025-07-09 09:08:15,533 - __main__ - INFO - ✓ requests is available
+2025-07-09 09:08:15,547 - __main__ - INFO - ✓ yaml is available
+2025-07-09 09:08:15,557 - __main__ - INFO - ✓ plotly is available
+2025-07-09 09:08:15,711 - __main__ - INFO - ✓ matplotlib is available
+2025-07-09 09:08:16,516 - matplotlib.font_manager - INFO - Failed to extract font properties from /usr/share/fonts/truetype/noto/NotoColorEmoji.ttf: Can not load face (unknown file format; error code 0x2)
+2025-07-09 09:08:16,982 - matplotlib.font_manager - INFO - generated new fontManager
+2025-07-09 09:08:18,361 - __main__ - INFO - ✓ seaborn is available
+2025-07-09 09:08:18,362 - __main__ - INFO - ✓ branca is available
+2025-07-09 09:08:18,362 - __main__ - INFO - ✓ scipy is available
+2025-07-09 09:08:18,416 - __main__ - INFO - ✓ sklearn is available
+2025-07-09 09:08:18,416 - __main__ - INFO - ✓ shapely is available
+2025-07-09 09:08:18,604 - __main__ - INFO - ✓ rasterio is available
+2025-07-09 09:08:18,703 - __main__ - INFO - ✓ fiona is available
+2025-07-09 09:08:18,703 - __main__ - INFO - Checking optional enhancement packages...
+2025-07-09 09:08:18,704 - __main__ - INFO - ○ contextily (optional) is missing
+2025-07-09 09:08:18,704 - __main__ - INFO - ○ cartopy (optional) is missing
+2025-07-09 09:08:18,704 - __main__ - INFO - ○ descartes (optional) is missing
+2025-07-09 09:08:18,704 - __main__ - INFO - ✓ pyproj (optional) is available
+2025-07-09 09:08:18,704 - __main__ - INFO - 
+Attempting to install 3 optional packages for enhanced functionality...
+2025-07-09 09:08:18,704 - __main__ - INFO - Installing optional packages: contextily
+2025-07-09 09:08:23,751 - __main__ - INFO - ✓ Successfully installed optional packages: contextily
+2025-07-09 09:08:23,751 - __main__ - INFO - === Dependency Check Summary ===
+2025-07-09 09:08:23,751 - __main__ - INFO - ✓ Available required packages: 16/16
+2025-07-09 09:08:23,751 - __main__ - INFO - ✓ Available optional packages: 1/4
+2025-07-09 09:08:23,751 - __main__ - INFO - Core packages available: folium, h3, pandas, geopandas, numpy, requests, yaml, plotly, matplotlib, seaborn, branca, scipy, sklearn, shapely, rasterio, fiona
+2025-07-09 09:08:23,751 - __main__ - INFO - Optional packages available: pyproj
+2025-07-09 09:08:46,558 - __main__ - INFO - === Comprehensive Dependency Check ===
+2025-07-09 09:08:46,558 - __main__ - INFO - Checking core required packages...
+2025-07-09 09:08:47,068 - numexpr.utils - INFO - NumExpr defaulting to 12 threads.
+2025-07-09 09:08:47,317 - __main__ - INFO - ✓ folium is available
+2025-07-09 09:08:47,322 - __main__ - INFO - ✓ h3 is available
+2025-07-09 09:08:47,322 - __main__ - INFO - ✓ pandas is available
+2025-07-09 09:08:47,387 - __main__ - INFO - ✓ geopandas is available
+2025-07-09 09:08:47,387 - __main__ - INFO - ✓ numpy is available
+2025-07-09 09:08:47,387 - __main__ - INFO - ✓ requests is available
+2025-07-09 09:08:47,404 - __main__ - INFO - ✓ yaml is available
+2025-07-09 09:08:47,405 - __main__ - INFO - ✓ plotly is available
+2025-07-09 09:08:47,538 - __main__ - INFO - ✓ matplotlib is available
+2025-07-09 09:08:48,649 - __main__ - INFO - ✓ seaborn is available
+2025-07-09 09:08:48,649 - __main__ - INFO - ✓ branca is available
+2025-07-09 09:08:48,649 - __main__ - INFO - ✓ scipy is available
+2025-07-09 09:08:48,700 - __main__ - INFO - ✓ sklearn is available
+2025-07-09 09:08:48,700 - __main__ - INFO - ✓ shapely is available
+2025-07-09 09:08:48,826 - __main__ - INFO - ✓ rasterio is available
+2025-07-09 09:08:48,858 - __main__ - INFO - ✓ fiona is available
+2025-07-09 09:08:48,858 - __main__ - INFO - Checking optional enhancement packages...
+2025-07-09 09:08:48,938 - __main__ - INFO - ✓ contextily (optional) is available
+2025-07-09 09:08:48,939 - __main__ - INFO - ○ cartopy (optional) is missing
+2025-07-09 09:08:48,939 - __main__ - INFO - ○ descartes (optional) is missing
+2025-07-09 09:08:48,939 - __main__ - INFO - ✓ pyproj (optional) is available
+2025-07-09 09:08:48,939 - __main__ - INFO - 
+Attempting to install 2 optional packages for enhanced functionality...
+2025-07-09 09:08:48,939 - __main__ - INFO - === Dependency Check Summary ===
+2025-07-09 09:08:48,939 - __main__ - INFO - ✓ Available required packages: 16/16
+2025-07-09 09:08:48,939 - __main__ - INFO - ✓ Available optional packages: 2/4
+2025-07-09 09:08:48,939 - __main__ - INFO - Core packages available: folium, h3, pandas, geopandas, numpy, requests, yaml, plotly, matplotlib, seaborn, branca, scipy, sklearn, shapely, rasterio, fiona
+2025-07-09 09:08:48,940 - __main__ - INFO - Optional packages available: contextily, pyproj
+2025-07-09 09:08:49,500 - __main__ - INFO - === Del Norte County Comprehensive Dashboard Demo ===
+2025-07-09 09:08:49,500 - __main__ - INFO - Arguments: {'config': None, 'output': './del_norte_dashboard', 'api_keys': None, 'demo_only': False, 'verbose': True}
+2025-07-09 09:08:49,500 - __main__ - INFO - Running component demonstrations...
+2025-07-09 09:08:49,500 - __main__ - INFO - === Demonstrating California Data Sources Catalog ===
+2025-07-09 09:08:49,500 - __main__ - WARNING - CaliforniaDataSources not available - using mock demonstration
+2025-07-09 09:08:49,500 - __main__ - INFO - Mock data sources would include:
+2025-07-09 09:08:49,500 - __main__ - INFO -   - CAL FIRE: Wildfire perimeter data, fire weather, fuel moisture
+2025-07-09 09:08:49,500 - __main__ - INFO -   - NOAA: Weather observations, climate data, coastal monitoring
+2025-07-09 09:08:49,500 - __main__ - INFO -   - USGS: Water data, seismic monitoring, topographic data
+2025-07-09 09:08:49,500 - __main__ - INFO -   - CDEC: California environmental monitoring
+2025-07-09 09:08:49,501 - __main__ - INFO - Total mock data sources: 20+
+2025-07-09 09:08:49,501 - __main__ - INFO - === Demonstrating API Connections ===
+2025-07-09 09:08:49,501 - __main__ - WARNING - CaliforniaAPIManager not available - using mock demonstration
+2025-07-09 09:08:49,501 - __main__ - INFO - Mock API connections would test:
+2025-07-09 09:08:49,501 - __main__ - INFO -   ✓ CAL FIRE API: Fire perimeter data (Mock: 150ms)
+2025-07-09 09:08:49,501 - __main__ - INFO -   ✓ NOAA API: Weather data (Mock: 250ms)
+2025-07-09 09:08:49,501 - __main__ - INFO -   ✓ USGS API: Water/seismic data (Mock: 180ms)
+2025-07-09 09:08:49,501 - __main__ - INFO -   ✓ CDEC API: Environmental monitoring (Mock: 300ms)
+2025-07-09 09:08:49,501 - __main__ - INFO - === Demonstrating H3 Spatial Analysis ===
+2025-07-09 09:08:49,501 - __main__ - INFO - Resolution 6:
+2025-07-09 09:08:49,501 - __main__ - INFO -   - Cell: 86281cab7ffffff
+2025-07-09 09:08:49,501 - __main__ - INFO -   - Area: 35.00 km²
+2025-07-09 09:08:49,501 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 09:08:49,501 - __main__ - INFO - Resolution 7:
+2025-07-09 09:08:49,502 - __main__ - INFO -   - Cell: 87281cab5ffffff
+2025-07-09 09:08:49,502 - __main__ - INFO -   - Area: 5.00 km²
+2025-07-09 09:08:49,502 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 09:08:49,502 - __main__ - INFO - Resolution 8:
+2025-07-09 09:08:49,502 - __main__ - INFO -   - Cell: 88281cab53fffff
+2025-07-09 09:08:49,502 - __main__ - INFO -   - Area: 0.71 km²
+2025-07-09 09:08:49,502 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 09:08:49,502 - __main__ - INFO - Resolution 9:
+2025-07-09 09:08:49,502 - __main__ - INFO -   - Cell: 89281cab533ffff
+2025-07-09 09:08:49,502 - __main__ - INFO -   - Area: 0.10 km²
+2025-07-09 09:08:49,502 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 09:08:49,502 - __main__ - INFO - Generating H3 grid for Del Norte County...
+2025-07-09 09:08:49,503 - __main__ - INFO - Generated 100 H3 cells covering 71.45 km²
+2025-07-09 09:08:49,503 - __main__ - INFO - === Running Dual Dashboard Generation ===
+2025-07-09 09:08:49,503 - __main__ - INFO - Step 1: Generating simple dashboard...
+2025-07-09 09:08:49,503 - __main__ - INFO - === Running Simplified Del Norte County Demo ===
+2025-07-09 09:08:49,510 - __main__ - INFO - Adding H3 spatial demonstration...
+2025-07-09 09:08:49,539 - __main__ - INFO - Simple dashboard saved: del_norte_dashboard/del_norte_simple_dashboard_20250709_090849.html
+2025-07-09 09:08:49,539 - __main__ - INFO - Step 2: Generating advanced geospatial intelligence dashboard...
+2025-07-09 09:08:49,539 - __main__ - INFO - === Running Advanced Geospatial Intelligence Dashboard Demo ===
+2025-07-09 09:08:49,539 - __main__ - INFO - Initializing advanced dashboard with real-time data integration...
+2025-07-09 09:08:49,540 - __main__ - INFO - Fetching real-time California data...
+2025-07-09 09:08:49,540 - geo_infer_place.locations.del_norte_county.advanced_dashboard - INFO - Fetching real-time data from California sources...
+2025-07-09 09:08:49,541 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.fire.ca.gov:443
+2025-07-09 09:08:49,811 - urllib3.connectionpool - DEBUG - https://www.fire.ca.gov:443 "GET /umbraco/api/IncidentApi/GetIncidents HTTP/1.1" 403 179
+2025-07-09 09:08:49,815 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.weather.gov:443
+2025-07-09 09:08:50,235 - urllib3.connectionpool - DEBUG - https://api.weather.gov:443 "GET /stations/KCEC/observations/latest HTTP/1.1" 200 1068
+2025-07-09 09:08:50,239 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): earthquake.usgs.gov:443
+2025-07-09 09:08:50,411 - urllib3.connectionpool - DEBUG - https://earthquake.usgs.gov:443 "GET /earthquakes/feed/v1.0/summary/all_day.geojson HTTP/1.1" 200 29279
+2025-07-09 09:08:50,419 - __main__ - INFO -   ✗ fire_data: Data fetch failed
+2025-07-09 09:08:50,419 - __main__ - INFO -   ✓ weather_data: Success
+2025-07-09 09:08:50,419 - __main__ - INFO -   ✓ earthquake_data: Success
+2025-07-09 09:08:50,419 - __main__ - INFO - Generating comprehensive intelligence dashboard...
+2025-07-09 09:08:50,419 - geo_infer_place.locations.del_norte_county.advanced_dashboard - INFO - Fetching real-time data from California sources...
+2025-07-09 09:08:50,420 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.fire.ca.gov:443
+2025-07-09 09:08:50,587 - urllib3.connectionpool - DEBUG - https://www.fire.ca.gov:443 "GET /umbraco/api/IncidentApi/GetIncidents HTTP/1.1" 403 179
+2025-07-09 09:08:50,588 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.weather.gov:443
+2025-07-09 09:08:50,700 - urllib3.connectionpool - DEBUG - https://api.weather.gov:443 "GET /stations/KCEC/observations/latest HTTP/1.1" 200 1068
+2025-07-09 09:08:50,701 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): earthquake.usgs.gov:443
+2025-07-09 09:08:50,802 - urllib3.connectionpool - DEBUG - https://earthquake.usgs.gov:443 "GET /earthquakes/feed/v1.0/summary/all_day.geojson HTTP/1.1" 200 29279
+2025-07-09 09:08:50,820 - __main__ - ERROR - Advanced dashboard demo failed: Custom tiles must have an attribution.
+2025-07-09 09:08:50,821 - __main__ - ERROR - Traceback: Traceback (most recent call last):
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/examples/del_norte_county_demo.py", line 620, in run_advanced_demo
+    dashboard_path = advanced_dashboard.save_dashboard()
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/locations/del_norte_county/advanced_dashboard.py", line 1133, in save_dashboard
+    dashboard_html = self.generate_dashboard_html()
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/locations/del_norte_county/advanced_dashboard.py", line 954, in generate_dashboard_html
+    map_obj = self.create_comprehensive_map()
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/locations/del_norte_county/advanced_dashboard.py", line 536, in create_comprehensive_map
+    folium.TileLayer('Stamen Terrain', name='Terrain').add_to(m)
+  File "/home/trim/.local/lib/python3.10/site-packages/folium/raster_layers.py", line 139, in __init__
+    raise ValueError("Custom tiles must have an attribution.")
+ValueError: Custom tiles must have an attribution.
+
+2025-07-09 09:08:50,821 - __main__ - INFO - Opening simple dashboard: del_norte_dashboard/del_norte_simple_dashboard_20250709_090849.html
+2025-07-09 09:08:50,870 - __main__ - INFO - === DEMO COMPLETED SUCCESSFULLY ===
+2025-07-09 09:08:50,871 - __main__ - INFO - Generated 1 dashboard(s):
+2025-07-09 09:08:50,871 - __main__ - INFO -   📍 Simple Dashboard: del_norte_dashboard/del_norte_simple_dashboard_20250709_090849.html
+2025-07-09 09:08:50,871 - __main__ - INFO - 
+2025-07-09 09:08:50,871 - __main__ - INFO - === Dashboard Features Comparison ===
+2025-07-09 09:08:50,871 - __main__ - INFO - Simple Dashboard:
+2025-07-09 09:08:50,871 - __main__ - INFO -   • Basic geospatial visualization
+2025-07-09 09:08:50,871 - __main__ - INFO -   • Sample locations and H3 cells
+2025-07-09 09:08:50,871 - __main__ - INFO -   • Quick overview functionality
+2025-07-09 09:08:50,871 - __main__ - INFO - 
+2025-07-09 09:08:50,871 - __main__ - INFO - Next Steps:
+2025-07-09 09:08:50,871 - __main__ - INFO - 1. Compare the different dashboard approaches
+2025-07-09 09:08:50,871 - __main__ - INFO - 2. Explore interactive features in each dashboard
+2025-07-09 09:08:50,871 - __main__ - INFO - 3. Review the policy report for insights
+2025-07-09 09:08:50,871 - __main__ - INFO - 4. Customize configuration for specific needs
+2025-07-09 09:08:50,871 - __main__ - INFO - 5. Integrate with additional data sources
+2025-07-09 09:09:16,582 - __main__ - INFO - === Comprehensive Dependency Check ===
+2025-07-09 09:09:16,582 - __main__ - INFO - Checking core required packages...
+2025-07-09 09:09:17,059 - numexpr.utils - INFO - NumExpr defaulting to 12 threads.
+2025-07-09 09:09:17,318 - __main__ - INFO - ✓ folium is available
+2025-07-09 09:09:17,325 - __main__ - INFO - ✓ h3 is available
+2025-07-09 09:09:17,325 - __main__ - INFO - ✓ pandas is available
+2025-07-09 09:09:17,383 - __main__ - INFO - ✓ geopandas is available
+2025-07-09 09:09:17,384 - __main__ - INFO - ✓ numpy is available
+2025-07-09 09:09:17,384 - __main__ - INFO - ✓ requests is available
+2025-07-09 09:09:17,397 - __main__ - INFO - ✓ yaml is available
+2025-07-09 09:09:17,397 - __main__ - INFO - ✓ plotly is available
+2025-07-09 09:09:17,524 - __main__ - INFO - ✓ matplotlib is available
+2025-07-09 09:09:18,558 - __main__ - INFO - ✓ seaborn is available
+2025-07-09 09:09:18,559 - __main__ - INFO - ✓ branca is available
+2025-07-09 09:09:18,559 - __main__ - INFO - ✓ scipy is available
+2025-07-09 09:09:18,609 - __main__ - INFO - ✓ sklearn is available
+2025-07-09 09:09:18,609 - __main__ - INFO - ✓ shapely is available
+2025-07-09 09:09:18,716 - __main__ - INFO - ✓ rasterio is available
+2025-07-09 09:09:18,745 - __main__ - INFO - ✓ fiona is available
+2025-07-09 09:09:18,745 - __main__ - INFO - Checking optional enhancement packages...
+2025-07-09 09:09:18,809 - __main__ - INFO - ✓ contextily (optional) is available
+2025-07-09 09:09:18,809 - __main__ - INFO - ○ cartopy (optional) is missing
+2025-07-09 09:09:18,810 - __main__ - INFO - ○ descartes (optional) is missing
+2025-07-09 09:09:18,810 - __main__ - INFO - ✓ pyproj (optional) is available
+2025-07-09 09:09:18,810 - __main__ - INFO - 
+Attempting to install 2 optional packages for enhanced functionality...
+2025-07-09 09:09:18,810 - __main__ - INFO - === Dependency Check Summary ===
+2025-07-09 09:09:18,810 - __main__ - INFO - ✓ Available required packages: 16/16
+2025-07-09 09:09:18,810 - __main__ - INFO - ✓ Available optional packages: 2/4
+2025-07-09 09:09:18,810 - __main__ - INFO - Core packages available: folium, h3, pandas, geopandas, numpy, requests, yaml, plotly, matplotlib, seaborn, branca, scipy, sklearn, shapely, rasterio, fiona
+2025-07-09 09:09:18,810 - __main__ - INFO - Optional packages available: contextily, pyproj
+2025-07-09 09:09:19,164 - __main__ - INFO - === Del Norte County Comprehensive Dashboard Demo ===
+2025-07-09 09:09:19,164 - __main__ - INFO - Arguments: {'config': None, 'output': './del_norte_dashboard', 'api_keys': None, 'demo_only': False, 'verbose': True}
+2025-07-09 09:09:19,164 - __main__ - INFO - Running component demonstrations...
+2025-07-09 09:09:19,164 - __main__ - INFO - === Demonstrating California Data Sources Catalog ===
+2025-07-09 09:09:19,164 - __main__ - WARNING - CaliforniaDataSources not available - using mock demonstration
+2025-07-09 09:09:19,164 - __main__ - INFO - Mock data sources would include:
+2025-07-09 09:09:19,164 - __main__ - INFO -   - CAL FIRE: Wildfire perimeter data, fire weather, fuel moisture
+2025-07-09 09:09:19,164 - __main__ - INFO -   - NOAA: Weather observations, climate data, coastal monitoring
+2025-07-09 09:09:19,164 - __main__ - INFO -   - USGS: Water data, seismic monitoring, topographic data
+2025-07-09 09:09:19,164 - __main__ - INFO -   - CDEC: California environmental monitoring
+2025-07-09 09:09:19,165 - __main__ - INFO - Total mock data sources: 20+
+2025-07-09 09:09:19,165 - __main__ - INFO - === Demonstrating API Connections ===
+2025-07-09 09:09:19,165 - __main__ - WARNING - CaliforniaAPIManager not available - using mock demonstration
+2025-07-09 09:09:19,165 - __main__ - INFO - Mock API connections would test:
+2025-07-09 09:09:19,165 - __main__ - INFO -   ✓ CAL FIRE API: Fire perimeter data (Mock: 150ms)
+2025-07-09 09:09:19,165 - __main__ - INFO -   ✓ NOAA API: Weather data (Mock: 250ms)
+2025-07-09 09:09:19,165 - __main__ - INFO -   ✓ USGS API: Water/seismic data (Mock: 180ms)
+2025-07-09 09:09:19,165 - __main__ - INFO -   ✓ CDEC API: Environmental monitoring (Mock: 300ms)
+2025-07-09 09:09:19,165 - __main__ - INFO - === Demonstrating H3 Spatial Analysis ===
+2025-07-09 09:09:19,165 - __main__ - INFO - Resolution 6:
+2025-07-09 09:09:19,165 - __main__ - INFO -   - Cell: 86281cab7ffffff
+2025-07-09 09:09:19,166 - __main__ - INFO -   - Area: 35.00 km²
+2025-07-09 09:09:19,166 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 09:09:19,166 - __main__ - INFO - Resolution 7:
+2025-07-09 09:09:19,166 - __main__ - INFO -   - Cell: 87281cab5ffffff
+2025-07-09 09:09:19,166 - __main__ - INFO -   - Area: 5.00 km²
+2025-07-09 09:09:19,166 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 09:09:19,166 - __main__ - INFO - Resolution 8:
+2025-07-09 09:09:19,166 - __main__ - INFO -   - Cell: 88281cab53fffff
+2025-07-09 09:09:19,166 - __main__ - INFO -   - Area: 0.71 km²
+2025-07-09 09:09:19,166 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 09:09:19,166 - __main__ - INFO - Resolution 9:
+2025-07-09 09:09:19,166 - __main__ - INFO -   - Cell: 89281cab533ffff
+2025-07-09 09:09:19,167 - __main__ - INFO -   - Area: 0.10 km²
+2025-07-09 09:09:19,167 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 09:09:19,167 - __main__ - INFO - Generating H3 grid for Del Norte County...
+2025-07-09 09:09:19,168 - __main__ - INFO - Generated 100 H3 cells covering 71.45 km²
+2025-07-09 09:09:19,168 - __main__ - INFO - === Running Dual Dashboard Generation ===
+2025-07-09 09:09:19,168 - __main__ - INFO - Step 1: Generating simple dashboard...
+2025-07-09 09:09:19,168 - __main__ - INFO - === Running Simplified Del Norte County Demo ===
+2025-07-09 09:09:19,172 - __main__ - INFO - Adding H3 spatial demonstration...
+2025-07-09 09:09:19,194 - __main__ - INFO - Simple dashboard saved: del_norte_dashboard/del_norte_simple_dashboard_20250709_090919.html
+2025-07-09 09:09:19,194 - __main__ - INFO - Step 2: Generating advanced geospatial intelligence dashboard...
+2025-07-09 09:09:19,194 - __main__ - INFO - === Running Advanced Geospatial Intelligence Dashboard Demo ===
+2025-07-09 09:09:19,194 - __main__ - INFO - Initializing advanced dashboard with real-time data integration...
+2025-07-09 09:09:19,194 - __main__ - INFO - Fetching real-time California data...
+2025-07-09 09:09:19,194 - geo_infer_place.locations.del_norte_county.advanced_dashboard - INFO - Fetching real-time data from California sources...
+2025-07-09 09:09:19,195 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.fire.ca.gov:443
+2025-07-09 09:09:19,395 - urllib3.connectionpool - DEBUG - https://www.fire.ca.gov:443 "GET /umbraco/api/IncidentApi/GetIncidents HTTP/1.1" 403 179
+2025-07-09 09:09:19,398 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.weather.gov:443
+2025-07-09 09:09:19,527 - urllib3.connectionpool - DEBUG - https://api.weather.gov:443 "GET /stations/KCEC/observations/latest HTTP/1.1" 200 1068
+2025-07-09 09:09:19,528 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): earthquake.usgs.gov:443
+2025-07-09 09:09:19,707 - urllib3.connectionpool - DEBUG - https://earthquake.usgs.gov:443 "GET /earthquakes/feed/v1.0/summary/all_day.geojson HTTP/1.1" 200 29279
+2025-07-09 09:09:19,725 - __main__ - INFO -   ✗ fire_data: Data fetch failed
+2025-07-09 09:09:19,726 - __main__ - INFO -   ✓ weather_data: Success
+2025-07-09 09:09:19,726 - __main__ - INFO -   ✓ earthquake_data: Success
+2025-07-09 09:09:19,726 - __main__ - INFO - Generating comprehensive intelligence dashboard...
+2025-07-09 09:09:19,726 - geo_infer_place.locations.del_norte_county.advanced_dashboard - INFO - Fetching real-time data from California sources...
+2025-07-09 09:09:19,728 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): www.fire.ca.gov:443
+2025-07-09 09:09:19,898 - urllib3.connectionpool - DEBUG - https://www.fire.ca.gov:443 "GET /umbraco/api/IncidentApi/GetIncidents HTTP/1.1" 403 179
+2025-07-09 09:09:19,900 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): api.weather.gov:443
+2025-07-09 09:09:19,998 - urllib3.connectionpool - DEBUG - https://api.weather.gov:443 "GET /stations/KCEC/observations/latest HTTP/1.1" 200 1068
+2025-07-09 09:09:20,000 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): earthquake.usgs.gov:443
+2025-07-09 09:09:20,115 - urllib3.connectionpool - DEBUG - https://earthquake.usgs.gov:443 "GET /earthquakes/feed/v1.0/summary/all_day.geojson HTTP/1.1" 200 29279
+2025-07-09 09:09:20,245 - geo_infer_place.locations.del_norte_county.advanced_dashboard - INFO - Advanced dashboard saved to: del_norte_dashboard/del_norte_intelligence_dashboard_20250709_090919.html
+2025-07-09 09:09:20,245 - __main__ - INFO - Generating policy support report...
+2025-07-09 09:09:20,246 - __main__ - INFO - Policy report saved: del_norte_dashboard/policy_report_20250709_090920.json
+2025-07-09 09:09:20,246 - __main__ - INFO - === Advanced Dashboard Key Features ===
+2025-07-09 09:09:20,246 - __main__ - INFO - ✓ Multi-panel layout with specialized analysis windows
+2025-07-09 09:09:20,246 - __main__ - INFO - ✓ Real-time California dataset integration
+2025-07-09 09:09:20,246 - __main__ - INFO - ✓ Interactive layer toggles and controls
+2025-07-09 09:09:20,246 - __main__ - INFO - ✓ Climate, zoning, and agro-economic analysis
+2025-07-09 09:09:20,246 - __main__ - INFO - ✓ H3 spatial indexing and forest health analysis
+2025-07-09 09:09:20,246 - __main__ - INFO - ✓ Policy scenario modeling capabilities
+2025-07-09 09:09:20,246 - __main__ - INFO - ✓ Advanced visualization and reporting
+2025-07-09 09:09:20,247 - __main__ - INFO - Opening simple dashboard: del_norte_dashboard/del_norte_simple_dashboard_20250709_090919.html
+2025-07-09 09:09:20,291 - __main__ - INFO - Opening advanced dashboard: del_norte_dashboard/del_norte_intelligence_dashboard_20250709_090919.html
+2025-07-09 09:09:20,292 - __main__ - INFO - === DEMO COMPLETED SUCCESSFULLY ===
+2025-07-09 09:09:20,292 - __main__ - INFO - Generated 2 dashboard(s):
+2025-07-09 09:09:20,292 - __main__ - INFO -   📍 Simple Dashboard: del_norte_dashboard/del_norte_simple_dashboard_20250709_090919.html
+2025-07-09 09:09:20,292 - __main__ - INFO -   🗺️ Advanced Intelligence Dashboard: del_norte_dashboard/del_norte_intelligence_dashboard_20250709_090919.html
+2025-07-09 09:09:20,292 - __main__ - INFO -   📄 Policy Report: del_norte_dashboard/policy_report_20250709_090920.json
+2025-07-09 09:09:20,292 - __main__ - INFO - 
+2025-07-09 09:09:20,292 - __main__ - INFO - === Dashboard Features Comparison ===
+2025-07-09 09:09:20,292 - __main__ - INFO - Simple Dashboard:
+2025-07-09 09:09:20,292 - __main__ - INFO -   • Basic geospatial visualization
+2025-07-09 09:09:20,292 - __main__ - INFO -   • Sample locations and H3 cells
+2025-07-09 09:09:20,292 - __main__ - INFO -   • Quick overview functionality
+2025-07-09 09:09:20,292 - __main__ - INFO - Advanced Intelligence Dashboard:
+2025-07-09 09:09:20,292 - __main__ - INFO -   • Multi-panel layout with specialized analysis
+2025-07-09 09:09:20,292 - __main__ - INFO -   • Real-time California data integration
+2025-07-09 09:09:20,293 - __main__ - INFO -   • Climate, zoning, and economic analysis
+2025-07-09 09:09:20,293 - __main__ - INFO -   • Interactive layer controls and tools
+2025-07-09 09:09:20,293 - __main__ - INFO -   • Policy support and scenario modeling
+2025-07-09 09:09:20,293 - __main__ - INFO -   • H3 spatial indexing and analytics
+2025-07-09 09:09:20,293 - __main__ - INFO - 
+2025-07-09 09:09:20,293 - __main__ - INFO - Next Steps:
+2025-07-09 09:09:20,293 - __main__ - INFO - 1. Compare the different dashboard approaches
+2025-07-09 09:09:20,293 - __main__ - INFO - 2. Explore interactive features in each dashboard
+2025-07-09 09:09:20,293 - __main__ - INFO - 3. Review the policy report for insights
+2025-07-09 09:09:20,293 - __main__ - INFO - 4. Customize configuration for specific needs
+2025-07-09 09:09:20,293 - __main__ - INFO - 5. Integrate with additional data sources

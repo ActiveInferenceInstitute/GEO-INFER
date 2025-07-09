@@ -32,42 +32,132 @@ from pathlib import Path
 from datetime import datetime
 import traceback
 
+# Configure basic logging early
+import logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler('del_norte_demo.log')
+    ]
+)
+
+logger = logging.getLogger(__name__)
+
 def check_and_install_dependencies():
-    """Check and install required dependencies."""
+    """Check and install required dependencies with comprehensive logging."""
+    logger.info("=== Comprehensive Dependency Check ===")
+    
+    # Extended list of required packages for advanced dashboard
     required_packages = {
+        # Core geospatial packages
         'folium': 'folium',
         'h3': 'h3',
         'pandas': 'pandas', 
         'geopandas': 'geopandas',
         'numpy': 'numpy',
         'requests': 'requests',
-        'yaml': 'PyYAML'
+        'yaml': 'PyYAML',
+        
+        # Advanced visualization packages
+        'plotly': 'plotly',
+        'matplotlib': 'matplotlib',
+        'seaborn': 'seaborn',
+        'branca': 'branca',
+        
+        # Scientific computing packages
+        'scipy': 'scipy',
+        'sklearn': 'scikit-learn',
+        
+        # Additional utility packages
+        'shapely': 'shapely',
+        'rasterio': 'rasterio',
+        'fiona': 'fiona'
     }
     
-    missing_packages = []
+    # Optional packages that enhance functionality
+    optional_packages = {
+        'contextily': 'contextily',
+        'cartopy': 'cartopy',
+        'descartes': 'descartes',
+        'pyproj': 'pyproj'
+    }
     
+    available_packages = []
+    missing_packages = []
+    optional_available = []
+    optional_missing = []
+    
+    logger.info("Checking core required packages...")
     for module_name, package_name in required_packages.items():
         try:
             importlib.import_module(module_name)
-            print(f"✓ {module_name} is available")
+            available_packages.append(module_name)
+            logger.info(f"✓ {module_name} is available")
         except ImportError:
             missing_packages.append(package_name)
-            print(f"✗ {module_name} is missing")
+            logger.warning(f"✗ {module_name} is missing - will install {package_name}")
     
-    if missing_packages:
-        print(f"\nInstalling missing packages: {', '.join(missing_packages)}")
+    logger.info("Checking optional enhancement packages...")
+    for module_name, package_name in optional_packages.items():
         try:
-            subprocess.check_call([
-                sys.executable, '-m', 'pip', 'install', '--user'
-            ] + missing_packages)
-            print("✓ Successfully installed missing packages")
-        except subprocess.CalledProcessError as e:
-            print(f"✗ Failed to install packages: {e}")
-            print("Please install manually:")
-            print(f"pip install {' '.join(missing_packages)}")
+            importlib.import_module(module_name)
+            optional_available.append(module_name)
+            logger.info(f"✓ {module_name} (optional) is available")
+        except ImportError:
+            optional_missing.append(package_name)
+            logger.info(f"○ {module_name} (optional) is missing")
+    
+    # Install missing required packages
+    if missing_packages:
+        logger.info(f"\nInstalling {len(missing_packages)} missing required packages: {', '.join(missing_packages)}")
+        try:
+            install_cmd = [sys.executable, '-m', 'pip', 'install', '--user'] + missing_packages
+            logger.info(f"Running: {' '.join(install_cmd)}")
+            
+            result = subprocess.run(install_cmd, capture_output=True, text=True)
+            if result.returncode == 0:
+                logger.info("✓ Successfully installed missing required packages")
+                logger.info(f"Installation output: {result.stdout}")
+            else:
+                logger.error(f"✗ Failed to install packages: {result.stderr}")
+                logger.error("Please install manually:")
+                logger.error(f"pip install {' '.join(missing_packages)}")
+                return False
+        except Exception as e:
+            logger.error(f"✗ Installation failed with exception: {e}")
             return False
     
-    return True
+    # Attempt to install some optional packages for enhanced functionality
+    if optional_missing:
+        logger.info(f"\nAttempting to install {len(optional_missing)} optional packages for enhanced functionality...")
+        safe_optional = ['contextily', 'pyproj']  # Packages that usually install without issues
+        safe_to_install = [pkg for pkg in optional_missing if pkg in safe_optional]
+        
+        if safe_to_install:
+            try:
+                install_cmd = [sys.executable, '-m', 'pip', 'install', '--user'] + safe_to_install
+                logger.info(f"Installing optional packages: {' '.join(safe_to_install)}")
+                result = subprocess.run(install_cmd, capture_output=True, text=True)
+                if result.returncode == 0:
+                    logger.info(f"✓ Successfully installed optional packages: {', '.join(safe_to_install)}")
+                else:
+                    logger.warning(f"⚠ Optional package installation had issues: {result.stderr}")
+            except Exception as e:
+                logger.warning(f"⚠ Optional package installation failed: {e}")
+    
+    # Summary
+    logger.info("=== Dependency Check Summary ===")
+    logger.info(f"✓ Available required packages: {len(available_packages)}/{len(required_packages)}")
+    logger.info(f"✓ Available optional packages: {len(optional_available)}/{len(optional_packages)}")
+    
+    if available_packages:
+        logger.info(f"Core packages available: {', '.join(available_packages)}")
+    if optional_available:
+        logger.info(f"Optional packages available: {', '.join(optional_available)}")
+    
+    return len(missing_packages) == 0
 
 # Check dependencies first
 print("=== Checking Dependencies ===")
@@ -76,11 +166,58 @@ if not check_and_install_dependencies():
     sys.exit(1)
 
 # Now import the modules after ensuring dependencies are available
-import folium
-import h3
-import pandas as pd
-import numpy as np
-import requests
+print("=== Importing Core Modules ===")
+try:
+    import folium
+    print(f"✓ folium version: {folium.__version__}")
+except ImportError as e:
+    print(f"✗ folium import failed: {e}")
+
+try:
+    import h3
+    print(f"✓ h3 version: {h3.__version__}")
+except ImportError as e:
+    print(f"✗ h3 import failed: {e}")
+
+try:
+    import pandas as pd
+    print(f"✓ pandas version: {pd.__version__}")
+except ImportError as e:
+    print(f"✗ pandas import failed: {e}")
+
+try:
+    import numpy as np
+    print(f"✓ numpy version: {np.__version__}")
+except ImportError as e:
+    print(f"✗ numpy import failed: {e}")
+
+try:
+    import requests
+    print(f"✓ requests version: {requests.__version__}")
+except ImportError as e:
+    print(f"✗ requests import failed: {e}")
+
+# Try to import advanced visualization packages
+try:
+    import plotly
+    print(f"✓ plotly version: {plotly.__version__}")
+except ImportError as e:
+    print(f"○ plotly not available: {e}")
+
+try:
+    import matplotlib
+    print(f"✓ matplotlib version: {matplotlib.__version__}")
+except ImportError as e:
+    print(f"○ matplotlib not available: {e}")
+
+try:
+    import seaborn
+    print(f"✓ seaborn version: {seaborn.__version__}")
+except ImportError as e:
+    print(f"○ seaborn not available: {e}")
+
+print("=== Core Module Import Complete ===")
+print()
 
 # Add the source directory to Python path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
@@ -93,6 +230,17 @@ except ImportError as e:
     print("Will use component demonstrations only.")
     DelNorteComprehensiveDashboard = None
 
+# Import the new advanced dashboard
+try:
+    import sys
+    sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+    from geo_infer_place.locations.del_norte_county.advanced_dashboard import AdvancedDashboard
+    print("✓ Advanced dashboard imported successfully")
+except ImportError as e:
+    print(f"Warning: Could not import advanced dashboard: {e}")
+    print("Will create simplified dashboard instead.")
+    AdvancedDashboard = None
+
 try:
     from geo_infer_place.utils.config_loader import LocationConfigLoader
     from geo_infer_place.utils.data_sources import CaliforniaDataSources
@@ -102,17 +250,7 @@ except ImportError as e:
     print("Running with simplified functionality only.")
     LocationConfigLoader = CaliforniaDataSources = CaliforniaAPIManager = None
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(),
-        logging.FileHandler('del_norte_demo.log')
-    ]
-)
-
-logger = logging.getLogger(__name__)
+# Logging already configured earlier in the file
 
 def load_api_keys(api_keys_file: str) -> dict:
     """Load API keys from JSON file."""
@@ -430,21 +568,15 @@ def run_simplified_demo(output_dir: str = None, api_keys: dict = None):
         
         # Add title
         title_html = '''
-        <h3 align="center" style="font-size:20px"><b>Del Norte County Demo Map</b></h3>
+        <h3 align="center" style="font-size:20px"><b>Del Norte County Simple Demo Map</b></h3>
         '''
         m.get_root().html.add_child(folium.Element(title_html))
         
         # Save map
-        map_path = output_path / f"del_norte_demo_map_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
+        map_path = output_path / f"del_norte_simple_dashboard_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
         m.save(str(map_path))
         
-        logger.info(f"Demo map saved: {map_path}")
-        
-        # Open in browser
-        import webbrowser
-        webbrowser.open(f'file://{map_path.absolute()}')
-        
-        logger.info("Demo map opened in browser")
+        logger.info(f"Simple dashboard saved: {map_path}")
         
         return {
             'success': True,
@@ -454,6 +586,71 @@ def run_simplified_demo(output_dir: str = None, api_keys: dict = None):
         
     except Exception as e:
         logger.error(f"Simplified demo failed: {e}")
+        return {'success': False, 'error': str(e)}
+
+def run_advanced_demo(output_dir: str = None, api_keys: dict = None):
+    """Run the advanced geospatial intelligence dashboard demo."""
+    logger.info("=== Running Advanced Geospatial Intelligence Dashboard Demo ===")
+    
+    if AdvancedDashboard is None:
+        logger.warning("Advanced dashboard not available - missing imports")
+        return {'success': False, 'error': 'Advanced dashboard class not available'}
+    
+    try:
+        # Initialize advanced dashboard
+        logger.info("Initializing advanced dashboard with real-time data integration...")
+        advanced_dashboard = AdvancedDashboard(
+            output_dir=output_dir or "./del_norte_dashboard",
+            api_keys=api_keys or {}
+        )
+        
+        # Fetch real-time data
+        logger.info("Fetching real-time California data...")
+        real_time_data = advanced_dashboard.fetch_real_time_data()
+        
+        # Log data fetch results
+        for data_type, response in real_time_data.items():
+            if data_type == 'fetch_timestamp':
+                continue
+            status = "✓" if response.get('success', False) else "✗"
+            logger.info(f"  {status} {data_type}: {response.get('error', 'Success')}")
+        
+        # Generate comprehensive dashboard
+        logger.info("Generating comprehensive intelligence dashboard...")
+        dashboard_path = advanced_dashboard.save_dashboard()
+        
+        # Generate policy report
+        logger.info("Generating policy support report...")
+        policy_report = advanced_dashboard.generate_policy_report()
+        
+        # Save policy report
+        report_path = Path(advanced_dashboard.output_dir) / f"policy_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+        with open(report_path, 'w') as f:
+            json.dump(policy_report, f, indent=2, default=str)
+        
+        logger.info(f"Policy report saved: {report_path}")
+        
+        # Log key insights
+        logger.info("=== Advanced Dashboard Key Features ===")
+        logger.info("✓ Multi-panel layout with specialized analysis windows")
+        logger.info("✓ Real-time California dataset integration")
+        logger.info("✓ Interactive layer toggles and controls")
+        logger.info("✓ Climate, zoning, and agro-economic analysis")
+        logger.info("✓ H3 spatial indexing and forest health analysis")
+        logger.info("✓ Policy scenario modeling capabilities")
+        logger.info("✓ Advanced visualization and reporting")
+        
+        return {
+            'success': True,
+            'dashboard_path': dashboard_path,
+            'policy_report_path': str(report_path),
+            'real_time_data': real_time_data,
+            'message': 'Advanced dashboard generated successfully'
+        }
+        
+    except Exception as e:
+        logger.error(f"Advanced dashboard demo failed: {e}")
+        logger.error(f"Traceback: {traceback.format_exc()}")
         return {'success': False, 'error': str(e)}
 
 def main():
@@ -538,56 +735,128 @@ API Keys File Format (JSON):
         logger.info("Demo-only mode completed.")
         return
     
-    # Run comprehensive demo
-    logger.info("Running comprehensive dashboard demonstration...")
-    result = run_comprehensive_demo(
-        config_path=args.config,
+    # Run both simple and advanced dashboards
+    logger.info("=== Running Dual Dashboard Generation ===")
+    
+    # Generate simple dashboard
+    logger.info("Step 1: Generating simple dashboard...")
+    simple_result = run_simplified_demo(
         output_dir=args.output,
         api_keys=api_keys
     )
     
-    if result.get('success', False):
+    # Generate advanced dashboard
+    logger.info("Step 2: Generating advanced geospatial intelligence dashboard...")
+    advanced_result = run_advanced_demo(
+        output_dir=args.output,
+        api_keys=api_keys
+    )
+    
+    # Try comprehensive demo if available
+    comprehensive_result = None
+    if DelNorteComprehensiveDashboard is not None:
+        logger.info("Step 3: Attempting comprehensive dashboard (if available)...")
+        comprehensive_result = run_comprehensive_demo(
+            config_path=args.config,
+            output_dir=args.output,
+            api_keys=api_keys
+        )
+    
+    # Open dashboards in browser
+    import webbrowser
+    dashboard_paths = []
+    
+    if simple_result.get('success', False):
+        simple_path = simple_result['map_path']
+        dashboard_paths.append(('Simple Dashboard', simple_path))
+        logger.info(f"Opening simple dashboard: {simple_path}")
+        webbrowser.open(f'file://{Path(simple_path).absolute()}')
+    
+    if advanced_result.get('success', False):
+        advanced_path = advanced_result['dashboard_path']
+        dashboard_paths.append(('Advanced Intelligence Dashboard', advanced_path))
+        logger.info(f"Opening advanced dashboard: {advanced_path}")
+        # Open advanced dashboard in a new tab after a small delay
+        import threading
+        import time
+        def open_advanced():
+            time.sleep(2)  # 2 second delay
+            webbrowser.open(f'file://{Path(advanced_path).absolute()}')
+        threading.Thread(target=open_advanced).start()
+    
+    if comprehensive_result and comprehensive_result.get('success', False):
+        comp_path = comprehensive_result.get('dashboard_path') or comprehensive_result.get('map_path')
+        if comp_path:
+            dashboard_paths.append(('Comprehensive Dashboard', comp_path))
+            logger.info(f"Opening comprehensive dashboard: {comp_path}")
+            # Open comprehensive dashboard with additional delay
+            def open_comprehensive():
+                time.sleep(4)  # 4 second delay
+                webbrowser.open(f'file://{Path(comp_path).absolute()}')
+            threading.Thread(target=open_comprehensive).start()
+    
+    # Results summary
+    success_count = sum([
+        simple_result.get('success', False),
+        advanced_result.get('success', False),
+        comprehensive_result.get('success', False) if comprehensive_result else False
+    ])
+    
+    if success_count > 0:
         logger.info("=== DEMO COMPLETED SUCCESSFULLY ===")
-        logger.info("Generated Files:")
+        logger.info(f"Generated {success_count} dashboard(s):")
         
-        # Handle different result types (simplified vs comprehensive)
-        if 'map_path' in result:
-            logger.info(f"  📊 Interactive Dashboard: {result['map_path']}")
-        elif 'dashboard_path' in result:
-            logger.info(f"  📊 Interactive Dashboard: {result['dashboard_path']}")
+        if simple_result.get('success', False):
+            logger.info(f"  📍 Simple Dashboard: {simple_result['map_path']}")
+            
+        if advanced_result.get('success', False):
+            logger.info(f"  🗺️ Advanced Intelligence Dashboard: {advanced_result['dashboard_path']}")
+            if 'policy_report_path' in advanced_result:
+                logger.info(f"  📄 Policy Report: {advanced_result['policy_report_path']}")
+            
+        if comprehensive_result and comprehensive_result.get('success', False):
+            if 'dashboard_path' in comprehensive_result:
+                logger.info(f"  🔬 Comprehensive Dashboard: {comprehensive_result['dashboard_path']}")
+            if 'results_path' in comprehensive_result:
+                logger.info(f"  📊 Analysis Results: {comprehensive_result['results_path']}")
+            if 'summary_path' in comprehensive_result:
+                logger.info(f"  📋 Summary Report: {comprehensive_result['summary_path']}")
         
-        if 'results_path' in result:
-            logger.info(f"  📄 Analysis Results: {result['results_path']}")
-            
-        if 'summary_path' in result:
-            logger.info(f"  📋 Summary Report: {result['summary_path']}")
-            
-        if 'message' in result:
-            logger.info(f"  💬 Status: {result['message']}")
-            
+        logger.info("")
+        logger.info("=== Dashboard Features Comparison ===")
+        logger.info("Simple Dashboard:")
+        logger.info("  • Basic geospatial visualization")
+        logger.info("  • Sample locations and H3 cells")
+        logger.info("  • Quick overview functionality")
+        
+        if advanced_result.get('success', False):
+            logger.info("Advanced Intelligence Dashboard:")
+            logger.info("  • Multi-panel layout with specialized analysis")
+            logger.info("  • Real-time California data integration")
+            logger.info("  • Climate, zoning, and economic analysis")
+            logger.info("  • Interactive layer controls and tools")
+            logger.info("  • Policy support and scenario modeling")
+            logger.info("  • H3 spatial indexing and analytics")
+        
         logger.info("")
         logger.info("Next Steps:")
-        logger.info("1. Open the interactive dashboard in a web browser")
-        if 'results_path' in result:
-            logger.info("2. Review the analysis results JSON file")
-        if 'summary_path' in result:
-            logger.info("3. Read the summary report for key findings")
-        logger.info("4. Customize the configuration for your specific needs")
-        
-        # Print the summary report if available
-        if 'summary_path' in result:
-            logger.info("=== SUMMARY REPORT ===")
-            try:
-                with open(result['summary_path'], 'r') as f:
-                    summary_content = f.read()
-                print(summary_content)
-            except Exception as e:
-                logger.warning(f"Could not display summary report: {e}")
+        logger.info("1. Compare the different dashboard approaches")
+        logger.info("2. Explore interactive features in each dashboard")
+        logger.info("3. Review the policy report for insights")
+        logger.info("4. Customize configuration for specific needs")
+        logger.info("5. Integrate with additional data sources")
                 
     else:
-        logger.error("=== DEMO FAILED ===")
-        logger.error(f"Error: {result.get('error', 'Unknown error')}")
+        logger.error("=== ALL DEMOS FAILED ===")
         logger.error("Check the logs above for detailed error information.")
+        
+        if not simple_result.get('success', False):
+            logger.error(f"Simple dashboard error: {simple_result.get('error', 'Unknown')}")
+        if not advanced_result.get('success', False):
+            logger.error(f"Advanced dashboard error: {advanced_result.get('error', 'Unknown')}")
+        if comprehensive_result and not comprehensive_result.get('success', False):
+            logger.error(f"Comprehensive dashboard error: {comprehensive_result.get('error', 'Unknown')}")
+        
         sys.exit(1)
 
 if __name__ == "__main__":
