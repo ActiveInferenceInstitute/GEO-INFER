@@ -1,0 +1,260 @@
+# GEO-INFER Framework Development Rules
+
+## 🌍 Framework Overview
+
+GEO-INFER is a comprehensive geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. The framework consists of 30+ specialized modules organized into distinct categories:
+
+### Core Module Categories:
+- **🧠 Analytical Core**: ACT, BAYES, AI, MATH, COG, AGENT, SPM
+- **🗺️ Spatial-Temporal**: SPACE, TIME, IOT
+- **💾 Data Management**: DATA, API
+- **🔒 Security & Governance**: SEC, NORMS, REQ
+- **🧪 Simulation & Modeling**: SIM, ANT
+- **👥 People & Community**: CIV, PEP, ORG, COMMS
+- **🖥️ Applications**: APP, ART
+- **🏢 Domain-Specific**: AG, ECON, RISK, LOG, BIO, HEALTH
+- **📍 Place-Based**: PLACE
+- **⚙️ Operations**: OPS, INTRA, GIT, TEST, EXAMPLES
+
+## 🎯 Core Development Principles
+
+### 1. NO MOCK METHODS - EVER
+- Never create placeholder, stub, or mock methods
+- Every function must be fully implemented with real logic
+- Use proper error handling instead of `pass` or `NotImplementedError`
+- If functionality is complex, break it into smaller, implementable pieces
+
+### 2. Maximum Intelligence & Documentation
+- Write intelligent, thoughtful code that demonstrates deep understanding
+- Include comprehensive docstrings for all functions, classes, and modules
+- Use type hints for all function parameters and return values
+- Document the mathematical/theoretical basis for algorithms
+- Include example usage in docstrings
+
+### 3. Leverage Existing Module Structure
+- Understand and work within the established module hierarchy
+- Use the standardized directory structure: `src/`, `docs/`, `examples/`, `tests/`, `config/`
+- Follow existing patterns for API design, data models, and utilities
+- Import and extend existing functionality rather than reimplementing
+
+### 4. Active Inference First
+- Ground all implementations in Active Inference mathematical principles
+- Implement free energy minimization where applicable
+- Use Bayesian inference for uncertainty quantification
+- Design perception-action loops for autonomous systems
+
+## 📁 Module Structure Standards
+
+Every module follows this standardized structure:
+```
+GEO-INFER-MODULE/
+├── config/               # Configuration files (YAML/JSON)
+├── docs/                 # Documentation (markdown, API specs)
+├── examples/             # Working examples and demonstrations
+├── src/                  # Source code
+│   └── geo_infer_module/ # Main package
+│       ├── api/          # API definitions and routes
+│       ├── core/         # Core functionality and algorithms
+│       ├── models/       # Data models and schemas
+│       └── utils/        # Utility functions and helpers
+└── tests/                # Comprehensive test suite
+```
+
+## 🔧 Implementation Guidelines
+
+### Code Quality Standards
+- Use professional, functional, intelligent, wise, modular, concise, elegant code
+- Apply all programming best practices thoughtfully
+- Write clearly-commented, interpretable code
+- Assess context and file type before making changes
+- Implement proper error handling and logging
+
+### Mathematical Rigor
+- Ground implementations in solid mathematical foundations
+- Use numpy/scipy for numerical computations
+- Implement proper statistical methods for uncertainty
+- Validate mathematical correctness with unit tests
+- Document mathematical assumptions and limitations
+
+### Geospatial Standards
+- Use established geospatial libraries (geopandas, shapely, rasterio)
+- Implement proper coordinate reference system handling
+- Support standard geospatial formats (GeoJSON, Shapefile, GeoTIFF)
+- Follow OGC standards where applicable
+- Handle spatial and temporal indexing efficiently
+
+### Integration Patterns
+- Design for cross-module integration from the start
+- Use standardized data models and interfaces
+- Implement proper dependency injection patterns
+- Support asynchronous operations where beneficial
+- Design for scalability and performance
+
+## 🚀 Development Workflow
+
+### Before Writing Code
+1. **Understand the Module**: Read the module's README and existing documentation
+2. **Check Dependencies**: Understand which other GEO-INFER modules are dependencies
+3. **Review Examples**: Look at existing examples to understand usage patterns
+4. **Plan Integration**: Consider how your code will interact with other modules
+
+### While Writing Code
+1. **Follow Existing Patterns**: Maintain consistency with existing code style
+2. **Document as You Go**: Write docstrings and comments simultaneously with code
+3. **Test Incrementally**: Write unit tests for each function/method
+4. **Consider Performance**: Optimize for both memory and computational efficiency
+
+### After Writing Code
+1. **Comprehensive Testing**: Ensure all code paths are tested
+2. **Integration Testing**: Test cross-module interactions
+3. **Documentation Updates**: Update READMEs and API documentation
+4. **Example Creation**: Create working examples demonstrating functionality
+
+## 🧪 Testing Requirements
+
+### Unit Testing
+- Test all public methods and functions
+- Include edge cases and error conditions
+- Use appropriate test data that reflects real-world scenarios
+- Mock external dependencies, but never internal logic
+
+### Integration Testing
+- Test cross-module interactions
+- Validate data flow between modules
+- Test API endpoints comprehensively
+- Ensure configuration loading works correctly
+
+### Performance Testing
+- Benchmark critical algorithms
+- Test with realistic data volumes
+- Identify and optimize bottlenecks
+- Monitor memory usage patterns
+
+## 🔗 Module Integration Guidelines
+
+### Data Flow Patterns
+- **Linear Pipeline**: Sequential processing (DATA → SPACE → TIME → ANALYSIS)
+- **Hub and Spoke**: Central coordination (API as central hub)
+- **Event-Driven**: Real-time responsive systems (IOT → processing → response)
+- **Feedback Loops**: Active inference cycles (observation → belief update → action)
+
+### Common Integration Points
+- **OPS**: Provides orchestration for all modules
+- **DATA**: Supplies data management for all analytical modules
+- **API**: Exposes functionality for external integration
+- **MATH**: Provides mathematical foundations for analytical modules
+- **SPACE/TIME**: Supply spatial-temporal capabilities to domain modules
+
+### Cross-Module Communication
+- Use standardized data models from the models package
+- Implement proper API versioning
+- Support both synchronous and asynchronous communication
+- Handle errors gracefully across module boundaries
+
+## 📝 Documentation Standards
+
+### Code Documentation
+- Every public function/method must have a comprehensive docstring
+- Include parameter types, return types, and exceptions
+- Provide mathematical foundations where applicable
+- Include usage examples in docstrings
+
+### Module Documentation
+- Maintain comprehensive README files
+- Document API endpoints with OpenAPI specifications
+- Create architectural decision records (ADRs) for significant choices
+- Provide integration guides for other developers
+
+### Example Documentation
+- Every module should have working examples
+- Examples should demonstrate real-world usage
+- Include step-by-step tutorials for complex workflows
+- Maintain example outputs and expected results
+
+## 🔍 Code Review Checklist
+
+### Functionality
+- [ ] No mock or placeholder methods
+- [ ] All functions fully implemented
+- [ ] Proper error handling throughout
+- [ ] Mathematical correctness validated
+
+### Documentation
+- [ ] Comprehensive docstrings for all public APIs
+- [ ] Type hints for all parameters and returns
+- [ ] README updated if needed
+- [ ] Examples provided and tested
+
+### Integration
+- [ ] Follows existing module patterns
+- [ ] Uses standardized data models
+- [ ] Properly handles dependencies
+- [ ] Supports cross-module communication
+
+### Quality
+- [ ] Code is clean, readable, and well-structured
+- [ ] Performance considerations addressed
+- [ ] Security implications considered
+- [ ] Tests provide adequate coverage
+
+## 🎖️ Excellence Standards
+
+### Demonstrate Deep Understanding
+- Show mastery of Active Inference principles
+- Apply geospatial concepts correctly
+- Use appropriate mathematical methods
+- Consider real-world constraints and limitations
+
+### Exhibit Professional Craftsmanship
+- Write code that reads like literature
+- Create elegant solutions to complex problems
+- Optimize for maintainability and extensibility
+- Anticipate future needs and evolution
+
+### Maintain System Coherence
+- Ensure new code fits naturally into the existing architecture
+- Preserve the mathematical and conceptual foundations
+- Support the overall framework vision
+- Enhance rather than complicate the system
+
+## 🚨 Critical Requirements
+
+### NEVER Do These Things
+- Create mock, stub, or placeholder implementations
+- Hardcode configuration values in source code
+- Ignore error conditions or fail silently
+- Add unnecessary comments, files, methods, adjectives, adverbs, etc.
+- Break established module interfaces
+- Duplicate functionality that exists elsewhere
+
+### ALWAYS Do These Things
+- Implement complete, working functionality
+- Use proper logging and error handling
+- Follow the established architectural patterns
+- Write comprehensive tests and documentation
+- Consider the broader system implications
+- "Show don't tell" - use accurate understated language
+
+## 🧭 Navigation Guide
+
+### Finding Information
+- Start with module READMEs for overview and usage
+- Check `docs/` directories for detailed documentation
+- Look at `examples/` for working code patterns
+- Review `tests/` for expected behavior
+
+### Understanding Dependencies
+- Check module dependency matrices in main README
+- Review `requirements.txt` or `pyproject.toml` files
+- Understand the data flow between modules
+- Consider both direct and transitive dependencies
+
+### Contributing Effectively
+- Read the module's contribution guidelines
+- Understand the module's role in the larger system
+- Follow established coding and documentation patterns
+- Consider impacts on dependent modules
+
+---
+
+**Remember**: You are building a sophisticated, production-quality geospatial inference framework. Every line of code should reflect the highest standards of software engineering, mathematical rigor, and system thinking. The goal is to create something that advances the state of the art in geospatial analysis while being elegant, maintainable, and extensible. 

@@ -1,0 +1,304 @@
+# GEO-INFER-PLACE Module Configuration
+
+module:
+  name: "GEO-INFER-PLACE"
+  version: "0.1.0"
+  description: "Deep place-based geospatial analysis framework"
+  category: "place_based"
+  status: "beta"
+
+# Global settings for place-based analysis
+global:
+  coordinate_systems:
+    default_crs: "EPSG:4326"  # WGS84
+    analysis_crs: "EPSG:3857"  # Web Mercator for analysis
+  
+  temporal:
+    default_time_zone: "UTC"
+    analysis_frequency: "daily"
+    historical_baseline: "1990-01-01"
+  
+  data_quality:
+    min_spatial_resolution: 30  # meters
+    min_temporal_resolution: "1D"  # 1 day
+    completeness_threshold: 0.8
+    
+  outputs:
+    default_formats: ["geojson", "tiff", "csv", "json"]
+    visualization_formats: ["png", "html", "pdf"]
+
+# Location-specific configurations
+locations:
+  del_norte_county:
+    name: "Del Norte County, California, USA"
+    region: "north_america"
+    country: "USA"
+    state: "California"
+    
+    # Geographic bounds (WGS84)
+    bounds:
+      north: 42.006
+      south: 41.458
+      east: -123.536
+      west: -124.408
+    
+    # Local coordinate systems
+    coordinate_systems:
+      local_crs: "EPSG:2227"  # California State Plane Zone I
+      utm_zone: "EPSG:32610"  # UTM Zone 10N
+    
+    # Time zone
+    timezone: "America/Los_Angeles"
+    
+    # Key themes and focus areas
+    research_themes:
+      - "forest_ecosystem_management"
+      - "coastal_resilience"
+      - "rural_community_development" 
+      - "fire_risk_assessment"
+      - "economic_sustainability"
+    
+    # Data sources
+    data_sources:
+      government:
+        - "USGS"
+        - "CalFire"
+        - "Del Norte County"
+        - "California Department of Forestry"
+      
+      community:
+        - "Local tribal nations"
+        - "Community organizations"
+        - "Stakeholder groups"
+      
+      environmental:
+        - "NOAA"
+        - "EPA"
+        - "California Environmental Protection Agency"
+    
+    # Analysis parameters
+    analysis:
+      forest_health:
+        indicators: ["ndvi", "canopy_cover", "tree_mortality"]
+        update_frequency: "monthly"
+      
+      coastal_dynamics:
+        indicators: ["erosion_rate", "sea_level", "storm_surge"]
+        update_frequency: "daily"
+      
+      fire_risk:
+        indicators: ["fuel_moisture", "wind_speed", "temperature"]
+        update_frequency: "hourly"
+
+  australia:
+    name: "Australia Continental Analysis"
+    region: "oceania"
+    country: "Australia"
+    
+    # Geographic bounds (WGS84)
+    bounds:
+      north: -10.0
+      south: -44.0
+      east: 154.0
+      west: 112.0
+    
+    # Local coordinate systems
+    coordinate_systems:
+      local_crs: "EPSG:3577"  # Australian Albers
+      utm_zones: 
+        - "EPSG:32749"  # UTM Zone 49S
+        - "EPSG:32750"  # UTM Zone 50S
+        - "EPSG:32751"  # UTM Zone 51S
+        - "EPSG:32752"  # UTM Zone 52S
+        - "EPSG:32753"  # UTM Zone 53S
+        - "EPSG:32754"  # UTM Zone 54S
+        - "EPSG:32755"  # UTM Zone 55S
+        - "EPSG:32756"  # UTM Zone 56S
+    
+    # Time zones (multiple across continent)
+    timezones:
+      western: "Australia/Perth"
+      central: "Australia/Adelaide"
+      eastern: "Australia/Sydney"
+    
+    # Key themes and focus areas
+    research_themes:
+      - "continental_climate_monitoring"
+      - "biodiversity_conservation"
+      - "drought_management"
+      - "urban_heat_islands"
+      - "agricultural_adaptation"
+      - "wildfire_management"
+    
+    # Data sources
+    data_sources:
+      government:
+        - "Australian Bureau of Meteorology"
+        - "CSIRO"
+        - "Geoscience Australia"
+        - "Australian Bureau of Statistics"
+      
+      states_territories:
+        - "State government departments"
+        - "Local councils"
+        - "Regional authorities"
+      
+      research:
+        - "Universities"
+        - "Research institutes"
+        - "International collaborations"
+    
+    # Analysis parameters
+    analysis:
+      climate_monitoring:
+        indicators: ["temperature", "precipitation", "humidity", "wind"]
+        update_frequency: "daily"
+      
+      drought_assessment:
+        indicators: ["soil_moisture", "rainfall_deciles", "vegetation_health"]
+        update_frequency: "weekly"
+      
+      biodiversity:
+        indicators: ["species_counts", "habitat_extent", "connectivity"]
+        update_frequency: "seasonal"
+
+  siberia:
+    name: "Siberian Arctic and Sub-Arctic Region"
+    region: "arctic"
+    country: "Russia"
+    
+    # Geographic bounds (WGS84) - Covering main Siberian region
+    bounds:
+      north: 77.0
+      south: 50.0
+      east: 180.0
+      west: 60.0
+    
+    # Local coordinate systems
+    coordinate_systems:
+      local_crs: "EPSG:3576"  # North Pole LAEA Europe
+      utm_zones:
+        - "EPSG:32642"  # UTM Zone 42N
+        - "EPSG:32643"  # UTM Zone 43N
+        - "EPSG:32644"  # UTM Zone 44N
+        - "EPSG:32645"  # UTM Zone 45N
+        - "EPSG:32646"  # UTM Zone 46N
+        - "EPSG:32647"  # UTM Zone 47N
+        - "EPSG:32648"  # UTM Zone 48N
+        - "EPSG:32649"  # UTM Zone 49N
+        - "EPSG:32650"  # UTM Zone 50N
+        - "EPSG:32651"  # UTM Zone 51N
+        - "EPSG:32652"  # UTM Zone 52N
+        - "EPSG:32653"  # UTM Zone 53N
+        - "EPSG:32654"  # UTM Zone 54N
+        - "EPSG:32655"  # UTM Zone 55N
+        - "EPSG:32656"  # UTM Zone 56N
+        - "EPSG:32657"  # UTM Zone 57N
+        - "EPSG:32658"  # UTM Zone 58N
+        - "EPSG:32659"  # UTM Zone 59N
+        - "EPSG:32660"  # UTM Zone 60N
+    
+    # Time zones (multiple across region)
+    timezones:
+      yekaterinburg: "Asia/Yekaterinburg"  # UTC+5
+      omsk: "Asia/Omsk"                    # UTC+6
+      krasnoyarsk: "Asia/Krasnoyarsk"      # UTC+7
+      irkutsk: "Asia/Irkutsk"              # UTC+8
+      yakutsk: "Asia/Yakutsk"              # UTC+9
+      vladivostok: "Asia/Vladivostok"      # UTC+10
+      magadan: "Asia/Magadan"              # UTC+11
+      kamchatka: "Asia/Kamchatka"          # UTC+12
+    
+    # Key themes and focus areas
+    research_themes:
+      - "permafrost_monitoring"
+      - "arctic_climate_change"
+      - "ecosystem_dynamics"
+      - "infrastructure_vulnerability"
+      - "carbon_cycle_analysis"
+      - "indigenous_community_adaptation"
+    
+    # Data sources
+    data_sources:
+      government:
+        - "Russian Federal Service for Hydrometeorology"
+        - "Russian Academy of Sciences"
+        - "Rosreestr (Federal Service for State Registration)"
+      
+      international:
+        - "Arctic Council"
+        - "International Arctic Science Committee"
+        - "Global Temperature Anomaly Data"
+        - "NASA Earth Observations"
+        - "ESA Copernicus Programme"
+      
+      research:
+        - "Arctic research stations"
+        - "International collaborations"
+        - "University partnerships"
+    
+    # Analysis parameters
+    analysis:
+      permafrost_monitoring:
+        indicators: ["ground_temperature", "active_layer_thickness", "thaw_settlement"]
+        update_frequency: "daily"
+      
+      climate_change:
+        indicators: ["air_temperature", "precipitation", "snow_cover", "ice_extent"]
+        update_frequency: "daily"
+      
+      ecosystem_health:
+        indicators: ["vegetation_greenness", "tree_line_position", "wetland_extent"]
+        update_frequency: "weekly"
+
+# Integration settings with other GEO-INFER modules
+integrations:
+  required_modules:
+    - "GEO-INFER-SPACE"
+    - "GEO-INFER-TIME"
+    - "GEO-INFER-DATA"
+  
+  optional_modules:
+    - "GEO-INFER-AI"
+    - "GEO-INFER-BAYES"
+    - "GEO-INFER-SIM"
+    - "GEO-INFER-BIO"
+    - "GEO-INFER-HEALTH"
+    - "GEO-INFER-RISK"
+    - "GEO-INFER-APP"
+
+# API configuration
+api:
+  base_url: "http://localhost:8010"
+  version: "v1"
+  endpoints:
+    locations: "/locations"
+    analyses: "/analyses"
+    data: "/data"
+    models: "/models"
+
+# Security and access control
+security:
+  data_access_levels:
+    - "public"
+    - "research"
+    - "restricted"
+    - "confidential"
+  
+  authentication:
+    required_for: ["restricted", "confidential"]
+    methods: ["api_key", "oauth2"]
+
+# Logging and monitoring
+logging:
+  level: "INFO"
+  format: "json"
+  outputs: ["file", "console"]
+  log_directory: "logs/"
+
+# Performance and resource management
+performance:
+  max_concurrent_analyses: 5
+  cache_duration: "24h"
+  temp_directory: "temp/"
+  max_memory_usage: "8GB" 

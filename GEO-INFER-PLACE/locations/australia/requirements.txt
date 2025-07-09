@@ -1,0 +1,106 @@
+# Australia Continental Analysis - Location-Specific Requirements
+# Continental climate monitoring, biodiversity conservation, drought management
+
+# Core geospatial dependencies (inherited from main module)
+# numpy>=1.21.0
+# pandas>=1.3.0
+# geopandas>=0.10.0
+# shapely>=1.8.0
+# rasterio>=1.2.0
+
+# Climate and meteorological data
+bom-weather>=0.2.0         # Bureau of Meteorology data access
+climdata>=0.5.0            # Climate data processing
+drought-indices>=0.3.0     # Drought index calculations
+heatwave-analysis>=0.1.0   # Heatwave detection and analysis
+
+# Biodiversity and ecological analysis
+gbif-python>=0.6.0         # Global Biodiversity Information Facility
+ala-tools>=0.3.0           # Atlas of Living Australia tools
+species-distribution>=0.4.0 # Species distribution modeling
+habitat-connectivity>=0.2.0 # Habitat connectivity analysis
+
+# Agricultural and land use analysis
+crop-calendar>=0.1.0       # Agricultural calendar data
+yield-analysis>=0.2.0      # Crop yield analysis
+land-use-change>=0.3.0     # Land use change detection
+irrigation-analysis>=0.1.0 # Irrigation system analysis
+
+# Water resources and hydrology
+murray-darling>=0.2.0      # Murray-Darling Basin specific tools
+water-accounting>=0.3.0    # Water accounting methods
+groundwater-analysis>=0.1.0 # Groundwater level analysis
+streamflow-analysis>=0.2.0 # Stream flow analysis
+
+# Fire and natural hazards
+fire-danger-rating>=0.3.0  # Australian fire danger rating
+bushfire-analysis>=0.2.0   # Bushfire impact analysis
+natural-hazards>=0.1.0     # Natural hazard mapping
+emergency-response>=0.1.0  # Emergency response planning
+
+# Urban climate and planning
+urban-heat-island>=0.3.0   # Urban heat island analysis
+city-planning>=0.2.0       # Urban planning tools
+green-infrastructure>=0.1.0 # Green infrastructure analysis
+building-energy>=0.2.0     # Building energy modeling
+
+# Remote sensing for continental monitoring
+modis-tools>=0.5.0         # MODIS satellite data processing
+landsat-analysis>=0.4.0    # Landsat data analysis
+sentinel-australia>=0.2.0  # Sentinel data for Australia
+vegetation-indices>=0.3.0  # Vegetation index calculations
+
+# Economic and social analysis
+economic-impact>=0.2.0     # Economic impact modeling
+tourism-analysis>=0.1.0    # Tourism impact analysis
+demographic-australia>=0.2.0 # Australian demographic analysis
+indigenous-mapping>=0.1.0  # Indigenous land mapping
+
+# Australian-specific data sources
+geoscience-au>=0.3.0       # Geoscience Australia data
+abs-data>=0.2.0            # Australian Bureau of Statistics
+csiro-data>=0.1.0          # CSIRO data access
+austopo-tools>=0.2.0       # Australian topographic tools
+
+# Marine and coastal analysis
+imos-tools>=0.2.0          # Integrated Marine Observing System
+coastal-australia>=0.3.0   # Australian coastal analysis
+great-barrier-reef>=0.1.0  # Great Barrier Reef monitoring
+marine-biodiversity>=0.2.0 # Marine biodiversity analysis
+
+# Statistical and machine learning
+scikit-learn>=1.0.0        # Machine learning
+xgboost>=1.4.0             # Gradient boosting
+tensorflow>=2.6.0          # Deep learning
+time-series-analysis>=0.3.0 # Time series analysis
+
+# High-performance computing
+dask[distributed]>=2021.9.0 # Distributed computing
+numba>=0.54.0              # JIT compilation
+joblib>=1.1.0              # Parallel processing
+multiprocessing-on-dill>=3.5.0 # Enhanced multiprocessing
+
+# Visualization and mapping
+cartopy>=0.20.0            # Cartographic projections
+basemap>=1.3.0             # Map projections
+bokeh>=2.4.0               # Interactive visualization
+plotly>=5.3.0              # Interactive plots
+australia-maps>=0.2.0      # Australia-specific map tools
+
+# Data management and APIs
+netcdf4>=1.5.7             # NetCDF data handling
+hdf5>=3.1.0                # HDF5 data format
+zarr>=2.10.0               # Cloud-optimized data format
+intake>=0.6.0              # Data catalog system
+
+# Reporting and communication
+jupyter-lab>=3.2.0         # Interactive analysis environment
+papermill>=2.3.0           # Notebook automation
+nbconvert>=6.3.0           # Notebook conversion
+sphinx-australia>=0.1.0    # Australia-specific documentation
+
+# Quality and testing
+pytest>=6.2.0             # Testing framework
+pytest-cov>=2.12.0        # Coverage testing
+black>=21.9.0              # Code formatting
+flake8>=3.9.0              # Code linting 

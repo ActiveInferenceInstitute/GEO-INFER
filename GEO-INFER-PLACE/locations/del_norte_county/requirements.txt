@@ -1,0 +1,74 @@
+# Del Norte County, California - Location-Specific Requirements
+# Forest ecosystem management, coastal resilience, rural community development
+
+# Core geospatial dependencies (inherited from main module)
+# numpy>=1.21.0
+# pandas>=1.3.0  
+# geopandas>=0.10.0
+# shapely>=1.8.0
+# rasterio>=1.2.0
+
+# Forest health and vegetation analysis
+sentinel-hub>=3.4.0        # Sentinel satellite data access
+eemont>=0.3.0              # Earth Engine monitoring tools
+whitebox>=2.1.0            # Geomorphometric analysis
+scikit-image>=0.18.0       # Image processing for remote sensing
+
+# Fire risk assessment
+pyproj>=3.2.0              # Coordinate transformations
+fire-weather-index>=0.2.0  # Fire weather calculations
+pyremainder>=0.1.0         # Fire spread modeling
+
+# Coastal and marine analysis
+gsw>=3.4.0                 # Gibbs SeaWater oceanographic calculations
+pycurrents>=0.5.0          # Ocean current analysis
+coastal-erosion>=0.3.0     # Coastal erosion modeling
+
+# Climate and weather data
+noaa-sdk>=0.1.21           # NOAA weather data access
+meteomatics>=2.8.0         # Weather API access
+pyclimate>=1.2.0           # Climate analysis tools
+
+# Hydrology and watershed analysis  
+hydrofunctions>=0.2.1      # USGS hydrology data
+pyet>=1.1.0                # Evapotranspiration calculations
+pysheds>=0.3.0             # Watershed delineation
+
+# Forest inventory and analysis
+forestsat>=0.1.0           # Forest satellite analysis
+lidar-processor>=0.2.0     # LiDAR data processing
+tree-health>=0.1.0         # Tree health assessment
+
+# Statistical analysis and modeling
+scipy>=1.7.0               # Scientific computing
+statsmodels>=0.12.0        # Statistical modeling
+scikit-learn>=1.0.0        # Machine learning
+
+# Data visualization
+cartopy>=0.20.0            # Cartographic projections
+contextily>=1.2.0          # Basemap tiles
+holoviews>=1.14.0          # Interactive visualization
+
+# California-specific data sources
+calfire-api>=0.1.0         # CalFire data access (custom)
+cdec-api>=0.2.0            # California Data Exchange Center
+ca-drought>=0.1.0          # California drought data
+
+# Community engagement and social analysis
+social-analysis>=0.1.0     # Social vulnerability analysis
+demographic-tools>=0.2.0   # Demographic analysis
+survey-tools>=0.1.0        # Community survey processing
+
+# Reporting and documentation
+reportlab>=3.6.0           # PDF report generation
+jinja2>=3.0.0              # Template engine
+openpyxl>=3.0.0            # Excel file handling
+
+# Performance optimization
+numba>=0.54.0              # JIT compilation
+dask[distributed]>=2021.9.0 # Distributed computing
+
+# Quality assurance
+pytest>=6.2.0             # Testing framework
+black>=21.9.0              # Code formatting
+pre-commit>=2.15.0         # Git hooks 
