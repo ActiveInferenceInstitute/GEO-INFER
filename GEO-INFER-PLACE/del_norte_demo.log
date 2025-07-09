@@ -1,0 +1,121 @@
+2025-07-09 08:48:57,220 - __main__ - INFO - === Del Norte County Comprehensive Dashboard Demo ===
+2025-07-09 08:48:57,220 - __main__ - INFO - Arguments: {'config': None, 'output': './del_norte_dashboard', 'api_keys': None, 'demo_only': False, 'verbose': False}
+2025-07-09 08:48:57,220 - __main__ - INFO - Running component demonstrations...
+2025-07-09 08:48:57,220 - __main__ - INFO - === Demonstrating California Data Sources Catalog ===
+2025-07-09 08:53:45,956 - __main__ - INFO - === Del Norte County Comprehensive Dashboard Demo ===
+2025-07-09 08:53:45,956 - __main__ - INFO - Arguments: {'config': None, 'output': './del_norte_dashboard', 'api_keys': None, 'demo_only': False, 'verbose': False}
+2025-07-09 08:53:45,956 - __main__ - INFO - Running component demonstrations...
+2025-07-09 08:53:45,956 - __main__ - INFO - === Demonstrating California Data Sources Catalog ===
+2025-07-09 08:53:45,956 - __main__ - WARNING - CaliforniaDataSources not available - using mock demonstration
+2025-07-09 08:53:45,956 - __main__ - INFO - Mock data sources would include:
+2025-07-09 08:53:45,956 - __main__ - INFO -   - CAL FIRE: Wildfire perimeter data, fire weather, fuel moisture
+2025-07-09 08:53:45,956 - __main__ - INFO -   - NOAA: Weather observations, climate data, coastal monitoring
+2025-07-09 08:53:45,957 - __main__ - INFO -   - USGS: Water data, seismic monitoring, topographic data
+2025-07-09 08:53:45,957 - __main__ - INFO -   - CDEC: California environmental monitoring
+2025-07-09 08:53:45,957 - __main__ - INFO - Total mock data sources: 20+
+2025-07-09 08:53:45,957 - __main__ - INFO - === Demonstrating API Connections ===
+2025-07-09 08:53:45,957 - __main__ - WARNING - CaliforniaAPIManager not available - using mock demonstration
+2025-07-09 08:53:45,957 - __main__ - INFO - Mock API connections would test:
+2025-07-09 08:53:45,957 - __main__ - INFO -   ✓ CAL FIRE API: Fire perimeter data (Mock: 150ms)
+2025-07-09 08:53:45,957 - __main__ - INFO -   ✓ NOAA API: Weather data (Mock: 250ms)
+2025-07-09 08:53:45,957 - __main__ - INFO -   ✓ USGS API: Water/seismic data (Mock: 180ms)
+2025-07-09 08:53:45,957 - __main__ - INFO -   ✓ CDEC API: Environmental monitoring (Mock: 300ms)
+2025-07-09 08:53:45,957 - __main__ - INFO - === Demonstrating H3 Spatial Analysis ===
+2025-07-09 08:54:25,686 - __main__ - INFO - === Del Norte County Comprehensive Dashboard Demo ===
+2025-07-09 08:54:25,686 - __main__ - INFO - Arguments: {'config': None, 'output': './del_norte_dashboard', 'api_keys': None, 'demo_only': False, 'verbose': False}
+2025-07-09 08:54:25,686 - __main__ - INFO - Running component demonstrations...
+2025-07-09 08:54:25,686 - __main__ - INFO - === Demonstrating California Data Sources Catalog ===
+2025-07-09 08:54:25,686 - __main__ - WARNING - CaliforniaDataSources not available - using mock demonstration
+2025-07-09 08:54:25,686 - __main__ - INFO - Mock data sources would include:
+2025-07-09 08:54:25,686 - __main__ - INFO -   - CAL FIRE: Wildfire perimeter data, fire weather, fuel moisture
+2025-07-09 08:54:25,686 - __main__ - INFO -   - NOAA: Weather observations, climate data, coastal monitoring
+2025-07-09 08:54:25,686 - __main__ - INFO -   - USGS: Water data, seismic monitoring, topographic data
+2025-07-09 08:54:25,686 - __main__ - INFO -   - CDEC: California environmental monitoring
+2025-07-09 08:54:25,686 - __main__ - INFO - Total mock data sources: 20+
+2025-07-09 08:54:25,686 - __main__ - INFO - === Demonstrating API Connections ===
+2025-07-09 08:54:25,686 - __main__ - WARNING - CaliforniaAPIManager not available - using mock demonstration
+2025-07-09 08:54:25,686 - __main__ - INFO - Mock API connections would test:
+2025-07-09 08:54:25,686 - __main__ - INFO -   ✓ CAL FIRE API: Fire perimeter data (Mock: 150ms)
+2025-07-09 08:54:25,686 - __main__ - INFO -   ✓ NOAA API: Weather data (Mock: 250ms)
+2025-07-09 08:54:25,686 - __main__ - INFO -   ✓ USGS API: Water/seismic data (Mock: 180ms)
+2025-07-09 08:54:25,686 - __main__ - INFO -   ✓ CDEC API: Environmental monitoring (Mock: 300ms)
+2025-07-09 08:54:25,686 - __main__ - INFO - === Demonstrating H3 Spatial Analysis ===
+2025-07-09 08:54:25,686 - __main__ - INFO - Resolution 6:
+2025-07-09 08:54:25,686 - __main__ - INFO -   - Cell: 86281cab7ffffff
+2025-07-09 08:54:25,686 - __main__ - INFO -   - Area: 35.00 km²
+2025-07-09 08:54:25,686 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 08:54:25,687 - __main__ - INFO - Resolution 7:
+2025-07-09 08:54:25,687 - __main__ - INFO -   - Cell: 87281cab5ffffff
+2025-07-09 08:54:25,687 - __main__ - INFO -   - Area: 5.00 km²
+2025-07-09 08:54:25,687 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 08:54:25,687 - __main__ - INFO - Resolution 8:
+2025-07-09 08:54:25,687 - __main__ - INFO -   - Cell: 88281cab53fffff
+2025-07-09 08:54:25,687 - __main__ - INFO -   - Area: 0.71 km²
+2025-07-09 08:54:25,687 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 08:54:25,687 - __main__ - INFO - Resolution 9:
+2025-07-09 08:54:25,687 - __main__ - INFO -   - Cell: 89281cab533ffff
+2025-07-09 08:54:25,687 - __main__ - INFO -   - Area: 0.10 km²
+2025-07-09 08:54:25,687 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 08:54:25,687 - __main__ - INFO - Generating H3 grid for Del Norte County...
+2025-07-09 08:54:25,688 - __main__ - INFO - Generated 100 H3 cells covering 71.45 km²
+2025-07-09 08:54:25,688 - __main__ - INFO - Running comprehensive dashboard demonstration...
+2025-07-09 08:54:25,688 - __main__ - INFO - === Starting Del Norte County Comprehensive Dashboard Demo ===
+2025-07-09 08:54:25,688 - __main__ - WARNING - Comprehensive dashboard not available - running simplified demo
+2025-07-09 08:54:25,688 - __main__ - INFO - === Running Simplified Del Norte County Demo ===
+2025-07-09 08:54:25,691 - __main__ - INFO - Adding H3 spatial demonstration...
+2025-07-09 08:54:25,714 - __main__ - INFO - Demo map saved: del_norte_dashboard/del_norte_demo_map_20250709_085425.html
+2025-07-09 08:54:25,773 - __main__ - INFO - Demo map opened in browser
+2025-07-09 08:54:25,773 - __main__ - INFO - === DEMO COMPLETED SUCCESSFULLY ===
+2025-07-09 08:54:25,773 - __main__ - INFO - Generated Files:
+2025-07-09 08:55:12,277 - __main__ - INFO - === Del Norte County Comprehensive Dashboard Demo ===
+2025-07-09 08:55:12,277 - __main__ - INFO - Arguments: {'config': None, 'output': './del_norte_dashboard', 'api_keys': None, 'demo_only': False, 'verbose': False}
+2025-07-09 08:55:12,277 - __main__ - INFO - Running component demonstrations...
+2025-07-09 08:55:12,277 - __main__ - INFO - === Demonstrating California Data Sources Catalog ===
+2025-07-09 08:55:12,278 - __main__ - WARNING - CaliforniaDataSources not available - using mock demonstration
+2025-07-09 08:55:12,278 - __main__ - INFO - Mock data sources would include:
+2025-07-09 08:55:12,278 - __main__ - INFO -   - CAL FIRE: Wildfire perimeter data, fire weather, fuel moisture
+2025-07-09 08:55:12,278 - __main__ - INFO -   - NOAA: Weather observations, climate data, coastal monitoring
+2025-07-09 08:55:12,278 - __main__ - INFO -   - USGS: Water data, seismic monitoring, topographic data
+2025-07-09 08:55:12,278 - __main__ - INFO -   - CDEC: California environmental monitoring
+2025-07-09 08:55:12,278 - __main__ - INFO - Total mock data sources: 20+
+2025-07-09 08:55:12,278 - __main__ - INFO - === Demonstrating API Connections ===
+2025-07-09 08:55:12,278 - __main__ - WARNING - CaliforniaAPIManager not available - using mock demonstration
+2025-07-09 08:55:12,278 - __main__ - INFO - Mock API connections would test:
+2025-07-09 08:55:12,278 - __main__ - INFO -   ✓ CAL FIRE API: Fire perimeter data (Mock: 150ms)
+2025-07-09 08:55:12,278 - __main__ - INFO -   ✓ NOAA API: Weather data (Mock: 250ms)
+2025-07-09 08:55:12,278 - __main__ - INFO -   ✓ USGS API: Water/seismic data (Mock: 180ms)
+2025-07-09 08:55:12,278 - __main__ - INFO -   ✓ CDEC API: Environmental monitoring (Mock: 300ms)
+2025-07-09 08:55:12,278 - __main__ - INFO - === Demonstrating H3 Spatial Analysis ===
+2025-07-09 08:55:12,278 - __main__ - INFO - Resolution 6:
+2025-07-09 08:55:12,278 - __main__ - INFO -   - Cell: 86281cab7ffffff
+2025-07-09 08:55:12,278 - __main__ - INFO -   - Area: 35.00 km²
+2025-07-09 08:55:12,278 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 08:55:12,279 - __main__ - INFO - Resolution 7:
+2025-07-09 08:55:12,279 - __main__ - INFO -   - Cell: 87281cab5ffffff
+2025-07-09 08:55:12,279 - __main__ - INFO -   - Area: 5.00 km²
+2025-07-09 08:55:12,279 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 08:55:12,279 - __main__ - INFO - Resolution 8:
+2025-07-09 08:55:12,279 - __main__ - INFO -   - Cell: 88281cab53fffff
+2025-07-09 08:55:12,279 - __main__ - INFO -   - Area: 0.71 km²
+2025-07-09 08:55:12,279 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 08:55:12,279 - __main__ - INFO - Resolution 9:
+2025-07-09 08:55:12,279 - __main__ - INFO -   - Cell: 89281cab533ffff
+2025-07-09 08:55:12,279 - __main__ - INFO -   - Area: 0.10 km²
+2025-07-09 08:55:12,279 - __main__ - INFO -   - Neighbors: 6
+2025-07-09 08:55:12,280 - __main__ - INFO - Generating H3 grid for Del Norte County...
+2025-07-09 08:55:12,281 - __main__ - INFO - Generated 100 H3 cells covering 71.45 km²
+2025-07-09 08:55:12,281 - __main__ - INFO - Running comprehensive dashboard demonstration...
+2025-07-09 08:55:12,281 - __main__ - INFO - === Starting Del Norte County Comprehensive Dashboard Demo ===
+2025-07-09 08:55:12,281 - __main__ - WARNING - Comprehensive dashboard not available - running simplified demo
+2025-07-09 08:55:12,281 - __main__ - INFO - === Running Simplified Del Norte County Demo ===
+2025-07-09 08:55:12,288 - __main__ - INFO - Adding H3 spatial demonstration...
+2025-07-09 08:55:12,311 - __main__ - INFO - Demo map saved: del_norte_dashboard/del_norte_demo_map_20250709_085512.html
+2025-07-09 08:55:12,356 - __main__ - INFO - Demo map opened in browser
+2025-07-09 08:55:12,356 - __main__ - INFO - === DEMO COMPLETED SUCCESSFULLY ===
+2025-07-09 08:55:12,356 - __main__ - INFO - Generated Files:
+2025-07-09 08:55:12,356 - __main__ - INFO -   📊 Interactive Dashboard: del_norte_dashboard/del_norte_demo_map_20250709_085512.html
+2025-07-09 08:55:12,356 - __main__ - INFO -   💬 Status: Simplified demo completed successfully
+2025-07-09 08:55:12,356 - __main__ - INFO - 
+2025-07-09 08:55:12,356 - __main__ - INFO - Next Steps:
+2025-07-09 08:55:12,356 - __main__ - INFO - 1. Open the interactive dashboard in a web browser
+2025-07-09 08:55:12,356 - __main__ - INFO - 4. Customize the configuration for your specific needs

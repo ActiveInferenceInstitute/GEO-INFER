@@ -43,42 +43,60 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 # Core imports
 from .core.place_analyzer import PlaceAnalyzer
-from .core.data_integrator import RealDataIntegrator
+# Optional imports for components that may not be available
+try:
+    from .core.data_integrator import RealDataIntegrator
+except ImportError:
+    RealDataIntegrator = None
+    
 from .core.visualization_engine import InteractiveVisualizationEngine
 
-# Location-specific imports
-from .locations.del_norte_county.del_norte_analyzer import DelNorteCountyAnalyzer
+# Location-specific imports with fallbacks
+try:
+    from .locations.del_norte_county.del_norte_analyzer import DelNorteCountyAnalyzer
+except ImportError:
+    DelNorteCountyAnalyzer = None
+    
 from .locations.del_norte_county.forest_health_monitor import ForestHealthMonitor
 from .locations.del_norte_county.coastal_resilience_analyzer import CoastalResilienceAnalyzer
 from .locations.del_norte_county.fire_risk_assessor import FireRiskAssessor
-from .locations.del_norte_county.community_development_tracker import CommunityDevelopmentTracker
+
+# Note: CommunityDevelopmentTracker not yet implemented
+# from .locations.del_norte_county.community_development_tracker import CommunityDevelopmentTracker
 
 # Configuration and utilities
 from .utils.config_loader import LocationConfigLoader
 from .utils.data_sources import CaliforniaDataSources
-from .utils.api_clients import NOAAClient, CALFIREClient, USGSClient
+try:
+    from .utils.api_clients import NOAAClient, CALFIREClient, USGSClient
+except ImportError:
+    # Fallback to core api_clients
+    from .core.api_clients import CaliforniaAPIManager
+    NOAAClient = CALFIREClient = USGSClient = None
 
-# Export public API
+# Export public API (only include modules that are actually available)
 __all__ = [
     # Core components
     'PlaceAnalyzer',
-    'RealDataIntegrator', 
     'InteractiveVisualizationEngine',
     
     # Del Norte County specific
-    'DelNorteCountyAnalyzer',
     'ForestHealthMonitor',
     'CoastalResilienceAnalyzer', 
     'FireRiskAssessor',
-    'CommunityDevelopmentTracker',
     
     # Utilities
     'LocationConfigLoader',
     'CaliforniaDataSources',
-    'NOAAClient',
-    'CALFIREClient', 
-    'USGSClient',
 ]
+
+# Add optional components if they exist
+if RealDataIntegrator is not None:
+    __all__.append('RealDataIntegrator')
+if DelNorteCountyAnalyzer is not None:
+    __all__.append('DelNorteCountyAnalyzer')
+if NOAAClient is not None:
+    __all__.extend(['NOAAClient', 'CALFIREClient', 'USGSClient'])
 
 def get_supported_locations() -> List[str]:
     """

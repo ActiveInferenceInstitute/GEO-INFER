@@ -13,16 +13,55 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple, Union
 import asyncio
 
-# Import core GEO-INFER modules
-from geo_infer_space.core.spatial_processor import SpatialProcessor
-from geo_infer_time.core.temporal_processor import TemporalProcessor
-from geo_infer_data.core.data_manager import DataManager
+# Try to import core GEO-INFER modules with fallbacks
+try:
+    from geo_infer_space.core.spatial_processor import SpatialProcessor
+except ImportError:
+    # Fallback spatial processor
+    class SpatialProcessor:
+        def __init__(self, default_resolution=8, coordinate_system='EPSG:3857'):
+            self.default_resolution = default_resolution
+            self.coordinate_system = coordinate_system
+            logging.warning("Using fallback SpatialProcessor - limited functionality")
+
+try:
+    from geo_infer_time.core.temporal_processor import TemporalProcessor
+except ImportError:
+    # Fallback temporal processor
+    class TemporalProcessor:
+        def __init__(self, timezone='UTC', default_frequency='daily'):
+            self.timezone = timezone
+            self.default_frequency = default_frequency
+            logging.warning("Using fallback TemporalProcessor - limited functionality")
+
+try:
+    from geo_infer_data.core.data_manager import DataManager
+except ImportError:
+    # Fallback data manager
+    class DataManager:
+        def __init__(self, cache_dir=None, retention_policy='7_years'):
+            self.cache_dir = cache_dir
+            self.retention_policy = retention_policy
+            logging.warning("Using fallback DataManager - limited functionality")
 
 # Import place-specific components
 from ..utils.config_loader import LocationConfigLoader
 from ..utils.data_sources import CaliforniaDataSources
-from .data_integrator import RealDataIntegrator
-from .visualization_engine import InteractiveVisualizationEngine
+
+# Optional imports for components
+try:
+    from .data_integrator import RealDataIntegrator
+except ImportError:
+    class RealDataIntegrator:
+        def __init__(self, location_config=None, cache_dir=None):
+            self.location_config = location_config
+            self.cache_dir = cache_dir
+            logging.warning("Using fallback RealDataIntegrator - limited functionality")
+
+try:
+    from .visualization_engine import InteractiveVisualizationEngine
+except ImportError:
+    from ..core.visualization_engine import InteractiveVisualizationEngine
 
 logger = logging.getLogger(__name__)
 
