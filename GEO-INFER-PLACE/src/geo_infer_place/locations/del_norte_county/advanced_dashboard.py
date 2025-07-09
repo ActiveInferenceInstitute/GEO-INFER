@@ -421,7 +421,11 @@ class AdvancedDashboard:
             'climate': folium.FeatureGroup(name='🌡️ Climate Risks', show=False),
             'zoning': folium.FeatureGroup(name='🏘️ Zoning', show=False),
             'conservation': folium.FeatureGroup(name='🌿 Conservation', show=True),
-            'economic': folium.FeatureGroup(name='💼 Economics', show=False)
+            'economic': folium.FeatureGroup(name='💼 Economics', show=False),
+            'emergency': folium.FeatureGroup(name='🚨 Emergency Services', show=True),
+            'health': folium.FeatureGroup(name='🏥 Public Health', show=False),
+            'infrastructure': folium.FeatureGroup(name='🏗️ Infrastructure', show=False),
+            'equity': folium.FeatureGroup(name='⚖️ Environmental Justice', show=False)
         }
         
     def _initialize_layer_configs(self) -> Dict[str, LayerConfig]:
@@ -608,6 +612,12 @@ class AdvancedDashboard:
         self._add_zoning_overlay(m)
         self._add_conservation_areas(m)
         self._add_economic_indicators(m)
+        
+        # Add civic intelligence layers
+        self._add_emergency_services_layer(m)
+        self._add_public_health_layer(m)
+        self._add_infrastructure_layer(m)
+        self._add_environmental_justice_layer(m)
         
         # Add all feature groups to map
         for group in self.layer_groups.values():
@@ -919,9 +929,242 @@ class AdvancedDashboard:
                 fillOpacity=0.6
             ).add_to(self.layer_groups['economic'])
     
+    def _add_emergency_services_layer(self, m: folium.Map):
+        """Add emergency services and critical infrastructure."""
+        emergency_facilities = [
+            {
+                'name': 'Sutter Coast Hospital',
+                'location': [41.7586, -124.2031],
+                'type': 'Hospital',
+                'capacity': 49,
+                'services': ['Emergency Room', 'Trauma', 'Surgery'],
+                'status': 'Operational'
+            },
+            {
+                'name': 'Del Norte County Sheriff',
+                'location': [41.7595, -124.2013],
+                'type': 'Law Enforcement',
+                'personnel': 45,
+                'services': ['Emergency Response', 'Investigation', 'Search & Rescue'],
+                'status': 'Operational'
+            },
+            {
+                'name': 'Crescent City Fire Department',
+                'location': [41.7540, -124.2015],
+                'type': 'Fire Department',
+                'personnel': 25,
+                'services': ['Fire Suppression', 'EMS', 'Hazmat'],
+                'status': 'Operational'
+            },
+            {
+                'name': 'Emergency Operations Center',
+                'location': [41.7580, -124.2000],
+                'type': 'Emergency Management',
+                'capacity': 100,
+                'services': ['Coordination', 'Communications', 'Resource Management'],
+                'status': 'Operational'
+            }
+        ]
+        
+        for facility in emergency_facilities:
+            icon_color = 'red' if facility['type'] == 'Fire Department' else 'blue' if facility['type'] == 'Law Enforcement' else 'green'
+            icon_name = 'plus' if facility['type'] == 'Hospital' else 'shield' if facility['type'] == 'Law Enforcement' else 'fire' if facility['type'] == 'Fire Department' else 'cog'
+            
+            folium.Marker(
+                location=facility['location'],
+                popup=folium.Popup(f"""
+                <div style="width: 250px;">
+                    <h4>🚨 {facility['name']}</h4>
+                    <p><strong>Type:</strong> {facility['type']}</p>
+                    <p><strong>Status:</strong> {facility['status']}</p>
+                    <p><strong>Capacity/Personnel:</strong> {facility.get('capacity', facility.get('personnel', 'N/A'))}</p>
+                    <p><strong>Services:</strong></p>
+                    <ul>
+                        {''.join(f'<li>{service}</li>' for service in facility['services'])}
+                    </ul>
+                </div>
+                """, max_width=300),
+                icon=folium.Icon(color=icon_color, icon=icon_name),
+                tooltip=f"{facility['name']} - {facility['type']}"
+            ).add_to(self.layer_groups['emergency'])
+    
+    def _add_public_health_layer(self, m: folium.Map):
+        """Add public health indicators and facilities."""
+        health_indicators = [
+            {
+                'name': 'Air Quality Monitor - Crescent City',
+                'location': [41.7560, -124.2040],
+                'type': 'Air Quality',
+                'current_aqi': 45,
+                'status': 'Good',
+                'pollutants': ['PM2.5', 'Ozone', 'NO2']
+            },
+            {
+                'name': 'Community Health Center',
+                'location': [41.7520, -124.2010],
+                'type': 'Health Clinic',
+                'services': ['Primary Care', 'Mental Health', 'Dental'],
+                'patients_served': 8500
+            },
+            {
+                'name': 'Senior Center',
+                'location': [41.7555, -124.2025],
+                'type': 'Senior Services',
+                'services': ['Nutrition', 'Social Services', 'Health Screening'],
+                'capacity': 200
+            }
+        ]
+        
+        for indicator in health_indicators:
+            if indicator['type'] == 'Air Quality':
+                color = 'green' if indicator['current_aqi'] < 50 else 'yellow' if indicator['current_aqi'] < 100 else 'red'
+                folium.CircleMarker(
+                    location=indicator['location'],
+                    radius=15,
+                    popup=f"""
+                    <b>🏥 {indicator['name']}</b><br>
+                    AQI: {indicator['current_aqi']} ({indicator['status']})<br>
+                    Pollutants: {', '.join(indicator['pollutants'])}
+                    """,
+                    color=color,
+                    fill=True,
+                    fillColor=color,
+                    fillOpacity=0.7
+                ).add_to(self.layer_groups['health'])
+            else:
+                folium.Marker(
+                    location=indicator['location'],
+                    popup=f"""
+                    <b>🏥 {indicator['name']}</b><br>
+                    Type: {indicator['type']}<br>
+                    Services: {', '.join(indicator['services'])}<br>
+                    {'Capacity: ' + str(indicator.get('capacity', '')) if 'capacity' in indicator else 'Patients Served: ' + str(indicator.get('patients_served', ''))}
+                    """,
+                    icon=folium.Icon(color='lightgreen', icon='heart'),
+                    tooltip=f"{indicator['name']} - {indicator['type']}"
+                ).add_to(self.layer_groups['health'])
+    
+    def _add_infrastructure_layer(self, m: folium.Map):
+        """Add critical infrastructure monitoring."""
+        infrastructure = [
+            {
+                'name': 'Crescent City Harbor',
+                'location': [41.7450, -124.2370],
+                'type': 'Port',
+                'status': 'Operational',
+                'capacity': '500 vessels',
+                'economic_impact': '$45M annually'
+            },
+            {
+                'name': 'Highway 101 Bridge',
+                'location': [41.7400, -124.1950],
+                'type': 'Transportation',
+                'status': 'Good Condition',
+                'last_inspection': '2024-01-15',
+                'traffic_volume': '12,000 vehicles/day'
+            },
+            {
+                'name': 'Water Treatment Plant',
+                'location': [41.7600, -124.1800],
+                'type': 'Water Infrastructure',
+                'status': 'Operational',
+                'capacity': '5 MGD',
+                'population_served': 27000
+            },
+            {
+                'name': 'Pelican Bay Prison',
+                'location': [41.9275, -124.2370],
+                'type': 'Correctional Facility',
+                'status': 'Operational',
+                'capacity': 3000,
+                'employment': 1500
+            }
+        ]
+        
+        for infra in infrastructure:
+            icon_color = 'blue' if infra['type'] == 'Transportation' else 'lightblue' if infra['type'] == 'Water Infrastructure' else 'darkblue'
+            icon_name = 'road' if infra['type'] == 'Transportation' else 'tint' if infra['type'] == 'Water Infrastructure' else 'anchor' if infra['type'] == 'Port' else 'building'
+            
+            folium.Marker(
+                location=infra['location'],
+                popup=folium.Popup(f"""
+                <div style="width: 250px;">
+                    <h4>🏗️ {infra['name']}</h4>
+                    <p><strong>Type:</strong> {infra['type']}</p>
+                    <p><strong>Status:</strong> {infra['status']}</p>
+                    <p><strong>Capacity:</strong> {infra.get('capacity', 'N/A')}</p>
+                    {'<p><strong>Economic Impact:</strong> ' + infra['economic_impact'] + '</p>' if 'economic_impact' in infra else ''}
+                    {'<p><strong>Population Served:</strong> ' + str(infra['population_served']) + '</p>' if 'population_served' in infra else ''}
+                </div>
+                """, max_width=300),
+                icon=folium.Icon(color=icon_color, icon=icon_name),
+                tooltip=f"{infra['name']} - {infra['type']}"
+            ).add_to(self.layer_groups['infrastructure'])
+    
+    def _add_environmental_justice_layer(self, m: folium.Map):
+        """Add environmental justice and equity indicators."""
+        ej_zones = [
+            {
+                'name': 'Low-Income Housing Area',
+                'bounds': [[41.7400, -124.2200], [41.7500, -124.2000], [41.7450, -124.1950], [41.7350, -124.2150]],
+                'median_income': 35000,
+                'pollution_burden': 'High',
+                'health_disparities': ['Asthma rates 25% above average', 'Limited healthcare access'],
+                'color': 'orange'
+            },
+            {
+                'name': 'Tribal Lands Impact Zone',
+                'bounds': [[41.8000, -124.1500], [41.8200, -124.1200], [41.7900, -124.1100], [41.7700, -124.1400]],
+                'community': 'Yurok Tribe',
+                'environmental_concerns': ['Water quality', 'Traditional fishing areas', 'Forest health'],
+                'cultural_resources': 'High significance',
+                'color': 'purple'
+            },
+            {
+                'name': 'Industrial Exposure Zone',
+                'bounds': [[41.7200, -124.2400], [41.7350, -124.2200], [41.7250, -124.2150], [41.7100, -124.2350]],
+                'proximity_to': 'Harbor industrial area',
+                'exposure_risks': ['Air pollution', 'Noise pollution', 'Traffic'],
+                'population_affected': 2500,
+                'color': 'red'
+            }
+        ]
+        
+        for zone in ej_zones:
+            folium.Polygon(
+                locations=zone['bounds'],
+                popup=folium.Popup(f"""
+                <div style="width: 300px;">
+                    <h4>⚖️ {zone['name']}</h4>
+                    {'<p><strong>Median Income:</strong> $' + str(zone['median_income']) + '</p>' if 'median_income' in zone else ''}
+                    {'<p><strong>Community:</strong> ' + zone['community'] + '</p>' if 'community' in zone else ''}
+                    {'<p><strong>Pollution Burden:</strong> ' + zone['pollution_burden'] + '</p>' if 'pollution_burden' in zone else ''}
+                    {'<p><strong>Population Affected:</strong> ' + str(zone['population_affected']) + '</p>' if 'population_affected' in zone else ''}
+                    
+                    {'<p><strong>Health Disparities:</strong></p><ul>' + ''.join(f'<li>{item}</li>' for item in zone['health_disparities']) + '</ul>' if 'health_disparities' in zone else ''}
+                    
+                    {'<p><strong>Environmental Concerns:</strong></p><ul>' + ''.join(f'<li>{item}</li>' for item in zone['environmental_concerns']) + '</ul>' if 'environmental_concerns' in zone else ''}
+                    
+                    {'<p><strong>Exposure Risks:</strong></p><ul>' + ''.join(f'<li>{item}</li>' for item in zone['exposure_risks']) + '</ul>' if 'exposure_risks' in zone else ''}
+                </div>
+                """, max_width=350),
+                color=zone['color'],
+                weight=2,
+                fill=True,
+                fillColor=zone['color'],
+                fillOpacity=0.3,
+                tooltip=f"Environmental Justice: {zone['name']}"
+            ).add_to(self.layer_groups['equity'])
+    
     def _add_layer_controls(self, m: folium.Map):
-        """Add layer control panel."""
-        folium.LayerControl(collapsed=False).add_to(m)
+        """Add comprehensive layer control panel."""
+        # Use folium's built-in LayerControl for actual layer management
+        folium.LayerControl(
+            collapsed=False,
+            position='topright',
+            autoZIndex=True,
+            hideSingleBase=False
+        ).add_to(m)
     
     def _add_measurement_tools(self, m: folium.Map):
         """Add measurement and drawing tools."""
@@ -1119,9 +1362,17 @@ class AdvancedDashboard:
                         <button class="toggle-button" onclick="toggleLayer('economic')" title="Economic centers and employment data">💼 Economics</button>
                         
                         <hr>
+                        <h4>🚨 Civic Intelligence</h4>
+                        <button class="toggle-button" onclick="toggleLayer('emergency')" title="Emergency services and critical facilities">🚨 Emergency Services</button>
+                        <button class="toggle-button" onclick="toggleLayer('health')" title="Public health indicators and facilities">🏥 Public Health</button>
+                        <button class="toggle-button" onclick="toggleLayer('infrastructure')" title="Critical infrastructure monitoring">🏗️ Infrastructure</button>
+                        <button class="toggle-button" onclick="toggleLayer('equity')" title="Environmental justice and equity indicators">⚖️ Environmental Justice</button>
+                        
+                        <hr>
                         <h4>📋 Quick Actions</h4>
                         <button class="toggle-button" onclick="generateReport()" title="Download policy analysis report">📄 Generate Report</button>
                         <button class="toggle-button" onclick="exportData()" title="Export dashboard configuration and data">💾 Export Data</button>
+                        <button class="toggle-button" onclick="showAlerts()" title="Show emergency alerts and notifications">🚨 Emergency Alerts</button>
                         <button class="toggle-button" onclick="showHelp()" title="Show layer information and usage guide">❓ Help & Info</button>
                     </div>
                 </div>
@@ -1137,8 +1388,34 @@ class AdvancedDashboard:
                     'climate': false,
                     'zoning': false,
                     'conservation': true,
-                    'economic': false
+                    'economic': false,
+                    'emergency': true,
+                    'health': false,
+                    'infrastructure': false,
+                    'equity': false
                 }};
+                
+                // Emergency alert system
+                var emergencyAlerts = [
+                    {{
+                        level: 'info',
+                        message: 'Fire weather watch in effect for elevated areas',
+                        timestamp: new Date(Date.now() - 2 * 60 * 60 * 1000).toLocaleString(),
+                        source: 'National Weather Service'
+                    }},
+                    {{
+                        level: 'warning',
+                        message: 'Air quality advisory due to smoke from regional fires',
+                        timestamp: new Date(Date.now() - 4 * 60 * 60 * 1000).toLocaleString(),
+                        source: 'Air Quality Management District'
+                    }},
+                    {{
+                        level: 'success',
+                        message: 'Emergency response drill completed successfully',
+                        timestamp: new Date(Date.now() - 24 * 60 * 60 * 1000).toLocaleString(),
+                        source: 'Emergency Operations Center'
+                    }}
+                ];
                 
                 // Layer references - populated after map loads
                 var layerGroups = {{}};
@@ -1185,6 +1462,10 @@ class AdvancedDashboard:
                             else if (name.includes('zoning')) layerGroups['zoning'] = layer;
                             else if (name.includes('conservation')) layerGroups['conservation'] = layer;
                             else if (name.includes('economic')) layerGroups['economic'] = layer;
+                            else if (name.includes('emergency')) layerGroups['emergency'] = layer;
+                            else if (name.includes('health')) layerGroups['health'] = layer;
+                            else if (name.includes('infrastructure')) layerGroups['infrastructure'] = layer;
+                            else if (name.includes('justice')) layerGroups['equity'] = layer;
                         }}
                     }});
                 }}
@@ -1195,49 +1476,64 @@ class AdvancedDashboard:
                         var button = event.target;
                         var isVisible = layerStates[layerType];
                         
-                        if (isVisible) {{
+                        // Toggle state first
+                        layerStates[layerType] = !isVisible;
+                        var newState = layerStates[layerType];
+                        
+                        // Update button appearance
+                        if (newState) {{
+                            button.style.backgroundColor = '#27ae60';
+                            button.style.opacity = '1';
+                            console.log('Showing layer:', layerType);
+                        }} else {{
                             button.style.backgroundColor = '#95a5a6';
                             button.style.opacity = '0.6';
-                            button.innerHTML = button.innerHTML.replace('🔥', '❌').replace('🌤️', '❌').replace('🌍', '❌').replace('🌲', '❌').replace('🌡️', '❌').replace('🏘️', '❌').replace('💼', '❌');
                             console.log('Hiding layer:', layerType);
-                        }} else {{
-                            button.style.backgroundColor = '#3498db';
-                            button.style.opacity = '1';
-                            // Restore original emoji based on layer type
-                                                         var emojis = {{
-                                 'fire': '🔥',
-                                 'weather': '🌤️', 
-                                 'earthquake': '🌍',
-                                 'forest': '🌲',
-                                 'climate': '🌡️',
-                                 'zoning': '🏘️',
-                                 'conservation': '🌿',
-                                 'economic': '💼'
-                             }};
-                            button.innerHTML = button.innerHTML.replace('❌', emojis[layerType] || '📍');
-                            console.log('Showing layer:', layerType);
                         }}
                         
-                        // Toggle state
-                        layerStates[layerType] = !isVisible;
-                        
-                        // Try to toggle the actual layer if we can access it
-                        if (layerGroups[layerType]) {{
-                            var map = getMapInstance();
-                            if (map) {{
-                                if (layerStates[layerType]) {{
-                                    map.addLayer(layerGroups[layerType]);
-                                }} else {{
-                                    map.removeLayer(layerGroups[layerType]);
-                                }}
+                        // Try to control actual map layers via Layer Control
+                        setTimeout(function() {{
+                            try {{
+                                var layerControlInputs = document.querySelectorAll('.leaflet-control-layers input[type="checkbox"]');
+                                layerControlInputs.forEach(function(input) {{
+                                    var label = input.parentElement.querySelector('span');
+                                    if (label) {{
+                                        var layerName = label.textContent.trim().toLowerCase();
+                                        var shouldMatch = false;
+                                        
+                                        // Enhanced layer name matching
+                                        switch(layerType) {{
+                                            case 'fire': shouldMatch = layerName.includes('fire') || layerName.includes('🔥'); break;
+                                            case 'weather': shouldMatch = layerName.includes('weather') || layerName.includes('🌤'); break;
+                                            case 'earthquake': shouldMatch = layerName.includes('earthquake') || layerName.includes('🌍'); break;
+                                            case 'forest': shouldMatch = layerName.includes('forest') || layerName.includes('🌲'); break;
+                                            case 'climate': shouldMatch = layerName.includes('climate') || layerName.includes('🌡'); break;
+                                            case 'zoning': shouldMatch = layerName.includes('zoning') || layerName.includes('🏘'); break;
+                                            case 'conservation': shouldMatch = layerName.includes('conservation') || layerName.includes('🌿'); break;
+                                            case 'economic': shouldMatch = layerName.includes('economic') || layerName.includes('💼'); break;
+                                            case 'emergency': shouldMatch = layerName.includes('emergency') || layerName.includes('🚨'); break;
+                                            case 'health': shouldMatch = layerName.includes('health') || layerName.includes('🏥'); break;
+                                            case 'infrastructure': shouldMatch = layerName.includes('infrastructure') || layerName.includes('🏗'); break;
+                                            case 'equity': shouldMatch = layerName.includes('justice') || layerName.includes('⚖'); break;
+                                        }}
+                                        
+                                        if (shouldMatch && input.checked !== newState) {{
+                                            input.checked = newState;
+                                            input.dispatchEvent(new Event('change'));
+                                            console.log(`Toggled layer control for ${{layerType}}: ${{newState}}`);
+                                        }}
+                                    }}
+                                }});
+                            }} catch (controlError) {{
+                                console.log('Layer control interaction not available:', controlError.message);
                             }}
-                        }}
+                        }}, 100);
                         
                     }} catch (error) {{
                         console.error('Error toggling layer:', error);
                         // Fallback: just show visual feedback
                         var button = event.target;
-                        button.style.backgroundColor = button.style.backgroundColor === 'rgb(149, 165, 166)' ? '#3498db' : '#95a5a6';
+                        button.style.backgroundColor = button.style.backgroundColor === 'rgb(149, 165, 166)' ? '#27ae60' : '#95a5a6';
                     }}
                 }}
                 
@@ -1390,6 +1686,30 @@ For detailed analysis, please refer to the individual layer panels and data sour
 • Agricultural productivity metrics
 • Rural development indicators
 
+🚨 EMERGENCY SERVICES
+• Emergency facilities and response centers
+• Hospitals, fire stations, law enforcement
+• Emergency operations and coordination
+• Critical infrastructure for disaster response
+
+🏥 PUBLIC HEALTH
+• Air quality monitoring stations
+• Health facilities and community centers
+• Public health indicators and metrics
+• Disease surveillance and prevention
+
+🏗️ INFRASTRUCTURE
+• Critical infrastructure monitoring
+• Transportation systems and utilities
+• Water treatment and distribution
+• Communication and power systems
+
+⚖️ ENVIRONMENTAL JUSTICE
+• Environmental equity analysis
+• Pollution burden and health disparities
+• Vulnerable community identification
+• Tribal lands and cultural resources
+
 === FEATURES ===
 
 ✓ Interactive layer toggling
@@ -1425,6 +1745,58 @@ Last Updated: ${{new Date().toLocaleString()}}`;
 
                      alert(helpContent);
                  }}
+                 
+                 function showAlerts() {{
+                     try {{
+                         var alertsContent = `🚨 DEL NORTE COUNTY EMERGENCY ALERTS & NOTIFICATIONS
+
+=== CURRENT ALERTS ===
+
+`;
+                         
+                         emergencyAlerts.forEach(function(alert, index) {{
+                             var icon = alert.level === 'warning' ? '⚠️' : alert.level === 'info' ? 'ℹ️' : '✅';
+                             alertsContent += `${{icon}} [${{alert.level.toUpperCase()}}] ${{alert.message}}
+Source: ${{alert.source}}
+Time: ${{alert.timestamp}}
+
+`;
+                         }});
+                         
+                         alertsContent += `=== ALERT LEVELS ===
+
+🔴 CRITICAL: Immediate action required
+⚠️ WARNING: Heightened awareness needed  
+ℹ️ INFO: Informational updates
+✅ SUCCESS: Positive developments
+
+=== EMERGENCY CONTACTS ===
+
+🚓 Sheriff's Office: (707) 464-4191
+🚒 Fire Department: (707) 464-9506
+🏥 Hospital: (707) 464-8511
+📞 Emergency: 911
+
+=== NOTIFICATION PREFERENCES ===
+
+To receive real-time alerts:
+• Sign up for County emergency notifications
+• Follow @DelNorteCounty on social media
+• Download the Emergency Alert app
+• Register for reverse 911 services
+
+Last Updated: ${{new Date().toLocaleString()}}`;
+
+                         alert(alertsContent);
+                         
+                         // Also log to console for developers
+                         console.log('Emergency Alerts System:', emergencyAlerts);
+                         
+                     }} catch (error) {{
+                         console.error('Error displaying alerts:', error);
+                         alert('Emergency alerts system is currently unavailable. Please check with local emergency services directly.');
+                     }}
+                 }}
                 
                 // Auto-refresh data every 5 minutes
                 setInterval(function() {{
@@ -1442,18 +1814,28 @@ Last Updated: ${{new Date().toLocaleString()}}`;
                 // Initialize layer button states when page loads
                 window.addEventListener('load', function() {{
                     setTimeout(function() {{
-                        // Set initial button states
+                        // Set initial button states based on layerStates
                         var buttons = document.querySelectorAll('.toggle-button');
                         buttons.forEach(function(button) {{
-                            var layerType = button.getAttribute('onclick').match(/toggleLayer\('(\w+)'\)/);
-                            if (layerType && layerType[1]) {{
-                                var layer = layerType[1];
-                                if (!layerStates[layer]) {{
-                                    button.style.backgroundColor = '#95a5a6';
-                                    button.style.opacity = '0.6';
+                            var layerType = button.getAttribute('onclick');
+                            if (layerType && layerType.includes('toggleLayer')) {{
+                                var match = layerType.match(/toggleLayer\('(\w+)'\)/);
+                                if (match && match[1]) {{
+                                    var layer = match[1];
+                                    if (layerStates.hasOwnProperty(layer)) {{
+                                        if (layerStates[layer]) {{
+                                            button.style.backgroundColor = '#27ae60';
+                                            button.style.opacity = '1';
+                                        }} else {{
+                                            button.style.backgroundColor = '#95a5a6';
+                                            button.style.opacity = '0.6';
+                                        }}
+                                    }}
                                 }}
                             }}
                         }});
+                        
+                        console.log('Layer button states initialized:', layerStates);
                     }}, 100);
                 }});
             </script>

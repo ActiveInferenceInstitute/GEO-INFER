@@ -1,25 +1,23 @@
 """
-RealDataIntegrator: Integration engine for real California datasets.
+RealDataIntegrator: Integration with real California data sources.
 
-This module provides comprehensive data integration capabilities for California-specific
-data sources, including CAL FIRE, NOAA, USGS, and other government and research APIs.
-It implements robust data access, caching, and validation for place-based analysis.
+This module provides comprehensive integration with real California government
+and research data APIs including CAL FIRE, NOAA, USGS, and weather services.
+Implements robust data validation, caching, and error handling for production
+use in place-based analysis workflows.
 """
 
 import logging
+import asyncio
 import json
-import requests
-import pandas as pd
-import geopandas as gpd
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple, Union
-import asyncio
-import aiohttp
-from urllib.parse import urljoin
-import hashlib
+import pandas as pd
+import geopandas as gpd
 
-from ..utils.api_clients import NOAAClient, CALFIREClient, USGSClient, WeatherAPIClient
+# Import API clients from core module for consistency
+from .api_clients import NOAAClient, CALFIREClient, USGSClient, CDECClient
 from ..utils.data_sources import CaliforniaDataSources
 
 logger = logging.getLogger(__name__)
@@ -102,7 +100,7 @@ class RealDataIntegrator:
         )
         
         # Weather API client for real-time meteorological data
-        self.weather_client = WeatherAPIClient(
+        self.weather_client = CDECClient( # Changed from WeatherAPIClient to CDECClient
             api_key=self.api_keys.get('weather'),
             cache_dir=self.cache_dir / "weather"
         )

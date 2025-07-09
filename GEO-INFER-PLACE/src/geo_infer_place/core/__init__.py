@@ -2,16 +2,18 @@
 Core analysis modules for GEO-INFER-PLACE
 
 This package contains the core analytical components for place-based 
-geospatial analysis including the main analyzer classes, location 
-management, and temporal analysis capabilities.
+geospatial analysis including the main analyzer classes, data integration,
+API clients, and visualization capabilities.
 """
 
 from .place_analyzer import PlaceAnalyzer
-from .location_manager import LocationManager
-from .temporal_analyzer import TemporalAnalyzer
+from .data_integrator import RealDataIntegrator
+from .api_clients import CaliforniaAPIManager
+from .visualization_engine import InteractiveVisualizationEngine
 
 __all__ = [
     "PlaceAnalyzer",
-    "LocationManager", 
-    "TemporalAnalyzer"
+    "RealDataIntegrator",
+    "CaliforniaAPIManager",
+    "InteractiveVisualizationEngine"
 ] 

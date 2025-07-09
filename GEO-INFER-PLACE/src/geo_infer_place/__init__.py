@@ -67,12 +67,9 @@ from .locations.del_norte_county.fire_risk_assessor import FireRiskAssessor
 # Configuration and utilities
 from .utils.config_loader import LocationConfigLoader
 from .utils.data_sources import CaliforniaDataSources
-try:
-    from .utils.api_clients import NOAAClient, CALFIREClient, USGSClient
-except ImportError:
-    # Fallback to core api_clients
-    from .core.api_clients import CaliforniaAPIManager
-    NOAAClient = CALFIREClient = USGSClient = None
+
+# API clients - using core implementation for consistency
+from .core.api_clients import CaliforniaAPIManager, NOAAClient, CALFIREClient, USGSClient, CDECClient
 
 # Export public API (only include modules that are actually available)
 __all__ = [
@@ -88,6 +85,13 @@ __all__ = [
     # Utilities
     'LocationConfigLoader',
     'CaliforniaDataSources',
+    
+    # API clients
+    'CaliforniaAPIManager',
+    'NOAAClient', 
+    'CALFIREClient', 
+    'USGSClient',
+    'CDECClient',
 ]
 
 # Add optional components if they exist
