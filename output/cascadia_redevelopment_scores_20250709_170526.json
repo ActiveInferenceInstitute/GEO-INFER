@@ -1,0 +1,2042 @@
+{
+  "88280046c9fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88280208e7fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828023015fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828024a4dfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882802968dfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828037827fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882803c051fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828041809fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828046d19fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828061a99fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828065361fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828066eb5fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882806a1edfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828101417fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882810a45dfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882810cca3fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828110f13fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828113751fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882811402bfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828119a05fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828121817fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828126dd1fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882812a84bfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828133b49fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882813471dfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281391d5fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882813d261fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828142aabfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828147889fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828148ed5fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882814c2b3fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828150259fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828155213fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882815a08bfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828162e03fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281662adfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882816b165fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882816c6c5fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882818148dfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882818a413fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882818ccb1fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828194183fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281a181bfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281a6d9dfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281aa85dfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281b3b35fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281b4553fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281b826dfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281bd221fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281c2a95fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281c6367fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281c85c7fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281cd5bdfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281d52d5fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281e2e53fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281e62c1fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281e890bfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281eb149fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88281ed9e1fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828312435fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828314db7fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828317589fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88283231edfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828324b23fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882832734dfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882833294dfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828337905fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828338f03fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882833c151fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828802723fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88288075cdfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828808693fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882880886dfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828811655fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882881688bfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882881b5d9fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882881ce81fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88288311b5fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882883a139fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828840f55fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882884ad33fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828853881fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828857121fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88288582a3fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882885d093fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828888689fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828888b6bfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882888d863fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88288c01e1fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88288c4265fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88288cad47fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88288d39d3fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88288d7a55fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88288d8051fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88288dd0c3fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88288e04adfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88288e4653fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88288e9051fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88289d9691fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88289d986dfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a02d2dfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a06a9dfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a0b6b5fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a0b969fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a0ced9fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a1005bfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a15089fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a1ae0dfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a211c5fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a265abfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a2a335fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a306c5fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a30b65fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a3590bfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a3a4b5fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a42325fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a47139fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a48761fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a4d50bfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a524a3fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a56611fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a58d2dfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a5b089fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a5ca81fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a6270dfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a67425fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a68865fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a6b34dfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a828d3fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a8610bfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a88e9bfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a8c703fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a9023bfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a952a3fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828a9ae6bfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828aa135bfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828aa6461fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828aab1e3fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828aac855fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ab0653fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ab56c3fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ab5b6bfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828aba4a1fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ac09b1fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ac31e9fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ac484dfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ac9405fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ad2481fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ad2965fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ad7935fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ad8f29fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828adb295fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828adc15dfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ae0d99fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ae3421fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ae4e03fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828ae9817fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828e2580dfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828e6cb29fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f06aadfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f08cbbfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f0b4e3fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f0c505fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f101b5fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f132d3fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f1435bfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f21335fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f2b8d9fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f2c825fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f39235fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f43a93fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f44869fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f47301fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f495c9fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f5121bfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f56415fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f5a251fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f5cad5fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f60dbdfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f635edfffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f64e21fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8828f69839fffff": {
+    "composite_score": 0.25,
+    "individual_scores": {
+      "zoning": 0.8,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882988072bfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8829885515fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882988ae99fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8829890d35fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8829893093fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8829894a95fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8829899903fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88298a095dfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88298a3369fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88298a59e7fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88298a974dfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88298b36b7fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88298b3969fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88298b4eddfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88298b8327fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88298bd131fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88298e6f37fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8829990f3bfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "8829999b03fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "882999ada1fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88299d030bfffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  },
+  "88299da1e1fffff": {
+    "composite_score": 0.2,
+    "individual_scores": {
+      "zoning": 0.6,
+      "current_use": 0.2,
+      "water_access": 0.0,
+      "infrastructure": 0.0
+    },
+    "data_quality": 0.5
+  }
+}

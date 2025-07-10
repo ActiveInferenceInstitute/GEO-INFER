@@ -1,0 +1,254 @@
+2025-07-10 07:24:19,279 - __main__ - INFO - ================================================================================
+2025-07-10 07:24:19,279 - __main__ - INFO - Cascadia Agricultural Land Analysis Framework
+2025-07-10 07:24:19,279 - __main__ - INFO - ================================================================================
+2025-07-10 07:24:19,282 - __main__ - INFO - ✓ h3 is available
+2025-07-10 07:24:19,383 - __main__ - INFO - ✓ numpy is available
+2025-07-10 07:24:19,549 - numexpr.utils - INFO - NumExpr defaulting to 12 threads.
+2025-07-10 07:24:19,736 - __main__ - INFO - ✓ pandas is available
+2025-07-10 07:24:19,817 - __main__ - INFO - ✓ geopandas is available
+2025-07-10 07:24:19,817 - __main__ - INFO - ✓ shapely is available
+2025-07-10 07:24:19,928 - __main__ - INFO - ✓ requests is available
+2025-07-10 07:24:20,034 - __main__ - INFO - ✓ rasterio is available
+2025-07-10 07:24:20,233 - __main__ - INFO - ✓ folium is available
+2025-07-10 07:24:20,233 - __main__ - INFO - All dependencies are available
+2025-07-10 07:24:20,233 - __main__ - INFO - Output directory: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/output
+2025-07-10 07:24:20,233 - __main__ - INFO - Configuration validation successful
+2025-07-10 07:24:20,378 - __main__ - INFO - Initializing Cascadia Agricultural H3 Backend (resolution: 8)
+2025-07-10 07:24:20,378 - unified_backend - INFO - Defined 204 hexagons for Cascadia bioregion
+2025-07-10 07:24:20,378 - zoning.geo_infer_zoning - INFO - GeoInferZoning initialized with H3 resolution 8
+2025-07-10 07:24:20,379 - current_use.geo_infer_current_use - INFO - GeoInferCurrentUse initialized with H3 resolution 8
+2025-07-10 07:24:20,379 - ownership.geo_infer_ownership - INFO - GeoInferOwnership initialized with H3 resolution 8
+2025-07-10 07:24:20,379 - mortgage_debt.geo_infer_mortgage_debt - INFO - GeoInferMortgageDebt initialized with H3 resolution 8
+2025-07-10 07:24:20,379 - improvements.geo_infer_improvements - INFO - GeoInferImprovements initialized with H3 resolution 8
+2025-07-10 07:24:20,379 - surface_water.geo_infer_surface_water - INFO - GeoInferSurfaceWater initialized with H3 resolution 8
+2025-07-10 07:24:20,379 - ground_water.geo_infer_ground_water - INFO - GeoInferGroundWater initialized with H3 resolution 8
+2025-07-10 07:24:20,379 - power_source.geo_infer_power_source - INFO - GeoInferPowerSource initialized with H3 resolution 8
+2025-07-10 07:24:20,379 - unified_backend - INFO - CascadiaAgriculturalH3Backend initialized with 8 modules at H3 resolution 8
+2025-07-10 07:24:20,379 - __main__ - INFO - Starting comprehensive agricultural analysis...
+2025-07-10 07:24:20,379 - unified_backend - INFO - Processing zoning module...
+2025-07-10 07:24:20,379 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Butte from API.
+2025-07-10 07:24:20,590 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Butte: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27BUTTE%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:21,774 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Butte: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27BUTTE%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:24,044 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Butte: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27BUTTE%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:28,048 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Butte after 3 attempts.
+2025-07-10 07:24:28,048 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Butte
+2025-07-10 07:24:28,048 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Colusa from API.
+2025-07-10 07:24:28,261 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Colusa: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27COLUSA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:29,511 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Colusa: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27COLUSA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:31,829 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Colusa: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27COLUSA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:35,833 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Colusa after 3 attempts.
+2025-07-10 07:24:35,834 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Colusa
+2025-07-10 07:24:35,834 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Del Norte from API.
+2025-07-10 07:24:36,106 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Del Norte: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27DEL+NORTE%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:37,326 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Del Norte: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27DEL+NORTE%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:39,585 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Del Norte: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27DEL+NORTE%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:43,589 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Del Norte after 3 attempts.
+2025-07-10 07:24:43,589 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Del Norte
+2025-07-10 07:24:43,589 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Glenn from API.
+2025-07-10 07:24:43,759 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Glenn: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27GLENN%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:44,976 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Glenn: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27GLENN%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:47,185 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Glenn: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27GLENN%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:51,190 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Glenn after 3 attempts.
+2025-07-10 07:24:51,191 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Glenn
+2025-07-10 07:24:51,191 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Humboldt from API.
+2025-07-10 07:24:51,412 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Humboldt: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27HUMBOLDT%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:52,633 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Humboldt: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27HUMBOLDT%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:54,835 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Humboldt: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27HUMBOLDT%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:24:58,839 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Humboldt after 3 attempts.
+2025-07-10 07:24:58,839 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Humboldt
+2025-07-10 07:24:58,839 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Lake from API.
+2025-07-10 07:24:59,044 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Lake: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27LAKE%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:00,222 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Lake: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27LAKE%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:02,429 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Lake: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27LAKE%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:06,434 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Lake after 3 attempts.
+2025-07-10 07:25:06,434 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Lake
+2025-07-10 07:25:06,434 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Lassen from API.
+2025-07-10 07:25:06,744 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Lassen: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27LASSEN%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:07,957 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Lassen: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27LASSEN%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:10,189 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Lassen: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27LASSEN%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:14,194 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Lassen after 3 attempts.
+2025-07-10 07:25:14,195 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Lassen
+2025-07-10 07:25:14,196 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Mendocino from API.
+2025-07-10 07:25:14,393 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Mendocino: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27MENDOCINO%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:15,629 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Mendocino: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27MENDOCINO%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:17,841 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Mendocino: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27MENDOCINO%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:21,846 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Mendocino after 3 attempts.
+2025-07-10 07:25:21,846 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Mendocino
+2025-07-10 07:25:21,846 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Modoc from API.
+2025-07-10 07:25:22,026 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Modoc: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27MODOC%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:23,250 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Modoc: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27MODOC%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:25,532 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Modoc: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27MODOC%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:29,537 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Modoc after 3 attempts.
+2025-07-10 07:25:29,537 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Modoc
+2025-07-10 07:25:29,537 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Nevada from API.
+2025-07-10 07:25:29,740 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Nevada: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27NEVADA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:30,980 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Nevada: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27NEVADA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:33,225 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Nevada: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27NEVADA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:37,229 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Nevada after 3 attempts.
+2025-07-10 07:25:37,230 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Nevada
+2025-07-10 07:25:37,230 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Plumas from API.
+2025-07-10 07:25:37,423 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Plumas: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27PLUMAS%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:38,628 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Plumas: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27PLUMAS%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:40,822 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Plumas: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27PLUMAS%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:44,826 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Plumas after 3 attempts.
+2025-07-10 07:25:44,826 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Plumas
+2025-07-10 07:25:44,826 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Shasta from API.
+2025-07-10 07:25:45,021 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Shasta: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27SHASTA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:46,338 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Shasta: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27SHASTA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:48,561 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Shasta: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27SHASTA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:52,565 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Shasta after 3 attempts.
+2025-07-10 07:25:52,566 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Shasta
+2025-07-10 07:25:52,566 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Sierra from API.
+2025-07-10 07:25:52,756 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Sierra: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27SIERRA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:54,009 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Sierra: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27SIERRA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:25:56,205 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Sierra: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27SIERRA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:26:00,209 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Sierra after 3 attempts.
+2025-07-10 07:26:00,209 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Sierra
+2025-07-10 07:26:00,209 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Siskiyou from API.
+2025-07-10 07:26:00,439 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Siskiyou: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27SISKIYOU%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:26:01,677 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Siskiyou: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27SISKIYOU%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:26:03,928 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Siskiyou: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27SISKIYOU%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:26:07,932 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Siskiyou after 3 attempts.
+2025-07-10 07:26:07,932 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Siskiyou
+2025-07-10 07:26:07,932 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Tehama from API.
+2025-07-10 07:26:08,258 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Tehama: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27TEHAMA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:26:09,597 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Tehama: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27TEHAMA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:26:11,868 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Tehama: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27TEHAMA%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:26:15,872 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Tehama after 3 attempts.
+2025-07-10 07:26:15,872 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Tehama
+2025-07-10 07:26:15,872 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Trinity from API.
+2025-07-10 07:26:16,072 - zoning.data_sources - WARNING - Attempt 1 failed to fetch FMMP data for Trinity: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27TRINITY%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:26:17,276 - zoning.data_sources - WARNING - Attempt 2 failed to fetch FMMP data for Trinity: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27TRINITY%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:26:19,529 - zoning.data_sources - WARNING - Attempt 3 failed to fetch FMMP data for Trinity: 403 Client Error: ModSecurity Action for url: https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query?where=COUNTY+%3D+%27TRINITY%27&outFields=%2A&f=geojson&returnGeometry=true
+2025-07-10 07:26:23,533 - zoning.data_sources - ERROR - Failed to fetch FMMP data for Trinity after 3 attempts.
+2025-07-10 07:26:23,534 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Trinity
+2025-07-10 07:26:23,534 - zoning.geo_infer_zoning - WARNING - Could not fetch Oregon EFU data: fetch_oregon_efu_data() missing 1 required positional argument: 'county'
+2025-07-10 07:26:23,534 - zoning.geo_infer_zoning - INFO - Generating fallback zoning data
+2025-07-10 07:26:23,534 - zoning.geo_infer_zoning - INFO - Converting 3 polygons to H3 resolution 8
+2025-07-10 07:26:23,535 - zoning.geo_infer_zoning - INFO - Created H3 index for 63 hexagons
+2025-07-10 07:26:23,535 - unified_backend - INFO - Processing current_use module...
+2025-07-10 07:26:23,535 - current_use.geo_infer_current_use - INFO - Processing current use for 2024 at H3 resolution 8
+2025-07-10 07:26:23,535 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,535 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,535 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,535 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,535 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,535 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,535 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,535 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,535 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,535 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,535 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,535 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,535 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,535 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,535 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,535 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,536 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,536 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,536 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,536 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,536 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,536 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,536 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,537 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,537 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,537 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,537 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,537 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,537 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:26:23,537 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:26:23,537 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Butte: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Colusa: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Del Norte: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Glenn: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Humboldt: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Lake: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Lassen: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Mendocino: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Modoc: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Nevada: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Plumas: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Shasta: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Sierra: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Siskiyou: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Tehama: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,538 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Trinity: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:26:23,539 - current_use.data_sources - ERROR - Local Oregon EFU file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/oregon_efu/efu_report_2024.csv
+2025-07-10 07:26:23,539 - current_use.data_sources - INFO - Please download the EFU report from:
+2025-07-10 07:26:23,539 - current_use.data_sources - INFO - https://www.oregon.gov/lcd/FF/Pages/Farm-Forest-Reports.aspx
+2025-07-10 07:26:23,539 - current_use.data_sources - INFO - Convert to CSV if needed and place in data/oregon_efu/
+2025-07-10 07:26:23,639 - current_use.geo_infer_current_use - INFO - Processed current use for 84 hexagons
+2025-07-10 07:26:23,640 - unified_backend - INFO - Processing ownership module...
+2025-07-10 07:26:23,640 - unified_backend - INFO - Processing mortgage_debt module...
+2025-07-10 07:26:23,640 - unified_backend - INFO - Processing improvements module...
+2025-07-10 07:26:23,640 - unified_backend - INFO - Processing surface_water module...
+2025-07-10 07:26:23,641 - unified_backend - INFO - Processing ground_water module...
+2025-07-10 07:26:23,641 - unified_backend - INFO - Processing power_source module...
+2025-07-10 07:26:23,641 - __main__ - INFO - Calculating agricultural redevelopment potential...
+2025-07-10 07:26:23,642 - __main__ - INFO - Generating comprehensive summary...
+2025-07-10 07:26:23,642 - __main__ - INFO - Exporting unified data to output/cascadia_unified_data_20250710_072623.geojson
+2025-07-10 07:26:23,657 - __main__ - INFO - Exporting redevelopment scores to output/cascadia_redevelopment_scores_20250710_072623.json
+2025-07-10 07:26:23,661 - __main__ - INFO - Exporting comprehensive summary to output/cascadia_summary_20250710_072623.json
+2025-07-10 07:26:23,661 - __main__ - INFO - Generating analysis report to output/cascadia_analysis_report_20250710_072623.md
+
+================================================================================
+CASCADIA AGRICULTURAL ANALYSIS SUMMARY
+================================================================================
+Total Hexagons Analyzed: 204
+H3 Resolution: 8
+Modules Analyzed: 8
+
+Redevelopment Potential:
+  Mean Score: 0.000
+  High Potential: 0 hexagons
+  Low Potential: 0 hexagons
+
+Module Status:
+  Zoning: ✓ SUCCESS (204 hexagons)
+  Current Use: ✓ SUCCESS (204 hexagons)
+  Ownership: ✓ SUCCESS (204 hexagons)
+  Mortgage Debt: ✓ SUCCESS (204 hexagons)
+  Improvements: ✓ SUCCESS (204 hexagons)
+  Surface Water: ✓ SUCCESS (204 hexagons)
+  Ground Water: ✓ SUCCESS (204 hexagons)
+  Power Source: ✓ SUCCESS (204 hexagons)
+================================================================================
+2025-07-10 07:26:23,661 - __main__ - INFO - ================================================================================
+2025-07-10 07:26:23,661 - __main__ - INFO - Analysis completed successfully!
+2025-07-10 07:26:23,661 - __main__ - INFO - Results saved to: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/output
+2025-07-10 07:26:23,661 - __main__ - INFO - ================================================================================

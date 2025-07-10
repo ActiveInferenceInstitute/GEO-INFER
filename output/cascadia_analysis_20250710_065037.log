@@ -1,0 +1,475 @@
+2025-07-10 06:50:37,582 - __main__ - INFO - ================================================================================
+2025-07-10 06:50:37,582 - __main__ - INFO - Cascadia Agricultural Land Analysis Framework
+2025-07-10 06:50:37,583 - __main__ - INFO - ================================================================================
+2025-07-10 06:50:37,583 - __main__ - INFO - Output directory: /home/trim/Documents/GitHub/GEO-INFER/output
+2025-07-10 06:50:37,583 - __main__ - INFO - Configuration validation successful
+2025-07-10 06:50:37,829 - numexpr.utils - INFO - NumExpr defaulting to 12 threads.
+2025-07-10 06:50:38,561 - rasterio.env - DEBUG - GDAL data found in package: path='/home/trim/.local/lib/python3.10/site-packages/rasterio/gdal_data'.
+2025-07-10 06:50:38,562 - rasterio.env - DEBUG - PROJ data found in package: path='/home/trim/.local/lib/python3.10/site-packages/rasterio/proj_data'.
+2025-07-10 06:50:38,577 - __main__ - INFO - Initializing Cascadia Agricultural H3 Backend (resolution: 8)
+2025-07-10 06:50:38,577 - unified_backend - INFO - Defined 204 hexagons for Cascadia bioregion
+2025-07-10 06:50:38,577 - zoning.geo_infer_zoning - INFO - GeoInferZoning initialized with H3 resolution 8
+2025-07-10 06:50:38,577 - current_use.geo_infer_current_use - INFO - GeoInferCurrentUse initialized with H3 resolution 8
+2025-07-10 06:50:38,577 - ownership.geo_infer_ownership - INFO - GeoInferOwnership initialized with H3 resolution 8
+2025-07-10 06:50:38,577 - mortgage_debt.geo_infer_mortgage_debt - INFO - GeoInferMortgageDebt initialized with H3 resolution 8
+2025-07-10 06:50:38,577 - improvements.geo_infer_improvements - INFO - GeoInferImprovements initialized with H3 resolution 8
+2025-07-10 06:50:38,577 - surface_water.geo_infer_surface_water - INFO - GeoInferSurfaceWater initialized with H3 resolution 8
+2025-07-10 06:50:38,577 - ground_water.geo_infer_ground_water - INFO - GeoInferGroundWater initialized with H3 resolution 8
+2025-07-10 06:50:38,577 - power_source.geo_infer_power_source - INFO - GeoInferPowerSource initialized with H3 resolution 8
+2025-07-10 06:50:38,577 - unified_backend - INFO - CascadiaAgriculturalH3Backend initialized with 8 modules at H3 resolution 8
+2025-07-10 06:50:38,578 - __main__ - INFO - Starting comprehensive agricultural analysis...
+2025-07-10 06:50:38,578 - unified_backend - INFO - Processing zoning module...
+2025-07-10 06:50:38,578 - zoning.data_sources - ERROR - FMMP shapefile for Butte not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Butte.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,578 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Butte
+2025-07-10 06:50:38,578 - zoning.data_sources - ERROR - FMMP shapefile for Colusa not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Colusa.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,578 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Colusa
+2025-07-10 06:50:38,578 - zoning.data_sources - ERROR - FMMP shapefile for Del Norte not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Del Norte.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,578 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Del Norte
+2025-07-10 06:50:38,578 - zoning.data_sources - ERROR - FMMP shapefile for Glenn not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Glenn.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,578 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Glenn
+2025-07-10 06:50:38,578 - zoning.data_sources - ERROR - FMMP shapefile for Humboldt not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Humboldt.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,578 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Humboldt
+2025-07-10 06:50:38,578 - zoning.data_sources - ERROR - FMMP shapefile for Lake not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Lake.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,578 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Lake
+2025-07-10 06:50:38,578 - zoning.data_sources - ERROR - FMMP shapefile for Lassen not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Lassen.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,578 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Lassen
+2025-07-10 06:50:38,578 - zoning.data_sources - ERROR - FMMP shapefile for Mendocino not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Mendocino.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,578 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Mendocino
+2025-07-10 06:50:38,578 - zoning.data_sources - ERROR - FMMP shapefile for Modoc not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Modoc.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,579 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Modoc
+2025-07-10 06:50:38,579 - zoning.data_sources - ERROR - FMMP shapefile for Nevada not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Nevada.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,579 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Nevada
+2025-07-10 06:50:38,579 - zoning.data_sources - ERROR - FMMP shapefile for Plumas not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Plumas.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,579 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Plumas
+2025-07-10 06:50:38,579 - zoning.data_sources - ERROR - FMMP shapefile for Shasta not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Shasta.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,579 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Shasta
+2025-07-10 06:50:38,579 - zoning.data_sources - ERROR - FMMP shapefile for Sierra not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Sierra.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,579 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Sierra
+2025-07-10 06:50:38,579 - zoning.data_sources - ERROR - FMMP shapefile for Siskiyou not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Siskiyou.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,579 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Siskiyou
+2025-07-10 06:50:38,579 - zoning.data_sources - ERROR - FMMP shapefile for Tehama not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Tehama.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,579 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Tehama
+2025-07-10 06:50:38,579 - zoning.data_sources - ERROR - FMMP shapefile for Trinity not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Trinity.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 06:50:38,579 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Trinity
+2025-07-10 06:50:38,579 - zoning.data_sources - INFO - Fetching Oregon EFU data for All Oregon Counties
+2025-07-10 06:50:38,579 - zoning.data_sources - INFO - Oregon EFU data structure created (placeholder)
+2025-07-10 06:50:38,579 - zoning.geo_infer_zoning - INFO - Converting 3 polygons to H3 resolution 8
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882833c769fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828ae8595fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88283124edfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88288536c1fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828ada6e9fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8829898215fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8829884265fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882885441dfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828ad1b15fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a07a3bfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828f42d91fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281989cbfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828185985fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a9ce95fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281c318dfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88298e68b9fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a5b885fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281318edfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828ab7713fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882833b65bfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281b05c3fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882806270dfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828064c07fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88298b502dfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a5c9a3fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882988ad49fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,580 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281d8d61fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828320c23fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828f5052dfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88298baac7fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882815c259fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88288c854bfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828814635fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828129355fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828169031fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88280016c1fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a344a1fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828f6a2dbfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828140f45fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828038d9dfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a1ba37fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828e6896dfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281b592dfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281ed36bfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a9a66dfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828100a5bfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882881365bfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88298a6a17fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828183165fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,581 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882804ab1bfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,582 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828aa851bfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,582 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828024f69fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,582 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828aecb6dfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,582 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a4788dfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,582 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281c4a03fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,582 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828122931fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,582 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828ac7495fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,582 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a87411fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,582 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828e2d581fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,582 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828f6ceedfffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,582 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882811d007fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,582 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828022215fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,582 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a1c955fffff: module 'h3' has no attribute 'cell_to_latlng'
+2025-07-10 06:50:38,582 - zoning.geo_infer_zoning - INFO - Created H3 index for 0 hexagons
+2025-07-10 06:50:38,582 - unified_backend - INFO - Processing current_use module...
+2025-07-10 06:50:38,582 - current_use.geo_infer_current_use - INFO - Processing current use for 2024 at H3 resolution 8
+2025-07-10 06:50:38,582 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,582 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,582 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,582 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,582 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,583 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,583 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,583 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,583 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,583 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,583 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,584 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,584 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,584 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,584 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,584 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,584 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,584 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,584 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,584 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,584 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,584 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,584 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,584 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,584 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,584 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,584 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,584 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,584 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,585 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,585 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,585 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,585 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 06:50:38,585 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 06:50:38,586 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Butte.shp
+2025-07-10 06:50:38,586 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,586 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,586 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,587 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Colusa.shp
+2025-07-10 06:50:38,588 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,588 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,588 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,588 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Del Norte.shp
+2025-07-10 06:50:38,588 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,588 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,588 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,589 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Glenn.shp
+2025-07-10 06:50:38,589 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,589 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,589 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,589 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Humboldt.shp
+2025-07-10 06:50:38,589 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,589 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,589 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,589 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Lake.shp
+2025-07-10 06:50:38,589 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,589 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,589 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,590 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Lassen.shp
+2025-07-10 06:50:38,590 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,590 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,590 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,590 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Mendocino.shp
+2025-07-10 06:50:38,590 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,590 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,590 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,591 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Modoc.shp
+2025-07-10 06:50:38,591 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,591 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,591 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,591 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Nevada.shp
+2025-07-10 06:50:38,591 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,591 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,591 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,591 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Plumas.shp
+2025-07-10 06:50:38,591 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,592 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,592 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,592 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Shasta.shp
+2025-07-10 06:50:38,592 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,592 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,592 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,592 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Sierra.shp
+2025-07-10 06:50:38,592 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,593 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,593 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,593 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Siskiyou.shp
+2025-07-10 06:50:38,593 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,593 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,593 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,593 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Tehama.shp
+2025-07-10 06:50:38,593 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,593 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,594 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,594 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Trinity.shp
+2025-07-10 06:50:38,594 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 06:50:38,594 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 06:50:38,594 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 06:50:38,594 - current_use.data_sources - ERROR - Local Oregon EFU file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/oregon_efu/efu_report_2024.csv
+2025-07-10 06:50:38,595 - current_use.data_sources - INFO - Please download the EFU report from:
+2025-07-10 06:50:38,595 - current_use.data_sources - INFO - https://www.oregon.gov/lcd/FF/Pages/Farm-Forest-Reports.aspx
+2025-07-10 06:50:38,595 - current_use.data_sources - INFO - Convert to CSV if needed and place in data/oregon_efu/
+2025-07-10 06:50:38,749 - current_use.geo_infer_current_use - INFO - Processed current use for 84 hexagons
+2025-07-10 06:50:38,749 - unified_backend - INFO - Processing ownership module...
+2025-07-10 06:50:38,749 - unified_backend - INFO - Processing mortgage_debt module...
+2025-07-10 06:50:38,750 - unified_backend - INFO - Processing improvements module...
+2025-07-10 06:50:38,750 - unified_backend - INFO - Processing surface_water module...
+2025-07-10 06:50:38,750 - unified_backend - INFO - Processing ground_water module...
+2025-07-10 06:50:38,750 - unified_backend - INFO - Processing power_source module...
+2025-07-10 06:50:38,751 - __main__ - INFO - Calculating agricultural redevelopment potential...
+2025-07-10 06:50:38,752 - __main__ - INFO - Generating comprehensive summary...
+2025-07-10 06:50:38,753 - __main__ - INFO - Exporting unified data to output/cascadia_unified_data_20250710_065038.geojson
+2025-07-10 06:50:38,753 - unified_backend - WARNING - Could not export hexagon 88280046c9fffff: 'lat_lng'
+2025-07-10 06:50:38,753 - unified_backend - WARNING - Could not export hexagon 88280208e7fffff: 'lat_lng'
+2025-07-10 06:50:38,753 - unified_backend - WARNING - Could not export hexagon 8828023015fffff: 'lat_lng'
+2025-07-10 06:50:38,753 - unified_backend - WARNING - Could not export hexagon 8828024a4dfffff: 'lat_lng'
+2025-07-10 06:50:38,753 - unified_backend - WARNING - Could not export hexagon 882802968dfffff: 'lat_lng'
+2025-07-10 06:50:38,753 - unified_backend - WARNING - Could not export hexagon 8828037827fffff: 'lat_lng'
+2025-07-10 06:50:38,753 - unified_backend - WARNING - Could not export hexagon 882803c051fffff: 'lat_lng'
+2025-07-10 06:50:38,753 - unified_backend - WARNING - Could not export hexagon 8828041809fffff: 'lat_lng'
+2025-07-10 06:50:38,753 - unified_backend - WARNING - Could not export hexagon 8828046d19fffff: 'lat_lng'
+2025-07-10 06:50:38,753 - unified_backend - WARNING - Could not export hexagon 8828061a99fffff: 'lat_lng'
+2025-07-10 06:50:38,753 - unified_backend - WARNING - Could not export hexagon 8828065361fffff: 'lat_lng'
+2025-07-10 06:50:38,753 - unified_backend - WARNING - Could not export hexagon 8828066eb5fffff: 'lat_lng'
+2025-07-10 06:50:38,753 - unified_backend - WARNING - Could not export hexagon 882806a1edfffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 8828101417fffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 882810a45dfffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 882810cca3fffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 8828110f13fffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 8828113751fffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 882811402bfffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 8828119a05fffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 8828121817fffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 8828126dd1fffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 882812a84bfffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 8828133b49fffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 882813471dfffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 88281391d5fffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 882813d261fffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 8828142aabfffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 8828147889fffff: 'lat_lng'
+2025-07-10 06:50:38,754 - unified_backend - WARNING - Could not export hexagon 8828148ed5fffff: 'lat_lng'
+2025-07-10 06:50:38,755 - unified_backend - WARNING - Could not export hexagon 882814c2b3fffff: 'lat_lng'
+2025-07-10 06:50:38,755 - unified_backend - WARNING - Could not export hexagon 8828150259fffff: 'lat_lng'
+2025-07-10 06:50:38,755 - unified_backend - WARNING - Could not export hexagon 8828155213fffff: 'lat_lng'
+2025-07-10 06:50:38,755 - unified_backend - WARNING - Could not export hexagon 882815a08bfffff: 'lat_lng'
+2025-07-10 06:50:38,755 - unified_backend - WARNING - Could not export hexagon 8828162e03fffff: 'lat_lng'
+2025-07-10 06:50:38,755 - unified_backend - WARNING - Could not export hexagon 88281662adfffff: 'lat_lng'
+2025-07-10 06:50:38,755 - unified_backend - WARNING - Could not export hexagon 882816b165fffff: 'lat_lng'
+2025-07-10 06:50:38,755 - unified_backend - WARNING - Could not export hexagon 882816c6c5fffff: 'lat_lng'
+2025-07-10 06:50:38,755 - unified_backend - WARNING - Could not export hexagon 882818148dfffff: 'lat_lng'
+2025-07-10 06:50:38,755 - unified_backend - WARNING - Could not export hexagon 882818a413fffff: 'lat_lng'
+2025-07-10 06:50:38,755 - unified_backend - WARNING - Could not export hexagon 882818ccb1fffff: 'lat_lng'
+2025-07-10 06:50:38,755 - unified_backend - WARNING - Could not export hexagon 8828194183fffff: 'lat_lng'
+2025-07-10 06:50:38,755 - unified_backend - WARNING - Could not export hexagon 88281a181bfffff: 'lat_lng'
+2025-07-10 06:50:38,755 - unified_backend - WARNING - Could not export hexagon 88281a6d9dfffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281aa85dfffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281b3b35fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281b4553fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281b826dfffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281bd221fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281c2a95fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281c6367fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281c85c7fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281cd5bdfffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281d52d5fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281e2e53fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281e62c1fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281e890bfffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281eb149fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88281ed9e1fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 8828312435fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 8828314db7fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 8828317589fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 88283231edfffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 8828324b23fffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 882832734dfffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 882833294dfffff: 'lat_lng'
+2025-07-10 06:50:38,756 - unified_backend - WARNING - Could not export hexagon 8828337905fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 8828338f03fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 882833c151fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 8828802723fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 88288075cdfffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 8828808693fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 882880886dfffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 8828811655fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 882881688bfffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 882881b5d9fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 882881ce81fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 88288311b5fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 882883a139fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 8828840f55fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 882884ad33fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 8828853881fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 8828857121fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 88288582a3fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 882885d093fffff: 'lat_lng'
+2025-07-10 06:50:38,757 - unified_backend - WARNING - Could not export hexagon 8828888689fffff: 'lat_lng'
+2025-07-10 06:50:38,758 - unified_backend - WARNING - Could not export hexagon 8828888b6bfffff: 'lat_lng'
+2025-07-10 06:50:38,758 - unified_backend - WARNING - Could not export hexagon 882888d863fffff: 'lat_lng'
+2025-07-10 06:50:38,758 - unified_backend - WARNING - Could not export hexagon 88288c01e1fffff: 'lat_lng'
+2025-07-10 06:50:38,758 - unified_backend - WARNING - Could not export hexagon 88288c4265fffff: 'lat_lng'
+2025-07-10 06:50:38,758 - unified_backend - WARNING - Could not export hexagon 88288cad47fffff: 'lat_lng'
+2025-07-10 06:50:38,758 - unified_backend - WARNING - Could not export hexagon 88288d39d3fffff: 'lat_lng'
+2025-07-10 06:50:38,758 - unified_backend - WARNING - Could not export hexagon 88288d7a55fffff: 'lat_lng'
+2025-07-10 06:50:38,758 - unified_backend - WARNING - Could not export hexagon 88288d8051fffff: 'lat_lng'
+2025-07-10 06:50:38,758 - unified_backend - WARNING - Could not export hexagon 88288dd0c3fffff: 'lat_lng'
+2025-07-10 06:50:38,758 - unified_backend - WARNING - Could not export hexagon 88288e04adfffff: 'lat_lng'
+2025-07-10 06:50:38,758 - unified_backend - WARNING - Could not export hexagon 88288e4653fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 88288e9051fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 88289d9691fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 88289d986dfffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a02d2dfffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a06a9dfffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a0b6b5fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a0b969fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a0ced9fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a1005bfffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a15089fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a1ae0dfffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a211c5fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a265abfffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a2a335fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a306c5fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a30b65fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a3590bfffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a3a4b5fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a42325fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a47139fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a48761fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a4d50bfffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a524a3fffff: 'lat_lng'
+2025-07-10 06:50:38,759 - unified_backend - WARNING - Could not export hexagon 8828a56611fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828a58d2dfffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828a5b089fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828a5ca81fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828a6270dfffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828a67425fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828a68865fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828a6b34dfffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828a828d3fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828a8610bfffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828a88e9bfffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828a8c703fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828a9023bfffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828a952a3fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828a9ae6bfffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828aa135bfffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828aa6461fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828aab1e3fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828aac855fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828ab0653fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828ab56c3fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828ab5b6bfffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828aba4a1fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828ac09b1fffff: 'lat_lng'
+2025-07-10 06:50:38,760 - unified_backend - WARNING - Could not export hexagon 8828ac31e9fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828ac484dfffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828ac9405fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828ad2481fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828ad2965fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828ad7935fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828ad8f29fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828adb295fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828adc15dfffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828ae0d99fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828ae3421fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828ae4e03fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828ae9817fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828e2580dfffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828e6cb29fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828f06aadfffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828f08cbbfffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828f0b4e3fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828f0c505fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828f101b5fffff: 'lat_lng'
+2025-07-10 06:50:38,761 - unified_backend - WARNING - Could not export hexagon 8828f132d3fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f1435bfffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f21335fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f2b8d9fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f2c825fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f39235fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f43a93fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f44869fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f47301fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f495c9fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f5121bfffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f56415fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f5a251fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f5cad5fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f60dbdfffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f635edfffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f64e21fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8828f69839fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 882988072bfffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 8829885515fffff: 'lat_lng'
+2025-07-10 06:50:38,762 - unified_backend - WARNING - Could not export hexagon 882988ae99fffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 8829890d35fffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 8829893093fffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 8829894a95fffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 8829899903fffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 88298a095dfffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 88298a3369fffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 88298a59e7fffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 88298a974dfffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 88298b36b7fffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 88298b3969fffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 88298b4eddfffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 88298b8327fffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 88298bd131fffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 88298e6f37fffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 8829990f3bfffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 8829999b03fffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 882999ada1fffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 88299d030bfffff: 'lat_lng'
+2025-07-10 06:50:38,763 - unified_backend - WARNING - Could not export hexagon 88299da1e1fffff: 'lat_lng'
+2025-07-10 06:50:38,764 - __main__ - INFO - Exporting redevelopment scores to output/cascadia_redevelopment_scores_20250710_065038.json
+2025-07-10 06:50:38,768 - __main__ - INFO - Exporting comprehensive summary to output/cascadia_summary_20250710_065038.json
+2025-07-10 06:50:38,769 - __main__ - INFO - Generating analysis report to output/cascadia_analysis_report_20250710_065038.md
+2025-07-10 06:50:38,770 - __main__ - INFO - ================================================================================
+2025-07-10 06:50:38,770 - __main__ - INFO - Analysis completed successfully!
+2025-07-10 06:50:38,770 - __main__ - INFO - Results saved to: /home/trim/Documents/GitHub/GEO-INFER/output
+2025-07-10 06:50:38,770 - __main__ - INFO - ================================================================================

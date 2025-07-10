@@ -1,0 +1,1327 @@
+2025-07-10 07:58:50,110 - __main__ - INFO - ================================================================================
+2025-07-10 07:58:50,110 - __main__ - INFO - Cascadia Agricultural Land Analysis Framework
+2025-07-10 07:58:50,110 - __main__ - INFO - ================================================================================
+2025-07-10 07:58:50,110 - __main__ - INFO - ✓ h3 is available
+2025-07-10 07:58:50,231 - __main__ - INFO - ✓ numpy is available
+2025-07-10 07:58:50,359 - numexpr.utils - INFO - NumExpr defaulting to 12 threads.
+2025-07-10 07:58:50,514 - __main__ - INFO - ✓ pandas is available
+2025-07-10 07:58:50,591 - __main__ - INFO - ✓ geopandas is available
+2025-07-10 07:58:50,591 - __main__ - INFO - ✓ shapely is available
+2025-07-10 07:58:50,646 - __main__ - INFO - ✓ requests is available
+2025-07-10 07:58:50,707 - __main__ - INFO - ✓ rasterio is available
+2025-07-10 07:58:50,847 - __main__ - INFO - ✓ folium is available
+2025-07-10 07:58:50,847 - __main__ - INFO - All dependencies are available
+2025-07-10 07:58:50,847 - __main__ - INFO - Output directory: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/output
+2025-07-10 07:58:50,847 - __main__ - INFO - Configuration validation successful
+2025-07-10 07:58:50,949 - __main__ - INFO - Initializing Cascadia Agricultural H3 Backend (resolution: 8)
+2025-07-10 07:58:50,949 - unified_backend - INFO - Defined 204 hexagons for Cascadia bioregion
+2025-07-10 07:58:50,949 - zoning.geo_infer_zoning - INFO - GeoInferZoning initialized with H3 resolution 8
+2025-07-10 07:58:50,949 - current_use.geo_infer_current_use - INFO - GeoInferCurrentUse initialized with H3 resolution 8
+2025-07-10 07:58:50,949 - ownership.geo_infer_ownership - INFO - GeoInferOwnership initialized with H3 resolution 8
+2025-07-10 07:58:50,949 - mortgage_debt.geo_infer_mortgage_debt - INFO - GeoInferMortgageDebt initialized with H3 resolution 8
+2025-07-10 07:58:50,949 - improvements.geo_infer_improvements - INFO - GeoInferImprovements initialized with H3 resolution 8
+2025-07-10 07:58:50,949 - surface_water.geo_infer_surface_water - INFO - GeoInferSurfaceWater initialized with H3 resolution 8
+2025-07-10 07:58:50,949 - ground_water.geo_infer_ground_water - INFO - GeoInferGroundWater initialized with H3 resolution 8
+2025-07-10 07:58:50,949 - power_source.geo_infer_power_source - INFO - GeoInferPowerSource initialized with H3 resolution 8
+2025-07-10 07:58:50,950 - unified_backend - INFO - CascadiaAgriculturalH3Backend initialized with 8 modules at H3 resolution 8
+2025-07-10 07:58:50,950 - __main__ - INFO - Starting comprehensive agricultural analysis...
+2025-07-10 07:58:50,950 - unified_backend - INFO - Processing zoning module...
+2025-07-10 07:58:50,950 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Butte from API.
+2025-07-10 07:58:53,727 - zoning.data_sources - INFO - Fetched 2000 FMMP features for Butte from API.
+2025-07-10 07:58:53,727 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Colusa from API.
+2025-07-10 07:58:56,008 - zoning.data_sources - INFO - Fetched 1580 FMMP features for Colusa from API.
+2025-07-10 07:58:56,010 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Del Norte from API.
+2025-07-10 07:58:56,460 - zoning.data_sources - INFO - Fetched 0 FMMP features for Del Norte from API.
+2025-07-10 07:58:56,461 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Glenn from API.
+2025-07-10 07:59:00,346 - zoning.data_sources - INFO - Fetched 2000 FMMP features for Glenn from API.
+2025-07-10 07:59:00,347 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Humboldt from API.
+2025-07-10 07:59:00,748 - zoning.data_sources - INFO - Fetched 0 FMMP features for Humboldt from API.
+2025-07-10 07:59:00,749 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Lake from API.
+2025-07-10 07:59:07,658 - zoning.data_sources - INFO - Fetched 2000 FMMP features for Lake from API.
+2025-07-10 07:59:07,658 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Lassen from API.
+2025-07-10 07:59:08,235 - zoning.data_sources - INFO - Fetched 0 FMMP features for Lassen from API.
+2025-07-10 07:59:08,236 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Mendocino from API.
+2025-07-10 07:59:11,717 - zoning.data_sources - INFO - Fetched 2000 FMMP features for Mendocino from API.
+2025-07-10 07:59:11,717 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Modoc from API.
+2025-07-10 07:59:15,819 - zoning.data_sources - INFO - Fetched 2000 FMMP features for Modoc from API.
+2025-07-10 07:59:15,821 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Nevada from API.
+2025-07-10 07:59:18,755 - zoning.data_sources - INFO - Fetched 750 FMMP features for Nevada from API.
+2025-07-10 07:59:18,755 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Plumas from API.
+2025-07-10 07:59:19,148 - zoning.data_sources - INFO - Fetched 0 FMMP features for Plumas from API.
+2025-07-10 07:59:19,149 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Shasta from API.
+2025-07-10 07:59:21,899 - zoning.data_sources - INFO - Fetched 1799 FMMP features for Shasta from API.
+2025-07-10 07:59:21,899 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Sierra from API.
+2025-07-10 07:59:22,292 - zoning.data_sources - INFO - Fetched 0 FMMP features for Sierra from API.
+2025-07-10 07:59:22,293 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Siskiyou from API.
+2025-07-10 07:59:24,965 - zoning.data_sources - INFO - Fetched 2000 FMMP features for Siskiyou from API.
+2025-07-10 07:59:24,966 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Tehama from API.
+2025-07-10 07:59:28,496 - zoning.data_sources - INFO - Fetched 2000 FMMP features for Tehama from API.
+2025-07-10 07:59:28,498 - zoning.data_sources - INFO - Local shapefile not found or failed. Fetching FMMP data for Trinity from API.
+2025-07-10 07:59:28,915 - zoning.data_sources - INFO - Fetched 0 FMMP features for Trinity from API.
+2025-07-10 07:59:28,915 - zoning.geo_infer_zoning - WARNING - Could not fetch Oregon EFU data: fetch_oregon_efu_data() missing 1 required positional argument: 'county'
+2025-07-10 07:59:28,916 - zoning.geo_infer_zoning - INFO - Converting 3 polygons to H3 resolution 8
+2025-07-10 07:59:28,916 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a9a66dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,917 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a9a66dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,917 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829898215fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,917 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8829898215fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,917 - utils_h3 - ERROR - h3_to_geo conversion failed for 882885441dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,917 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882885441dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,918 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828aecb6dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,918 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828aecb6dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,918 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829884265fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,918 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8829884265fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,918 - utils_h3 - ERROR - h3_to_geo conversion failed for 882806270dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,919 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882806270dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,919 - utils_h3 - ERROR - h3_to_geo conversion failed for 882833b65bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,919 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882833b65bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,919 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298e68b9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,920 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88298e68b9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,920 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281d8d61fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,920 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281d8d61fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,920 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281b592dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,921 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281b592dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,921 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288536c1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,921 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88288536c1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,921 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f5052dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,921 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828f5052dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,922 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828aa851bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,922 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828aa851bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,922 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288c854bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,922 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88288c854bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,922 - utils_h3 - ERROR - h3_to_geo conversion failed for 882988ad49fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,922 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882988ad49fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,923 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281c318dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,923 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281c318dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,923 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828185985fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,923 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828185985fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,923 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281318edfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,923 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281318edfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,924 - utils_h3 - ERROR - h3_to_geo conversion failed for 882833c769fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,924 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882833c769fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,924 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ada6e9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,924 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828ada6e9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,924 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ac7495fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,925 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828ac7495fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,925 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828022215fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,925 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828022215fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,925 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828e6896dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,925 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828e6896dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,925 - utils_h3 - ERROR - h3_to_geo conversion failed for 882815c259fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882815c259fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ab7713fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828ab7713fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828814635fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828814635fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281c4a03fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281c4a03fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828064c07fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828064c07fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828038d9dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828038d9dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f6ceedfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828f6ceedfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a344a1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a344a1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828100a5bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828100a5bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,926 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281b05c3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281b05c3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828024f69fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828024f69fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828129355fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828129355fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a1ba37fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a1ba37fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a1c955fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a1c955fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f42d91fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828f42d91fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a4788dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a4788dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a07a3bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a07a3bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828140f45fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828140f45fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298baac7fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88298baac7fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828169031fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828169031fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 882804ab1bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882804ab1bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828122931fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828122931fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a5b885fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a5b885fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ae8595fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828ae8595fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,927 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a5c9a3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a5c9a3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - utils_h3 - ERROR - h3_to_geo conversion failed for 88283124edfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88283124edfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828183165fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828183165fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a87411fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a87411fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ad1b15fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828ad1b15fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281989cbfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281989cbfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828e2d581fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828e2d581fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - utils_h3 - ERROR - h3_to_geo conversion failed for 882811d007fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882811d007fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - utils_h3 - ERROR - h3_to_geo conversion failed for 88280016c1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88280016c1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298a6a17fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88298a6a17fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f6a2dbfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828f6a2dbfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281ed36bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88281ed36bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828320c23fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828320c23fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,928 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a9ce95fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,929 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 8828a9ce95fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,929 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298b502dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,929 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 88298b502dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,929 - utils_h3 - ERROR - h3_to_geo conversion failed for 882881365bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,929 - zoning.geo_infer_zoning - WARNING - Error indexing hexagon 882881365bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:28,929 - zoning.geo_infer_zoning - INFO - Created H3 index for 0 hexagons
+2025-07-10 07:59:29,052 - unified_backend - INFO - Processing current_use module...
+2025-07-10 07:59:29,052 - current_use.geo_infer_current_use - INFO - Processing current use for 2024 at H3 resolution 8
+2025-07-10 07:59:29,052 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,052 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,052 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,052 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,052 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,052 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,052 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,052 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,052 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,052 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,052 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,052 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,052 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,052 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,052 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,052 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,052 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,052 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,052 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,053 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,054 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,054 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,054 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,054 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,054 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,054 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,054 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,054 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,054 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,054 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,054 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:59:29,054 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:59:29,054 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:59:29,054 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:59:29,054 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Butte: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,054 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Colusa: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,054 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Del Norte: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,054 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Glenn: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,054 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Humboldt: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,054 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Lake: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,054 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Lassen: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,054 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Mendocino: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,054 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Modoc: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,054 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Nevada: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,054 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Plumas: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,054 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Shasta: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,055 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Sierra: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,055 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Siskiyou: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,055 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Tehama: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,055 - current_use.geo_infer_current_use - WARNING - Could not fetch Land IQ data for Trinity: CascadianCurrentUseDataSources.fetch_land_iq_data() takes 2 positional arguments but 3 were given
+2025-07-10 07:59:29,055 - current_use.data_sources - ERROR - Local Oregon EFU file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/oregon_efu/efu_report_2024.csv
+2025-07-10 07:59:29,055 - current_use.data_sources - INFO - Please download the EFU report from:
+2025-07-10 07:59:29,055 - current_use.data_sources - INFO - https://www.oregon.gov/lcd/FF/Pages/Farm-Forest-Reports.aspx
+2025-07-10 07:59:29,055 - current_use.data_sources - INFO - Convert to CSV if needed and place in data/oregon_efu/
+2025-07-10 07:59:29,056 - current_use.geo_infer_current_use - WARNING - Could not generate H3 hexagon for 40.0, -122.0: polyfill() got an unexpected keyword argument 'k'
+2025-07-10 07:59:29,056 - current_use.geo_infer_current_use - WARNING - Could not generate H3 hexagon for 40.5, -121.5: polyfill() got an unexpected keyword argument 'k'
+2025-07-10 07:59:29,056 - current_use.geo_infer_current_use - WARNING - Could not generate H3 hexagon for 41.0, -123.0: polyfill() got an unexpected keyword argument 'k'
+2025-07-10 07:59:29,056 - current_use.geo_infer_current_use - WARNING - Could not generate H3 hexagon for 41.5, -122.5: polyfill() got an unexpected keyword argument 'k'
+2025-07-10 07:59:29,056 - current_use.geo_infer_current_use - WARNING - Could not generate H3 hexagon for 42.0, -121.0: polyfill() got an unexpected keyword argument 'k'
+2025-07-10 07:59:29,056 - current_use.geo_infer_current_use - WARNING - Could not generate H3 hexagon for 42.5, -120.5: polyfill() got an unexpected keyword argument 'k'
+2025-07-10 07:59:29,056 - current_use.geo_infer_current_use - WARNING - Could not generate H3 hexagon for 43.0, -123.5: polyfill() got an unexpected keyword argument 'k'
+2025-07-10 07:59:29,056 - current_use.geo_infer_current_use - WARNING - Could not generate H3 hexagon for 43.5, -122.0: polyfill() got an unexpected keyword argument 'k'
+2025-07-10 07:59:29,056 - current_use.geo_infer_current_use - WARNING - Could not generate H3 hexagon for 44.0, -121.5: polyfill() got an unexpected keyword argument 'k'
+2025-07-10 07:59:29,056 - current_use.geo_infer_current_use - WARNING - Could not generate H3 hexagon for 44.5, -123.0: polyfill() got an unexpected keyword argument 'k'
+2025-07-10 07:59:29,056 - current_use.geo_infer_current_use - WARNING - Could not generate H3 hexagon for 45.0, -122.5: polyfill() got an unexpected keyword argument 'k'
+2025-07-10 07:59:29,056 - current_use.geo_infer_current_use - WARNING - Could not generate H3 hexagon for 45.5, -121.0: polyfill() got an unexpected keyword argument 'k'
+2025-07-10 07:59:29,056 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828180939fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,056 - unified_backend - WARNING - Error processing current_use: cell_to_boundary() got an unexpected keyword argument 'geo_json'. Skipping.
+2025-07-10 07:59:29,056 - unified_backend - INFO - Processing ownership module...
+2025-07-10 07:59:29,057 - unified_backend - INFO - Processing mortgage_debt module...
+2025-07-10 07:59:29,057 - unified_backend - INFO - Processing improvements module...
+2025-07-10 07:59:29,057 - unified_backend - INFO - Processing surface_water module...
+2025-07-10 07:59:29,057 - unified_backend - INFO - Processing ground_water module...
+2025-07-10 07:59:29,057 - unified_backend - INFO - Processing power_source module...
+2025-07-10 07:59:29,057 - utils_h3 - ERROR - h3_to_geo conversion failed for 88280046c9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,057 - utils_h3 - ERROR - h3_to_geo conversion failed for 88280046c9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,057 - unified_backend - WARNING - Could not convert H3 index 88280046c9fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 88280208e7fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 88280208e7fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - unified_backend - WARNING - Could not convert H3 index 88280208e7fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828023015fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828023015fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - unified_backend - WARNING - Could not convert H3 index 8828023015fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828024a4dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828024a4dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - unified_backend - WARNING - Could not convert H3 index 8828024a4dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 882802968dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 882802968dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - unified_backend - WARNING - Could not convert H3 index 882802968dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828037827fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828037827fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - unified_backend - WARNING - Could not convert H3 index 8828037827fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 882803c051fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 882803c051fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - unified_backend - WARNING - Could not convert H3 index 882803c051fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828041809fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828041809fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - unified_backend - WARNING - Could not convert H3 index 8828041809fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828046d19fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828046d19fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - unified_backend - WARNING - Could not convert H3 index 8828046d19fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828061a99fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828061a99fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - unified_backend - WARNING - Could not convert H3 index 8828061a99fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828065361fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828065361fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - unified_backend - WARNING - Could not convert H3 index 8828065361fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828066eb5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828066eb5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - unified_backend - WARNING - Could not convert H3 index 8828066eb5fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 882806a1edfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - utils_h3 - ERROR - h3_to_geo conversion failed for 882806a1edfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,058 - unified_backend - WARNING - Could not convert H3 index 882806a1edfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828101417fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828101417fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - unified_backend - WARNING - Could not convert H3 index 8828101417fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 882810a45dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 882810a45dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - unified_backend - WARNING - Could not convert H3 index 882810a45dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 882810cca3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 882810cca3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - unified_backend - WARNING - Could not convert H3 index 882810cca3fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828110f13fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828110f13fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - unified_backend - WARNING - Could not convert H3 index 8828110f13fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828113751fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828113751fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - unified_backend - WARNING - Could not convert H3 index 8828113751fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 882811402bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 882811402bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - unified_backend - WARNING - Could not convert H3 index 882811402bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828119a05fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828119a05fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - unified_backend - WARNING - Could not convert H3 index 8828119a05fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828121817fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828121817fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - unified_backend - WARNING - Could not convert H3 index 8828121817fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828126dd1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828126dd1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - unified_backend - WARNING - Could not convert H3 index 8828126dd1fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 882812a84bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,059 - utils_h3 - ERROR - h3_to_geo conversion failed for 882812a84bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - unified_backend - WARNING - Could not convert H3 index 882812a84bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828133b49fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828133b49fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - unified_backend - WARNING - Could not convert H3 index 8828133b49fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 882813471dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 882813471dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - unified_backend - WARNING - Could not convert H3 index 882813471dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281391d5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281391d5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - unified_backend - WARNING - Could not convert H3 index 88281391d5fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 882813d261fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 882813d261fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - unified_backend - WARNING - Could not convert H3 index 882813d261fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828142aabfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828142aabfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - unified_backend - WARNING - Could not convert H3 index 8828142aabfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828147889fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828147889fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - unified_backend - WARNING - Could not convert H3 index 8828147889fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828148ed5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828148ed5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - unified_backend - WARNING - Could not convert H3 index 8828148ed5fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 882814c2b3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 882814c2b3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - unified_backend - WARNING - Could not convert H3 index 882814c2b3fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828150259fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828150259fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - unified_backend - WARNING - Could not convert H3 index 8828150259fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828155213fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828155213fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - unified_backend - WARNING - Could not convert H3 index 8828155213fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 882815a08bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,060 - utils_h3 - ERROR - h3_to_geo conversion failed for 882815a08bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - unified_backend - WARNING - Could not convert H3 index 882815a08bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828162e03fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828162e03fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - unified_backend - WARNING - Could not convert H3 index 8828162e03fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281662adfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281662adfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - unified_backend - WARNING - Could not convert H3 index 88281662adfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 882816b165fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 882816b165fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - unified_backend - WARNING - Could not convert H3 index 882816b165fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 882816c6c5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 882816c6c5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - unified_backend - WARNING - Could not convert H3 index 882816c6c5fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 882818148dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 882818148dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - unified_backend - WARNING - Could not convert H3 index 882818148dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 882818a413fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 882818a413fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - unified_backend - WARNING - Could not convert H3 index 882818a413fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 882818ccb1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 882818ccb1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - unified_backend - WARNING - Could not convert H3 index 882818ccb1fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828194183fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828194183fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - unified_backend - WARNING - Could not convert H3 index 8828194183fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281a181bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281a181bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - unified_backend - WARNING - Could not convert H3 index 88281a181bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,061 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281a6d9dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281a6d9dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - unified_backend - WARNING - Could not convert H3 index 88281a6d9dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281aa85dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281aa85dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - unified_backend - WARNING - Could not convert H3 index 88281aa85dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281b3b35fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281b3b35fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - unified_backend - WARNING - Could not convert H3 index 88281b3b35fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281b4553fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281b4553fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - unified_backend - WARNING - Could not convert H3 index 88281b4553fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281b826dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281b826dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - unified_backend - WARNING - Could not convert H3 index 88281b826dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281bd221fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281bd221fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - unified_backend - WARNING - Could not convert H3 index 88281bd221fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281c2a95fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281c2a95fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - unified_backend - WARNING - Could not convert H3 index 88281c2a95fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281c6367fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281c6367fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - unified_backend - WARNING - Could not convert H3 index 88281c6367fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281c85c7fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281c85c7fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - unified_backend - WARNING - Could not convert H3 index 88281c85c7fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281cd5bdfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281cd5bdfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,062 - unified_backend - WARNING - Could not convert H3 index 88281cd5bdfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281d52d5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281d52d5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - unified_backend - WARNING - Could not convert H3 index 88281d52d5fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281e2e53fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281e2e53fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - unified_backend - WARNING - Could not convert H3 index 88281e2e53fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281e62c1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281e62c1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - unified_backend - WARNING - Could not convert H3 index 88281e62c1fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281e890bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281e890bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - unified_backend - WARNING - Could not convert H3 index 88281e890bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281eb149fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281eb149fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - unified_backend - WARNING - Could not convert H3 index 88281eb149fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281ed9e1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 88281ed9e1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - unified_backend - WARNING - Could not convert H3 index 88281ed9e1fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828312435fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828312435fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - unified_backend - WARNING - Could not convert H3 index 8828312435fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828314db7fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828314db7fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - unified_backend - WARNING - Could not convert H3 index 8828314db7fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828317589fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828317589fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - unified_backend - WARNING - Could not convert H3 index 8828317589fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 88283231edfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - utils_h3 - ERROR - h3_to_geo conversion failed for 88283231edfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,063 - unified_backend - WARNING - Could not convert H3 index 88283231edfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828324b23fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828324b23fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - unified_backend - WARNING - Could not convert H3 index 8828324b23fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 882832734dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 882832734dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - unified_backend - WARNING - Could not convert H3 index 882832734dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 882833294dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 882833294dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - unified_backend - WARNING - Could not convert H3 index 882833294dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828337905fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828337905fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - unified_backend - WARNING - Could not convert H3 index 8828337905fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828338f03fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828338f03fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - unified_backend - WARNING - Could not convert H3 index 8828338f03fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 882833c151fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 882833c151fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - unified_backend - WARNING - Could not convert H3 index 882833c151fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828802723fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828802723fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - unified_backend - WARNING - Could not convert H3 index 8828802723fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288075cdfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288075cdfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,064 - unified_backend - WARNING - Could not convert H3 index 88288075cdfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828808693fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828808693fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - unified_backend - WARNING - Could not convert H3 index 8828808693fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 882880886dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 882880886dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - unified_backend - WARNING - Could not convert H3 index 882880886dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828811655fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828811655fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - unified_backend - WARNING - Could not convert H3 index 8828811655fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 882881688bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 882881688bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - unified_backend - WARNING - Could not convert H3 index 882881688bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 882881b5d9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 882881b5d9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - unified_backend - WARNING - Could not convert H3 index 882881b5d9fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 882881ce81fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 882881ce81fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - unified_backend - WARNING - Could not convert H3 index 882881ce81fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288311b5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288311b5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - unified_backend - WARNING - Could not convert H3 index 88288311b5fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 882883a139fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 882883a139fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - unified_backend - WARNING - Could not convert H3 index 882883a139fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828840f55fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828840f55fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - unified_backend - WARNING - Could not convert H3 index 8828840f55fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 882884ad33fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 882884ad33fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - unified_backend - WARNING - Could not convert H3 index 882884ad33fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828853881fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828853881fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - unified_backend - WARNING - Could not convert H3 index 8828853881fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,065 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828857121fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828857121fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - unified_backend - WARNING - Could not convert H3 index 8828857121fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288582a3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288582a3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - unified_backend - WARNING - Could not convert H3 index 88288582a3fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 882885d093fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 882885d093fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - unified_backend - WARNING - Could not convert H3 index 882885d093fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828888689fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828888689fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - unified_backend - WARNING - Could not convert H3 index 8828888689fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828888b6bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828888b6bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - unified_backend - WARNING - Could not convert H3 index 8828888b6bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 882888d863fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 882888d863fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - unified_backend - WARNING - Could not convert H3 index 882888d863fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288c01e1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288c01e1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - unified_backend - WARNING - Could not convert H3 index 88288c01e1fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288c4265fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288c4265fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - unified_backend - WARNING - Could not convert H3 index 88288c4265fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288cad47fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288cad47fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - unified_backend - WARNING - Could not convert H3 index 88288cad47fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288d39d3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288d39d3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - unified_backend - WARNING - Could not convert H3 index 88288d39d3fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288d7a55fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288d7a55fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - unified_backend - WARNING - Could not convert H3 index 88288d7a55fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288d8051fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288d8051fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - unified_backend - WARNING - Could not convert H3 index 88288d8051fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288dd0c3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288dd0c3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,066 - unified_backend - WARNING - Could not convert H3 index 88288dd0c3fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288e04adfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288e04adfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - unified_backend - WARNING - Could not convert H3 index 88288e04adfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288e4653fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288e4653fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - unified_backend - WARNING - Could not convert H3 index 88288e4653fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288e9051fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 88288e9051fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - unified_backend - WARNING - Could not convert H3 index 88288e9051fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 88289d9691fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 88289d9691fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - unified_backend - WARNING - Could not convert H3 index 88289d9691fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 88289d986dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 88289d986dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - unified_backend - WARNING - Could not convert H3 index 88289d986dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a02d2dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a02d2dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - unified_backend - WARNING - Could not convert H3 index 8828a02d2dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a06a9dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a06a9dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - unified_backend - WARNING - Could not convert H3 index 8828a06a9dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a0b6b5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a0b6b5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - unified_backend - WARNING - Could not convert H3 index 8828a0b6b5fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a0b969fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a0b969fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - unified_backend - WARNING - Could not convert H3 index 8828a0b969fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a0ced9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a0ced9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - unified_backend - WARNING - Could not convert H3 index 8828a0ced9fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a1005bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a1005bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - unified_backend - WARNING - Could not convert H3 index 8828a1005bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a15089fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a15089fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - unified_backend - WARNING - Could not convert H3 index 8828a15089fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,067 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a1ae0dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a1ae0dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - unified_backend - WARNING - Could not convert H3 index 8828a1ae0dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a211c5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a211c5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - unified_backend - WARNING - Could not convert H3 index 8828a211c5fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a265abfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a265abfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - unified_backend - WARNING - Could not convert H3 index 8828a265abfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a2a335fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a2a335fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - unified_backend - WARNING - Could not convert H3 index 8828a2a335fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a306c5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a306c5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - unified_backend - WARNING - Could not convert H3 index 8828a306c5fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a30b65fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a30b65fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - unified_backend - WARNING - Could not convert H3 index 8828a30b65fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a3590bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a3590bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - unified_backend - WARNING - Could not convert H3 index 8828a3590bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a3a4b5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a3a4b5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - unified_backend - WARNING - Could not convert H3 index 8828a3a4b5fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a42325fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a42325fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - unified_backend - WARNING - Could not convert H3 index 8828a42325fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a47139fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a47139fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - unified_backend - WARNING - Could not convert H3 index 8828a47139fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a48761fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a48761fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - unified_backend - WARNING - Could not convert H3 index 8828a48761fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a4d50bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,068 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a4d50bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - unified_backend - WARNING - Could not convert H3 index 8828a4d50bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a524a3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a524a3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - unified_backend - WARNING - Could not convert H3 index 8828a524a3fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a56611fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a56611fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - unified_backend - WARNING - Could not convert H3 index 8828a56611fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a58d2dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a58d2dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - unified_backend - WARNING - Could not convert H3 index 8828a58d2dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a5b089fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a5b089fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - unified_backend - WARNING - Could not convert H3 index 8828a5b089fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a5ca81fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a5ca81fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - unified_backend - WARNING - Could not convert H3 index 8828a5ca81fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a6270dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a6270dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - unified_backend - WARNING - Could not convert H3 index 8828a6270dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a67425fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a67425fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - unified_backend - WARNING - Could not convert H3 index 8828a67425fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a68865fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a68865fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - unified_backend - WARNING - Could not convert H3 index 8828a68865fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a6b34dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,069 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a6b34dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - unified_backend - WARNING - Could not convert H3 index 8828a6b34dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a828d3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a828d3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - unified_backend - WARNING - Could not convert H3 index 8828a828d3fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a8610bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a8610bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - unified_backend - WARNING - Could not convert H3 index 8828a8610bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a88e9bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a88e9bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - unified_backend - WARNING - Could not convert H3 index 8828a88e9bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a8c703fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a8c703fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - unified_backend - WARNING - Could not convert H3 index 8828a8c703fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a9023bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a9023bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - unified_backend - WARNING - Could not convert H3 index 8828a9023bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a952a3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a952a3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - unified_backend - WARNING - Could not convert H3 index 8828a952a3fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a9ae6bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828a9ae6bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - unified_backend - WARNING - Could not convert H3 index 8828a9ae6bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828aa135bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828aa135bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - unified_backend - WARNING - Could not convert H3 index 8828aa135bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828aa6461fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828aa6461fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - unified_backend - WARNING - Could not convert H3 index 8828aa6461fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828aab1e3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828aab1e3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - unified_backend - WARNING - Could not convert H3 index 8828aab1e3fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828aac855fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828aac855fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,070 - unified_backend - WARNING - Could not convert H3 index 8828aac855fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ab0653fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ab0653fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - unified_backend - WARNING - Could not convert H3 index 8828ab0653fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ab56c3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ab56c3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - unified_backend - WARNING - Could not convert H3 index 8828ab56c3fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ab5b6bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ab5b6bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - unified_backend - WARNING - Could not convert H3 index 8828ab5b6bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828aba4a1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828aba4a1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - unified_backend - WARNING - Could not convert H3 index 8828aba4a1fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ac09b1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ac09b1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - unified_backend - WARNING - Could not convert H3 index 8828ac09b1fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ac31e9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ac31e9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - unified_backend - WARNING - Could not convert H3 index 8828ac31e9fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ac484dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ac484dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - unified_backend - WARNING - Could not convert H3 index 8828ac484dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ac9405fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ac9405fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - unified_backend - WARNING - Could not convert H3 index 8828ac9405fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ad2481fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ad2481fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - unified_backend - WARNING - Could not convert H3 index 8828ad2481fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ad2965fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ad2965fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - unified_backend - WARNING - Could not convert H3 index 8828ad2965fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ad7935fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ad7935fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,071 - unified_backend - WARNING - Could not convert H3 index 8828ad7935fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ad8f29fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ad8f29fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - unified_backend - WARNING - Could not convert H3 index 8828ad8f29fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828adb295fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828adb295fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - unified_backend - WARNING - Could not convert H3 index 8828adb295fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828adc15dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828adc15dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - unified_backend - WARNING - Could not convert H3 index 8828adc15dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ae0d99fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ae0d99fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - unified_backend - WARNING - Could not convert H3 index 8828ae0d99fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ae3421fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ae3421fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - unified_backend - WARNING - Could not convert H3 index 8828ae3421fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ae4e03fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ae4e03fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - unified_backend - WARNING - Could not convert H3 index 8828ae4e03fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ae9817fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828ae9817fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - unified_backend - WARNING - Could not convert H3 index 8828ae9817fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828e2580dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,072 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828e2580dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - unified_backend - WARNING - Could not convert H3 index 8828e2580dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828e6cb29fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828e6cb29fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - unified_backend - WARNING - Could not convert H3 index 8828e6cb29fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f06aadfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f06aadfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - unified_backend - WARNING - Could not convert H3 index 8828f06aadfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f08cbbfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f08cbbfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - unified_backend - WARNING - Could not convert H3 index 8828f08cbbfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f0b4e3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f0b4e3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - unified_backend - WARNING - Could not convert H3 index 8828f0b4e3fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f0c505fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f0c505fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - unified_backend - WARNING - Could not convert H3 index 8828f0c505fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f101b5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f101b5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - unified_backend - WARNING - Could not convert H3 index 8828f101b5fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f132d3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f132d3fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - unified_backend - WARNING - Could not convert H3 index 8828f132d3fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,073 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f1435bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f1435bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - unified_backend - WARNING - Could not convert H3 index 8828f1435bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f21335fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f21335fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - unified_backend - WARNING - Could not convert H3 index 8828f21335fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f2b8d9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f2b8d9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - unified_backend - WARNING - Could not convert H3 index 8828f2b8d9fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f2c825fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f2c825fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - unified_backend - WARNING - Could not convert H3 index 8828f2c825fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f39235fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f39235fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - unified_backend - WARNING - Could not convert H3 index 8828f39235fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f43a93fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f43a93fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - unified_backend - WARNING - Could not convert H3 index 8828f43a93fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f44869fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f44869fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - unified_backend - WARNING - Could not convert H3 index 8828f44869fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f47301fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f47301fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - unified_backend - WARNING - Could not convert H3 index 8828f47301fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f495c9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f495c9fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - unified_backend - WARNING - Could not convert H3 index 8828f495c9fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f5121bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f5121bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - unified_backend - WARNING - Could not convert H3 index 8828f5121bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f56415fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f56415fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - unified_backend - WARNING - Could not convert H3 index 8828f56415fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f5a251fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,074 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f5a251fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - unified_backend - WARNING - Could not convert H3 index 8828f5a251fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f5cad5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f5cad5fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - unified_backend - WARNING - Could not convert H3 index 8828f5cad5fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f60dbdfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f60dbdfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - unified_backend - WARNING - Could not convert H3 index 8828f60dbdfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f635edfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f635edfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - unified_backend - WARNING - Could not convert H3 index 8828f635edfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f64e21fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f64e21fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - unified_backend - WARNING - Could not convert H3 index 8828f64e21fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f69839fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8828f69839fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - unified_backend - WARNING - Could not convert H3 index 8828f69839fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 882988072bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 882988072bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - unified_backend - WARNING - Could not convert H3 index 882988072bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829885515fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829885515fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - unified_backend - WARNING - Could not convert H3 index 8829885515fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 882988ae99fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 882988ae99fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - unified_backend - WARNING - Could not convert H3 index 882988ae99fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829890d35fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829890d35fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - unified_backend - WARNING - Could not convert H3 index 8829890d35fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829893093fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829893093fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - unified_backend - WARNING - Could not convert H3 index 8829893093fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829894a95fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829894a95fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - unified_backend - WARNING - Could not convert H3 index 8829894a95fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829899903fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,075 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829899903fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - unified_backend - WARNING - Could not convert H3 index 8829899903fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298a095dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298a095dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - unified_backend - WARNING - Could not convert H3 index 88298a095dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298a3369fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298a3369fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - unified_backend - WARNING - Could not convert H3 index 88298a3369fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298a59e7fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298a59e7fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - unified_backend - WARNING - Could not convert H3 index 88298a59e7fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298a974dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298a974dfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - unified_backend - WARNING - Could not convert H3 index 88298a974dfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298b36b7fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298b36b7fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - unified_backend - WARNING - Could not convert H3 index 88298b36b7fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298b3969fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298b3969fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - unified_backend - WARNING - Could not convert H3 index 88298b3969fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298b4eddfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298b4eddfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - unified_backend - WARNING - Could not convert H3 index 88298b4eddfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298b8327fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298b8327fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - unified_backend - WARNING - Could not convert H3 index 88298b8327fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298bd131fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298bd131fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - unified_backend - WARNING - Could not convert H3 index 88298bd131fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298e6f37fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 88298e6f37fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - unified_backend - WARNING - Could not convert H3 index 88298e6f37fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829990f3bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,076 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829990f3bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,077 - unified_backend - WARNING - Could not convert H3 index 8829990f3bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,077 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829999b03fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,077 - utils_h3 - ERROR - h3_to_geo conversion failed for 8829999b03fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,077 - unified_backend - WARNING - Could not convert H3 index 8829999b03fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,077 - utils_h3 - ERROR - h3_to_geo conversion failed for 882999ada1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,077 - utils_h3 - ERROR - h3_to_geo conversion failed for 882999ada1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,077 - unified_backend - WARNING - Could not convert H3 index 882999ada1fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,077 - utils_h3 - ERROR - h3_to_geo conversion failed for 88299d030bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,077 - utils_h3 - ERROR - h3_to_geo conversion failed for 88299d030bfffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,077 - unified_backend - WARNING - Could not convert H3 index 88299d030bfffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,077 - utils_h3 - ERROR - h3_to_geo conversion failed for 88299da1e1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,077 - utils_h3 - ERROR - h3_to_geo conversion failed for 88299da1e1fffff: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,077 - unified_backend - WARNING - Could not convert H3 index 88299da1e1fffff to lat/lng: No h3_to_geo or cell_to_lat_lng in h3 module.
+2025-07-10 07:59:29,077 - __main__ - INFO - Calculating agricultural redevelopment potential...
+2025-07-10 07:59:29,078 - __main__ - INFO - Generating comprehensive summary...
+2025-07-10 07:59:29,078 - __main__ - INFO - Exporting unified data to output/cascadia_unified_data_20250710_075929.geojson
+2025-07-10 07:59:29,078 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88280046c9fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - unified_backend - WARNING - Could not export hexagon 88280046c9fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88280208e7fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - unified_backend - WARNING - Could not export hexagon 88280208e7fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828023015fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - unified_backend - WARNING - Could not export hexagon 8828023015fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828024a4dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - unified_backend - WARNING - Could not export hexagon 8828024a4dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882802968dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - unified_backend - WARNING - Could not export hexagon 882802968dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828037827fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - unified_backend - WARNING - Could not export hexagon 8828037827fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882803c051fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - unified_backend - WARNING - Could not export hexagon 882803c051fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828041809fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - unified_backend - WARNING - Could not export hexagon 8828041809fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828046d19fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - unified_backend - WARNING - Could not export hexagon 8828046d19fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828061a99fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,078 - unified_backend - WARNING - Could not export hexagon 8828061a99fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828065361fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 8828065361fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828066eb5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 8828066eb5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882806a1edfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 882806a1edfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828101417fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 8828101417fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882810a45dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 882810a45dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882810cca3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 882810cca3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828110f13fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 8828110f13fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828113751fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 8828113751fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882811402bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 882811402bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828119a05fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 8828119a05fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828121817fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 8828121817fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828126dd1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 8828126dd1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882812a84bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 882812a84bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828133b49fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 8828133b49fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882813471dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 882813471dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281391d5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 88281391d5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882813d261fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,079 - unified_backend - WARNING - Could not export hexagon 882813d261fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828142aabfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - unified_backend - WARNING - Could not export hexagon 8828142aabfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828147889fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - unified_backend - WARNING - Could not export hexagon 8828147889fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828148ed5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - unified_backend - WARNING - Could not export hexagon 8828148ed5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882814c2b3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - unified_backend - WARNING - Could not export hexagon 882814c2b3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828150259fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - unified_backend - WARNING - Could not export hexagon 8828150259fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828155213fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - unified_backend - WARNING - Could not export hexagon 8828155213fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882815a08bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - unified_backend - WARNING - Could not export hexagon 882815a08bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828162e03fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - unified_backend - WARNING - Could not export hexagon 8828162e03fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281662adfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - unified_backend - WARNING - Could not export hexagon 88281662adfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882816b165fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - unified_backend - WARNING - Could not export hexagon 882816b165fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882816c6c5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - unified_backend - WARNING - Could not export hexagon 882816c6c5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882818148dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,080 - unified_backend - WARNING - Could not export hexagon 882818148dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882818a413fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 882818a413fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882818ccb1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 882818ccb1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828194183fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 8828194183fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281a181bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 88281a181bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281a6d9dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 88281a6d9dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281aa85dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 88281aa85dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281b3b35fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 88281b3b35fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281b4553fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 88281b4553fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281b826dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 88281b826dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281bd221fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 88281bd221fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281c2a95fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 88281c2a95fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281c6367fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 88281c6367fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281c85c7fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 88281c85c7fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281cd5bdfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 88281cd5bdfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281d52d5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 88281d52d5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281e2e53fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,081 - unified_backend - WARNING - Could not export hexagon 88281e2e53fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281e62c1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 88281e62c1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281e890bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 88281e890bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281eb149fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 88281eb149fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88281ed9e1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 88281ed9e1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828312435fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 8828312435fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828314db7fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 8828314db7fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828317589fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 8828317589fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88283231edfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 88283231edfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828324b23fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 8828324b23fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882832734dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 882832734dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882833294dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 882833294dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828337905fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 8828337905fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828338f03fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 8828338f03fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882833c151fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 882833c151fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828802723fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 8828802723fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88288075cdfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 88288075cdfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828808693fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 8828808693fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882880886dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 882880886dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828811655fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - unified_backend - WARNING - Could not export hexagon 8828811655fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,082 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882881688bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 882881688bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882881b5d9fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 882881b5d9fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882881ce81fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 882881ce81fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88288311b5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 88288311b5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882883a139fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 882883a139fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828840f55fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 8828840f55fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882884ad33fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 882884ad33fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828853881fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 8828853881fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828857121fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 8828857121fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88288582a3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 88288582a3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882885d093fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 882885d093fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828888689fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 8828888689fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828888b6bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 8828888b6bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882888d863fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 882888d863fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88288c01e1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 88288c01e1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88288c4265fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 88288c4265fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88288cad47fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 88288cad47fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88288d39d3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - unified_backend - WARNING - Could not export hexagon 88288d39d3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,083 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88288d7a55fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - unified_backend - WARNING - Could not export hexagon 88288d7a55fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88288d8051fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - unified_backend - WARNING - Could not export hexagon 88288d8051fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88288dd0c3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - unified_backend - WARNING - Could not export hexagon 88288dd0c3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88288e04adfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - unified_backend - WARNING - Could not export hexagon 88288e04adfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88288e4653fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - unified_backend - WARNING - Could not export hexagon 88288e4653fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88288e9051fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - unified_backend - WARNING - Could not export hexagon 88288e9051fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88289d9691fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - unified_backend - WARNING - Could not export hexagon 88289d9691fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88289d986dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - unified_backend - WARNING - Could not export hexagon 88289d986dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a02d2dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - unified_backend - WARNING - Could not export hexagon 8828a02d2dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a06a9dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - unified_backend - WARNING - Could not export hexagon 8828a06a9dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a0b6b5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - unified_backend - WARNING - Could not export hexagon 8828a0b6b5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a0b969fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - unified_backend - WARNING - Could not export hexagon 8828a0b969fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a0ced9fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - unified_backend - WARNING - Could not export hexagon 8828a0ced9fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a1005bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - unified_backend - WARNING - Could not export hexagon 8828a1005bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,084 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a15089fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a15089fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a1ae0dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a1ae0dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a211c5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a211c5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a265abfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a265abfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a2a335fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a2a335fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a306c5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a306c5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a30b65fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a30b65fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a3590bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a3590bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a3a4b5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a3a4b5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a42325fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a42325fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a47139fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a47139fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a48761fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a48761fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a4d50bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a4d50bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a524a3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a524a3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a56611fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a56611fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a58d2dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a58d2dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a5b089fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a5b089fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a5ca81fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a5ca81fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a6270dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a6270dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a67425fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,085 - unified_backend - WARNING - Could not export hexagon 8828a67425fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a68865fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828a68865fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a6b34dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828a6b34dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a828d3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828a828d3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a8610bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828a8610bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a88e9bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828a88e9bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a8c703fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828a8c703fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a9023bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828a9023bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a952a3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828a952a3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828a9ae6bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828a9ae6bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828aa135bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828aa135bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828aa6461fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828aa6461fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828aab1e3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828aab1e3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828aac855fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828aac855fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ab0653fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828ab0653fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ab56c3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828ab56c3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ab5b6bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828ab5b6bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828aba4a1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828aba4a1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ac09b1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828ac09b1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ac31e9fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - unified_backend - WARNING - Could not export hexagon 8828ac31e9fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,086 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ac484dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828ac484dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ac9405fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828ac9405fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ad2481fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828ad2481fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ad2965fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828ad2965fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ad7935fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828ad7935fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ad8f29fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828ad8f29fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828adb295fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828adb295fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828adc15dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828adc15dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ae0d99fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828ae0d99fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ae3421fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828ae3421fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ae4e03fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828ae4e03fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828ae9817fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828ae9817fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828e2580dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828e2580dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828e6cb29fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828e6cb29fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f06aadfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828f06aadfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f08cbbfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828f08cbbfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f0b4e3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828f0b4e3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f0c505fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - unified_backend - WARNING - Could not export hexagon 8828f0c505fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,087 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f101b5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - unified_backend - WARNING - Could not export hexagon 8828f101b5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f132d3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - unified_backend - WARNING - Could not export hexagon 8828f132d3fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f1435bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - unified_backend - WARNING - Could not export hexagon 8828f1435bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f21335fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - unified_backend - WARNING - Could not export hexagon 8828f21335fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f2b8d9fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - unified_backend - WARNING - Could not export hexagon 8828f2b8d9fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f2c825fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - unified_backend - WARNING - Could not export hexagon 8828f2c825fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f39235fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - unified_backend - WARNING - Could not export hexagon 8828f39235fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f43a93fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - unified_backend - WARNING - Could not export hexagon 8828f43a93fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f44869fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - unified_backend - WARNING - Could not export hexagon 8828f44869fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f47301fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - unified_backend - WARNING - Could not export hexagon 8828f47301fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f495c9fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - unified_backend - WARNING - Could not export hexagon 8828f495c9fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,088 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f5121bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - unified_backend - WARNING - Could not export hexagon 8828f5121bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f56415fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - unified_backend - WARNING - Could not export hexagon 8828f56415fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f5a251fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - unified_backend - WARNING - Could not export hexagon 8828f5a251fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f5cad5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - unified_backend - WARNING - Could not export hexagon 8828f5cad5fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f60dbdfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - unified_backend - WARNING - Could not export hexagon 8828f60dbdfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f635edfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - unified_backend - WARNING - Could not export hexagon 8828f635edfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f64e21fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - unified_backend - WARNING - Could not export hexagon 8828f64e21fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8828f69839fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - unified_backend - WARNING - Could not export hexagon 8828f69839fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882988072bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - unified_backend - WARNING - Could not export hexagon 882988072bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8829885515fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - unified_backend - WARNING - Could not export hexagon 8829885515fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882988ae99fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - unified_backend - WARNING - Could not export hexagon 882988ae99fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8829890d35fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - unified_backend - WARNING - Could not export hexagon 8829890d35fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8829893093fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,089 - unified_backend - WARNING - Could not export hexagon 8829893093fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8829894a95fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 8829894a95fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8829899903fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 8829899903fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88298a095dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 88298a095dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88298a3369fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 88298a3369fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88298a59e7fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 88298a59e7fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88298a974dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 88298a974dfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88298b36b7fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 88298b36b7fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88298b3969fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 88298b3969fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88298b4eddfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 88298b4eddfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88298b8327fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 88298b8327fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88298bd131fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 88298bd131fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88298e6f37fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 88298e6f37fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8829990f3bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 8829990f3bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 8829999b03fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 8829999b03fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - utils_h3 - ERROR - h3_to_geo_boundary failed for 882999ada1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,090 - unified_backend - WARNING - Could not export hexagon 882999ada1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,091 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88299d030bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,091 - unified_backend - WARNING - Could not export hexagon 88299d030bfffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,091 - utils_h3 - ERROR - h3_to_geo_boundary failed for 88299da1e1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,091 - unified_backend - WARNING - Could not export hexagon 88299da1e1fffff: cell_to_boundary() got an unexpected keyword argument 'geo_json'
+2025-07-10 07:59:29,091 - __main__ - INFO - Exporting redevelopment scores to output/cascadia_redevelopment_scores_20250710_075929.json
+2025-07-10 07:59:29,094 - __main__ - INFO - Exporting comprehensive summary to output/cascadia_summary_20250710_075929.json
+2025-07-10 07:59:29,094 - __main__ - INFO - Generating analysis report to output/cascadia_analysis_report_20250710_075929.md
+2025-07-10 07:59:29,094 - __main__ - INFO - Generating interactive dashboard to output/cascadia_dashboard_20250710_075929.html
+2025-07-10 07:59:29,114 - unified_backend - INFO - Interactive dashboard saved to output/cascadia_dashboard_20250710_075929.html
+2025-07-10 07:59:29,114 - __main__ - INFO - ================================================================================
+2025-07-10 07:59:29,114 - __main__ - INFO - Analysis completed successfully!
+2025-07-10 07:59:29,114 - __main__ - INFO - Results saved to: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/output
+2025-07-10 07:59:29,114 - __main__ - INFO - ================================================================================

@@ -1,0 +1,208 @@
+2025-07-10 07:01:25,377 - __main__ - INFO - ================================================================================
+2025-07-10 07:01:25,377 - __main__ - INFO - Cascadia Agricultural Land Analysis Framework
+2025-07-10 07:01:25,377 - __main__ - INFO - ================================================================================
+2025-07-10 07:01:25,377 - __main__ - INFO - Output directory: /home/trim/Documents/GitHub/GEO-INFER/output
+2025-07-10 07:01:25,377 - __main__ - INFO - Configuration validation successful
+2025-07-10 07:01:25,667 - numexpr.utils - INFO - NumExpr defaulting to 12 threads.
+2025-07-10 07:01:26,637 - rasterio.env - DEBUG - GDAL data found in package: path='/home/trim/.local/lib/python3.10/site-packages/rasterio/gdal_data'.
+2025-07-10 07:01:26,638 - rasterio.env - DEBUG - PROJ data found in package: path='/home/trim/.local/lib/python3.10/site-packages/rasterio/proj_data'.
+2025-07-10 07:01:26,660 - __main__ - INFO - Initializing Cascadia Agricultural H3 Backend (resolution: 8)
+2025-07-10 07:01:26,661 - unified_backend - INFO - Defined 204 hexagons for Cascadia bioregion
+2025-07-10 07:01:26,661 - zoning.geo_infer_zoning - INFO - GeoInferZoning initialized with H3 resolution 8
+2025-07-10 07:01:26,661 - current_use.geo_infer_current_use - INFO - GeoInferCurrentUse initialized with H3 resolution 8
+2025-07-10 07:01:26,661 - ownership.geo_infer_ownership - INFO - GeoInferOwnership initialized with H3 resolution 8
+2025-07-10 07:01:26,661 - mortgage_debt.geo_infer_mortgage_debt - INFO - GeoInferMortgageDebt initialized with H3 resolution 8
+2025-07-10 07:01:26,662 - improvements.geo_infer_improvements - INFO - GeoInferImprovements initialized with H3 resolution 8
+2025-07-10 07:01:26,662 - surface_water.geo_infer_surface_water - INFO - GeoInferSurfaceWater initialized with H3 resolution 8
+2025-07-10 07:01:26,662 - ground_water.geo_infer_ground_water - INFO - GeoInferGroundWater initialized with H3 resolution 8
+2025-07-10 07:01:26,662 - power_source.geo_infer_power_source - INFO - GeoInferPowerSource initialized with H3 resolution 8
+2025-07-10 07:01:26,662 - unified_backend - INFO - CascadiaAgriculturalH3Backend initialized with 8 modules at H3 resolution 8
+2025-07-10 07:01:26,662 - __main__ - INFO - Starting comprehensive agricultural analysis...
+2025-07-10 07:01:26,662 - unified_backend - INFO - Processing zoning module...
+2025-07-10 07:01:26,662 - zoning.data_sources - ERROR - FMMP shapefile for Butte not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Butte.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,662 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Butte
+2025-07-10 07:01:26,662 - zoning.data_sources - ERROR - FMMP shapefile for Colusa not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Colusa.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,662 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Colusa
+2025-07-10 07:01:26,662 - zoning.data_sources - ERROR - FMMP shapefile for Del Norte not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Del Norte.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,662 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Del Norte
+2025-07-10 07:01:26,662 - zoning.data_sources - ERROR - FMMP shapefile for Glenn not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Glenn.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,662 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Glenn
+2025-07-10 07:01:26,662 - zoning.data_sources - ERROR - FMMP shapefile for Humboldt not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Humboldt.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,662 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Humboldt
+2025-07-10 07:01:26,662 - zoning.data_sources - ERROR - FMMP shapefile for Lake not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Lake.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,662 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Lake
+2025-07-10 07:01:26,663 - zoning.data_sources - ERROR - FMMP shapefile for Lassen not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Lassen.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,663 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Lassen
+2025-07-10 07:01:26,663 - zoning.data_sources - ERROR - FMMP shapefile for Mendocino not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Mendocino.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,663 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Mendocino
+2025-07-10 07:01:26,663 - zoning.data_sources - ERROR - FMMP shapefile for Modoc not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Modoc.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,663 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Modoc
+2025-07-10 07:01:26,663 - zoning.data_sources - ERROR - FMMP shapefile for Nevada not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Nevada.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,663 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Nevada
+2025-07-10 07:01:26,663 - zoning.data_sources - ERROR - FMMP shapefile for Plumas not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Plumas.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,663 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Plumas
+2025-07-10 07:01:26,663 - zoning.data_sources - ERROR - FMMP shapefile for Shasta not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Shasta.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,663 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Shasta
+2025-07-10 07:01:26,663 - zoning.data_sources - ERROR - FMMP shapefile for Sierra not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Sierra.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,663 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Sierra
+2025-07-10 07:01:26,663 - zoning.data_sources - ERROR - FMMP shapefile for Siskiyou not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Siskiyou.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,663 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Siskiyou
+2025-07-10 07:01:26,663 - zoning.data_sources - ERROR - FMMP shapefile for Tehama not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Tehama.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,663 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Tehama
+2025-07-10 07:01:26,663 - zoning.data_sources - ERROR - FMMP shapefile for Trinity not found at /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/data/fmmp/Trinity.shp. Please download it from https://www.conservation.ca.gov/dlrp/fmmp/Pages/county_info.aspx and place it in data/fmmp/.
+2025-07-10 07:01:26,664 - zoning.geo_infer_zoning - WARNING - No FMMP data retrieved for Trinity
+2025-07-10 07:01:26,664 - zoning.data_sources - INFO - Fetching Oregon EFU data for All Oregon Counties
+2025-07-10 07:01:26,664 - zoning.data_sources - INFO - Oregon EFU data structure created (placeholder)
+2025-07-10 07:01:26,664 - zoning.geo_infer_zoning - INFO - Converting 3 polygons to H3 resolution 8
+2025-07-10 07:01:26,664 - zoning.geo_infer_zoning - INFO - Created H3 index for 63 hexagons
+2025-07-10 07:01:26,664 - unified_backend - INFO - Processing current_use module...
+2025-07-10 07:01:26,664 - current_use.geo_infer_current_use - INFO - Processing current use for 2024 at H3 resolution 8
+2025-07-10 07:01:26,664 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,664 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,664 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,664 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,665 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,665 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,665 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,665 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,665 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,665 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,665 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,666 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,666 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,666 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,666 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,666 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,666 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,666 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,667 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,667 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,667 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,667 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,667 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,667 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,667 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,667 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,667 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,667 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,667 - current_use.data_sources - ERROR - Local CDL file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/cdl/2024_CA.tif
+2025-07-10 07:01:26,667 - current_use.data_sources - INFO - Please download the CDL GeoTIFF for {state} {year} from:
+2025-07-10 07:01:26,667 - current_use.data_sources - INFO - https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-07-10 07:01:26,667 - current_use.data_sources - INFO - And place it in data/cdl/ as {year}_{state}.tif
+2025-07-10 07:01:26,667 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Butte.shp
+2025-07-10 07:01:26,667 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,667 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,667 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,668 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Colusa.shp
+2025-07-10 07:01:26,668 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,668 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,668 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,668 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Del Norte.shp
+2025-07-10 07:01:26,668 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,668 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,668 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,669 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Glenn.shp
+2025-07-10 07:01:26,669 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,669 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,669 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,669 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Humboldt.shp
+2025-07-10 07:01:26,669 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,669 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,669 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,670 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Lake.shp
+2025-07-10 07:01:26,670 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,670 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,670 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,671 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Lassen.shp
+2025-07-10 07:01:26,671 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,671 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,671 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,673 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Mendocino.shp
+2025-07-10 07:01:26,673 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,673 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,673 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,674 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Modoc.shp
+2025-07-10 07:01:26,674 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,674 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,674 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,675 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Nevada.shp
+2025-07-10 07:01:26,675 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,675 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,675 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,675 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Plumas.shp
+2025-07-10 07:01:26,676 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,676 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,676 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,676 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Shasta.shp
+2025-07-10 07:01:26,676 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,676 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,676 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,676 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Sierra.shp
+2025-07-10 07:01:26,676 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,676 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,676 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,677 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Siskiyou.shp
+2025-07-10 07:01:26,677 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,677 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,677 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,677 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Tehama.shp
+2025-07-10 07:01:26,677 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,677 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,677 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,678 - current_use.data_sources - ERROR - Local Land IQ file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/land_iq/2024_Trinity.shp
+2025-07-10 07:01:26,678 - current_use.data_sources - INFO - Please obtain Land IQ data for {year} from:
+2025-07-10 07:01:26,678 - current_use.data_sources - INFO - https://www.landiq.com/land-use-mapping
+2025-07-10 07:01:26,678 - current_use.data_sources - INFO - And place the shapefile in data/land_iq/
+2025-07-10 07:01:26,678 - current_use.data_sources - ERROR - Local Oregon EFU file missing: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/../data/oregon_efu/efu_report_2024.csv
+2025-07-10 07:01:26,678 - current_use.data_sources - INFO - Please download the EFU report from:
+2025-07-10 07:01:26,678 - current_use.data_sources - INFO - https://www.oregon.gov/lcd/FF/Pages/Farm-Forest-Reports.aspx
+2025-07-10 07:01:26,678 - current_use.data_sources - INFO - Convert to CSV if needed and place in data/oregon_efu/
+2025-07-10 07:01:26,822 - current_use.geo_infer_current_use - INFO - Processed current use for 84 hexagons
+2025-07-10 07:01:26,822 - unified_backend - INFO - Processing ownership module...
+2025-07-10 07:01:26,822 - unified_backend - INFO - Processing mortgage_debt module...
+2025-07-10 07:01:26,823 - unified_backend - INFO - Processing improvements module...
+2025-07-10 07:01:26,823 - unified_backend - INFO - Processing surface_water module...
+2025-07-10 07:01:26,823 - unified_backend - INFO - Processing ground_water module...
+2025-07-10 07:01:26,824 - unified_backend - INFO - Processing power_source module...
+2025-07-10 07:01:26,824 - __main__ - INFO - Calculating agricultural redevelopment potential...
+2025-07-10 07:01:26,826 - __main__ - INFO - Generating comprehensive summary...
+2025-07-10 07:01:26,827 - __main__ - INFO - Exporting unified data to output/cascadia_unified_data_20250710_070126.geojson
+2025-07-10 07:01:26,844 - __main__ - INFO - Exporting redevelopment scores to output/cascadia_redevelopment_scores_20250710_070126.json
+2025-07-10 07:01:26,847 - __main__ - INFO - Exporting comprehensive summary to output/cascadia_summary_20250710_070126.json
+2025-07-10 07:01:26,847 - __main__ - INFO - Generating analysis report to output/cascadia_analysis_report_20250710_070126.md
+2025-07-10 07:01:26,847 - __main__ - INFO - ================================================================================
+2025-07-10 07:01:26,847 - __main__ - INFO - Analysis completed successfully!
+2025-07-10 07:01:26,847 - __main__ - INFO - Results saved to: /home/trim/Documents/GitHub/GEO-INFER/output
+2025-07-10 07:01:26,847 - __main__ - INFO - ================================================================================
