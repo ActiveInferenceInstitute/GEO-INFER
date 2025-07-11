@@ -260,26 +260,6 @@ source {venv_dir}/bin/activate
 # Add GEO-INFER-SPACE/src to PYTHONPATH for tests to find shared modules
 export PYTHONPATH="{parent_repo_src_dir}:$PYTHONPATH"
 
-# Check for setup.py or pyproject.toml and create setup.py if missing
-if [ ! -f "setup.py" ] && [ ! -f "pyproject.toml" ]; then
-    echo "Creating minimal setup.py to enable editable install..."
-    cat > setup.py << EOF
-from setuptools import setup, find_packages
-import os
-
-# Get the package name from the current directory name
-# This script runs in the root of the cloned repo, so os.getcwd() is the repo root
-package_name = os.path.basename(os.getcwd()).replace('-', '_')
-
-setup(
-    name=package_name,
-    version="0.1.0",
-    packages=find_packages(where="src"),
-    package_dir={{"": "src"}},
-)
-EOF
-fi
-
 # Install requirements
 echo "Installing requirements..."
 pip install -r requirements.txt
