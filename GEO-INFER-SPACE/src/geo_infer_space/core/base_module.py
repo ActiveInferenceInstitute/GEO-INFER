@@ -47,7 +47,7 @@ class BaseAnalysisModule(ABC):
         
         # Define standardized data paths
         self.data_dir = Path(self.backend.base_data_dir) / self.module_name
-        self.data_dir.mkdir(exist_ok=True)
+        self.data_dir.mkdir(parents=True, exist_ok=True)
         self.h3_cache_path = self.data_dir / f'{self.module_name}_h3_res{self.resolution}.json'
 
     @abstractmethod

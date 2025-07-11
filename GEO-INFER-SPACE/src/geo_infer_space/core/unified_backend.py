@@ -82,7 +82,7 @@ class UnifiedH3Backend:
             logger.info("Successfully initialized H3DataLoader from GEO-INFER-SPACE.")
         except Exception as e:
             logger.error(f"Failed to initialize H3DataLoader from GEO-INFER-SPACE: {e}")
-            sys.exit(1)
+            raise RuntimeError(f"Failed to initialize H3DataLoader: {e}")
         # --- End OSC Integration ---
 
         self.target_hexagons_by_area, self.target_hexagons = self._define_target_region(target_areas)

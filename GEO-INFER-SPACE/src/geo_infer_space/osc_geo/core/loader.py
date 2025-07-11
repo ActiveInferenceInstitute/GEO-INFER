@@ -46,7 +46,7 @@ class H3DataLoader:
         """
         try:
             # Path to the virtual environment's Python interpreter
-            venv_python = os.path.join(self.repo_path, 'venv', 'bin', 'python')
+            venv_python = os.path.join(self.repo_path, 'venv', 'bin', 'python3')
             
             # Environment with the correct PYTHONPATH
             env = os.environ.copy()
@@ -121,7 +121,7 @@ class H3DataLoader:
             logger.info(f"Loading data from {input_file} to {output_file} at H3 resolution {resolution}")
             
             # Path to the virtual environment's Python interpreter
-            venv_python = os.path.join(self.repo_path, 'venv', 'bin', 'python')
+            venv_python = os.path.join(self.repo_path, 'venv', 'bin', 'python3')
             
             # Environment with the correct PYTHONPATH
             env = os.environ.copy()
@@ -202,7 +202,7 @@ class H3DataLoader:
             logger.info(f"Validating data file: {input_file}")
             
             # Path to the virtual environment's Python interpreter
-            venv_python = os.path.join(self.repo_path, 'venv', 'bin', 'python')
+            venv_python = os.path.join(self.repo_path, 'venv', 'bin', 'python3')
             
             # Environment with the correct PYTHONPATH
             env = os.environ.copy()

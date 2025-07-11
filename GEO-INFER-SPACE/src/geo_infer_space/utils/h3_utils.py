@@ -62,7 +62,7 @@ def h3_to_geo_boundary(h3_index: str, geo_json: bool = False) -> List[Tuple[floa
     """
     try:
         return h3.cell_to_boundary(h3_index)
-    except TypeError:
+    except (TypeError, AttributeError):
         try:
             return h3.h3_to_geo_boundary(h3_index, geo_json=geo_json)
         except Exception as e:

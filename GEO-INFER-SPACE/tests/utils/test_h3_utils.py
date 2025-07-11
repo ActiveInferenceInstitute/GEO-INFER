@@ -14,8 +14,8 @@ def test_h3_to_geo():
 
 def test_h3_to_geo_boundary():
     boundary = h3_to_geo_boundary('882a107289fffff')
-    assert isinstance(boundary, list)
-    assert len(boundary) > 0  # Hexagons have 6 vertices, but list may vary
+    assert isinstance(boundary, tuple)
+    assert len(boundary) == 6
 
 def test_polyfill():
     polygon = {

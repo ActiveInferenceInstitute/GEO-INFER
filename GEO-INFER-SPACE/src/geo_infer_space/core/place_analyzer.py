@@ -13,7 +13,7 @@ import geopandas as gpd
 from typing import Dict, List, Optional, Any, Tuple
 from datetime import datetime
 from pathlib import Path
-from shapely.geometry import Polygon, MultiPolygon
+from shapely.geometry import Polygon, MultiPolygon, shape
 from geo_infer_space.core.spatial_processor import SpatialProcessor
 
 logger = logging.getLogger(__name__)
@@ -59,7 +59,14 @@ class PlaceAnalyzer:
         for source in data_sources:
             try:
                 if source['path'].endswith('.geojson'):
-                    df = gpd.read_file(source['path'])
+                    with open(source['path'], 'r') as f:
+                        geojson = json.load(f)
+                    features = []
+                    for feat in geojson['features']:
+                        geom = shape(feat['geometry'])
+                        props = feat['properties']
+                        features.append({'geometry': geom, **props})
+                    df = gpd.GeoDataFrame(features, crs='EPSG:4326')
                 elif source['path'].endswith('.csv'):
                     df = pd.read_csv(source['path'])
                     # Convert to GeoDataFrame if geometry column exists
