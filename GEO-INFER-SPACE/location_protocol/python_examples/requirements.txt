@@ -1,4 +1,0 @@
-web3
-python-dotenv
-pytest
-eth-abi 
