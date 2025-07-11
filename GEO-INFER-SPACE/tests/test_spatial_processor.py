@@ -25,5 +25,6 @@ def test_proximity_analysis(sample_processor):
 def test_buffer_analysis_empty():
     """Test buffer with empty input."""
     processor = SpatialProcessor()
+    empty_gdf = gpd.GeoDataFrame(geometry=[])
     with pytest.raises(ValueError):
-        processor.buffer_analysis(gpd.GeoDataFrame(), 1.0) 
+        processor.buffer_analysis(empty_gdf, 1.0) 

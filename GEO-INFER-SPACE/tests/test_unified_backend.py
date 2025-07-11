@@ -4,24 +4,48 @@ import geopandas as gpd
 from shapely.geometry import Polygon
 from geo_infer_space.core.unified_backend import UnifiedH3Backend
 from geo_infer_space.core.base_module import BaseAnalysisModule
+import tempfile
+import shutil
+import json
 
 class MockModule(BaseAnalysisModule):
     def acquire_raw_data(self) -> Path:
-        return Path('mock_raw.json')
+        temp_file = Path(tempfile.NamedTemporaryFile(suffix='.json', delete=False).name)
+        with open(temp_file, 'w') as f:
+            json.dump({'test': 'data'}, f)
+        return temp_file
 
     def run_final_analysis(self, h3_data: dict) -> dict:
         return {'mock_hex': {'value': 42}}
 
 class TestUnifiedH3Backend(unittest.TestCase):
     def setUp(self):
-        self.modules = {'mock': MockModule(None, 'mock')}
+        self.temp_config_dir = Path('config')
+        self.temp_config_dir.mkdir(exist_ok=True)
+        config_path = self.temp_config_dir / 'target_areas.geojson'
+        sample_geojson = {
+            'type': 'FeatureCollection',
+            'features': [{
+                'type': 'Feature',
+                'properties': {'area': 'TestRegion', 'subarea': 'all'},
+                'geometry': {'type': 'Polygon', 'coordinates': [[[0,0], [1,0], [1,1], [0,1], [0,0]]] }
+            }]
+        }
+        with open(config_path, 'w') as f:
+            json.dump(sample_geojson, f)
+        self.geojson_path = config_path
+        self.backend_instance = UnifiedH3Backend(modules={}, resolution=8)
+        self.modules = {'mock': MockModule(self.backend_instance, 'mock')}
         self.backend = UnifiedH3Backend(
             modules=self.modules,
             resolution=8,
             target_region='TestRegion',
-            target_areas={'TestArea': ['all']},
+            target_areas={'TestRegion': ['all']},
             base_data_dir=Path('test_data')
         )
+
+    def tearDown(self):
+        shutil.rmtree(self.temp_config_dir)
 
     def test_define_target_region(self):
         """Test target region definition with small real geometry."""
@@ -43,6 +67,8 @@ class TestUnifiedH3Backend(unittest.TestCase):
 
     def test_get_comprehensive_summary(self):
         """Test summary generation."""
+        self.backend.run_comprehensive_analysis()
         summary = self.backend.get_comprehensive_summary()
+        self.assertNotIn('error', summary)
         self.assertIn('target_region', summary)
         self.assertEqual(summary['target_region'], 'TestRegion') 

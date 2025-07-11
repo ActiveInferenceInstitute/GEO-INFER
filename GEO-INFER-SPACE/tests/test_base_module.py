@@ -1,6 +1,7 @@
 import unittest
 from pathlib import Path
 import json
+import shutil
 from geo_infer_space.core.base_module import BaseAnalysisModule
 from geo_infer_space.core.unified_backend import UnifiedH3Backend
 
@@ -13,9 +14,25 @@ class ConcreteModule(BaseAnalysisModule):
 
 class TestBaseAnalysisModule(unittest.TestCase):
     def setUp(self):
+        self.temp_config_dir = Path('config')
+        self.temp_config_dir.mkdir(exist_ok=True)
+        config_path = self.temp_config_dir / 'target_areas.geojson'
+        sample_geojson = {
+            'type': 'FeatureCollection',
+            'features': [{
+                'type': 'Feature',
+                'properties': {'area': 'TestArea', 'subarea': 'all'},
+                'geometry': {'type': 'Polygon', 'coordinates': [[[0,0], [1,0], [1,1], [0,1], [0,0]]] }
+            }]
+        }
+        with open(config_path, 'w') as f:
+            json.dump(sample_geojson, f)
         self.backend = UnifiedH3Backend(modules={}, resolution=8, base_data_dir=Path('test_data'))
         self.module = ConcreteModule(self.backend, 'test_module')
-        self.module.h3_cache_path.unlink(missing_ok=True)  # Clean up cache
+        self.module.h3_cache_path.unlink(missing_ok=True)
+
+    def tearDown(self):
+        shutil.rmtree(self.temp_config_dir)
 
     def test_run_analysis_with_cache(self):
         """Test analysis with pre-existing cache using real file."""

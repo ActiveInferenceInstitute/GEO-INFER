@@ -23,6 +23,8 @@ class SpatialProcessor:
         Returns:
             GeoDataFrame with buffered geometries
         """
+        if gdf.empty or 'geometry' not in gdf.columns:
+            raise ValueError("Input GeoDataFrame is empty or missing geometry column")
         try:
             buffered = gdf.copy()
             buffered['geometry'] = gdf.geometry.buffer(buffer_distance)

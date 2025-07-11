@@ -4,6 +4,7 @@ import json
 import geopandas as gpd
 from geo_infer_space.core.place_analyzer import PlaceAnalyzer
 from geo_infer_space.core.spatial_processor import SpatialProcessor
+import shutil
 
 class TestPlaceAnalyzer(unittest.TestCase):
     def setUp(self):
@@ -14,26 +15,22 @@ class TestPlaceAnalyzer(unittest.TestCase):
         # Sample data
         geojson_path = self.temp_dir / 'test.geojson'
         with open(geojson_path, 'w') as f:
-            json.dump({'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'geometry': {'type': 'Point', 'coordinates': [0, 0]}}]}, f)
+            json.dump({'type': 'FeatureCollection', 'features': [{'type': 'Feature', 'properties': {}, 'geometry': {'type': 'Point', 'coordinates': [0, 0]}}]}, f)
         self.analyzer = PlaceAnalyzer('TestPlace', self.temp_dir, SpatialProcessor())
 
     def tearDown(self):
-        for root, dirs, files in Path(self.temp_dir).walk(top_down=False):
-            for file in files:
-                (root / file).unlink()
-            for dir in dirs:
-                (root / dir).rmdir()
-        self.temp_dir.rmdir()
+        shutil.rmtree(self.temp_dir)
 
     def test_load_place_data(self):
         """Test loading place data from sources."""
         sources = [{'name': 'test', 'path': str(self.temp_dir / 'test.geojson')}]
         self.analyzer.load_place_data(sources)
-        self.assertFalse(self.analyzer.integrated_data.empty)
+        self.assertGreater(len(self.analyzer.integrated_data), 0)
 
     def test_perform_spatial_analysis(self):
         """Test performing spatial analysis."""
         sources = [{'name': 'test', 'path': str(self.temp_dir / 'test.geojson')}]
         self.analyzer.load_place_data(sources)
         self.analyzer.perform_spatial_analysis(['buffer'])
-        self.assertIn('buffer', self.analyzer.analysis_results) 
+        self.assertIn('buffer', self.analyzer.analysis_results)
+        self.assertIsInstance(self.analyzer.analysis_results['buffer'], gpd.GeoDataFrame) 
