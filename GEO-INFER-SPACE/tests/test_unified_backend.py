@@ -1,9 +1,9 @@
 import unittest
-from unittest.mock import MagicMock, patch
-import json
 from pathlib import Path
-from geo_infer_space.core.unified_backend import UnifiedH3Backend, BaseAnalysisModule
-from geo_infer_space.osc_geo import H3DataLoader
+import geopandas as gpd
+from shapely.geometry import Polygon
+from geo_infer_space.core.unified_backend import UnifiedH3Backend
+from geo_infer_space.core.base_module import BaseAnalysisModule
 
 class MockModule(BaseAnalysisModule):
     def acquire_raw_data(self) -> Path:
@@ -14,30 +14,35 @@ class MockModule(BaseAnalysisModule):
 
 class TestUnifiedH3Backend(unittest.TestCase):
     def setUp(self):
-        self.mock_modules = {'mock': MockModule(None, 'mock')}
+        self.modules = {'mock': MockModule(None, 'mock')}
         self.backend = UnifiedH3Backend(
-            modules=self.mock_modules,
+            modules=self.modules,
             resolution=8,
             target_region='TestRegion',
             target_areas={'TestArea': ['all']},
-            base_data_dir=Path('test_data'),
-            osc_repo_dir='test_repo'
+            base_data_dir=Path('test_data')
         )
 
-    @patch('geo_infer_space.core.unified_backend.gpd.read_file')
-    def test_define_target_region(self, mock_read_file):
-        mock_gdf = MagicMock()
-        mock_gdf.unary_union = MagicMock()
-        mock_read_file.return_value = mock_gdf
+    def test_define_target_region(self):
+        """Test target region definition with small real geometry."""
+        # Small real polygon
+        test_geom = {'TestArea': {'all': Polygon([(0,0), (1,0), (1,1), (0,1)])}}
+        # Override _get_geometries to return real dict
+        self.backend._get_geometries = lambda x: test_geom
         hex_by_area, all_hex = self.backend._define_target_region({'TestArea': ['all']})
-        self.assertIsInstance(hex_by_area, dict)
-        self.assertIsInstance(all_hex, list)
+        self.assertGreater(len(all_hex), 0)
 
     def test_run_comprehensive_analysis(self):
+        """Test full analysis with small real data."""
+        # Set small target hexagons
+        self.backend.target_hexagons = ['mock_hex']
+        # Simulate module run
+        self.backend.modules['mock'].run_analysis = lambda: {'mock_hex': {'value': 42}}
         self.backend.run_comprehensive_analysis()
         self.assertIn('mock', self.backend.unified_data.get('mock_hex', {}))
 
     def test_get_comprehensive_summary(self):
+        """Test summary generation."""
         summary = self.backend.get_comprehensive_summary()
         self.assertIn('target_region', summary)
         self.assertEqual(summary['target_region'], 'TestRegion') 

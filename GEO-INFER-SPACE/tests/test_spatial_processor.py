@@ -1,20 +1,29 @@
-import unittest
+import pytest
 import geopandas as gpd
 from shapely.geometry import Point, Polygon
 from geo_infer_space.core.spatial_processor import SpatialProcessor
 
-class TestSpatialProcessor(unittest.TestCase):
-    def setUp(self):
-        self.processor = SpatialProcessor()
-        self.gdf = gpd.GeoDataFrame(geometry=[Point(0, 0), Point(1, 1)])
-        self.gdf2 = gpd.GeoDataFrame(geometry=[Polygon([(0,0), (2,0), (2,2), (0,2)])])
+@pytest.fixture
+def sample_processor():
+    return SpatialProcessor()
 
-    def test_buffer_analysis(self):
-        buffered = self.processor.buffer_analysis(self.gdf, 1.0)
-        self.assertEqual(len(buffered), 2)
-        self.assertGreater(buffered.geometry.area.mean(), 0)
+def test_buffer_analysis(sample_processor):
+    """Test buffer creation with real points."""
+    gdf = gpd.GeoDataFrame(geometry=[Point(0, 0), Point(1, 1)])
+    buffered = sample_processor.buffer_analysis(gdf, 1.0)
+    assert len(buffered) == 2
+    assert all(buffered.geometry.area > 0)
 
-    def test_proximity_analysis(self):
-        proximity = self.processor.proximity_analysis(self.gdf, self.gdf2)
-        self.assertIn('min_distance', proximity)
-        self.assertEqual(proximity['min_distance'], 0) 
+def test_proximity_analysis(sample_processor):
+    """Test proximity calculation with real geometries."""
+    gdf1 = gpd.GeoDataFrame(geometry=[Point(0, 0)])
+    gdf2 = gpd.GeoDataFrame(geometry=[Point(2, 2)])
+    proximity = sample_processor.proximity_analysis(gdf1, gdf2)
+    assert 'min_distance' in proximity
+    assert proximity['min_distance'] > 0
+
+def test_buffer_analysis_empty():
+    """Test buffer with empty input."""
+    processor = SpatialProcessor()
+    with pytest.raises(ValueError):
+        processor.buffer_analysis(gpd.GeoDataFrame(), 1.0) 

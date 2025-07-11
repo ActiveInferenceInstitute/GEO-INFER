@@ -135,6 +135,10 @@ class InteractiveVisualizationEngine:
         logger.info(f"✅ Comprehensive dashboard saved to: {dashboard_path}")
         return str(dashboard_path)
         
+    def create_base_map(self) -> folium.Map:
+        """Create a basic folium map for testing."""
+        return folium.Map(location=[self.center_lat, self.center_lon], zoom_start=10)
+        
     def _create_dashboard_title(self) -> str:
         """Create professional dashboard title."""
         location_name = self.location_config.get('location', {}).get('name', 'Location')
