@@ -45,26 +45,35 @@ class H3DataLoader:
         Check if the H3 loader CLI is installed, and install it if not.
         """
         try:
-            # Change to the repository directory
-            os.chdir(self.repo_path)
+            # Path to the virtual environment's Python interpreter
+            venv_python = os.path.join(self.repo_path, 'venv', 'bin', 'python')
             
+            # Environment with the correct PYTHONPATH
+            env = os.environ.copy()
+            python_path = env.get('PYTHONPATH', '')
+            src_path = os.path.join(self.repo_path, 'src')
+            env['PYTHONPATH'] = f"{src_path}{os.pathsep}{python_path}"
+
             # Try running the CLI to check if it's installed
             process = subprocess.run(
-                ["osc-geo-h3loader", "--help"],
+                [venv_python, "-m", "osc_geo_h3loader.cli", "--help"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                check=False
+                check=False,
+                env=env
             )
             
             if process.returncode != 0:
                 logger.info("H3 loader CLI not found, installing...")
                 
-                # Install the CLI in development mode
+                # Install the CLI in development mode using the venv's pip
                 install_process = subprocess.run(
-                    ["pip", "install", "-e", "."],
+                    [venv_python, "-m", "pip", "install", "-e", "."],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
-                    check=False
+                    check=False,
+                    cwd=self.repo_path,
+                    env=env
                 )
                 
                 if install_process.returncode != 0:
@@ -111,8 +120,17 @@ class H3DataLoader:
         try:
             logger.info(f"Loading data from {input_file} to {output_file} at H3 resolution {resolution}")
             
+            # Path to the virtual environment's Python interpreter
+            venv_python = os.path.join(self.repo_path, 'venv', 'bin', 'python')
+            
+            # Environment with the correct PYTHONPATH
+            env = os.environ.copy()
+            python_path = env.get('PYTHONPATH', '')
+            src_path = os.path.join(self.repo_path, 'src')
+            env['PYTHONPATH'] = f"{src_path}{os.pathsep}{python_path}"
+            
             # Build command
-            cmd = ["osc-geo-h3loader"]
+            cmd = [venv_python, "-m", "osc_geo_h3loader.cli"]
             
             # Add common arguments
             cmd.extend(["--input", input_file])
@@ -150,7 +168,8 @@ class H3DataLoader:
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                check=False
+                check=False,
+                env=env
             )
             
             if process.returncode != 0:
@@ -182,8 +201,17 @@ class H3DataLoader:
         try:
             logger.info(f"Validating data file: {input_file}")
             
+            # Path to the virtual environment's Python interpreter
+            venv_python = os.path.join(self.repo_path, 'venv', 'bin', 'python')
+            
+            # Environment with the correct PYTHONPATH
+            env = os.environ.copy()
+            python_path = env.get('PYTHONPATH', '')
+            src_path = os.path.join(self.repo_path, 'src')
+            env['PYTHONPATH'] = f"{src_path}{os.pathsep}{python_path}"
+            
             # Build command
-            cmd = ["osc-geo-h3loader", "--validate", "--input", input_file]
+            cmd = [venv_python, "-m", "osc_geo_h3loader.cli", "--validate", "--input", input_file]
             
             if strict:
                 cmd.append("--strict")
@@ -193,7 +221,8 @@ class H3DataLoader:
                 cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
-                check=False
+                check=False,
+                env=env
             )
             
             # Parse output

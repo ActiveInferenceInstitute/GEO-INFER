@@ -340,7 +340,7 @@ def main():
     parser = argparse.ArgumentParser(description="OS Climate Setup and Test Script")
     parser.add_argument(
         "--output-dir",
-        default="./ext/os-climate",
+        default="./ext",
         help="Directory to clone repositories into"
     )
     parser.add_argument(

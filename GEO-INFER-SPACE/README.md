@@ -209,7 +209,7 @@ nano config/local.yaml
 ### 4. Run First Example
 ```python
 # Minimal working example
-from geo_infer_space.core import SpatialProcessor
+from geo_infer_space.core.processor import SpatialProcessor
 import geopandas as gpd
 
 # Initialize with default settings
@@ -258,14 +258,14 @@ These are typically managed in YAML files (e.g., `GEO-INFER-SPACE/config/space_c
 **1. Buffer Analysis & Intersection (Vector Operations)**
 ```python
 import geopandas as gpd
-# from geo_infer_space.analytics import buffer_and_intersect # Conceptual
+from geo_infer_space.analytics.vector import buffer_and_intersect
 
-# points_gdf = gpd.read_file("path/to/points_of_interest.geojson")
-# polygons_gdf = gpd.read_file("path/to/study_areas.geojson")
+points_gdf = gpd.read_file("path/to/points_of_interest.geojson")
+polygons_gdf = gpd.read_file("path/to/study_areas.geojson")
 
-# # Buffer points by 500 meters and find intersections with study areas
-# # result_gdf = buffer_and_intersect(points_gdf, polygons_gdf, buffer_distance_meters=500)
-# # result_gdf.to_file("outputs/buffered_intersections.geojson")
+# Buffer points by 500 meters and find intersections with study areas
+result_gdf = buffer_and_intersect(points_gdf, polygons_gdf, buffer_distance_meters=500)
+result_gdf.to_file("outputs/buffered_intersections.geojson")
 ```
 
 **2. Raster Terrain Analysis (Slope Calculation)**

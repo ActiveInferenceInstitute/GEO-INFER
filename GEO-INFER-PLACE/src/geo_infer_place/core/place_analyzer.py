@@ -24,6 +24,8 @@ except ImportError:
             self.coordinate_system = coordinate_system
             logging.warning("Using fallback SpatialProcessor - limited functionality")
 
+from geo_infer_space.core.spatial_processor import SpatialProcessor
+
 try:
     from geo_infer_time.core.temporal_processor import TemporalProcessor
 except ImportError:

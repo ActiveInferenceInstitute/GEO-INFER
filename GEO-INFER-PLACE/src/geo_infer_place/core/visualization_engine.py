@@ -19,46 +19,7 @@ from folium.plugins import MarkerCluster, HeatMap
 import branca.colormap as cm
 import numpy as np
 
-# Optional imports with fallbacks
-try:
-    from geo_infer_space.core.spatial_processor import SpatialProcessor
-except ImportError:
-    # Fallback spatial processor
-    class SpatialProcessor:
-        def __init__(self, default_resolution=8, coordinate_system='EPSG:3857'):
-            self.default_resolution = default_resolution
-            self.coordinate_system = coordinate_system
-            logging.warning("Using fallback SpatialProcessor")
-            
-        def create_h3_grid(self, bounds, resolution=8):
-            """Fallback H3 grid creation."""
-            import h3
-            import numpy as np
-            min_lat, min_lon, max_lat, max_lon = bounds
-            cells = []
-            for lat in np.linspace(min_lat, max_lat, 10):
-                for lon in np.linspace(min_lon, max_lon, 10):
-                    cell = h3.latlng_to_cell(lat, lon, resolution)
-                    cells.append(cell)
-            return list(set(cells))
-
-try:
-    from geo_infer_time.core.temporal_processor import TemporalProcessor
-except ImportError:
-    # Fallback temporal processor
-    class TemporalProcessor:
-        def __init__(self, timezone='UTC'):
-            self.timezone = timezone
-            logging.warning("Using fallback TemporalProcessor")
-
-try:
-    from geo_infer_data.core.data_manager import DataManager
-except ImportError:
-    # Fallback data manager
-    class DataManager:
-        def __init__(self, cache_dir=None):
-            self.cache_dir = cache_dir
-            logging.warning("Using fallback DataManager")
+from geo_infer_space.core.spatial_processor import SpatialProcessor
 
 logger = logging.getLogger(__name__)
 

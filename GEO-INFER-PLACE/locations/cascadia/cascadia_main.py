@@ -26,27 +26,28 @@ from pathlib import Path
 # --- Robust Path Setup ---
 # This setup allows for imports from the geo_infer_place and geo_infer_space modules.
 try:
-    # Assumes cascadia_main.py is in GEO-INFER-PLACE/locations/cascadia/
-    cascadian_dir = Path(__file__).resolve().parent
-    place_root = cascadian_dir.parents[2] # GEO-INFER-PLACE
-    project_root = place_root.parent # GEO-INFER
+    # Use os.path for more explicit path construction
+    cascadian_dir = os.path.dirname(os.path.realpath(__file__))
+    project_root = os.path.abspath(os.path.join(cascadian_dir, '..', '..', '..'))
 
-    # Add required 'src' directories to the path
-    place_src_path = place_root / 'src'
-    space_src_path = project_root / 'GEO-INFER-SPACE' / 'src'
-    
-    # Add the current directory for local module imports (e.g. zoning)
-    sys.path.insert(0, str(cascadian_dir))
+    # Define the 'src' paths for the required modules
+    place_src_path = os.path.join(project_root, 'GEO-INFER-PLACE', 'src')
+    space_src_path = os.path.join(project_root, 'GEO-INFER-SPACE', 'src')
 
+    # Add the local directory for specialized modules like 'zoning'
+    if cascadian_dir not in sys.path:
+        sys.path.insert(0, cascadian_dir)
+
+    # Add the src directories to the path
     for p in [place_src_path, space_src_path]:
-        if p.exists() and str(p) not in sys.path:
-            sys.path.insert(0, str(p))
+        if os.path.isdir(p) and p not in sys.path:
+            sys.path.insert(0, p)
             print(f"INFO: Successfully added {p} to sys.path")
-        else:
-            print(f"WARNING: Required src path not found or already in path: {p}")
+        elif not os.path.isdir(p):
+            print(f"WARNING: Required src path not found: {p}")
 
-except IndexError:
-    print("CRITICAL: Could not determine project root. Please ensure you are running from the 'GEO-INFER-PLACE/locations/cascadia' directory")
+except Exception as e:
+    print(f"CRITICAL: Could not set up paths: {e}. Please ensure you are running from the 'GEO-INFER-PLACE/locations/cascadia' directory")
     sys.exit(1)
 # --- End Path Setup ---
 
@@ -64,8 +65,7 @@ from geo_infer_place.core.base_module import BaseAnalysisModule
 # Import all the specialized modules from the 'cascadia' location
 # Note: These would need to be created following the pattern of GeoInferZoning
 from zoning.geo_infer_zoning import GeoInferZoning
-# --- Placeholder imports for other modules ---
-# from current_use.geo_infer_current_use import GeoInferCurrentUse
+from current_use.geo_infer_current_use import GeoInferCurrentUse
 # from ownership.geo_infer_ownership import GeoInferOwnership
 # from mortgage_debt.geo_infer_mortgage_debt import GeoInferMortgageDebt
 # from improvements.geo_infer_improvements import GeoInferImprovements
@@ -228,7 +228,8 @@ Examples:
         # Define all possible modules here
         final_modules = [
             'zoning', 
-            # 'current_use', 'ownership', 'mortgage_debt', 
+            'current_use', 
+            # 'ownership', 'mortgage_debt', 
             # 'improvements', 'surface_water', 'ground_water', 'power_source'
         ]
     
@@ -268,13 +269,18 @@ Examples:
         # This would be expanded as each module is implemented
         module_class_map = {
             'zoning': GeoInferZoning,
-            # 'current_use': GeoInferCurrentUse,
+            'current_use': GeoInferCurrentUse,
             # 'ownership': GeoInferOwnership,
         }
 
         # The backend will be initialized with dummy modules first
         # Then we will instantiate the real ones needed for the run
-        backend_for_init = CascadianAgriculturalH3Backend(modules={}, base_data_dir=cascadian_dir / 'data')
+        osc_repo_dir = os.path.join(project_root, 'ext')
+        backend_for_init = CascadianAgriculturalH3Backend(
+            modules={},
+            base_data_dir=os.path.join(cascadian_dir, 'data'),
+            osc_repo_dir=osc_repo_dir
+        )
         
         active_module_instances: Dict[str, BaseAnalysisModule] = {}
         for mod_name in final_modules:
@@ -296,7 +302,8 @@ Examples:
             resolution=args.resolution,
             bioregion=args.bioregion,
             target_counties=target_counties,
-            base_data_dir=cascadian_dir / 'data'
+            base_data_dir=os.path.join(cascadian_dir, 'data'),
+            osc_repo_dir=osc_repo_dir
         )
         
         # Link the modules to the fully initialized backend

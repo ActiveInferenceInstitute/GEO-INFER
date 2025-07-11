@@ -58,7 +58,8 @@ class CascadianAgriculturalH3Backend:
                  resolution: int = 8,
                  bioregion: str = 'Cascadia',
                  target_counties: Optional[Dict[str, List[str]]] = None,
-                 base_data_dir: Optional[Path] = None):
+                 base_data_dir: Optional[Path] = None,
+                 osc_repo_dir: Optional[str] = None):
         """
         Initialize the unified backend with H3 spatial indexing.
         
@@ -68,6 +69,7 @@ class CascadianAgriculturalH3Backend:
             bioregion: Bioregion identifier (default: 'Cascadia')
             target_counties: A dict specifying counties to run, e.g., {'CA': ['all']}.
             base_data_dir: The root directory for data caching.
+            osc_repo_dir: The root directory of the cloned OS-Climate repositories.
         """
         self.modules = modules
         self.resolution = resolution
@@ -78,7 +80,7 @@ class CascadianAgriculturalH3Backend:
         
         # --- OSC Integration ---
         try:
-            self.h3_loader: H3DataLoader = create_h3_data_loader()
+            self.h3_loader: H3DataLoader = create_h3_data_loader(repo_base_dir=osc_repo_dir)
             logger.info("Successfully initialized H3DataLoader from GEO-INFER-SPACE.")
         except Exception as e:
             logger.error(f"Failed to initialize H3DataLoader from GEO-INFER-SPACE: {e}")
@@ -147,8 +149,9 @@ class CascadianAgriculturalH3Backend:
         if not target_counties:
             return {}
 
-        # The data file is expected to be in a standard location relative to the execution script
-        geometries_path = self.base_data_dir.parent / 'data' / 'us_counties_simple.geojson'
+        # The data file is in the GEO-INFER-PLACE/data directory
+        package_root = Path(__file__).resolve().parents[2] # .../GEO-INFER-PLACE
+        geometries_path = package_root / 'data' / 'us_counties_simple.geojson'
         
         output_geoms = {}
         
@@ -449,14 +452,28 @@ class CascadianAgriculturalH3Backend:
             logger.error("No unified data available to generate a dashboard.")
             return
 
-        # Center map on the bioregion
-        centroids = [d['centroid'] for d in self.unified_data.values() if d.get('centroid')]
-        if not centroids:
-            map_center = [42.5, -120.0] # Fallback for Cascadia
+        # Define a sensible default if no hexagons are available
+        if not self.target_hexagons:
+            map_center = [44.0, -120.5] # Default to center of Oregon
         else:
-            map_center = np.mean(centroids, axis=0).tolist()
-            
+            # Calculate the centroid of the entire target region for the map center
+            all_boundaries = [Polygon(h3.h3_to_geo_boundary(h)) for h in self.target_hexagons]
+            gdf_all = gpd.GeoDataFrame({'geometry': all_boundaries}, crs="EPSG:4326")
+            unified_geom = gdf_all.unary_union
+            centroid = unified_geom.centroid
+            map_center = [centroid.y, centroid.x]
+
+        logger.info(f"Generating interactive dashboard centered at {map_center}...")
         m = folium.Map(location=map_center, zoom_start=7, tiles='CartoDB positron')
+
+        # Add a title to the map
+        title_html = f'''
+            <h3 style="text-align: center; color: #333; padding: 10px; background-color: #f0f0f0; border-radius: 5px; font-family: 'Arial', sans-serif;">
+                Cascadian Agricultural Land Redevelopment Potential Dashboard
+            </h3>
+        '''
+        m.get_root().header.add_child(folium.Element(title_html))
+
         folium.TileLayer('Stamen Terrain', attr='Stamen').add_to(m)
         
         # --- Create Feature Groups for each layer ---
@@ -530,12 +547,21 @@ class CascadianAgriculturalH3Backend:
             group.add_to(m)
 
         # --- Add Heatmap ---
+        # Prepare data for heatmap layer (lat, lon, weight)
         heat_data = [
-            (d['centroid'][0], d['centroid'][1], self.redevelopment_scores.get(h3_index, {}).get('composite_score', 0))
-            for h3_index, d in self.unified_data.items() if d.get('centroid')
+            [
+                self.unified_data[h]['centroid'][1], 
+                self.unified_data[h]['centroid'][0], 
+                self.redevelopment_scores.get(h, {}).get('composite_score', 0)
+            ]
+            for h in self.target_hexagons 
+            if h in self.unified_data and 'centroid' in self.unified_data[h] and self.unified_data[h]['centroid']
         ]
-        HeatMap(heat_data, name="Redevelopment Heatmap", show=False).add_to(m)
 
+        if heat_data:
+            HeatMap(heat_data, name="Redevelopment Heatmap", show=False).add_to(m)
+
+        # Add layer control
         folium.LayerControl().add_to(m)
         
         try:

@@ -12,30 +12,40 @@ import rasterio
 from rasterio.mask import mask
 from shapely.geometry import Polygon
 from collections import Counter
+from pathlib import Path
 
 from .data_sources import CascadianCurrentUseDataSources
-from utils_h3 import h3_to_geo_boundary
+from geo_infer_place.core.base_module import BaseAnalysisModule
+import h3
 
 logger = logging.getLogger(__name__)
 
-class GeoInferCurrentUse:
-    def __init__(self, resolution: int):
-        self.resolution = resolution
+class GeoInferCurrentUse(BaseAnalysisModule):
+    def __init__(self, backend):
+        super().__init__(backend, 'current_use')
         self.data_source = CascadianCurrentUseDataSources()
-        logger.info(f"Initialized GeoInferCurrentUse with resolution {resolution}")
+        logger.info(f"Initialized GeoInferCurrentUse module.")
 
-    def run_analysis(self, target_hexagons: List[str], year: int = 2023) -> Dict[str, Dict[str, Any]]:
+    def acquire_raw_data(self) -> Path:
+        """
+        This module processes data on the fly based on H3 hexagons,
+        so we don't acquire a single 'raw data' file. Instead, we return
+        a dummy path and the main logic is in run_final_analysis.
+        """
+        # Create a dummy file to satisfy the interface
+        dummy_path = self.data_dir / "dummy_current_use.txt"
+        with open(dummy_path, 'w') as f:
+            f.write("This module processes data via API for each hexagon.")
+        return dummy_path
+
+    def run_final_analysis(self, h3_data: Dict[str, Any]) -> Dict[str, Any]:
         """
         Generate H3-indexed current agricultural use classification from NASS CDL data.
         This is the main entry point for the module.
-        
-        Args:
-            target_hexagons: A list of H3 hexagon IDs to analyze.
-            year: The year for which to analyze data.
-            
-        Returns:
-            A dictionary mapping H3 hexagon IDs to their current use analysis.
         """
+        year = 2023 # Or get from config
+        target_hexagons = list(self.target_hexagons)
+
         if not target_hexagons:
             logger.warning("No target hexagons provided for current use analysis.")
             return {}

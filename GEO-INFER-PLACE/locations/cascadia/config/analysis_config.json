@@ -1,19 +1,13 @@
 {
     "analysis_settings": {
         "target_counties": {
-            "CA": ["all"],
-            "OR": ["all"],
-            "WA": ["all"]
+            "CA": ["Lassen"],
+            "OR": [],
+            "WA": []
         },
         "active_modules": [
             "zoning", 
-            "current_use", 
-            "ownership", 
-            "mortgage_debt", 
-            "improvements", 
-            "surface_water", 
-            "ground_water", 
-            "power_source"
+            "current_use"
         ]
     },
     "zoning": {

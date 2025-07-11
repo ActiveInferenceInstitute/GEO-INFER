@@ -11,6 +11,7 @@ from abc import ABC, abstractmethod
 from pathlib import Path
 import geopandas as gpd
 import json
+import os
 
 # A forward declaration for type hinting the backend without circular imports
 from typing import TYPE_CHECKING
@@ -45,7 +46,7 @@ class BaseAnalysisModule(ABC):
         self.target_hexagons = backend.target_hexagons
         
         # Define standardized data paths
-        self.data_dir = self.backend.base_data_dir / self.module_name
+        self.data_dir = Path(self.backend.base_data_dir) / self.module_name
         self.data_dir.mkdir(exist_ok=True)
         self.h3_cache_path = self.data_dir / f'{self.module_name}_h3_res{self.resolution}.json'
 
@@ -72,21 +73,40 @@ class BaseAnalysisModule(ABC):
             raw_data_path: Path to the raw geospatial data file.
             
         Returns:
-            A dictionary mapping H3 hexagon IDs to processed data.
+            A dictionary of H3-indexed data.
         """
-        logger.info(f"[{self.module_name}] Processing raw data into H3 format...")
+        if not self.backend.h3_loader:
+            logger.error(f"[{self.module_name}] H3 loader not available. Cannot process data.")
+            return {}
+            
         try:
-            # Use the backend's OSC H3 loader
+            # Define a temporary output path for the H3 conversion
+            h3_output_path = self.data_dir / f"temp_{self.module_name}_h3.geojson"
+            
+            logger.info(f"[{self.module_name}] Using H3 loader to process {raw_data_path} -> {h3_output_path}")
+            
             h3_data = self.backend.h3_loader.load_data(
                 input_file=str(raw_data_path),
-                resolution=self.resolution,
-                # Additional loader-specific options could go here
+                output_file=str(h3_output_path)
             )
-            logger.info(f"[{self.module_name}] Successfully processed {len(h3_data)} hexagons.")
-            return h3_data
+
+            # After processing, we would typically load the h3_output_path file
+            # For now, this part of the logic is incomplete in the original file
+            # We will assume success returns the data directly or we load the file
+            if h3_output_path.exists():
+                with open(h3_output_path) as f:
+                    h3_data = json.load(f)
+                # Clean up the temporary file
+                os.remove(h3_output_path)
+            else:
+                # This case needs to be handled based on what h3_loader.load_data returns
+                h3_data = {}
+
         except Exception as e:
             logger.error(f"[{self.module_name}] Failed to process data to H3: {e}", exc_info=True)
-            return {}
+            h3_data = {}
+            
+        return h3_data
 
     @abstractmethod
     def run_final_analysis(self, h3_data: dict) -> dict:

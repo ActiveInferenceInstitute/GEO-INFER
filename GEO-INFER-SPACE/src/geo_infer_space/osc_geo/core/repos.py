@@ -200,7 +200,7 @@ def get_repo_path(
     owner = repo_info["owner"]
     repo = repo_info["repo"]
     
-    repo_path = os.path.join(base_dir, owner, repo)
+    repo_path = os.path.join(base_dir, repo)
     
     if os.path.exists(repo_path):
         return repo_path

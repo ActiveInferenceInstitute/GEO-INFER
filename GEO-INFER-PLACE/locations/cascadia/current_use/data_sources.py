@@ -14,7 +14,7 @@ from typing import Dict, List, Optional, Tuple, Any, NamedTuple
 import logging
 from datetime import datetime
 import os
-from utils_h3 import h3_to_geo_boundary
+import h3
 from shapely.geometry import Polygon
 from collections import Counter
 from rasterio.transform import from_origin
@@ -22,8 +22,8 @@ from pathlib import Path
 import zipfile
 import rasterio.mask
 
-# Import H3 utilities from the unified backend's path
-from utils_h3 import h3_to_geo, h3_to_geo_boundary
+# Import H3 utilities from the unified backend's path - this is now corrected
+from geo_infer_space.osc_geo.utils.h3_utils import h3_to_geojson
 
 
 logger = logging.getLogger(__name__)
@@ -53,7 +53,7 @@ class CascadianCurrentUseDataSources:
 
     def _calculate_bbox_from_hexagons(self, hexagons: List[str]) -> Tuple[float, float, float, float]:
         """Calculates a bounding box from a list of H3 hexagons."""
-        boundaries = [Polygon(h3_to_geo_boundary(h)) for h in hexagons]
+        boundaries = [Polygon(h3.h3_to_geo_boundary(h)) for h in hexagons]
         min_lon = min(b.bounds[0] for b in boundaries)
         min_lat = min(b.bounds[1] for b in boundaries)
         max_lon = max(b.bounds[2] for b in boundaries)
@@ -160,7 +160,7 @@ class CascadianCurrentUseDataSources:
             # Process each hexagon in the current batch with the fetched raster
             for h3_index in state_hexagons:
                 try:
-                    hex_poly = Polygon(h3_to_geo_boundary(h3_index))
+                    hex_poly = Polygon(h3.h3_to_geo_boundary(h3_index))
                     out_image, out_transform = rasterio.mask.mask(src, [hex_poly], crop=True)
                     
                     unique, counts = np.unique(out_image[out_image != src.nodata], return_counts=True)
@@ -197,7 +197,7 @@ class CascadianCurrentUseDataSources:
         """Groups hexagons by their approximate state location."""
         states = {'CA': [], 'OR': [], 'WA': [], 'Other': []}
         for h in hexagons:
-            lat, lon = h3_to_geo(h)
+            lat, lon = h3.h3_to_geo(h)
             if lon < -114 and lon > -125:
                 if lat < 42:
                     states['CA'].append(h)
