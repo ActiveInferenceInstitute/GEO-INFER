@@ -162,8 +162,11 @@ def list_directory_tree(path, max_depth=3):
                          prefix + ("    " if is_last else "│   "), 
                          depth + 1)
             else:
-                size = entry.stat().st_size
-                size_str = f"{size/1024:.1f}KB" if size >= 1024 else f"{size}B"
+                try:
+                    size = entry.stat().st_size
+                    size_str = f"{size/1024:.1f}KB" if size >= 1024 else f"{size}B"
+                except FileNotFoundError:
+                    size_str = "(missing)"
                 tree_output.append(f"{new_prefix}{entry.name} ({size_str})")
     
     print_tree(path_obj)
@@ -249,7 +252,7 @@ def setup_and_test_repository(repo_path, parent_repo_src_dir, repo_info):
     result_info["steps"].append(script_step)
     
     script_content = f"""#!/bin/bash
-set -e
+set -ex # Add -x for debugging
 
 # Activate virtual environment
 source {venv_dir}/bin/activate
@@ -348,9 +351,8 @@ def setup_all_repositories(output_dir, force_clone, skip_tests, create_reports):
     
     # Get absolute path to GEO-INFER-SPACE/src for PYTHONPATH injection
     # This script is in GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/
-    # So, Path(__file__).parent.parent.parent.parent points to GEO-INFER-SPACE/
-    geo_infer_space_root = Path(__file__).parent.parent.parent.parent
-    geo_infer_space_src = geo_infer_space_root / "src"
+    # So, Path(__file__).parents[3] points to GEO-INFER-SPACE/src/
+    geo_infer_space_src = Path(__file__).parents[3]
     parent_repo_src_dir = str(geo_infer_space_src.resolve())
 
     for repo_info in REPOS:
