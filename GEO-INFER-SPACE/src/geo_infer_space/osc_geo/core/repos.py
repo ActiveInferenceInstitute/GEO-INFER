@@ -16,16 +16,14 @@ logger = logging.getLogger(__name__)
 # OS Climate repository URLs
 OSC_REPOS = {
     "h3grid-srv": {
-        "owner": "os-climate",
+        "owner": "docxology",  # Forked from os-climate
         "repo": "osc-geo-h3grid-srv",
-        "branch": "main",
-        "description": "H3 grid service for geospatial applications"
+        "default_branch": "main"
     },
     "h3loader-cli": {
-        "owner": "os-climate",
+        "owner": "docxology",  # Forked from os-climate
         "repo": "osc-geo-h3loader-cli",
-        "branch": "main",
-        "description": "Command-line tool for loading data into H3 grid systems"
+        "default_branch": "main"
     }
 }
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Command-line wrapper for the OSC setup and status utilities.
+Command-line wrapper for the OSC setup and status utilities (using forks).
 """
 
 import sys

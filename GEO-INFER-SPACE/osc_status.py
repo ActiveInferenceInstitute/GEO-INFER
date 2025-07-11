@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Command-line script to check the status of OS Climate repositories.
+Command-line script to check the status of OS Climate repositories (using docxology forks).
 """
 
 import sys

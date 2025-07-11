@@ -23,18 +23,18 @@ logging.basicConfig(
 logger = logging.getLogger("geo_infer_space.osc_geo.utils.osc_simple_status")
 
 # Define OSC repositories
-OSC_REPOS = {
-    "h3grid": {
-        "name": "OS Climate H3 Grid Server",
-        "clone_url": "https://github.com/os-climate/osc-geo-h3grid-srv.git",
-        "branch": "main",
+REPO_CONFIGS = {
+    "h3grid-srv": {
+        "name": "osc-geo-h3grid-srv",
+        "clone_url": "https://github.com/docxology/osc-geo-h3grid-srv.git",  # Fork of https://github.com/os-climate/osc-geo-h3grid-srv
         "path": "ext/os-climate/osc-geo-h3grid-srv",
+        "main_script": "src/geoserver/server.py"
     },
-    "h3loader": {
-        "name": "OS Climate H3 Loader CLI",
-        "clone_url": "https://github.com/os-climate/osc-geo-h3loader-cli.git",
-        "branch": "main",
+    "h3loader-cli": {
+        "name": "osc-geo-h3loader-cli",
+        "clone_url": "https://github.com/docxology/osc-geo-h3loader-cli.git",  # Fork of https://github.com/os-climate/osc-geo-h3loader-cli
         "path": "ext/os-climate/osc-geo-h3loader-cli",
+        "main_script": "src/cli/cli.py"
     }
 }
 
@@ -112,7 +112,7 @@ def check_repo_status():
         "all_repos_exist": True,
     }
     
-    for repo_key, repo_info in OSC_REPOS.items():
+    for repo_key, repo_info in REPO_CONFIGS.items():
         path = os.path.normpath(os.path.join(os.getcwd(), repo_info["path"]))
         
         repo_status = {

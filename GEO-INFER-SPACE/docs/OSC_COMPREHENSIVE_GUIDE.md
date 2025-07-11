@@ -834,13 +834,11 @@ class OSCConfig:
     REPOS = [
         {
             "name": "osc-geo-h3grid-srv",
-            "url": "https://github.com/os-climate/osc-geo-h3grid-srv.git",
-            "branch": "main"
+            "url": "https://github.com/docxology/osc-geo-h3grid-srv.git",  # Fork of https://github.com/os-climate/osc-geo-h3grid-srv
         },
         {
             "name": "osc-geo-h3loader-cli", 
-            "url": "https://github.com/os-climate/osc-geo-h3loader-cli.git",
-            "branch": "main"
+            "url": "https://github.com/docxology/osc-geo-h3loader-cli.git",  # Fork of https://github.com/os-climate/osc-geo-h3loader-cli
         }
     ]
     
@@ -899,7 +897,7 @@ register_visualizer_plugin("custom", CustomOSCVisualizer)
 
 ## 📚 References
 
-- [OS Climate GitHub Organization](https://github.com/os-climate)
+- [OS Climate GitHub Organization](https://github.com/docxology) (original source, we use forks at github.com/docxology)
 - [H3 Hierarchical Hexagonal Geospatial Indexing](https://h3geo.org/)
 - [GEO-INFER Framework Documentation](../README.md)
 - [FastAPI Documentation](https://fastapi.tiangolo.com/)

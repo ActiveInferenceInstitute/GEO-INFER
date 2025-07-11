@@ -6,7 +6,7 @@ from setuptools import setup, find_packages
 setup(
     name="geo-infer-space",
     version="0.1.0",
-    description="Advanced spatial methods for the GEO-INFER framework",
+    description="Advanced spatial methods for the GEO-INFER framework with OS-Climate forks",
     author="GEO-INFER Team",
     author_email="info@geo-infer.org",
     url="https://github.com/geo-infer/geo-infer-space",

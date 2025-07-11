@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Test script to demonstrate enhanced OSC reporting and visualization capabilities.
+Using docxology forks of OS-Climate repos.
 """
 
 import sys

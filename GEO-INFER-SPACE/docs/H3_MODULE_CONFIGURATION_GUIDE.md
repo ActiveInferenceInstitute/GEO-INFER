@@ -117,7 +117,8 @@ integration:
   osc_integration:
     enabled: true
     h3grid_service_url: "http://localhost:8080"
-    h3loader_cli_path: "./ext/os-climate/osc-geo-h3loader-cli"
+    h3grid_srv_path: "./ext/os-climate/osc-geo-h3grid-srv"  # Fork from docxology
+    h3loader_cli_path: "./ext/os-climate/osc-geo-h3loader-cli"  # Fork from docxology
   
   # Database connections
   database:

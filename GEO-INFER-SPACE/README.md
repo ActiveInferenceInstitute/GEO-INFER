@@ -47,9 +47,9 @@ GEO-INFER-SPACE is the **foundational geospatial processing and analysis engine*
 -   **Benefits:** Prevents common errors related to mismatched CRSs, ensures all spatial data is accurately georeferenced and aligned for analysis.
 
 ### 6. OS Climate Integration for Standardized Geospatial Processing
--   **Description:** Integration with selected tools and services from the OS-Climate initiative, particularly those related to H3 grid services and data loading, promoting standardization in climate-related geospatial analysis.
--   **Components:** Wrappers or direct usage of `osc-geo-h3grid-srv` for H3 grid generation/management and `osc-geo-h3loader-cli` for loading data into H3 grids.
--   **Benefits:** Facilitates interoperability with OS-Climate workflows, leverages standardized H3-based approaches for climate data, promotes collaboration within the climate finance and science community.
+- **Description:** Integration with selected tools and services from the OS-Climate initiative, particularly those related to H3 grid services and data loading, promoting standardization in climate-related geospatial analysis. We use forks of these repositories under github.com/docxology, originally from github.com/os-climate.
+- **Components:** Wrappers or direct usage of `osc-geo-h3grid-srv` for H3 grid generation/management and `osc-geo-h3loader-cli` for loading data into H3 grids.
+- **Benefits:** Facilitates interoperability with OS-Climate workflows, leverages standardized H3-based approaches for climate data, promotes collaboration within the climate finance and science community.
 
 ## Data Flow
 

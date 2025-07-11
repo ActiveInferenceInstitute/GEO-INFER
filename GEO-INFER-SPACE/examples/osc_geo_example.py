@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Example script demonstrating the use of the OSC-GEO module.
+Example script demonstrating the use of the OSC-GEO module (using docxology forks of original OS-Climate repos).
 
 This script shows how to:
 1. Set up OSC-GEO by cloning required repositories

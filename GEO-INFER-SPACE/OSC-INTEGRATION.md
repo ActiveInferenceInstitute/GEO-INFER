@@ -6,7 +6,7 @@ This document outlines the approach for integrating OS Climate (OSC) geospatial 
 
 ## Core Principles
 
-1. **Non-invasive integration**: We never modify the OS Climate repositories directly
+1. **Non-invasive integration**: We never modify the OS Climate repositories directly. Instead, we use forks under github.com/docxology.
 2. **Dependency management**: Each OSC repository maintains its own isolated virtual environment
 3. **Validation**: Automated testing ensures compatibility and functionality
 4. **Status reporting**: Clear logging and reporting of repository status
@@ -35,7 +35,7 @@ GEO-INFER-SPACE/
 
 Instead of forking or modifying the OS Climate repositories, we:
 
-1. Clone them into the `ext/os-climate/` directory
+1. Clone the forks from github.com/docxology/osc-geo-h3grid-srv and github.com/docxology/osc-geo-h3loader-cli into the `ext/os-climate/` directory
 2. Create isolated virtual environments within each repository
 3. Install dependencies in these environments
 4. Run tests to verify functionality
@@ -148,7 +148,7 @@ print(diagnostics.detailed_report())
 
 ## Updating OSC Repositories
 
-To update the OS Climate repositories to the latest versions:
+To update the OS Climate repositories to the latest versions from forks:
 
 ```bash
 python3 osc_setup_all.py --force-clone

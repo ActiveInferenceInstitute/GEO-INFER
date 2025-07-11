@@ -30,13 +30,15 @@ logger = logging.getLogger("osc_setup_all")
 REPOS = [
     {
         "name": "osc-geo-h3grid-srv",
-        "url": "https://github.com/os-climate/osc-geo-h3grid-srv.git",
-        "description": "H3 grid service for geospatial applications"
+        "url": "https://github.com/docxology/osc-geo-h3grid-srv.git",  # Fork of original https://github.com/os-climate/osc-geo-h3grid-srv
+        "install_script": "setup.sh",
+        "test_script": "test.sh"
     },
     {
         "name": "osc-geo-h3loader-cli",
-        "url": "https://github.com/os-climate/osc-geo-h3loader-cli.git",
-        "description": "Command-line tool for loading data into H3 grid systems"
+        "url": "https://github.com/docxology/osc-geo-h3loader-cli.git",  # Fork of original https://github.com/os-climate/osc-geo-h3loader-cli
+        "install_script": "setup.sh",
+        "test_script": "test.sh"
     }
 ]
 

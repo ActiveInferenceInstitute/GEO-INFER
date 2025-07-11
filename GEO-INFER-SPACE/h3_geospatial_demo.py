@@ -5,8 +5,8 @@ H3 Geospatial Overlay Demonstration Script
 This script demonstrates interactive H3-based geospatial overlays using the OSC
 (OS Climate) repositories integrated with GEO-INFER-SPACE. It:
 
-1. Uses osc-geo-h3grid-srv for H3 grid operations
-2. Uses osc-geo-h3loader-cli for data loading  
+1. Uses osc-geo-h3grid-srv for H3 grid operations (fork from docxology)
+2. Uses osc-geo-h3loader-cli for data loading  (fork from docxology)
 3. Generates interactive visualizations with Folium
 4. Creates sample geospatial datasets for demonstration
 5. Spins up a web server to display results

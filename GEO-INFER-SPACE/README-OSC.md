@@ -18,7 +18,7 @@ python -c "from geo_infer_space.osc_geo.utils import check_repo_status, generate
 
 ## Repository Structure
 
-The OS Climate integration follows the GEO-INFER modular structure:
+The OS Climate integration follows the GEO-INFER modular structure, using forks from github.com/docxology:
 
 ```
 GEO-INFER-SPACE/
@@ -36,7 +36,7 @@ GEO-INFER-SPACE/
 │               ├── osc_wrapper.py
 │               └── osc_setup_all.py
 ├── ext/                       # External repositories
-│   └── os-climate/            # OS Climate repositories
+│   └── os-climate/            # OS Climate repositories (forked)
 │       ├── osc-geo-h3grid-srv
 │       └── osc-geo-h3loader-cli
 └── setup.py                   # Package installation
@@ -71,10 +71,10 @@ For more details on the integration approach, see [OSC-INTEGRATION.md](./OSC-INT
 
 ## Repository Details
 
-The scripts set up the following repositories:
+The scripts set up the following forked repositories:
 
-1. **osc-geo-h3grid-srv**: H3 grid service for geospatial applications
-2. **osc-geo-h3loader-cli**: Command-line tool for loading data into H3 grid systems
+1. **osc-geo-h3grid-srv**: H3 grid service for geospatial applications (fork of os-climate/osc-geo-h3grid-srv)
+2. **osc-geo-h3loader-cli**: Command-line tool for loading data into H3 grid systems (fork of os-climate/osc-geo-h3loader-cli)
 
 ## Programmatic Usage
 

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
 Command-line wrapper for the OSC setup utility.
+Now using docxology forks of original OS-Climate repositories.
 """
 
 import sys

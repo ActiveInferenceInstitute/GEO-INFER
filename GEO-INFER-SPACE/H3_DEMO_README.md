@@ -162,9 +162,9 @@ python h3_geospatial_demo.py --serve --port 8080
 
 ## 🌟 Integration with OSC
 
-This demo leverages the OS Climate (OSC) repositories:
-- **osc-geo-h3grid-srv**: H3 grid service for standardized operations
-- **osc-geo-h3loader-cli**: Data loading utilities for H3 grids
+This demo leverages the OS Climate (OSC) repositories via forks:
+- **osc-geo-h3grid-srv**: H3 grid service for standardized operations (fork of github.com/os-climate/osc-geo-h3grid-srv)
+- **osc-geo-h3loader-cli**: Data loading utilities for H3 grids (fork of github.com/os-climate/osc-geo-h3loader-cli)
 
 The integration follows OSC best practices for:
 - Standardized H3 operations
