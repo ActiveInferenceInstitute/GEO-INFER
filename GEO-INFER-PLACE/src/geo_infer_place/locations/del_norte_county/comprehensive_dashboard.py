@@ -21,7 +21,7 @@ import branca.colormap as cm
 import numpy as np
 
 # Import GEO-INFER modules
-from ...utils.config_loader import LocationConfigLoader, LocationBounds
+from geo_infer_space.utils.config_loader import LocationConfigLoader, LocationBounds
 from ...utils.data_sources import CaliforniaDataSources
 from ...core.api_clients import CaliforniaAPIManager
 from ...core.visualization_engine import InteractiveVisualizationEngine

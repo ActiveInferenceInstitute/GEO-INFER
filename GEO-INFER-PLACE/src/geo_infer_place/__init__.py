@@ -42,13 +42,8 @@ __email__ = "geo-infer@activeinference.institute"
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 # Core imports
-from .core.place_analyzer import PlaceAnalyzer
-# Optional imports for components that may not be available
-try:
-    from .core.data_integrator import RealDataIntegrator
-except ImportError:
-    RealDataIntegrator = None
-    
+from geo_infer_space.core.place_analyzer import PlaceAnalyzer
+from geo_infer_space.core.data_integrator import RealDataIntegrator
 from .core.visualization_engine import InteractiveVisualizationEngine
 
 # Location-specific imports with fallbacks
@@ -65,7 +60,7 @@ from .locations.del_norte_county.fire_risk_assessor import FireRiskAssessor
 # from .locations.del_norte_county.community_development_tracker import CommunityDevelopmentTracker
 
 # Configuration and utilities
-from .utils.config_loader import LocationConfigLoader
+from geo_infer_space.utils.config_loader import LocationConfigLoader
 from .utils.data_sources import CaliforniaDataSources
 
 # API clients - using core implementation for consistency

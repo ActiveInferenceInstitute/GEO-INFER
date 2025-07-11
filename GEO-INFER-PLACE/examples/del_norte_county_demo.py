@@ -242,7 +242,7 @@ except ImportError as e:
     AdvancedDashboard = None
 
 try:
-    from geo_infer_place.utils.config_loader import LocationConfigLoader
+    from geo_infer_space.utils.config_loader import LocationConfigLoader
     from geo_infer_place.utils.data_sources import CaliforniaDataSources
     from geo_infer_space.core.api_clients import BaseAPIManager  # Or appropriate general class
 except ImportError as e:
