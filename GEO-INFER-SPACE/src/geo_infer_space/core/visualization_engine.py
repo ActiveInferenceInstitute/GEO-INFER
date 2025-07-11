@@ -414,85 +414,48 @@ class InteractiveVisualizationEngine:
             ).add_to(layer_groups['integration'])
             
     def _generate_forest_monitoring_sites(self) -> List[Dict]:
-        """Generate placeholder forest monitoring sites."""
-        np.random.seed(42)
-        sites = []
-        
-        # Generate 20 monitoring sites within Del Norte County bounds
-        for i in range(20):
-            lat = np.random.uniform(self.location_bounds.get('south', 41.5), self.location_bounds.get('north', 42.0))
-            lon = np.random.uniform(self.location_bounds.get('west', -124.4), self.location_bounds.get('east', -123.5))
-            
-            site = {
-                'site_id': f'FH_{i+1:03d}',
-                'lat': lat,
-                'lon': lon,
-                'health_index': np.random.uniform(0.2, 0.9),
-                'ndvi': np.random.uniform(0.3, 0.8),
-                'tree_density': int(np.random.uniform(100, 800)),
-                'species_diversity': np.random.uniform(1.5, 3.5),
-                'last_survey': '2024-01-15'
-            }
-            sites.append(site)
-            
-        return sites
-        
+        """Load real forest monitoring sites from data source."""
+        data_path = self.location_config.get('data_paths', {}).get('forest_monitoring', 'data/forest_sites.geojson')
+        try:
+            gdf = gpd.read_file(data_path)
+            sites = gdf.to_dict('records')
+            return sites
+        except Exception as e:
+            logger.error(f"Failed to load forest data: {e}")
+            return []
+
     def _generate_coastal_monitoring_sites(self) -> List[Dict]:
-        """Generate placeholder coastal monitoring sites."""
-        np.random.seed(43)
-        sites = []
-        
-        # Generate 15 coastal sites along the western edge
-        for i in range(15):
-            lat = np.random.uniform(self.location_bounds.get('south', 41.5), self.location_bounds.get('north', 42.0))
-            lon = np.random.uniform(-124.4, -124.0)  # Western coastal area
-            
-            site = {
-                'site_id': f'CS_{i+1:03d}',
-                'lat': lat,
-                'lon': lon,
-                'vulnerability': np.random.uniform(0.1, 0.9),
-                'erosion_rate': np.random.uniform(-0.5, 2.5),
-                'sea_level_trend': np.random.uniform(1.0, 4.0),
-                'storm_exposure': np.random.choice(['Low', 'Moderate', 'High'])
-            }
-            sites.append(site)
-            
-        return sites
-        
+        """Load real coastal monitoring sites from data source."""
+        data_path = self.location_config.get('data_paths', {}).get('coastal_monitoring', 'data/coastal_sites.geojson')
+        try:
+            gdf = gpd.read_file(data_path)
+            sites = gdf.to_dict('records')
+            return sites
+        except Exception as e:
+            logger.error(f"Failed to load coastal data: {e}")
+            return []
+
     def _generate_fire_monitoring_sites(self) -> List[Dict]:
-        """Generate placeholder fire monitoring sites."""
-        np.random.seed(44)
-        sites = []
-        
-        # Generate 25 fire monitoring sites
-        for i in range(25):
-            lat = np.random.uniform(self.location_bounds.get('south', 41.5), self.location_bounds.get('north', 42.0))
-            lon = np.random.uniform(self.location_bounds.get('west', -124.4), self.location_bounds.get('east', -123.5))
-            
-            site = {
-                'site_id': f'FR_{i+1:03d}',
-                'lat': lat,
-                'lon': lon,
-                'risk_level': np.random.uniform(0.1, 0.9),
-                'fuel_moisture': np.random.uniform(5, 25),
-                'fire_weather_index': np.random.uniform(0, 100),
-                'suppression_distance': np.random.uniform(2, 20)
-            }
-            sites.append(site)
-            
-        return sites
-        
+        """Load real fire monitoring sites from data source."""
+        data_path = self.location_config.get('data_paths', {}).get('fire_monitoring', 'data/fire_sites.geojson')
+        try:
+            gdf = gpd.read_file(data_path)
+            sites = gdf.to_dict('records')
+            return sites
+        except Exception as e:
+            logger.error(f"Failed to load fire data: {e}")
+            return []
+
     def _generate_community_facilities(self) -> List[Dict]:
-        """Generate placeholder community facilities."""
-        facilities = [
-            {'name': 'Sutter Coast Hospital', 'type': 'healthcare', 'lat': 41.7558, 'lon': -124.2026, 'capacity': 150, 'service_area': 50, 'accessibility': 'Good'},
-            {'name': 'Del Norte High School', 'type': 'education', 'lat': 41.7500, 'lon': -124.1900, 'capacity': 800, 'service_area': 25, 'accessibility': 'Good'},
-            {'name': 'Crescent City Fire Department', 'type': 'emergency', 'lat': 41.7583, 'lon': -124.2014, 'capacity': 25, 'service_area': 30, 'accessibility': 'Excellent'},
-            {'name': 'Community Center', 'type': 'community', 'lat': 41.7522, 'lon': -124.1975, 'capacity': 200, 'service_area': 15, 'accessibility': 'Good'},
-            {'name': 'Gasquet Elementary', 'type': 'education', 'lat': 41.8485, 'lon': -123.9673, 'capacity': 100, 'service_area': 20, 'accessibility': 'Moderate'}
-        ]
-        return facilities
+        """Load real community facilities from data source."""
+        data_path = self.location_config.get('data_paths', {}).get('community_facilities', 'data/community.geojson')
+        try:
+            gdf = gpd.read_file(data_path)
+            sites = gdf.to_dict('records')
+            return sites
+        except Exception as e:
+            logger.error(f"Failed to load community data: {e}")
+            return []
         
     def _generate_h3_integration_grid(self, integration_data: Dict[str, Any]) -> Dict[str, Dict]:
         """Generate H3 grid for integration visualization."""

@@ -140,23 +140,37 @@ class UnifiedH3Backend:
     def _get_geometries(self, target_areas: Optional[Dict[str, List[str]]]) -> Dict[str, Dict[str, Any]]:
         """
         Loads geometries for the specified areas from a GeoJSON file.
-        Falls back to placeholder bounding boxes if the file is not found.
         """
         if not target_areas:
             return {}
 
-        # Placeholder implementation - in real code, load from file
-        # For now, use example bounding boxes
-        placeholder_geoms = {
-            'CA': {'all': Polygon.from_bounds(-124.5, 32.5, -114.0, 42.0)},
-            'OR': {'all': Polygon.from_bounds(-124.6, 42.0, -116.4, 46.3)},
-            'WA': {'all': Polygon.from_bounds(-124.8, 45.5, -116.9, 49.0)}
-        }
-        output_geoms = {}
-        for area, subareas in target_areas.items():
-            if area in placeholder_geoms:
-                output_geoms[area] = {'all': placeholder_geoms[area]['all']}
-        return output_geoms
+        geojson_path = Path('config/target_areas.geojson')  # Assume this file exists or create it
+        if not geojson_path.exists():
+            logger.error(f"GeoJSON file not found: {geojson_path}")
+            return {}
+
+        try:
+            gdf = gpd.read_file(geojson_path)
+            output_geoms = {}
+            for area, subareas in target_areas.items():
+                area_gdf = gdf[gdf['area'] == area]
+                if area_gdf.empty:
+                    continue
+                geom_dict = {}
+                for subarea in subareas:
+                    if subarea == 'all':
+                        geom = area_gdf.unary_union
+                        geom_dict['all'] = geom
+                    else:
+                        sub_gdf = area_gdf[area_gdf['subarea'] == subarea]
+                        if not sub_gdf.empty:
+                            geom_dict[subarea] = sub_gdf.unary_union
+                if geom_dict:
+                    output_geoms[area] = geom_dict
+            return output_geoms
+        except Exception as e:
+            logger.error(f"Failed to load geometries: {e}")
+            return {}
 
     def run_comprehensive_analysis(self) -> None:
         """
@@ -216,15 +230,20 @@ class UnifiedH3Backend:
 
         for h3_index, hex_data in self.unified_data.items():
             scores = {}
-            # Placeholder for general scoring logic
-            # Would be overridden or extended in subclasses
-            composite_score = np.random.uniform(0, 1)  # Example
+            module_scores = []
+            for module_name, module_data in hex_data.items():
+                if isinstance(module_data, dict) and 'score' in module_data:
+                    module_scores.append(module_data['score'])
+            if module_scores:
+                composite_score = np.mean(module_scores)
+            else:
+                composite_score = 0.0
 
             self.analysis_scores[h3_index] = {
                 'composite_score': composite_score,
                 'factors': scores
             }
-            
+        
         logger.info(f"Calculated scores for {len(self.analysis_scores)} hexagons.")
         return self.analysis_scores
 
