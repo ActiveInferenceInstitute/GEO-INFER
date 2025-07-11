@@ -525,36 +525,35 @@ def main():
         json.dump(report_data, f, indent=2)
     
     # Generate enhanced visualizations and reporting
-    try:
-        from .enhanced_reporting import EnhancedOSCReporter
+    # try:
+    #     from .enhanced_reporting import EnhancedOSCReporter
         
-        logger.info("\n=== GENERATING ENHANCED REPORTS AND VISUALIZATIONS ===")
+    #     logger.info("\n=== GENERATING ENHANCED REPORTS AND VISUALIZATIONS ===")
         
-        # Initialize enhanced reporter
-        reporter = EnhancedOSCReporter(reports_dir)
+    #     # Initialize enhanced reporter
+    #     reporter = EnhancedOSCReporter(reports_dir)
         
-        # Generate comprehensive report with visualizations
-        comprehensive_report = reporter.generate_comprehensive_report(args.report_file)
+    #     # Generate comprehensive report with visualizations
+    #     comprehensive_report = reporter.generate_comprehensive_report(args.report_file)
         
-        logger.info("✅ Enhanced status dashboard generated")
-        logger.info("✅ Test analysis visualizations created")
-        logger.info("✅ Interactive HTML report generated")
+    #     logger.info("✅ Enhanced status dashboard generated")
+    #     logger.info("✅ Test analysis visualizations created")
+    #     logger.info("✅ Interactive HTML report generated")
         
-        if "comprehensive_html" in comprehensive_report:
-            html_path = reports_dir / comprehensive_report["comprehensive_html"]
-            logger.info(f"📊 Interactive dashboard: {html_path}")
+    #     if "comprehensive_html" in comprehensive_report:
+    #         html_path = reports_dir / comprehensive_report["comprehensive_html"]
+    #         logger.info(f"📊 Interactive dashboard: {html_path}")
         
-        # Generate additional status visualizations
-        status_report = reporter.generate_enhanced_status_report()
-        if "html_dashboard" in status_report:
-            dashboard_path = reports_dir / status_report["html_dashboard"]
-            logger.info(f"📈 Status dashboard: {dashboard_path}")
+    #     # Generate additional status visualizations
+    #     status_report = reporter.generate_enhanced_status_report()
+    #     if "html_dashboard" in status_report:
+    #         dashboard_path = reports_dir / status_report["html_dashboard"]
+    #         logger.info(f"📈 Status dashboard: {dashboard_path}")
             
-    except ImportError as e:
-        logger.warning(f"Enhanced reporting not available: {e}")
-        logger.warning("Install matplotlib, seaborn for visualizations")
-    except Exception as e:
-        logger.error(f"Error generating enhanced reports: {e}")
+    # except ImportError as e:
+    #     logger.warning(f"Enhanced reporting not available: {e}")
+    # except Exception as e:
+    #     logger.error(f"Error generating enhanced reports: {e}")
     
     logger.info(f"\n{'='*80}")
     logger.info(f"Setup report saved to: {os.path.abspath(args.report_file)}")

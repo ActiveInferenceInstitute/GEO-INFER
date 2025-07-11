@@ -104,9 +104,7 @@ class PlaceAnalyzer:
                         self.integrated_data, buffer_distance=1000
                     )
                 elif analysis == 'proximity':
-                    self.analysis_results['proximity'] = self.processor.proximity_analysis(
-                        self.integrated_data, target_column='source', max_distance=5000
-                    )
+                    self.analysis_results['proximity'] = self.processor.proximity_analysis(self.integrated_data, self.integrated_data)
                 elif analysis == 'overlay':
                     layers = self.integrated_data['source'].unique()
                     if len(layers) >= 2:

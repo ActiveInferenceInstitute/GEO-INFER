@@ -17,10 +17,10 @@ def test_buffer_analysis(sample_processor):
 def test_proximity_analysis(sample_processor):
     """Test proximity calculation with real geometries."""
     gdf1 = gpd.GeoDataFrame(geometry=[Point(0, 0)])
-    gdf2 = gpd.GeoDataFrame(geometry=[Point(2, 2)])
-    proximity = sample_processor.proximity_analysis(gdf1, gdf2)
-    assert 'min_distance' in proximity
-    assert proximity['min_distance'] > 0
+    gdf2 = gpd.GeoDataFrame(geometry=[Point(1, 1), Point(2, 2)])
+    result = sample_processor.proximity_analysis(gdf1, gdf2)
+    assert 'min_distance' in result
+    assert result['min_distance'] > 0
 
 def test_buffer_analysis_empty():
     """Test buffer with empty input."""

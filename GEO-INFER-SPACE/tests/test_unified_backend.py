@@ -71,4 +71,23 @@ class TestUnifiedH3Backend(unittest.TestCase):
         summary = self.backend.get_comprehensive_summary()
         self.assertNotIn('error', summary)
         self.assertIn('target_region', summary)
-        self.assertEqual(summary['target_region'], 'TestRegion') 
+        self.assertEqual(summary['target_region'], 'TestRegion')
+
+    def test_export_unified_data(self):
+        """Test data export to JSON."""
+        self.backend.run_comprehensive_analysis()
+        temp_file = Path(tempfile.NamedTemporaryFile(suffix='.json', delete=False).name)
+        self.backend.export_unified_data(str(temp_file), 'json')
+        self.assertTrue(temp_file.exists())
+        with open(temp_file, 'r') as f:
+            data = json.load(f)
+        self.assertGreater(len(data), 0)
+        temp_file.unlink()
+
+    def test_generate_interactive_dashboard(self):
+        """Test dashboard generation."""
+        self.backend.run_comprehensive_analysis()
+        temp_html = Path(tempfile.NamedTemporaryFile(suffix='.html', delete=False).name)
+        self.backend.generate_interactive_dashboard(str(temp_html))
+        self.assertTrue(temp_html.exists())
+        temp_html.unlink() 
