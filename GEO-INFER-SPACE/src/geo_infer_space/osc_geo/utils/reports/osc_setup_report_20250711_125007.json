@@ -1,0 +1,52 @@
+{
+  "timestamp": "2025-07-11T12:50:07.295820",
+  "command": "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/bin/osc_setup_all.py --output-dir /tmp/tmp7lvpwqwn --skip-tests",
+  "args": {
+    "output_dir": "/tmp/tmp7lvpwqwn",
+    "skip_tests": true,
+    "force_clone": false,
+    "report_file": "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/reports/osc_setup_report_20250711_125007.json"
+  },
+  "repos": [
+    {
+      "action": "clone",
+      "repo": "osc-geo-h3grid-srv",
+      "url": "https://github.com/docxology/osc-geo-h3grid-srv.git",
+      "path": "/tmp/tmp7lvpwqwn/osc-geo-h3grid-srv",
+      "timestamp": "2025-07-11T12:50:07.295982",
+      "success": true,
+      "stdout": "",
+      "stderr": "Cloning into '/tmp/tmp7lvpwqwn/osc-geo-h3grid-srv'...\n"
+    },
+    {
+      "action": "clone",
+      "repo": "osc-geo-h3loader-cli",
+      "url": "https://github.com/docxology/osc-geo-h3loader-cli.git",
+      "path": "/tmp/tmp7lvpwqwn/osc-geo-h3loader-cli",
+      "timestamp": "2025-07-11T12:50:19.922811",
+      "success": true,
+      "stdout": "",
+      "stderr": "Cloning into '/tmp/tmp7lvpwqwn/osc-geo-h3loader-cli'...\n"
+    }
+  ],
+  "steps": [
+    {
+      "name": "clone_repositories",
+      "start_time": "2025-07-11T12:50:07.295970",
+      "end_time": "2025-07-11T12:50:20.806889",
+      "success": true
+    },
+    {
+      "name": "list_structures",
+      "start_time": "2025-07-11T12:50:20.806939",
+      "end_time": "2025-07-11T12:50:20.813705",
+      "success": false
+    }
+  ],
+  "test_results": {},
+  "directory_structures": {
+    "osc-geo-h3grid-srv": "\nDirectory structure for osc-geo-h3grid-srv:\nosc-geo-h3grid-srv/\n\u251c\u2500\u2500 .git/\n\u2502   \u251c\u2500\u2500 branches/\n\u2502   \u251c\u2500\u2500 hooks/\n\u2502   \u2502   \u251c\u2500\u2500 applypatch-msg.sample (478B)\n\u2502   \u2502   \u251c\u2500\u2500 commit-msg.sample (896B)\n\u2502   \u2502   \u251c\u2500\u2500 fsmonitor-watchman.sample (4.5KB)\n\u2502   \u2502   \u251c\u2500\u2500 post-update.sample (189B)\n\u2502   \u2502   \u251c\u2500\u2500 pre-applypatch.sample (424B)\n\u2502   \u2502   \u251c\u2500\u2500 pre-commit.sample (1.6KB)\n\u2502   \u2502   \u251c\u2500\u2500 pre-merge-commit.sample (416B)\n\u2502   \u2502   \u251c\u2500\u2500 pre-push.sample (1.3KB)\n\u2502   \u2502   \u251c\u2500\u2500 pre-rebase.sample (4.8KB)\n\u2502   \u2502   \u251c\u2500\u2500 pre-receive.sample (544B)\n\u2502   \u2502   \u251c\u2500\u2500 prepare-commit-msg.sample (1.5KB)\n\u2502   \u2502   \u251c\u2500\u2500 push-to-checkout.sample (2.7KB)\n\u2502   \u2502   \u2514\u2500\u2500 update.sample (3.6KB)\n\u2502   \u251c\u2500\u2500 info/\n\u2502   \u2502   \u2514\u2500\u2500 exclude (240B)\n\u2502   \u251c\u2500\u2500 logs/\n\u2502   \u2502   \u251c\u2500\u2500 refs/\n\u2502   \u2502   \u2502   \u251c\u2500\u2500 heads/\n\u2502   \u2502   \u2502   \u2502   ...\n\u2502   \u2502   \u2502   \u2514\u2500\u2500 remotes/\n\u2502   \u2502   \u2502       ...\n\u2502   \u2502   \u2514\u2500\u2500 HEAD (213B)\n\u2502   \u251c\u2500\u2500 objects/\n\u2502   \u2502   \u251c\u2500\u2500 info/\n\u2502   \u2502   \u2514\u2500\u2500 pack/\n\u2502   \u2502       \u251c\u2500\u2500 pack-e934106936d5a384cf8a3367a2abdbb6e81a4fb7.idx (18.2KB)\n\u2502   \u2502       \u2514\u2500\u2500 pack-e934106936d5a384cf8a3367a2abdbb6e81a4fb7.pack (26271.3KB)\n\u2502   \u251c\u2500\u2500 refs/\n\u2502   \u2502   \u251c\u2500\u2500 heads/\n\u2502   \u2502   \u2502   \u2514\u2500\u2500 main (41B)\n\u2502   \u2502   \u251c\u2500\u2500 remotes/\n\u2502   \u2502   \u2502   \u2514\u2500\u2500 origin/\n\u2502   \u2502   \u2502       ...\n\u2502   \u2502   \u2514\u2500\u2500 tags/\n\u2502   \u251c\u2500\u2500 config (272B)\n\u2502   \u251c\u2500\u2500 description (73B)\n\u2502   \u251c\u2500\u2500 HEAD (21B)\n\u2502   \u251c\u2500\u2500 index (7.2KB)\n\u2502   \u2514\u2500\u2500 packed-refs (112B)\n\u251c\u2500\u2500 app/\n\u2502   \u251c\u2500\u2500 start.sh (439B)\n\u2502   \u2514\u2500\u2500 startd.sh (593B)\n\u251c\u2500\u2500 bin/\n\u2502   \u251c\u2500\u2500 dockerize.sh (5.3KB)\n\u2502   \u251c\u2500\u2500 environment.sh (587B)\n\u2502   \u251c\u2500\u2500 show.sh (635B)\n\u2502   \u251c\u2500\u2500 start.sh (460B)\n\u2502   \u251c\u2500\u2500 startd.sh (1.6KB)\n\u2502   \u251c\u2500\u2500 vactivate.sh (1.0KB)\n\u2502   \u2514\u2500\u2500 venv.sh (1.0KB)\n\u251c\u2500\u2500 config/\n\u2502   \u251c\u2500\u2500 config-example.yml (73B)\n\u2502   \u251c\u2500\u2500 config.yml (50B)\n\u2502   \u2514\u2500\u2500 config_docker.yml (55B)\n\u251c\u2500\u2500 docker/\n\u2502   \u251c\u2500\u2500 docker-compose.yml (561B)\n\u2502   \u2514\u2500\u2500 Dockerfile (596B)\n\u251c\u2500\u2500 docs/\n\u2502   \u251c\u2500\u2500 getting-started.md (6.6KB)\n\u2502   \u251c\u2500\u2500 README-geospatial.md (20.1KB)\n\u2502   \u251c\u2500\u2500 README-repository.md (4.3KB)\n\u2502   \u251c\u2500\u2500 README-shapefile.md (22.2KB)\n\u2502   \u2514\u2500\u2500 roadmap.md (587B)\n\u251c\u2500\u2500 examples/\n\u2502   \u251c\u2500\u2500 common/\n\u2502   \u2502   \u2514\u2500\u2500 example_datasets/\n\u2502   \u2502       \u251c\u2500\u2500 dataset_metadata.duckdb (1292.0KB)\n\u2502   \u2502       \u251c\u2500\u2500 jamaica_buildings.duckdb (524.0KB)\n\u2502   \u2502       \u251c\u2500\u2500 tu_delft_river_flood_depth_1971_2000_hist_0010y_europe.duckdb (26124.0KB)\n\u2502   \u2502       \u251c\u2500\u2500 tu_delft_river_flood_depth_1971_2000_hist_0010y_germany.duckdb (2572.0KB)\n\u2502   \u2502       \u2514\u2500\u2500 tu_delft_river_flood_depth_1971_2000_hist_1000y_germany.duckdb (2572.0KB)\n\u2502   \u251c\u2500\u2500 geospatial/\n\u2502   \u2502   \u2514\u2500\u2500 filter-assets/\n\u2502   \u2502       \u251c\u2500\u2500 europe_one_dataset.json (221B)\n\u2502   \u2502       \u251c\u2500\u2500 germany_1_m_generated_assets.zip (7386.3KB)\n\u2502   \u2502       \u251c\u2500\u2500 germany_5_assets.parquet (1.2KB)\n\u2502   \u2502       \u251c\u2500\u2500 germany_datasets.json (684B)\n\u2502   \u2502       \u2514\u2500\u2500 germany_one_dataset.json (343B)\n\u2502   \u2514\u2500\u2500 getting-started/\n\u2502       \u2514\u2500\u2500 giss_2022_12.yml (482B)\n\u251c\u2500\u2500 integration-test/\n\u2502   \u2514\u2500\u2500 test_geomeshcli.py (2.2KB)\n\u251c\u2500\u2500 osc-geo-h3grid-srv/\n\u2502   \u251c\u2500\u2500 src/\n\u2502   \u2502   \u2514\u2500\u2500 geoserver/\n\u2502   \u2502       \u2514\u2500\u2500 server.py (605B)\n\u2502   \u251c\u2500\u2500 pyproject.toml (494B)\n\u2502   \u2514\u2500\u2500 requirements.txt (268B)\n\u251c\u2500\u2500 src/\n\u2502   \u251c\u2500\u2500 cli/\n\u2502   \u2502   \u251c\u2500\u2500 cli_geospatial.py (16.5KB)\n\u2502   \u2502   \u251c\u2500\u2500 cli_repository.py (4.2KB)\n\u2502   \u2502   \u251c\u2500\u2500 cli_shapefile.py (6.2KB)\n\u2502   \u2502   \u251c\u2500\u2500 cliexec_geospatial.py (8.3KB)\n\u2502   \u2502   \u251c\u2500\u2500 cliexec_repository.py (1.3KB)\n\u2502   \u2502   \u2514\u2500\u2500 cliexec_shapefile.py (2.0KB)\n\u2502   \u251c\u2500\u2500 common/\n\u2502   \u2502   \u251c\u2500\u2500 const.py (477B)\n\u2502   \u2502   \u251c\u2500\u2500 dataset_utilities.py (716B)\n\u2502   \u2502   \u251c\u2500\u2500 duckdbutils.py (4.2KB)\n\u2502   \u2502   \u2514\u2500\u2500 httputils.py (5.1KB)\n\u2502   \u251c\u2500\u2500 geoserver/\n\u2502   \u2502   \u251c\u2500\u2500 correlator.py (8.6KB)\n\u2502   \u2502   \u251c\u2500\u2500 geomesh.py (43.8KB)\n\u2502   \u2502   \u251c\u2500\u2500 geomesh_router.py (7.4KB)\n\u2502   \u2502   \u251c\u2500\u2500 geomesh_router_arguments.py (4.5KB)\n\u2502   \u2502   \u251c\u2500\u2500 metadata.py (9.7KB)\n\u2502   \u2502   \u251c\u2500\u2500 point_router.py (5.7KB)\n\u2502   \u2502   \u251c\u2500\u2500 route_constants.py (273B)\n\u2502   \u2502   \u251c\u2500\u2500 server.py (1.9KB)\n\u2502   \u2502   \u2514\u2500\u2500 state.py (690B)\n\u2502   \u2514\u2500\u2500 shape/\n\u2502       \u251c\u2500\u2500 repository.py (3.2KB)\n\u2502       \u2514\u2500\u2500 shape.py (18.2KB)\n\u251c\u2500\u2500 test/\n\u2502   \u251c\u2500\u2500 geoserver_test/\n\u2502   \u2502   \u251c\u2500\u2500 __init__.py (264B)\n\u2502   \u2502   \u2514\u2500\u2500 test_correlator.py (11.0KB)\n\u2502   \u251c\u2500\u2500 test_data/\n\u2502   \u2502   \u2514\u2500\u2500 correlator/\n\u2502   \u2502       \u251c\u2500\u2500 dataset_metadata.duckdb (1292.0KB)\n\u2502   \u2502       \u251c\u2500\u2500 tu_delft_river_flood_depth_1971_2000_hist_0010y_germany.duckdb (2572.0KB)\n\u2502   \u2502       \u2514\u2500\u2500 tu_delft_river_flood_depth_1971_2000_hist_1000y_germany.duckdb (2572.0KB)\n\u2502   \u2514\u2500\u2500 test_geomesh.py (760B)\n\u251c\u2500\u2500 .gitattributes (16B)\n\u251c\u2500\u2500 .gitignore (257B)\n\u251c\u2500\u2500 LICENSE (1.1KB)\n\u251c\u2500\u2500 pytest.ini (25B)\n\u251c\u2500\u2500 README.md (3.9KB)\n\u2514\u2500\u2500 requirements.txt (332B)",
+    "osc-geo-h3loader-cli": "ERROR: [Errno 2] No such file or directory: '/tmp/tmp7lvpwqwn/osc-geo-h3loader-cli/LICENSE'"
+  },
+  "overall_success": true
+}

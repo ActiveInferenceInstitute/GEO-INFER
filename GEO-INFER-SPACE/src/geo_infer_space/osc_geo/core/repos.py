@@ -179,36 +179,25 @@ def get_repo_path(
     repo_key: str,
     base_dir: Optional[str] = None
 ) -> Optional[str]:
-    """
-    Get the path to a cloned OS Climate repository.
-    
-    Args:
-        repo_key: Repository key (e.g., "h3grid-srv")
-        base_dir: Base directory for cloned repositories. If None, uses the
-            environment variable OSC_REPOS_DIR or a default value.
-            
-    Returns:
-        Path to the repository if found, None otherwise.
-    """
+    """Get the path to a cloned OS Climate repository."""
     if repo_key not in OSC_REPOS:
         logger.warning(f"Unknown repository key: {repo_key}")
         return None
-    
-    # Determine base directory
-    if not base_dir:
-        base_dir = os.environ.get("OSC_REPOS_DIR", "./repo")
     
     repo_info = OSC_REPOS[repo_key]
     owner = repo_info["owner"]
     repo = repo_info["repo"]
     
-    repo_path = os.path.join(base_dir, repo)
+    if not base_dir:
+        base_dir = os.environ.get("OSC_REPOS_DIR", "./repo")
+    
+    repo_path = os.path.join(base_dir, owner, repo)
     
     if os.path.exists(repo_path):
         return repo_path
     else:
         logger.warning(f"Repository path not found: {repo_path}")
-        return None 
+        return None
 
 def is_geo_infer_git_available() -> bool:
     """Check if git command is available."""
