@@ -11,3 +11,7 @@ GEO-INFER-PLACE/data/improvements/tl_2023_us_zcta520/tl_2023_us_zcta520.shp
 GEO-INFER-PLACE/locations/cascadia/current_use/data/cdl/2023_30m_cdls/2023_30m_cdls.tif
 GEO-INFER-PLACE/locations/cascadia/current_use/data/cdl/2023_30m_cdls/2023_30m_cdls.tif.ovr
 *.pyc
+GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/
+GEO-INFER-SPACE/repo/osc-geo-h3grid-srv/
+GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/reports/osc-geo-h3grid-srv/
+GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/reports/osc-geo-h3loader-cli/
