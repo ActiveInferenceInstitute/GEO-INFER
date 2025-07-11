@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
-Base Module for Cascadian Agricultural Land Analysis
+Base Module for Geospatial Analysis
 
 This module defines the abstract base class for all specialized analysis modules
-in the Cascadian framework. It enforces a standardized workflow for data
+in the GEO-INFER framework. It enforces a standardized workflow for data
 acquisition, caching, H3 processing, and analysis.
 """
 import logging
@@ -16,9 +16,7 @@ import os
 # A forward declaration for type hinting the backend without circular imports
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
-    from .unified_backend import CascadianAgriculturalH3Backend
-
-from geo_infer_space.core.base_module import BaseAnalysisModule
+    from geo_infer_space.core.unified_backend import UnifiedH3Backend
 
 logger = logging.getLogger(__name__)
 
@@ -28,18 +26,18 @@ class BaseAnalysisModule(ABC):
     
     Each subclass is responsible for a specific data domain (e.g., Zoning, Water Rights).
     The base class provides a standardized workflow:
-    1.  Check for cached, H3-processed data.
+    1.  Check for cached H3-processed data.
     2.  If not found, acquire raw data from source.
     3.  Process raw data into H3 using the backend's OSC H3 loader.
     4.  Cache the H3 data.
     5.  Load and perform final analysis on the H3 data.
     """
-    def __init__(self, backend: 'CascadianAgriculturalH3Backend', module_name: str):
+    def __init__(self, backend: 'UnifiedH3Backend', module_name: str):
         """
         Initialize the module.
         
         Args:
-            backend: A reference to the main CascadianAgriculturalH3Backend instance.
+            backend: A reference to the main UnifiedH3Backend instance.
             module_name: The name of the module (e.g., 'zoning').
         """
         self.backend = backend

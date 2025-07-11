@@ -17,7 +17,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 try:
     from geo_infer_place import PlaceAnalyzer, get_available_locations
-    from geo_infer_place.core.place_analyzer import PlaceAnalyzer as CorePlaceAnalyzer
+    from geo_infer_space.core.place_analyzer import PlaceAnalyzer as CorePlaceAnalyzer
 except ImportError as e:
     # Graceful handling for when modules aren't fully implemented yet
     print(f"Import warning: {e}")

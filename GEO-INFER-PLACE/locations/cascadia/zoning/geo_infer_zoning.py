@@ -11,7 +11,7 @@ import geopandas as gpd
 import pandas as pd
 
 from .data_sources import CascadianZoningDataSources
-from geo_infer_place.core.base_module import BaseAnalysisModule
+from geo_infer_space.core.base_module import BaseAnalysisModule
 
 # A forward declaration for type hinting the backend without circular imports
 from typing import TYPE_CHECKING

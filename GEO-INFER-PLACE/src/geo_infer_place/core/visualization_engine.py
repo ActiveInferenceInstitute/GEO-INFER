@@ -19,7 +19,7 @@ from folium.plugins import MarkerCluster, HeatMap
 import branca.colormap as cm
 import numpy as np
 
-from geo_infer_space.core.spatial_processor import SpatialProcessor
+from geo_infer_space.core.visualization_engine import InteractiveVisualizationEngine
 
 logger = logging.getLogger(__name__)
 

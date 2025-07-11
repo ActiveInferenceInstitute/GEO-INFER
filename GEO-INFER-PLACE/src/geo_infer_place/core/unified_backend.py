@@ -27,27 +27,12 @@ from geo_infer_space.osc_geo import create_h3_data_loader, H3DataLoader
 # --- Local Core Imports ---
 # Base class for type hinting
 from .base_module import BaseAnalysisModule
+from geo_infer_space.core.unified_backend import UnifiedH3Backend, NumpyEncoder
 
 logger = logging.getLogger(__name__)
 
 
-class NumpyEncoder(json.JSONEncoder):
-    """Custom JSON encoder for numpy data types."""
-    def default(self, obj):
-        if isinstance(obj, (np.integer, np.int64)):
-            return int(obj)
-        elif isinstance(obj, (np.floating, np.float64)):
-            return float(obj)
-        elif isinstance(obj, np.ndarray):
-            return obj.tolist()
-        elif isinstance(obj, (np.bool_, bool)):
-            return bool(obj)
-        elif pd.isna(obj):
-            return None
-        return super(NumpyEncoder, self).default(obj)
-
-
-class CascadianAgriculturalH3Backend:
+class CascadianAgriculturalH3Backend(UnifiedH3Backend):
     """
     Unified H3-indexed backend for comprehensive agricultural land analysis
     across the Cascadian bioregion (Northern California + Oregon).
@@ -71,23 +56,8 @@ class CascadianAgriculturalH3Backend:
             base_data_dir: The root directory for data caching.
             osc_repo_dir: The root directory of the cloned OS-Climate repositories.
         """
-        self.modules = modules
-        self.resolution = resolution
-        self.bioregion = bioregion
-        self.base_data_dir = base_data_dir or Path('./data')
-        self.unified_data: Dict[str, Dict] = {}
-        self.redevelopment_scores: Dict[str, Dict] = {}
-        
-        # --- OSC Integration ---
-        try:
-            self.h3_loader: H3DataLoader = create_h3_data_loader(repo_base_dir=osc_repo_dir)
-            logger.info("Successfully initialized H3DataLoader from GEO-INFER-SPACE.")
-        except Exception as e:
-            logger.error(f"Failed to initialize H3DataLoader from GEO-INFER-SPACE: {e}")
-            logger.critical("H3-OSC framework is essential. Cannot proceed without it.")
-            sys.exit(1)
-        # --- End OSC Integration ---
-
+        super().__init__(modules, resolution, bioregion, target_counties, base_data_dir, osc_repo_dir)
+        # Add Cascadia-specific initialization here
         self.target_hexagons_by_state, self.target_hexagons = self._define_target_region(target_counties)
         
         logger.info(f"CascadianAgriculturalH3Backend initialized for '{self.bioregion}' with {len(self.modules)} active modules at H3 resolution {self.resolution}")

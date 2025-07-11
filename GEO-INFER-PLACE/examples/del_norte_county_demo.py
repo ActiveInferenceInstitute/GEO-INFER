@@ -244,11 +244,11 @@ except ImportError as e:
 try:
     from geo_infer_place.utils.config_loader import LocationConfigLoader
     from geo_infer_place.utils.data_sources import CaliforniaDataSources
-    from geo_infer_place.core.api_clients import CaliforniaAPIManager
+    from geo_infer_space.core.api_clients import BaseAPIManager  # Or appropriate general class
 except ImportError as e:
     print(f"Warning: Could not import some components: {e}")
     print("Running with simplified functionality only.")
-    LocationConfigLoader = CaliforniaDataSources = CaliforniaAPIManager = None
+    LocationConfigLoader = CaliforniaDataSources = BaseAPIManager = None
 
 # Logging already configured earlier in the file
 
@@ -313,7 +313,7 @@ def demonstrate_api_connections(api_keys: dict):
     """Demonstrate API connections and validation."""
     logger.info("=== Demonstrating API Connections ===")
     
-    if CaliforniaAPIManager is None:
+    if BaseAPIManager is None:
         logger.warning("CaliforniaAPIManager not available - using mock demonstration")
         logger.info("Mock API connections would test:")
         logger.info("  ✓ CAL FIRE API: Fire perimeter data (Mock: 150ms)")
@@ -322,7 +322,7 @@ def demonstrate_api_connections(api_keys: dict):
         logger.info("  ✓ CDEC API: Environmental monitoring (Mock: 300ms)")
         return {'mock': True, 'connections': 4}
     
-    api_manager = CaliforniaAPIManager(api_keys)
+    api_manager = BaseAPIManager(api_keys)
     
     # Validate all connections
     validation_results = api_manager.validate_all_connections()

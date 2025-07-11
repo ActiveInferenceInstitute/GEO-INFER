@@ -59,8 +59,9 @@ from datetime import datetime
 import traceback
 
 # Import from the new core location
-from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend, NumpyEncoder
-from geo_infer_place.core.base_module import BaseAnalysisModule
+from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend
+from geo_infer_space.core.unified_backend import NumpyEncoder
+from geo_infer_space.core.base_module import BaseAnalysisModule
 
 # Import all the specialized modules from the 'cascadia' location
 # Note: These would need to be created following the pattern of GeoInferZoning

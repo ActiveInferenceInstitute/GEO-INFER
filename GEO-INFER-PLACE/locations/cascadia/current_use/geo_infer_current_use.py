@@ -15,7 +15,7 @@ from collections import Counter
 from pathlib import Path
 
 from .data_sources import CascadianCurrentUseDataSources
-from geo_infer_place.core.base_module import BaseAnalysisModule
+from geo_infer_space.core.base_module import BaseAnalysisModule
 import h3
 
 logger = logging.getLogger(__name__)
