@@ -12,7 +12,7 @@ from shapely.geometry import Polygon
 import pandas as pd
 
 from .data_sources import CascadianWaterRightsDataSources
-from utils_h3 import h3_to_geo_boundary
+from geo_infer_space.utils.h3_utils import h3_to_geo_boundary
 
 logger = logging.getLogger(__name__)
 

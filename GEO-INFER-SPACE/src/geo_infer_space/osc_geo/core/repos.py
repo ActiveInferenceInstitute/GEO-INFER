@@ -8,6 +8,7 @@ directly using git commands.
 import os
 import logging
 import subprocess
+import shutil
 from typing import Dict, List, Optional, Tuple, Union
 
 logger = logging.getLogger(__name__)
@@ -126,6 +127,9 @@ def clone_osc_repos(
     Returns:
         Dictionary mapping repository names to clone success status.
     """
+    if not is_geo_infer_git_available():
+        raise ImportError("git command not available")
+
     # Use default output directory if not specified
     if not output_dir:
         output_dir = os.environ.get("OSC_REPOS_DIR", "./ext/os-climate")
@@ -207,3 +211,7 @@ def get_repo_path(
     else:
         logger.warning(f"Repository path not found: {repo_path}")
         return None 
+
+def is_geo_infer_git_available() -> bool:
+    """Check if git command is available."""
+    return shutil.which('git') is not None 

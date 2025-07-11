@@ -198,16 +198,9 @@ The current use module requires manual download of data files due to size and ac
 
 If files are missing, the script will log instructions and skip that data source. 
 
-## H3 Utility Functions (utils_h3.py)
+## H3 Utility Functions
 
-A shared utility module `utils_h3.py` is provided in this directory to ensure robust, version-agnostic H3 spatial indexing across all Cascadian modules. This utility provides:
-
-- `geo_to_h3(lat, lng, resolution)`: Converts latitude/longitude to H3 index, supporting both h3-py v3 and v4+ APIs.
-- `h3_to_geo(h3_index)`: Converts H3 index to (lat, lng) tuple.
-- `h3_to_geo_boundary(h3_index, geo_json=True)`: Gets the boundary of an H3 cell as a list of coordinates.
-- `polyfill(geojson_polygon, resolution, geo_json=True)`: Polyfills a GeoJSON polygon to H3 indices.
-
-**All modules must use these functions instead of direct h3-py calls** to ensure compatibility and maintainability. This refactor was implemented to address API changes between h3-py versions and to centralize error handling and logging for all H3 operations.
+All H3 operations should use the centralized utilities in GEO-INFER-SPACE: `from geo_infer_space.utils.h3_utils import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill`. This ensures consistency and handles h3-py version differences across the framework.
 
 Example usage:
 ```python

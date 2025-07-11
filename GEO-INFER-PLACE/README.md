@@ -107,7 +107,7 @@ GEO-INFER-PLACE/
         └── README.md                 # ✅ Location documentation
 ```
 
-**Legend**: ✅ Implemented | 📋 Planned | 🔄 In Development
+**Legend**: ✅ Implemented | 📋 Planned | �� In Development
 
 ## Integration with GEO-INFER Modules
 
@@ -130,6 +130,17 @@ GEO-INFER-PLACE/
 ### Applications
 - **GEO-INFER-APP**: Location-specific dashboards and visualization tools
 - **GEO-INFER-API**: Place-based data and analysis services
+
+## Role in GEO-INFER Framework
+
+GEO-INFER-PLACE is dedicated to **place-specific analysis and workflows**, building upon the general spatial capabilities provided by GEO-INFER-SPACE. This module should only implement logic unique to specific locations (e.g., Del Norte County custom analyzers) and must import all general spatial methods, H3 utilities, OSC integrations, and data integration functions from SPACE.
+
+Key Guidelines:
+- **No Duplication**: Do not implement general spatial operations, H3 functions, or data integration here; import from SPACE.
+- **Place-Oriented Focus**: Emphasize location-specific data sources, custom analyzers, and regional workflows.
+- **Dependency on SPACE**: All spatial processing must route through SPACE for consistency and modularity.
+
+This separation ensures PLACE remains focused on unique geographic contexts while leveraging the robust, tested spatial engine in SPACE.
 
 ## Getting Started
 

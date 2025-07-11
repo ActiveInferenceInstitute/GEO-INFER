@@ -375,3 +375,15 @@ Contributions to GEO-INFER-SPACE are highly valued. This can include implementin
 ## License
 
 This module, as part of the GEO-INFER framework, is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details. 
+
+## Role in GEO-INFER Framework
+
+GEO-INFER-SPACE serves as the central repository for **all general spatial methods**, **H3 indexing operations**, **OSC (OS-Climate) integration methods**, and **core data integration aspects**. This module provides the foundational geospatial capabilities that other modules, such as GEO-INFER-PLACE, depend on. Place-specific modules like PLACE should focus exclusively on location-oriented logic and import general spatial functionality from SPACE to ensure modularity, reusability, and adherence to framework principles.
+
+Key Assertions:
+- **Spatial Methods**: All vector, raster, point cloud, and network operations are implemented here.
+- **H3 and Indexing**: Comprehensive H3 utilities, polyfill, boundary calculations, and other indexing systems.
+- **OSC Integration**: Cloning, management, and usage of OS-Climate repositories for standardized geospatial processing.
+- **Data Integration**: General data loading, transformation, and integration logic for geospatial data sources.
+
+Modules like GEO-INFER-PLACE must not duplicate these functionalities and should import from SPACE for all general spatial needs. 

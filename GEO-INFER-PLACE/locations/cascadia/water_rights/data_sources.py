@@ -15,6 +15,9 @@ from typing import Dict, Tuple
 import json
 from datetime import datetime
 
+from geo_infer_space.utils.h3_utils import h3_to_geo_boundary
+from shapely.geometry import Polygon
+
 logger = logging.getLogger(__name__)
 
 class CascadianWaterRightsDataSources:
@@ -150,10 +153,6 @@ class CascadianWaterRightsDataSources:
         """
         Fetches water rights data for all three states (CA, OR, WA).
         """
-        from utils_h3 import h3_to_geo_boundary
-        from shapely.geometry import Polygon
-
-        logger.info("Fetching all water rights data for Cascadia region...")
         
         if not target_hexagons:
             logger.error("Cannot fetch water rights without target hexagons for bounding box.")

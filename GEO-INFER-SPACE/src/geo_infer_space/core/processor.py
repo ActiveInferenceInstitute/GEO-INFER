@@ -1,6 +1,7 @@
 import logging
 from typing import Optional, Union, Tuple, List, Dict, Any
 import geopandas as gpd
+import pandas as pd
 from shapely.geometry import Polygon, MultiPolygon
 import h3
 import numpy as np
@@ -191,17 +192,17 @@ class SpatialProcessor:
         if not spatial_datasets:
             raise ValueError("No spatial datasets provided")
 
-        # Ensure all have same CRS
+        assigned = []
         base_crs = next(iter(spatial_datasets.values())).crs
         for name, gdf in spatial_datasets.items():
             if gdf.empty:
                 raise ValueError(f"Dataset {name} is empty")
             if gdf.crs != base_crs:
                 gdf = gdf.to_crs(base_crs)
-            gdf = gdf.assign(**{f'domain_{name}': name})
+            assigned_gdf = gdf.assign(**{f'domain_{name}': name})
+            assigned.append(assigned_gdf)
 
-        # Concat all
-        all_gdf = gpd.GeoDataFrame(pd.concat(spatial_datasets.values(), ignore_index=True), crs=base_crs)
+        all_gdf = gpd.GeoDataFrame(pd.concat(assigned, ignore_index=True), crs=base_crs)
         return all_gdf
 
     def calculate_spatial_correlation(self, map1: Dict[str, float], map2: Dict[str, float]) -> float:
