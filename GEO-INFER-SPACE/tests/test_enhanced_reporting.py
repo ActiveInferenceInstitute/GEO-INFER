@@ -7,6 +7,8 @@ Using docxology forks of OS-Climate repos.
 import sys
 import os
 from pathlib import Path
+import matplotlib
+matplotlib.use('Agg')
 
 # Add the src directory to Python path
 src_dir = Path(__file__).parent / "src"
