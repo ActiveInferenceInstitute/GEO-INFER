@@ -1,0 +1,52 @@
+{
+    "analysis_settings": {
+        "target_counties": {
+            "CA": ["all"],
+            "OR": ["all"],
+            "WA": ["all"]
+        },
+        "active_modules": [
+            "zoning", 
+            "current_use", 
+            "ownership", 
+            "mortgage_debt", 
+            "improvements", 
+            "surface_water", 
+            "ground_water", 
+            "power_source"
+        ]
+    },
+    "zoning": {
+        "ca_fmmp": {
+            "page_url": "https://www.conservation.ca.gov/dlrp/fmmp/inventory-products",
+            "latest_year": 2022
+        },
+        "or_dlcd_service_url": "https://maps.oregon.gov/arcgis/rest/services/LandUsePlanning/Statewide_Zoning/FeatureServer/0",
+        "wa_king_county_service_url": "https://gisdata.kingcounty.gov/arcgis/rest/services/Planning/KingCo_Zoning/MapServer/0"
+    },
+    "ownership": {
+        "ca_parcels_service_url": "https://services.gis.ca.gov/arcgis/rest/services/Boundaries/CA_Parcels/FeatureServer/0"
+    },
+    "surface_water": {
+        "nhd_flowlines_url": "https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer/1",
+        "nhd_waterbodies_url": "https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer/2"
+    },
+    "current_use": {
+        "nass_cdl_api_url": "https://nassgeodata.gmu.edu/CropScape/nass_data_service.php",
+        "land_iq_api_url": "https://www.landiq.com/api/v1/parcels"
+    },
+    "ground_water": {
+        "nwis_url": "https://waterservices.usgs.gov/nwis/gwlevels/",
+        "parameter_cd": "72019"
+    },
+    "water_rights": {
+        "ca_ewrims_csv_url": "https://data.ca.gov/datastore/dump/e87a4933-2125-4676-928d-294b22c6b44a"
+    },
+    "mortgage_debt": {
+        "hmda_bulk_url": "https://ffiec.cfpb.gov/v2/data-browser-api/view/csv?states={state}&years={year}"
+    },
+    "power_source": {
+        "hifld_transmission_url": "https://services7.arcgis.com/FGr1D95XCGALwU45/arcgis/rest/services/Electric_Power_Transmission_Lines/FeatureServer/0",
+        "hifld_power_plants_url": "https://services7.arcgis.com/FGr1D95XCGALwU45/arcgis/rest/services/Power_Plants/FeatureServer/0"
+    }
+} 

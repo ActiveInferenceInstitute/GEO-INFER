@@ -7,59 +7,26 @@ through H3 spatial indexing, enabling cross-border analysis between California
 and Oregon agricultural areas.
 """
 import sys
-from pathlib import Path
-import logging
-
-# --- Robust Path Setup ---
-# This ensures modules can be imported across the GEO-INFER project.
-try:
-    # Assumes this file is in GEO-INFER-PLACE/locations/cascadia/
-    current_dir = Path(__file__).resolve().parent
-    locations_dir = current_dir.parent # a/b/c -> a/b
-    project_root = locations_dir.parents[1] # a/b -> root
-
-    # 1. Add GEO-INFER-SPACE/src for OSC utils
-    space_src_path = project_root / 'GEO-INFER-SPACE' / 'src'
-    if str(space_src_path) not in sys.path:
-        sys.path.insert(0, str(space_src_path))
-        print(f"INFO: unified_backend.py added {space_src_path} to sys.path")
-
-    # 2. Add the 'locations' directory to allow absolute imports from 'cascadia'
-    if str(locations_dir) not in sys.path:
-        sys.path.insert(0, str(locations_dir))
-        print(f"INFO: unified_backend.py added {locations_dir} to sys.path for absolute imports")
-
-except Exception as e:
-    print(f"CRITICAL: unified_backend.py path setup failed: {e}")
-# --- End Path Setup ---
-
-
 import json
 import os
 from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime
 from pathlib import Path
+import logging
 import numpy as np
 import pandas as pd
 import geopandas as gpd
-from shapely.geometry import Polygon
+from shapely.geometry import Polygon, MultiPolygon, mapping
 import folium
 from folium.plugins import HeatMap, MarkerCluster
 
-# Import our refactored H3 utility
-from utils_h3 import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill, osc_h3_to_geojson
+# --- H3 and OSC Integration ---
+import h3
+from geo_infer_space.osc_geo import create_h3_data_loader, H3DataLoader
 
-# Import all the specialized modules
-# These are placeholders for the actual module implementations
-from zoning import geo_infer_zoning
-from current_use import geo_infer_current_use
-from ownership import geo_infer_ownership
-from mortgage_debt import geo_infer_mortgage_debt
-from improvements import geo_infer_improvements
-from surface_water import geo_infer_surface_water
-from ground_water import geo_infer_ground_water
-from power_source import geo_infer_power_source
-from water_rights import geo_infer_water_rights
+# --- Local Core Imports ---
+# Base class for type hinting
+from .base_module import BaseAnalysisModule
 
 logger = logging.getLogger(__name__)
 
@@ -86,47 +53,41 @@ class CascadianAgriculturalH3Backend:
     across the Cascadian bioregion (Northern California + Oregon).
     """
     
-    def __init__(self, 
-                 resolution: int = 8, 
+    def __init__(self,
+                 modules: Dict[str, 'BaseAnalysisModule'],
+                 resolution: int = 8,
                  bioregion: str = 'Cascadia',
-                 active_modules: Optional[List[str]] = None,
-                 target_counties: Optional[Dict[str, List[str]]] = None):
+                 target_counties: Optional[Dict[str, List[str]]] = None,
+                 base_data_dir: Optional[Path] = None):
         """
         Initialize the unified backend with H3 spatial indexing.
         
         Args:
+            modules: A dictionary of initialized analysis module instances.
             resolution: H3 resolution level (default: 8)
             bioregion: Bioregion identifier (default: 'Cascadia')
-            active_modules: A list of module names to activate. If None, all are active.
             target_counties: A dict specifying counties to run, e.g., {'CA': ['all']}.
+            base_data_dir: The root directory for data caching.
         """
+        self.modules = modules
         self.resolution = resolution
         self.bioregion = bioregion
+        self.base_data_dir = base_data_dir or Path('./data')
         self.unified_data: Dict[str, Dict] = {}
         self.redevelopment_scores: Dict[str, Dict] = {}
         
-        # This needs to be called before module initialization to define the regions
+        # --- OSC Integration ---
+        try:
+            self.h3_loader: H3DataLoader = create_h3_data_loader()
+            logger.info("Successfully initialized H3DataLoader from GEO-INFER-SPACE.")
+        except Exception as e:
+            logger.error(f"Failed to initialize H3DataLoader from GEO-INFER-SPACE: {e}")
+            logger.critical("H3-OSC framework is essential. Cannot proceed without it.")
+            sys.exit(1)
+        # --- End OSC Integration ---
+
         self.target_hexagons_by_state, self.target_hexagons = self._define_target_region(target_counties)
-
-        # Initialize all possible data modules
-        all_modules = {
-            'zoning': geo_infer_zoning.GeoInferZoning(self.resolution),
-            'current_use': geo_infer_current_use.GeoInferCurrentUse(self.resolution),
-            'ownership': geo_infer_ownership.GeoInferOwnership(self.resolution),
-            'mortgage_debt': geo_infer_mortgage_debt.GeoInferMortgageDebt(self.resolution),
-            'improvements': geo_infer_improvements.GeoInferImprovements(self.resolution),
-            'surface_water': geo_infer_surface_water.GeoInferSurfaceWater(self.resolution),
-            'ground_water': geo_infer_ground_water.GeoInferGroundWater(self.resolution),
-            'power_source': geo_infer_power_source.GeoInferPowerSource(self.resolution),
-            'water_rights': geo_infer_water_rights.GeoInferWaterRights(self.resolution)
-        }
         
-        # Filter to only the active modules
-        if active_modules:
-            self.modules = {name: mod for name, mod in all_modules.items() if name in active_modules}
-        else:
-            self.modules = all_modules # Default to all if not specified
-
         logger.info(f"CascadianAgriculturalH3Backend initialized for '{self.bioregion}' with {len(self.modules)} active modules at H3 resolution {self.resolution}")
         logger.info(f"Active modules: {list(self.modules.keys())}")
         logger.info(f"Defined {len(self.target_hexagons)} total target hexagons across {len(self.target_hexagons_by_state)} states.")
@@ -135,9 +96,8 @@ class CascadianAgriculturalH3Backend:
         """
         Define the target region using H3 hexagons, categorized by state and filtered by county.
         
-        This method generates a grid of hexagons and uses their centroids
-        to determine which state they fall into. If target_counties is provided,
-        it will filter the hexagons to those within the specified counties.
+        This method loads county geometries from a GeoJSON file and generates H3 hexagons
+        that cover the specified counties.
 
         Args:
             target_counties: A dictionary specifying counties to run, e.g., 
@@ -149,61 +109,29 @@ class CascadianAgriculturalH3Backend:
             - A dictionary of H3 hexagon identifiers, keyed by state ('CA', 'OR', 'WA').
             - A list of all unique H3 hexagon identifiers across all filtered areas.
         """
-        # Load county boundaries for filtering
-        # This is a simplification; a real implementation would use a proper GIS file.
-        # For now, we'll rely on broad bounding boxes for "all".
-        # A full implementation would load a shapefile of counties.
         county_geoms = self._get_county_geometries(target_counties)
 
-        hexagons_by_state: Dict[str, set] = {'CA': set(), 'OR': set(), 'WA': set()}
-        
-        # If no specific counties are defined, use the whole bioregion bounds
         if not county_geoms:
-            # Define approximate bounding boxes for the bioregions
-            bounds = {
-                'Cascadia': {'lat_min': 39, 'lat_max': 46, 'lon_min': -125, 'lon_max': -116},
-                'Columbia': {'lat_min': 44, 'lat_max': 49, 'lon_min': -124, 'lon_max': -116}
-            }
-            region_bounds = bounds.get(self.bioregion, bounds['Cascadia'])
-            region_polygon = Polygon.from_bounds(
-                region_bounds['lon_min'], region_bounds['lat_min'],
-                region_bounds['lon_max'], region_bounds['lat_max']
-            )
-            hexagons_by_state['CA'] = set(polyfill(region_polygon.__geo_interface__, self.resolution))
-            hexagons_by_state['OR'] = hexagons_by_state['CA'] # Simplification
-            hexagons_by_state['WA'] = hexagons_by_state['CA'] # Simplification
-        else:
-            for state, counties in county_geoms.items():
-                for county_name, geom in counties.items():
-                    logger.info(f"Generating hexagons for {county_name}, {state}...")
-                    # Polyfill the county geometry
-                    hexagons_in_county = set(polyfill(geom.__geo_interface__, self.resolution))
-                    hexagons_by_state[state].update(hexagons_in_county)
+            logger.error("No county geometries could be loaded or defined. Cannot define a target region.")
+            return {}, []
 
-        # Classify hexagons by state (this is a bit redundant if counties are used, but good for 'all')
-        all_hexagons = sorted(list(set.union(*hexagons_by_state.values())))
-        classified_hexagons = {'CA': set(), 'OR': set(), 'WA': set()}
-        state_bounds = {
-            'OR': {'lat_min': 42, 'lat_max': 46.5},
-            'CA': {'lat_min': 32, 'lat_max': 42},
-        }
-        for h3_index in all_hexagons:
-            lat, lon = h3_to_geo(h3_index)
-            if state_bounds['OR']['lat_min'] <= lat < state_bounds['OR']['lat_max']:
-                classified_hexagons['OR'].add(h3_index)
-            elif lat < state_bounds['CA']['lat_max']:
-                classified_hexagons['CA'].add(h3_index)
-            else:
-                classified_hexagons['WA'].add(h3_index)
+        hexagons_by_state: Dict[str, set] = {state: set() for state in county_geoms.keys()}
+        
+        for state, counties in county_geoms.items():
+            for county_name, geom in counties.items():
+                logger.info(f"Generating hexagons for {county_name}, {state}...")
+                try:
+                    # For MultiPolygons, polyfill each part
+                    if isinstance(geom, (Polygon, MultiPolygon)):
+                         hexagons_in_county = h3.polyfill_geojson(mapping(geom), self.resolution)
+                         hexagons_by_state[state].update(hexagons_in_county)
+                    else:
+                        logger.warning(f"Skipping invalid geometry for {county_name}, {state}")
+                except Exception as e:
+                    logger.error(f"H3 polyfill failed for {county_name}, {state}: {e}")
 
-        # Final filtering based on the keys in the target_counties dict
-        if target_counties:
-            final_hex_sets = [classified_hexagons.get(state, set()) for state in target_counties.keys()]
-            final_all_hexagons = sorted(list(set.union(*final_hex_sets)))
-            final_hex_by_state = {k: sorted(list(v)) for k, v in classified_hexagons.items() if k in target_counties and v}
-        else:
-            final_all_hexagons = all_hexagons
-            final_hex_by_state = {k: sorted(list(v)) for k, v in classified_hexagons.items() if v}
+        final_hex_by_state = {k: sorted(list(v)) for k, v in hexagons_by_state.items() if v}
+        final_all_hexagons = sorted(list(set.union(*hexagons_by_state.values())))
             
         if not final_all_hexagons:
             logger.error(f"Failed to generate any H3 hexagons for bioregion '{self.bioregion}' with filters {target_counties}")
@@ -211,110 +139,87 @@ class CascadianAgriculturalH3Backend:
             
         return final_hex_by_state, final_all_hexagons
 
-    def _get_county_geometries(self, target_counties: Optional[Dict[str, List[str]]]) -> Dict[str, Dict[str, Polygon]]:
+    def _get_county_geometries(self, target_counties: Optional[Dict[str, List[str]]]) -> Dict[str, Dict[str, Any]]:
         """
-        Loads county geometries for the specified states and counties.
-        This is a placeholder for a more robust implementation that would read from a
-        GIS file (e.g., a shapefile or GeoJSON of US counties).
+        Loads county geometries for the specified states and counties from a GeoJSON file.
+        Falls back to placeholder bounding boxes if the file is not found.
         """
         if not target_counties:
             return {}
 
-        # Placeholder: In a real scenario, you'd load a county shapefile here.
-        # e.g., counties_gdf = gpd.read_file('path/to/us_counties.shp')
-        # And then filter it:
-        # counties_gdf[counties_gdf['STATE_ABBR'].isin(target_counties.keys())]
-        
-        logger.warning("County geometry loading is using placeholder bounding boxes. For accurate analysis, replace with a real county shapefile.")
-
-        # Example placeholder geometries (broad bounding boxes)
-        geometries = {
-            'CA': {
-                'Lassen': Polygon.from_bounds(-121.3, 40.2, -120.0, 41.3),
-                'Plumas': Polygon.from_bounds(-121.5, 39.7, -120.2, 40.5),
-                'all': Polygon.from_bounds(-124.5, 32.5, -114.0, 42.0)
-            },
-            'OR': {
-                'all': Polygon.from_bounds(-124.6, 42.0, -116.4, 46.3)
-            },
-            'WA': {
-                'all': Polygon.from_bounds(-124.8, 45.5, -116.9, 49.0)
-            }
-        }
+        # The data file is expected to be in a standard location relative to the execution script
+        geometries_path = self.base_data_dir.parent / 'data' / 'us_counties_simple.geojson'
         
         output_geoms = {}
-        for state, counties in target_counties.items():
-            if state in geometries:
-                output_geoms[state] = {}
-                for county in counties:
-                    if county in geometries[state]:
-                        output_geoms[state][county] = geometries[state][county]
         
+        try:
+            if not geometries_path.exists():
+                raise FileNotFoundError(f"US County geometry file not found at {geometries_path}")
+
+            logger.info(f"Loading county geometries from {geometries_path}")
+            counties_gdf = gpd.read_file(geometries_path)
+            
+            for state, counties in target_counties.items():
+                output_geoms[state] = {}
+                state_gdf = counties_gdf[counties_gdf['STATE_ABBR'] == state]
+                
+                if not state_gdf.empty:
+                    if 'all' in counties:
+                        for _, row in state_gdf.iterrows():
+                            output_geoms[state][row['NAME']] = row['geometry']
+                    else:
+                        for county_name in counties:
+                            county_geom = state_gdf[state_gdf['NAME'] == county_name]
+                            if not county_geom.empty:
+                                output_geoms[state][county_name] = county_geom.iloc[0]['geometry']
+                            else:
+                                logger.warning(f"Could not find geometry for county '{county_name}' in state '{state}'")
+
+        except Exception as e:
+            logger.warning(f"Could not load county geometries from file ({e}). Falling back to placeholder bounding boxes.")
+            # Placeholder geometries (broad bounding boxes)
+            placeholder_geoms = {
+                'CA': {'all': Polygon.from_bounds(-124.5, 32.5, -114.0, 42.0)},
+                'OR': {'all': Polygon.from_bounds(-124.6, 42.0, -116.4, 46.3)},
+                'WA': {'all': Polygon.from_bounds(-124.8, 45.5, -116.9, 49.0)}
+            }
+            for state, counties in target_counties.items():
+                if state in placeholder_geoms:
+                    output_geoms[state] = {'all': placeholder_geoms[state]['all']}
+
         return output_geoms
 
-    def run_comprehensive_analysis(self) -> Dict[str, Dict]:
+    def run_comprehensive_analysis(self) -> None:
         """
-        Execute all active analysis modules and create a unified H3-indexed dataset.
-        
-        Returns:
-            Comprehensive H3-indexed agricultural data.
+        Execute the full analysis pipeline for all active modules.
+        This follows the standardized workflow:
+        1.  Check for cached H3 data.
+        2.  If not cached, acquire raw data.
+        3.  Process raw data to H3 using the OSC loader.
+        4.  Run the module's final analysis on the H3 data.
+        5.  Aggregate results.
         """
+        logger.info("Starting comprehensive analysis...")
         module_results = {}
-        
-        # Determine which modules to run based on the main script's arguments
-        # This part is tricky because the backend doesn't have direct access to args.
-        # For now, we assume all modules are run, but a more robust implementation
-        # might pass the module list during initialization.
-        
-        # Define which modules are state-specific
-        # This could be moved to a config file for more flexibility
-        state_specific_modules = {
-            'zoning': ['CA', 'OR', 'WA'],
-            'ownership': ['CA'],
-            'water_rights': ['CA', 'OR', 'WA']
-        }
 
-        for module_name, module_instance in self.modules.items():
-            logger.info(f"Processing '{module_name}' module...")
-
-            # Determine the correct set of hexagons for this module
-            target_hexs = self.target_hexagons # Default to all
-            if module_name in state_specific_modules:
-                # If a module is state-specific, combine hexagons from its supported states
-                hex_sets = [set(self.target_hexagons_by_state.get(state, [])) for state in state_specific_modules[module_name]]
-                target_hexs = sorted(list(set.union(*hex_sets)))
-                logger.info(f"Module '{module_name}' is state-specific. Using {len(target_hexs)} hexagons from states: {state_specific_modules[module_name]}")
-
-            if not target_hexs:
-                logger.warning(f"No target hexagons for module '{module_name}'. Skipping.")
-                module_results[module_name] = {}
-                continue
-
+        for name, module in self.modules.items():
+            logger.info(f"--- Processing Module: {name.upper()} ---")
             try:
-                # Standardized call to the 'run_analysis' method for all modules
-                result = module_instance.run_analysis(target_hexs)
-                
-                module_results[module_name] = result
-                # Log a more informative message
-                if result:
-                    logger.info(f"'{module_name}' module processed {len(result)} hexagons successfully.")
-                else:
-                    logger.warning(f"'{module_name}' module did not return any data.")
-
-            except AttributeError as e:
-                logger.error(f"'{module_name}' module is missing the required 'run_analysis' method. {e}", exc_info=False)
-                module_results[module_name] = {}
+                # Each module instance now has a reference to the backend and its methods.
+                # The module's run_analysis method is responsible for orchestrating
+                # its specific logic for acquisition, processing, and analysis.
+                result = module.run_analysis()
+                module_results[name] = result
+                logger.info(f"Successfully processed module: {name.upper()}")
             except Exception as e:
-                logger.error(f"Error processing '{module_name}' module: {e}", exc_info=True)
-                module_results[module_name] = {}
+                logger.error(f"Failed to process module {name.upper()}: {e}", exc_info=True)
+                module_results[name] = {}
         
         self._aggregate_module_results(module_results)
-        self.calculate_agricultural_redevelopment_potential()
-        
-        return self.unified_data
-
+        logger.info("Comprehensive analysis complete. All module data has been aggregated.")
+    
     def _aggregate_module_results(self, results: Dict[str, Dict]):
-        """Aggregate results from all modules into the unified_data dictionary."""
+        """Combine all module results into a unified H3-indexed dataset."""
         logger.info("Aggregating results from all modules...")
         
         for hexagon in self.target_hexagons:
@@ -322,8 +227,8 @@ class CascadianAgriculturalH3Backend:
             
             # Add geometry and metadata
             try:
-                hex_data['centroid'] = h3_to_geo(hexagon)
-                hex_data['boundary'] = h3_to_geo_boundary(hexagon)
+                hex_data['centroid'] = h3.h3_to_geo_boundary(hexagon, geo_json=True)
+                hex_data['boundary'] = h3.h3_to_geo_boundary(hexagon, geo_json=True)
             except Exception as e:
                 logger.warning(f"Could not process geometry for {hexagon}: {e}")
                 hex_data['centroid'] = None
@@ -335,7 +240,7 @@ class CascadianAgriculturalH3Backend:
             
             self.unified_data[hexagon] = hex_data
             
-        logger.info(f"Successfully aggregated data for {len(self.unified_data)} hexagons.")
+        logger.info(f"Aggregated data for {len(self.target_hexagons)} hexagons from {len(results)} modules.")
 
     def calculate_agricultural_redevelopment_potential(self) -> Dict[str, Dict]:
         """
@@ -391,32 +296,21 @@ class CascadianAgriculturalH3Backend:
     def _score_current_use(self, data: Dict) -> float:
         # Score based on lower intensity use being easier to redevelop.
         # More detailed logic to be added
-        return data.get('agricultural_intensity', 0.5) * -1 + 1 if data else 0.5
+        return 0.5
 
     def _score_water(self, surface: Dict, ground: Dict) -> float:
         # Score based on water security.
         # More detailed logic to be added
-        has_surface = surface.get('has_surface_water', False)
-        has_ground = ground.get('has_ground_water', False)
-        return float(has_surface or has_ground)
+        return 0.5
 
     def _score_water_rights(self, data: Dict) -> float:
-        """Score based on the presence and status of water rights."""
-        if not data:
-            return 0.2  # Neutral score if no data
-        
-        # Higher score for more secure water rights
-        score = 0.0
-        if data.get('number_of_active_rights', 0) > 0:
-            score = 0.8
-        elif data.get('number_of_rights', 0) > 0:
-            score = 0.4
-            
-        # Penalize if data is mocked
-        if data.get('is_mock_data', False):
-            score *= 0.5
-            
-        return score
+        """
+        Scores water rights based on priority and allocation.
+        A higher score indicates more secure and abundant water rights.
+        """
+        # Placeholder - needs real logic based on harmonized data model
+        # e.g., total_allocation, senior_rights_ratio
+        return data.get('water_security_score', 0.5)
 
     def _score_infrastructure(self, improvements: Dict, power: Dict) -> float:
         # Score based on existing infrastructure quality.
@@ -435,7 +329,7 @@ class CascadianAgriculturalH3Backend:
         # Higher debt may indicate financial distress and willingness to sell.
         if not data: return 0.1
         risk_level = data.get('financial_risk_level', 0.5) # Normalized 0-1
-        return risk_level
+        return 1.0 - risk_level
 
     def get_comprehensive_summary(self) -> Dict[str, Any]:
         """
@@ -491,69 +385,58 @@ class CascadianAgriculturalH3Backend:
             export_data[h3_index] = data.copy()
             export_data[h3_index]['redevelopment_potential'] = self.redevelopment_scores.get(h3_index, {})
 
-        if export_format.lower() == 'geojson':
+        if export_format == 'geojson':
             self._export_geojson(export_data, output_path)
-        elif export_format.lower() == 'csv':
+        elif export_format == 'csv':
             self._export_csv(export_data, output_path)
-        elif export_format.lower() == 'json':
+        elif export_format == 'json':
             with open(output_path, 'w') as f:
-                json.dump(export_data, f, cls=NumpyEncoder, indent=2)
-            logger.info(f"Successfully exported data to JSON: {output_path}")
+                json.dump(export_data, f, indent=2, cls=NumpyEncoder)
         else:
-            raise ValueError(f"Unsupported export format: {export_format}")
+            logger.error(f"Unsupported export format: {export_format}")
+            return
+        logger.info(f"Successfully exported unified data to {output_path}")
 
     def _export_geojson(self, data_to_export: Dict, output_path: str):
-        """Export data to GeoJSON format."""
+        """Exports the unified dataset to a GeoJSON file."""
         features = []
-        for h3_index, props in data_to_export.items():
-            boundary_coords = props.get('boundary')
-            if not boundary_coords:
-                continue
+        for hex_id, properties in data_to_export.items():
+            # Get geometry for the hexagon
+            boundary = h3.h3_to_geo_boundary(hex_id, geo_json=True)
             
-            # GeoJSON requires closing the loop
-            polygon_coords = list(boundary_coords)
-            if polygon_coords[0] != polygon_coords[-1]:
-                polygon_coords.append(polygon_coords[0])
-
             features.append({
                 'type': 'Feature',
                 'geometry': {
                     'type': 'Polygon',
-                    'coordinates': [polygon_coords]
+                    'coordinates': [boundary]
                 },
-                'properties': {k: v for k, v in props.items() if k not in ['boundary']}
+                'properties': properties
             })
             
-        feature_collection = {'type': 'FeatureCollection', 'features': features}
+        feature_collection = {
+            'type': 'FeatureCollection',
+            'features': features
+        }
+        
         with open(output_path, 'w') as f:
             json.dump(feature_collection, f, cls=NumpyEncoder)
-        logger.info(f"Successfully exported data to GeoJSON: {output_path}")
 
     def _export_csv(self, data_to_export: Dict, output_path: str):
-        """Export data to CSV format."""
+        """Exports the unified dataset to a CSV file."""
+        # This will flatten the nested dictionary structure
         flat_data = []
-        for h3_index, props in data_to_export.items():
-            row = {'h3_index': h3_index}
-            row['lat'], row['lng'] = props.get('centroid', (None, None))
-            
-            # Flatten all nested properties
+        for hex_id, props in data_to_export.items():
+            row = {'h3_index': hex_id}
             for key, value in props.items():
                 if isinstance(value, dict):
                     for sub_key, sub_value in value.items():
-                        if isinstance(sub_value, dict): # Handle one more level of nesting
-                             for ssub_key, ssub_value in sub_value.items():
-                                row[f"{key}_{sub_key}_{ssub_key}"] = ssub_value
-                        else:
-                            row[f"{key}_{sub_key}"] = sub_value
+                        row[f"{key}_{sub_key}"] = sub_value
                 else:
                     row[key] = value
             flat_data.append(row)
-
+        
         df = pd.DataFrame(flat_data)
-        # Drop complex geometry columns for CSV
-        df = df.drop(columns=['boundary'], errors='ignore')
         df.to_csv(output_path, index=False)
-        logger.info(f"Successfully exported data to CSV: {output_path}")
 
     def generate_interactive_dashboard(self, output_path: str) -> None:
         """
@@ -667,10 +550,12 @@ class CascadianAgriculturalH3Backend:
             return '#808080' # Grey for invalid score
 
         if theme == 'blue': # For water
-            if score > 0.75: return '#2171b5'
-            if score > 0.5: return '#6baed6'
-            if score > 0.25: return '#bdd7e7'
-            return '#eff3ff'
+            if score > 0.85: return '#d73027'
+            elif score > 0.7: return '#fc8d59'
+            elif score > 0.55: return '#fee08b'
+            elif score > 0.4: return '#d9ef8b'
+            elif score > 0.25: return '#91cf60'
+            else: return '#1a9850'
         elif theme == 'grey': # For ownership
             if score > 0.75: return '#252525'
             if score > 0.5: return '#636363'

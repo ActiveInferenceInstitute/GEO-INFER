@@ -24,25 +24,26 @@ import os
 from pathlib import Path
 
 # --- Robust Path Setup ---
-# This setup allows for imports between different GEO-INFER modules by adding
-# the project root and specific module 'src' directories to the Python path.
+# This setup allows for imports from the geo_infer_place and geo_infer_space modules.
 try:
     # Assumes cascadia_main.py is in GEO-INFER-PLACE/locations/cascadia/
     cascadian_dir = Path(__file__).resolve().parent
-    project_root = cascadian_dir.parents[3] # Should be GEO-INFER
+    place_root = cascadian_dir.parents[2] # GEO-INFER-PLACE
+    project_root = place_root.parent # GEO-INFER
 
-    # Add required sibling module 'src' folders to the path
+    # Add required 'src' directories to the path
+    place_src_path = place_root / 'src'
     space_src_path = project_root / 'GEO-INFER-SPACE' / 'src'
     
-    # Add the current directory for local imports (unified_backend, etc.)
+    # Add the current directory for local module imports (e.g. zoning)
     sys.path.insert(0, str(cascadian_dir))
-    
-    # Add the space module src path for OSC utils
-    if space_src_path.exists():
-        sys.path.insert(0, str(space_src_path))
-        print(f"INFO: Successfully added {space_src_path} to sys.path")
-    else:
-        print(f"WARNING: GEO-INFER-SPACE src path not found at: {space_src_path}")
+
+    for p in [place_src_path, space_src_path]:
+        if p.exists() and str(p) not in sys.path:
+            sys.path.insert(0, str(p))
+            print(f"INFO: Successfully added {p} to sys.path")
+        else:
+            print(f"WARNING: Required src path not found or already in path: {p}")
 
 except IndexError:
     print("CRITICAL: Could not determine project root. Please ensure you are running from the 'GEO-INFER-PLACE/locations/cascadia' directory")
@@ -56,8 +57,21 @@ import json
 from datetime import datetime
 import traceback
 
-# Import shared H3 utility and custom NumpyEncoder for JSON serialization
-from unified_backend import NumpyEncoder
+# Import from the new core location
+from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend, NumpyEncoder
+from geo_infer_place.core.base_module import BaseAnalysisModule
+
+# Import all the specialized modules from the 'cascadia' location
+# Note: These would need to be created following the pattern of GeoInferZoning
+from zoning.geo_infer_zoning import GeoInferZoning
+# --- Placeholder imports for other modules ---
+# from current_use.geo_infer_current_use import GeoInferCurrentUse
+# from ownership.geo_infer_ownership import GeoInferOwnership
+# from mortgage_debt.geo_infer_mortgage_debt import GeoInferMortgageDebt
+# from improvements.geo_infer_improvements import GeoInferImprovements
+# from surface_water.geo_infer_surface_water import GeoInferSurfaceWater
+# from ground_water.geo_infer_ground_water import GeoInferGroundWater
+# from power_source.geo_infer_power_source import GeoInferPowerSource
 
 def setup_logging(verbose: bool = False, output_dir: str = '.') -> None:
     """Setup logging configuration"""
@@ -142,7 +156,7 @@ def validate_configuration(args: argparse.Namespace) -> bool:
 def load_analysis_config() -> Dict[str, Any]:
     """Loads the analysis_settings from the main JSON config file."""
     logger = logging.getLogger(__name__)
-    config_path = Path(__file__).resolve().parent / 'config' / 'data_urls.json'
+    config_path = Path(__file__).resolve().parent / 'config' / 'analysis_config.json'
     
     if not config_path.exists():
         logger.warning(f"Configuration file not found at {config_path}. Using defaults.")
@@ -163,7 +177,7 @@ def main():
     
     # --- Load settings from config file first ---
     analysis_config = load_analysis_config()
-    default_modules = analysis_config.get('active_modules', 'all')
+    default_modules = analysis_config.get('active_modules', ['all'])
     # The 'target_counties' is more complex, so we handle it post-argparse
     
     parser = argparse.ArgumentParser(
@@ -210,12 +224,15 @@ Examples:
     # Command-line args override config file settings
     
     final_modules = args.modules.split(',') if args.modules else default_modules
-    if final_modules == ['all']:
+    if 'all' in final_modules:
         # Define all possible modules here
         final_modules = [
-            'zoning', 'current_use', 'ownership', 'mortgage_debt', 
-            'improvements', 'surface_water', 'ground_water', 'power_source', 'water_rights'
+            'zoning', 
+            # 'current_use', 'ownership', 'mortgage_debt', 
+            # 'improvements', 'surface_water', 'ground_water', 'power_source'
         ]
+    
+    logger.info(f"Final analysis settings -- Modules to run: {final_modules}")
 
     if args.counties:
         # Simple parser for the command-line format, e.g., "CA:Lassen,Plumas;OR:all"
@@ -246,16 +263,46 @@ Examples:
         sys.exit(1)
     
     try:
-        from unified_backend import CascadianAgriculturalH3Backend
+        # --- Initialize Modules ---
+        # A placeholder mapping to the actual module classes
+        # This would be expanded as each module is implemented
+        module_class_map = {
+            'zoning': GeoInferZoning,
+            # 'current_use': GeoInferCurrentUse,
+            # 'ownership': GeoInferOwnership,
+        }
+
+        # The backend will be initialized with dummy modules first
+        # Then we will instantiate the real ones needed for the run
+        backend_for_init = CascadianAgriculturalH3Backend(modules={}, base_data_dir=cascadian_dir / 'data')
         
+        active_module_instances: Dict[str, BaseAnalysisModule] = {}
+        for mod_name in final_modules:
+            if mod_name in module_class_map:
+                logger.info(f"Initializing module: {mod_name}")
+                active_module_instances[mod_name] = module_class_map[mod_name](backend_for_init)
+            else:
+                logger.warning(f"Module '{mod_name}' is not implemented or mapped. Skipping.")
+        
+        if not active_module_instances:
+            logger.critical("No valid modules were initialized. Exiting.")
+            sys.exit(1)
+        # --- End Module Initialization ---
+
         logger.info(f"Initializing {args.bioregion} H3 Backend (Resolution: {args.resolution})")
+        # Now, initialize the backend with the real, active modules
         backend = CascadianAgriculturalH3Backend(
+            modules=active_module_instances,
             resolution=args.resolution,
             bioregion=args.bioregion,
-            active_modules=final_modules,
-            target_counties=target_counties
+            target_counties=target_counties,
+            base_data_dir=cascadian_dir / 'data'
         )
         
+        # Link the modules to the fully initialized backend
+        for mod in backend.modules.values():
+            mod.backend = backend
+
         logger.info("Step 1: Running comprehensive analysis across all modules...")
         backend.run_comprehensive_analysis()
         
@@ -305,7 +352,7 @@ Examples:
         logger.info("="*80)
         
     except ImportError as e:
-        logger.critical(f"Failed to import a required module: {e}. Please run with --check-deps.", exc_info=True)
+        logger.critical(f"Failed to import a required module: {e}. Please check sys.path and module availability.", exc_info=True)
         sys.exit(1)
     except Exception as e:
         logger.critical(f"A critical error occurred during analysis: {e}", exc_info=True)
