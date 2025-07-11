@@ -10,3 +10,4 @@ GEO-INFER-PLACE/data/improvements/Zip_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_mont
 GEO-INFER-PLACE/data/improvements/tl_2023_us_zcta520/tl_2023_us_zcta520.shp
 GEO-INFER-PLACE/locations/cascadia/current_use/data/cdl/2023_30m_cdls/2023_30m_cdls.tif
 GEO-INFER-PLACE/locations/cascadia/current_use/data/cdl/2023_30m_cdls/2023_30m_cdls.tif.ovr
+*.pyc
