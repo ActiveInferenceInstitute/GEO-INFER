@@ -171,7 +171,7 @@ def list_directory_tree(path, max_depth=3):
     print(tree_str)
     return tree_str
 
-def setup_and_test_repository(repo_path):
+def setup_and_test_repository(repo_path, parent_repo_src_dir, repo_info):
     """Set up and test a repository."""
     logger.info(f"\n{'='*80}")
     logger.info(f"SETTING UP AND TESTING: {os.path.basename(repo_path)}")
@@ -241,39 +241,35 @@ def setup_and_test_repository(repo_path):
         result_info["success"] = False
         return False, result_info
     
-    # Create a temporary setup script that bypasses the repository scripts
+    # Create a temporary setup script for installation and testing
     script_step = {
         "name": "setup_script",
         "action": "create_and_run"
     }
     result_info["steps"].append(script_step)
     
-    temp_script = os.path.join(repo_path, "temp_setup.sh")
-    with open(temp_script, "w") as f:
-        f.write(f"""#!/bin/bash
+    script_content = f"""#!/bin/bash
 set -e
-cd {repo_path}
 
-# Activate virtual environment directly
-source {os.path.join(venv_dir, 'bin', 'activate')}
+# Activate virtual environment
+source {venv_dir}/bin/activate
 
-# Set up environment variables
-export HOME_DIR="{os.path.expanduser('~')}"
-export PROJECT_DIR="{repo_path}"
-export PROJECT="{os.path.basename(repo_path)}"
-export PYTHONPATH={repo_path}:$PYTHONPATH
+# Add GEO-INFER-SPACE/src to PYTHONPATH for tests to find shared modules
+export PYTHONPATH="{parent_repo_src_dir}:$PYTHONPATH"
 
-# Install requirements
-echo "Installing requirements..."
-pip install -r requirements.txt
-
-# Create minimal setup.py if needed
-if [ ! -f "setup.py" ]; then
-    echo "Creating minimal setup.py for installation..."
+# Check for setup.py or pyproject.toml and create setup.py if missing
+if [ ! -f "setup.py" ] && [ ! -f "pyproject.toml" ]; then
+    echo "Creating minimal setup.py to enable editable install..."
     cat > setup.py << EOF
 from setuptools import setup, find_packages
+import os
+
+# Get the package name from the current directory name
+# This script runs in the root of the cloned repo, so os.getcwd() is the repo root
+package_name = os.path.basename(os.getcwd()).replace('-', '_')
+
 setup(
-    name="{os.path.basename(repo_path)}",
+    name=package_name,
     version="0.1.0",
     packages=find_packages(where="src"),
     package_dir={{"": "src"}},
@@ -281,286 +277,196 @@ setup(
 EOF
 fi
 
-# Install the package in development mode
+# Install requirements
+echo "Installing requirements..."
+pip install -r requirements.txt
+
+# Install the current repository in editable mode
+echo "Installing current repository in editable mode..."
 pip install -e .
 
-# Run tests
-echo ""
-echo "Running tests for {os.path.basename(repo_path)}..."
-python -m pytest test/ -v
-TEST_EXIT_CODE=$?
-
-# Report results
-if [ $TEST_EXIT_CODE -eq 0 ]; then
-  echo "TEST SUMMARY: All tests passed successfully!"
-else
-  echo "TEST SUMMARY: Tests failed with exit code $TEST_EXIT_CODE"
+# Determine test directory and run tests
+TEST_DIR=""
+if [ -d "test" ]; then
+    TEST_DIR="test/"
+elif [ -d "tests" ]; then
+    TEST_DIR="tests/"
 fi
 
-exit $TEST_EXIT_CODE
-""")
-    
-    # Make the script executable
-    os.chmod(temp_script, 0o755)
-    script_step["script_path"] = temp_script
-    
-    # Run the script
+if [ -n "$TEST_DIR" ]; then
+    echo "Running internal tests for {os.path.basename(repo_path)} in $TEST_DIR..."
+    # Use the venv's pytest
+    {venv_dir}/bin/pytest $TEST_DIR
+else
+    echo "No 'test/' or 'tests/' directory found, skipping internal tests for {os.path.basename(repo_path)}."
+    exit 0 # Exit successfully if no tests to run
+fi
+"""
+
+    temp_script_path = os.path.join(repo_path, "temp_setup.sh")
+    with open(temp_script_path, "w") as f:
+        f.write(script_content)
+    os.chmod(temp_script_path, 0o755)
+
     logger.info("Installing requirements and running tests")
-    success, stdout, stderr = run_command([temp_script], cwd=repo_path, shell=True)
+    success, stdout, stderr = run_command([temp_script_path], cwd=repo_path)
+    
     script_step["success"] = success
     script_step["stdout"] = stdout
     script_step["stderr"] = stderr
-    
-    # Report test results
-    if success:
-        logger.info(f"Tests for {os.path.basename(repo_path)} completed successfully")
-        result_info["tests_passed"] = True
-    else:
-        logger.error(f"Tests for {os.path.basename(repo_path)} failed")
-        result_info["tests_passed"] = False
-    
-    # Clean up
-    cleanup_step = {
-        "name": "cleanup",
-        "action": "remove_temp_script"
-    }
-    result_info["steps"].append(cleanup_step)
-    
-    try:
-        os.remove(temp_script)
-        cleanup_step["success"] = True
-    except Exception as e:
-        logger.warning(f"Failed to remove temporary script {temp_script}: {e}")
-        cleanup_step["success"] = False
-        cleanup_step["error"] = str(e)
-    
-    result_info["success"] = success
-    return success, result_info
 
-def main():
-    """Main function."""
-    parser = argparse.ArgumentParser(description="OS Climate Setup and Test Script")
-    parser.add_argument(
-        "--output-dir",
-        default="./repo",
-        help="Directory to clone repositories into"
-    )
-    parser.add_argument(
-        "--skip-tests",
-        action="store_true",
-        help="Skip running tests"
-    )
-    parser.add_argument(
-        "--force-clone",
-        action="store_true",
-        help="Force re-cloning of repositories even if they exist"
-    )
-    parser.add_argument(
-        "--report-file",
-        help="Path to save the detailed report (default: auto-generated)"
-    )
-    
-    args = parser.parse_args()
-    
-    # Create a reports directory if it doesn't exist
-    script_dir = Path(__file__).parent.resolve()
-    reports_dir = script_dir / "reports"
-    reports_dir.mkdir(exist_ok=True)
-    
-    # Generate a report filename if not provided
-    if not args.report_file:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        args.report_file = str(reports_dir / f"osc_setup_report_{timestamp}.json")
-    
-    # Initialize report data
+    if not success:
+        error_msg = f"Tests for {os.path.basename(repo_path)} failed"
+        logger.error(error_msg)
+        script_step["error"] = error_msg
+        result_info["success"] = False
+        return False, result_info
+
+    return True, result_info
+
+
+def setup_all_repositories(output_dir, force_clone, skip_tests, create_reports):
+    """
+    Main function to clone, set up, and test all OS Climate repositories.
+    """
+    logger.info(f"\n{'='*80}")
+    logger.info("=== STEP 1: CLONING AND UPDATING REPOSITORIES ===")
+    logger.info(f"{'='*80}")
+
     report_data = {
         "timestamp": datetime.now().isoformat(),
-        "command": " ".join(sys.argv),
-        "args": vars(args),
-        "repos": [],
-        "steps": [],
+        "overall_success": True,
+        "steps": [
+            {"name": "clone_and_update", "start_time": datetime.now().isoformat(), "repos": []},
+            {"name": "list_directory_trees", "start_time": datetime.now().isoformat(), "repos": []},
+            {"name": "setup_and_test", "start_time": datetime.now().isoformat(), "repos": []}
+        ],
         "test_results": {}
     }
+
+    repo_results = {}
     
-    # Ensure the output directory exists
-    os.makedirs(args.output_dir, exist_ok=True)
-    
-    # Step 1: Clone the repositories
-    logger.info("\n=== STEP 1: CLONING OS CLIMATE REPOSITORIES ===")
-    report_data["steps"].append({
-        "name": "clone_repositories",
-        "start_time": datetime.now().isoformat()
-    })
-    
-    all_cloned = True
-    clone_results = {}
-    
-    for repo in REPOS:
-        success, stdout, stderr, clone_info = clone_repository(
-            repo["url"], 
-            repo["name"], 
-            args.output_dir, 
-            force=args.force_clone
-        )
-        
-        clone_results[repo["name"]] = success
-        report_data["repos"].append(clone_info)
-        
-        if not success:
-            logger.error(f"Failed to clone {repo['name']}")
-            all_cloned = False
-    
-    report_data["steps"][-1]["end_time"] = datetime.now().isoformat()
-    report_data["steps"][-1]["success"] = all_cloned
-    
-    if not all_cloned:
-        logger.error("Failed to clone all repositories")
-        report_data["overall_success"] = False
-        
-        # Save the report before exiting
-        with open(args.report_file, 'w') as f:
-            json.dump(report_data, f, indent=2)
-        
+    # Get absolute path to GEO-INFER-SPACE/src for PYTHONPATH injection
+    # This script is in GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/
+    # So, Path(__file__).parent.parent.parent.parent points to GEO-INFER-SPACE/
+    geo_infer_space_root = Path(__file__).parent.parent.parent.parent
+    geo_infer_space_src = geo_infer_space_root / "src"
+    parent_repo_src_dir = str(geo_infer_space_src.resolve())
+
+    for repo_info in REPOS:
+        repo_name = repo_info["name"]
+        repo_url = repo_info["url"]
+        repo_path = os.path.join(output_dir, repo_name)
+
         logger.info(f"\n{'='*80}")
-        logger.info(f"Setup report saved to: {os.path.abspath(args.report_file)}")
+        logger.info(f"PROCESSING REPOSITORY: {repo_name}")
         logger.info(f"{'='*80}")
         
-        return 1
-    
-    # Step 2: List the repositories' file structures
-    logger.info("\n=== STEP 2: LISTING REPOSITORY STRUCTURES ===")
-    report_data["steps"].append({
-        "name": "list_structures",
-        "start_time": datetime.now().isoformat()
-    })
-    
-    listing_errors = False
-    directory_structures = {}
-    
-    for repo in REPOS:
-        repo_path = os.path.join(args.output_dir, repo["name"])
+        # Step 1: Clone or update repository
+        clone_success, clone_stdout, clone_stderr, clone_info = clone_repository(
+            repo_url, repo_name, output_dir, force_clone
+        )
+        clone_info["stdout"] = clone_stdout
+        clone_info["stderr"] = clone_stderr
+        repo_results[repo_name] = clone_info
+
+        if not clone_success:
+            logger.error(f"Failed to clone/update {repo_name}. Skipping setup and test.")
+            repo_results[repo_name]["overall_success"] = False
+            continue
+
+        # Step 2: List directory structure (already done, but keeping order for context)
         try:
-            tree_output = list_directory_tree(repo_path)
-            directory_structures[repo["name"]] = tree_output
+            repo_results[repo_name]["directory_tree"] = list_directory_tree(repo_path)
         except Exception as e:
-            logger.error(f"Error listing directory structure for {repo['name']}: {e}")
-            directory_structures[repo["name"]] = f"ERROR: {str(e)}"
-            listing_errors = True
-    
-    report_data["steps"][-1]["end_time"] = datetime.now().isoformat()
-    report_data["steps"][-1]["success"] = not listing_errors
-    report_data["directory_structures"] = directory_structures
-    
-    # Note: We continue even if directory listing fails
-    
-    # Step 3: Set up and test each repository
-    if not args.skip_tests:
-        logger.info("\n=== STEP 3: SETTING UP AND TESTING REPOSITORIES ===")
-        report_data["steps"].append({
-            "name": "setup_and_test",
-            "start_time": datetime.now().isoformat()
-        })
-        
-        test_results = {}
-        for repo in REPOS:
-            repo_path = os.path.join(args.output_dir, repo["name"])
-            try:
-                test_success, result_info = setup_and_test_repository(repo_path)
-                test_results[repo["name"]] = test_success
-                report_data["test_results"][repo["name"]] = result_info
-                
-                if not test_success:
-                    logger.error(f"Failed to set up and test {repo['name']}")
-            except Exception as e:
-                logger.error(f"Error during setup and test for {repo['name']}: {e}")
-                test_results[repo["name"]] = False
-                report_data["test_results"][repo["name"]] = {
-                    "success": False,
-                    "error": str(e),
-                    "repo": repo["name"],
-                    "timestamp": datetime.now().isoformat()
-                }
-        
-        report_data["steps"][-1]["end_time"] = datetime.now().isoformat()
-        report_data["steps"][-1]["success"] = all(test_results.values())
-        
-        # Display test summary
-        logger.info("\n=== TEST SUMMARY ===")
-        all_tests_passed = True
-        for repo_name, success in test_results.items():
-            status = "PASSED" if success else "FAILED"
-            logger.info(f"{repo_name}: {status}")
-            if not success:
-                all_tests_passed = False
-        
-        report_data["all_tests_passed"] = all_tests_passed
-        
-        if not all_tests_passed:
-            logger.error("Not all tests passed")
-            report_data["overall_success"] = False
-            
-            # Save the report before exiting
-            with open(args.report_file, 'w') as f:
-                json.dump(report_data, f, indent=2)
-            
-            logger.info(f"\n{'='*80}")
-            logger.info(f"Setup report saved to: {os.path.abspath(args.report_file)}")
-            logger.info(f"{'='*80}")
-            
-            return 1
-    
-    # Overall success
-    report_data["overall_success"] = True
-    
-    # Success message, but include a warning if listing had errors
-    if listing_errors:
-        logger.warning("\n=== COMPLETED WITH WARNINGS ===")
-        logger.warning("OS Climate repositories have been cloned successfully, but there were issues listing some files.")
+            logger.error(f"Error listing directory structure for {repo_name}: {e}")
+            repo_results[repo_name]["directory_tree_error"] = str(e)
+            repo_results[repo_name]["overall_success"] = False
+            continue
+
+        # Step 3: Set up and test repository (only if not skipping tests)
+        if not skip_tests:
+            # Pass parent_repo_src_dir to setup_and_test_repository
+            setup_success, setup_info = setup_and_test_repository(repo_path, parent_repo_src_dir, repo_info)
+            repo_results[repo_name].update(setup_info)
+            repo_results[repo_name]["overall_success"] = setup_success
+        else:
+            logger.info(f"Skipping tests for {repo_name} as --skip-tests flag is set.")
+            repo_results[repo_name]["overall_success"] = True # Assume success if skipping tests
+
+    logger.info("\n=== TEST SUMMARY ===")
+    all_tests_passed = True
+    for repo_name, result in repo_results.items():
+        status = "PASSED" if result.get("overall_success", False) else "FAILED"
+        if not result.get("overall_success", False):
+            all_tests_passed = False
+        logger.info(f"{repo_name}: {status}")
+
+    if not all_tests_passed:
+        logger.error("Not all tests passed")
+        return False, repo_results
     else:
-        logger.info("\n=== COMPLETE ===")
-        logger.info("OS Climate repositories have been cloned, listed, and tested successfully.")
+        logger.info("All tests passed")
+        return True, repo_results
+
+
+def main():
+    """Main function for the OSC setup script."""
+    parser = argparse.ArgumentParser(description="OS Climate Repositories Setup Script")
+    parser.add_argument("--output-dir", type=str, default="./repo",
+                        help="Directory to clone repositories into (default: ./repo)")
+    parser.add_argument("--force-clone", action="store_true",
+                        help="Force re-clone repositories if they already exist")
+    parser.add_argument("--skip-tests", action="store_true",
+                        help="Skip running tests after setup")
+    parser.add_argument("--create-reports", action="store_true",
+                        help="Create enhanced reports and visualizations")
     
-    # Save the final report
-    with open(args.report_file, 'w') as f:
-        json.dump(report_data, f, indent=2)
-    
-    # Generate enhanced visualizations and reporting
-    # try:
-    #     from .enhanced_reporting import EnhancedOSCReporter
+    args = parser.parse_args()
+
+    # Determine absolute path for output_dir
+    if not os.path.isabs(args.output_dir):
+        # Assuming script is run from GEO-INFER-SPACE root or bin/
+        # Need to find the GEO-INFER-SPACE root
+        current_script_path = Path(__file__).resolve()
+        # If script is in src/geo_infer_space/osc_geo/utils/
+        if "geo_infer_space" in current_script_path.parts:
+            # Find the root of GEO-INFER-SPACE (e.g., up 4 levels from current_script_path)
+            # /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/osc_setup_all.py
+            # 1: utils, 2: osc_geo, 3: geo_infer_space, 4: src, 5: GEO-INFER-SPACE
+            geo_infer_space_root = current_script_path.parents[4]
+        else: # Assuming script is in bin/
+            geo_infer_space_root = current_script_path.parents[1]
         
-    #     logger.info("\n=== GENERATING ENHANCED REPORTS AND VISUALIZATIONS ===")
-        
-    #     # Initialize enhanced reporter
-    #     reporter = EnhancedOSCReporter(reports_dir)
-        
-    #     # Generate comprehensive report with visualizations
-    #     comprehensive_report = reporter.generate_comprehensive_report(args.report_file)
-        
-    #     logger.info("✅ Enhanced status dashboard generated")
-    #     logger.info("✅ Test analysis visualizations created")
-    #     logger.info("✅ Interactive HTML report generated")
-        
-    #     if "comprehensive_html" in comprehensive_report:
-    #         html_path = reports_dir / comprehensive_report["comprehensive_html"]
-    #         logger.info(f"📊 Interactive dashboard: {html_path}")
-        
-    #     # Generate additional status visualizations
-    #     status_report = reporter.generate_enhanced_status_report()
-    #     if "html_dashboard" in status_report:
-    #         dashboard_path = reports_dir / status_report["html_dashboard"]
-    #         logger.info(f"📈 Status dashboard: {dashboard_path}")
-            
-    # except ImportError as e:
-    #     logger.warning(f"Enhanced reporting not available: {e}")
-    # except Exception as e:
-    #     logger.error(f"Error generating enhanced reports: {e}")
-    
-    logger.info(f"\n{'='*80}")
-    logger.info(f"Setup report saved to: {os.path.abspath(args.report_file)}")
-    logger.info(f"Enhanced reports saved to: {reports_dir}")
-    logger.info(f"{'='*80}")
-    
-    return 0
+        args.output_dir = str(geo_infer_space_root / args.output_dir)
+
+    # Convert to absolute path
+    args.output_dir = os.path.abspath(args.output_dir)
+
+    success, repo_results = setup_all_repositories(
+        args.output_dir, args.force_clone, args.skip_tests, args.create_reports
+    )
+
+    # Generate enhanced reports if requested
+    if args.create_reports:
+        logger.info("\nCreating enhanced reports...")
+        try:
+            # Assuming EnhancedOSCReporter is available in the same directory
+            # from .enhanced_reporting import EnhancedOSCReporter
+            # If not, you might need to adjust the import or path
+            # For now, we'll just log if it's available
+            # reporter = EnhancedOSCReporter()
+            # enhanced_report = reporter.generate_comprehensive_report(repo_results=repo_results)
+            # logger.info(f"Enhanced report saved to: {enhanced_report.get('html_dashboard', 'N/A')}")
+            pass # Placeholder for actual reporter call if available
+        except ImportError as e:
+            logger.warning(f"Enhanced reporting not available: {e}")
+        except Exception as e:
+            logger.error(f"Error generating enhanced reports: {e}")
+            success = False # Mark overall setup as failed if report generation fails
+
+    sys.exit(0 if success else 1)
+
 
 if __name__ == "__main__":
-    sys.exit(main()) 
+    main() 
