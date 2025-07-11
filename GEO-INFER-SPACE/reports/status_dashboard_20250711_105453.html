@@ -1,0 +1,185 @@
+
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>OSC Integration Status Dashboard</title>
+            <style>
+                body {
+                    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+                    margin: 0;
+                    padding: 0;
+                    background-color: #f8f9fa;
+                    color: #343a40;
+                }
+                .header {
+                    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                    color: white;
+                    padding: 2rem;
+                    text-align: center;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                }
+                .container {
+                    max-width: 1200px;
+                    margin: 0 auto;
+                    padding: 2rem;
+                }
+                .grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                    gap: 2rem;
+                    margin: 2rem 0;
+                }
+                .card {
+                    background: white;
+                    border-radius: 8px;
+                    padding: 1.5rem;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+                    border-left: 4px solid #667eea;
+                }
+                .card h3 {
+                    margin-top: 0;
+                    color: #495057;
+                }
+                .status-indicator {
+                    display: inline-block;
+                    width: 12px;
+                    height: 12px;
+                    border-radius: 50%;
+                    margin-right: 8px;
+                }
+                .status-success { background-color: #28a745; }
+                .status-warning { background-color: #ffc107; }
+                .status-error { background-color: #dc3545; }
+                .visualization {
+                    text-align: center;
+                    margin: 1rem 0;
+                }
+                .visualization img {
+                    max-width: 100%;
+                    height: auto;
+                    border-radius: 8px;
+                    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+                }
+                .summary-box {
+                    background: #e9ecef;
+                    padding: 1rem;
+                    border-radius: 6px;
+                    margin: 1rem 0;
+                    font-family: monospace;
+                    font-size: 0.9rem;
+                    white-space: pre-line;
+                }
+                .metadata {
+                    background: #f8f9fa;
+                    padding: 1rem;
+                    border-radius: 6px;
+                    font-size: 0.9rem;
+                    color: #6c757d;
+                }
+                .repo-list {
+                    list-style: none;
+                    padding: 0;
+                }
+                .repo-item {
+                    display: flex;
+                    align-items: center;
+                    padding: 0.5rem 0;
+                    border-bottom: 1px solid #e9ecef;
+                }
+                .repo-item:last-child {
+                    border-bottom: none;
+                }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>🌍 OSC Integration Status Dashboard</h1>
+                <p>Comprehensive monitoring and analysis of OS Climate repository integration</p>
+                <div class="metadata">Generated: 2025-07-11T10:54:51.021680</div>
+            </div>
+            
+            <div class="container">
+                <div class="card">
+                    <h3>📊 Executive Summary</h3>
+                    <div class="summary-box">OSC Repository Status (as of 2025-07-11T10:54:50.996777)
+All repositories exist: True
+
+Repository Status:
+  ✅ osc-geo-h3grid-srv (h3grid-srv)
+     Path: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3grid-srv
+     Branch: main
+     Latest commit: ec7caaca
+     Git repository: ✅  Virtual environment: ❌
+  ✅ osc-geo-h3loader-cli (h3loader-cli)
+     Path: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli
+     Branch: main
+     Latest commit: 911a8e28
+     Git repository: ✅  Virtual environment: ❌</div>
+                </div>
+                
+                <div class="grid">
+        
+                    <div class="card">
+                        <h3>📁 Repository Status</h3>
+                        <ul class="repo-list">
+            
+                            <li class="repo-item">
+                                <span class="status-indicator status-warning"></span>
+                                <strong>h3grid-srv</strong> - Partial
+                                <br><small>Branch: main</small>
+                            </li>
+                
+                            <li class="repo-item">
+                                <span class="status-indicator status-warning"></span>
+                                <strong>h3loader-cli</strong> - Partial
+                                <br><small>Branch: main</small>
+                            </li>
+                
+                        </ul>
+                    </div>
+            
+                    <div class="card">
+                        <h3>📈 Repository Health</h3>
+                        <div class="visualization">
+                            <img src="visualizations/status/repository_health_20250711_105453.png" alt="Repository Health">
+                        </div>
+                    </div>
+                
+                    <div class="card">
+                        <h3>📈 Git Timeline</h3>
+                        <div class="visualization">
+                            <img src="visualizations/status/git_timeline_20250711_105453.png" alt="Git Timeline">
+                        </div>
+                    </div>
+                
+                    <div class="card">
+                        <h3>📈 Environment Status</h3>
+                        <div class="visualization">
+                            <img src="visualizations/status/environment_status_20250711_105453.png" alt="Environment Status">
+                        </div>
+                    </div>
+                
+                </div>
+                
+                <div class="card">
+                    <h3>🔧 Recommendations</h3>
+                    <ul>
+                        <li><strong>System Dependencies:</strong> Install missing system libraries (gfortran, GDAL, pkg-config) for full functionality</li>
+                        <li><strong>Monitoring:</strong> Set up automated monitoring for repository health and updates</li>
+                        <li><strong>Docker:</strong> Consider Docker-based testing for consistent environments</li>
+                        <li><strong>CI/CD:</strong> Implement continuous integration for automated testing</li>
+                    </ul>
+                </div>
+                
+                <div class="metadata">
+                    <strong>Report Details:</strong><br>
+                    Generated by Enhanced OSC Reporter v1.0<br>
+                    Visualizations: {"Enabled" if visualizations else "Disabled"}<br>
+                    Data Source: OSC Simple Status Check
+                </div>
+            </div>
+        </body>
+        </html>
+        
