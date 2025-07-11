@@ -28,12 +28,12 @@ This script demonstrates interactive H3-based geospatial overlays using the OSC 
 
 ### **Basic Usage:**
 ```bash
-python h3_geospatial_demo.py
+python examples/h3_geospatial_demo.py
 ```
 
 ### **Advanced Options:**
 ```bash
-python h3_geospatial_demo.py \
+python examples/h3_geospatial_demo.py \
   --resolution 8 \
   --samples 500 \
   --center 40.7128 -74.0060 \
@@ -129,12 +129,12 @@ pip install folium h3 geopandas shapely matplotlib seaborn
 
 ### **2. Run Basic Demo:**
 ```bash
-python h3_geospatial_demo.py --samples 300 --resolution 8
+python examples/h3_geospatial_demo.py --samples 300 --resolution 8
 ```
 
 ### **3. Start Web Server:**
 ```bash
-python h3_geospatial_demo.py --serve --port 8080
+python examples/h3_geospatial_demo.py --serve --port 8080
 ```
 
 ### **4. View Results:**
@@ -198,28 +198,28 @@ The integration follows OSC best practices for:
 ### **Different Locations:**
 ```bash
 # London
-python h3_geospatial_demo.py --center 51.5074 -0.1278
+python examples/h3_geospatial_demo.py --center 51.5074 -0.1278
 
 # Tokyo  
-python h3_geospatial_demo.py --center 35.6762 139.6503
+python examples/h3_geospatial_demo.py --center 35.6762 139.6503
 
 # São Paulo
-python h3_geospatial_demo.py --center -23.5505 -46.6333
+python examples/h3_geospatial_demo.py --center -23.5505 -46.6333
 ```
 
 ### **Resolution Comparison:**
 ```bash
 # Coarse resolution (larger cells)
-python h3_geospatial_demo.py --resolution 6
+python examples/h3_geospatial_demo.py --resolution 6
 
 # Fine resolution (smaller cells)  
-python h3_geospatial_demo.py --resolution 10
+python examples/h3_geospatial_demo.py --resolution 10
 ```
 
 ### **Large Datasets:**
 ```bash
 # High sample count
-python h3_geospatial_demo.py --samples 5000 --no-browser
+python examples/h3_geospatial_demo.py --samples 5000 --no-browser
 ```
 
 ## 📝 Notes

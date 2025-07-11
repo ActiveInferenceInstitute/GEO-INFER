@@ -68,10 +68,10 @@ cd GEO-INFER-SPACE
 pip install -e .
 
 # Run the complete setup with enhanced reporting
-python3 osc_setup_all.py --force-clone
+python3 bin/osc_setup_all.py --force-clone
 
 # Check status with visualizations
-python3 osc_status.py
+python3 bin/osc_status.py
 
 # View interactive dashboard
 open reports/status_dashboard_*.html
@@ -127,14 +127,14 @@ uvicorn>=0.15.0
 ```bash
 cd GEO-INFER-SPACE
 pip install -e .
-python3 osc_setup_all.py
+python3 bin/osc_setup_all.py
 ```
 
 #### **Option 2: Development Installation**
 ```bash
 cd GEO-INFER-SPACE
 pip install -e ".[dev]"
-python3 osc_setup_all.py --force-clone
+python3 bin/osc_setup_all.py --force-clone
 ```
 
 #### **Option 3: Minimal Installation (no visualizations)**
@@ -142,7 +142,7 @@ python3 osc_setup_all.py --force-clone
 cd GEO-INFER-SPACE
 pip install -e . --no-deps
 pip install numpy pandas geopandas h3
-python3 osc_setup_all.py --skip-tests
+python3 bin/osc_setup_all.py --skip-tests
 ```
 
 ---
@@ -168,25 +168,25 @@ The integration manages two key OS Climate repositories:
 #### **Setup & Cloning**
 ```bash
 # Force fresh clone of all repositories
-python3 osc_setup_all.py --force-clone
+python3 bin/osc_setup_all.py --force-clone
 
 # Clone to custom directory
-python3 osc_setup_all.py --output-dir /custom/path
+python3 bin/osc_setup_all.py --output-dir /custom/path
 
 # Skip automated testing
-python3 osc_setup_all.py --skip-tests
+python3 bin/osc_setup_all.py --skip-tests
 ```
 
 #### **Status Checking**
 ```bash
 # Comprehensive status check
-python3 osc_status.py
+python3 bin/osc_status.py
 
 # Save status to file
-python3 osc_status.py --output-file status_report.json
+python3 bin/osc_status.py --output-file status_report.json
 
 # Quiet mode (minimal output)
-python3 osc_status.py --quiet
+python3 bin/osc_status.py --quiet
 ```
 
 #### **Repository Health Monitoring**
@@ -456,7 +456,7 @@ import logging
 logging.basicConfig(level=logging.DEBUG)
 
 # Run setup with detailed logging
-python3 osc_setup_all.py --force-clone
+python3 bin/osc_setup_all.py --force-clone
 ```
 
 #### **Manual Testing**
@@ -679,7 +679,7 @@ if __name__ == "__main__":
 1. **Regular Health Checks**
    ```bash
    # Daily automated check
-   python3 osc_status.py --output-file daily_status.json
+   python3 bin/osc_status.py --output-file daily_status.json
    ```
 
 2. **Version Control Integration**
@@ -710,9 +710,9 @@ if __name__ == "__main__":
              sudo apt-get install gfortran libgdal-dev
              pip install -e .
          - name: Run OSC setup
-           run: python3 osc_setup_all.py --skip-tests
+           run: python3 bin/osc_setup_all.py --skip-tests
          - name: Check status
-           run: python3 osc_status.py
+           run: python3 bin/osc_status.py
    ```
 
 ### **Performance Optimization**
@@ -929,7 +929,7 @@ pip install -e ".[dev]"
 python -m pytest tests/ -v
 
 # Run OSC integration tests
-python3 osc_setup_all.py --force-clone
+python3 bin/osc_setup_all.py --force-clone
 ```
 
 ---

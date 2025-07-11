@@ -15,6 +15,9 @@ This document outlines the approach for integrating OS Climate (OSC) geospatial 
 
 ```
 GEO-INFER-SPACE/
+├── bin/                       # Executable scripts
+│   ├── osc_setup_all.py       # Setup script for OSC repositories
+│   ├── osc_wrapper.py         # Simple wrapper to run setup script
 ├── repo/                     # External OSC repositories (cloned)
 │   ├── osc-geo-h3grid-srv/   # H3 grid service repository
 │   └── osc-geo-h3loader-cli/ # Data loader CLI repository
@@ -24,8 +27,6 @@ GEO-INFER-SPACE/
 │       ├── grid_service.py   # H3 grid service wrapper
 │       ├── data_loader.py    # Data loader wrapper
 │       └── utils.py          # Utility functions
-├── osc_setup_all.py          # Setup script for OSC repositories
-├── osc_wrapper.py            # Simple wrapper to run setup script
 └── OSC-INTEGRATION.md        # This documentation file
 ```
 
@@ -72,7 +73,7 @@ The integration includes:
 To set up the OS Climate repositories:
 
 ```bash
-python3 osc_setup_all.py
+python3 bin/osc_setup_all.py
 ```
 
 This script will:
@@ -151,7 +152,7 @@ print(diagnostics.detailed_report())
 To update the OS Climate repositories to the latest versions from forks:
 
 ```bash
-python3 osc_setup_all.py --force-clone
+python3 bin/osc_setup_all.py --force-clone
 ```
 
 This will remove the existing repositories and clone them fresh from GitHub. 

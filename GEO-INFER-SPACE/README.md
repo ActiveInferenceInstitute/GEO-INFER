@@ -353,10 +353,7 @@ GEO-INFER-SPACE/
 ├── tests/
 │   └── osc_geo/            # Tests for OS-Climate integration
 ├── venv/                   # Virtual environment (typically in .gitignore)
-├── osc_setup_all.py        # Script for OS-Climate setup (as existing)
-├── osc_status.py           # Script for OS-Climate status (as existing)
-├── osc_wrapper.py          # Wrapper script (as existing)
-└── README-OSC.md           # OS Climate integration details (as existing)
+└── docs/README-OSC.md      # OS Climate integration details (as existing)
 ```
 
 ## Future Development
