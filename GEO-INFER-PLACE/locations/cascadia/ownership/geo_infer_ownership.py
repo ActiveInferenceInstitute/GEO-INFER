@@ -1,151 +1,126 @@
 """
-GeoInferOwnership: Agricultural Land Ownership Analysis Module
+GeoInfer Ownership Module
 
-Comprehensive agricultural land ownership analysis with H3 spatial indexing.
+This module analyzes agricultural land ownership patterns using H3 indexing
+by fetching real-time data from public GIS services.
 """
-
-import numpy as np
-import pandas as pd
-import geopandas as gpd
-from typing import Dict, List, Optional
 import logging
-from utils_h3 import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+from typing import Dict, List, Any
+import numpy as np
+import geopandas as gpd
+from shapely.geometry import Polygon
+
+from .data_sources import CascadianOwnershipDataSources
+from utils_h3 import h3_to_geo_boundary
 
 logger = logging.getLogger(__name__)
 
 class GeoInferOwnership:
-    """Agricultural land ownership analysis with H3 spatial indexing"""
-    
-    def __init__(self, resolution: int = 8):
+    """
+    Processes and analyzes ownership data within an H3 grid. It adapts its
+    analysis based on the richness of the data available from the source.
+    """
+
+    def __init__(self, resolution: int):
         self.resolution = resolution
-        self.h3_ownership_data = {}
-        logger.info(f"GeoInferOwnership initialized with H3 resolution {resolution}")
-    
-    def analyze_hexagons(self, hexagon_list: List[str]) -> Dict[str, Dict]:
+        self.data_source = CascadianOwnershipDataSources()
+        logger.info(f"Initialized GeoInferOwnership with resolution {resolution}")
+
+    def _find_col(self, gdf: gpd.GeoDataFrame, potential_names: List[str]) -> str:
+        """Finds the first matching column name in the GeoDataFrame."""
+        for name in potential_names:
+            if name in gdf.columns:
+                return name
+        return None
+
+    def run_analysis(self, target_hexagons: List[str]) -> Dict[str, Dict[str, Any]]:
         """
-        Analyze agricultural land ownership for a list of H3 hexagons
+        Spatially joins parcel data with H3 hexagons and calculates ownership
+        metrics. The analysis is adapted based on available data columns.
+        """
+        logger.info(f"Starting ownership analysis for {len(target_hexagons)} hexagons.")
         
-        Args:
-            hexagon_list: List of H3 hexagon identifiers
+        # 1. Fetch parcel data from the ArcGIS service
+        parcels_gdf = self.data_source.fetch_all_parcel_data(target_hexagons)
+        if parcels_gdf.empty:
+            logger.warning("No parcel data found. Aborting ownership analysis.")
+            return {}
             
-        Returns:
-            Dictionary mapping hexagon IDs to ownership analysis results
-        """
-        results = {}
+        # 2. Dynamically identify relevant columns
+        owner_col = self._find_col(parcels_gdf, ['owner_name', 'OWNERNAME', 'OWNER', 'PAROWNER'])
+        # Common acreage column names, can be expanded
+        area_col = self._find_col(parcels_gdf, ['acreage', 'ACRES', 'GIS_ACRES', 'calca_gis'])
+
+        if not area_col:
+            # If no explicit area column, calculate it from the geometry
+            logger.info("No acreage column found, calculating area from geometry.")
+            # Project to an equal-area projection for accurate calculation (Albers for North America)
+            parcels_gdf['calculated_acres'] = parcels_gdf.to_crs('EPSG:3310').geometry.area * 0.000247105
+            area_col = 'calculated_acres'
         
-        # Process each hexagon
-        for hexagon in hexagon_list:
-            try:
-                # Get hexagon center coordinates
-                lat, lng = h3_to_geo(hexagon)
-                
-                # Generate fallback ownership data based on location
-                result = self._generate_fallback_ownership(lat, lng, hexagon)
-                results[hexagon] = result
-                
-            except Exception as e:
-                logger.warning(f"Error analyzing hexagon {hexagon}: {e}")
-                results[hexagon] = {
-                    'status': 'error',
-                    'error': str(e),
-                    'ownership_concentration': 0.0,
-                    'largest_owner_share': 0.0,
-                    'institutional_ownership_share': 0.0
-                }
+        logger.info(f"Using owner column: '{owner_col}' and area column: '{area_col}'")
+
+        # 3. Create a GeoDataFrame for the target hexagons
+        hex_geometries = [Polygon(h3_to_geo_boundary(h)) for h in target_hexagons]
+        hex_gdf = gpd.GeoDataFrame(
+            {'hex_id': target_hexagons}, 
+            geometry=hex_geometries, 
+            crs="EPSG:4326"
+        )
         
-        return results
-    
-    def _generate_fallback_ownership(self, lat: float, lng: float, hex_id: str) -> Dict[str, any]:
-        """
-        Generate fallback ownership data based on geographic location
+        # 4. Ensure CRS alignment
+        parcels_gdf = parcels_gdf.to_crs(hex_gdf.crs)
+
+        # 5. Perform the spatial join
+        logger.info("Performing spatial join between hexagons and parcel polygons...")
+        joined_gdf = gpd.sjoin(hex_gdf, parcels_gdf, how="inner", predicate="intersects")
         
-        Args:
-            lat: Latitude
-            lng: Longitude
-            hex_id: H3 hexagon ID
-            
-        Returns:
-            Ownership analysis result
-        """
-        # Determine state and region
-        state = 'CA' if lat < 42.0 else 'OR'
-        
-        # Geographic-based ownership patterns
-        if state == 'CA':
-            if lng < -122.0:  # Coastal California - more corporate farms
-                ownership_concentration = np.random.uniform(0.6, 0.9)
-                largest_owner_share = np.random.uniform(0.4, 0.8)
-                institutional_share = np.random.uniform(0.2, 0.6)
-                number_of_owners = np.random.randint(2, 8)
-            else:  # Inland California - mixed ownership
-                ownership_concentration = np.random.uniform(0.3, 0.7)
-                largest_owner_share = np.random.uniform(0.2, 0.5)
-                institutional_share = np.random.uniform(0.1, 0.4)
-                number_of_owners = np.random.randint(5, 15)
-        else:  # Oregon - more family farms
-            ownership_concentration = np.random.uniform(0.2, 0.5)
-            largest_owner_share = np.random.uniform(0.1, 0.4)
-            institutional_share = np.random.uniform(0.0, 0.3)
-            number_of_owners = np.random.randint(8, 20)
-        
-        return {
-            'status': 'success',
-            'hex_id': hex_id,
-            'latitude': lat,
-            'longitude': lng,
-            'state': state,
-            'ownership_concentration': ownership_concentration,
-            'largest_owner_share': largest_owner_share,
-            'institutional_ownership_share': institutional_share,
-            'number_of_owners': number_of_owners,
-            'average_parcel_size': np.random.uniform(10.0, 200.0),
-            'ownership_diversity': 1.0 - ownership_concentration,
-            'data_source': 'fallback'
-        }
-    
-    def analyze_ownership_concentration_h3(self, resolution: int = None) -> Dict[str, Dict]:
-        """
-        Calculate ownership concentration metrics at H3 level
-        
-        Returns:
-            H3-indexed ownership concentration data
-        """
-        if resolution is None:
-            resolution = self.resolution
-            
-        # Generate valid H3 hexagons for demonstration
-        # In production, this would use actual ownership data
+        if joined_gdf.empty:
+            logger.warning("Spatial join resulted in no matches between hexagons and parcel data.")
+            return {}
+
+        # 6. Aggregate results and calculate metrics based on available data
+        logger.info("Aggregating ownership results per hexagon...")
         h3_ownership = {}
-        
-        # Sample coordinates for the Cascadian region
-        sample_coordinates = [
-            (40.0, -122.0), (40.5, -121.5), (41.0, -123.0), (41.5, -122.5),
-            (42.0, -121.0), (42.5, -120.5), (43.0, -123.5), (43.5, -122.0),
-            (44.0, -121.5), (44.5, -123.0), (45.0, -122.5), (45.5, -121.0),
-        ]
-        
-        for lat, lon in sample_coordinates:
-            try:
-                hex_id = geo_to_h3(lat, lon, resolution)
-                h3_ownership[hex_id] = {
-                    'ownership_concentration': np.random.uniform(0.1, 0.9),
-                    'largest_owner_share': np.random.uniform(0.1, 0.6),
-                    'institutional_ownership_share': np.random.uniform(0.0, 0.4),
-                    'number_of_owners': np.random.randint(1, 20),
-                    'average_parcel_size': np.random.uniform(10.0, 200.0),
-                    'ownership_diversity': np.random.uniform(0.3, 0.9)
-                }
-            except Exception as e:
-                logger.warning(f"Could not generate H3 hexagon for {lat}, {lon}: {e}")
-                continue
-        
-        self.h3_ownership_data = h3_ownership
-        return h3_ownership
-    
-    def get_summary_statistics(self) -> Dict[str, any]:
-        """Get summary statistics for ownership analysis"""
-        return {
-            'module': 'GeoInferOwnership',
-            'h3_resolution': self.resolution,
-            'total_hexagons': len(self.h3_ownership_data)
-        } 
+        for hex_id, group in joined_gdf.groupby('hex_id'):
+            total_area_in_hex = group[area_col].sum()
+            num_parcels = len(group)
+            
+            hex_metrics = {
+                'number_of_parcels': num_parcels,
+                'average_parcel_size_acres': group[area_col].mean(),
+                'total_parcel_area_acres': total_area_in_hex
+            }
+
+            # Perform advanced analysis only if owner name is available
+            if owner_col and owner_col in group.columns:
+                # Group by owner and sum their area within the hex
+                owner_areas = group.groupby(owner_col)[area_col].sum()
+                
+                # HHI Calculation for ownership concentration
+                if total_area_in_hex > 0:
+                    owner_shares = (owner_areas / total_area_in_hex) * 100
+                    hhi = (owner_shares ** 2).sum()
+                    largest_owner_share = owner_shares.max()
+                else:
+                    hhi = 0
+                    largest_owner_share = 0
+
+                hex_metrics.update({
+                    'ownership_concentration_hhi': hhi,
+                    'largest_owner_share_pct': largest_owner_share,
+                    'number_of_unique_owners': len(owner_areas)
+                })
+            else:
+                logger.debug(f"No owner column found for hex {hex_id}, performing basic analysis.")
+                # Add placeholder values if no owner info is present
+                hex_metrics.update({
+                    'ownership_concentration_hhi': None,
+                    'largest_owner_share_pct': None,
+                    'number_of_unique_owners': None
+                })
+            
+            h3_ownership[hex_id] = hex_metrics
+
+        logger.info(f"Completed ownership analysis. Processed {len(h3_ownership)} hexagons.")
+        return h3_ownership 

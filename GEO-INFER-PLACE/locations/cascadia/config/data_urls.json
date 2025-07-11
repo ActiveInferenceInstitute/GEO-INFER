@@ -1,0 +1,45 @@
+{
+    "analysis_settings": {
+        "target_counties": {
+            "CA": ["all"],
+            "OR": ["all"],
+            "WA": ["all"]
+        },
+        "active_modules": [
+            "power_source"
+        ]
+    },
+    "zoning": {
+        "ca_fmmp": {
+            "base_url": "https://www.conservation.ca.gov/dlrp/fmmp/GIS-Data/{year}/{county}_{year}_shp.zip",
+            "latest_year": 2022
+        },
+        "or_dlcd_service_url": "https://maps.lcd.state.or.us/server/rest/services/LandUse/Statewide_Zoning/FeatureServer/0",
+        "wa_king_county_service_url": "https://gismaps.kingcounty.gov/arcgis/rest/services/Planning/KingCo_Zoning/MapServer/0"
+    },
+    "ownership": {
+        "ca_parcels_service_url": "https://egis.fire.ca.gov/arcgis/rest/services/FRAP/ownership/FeatureServer/0"
+    },
+    "surface_water": {
+        "nhd_flowlines_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6",
+        "nhd_waterbodies_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/12"
+    },
+    "current_use": {
+        "nass_cdl_api_url": "https://nassgeodata.gmu.edu/CropScape/nass_data_service.php",
+        "land_iq_api_url": "https://www.landiq.com/api/v1/parcels"
+    },
+    "ground_water": {
+        "nwis_url": "https://waterservices.usgs.gov/nwis/gwlevels/",
+        "parameter_cd": "72019"
+    },
+    "water_rights": {
+        "ca_ewrims_csv_url": "https://data.ca.gov/datastore/dump/e87a4933-2125-4676-928d-294b22c6b44a"
+    },
+    "mortgage_debt": {
+        "hmda_bulk_url": "https://s3.amazonaws.com/cfpb-hmda-public/prod/lar-data/{year}/{year}_public_lar_{state}.csv"
+    },
+    "power_source": {
+        "hifld_transmission_url": "https://maps.nccs.nasa.gov/mapping/rest/services/hifld_open/energy/MapServer/21",
+        "hifld_power_plants_url": "https://maps.nccs.nasa.gov/mapping/rest/services/hifld_open/energy/MapServer/1"
+    }
+} 

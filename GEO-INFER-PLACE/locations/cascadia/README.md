@@ -219,3 +219,17 @@ boundary = h3_to_geo_boundary(h3_index)
 ```
 
 All modules in this directory have been updated to use this utility for all H3 conversions. 
+
+## Troubleshooting H3 Installation
+
+If you see errors like `No h3_to_geo or cell_to_lat_lng in h3 module`, your h3-py installation may be broken or incompatible. Try:
+
+- Uninstalling and reinstalling h3:
+  ```bash
+  pip uninstall h3
+  pip install h3==3.7.6
+  # or, if you need v4+ compatibility:
+  pip install h3==4.0.0
+  ```
+- After reinstalling, rerun the analysis. The log will print the h3 version and available functions for debugging.
+- If you still see errors, check your Python environment and ensure no conflicting h3 packages are installed. 

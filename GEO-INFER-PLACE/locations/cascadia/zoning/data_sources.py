@@ -1,361 +1,165 @@
-#!/usr/bin/env python3
 """
-Data Sources for Agricultural Zoning Analysis
+Cascadian Zoning Data Sources
 
-This module provides data access functions for various agricultural zoning
-data sources including California FMMP and Oregon EFU data.
+This module is responsible for fetching and consolidating zoning data from
+various state and local sources for the Cascadian bioregion.
 """
-
 import logging
-import json
-import requests
-from typing import Dict, List, Optional, Any
-from datetime import datetime
-import time
-import geopandas as gpd
 import os
-from utils_h3 import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+import requests
+import zipfile
+from io import BytesIO
+import geopandas as gpd
+import pandas as pd
+from shapely.geometry import box, Polygon
+from typing import List, Tuple, Dict, Optional
+import json
+from datetime import datetime
+import glob
 
 logger = logging.getLogger(__name__)
 
-
 class CascadianZoningDataSources:
     """
-    Unified data sources for Cascadian agricultural zoning analysis
+    Handles fetching and loading of real zoning data from multiple sources,
+    including CA FMMP, Oregon's DLCD, and Washington county GIS services.
     """
-    
+
     def __init__(self):
-        """Initialize the zoning data sources"""
-        self.california_counties = [
-            'Butte', 'Colusa', 'Del Norte', 'Glenn', 'Humboldt', 
-            'Lake', 'Lassen', 'Mendocino', 'Modoc', 'Nevada', 
-            'Plumas', 'Shasta', 'Sierra', 'Siskiyou', 'Tehama', 'Trinity'
+        self.fmmp_data_path = os.path.join(os.path.dirname(__file__), '..', '..', '..', 'data', 'fmmp')
+        os.makedirs(self.fmmp_data_path, exist_ok=True)
+        
+        config_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'data_urls.json')
+        try:
+            with open(config_path) as f:
+                self.config = json.load(f)
+        except (FileNotFoundError, json.JSONDecodeError) as e:
+            logger.error(f"Could not load or parse config file at {config_path}: {e}")
+            self.config = {}
+
+        self.target_ca_counties = [
+            'Butte', 'Colusa', 'Del Norte', 'Glenn', 'Humboldt', 'Lake', 'Lassen', 
+            'Mendocino', 'Modoc', 'Nevada', 'Plumas', 'Shasta', 'Sierra', 
+            'Siskiyou', 'Tehama', 'Trinity'
         ]
-        self.oregon_counties = [
-            'Baker', 'Benton', 'Clackamas', 'Clatsop', 'Columbia', 'Coos', 
-            'Crook', 'Curry', 'Deschutes', 'Douglas', 'Gilliam', 'Grant', 
-            'Harney', 'Hood River', 'Jackson', 'Jefferson', 'Josephine', 
-            'Klamath', 'Lake', 'Lane', 'Lincoln', 'Linn', 'Malheur', 
-            'Marion', 'Morrow', 'Multnomah', 'Polk', 'Sherman', 'Tillamook', 
-            'Umatilla', 'Union', 'Wallowa', 'Wasco', 'Washington', 'Wheeler', 'Yamhill'
-        ]
-        logger.info("CascadianZoningDataSources initialized")
-    
-    def fetch_all_zoning_data(self) -> Dict[str, Any]:
-        """
-        Fetch all zoning data for the Cascadian bioregion
+
+        self.fmmp_base_url = self.config.get('zoning', {}).get('ca_fmmp', {}).get('base_url')
+        self.or_zoning_service_url = self.config.get('zoning', {}).get('or_dlcd_service_url')
+        self.wa_zoning_service_url = self.config.get('zoning', {}).get('wa_king_county_service_url')
+
+    def _query_arcgis_service(self, url: str, bbox: Tuple[float, float, float, float], source_name: str) -> gpd.GeoDataFrame:
+        """Generic function to query an ArcGIS Feature/MapServer for a given bounding box."""
+        # Correctly format the bounding box as a comma-separated string: xmin,ymin,xmax,ymax
+        bbox_str = f"{bbox[0]},{bbox[1]},{bbox[2]},{bbox[3]}"
         
-        Returns:
-            Comprehensive zoning data dictionary
-        """
-        return fetch_comprehensive_zoning_data(
-            self.california_counties, 
-            ['CA', 'OR']
-        )
-
-
-def fetch_fmmp_data(county: str, retry_count: int = 3) -> Optional[Dict[str, Any]]:
-    shapefile_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'fmmp', f"{county.lower()}_fmmp.shp")
-    shapefile_path = os.path.abspath(shapefile_path)
-    
-    if os.path.exists(shapefile_path):
-        try:
-            gdf = gpd.read_file(shapefile_path)
-            if 'COUNTY' in gdf.columns:
-                gdf = gdf[gdf['COUNTY'].str.lower() == county.lower()]
-            geojson = json.loads(gdf.to_json())
-            logger.info(f"Loaded {len(geojson.get('features', []))} FMMP features for {county} from local shapefile.")
-            return geojson
-        except Exception as e:
-            logger.error(f"Error loading local FMMP shapefile for {county}: {e}")
-    
-    # Fetch from API if local file missing or failed
-    logger.info(f"Local shapefile not found or failed. Fetching FMMP data for {county} from API.")
-    url = "https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_mostrecent/FeatureServer/0/query"
-    params = {
-        'where': f"COUNTY = '{county.upper()}'",
-        'outFields': '*',
-        'f': 'geojson',
-        'returnGeometry': 'true'
-    }
-    for attempt in range(retry_count):
-        try:
-            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-            response = requests.get(url, params=params, timeout=30, headers=headers)
-            response.raise_for_status()
-            geojson = response.json()
-            if 'features' in geojson:
-                logger.info(f"Fetched {len(geojson['features'])} FMMP features for {county} from API.")
-                return geojson
-            else:
-                logger.warning(f"No features returned for {county}")
-        except Exception as e:
-            logger.warning(f"Attempt {attempt+1} failed to fetch FMMP data for {county}: {e}")
-            time.sleep(2 ** attempt)  # Exponential backoff
-    logger.error(f"Failed to fetch FMMP data for {county} after {retry_count} attempts.")
-    return None
-
-
-def fetch_oregon_efu_data(county: str, retry_count: int = 3) -> Optional[Dict[str, Any]]:
-    """
-    Fetch Oregon zoning data for the specified county
-    
-    Args:
-        county: County name
-        retry_count: Number of retry attempts
-        
-    Returns:
-        Oregon zoning data or None if fetch fails
-    """
-    logger.info(f"Fetching Oregon zoning data for {county}")
-    
-    shapefile_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'oregon_zoning', f"{county.lower()}_zoning.shp")
-    shapefile_path = os.path.abspath(shapefile_path)
-    
-    if os.path.exists(shapefile_path):
-        try:
-            gdf = gpd.read_file(shapefile_path)
-            geojson = json.loads(gdf.to_json())
-            logger.info(f"Loaded {len(geojson.get('features', []))} zoning features for {county} from local shapefile.")
-            return geojson
-        except Exception as e:
-            logger.error(f"Error loading local zoning shapefile for {county}: {e}")
-    
-    # Fetch from API if local file missing or failed
-    logger.info(f"Local shapefile not found or failed. Fetching zoning data for {county} from DLCD API.")
-    url = "https://services.arcgis.com/uUvJ8eSSKhJ30d6A/arcgis/rest/services/Statewide_Zoning_2023/FeatureServer/0/query"
-    params = {
-        'where': f"COUNTY = '{county.upper()}'",
-        'outFields': '*',
-        'f': 'geojson',
-        'returnGeometry': 'true'
-    }
-    for attempt in range(retry_count):
-        try:
-            headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
-            response = requests.get(url, params=params, timeout=30, headers=headers)
-            response.raise_for_status()
-            geojson = response.json()
-            if 'features' in geojson:
-                # Optionally filter for EFU or agricultural zones
-                features = [f for f in geojson['features'] if f['properties'].get('Zoning_Code') in ['EFU', 'AF-20', 'other_ag_codes']]  # Adjust based on actual codes
-                geojson['features'] = features
-                logger.info(f"Fetched {len(features)} zoning features for {county} from API.")
-                return geojson
-            else:
-                logger.warning(f"No features returned for {county}")
-        except Exception as e:
-            logger.warning(f"Attempt {attempt+1} failed to fetch zoning data for {county}: {e}")
-            time.sleep(2 ** attempt)  # Exponential backoff
-    logger.error(f"Failed to fetch zoning data for {county} after {retry_count} attempts.")
-    return None
-
-
-def fetch_alternative_zoning_data(county: str, state: str) -> Optional[Dict[str, Any]]:
-    """
-    Fetch alternative zoning data sources when primary sources fail
-    
-    Args:
-        county: County name
-        state: State abbreviation (CA or OR)
-        
-    Returns:
-        Alternative zoning data or None
-    """
-    logger.info(f"Fetching alternative zoning data for {county}, {state}")
-    
-    # This would implement fallback data sources such as:
-    # - USDA NASS data
-    # - Commercial parcel data
-    # - County GIS services
-    # - Open data portals
-    
-    try:
-        # Placeholder for alternative data sources
-        alternative_data = {
-            'type': 'FeatureCollection',
-            'features': [],
-            'metadata': {
-                'source': 'Alternative data sources',
-                'description': f'Alternative zoning data for {county}, {state}',
-                'timestamp': datetime.now().isoformat(),
-                'confidence': 0.6
-            }
+        params = {
+            'where': '1=1',
+            'geometry': bbox_str,
+            'geometryType': 'esriGeometryEnvelope',
+            'inSR': '4326',
+            'spatialRel': 'esriSpatialRelIntersects',
+            'outFields': '*',
+            'returnGeometry': 'true',
+            'outSR': '4326',
+            'f': 'geojson'
         }
-        
-        return alternative_data
-        
-    except Exception as e:
-        logger.error(f"Error fetching alternative zoning data: {e}")
-        return None
+        logger.info(f"Querying {source_name} ArcGIS service at {url} with bbox: {bbox_str}")
+        try:
+            response = requests.get(url + "/query", params=params, timeout=180)
+            response.raise_for_status()
+            data = response.json()
+            if data.get('features'):
+                gdf = gpd.GeoDataFrame.from_features(data['features'], crs="EPSG:4326")
+                logger.info(f"Successfully fetched {len(gdf)} features from {source_name}.")
+                gdf['source'] = source_name
+                return gdf
+            else:
+                logger.info(f"No features found for the given extent in {source_name}.")
+                return gpd.GeoDataFrame()
+        except requests.exceptions.RequestException as e:
+            logger.error(f"Failed to query {source_name} ArcGIS service: {e}", exc_info=True)
+        except (KeyError, ValueError) as e:
+            logger.error(f"Failed to parse GeoJSON from {source_name}: {e}", exc_info=True)
+        return gpd.GeoDataFrame()
 
+    def fetch_ca_fmmp_data(self) -> gpd.GeoDataFrame:
+        """
+        Loads all available California FMMP county shapefiles from the local data directory
+        and concatenates them. Assumes data has been manually downloaded as per README.
+        """
+        all_gdfs = []
+        logger.info(f"Loading local CA FMMP shapefiles from {self.fmmp_data_path}...")
 
-def validate_zoning_data(data: Dict[str, Any]) -> bool:
-    """
-    Validate zoning data structure and content
-    
-    Args:
-        data: Zoning data to validate
+        # Search for shapefiles in subdirectories, e.g., .../data/fmmp/Butte/Butte.shp
+        shapefiles = glob.glob(os.path.join(self.fmmp_data_path, '**', '*.shp'), recursive=True)
+
+        if not shapefiles:
+            logger.warning(f"No FMMP shapefiles found in {self.fmmp_data_path} or its subdirectories. Please ensure data is downloaded manually as per the README.")
+            return gpd.GeoDataFrame()
+
+        for shp_file in shapefiles:
+            try:
+                # Extract county name from the path, assuming path is like '.../fmmp/Butte/Butte.shp'
+                county = os.path.basename(os.path.dirname(shp_file))
+                
+                gdf = gpd.read_file(shp_file)
+                gdf['county'] = county
+                gdf['source'] = 'CA_FMMP'
+                all_gdfs.append(gdf)
+                logger.info(f"Loaded {county} FMMP data from {shp_file}.")
+            except Exception as e:
+                logger.error(f"Failed to read shapefile {shp_file}: {e}")
         
-    Returns:
-        True if data is valid, False otherwise
-    """
-    try:
-        # Check basic structure
-        if not isinstance(data, dict):
-            return False
+        if not all_gdfs:
+            logger.warning("No California FMMP data could be loaded successfully.")
+            return gpd.GeoDataFrame()
+
+        return pd.concat(all_gdfs, ignore_index=True)
+
+    def fetch_all_zoning_data(self, target_hexagons: List[str]) -> gpd.GeoDataFrame:
+        """
+        Fetches all available real zoning data for the bioregion.
+        """
+        from utils_h3 import h3_to_geo_boundary
+
+        if not target_hexagons:
+            logger.error("Cannot fetch zoning data without target hexagons for bounding box.")
+            return gpd.GeoDataFrame()
+
+        hex_boundaries = [Polygon([(lon, lat) for lat, lon in h3_to_geo_boundary(h)]) for h in target_hexagons]
+        min_lon = min(p.bounds[0] for p in hex_boundaries)
+        min_lat = min(p.bounds[1] for p in hex_boundaries)
+        max_lon = max(p.bounds[2] for p in hex_boundaries)
+        max_lat = max(p.bounds[3] for p in hex_boundaries)
+        bbox = (min_lon, min_lat, max_lon, max_lat)
+
+        ca_gdf = self.fetch_ca_fmmp_data()
+        or_gdf = self._query_arcgis_service(self.or_zoning_service_url, bbox, "OR_DLCD")
+        wa_gdf = self._query_arcgis_service(self.wa_zoning_service_url, bbox, "WA_King_County")
+
+        all_gdfs = []
+        for gdf in [ca_gdf, or_gdf, wa_gdf]:
+            if not gdf.empty:
+                # Ensure CRS is consistent before adding
+                all_gdfs.append(gdf.to_crs("EPSG:4326"))
+
+        if not all_gdfs:
+            logger.warning("No zoning data could be loaded for any jurisdiction.")
+            return gpd.GeoDataFrame()
         
-        # Check for required fields
-        required_fields = ['type']
-        for field in required_fields:
-            if field not in data:
-                logger.warning(f"Missing required field: {field}")
-                return False
-        
-        # Check if it's a valid GeoJSON-like structure
-        if data.get('type') == 'FeatureCollection':
-            if 'features' not in data:
-                logger.warning("FeatureCollection missing 'features' field")
-                return False
+        # Clip the large California dataset to the bbox for performance
+        final_gdfs = []
+        for gdf in all_gdfs:
+            if gdf['source'].iloc[0] == 'CA_FMMP':
+                 # Use a small buffer to avoid clipping edges
+                clipped_gdf = gpd.clip(gdf, box(bbox[0]-0.1, bbox[1]-0.1, bbox[2]+0.1, bbox[3]+0.1))
+                if not clipped_gdf.empty:
+                    final_gdfs.append(clipped_gdf)
+            else:
+                final_gdfs.append(gdf)
+
+        if not final_gdfs:
+            logger.warning("All zoning data was outside the target bounding box.")
+            return gpd.GeoDataFrame()
             
-            if not isinstance(data['features'], list):
-                logger.warning("'features' field is not a list")
-                return False
-        
-        return True
-        
-    except Exception as e:
-        logger.error(f"Error validating zoning data: {e}")
-        return False
-
-
-def generate_fallback_zoning_data(lat: float, lng: float) -> Dict[str, Any]:
-    """
-    Generate fallback zoning data based on geographic location
-    
-    Args:
-        lat: Latitude
-        lng: Longitude
-        
-    Returns:
-        Fallback zoning data
-    """
-    # Determine probable zoning based on geographic patterns
-    if lat < 42.0:  # California
-        if lng < -122.0:  # Coastal
-            zone_type = 'rural'
-            farmland_class = 'Grazing Land'
-            protection_level = 0.4
-        else:  # Interior
-            zone_type = 'agricultural'
-            farmland_class = 'Prime Farmland'
-            protection_level = 0.8
-    else:  # Oregon
-        if lng < -120.0:  # Western Oregon
-            zone_type = 'exclusive_farm_use'
-            farmland_class = 'High Value Farmland'
-            protection_level = 0.7
-        else:  # Eastern Oregon
-            zone_type = 'rural'
-            farmland_class = 'Grazing Land'
-            protection_level = 0.5
-    
-    return {
-        'type': 'Feature',
-        'geometry': {
-            'type': 'Point',
-            'coordinates': [lng, lat]
-        },
-        'properties': {
-            'zone_type': zone_type,
-            'farmland_class': farmland_class,
-            'protection_level': protection_level,
-            'data_source': 'fallback',
-            'confidence': 0.5,
-            'timestamp': datetime.now().isoformat()
-        }
-    }
-
-
-def fetch_comprehensive_zoning_data(counties: List[str], states: List[str]) -> Dict[str, Any]:
-    """
-    Fetch comprehensive zoning data from multiple sources
-    
-    Args:
-        counties: List of counties to fetch data for
-        states: List of states to fetch data for
-        
-    Returns:
-        Comprehensive zoning data
-    """
-    comprehensive_data = {
-        'california_data': {},
-        'oregon_data': {},
-        'alternative_data': {},
-        'metadata': {
-            'fetch_timestamp': datetime.now().isoformat(),
-            'sources_attempted': [],
-            'sources_successful': [],
-            'data_quality_score': 0.0
-        }
-    }
-    
-    # Define county lists
-    california_counties = [
-        'Butte', 'Colusa', 'Del Norte', 'Glenn', 'Humboldt', 
-        'Lake', 'Lassen', 'Mendocino', 'Modoc', 'Nevada', 
-        'Plumas', 'Shasta', 'Sierra', 'Siskiyou', 'Tehama', 'Trinity'
-    ]
-    oregon_counties = [
-        'Baker', 'Benton', 'Clackamas', 'Clatsop', 'Columbia', 'Coos', 
-        'Crook', 'Curry', 'Deschutes', 'Douglas', 'Gilliam', 'Grant', 
-        'Harney', 'Hood River', 'Jackson', 'Jefferson', 'Josephine', 
-        'Klamath', 'Lake', 'Lane', 'Lincoln', 'Linn', 'Malheur', 
-        'Marion', 'Morrow', 'Multnomah', 'Polk', 'Sherman', 'Tillamook', 
-        'Umatilla', 'Union', 'Wallowa', 'Wasco', 'Washington', 'Wheeler', 'Yamhill'
-    ]
-    
-    # Fetch California data
-    ca_counties = [c for c in counties if c in california_counties and 'CA' in states]
-    successful_ca_fetches = 0
-    for county in ca_counties:
-        comprehensive_data['metadata']['sources_attempted'].append(f"FMMP_{county}")
-        
-        fmmp_data = fetch_fmmp_data(county)
-        if fmmp_data:
-            comprehensive_data['california_data'][county] = fmmp_data
-            comprehensive_data['metadata']['sources_successful'].append(f"FMMP_{county}")
-            successful_ca_fetches += 1
-        else:
-            # Try alternative sources
-            alt_data = fetch_alternative_zoning_data(county, 'CA')
-            if alt_data:
-                comprehensive_data['alternative_data'][f"{county}_CA"] = alt_data
-                comprehensive_data['metadata']['sources_successful'].append(f"Alternative_{county}_CA")
-    
-    # Fetch Oregon data
-    or_counties = [c for c in counties if c in oregon_counties and 'OR' in states]
-    for county in or_counties:
-        comprehensive_data['metadata']['sources_attempted'].append(f"Oregon_Zoning_{county}")
-        
-        oregon_data = fetch_oregon_efu_data(county)
-        if oregon_data:
-            comprehensive_data['oregon_data'][county] = oregon_data
-            comprehensive_data['metadata']['sources_successful'].append(f"Oregon_Zoning_{county}")
-        else:
-            # Try alternative sources
-            alt_data = fetch_alternative_zoning_data(county, 'OR')
-            if alt_data:
-                comprehensive_data['alternative_data'][f"{county}_OR"] = alt_data
-                comprehensive_data['metadata']['sources_successful'].append(f"Alternative_{county}_OR")
-    
-    # Calculate data quality score
-    attempted_sources = len(comprehensive_data['metadata']['sources_attempted'])
-    successful_sources = len(comprehensive_data['metadata']['sources_successful'])
-    
-    if attempted_sources > 0:
-        comprehensive_data['metadata']['data_quality_score'] = successful_sources / attempted_sources
-    
-    logger.info(f"Comprehensive zoning data fetch completed: {successful_sources}/{attempted_sources} sources successful")
-    
-    return comprehensive_data 
+        return pd.concat(final_gdfs, ignore_index=True) 

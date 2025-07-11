@@ -1,7 +1,8 @@
 """
-Cascadian Mortgage Debt Module
+Cascadian Agricultural Mortgage & Debt Module
 
-Agricultural mortgage debt and financial indicator analysis.
+Provides analysis of agricultural mortgage and debt levels, including
+loan-to-value ratios and total debt estimation per land parcel.
 """
 
 from .geo_infer_mortgage_debt import GeoInferMortgageDebt

@@ -1,399 +1,183 @@
-#!/usr/bin/env python3
 """
-Agricultural Zoning Analysis Module
+GeoInfer Zoning Module
 
-This module analyzes agricultural zoning data across the Cascadian bioregion,
-integrating California FMMP data and Oregon EFU data with H3 spatial indexing.
+This module performs H3-based analysis of agricultural zoning data by
+intelligently classifying and standardizing data from multiple state sources.
 """
-
 import logging
-import json
-import requests
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Any
 import geopandas as gpd
-from shapely.geometry import Point, Polygon
-import pandas as pd
-from datetime import datetime
+from shapely.geometry import Polygon
+import pandas as pd # Added missing import for pandas
 
-# Import data sources
-from . import data_sources
-from utils_h3 import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+from .data_sources import CascadianZoningDataSources
+from utils_h3 import h3_to_geo_boundary
 
 logger = logging.getLogger(__name__)
 
-
 class GeoInferZoning:
     """
-    Agricultural zoning analysis with H3 spatial indexing for the Cascadian bioregion
+    Processes and analyzes multi-source agricultural zoning data, standardizing
+    classifications and assessing redevelopment potential.
     """
-    
-    def __init__(self, resolution: int = 8):
-        """
-        Initialize the zoning analysis module
-        
-        Args:
-            resolution: H3 resolution level for spatial indexing
-        """
+
+    def __init__(self, resolution: int):
         self.resolution = resolution
-        self.ca_counties = [
-            'Butte', 'Colusa', 'Del Norte', 'Glenn', 'Humboldt', 
-            'Lake', 'Lassen', 'Mendocino', 'Modoc', 'Nevada', 
-            'Plumas', 'Shasta', 'Sierra', 'Siskiyou', 'Tehama', 'Trinity'
-        ]
-        self.zoning_data = {}
+        self.data_source = CascadianZoningDataSources()
+        # Define a standardized internal schema for agricultural zoning
+        self.ZONING_SCHEMA = {
+            'PRIME_AG': 'Prime Agricultural Land',
+            'IMPORTANT_AG': 'Farmland of Statewide or Local Importance',
+            'GRAZING': 'Grazing Land',
+            'RURAL_RESIDENTIAL': 'Rural Residential',
+            'MIXED_FARM_FOREST': 'Mixed Farm and Forest Land',
+            'URBAN': 'Urban or Built-up Land',
+            'OTHER': 'Other Land'
+        }
+        logger.info(f"Initialized GeoInferZoning with resolution {self.resolution}")
+
+    def _find_col(self, df, potential_names):
+        """Finds the first matching column name from a list of potential names."""
+        for name in potential_names:
+            if name in df.columns and not df[name].isnull().all():
+                return name
+        return None
+
+    def _classify_ca_fmmp(self, row: pd.Series, class_col: str) -> str:
+        """Classifies a row of California FMMP data into the standard schema."""
+        val = row[class_col].lower()
+        if 'prime farmland' in val:
+            return 'PRIME_AG'
+        if 'farmland of statewide importance' in val or 'farmland of local importance' in val:
+            return 'IMPORTANT_AG'
+        if 'unique farmland' in val:
+            return 'IMPORTANT_AG'
+        if 'grazing land' in val:
+            return 'GRAZING'
+        if 'urban and built-up land' in val:
+            return 'URBAN'
+        return 'OTHER'
+
+    def _classify_or_dlcd(self, row: pd.Series, class_col: str) -> str:
+        """Classifies a row of Oregon DLCD data into the standard schema."""
+        val = str(row[class_col]).upper()
+        # Exclusive Farm Use (EFU) is a common prime ag designation in Oregon
+        if 'EFU' in val or 'EXCLUSIVE FARM USE' in val:
+            return 'PRIME_AG'
+        if 'FARM' in val or 'AGRICULTURE' in val:
+            return 'IMPORTANT_AG'
+        if 'FOREST' in val and 'FARM' in val:
+            return 'MIXED_FARM_FOREST'
+        if 'RURAL RESIDENTIAL' in val or val.startswith('RR'):
+            return 'RURAL_RESIDENTIAL'
+        return 'OTHER'
+
+    def _classify_wa_king(self, row: pd.Series, class_col: str) -> str:
+        """Classifies a row of Washington King County data into the standard schema."""
+        val = str(row[class_col]).upper()
+        # King County uses 'A' for agricultural zones
+        if val.startswith('A-'):
+            return 'IMPORTANT_AG'
+        if val.startswith('RA-'): # Rural Area
+            return 'RURAL_RESIDENTIAL'
+        if val.startswith('F'): # Forest
+            return 'MIXED_FARM_FOREST'
+        if val in ['UR', 'R-']: # Urban Residential
+            return 'URBAN'
+        return 'OTHER'
+
+    def _classify_zoning(self, gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
+        """Applies the correct classification function based on the data source."""
+        if gdf.empty:
+            return gdf
+
+        source = gdf['source'].iloc[0]
+        logger.info(f"Classifying data from source: {source}")
+
+        if source == 'CA_FMMP':
+            class_col = self._find_col(gdf, ['CI_CLASSNM', 'CLASS1_LBL'])
+            classifier = self._classify_ca_fmmp
+        elif source == 'OR_DLCD':
+            class_col = self._find_col(gdf, ['ZONE_CLASS', 'ZONE_CODE', 'ALT_ZONE'])
+            classifier = self._classify_or_dlcd
+        elif source == 'WA_King_County':
+            class_col = self._find_col(gdf, ['CURRZONE', 'ZONING_SUM'])
+            classifier = self._classify_wa_king
+        else:
+            logger.warning(f"No classifier found for unknown source: {source}")
+            gdf['standard_zone'] = 'OTHER'
+            return gdf
+
+        if not class_col:
+            logger.error(f"No classification column found for source: {source}. Marking as OTHER.")
+            gdf['standard_zone'] = 'OTHER'
+        else:
+            logger.info(f"Using column '{class_col}' for {source} classification.")
+            gdf['standard_zone'] = gdf.apply(classifier, axis=1, class_col=class_col)
         
-        logger.info(f"GeoInferZoning initialized with H3 resolution {resolution}")
-    
-    def analyze_hexagons(self, hexagon_list: List[str]) -> Dict[str, Any]:
+        return gdf
+
+    def _assess_redevelopment_potential(self, std_zone: str) -> float:
+        """Calculates a redevelopment potential score based on the standard zone."""
+        potential_map = {
+            'PRIME_AG': 0.1,
+            'IMPORTANT_AG': 0.3,
+            'GRAZING': 0.5,
+            'MIXED_FARM_FOREST': 0.4,
+            'RURAL_RESIDENTIAL': 0.8,
+            'URBAN': 0.9,
+            'OTHER': 0.2
+        }
+        return potential_map.get(std_zone, 0.2)
+
+    def run_analysis(self, target_hexagons: List[str]) -> Dict[str, Dict[str, Any]]:
         """
-        Analyze agricultural zoning for a list of H3 hexagons
-        
-        Args:
-            hexagon_list: List of H3 hexagon identifiers
-            
-        Returns:
-            Dictionary mapping hexagon IDs to zoning analysis results
+        Performs a comprehensive, multi-source zoning analysis.
         """
-        results = {}
+        logger.info(f"Starting zoning analysis for {len(target_hexagons)} hexagons.")
         
-        # Fetch comprehensive zoning data
-        zoning_data = self.fetch_comprehensive_zoning_data()
+        zoning_gdf = self.data_source.fetch_all_zoning_data(target_hexagons)
+        if zoning_gdf.empty:
+            logger.warning("No zoning polygons found. Aborting analysis.")
+            return {hex_id: {'error': 'No zoning data available.'} for hex_id in target_hexagons}
+
+        classified_gdfs = [self._classify_zoning(group) for _, group in zoning_gdf.groupby('source')]
+        classified_gdf = pd.concat(classified_gdfs, ignore_index=True)
         
-        # Process each hexagon
-        for hexagon in hexagon_list:
-            try:
-                # Get hexagon center coordinates
-                lat, lng = h3_to_geo(hexagon)
+        hex_gdf = gpd.GeoDataFrame(
+            {'hex_id': target_hexagons}, 
+            geometry=[Polygon(h3_to_geo_boundary(h)) for h in target_hexagons], 
+            crs="EPSG:4326"
+        )
+        
+        classified_gdf = classified_gdf.to_crs(hex_gdf.crs)
+        logger.info("Performing spatial join...")
+        joined_gdf = gpd.sjoin(hex_gdf, classified_gdf, how="inner", predicate="intersects")
+        
+        h3_results = {}
+        if joined_gdf.empty:
+            logger.info("No zoning polygons intersect the target hexagons.")
+        else:
+            for hex_id, group in joined_gdf.groupby('hex_id'):
+                unique_zones = list(group['standard_zone'].unique())
+                redevelopment_scores = [self._assess_redevelopment_potential(zone) for zone in unique_zones]
                 
-                # Analyze zoning for this location
-                zoning_result = self._analyze_single_location(lat, lng, zoning_data)
-                results[hexagon] = zoning_result
-                
-            except Exception as e:
-                logger.warning(f"Error analyzing hexagon {hexagon}: {e}")
-                results[hexagon] = {
-                    'status': 'error',
-                    'error': str(e),
-                    'zone_type': 'unknown',
-                    'agricultural_suitability': 0.0,
-                    'protection_level': 0.0
+                h3_results[hex_id] = {
+                    'zoning_classes': unique_zones,
+                    'is_ag_zone': any(zone in ['PRIME_AG', 'IMPORTANT_AG'] for zone in unique_zones),
+                    'avg_redevelopment_potential': sum(redevelopment_scores) / len(redevelopment_scores) if redevelopment_scores else 0.0,
+                    'data_sources': list(group['source'].unique())
+                }
+
+        # Ensure all requested hexagons get a result, even if empty
+        for hex_id in target_hexagons:
+            if hex_id not in h3_results:
+                h3_results[hex_id] = {
+                    'zoning_classes': [],
+                    'is_ag_zone': False,
+                    'avg_redevelopment_potential': 0.0,
+                    'data_sources': []
                 }
         
-        return results
-    
-    def fetch_comprehensive_zoning_data(self) -> Dict[str, Any]:
-        """
-        Fetch comprehensive zoning data from all sources
-        
-        Returns:
-            Dictionary containing all zoning data
-        """
-        comprehensive_data = {
-            'california_fmmp': {},
-            'oregon_efu': {},
-            'fallback_data': {}
-        }
-        
-        # Fetch California FMMP data
-        for county in self.ca_counties:
-            try:
-                fmmp_data = data_sources.fetch_fmmp_data(county)
-                if fmmp_data:
-                    comprehensive_data['california_fmmp'][county] = fmmp_data
-                else:
-                    logger.warning(f"No FMMP data retrieved for {county}")
-            except Exception as e:
-                logger.warning(f"Could not fetch FMMP data for {county}: {e}")
-        
-        # Fetch Oregon EFU data
-        try:
-            efu_data = data_sources.fetch_oregon_efu_data()
-            if efu_data:
-                comprehensive_data['oregon_efu'] = efu_data
-            else:
-                logger.warning("No Oregon EFU data retrieved")
-        except Exception as e:
-            logger.warning(f"Could not fetch Oregon EFU data: {e}")
-        
-        # Generate fallback data if needed
-        if not comprehensive_data['california_fmmp'] and not comprehensive_data['oregon_efu']:
-            logger.info("Generating fallback zoning data")
-            comprehensive_data['fallback_data'] = self._generate_fallback_zoning_data()
-        
-        return comprehensive_data
-    
-    def _analyze_single_location(self, lat: float, lng: float, zoning_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Analyze zoning for a single location
-        
-        Args:
-            lat: Latitude
-            lng: Longitude
-            zoning_data: Comprehensive zoning data
-            
-        Returns:
-            Zoning analysis result
-        """
-        # Determine state based on latitude
-        state = 'CA' if lat < 42.0 else 'OR'
-        
-        # Initialize result
-        result = {
-            'status': 'success',
-            'latitude': lat,
-            'longitude': lng,
-            'state': state,
-            'zone_type': 'unknown',
-            'agricultural_suitability': 0.0,
-            'protection_level': 0.0,
-            'data_source': 'fallback'
-        }
-        
-        if state == 'CA':
-            # Look up California FMMP data
-            result.update(self._analyze_california_location(lat, lng, zoning_data['california_fmmp']))
-        else:
-            # Look up Oregon EFU data
-            result.update(self._analyze_oregon_location(lat, lng, zoning_data['oregon_efu']))
-        
-        # Apply fallback logic if no data found
-        if result['zone_type'] == 'unknown':
-            result.update(self._apply_fallback_zoning(lat, lng, zoning_data['fallback_data']))
-        
-        return result
-    
-    def _analyze_california_location(self, lat: float, lng: float, ca_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Analyze California location using FMMP data
-        
-        Args:
-            lat: Latitude
-            lng: Longitude
-            ca_data: California FMMP data
-            
-        Returns:
-            California-specific zoning analysis
-        """
-        # Determine county (simplified logic)
-        county = self._determine_california_county(lat, lng)
-        
-        if county in ca_data and ca_data[county]:
-            # In a real implementation, this would do spatial intersection
-            # For now, provide intelligent fallback based on county
-            return {
-                'zone_type': 'agricultural',
-                'agricultural_suitability': 0.8,
-                'protection_level': 0.7,
-                'data_source': 'fmmp',
-                'county': county,
-                'farmland_class': 'Prime Farmland'
-            }
-        else:
-            return {
-                'zone_type': 'rural',
-                'agricultural_suitability': 0.6,
-                'protection_level': 0.5,
-                'data_source': 'estimated',
-                'county': county
-            }
-    
-    def _analyze_oregon_location(self, lat: float, lng: float, or_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Analyze Oregon location using EFU data
-        
-        Args:
-            lat: Latitude
-            lng: Longitude
-            or_data: Oregon EFU data
-            
-        Returns:
-            Oregon-specific zoning analysis
-        """
-        county = self._determine_oregon_county(lat, lng)
-        
-        if or_data:
-            # In a real implementation, this would do spatial intersection
-            return {
-                'zone_type': 'exclusive_farm_use',
-                'agricultural_suitability': 0.9,
-                'protection_level': 0.8,
-                'data_source': 'efu',
-                'county': county,
-                'efu_classification': 'High Value Farmland'
-            }
-        else:
-            return {
-                'zone_type': 'rural',
-                'agricultural_suitability': 0.7,
-                'protection_level': 0.6,
-                'data_source': 'estimated',
-                'county': county
-            }
-    
-    def _determine_california_county(self, lat: float, lng: float) -> str:
-        """
-        Determine California county based on coordinates (simplified)
-        
-        Args:
-            lat: Latitude
-            lng: Longitude
-            
-        Returns:
-            County name
-        """
-        # Simplified county determination
-        if lat > 41.5:
-            return 'Siskiyou'
-        elif lat > 41.0:
-            return 'Shasta'
-        elif lat > 40.5:
-            return 'Tehama'
-        elif lat > 40.0:
-            return 'Butte'
-        elif lng < -122.0:
-            return 'Humboldt'
-        elif lng < -121.0:
-            return 'Glenn'
-        else:
-            return 'Lassen'
-    
-    def _determine_oregon_county(self, lat: float, lng: float) -> str:
-        """
-        Determine Oregon county based on coordinates (simplified)
-        
-        Args:
-            lat: Latitude
-            lng: Longitude
-            
-        Returns:
-            County name
-        """
-        # Simplified county determination
-        if lat > 45.0:
-            return 'Columbia'
-        elif lat > 44.0:
-            return 'Marion'
-        elif lat > 43.0:
-            return 'Lane'
-        else:
-            return 'Jackson'
-    
-    def _generate_fallback_zoning_data(self) -> Dict[str, Any]:
-        """
-        Generate fallback zoning data when primary sources fail
-        
-        Returns:
-            Fallback zoning data
-        """
-        return {
-            'type': 'fallback',
-            'description': 'Generated fallback zoning data',
-            'coverage': 'Cascadian bioregion',
-            'methodology': 'Distance-based interpolation from known agricultural areas',
-            'confidence': 0.5,
-            'timestamp': datetime.now().isoformat()
-        }
-    
-    def _apply_fallback_zoning(self, lat: float, lng: float, fallback_data: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Apply fallback zoning logic
-        
-        Args:
-            lat: Latitude
-            lng: Longitude
-            fallback_data: Fallback zoning data
-            
-        Returns:
-            Fallback zoning analysis
-        """
-        # Simple logic based on geographic patterns
-        if lat > 44.0:  # Northern Oregon
-            zone_type = 'rural'
-            ag_suitability = 0.6
-            protection = 0.4
-        elif lat > 42.0:  # Southern Oregon
-            zone_type = 'exclusive_farm_use'
-            ag_suitability = 0.8
-            protection = 0.7
-        elif lng < -122.0:  # Coastal areas
-            zone_type = 'rural'
-            ag_suitability = 0.5
-            protection = 0.6
-        else:  # Interior Northern California
-            zone_type = 'agricultural'
-            ag_suitability = 0.7
-            protection = 0.6
-        
-        return {
-            'zone_type': zone_type,
-            'agricultural_suitability': ag_suitability,
-            'protection_level': protection,
-            'data_source': 'fallback',
-            'confidence': 0.5
-        }
-    
-    def integrate_h3_indexing(self, zoning_data: Dict[str, Any], resolution: int) -> Dict[str, Any]:
-        """
-        Integrate H3 spatial indexing with zoning data
-        
-        Args:
-            zoning_data: Zoning data to index
-            resolution: H3 resolution level
-            
-        Returns:
-            H3-indexed zoning data
-        """
-        h3_indexed_data = {}
-        
-        # This is a simplified implementation
-        # In production, this would process actual spatial data
-        logger.info(f"Converting {len(zoning_data)} polygons to H3 resolution {resolution}")
-        
-        # Create sample H3 cells for the region
-        sample_hexagons = self._create_sample_hexagons()
-        
-        for hexagon in sample_hexagons:
-            try:
-                lat, lng = h3_to_geo(hexagon)
-                zoning_result = self._analyze_single_location(lat, lng, zoning_data)
-                h3_indexed_data[hexagon] = zoning_result
-            except Exception as e:
-                logger.warning(f"Error indexing hexagon {hexagon}: {e}")
-        
-        logger.info(f"Created H3 index for {len(h3_indexed_data)} hexagons")
-        return h3_indexed_data
-    
-    def _create_sample_hexagons(self) -> List[str]:
-        """
-        Create sample H3 hexagons for the region
-        
-        Returns:
-            List of H3 hexagon identifiers
-        """
-        hexagons = []
-        
-        # Generate hexagons across the Cascadian bioregion
-        for lat in range(39, 46):
-            for lng in range(-125, -116):
-                try:
-                    hexagon = geo_to_h3(lat, lng, self.resolution)
-                    hexagons.append(hexagon)
-                except Exception as e:
-                    logger.warning(f"Could not create hexagon for {lat}, {lng}: {e}")
-        
-        return list(set(hexagons))  # Remove duplicates
-    
-    def get_summary_statistics(self) -> Dict[str, Any]:
-        """
-        Get summary statistics for the zoning analysis
-        
-        Returns:
-            Summary statistics
-        """
-        return {
-            'module': 'zoning',
-            'resolution': self.resolution,
-            'ca_counties': len(self.ca_counties),
-            'data_sources': ['FMMP', 'Oregon EFU', 'Fallback'],
-            'analysis_timestamp': datetime.now().isoformat()
-        } 
+        logger.info(f"Completed zoning analysis for {len(h3_results)} hexagons.")
+        return h3_results 

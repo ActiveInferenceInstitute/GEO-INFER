@@ -21,23 +21,50 @@ Options:
 
 import sys
 import os
+from pathlib import Path
+
+# --- Robust Path Setup ---
+# This setup allows for imports between different GEO-INFER modules by adding
+# the project root and specific module 'src' directories to the Python path.
+try:
+    # Assumes cascadia_main.py is in GEO-INFER-PLACE/locations/cascadia/
+    cascadian_dir = Path(__file__).resolve().parent
+    project_root = cascadian_dir.parents[3] # Should be GEO-INFER
+
+    # Add required sibling module 'src' folders to the path
+    space_src_path = project_root / 'GEO-INFER-SPACE' / 'src'
+    
+    # Add the current directory for local imports (unified_backend, etc.)
+    sys.path.insert(0, str(cascadian_dir))
+    
+    # Add the space module src path for OSC utils
+    if space_src_path.exists():
+        sys.path.insert(0, str(space_src_path))
+        print(f"INFO: Successfully added {space_src_path} to sys.path")
+    else:
+        print(f"WARNING: GEO-INFER-SPACE src path not found at: {space_src_path}")
+
+except IndexError:
+    print("CRITICAL: Could not determine project root. Please ensure you are running from the 'GEO-INFER-PLACE/locations/cascadia' directory")
+    sys.exit(1)
+# --- End Path Setup ---
+
 import argparse
 import logging
-from pathlib import Path
-from typing import List, Dict, Optional
+from typing import List, Dict, Any
 import json
 from datetime import datetime
 import traceback
 
-# Add the cascadia directory to the path
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-
-# Add import for shared H3 utility
-from utils_h3 import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+# Import shared H3 utility and custom NumpyEncoder for JSON serialization
+from unified_backend import NumpyEncoder
 
 def setup_logging(verbose: bool = False, output_dir: str = '.') -> None:
     """Setup logging configuration"""
     level = logging.DEBUG if verbose else logging.INFO
+    
+    # Ensure output directory exists
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
     
     log_filename = Path(output_dir) / f'cascadia_analysis_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
     logging.basicConfig(
@@ -51,22 +78,15 @@ def setup_logging(verbose: bool = False, output_dir: str = '.') -> None:
 
 def check_and_install_dependencies() -> bool:
     """
-    Check and install required dependencies
-    
-    Returns:
-        True if all dependencies are available
+    Check and install required dependencies.
+    This is a simplified check; more robust dependency management should be
+    handled by package managers like pip with a requirements.txt file.
     """
     logger = logging.getLogger(__name__)
     
     required_packages = [
-        'h3',
-        'numpy',
-        'pandas',
-        'geopandas',
-        'shapely',
-        'requests',
-        'rasterio',
-        'folium'
+        'h3', 'numpy', 'pandas', 'geopandas',
+        'shapely', 'requests', 'rasterio', 'folium'
     ]
     
     missing_packages = []
@@ -74,361 +94,329 @@ def check_and_install_dependencies() -> bool:
     for package in required_packages:
         try:
             __import__(package)
-            logger.info(f"✓ {package} is available")
+            logger.debug(f"✓ Dependency '{package}' is available.")
         except ImportError:
             missing_packages.append(package)
-            logger.warning(f"✗ {package} is missing")
+            logger.warning(f"✗ Dependency '{package}' is missing.")
     
     if missing_packages:
-        logger.error(f"Missing packages: {', '.join(missing_packages)}")
-        logger.info("Installing missing packages...")
+        logger.error(f"Missing required packages: {', '.join(missing_packages)}")
+        logger.info("Attempting to install missing packages via pip...")
         
         try:
             import subprocess
-            import sys
-            
             for package in missing_packages:
                 logger.info(f"Installing {package}...")
                 subprocess.check_call([sys.executable, "-m", "pip", "install", package])
-                logger.info(f"✓ {package} installed successfully")
-                
+                logger.info(f"✓ {package} installed successfully.")
         except Exception as e:
-            logger.error(f"Failed to install dependencies: {str(e)}")
+            logger.critical(f"Failed to install dependencies: {e}", exc_info=True)
             return False
-    
-    logger.info("All dependencies are available")
+            
+    logger.info("All required dependencies are available.")
     return True
 
 def validate_configuration(args: argparse.Namespace) -> bool:
-    """
-    Validate configuration and arguments
-    
-    Args:
-        args: Parsed command line arguments
-        
-    Returns:
-        True if configuration is valid
-    """
+    """Validate script arguments and environment."""
     logger = logging.getLogger(__name__)
     
-    # Validate H3 resolution
-    if args.resolution < 1 or args.resolution > 15:
-        logger.error(f"Invalid H3 resolution: {args.resolution}. Must be between 1 and 15")
+    if not (1 <= args.resolution <= 15):
+        logger.error(f"Invalid H3 resolution: {args.resolution}. Must be between 1 and 15.")
         return False
     
-    # Validate output directory
-    output_dir = Path(args.output_dir)
     try:
-        output_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Output directory: {output_dir.absolute()}")
-    except Exception as e:
-        logger.error(f"Cannot create output directory {output_dir}: {str(e)}")
+        Path(args.output_dir).mkdir(parents=True, exist_ok=True)
+        logger.info(f"Using output directory: {Path(args.output_dir).resolve()}")
+    except OSError as e:
+        logger.error(f"Cannot create or access output directory {args.output_dir}: {e}")
         return False
-    
-    # Validate export format
+        
     valid_formats = ['geojson', 'csv', 'json']
-    if args.export_format not in valid_formats:
-        logger.error(f"Invalid export format: {args.export_format}. Must be one of {valid_formats}")
+    if args.export_format.lower() not in valid_formats:
+        logger.error(f"Invalid export format: {args.export_format}. Must be one of {valid_formats}.")
         return False
-    
-    # Validate modules
-    valid_modules = [
-        'zoning', 'current_use', 'ownership', 'mortgage_debt', 
-        'improvements', 'surface_water', 'ground_water', 'power_source'
-    ]
-    
-    if args.modules != 'all':
-        requested_modules = [m.strip() for m in args.modules.split(',')]
-        invalid_modules = [m for m in requested_modules if m not in valid_modules]
-        if invalid_modules:
-            logger.error(f"Invalid modules: {', '.join(invalid_modules)}")
-            logger.info(f"Valid modules: {', '.join(valid_modules)}")
-            return False
-    
-    logger.info("Configuration validation successful")
+            
+    logger.info("Configuration validation successful.")
     return True
+
+def load_analysis_config() -> Dict[str, Any]:
+    """Loads the analysis_settings from the main JSON config file."""
+    logger = logging.getLogger(__name__)
+    config_path = Path(__file__).resolve().parent / 'config' / 'data_urls.json'
+    
+    if not config_path.exists():
+        logger.warning(f"Configuration file not found at {config_path}. Using defaults.")
+        return {}
+        
+    try:
+        with open(config_path, 'r') as f:
+            full_config = json.load(f)
+            analysis_config = full_config.get('analysis_settings', {})
+            logger.info("Successfully loaded analysis settings from config file.")
+            return analysis_config
+    except (json.JSONDecodeError, OSError) as e:
+        logger.error(f"Failed to load or parse config file {config_path}: {e}")
+        return {}
 
 def main():
     """Main execution function"""
     
-    # Parse command line arguments
+    # --- Load settings from config file first ---
+    analysis_config = load_analysis_config()
+    default_modules = analysis_config.get('active_modules', 'all')
+    # The 'target_counties' is more complex, so we handle it post-argparse
+    
     parser = argparse.ArgumentParser(
         description='Cascadian Agricultural Land Analysis Framework',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
+        formatter_class=argparse.RawTextHelpFormatter,
         epilog="""
 Examples:
-    python cascadia_main.py --resolution 8 --output-dir ./results
-    python cascadia_main.py --counties "Humboldt,Mendocino" --modules "zoning,current_use"
-    python cascadia_main.py --check-deps --verbose
+  # Run full analysis for Cascadia with default settings
+  python cascadia_main.py
+
+  # Run with higher H3 resolution and specific modules for two Oregon counties
+  python cascadia_main.py --resolution 9 --counties "Benton,Linn" --modules "zoning,water"
+
+  # Check dependencies and run in verbose mode
+  python cascadia_main.py --check-deps --verbose
         """
     )
     
     parser.add_argument('--bioregion', type=str, default='Cascadia',
-                       choices=['Cascadia', 'Columbia'],
-                       help='Bioregion to analyze (default: Cascadia)')
+                        choices=['Cascadia', 'Columbia'],
+                        help='Bioregion to analyze (default: Cascadia)')
     parser.add_argument('--resolution', type=int, default=8,
-                       help='H3 resolution level (default: 8)')
+                        help='H3 resolution level (1-15, default: 8)')
     parser.add_argument('--output-dir', type=str, default='./output',
-                       help='Output directory for results (default: ./output)')
+                        help='Output directory for results (default: ./output)')
     parser.add_argument('--export-format', type=str, default='geojson',
-                       choices=['geojson', 'csv', 'json'],
-                       help='Export format (default: geojson)')
-    parser.add_argument('--counties', type=str, default='all',
-                       help='Comma-separated list of counties to analyze (default: all)')
-    parser.add_argument('--modules', type=str, default='all',
-                       help='Comma-separated list of modules to run (default: all)')
+                        choices=['geojson', 'csv', 'json'],
+                        help='Export format for the unified data file (default: geojson)')
+    parser.add_argument('--counties', type=str, default=None,
+                        help='Comma-separated list of counties to analyze (e.g., "CA:Lassen,Plumas;OR:all"). Overrides config file.')
+    parser.add_argument('--modules', type=str, default=None,
+                        help='Comma-separated list of modules to run (default: from config file or all)')
     parser.add_argument('--verbose', action='store_true',
-                       help='Enable verbose logging')
+                        help='Enable verbose debug logging')
     parser.add_argument('--check-deps', action='store_true',
-                       help='Check and install dependencies')
+                        help='Check and install required dependencies before running')
     
     args = parser.parse_args()
     
-    # Setup logging
     setup_logging(args.verbose, args.output_dir)
     logger = logging.getLogger(__name__)
     
-    logger.info("="*80)
-    logger.info(f"{args.bioregion} Agricultural Land Analysis Framework")
-    logger.info("="*80)
+    # --- Determine final analysis settings ---
+    # Command-line args override config file settings
     
-    # Check dependencies by default, or if specifically requested
-    if args.check_deps or len(sys.argv) == 1:  # Check deps by default with no args
-        if not check_and_install_dependencies():
-            logger.error("Dependency check failed. Exiting.")
+    final_modules = args.modules.split(',') if args.modules else default_modules
+    if final_modules == ['all']:
+        # Define all possible modules here
+        final_modules = [
+            'zoning', 'current_use', 'ownership', 'mortgage_debt', 
+            'improvements', 'surface_water', 'ground_water', 'power_source', 'water_rights'
+        ]
+
+    if args.counties:
+        # Simple parser for the command-line format, e.g., "CA:Lassen,Plumas;OR:all"
+        target_counties = {}
+        try:
+            for state_part in args.counties.split(';'):
+                state, counties_str = state_part.split(':')
+                target_counties[state.upper()] = counties_str.split(',')
+        except ValueError:
+            logger.error(f"Invalid format for --counties argument: '{args.counties}'. Use 'ST:county1,county2;ST2:all'.")
             sys.exit(1)
+    else:
+        target_counties = analysis_config.get('target_counties', {'CA': ['all'], 'OR': ['all'], 'WA': ['all']})
     
-    # Validate configuration
+    logger.info(f"Final analysis settings -- Modules: {final_modules}, Counties: {target_counties}")
+    # --- End settings determination ---
+
+    logger.info("="*80)
+    logger.info(f"STARTING {args.bioregion.upper()} AGRICULTURAL LAND ANALYSIS")
+    logger.info("="*80)
+    
+    if args.check_deps and not check_and_install_dependencies():
+        logger.critical("Dependency check failed. Cannot proceed. Exiting.")
+        sys.exit(1)
+        
     if not validate_configuration(args):
-        logger.error("Configuration validation failed. Exiting.")
+        logger.critical("Configuration validation failed. Exiting.")
         sys.exit(1)
     
     try:
-        # Import the unified backend (after dependency check)
         from unified_backend import CascadianAgriculturalH3Backend
         
-        logger.info(f"Initializing {args.bioregion} Agricultural H3 Backend (resolution: {args.resolution})")
+        logger.info(f"Initializing {args.bioregion} H3 Backend (Resolution: {args.resolution})")
+        backend = CascadianAgriculturalH3Backend(
+            resolution=args.resolution,
+            bioregion=args.bioregion,
+            active_modules=final_modules,
+            target_counties=target_counties
+        )
         
-        # Initialize the backend
-        backend = CascadianAgriculturalH3Backend(resolution=args.resolution, bioregion=args.bioregion)
+        logger.info("Step 1: Running comprehensive analysis across all modules...")
+        backend.run_comprehensive_analysis()
         
-        # Run comprehensive analysis
-        logger.info("Starting comprehensive agricultural analysis...")
-        unified_data = backend.run_comprehensive_analysis()
-        
-        # Calculate redevelopment potential
-        logger.info("Calculating agricultural redevelopment potential...")
+        logger.info("Step 2: Calculating agricultural redevelopment potential...")
         redevelopment_scores = backend.calculate_agricultural_redevelopment_potential()
         
-        # Generate comprehensive summary
-        logger.info("Generating comprehensive summary...")
+        logger.info("Step 3: Generating comprehensive summary...")
         summary = backend.get_comprehensive_summary()
         
-        # Create output directory
-        output_dir = Path(args.output_dir)
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        
-        # Export unified data
+        output_dir = Path(args.output_dir)
         bioregion_lower = args.bioregion.lower()
-        unified_output_path = output_dir / f"{bioregion_lower}_unified_data_{timestamp}.{args.export_format}"
-        logger.info(f"Exporting unified data to {unified_output_path}")
-        backend.export_unified_data(str(unified_output_path), args.export_format)
         
-        # Export redevelopment scores
-        redevelopment_output_path = output_dir / f"{bioregion_lower}_redevelopment_scores_{timestamp}.json"
-        logger.info(f"Exporting redevelopment scores to {redevelopment_output_path}")
-        with open(redevelopment_output_path, 'w') as f:
-            json.dump(redevelopment_scores, f, indent=2)
+        logger.info("Step 4: Exporting analysis results...")
         
-        # Export comprehensive summary
-        summary_output_path = output_dir / f"{bioregion_lower}_summary_{timestamp}.json"
-        logger.info(f"Exporting comprehensive summary to {summary_output_path}")
-        with open(summary_output_path, 'w') as f:
-            json.dump(summary, f, indent=2)
+        # Export unified data (includes module data and scores)
+        unified_path = output_dir / f"{bioregion_lower}_unified_data_{timestamp}.{args.export_format}"
+        backend.export_unified_data(str(unified_path), args.export_format)
         
-        # Generate analysis report
-        report_output_path = output_dir / f"{bioregion_lower}_analysis_report_{timestamp}.md"
-        logger.info(f"Generating analysis report to {report_output_path}")
-        generate_analysis_report(summary, redevelopment_scores, report_output_path, args.bioregion)
+        # Export redevelopment scores separately for specific use cases
+        redevelopment_path = output_dir / f"{bioregion_lower}_redevelopment_scores_{timestamp}.json"
+        with open(redevelopment_path, 'w') as f:
+            json.dump(redevelopment_scores, f, indent=2, cls=NumpyEncoder)
+        logger.info(f"Exported redevelopment scores to {redevelopment_path}")
+        
+        # Export summary
+        summary_path = output_dir / f"{bioregion_lower}_summary_{timestamp}.json"
+        with open(summary_path, 'w') as f:
+            json.dump(summary, f, indent=2, cls=NumpyEncoder)
+        logger.info(f"Exported summary to {summary_path}")
+        
+        logger.info("Step 5: Generating analysis report and dashboard...")
+        
+        # Generate Markdown report
+        report_path = output_dir / f"{bioregion_lower}_analysis_report_{timestamp}.md"
+        generate_analysis_report(summary, report_path)
 
-        # Generate interactive dashboard
-        dashboard_output_path = output_dir / f"{bioregion_lower}_dashboard_{timestamp}.html"
-        logger.info(f"Generating interactive dashboard to {dashboard_output_path}")
-        backend.generate_interactive_dashboard(str(dashboard_output_path))
-
-        # Print summary to console
-        print_summary(summary, redevelopment_scores, args.bioregion)
+        # Generate interactive HTML dashboard
+        dashboard_path = output_dir / f"{bioregion_lower}_dashboard_{timestamp}.html"
+        backend.generate_interactive_dashboard(str(dashboard_path))
+        
+        print_summary(summary)
         
         logger.info("="*80)
-        logger.info("Analysis completed successfully!")
-        logger.info(f"Results saved to: {output_dir.absolute()}")
+        logger.info("ANALYSIS COMPLETED SUCCESSFULLY!")
+        logger.info(f"All results saved to: {output_dir.resolve()}")
         logger.info("="*80)
         
     except ImportError as e:
-        logger.error(f"Import error: {str(e)}")
-        logger.error("Please ensure all dependencies are installed. Run with --check-deps flag.")
+        logger.critical(f"Failed to import a required module: {e}. Please run with --check-deps.", exc_info=True)
         sys.exit(1)
-        
     except Exception as e:
-        logger.error(f"Analysis failed: {str(e)}")
+        logger.critical(f"A critical error occurred during analysis: {e}", exc_info=True)
         logger.error(f"Traceback: {traceback.format_exc()}")
         sys.exit(1)
 
-def generate_analysis_report(summary: Dict, redevelopment_scores: Dict, output_path: Path, bioregion: str = 'Cascadia') -> None:
+def generate_analysis_report(summary: Dict[str, Any], output_path: Path) -> None:
     """
-    Generate a comprehensive analysis report in Markdown format
+    Generate a comprehensive analysis report in Markdown format.
     
     Args:
-        summary: Comprehensive summary data
-        redevelopment_scores: Redevelopment potential scores
-        output_path: Output file path
-        bioregion: Bioregion name for the report
+        summary: Comprehensive summary data from the backend.
+        output_path: Path to save the Markdown file.
     """
+    logger = logging.getLogger(__name__)
+    logger.info(f"Generating analysis report to {output_path}...")
     
-    bioregion_descriptions = {
-        'Cascadia': 'encompassing northern California counties and all of Oregon',
-        'Columbia': 'encompassing the Columbia River Basin region'
-    }
+    bioregion = summary.get('bioregion', 'Unknown Bioregion')
+    bioregion_desc = {
+        'Cascadia': 'encompassing northern California and all of Oregon.',
+        'Columbia': 'encompassing the Columbia River Basin region.'
+    }.get(bioregion, f'in the {bioregion} bioregion.')
+
+    def fmt(value):
+        return f"{value:,}" if isinstance(value, (int, float)) else str(value)
+
+    rp = summary.get('redevelopment_potential', {})
     
-    bioregion_desc = bioregion_descriptions.get(bioregion, f'in the {bioregion} bioregion')
-    
-    # Helper function to format numbers with commas
-    def format_number(value):
-        if isinstance(value, (int, float)):
-            return f"{value:,}"
-        return str(value)
-    
-    report_content = f"""# {bioregion} Agricultural Land Analysis Report
+    report = f"""# {bioregion} Agricultural Land Analysis Report
+*Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}*
 
-**Generated:** {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+## 1. Executive Summary
+This report presents a comprehensive agricultural land analysis for the **{bioregion}** bioregion, {bioregion_desc}
+The analysis utilized H3 spatial indexing at resolution **{summary.get('h3_resolution', 'N/A')}** to integrate and assess data from **{len(summary.get('modules_analyzed', []))} specialized modules**. The key output is a redevelopment potential score for each hexagonal area, identifying promising locations for agricultural transition.
 
-## Executive Summary
+## 2. Analysis Overview
+- **Total Hexagons Analyzed:** {fmt(summary.get('total_hexagons', 0))}
+- **H3 Resolution:** {summary.get('h3_resolution', 'N/A')}
+- **Modules Executed:** `{'`, `'.join(summary.get('modules_analyzed', []))}`
 
-This report presents the results of a comprehensive agricultural land analysis across the {bioregion} bioregion, {bioregion_desc}. The analysis utilized H3 spatial indexing at resolution {summary.get('h3_resolution', 'Unknown')} to integrate data from 8 specialized modules.
+## 3. Redevelopment Potential Insights
+- **Mean Redevelopment Score:** {rp.get('mean_score', 0):.3f}
+- **Median Redevelopment Score:** {rp.get('median_score', 0):.3f}
+- **High Potential Areas (>0.75):** {fmt(rp.get('high_potential_hexagons', 0))} hexagons
+- **Low Potential Areas (<0.25):** {fmt(rp.get('low_potential_hexagons', 0))} hexagons
 
-## Analysis Overview
+## 4. Module Coverage
+This section details the data coverage for each analysis module across the target hexagons.
 
-- **Total Hexagons Analyzed:** {format_number(summary.get('total_hexagons', 'Unknown'))}
-- **Target Region Coverage:** {format_number(summary.get('target_region_size', 'Unknown'))} hexagons
-- **Analysis Modules:** {summary.get('modules_analyzed', 'Unknown')}
-- **H3 Resolution:** {summary.get('h3_resolution', 'Unknown')}
-
-## Redevelopment Potential Analysis
-
-- **Mean Redevelopment Score:** {summary.get('redevelopment_potential', {}).get('mean_score', 0):.3f}
-- **High Potential Hexagons:** {format_number(summary.get('redevelopment_potential', {}).get('high_potential_hexagons', 0))}
-- **Low Potential Hexagons:** {format_number(summary.get('redevelopment_potential', {}).get('low_potential_hexagons', 0))}
-
-## Module Results
-
+| Module                    | Processed Hexagons | Coverage (%) |
+|---------------------------|--------------------|--------------|
 """
     
     module_summaries = summary.get('module_summaries', {})
-    
-    for module_name, module_summary in module_summaries.items():
-        if 'error' not in module_summary:
-            report_content += f"""### {module_name.replace('_', ' ').title()} Module
+    for name, data in module_summaries.items():
+        report += (f"| {name.replace('_', ' ').title():<25} | "
+                   f"{fmt(data.get('processed_hexagons', 0)):<18} | "
+                   f"{data.get('coverage', 0):<12.2f} |\n")
 
-- **Total Hexagons:** {module_summary.get('total_hexagons', 'Unknown')}
-- **Status:** Completed Successfully
+    report += """
+## 5. Technical Framework & Methodology
+The analysis is built on a **Unified H3 Backend**, which standardizes diverse geospatial datasets into a common hexagonal grid. This enables:
+- Seamless cross-border (California/Oregon) analysis.
+- Efficient spatial queries and data aggregation.
+- Scalable processing for large and complex datasets.
+- Consistent and comparable reporting units.
 
-"""
-        else:
-            report_content += f"""### {module_name.replace('_', ' ').title()} Module
+Redevelopment potential is calculated as a weighted composite of scores from each module, including zoning, water security, infrastructure, and financial factors.
 
-- **Status:** Error - {module_summary.get('error', 'Unknown error')}
-
-"""
-    
-    report_content += f"""## Data Sources and Methodology
-
-This analysis integrates data from multiple authoritative sources:
-
-1. **California Sources:**
-   - FMMP (Farmland Mapping & Monitoring Program)
-   - Land IQ crop mapping
-   - ParcelQuest parcel data
-   - eWRIMS/CalWATRS water rights
-
-2. **Oregon Sources:**
-   - EFU (Exclusive Farm Use) zoning
-   - ORMAP parcel system
-   - Oregon Water Resources Database
-
-3. **Federal Sources:**
-   - USDA NASS CDL (Cropland Data Layer)
-   - USDA Economic Research Service
-   - USGS National Water Information System
-
-## Technical Framework
-
-The analysis employed H3 hierarchical spatial indexing to enable:
-- Unified cross-border analysis
-- Efficient spatial operations
-- Scalable data processing
-- Standardized reporting units
-
-## Recommendations
-
-Based on the analysis results, the following recommendations are provided:
-
-1. **High Potential Areas:** Focus development efforts on hexagons with redevelopment scores > 0.7
-2. **Data Quality:** Address data gaps in modules with errors or low confidence scores
-3. **Cross-Border Coordination:** Leverage unified H3 framework for California-Oregon planning coordination
-4. **Monitoring:** Implement temporal analysis to track changes over time
-
-## Limitations and Future Work
-
-- Some modules operated with limited data availability
-- Temporal analysis requires multi-year data integration
-- Financial data gaps require specialized acquisition strategies
-- Energy infrastructure data needs utility partnerships
+## 6. Recommendations
+1.  **Focus on High-Potential Areas:** Prioritize further investigation and outreach in hexagons with redevelopment scores **> 0.75**.
+2.  **Improve Data Gaps:** Address modules with lower coverage by seeking alternative data sources or partnerships.
+3.  **Utilize Interactive Dashboard:** Leverage the generated HTML dashboard for detailed, visual exploration of results.
 
 ---
-
-*This report was generated by the {bioregion} Agricultural Land Analysis Framework*
+*This report was automatically generated by the GEO-INFER Cascadian Analysis Framework.*
 """
     
     with open(output_path, 'w') as f:
-        f.write(report_content)
+        f.write(report)
+    logger.info("Successfully generated Markdown analysis report.")
 
-def print_summary(summary: Dict, redevelopment_scores: Dict, bioregion: str = 'Cascadia') -> None:
+def print_summary(summary: Dict[str, Any]) -> None:
     """
-    Print analysis summary to console
+    Print a concise analysis summary to the console.
     
     Args:
-        summary: Comprehensive summary data
-        redevelopment_scores: Redevelopment potential scores
-        bioregion: Bioregion name for the summary
+        summary: Comprehensive summary data from the backend.
     """
+    def fmt(value):
+        return f"{value:,}" if isinstance(value, (int, float)) else str(value)
     
-    # Helper function to format numbers with commas
-    def format_number(value):
-        if isinstance(value, (int, float)):
-            return f"{value:,}"
-        return str(value)
-    
+    bioregion = summary.get('bioregion', 'Unknown').upper()
     print("\n" + "="*80)
-    print(f"{bioregion.upper()} AGRICULTURAL ANALYSIS SUMMARY")
+    print(f"ANALYSIS SUMMARY: {bioregion}")
     print("="*80)
     
-    print(f"Total Hexagons Analyzed: {format_number(summary.get('total_hexagons', 'Unknown'))}")
-    print(f"H3 Resolution: {summary.get('h3_resolution', 'Unknown')}")
-    print(f"Modules Analyzed: {summary.get('modules_analyzed', 'Unknown')}")
+    rp = summary.get('redevelopment_potential', {})
+    print(f"  H3 Resolution: {summary.get('h3_resolution', 'N/A')}")
+    print(f"  Total Hexagons Analyzed: {fmt(summary.get('total_hexagons', 0))}\n")
     
-    redevelopment_potential = summary.get('redevelopment_potential', {})
-    print(f"\nRedevelopment Potential:")
-    print(f"  Mean Score: {redevelopment_potential.get('mean_score', 0):.3f}")
-    print(f"  High Potential: {format_number(redevelopment_potential.get('high_potential_hexagons', 0))} hexagons")
-    print(f"  Low Potential: {format_number(redevelopment_potential.get('low_potential_hexagons', 0))} hexagons")
+    print("  Redevelopment Potential:")
+    print(f"    - Mean Score: {rp.get('mean_score', 0):.3f}")
+    print(f"    - High Potential (>0.75): {fmt(rp.get('high_potential_hexagons', 0))} hexagons")
+    print(f"    - Low Potential (<0.25): {fmt(rp.get('low_potential_hexagons', 0))} hexagons\n")
     
-    print(f"\nModule Status:")
+    print("  Module Coverage:")
     module_summaries = summary.get('module_summaries', {})
-    for module_name, module_summary in module_summaries.items():
-        status = "✓ SUCCESS" if 'error' not in module_summary else "✗ ERROR"
-        hexagons = module_summary.get('total_hexagons', 'Unknown')
-        print(f"  {module_name.replace('_', ' ').title()}: {status} ({hexagons} hexagons)")
-    
+    for name, data in module_summaries.items():
+        print(f"    - {name.replace('_', ' ').title():<20}: {data.get('coverage', 0):.2f}%")
+        
     print("="*80)
 
 if __name__ == "__main__":

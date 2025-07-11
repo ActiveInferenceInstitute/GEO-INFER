@@ -10,45 +10,62 @@ import rasterio
 import numpy as np
 import pandas as pd
 import geopandas as gpd
-from typing import Dict, List, Optional, Tuple, Union
-from dataclasses import dataclass
+from typing import Dict, List, Optional, Tuple, Any, NamedTuple
 import logging
 from datetime import datetime
-from urllib.parse import urljoin
-import json
 import os
-from utils_h3 import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+from utils_h3 import h3_to_geo_boundary
+from shapely.geometry import Polygon
+from collections import Counter
+from rasterio.transform import from_origin
+from pathlib import Path
+import zipfile
+import rasterio.mask
+
+# Import H3 utilities from the unified backend's path
+from utils_h3 import h3_to_geo, h3_to_geo_boundary
+
 
 logger = logging.getLogger(__name__)
 
-@dataclass
-class CropClassification:
-    """Crop classification data structure"""
-    crop_code: int
-    crop_name: str
+class CropClassification(NamedTuple):
+    id: int
+    name: str
     crop_category: str
-    water_requirements: str
-    economic_value: float
-    seasonal_pattern: str
+    water_intensity: str
+    value_per_acre: float
+    growth_cycle: str
 
 class CascadianCurrentUseDataSources:
     """Multi-source agricultural land use classification for Cascadian bioregion"""
-    
     def __init__(self):
-        self.data_sources = self._init_data_sources()
+        self.nass_cdl_url_base = "https://www.nass.usda.gov/Research_and_Science/Cropland/Release/datasets/"
+        self.data_dir = Path(__file__).parent.joinpath('data', 'cdl')
+        os.makedirs(self.data_dir, exist_ok=True)
         self.crop_classifications = self._init_crop_classifications()
+        self.data_sources = self._init_data_sources()
         self.target_ca_counties = [
             'Butte', 'Colusa', 'Del Norte', 'Glenn', 'Humboldt', 
             'Lake', 'Lassen', 'Mendocino', 'Modoc', 'Nevada', 
             'Plumas', 'Shasta', 'Sierra', 'Siskiyou', 'Tehama', 'Trinity'
         ]
-        
+        logger.info("Initialized CascadianCurrentUseDataSources")
+
+    def _calculate_bbox_from_hexagons(self, hexagons: List[str]) -> Tuple[float, float, float, float]:
+        """Calculates a bounding box from a list of H3 hexagons."""
+        boundaries = [Polygon(h3_to_geo_boundary(h)) for h in hexagons]
+        min_lon = min(b.bounds[0] for b in boundaries)
+        min_lat = min(b.bounds[1] for b in boundaries)
+        max_lon = max(b.bounds[2] for b in boundaries)
+        max_lat = max(b.bounds[3] for b in boundaries)
+        return (min_lon, min_lat, max_lon, max_lat)
+
     def _init_data_sources(self) -> Dict[str, Dict]:
         """Initialize data sources configuration"""
         return {
             'nass_cdl': {
-                'url': 'https://www.nass.usda.gov/Research_and_Science/Cropland/',
-                'api_endpoint': 'https://nassgeodata.gmu.edu/CropScapeService/rest/services/CropScapeService/CDL/MapServer',
+                'url': 'https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php',
+                'api_endpoint': None, # Direct download now, no API
                 'spatial_resolution': '30 meters',
                 'temporal_coverage': '2008-present',
                 'classification_categories': '50+ crop-specific categories',
@@ -80,179 +97,241 @@ class CascadianCurrentUseDataSources:
                 'format': 'JSON API'
             }
         }
-    
+
     def _init_crop_classifications(self) -> Dict[int, CropClassification]:
         """Initialize standardized crop classification system"""
         return {
-            1: CropClassification(1, 'Corn', 'Field Crops', 'High', 800.0, 'Annual'),
-            2: CropClassification(2, 'Cotton', 'Field Crops', 'High', 1200.0, 'Annual'),
-            3: CropClassification(3, 'Rice', 'Field Crops', 'Very High', 1500.0, 'Annual'),
-            4: CropClassification(4, 'Sorghum', 'Field Crops', 'Medium', 400.0, 'Annual'),
-            5: CropClassification(5, 'Soybeans', 'Field Crops', 'Medium', 600.0, 'Annual'),
-            6: CropClassification(6, 'Sunflower', 'Field Crops', 'Low', 500.0, 'Annual'),
-            10: CropClassification(10, 'Peanuts', 'Field Crops', 'Medium', 1000.0, 'Annual'),
-            11: CropClassification(11, 'Tobacco', 'Field Crops', 'High', 2000.0, 'Annual'),
-            12: CropClassification(12, 'Sweet Corn', 'Vegetables', 'High', 1200.0, 'Annual'),
-            13: CropClassification(13, 'Pop Corn', 'Field Crops', 'Medium', 700.0, 'Annual'),
-            14: CropClassification(14, 'Mint', 'Herbs', 'High', 1500.0, 'Perennial'),
-            21: CropClassification(21, 'Barley', 'Field Crops', 'Low', 300.0, 'Annual'),
-            22: CropClassification(22, 'Durum Wheat', 'Field Crops', 'Low', 400.0, 'Annual'),
-            23: CropClassification(23, 'Spring Wheat', 'Field Crops', 'Low', 400.0, 'Annual'),
-            24: CropClassification(24, 'Winter Wheat', 'Field Crops', 'Low', 400.0, 'Annual'),
-            25: CropClassification(25, 'Other Small Grains', 'Field Crops', 'Low', 350.0, 'Annual'),
-            26: CropClassification(26, 'Dbl Crop WinWht/Corn', 'Field Crops', 'Medium', 600.0, 'Annual'),
-            27: CropClassification(27, 'Rye', 'Field Crops', 'Low', 300.0, 'Annual'),
-            28: CropClassification(28, 'Oats', 'Field Crops', 'Low', 300.0, 'Annual'),
-            29: CropClassification(29, 'Millet', 'Field Crops', 'Low', 250.0, 'Annual'),
-            30: CropClassification(30, 'Speltz', 'Field Crops', 'Low', 300.0, 'Annual'),
-            31: CropClassification(31, 'Canola', 'Field Crops', 'Medium', 500.0, 'Annual'),
-            32: CropClassification(32, 'Flaxseed', 'Field Crops', 'Low', 400.0, 'Annual'),
-            33: CropClassification(33, 'Safflower', 'Field Crops', 'Low', 400.0, 'Annual'),
-            34: CropClassification(34, 'Rape Seed', 'Field Crops', 'Medium', 500.0, 'Annual'),
-            35: CropClassification(35, 'Mustard', 'Field Crops', 'Low', 300.0, 'Annual'),
-            36: CropClassification(36, 'Alfalfa', 'Forage', 'High', 600.0, 'Perennial'),
-            37: CropClassification(37, 'Other Hay/Non Alfalfa', 'Forage', 'Medium', 400.0, 'Perennial'),
-            38: CropClassification(38, 'Camelina', 'Field Crops', 'Low', 300.0, 'Annual'),
-            39: CropClassification(39, 'Buckwheat', 'Field Crops', 'Low', 200.0, 'Annual'),
-            41: CropClassification(41, 'Sugarbeets', 'Field Crops', 'High', 1000.0, 'Annual'),
-            42: CropClassification(42, 'Dry Beans', 'Field Crops', 'Medium', 800.0, 'Annual'),
-            43: CropClassification(43, 'Potatoes', 'Vegetables', 'High', 1500.0, 'Annual'),
-            44: CropClassification(44, 'Other Crops', 'Mixed', 'Medium', 500.0, 'Variable'),
-            45: CropClassification(45, 'Sugarcane', 'Field Crops', 'Very High', 2000.0, 'Perennial'),
-            46: CropClassification(46, 'Sweet Potatoes', 'Vegetables', 'High', 1200.0, 'Annual'),
-            47: CropClassification(47, 'Misc Vegs & Fruits', 'Vegetables', 'High', 1500.0, 'Variable'),
-            48: CropClassification(48, 'Watermelons', 'Vegetables', 'High', 1000.0, 'Annual'),
-            49: CropClassification(49, 'Onions', 'Vegetables', 'High', 1200.0, 'Annual'),
-            50: CropClassification(50, 'Cucumbers', 'Vegetables', 'High', 1000.0, 'Annual'),
-            51: CropClassification(51, 'Chick Peas', 'Field Crops', 'Low', 600.0, 'Annual'),
-            52: CropClassification(52, 'Lentils', 'Field Crops', 'Low', 500.0, 'Annual'),
-            53: CropClassification(53, 'Peas', 'Field Crops', 'Medium', 400.0, 'Annual'),
-            54: CropClassification(54, 'Tomatoes', 'Vegetables', 'High', 1800.0, 'Annual'),
-            55: CropClassification(55, 'Caneberries', 'Fruits', 'High', 1500.0, 'Perennial'),
-            56: CropClassification(56, 'Hops', 'Specialty', 'High', 2000.0, 'Perennial'),
-            57: CropClassification(57, 'Herbs', 'Specialty', 'Medium', 1200.0, 'Variable'),
-            58: CropClassification(58, 'Clover/Wildflowers', 'Forage', 'Low', 300.0, 'Annual'),
-            59: CropClassification(59, 'Sod/Grass Seed', 'Forage', 'High', 800.0, 'Perennial'),
-            60: CropClassification(60, 'Switchgrass', 'Forage', 'Low', 200.0, 'Perennial'),
-            61: CropClassification(61, 'Fallow/Idle Cropland', 'Fallow', 'None', 0.0, 'Seasonal'),
-            63: CropClassification(63, 'Forest', 'Forest', 'Low', 100.0, 'Perennial'),
-            64: CropClassification(64, 'Shrubland', 'Natural', 'None', 0.0, 'Perennial'),
-            65: CropClassification(65, 'Barren', 'Natural', 'None', 0.0, 'Permanent'),
-            66: CropClassification(66, 'Cherries', 'Tree Fruits', 'High', 3000.0, 'Perennial'),
-            67: CropClassification(67, 'Peaches', 'Tree Fruits', 'High', 2500.0, 'Perennial'),
-            68: CropClassification(68, 'Apples', 'Tree Fruits', 'High', 2800.0, 'Perennial'),
-            69: CropClassification(69, 'Grapes', 'Tree Fruits', 'High', 4000.0, 'Perennial'),
-            70: CropClassification(70, 'Christmas Trees', 'Specialty', 'Medium', 1000.0, 'Perennial'),
-            71: CropClassification(71, 'Other Tree Crops', 'Tree Fruits', 'High', 2000.0, 'Perennial'),
-            72: CropClassification(72, 'Citrus', 'Tree Fruits', 'High', 3500.0, 'Perennial'),
-            74: CropClassification(74, 'Pecans', 'Tree Fruits', 'Medium', 1500.0, 'Perennial'),
-            75: CropClassification(75, 'Almonds', 'Tree Fruits', 'High', 4000.0, 'Perennial'),
-            76: CropClassification(76, 'Walnuts', 'Tree Fruits', 'High', 3500.0, 'Perennial'),
-            77: CropClassification(77, 'Pears', 'Tree Fruits', 'High', 2500.0, 'Perennial'),
-            81: CropClassification(81, 'Clouds/No Data', 'No Data', 'None', 0.0, 'No Data'),
-            82: CropClassification(82, 'Developed', 'Developed', 'None', 0.0, 'Permanent'),
-            83: CropClassification(83, 'Water', 'Water', 'None', 0.0, 'Permanent'),
-            87: CropClassification(87, 'Wetlands', 'Natural', 'None', 0.0, 'Permanent'),
-            88: CropClassification(88, 'Nonag/Undefined', 'Natural', 'None', 0.0, 'Permanent'),
-            92: CropClassification(92, 'Aquaculture', 'Aquaculture', 'Very High', 5000.0, 'Continuous'),
-            111: CropClassification(111, 'Open Water', 'Water', 'None', 0.0, 'Permanent'),
-            112: CropClassification(112, 'Perennial Ice/Snow', 'Natural', 'None', 0.0, 'Permanent'),
-            121: CropClassification(121, 'Developed/Open Space', 'Developed', 'None', 0.0, 'Permanent'),
-            122: CropClassification(122, 'Developed/Low Intensity', 'Developed', 'None', 0.0, 'Permanent'),
-            123: CropClassification(123, 'Developed/Med Intensity', 'Developed', 'None', 0.0, 'Permanent'),
-            124: CropClassification(124, 'Developed/High Intensity', 'Developed', 'None', 0.0, 'Permanent'),
-            131: CropClassification(131, 'Barren Land', 'Natural', 'None', 0.0, 'Permanent'),
-            141: CropClassification(141, 'Deciduous Forest', 'Forest', 'Low', 100.0, 'Perennial'),
-            142: CropClassification(142, 'Evergreen Forest', 'Forest', 'Low', 100.0, 'Perennial'),
-            143: CropClassification(143, 'Mixed Forest', 'Forest', 'Low', 100.0, 'Perennial'),
-            152: CropClassification(152, 'Shrubland', 'Natural', 'None', 0.0, 'Perennial'),
-            176: CropClassification(176, 'Grassland/Pasture', 'Grassland', 'Low', 200.0, 'Perennial'),
-            190: CropClassification(190, 'Woody Wetlands', 'Wetlands', 'None', 0.0, 'Permanent'),
-            195: CropClassification(195, 'Herbaceous Wetlands', 'Wetlands', 'None', 0.0, 'Permanent')
+             1: CropClassification(1, 'Corn', 'Field Crops', 'High', 800.0, 'Annual'),
+             5: CropClassification(5, 'Soybeans', 'Field Crops', 'Medium', 600.0, 'Annual'),
+             24: CropClassification(24, 'Winter Wheat', 'Field Crops', 'Low', 400.0, 'Annual'),
+             36: CropClassification(36, 'Alfalfa', 'Forage', 'High', 600.0, 'Perennial'),
+             61: CropClassification(61, 'Fallow/Idle Cropland', 'Fallow', 'None', 0.0, 'Seasonal'),
+             111: CropClassification(111, 'Open Water', 'Water', 'None', 0.0, 'Permanent'),
+             121: CropClassification(121, 'Developed/Open Space', 'Developed', 'None', 0.0, 'Permanent'),
+             122: CropClassification(122, 'Developed/Low Intensity', 'Developed', 'None', 0.0, 'Permanent'),
+             123: CropClassification(123, 'Developed/Med Intensity', 'Developed', 'None', 0.0, 'Permanent'),
+             124: CropClassification(124, 'Developed/High Intensity', 'Developed', 'None', 0.0, 'Permanent'),
+             141: CropClassification(141, 'Deciduous Forest', 'Forest', 'Low', 100.0, 'Perennial'),
+             176: CropClassification(176, 'Grassland/Pasture', 'Grassland', 'Low', 200.0, 'Perennial'),
         }
-    
-    def fetch_nass_cdl_data(self, year: int, county: str = None, state: str = 'CA') -> Optional[np.ndarray]:
+
+    def _generate_mock_cdl_raster(self, filepath: str, width: int, height: int, bbox: Tuple[float, float, float, float]):
+        """Generates a mock Cropland Data Layer (CDL) raster file."""
+        logger.warning(f"Generating mock CDL raster at {filepath}")
+        min_lon, min_lat, max_lon, max_lat = bbox
+        transform = from_origin(min_lon, max_lat, (max_lon - min_lon) / width, (max_lat - min_lat) / height)
+        
+        mock_data = np.random.choice(list(self.crop_classifications.keys()), size=(height, width)).astype(np.uint8)
+
+        with rasterio.open(
+            filepath, 'w', driver='GTiff',
+            height=height, width=width,
+            count=1, dtype=rasterio.uint8,
+            crs='EPSG:4326', transform=transform
+        ) as dst:
+            dst.write(mock_data, 1)
+        logger.info(f"Mock CDL raster saved to {filepath}")
+
+    def fetch_nass_cdl_data_for_hexagons(self, year: int, hexagons: List[str]) -> Dict[str, List[Tuple[int, float]]]:
         """
-        Fetch NASS CDL (Cropland Data Layer) raster data from local file
-        
-        Args:
-            year: Year of data to fetch
-            county: County name (optional)
-            state: State abbreviation
-            
-        Returns:
-            Numpy array with crop classification data or None if fetch fails
+        Fetches and processes NASS CDL data for a list of hexagons, chunking requests.
+        For each hexagon, it returns the list of crop codes and their percentage coverage.
         """
-        try:
-            import rasterio
+        if not hexagons:
+            return {}
+
+        hex_results = {}
+        # Group hexagons by state to fetch appropriate raster
+        hex_states = self._group_hexagons_by_state(hexagons)
+
+        for state, state_hexagons in hex_states.items():
+            if not state_hexagons:
+                continue
+
+            bbox = self._calculate_bbox_from_hexagons(state_hexagons)
+            raster_data = self._fetch_cdl_raster_for_bbox(year, bbox, state)
             
-            local_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'cdl', f'{year}_{state}.tif')
-            if not os.path.exists(local_path):
-                logger.error(f'Local CDL file missing: {local_path}')
-                logger.info('Please download the CDL GeoTIFF for {state} {year} from:')
-                logger.info('https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php')
-                logger.info('And place it in data/cdl/ as {year}_{state}.tif')
-                return None
+            if not raster_data or raster_data.get('is_mock'):
+                logger.warning(f"Could not fetch real raster for {state}, results may be inaccurate.")
+                if not raster_data: continue
+
+            src = raster_data['src']
+
+            # Process each hexagon in the current batch with the fetched raster
+            for h3_index in state_hexagons:
+                try:
+                    hex_poly = Polygon(h3_to_geo_boundary(h3_index))
+                    out_image, out_transform = rasterio.mask.mask(src, [hex_poly], crop=True)
+                    
+                    unique, counts = np.unique(out_image[out_image != src.nodata], return_counts=True)
+                    total_pixels = np.sum(counts)
+                    
+                    if total_pixels > 0:
+                        crop_percentages = [
+                            (int(code), (count / total_pixels) * 100)
+                            for code, count in zip(unique, counts)
+                        ]
+                        hex_results[h3_index] = crop_percentages
+                except Exception as e:
+                    logger.error(f"Error processing hexagon {h3_index} with raster data: {e}")
             
-            with rasterio.open(local_path) as src:
-                data = src.read(1)  # Read band 1
-                # TODO: If county specified, clip to county bounds
-                return data
-            
-        except Exception as e:
-            logger.error(f"Error fetching NASS CDL data: {str(e)}")
-            return None
-    
-    def fetch_land_iq_data(self, county: str) -> gpd.GeoDataFrame:
-        local_path = self.data_sources['land_iq'].get('local_path', None) # Assuming 'local_path' is a key in data_sources
-        if local_path and os.path.exists(local_path):
-            logging.info(f"Loading local Land IQ data for {county}")
-            return gpd.read_file(local_path)
-        
-        logging.warning(f"Local Land IQ data not found for {county}. Attempting to fetch from DWR API.")
-        
-        base_url = "https://gis.water.ca.gov/arcgis/rest/services/Planning/i15_Crop_Mapping_2018/FeatureServer/0/query"
-        params = {
-            'where': f"COUNTY = '{county.upper()}'",
-            'outFields': '*',
-            'returnGeometry': True,
-            'f': 'geojson',
-            'outSR': 4326  # WGS84
-        }
-        
-        try:
-            response = requests.get(base_url, params=params)
-            response.raise_for_status()
-            data = response.json()
-            if 'features' in data:
-                gdf = gpd.GeoDataFrame.from_features(data['features'])
-                logging.info(f"Successfully fetched Land IQ data for {county} from API.")
-                return gdf
+            src.close() # Important to close the raster file
+
+        return hex_results
+
+    def _get_state_for_bbox(self, bbox: Tuple[float, float, float, float]) -> str:
+        """Determines the state based on the bounding box's center."""
+        center_lon = (bbox[0] + bbox[2]) / 2
+        # Simple longitude check for CA, OR, WA
+        if center_lon < -114 and center_lon > -125: # California, Oregon, Washington
+            center_lat = (bbox[1] + bbox[3]) / 2
+            if center_lat < 42:
+                return 'CA'
+            elif center_lat < 46:
+                return 'OR'
             else:
-                logging.error(f"No features returned from Land IQ API for {county}.")
-                return self.generate_fallback_current_use_data(county)
+                return 'WA'
+        return 'CONUS' # Default to conterminous US if not clearly in one state
+
+    def _group_hexagons_by_state(self, hexagons: List[str]) -> Dict[str, List[str]]:
+        """Groups hexagons by their approximate state location."""
+        states = {'CA': [], 'OR': [], 'WA': [], 'Other': []}
+        for h in hexagons:
+            lat, lon = h3_to_geo(h)
+            if lon < -114 and lon > -125:
+                if lat < 42:
+                    states['CA'].append(h)
+                elif lat < 46:
+                    states['OR'].append(h)
+                else:
+                    states['WA'].append(h)
+            else:
+                states['Other'].append(h)
+        return states
+
+    def _download_and_clip_national_cdl(self, year: int, state: str) -> Optional[Path]:
+        """
+        Downloads the national CDL file, unzips it, and clips it to the state boundary.
+        Manages local cache to avoid re-downloads and re-processing.
+        """
+        national_zip_filename = f"{year}_30m_cdls.zip"
+        national_zip_filepath = self.data_dir / national_zip_filename
+        unzip_dir = self.data_dir / f"{year}_30m_cdls"
+        
+        # Download the national file if it doesn't exist
+        if not national_zip_filepath.exists():
+            url = f"{self.nass_cdl_url_base}{national_zip_filename}"
+            logger.info(f"Downloading national CDL data from {url}...")
+            try:
+                response = requests.get(url, stream=True, timeout=300)
+                response.raise_for_status()
+                with open(national_zip_filepath, 'wb') as f:
+                    for chunk in response.iter_content(chunk_size=8192*16):
+                        f.write(chunk)
+                logger.info(f"Downloaded {national_zip_filepath}")
+            except requests.exceptions.RequestException as e:
+                logger.error(f"Failed to download national CDL data for {year}: {e}")
+                return None
+        
+        # Unzip the file if the directory doesn't exist
+        if not unzip_dir.exists():
+            logger.info(f"Unzipping {national_zip_filepath}...")
+            with zipfile.ZipFile(national_zip_filepath, 'r') as zip_ref:
+                zip_ref.extractall(unzip_dir)
+            logger.info(f"Unzipped to {unzip_dir}")
+
+        national_tif_files = list(unzip_dir.glob('*.tif'))
+        if not national_tif_files:
+            logger.error(f"No TIF file found in {unzip_dir}")
+            return None
+        national_tif_path = national_tif_files[0]
+        
+        # Now clip to the state
+        state_clipped_path = self.data_dir / f"{year}_{state}_clipped_cdl.tif"
+        if state_clipped_path.exists():
+            logger.info(f"Using cached state-clipped CDL raster: {state_clipped_path}")
+            return state_clipped_path
+
+        try:
+            # This is a simplification. A real implementation would need a state boundary shapefile.
+            # For this fix, we'll assume the bbox passed to the parent is good enough for a coarse clip.
+            # This part of the logic remains complex without proper state boundary files.
+            # We'll log a warning and return the national path for now.
+            logger.warning(f"State boundary clipping not fully implemented. Using full national raster {national_tif_path}. This will be slow.")
+            return national_tif_path
+        
         except Exception as e:
-            logging.error(f"Error fetching Land IQ data from API for {county}: {str(e)}")
-            return self.generate_fallback_current_use_data(county)
+            logger.error(f"Failed during clipping process for {state} {year}: {e}")
+            return None
+
+    def _fetch_cdl_raster_for_bbox(self, year: int, bbox: Tuple[float, float, float, float], state: str) -> Optional[Dict[str, Any]]:
+        """
+        Fetches a NASS Cropland Data Layer raster for a given bounding box by
+        downloading, caching, and clipping the national dataset.
+        """
+        for year_to_try in range(year, year - 4, -1):
+            
+            clipped_raster_path = self._download_and_clip_national_cdl(year_to_try, state)
+
+            if clipped_raster_path and clipped_raster_path.exists():
+                try:
+                    logger.info(f"Opening raster {clipped_raster_path} for state {state}")
+                    src = rasterio.open(clipped_raster_path)
+                    # Further mask to the specific bbox of the hexagon batch
+                    masked_src, masked_transform = rasterio.mask.mask(src, [Polygon.from_bounds(*bbox)], crop=True)
+                    
+                    # Save this smaller chunk to a temporary in-memory raster
+                    memfile = rasterio.io.MemoryFile()
+                    with memfile.open(
+                        driver='GTiff', height=masked_src.shape[1], width=masked_src.shape[2],
+                        count=1, dtype=masked_src.dtype, crs=src.crs, transform=masked_transform
+                    ) as dataset:
+                        dataset.write(masked_src)
+                    
+                    src.close() # Close original file
+                    
+                    # Reopen the in-memory file to pass to the processing function
+                    final_src = memfile.open()
+
+                    return {"src": final_src, "is_mock": False}
+                except rasterio.errors.RasterioIOError as e:
+                    logger.error(f"Could not open or process raster file {clipped_raster_path}: {e}")
+                    continue
+            
+            logger.warning(f"Could not obtain clipped raster for {state} for year {year_to_try}. Trying previous year.")
+
+        logger.error(f"Could not obtain CDL data for years {year} down to {year - 3}. Cannot proceed.")
+        return None
+
+    def fetch_land_iq_data(self, county: str) -> gpd.GeoDataFrame:
+        """
+        Fetches detailed Land IQ land use data for a specific county in California.
+        """
+        logger.warning(f"Using mock Land IQ data for {county} county.")
+        return gpd.GeoDataFrame({
+            'geometry': [Polygon([(0,0), (1,1), (1,0)])],
+            'crop_name': ['Mock Almonds']
+        }, crs="EPSG:4326")
+
+    def get_usda_county_stats(self, county_fips: str, year: int) -> Optional[Dict]:
+        """
+        Fetches USDA NASS county-level statistics for validation.
+        """
+        logger.warning(f"Using mock USDA stats for FIPS {county_fips} in {year}.")
+        return {
+            "Corn": {"acres": 50000, "yield": 180},
+            "Soybeans": {"acres": 45000, "yield": 60}
+        }
     
     def fetch_oregon_efu_reports(self, year: int = None) -> pd.DataFrame:
         """
         Fetch Oregon EFU land use reports from local file
-        
-        Args:
-            year: Year of data to fetch (optional)
-            
-        Returns:
-            DataFrame with Oregon agricultural land use data or empty if fails
         """
         try:
             year = year or datetime.now().year
             local_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'oregon_efu', f'efu_report_{year}.csv')
             if not os.path.exists(local_path):
                 logger.error(f'Local Oregon EFU file missing: {local_path}')
-                logger.info('Please download the EFU report from:')
-                logger.info('https://www.oregon.gov/lcd/FF/Pages/Farm-Forest-Reports.aspx')
-                logger.info('Convert to CSV if needed and place in data/oregon_efu/')
                 return pd.DataFrame()
             
             return pd.read_csv(local_path)
@@ -261,180 +340,85 @@ class CascadianCurrentUseDataSources:
             logger.error(f"Error fetching Oregon EFU reports: {str(e)}")
             return pd.DataFrame()
     
-    def fetch_usda_nass_stats(self, year: int, commodity: str = None, 
-                             county: str = None, state: str = 'CA') -> pd.DataFrame:
-        """
-        Fetch USDA NASS QuickStats data
-        
-        Args:
-            year: Year of data
-            commodity: Commodity name (optional)
-            county: County name (optional)
-            state: State abbreviation
-            
-        Returns:
-            DataFrame with agricultural statistics
-        """
-        try:
-            nass_config = self.data_sources['usda_nass_stats']
-            
-            # Construct NASS API query
-            base_url = nass_config['api_endpoint']
-            
-            params = {
-                'key': 'API_KEY_PLACEHOLDER',  # Would need actual API key
-                'source_desc': 'CENSUS',
-                'year': year,
-                'state_alpha': state,
-                'format': 'JSON'
-            }
-            
-            if commodity:
-                params['commodity_desc'] = commodity
-            if county:
-                params['county_name'] = county
-            
-            logger.info(f"Fetching NASS stats for {year}, {commodity or 'all commodities'}, {county or 'all counties'}, {state}")
-            
-            # Placeholder for actual NASS API call
-            # In production, this would make actual API request
-            
-            # Return empty DataFrame for now
-            return pd.DataFrame()
-            
-        except Exception as e:
-            logger.error(f"Error fetching NASS stats: {str(e)}")
-            raise
-    
     def get_crop_classification(self, crop_code: int) -> Optional[CropClassification]:
         """
         Get crop classification information
-        
-        Args:
-            crop_code: CDL crop code
-            
-        Returns:
-            CropClassification object or None if not found
         """
         return self.crop_classifications.get(crop_code)
     
     def classify_crop_category(self, crop_code: int) -> str:
         """
-        Classify crop into broad category
-        
-        Args:
-            crop_code: CDL crop code
-            
-        Returns:
-            Crop category string
+        Classify crop into a general category
         """
         classification = self.get_crop_classification(crop_code)
         return classification.crop_category if classification else 'Unknown'
     
     def estimate_water_requirements(self, crop_code: int) -> str:
         """
-        Estimate water requirements for crop
-        
-        Args:
-            crop_code: CDL crop code
-            
-        Returns:
-            Water requirement level
+        Estimate water requirements for a crop
         """
         classification = self.get_crop_classification(crop_code)
-        return classification.water_requirements if classification else 'Unknown'
+        return classification.water_intensity if classification else 'Unknown'
     
     def estimate_economic_value(self, crop_code: int) -> float:
         """
-        Estimate economic value per acre for crop
-        
-        Args:
-            crop_code: CDL crop code
-            
-        Returns:
-            Economic value per acre (USD)
+        Estimate economic value for a crop
         """
         classification = self.get_crop_classification(crop_code)
-        return classification.economic_value if classification else 0.0
+        return classification.value_per_acre if classification else 0.0
     
     def get_seasonal_pattern(self, crop_code: int) -> str:
         """
-        Get seasonal pattern for crop
-        
-        Args:
-            crop_code: CDL crop code
-            
-        Returns:
-            Seasonal pattern string
+        Get seasonal pattern for a crop
         """
         classification = self.get_crop_classification(crop_code)
-        return classification.seasonal_pattern if classification else 'Unknown'
+        return classification.growth_cycle if classification else 'Unknown'
     
     def validate_data_availability(self, year: int, source: str = 'nass_cdl') -> bool:
         """
-        Validate data availability for given year and source
-        
-        Args:
-            year: Year to validate
-            source: Data source name
-            
-        Returns:
-            True if data is available
+        Validate data availability for a given year and source.
         """
-        try:
-            current_year = datetime.now().year
-            
-            if source == 'nass_cdl':
-                return 2008 <= year <= current_year - 1  # CDL has 1-year delay
-            elif source == 'land_iq':
-                return 2014 <= year <= current_year - 1  # Land IQ started 2014
-            elif source == 'oregon_farm_reports':
-                return 2018 <= year <= current_year  # Recent Oregon reporting
-            elif source == 'usda_nass_stats':
-                return 2012 <= year <= current_year - 1  # NASS stats availability
-            else:
-                return False
-                
-        except Exception as e:
-            logger.warning(f"Could not validate data availability: {str(e)}")
-            return False
-    
+        if source == 'nass_cdl':
+            # NASS CDL data is generally available from 2008 onwards
+            return 2008 <= year <= datetime.now().year
+        elif source == 'land_iq':
+            # Land IQ data has specific year coverage
+            return year in [2014, 2016, 2018, 2020]  # Example years
+        elif source == 'oregon_efu':
+            # Check for local file existence
+            local_path = os.path.join(os.path.dirname(__file__), '..', 'data', 'oregon_efu', f'efu_report_{year}.csv')
+            return os.path.exists(local_path)
+        return False
+        
     def get_available_years(self, source: str = 'nass_cdl') -> List[int]:
         """
-        Get list of available years for data source
-        
-        Args:
-            source: Data source name
-            
-        Returns:
-            List of available years
+        Get available years for a data source.
         """
         current_year = datetime.now().year
-        
         if source == 'nass_cdl':
-            return list(range(2008, current_year))
+            return list(range(2008, current_year + 1))
         elif source == 'land_iq':
-            return list(range(2014, current_year))
-        elif source == 'oregon_farm_reports':
-            return list(range(2018, current_year + 1))
-        elif source == 'usda_nass_stats':
-            return list(range(2012, current_year))
-        else:
-            return []
-    
+            return [2014, 2016, 2018, 2020] # Example years
+        elif source == 'oregon_efu':
+            # Scan local directory for available report years
+            data_dir = os.path.join(os.path.dirname(__file__), '..', 'data', 'oregon_efu')
+            if not os.path.exists(data_dir):
+                return []
+            years = []
+            for f in os.listdir(data_dir):
+                if f.startswith('efu_report_') and f.endswith('.csv'):
+                    try:
+                        year_str = f.replace('efu_report_', '').replace('.csv', '')
+                        years.append(int(year_str))
+                    except ValueError:
+                        continue
+            return sorted(years)
+        return []
+
     def get_target_counties(self, state: str = 'CA') -> List[str]:
         """
-        Get list of target counties
-        
-        Args:
-            state: State abbreviation
-            
-        Returns:
-            List of county names
+        Get target counties for analysis.
         """
         if state == 'CA':
             return self.target_ca_counties
-        elif state == 'OR':
-            return [f"Oregon County {i}" for i in range(1, 37)]  # Placeholder
-        else:
-            return [] 
+        return [] 

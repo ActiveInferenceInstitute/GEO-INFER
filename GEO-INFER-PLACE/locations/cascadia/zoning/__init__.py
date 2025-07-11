@@ -1,8 +1,8 @@
 """
 Cascadian Agricultural Zoning Module
 
-Comprehensive agricultural zoning classification and regulatory analysis
-across northern California and Oregon.
+Provides comprehensive agricultural zoning classification and regulatory
+analysis across the Cascadian bioregion.
 """
 
 from .geo_infer_zoning import GeoInferZoning

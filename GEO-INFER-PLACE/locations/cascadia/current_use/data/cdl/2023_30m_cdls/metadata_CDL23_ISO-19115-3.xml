@@ -1,0 +1,1856 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mdb:MD_Metadata xmlns:mdb="http://standards.iso.org/iso/19115/-3/mdb/2.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:cat="http://standards.iso.org/iso/19115/-3/cat/1.0" xmlns:gfc="http://standards.iso.org/iso/19110/gfc/1.1" xmlns:cit="http://standards.iso.org/iso/19115/-3/cit/2.0" xmlns:gcx="http://standards.iso.org/iso/19115/-3/gcx/1.0" xmlns:gex="http://standards.iso.org/iso/19115/-3/gex/1.0" xmlns:lan="http://standards.iso.org/iso/19115/-3/lan/1.0" xmlns:srv="http://standards.iso.org/iso/19115/-3/srv/2.1" xmlns:mas="http://standards.iso.org/iso/19115/-3/mas/1.0" xmlns:mcc="http://standards.iso.org/iso/19115/-3/mcc/1.0" xmlns:mco="http://standards.iso.org/iso/19115/-3/mco/1.0" xmlns:mda="http://standards.iso.org/iso/19115/-3/mda/1.0" xmlns:mds="http://standards.iso.org/iso/19115/-3/mds/2.0" xmlns:mdt="http://standards.iso.org/iso/19115/-3/mdt/2.0" xmlns:mex="http://standards.iso.org/iso/19115/-3/mex/1.0" xmlns:mmi="http://standards.iso.org/iso/19115/-3/mmi/1.0" xmlns:mpc="http://standards.iso.org/iso/19115/-3/mpc/1.0" xmlns:mrc="http://standards.iso.org/iso/19115/-3/mrc/2.0" xmlns:mrd="http://standards.iso.org/iso/19115/-3/mrd/1.0" xmlns:mri="http://standards.iso.org/iso/19115/-3/mri/1.0" xmlns:mrl="http://standards.iso.org/iso/19115/-3/mrl/2.0" xmlns:mrs="http://standards.iso.org/iso/19115/-3/mrs/1.0" xmlns:msr="http://standards.iso.org/iso/19115/-3/msr/2.0" xmlns:mdq="http://standards.iso.org/iso/19157/-2/mdq/1.0" xmlns:mac="http://standards.iso.org/iso/19115/-3/mac/2.0" xmlns:gco="http://standards.iso.org/iso/19115/-3/gco/1.0" xmlns:gml="http://www.opengis.net/gml/3.2" xmlns:xlink="http://www.w3.org/1999/xlink" xsi:schemaLocation="http://standards.iso.org/iso/19115/-3/mdb/2.0 https://schemas.isotc211.org/19115/-3/mdb/2.0/mdb.xsd">
+  <mdb:metadataIdentifier>
+    <mcc:MD_Identifier>
+      <mcc:code>
+        <gco:CharacterString>ed735798-c133-44f1-a977-ad0c0dcad514</gco:CharacterString>
+      </mcc:code>
+      <mcc:codeSpace>
+        <gco:CharacterString>urn:uuid</gco:CharacterString>
+      </mcc:codeSpace>
+    </mcc:MD_Identifier>
+  </mdb:metadataIdentifier>
+  <mdb:defaultLocale>
+    <lan:PT_Locale id="EN">
+      <lan:language>
+        <lan:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/" codeListValue="eng; USA" />
+      </lan:language>
+      <lan:characterEncoding>
+        <lan:MD_CharacterSetCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_CharacterSetCode" codeListValue="utf8" />
+      </lan:characterEncoding>
+    </lan:PT_Locale>
+  </mdb:defaultLocale>
+  <mdb:metadataScope>
+    <mdb:MD_MetadataScope>
+      <mdb:resourceScope>
+        <mcc:MD_ScopeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_ScopeCode" codeListValue="collection" />
+      </mdb:resourceScope>
+      <mdb:name>
+        <gco:CharacterString>Cropland Data Layer - All years and states</gco:CharacterString>
+      </mdb:name>
+    </mdb:MD_MetadataScope>
+  </mdb:metadataScope>
+  <mdb:contact>
+    <cit:CI_Responsibility>
+      <cit:role>
+        <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="pointOfContact" />
+      </cit:role>
+      <cit:party>
+        <cit:CI_Organisation>
+          <cit:name>
+            <gco:CharacterString>USDA, NASS, Spatial Analysis Research Section</gco:CharacterString>
+          </cit:name>
+          <cit:contactInfo>
+            <cit:CI_Contact>
+              <cit:phone>
+                <cit:CI_Telephone>
+                  <cit:number>
+                    <gco:CharacterString>800-727-9540</gco:CharacterString>
+                  </cit:number>
+                  <cit:numberType>
+                    <cit:CI_TelephoneTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_TelephoneTypeCode" codeListValue="voice" />
+                  </cit:numberType>
+                </cit:CI_Telephone>
+              </cit:phone>
+              <cit:phone>
+                <cit:CI_Telephone>
+                  <cit:number>
+                    <gco:CharacterString>855-493-0447</gco:CharacterString>
+                  </cit:number>
+                  <cit:numberType>
+                    <cit:CI_TelephoneTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_TelephoneTypeCode" codeListValue="fax" />
+                  </cit:numberType>
+                </cit:CI_Telephone>
+              </cit:phone>
+              <cit:address>
+                <cit:CI_Address>
+                  <cit:deliveryPoint>
+                    <gco:CharacterString>1400 Independence Avenue, SW, Room 5029 South Building</gco:CharacterString>
+                  </cit:deliveryPoint>
+                  <cit:city>
+                    <gco:CharacterString>Washington</gco:CharacterString>
+                  </cit:city>
+                  <cit:administrativeArea>
+                    <gco:CharacterString>District of Columbia</gco:CharacterString>
+                  </cit:administrativeArea>
+                  <cit:postalCode>
+                    <gco:CharacterString>20250-2001</gco:CharacterString>
+                  </cit:postalCode>
+                  <cit:country>
+                    <gco:CharacterString>USA</gco:CharacterString>
+                  </cit:country>
+                  <cit:electronicMailAddress>
+                    <gco:CharacterString>HQ_RDD_GIB@usda.gov</gco:CharacterString>
+                  </cit:electronicMailAddress>
+                </cit:CI_Address>
+              </cit:address>
+            </cit:CI_Contact>
+          </cit:contactInfo>
+        </cit:CI_Organisation>
+      </cit:party>
+    </cit:CI_Responsibility>
+  </mdb:contact>
+  <mdb:dateInfo>
+    <cit:CI_Date>
+      <cit:date>
+        <gco:DateTime>2024-01-26T18:23:54.082Z</gco:DateTime>
+      </cit:date>
+      <cit:dateType>
+        <cit:CI_DateTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode" codeListValue="revision" />
+      </cit:dateType>
+    </cit:CI_Date>
+  </mdb:dateInfo>
+  <mdb:dateInfo>
+    <cit:CI_Date>
+      <cit:date>
+        <gco:DateTime>2023-08-18T21:38:08.043Z</gco:DateTime>
+      </cit:date>
+      <cit:dateType>
+        <cit:CI_DateTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode" codeListValue="creation" />
+      </cit:dateType>
+    </cit:CI_Date>
+  </mdb:dateInfo>
+  <mdb:metadataStandard>
+    <cit:CI_Citation>
+      <cit:title>
+        <gco:CharacterString>ISO 19115-3 Geographic information -- Metadata -- Part 3: XML schema implementation for fundamental concepts</gco:CharacterString>
+      </cit:title>
+      <cit:edition>
+        <gco:CharacterString>ISO 19115-3:2018(E)</gco:CharacterString>
+      </cit:edition>
+    </cit:CI_Citation>
+  </mdb:metadataStandard>
+  <mdb:metadataLinkage>
+    <cit:CI_OnlineResource>
+      <cit:linkage>
+        <gco:CharacterString>https://geodata.nal.usda.gov:/geonetwork/srv/api/records/45c391c4-8a7c-4617-9bee-4ada7baaec6e</gco:CharacterString>
+      </cit:linkage>
+      <cit:function>
+        <cit:CI_OnLineFunctionCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_OnLineFunctionCode" codeListValue="completeMetadata" />
+      </cit:function>
+    </cit:CI_OnlineResource>
+  </mdb:metadataLinkage>
+  <mdb:spatialRepresentationInfo>
+    <msr:MD_GridSpatialRepresentation>
+      <msr:numberOfDimensions>
+        <gco:Integer>2</gco:Integer>
+      </msr:numberOfDimensions>
+      <msr:axisDimensionProperties>
+        <msr:MD_Dimension>
+          <msr:dimensionName>
+            <msr:MD_DimensionNameTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_DimensionNameTypeCode" codeListValue="row" />
+          </msr:dimensionName>
+          <msr:dimensionSize>
+            <gco:Integer>96523</gco:Integer>
+          </msr:dimensionSize>
+        </msr:MD_Dimension>
+      </msr:axisDimensionProperties>
+      <msr:axisDimensionProperties>
+        <msr:MD_Dimension>
+          <msr:dimensionName>
+            <msr:MD_DimensionNameTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_DimensionNameTypeCode" codeListValue="column" />
+          </msr:dimensionName>
+          <msr:dimensionSize>
+            <gco:Integer>153811</gco:Integer>
+          </msr:dimensionSize>
+        </msr:MD_Dimension>
+      </msr:axisDimensionProperties>
+      <msr:cellGeometry>
+        <msr:MD_CellGeometryCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_CellGeometryCode" codeListValue="point" />
+      </msr:cellGeometry>
+      <msr:transformationParameterAvailability gco:nilReason="unknown" />
+    </msr:MD_GridSpatialRepresentation>
+  </mdb:spatialRepresentationInfo>
+  <mdb:referenceSystemInfo gco:nilReason="template">
+    <mrs:MD_ReferenceSystem>
+      <mrs:referenceSystemIdentifier>
+        <mcc:MD_Identifier>
+          <mcc:code>
+            <gcx:Anchor xlink:href="http://www.opengis.net/def/crs/EPSG/0/5070">EPSG:5070</gcx:Anchor>
+          </mcc:code>
+          <mcc:description>
+            <gco:CharacterString>NAD83 / Conus Albers (EPSG:5070)</gco:CharacterString>
+          </mcc:description>
+        </mcc:MD_Identifier>
+      </mrs:referenceSystemIdentifier>
+    </mrs:MD_ReferenceSystem>
+  </mdb:referenceSystemInfo>
+  <mdb:referenceSystemInfo xlink:href="http://www.ngdc.noaa.gov/docucomp/65f8b220-95ed-11e0-aa80-0800200c9a66" xlink:title="NAD83" />
+  <mdb:identificationInfo>
+    <mri:MD_DataIdentification>
+      <mri:citation>
+        <cit:CI_Citation>
+          <cit:title>
+            <gco:CharacterString>Cropland Data Layer</gco:CharacterString>
+          </cit:title>
+          <cit:alternateTitle>
+            <gco:CharacterString>NGDA109</gco:CharacterString>
+          </cit:alternateTitle>
+          <cit:date>
+            <cit:CI_Date>
+              <cit:date>
+                <gco:Date>2024-01-31</gco:Date>
+              </cit:date>
+              <cit:dateType>
+                <cit:CI_DateTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode" codeListValue="publication" />
+              </cit:dateType>
+            </cit:CI_Date>
+          </cit:date>
+          <cit:edition>
+            <gco:CharacterString>Annual ongoing series</gco:CharacterString>
+          </cit:edition>
+          <cit:citedResponsibleParty>
+            <cit:CI_Responsibility>
+              <cit:role>
+                <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="publisher" />
+              </cit:role>
+              <cit:party>
+                <cit:CI_Organisation>
+                  <cit:name>
+                    <gco:CharacterString>United States Department of Agriculture (USDA) National Agricultural Statistics Service (NASS)</gco:CharacterString>
+                  </cit:name>
+                  <cit:contactInfo>
+                    <cit:CI_Contact>
+                      <cit:address>
+                        <cit:CI_Address>
+                          <cit:city>
+                            <gco:CharacterString>USDA</gco:CharacterString>
+                          </cit:city>
+                          <cit:administrativeArea>
+                            <gco:CharacterString>NASS Marketing and Information Services Office, Washington, D.C.</gco:CharacterString>
+                          </cit:administrativeArea>
+                        </cit:CI_Address>
+                      </cit:address>
+                      <cit:onlineResource>
+                        <cit:CI_OnlineResource>
+                          <cit:linkage>
+                            <gco:CharacterString>https://www.nass.usda.gov/</gco:CharacterString>
+                          </cit:linkage>
+                          <cit:protocol>
+                            <gco:CharacterString>WWW:LINK-1.0-http--link</gco:CharacterString>
+                          </cit:protocol>
+                          <cit:name gco:nilReason="missing">
+                            <gco:CharacterString />
+                          </cit:name>
+                          <cit:description>
+                            <gco:CharacterString>Main web page for USDA National Agricultural Statistics Service</gco:CharacterString>
+                          </cit:description>
+                          <cit:function>
+                            <cit:CI_OnLineFunctionCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_OnLineFunctionCode" codeListValue="information" />
+                          </cit:function>
+                        </cit:CI_OnlineResource>
+                      </cit:onlineResource>
+                    </cit:CI_Contact>
+                  </cit:contactInfo>
+                </cit:CI_Organisation>
+              </cit:party>
+            </cit:CI_Responsibility>
+          </cit:citedResponsibleParty>
+          <cit:citedResponsibleParty>
+            <cit:CI_Responsibility>
+              <cit:role>
+                <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="originator" />
+              </cit:role>
+              <cit:party>
+                <cit:CI_Organisation>
+                  <cit:name>
+                    <gco:CharacterString>United States Department of Agriculture (USDA) National Agricultural Statistics Service (NASS)</gco:CharacterString>
+                  </cit:name>
+                </cit:CI_Organisation>
+              </cit:party>
+            </cit:CI_Responsibility>
+          </cit:citedResponsibleParty>
+          <cit:presentationForm>
+            <cit:CI_PresentationFormCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_PresentationFormCode" codeListValue="mapDigital" />
+          </cit:presentationForm>
+          <cit:onlineResource>
+            <cit:CI_OnlineResource>
+              <cit:linkage>
+                <gco:CharacterString>https://croplandcros.scinet.usda.gov/</gco:CharacterString>
+              </cit:linkage>
+              <cit:protocol>
+                <gco:CharacterString>WWW:LINK-1.0-http--link</gco:CharacterString>
+              </cit:protocol>
+              <cit:name>
+                <gco:CharacterString>CroplandCROS</gco:CharacterString>
+              </cit:name>
+              <cit:description gco:nilReason="missing">
+                <gco:CharacterString />
+              </cit:description>
+            </cit:CI_OnlineResource>
+          </cit:onlineResource>
+          <cit:onlineResource>
+            <cit:CI_OnlineResource>
+              <cit:linkage>
+                <gco:CharacterString>https://datagateway.nrcs.usda.gov</gco:CharacterString>
+              </cit:linkage>
+              <cit:protocol>
+                <gco:CharacterString>WWW:LINK-1.0-http--link</gco:CharacterString>
+              </cit:protocol>
+              <cit:name>
+                <gco:CharacterString>USDA National Resources Conservation Service, Geospatial Data Gateway</gco:CharacterString>
+              </cit:name>
+              <cit:description gco:nilReason="missing">
+                <gco:CharacterString />
+              </cit:description>
+              <cit:function>
+                <cit:CI_OnLineFunctionCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_OnLineFunctionCode" codeListValue="download" />
+              </cit:function>
+            </cit:CI_OnlineResource>
+          </cit:onlineResource>
+          <cit:onlineResource>
+            <cit:CI_OnlineResource>
+              <cit:linkage>
+                <gco:CharacterString>https://www.nass.usda.gov/Research_and_Science/Cropland/SARS1a.php</gco:CharacterString>
+              </cit:linkage>
+              <cit:protocol>
+                <gco:CharacterString>WWW:LINK-1.0-http--link</gco:CharacterString>
+              </cit:protocol>
+              <cit:name>
+                <gco:CharacterString>NASS maintains a Frequently Asked Questions (FAQ's) section on the CDL website</gco:CharacterString>
+              </cit:name>
+              <cit:description>
+                <gco:CharacterString>Cropland Data Frequently asked questions (FAQ's)</gco:CharacterString>
+              </cit:description>
+              <cit:function>
+                <cit:CI_OnLineFunctionCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_OnLineFunctionCode" codeListValue="information" />
+              </cit:function>
+            </cit:CI_OnlineResource>
+          </cit:onlineResource>
+          <cit:graphic>
+            <mcc:MD_BrowseGraphic>
+              <mcc:fileName>
+                <gco:CharacterString>https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/CDL_browse_graphic_752x600.png</gco:CharacterString>
+              </mcc:fileName>
+              <mcc:fileType>
+                <gco:CharacterString>PNG</gco:CharacterString>
+              </mcc:fileType>
+              <mcc:linkage>
+                <cit:CI_OnlineResource>
+                  <cit:linkage>
+                    <gco:CharacterString>https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/CDL_browse_graphic_752x600.png</gco:CharacterString>
+                  </cit:linkage>
+                  <cit:protocol>
+                    <gco:CharacterString>WWW:DOWNLOAD-1.0-http--download</gco:CharacterString>
+                  </cit:protocol>
+                  <cit:name gco:nilReason="missing">
+                    <gco:CharacterString />
+                  </cit:name>
+                  <cit:description gco:nilReason="missing">
+                    <gco:CharacterString />
+                  </cit:description>
+                  <cit:function>
+                    <cit:CI_OnLineFunctionCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_OnLineFunctionCode" codeListValue="" />
+                  </cit:function>
+                </cit:CI_OnlineResource>
+              </mcc:linkage>
+            </mcc:MD_BrowseGraphic>
+          </cit:graphic>
+        </cit:CI_Citation>
+      </mri:citation>
+      <mri:abstract>
+        <gco:CharacterString>The USDA National Agricultural Statistics Service (NASS) Cropland Data Layer (CDL) is an annual raster, geo-referenced, crop-specific land cover data layer produced using satellite imagery and extensive agricultural ground reference data. The program began in 1997 with limited coverage and in 2008 forward expanded coverage to the entire Continental United States. Please note that no farmer reported data are derivable from the Cropland Data Layer.
+The 2008 to current CDLs have a spatial resolution of 30 meters and were produced using moderate spatial resolution satellite imagery. The current program uses Landsat 8 and 9 OLI/TIRS and ESA SENTINEL-2A and -2B collected throughout the growing season. Past years of CDL have used other satellite-based sensors such as Landsat 5 and 7, ISRO ResourceSat-2 LISS-3, IRS AWiFS, Diemos-1 and UK-DMC-2, and MODIS 16-Day NDVI Composite. Some CDL states used additional ancillary inputs to supplement and improve the land cover classification including historical CDL data, the United States Geological Survey (USGS) National Elevation Dataset (NED), USDA National Resources Conservation Service (NRCS) National Commodity Crop Productivity Index (NCCPI), and the most current versions of the USGS National Land Cover Database imperviousness and the tree canopy data layers. Agricultural training and validation data are derived from the Farm Service Agency (FSA) Common Land Unit (CLU) Program. Some CDL states incorporate additional crop-specific ground reference obtained from the following non-FSA sources which are detailed in the 'Lineage' Section of this metadata: US Bureau of Reclamation, NASS Citrus Data Layer (internal use only), California Department of Water Resources, Florida Department of Agriculture and Consumer Services Office of Agricultural Water Policy, Cornell University grape/vineyard data, Oregon State University tree crop and vineyard data, Utah Department of Water Resources, and Washington State Department of Agriculture. The most current version of the NLCD is used as non-agricultural training and validation data. Please visit the CDL FAQs and metadata webpages at &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/SARS1a.php&gt; to view a complete list of imagery, ancillary inputs, and ground reference used for a specific state and year.</gco:CharacterString>
+      </mri:abstract>
+      <mri:purpose>
+        <gco:CharacterString>The purpose of the Cropland Data Layer Program is to use satellite imagery to (1) provide planted acreage estimates to the Agricultural Statistics Board for the state's major commodities and (2) produce digital, crop-specific, categorized geo-referenced output products.</gco:CharacterString>
+      </mri:purpose>
+      <mri:credit>
+        <gco:CharacterString>USDA, National Agricultural Statistics Service</gco:CharacterString>
+      </mri:credit>
+      <mri:status>
+        <mcc:MD_ProgressCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_ProgressCode" codeListValue="completed" />
+      </mri:status>
+      <mri:pointOfContact>
+        <cit:CI_Responsibility>
+          <cit:role>
+            <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="pointOfContact" />
+          </cit:role>
+          <cit:party>
+            <cit:CI_Organisation>
+              <cit:name>
+                <gco:CharacterString>USDA, NASS, Spatial Analysis Research Section</gco:CharacterString>
+              </cit:name>
+              <cit:contactInfo>
+                <cit:CI_Contact>
+                  <cit:phone>
+                    <cit:CI_Telephone>
+                      <cit:number>
+                        <gco:CharacterString>800-727-9540</gco:CharacterString>
+                      </cit:number>
+                      <cit:numberType>
+                        <cit:CI_TelephoneTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_TelephoneTypeCode" codeListValue="voice" />
+                      </cit:numberType>
+                    </cit:CI_Telephone>
+                  </cit:phone>
+                  <cit:phone>
+                    <cit:CI_Telephone>
+                      <cit:number>
+                        <gco:CharacterString>855-493-0447</gco:CharacterString>
+                      </cit:number>
+                      <cit:numberType>
+                        <cit:CI_TelephoneTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_TelephoneTypeCode" codeListValue="fax" />
+                      </cit:numberType>
+                    </cit:CI_Telephone>
+                  </cit:phone>
+                  <cit:address>
+                    <cit:CI_Address>
+                      <cit:deliveryPoint>
+                        <gco:CharacterString>1400 Independence Avenue, SW, Room 5029 South Building</gco:CharacterString>
+                      </cit:deliveryPoint>
+                      <cit:city>
+                        <gco:CharacterString>Washington</gco:CharacterString>
+                      </cit:city>
+                      <cit:administrativeArea>
+                        <gco:CharacterString>District of Columbia</gco:CharacterString>
+                      </cit:administrativeArea>
+                      <cit:postalCode>
+                        <gco:CharacterString>20250-2001</gco:CharacterString>
+                      </cit:postalCode>
+                      <cit:country>
+                        <gco:CharacterString>USA</gco:CharacterString>
+                      </cit:country>
+                      <cit:electronicMailAddress>
+                        <gco:CharacterString>HQ_RDD_GIB@usda.gov</gco:CharacterString>
+                      </cit:electronicMailAddress>
+                    </cit:CI_Address>
+                  </cit:address>
+                </cit:CI_Contact>
+              </cit:contactInfo>
+            </cit:CI_Organisation>
+          </cit:party>
+        </cit:CI_Responsibility>
+      </mri:pointOfContact>
+      <mri:spatialRepresentationType>
+        <mcc:MD_SpatialRepresentationTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_SpatialRepresentationTypeCode" codeListValue="grid" />
+      </mri:spatialRepresentationType>
+      <mri:topicCategory>
+        <mri:MD_TopicCategoryCode>farming</mri:MD_TopicCategoryCode>
+      </mri:topicCategory>
+      <mri:topicCategory>
+        <mri:MD_TopicCategoryCode>environment</mri:MD_TopicCategoryCode>
+      </mri:topicCategory>
+      <mri:topicCategory>
+        <mri:MD_TopicCategoryCode>imageryBaseMapsEarthCover</mri:MD_TopicCategoryCode>
+      </mri:topicCategory>
+      <mri:extent>
+        <gex:EX_Extent id="boundingExtent">
+          <gex:geographicElement>
+            <gex:EX_GeographicBoundingBox id="boundingGeographicBoundingBox">
+              <gex:westBoundLongitude>
+                <gco:Decimal>-124.8459</gco:Decimal>
+              </gex:westBoundLongitude>
+              <gex:eastBoundLongitude>
+                <gco:Decimal>-67.0096</gco:Decimal>
+              </gex:eastBoundLongitude>
+              <gex:southBoundLatitude>
+                <gco:Decimal>24.3321</gco:Decimal>
+              </gex:southBoundLatitude>
+              <gex:northBoundLatitude>
+                <gco:Decimal>49.3253</gco:Decimal>
+              </gex:northBoundLatitude>
+            </gex:EX_GeographicBoundingBox>
+          </gex:geographicElement>
+          <gex:temporalElement>
+            <gex:EX_TemporalExtent id="boundingTemporalExtent">
+              <gex:extent>
+                <gml:TimePeriod gml:id="d219661e33">
+                  <gml:description>Continental US coverage (2008 to current), partial US coverage (1997-2007)</gml:description>
+                  <gml:beginPosition>1997-01-01</gml:beginPosition>
+                  <gml:endPosition>2024-01-31</gml:endPosition>
+                </gml:TimePeriod>
+              </gex:extent>
+            </gex:EX_TemporalExtent>
+          </gex:temporalElement>
+        </gex:EX_Extent>
+      </mri:extent>
+      <mri:resourceMaintenance>
+        <mmi:MD_MaintenanceInformation>
+          <mmi:maintenanceAndUpdateFrequency>
+            <mmi:MD_MaintenanceFrequencyCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_MaintenanceFrequencyCode" codeListValue="annually" />
+          </mmi:maintenanceAndUpdateFrequency>
+          <mmi:maintenanceScope>
+            <mcc:MD_Scope>
+              <mcc:level>
+                <mcc:MD_ScopeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_ScopeCode" codeListValue="collection" />
+              </mcc:level>
+              <mcc:levelDescription>
+                <mcc:MD_ScopeDescription>
+                  <mcc:featureInstances>
+                    <gco:CharacterString>Cropland Data Layer - all years and states</gco:CharacterString>
+                  </mcc:featureInstances>
+                </mcc:MD_ScopeDescription>
+              </mcc:levelDescription>
+            </mcc:MD_Scope>
+          </mmi:maintenanceScope>
+        </mmi:MD_MaintenanceInformation>
+      </mri:resourceMaintenance>
+      <mri:graphicOverview>
+        <mcc:MD_BrowseGraphic>
+          <mcc:fileName>
+            <gco:CharacterString>https://geodata.nal.usda.gov:/geonetwork/srv/api/records/ed735798-c133-44f1-a977-ad0c0dcad514/attachments/CDL_browse_graphic_752x600%5B1%5D.png</gco:CharacterString>
+          </mcc:fileName>
+        </mcc:MD_BrowseGraphic>
+      </mri:graphicOverview>
+      <mri:descriptiveKeywords>
+        <mri:MD_Keywords>
+          <mri:keyword>
+            <gco:CharacterString>NGDA</gco:CharacterString>
+          </mri:keyword>
+          <mri:keyword>
+            <gco:CharacterString>National Geospatial Data Asset</gco:CharacterString>
+          </mri:keyword>
+          <mri:keyword>
+            <gco:CharacterString>NGDA109</gco:CharacterString>
+          </mri:keyword>
+          <mri:keyword>
+            <gco:CharacterString>Land Use Land Cover Theme</gco:CharacterString>
+          </mri:keyword>
+          <mri:type>
+            <mri:MD_KeywordTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_KeywordTypeCode" codeListValue="theme" />
+          </mri:type>
+          <mri:thesaurusName>
+            <cit:CI_Citation>
+              <cit:title>
+                <gco:CharacterString>NGDA Portfolio Themes</gco:CharacterString>
+              </cit:title>
+            </cit:CI_Citation>
+          </mri:thesaurusName>
+        </mri:MD_Keywords>
+      </mri:descriptiveKeywords>
+      <mri:descriptiveKeywords>
+        <mri:MD_Keywords>
+          <mri:keyword>
+            <gco:CharacterString>Earth Science &gt; Biosphere &gt; Terrestrial Ecosystems &gt; Agricultural Lands</gco:CharacterString>
+          </mri:keyword>
+          <mri:keyword>
+            <gco:CharacterString>Earth Science &gt; Land Surface &gt; Land Use/Land Cover &gt; Land Cover</gco:CharacterString>
+          </mri:keyword>
+          <mri:type>
+            <mri:MD_KeywordTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_KeywordTypeCode" codeListValue="theme" />
+          </mri:type>
+          <mri:thesaurusName>
+            <cit:CI_Citation>
+              <cit:title>
+                <gco:CharacterString>Global Change Master Directory (GCMD) Science Keywords</gco:CharacterString>
+              </cit:title>
+              <cit:date gco:nilReason="unknown" />
+            </cit:CI_Citation>
+          </mri:thesaurusName>
+        </mri:MD_Keywords>
+      </mri:descriptiveKeywords>
+      <mri:descriptiveKeywords>
+        <mri:MD_Keywords>
+          <mri:keyword>
+            <gco:CharacterString>crop cover</gco:CharacterString>
+          </mri:keyword>
+          <mri:keyword>
+            <gco:CharacterString>cropland</gco:CharacterString>
+          </mri:keyword>
+          <mri:keyword>
+            <gco:CharacterString>agriculture</gco:CharacterString>
+          </mri:keyword>
+          <mri:keyword>
+            <gco:CharacterString>farming</gco:CharacterString>
+          </mri:keyword>
+          <mri:keyword>
+            <gco:CharacterString>land cover</gco:CharacterString>
+          </mri:keyword>
+          <mri:keyword>
+            <gco:CharacterString>DEIMOS-1</gco:CharacterString>
+          </mri:keyword>
+          <mri:keyword>
+            <gco:CharacterString>ISRO ResourceSat-2 LISS-3</gco:CharacterString>
+          </mri:keyword>
+          <mri:keyword>
+            <gco:CharacterString>ESA SENTINEL-2</gco:CharacterString>
+          </mri:keyword>
+          <mri:keyword>
+            <gco:CharacterString>Landsat</gco:CharacterString>
+          </mri:keyword>
+          <mri:keyword>
+            <gco:CharacterString>CroplandCROS</gco:CharacterString>
+          </mri:keyword>
+          <mri:type>
+            <mri:MD_KeywordTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_KeywordTypeCode" codeListValue="theme" />
+          </mri:type>
+          <mri:thesaurusName gco:nilReason="inapplicable">
+            <cit:CI_Citation>
+              <cit:title>
+                <gco:CharacterString>Other Keywords</gco:CharacterString>
+              </cit:title>
+              <cit:date gco:nilReason="unknown" />
+              <cit:otherCitationDetails>
+                <gco:CharacterString>Terms not selected from a predefined list</gco:CharacterString>
+              </cit:otherCitationDetails>
+            </cit:CI_Citation>
+          </mri:thesaurusName>
+        </mri:MD_Keywords>
+      </mri:descriptiveKeywords>
+      <mri:descriptiveKeywords>
+        <mri:MD_Keywords>
+          <mri:keyword>
+            <gco:CharacterString>Continent &gt; North America &gt; United States of America</gco:CharacterString>
+          </mri:keyword>
+          <mri:type>
+            <mri:MD_KeywordTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_KeywordTypeCode" codeListValue="place" />
+          </mri:type>
+          <mri:thesaurusName>
+            <cit:CI_Citation>
+              <cit:title>
+                <gco:CharacterString>Global Change Master Directory (GCMD) Location Keywords</gco:CharacterString>
+              </cit:title>
+              <cit:date gco:nilReason="unknown" />
+            </cit:CI_Citation>
+          </mri:thesaurusName>
+        </mri:MD_Keywords>
+      </mri:descriptiveKeywords>
+      <mri:resourceConstraints>
+        <mco:MD_Constraints>
+          <mco:useLimitation>
+            <gco:CharacterString>Disclaimer: Users of the Cropland Data Layer (CDL) are solely responsible for interpretations made from these products. The CDL is provided 'as is' and the USDA, NASS does not warrant results you may obtain using the Cropland Data Layer. NASS maintains a Frequently Asked Questions (FAQ's) webpage at &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/SARS1a.php&gt;.</gco:CharacterString>
+          </mco:useLimitation>
+        </mco:MD_Constraints>
+      </mri:resourceConstraints>
+      <mri:resourceConstraints>
+        <mco:MD_LegalConstraints>
+          <mco:useConstraints>
+            <mco:MD_RestrictionCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_RestrictionCode" codeListValue="otherRestrictions" />
+          </mco:useConstraints>
+          <mco:otherConstraints>
+            <gco:CharacterString>The USDA NASS Cropland Data Layer and the data offered on the CroplandCROS website is provided to the public as is and is considered public domain and free to redistribute. The USDA NASS does not warrant any conclusions drawn from these data.</gco:CharacterString>
+          </mco:otherConstraints>
+        </mco:MD_LegalConstraints>
+      </mri:resourceConstraints>
+      <mri:resourceConstraints>
+        <mco:MD_LegalConstraints>
+          <mco:accessConstraints>
+            <mco:MD_RestrictionCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_RestrictionCode" codeListValue="otherRestrictions" />
+          </mco:accessConstraints>
+          <mco:otherConstraints>
+            <gco:CharacterString>Access Constraints: None</gco:CharacterString>
+          </mco:otherConstraints>
+        </mco:MD_LegalConstraints>
+      </mri:resourceConstraints>
+      <mri:resourceConstraints>
+        <mco:MD_SecurityConstraints>
+          <mco:classification>
+            <mco:MD_ClassificationCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_ClassificationCode" codeListValue="unclassified" />
+          </mco:classification>
+          <mco:classificationSystem>
+            <gco:CharacterString>None</gco:CharacterString>
+          </mco:classificationSystem>
+          <mco:handlingDescription>
+            <gco:CharacterString>None</gco:CharacterString>
+          </mco:handlingDescription>
+        </mco:MD_SecurityConstraints>
+      </mri:resourceConstraints>
+      <mri:defaultLocale>
+        <lan:PT_Locale>
+          <lan:language>
+            <lan:LanguageCode codeList="http://www.loc.gov/standards/iso639-2/" codeListValue="eng; USA" />
+          </lan:language>
+          <lan:country>
+            <lan:CountryCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CountryCode" codeListValue="United States" />
+          </lan:country>
+          <lan:characterEncoding>
+            <lan:MD_CharacterSetCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_CharacterSetCode" codeListValue="utf8" />
+          </lan:characterEncoding>
+        </lan:PT_Locale>
+      </mri:defaultLocale>
+      <mri:environmentDescription>
+        <gco:CharacterString>Software used for the 2023 CDL Program - Microsoft Windows 10 Enterprise; ERDAS Imagine Version 2018 &lt;https://www.hexagongeospatial.com/&gt;; ESRI ArcGIS Version 10.8 and ArcGIS Pro 3.1 &lt;https://www.esri.com/&gt;; Rulequest See5.0 Release 2.11a &lt;http://www.rulequest.com/&gt;; NLCD Mapping Tool version 'NLCD_for_IMAGINE_ver_16_0_0_build_199_2018-09-12' &lt;https://www.mrlc.gov/&gt;.
+ERDAS Imagine is used in the pre- and post- processing of all raster-based data. ESRI ArcGIS is used to prepare the vector-based Farm Service Agency (FSA) Common Land Unit (CLU) training and validation data. Rulequest See5.0 is used to create a decision-tree based classifier. The NLCD Mapping Tool is used to apply the See5.0 decision-tree via ERDAS Imagine. This is a departure from older versions (pre-2007) of the CDL that were created using in-house software (Peditor) based upon a maximum likelihood classifier approach. Please visit the CDL FAQs and metadata webpages at &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/SARS1a.php&gt; to verify the methodology used for a specific state and year.</gco:CharacterString>
+      </mri:environmentDescription>
+      <mri:supplementalInformation>
+        <gco:CharacterString>Please visit the CDL FAQs and metadata webpages at &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/SARS1a.php&gt; to view a complete list of imagery, ancillary inputs, and ground reference used for a specific state and year.</gco:CharacterString>
+      </mri:supplementalInformation>
+    </mri:MD_DataIdentification>
+  </mdb:identificationInfo>
+  <mdb:contentInfo>
+    <mrc:MD_FeatureCatalogueDescription>
+      <mrc:includedWithDataset gco:nilReason="missing" />
+      <mrc:featureCatalogueCitation>
+        <cit:CI_Citation>
+          <cit:title>
+            <gco:CharacterString>Entity and Attribute Overview: The Cropland Data Layer (CDL) is produced using agricultural training data from the Farm Service Agency (FSA) Common Land Unit (CLU) Program and non-agricultural training data from the most current version of the United States Geological Survey (USGS) National Land Cover Database (NLCD). The strength and emphasis of the CDL is crop-specific land cover categories. The accuracy of the CDL non-agricultural land cover classes are entirely dependent upon the NLCD. Thus, the USDA, NASS recommends that users consider the NLCD for studies involving non-agricultural land cover.</gco:CharacterString>
+          </cit:title>
+          <cit:date gco:nilReason="inapplicable" />
+          <cit:otherCitationDetails>
+            <gco:CharacterString>Entity and Attribute Detail Citation: The categories and codes listed here are standardized through all historical CDLs and all states. Not all codes will appear in each state. Inputs have also changed over time, so the absence of a crop type in older CDLs does not necessarily mean it is not present, but rather the category was added in later years. If the following table does not display properly, then please visit the following website to view the information at &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/meta.php&gt;. &gt; Data Dictionary: USDA, National Agricultural Statistics Service, Cropland Data Layer &gt; &gt; Source: USDA, National Agricultural Statistics Service &gt; &gt; The following is a cross reference list of the categorization codes and land covers. &gt; Note that not all land cover categories listed below will appear in an individual state. &gt; &gt; Raster &gt; Attribute Domain Values and Definitions: NO DATA, BACKGROUND 0 &gt; &gt; Categorization Code Land Cover &gt; "0" Background &gt; &gt; Raster &gt; Attribute Domain Values and Definitions: CROPS 1-60 &gt; &gt; Categorization Code Land Cover &gt; "1" Corn &gt; "2" Cotton &gt; "3" Rice &gt; "4" Sorghum &gt; "5" Soybeans &gt; "6" Sunflower &gt; "10" Peanuts &gt; "11" Tobacco &gt; "12" Sweet Corn &gt; "13" Pop or Orn Corn &gt; "14" Mint &gt; "21" Barley &gt; "22" Durum Wheat &gt; "23" Spring Wheat &gt; "24" Winter Wheat &gt; "25" Other Small Grains &gt; "26" Dbl Crop WinWht/Soybeans &gt; "27" Rye &gt; "28" Oats &gt; "29" Millet &gt; "30" Speltz &gt; "31" Canola &gt; "32" Flaxseed &gt; "33" Safflower &gt; "34" Rape Seed &gt; "35" Mustard &gt; "36" Alfalfa &gt; "37" Other Hay/Non Alfalfa &gt; "38" Camelina &gt; "39" Buckwheat &gt; "41" Sugarbeets &gt; "42" Dry Beans &gt; "43" Potatoes &gt; "44" Other Crops &gt; "45" Sugarcane &gt; "46" Sweet Potatoes &gt; "47" Misc Vegs &amp; Fruits &gt; "48" Watermelons &gt; "49" Onions &gt; "50" Cucumbers &gt; "51" Chick Peas &gt; "52" Lentils &gt; "53" Peas &gt; "54" Tomatoes &gt; "55" Caneberries &gt; "56" Hops &gt; "57" Herbs &gt; "58" Clover/Wildflowers &gt; "59" Sod/Grass Seed &gt; "60" Switchgrass &gt; &gt; Raster &gt; Attribute Domain Values and Definitions: NON-CROP 61-65 &gt; &gt; Categorization Code Land Cover &gt; "61" Fallow/Idle Cropland &gt; "63" Forest &gt; "64" Shrubland &gt; "65" Barren &gt; &gt; Raster &gt; Attribute Domain Values and Definitions: CROPS 66-80 &gt; &gt; Categorization Code Land Cover &gt; "66" Cherries &gt; "67" Peaches &gt; "68" Apples &gt; "69" Grapes &gt; "70" Christmas Trees &gt; "71" Other Tree Crops &gt; "72" Citrus &gt; "74" Pecans &gt; "75" Almonds &gt; "76" Walnuts &gt; "77" Pears &gt; &gt; Raster &gt; Attribute Domain Values and Definitions: OTHER 81-109 &gt; &gt; Categorization Code Land Cover &gt; "81" Clouds/No Data &gt; "82" Developed &gt; "83" Water &gt; "87" Wetlands &gt; "88" Nonag/Undefined &gt; "92" Aquaculture &gt; &gt; Raster &gt; Attribute Domain Values and Definitions: NLCD-DERIVED CLASSES 110-195 &gt; &gt; Categorization Code Land Cover &gt; "111" Open Water &gt; "112" Perennial Ice/Snow &gt; "121" Developed/Open Space &gt; "122" Developed/Low Intensity &gt; "123" Developed/Med Intensity &gt; "124" Developed/High Intensity &gt; "131" Barren &gt; "141" Deciduous Forest &gt; "142" Evergreen Forest &gt; "143" Mixed Forest &gt; "152" Shrubland &gt; "176" Grassland/Pasture &gt; "190" Woody Wetlands &gt; "195" Herbaceous Wetlands &gt; &gt; Raster &gt; Attribute Domain Values and Definitions: CROPS 195-255 &gt; &gt; Categorization Code Land Cover &gt; "204" Pistachios &gt; "205" Triticale &gt; "206" Carrots &gt; "207" Asparagus &gt; "208" Garlic &gt; "209" Cantaloupes &gt; "210" Prunes &gt; "211" Olives &gt; "212" Oranges &gt; "213" Honeydew Melons &gt; "214" Broccoli &gt; "215" Avocados &gt; "216" Peppers &gt; "217" Pomegranates &gt; "218" Nectarines &gt; "219" Greens &gt; "220" Plums &gt; "221" Strawberries &gt; "222" Squash &gt; "223" Apricots &gt; "224" Vetch &gt; "225" Dbl Crop WinWht/Corn &gt; "226" Dbl Crop Oats/Corn &gt; "227" Lettuce &gt; "228" Dbl Crop Triticale/Corn &gt; "229" Pumpkins &gt; "230" Dbl Crop Lettuce/Durum Wht &gt; "231" Dbl Crop Lettuce/Cantaloupe &gt; "232" Dbl Crop Lettuce/Cotton &gt; "233" Dbl Crop Lettuce/Barley &gt; "234" Dbl Crop Durum Wht/Sorghum &gt; "235" Dbl Crop Barley/Sorghum &gt; "236" Dbl Crop WinWht/Sorghum &gt; "237" Dbl Crop Barley/Corn &gt; "238" Dbl Crop WinWht/Cotton &gt; "239" Dbl Crop Soybeans/Cotton &gt; "240" Dbl Crop Soybeans/Oats &gt; "241" Dbl Crop Corn/Soybeans &gt; "242" Blueberries &gt; "243" Cabbage &gt; "244" Cauliflower &gt; "245" Celery &gt; "246" Radishes &gt; "247" Turnips &gt; "248" Eggplants &gt; "249" Gourds &gt; "250" Cranberries &gt; "254" Dbl Crop Barley/Soybeans</gco:CharacterString>
+          </cit:otherCitationDetails>
+        </cit:CI_Citation>
+      </mrc:featureCatalogueCitation>
+    </mrc:MD_FeatureCatalogueDescription>
+  </mdb:contentInfo>
+  <mdb:contentInfo>
+    <mrc:MD_ImageDescription>
+      <mrc:attributeDescription gco:nilReason="inapplicable" />
+      <mrc:cloudCoverPercentage>
+        <gco:Real>0</gco:Real>
+      </mrc:cloudCoverPercentage>
+    </mrc:MD_ImageDescription>
+  </mdb:contentInfo>
+  <mdb:distributionInfo>
+    <mrd:MD_Distribution>
+      <mrd:distributionFormat>
+        <mrd:MD_Format>
+          <mrd:formatSpecificationCitation>
+            <cit:CI_Citation>
+              <cit:title>
+                <gco:CharacterString>GeoTIFF</gco:CharacterString>
+              </cit:title>
+              <cit:date gco:nilReason="unknown" />
+              <cit:edition>
+                <gco:CharacterString>2023</gco:CharacterString>
+              </cit:edition>
+            </cit:CI_Citation>
+          </mrd:formatSpecificationCitation>
+        </mrd:MD_Format>
+      </mrd:distributionFormat>
+      <mrd:distributor>
+        <mrd:MD_Distributor>
+          <mrd:distributorContact>
+            <cit:CI_Responsibility>
+              <cit:role>
+                <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="distributor" />
+              </cit:role>
+              <cit:party>
+                <cit:CI_Organisation>
+                  <cit:name>
+                    <gco:CharacterString>USDA, NASS Customer Service</gco:CharacterString>
+                  </cit:name>
+                  <cit:contactInfo>
+                    <cit:CI_Contact>
+                      <cit:phone>
+                        <cit:CI_Telephone>
+                          <cit:number>
+                            <gco:CharacterString>800-727-9540</gco:CharacterString>
+                          </cit:number>
+                          <cit:numberType>
+                            <cit:CI_TelephoneTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_TelephoneTypeCode" codeListValue="voice" />
+                          </cit:numberType>
+                        </cit:CI_Telephone>
+                      </cit:phone>
+                      <cit:phone>
+                        <cit:CI_Telephone>
+                          <cit:number>
+                            <gco:CharacterString>855-493-0447</gco:CharacterString>
+                          </cit:number>
+                          <cit:numberType>
+                            <cit:CI_TelephoneTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_TelephoneTypeCode" codeListValue="fax" />
+                          </cit:numberType>
+                        </cit:CI_Telephone>
+                      </cit:phone>
+                      <cit:address>
+                        <cit:CI_Address>
+                          <cit:deliveryPoint>
+                            <gco:CharacterString>1400 Independence Avenue, SW, Room 5038-S</gco:CharacterString>
+                          </cit:deliveryPoint>
+                          <cit:city>
+                            <gco:CharacterString>Washington</gco:CharacterString>
+                          </cit:city>
+                          <cit:administrativeArea>
+                            <gco:CharacterString>District of Columbia</gco:CharacterString>
+                          </cit:administrativeArea>
+                          <cit:postalCode>
+                            <gco:CharacterString>20250-9410</gco:CharacterString>
+                          </cit:postalCode>
+                          <cit:country>
+                            <gco:CharacterString>USA</gco:CharacterString>
+                          </cit:country>
+                          <cit:electronicMailAddress>
+                            <gco:CharacterString>HQ_RDD_GIB@usda.gov</gco:CharacterString>
+                          </cit:electronicMailAddress>
+                        </cit:CI_Address>
+                      </cit:address>
+                      <cit:contactInstructions>
+                        <gco:CharacterString>Please visit the official website &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/SARS1a.php&gt; for distribution details. The CDL is available online and free for download at CroplandCROS &lt;https://croplandcros.scinet.usda.gov/&gt; and &lt;https://datagateway.nrcs.usda.gov/&gt;. Distribution issues can also be directed to the NASS Customer Service Hotline at 1-800-727-9540.</gco:CharacterString>
+                      </cit:contactInstructions>
+                    </cit:CI_Contact>
+                  </cit:contactInfo>
+                </cit:CI_Organisation>
+              </cit:party>
+            </cit:CI_Responsibility>
+          </mrd:distributorContact>
+          <mrd:distributionOrderProcess>
+            <mrd:MD_StandardOrderProcess>
+              <mrd:fees>
+                <gco:CharacterString>The CDL is available online and free for download at CroplandCROS &lt;https://croplandcros.scinet.usda.gov/&gt;, the Geospatial Data Gateway &lt;https://datagateway.nrcs.usda.gov/&gt;, and the NASS CDL website &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/Release/&gt;.</gco:CharacterString>
+              </mrd:fees>
+              <mrd:orderingInstructions>
+                <gco:CharacterString>The CDL is available online and free for download at CroplandCROS &lt;https://croplandcros.scinet.usda.gov/&gt;, the Geospatial Data Gateway &lt;https://datagateway.nrcs.usda.gov/&gt;, and the NASS CDL website &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/Release/&gt;. Distribution questions can be directed to the NASS Customer Service Hotline at 1-800-727-9540.</gco:CharacterString>
+              </mrd:orderingInstructions>
+            </mrd:MD_StandardOrderProcess>
+          </mrd:distributionOrderProcess>
+        </mrd:MD_Distributor>
+      </mrd:distributor>
+      <mrd:transferOptions>
+        <mrd:MD_DigitalTransferOptions>
+          <mrd:onLine>
+            <cit:CI_OnlineResource>
+              <cit:linkage>
+                <gco:CharacterString>https://croplandcros.scinet.usda.gov/</gco:CharacterString>
+              </cit:linkage>
+            </cit:CI_OnlineResource>
+          </mrd:onLine>
+          <mrd:onLine>
+            <cit:CI_OnlineResource>
+              <cit:linkage>
+                <gco:CharacterString>https://geodata.nal.usda.gov:/geonetwork/srv/api/records/ed735798-c133-44f1-a977-ad0c0dcad514/attachments/cdl_data-invDatGov2023-10-26ca-pw.json</gco:CharacterString>
+              </cit:linkage>
+              <cit:protocol>
+                <gco:CharacterString>WWW:LINK</gco:CharacterString>
+              </cit:protocol>
+              <cit:name>
+                <gco:CharacterString>cdl_data-invDatGov2023-10-26ca-pw.json</gco:CharacterString>
+              </cit:name>
+              <cit:description>
+                <gco:CharacterString>data.json for metadata</gco:CharacterString>
+              </cit:description>
+              <cit:function>
+                <cit:CI_OnLineFunctionCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_OnLineFunctionCode" codeListValue="information" />
+              </cit:function>
+            </cit:CI_OnlineResource>
+          </mrd:onLine>
+        </mrd:MD_DigitalTransferOptions>
+      </mrd:transferOptions>
+    </mrd:MD_Distribution>
+  </mdb:distributionInfo>
+  <mdb:dataQualityInfo>
+    <mdq:DQ_DataQuality>
+      <mdq:scope>
+        <mcc:MD_Scope>
+          <mcc:level>
+            <mcc:MD_ScopeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_ScopeCode" codeListValue="aggregate" />
+          </mcc:level>
+        </mcc:MD_Scope>
+      </mdq:scope>
+      <mdq:report>
+        <mdq:DQ_AbsoluteExternalPositionalAccuracy>
+          <mdq:measure>
+            <mdq:DQ_MeasureReference>
+              <mdq:nameOfMeasure>
+                <gco:CharacterString>Horizontal Positional Accuracy Report</gco:CharacterString>
+              </mdq:nameOfMeasure>
+            </mdq:DQ_MeasureReference>
+          </mdq:measure>
+          <mdq:evaluationMethod>
+            <mdq:DQ_FullInspection>
+              <mdq:evaluationMethodDescription>
+                <gco:CharacterString>The Cropland Data Layer retains the spatial attributes of the input imagery. The Landsat 8 and 9 OLI/TIRS imagery is obtained via download from the USGS Global Visualization Viewer &lt;https://glovis.usgs.gov/&gt; using the Collection 2 Level-1 specifications. Please reference the metadata on the Glovis website for the positional accuracy of each Landsat scene. The Sentinel 2A and 2B imagery is obtained via download from the Copernicus Open Access Hub &lt;https://scihub.copernicus.eu/&gt; using the S2MSI1C product type which is orthorectified Top-of-Atmosphere reflectance. Please reference the metadata on the Copernicus website for positional accuracy details.</gco:CharacterString>
+              </mdq:evaluationMethodDescription>
+              <mdq:evaluationProcedure />
+            </mdq:DQ_FullInspection>
+          </mdq:evaluationMethod>
+          <mdq:result gco:nilReason="missing" />
+          <mdq:result gco:nilReason="missing" />
+          <mdq:result>
+            <mdq:DQ_QuantitativeResult>
+              <mdq:value>
+                <gco:Record />
+              </mdq:value>
+            </mdq:DQ_QuantitativeResult>
+          </mdq:result>
+        </mdq:DQ_AbsoluteExternalPositionalAccuracy>
+      </mdq:report>
+      <mdq:report>
+        <mdq:DQ_CompletenessCommission>
+          <mdq:measure>
+            <mdq:DQ_MeasureReference>
+              <mdq:measureIdentification>
+                <mcc:MD_Identifier>
+                  <mcc:authority>
+                    <cit:CI_Citation>
+                      <cit:title gco:nilReason="missing">
+                        <gco:CharacterString />
+                      </cit:title>
+                    </cit:CI_Citation>
+                  </mcc:authority>
+                  <mcc:code gco:nilReason="missing">
+                    <gcx:Anchor xlink:href="https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/meta.php" />
+                  </mcc:code>
+                  <mcc:description>
+                    <gco:CharacterString>The official NASS metadata webpage has additional details.</gco:CharacterString>
+                  </mcc:description>
+                </mcc:MD_Identifier>
+              </mdq:measureIdentification>
+            </mdq:DQ_MeasureReference>
+          </mdq:measure>
+          <mdq:evaluationMethod>
+            <mdq:DQ_FullInspection>
+              <mdq:evaluationMethodDescription>
+                <gco:CharacterString>The entire Continental United States is covered by the 2008 to 2023 Cropland Data Layer (CDL). Older CDLs from 1997-2007 are partial coverage. Check the official NASS metadata webpage for additional details. &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/meta.php&gt;</gco:CharacterString>
+              </mdq:evaluationMethodDescription>
+              <mdq:evaluationProcedure />
+              <mdq:referenceDoc>
+                <cit:CI_Citation>
+                  <cit:title gco:nilReason="missing">
+                    <gco:CharacterString />
+                  </cit:title>
+                </cit:CI_Citation>
+              </mdq:referenceDoc>
+            </mdq:DQ_FullInspection>
+          </mdq:evaluationMethod>
+          <mdq:result gco:nilReason="unknown" />
+          <mdq:result gco:nilReason="unknown" />
+        </mdq:DQ_CompletenessCommission>
+      </mdq:report>
+      <mdq:report>
+        <mdq:DQ_ConceptualConsistency>
+          <mdq:measure>
+            <mdq:DQ_MeasureReference>
+              <mdq:measureDescription>
+                <gco:CharacterString>The Cropland Data Layer (CDL) has been produced using training and independent validation data from the Farm Service Agency (FSA) Common Land Unit (CLU) Program (agricultural data) and United States Geological Survey (USGS) National Land Cover Database (NLCD). More information about the FSA CLU Program can be found at &lt;https://www.fsa.usda.gov/&gt;. More information about the NLCD can be found at &lt;https://www.mrlc.gov/&gt;. The CDL encompasses the entire state unless noted on the NASS metadata webpage &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/meta.php&gt;.</gco:CharacterString>
+              </mdq:measureDescription>
+            </mdq:DQ_MeasureReference>
+          </mdq:measure>
+          <mdq:result gco:nilReason="unknown" />
+        </mdq:DQ_ConceptualConsistency>
+      </mdq:report>
+      <mdq:report>
+        <mdq:DQ_QuantitativeAttributeAccuracy>
+          <mdq:measure>
+            <mdq:DQ_MeasureReference>
+              <mdq:nameOfMeasure>
+                <gco:CharacterString>Quantitative Attribute Accuracy Assessment</gco:CharacterString>
+              </mdq:nameOfMeasure>
+              <mdq:measureDescription>
+                <gco:CharacterString>The strength and emphasis of the CDL is crop-specific land cover categories. The accuracy of the CDL non-agricultural land cover classes is entirely dependent upon the USGS, National Land Cover Database. Thus, the USDA NASS recommends that users consider the NLCD for studies involving non-agricultural land cover.
+These definitions of accuracy statistics were derived from the following book: Congalton, Russell G. and Kass Green. Assessing the Accuracy of Remotely Sensed Data: Principles and Practices. Boca Raton, Florida: CRC Press, Inc. 1999. The 'Producer's Accuracy' is calculated for each cover type in the ground truth and indicates the probability that a ground truth pixel will be correctly mapped (across all cover types) and measures 'errors of omission'. An 'Omission Error' occurs when a pixel is excluded from the category to which it belongs in the validation dataset. The 'User's Accuracy' indicates the probability that a pixel from the CDL classification actually matches the ground truth data and measures 'errors of commission'. The 'Commission Error' represent when a pixel is included in an incorrect category according to the validation data. It is important to take into consideration errors of omission and commission. For example, if you classify every pixel in a scene to 'wheat', then you have 100% Producer's Accuracy for the wheat category and 0% Omission Error. However, you would also have a very high error of commission as all other crop types would be included in the incorrect category. The 'Kappa' is a measure of agreement based on the difference between the actual agreement in the error matrix (i.e., the agreement between the remotely sensed classification and the reference data as indicated by the major diagonal) and the chance agreement which is indicated by the row and column totals. The 'Conditional Kappa Coefficient' is the agreement for an individual category within the entire error matrix.</gco:CharacterString>
+              </mdq:measureDescription>
+            </mdq:DQ_MeasureReference>
+          </mdq:measure>
+          <mdq:evaluationMethod>
+            <mdq:DQ_FullInspection>
+              <mdq:evaluationMethodDescription>
+                <gco:CharacterString>Below are the Overall Accuracy metrics for the crop-specific categories for the Continental United States 2016 to 2023 CDLs. Full accuracy reports for past years, states, and individual crop types are available at the official NASS metadata website at &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/meta.php&gt;. 
+
+2023 Cropland Data Layer
+81.6%  OVERALL CROP ACCURACY, 18.4%  ERROR, 0.788  KAPPA
+
+2022 Cropland Data Layer
+80.9%  OVERALL CROP ACCURACY, 19.1%  ERROR, 0.780  KAPPA
+
+2021 Cropland Data Layer
+81.6% OVERALL CROP ACCURACY, 18.4% ERROR, 0.787 KAPPA
+
+2020 Cropland Data Layer
+81.3% OVERALL CROP ACCURACY, 18.7% ERROR, 0.786 KAPPA
+
+2019 Cropland Data Layer
+81.5% OVERALL CROP ACCURACY, 18.5% ERROR, 0.789 KAPPA
+
+2018 Cropland Data Layer
+82.3% OVERALL CROP ACCURACY, 17.7% ERROR, 0.796 KAPPA
+
+2017 Cropland Data Layer
+82.2% OVERALL CROP ACCURACY, 17.8% ERROR, 0.800 KAPPA
+
+2016 Cropland Data Layer
+79.6% OVERALL CROP ACCURACY, 20.4% ERROR, 0.767 KAPPA
+
+Note: The accuracy of the non-agricultural land cover classes within the Cropland Data Layer is dependent upon the most current publicly available USGS, National Land Cover Database (NLCD). Thus, the USDA, NASS recommends that users consider the NLCD for studies involving non-agricultural land cover. For more information on the accuracy of the NLCD please reference &lt;https://www.mrlc.gov/&gt;.</gco:CharacterString>
+              </mdq:evaluationMethodDescription>
+              <mdq:evaluationProcedure />
+            </mdq:DQ_FullInspection>
+          </mdq:evaluationMethod>
+          <mdq:result>
+            <mdq:DQ_QuantitativeResult>
+              <mdq:value>
+                <gco:Record>Classification accuracy is generally 85% to 95% correct for the major crop-specific land cover categories. Full accuracy reports for each year, state, and crop type are available at the official NASS metadata website at &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/meta.php&gt;.</gco:Record>
+              </mdq:value>
+              <mdq:valueUnit>
+                <gml:BaseUnit gml:id="d219661e161">
+                  <gml:identifier codeSpace="local">meters</gml:identifier>
+                  <gml:unitsSystem nilReason="unknown" />
+                </gml:BaseUnit>
+              </mdq:valueUnit>
+            </mdq:DQ_QuantitativeResult>
+          </mdq:result>
+        </mdq:DQ_QuantitativeAttributeAccuracy>
+      </mdq:report>
+    </mdq:DQ_DataQuality>
+  </mdb:dataQualityInfo>
+  <mdb:resourceLineage>
+    <mrl:LI_Lineage>
+      <mrl:scope>
+        <mcc:MD_Scope>
+          <mcc:level>
+            <mcc:MD_ScopeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_ScopeCode" codeListValue="dataset" />
+          </mcc:level>
+        </mcc:MD_Scope>
+      </mrl:scope>
+      <mrl:source>
+        <mrl:LI_Source id="_LISS-3">
+          <mrl:description>
+            <gco:CharacterString>Source Contribution: Raw data used in land cover spectral signature analysis Source Type: online download</gco:CharacterString>
+          </mrl:description>
+          <mrl:sourceSpatialResolution>
+            <mri:MD_Resolution>
+              <mri:equivalentScale>
+                <mri:MD_RepresentativeFraction>
+                  <mri:denominator gco:nilReason="unknown" />
+                </mri:MD_RepresentativeFraction>
+              </mri:equivalentScale>
+            </mri:MD_Resolution>
+          </mrl:sourceSpatialResolution>
+          <mrl:sourceCitation>
+            <cit:CI_Citation>
+              <cit:title>
+                <gco:CharacterString>ResourceSat-2 LISS-3</gco:CharacterString>
+              </cit:title>
+              <cit:date>
+                <cit:CI_Date>
+                  <cit:date>
+                    <gco:Date>2017</gco:Date>
+                  </cit:date>
+                  <cit:dateType>
+                    <cit:CI_DateTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode" codeListValue="publication" />
+                  </cit:dateType>
+                </cit:CI_Date>
+              </cit:date>
+              <cit:citedResponsibleParty>
+                <cit:CI_Responsibility>
+                  <cit:role>
+                    <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="publisher" />
+                  </cit:role>
+                  <cit:party>
+                    <cit:CI_Organisation>
+                      <cit:name>
+                        <gco:CharacterString>Indian Space Research Organization (ISRO)</gco:CharacterString>
+                      </cit:name>
+                      <cit:contactInfo>
+                        <cit:CI_Contact>
+                          <cit:address>
+                            <cit:CI_Address>
+                              <cit:city>
+                                <gco:CharacterString>Indian Space Research Organisation HQ</gco:CharacterString>
+                              </cit:city>
+                              <cit:administrativeArea>
+                                <gco:CharacterString>Department of Space, Government of India Antariksh Bhavan, New BEL Road, Bangalore 560 231</gco:CharacterString>
+                              </cit:administrativeArea>
+                            </cit:CI_Address>
+                          </cit:address>
+                        </cit:CI_Contact>
+                      </cit:contactInfo>
+                    </cit:CI_Organisation>
+                  </cit:party>
+                </cit:CI_Responsibility>
+              </cit:citedResponsibleParty>
+              <cit:citedResponsibleParty>
+                <cit:CI_Responsibility>
+                  <cit:role>
+                    <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="originator" />
+                  </cit:role>
+                  <cit:party>
+                    <cit:CI_Organisation>
+                      <cit:name>
+                        <gco:CharacterString>Indian Space Research Organization (ISRO)</gco:CharacterString>
+                      </cit:name>
+                    </cit:CI_Organisation>
+                  </cit:party>
+                </cit:CI_Responsibility>
+              </cit:citedResponsibleParty>
+              <cit:presentationForm>
+                <cit:CI_PresentationFormCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_PresentationFormCode" codeListValue="imageDigital" />
+              </cit:presentationForm>
+              <cit:otherCitationDetails>
+                <gco:CharacterString>The CDL used ISRO ResourceSat-2 LISS-3 as one of the satellite imagery inputs from the years 2017-2022. The ISRO ResourceSat-2 LISS-3 satellite sensor operates in four spectral bands at a spatial resolution of 24 meters. Additional information about the data can be obtained at &lt;https://www.isro.gov.in/&gt;. For the CDL Program, the imagery was resampled to 30 meters to match the USGS Landsat spatial resolution. The resample used cubic convolution, rigorous transformation. Refer to &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/meta.php&gt; for specific scene date, path, row and quadrants used as classification inputs for each state and year.</gco:CharacterString>
+              </cit:otherCitationDetails>
+            </cit:CI_Citation>
+          </mrl:sourceCitation>
+          <mrl:scope>
+            <mcc:MD_Scope>
+              <mcc:level />
+              <mcc:extent>
+                <gex:EX_Extent>
+                  <gex:temporalElement>
+                    <gex:EX_TemporalExtent>
+                      <gex:extent>
+                        <gml:TimePeriod gml:id="d219661e199">
+                          <gml:beginPosition>2017-01-01</gml:beginPosition>
+                          <gml:endPosition>2021-12-31</gml:endPosition>
+                        </gml:TimePeriod>
+                      </gex:extent>
+                    </gex:EX_TemporalExtent>
+                  </gex:temporalElement>
+                </gex:EX_Extent>
+              </mcc:extent>
+              <mcc:levelDescription />
+            </mcc:MD_Scope>
+          </mrl:scope>
+        </mrl:LI_Source>
+      </mrl:source>
+      <mrl:source>
+        <mrl:LI_Source id="_SENTINEL-2">
+          <mrl:description>
+            <gco:CharacterString>Source Contribution: Raw data used in land cover spectral signature analysisSource Type: online download</gco:CharacterString>
+          </mrl:description>
+          <mrl:sourceSpatialResolution>
+            <mri:MD_Resolution>
+              <mri:equivalentScale>
+                <mri:MD_RepresentativeFraction>
+                  <mri:denominator gco:nilReason="unknown" />
+                </mri:MD_RepresentativeFraction>
+              </mri:equivalentScale>
+            </mri:MD_Resolution>
+          </mrl:sourceSpatialResolution>
+          <mrl:sourceCitation>
+            <cit:CI_Citation>
+              <cit:title>
+                <gco:CharacterString>SENTINEL-2</gco:CharacterString>
+              </cit:title>
+              <cit:date>
+                <cit:CI_Date>
+                  <cit:date>
+                    <gco:Date>2017</gco:Date>
+                  </cit:date>
+                  <cit:dateType>
+                    <cit:CI_DateTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode" codeListValue="publication" />
+                  </cit:dateType>
+                </cit:CI_Date>
+              </cit:date>
+              <cit:citedResponsibleParty>
+                <cit:CI_Responsibility>
+                  <cit:role>
+                    <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="publisher" />
+                  </cit:role>
+                  <cit:party>
+                    <cit:CI_Organisation>
+                      <cit:name>
+                        <gco:CharacterString>Copernicus - European Commission</gco:CharacterString>
+                      </cit:name>
+                      <cit:contactInfo>
+                        <cit:CI_Contact>
+                          <cit:address>
+                            <cit:CI_Address>
+                              <cit:city>
+                                <gco:CharacterString>European Commission</gco:CharacterString>
+                              </cit:city>
+                              <cit:administrativeArea>
+                                <gco:CharacterString>Brussels (Belgium)</gco:CharacterString>
+                              </cit:administrativeArea>
+                            </cit:CI_Address>
+                          </cit:address>
+                        </cit:CI_Contact>
+                      </cit:contactInfo>
+                    </cit:CI_Organisation>
+                  </cit:party>
+                </cit:CI_Responsibility>
+              </cit:citedResponsibleParty>
+              <cit:citedResponsibleParty>
+                <cit:CI_Responsibility>
+                  <cit:role>
+                    <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="originator" />
+                  </cit:role>
+                  <cit:party>
+                    <cit:CI_Organisation>
+                      <cit:name>
+                        <gco:CharacterString>European Space Agency (ESA)</gco:CharacterString>
+                      </cit:name>
+                    </cit:CI_Organisation>
+                  </cit:party>
+                </cit:CI_Responsibility>
+              </cit:citedResponsibleParty>
+              <cit:presentationForm>
+                <cit:CI_PresentationFormCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_PresentationFormCode" codeListValue="imageDigital" />
+              </cit:presentationForm>
+              <cit:otherCitationDetails>
+                <gco:CharacterString>The CDL used Sentinel-2 satellite imagery as one of the inputs from 2017-2023. The ESA SENTINEL-2 satellite sensor operates in twelve spectral bands at spatial resolutions varying from 10 to 60 meters. Additional information about the data can be obtained at &lt;http://www.esa.int/&gt;. For the CDL Program, the imagery was resampled to 30 meters to match the Landsat spatial resolution. The resample used cubic convolution, rigorous transformation. Refer to &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/meta.php&gt; for specific scene date, path, row and quadrants used as classification inputs for each state and year.</gco:CharacterString>
+              </cit:otherCitationDetails>
+            </cit:CI_Citation>
+          </mrl:sourceCitation>
+          <mrl:scope>
+            <mcc:MD_Scope>
+              <mcc:level />
+              <mcc:extent>
+                <gex:EX_Extent>
+                  <gex:temporalElement>
+                    <gex:EX_TemporalExtent>
+                      <gex:extent>
+                        <gml:TimePeriod gml:id="d219661e234">
+                          <gml:beginPosition>2017-01-01</gml:beginPosition>
+                          <gml:endPosition>2023-12-31</gml:endPosition>
+                        </gml:TimePeriod>
+                      </gex:extent>
+                    </gex:EX_TemporalExtent>
+                  </gex:temporalElement>
+                </gex:EX_Extent>
+              </mcc:extent>
+              <mcc:levelDescription />
+            </mcc:MD_Scope>
+          </mrl:scope>
+        </mrl:LI_Source>
+      </mrl:source>
+      <mrl:source>
+        <mrl:LI_Source id="_Deimos-1">
+          <mrl:description>
+            <gco:CharacterString>Source Contribution: Raw data used in land cover spectral signature analysisSource Type: online download</gco:CharacterString>
+          </mrl:description>
+          <mrl:sourceSpatialResolution>
+            <mri:MD_Resolution>
+              <mri:equivalentScale>
+                <mri:MD_RepresentativeFraction>
+                  <mri:denominator gco:nilReason="unknown" />
+                </mri:MD_RepresentativeFraction>
+              </mri:equivalentScale>
+            </mri:MD_Resolution>
+          </mrl:sourceSpatialResolution>
+          <mrl:sourceCitation>
+            <cit:CI_Citation>
+              <cit:title>
+                <gco:CharacterString>DEIMOS-1</gco:CharacterString>
+              </cit:title>
+              <cit:date>
+                <cit:CI_Date>
+                  <cit:date>
+                    <gco:Date>2011</gco:Date>
+                  </cit:date>
+                  <cit:dateType>
+                    <cit:CI_DateTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode" codeListValue="publication" />
+                  </cit:dateType>
+                </cit:CI_Date>
+              </cit:date>
+              <cit:citedResponsibleParty>
+                <cit:CI_Responsibility>
+                  <cit:role>
+                    <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="publisher" />
+                  </cit:role>
+                  <cit:party>
+                    <cit:CI_Organisation>
+                      <cit:name>
+                        <gco:CharacterString>Astrium GEO Information Services</gco:CharacterString>
+                      </cit:name>
+                      <cit:contactInfo>
+                        <cit:CI_Contact>
+                          <cit:address>
+                            <cit:CI_Address>
+                              <cit:city>
+                                <gco:CharacterString>Elecnor Deimos Imaging</gco:CharacterString>
+                              </cit:city>
+                              <cit:administrativeArea>
+                                <gco:CharacterString>Valladolid, Spain</gco:CharacterString>
+                              </cit:administrativeArea>
+                            </cit:CI_Address>
+                          </cit:address>
+                        </cit:CI_Contact>
+                      </cit:contactInfo>
+                    </cit:CI_Organisation>
+                  </cit:party>
+                </cit:CI_Responsibility>
+              </cit:citedResponsibleParty>
+              <cit:citedResponsibleParty>
+                <cit:CI_Responsibility>
+                  <cit:role>
+                    <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="originator" />
+                  </cit:role>
+                  <cit:party>
+                    <cit:CI_Organisation>
+                      <cit:name>
+                        <gco:CharacterString>Elecnor Deimos Imaging</gco:CharacterString>
+                      </cit:name>
+                    </cit:CI_Organisation>
+                  </cit:party>
+                </cit:CI_Responsibility>
+              </cit:citedResponsibleParty>
+              <cit:presentationForm>
+                <cit:CI_PresentationFormCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_PresentationFormCode" codeListValue="imageDigital" />
+              </cit:presentationForm>
+              <cit:otherCitationDetails>
+                <gco:CharacterString>The CDL used DEIMOS-1 and UK-2 satellite imagery as one of the inputs from 2011 to 2020. The DEIMOS-1 and UK-2 satellite sensors operate in three spectral bands at a spatial resolution of 22 meters. Additional information can be obtained at &lt;https://www.deimos-imaging.com/&gt;. The imagery was resampled to 30 meters to match the Landsat spatial resolution. The resample used cubic convolution, rigorous transformation. Refer to &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/meta.php&gt; for specific scene date, path, row and quadrants used as classification inputs for each state and year.</gco:CharacterString>
+              </cit:otherCitationDetails>
+            </cit:CI_Citation>
+          </mrl:sourceCitation>
+          <mrl:scope>
+            <mcc:MD_Scope>
+              <mcc:level />
+              <mcc:extent>
+                <gex:EX_Extent>
+                  <gex:temporalElement>
+                    <gex:EX_TemporalExtent>
+                      <gex:extent>
+                        <gml:TimePeriod gml:id="d219661e269">
+                          <gml:beginPosition>2011-01-01</gml:beginPosition>
+                          <gml:endPosition>2020-12-31</gml:endPosition>
+                        </gml:TimePeriod>
+                      </gex:extent>
+                    </gex:EX_TemporalExtent>
+                  </gex:temporalElement>
+                </gex:EX_Extent>
+              </mcc:extent>
+              <mcc:levelDescription />
+            </mcc:MD_Scope>
+          </mrl:scope>
+        </mrl:LI_Source>
+      </mrl:source>
+      <mrl:source>
+        <mrl:LI_Source id="_Landsat_8">
+          <mrl:description>
+            <gco:CharacterString>Source Contribution: Raw data used in land cover spectral signature analysis Source Type: online download</gco:CharacterString>
+          </mrl:description>
+          <mrl:sourceSpatialResolution>
+            <mri:MD_Resolution>
+              <mri:equivalentScale>
+                <mri:MD_RepresentativeFraction>
+                  <mri:denominator gco:nilReason="unknown" />
+                </mri:MD_RepresentativeFraction>
+              </mri:equivalentScale>
+            </mri:MD_Resolution>
+          </mrl:sourceSpatialResolution>
+          <mrl:sourceCitation>
+            <cit:CI_Citation>
+              <cit:title>
+                <gco:CharacterString>Landsat TM/ETM/OLI/TIRS</gco:CharacterString>
+              </cit:title>
+              <cit:date>
+                <cit:CI_Date>
+                  <cit:date>
+                    <gco:Date>1997</gco:Date>
+                  </cit:date>
+                  <cit:dateType>
+                    <cit:CI_DateTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode" codeListValue="publication" />
+                  </cit:dateType>
+                </cit:CI_Date>
+              </cit:date>
+              <cit:citedResponsibleParty>
+                <cit:CI_Responsibility>
+                  <cit:role>
+                    <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="publisher" />
+                  </cit:role>
+                  <cit:party>
+                    <cit:CI_Organisation>
+                      <cit:name>
+                        <gco:CharacterString>USGS, EROS</gco:CharacterString>
+                      </cit:name>
+                      <cit:contactInfo>
+                        <cit:CI_Contact>
+                          <cit:address>
+                            <cit:CI_Address>
+                              <cit:city>
+                                <gco:CharacterString>Sioux Falls</gco:CharacterString>
+                              </cit:city>
+                              <cit:administrativeArea>
+                                <gco:CharacterString>South Dakota 57198-001</gco:CharacterString>
+                              </cit:administrativeArea>
+                            </cit:CI_Address>
+                          </cit:address>
+                        </cit:CI_Contact>
+                      </cit:contactInfo>
+                    </cit:CI_Organisation>
+                  </cit:party>
+                </cit:CI_Responsibility>
+              </cit:citedResponsibleParty>
+              <cit:citedResponsibleParty>
+                <cit:CI_Responsibility>
+                  <cit:role>
+                    <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="originator" />
+                  </cit:role>
+                  <cit:party>
+                    <cit:CI_Organisation>
+                      <cit:name>
+                        <gco:CharacterString>United States Geological Survey (USGS), Earth Resources Observation and Science (EROS)</gco:CharacterString>
+                      </cit:name>
+                    </cit:CI_Organisation>
+                  </cit:party>
+                </cit:CI_Responsibility>
+              </cit:citedResponsibleParty>
+              <cit:presentationForm>
+                <cit:CI_PresentationFormCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_PresentationFormCode" codeListValue="imageDigital" />
+              </cit:presentationForm>
+              <cit:otherCitationDetails>
+                <gco:CharacterString>The CDL has used Landsat satellite imagery as a primary input throughout the entire history of the program from 1997 to current. The Landsat data are free for download through the following website &lt;https://glovis.usgs.gov/&gt;. Additional information about Landsat data can be obtained at &lt;https://www.usgs.gov/centers/eros&gt;.  Refer to &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/meta.php&gt; for specific imagery and ancillary data used as classification inputs for each state and year.</gco:CharacterString>
+              </cit:otherCitationDetails>
+            </cit:CI_Citation>
+          </mrl:sourceCitation>
+          <mrl:scope>
+            <mcc:MD_Scope>
+              <mcc:level />
+              <mcc:extent>
+                <gex:EX_Extent>
+                  <gex:temporalElement>
+                    <gex:EX_TemporalExtent>
+                      <gex:extent>
+                        <gml:TimePeriod gml:id="d219661e304">
+                          <gml:beginPosition>1997-01-01</gml:beginPosition>
+                          <gml:endPosition>2023-12-31</gml:endPosition>
+                        </gml:TimePeriod>
+                      </gex:extent>
+                    </gex:EX_TemporalExtent>
+                  </gex:temporalElement>
+                </gex:EX_Extent>
+              </mcc:extent>
+              <mcc:levelDescription />
+            </mcc:MD_Scope>
+          </mrl:scope>
+        </mrl:LI_Source>
+      </mrl:source>
+      <mrl:source>
+        <mrl:LI_Source id="_NED">
+          <mrl:description>
+            <gco:CharacterString>Source Contribution: spatial and attribute information used in land cover spectral signature analysisSource Type: online</gco:CharacterString>
+          </mrl:description>
+          <mrl:sourceSpatialResolution>
+            <mri:MD_Resolution>
+              <mri:equivalentScale>
+                <mri:MD_RepresentativeFraction>
+                  <mri:denominator gco:nilReason="unknown" />
+                </mri:MD_RepresentativeFraction>
+              </mri:equivalentScale>
+            </mri:MD_Resolution>
+          </mrl:sourceSpatialResolution>
+          <mrl:sourceCitation>
+            <cit:CI_Citation>
+              <cit:title>
+                <gco:CharacterString>The National Elevation Dataset (NED)</gco:CharacterString>
+              </cit:title>
+              <cit:date>
+                <cit:CI_Date>
+                  <cit:date>
+                    <gco:Date>2009-01-01</gco:Date>
+                  </cit:date>
+                  <cit:dateType>
+                    <cit:CI_DateTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode" codeListValue="publication" />
+                  </cit:dateType>
+                </cit:CI_Date>
+              </cit:date>
+              <cit:citedResponsibleParty>
+                <cit:CI_Responsibility>
+                  <cit:role>
+                    <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="publisher" />
+                  </cit:role>
+                  <cit:party>
+                    <cit:CI_Organisation>
+                      <cit:name>
+                        <gco:CharacterString>USGS, EROS Data Center</gco:CharacterString>
+                      </cit:name>
+                      <cit:contactInfo>
+                        <cit:CI_Contact>
+                          <cit:address>
+                            <cit:CI_Address>
+                              <cit:city>
+                                <gco:CharacterString>Sioux Falls</gco:CharacterString>
+                              </cit:city>
+                              <cit:administrativeArea>
+                                <gco:CharacterString>South Dakota 57198 USA</gco:CharacterString>
+                              </cit:administrativeArea>
+                            </cit:CI_Address>
+                          </cit:address>
+                        </cit:CI_Contact>
+                      </cit:contactInfo>
+                    </cit:CI_Organisation>
+                  </cit:party>
+                </cit:CI_Responsibility>
+              </cit:citedResponsibleParty>
+              <cit:citedResponsibleParty>
+                <cit:CI_Responsibility>
+                  <cit:role>
+                    <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="originator" />
+                  </cit:role>
+                  <cit:party>
+                    <cit:CI_Organisation>
+                      <cit:name>
+                        <gco:CharacterString>United States Geological Survey (USGS) Earth Resources Observation and Science (EROS) Data Center</gco:CharacterString>
+                      </cit:name>
+                    </cit:CI_Organisation>
+                  </cit:party>
+                </cit:CI_Responsibility>
+              </cit:citedResponsibleParty>
+              <cit:presentationForm>
+                <cit:CI_PresentationFormCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_PresentationFormCode" codeListValue="imageDigital" />
+              </cit:presentationForm>
+              <cit:otherCitationDetails>
+                <gco:CharacterString>The USGS NED Digital Elevation Model (DEM) is used as an ancillary data source in the production of the Cropland Data Layer. More information on the USGS NED can be found at &lt;https://www.usgs.gov/core-science-systems/national-geospatial-program/national-map&gt;.  Refer to &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/meta.php&gt; for specific imagery and ancillary data used as classification inputs for each state and year.</gco:CharacterString>
+              </cit:otherCitationDetails>
+            </cit:CI_Citation>
+          </mrl:sourceCitation>
+          <mrl:scope>
+            <mcc:MD_Scope>
+              <mcc:level />
+              <mcc:levelDescription />
+            </mcc:MD_Scope>
+          </mrl:scope>
+        </mrl:LI_Source>
+      </mrl:source>
+      <mrl:source>
+        <mrl:LI_Source id="_NLCD">
+          <mrl:description>
+            <gco:CharacterString>Source Contribution: Raw data used in land cover spectral signature analysisSource Type: online</gco:CharacterString>
+          </mrl:description>
+          <mrl:sourceSpatialResolution>
+            <mri:MD_Resolution>
+              <mri:equivalentScale>
+                <mri:MD_RepresentativeFraction>
+                  <mri:denominator gco:nilReason="unknown" />
+                </mri:MD_RepresentativeFraction>
+              </mri:equivalentScale>
+            </mri:MD_Resolution>
+          </mrl:sourceSpatialResolution>
+          <mrl:sourceCitation>
+            <cit:CI_Citation>
+              <cit:title>
+                <gco:CharacterString>National Land Cover Database 2019 (NLCD 2019)</gco:CharacterString>
+              </cit:title>
+              <cit:date>
+                <cit:CI_Date>
+                  <cit:date>
+                    <gco:Date>2021</gco:Date>
+                  </cit:date>
+                  <cit:dateType>
+                    <cit:CI_DateTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode" codeListValue="publication" />
+                  </cit:dateType>
+                </cit:CI_Date>
+              </cit:date>
+              <cit:citedResponsibleParty>
+                <cit:CI_Responsibility>
+                  <cit:role>
+                    <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="publisher" />
+                  </cit:role>
+                  <cit:party>
+                    <cit:CI_Organisation>
+                      <cit:name>
+                        <gco:CharacterString>USGS, EROS Data Center</gco:CharacterString>
+                      </cit:name>
+                      <cit:contactInfo>
+                        <cit:CI_Contact>
+                          <cit:address>
+                            <cit:CI_Address>
+                              <cit:city>
+                                <gco:CharacterString>Sioux Falls</gco:CharacterString>
+                              </cit:city>
+                              <cit:administrativeArea>
+                                <gco:CharacterString>South Dakota 57198 USA</gco:CharacterString>
+                              </cit:administrativeArea>
+                            </cit:CI_Address>
+                          </cit:address>
+                        </cit:CI_Contact>
+                      </cit:contactInfo>
+                    </cit:CI_Organisation>
+                  </cit:party>
+                </cit:CI_Responsibility>
+              </cit:citedResponsibleParty>
+              <cit:citedResponsibleParty>
+                <cit:CI_Responsibility>
+                  <cit:role>
+                    <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="originator" />
+                  </cit:role>
+                  <cit:party>
+                    <cit:CI_Organisation>
+                      <cit:name>
+                        <gco:CharacterString>United States Geological Survey (USGS) Earth Resources Observation and Science (EROS) Data Center</gco:CharacterString>
+                      </cit:name>
+                    </cit:CI_Organisation>
+                  </cit:party>
+                </cit:CI_Responsibility>
+              </cit:citedResponsibleParty>
+              <cit:presentationForm>
+                <cit:CI_PresentationFormCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_PresentationFormCode" codeListValue="imageDigital" />
+              </cit:presentationForm>
+              <cit:otherCitationDetails>
+                <gco:CharacterString>The most current publicly available NLCD is used as ground training and validation for non-agricultural categories. Additionally, the USGS NLCD Imperviousness and Tree Canopy Layers were used as ancillary data sources in the Cropland Data Layer classification process.  Refer to &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/metadata/meta.php&gt; for specific imagery and ancillary data used as classification inputs for each state and year.</gco:CharacterString>
+              </cit:otherCitationDetails>
+            </cit:CI_Citation>
+          </mrl:sourceCitation>
+          <mrl:scope>
+            <mcc:MD_Scope>
+              <mcc:level />
+              <mcc:levelDescription />
+            </mcc:MD_Scope>
+          </mrl:scope>
+        </mrl:LI_Source>
+      </mrl:source>
+      <mrl:source>
+        <mrl:LI_Source id="_FSA_CLU">
+          <mrl:description>
+            <gco:CharacterString>Source Contribution: spatial and attribute information used in the spectral signature training and validation of agricultural land coverSource Type: online</gco:CharacterString>
+          </mrl:description>
+          <mrl:sourceSpatialResolution>
+            <mri:MD_Resolution>
+              <mri:equivalentScale>
+                <mri:MD_RepresentativeFraction>
+                  <mri:denominator>
+                    <gco:Integer>4800</gco:Integer>
+                  </mri:denominator>
+                </mri:MD_RepresentativeFraction>
+              </mri:equivalentScale>
+            </mri:MD_Resolution>
+          </mrl:sourceSpatialResolution>
+          <mrl:sourceCitation>
+            <cit:CI_Citation>
+              <cit:title>
+                <gco:CharacterString>USDA, FSA Common Land Unit (CLU)</gco:CharacterString>
+              </cit:title>
+              <cit:date>
+                <cit:CI_Date>
+                  <cit:date>
+                    <gco:Date>2023</gco:Date>
+                  </cit:date>
+                  <cit:dateType>
+                    <cit:CI_DateTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_DateTypeCode" codeListValue="publication" />
+                  </cit:dateType>
+                </cit:CI_Date>
+              </cit:date>
+              <cit:citedResponsibleParty>
+                <cit:CI_Responsibility>
+                  <cit:role>
+                    <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="publisher" />
+                  </cit:role>
+                  <cit:party>
+                    <cit:CI_Organisation>
+                      <cit:name>
+                        <gco:CharacterString>USDA, FSA Aerial Photography Field Office</gco:CharacterString>
+                      </cit:name>
+                      <cit:contactInfo>
+                        <cit:CI_Contact>
+                          <cit:address>
+                            <cit:CI_Address>
+                              <cit:city>
+                                <gco:CharacterString>Salt Lake City</gco:CharacterString>
+                              </cit:city>
+                              <cit:administrativeArea>
+                                <gco:CharacterString>Utah 84119-2020 USA</gco:CharacterString>
+                              </cit:administrativeArea>
+                            </cit:CI_Address>
+                          </cit:address>
+                        </cit:CI_Contact>
+                      </cit:contactInfo>
+                    </cit:CI_Organisation>
+                  </cit:party>
+                </cit:CI_Responsibility>
+              </cit:citedResponsibleParty>
+              <cit:citedResponsibleParty>
+                <cit:CI_Responsibility>
+                  <cit:role>
+                    <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="originator" />
+                  </cit:role>
+                  <cit:party>
+                    <cit:CI_Organisation>
+                      <cit:name>
+                        <gco:CharacterString>United States Department of Agriculture (USDA), Farm Service Agency (FSA)</gco:CharacterString>
+                      </cit:name>
+                    </cit:CI_Organisation>
+                  </cit:party>
+                </cit:CI_Responsibility>
+              </cit:citedResponsibleParty>
+              <cit:presentationForm>
+                <cit:CI_PresentationFormCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_PresentationFormCode" codeListValue="mapDigital" />
+              </cit:presentationForm>
+              <cit:otherCitationDetails>
+                <gco:CharacterString>Access to the USDA, Farm Service Agency (FSA) Common Land Unit (CLU) digital data set is currently limited to FSA and Agency partnerships. During the current growing season, producers enrolled in FSA programs report their growing intentions, crops and acreage to USDA Field Service Centers. Their field boundaries are digitized in a standardized GIS data layer and the associated attribute information is maintained in a database known as 578 Administrative Data. This CLU/578 dataset provides a comprehensive and robust agricultural training and validation data set for the Cropland Data Layer. Additional information about the CLU Program can be found at &lt;https://www.fsa.usda.gov/&gt;.</gco:CharacterString>
+              </cit:otherCitationDetails>
+            </cit:CI_Citation>
+          </mrl:sourceCitation>
+          <mrl:scope>
+            <mcc:MD_Scope>
+              <mcc:level />
+              <mcc:extent>
+                <gex:EX_Extent>
+                  <gex:temporalElement>
+                    <gex:EX_TemporalExtent>
+                      <gex:extent>
+                        <gml:TimeInstant gml:id="d219661e405">
+                          <gml:timePosition>2023-10-01</gml:timePosition>
+                        </gml:TimeInstant>
+                      </gex:extent>
+                    </gex:EX_TemporalExtent>
+                  </gex:temporalElement>
+                </gex:EX_Extent>
+              </mcc:extent>
+              <mcc:levelDescription />
+            </mcc:MD_Scope>
+          </mrl:scope>
+        </mrl:LI_Source>
+      </mrl:source>
+      <mrl:processStep>
+        <mrl:LE_ProcessStep>
+          <mrl:description>
+            <gco:CharacterString>OVERVIEW: FOR MORE TECHNICAL DETAILS AND PROGRAM HISTORY: &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/sarsfaqs2.php&gt; The United States Department of Agriculture (USDA) National Agricultural Statistics Service (NASS) Cropland Data Layer (CDL) Program is a unique agricultural-specific land cover geospatial product that is produced annually in participating states. The CDL Program builds upon NASS' traditional crop acreage estimation program and integrates Farm Service Agency (FSA) grower-reported field data with satellite imagery to create an unbiased statistical estimator of crop area at the state and county level for internal use. It is important to note that the internal CDL acreage estimates, which most closely aligned with planted acres, are not simple pixel counting but regression estimates using NASS survey data. It is more of an 'Adjusted Census by Satellite.'
+SOFTWARE: ERDAS Imagine is used in the pre- and post- processing of all raster-based data. ESRI ArcGIS is used to prepare the vector-based training and validation data. Rulequest See5.0 is used to create a decision tree based classifier. The NLCD Mapping Tool is used to apply the See5.0 decision-tree via ERDAS Imagine.
+DECISION TREE CLASSIFIER: This Cropland Data Layer uses a decision tree classifier approach. Using a decision tree classifier is a departure from older versions (pre-2007) of the CDL which were created using in-house software (Peditor) based upon a maximum likelihood classifier approach. Decision trees offer several advantages over the more traditional maximum likelihood classification method. The advantages include being: 1) non-parametric by nature and thus not reliant on the assumption of the input data being normally distributed, 2) efficient to construct and thus capable of handling large and complex data sets, 3) able to incorporate missing and non-continuous data, and 4) able to sort out non-linear relationships.
+GROUND TRUTH: As with the maximum likelihood method, decision tree analysis is a supervised classification technique. Thus, it relies on having a sample of known ground reference areas in which to train the classifier. Older versions of the CDL (prior to 2006) utilized ground reference from the annual June Agricultural Survey (JAS). Beginning in 2006, the CDL utilizes the very comprehensive ground reference provided from the FSA Common Land Unit (CLU) Program as a replacement for the JAS data. The FSA CLU data have the advantage of natively being in a GIS and containing magnitudes more of field level information. Disadvantages include that it is not truly a probability sample of land cover and has bias toward subsidized program crops. Additional information about the FSA data can be found at &lt;https://www.fsa.usda.gov/&gt;. The most current version of the NLCD is used as non-agricultural training and validation data.
+INPUTS: The 2008 to 2023 CDL have a spatial resolution of 30 meters. Moderate spatial resolution satellite imagery is used for training the classification. The current CDL uses imagery from Landsat 8 and 9 OLI/TIRS and ESA SENTINEL-2A and -2B collected throughout the growing season. Some CDL states used additional ancillary inputs to supplement and improve the land cover classification including the United States Geological Survey (USGS) National Elevation Dataset (NED) and the most current versions of the USGS National Land Cover Database imperviousness and the tree canopy data layers. Agricultural training and validation data are derived from the Farm Service Agency (FSA) Common Land Unit (CLU) Program. The most current version of the NLCD is used as non-agricultural training and validation data. Please visit the CDL FAQs and metadata webpages at &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/SARS1a.php&gt; to view complete lists of past imagery, ancillary inputs and training and validation used for a specific state and year.
+ACCURACY: The accuracy of the land cover classifications are evaluated using independent validations data sets generated from the FSA CLU data (agricultural categories) and the NLCD (non-agricultural categories). The Producer's Accuracy is generally 85% to 95% correct for the major crop-specific land cover categories. Please visit the CDL FAQs and metadata webpages at &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/SARS1a.php&gt; to view or download full accuracy reports by state and year.
+PUBLIC RELEASE: The USDA NASS Cropland Data Layer is considered public domain and free to redistribute. The official website is &lt;https://www.nass.usda.gov/Research_and_Science/Cropland/SARS1a.php&gt;. The data is available free for download through CroplandCROS &lt;https://croplandcros.scinet.usda.gov/&gt; and the Geospatial Data Gateway &lt;https://datagateway.nrcs.usda.gov/&gt;. Please note that in no case are farmer reported data revealed or derivable from the public use Cropland Data Layer.</gco:CharacterString>
+          </mrl:description>
+          <mrl:stepDateTime>
+            <gml:TimeInstant gml:id="d219662e550">
+              <gml:timePosition>2023-12-31T00:00:00</gml:timePosition>
+            </gml:TimeInstant>
+          </mrl:stepDateTime>
+          <mrl:processor>
+            <cit:CI_Responsibility>
+              <cit:role>
+                <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="processor" />
+              </cit:role>
+              <cit:party>
+                <cit:CI_Organisation>
+                  <cit:name>
+                    <gco:CharacterString>USDA, NASS, Spatial Analysis Research Section</gco:CharacterString>
+                  </cit:name>
+                  <cit:contactInfo>
+                    <cit:CI_Contact>
+                      <cit:phone>
+                        <cit:CI_Telephone>
+                          <cit:number>
+                            <gco:CharacterString>800-727-9540</gco:CharacterString>
+                          </cit:number>
+                          <cit:numberType>
+                            <cit:CI_TelephoneTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_TelephoneTypeCode" codeListValue="voice" />
+                          </cit:numberType>
+                        </cit:CI_Telephone>
+                      </cit:phone>
+                      <cit:phone>
+                        <cit:CI_Telephone>
+                          <cit:number>
+                            <gco:CharacterString>855-493-0447</gco:CharacterString>
+                          </cit:number>
+                          <cit:numberType>
+                            <cit:CI_TelephoneTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_TelephoneTypeCode" codeListValue="fax" />
+                          </cit:numberType>
+                        </cit:CI_Telephone>
+                      </cit:phone>
+                      <cit:address>
+                        <cit:CI_Address>
+                          <cit:deliveryPoint>
+                            <gco:CharacterString>1400 Independence Avenue, SW, Room 5029 South Building</gco:CharacterString>
+                          </cit:deliveryPoint>
+                          <cit:city>
+                            <gco:CharacterString>Washington</gco:CharacterString>
+                          </cit:city>
+                          <cit:administrativeArea>
+                            <gco:CharacterString>District of Columbia</gco:CharacterString>
+                          </cit:administrativeArea>
+                          <cit:postalCode>
+                            <gco:CharacterString>20250-2001</gco:CharacterString>
+                          </cit:postalCode>
+                          <cit:country>
+                            <gco:CharacterString>USA</gco:CharacterString>
+                          </cit:country>
+                          <cit:electronicMailAddress>
+                            <gco:CharacterString>HQ_RDD_GIB@usda.gov</gco:CharacterString>
+                          </cit:electronicMailAddress>
+                        </cit:CI_Address>
+                      </cit:address>
+                    </cit:CI_Contact>
+                  </cit:contactInfo>
+                  <cit:individual>
+                    <cit:CI_Individual>
+                      <cit:name>
+                        <gco:CharacterString>USDA, NASS, Spatial Analysis Research Section staff</gco:CharacterString>
+                      </cit:name>
+                    </cit:CI_Individual>
+                  </cit:individual>
+                </cit:CI_Organisation>
+              </cit:party>
+            </cit:CI_Responsibility>
+          </mrl:processor>
+        </mrl:LE_ProcessStep>
+      </mrl:processStep>
+    </mrl:LI_Lineage>
+  </mdb:resourceLineage>
+  <mdb:metadataConstraints>
+    <mco:MD_LegalConstraints>
+      <mco:accessConstraints>
+        <mco:MD_RestrictionCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_RestrictionCode" codeListValue="otherRestrictions" />
+      </mco:accessConstraints>
+      <mco:otherConstraints>
+        <gco:CharacterString>Metadata Access Constraints: No restrictions on the distribution or use of the metadata file</gco:CharacterString>
+      </mco:otherConstraints>
+    </mco:MD_LegalConstraints>
+  </mdb:metadataConstraints>
+  <mdb:metadataConstraints>
+    <mco:MD_LegalConstraints>
+      <mco:accessConstraints>
+        <mco:MD_RestrictionCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_RestrictionCode" codeListValue="otherRestrictions" />
+      </mco:accessConstraints>
+      <mco:otherConstraints>
+        <gco:CharacterString>Metadata Use Constraints: No restrictions on the distribution or use of the metadata file</gco:CharacterString>
+      </mco:otherConstraints>
+    </mco:MD_LegalConstraints>
+  </mdb:metadataConstraints>
+  <mdb:metadataMaintenance>
+    <mmi:MD_MaintenanceInformation>
+      <mmi:maintenanceAndUpdateFrequency>
+        <mmi:MD_MaintenanceFrequencyCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#MD_MaintenanceFrequencyCode" codeListValue="annually" />
+      </mmi:maintenanceAndUpdateFrequency>
+      <mmi:maintenanceNote>
+        <gco:CharacterString>This metadata was automatically generated from the FGDC Content Standards for Digital Geospatial Metadata standard (version FGDC-STD-001-1998) using the 2015-07-24 version of the FGDC RSE to ISO 19115-2 transform.</gco:CharacterString>
+      </mmi:maintenanceNote>
+      <mmi:maintenanceNote>
+        <gco:CharacterString>Translated from FGDC 2021-02-06T13:48:43.052-05:00</gco:CharacterString>
+      </mmi:maintenanceNote>
+      <mmi:maintenanceNote>
+        <gco:CharacterString>Updated for the 2023 annual release 2024-01-26T11:50:00-05:00</gco:CharacterString>
+      </mmi:maintenanceNote>
+      <mmi:contact>
+        <cit:CI_Responsibility>
+          <cit:role>
+            <cit:CI_RoleCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_RoleCode" codeListValue="pointOfContact" />
+          </cit:role>
+          <cit:party>
+            <cit:CI_Organisation>
+              <cit:name>
+                <gco:CharacterString>USDA, NASS, Spatial Analysis Research Section</gco:CharacterString>
+              </cit:name>
+              <cit:contactInfo>
+                <cit:CI_Contact>
+                  <cit:phone>
+                    <cit:CI_Telephone>
+                      <cit:number>
+                        <gco:CharacterString>800-727-9540</gco:CharacterString>
+                      </cit:number>
+                      <cit:numberType>
+                        <cit:CI_TelephoneTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_TelephoneTypeCode" codeListValue="voice" />
+                      </cit:numberType>
+                    </cit:CI_Telephone>
+                  </cit:phone>
+                  <cit:phone>
+                    <cit:CI_Telephone>
+                      <cit:number>
+                        <gco:CharacterString>855-493-0447</gco:CharacterString>
+                      </cit:number>
+                      <cit:numberType>
+                        <cit:CI_TelephoneTypeCode codeList="http://standards.iso.org/iso/19115/resources/Codelists/cat/codelists.xml#CI_TelephoneTypeCode" codeListValue="fax" />
+                      </cit:numberType>
+                    </cit:CI_Telephone>
+                  </cit:phone>
+                  <cit:address>
+                    <cit:CI_Address>
+                      <cit:deliveryPoint>
+                        <gco:CharacterString>1400 Independence Avenue, SW, Room 5029 South Building</gco:CharacterString>
+                      </cit:deliveryPoint>
+                      <cit:city>
+                        <gco:CharacterString>Washington</gco:CharacterString>
+                      </cit:city>
+                      <cit:administrativeArea>
+                        <gco:CharacterString>District of Columbia</gco:CharacterString>
+                      </cit:administrativeArea>
+                      <cit:postalCode>
+                        <gco:CharacterString>20250-2001</gco:CharacterString>
+                      </cit:postalCode>
+                      <cit:country>
+                        <gco:CharacterString>USA</gco:CharacterString>
+                      </cit:country>
+                      <cit:electronicMailAddress>
+                        <gco:CharacterString>HQ_RDD_GIB@usda.gov</gco:CharacterString>
+                      </cit:electronicMailAddress>
+                    </cit:CI_Address>
+                  </cit:address>
+                </cit:CI_Contact>
+              </cit:contactInfo>
+              <cit:individual>
+                <cit:CI_Individual>
+                  <cit:name>
+                    <gco:CharacterString>USDA, NASS, Spatial Analysis Research Section Staff</gco:CharacterString>
+                  </cit:name>
+                </cit:CI_Individual>
+              </cit:individual>
+            </cit:CI_Organisation>
+          </cit:party>
+        </cit:CI_Responsibility>
+      </mmi:contact>
+    </mmi:MD_MaintenanceInformation>
+  </mdb:metadataMaintenance>
+  <mdb:acquisitionInformation />
+</mdb:MD_Metadata>
+

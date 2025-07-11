@@ -3,3 +3,10 @@
 GEO-INFER-API/src/geo_infer_api/__pycache__/__init__.cpython-310.pyc
 GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/__pycache__/osc_simple_status.cpython-312.pyc
 *.pyc
+*.zip
+GEO-INFER-PLACE/data/improvements/OR.geojson
+GEO-INFER-PLACE/data/improvements/CA.geojson
+GEO-INFER-PLACE/data/improvements/Zip_zhvi_uc_sfrcondo_tier_0.33_0.67_sm_sa_month.csv
+GEO-INFER-PLACE/data/improvements/tl_2023_us_zcta520/tl_2023_us_zcta520.shp
+GEO-INFER-PLACE/locations/cascadia/current_use/data/cdl/2023_30m_cdls/2023_30m_cdls.tif
+GEO-INFER-PLACE/locations/cascadia/current_use/data/cdl/2023_30m_cdls/2023_30m_cdls.tif.ovr

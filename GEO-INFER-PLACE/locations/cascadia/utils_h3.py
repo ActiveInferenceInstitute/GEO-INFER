@@ -1,101 +1,118 @@
 """
 Shared H3 utility functions for Cascadian modules.
 
-Provides robust geo_to_h3, h3_to_geo, and related conversions compatible with both h3-py v3 and v4+ APIs.
+This module provides a simplified and robust interface to the OSC H3 utilities,
+ensuring consistent H3 operations across the Cascadian analysis framework.
 """
 
 import logging
-from typing import Tuple, Any
+from typing import Tuple, Any, List, Dict
 
-logger = logging.getLogger(__name__)
+# Import the OSC H3 utilities directly.
+# This requires GEO-INFER-SPACE/src to be in the python path.
+from geo_infer_space.osc_geo.utils.h3_utils import h3_to_geojson as osc_h3_to_geojson
+from geo_infer_space.osc_geo.utils.h3_utils import geojson_to_h3 as osc_geojson_to_h3
+HAS_OSC_UTILS = True
 
+# Direct imports from h3-py for basic conversions
 try:
     import h3
 except ImportError:
-    logger.error("h3-py package not found. Please install it with 'pip install h3'.")
+    logging.critical("h3-py package not found. Please ensure it is installed.")
     raise
+
+logger = logging.getLogger(__name__)
 
 def geo_to_h3(lat: float, lng: float, resolution: int) -> str:
     """
-    Convert latitude/longitude to H3 index, supporting both h3-py v3 and v4+ APIs.
-
-    Args:
-        lat: Latitude
-        lng: Longitude
-        resolution: H3 resolution (0-15)
-    Returns:
-        H3 index as string
+    Safely convert latitude/longitude to an H3 index.
     """
     try:
-        if hasattr(h3, 'geo_to_h3'):
-            return h3.geo_to_h3(lat, lng, resolution)
-        elif hasattr(h3, 'latlng_to_cell'):
-            return h3.latlng_to_cell(lat, lng, resolution)
-        else:
-            raise AttributeError("No geo_to_h3 or latlng_to_cell in h3 module.")
+        return h3.latlng_to_cell(lat, lng, resolution)
+    except AttributeError:
+        return h3.geo_to_h3(lat, lng, resolution)
     except Exception as e:
-        logger.error(f"geo_to_h3 conversion failed for ({lat}, {lng}, {resolution}): {e}")
+        logger.error(f"Failed to convert geo to h3: {e}")
         raise
 
 def h3_to_geo(h3_index: str) -> Tuple[float, float]:
     """
-    Convert H3 index to (lat, lng) tuple, supporting both h3-py v3 and v4+ APIs.
-
-    Args:
-        h3_index: H3 index string
-    Returns:
-        (lat, lng) tuple
+    Safely convert an H3 index to a (latitude, longitude) tuple.
     """
     try:
-        if hasattr(h3, 'h3_to_geo'):
-            return h3.h3_to_geo(h3_index)
-        elif hasattr(h3, 'cell_to_lat_lng'):
-            return h3.cell_to_lat_lng(h3_index)
-        else:
-            raise AttributeError("No h3_to_geo or cell_to_lat_lng in h3 module.")
+        return h3.cell_to_latlng(h3_index)
+    except AttributeError:
+        return h3.h3_to_geo(h3_index)
     except Exception as e:
-        logger.error(f"h3_to_geo conversion failed for {h3_index}: {e}")
+        logger.error(f"Failed to convert h3 to geo: {e}")
         raise
 
-def h3_to_geo_boundary(h3_index: str, geo_json: bool = True) -> Any:
+def h3_to_geo_boundary(h3_index: str, geo_json: bool = False) -> List[Tuple[float, float]]:
     """
-    Get the boundary of an H3 cell as a list of (lat, lng) tuples or GeoJSON format.
-
-    Args:
-        h3_index: H3 index string
-        geo_json: Return as GeoJSON (lat, lng) if True, else (lng, lat)
-    Returns:
-        List of coordinates
+    Safely get the boundary of an H3 cell. Handles different h3 library versions.
     """
     try:
-        if hasattr(h3, 'h3_to_geo_boundary'):
+        # For h3-py v4+, which doesn't use geo_json parameter in this function
+        return h3.cell_to_boundary(h3_index)
+    except TypeError:
+        # Fallback for h3-py v3.x which expects geo_json
+        try:
             return h3.h3_to_geo_boundary(h3_index, geo_json=geo_json)
-        elif hasattr(h3, 'cell_to_boundary'):
-            return h3.cell_to_boundary(h3_index, geo_json=geo_json)
-        else:
-            raise AttributeError("No h3_to_geo_boundary or cell_to_boundary in h3 module.")
+        except Exception as e:
+             logger.error(f"Failed to get h3 boundary with fallback: {e}")
+             raise
     except Exception as e:
-        logger.error(f"h3_to_geo_boundary failed for {h3_index}: {e}")
+        logger.error(f"Failed to get h3 boundary: {e}")
         raise
 
-def polyfill(geojson_polygon: Any, resolution: int, geo_json: bool = True) -> Any:
+def polyfill(geojson_polygon: Dict[str, Any], resolution: int) -> List[str]:
     """
-    Polyfill a GeoJSON polygon to H3 indices, supporting both h3-py v3 and v4+ APIs.
-
-    Args:
-        geojson_polygon: GeoJSON-like polygon
-        resolution: H3 resolution
-        geo_json: Use GeoJSON coordinate order
-    Returns:
-        Set or list of H3 indices
+    Polyfills a GeoJSON-like polygon, returning a set of H3 indices.
     """
     try:
-        if hasattr(h3, 'polyfill'):
-            return h3.polyfill(geojson_polygon, resolution, geo_json_conformant=geo_json)
-        elif hasattr(h3, 'polygon_to_cells'):
-            return h3.polygon_to_cells(geojson_polygon, resolution, geo_json_conformant=geo_json)
-        else:
-            raise AttributeError("No polyfill or polygon_to_cells in h3 module.")
+        return list(h3.polygon_to_cells(geojson_polygon, resolution))
+    except AttributeError:
+        return list(h3.polyfill(geojson_polygon, resolution, geo_json_conformant=True))
     except Exception as e:
-        logger.error(f"polyfill failed for {geojson_polygon}: {e}")
-        raise 
+        logger.error(f"H3 polyfill operation failed: {e}")
+        raise
+
+if __name__ == "__main__":
+    # Simple test cases to validate the wrapper functions
+    logger.setLevel(logging.INFO)
+    logging.basicConfig()
+
+    test_lat, test_lng = 40.7128, -74.0060  # New York City
+    test_res = 8
+    
+    try:
+        # 1. geo_to_h3
+        h3_index = geo_to_h3(test_lat, test_lng, test_res)
+        logger.info(f"geo_to_h3({test_lat}, {test_lng}, {test_res}) -> {h3_index}")
+
+        # 2. h3_to_geo
+        lat_lng = h3_to_geo(h3_index)
+        logger.info(f"h3_to_geo('{h3_index}') -> {lat_lng}")
+
+        # 3. h3_to_geo_boundary
+        boundary = h3_to_geo_boundary(h3_index)
+        logger.info(f"h3_to_geo_boundary('{h3_index}') -> {len(boundary)} vertices")
+
+        # 4. polyfill
+        polygon = {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [-74.01, 40.71], [-74.01, 40.72],
+                    [-74.00, 40.72], [-74.00, 40.71],
+                    [-74.01, 40.71]
+                ]
+            ]
+        }
+        filled_indices = polyfill(polygon, test_res)
+        logger.info(f"polyfill() -> Found {len(filled_indices)} indices")
+
+        logger.info("All H3 utility wrapper functions executed successfully.")
+        
+    except Exception as e:
+        logger.error(f"An error occurred during testing: {e}") 

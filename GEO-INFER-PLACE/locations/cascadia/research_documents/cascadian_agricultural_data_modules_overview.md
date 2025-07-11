@@ -5,22 +5,22 @@
 
 ## Executive Summary
 
-This document provides comprehensive specifications for **eight specialized data acquisition modules** designed for agricultural land analysis across the Cascadian bioregion (northern California + Oregon). Building upon the existing GEO-INFER-PLACE infrastructure and extensive research documented in the cascadian_agroecology_research series, these modules create a unified, H3-indexed analytical framework capable of real-time data integration, cross-domain analysis, and sophisticated visualization.
+This document provides a comprehensive overview and **current status report** for **eight specialized data acquisition modules** designed for agricultural land analysis across the Cascadian bioregion. While the framework is architecturally sound, **all data acquisition modules are currently non-functional due to outdated data sources, broken API endpoints, and code-level bugs.**
 
-The framework leverages the existing PlaceAnalyzer, RealDataIntegrator, and InteractiveVisualizationEngine components while extending them with specialized agricultural data capabilities. Each module implements Active Inference principles for uncertainty quantification and predictive modeling, enabling sophisticated agricultural land redevelopment strategy development.
+This document has been updated to reflect the findings from a full test run on `2025-07-10`. The "Implementation Status" for each module now reflects its operational reality, and "Error Analysis" sections have been added to detail the specific failures that must be addressed to make the framework operational.
 
-### Core Module Architecture
+### Core Module Architecture: Current Status
 
 | Module | Primary Data Sources | Update Frequency | Implementation Status |
 |--------|---------------------|------------------|---------------------|
-| **Zoning** | FMMP, ORMAP, Regrid | Biennial/Continuous | Ready for Implementation |
-| **Current Use** | NASS CDL, Land IQ, EFU | Annual | Ready for Implementation |
-| **Ownership** | ParcelQuest, County Records | Daily/Weekly | Ready for Implementation |
-| **Mortgage Debt** | USDA ERS, Farm Credit, County Records | Quarterly/Variable | Limited Data Availability |
-| **Improvements** | NASS Infrastructure, Building Footprints | 5-Year/Annual | Ready for Implementation |
-| **Surface Water** | eWRIMS/CalWATRS, Oregon WRD | Real-time/Quarterly | Ready for Implementation |
-| **Ground Water** | DWR CASGEM, Oregon GWIC | Real-time/Monthly | Ready for Implementation |
-| **Power Source** | EIA, Utility Companies | Annual/Variable | Limited Data Availability |
+| **Zoning** | FMMP, ORMAP, Regrid | Biennial/Continuous | **Broken** |
+| **Current Use** | NASS CDL, Land IQ, EFU | Annual | **Broken** |
+| **Ownership** | ParcelQuest, County Records | Daily/Weekly | **Broken** |
+| **Mortgage Debt**| USDA ERS, Farm Credit, County Records | Quarterly/Variable | **Broken** |
+| **Improvements** | NASS Infrastructure, Building Footprints | 5-Year/Annual | **Broken (Code Error)** |
+| **Surface Water**| eWRIMS/CalWATRS, Oregon WRD | Real-time/Quarterly | **Broken** |
+| **Ground Water** | DWR CASGEM, Oregon GWIC | Real-time/Monthly | **Broken** |
+| **Power Source** | EIA, Utility Companies | Annual/Variable | **Broken** |
 
 ## Module 1: Agricultural Zoning Module (`GeoInferZoning`)
 
@@ -32,6 +32,11 @@ Comprehensive agricultural zoning classification and regulatory analysis across 
 - **Oregon EFU Analysis**: Exclusive Farm Use zoning analysis with resource protection status
 - **Cross-Border Harmonization**: Standardized zoning classification system for joint analysis
 - **Regulatory Tracking**: Zoning change monitoring and development pressure assessment
+
+### **Error Analysis (2025-07-10)**
+- **CA FMMP:** The script attempts to download data from dynamic URLs that are no longer valid (HTTP 404). The `README.md` correctly notes that manual download is now required, but the code does not reflect this workflow. All counties fail.
+- **OR DLCD:** The ArcGIS service query returns an `HTTP 400 Bad Request`. The service URL or the query parameters are likely incorrect.
+- **WA King County:** The service query returns no features, likely due to an incorrect bounding box or an outdated endpoint.
 
 ### **Technical Specifications**
 
@@ -130,6 +135,9 @@ Real-time agricultural land use classification and crop production analysis, pro
 - **Temporal Analysis**: Multi-year land use change detection
 - **Production Intensity**: Crop productivity and agricultural intensity metrics
 
+### **Error Analysis (2025-07-10)**
+- **NASS CDL:** The `nassgeodata.gmu.edu` API endpoint fails for all queries across multiple years, resulting in no data being downloaded. The script falls back through previous years and ultimately fails to acquire any raster data. The SSL certificate for the endpoint is also expired, requiring `verify=False`.
+
 ### **Technical Specifications**
 
 #### Multi-Source Data Integration
@@ -214,6 +222,9 @@ Comprehensive agricultural land ownership analysis including ownership patterns,
 - **Cross-Border Integration**: Unified ownership analysis across state boundaries
 - **Temporal Ownership Tracking**: Ownership change and transaction analysis
 
+### **Error Analysis (2025-07-10)**
+- **CA Parcels:** The ArcGIS service query to `services.gis.ca.gov` for parcel data returns no features. The endpoint is likely outdated or requires different query parameters.
+
 ### **Technical Specifications**
 
 #### Ownership Data Integration
@@ -290,6 +301,9 @@ Agricultural mortgage debt and financial indicator analysis, addressing the crit
 - **Regional Debt Modeling**: County-level debt estimation using available indicators
 - **Financial Risk Assessment**: Debt-to-asset ratio analysis and risk modeling
 - **Institutional Lending Patterns**: Farm Credit System and commercial bank analysis
+
+### **Error Analysis (2025-07-10)**
+- **HMDA Data:** The script attempts to download bulk CSV data from an S3 bucket (`s3.amazonaws.com/cfpb-hmda-public`). The URLs result in `HTTP 404 Not Found` errors for multiple years and states, indicating the path structure or bucket name has changed.
 
 ### **Technical Specifications**
 
@@ -368,6 +382,9 @@ Comprehensive agricultural infrastructure and improvement analysis including bui
 - **Irrigation Infrastructure**: Water management system mapping and valuation
 - **Processing Facilities**: Agricultural processing and storage facility identification
 - **Infrastructure Valuation**: Improvement value estimation and depreciation modeling
+
+### **Error Analysis (2025-07-10)**
+- **Fatal Code Error:** The module fails to run due to a Python error: `AttributeError: module 'fiona' has no attribute 'path'`. This is a code-level bug in how the `fiona` library is being used to read data and prevents any analysis for this module.
 
 ### **Technical Specifications**
 
@@ -469,6 +486,9 @@ Comprehensive surface water rights analysis integrating California's eWRIMS/CalW
 - **Seasonal Allocation**: Temporal water availability and allocation patterns
 - **Irrigation Use Tracking**: Agricultural water use reporting and analysis
 
+### **Error Analysis (2025-07-10)**
+- **NHD Services:** The queries to the National Hydrography Dataset (NHD) for flowlines and waterbodies (`hydro.nationalmap.gov`) return no features for the analysis bounding box. The service endpoint or expected parameters may have changed.
+
 ### **Technical Specifications**
 
 #### Water Rights Data Integration
@@ -562,6 +582,9 @@ Comprehensive groundwater rights and availability analysis integrating Californi
 - **Aquifer Mapping**: Groundwater basin and aquifer boundary integration
 - **Sustainability Assessment**: Groundwater sustainability plan integration
 
+### **Error Analysis (2025-07-10)**
+- **USGS NWIS:** All batched requests to the USGS groundwater level service (`waterservices.usgs.gov/nwis/gwlevels/`) fail with an `HTTP 400 Bad Request`. This indicates the API request format (e.g., bounding box parameters) is no longer valid.
+
 ### **Technical Specifications**
 
 #### Groundwater Data Integration
@@ -645,6 +668,9 @@ Agricultural power source and energy infrastructure analysis, addressing one of 
 - **Energy Consumption Modeling**: Agricultural energy use estimation by crop type
 - **Renewable Energy Integration**: On-farm renewable energy system identification
 - **Grid Reliability Analysis**: Power infrastructure reliability for agricultural operations
+
+### **Error Analysis (2025-07-10)**
+- **HIFLD Service:** The query to the HIFLD ArcGIS service for transmission lines returns zero records, suggesting the endpoint is outdated or the query is incorrect.
 
 ### **Technical Specifications**
 
@@ -740,140 +766,57 @@ class CascadianPowerSourceAnalyzer:
 class CascadianAgriculturalH3Backend:
     """Unified H3-indexed backend for all 8 agricultural data modules"""
     
-    def __init__(self, resolution: int = 8):
+    def __init__(self, resolution: int = 8, bioregion: str = 'Cascadia'):
         self.resolution = resolution
+        self.bioregion = bioregion
         self.modules = {
-            'zoning': GeoInferZoning(),
-            'current_use': GeoInferCurrentUse(),
-            'ownership': GeoInferOwnership(),
-            'mortgage_debt': GeoInferMortgageDebt(),
-            'improvements': GeoInferImprovements(),
-            'surface_water': GeoInferSurfaceWater(),
-            'ground_water': GeoInferGroundWater(),
-            'power_source': GeoInferPowerSource()
+            'zoning': geo_infer_zoning.GeoInferZoning(resolution),
+            'current_use': geo_infer_current_use.GeoInferCurrentUse(resolution),
+            'ownership': geo_infer_ownership.GeoInferOwnership(resolution),
+            'mortgage_debt': geo_infer_mortgage_debt.GeoInferMortgageDebt(resolution),
+            'improvements': geo_infer_improvements.GeoInferImprovements(resolution),
+            'surface_water': geo_infer_surface_water.GeoInferSurfaceWater(resolution),
+            'ground_water': geo_infer_ground_water.GeoInferGroundWater(resolution),
+            'power_source': geo_infer_power_source.GeoInferPowerSource(resolution)
         }
-        
-        # Define Cascadian bioregion H3 coverage
-        self.target_region = self.define_cascadian_coverage()
-        
-    def define_cascadian_coverage(self) -> Set[str]:
-        """
-        Define H3 hexagon coverage for Cascadian bioregion
-        
-        Returns:
-            Set of H3 hexagon IDs covering the target region
-        """
-        # Northern California counties
-        ca_counties = [
-            'Butte', 'Colusa', 'Del Norte', 'Glenn', 'Humboldt', 
-            'Lake', 'Lassen', 'Mendocino', 'Modoc', 'Nevada', 
-            'Plumas', 'Shasta', 'Sierra', 'Siskiyou', 'Tehama', 'Trinity'
-        ]
-        
-        # All Oregon counties
-        or_counties = list(self.get_oregon_counties())
-        
-        # Convert county boundaries to H3 coverage
-        cascadian_hexagons = set()
-        
-        for county in ca_counties + or_counties:
-            county_boundary = self.get_county_boundary(county)
-            county_hexagons = h3.polyfill(
-                county_boundary.__geo_interface__, 
-                self.resolution, 
-                geo_json_conformant=True
-            )
-            cascadian_hexagons.update(county_hexagons)
-            
-        return cascadian_hexagons
-    
+        self.target_hexagons = self._define_target_region()
+        self.unified_data = {}
+        self.redevelopment_scores = {}
+
+    def _define_target_region(self) -> List[str]:
+        """Define H3 hexagon coverage for the bioregion using polyfill."""
+        bioregion_polygon = self.get_bioregion_polygon(self.bioregion)
+        hexagons = polyfill(bioregion_polygon, self.resolution)
+        return sorted(list(set(hexagons)))
+
     def run_comprehensive_analysis(self) -> Dict[str, Dict]:
         """
-        Execute all 8 modules and create unified H3-indexed dataset
+        Execute all analysis modules and create a unified H3-indexed dataset.
         
         Returns:
-            Comprehensive H3-indexed agricultural data
+            Comprehensive H3-indexed agricultural data.
         """
-        results = {}
-        
-        # Execute each module
+        module_results = {}
         for module_name, module_instance in self.modules.items():
-            print(f"Processing {module_name} module...")
-            
-            if module_name == 'zoning':
-                results[module_name] = module_instance.integrate_h3_indexing(
-                    self.get_zoning_data(), self.resolution
-                )
-            elif module_name == 'current_use':
-                results[module_name] = module_instance.process_current_use_h3(
-                    year=2024, resolution=self.resolution
-                )
-            elif module_name == 'ownership':
-                results[module_name] = module_instance.analyze_ownership_concentration_h3(
-                    resolution=self.resolution
-                )
-            elif module_name == 'mortgage_debt':
-                results[module_name] = module_instance.estimate_debt_levels_h3(
-                    resolution=self.resolution
-                )
-            elif module_name == 'improvements':
-                results[module_name] = module_instance.analyze_agricultural_improvements_h3(
-                    resolution=self.resolution
-                )
-            elif module_name == 'surface_water':
-                results[module_name] = module_instance.analyze_surface_water_rights_h3(
-                    resolution=self.resolution
-                )
-            elif module_name == 'ground_water':
-                results[module_name] = module_instance.analyze_groundwater_h3(
-                    resolution=self.resolution
-                )
-            elif module_name == 'power_source':
-                results[module_name] = module_instance.analyze_power_sources_h3(
-                    resolution=self.resolution
-                )
+            try:
+                # Each module should have a standardized 'run_analysis' method
+                result = module_instance.run_analysis(self.target_hexagons)
+                module_results[module_name] = result
+            except Exception as e:
+                print(f"Error processing {module_name}: {e}")
+                module_results[module_name] = {}
         
-        # Create unified dataset
-        unified_data = self.unify_h3_datasets(results)
-        
-        return unified_data
+        self._aggregate_module_results(module_results)
+        return self.unified_data
     
-    def unify_h3_datasets(self, module_results: Dict[str, Dict]) -> Dict[str, Dict]:
-        """
-        Combine all module results into unified H3-indexed dataset
-        
-        Args:
-            module_results: Results from all 8 modules
-            
-        Returns:
-            Unified H3-indexed agricultural dataset
-        """
-        unified_data = {}
-        
-        # Get all hexagons covered by any module
-        all_hexagons = set()
-        for module_data in module_results.values():
-            all_hexagons.update(module_data.keys())
-        
-        # Create unified record for each hexagon
-        for hex_id in all_hexagons:
-            unified_data[hex_id] = {
-                'hex_id': hex_id,
-                'geometry': h3.h3_to_geo_boundary(hex_id, geo_json=True),
-                'centroid': h3.h3_to_geo(hex_id),
-                'area_km2': h3.hex_area(self.resolution, unit='km^2'),
-                'state': self.determine_state(hex_id),
-                'county': self.determine_county(hex_id)
-            }
-            
-            # Add data from each module
+    def _aggregate_module_results(self, module_results: Dict[str, Dict]):
+        """Combine all module results into a unified H3-indexed dataset."""
+        for hex_id in self.target_hexagons:
+            self.unified_data[hex_id] = {'hex_id': hex_id}
+            # Add geometry, metadata, etc.
+            # ...
             for module_name, module_data in module_results.items():
-                if hex_id in module_data:
-                    unified_data[hex_id][module_name] = module_data[hex_id]
-                else:
-                    unified_data[hex_id][module_name] = self.get_default_values(module_name)
-        
-        return unified_data
+                self.unified_data[hex_id][module_name] = module_data.get(hex_id, {})
 ```
 
 ### **Cross-Module Analysis Framework**
@@ -882,148 +825,108 @@ class CascadianAgriculturalH3Backend:
 class CascadianCrossModuleAnalyzer:
     """Cross-module analysis and integration capabilities"""
     
-    def __init__(self, unified_data: Dict[str, Dict]):
-        self.unified_data = unified_data
+    def __init__(self, backend: CascadianAgriculturalH3Backend):
+        self.backend = backend
     
     def calculate_agricultural_redevelopment_potential(self) -> Dict[str, float]:
         """
-        Calculate comprehensive agricultural redevelopment potential scores
+        Calculate comprehensive agricultural redevelopment potential scores.
         
         Returns:
-            Redevelopment potential scores for each hexagon
+            Redevelopment potential scores for each hexagon.
         """
-        redevelopment_scores = {}
-        
-        for hex_id, hex_data in self.unified_data.items():
-            # Aggregate scores from multiple modules
-            zoning_score = self.score_zoning_flexibility(hex_data.get('zoning', {}))
-            water_security_score = self.score_water_security(
-                hex_data.get('surface_water', {}), 
-                hex_data.get('ground_water', {})
-            )
-            infrastructure_score = self.score_infrastructure_adequacy(
-                hex_data.get('improvements', {}),
-                hex_data.get('power_source', {})
-            )
-            financial_feasibility_score = self.score_financial_feasibility(
-                hex_data.get('ownership', {}),
-                hex_data.get('mortgage_debt', {})
-            )
-            land_use_compatibility_score = self.score_land_use_compatibility(
-                hex_data.get('current_use', {})
-            )
-            
-            # Weighted composite score
-            redevelopment_scores[hex_id] = (
-                0.25 * zoning_score +
-                0.25 * water_security_score +
-                0.20 * infrastructure_score +
-                0.20 * financial_feasibility_score +
-                0.10 * land_use_compatibility_score
-            )
-        
-        return redevelopment_scores
-    
+        # This logic is now encapsulated within the backend
+        return self.backend.calculate_agricultural_redevelopment_potential()
+
     def identify_agricultural_clusters(self) -> Dict[str, List[str]]:
         """
-        Identify clusters of similar agricultural characteristics
+        Identify clusters of similar agricultural characteristics.
         
         Returns:
-            Dictionary mapping cluster types to lists of hexagon IDs
+            Dictionary mapping cluster types to lists of hexagon IDs.
         """
-        # Implement clustering algorithm based on agricultural characteristics
+        # This would use the backend's unified_data attribute
         features = []
         hex_ids = []
         
-        for hex_id, hex_data in self.unified_data.items():
+        for hex_id, hex_data in self.backend.unified_data.items():
             features.append(self.extract_feature_vector(hex_data))
             hex_ids.append(hex_id)
         
-        # Apply clustering algorithm (e.g., K-means, DBSCAN)
-        clusters = self.apply_clustering_algorithm(features)
-        
-        # Map clusters back to hexagon IDs
-        cluster_mapping = {}
-        for i, cluster_id in enumerate(clusters):
-            if cluster_id not in cluster_mapping:
-                cluster_mapping[cluster_id] = []
-            cluster_mapping[cluster_id].append(hex_ids[i])
-        
-        return cluster_mapping
+        # Apply clustering algorithm
+        # ...
+        return {} # Placeholder
 ```
 
 ## Visualization and Dashboard Integration
 
 ### **Interactive Dashboard Framework**
 
-Building on the existing `InteractiveVisualizationEngine`, create specialized agricultural dashboards:
+The dashboard generation is now a method of the `CascadianAgriculturalH3Backend`, simplifying its creation.
 
 ```python
-class CascadianAgriculturalDashboard:
-    """Specialized dashboard for Cascadian agricultural analysis"""
-    
-    def __init__(self, unified_data: Dict[str, Dict]):
-        self.unified_data = unified_data
-        self.viz_engine = InteractiveVisualizationEngine()
-    
-    def create_comprehensive_dashboard(self) -> str:
+class CascadianAgriculturalH3Backend:
+    # ... (other methods)
+
+    def generate_interactive_dashboard(self, output_path: str):
         """
-        Create comprehensive interactive dashboard
+        Generates an interactive Folium dashboard with multiple data overlays.
         
-        Returns:
-            Path to generated dashboard HTML file
+        Args:
+            output_path: Path to save the HTML dashboard file.
         """
-        # Create base map
-        map_center = self.calculate_region_center()
-        dashboard_map = folium.Map(
-            location=map_center,
-            zoom_start=8,
-            tiles='OpenStreetMap'
-        )
+        map_center = self.get_map_center()
+        dashboard_map = folium.Map(location=map_center, zoom_start=7)
+
+        # Create feature groups for togglable layers
+        redevelopment_layer = folium.FeatureGroup(name="Redevelopment Potential", show=True)
+        zoning_layer = folium.FeatureGroup(name="Zoning", show=False)
+        # ... other layers for current use, water, etc.
+
+        # Populate layers with data from self.unified_data and self.redevelopment_scores
+        for h3_index, hex_data in self.unified_data.items():
+            # Add polygons to each layer with relevant popups and styling
+            # ...
+            pass
+            
+        # Add layers to map
+        redevelopment_layer.add_to(dashboard_map)
+        zoning_layer.add_to(dashboard_map)
+        # ...
         
-        # Add H3 hexagon layers for each module
-        self.add_zoning_layer(dashboard_map)
-        self.add_current_use_layer(dashboard_map)
-        self.add_ownership_layer(dashboard_map)
-        self.add_water_rights_layer(dashboard_map)
-        self.add_infrastructure_layer(dashboard_map)
-        self.add_redevelopment_potential_layer(dashboard_map)
+        # Add layer control
+        folium.LayerControl().add_to(dashboard_map)
         
-        # Add interactive controls
-        self.add_layer_controls(dashboard_map)
-        self.add_analysis_tools(dashboard_map)
-        
-        # Generate and save dashboard
-        dashboard_path = self.save_dashboard(dashboard_map)
-        
-        return dashboard_path
+        dashboard_map.save(output_path)
+        print(f"Dashboard saved to {output_path}")
+
+# Example usage in main script:
+# backend = CascadianAgriculturalH3Backend()
+# backend.run_comprehensive_analysis()
+# backend.calculate_agricultural_redevelopment_potential()
+# backend.generate_interactive_dashboard("./dashboard.html")
 ```
 
-## Implementation Timeline and Priorities
+## Implementation Timeline and Priorities: **REVISED**
 
-### **Phase 1: Foundation (Months 1-2)**
-1. **H3 Infrastructure Setup**: Establish H3 indexing framework for Cascadian region
-2. **Module 1 (Zoning)**: Implement as foundation for all other modules
-3. **Module 2 (Current Use)**: Critical for understanding current agricultural patterns
-4. **API Integration Framework**: Establish connections to key data sources
+The original timeline is no longer valid. The immediate priority is **system-wide repair and data source validation.**
 
-### **Phase 2: Core Modules (Months 3-4)**
-1. **Module 3 (Ownership)**: Ownership pattern analysis
-2. **Module 6 (Surface Water)**: Water rights integration
-3. **Module 7 (Ground Water)**: Groundwater analysis
-4. **Cross-Module Integration**: Begin unified analysis capabilities
+### **Phase 1: Triage and Repair (Immediate Priority)**
+1.  **Fix Data Sources:** Investigate and update every broken API endpoint and download URL identified in the "Error Analysis" sections for all 8 modules. Update `config/data_urls.json`.
+2.  **Fix Code Bugs:** Resolve the `AttributeError` in the `GeoInferImprovements` module.
+3.  **Validate Data Loading:** Ensure each module can successfully load real, non-mock data into a GeoDataFrame or appropriate data structure.
+4.  **Full Pipeline Test:** Execute `cascadia_main.py` to confirm data flows through the entire system without crashing.
 
-### **Phase 3: Advanced Modules (Months 5-6)**
-1. **Module 5 (Improvements)**: Infrastructure analysis
-2. **Module 4 (Mortgage Debt)**: Financial analysis with estimation models
-3. **Module 8 (Power Source)**: Energy infrastructure analysis
-4. **Comprehensive Dashboard**: Full visualization and analysis platform
+### **Phase 2: Analysis Logic Refinement (Post-Repair)**
+1.  **Refine Scoring:** With real data available, review and refine the redevelopment potential scoring logic in `unified_backend.py`.
+2.  **Enhance Analysis:** Implement more sophisticated analysis within each module now that data is accessible.
+3.  **Cross-Module Integration**: Strengthen cross-module analysis capabilities.
 
-### **Phase 4: Optimization and Enhancement (Months 7-8)**
-1. **Performance Optimization**: H3 indexing and query optimization
-2. **Predictive Modeling**: Active Inference implementation
-3. **Stakeholder Integration**: Community engagement features
-4. **Documentation and Training**: Comprehensive user guides
+### **Phase 3: Optimization and Enhancement**
+1.  **Performance Optimization**: H3 indexing and query optimization.
+2.  **Predictive Modeling**: Active Inference implementation.
+3.  **Stakeholder Integration**: Community engagement features.
+4.  **Documentation and Training**: Update all documentation to reflect the working system.
 
 ## Quality Assurance and Validation
 
