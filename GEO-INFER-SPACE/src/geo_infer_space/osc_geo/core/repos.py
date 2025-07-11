@@ -130,7 +130,7 @@ def clone_osc_repos(
 
     # Use default output directory if not specified
     if not output_dir:
-        output_dir = os.environ.get("OSC_REPOS_DIR", "./ext/os-climate")
+        output_dir = os.environ.get("OSC_REPOS_DIR", "./repo")
     
     # Ensure output directory exists
     os.makedirs(output_dir, exist_ok=True)
@@ -196,7 +196,7 @@ def get_repo_path(
     
     # Determine base directory
     if not base_dir:
-        base_dir = os.environ.get("OSC_REPOS_DIR", "./ext/os-climate")
+        base_dir = os.environ.get("OSC_REPOS_DIR", "./repo")
     
     repo_info = OSC_REPOS[repo_key]
     owner = repo_info["owner"]

@@ -27,13 +27,13 @@ REPO_CONFIGS = {
     "h3grid-srv": {
         "name": "osc-geo-h3grid-srv",
         "clone_url": "https://github.com/docxology/osc-geo-h3grid-srv.git",  # Fork of https://github.com/os-climate/osc-geo-h3grid-srv
-        "path": "ext/os-climate/osc-geo-h3grid-srv",
+        "path": "repo/osc-geo-h3grid-srv",
         "main_script": "src/geoserver/server.py"
     },
     "h3loader-cli": {
         "name": "osc-geo-h3loader-cli",
         "clone_url": "https://github.com/docxology/osc-geo-h3loader-cli.git",  # Fork of https://github.com/os-climate/osc-geo-h3loader-cli
-        "path": "ext/os-climate/osc-geo-h3loader-cli",
+        "path": "repo/osc-geo-h3loader-cli",
         "main_script": "src/cli/cli.py"
     }
 }

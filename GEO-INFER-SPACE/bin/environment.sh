@@ -8,7 +8,7 @@ export PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 export PYTHONPATH="$PROJECT_DIR/src:$PYTHONPATH"
 
 # Set output directory for cloned repositories
-export OSC_REPOS_DIR="$PROJECT_DIR/ext/os-climate"
+export OSC_REPOS_DIR="$PROJECT_DIR/repo"
 
 # Set log level
 export LOG_LEVEL="INFO"

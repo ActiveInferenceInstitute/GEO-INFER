@@ -335,7 +335,7 @@ GEO-INFER-SPACE/
 ├── docs/                   # Detailed documentation, algorithm descriptions, tutorials
 │   └── osc_geo/            # Specific docs for OS-Climate integration (if not in main README-OSC.md)
 ├── examples/               # Example scripts and notebooks for various spatial operations
-├── ext/os-climate/         # Cloned OS Climate repositories (as per current structure)
+├── repo/                   # Cloned OS Climate repositories
 ├── reports/                # Generated reports from analyses or OS-Climate tools
 ├── repos/                  # Other external repositories, if any (mirroring current structure)
 ├── src/

@@ -15,7 +15,7 @@ This document outlines the approach for integrating OS Climate (OSC) geospatial 
 
 ```
 GEO-INFER-SPACE/
-├── ext/os-climate/           # External OSC repositories (cloned)
+├── repo/                     # External OSC repositories (cloned)
 │   ├── osc-geo-h3grid-srv/   # H3 grid service repository
 │   └── osc-geo-h3loader-cli/ # Data loader CLI repository
 ├── src/geo_infer_space/      # Main package source code
@@ -35,7 +35,7 @@ GEO-INFER-SPACE/
 
 Instead of forking or modifying the OS Climate repositories, we:
 
-1. Clone the forks from github.com/docxology/osc-geo-h3grid-srv and github.com/docxology/osc-geo-h3loader-cli into the `ext/os-climate/` directory
+1. Clone the forks from github.com/docxology/osc-geo-h3grid-srv and github.com/docxology/osc-geo-h3loader-cli into the `repo/` directory
 2. Create isolated virtual environments within each repository
 3. Install dependencies in these environments
 4. Run tests to verify functionality

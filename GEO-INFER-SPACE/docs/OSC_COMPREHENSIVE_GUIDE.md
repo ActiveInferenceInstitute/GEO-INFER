@@ -43,7 +43,7 @@ GEO-INFER-SPACE/
 │   │   ├── visualization.py        # Visualization engine
 │   │   └── enhanced_reporting.py   # Advanced reporting
 │   └── core/                        # Core functionality
-├── ext/os-climate/                  # External OSC repositories
+├── repo/                            # External OSC repositories
 │   ├── osc-geo-h3grid-srv/         # H3 grid service
 │   └── osc-geo-h3loader-cli/       # Data loader CLI
 └── reports/                         # Generated reports & visualizations
@@ -156,12 +156,12 @@ The integration manages two key OS Climate repositories:
 #### **1. osc-geo-h3grid-srv**
 - **Purpose**: H3 grid service for geospatial applications
 - **Features**: RESTful API for H3 grid operations
-- **Path**: `ext/os-climate/osc-geo-h3grid-srv/`
+- **Path**: `repo/osc-geo-h3grid-srv/`
 
 #### **2. osc-geo-h3loader-cli**
 - **Purpose**: Command-line tool for H3 data loading
 - **Features**: Batch processing, visualization
-- **Path**: `ext/os-climate/osc-geo-h3loader-cli/`
+- **Path**: `repo/osc-geo-h3loader-cli/`
 
 ### **Repository Operations**
 
@@ -462,7 +462,7 @@ python3 osc_setup_all.py --force-clone
 #### **Manual Testing**
 ```bash
 # Test individual repositories
-cd ext/os-climate/osc-geo-h3grid-srv
+cd repo/osc-geo-h3grid-srv
 python3 -m venv venv
 source venv/bin/activate
 pip install -e .
@@ -685,7 +685,7 @@ if __name__ == "__main__":
 2. **Version Control Integration**
    ```bash
    # Add to .gitignore
-   echo "ext/os-climate/" >> .gitignore
+   echo "repo/" >> .gitignore
    echo "reports/*.html" >> .gitignore
    echo "reports/visualizations/" >> .gitignore
    ```
