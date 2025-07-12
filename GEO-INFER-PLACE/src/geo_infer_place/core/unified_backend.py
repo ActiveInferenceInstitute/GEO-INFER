@@ -95,7 +95,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                 try:
                     # For MultiPolygons, polyfill each part
                     if isinstance(geom, (Polygon, MultiPolygon)):
-                         hexagons_in_county = h3.polyfill_geojson(mapping(geom), self.resolution)
+                         hexagons_in_county = h3.polyfill(mapping(geom), self.resolution, geo_json_conformant=True)
                          hexagons_by_state[state].update(hexagons_in_county)
                     else:
                         logger.warning(f"Skipping invalid geometry for {county_name}, {state}")
@@ -200,8 +200,8 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             
             # Add geometry and metadata
             try:
-                hex_data['centroid'] = h3.h3_to_geo_boundary(hexagon, geo_json=True)
-                hex_data['boundary'] = h3.h3_to_geo_boundary(hexagon, geo_json=True)
+                hex_data['centroid'] = h3.h3_to_geo(hexagon)
+                hex_data['boundary'] = h3.h3_to_geo_boundary(hexagon)
             except Exception as e:
                 logger.warning(f"Could not process geometry for {hexagon}: {e}")
                 hex_data['centroid'] = None
@@ -375,7 +375,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         features = []
         for hex_id, properties in data_to_export.items():
             # Get geometry for the hexagon
-            boundary = h3.h3_to_geo_boundary(hex_id, geo_json=True)
+            boundary = h3.h3_to_geo_boundary(hex_id)
             
             features.append({
                 'type': 'Feature',
