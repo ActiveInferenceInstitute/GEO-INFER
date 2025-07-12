@@ -57,6 +57,6 @@ def polyfill(geojson_polygon: Dict[str, Any], resolution: int) -> List[str]:
     Polyfill a GeoJSON polygon with H3 cells.
     """
     try:
-        return list(h3.polyfill(geojson_polygon, resolution, geo_json_conformant=True))
+        return list(h3.polygon_to_cells(geojson_polygon, resolution))
     except Exception as e:
         raise ValueError(f"H3 polyfill operation failed: {e}") 

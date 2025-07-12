@@ -123,22 +123,14 @@ def geojson_to_h3(
             if coordinates:
                 # Assuming first ring is exterior, rest are holes
                 exterior = coordinates[0]
-                h3_indices = h3.polyfill(
-                    {"type": "Polygon", "coordinates": [exterior]},
-                    resolution,
-                    geo_json_conformant=True # Use geo_json_conformant for lng/lat
-                )
+                h3_indices = h3.polygon_to_cells(exterior, resolution)
         
         elif geometry_type == "MultiPolygon":
             # Convert each polygon to H3
             for polygon in coordinates:
                 # Assuming first ring is exterior, rest are holes
                 exterior = polygon[0]
-                indices = h3.polyfill(
-                    {"type": "Polygon", "coordinates": [exterior]},
-                    resolution,
-                    geo_json_conformant=True # Use geo_json_conformant for lng/lat
-                )
+                indices = h3.polygon_to_cells(exterior, resolution)
                 h3_indices.extend(indices)
         
         # Add H3 indices to result

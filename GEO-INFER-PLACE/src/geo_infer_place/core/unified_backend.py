@@ -95,7 +95,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                 try:
                     # For MultiPolygons, polyfill each part
                     if isinstance(geom, (Polygon, MultiPolygon)):
-                         hexagons_in_county = h3.polyfill(mapping(geom), self.resolution, geo_json_conformant=True)
+                         hexagons_in_county = h3.polygon_to_cells(mapping(geom), self.resolution)
                          hexagons_by_state[state].update(hexagons_in_county)
                     else:
                         logger.warning(f"Skipping invalid geometry for {county_name}, {state}")

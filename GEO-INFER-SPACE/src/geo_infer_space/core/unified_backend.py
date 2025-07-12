@@ -121,7 +121,7 @@ class UnifiedH3Backend:
                 logger.info(f"Generating hexagons for {geom_name}, {area}...")
                 try:
                     if isinstance(geom, (Polygon, MultiPolygon)):
-                         hexagons_in_area = h3.polyfill(mapping(geom), self.resolution, geo_json_conformant=True)
+                         hexagons_in_area = h3.polygon_to_cells(mapping(geom), self.resolution)
                          hexagons_by_area[area].update(hexagons_in_area)
                     else:
                         logger.warning(f"Skipping invalid geometry for {geom_name}, {area}")
