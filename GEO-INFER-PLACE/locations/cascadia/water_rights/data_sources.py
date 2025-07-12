@@ -15,7 +15,7 @@ from typing import Dict, Tuple
 import json
 from datetime import datetime
 
-from geo_infer_space.utils.h3_utils import h3_to_geo_boundary
+from geo_infer_space.utils.h3_utils import h3_to_geojson, geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
 from shapely.geometry import Polygon
 
 logger = logging.getLogger(__name__)

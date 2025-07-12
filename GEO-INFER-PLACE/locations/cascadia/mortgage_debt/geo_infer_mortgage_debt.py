@@ -16,7 +16,7 @@ import io
 import os
 
 from .data_sources import CascadianMortgageDataSources
-from utils_h3 import h3_to_geo_boundary
+from geo_infer_space.utils.h3_utils import h3_to_geojson, geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
 
 logger = logging.getLogger(__name__)
 

@@ -43,7 +43,7 @@ logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 # Core imports
 from geo_infer_space.core.place_analyzer import PlaceAnalyzer
-from geo_infer_space.core.data_integrator import RealDataIntegrator
+from geo_infer_space.core.data_integrator import DataIntegrator
 from .core.visualization_engine import InteractiveVisualizationEngine
 
 # Location-specific imports with fallbacks
@@ -90,8 +90,8 @@ __all__ = [
 ]
 
 # Add optional components if they exist
-if RealDataIntegrator is not None:
-    __all__.append('RealDataIntegrator')
+if DataIntegrator is not None:
+    __all__.append('DataIntegrator')
 if DelNorteCountyAnalyzer is not None:
     __all__.append('DelNorteCountyAnalyzer')
 if NOAAClient is not None:
