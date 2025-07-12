@@ -1,7 +1,76 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+import sys
 from setuptools import setup, find_packages
+from setuptools.command.build_py import build_py
+from setuptools.command.install import install
+from setuptools.command.develop import develop
+import os
+
+# Ensure the src directory is on the Python path for importing repo_management
+sys.path.insert(0, os.path.abspath("src"))
+from geo_infer_space.osc_geo.utils.repo_management import RepoManager
+
+# Custom Commands
+class SetupOSCReposCommand(install):
+    """
+    Custom setuptools command to clone, set up, and install dependencies for OSC repositories.
+    """
+    description = "Clone and set up OS-Climate repositories"
+    user_options = [
+        ('--repo=', 'r', 'Specify a single repository to process (e.g., osc-geo-h3loader-cli)'),
+        ('--force-clone', 'f', 'Force re-clone repositories if they already exist'),
+        ('--verbose', 'v', 'Enable verbose output'),
+    ]
+
+    def initialize_options(self):
+        install.initialize_options(self)
+        self.repo = None
+        self.force_clone = False
+        self.verbose = False
+
+    def finalize_options(self):
+        install.finalize_options(self)
+
+    def run(self):
+        install.run(self)
+        print("\nRunning custom command: setup_osc_repos")
+        manager = RepoManager(force_clone=self.force_clone, verbose=self.verbose)
+        manager.run_all(target_repo=self.repo)
+
+class TestOSCReposCommand(install):
+    """
+    Custom setuptools command to run tests for OSC repositories.
+    """
+    description = "Run tests for OS-Climate repositories"
+    user_options = [
+        ('--repo=', 'r', 'Specify a single repository to test (e.g., osc-geo-h3loader-cli)'),
+        ('--verbose', 'v', 'Enable verbose output'),
+    ]
+
+    def initialize_options(self):
+        install.initialize_options(self)
+        self.repo = None
+        self.verbose = False
+
+    def finalize_options(self):
+        install.finalize_options(self)
+
+    def run(self):
+        install.run(self)
+        print("\nRunning custom command: test_osc_repos")
+        manager = RepoManager(verbose=self.verbose)
+        
+        repos_to_test = [self.repo] if self.repo else manager.osc_repos.keys()
+        overall_success = True
+        for repo in repos_to_test:
+            if not manager.run_repo_tests(repo_name=repo):
+                overall_success = False
+        
+        if not overall_success:
+            sys.exit(1)
+
 
 setup(
     name="geo-infer-space",
@@ -13,9 +82,13 @@ setup(
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     include_package_data=True,
-    scripts=[
-        "bin/osc_status",
-    ],
+    cmdclass={
+        'setup_osc_repos': SetupOSCReposCommand,
+        'test_osc_repos': TestOSCReposCommand,
+    },
+    # scripts=[
+    #     "bin/osc_status",
+    # ],
     install_requires=[
         "numpy>=1.20.0",
         "pandas>=1.3.0",
