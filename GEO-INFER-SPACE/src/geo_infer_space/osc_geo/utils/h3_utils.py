@@ -16,11 +16,11 @@ def h3_to_geojson(
 ) -> Dict[str, Any]:
     """
     Convert H3 indices to GeoJSON format.
-    
+
     Args:
         h3_indices: List of H3 indices.
         properties: Optional dictionary mapping H3 indices to feature properties.
-            
+
     Returns:
         GeoJSON FeatureCollection.
     """
@@ -29,49 +29,40 @@ def h3_to_geojson(
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'pip install h3'")
         raise ImportError("h3-py package required for h3_to_geojson")
-    
+
     features = []
-    
+
     for h3_index in h3_indices:
         # Get the hexagon boundary as a GeoJSON polygon
-        boundary = h3.cell_to_boundary(h3_index)
-        
+        boundary = list(h3.cell_to_boundary(h3_index))
+
         # Add closing point to the polygon if needed
         if boundary[0] != boundary[-1]:
             boundary.append(boundary[0])
-        
-        # Create the GeoJSON geometry
-        geometry = {
+
+        # Create the polygon geometry
+        polygon_geometry = {
             "type": "Polygon",
             "coordinates": [boundary]
         }
-        
-        # Create the feature properties
-        feature_properties = {
-            "h3_index": h3_index,
-            "resolution": h3.h3_get_resolution(h3_index)
-        }
-        
-        # Add any additional properties
-        if properties and h3_index in properties:
-            feature_properties.update(properties[h3_index])
-        
+
+        # Get properties for this H3 index
+        feature_properties = properties.get(h3_index, {}) if properties else {}
+        feature_properties["h3_index"] = h3_index
+
         # Create the feature
         feature = {
             "type": "Feature",
-            "geometry": geometry,
+            "geometry": polygon_geometry,
             "properties": feature_properties
         }
-        
+
         features.append(feature)
-    
-    # Create the GeoJSON FeatureCollection
-    geojson = {
+
+    return {
         "type": "FeatureCollection",
         "features": features
     }
-    
-    return geojson
 
 def geojson_to_h3(
     geojson_data: Union[str, Dict[str, Any]],
