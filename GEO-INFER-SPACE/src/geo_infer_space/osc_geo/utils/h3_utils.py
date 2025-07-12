@@ -34,7 +34,7 @@ def h3_to_geojson(
     
     for h3_index in h3_indices:
         # Get the hexagon boundary as a GeoJSON polygon
-        boundary = h3.cell_to_boundary(h3_index, geo_json=True)
+        boundary = h3.cell_to_boundary(h3_index)
         
         # Add closing point to the polygon if needed
         if boundary[0] != boundary[-1]:

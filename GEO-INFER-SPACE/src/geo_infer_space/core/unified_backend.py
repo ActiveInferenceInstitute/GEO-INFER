@@ -121,7 +121,7 @@ class UnifiedH3Backend:
                 logger.info(f"Generating hexagons for {geom_name}, {area}...")
                 try:
                     if isinstance(geom, (Polygon, MultiPolygon)):
-                         hexagons_in_area = h3.polyfill_geojson(mapping(geom), self.resolution)
+                         hexagons_in_area = h3.polyfill(mapping(geom), self.resolution, geo_json_conformant=True)
                          hexagons_by_area[area].update(hexagons_in_area)
                     else:
                         logger.warning(f"Skipping invalid geometry for {geom_name}, {area}")
@@ -202,7 +202,7 @@ class UnifiedH3Backend:
             # Add geometry and metadata
             try:
                 hex_data['centroid'] = h3.h3_to_geo(hexagon)
-                hex_data['boundary'] = h3.h3_to_geo_boundary(hexagon, geo_json=True)
+                hex_data['boundary'] = h3.h3_to_geo_boundary(hexagon)
             except Exception as e:
                 logger.warning(f"Could not process geometry for {hexagon}: {e}")
                 hex_data['centroid'] = None
@@ -318,7 +318,7 @@ class UnifiedH3Backend:
         features = []
         for hex_id, properties in data_to_export.items():
             # Get geometry for the hexagon
-            boundary = h3.h3_to_geo_boundary(hex_id, geo_json=True)
+            boundary = h3.h3_to_geo_boundary(hex_id)
             
             features.append({
                 'type': 'Feature',

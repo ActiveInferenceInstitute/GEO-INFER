@@ -46,47 +46,17 @@ def h3_to_geo(h3_index: str) -> Tuple[float, float]:
     except Exception as e:
         raise ValueError(f"Failed to convert h3 to geo: {e}")
 
-def h3_to_geo_boundary(h3_index: str, geo_json: bool = False) -> List[Tuple[float, float]]:
+def h3_to_geo_boundary(h3_index: str) -> List[Tuple[float, float]]:
     """
-    Get the boundary of an H3 cell.
-
-    Args:
-        h3_index: H3 cell identifier.
-        geo_json: Whether to return in GeoJSON format.
-
-    Returns:
-        List of (lat, lng) tuples representing the boundary.
-
-    Raises:
-        ValueError: If operation fails.
+    Convert an H3 index to a GeoJSON boundary (lng, lat order).
     """
-    try:
-        return h3.cell_to_boundary(h3_index)
-    except (TypeError, AttributeError):
-        try:
-            return h3.h3_to_geo_boundary(h3_index, geo_json=geo_json)
-        except Exception as e:
-            raise ValueError(f"Failed to get h3 boundary: {e}")
-    except Exception as e:
-        raise ValueError(f"Failed to get h3 boundary: {e}")
+    return h3.h3_to_geo_boundary(h3_index)
 
 def polyfill(geojson_polygon: Dict[str, Any], resolution: int) -> List[str]:
     """
     Polyfill a GeoJSON polygon with H3 cells.
-
-    Args:
-        geojson_polygon: GeoJSON polygon dictionary.
-        resolution: H3 resolution level.
-
-    Returns:
-        List of H3 cell identifiers covering the polygon.
-
-    Raises:
-        ValueError: If polyfill fails.
     """
     try:
-        return list(h3.polygon_to_cells(geojson_polygon, resolution))
-    except AttributeError:
         return list(h3.polyfill(geojson_polygon, resolution, geo_json_conformant=True))
     except Exception as e:
         raise ValueError(f"H3 polyfill operation failed: {e}") 

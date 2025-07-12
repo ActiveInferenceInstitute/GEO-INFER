@@ -583,7 +583,7 @@ class OSCVisualizationEngine:
         # Add H3 cells to map
         for i, cell in enumerate(h3_cells):
             # Get cell boundary
-            boundary = h3.h3_to_geo_boundary(cell, geo_json=False)
+            boundary = h3.h3_to_geo_boundary(cell)
             
             # Determine color
             if values and i < len(values):

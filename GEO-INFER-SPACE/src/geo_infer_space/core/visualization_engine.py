@@ -381,7 +381,7 @@ class InteractiveVisualizationEngine:
         
         for h3_cell, cell_data in h3_cells.items():
             # Get H3 cell boundary
-            h3_boundary = h3.cell_to_boundary(h3_cell, geo_json=True)
+            h3_boundary = h3.cell_to_boundary(h3_cell)
             
             # Color based on integration score
             integration_score = cell_data.get('integration_score', 0)
