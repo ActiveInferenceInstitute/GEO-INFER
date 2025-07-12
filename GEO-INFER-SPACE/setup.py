@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
-from setuptools import setup, find_packages
+from setuptools import setup, find_packages, Command
 from setuptools.command.build_py import build_py
 from setuptools.command.install import install
 from setuptools.command.develop import develop
@@ -13,52 +13,48 @@ sys.path.insert(0, os.path.abspath("src"))
 from geo_infer_space.osc_geo.utils.repo_management import RepoManager
 
 # Custom Commands
-class SetupOSCReposCommand(install):
+class SetupOSCReposCommand(Command):
     """
     Custom setuptools command to clone, set up, and install dependencies for OSC repositories.
     """
     description = "Clone and set up OS-Climate repositories"
     user_options = [
-        ('--repo=', 'r', 'Specify a single repository to process (e.g., osc-geo-h3loader-cli)'),
-        ('--force-clone', 'f', 'Force re-clone repositories if they already exist'),
-        ('--verbose', 'v', 'Enable verbose output'),
+        ('repo=', 'r', 'Specify a single repository to process (e.g., osc-geo-h3loader-cli)'),
+        ('force-clone', 'f', 'Force re-clone repositories if they already exist'),
+        ('verbose', 'v', 'Enable verbose output'),
     ]
 
     def initialize_options(self):
-        install.initialize_options(self)
         self.repo = None
         self.force_clone = False
         self.verbose = False
 
     def finalize_options(self):
-        install.finalize_options(self)
+        pass # No super call, as we are inheriting from Command
 
     def run(self):
-        install.run(self)
         print("\nRunning custom command: setup_osc_repos")
         manager = RepoManager(force_clone=self.force_clone, verbose=self.verbose)
         manager.run_all(target_repo=self.repo)
 
-class TestOSCReposCommand(install):
+class TestOSCReposCommand(Command):
     """
     Custom setuptools command to run tests for OSC repositories.
     """
     description = "Run tests for OS-Climate repositories"
     user_options = [
-        ('--repo=', 'r', 'Specify a single repository to test (e.g., osc-geo-h3loader-cli)'),
-        ('--verbose', 'v', 'Enable verbose output'),
+        ('repo=', 'r', 'Specify a single repository to test (e.g., osc-geo-h3loader-cli)'),
+        ('verbose', 'v', 'Enable verbose output'),
     ]
 
     def initialize_options(self):
-        install.initialize_options(self)
         self.repo = None
         self.verbose = False
 
     def finalize_options(self):
-        install.finalize_options(self)
+        pass # No super call, as we are inheriting from Command
 
     def run(self):
-        install.run(self)
         print("\nRunning custom command: test_osc_repos")
         manager = RepoManager(verbose=self.verbose)
         
