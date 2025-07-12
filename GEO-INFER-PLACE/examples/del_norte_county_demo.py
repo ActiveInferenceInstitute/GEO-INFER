@@ -551,7 +551,7 @@ def run_simplified_demo(output_dir: str = None, api_keys: dict = None):
             # Use correct H3 function name based on version
             try:
                 h3_cell = h3.latlng_to_cell(lat, lon, 8)
-                h3_boundary = h3.cell_to_boundary(h3_cell, geo_json=True)
+                h3_boundary = h3.cell_to_boundary(h3_cell)
             except AttributeError:
                 h3_cell = h3.geo_to_h3(lat, lon, 8)
                 h3_boundary = h3.h3_to_geo_boundary(h3_cell, geo_json=True)
