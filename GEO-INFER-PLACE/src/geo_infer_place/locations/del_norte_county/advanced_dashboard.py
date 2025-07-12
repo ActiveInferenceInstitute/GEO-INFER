@@ -739,10 +739,10 @@ class AdvancedDashboard:
                     # Generate H3 cell
                     try:
                         h3_cell = h3.latlng_to_cell(lat, lon, 8)
-                        h3_boundary = h3.cell_to_boundary(h3_cell, geo_json=True)
+                        h3_boundary = h3.cell_to_boundary(h3_cell)
                     except AttributeError:
                         h3_cell = h3.geo_to_h3(lat, lon, 8)
-                        h3_boundary = h3.h3_to_geo_boundary(h3_cell, geo_json=True)
+                        h3_boundary = h3.h3_to_geo_boundary(h3_cell)
                     
                     # Simulate forest health index (0-1)
                     health_index = np.random.uniform(0.3, 0.9)
