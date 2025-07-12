@@ -173,7 +173,7 @@ class SpatialProcessor:
                 [min_lon, min_lat]
             ]]
         }
-        cells = h3.polyfill(geojson, resolution, True)
+        cells = h3.polygon_to_cells(geojson, resolution)
         return list(cells) if isinstance(cells, set) else cells
 
     def perform_multi_overlay(self, spatial_datasets: Dict[str, gpd.GeoDataFrame]) -> gpd.GeoDataFrame:
