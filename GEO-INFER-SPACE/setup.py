@@ -10,7 +10,6 @@ import os
 
 # Ensure the src directory is on the Python path for importing repo_management
 sys.path.insert(0, os.path.abspath("src"))
-from geo_infer_space.osc_geo.utils.repo_management import RepoManager
 
 # Custom Commands
 class SetupOSCReposCommand(Command):
@@ -34,6 +33,7 @@ class SetupOSCReposCommand(Command):
 
     def run(self):
         print("\nRunning custom command: setup_osc_repos")
+        from geo_infer_space.osc_geo.utils.repo_management import RepoManager
         manager = RepoManager(force_clone=self.force_clone, verbose=self.verbose)
         manager.run_all(target_repo=self.repo)
 
@@ -56,6 +56,7 @@ class TestOSCReposCommand(Command):
 
     def run(self):
         print("\nRunning custom command: test_osc_repos")
+        from geo_infer_space.osc_geo.utils.repo_management import RepoManager
         manager = RepoManager(verbose=self.verbose)
         
         repos_to_test = [self.repo] if self.repo else manager.osc_repos.keys()

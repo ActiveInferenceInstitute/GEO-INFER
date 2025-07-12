@@ -34,7 +34,7 @@ def h3_to_geojson(
     
     for h3_index in h3_indices:
         # Get the hexagon boundary as a GeoJSON polygon
-        boundary = h3.h3_to_geo_boundary(h3_index, geo_json=True)
+        boundary = h3.cell_to_boundary(h3_index, geo_json=True)
         
         # Add closing point to the polygon if needed
         if boundary[0] != boundary[-1]:
@@ -124,7 +124,7 @@ def geojson_to_h3(
         if geometry_type == "Point":
             # Convert point to H3
             lat, lng = coordinates[1], coordinates[0]
-            h3_index = h3.geo_to_h3(lat, lng, resolution)
+            h3_index = h3.latlng_to_cell(lat, lng, resolution)
             h3_indices.append(h3_index)
             
         elif geometry_type == "Polygon":
@@ -135,7 +135,7 @@ def geojson_to_h3(
                 h3_indices = h3.polyfill(
                     {"type": "Polygon", "coordinates": [exterior]},
                     resolution,
-                    geo_json=True
+                    geo_json_conformant=True # Use geo_json_conformant for lng/lat
                 )
         
         elif geometry_type == "MultiPolygon":
@@ -146,7 +146,7 @@ def geojson_to_h3(
                 indices = h3.polyfill(
                     {"type": "Polygon", "coordinates": [exterior]},
                     resolution,
-                    geo_json=True
+                    geo_json_conformant=True # Use geo_json_conformant for lng/lat
                 )
                 h3_indices.extend(indices)
         
