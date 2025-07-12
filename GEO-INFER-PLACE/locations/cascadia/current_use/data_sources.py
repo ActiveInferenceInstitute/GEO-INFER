@@ -22,8 +22,8 @@ from pathlib import Path
 import zipfile
 import rasterio.mask
 
-# Import H3 utilities from the unified backend's path - this is now corrected
-from geo_infer_space.utils.h3_utils import h3_to_geojson, geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+# Import H3 utilities from the unified backend's path 
+from geo_infer_space.utils.h3_utils import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
 
 
 logger = logging.getLogger(__name__)

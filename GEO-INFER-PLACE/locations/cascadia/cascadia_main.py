@@ -301,10 +301,10 @@ Examples:
         backend = CascadianAgriculturalH3Backend(
             modules=active_module_instances,
             resolution=args.resolution,
-            bioregion=args.bioregion,
-            target_counties=target_counties,
-            base_data_dir=os.path.join(cascadian_dir, 'data'),
-            osc_repo_dir=osc_repo_dir
+            target_region=args.bioregion,
+            target_areas=target_counties,
+            base_data_dir=Path(args.output_dir) / 'data_cache',
+            osc_repo_dir=actual_osc_repo_dir
         )
         
         # Link the modules to the fully initialized backend

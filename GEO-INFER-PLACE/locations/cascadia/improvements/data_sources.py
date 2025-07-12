@@ -14,7 +14,7 @@ import zipfile
 import io
 from shapely.geometry import box
 
-from geo_infer_space.utils.h3_utils import h3_to_geojson, geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+from geo_infer_space.utils.h3_utils import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
 from shapely.geometry import Polygon
 import random
 

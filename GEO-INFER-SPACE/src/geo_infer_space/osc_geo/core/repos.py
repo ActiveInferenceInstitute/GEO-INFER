@@ -185,13 +185,17 @@ def get_repo_path(
         return None
     
     repo_info = OSC_REPOS[repo_key]
-    owner = repo_info["owner"]
+    # Removed owner from path construction as per project structure
     repo = repo_info["repo"]
     
+    print(f"DEBUG: get_repo_path - received base_dir: {base_dir}")
+    print(f"DEBUG: get_repo_path - OSC_REPOS_DIR env var: {os.environ.get('OSC_REPOS_DIR')}")
+
     if not base_dir:
         base_dir = os.environ.get("OSC_REPOS_DIR", "./repo")
     
-    repo_path = os.path.join(base_dir, owner, repo)
+    # Corrected path to exclude the owner directory
+    repo_path = os.path.join(base_dir, repo)
     
     if os.path.exists(repo_path):
         return repo_path

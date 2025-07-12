@@ -1,0 +1,49 @@
+2025-07-12 14:01:08,625 - __main__ - INFO - Final analysis settings -- Modules to run: ['zoning', 'current_use']
+2025-07-12 14:01:08,626 - __main__ - INFO - Final analysis settings -- Modules: ['zoning', 'current_use'], Counties: {'CA': ['Lassen'], 'OR': [], 'WA': []}
+2025-07-12 14:01:08,627 - __main__ - INFO - ================================================================================
+2025-07-12 14:01:08,627 - __main__ - INFO - STARTING CASCADIA AGRICULTURAL LAND ANALYSIS
+2025-07-12 14:01:08,628 - __main__ - INFO - ================================================================================
+2025-07-12 14:01:08,628 - __main__ - INFO - Using output directory: /home/trim/Documents/GitHub/GEO-INFER/output
+2025-07-12 14:01:08,629 - __main__ - INFO - Configuration validation successful.
+2025-07-12 14:01:08,629 - geo_infer_space.osc_geo.core.repos - WARNING - Repository path not found: /home/trim/Documents/GitHub/GEO-INFER/ext/osc-geo-h3loader-cli
+2025-07-12 14:01:08,629 - geo_infer_space.core.unified_backend - ERROR - Failed to initialize H3DataLoader from GEO-INFER-SPACE: H3 loader CLI repository not found. Please clone it first.
+2025-07-12 14:01:08,629 - __main__ - CRITICAL - A critical error occurred during analysis: Failed to initialize H3DataLoader: H3 loader CLI repository not found. Please clone it first.
+Traceback (most recent call last):
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/core/unified_backend.py", line 81, in __init__
+    self.h3_loader: H3DataLoader = create_h3_data_loader(repo_base_dir=osc_repo_dir)
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/main.py", line 102, in create_h3_data_loader
+    return H3DataLoader(repo_base_dir=repo_base_dir)
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/core/loader.py", line 39, in __init__
+    raise ValueError("H3 loader CLI repository not found. Please clone it first.")
+ValueError: H3 loader CLI repository not found. Please clone it first.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/cascadia_main.py", line 280, in main
+    backend_for_init = CascadianAgriculturalH3Backend(
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/core/unified_backend.py", line 59, in __init__
+    super().__init__(modules, resolution, bioregion, target_counties, base_data_dir, osc_repo_dir)
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/core/unified_backend.py", line 85, in __init__
+    raise RuntimeError(f"Failed to initialize H3DataLoader: {e}")
+RuntimeError: Failed to initialize H3DataLoader: H3 loader CLI repository not found. Please clone it first.
+2025-07-12 14:01:08,630 - __main__ - ERROR - Traceback: Traceback (most recent call last):
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/core/unified_backend.py", line 81, in __init__
+    self.h3_loader: H3DataLoader = create_h3_data_loader(repo_base_dir=osc_repo_dir)
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/main.py", line 102, in create_h3_data_loader
+    return H3DataLoader(repo_base_dir=repo_base_dir)
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/core/loader.py", line 39, in __init__
+    raise ValueError("H3 loader CLI repository not found. Please clone it first.")
+ValueError: H3 loader CLI repository not found. Please clone it first.
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/cascadia_main.py", line 280, in main
+    backend_for_init = CascadianAgriculturalH3Backend(
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/core/unified_backend.py", line 59, in __init__
+    super().__init__(modules, resolution, bioregion, target_counties, base_data_dir, osc_repo_dir)
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/core/unified_backend.py", line 85, in __init__
+    raise RuntimeError(f"Failed to initialize H3DataLoader: {e}")
+RuntimeError: Failed to initialize H3DataLoader: H3 loader CLI repository not found. Please clone it first.
+
