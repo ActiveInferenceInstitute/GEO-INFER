@@ -113,7 +113,7 @@ class PlaceAnalyzer:
         # Get cells within radius
         cells = h3.grid_disk(center_cell, int(radius_km / 2))
         
-        return [h3.cell_to_string(cell) for cell in cells]
+        return [str(cell) for cell in cells]
     
     def _calculate_spatial_metrics(self, area: Polygon) -> Dict[str, float]:
         """Calculate spatial metrics for the analysis area."""

@@ -1,6 +1,8 @@
 README.md
 setup.py
 src/geo_infer_space/__init__.py
+src/geo_infer_space/place_analyzer.py
+src/geo_infer_space/spatial_utils.py
 src/geo_infer_space.egg-info/PKG-INFO
 src/geo_infer_space.egg-info/SOURCES.txt
 src/geo_infer_space.egg-info/dependency_links.txt
