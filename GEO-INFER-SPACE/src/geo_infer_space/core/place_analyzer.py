@@ -56,6 +56,8 @@ class PlaceAnalyzer:
             data_sources: List of dictionaries with 'name' and 'path'
         """
         dataframes = []
+        target_crs = None
+        
         for source in data_sources:
             try:
                 if source['path'].endswith('.geojson'):
@@ -77,6 +79,15 @@ class PlaceAnalyzer:
                 else:
                     logger.warning(f"Unsupported file type for {source['name']}")
                     continue
+                
+                # Set target CRS from first valid source
+                if target_crs is None and df.crs is not None:
+                    target_crs = df.crs
+                
+                # Harmonize CRS if needed
+                if df.crs is not None and target_crs is not None and df.crs != target_crs:
+                    df = df.to_crs(target_crs)
+                    logger.info(f"Transformed {source['name']} from {df.crs} to {target_crs}")
                 
                 df['source'] = source['name']
                 dataframes.append(df)
