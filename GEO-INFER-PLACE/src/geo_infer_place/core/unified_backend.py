@@ -63,7 +63,11 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             base_data_dir: The root directory for data caching.
             osc_repo_dir: The root directory of the cloned OS-Climate repositories.
         """
-        super().__init__(modules, resolution, bioregion, target_counties, base_data_dir, osc_repo_dir)
+        # Set bioregion attribute before parent constructor to avoid AttributeError
+        self.bioregion = bioregion
+        
+        # Map bioregion to target_region for parent class compatibility
+        super().__init__(modules, resolution, target_region=bioregion, target_areas=target_counties, base_data_dir=base_data_dir, osc_repo_dir=osc_repo_dir)
         
         # Enhanced SPACE integration
         self.spatial_processor = SpatialProcessor()
@@ -161,8 +165,12 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                         geojson_geom = mapping(geom)
                         hexagons_in_county = polyfill(geojson_geom, self.resolution)
                         hexagons_by_state[state].update(hexagons_in_county)
+                    elif isinstance(geom, dict) and geom.get('type') == 'Polygon':
+                        # Already in GeoJSON format
+                        hexagons_in_county = polyfill(geom, self.resolution)
+                        hexagons_by_state[state].update(hexagons_in_county)
                     else:
-                        logger.warning(f"Skipping invalid geometry for {county_name}, {state}")
+                        logger.warning(f"Skipping invalid geometry for {county_name}, {state}: {type(geom)}")
                 except Exception as e:
                     logger.error(f"SPACE H3 polyfill failed for {county_name}, {state}: {e}")
 
@@ -178,54 +186,100 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
 
     def _get_county_geometries(self, target_counties: Optional[Dict[str, List[str]]]) -> Dict[str, Dict[str, Any]]:
         """
-        Enhanced county geometry loading with SPACE integration.
-        Falls back to placeholder bounding boxes if the file is not found.
+        Enhanced county geometry loading with county boundary loader.
+        Falls back to placeholder bounding boxes if the loader is not available.
         """
         if not target_counties:
             return {}
 
-        # The data file is in the GEO-INFER-PLACE/data directory
-        package_root = Path(__file__).resolve().parents[2] # .../GEO-INFER-PLACE
-        geometries_path = package_root / 'data' / 'us_counties_simple.geojson'
-        
-        output_geoms = {}
+        logger = logging.getLogger(__name__)
+        logger.info("Loading county geometries with boundary loader...")
         
         try:
-            if not geometries_path.exists():
-                raise FileNotFoundError(f"US County geometry file not found at {geometries_path}")
-
-            logger.info(f"Loading county geometries from {geometries_path} using SPACE utilities...")
-            counties_gdf = gpd.read_file(geometries_path)
+            # Import the county boundary loader
+            import sys
+            from pathlib import Path
             
-            for state, counties in target_counties.items():
-                output_geoms[state] = {}
-                state_gdf = counties_gdf[counties_gdf['STATE_ABBR'] == state]
-                
-                if not state_gdf.empty:
-                    if 'all' in counties:
-                        for _, row in state_gdf.iterrows():
-                            output_geoms[state][row['NAME']] = row['geometry']
-                    else:
-                        for county_name in counties:
-                            county_geom = state_gdf[state_gdf['NAME'] == county_name]
-                            if not county_geom.empty:
-                                output_geoms[state][county_name] = county_geom.iloc[0]['geometry']
-                            else:
-                                logger.warning(f"Could not find geometry for county '{county_name}' in state '{state}'")
-
+            # Add the config directory to the path
+            config_dir = Path(__file__).parent.parent.parent / 'locations' / 'cascadia' / 'config'
+            if str(config_dir) not in sys.path:
+                sys.path.insert(0, str(config_dir))
+            
+            from county_boundary_loader import create_county_boundary_loader
+            
+            # Create the loader and get geometries
+            loader = create_county_boundary_loader()
+            county_geometries = loader.get_all_county_geometries(target_counties)
+            
+            # Convert to the expected format
+            output_geoms = {}
+            for county_key, geometry in county_geometries.items():
+                # Parse county key (e.g., 'ca_lassen' -> state='CA', county='Lassen')
+                parts = county_key.split('_', 1)
+                if len(parts) == 2:
+                    state_code, county_name = parts
+                    state = state_code.upper()
+                    county = county_name.title()
+                    
+                    if state not in output_geoms:
+                        output_geoms[state] = {}
+                    output_geoms[state][county] = geometry
+                    
+                    # Validate geometry
+                    if not loader.validate_geometry(geometry):
+                        logger.warning(f"Invalid geometry for {county_key}")
+            
+            logger.info(f"Loaded {len(county_geometries)} county geometries using boundary loader")
+            return output_geoms
+            
+        except ImportError as e:
+            logger.warning(f"County boundary loader not available: {e}")
+            logger.info("Falling back to placeholder geometries")
+            return self._create_placeholder_geometries(target_counties)
         except Exception as e:
-            logger.warning(f"Could not load county geometries from file ({e}). Falling back to placeholder bounding boxes.")
-            # Enhanced placeholder geometries using SPACE bounds
-            placeholder_geoms = {
-                'CA': {'all': Polygon.from_bounds(-124.5, 32.5, -114.0, 42.0)},
-                'OR': {'all': Polygon.from_bounds(-124.6, 42.0, -116.4, 46.3)},
-                'WA': {'all': Polygon.from_bounds(-124.8, 45.5, -116.9, 49.0)}
-            }
-            for state, counties in target_counties.items():
-                if state in placeholder_geoms:
-                    output_geoms[state] = {'all': placeholder_geoms[state]['all']}
-
-        return output_geoms
+            logger.error(f"Error loading county geometries: {e}")
+            logger.info("Falling back to placeholder geometries")
+            return self._create_placeholder_geometries(target_counties)
+    
+    def _create_placeholder_geometries(self, target_counties: Dict[str, List[str]]) -> Dict[str, Dict[str, Any]]:
+        """Create placeholder geometries when boundary loader is not available"""
+        logger.info("Creating placeholder geometries...")
+        
+        placeholder_geoms = {}
+        for state, counties in target_counties.items():
+            if counties == ['all'] or 'all' in counties:
+                # Create a simple bounding box for the state
+                if state == 'CA':
+                    # California bounding box - create proper Shapely Polygon
+                    placeholder_geoms[state] = {'all': Polygon([
+                        (-124.5, 32.5), (-114.0, 32.5), (-114.0, 42.0), (-124.5, 42.0), (-124.5, 32.5)
+                    ])}
+                elif state == 'OR':
+                    # Oregon bounding box - create proper Shapely Polygon
+                    placeholder_geoms[state] = {'all': Polygon([
+                        (-124.5, 42.0), (-116.5, 42.0), (-116.5, 46.3), (-124.5, 46.3), (-124.5, 42.0)
+                    ])}
+                elif state == 'WA':
+                    # Washington bounding box - create proper Shapely Polygon
+                    placeholder_geoms[state] = {'all': Polygon([
+                        (-124.5, 46.3), (-116.5, 46.3), (-116.5, 49.0), (-124.5, 49.0), (-124.5, 46.3)
+                    ])}
+            else:
+                # For specific counties, create individual polygons
+                placeholder_geoms[state] = {}
+                for county in counties:
+                    if state == 'CA' and county == 'Lassen':
+                        # Lassen County bounding box
+                        placeholder_geoms[state][county] = Polygon([
+                            (-121.5, 40.0), (-120.0, 40.0), (-120.0, 41.5), (-121.5, 41.5), (-121.5, 40.0)
+                        ])
+                    else:
+                        # Generic county bounding box
+                        placeholder_geoms[state][county] = Polygon([
+                            (-124.0, 40.0), (-120.0, 40.0), (-120.0, 42.0), (-124.0, 42.0), (-124.0, 40.0)
+                        ])
+        
+        return placeholder_geoms
 
     def run_comprehensive_analysis(self) -> None:
         """

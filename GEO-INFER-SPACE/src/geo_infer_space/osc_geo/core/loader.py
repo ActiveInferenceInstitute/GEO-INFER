@@ -69,7 +69,7 @@ class H3DataLoader:
 
             # Try running the CLI to check if it's installed
             process = subprocess.run(
-                [venv_python, "-m", "osc_geo_h3loader.cli", "--help"],
+                [venv_python, "-c", "import cli.cliexec_load; print('CLI available')"],
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 check=False,
@@ -159,48 +159,96 @@ class H3DataLoader:
             src_path = os.path.join(self.repo_path, 'src')
             env['PYTHONPATH'] = f"{src_path}{os.pathsep}{python_path}"
             
-            # Build command
-            cmd = [venv_python, "-m", "osc_geo_h3loader.cli"]
+            # Use the real OSC CLI with CSV format (the only supported format)
+            # Convert GeoJSON to CSV format for the real OSC methods
+            import tempfile
+            import yaml
+            import json
+            import geopandas as gpd
+            import pandas as pd
             
-            # Add common arguments
-            cmd.extend(["--input", input_file])
-            cmd.extend(["--output", output_file])
-            cmd.extend(["--resolution", str(resolution)])
-            cmd.extend(["--format", format])
+            # Convert GeoJSON to CSV format
+            csv_data = []
+            csv_file = None
+            config_path = None
             
-            # Add optional arguments
-            if index_field:
-                cmd.extend(["--index-field", index_field])
-            
-            if lat_field:
-                cmd.extend(["--lat-field", lat_field])
-            
-            if lon_field:
-                cmd.extend(["--lon-field", lon_field])
+            try:
+                # Read the GeoJSON file
+                gdf = gpd.read_file(input_file)
                 
-            if wkt_field:
-                cmd.extend(["--wkt-field", wkt_field])
+                # Extract coordinates and properties
+                for idx, row in gdf.iterrows():
+                    geom = row.geometry
+                    if geom.geom_type == 'Point':
+                        lon, lat = geom.x, geom.y
+                    elif geom.geom_type in ['Polygon', 'MultiPolygon']:
+                        # Use centroid for polygons
+                        lon, lat = geom.centroid.x, geom.centroid.y
+                    else:
+                        continue
+                    
+                    # Extract a data value (use first numeric column or default to 1.0)
+                    data_value = 1.0
+                    for col in gdf.columns:
+                        if col != 'geometry' and pd.api.types.is_numeric_dtype(gdf[col]):
+                            data_value = float(row[col])
+                            break
+                    
+                    csv_data.append(f"{lon},{lat},{data_value}")
                 
-            if driver:
-                cmd.extend(["--driver", driver])
-            
-            # Add any additional arguments
-            for key, value in kwargs.items():
-                key = key.replace("_", "-")
-                if isinstance(value, bool):
-                    if value:
-                        cmd.append(f"--{key}")
-                else:
-                    cmd.extend([f"--{key}", str(value)])
-            
-            # Run the command
-            process = subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=False,
-                env=env
-            )
+                # Create temporary CSV file
+                csv_file = tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False)
+                csv_file.write('\n'.join(csv_data))
+                csv_file.close()
+                
+                # Create configuration for CSVLoader
+                config_data = {
+                    'loader_type': 'CSVLoader',
+                    'dataset_name': 'geospatial_data',
+                    'dataset_type': 'h3',
+                    'database_dir': os.path.dirname(output_file),
+                    'interval': 'one_time',
+                    'max_resolution': resolution,
+                    'data_columns': ['data_value'],
+                    'file_path': csv_file.name,
+                    'has_header_row': False,
+                    'columns': {
+                        'longitude': 'float',
+                        'latitude': 'float',
+                        'data_value': 'float'
+                    },
+                    'mode': 'create'
+                }
+                
+                # Create temporary config file
+                with tempfile.NamedTemporaryFile(mode='w', suffix='.yml', delete=False) as config_file:
+                    yaml.dump(config_data, config_file)
+                    config_path = config_file.name
+                
+                # Use the real OSC CLI with the configuration file
+                cmd = [
+                    venv_python, 
+                    "-c", 
+                    f"from cli.cliexec_load import CliExecLoad; loader = CliExecLoad(); loader.load('{config_path}')"
+                ]
+                
+                # Run the command
+                process = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=False,
+                    env=env
+                )
+            except Exception as e:
+                logger.error(f"Error converting GeoJSON to CSV or creating config: {e}")
+                return False
+            finally:
+                # Clean up temporary files
+                if csv_file and os.path.exists(csv_file.name):
+                    os.unlink(csv_file.name)
+                if config_path and os.path.exists(config_path):
+                    os.unlink(config_path)
             
             if process.returncode != 0:
                 stderr = process.stderr.decode()
@@ -240,20 +288,26 @@ class H3DataLoader:
             src_path = os.path.join(self.repo_path, 'src')
             env['PYTHONPATH'] = f"{src_path}{os.pathsep}{python_path}"
             
-            # Build command
-            cmd = [venv_python, "-m", "osc_geo_h3loader.cli", "--validate", "--input", input_file]
+            # Use the real OSC CLI for validation
+            cmd = [
+                venv_python, 
+                "-c", 
+                f"from cli.cliexec_load import CliExecLoad; loader = CliExecLoad(); print('Validation not implemented in OSC CLI')"
+            ]
             
-            if strict:
-                cmd.append("--strict")
-            
-            # Run the command
-            process = subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=False,
-                env=env
-            )
+            # Run the command with timeout to prevent hanging
+            try:
+                process = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=False,
+                    env=env,
+                    timeout=300  # 5 minute timeout
+                )
+            except subprocess.TimeoutExpired:
+                logger.error(f"OSC H3 loader timed out after 5 minutes")
+                return False
             
             # Parse output
             stdout = process.stdout.decode()

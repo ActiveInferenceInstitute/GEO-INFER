@@ -68,9 +68,11 @@ except Exception as e:
 import argparse
 import logging
 from typing import List, Dict, Any, Optional
-import json
+import yaml
 from datetime import datetime
 import traceback
+import time
+from tqdm import tqdm
 
 # Enhanced SPACE imports
 from geo_infer_space.osc_geo import (
@@ -121,6 +123,12 @@ def setup_logging(verbose: bool = False, output_dir: str = '.') -> None:
     Path(output_dir).mkdir(parents=True, exist_ok=True)
     
     log_filename = Path(output_dir) / f'cascadia_analysis_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
+
+    # --- FIX: Remove all existing handlers before configuring logging ---
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
+    # --- END FIX ---
+
     logging.basicConfig(
         level=level,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -213,11 +221,11 @@ def setup_data_integrator() -> DataIntegrator:
 
 def load_analysis_config() -> Dict[str, Any]:
     """Load analysis configuration with SPACE integration"""
-    config_path = Path('config/analysis_config.json')
+    config_path = Path('config/analysis_config.yaml')
     
     if config_path.exists():
         with open(config_path, 'r') as f:
-            config = json.load(f)
+            config = yaml.safe_load(f)
         logger = logging.getLogger(__name__)
         logger.info(f"Loaded analysis configuration from {config_path}")
         return config
@@ -579,7 +587,7 @@ Examples:
                 bioregion='Cascadia',
                 target_counties=target_counties,
                 base_data_dir=Path(args.output_dir) / 'data',
-                osc_repo_dir=Path(__file__).parent.parent.parent / 'GEO-INFER-SPACE' / 'repo'
+                osc_repo_dir=Path(__file__).parent.parent.parent.parent / 'GEO-INFER-SPACE' / 'repo'
             )
             modules['zoning'] = GeoInferZoning(temp_backend)
             logger.info("✅ Zoning module initialized")
@@ -595,7 +603,7 @@ Examples:
                 bioregion='Cascadia',
                 target_counties=target_counties,
                 base_data_dir=Path(args.output_dir) / 'data',
-                osc_repo_dir=Path(__file__).parent.parent.parent / 'GEO-INFER-SPACE' / 'repo'
+                osc_repo_dir=Path(__file__).parent.parent.parent.parent / 'GEO-INFER-SPACE' / 'repo'
             )
             modules['current_use'] = GeoInferCurrentUse(temp_backend)
             logger.info("✅ Current use module initialized")
@@ -628,7 +636,7 @@ Examples:
             bioregion='Cascadia',
             target_counties=target_counties,
             base_data_dir=Path(args.output_dir) / 'data',
-            osc_repo_dir=Path(__file__).parent.parent.parent / 'GEO-INFER-SPACE' / 'repo'
+            osc_repo_dir=Path(__file__).parent.parent.parent.parent / 'GEO-INFER-SPACE' / 'repo'
         )
         logger.info("✅ Enhanced backend initialized with SPACE integration")
     except Exception as e:
@@ -640,13 +648,27 @@ Examples:
         mod.backend = backend
 
     logger.info("Step 1: Running comprehensive analysis across all modules...")
-    backend.run_comprehensive_analysis()
     
-    logger.info("Step 2: Calculating agricultural redevelopment potential...")
-    redevelopment_scores = backend.calculate_agricultural_redevelopment_potential()
-    
-    logger.info("Step 3: Generating comprehensive summary...")
-    summary = backend.get_comprehensive_summary()
+    # Add progress bar for analysis
+    with tqdm(total=4, desc="Analysis Progress", unit="step") as pbar:
+        try:
+            backend.run_comprehensive_analysis()
+            pbar.update(1)
+            pbar.set_description("Analysis Progress - Analysis Complete")
+            
+            logger.info("Step 2: Calculating agricultural redevelopment potential...")
+            redevelopment_scores = backend.calculate_agricultural_redevelopment_potential()
+            pbar.update(1)
+            pbar.set_description("Analysis Progress - Redevelopment Calculated")
+            
+            logger.info("Step 3: Generating comprehensive summary...")
+            summary = backend.get_comprehensive_summary()
+            pbar.update(1)
+            pbar.set_description("Analysis Progress - Summary Generated")
+            
+        except Exception as e:
+            logger.error(f"❌ Analysis failed: {e}")
+            raise
     
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_dir = Path(args.output_dir)
@@ -657,6 +679,8 @@ Examples:
     # Export unified data (includes module data and scores)
     unified_path = output_dir / f"{bioregion_lower}_unified_data_{timestamp}.{args.export_format}"
     backend.export_unified_data(str(unified_path), args.export_format)
+    pbar.update(1)
+    pbar.set_description("Analysis Progress - Export Complete")
     
     # Export redevelopment scores separately for specific use cases
     redevelopment_path = output_dir / f"{bioregion_lower}_redevelopment_scores_{timestamp}.json"

@@ -1,0 +1,135 @@
+# County Boundaries Configuration for Cascadia Region
+# Contains detailed boundary information and data sources for each county
+
+counties:
+  ca_lassen:
+    name: "Lassen County"
+    state: "CA"
+    fips_code: "06035"
+    full_name: "Lassen County, California"
+    
+    # Geographic bounds (approximate)
+    bounds:
+      north: 41.2
+      south: 40.0
+      east: -119.5
+      west: -121.5
+      center: [40.6, -120.5]
+    
+    # Area information
+    area_km2: 12180.0
+    population: 32000
+    
+    # Data sources for boundary geometry
+    data_sources:
+      primary:
+        name: "US Census TIGER/Line 2022"
+        url: "https://www2.census.gov/geo/tiger/TIGER2022/COUNTY/tl_2022_06_county.zip"
+        format: "shapefile"
+        description: "Official US Census county boundaries"
+      
+      secondary:
+        name: "California State Boundary"
+        url: "https://data.ca.gov/dataset/california-county-boundaries"
+        format: "geojson"
+        description: "California state-maintained county boundaries"
+    
+    # Local file paths
+    geometry_file: "ca_lassen_boundary.geojson"
+    simplified_file: "ca_lassen_boundary_simplified.geojson"
+    
+    # Analysis settings
+    analysis:
+      h3_resolution: 8
+      buffer_distance_meters: 1000
+      include_adjacent_counties: true
+      agricultural_focus: true
+    
+    # Agricultural characteristics
+    agricultural_info:
+      total_agricultural_land_acres: 450000
+      primary_crops: ["alfalfa", "wheat", "barley", "potatoes"]
+      irrigation_sources: ["surface_water", "groundwater"]
+      soil_types: ["loam", "clay_loam", "sandy_loam"]
+    
+    # Water resources
+    water_resources:
+      major_rivers: ["Susan River", "Honey Lake"]
+      lakes: ["Honey Lake", "Eagle Lake"]
+      groundwater_basins: ["Honey Lake Valley", "Eagle Lake Basin"]
+    
+    # Infrastructure
+    infrastructure:
+      major_highways: ["US-395", "CA-139", "CA-299"]
+      rail_lines: ["Union Pacific"]
+      power_transmission: ["Pacific Gas & Electric"]
+    
+    # Zoning and land use
+    zoning:
+      primary_zones: ["agricultural", "rural", "residential", "commercial"]
+      conservation_areas: ["Lassen National Forest", "Modoc National Forest"]
+      special_districts: ["water_districts", "irrigation_districts"]
+
+  # Template for other counties (can be expanded)
+  ca_modoc:
+    name: "Modoc County"
+    state: "CA"
+    fips_code: "06049"
+    full_name: "Modoc County, California"
+    
+    bounds:
+      north: 42.0
+      south: 41.0
+      east: -120.0
+      west: -121.5
+      center: [41.5, -120.75]
+    
+    geometry_file: "ca_modoc_boundary.geojson"
+    analysis:
+      h3_resolution: 8
+      agricultural_focus: true
+
+  or_lake:
+    name: "Lake County"
+    state: "OR"
+    fips_code: "41037"
+    full_name: "Lake County, Oregon"
+    
+    bounds:
+      north: 43.0
+      south: 42.0
+      east: -119.5
+      west: -121.0
+      center: [42.5, -120.25]
+    
+    geometry_file: "or_lake_boundary.geojson"
+    analysis:
+      h3_resolution: 8
+      agricultural_focus: true
+
+# Global settings for county boundary processing
+global_settings:
+  coordinate_system: "EPSG:4326"  # WGS84
+  simplification_tolerance: 0.001  # degrees
+  buffer_distance_meters: 1000
+  h3_resolution_default: 8
+  
+  # Data processing
+  processing:
+    simplify_geometries: true
+    validate_geometries: true
+    repair_geometries: true
+    buffer_geometries: true
+  
+  # Caching
+  caching:
+    enabled: true
+    cache_dir: "./cache/county_boundaries"
+    cache_duration_hours: 24
+  
+  # Quality control
+  quality_control:
+    min_area_km2: 100
+    max_coordinate_precision: 6
+    require_closed_polygons: true
+    validate_fips_codes: true 

@@ -1,0 +1,25 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Lassen County",
+        "state": "CA",
+        "fips_code": "06035",
+        "county_name": "Lassen",
+        "state_name": "California"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-121.5, 40.0],
+          [-119.5, 40.0],
+          [-119.5, 41.2],
+          [-121.5, 41.2],
+          [-121.5, 40.0]
+        ]]
+      }
+    }
+  ]
+} 
