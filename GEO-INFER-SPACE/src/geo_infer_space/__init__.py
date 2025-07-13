@@ -16,4 +16,13 @@ from .osc_geo import (
     load_data_to_h3_grid,
     H3GridManager,
     H3DataLoader,
-) 
+    check_integration_status,
+    run_diagnostics,
+    detailed_report,
+    IntegrationStatus,
+    RepoStatus,
+)
+
+# Import additional components
+from .place_analyzer import PlaceAnalyzer
+from .spatial_utils import SpatialUtils 
