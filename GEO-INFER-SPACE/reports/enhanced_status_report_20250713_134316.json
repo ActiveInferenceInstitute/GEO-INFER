@@ -1,0 +1,36 @@
+{
+  "report_metadata": {
+    "timestamp": "2025-07-13T13:43:16.996958",
+    "reporter_version": "enhanced_v1.0",
+    "visualizations_enabled": false
+  },
+  "status_data": {
+    "timestamp": "2025-07-13T13:43:16.953664",
+    "repositories": {
+      "h3grid-srv": {
+        "key": "h3grid-srv",
+        "name": "osc-geo-h3grid-srv",
+        "path": "/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3grid-srv",
+        "clone_url": "https://github.com/docxology/osc-geo-h3grid-srv.git",
+        "exists": true,
+        "is_git_repo": true,
+        "current_branch": "main",
+        "latest_commit": "1f16a79f875dd651b6b9054c5abd80a106248cfb",
+        "has_venv": true
+      },
+      "h3loader-cli": {
+        "key": "h3loader-cli",
+        "name": "osc-geo-h3loader-cli",
+        "path": "/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli",
+        "clone_url": "https://github.com/docxology/osc-geo-h3loader-cli.git",
+        "exists": true,
+        "is_git_repo": true,
+        "current_branch": "main",
+        "latest_commit": "44d76765e67aec1bab3e345a247968cbe2f8e736",
+        "has_venv": true
+      }
+    },
+    "all_repos_exist": true
+  },
+  "summary": "OSC Repository Status (as of 2025-07-13T13:43:16.953664)\nAll repositories exist: True\n\nRepository Status:\n  \u2705 osc-geo-h3grid-srv (h3grid-srv)\n     Path: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3grid-srv\n     Branch: main\n     Latest commit: 1f16a79f\n     Git repository: \u2705  Virtual environment: \u2705\n  \u2705 osc-geo-h3loader-cli (h3loader-cli)\n     Path: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli\n     Branch: main\n     Latest commit: 44d76765\n     Git repository: \u2705  Virtual environment: \u2705"
+}
