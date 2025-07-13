@@ -56,78 +56,29 @@ try:
         except Exception as e:
 ----------------------------------------
 File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
-Line: 15
-Code: def geo_to_h3(lat: float, lng: float, resolution: int) -> str:
+Line: 32
+Code: boundary = list(h3.cell_to_boundary(h3_index))
 Context:
-def geo_to_h3(lat: float, lng: float, resolution: int) -> str:
-    """
+# Get the hexagon boundary as a GeoJSON polygon
+        boundary = list(h3.cell_to_boundary(h3_index))
 ----------------------------------------
-File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
-Line: 27
-Code: def h3_to_geo(h3_index: str) -> Tuple[float, float]:
-Context:
-def h3_to_geo(h3_index: str) -> Tuple[float, float]:
-    """
-----------------------------------------
-File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
-Line: 36
-Code: return h3.cell_to_latlng(h3_index)
-Context:
-raise ImportError("h3-py package required for h3_to_geo")
-    return h3.cell_to_latlng(h3_index)
-----------------------------------------
-File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/h3_utils.py
 Line: 39
-Code: def h3_to_geo_boundary(h3_index: str) -> List[Tuple[float, float]]:
-Context:
-def h3_to_geo_boundary(h3_index: str) -> List[Tuple[float, float]]:
-    """
-----------------------------------------
-File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
-Line: 48
-Code: return list(h3.cell_to_boundary(h3_index))
-Context:
-raise ImportError("h3-py package required for h3_to_geo_boundary")
-    return list(h3.cell_to_boundary(h3_index))
-----------------------------------------
-File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
-Line: 51
-Code: def polyfill(geojson_polygon: Dict[str, Any], resolution: int) -> List[str]:
-Context:
-def polyfill(geojson_polygon: Dict[str, Any], resolution: int) -> List[str]:
-    """
-----------------------------------------
-File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
-Line: 80
 Code: boundary = list(h3.cell_to_boundary(h3_index))
 Context:
 # Get the hexagon boundary as a GeoJSON polygon
         boundary = list(h3.cell_to_boundary(h3_index))
 ----------------------------------------
-File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/h3_utils.py
-Line: 37
-Code: boundary = list(h3.cell_to_boundary(h3_index))
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/visualization.py
+Line: 571
+Code: lat, lon = h3.cell_to_latlng(h3_cells[0])
 Context:
-# Get the hexagon boundary as a GeoJSON polygon
-        boundary = list(h3.cell_to_boundary(h3_index))
-----------------------------------------
-File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/h3_utils.py
-Line: 149
-Code: def polyfill(geojson_polygon: Dict[str, Any], resolution: int) -> List[str]:
-Context:
-def polyfill(geojson_polygon: Dict[str, Any], resolution: int) -> List[str]:
-    """
+if h3_cells:
+            lat, lon = h3.cell_to_latlng(h3_cells[0])
+            center = [lat, lon]
 ----------------------------------------
 File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/visualization.py
-Line: 572
-Code: lat, lon = h3.h3_to_geo(h3_cells[0])
-Context:
-# Calculate center from first H3 cell
-            lat, lon = h3.h3_to_geo(h3_cells[0])
-            center = (lat, lon)
-----------------------------------------
-File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/visualization.py
-Line: 586
+Line: 587
 Code: boundary = h3.cell_to_boundary(cell)
 Context:
 # Get cell boundary
@@ -174,10 +125,17 @@ Context:
                     """,
 ----------------------------------------
 File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/examples/california_multilayer_demo.py
-Line: 216
-Code: boundary = cell_to_boundary(h3_index)
+Line: 219
+Code: boundary = h3.cell_to_boundary(h3_index)
+Context:
+# Get the hexagon boundary
+        boundary = h3.cell_to_boundary(h3_index)
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/examples/california_multilayer_demo.py
+Line: 252
+Code: boundary = h3.cell_to_boundary(h3_index)
 Context:
 for h3_index in h3_indices:
-        boundary = cell_to_boundary(h3_index)
+        boundary = h3.cell_to_boundary(h3_index)
         prop = properties.get(h3_index, {})
 ----------------------------------------

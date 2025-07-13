@@ -566,11 +566,12 @@ class OSCVisualizationEngine:
             logger.warning("No H3 cells provided for visualization")
             return None
         
-        # Determine map center
-        if center is None:
-            # Calculate center from first H3 cell
-            lat, lon = h3.h3_to_geo(h3_cells[0])
-            center = (lat, lon)
+        # Get center coordinates for map centering
+        if h3_cells:
+            lat, lon = h3.cell_to_latlng(h3_cells[0])
+            center = [lat, lon]
+        else:
+            center = [0, 0]
         
         # Create map
         m = folium.Map(location=center, zoom_start=zoom, tiles='OpenStreetMap')

@@ -2,6 +2,7 @@
 H3 utility functions for OSC-GEO.
 
 This module provides utility functions for working with H3 grid data.
+All functions use H3 4.x API directly.
 """
 
 import logging
@@ -10,12 +11,13 @@ from typing import Dict, List, Union, Any, Optional
 
 logger = logging.getLogger(__name__)
 
+
 def h3_to_geojson(
     h3_indices: List[str],
     properties: Optional[Dict[str, Dict[str, Any]]] = None
 ) -> Dict[str, Any]:
     """
-    Convert H3 indices to GeoJSON format.
+    Convert H3 indices to GeoJSON format (H3 4.x API).
 
     Args:
         h3_indices: List of H3 indices.
@@ -64,13 +66,14 @@ def h3_to_geojson(
         "features": features
     }
 
+
 def geojson_to_h3(
     geojson_data: Union[str, Dict[str, Any]],
     resolution: int = 8,
     feature_properties: bool = True
 ) -> Dict[str, Union[List[str], Dict[str, Dict[str, Any]]]]:
     """
-    Convert GeoJSON to H3 indices.
+    Convert GeoJSON to H3 indices (H3 4.x API).
     
     Args:
         geojson_data: GeoJSON data as a string or dictionary.
@@ -145,14 +148,3 @@ def geojson_to_h3(
     result["h3_indices"] = list(set(result["h3_indices"]))
     
     return result 
-
-def polyfill(geojson_polygon: Dict[str, Any], resolution: int) -> List[str]:
-    """
-    Fill a GeoJSON polygon with H3 cells at the given resolution (H3 4.x API).
-    """
-    try:
-        import h3
-    except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
-        raise ImportError("h3-py package required for polyfill")
-    return list(h3.polygon_to_cells(geojson_polygon, resolution)) 

@@ -206,14 +206,50 @@ def geojson_to_h3_polygons(geojson: Dict[str, Any], resolution: int) -> Tuple[Li
     return h3_indices, properties
 
 
+def h3_to_geojson_polygons(h3_indices: List[str], properties: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Convert H3 indices back to GeoJSON format.
+    """
+    import h3
+    
+    features = []
+    
+    for h3_index in h3_indices:
+        # Get the hexagon boundary
+        boundary = h3.cell_to_boundary(h3_index)
+        
+        # Convert to GeoJSON polygon format
+        polygon_coords = [[lon, lat] for lat, lon in boundary]
+        
+        # Close the polygon if needed
+        if polygon_coords[0] != polygon_coords[-1]:
+            polygon_coords.append(polygon_coords[0])
+        
+        feature = {
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [polygon_coords]
+            },
+            "properties": properties.get(h3_index, {})
+        }
+        
+        features.append(feature)
+    
+    return {
+        "type": "FeatureCollection",
+        "features": features
+    }
+
+
 def add_h3_layer_to_map(m: folium.Map, h3_indices: List[str], properties: Dict[str, Any], layer_name: str, color: str, popup_fields: List[str] = None):
     """
     Add an H3 hexagon layer to a Folium map.
     """
-    from h3 import cell_to_boundary
+    import h3
     fg = folium.FeatureGroup(name=layer_name)
     for h3_index in h3_indices:
-        boundary = cell_to_boundary(h3_index)
+        boundary = h3.cell_to_boundary(h3_index)
         prop = properties.get(h3_index, {})
         popup_text = "<br>".join([f"{k}: {v}" for k, v in prop.items() if not popup_fields or k in popup_fields])
         folium.Polygon(
