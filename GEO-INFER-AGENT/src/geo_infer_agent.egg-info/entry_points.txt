@@ -1,0 +1,2 @@
+[console_scripts]
+geo-infer-agent = geo_infer_agent.cli:main

@@ -1,0 +1,64 @@
+Metadata-Version: 2.4
+Name: geo-infer-test
+Version: 0.1.0
+Summary: Comprehensive testing framework for the GEO-INFER ecosystem
+Home-page: https://github.com/activeinference/GEO-INFER/tree/main/GEO-INFER-TEST
+Author: GEO-INFER Team
+Author-email: info@geo-infer.org
+Keywords: testing,geospatial,geo-infer,quality assurance,test automation
+Classifier: Development Status :: 4 - Beta
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Topic :: Software Development :: Testing
+Classifier: Topic :: Scientific/Engineering :: GIS
+Classifier: Topic :: Software Development :: Quality Assurance
+Requires-Python: >=3.9
+Requires-Dist: pytest>=7.0.0
+Requires-Dist: pytest-cov>=4.0.0
+Requires-Dist: pytest-xdist>=3.0.0
+Requires-Dist: pytest-mock>=3.10.0
+Requires-Dist: pytest-html>=3.1.0
+Requires-Dist: pytest-benchmark>=4.0.0
+Requires-Dist: pytest-timeout>=2.1.0
+Requires-Dist: coverage[toml]>=7.0.0
+Requires-Dist: numpy>=1.20.0
+Requires-Dist: pandas>=1.3.0
+Requires-Dist: geopandas>=0.10.0
+Requires-Dist: requests>=2.28.0
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: jsonschema>=4.0.0
+Requires-Dist: hypothesis>=6.0.0
+Requires-Dist: faker>=18.0.0
+Requires-Dist: factory-boy>=3.2.0
+Requires-Dist: selenium>=4.0.0
+Requires-Dist: locust>=2.0.0
+Requires-Dist: memory-profiler>=0.60.0
+Requires-Dist: psutil>=5.9.0
+Requires-Dist: tabulate>=0.9.0
+Requires-Dist: matplotlib>=3.5.0
+Requires-Dist: seaborn>=0.11.0
+Requires-Dist: jinja2>=3.1.0
+Provides-Extra: dev
+Requires-Dist: black>=23.3.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+Requires-Dist: isort>=5.12.0; extra == "dev"
+Requires-Dist: mypy>=1.0.0; extra == "dev"
+Requires-Dist: pre-commit>=3.0.0; extra == "dev"
+Provides-Extra: docs
+Requires-Dist: sphinx>=5.0.0; extra == "docs"
+Requires-Dist: sphinx-rtd-theme>=1.2.0; extra == "docs"
+Requires-Dist: myst-parser>=1.0.0; extra == "docs"
+Dynamic: author
+Dynamic: author-email
+Dynamic: classifier
+Dynamic: home-page
+Dynamic: keywords
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

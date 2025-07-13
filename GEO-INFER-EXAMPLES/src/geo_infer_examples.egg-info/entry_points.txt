@@ -1,0 +1,4 @@
+[console_scripts]
+geo-discover = geo_infer_examples.cli:discover_examples
+geo-examples = geo_infer_examples.cli:main
+geo-validate = geo_infer_examples.cli:validate_environment

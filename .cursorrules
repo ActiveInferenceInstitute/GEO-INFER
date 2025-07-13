@@ -2,7 +2,7 @@
 
 ## 🌍 Framework Overview
 
-GEO-INFER is a comprehensive geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. The framework consists of 30+ specialized modules organized into distinct categories:
+GEO-INFER is a comprehensive geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. The framework consists of 30+ specialized modules organized into distinct categories with clear dependency relationships and data flow patterns.
 
 ### Core Module Categories:
 - **🧠 Analytical Core**: ACT, BAYES, AI, MATH, COG, AGENT, SPM
@@ -23,6 +23,7 @@ GEO-INFER is a comprehensive geospatial inference framework implementing Active 
 - Every function must be fully implemented with real logic
 - Use proper error handling instead of `pass` or `NotImplementedError`
 - If functionality is complex, break it into smaller, implementable pieces
+- Implement real data analysis and processing pipelines
 
 ### 2. Maximum Intelligence & Documentation
 - Write intelligent, thoughtful code that demonstrates deep understanding
@@ -30,18 +31,21 @@ GEO-INFER is a comprehensive geospatial inference framework implementing Active 
 - Use type hints for all function parameters and return values
 - Document the mathematical/theoretical basis for algorithms
 - Include example usage in docstrings
+- Provide mathematical foundations and citations where applicable
 
 ### 3. Leverage Existing Module Structure
 - Understand and work within the established module hierarchy
 - Use the standardized directory structure: `src/`, `docs/`, `examples/`, `tests/`, `config/`
 - Follow existing patterns for API design, data models, and utilities
 - Import and extend existing functionality rather than reimplementing
+- Respect module dependencies and data flow patterns
 
 ### 4. Active Inference First
 - Ground all implementations in Active Inference mathematical principles
 - Implement free energy minimization where applicable
 - Use Bayesian inference for uncertainty quantification
 - Design perception-action loops for autonomous systems
+- Apply probabilistic reasoning to spatial-temporal problems
 
 ## 📁 Module Structure Standards
 
@@ -49,15 +53,40 @@ Every module follows this standardized structure:
 ```
 GEO-INFER-MODULE/
 ├── config/               # Configuration files (YAML/JSON)
+│   ├── example.yaml      # Example configuration
+│   └── schema.json       # Configuration schema
 ├── docs/                 # Documentation (markdown, API specs)
+│   ├── api_schema.yaml   # API documentation
+│   ├── architecture.md   # Module architecture
+│   └── tutorials/        # Step-by-step tutorials
 ├── examples/             # Working examples and demonstrations
+│   ├── basic_example.py  # Basic usage examples
+│   └── advanced_example.py # Advanced workflows
 ├── src/                  # Source code
 │   └── geo_infer_module/ # Main package
+│       ├── __init__.py   # Package initialization
 │       ├── api/          # API definitions and routes
+│       │   ├── __init__.py
+│       │   ├── rest_api.py
+│       │   └── schemas.py
 │       ├── core/         # Core functionality and algorithms
+│       │   ├── __init__.py
+│       │   ├── main_engine.py
+│       │   └── algorithms.py
 │       ├── models/       # Data models and schemas
+│       │   ├── __init__.py
+│       │   └── data_models.py
 │       └── utils/        # Utility functions and helpers
-└── tests/                # Comprehensive test suite
+│           ├── __init__.py
+│           ├── helpers.py
+│           └── validation.py
+├── tests/                # Comprehensive test suite
+│   ├── unit/             # Unit tests
+│   ├── integration/      # Integration tests
+│   └── performance/      # Performance tests
+├── setup.py              # Package setup
+├── requirements.txt      # Dependencies
+└── README.md             # Module documentation
 ```
 
 ## 🔧 Implementation Guidelines
@@ -68,6 +97,7 @@ GEO-INFER-MODULE/
 - Write clearly-commented, interpretable code
 - Assess context and file type before making changes
 - Implement proper error handling and logging
+- Follow PEP 8 style guidelines with Black formatting
 
 ### Mathematical Rigor
 - Ground implementations in solid mathematical foundations
@@ -75,20 +105,31 @@ GEO-INFER-MODULE/
 - Implement proper statistical methods for uncertainty
 - Validate mathematical correctness with unit tests
 - Document mathematical assumptions and limitations
+- Include mathematical derivations in docstrings
 
 ### Geospatial Standards
-- Use established geospatial libraries (geopandas, shapely, rasterio)
+- Use established geospatial libraries (geopandas, shapely, rasterio, h3)
 - Implement proper coordinate reference system handling
-- Support standard geospatial formats (GeoJSON, Shapefile, GeoTIFF)
+- Support standard geospatial formats (GeoJSON, Shapefile, GeoTIFF, COG)
 - Follow OGC standards where applicable
 - Handle spatial and temporal indexing efficiently
+- Integrate with OS-Climate H3 tools when appropriate
+
+### Data-Driven Architecture
+- Design for real data processing and analysis
+- Implement robust data validation and quality control
+- Support multiple data formats and sources
+- Build scalable data pipelines
+- Include data transformation and preprocessing capabilities
+- Implement caching and optimization strategies
 
 ### Integration Patterns
 - Design for cross-module integration from the start
 - Use standardized data models and interfaces
 - Implement proper dependency injection patterns
-- Support asynchronous operations where beneficial
+- Support both synchronous and asynchronous communication
 - Design for scalability and performance
+- Follow established data flow patterns between modules
 
 ## 🚀 Development Workflow
 
@@ -97,18 +138,21 @@ GEO-INFER-MODULE/
 2. **Check Dependencies**: Understand which other GEO-INFER modules are dependencies
 3. **Review Examples**: Look at existing examples to understand usage patterns
 4. **Plan Integration**: Consider how your code will interact with other modules
+5. **Analyze Data Requirements**: Understand input/output data formats and sources
 
 ### While Writing Code
 1. **Follow Existing Patterns**: Maintain consistency with existing code style
 2. **Document as You Go**: Write docstrings and comments simultaneously with code
 3. **Test Incrementally**: Write unit tests for each function/method
 4. **Consider Performance**: Optimize for both memory and computational efficiency
+5. **Validate Data**: Implement proper data validation and error handling
 
 ### After Writing Code
 1. **Comprehensive Testing**: Ensure all code paths are tested
 2. **Integration Testing**: Test cross-module interactions
 3. **Documentation Updates**: Update READMEs and API documentation
 4. **Example Creation**: Create working examples demonstrating functionality
+5. **Performance Validation**: Test with realistic data volumes
 
 ## 🧪 Testing Requirements
 
@@ -117,18 +161,21 @@ GEO-INFER-MODULE/
 - Include edge cases and error conditions
 - Use appropriate test data that reflects real-world scenarios
 - Mock external dependencies, but never internal logic
+- Test mathematical correctness of algorithms
 
 ### Integration Testing
 - Test cross-module interactions
 - Validate data flow between modules
 - Test API endpoints comprehensively
 - Ensure configuration loading works correctly
+- Test with real data samples
 
 ### Performance Testing
 - Benchmark critical algorithms
 - Test with realistic data volumes
 - Identify and optimize bottlenecks
 - Monitor memory usage patterns
+- Test scalability with large datasets
 
 ## 🔗 Module Integration Guidelines
 
@@ -150,6 +197,7 @@ GEO-INFER-MODULE/
 - Implement proper API versioning
 - Support both synchronous and asynchronous communication
 - Handle errors gracefully across module boundaries
+- Use consistent data formats and schemas
 
 ## 📝 Documentation Standards
 
@@ -158,18 +206,21 @@ GEO-INFER-MODULE/
 - Include parameter types, return types, and exceptions
 - Provide mathematical foundations where applicable
 - Include usage examples in docstrings
+- Document data requirements and formats
 
 ### Module Documentation
 - Maintain comprehensive README files
 - Document API endpoints with OpenAPI specifications
 - Create architectural decision records (ADRs) for significant choices
 - Provide integration guides for other developers
+- Include data flow diagrams and dependency graphs
 
 ### Example Documentation
 - Every module should have working examples
 - Examples should demonstrate real-world usage
 - Include step-by-step tutorials for complex workflows
 - Maintain example outputs and expected results
+- Provide sample data and configuration files
 
 ## 🔍 Code Review Checklist
 
@@ -178,24 +229,28 @@ GEO-INFER-MODULE/
 - [ ] All functions fully implemented
 - [ ] Proper error handling throughout
 - [ ] Mathematical correctness validated
+- [ ] Data processing pipelines complete
 
 ### Documentation
 - [ ] Comprehensive docstrings for all public APIs
 - [ ] Type hints for all parameters and returns
 - [ ] README updated if needed
 - [ ] Examples provided and tested
+- [ ] Mathematical foundations documented
 
 ### Integration
 - [ ] Follows existing module patterns
 - [ ] Uses standardized data models
 - [ ] Properly handles dependencies
 - [ ] Supports cross-module communication
+- [ ] Respects data flow patterns
 
 ### Quality
 - [ ] Code is clean, readable, and well-structured
 - [ ] Performance considerations addressed
 - [ ] Security implications considered
 - [ ] Tests provide adequate coverage
+- [ ] Data validation implemented
 
 ## 🎖️ Excellence Standards
 
@@ -204,18 +259,21 @@ GEO-INFER-MODULE/
 - Apply geospatial concepts correctly
 - Use appropriate mathematical methods
 - Consider real-world constraints and limitations
+- Understand data science and analytics workflows
 
 ### Exhibit Professional Craftsmanship
 - Write code that reads like literature
 - Create elegant solutions to complex problems
 - Optimize for maintainability and extensibility
 - Anticipate future needs and evolution
+- Build robust, production-ready systems
 
 ### Maintain System Coherence
 - Ensure new code fits naturally into the existing architecture
 - Preserve the mathematical and conceptual foundations
 - Support the overall framework vision
 - Enhance rather than complicate the system
+- Maintain consistency across modules
 
 ## 🚨 Critical Requirements
 
@@ -226,6 +284,8 @@ GEO-INFER-MODULE/
 - Add unnecessary comments, files, methods, adjectives, adverbs, etc.
 - Break established module interfaces
 - Duplicate functionality that exists elsewhere
+- Process data without proper validation
+- Ignore performance implications
 
 ### ALWAYS Do These Things
 - Implement complete, working functionality
@@ -234,6 +294,8 @@ GEO-INFER-MODULE/
 - Write comprehensive tests and documentation
 - Consider the broader system implications
 - "Show don't tell" - use accurate understated language
+- Validate and process real data
+- Optimize for performance and scalability
 
 ## 🧭 Navigation Guide
 
@@ -242,19 +304,45 @@ GEO-INFER-MODULE/
 - Check `docs/` directories for detailed documentation
 - Look at `examples/` for working code patterns
 - Review `tests/` for expected behavior
+- Examine `config/` for configuration patterns
 
 ### Understanding Dependencies
 - Check module dependency matrices in main README
 - Review `requirements.txt` or `pyproject.toml` files
 - Understand the data flow between modules
 - Consider both direct and transitive dependencies
+- Analyze integration patterns and data formats
 
 ### Contributing Effectively
 - Read the module's contribution guidelines
 - Understand the module's role in the larger system
 - Follow established coding and documentation patterns
 - Consider impacts on dependent modules
+- Test with realistic data and scenarios
+
+## 📊 Data-Driven Development
+
+### Real Data Processing
+- Always work with real data sources and formats
+- Implement proper data validation and quality control
+- Build scalable data processing pipelines
+- Support multiple data formats and sources
+- Include data transformation capabilities
+
+### Performance Optimization
+- Profile code with realistic data volumes
+- Implement efficient algorithms and data structures
+- Use appropriate caching and indexing strategies
+- Optimize for both memory and computational efficiency
+- Test scalability with large datasets
+
+### Quality Assurance
+- Validate data integrity and consistency
+- Implement comprehensive error handling
+- Test with diverse data sources and formats
+- Monitor performance and resource usage
+- Document data requirements and constraints
 
 ---
 
-**Remember**: You are building a sophisticated, production-quality geospatial inference framework. Every line of code should reflect the highest standards of software engineering, mathematical rigor, and system thinking. The goal is to create something that advances the state of the art in geospatial analysis while being elegant, maintainable, and extensible. 
+**Remember**: You are building a sophisticated, production-quality geospatial inference framework. Every line of code should reflect the highest standards of software engineering, mathematical rigor, and system thinking. The goal is to create something that advances the state of the art in geospatial analysis while being elegant, maintainable, and extensible. Focus on real data processing, comprehensive documentation, and robust integration patterns that enable the framework to handle complex, real-world geospatial challenges. 

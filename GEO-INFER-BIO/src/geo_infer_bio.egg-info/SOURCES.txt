@@ -1,0 +1,12 @@
+README.md
+setup.py
+src/geo_infer_bio/__init__.py
+src/geo_infer_bio/climate.py
+src/geo_infer_bio/microbiome.py
+src/geo_infer_bio/soil.py
+src/geo_infer_bio.egg-info/PKG-INFO
+src/geo_infer_bio.egg-info/SOURCES.txt
+src/geo_infer_bio.egg-info/dependency_links.txt
+src/geo_infer_bio.egg-info/requires.txt
+src/geo_infer_bio.egg-info/top_level.txt
+tests/test_sequence_analysis.py

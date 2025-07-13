@@ -1,5 +1,12 @@
 from setuptools import setup, find_packages
 
+# Read README safely
+try:
+    with open("README.md", "r") as f:
+        long_description = f.read()
+except FileNotFoundError:
+    long_description = "A bioinformatics module for the GEO-INFER framework"
+
 setup(
     name="geo-infer-bio",
     version="0.1.0",
@@ -21,11 +28,13 @@ setup(
         "pydantic>=1.8.0",
         "graphql-core>=3.1.0",
         "strawberry-graphql>=0.96.0",
-        "geo-infer-space>=0.1.0",
-        "geo-infer-time>=0.1.0",
-        "geo-infer-ai>=0.1.0",
     ],
     extras_require={
+        "geo-infer": [
+            "geo-infer-space>=0.1.0",
+            "geo-infer-time>=0.1.0", 
+            "geo-infer-ai>=0.1.0",
+        ],
         "dev": [
             "pytest>=6.2.0",
             "pytest-cov>=2.12.0",
@@ -45,9 +54,9 @@ setup(
     author="GEO-INFER Team",
     author_email="team@geo-infer.org",
     description="A bioinformatics module for the GEO-INFER framework",
-    long_description=open("README.md").read(),
+    long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/GEO-INFER/tree/main/GEO-INFER-BIO",
+    url="https://github.com/activeinferenceinstitute/GEO-INFER/tree/main/GEO-INFER-BIO",
     classifiers=[
         "Development Status :: 3 - Alpha",
         "Intended Audience :: Science/Research",
@@ -61,8 +70,8 @@ setup(
     ],
     keywords="bioinformatics, spatial analysis, genomics, proteomics, metabolomics, ecology",
     project_urls={
-        "Bug Tracker": "https://github.com/yourusername/GEO-INFER/issues",
+        "Bug Tracker": "https://github.com/activeinferenceinstitute/GEO-INFER/issues",
         "Documentation": "https://geo-infer-bio.readthedocs.io/",
-        "Source Code": "https://github.com/yourusername/GEO-INFER/tree/main/GEO-INFER-BIO",
+        "Source Code": "https://github.com/activeinferenceinstitute/GEO-INFER/tree/main/GEO-INFER-BIO",
     },
 ) 

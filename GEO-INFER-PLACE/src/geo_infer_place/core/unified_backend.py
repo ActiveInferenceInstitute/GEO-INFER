@@ -158,21 +158,63 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         for state, counties in county_geoms.items():
             for county_name, geom in counties.items():
                 logger.info(f"Generating hexagons for {county_name}, {state} using SPACE utilities...")
+                logger.debug(f"Geometry type: {type(geom)}, Geometry: {geom}")
                 try:
-                    # Use SPACE polyfill utility for enhanced H3 generation
+                    # Use direct H3 library for polyfill (more reliable than SPACE polyfill)
                     if isinstance(geom, (Polygon, MultiPolygon)):
-                        # Convert to GeoJSON format for SPACE polyfill
+                        # Convert to GeoJSON format for H3 polyfill
                         geojson_geom = mapping(geom)
-                        hexagons_in_county = polyfill(geojson_geom, self.resolution)
-                        hexagons_by_state[state].update(hexagons_in_county)
+                        logger.debug(f"Converted to GeoJSON: {geojson_geom}")
+                        try:
+                            # Use correct H3 API for version 4.x
+                            hexagons_in_county = h3.polygon_to_cells(geojson_geom, self.resolution)
+                            hexagons_by_state[state].update(hexagons_in_county)
+                            logger.info(f"Generated {len(hexagons_in_county)} hexagons for {county_name}, {state}")
+                        except Exception as h3_error:
+                            logger.error(f"H3 polygon_to_cells failed: {h3_error}")
+                            # Fallback to SPACE polyfill
+                            try:
+                                hexagons_in_county = polyfill(geojson_geom, self.resolution)
+                                hexagons_by_state[state].update(hexagons_in_county)
+                                logger.info(f"Generated {len(hexagons_in_county)} hexagons using SPACE fallback for {county_name}, {state}")
+                            except Exception as space_error:
+                                logger.error(f"SPACE polyfill also failed: {space_error}")
                     elif isinstance(geom, dict) and geom.get('type') == 'Polygon':
                         # Already in GeoJSON format
-                        hexagons_in_county = polyfill(geom, self.resolution)
-                        hexagons_by_state[state].update(hexagons_in_county)
+                        try:
+                            hexagons_in_county = h3.polygon_to_cells(geom, self.resolution)
+                            hexagons_by_state[state].update(hexagons_in_county)
+                            logger.info(f"Generated {len(hexagons_in_county)} hexagons for {county_name}, {state}")
+                        except Exception as h3_error:
+                            logger.error(f"H3 polygon_to_cells failed: {h3_error}")
+                            # Fallback to SPACE polyfill
+                            try:
+                                hexagons_in_county = polyfill(geom, self.resolution)
+                                hexagons_by_state[state].update(hexagons_in_county)
+                                logger.info(f"Generated {len(hexagons_in_county)} hexagons using SPACE fallback for {county_name}, {state}")
+                            except Exception as space_error:
+                                logger.error(f"SPACE polyfill also failed: {space_error}")
+                    elif isinstance(geom, dict):
+                        # Try to convert plain dict to proper GeoJSON structure
+                        logger.warning(f"Attempting to convert plain dict to GeoJSON for {county_name}, {state}")
+                        if 'coordinates' in geom:
+                            geojson_geom = {
+                                'type': 'Polygon',
+                                'coordinates': geom['coordinates']
+                            }
+                            try:
+                                hexagons_in_county = h3.polygon_to_cells(geojson_geom, self.resolution)
+                                hexagons_by_state[state].update(hexagons_in_county)
+                                logger.info(f"Generated {len(hexagons_in_county)} hexagons for {county_name}, {state}")
+                            except Exception as h3_error:
+                                logger.error(f"H3 polygon_to_cells failed: {h3_error}")
+                        else:
+                            logger.error(f"Invalid geometry structure for {county_name}, {state}: {geom}")
                     else:
                         logger.warning(f"Skipping invalid geometry for {county_name}, {state}: {type(geom)}")
                 except Exception as e:
                     logger.error(f"SPACE H3 polyfill failed for {county_name}, {state}: {e}")
+                    logger.debug(f"Geometry that failed: {geom}")
 
         final_hex_by_state = {k: sorted(list(v)) for k, v in hexagons_by_state.items() if v}
         final_all_hexagons = sorted(list(set.union(*hexagons_by_state.values())))
@@ -201,15 +243,34 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             from pathlib import Path
             
             # Add the config directory to the path
-            config_dir = Path(__file__).parent.parent.parent / 'locations' / 'cascadia' / 'config'
+            config_dir = Path(__file__).parent.parent.parent.parent / 'locations' / 'cascadia' / 'config'
             if str(config_dir) not in sys.path:
                 sys.path.insert(0, str(config_dir))
             
-            from county_boundary_loader import create_county_boundary_loader
-            
-            # Create the loader and get geometries
-            loader = create_county_boundary_loader()
-            county_geometries = loader.get_all_county_geometries(target_counties)
+            # Import with proper error handling
+            try:
+                from county_boundary_loader import create_county_boundary_loader
+                # Create the loader and get geometries
+                loader = create_county_boundary_loader()
+                county_geometries = loader.get_all_county_geometries(target_counties)
+            except ImportError:
+                # Try alternative import path
+                try:
+                    import importlib.util
+                    spec = importlib.util.spec_from_file_location(
+                        "county_boundary_loader", 
+                        config_dir / "county_boundary_loader.py"
+                    )
+                    county_boundary_loader = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(county_boundary_loader)
+                    create_county_boundary_loader = county_boundary_loader.create_county_boundary_loader
+                    
+                    # Create the loader and get geometries
+                    loader = create_county_boundary_loader()
+                    county_geometries = loader.get_all_county_geometries(target_counties)
+                except Exception as import_error:
+                    logger.warning(f"County boundary loader import failed: {import_error}")
+                    raise ImportError(f"Could not import county boundary loader: {import_error}")
             
             # Convert to the expected format
             output_geoms = {}

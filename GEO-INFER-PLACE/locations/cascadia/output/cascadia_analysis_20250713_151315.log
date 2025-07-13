@@ -1,0 +1,127 @@
+2025-07-13 15:13:15,041 - __main__ - INFO - Enhanced Cascadia Analysis Framework initialized with SPACE integration
+2025-07-13 15:13:15,041 - __main__ - INFO - Log file: output/cascadia_analysis_20250713_151315.log
+2025-07-13 15:13:15,041 - __main__ - INFO - 🚀 Starting Enhanced Cascadia Analysis Framework with SPACE Integration
+2025-07-13 15:13:15,041 - __main__ - INFO - Arguments: {'resolution': 8, 'output_dir': './output', 'export_format': 'geojson', 'counties': 'all', 'modules': 'all', 'verbose': True, 'check_deps': False, 'enhanced_viz': True, 'real_time': False, 'spatial_analysis': True, 'generate_dashboard': True}
+2025-07-13 15:13:15,041 - __main__ - INFO - Initializing SPACE spatial processor...
+2025-07-13 15:13:15,041 - __main__ - INFO - ✅ Spatial processor initialized successfully
+2025-07-13 15:13:15,041 - __main__ - INFO - ✅ Spatial processor initialized
+2025-07-13 15:13:15,041 - __main__ - INFO - Initializing SPACE visualization engine...
+2025-07-13 15:13:15,041 - geo_infer_space.core.visualization_engine - INFO - InteractiveVisualizationEngine initialized
+2025-07-13 15:13:15,041 - geo_infer_space.core.visualization_engine - INFO - Location center: (41.500, -124.000)
+2025-07-13 15:13:15,041 - geo_infer_space.core.visualization_engine - INFO - H3 resolution: 8
+2025-07-13 15:13:15,041 - __main__ - INFO - ✅ Visualization engine initialized successfully
+2025-07-13 15:13:15,041 - __main__ - INFO - ✅ Visualization engine initialized
+2025-07-13 15:13:15,045 - __main__ - INFO - Loaded analysis configuration from config/analysis_config.yaml
+2025-07-13 15:13:15,045 - __main__ - INFO - Target counties: {'CA': ['Lassen'], 'OR': [], 'WA': []}
+2025-07-13 15:13:15,045 - __main__ - INFO - Active modules: ['zoning', 'current_use']
+2025-07-13 15:13:16,077 - geo_infer_space.core.unified_backend - INFO - Successfully initialized H3DataLoader from GEO-INFER-SPACE.
+2025-07-13 15:13:16,078 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2025-07-13 15:13:16,085 - county_boundary_loader - INFO - Loaded county boundaries configuration from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2025-07-13 15:13:16,126 - county_boundary_loader - INFO - Loaded geometry for ca_lassen from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_lassen_boundary.geojson
+2025-07-13 15:13:16,126 - geo_infer_place.core.unified_backend - INFO - Loaded 1 county geometries using boundary loader
+2025-07-13 15:13:16,127 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Lassen, CA using SPACE utilities...
+2025-07-13 15:13:16,127 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'shapely.geometry.polygon.Polygon'>, Geometry: POLYGON ((-121.5 40, -119.5 40, -119.5 41.2, -121.5 41.2, -121.5 40))
+2025-07-13 15:13:16,127 - geo_infer_place.core.unified_backend - DEBUG - Converted to GeoJSON: {'type': 'Polygon', 'coordinates': (((-121.5, 40.0), (-119.5, 40.0), (-119.5, 41.2), (-121.5, 41.2), (-121.5, 40.0)),)}
+2025-07-13 15:13:16,127 - geo_infer_place.core.unified_backend - ERROR - H3 polygon_to_cells failed: Unrecognized type: <class 'dict'>
+2025-07-13 15:13:16,127 - geo_infer_place.core.unified_backend - ERROR - SPACE polyfill also failed: H3 polyfill operation failed: Unrecognized type: <class 'dict'>
+2025-07-13 15:13:16,127 - geo_infer_place.core.unified_backend - ERROR - Failed to generate any H3 hexagons for bioregion 'Cascadia' with filters {'CA': ['Lassen'], 'OR': [], 'WA': []}
+2025-07-13 15:13:16,127 - geo_infer_space.core.unified_backend - INFO - UnifiedH3Backend initialized for 'Cascadia' with 0 active modules at H3 resolution 8
+2025-07-13 15:13:16,127 - geo_infer_space.core.unified_backend - INFO - Active modules: []
+2025-07-13 15:13:16,127 - geo_infer_space.core.unified_backend - INFO - Defined 0 total target hexagons across 0 areas.
+2025-07-13 15:13:16,127 - geo_infer_space.utils.config_loader - INFO - Config loader initialized with directory: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config
+2025-07-13 15:13:16,127 - geo_infer_space.utils.config_loader - WARNING - Location config not found: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config/cascadia.yaml
+2025-07-13 15:13:16,127 - geo_infer_space.utils.config_loader - DEBUG - Configuration validation passed
+2025-07-13 15:13:16,127 - geo_infer_place.core.unified_backend - INFO - ✅ Cascadia configuration loaded successfully
+2025-07-13 15:13:16,127 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2025-07-13 15:13:16,133 - county_boundary_loader - INFO - Loaded county boundaries configuration from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2025-07-13 15:13:16,134 - county_boundary_loader - INFO - Loaded geometry for ca_lassen from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_lassen_boundary.geojson
+2025-07-13 15:13:16,134 - geo_infer_place.core.unified_backend - INFO - Loaded 1 county geometries using boundary loader
+2025-07-13 15:13:16,134 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Lassen, CA using SPACE utilities...
+2025-07-13 15:13:16,134 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'shapely.geometry.polygon.Polygon'>, Geometry: POLYGON ((-121.5 40, -119.5 40, -119.5 41.2, -121.5 41.2, -121.5 40))
+2025-07-13 15:13:16,134 - geo_infer_place.core.unified_backend - DEBUG - Converted to GeoJSON: {'type': 'Polygon', 'coordinates': (((-121.5, 40.0), (-119.5, 40.0), (-119.5, 41.2), (-121.5, 41.2), (-121.5, 40.0)),)}
+2025-07-13 15:13:16,134 - geo_infer_place.core.unified_backend - ERROR - H3 polygon_to_cells failed: Unrecognized type: <class 'dict'>
+2025-07-13 15:13:16,134 - geo_infer_place.core.unified_backend - ERROR - SPACE polyfill also failed: H3 polyfill operation failed: Unrecognized type: <class 'dict'>
+2025-07-13 15:13:16,135 - geo_infer_place.core.unified_backend - ERROR - Failed to generate any H3 hexagons for bioregion 'Cascadia' with filters {'CA': ['Lassen'], 'OR': [], 'WA': []}
+2025-07-13 15:13:16,135 - geo_infer_place.core.unified_backend - INFO - Enhanced CascadianAgriculturalH3Backend initialized for 'Cascadia' with 0 active modules at H3 resolution 8
+2025-07-13 15:13:16,135 - geo_infer_place.core.unified_backend - INFO - Active modules: []
+2025-07-13 15:13:16,135 - geo_infer_place.core.unified_backend - INFO - Defined 0 total target hexagons across 0 states.
+2025-07-13 15:13:16,135 - geo_infer_place.core.unified_backend - INFO - SPACE integration: Spatial processor, data integrator, and visualization engine available
+2025-07-13 15:13:16,135 - zoning.geo_infer_zoning - INFO - Initialized GeoInferZoning module.
+2025-07-13 15:13:16,135 - __main__ - INFO - ✅ Zoning module initialized
+2025-07-13 15:13:17,055 - geo_infer_space.core.unified_backend - INFO - Successfully initialized H3DataLoader from GEO-INFER-SPACE.
+2025-07-13 15:13:17,055 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2025-07-13 15:13:17,060 - county_boundary_loader - INFO - Loaded county boundaries configuration from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2025-07-13 15:13:17,063 - county_boundary_loader - INFO - Loaded geometry for ca_lassen from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_lassen_boundary.geojson
+2025-07-13 15:13:17,063 - geo_infer_place.core.unified_backend - INFO - Loaded 1 county geometries using boundary loader
+2025-07-13 15:13:17,063 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Lassen, CA using SPACE utilities...
+2025-07-13 15:13:17,063 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'shapely.geometry.polygon.Polygon'>, Geometry: POLYGON ((-121.5 40, -119.5 40, -119.5 41.2, -121.5 41.2, -121.5 40))
+2025-07-13 15:13:17,064 - geo_infer_place.core.unified_backend - DEBUG - Converted to GeoJSON: {'type': 'Polygon', 'coordinates': (((-121.5, 40.0), (-119.5, 40.0), (-119.5, 41.2), (-121.5, 41.2), (-121.5, 40.0)),)}
+2025-07-13 15:13:17,064 - geo_infer_place.core.unified_backend - ERROR - H3 polygon_to_cells failed: Unrecognized type: <class 'dict'>
+2025-07-13 15:13:17,064 - geo_infer_place.core.unified_backend - ERROR - SPACE polyfill also failed: H3 polyfill operation failed: Unrecognized type: <class 'dict'>
+2025-07-13 15:13:17,064 - geo_infer_place.core.unified_backend - ERROR - Failed to generate any H3 hexagons for bioregion 'Cascadia' with filters {'CA': ['Lassen'], 'OR': [], 'WA': []}
+2025-07-13 15:13:17,064 - geo_infer_space.core.unified_backend - INFO - UnifiedH3Backend initialized for 'Cascadia' with 0 active modules at H3 resolution 8
+2025-07-13 15:13:17,064 - geo_infer_space.core.unified_backend - INFO - Active modules: []
+2025-07-13 15:13:17,064 - geo_infer_space.core.unified_backend - INFO - Defined 0 total target hexagons across 0 areas.
+2025-07-13 15:13:17,064 - geo_infer_space.utils.config_loader - INFO - Config loader initialized with directory: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config
+2025-07-13 15:13:17,064 - geo_infer_space.utils.config_loader - WARNING - Location config not found: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config/cascadia.yaml
+2025-07-13 15:13:17,064 - geo_infer_space.utils.config_loader - DEBUG - Configuration validation passed
+2025-07-13 15:13:17,064 - geo_infer_place.core.unified_backend - INFO - ✅ Cascadia configuration loaded successfully
+2025-07-13 15:13:17,064 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2025-07-13 15:13:17,069 - county_boundary_loader - INFO - Loaded county boundaries configuration from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2025-07-13 15:13:17,071 - county_boundary_loader - INFO - Loaded geometry for ca_lassen from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_lassen_boundary.geojson
+2025-07-13 15:13:17,072 - geo_infer_place.core.unified_backend - INFO - Loaded 1 county geometries using boundary loader
+2025-07-13 15:13:17,072 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Lassen, CA using SPACE utilities...
+2025-07-13 15:13:17,072 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'shapely.geometry.polygon.Polygon'>, Geometry: POLYGON ((-121.5 40, -119.5 40, -119.5 41.2, -121.5 41.2, -121.5 40))
+2025-07-13 15:13:17,072 - geo_infer_place.core.unified_backend - DEBUG - Converted to GeoJSON: {'type': 'Polygon', 'coordinates': (((-121.5, 40.0), (-119.5, 40.0), (-119.5, 41.2), (-121.5, 41.2), (-121.5, 40.0)),)}
+2025-07-13 15:13:17,072 - geo_infer_place.core.unified_backend - ERROR - H3 polygon_to_cells failed: Unrecognized type: <class 'dict'>
+2025-07-13 15:13:17,072 - geo_infer_place.core.unified_backend - ERROR - SPACE polyfill also failed: H3 polyfill operation failed: Unrecognized type: <class 'dict'>
+2025-07-13 15:13:17,072 - geo_infer_place.core.unified_backend - ERROR - Failed to generate any H3 hexagons for bioregion 'Cascadia' with filters {'CA': ['Lassen'], 'OR': [], 'WA': []}
+2025-07-13 15:13:17,072 - geo_infer_place.core.unified_backend - INFO - Enhanced CascadianAgriculturalH3Backend initialized for 'Cascadia' with 0 active modules at H3 resolution 8
+2025-07-13 15:13:17,072 - geo_infer_place.core.unified_backend - INFO - Active modules: []
+2025-07-13 15:13:17,072 - geo_infer_place.core.unified_backend - INFO - Defined 0 total target hexagons across 0 states.
+2025-07-13 15:13:17,072 - geo_infer_place.core.unified_backend - INFO - SPACE integration: Spatial processor, data integrator, and visualization engine available
+2025-07-13 15:13:17,073 - current_use.data_sources - INFO - Initialized CascadianCurrentUseDataSources
+2025-07-13 15:13:17,073 - current_use.geo_infer_current_use - INFO - Initialized GeoInferCurrentUse module.
+2025-07-13 15:13:17,073 - __main__ - INFO - ✅ Current use module initialized
+2025-07-13 15:13:17,893 - geo_infer_space.core.unified_backend - INFO - Successfully initialized H3DataLoader from GEO-INFER-SPACE.
+2025-07-13 15:13:17,893 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2025-07-13 15:13:17,899 - county_boundary_loader - INFO - Loaded county boundaries configuration from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2025-07-13 15:13:17,901 - county_boundary_loader - INFO - Loaded geometry for ca_lassen from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_lassen_boundary.geojson
+2025-07-13 15:13:17,901 - geo_infer_place.core.unified_backend - INFO - Loaded 1 county geometries using boundary loader
+2025-07-13 15:13:17,901 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Lassen, CA using SPACE utilities...
+2025-07-13 15:13:17,901 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'shapely.geometry.polygon.Polygon'>, Geometry: POLYGON ((-121.5 40, -119.5 40, -119.5 41.2, -121.5 41.2, -121.5 40))
+2025-07-13 15:13:17,901 - geo_infer_place.core.unified_backend - DEBUG - Converted to GeoJSON: {'type': 'Polygon', 'coordinates': (((-121.5, 40.0), (-119.5, 40.0), (-119.5, 41.2), (-121.5, 41.2), (-121.5, 40.0)),)}
+2025-07-13 15:13:17,901 - geo_infer_place.core.unified_backend - ERROR - H3 polygon_to_cells failed: Unrecognized type: <class 'dict'>
+2025-07-13 15:13:17,901 - geo_infer_place.core.unified_backend - ERROR - SPACE polyfill also failed: H3 polyfill operation failed: Unrecognized type: <class 'dict'>
+2025-07-13 15:13:17,901 - geo_infer_place.core.unified_backend - ERROR - Failed to generate any H3 hexagons for bioregion 'Cascadia' with filters {'CA': ['Lassen'], 'OR': [], 'WA': []}
+2025-07-13 15:13:17,901 - geo_infer_space.core.unified_backend - INFO - UnifiedH3Backend initialized for 'Cascadia' with 2 active modules at H3 resolution 8
+2025-07-13 15:13:17,901 - geo_infer_space.core.unified_backend - INFO - Active modules: ['zoning', 'current_use']
+2025-07-13 15:13:17,902 - geo_infer_space.core.unified_backend - INFO - Defined 0 total target hexagons across 0 areas.
+2025-07-13 15:13:17,902 - geo_infer_space.utils.config_loader - INFO - Config loader initialized with directory: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config
+2025-07-13 15:13:17,902 - geo_infer_space.utils.config_loader - WARNING - Location config not found: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config/cascadia.yaml
+2025-07-13 15:13:17,902 - geo_infer_space.utils.config_loader - DEBUG - Configuration validation passed
+2025-07-13 15:13:17,902 - geo_infer_place.core.unified_backend - INFO - ✅ Cascadia configuration loaded successfully
+2025-07-13 15:13:17,902 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2025-07-13 15:13:17,907 - county_boundary_loader - INFO - Loaded county boundaries configuration from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2025-07-13 15:13:17,908 - county_boundary_loader - INFO - Loaded geometry for ca_lassen from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_lassen_boundary.geojson
+2025-07-13 15:13:17,908 - geo_infer_place.core.unified_backend - INFO - Loaded 1 county geometries using boundary loader
+2025-07-13 15:13:17,909 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Lassen, CA using SPACE utilities...
+2025-07-13 15:13:17,909 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'shapely.geometry.polygon.Polygon'>, Geometry: POLYGON ((-121.5 40, -119.5 40, -119.5 41.2, -121.5 41.2, -121.5 40))
+2025-07-13 15:13:17,909 - geo_infer_place.core.unified_backend - DEBUG - Converted to GeoJSON: {'type': 'Polygon', 'coordinates': (((-121.5, 40.0), (-119.5, 40.0), (-119.5, 41.2), (-121.5, 41.2), (-121.5, 40.0)),)}
+2025-07-13 15:13:17,909 - geo_infer_place.core.unified_backend - ERROR - H3 polygon_to_cells failed: Unrecognized type: <class 'dict'>
+2025-07-13 15:13:17,909 - geo_infer_place.core.unified_backend - ERROR - SPACE polyfill also failed: H3 polyfill operation failed: Unrecognized type: <class 'dict'>
+2025-07-13 15:13:17,909 - geo_infer_place.core.unified_backend - ERROR - Failed to generate any H3 hexagons for bioregion 'Cascadia' with filters {'CA': ['Lassen'], 'OR': [], 'WA': []}
+2025-07-13 15:13:17,909 - geo_infer_place.core.unified_backend - INFO - Enhanced CascadianAgriculturalH3Backend initialized for 'Cascadia' with 2 active modules at H3 resolution 8
+2025-07-13 15:13:17,909 - geo_infer_place.core.unified_backend - INFO - Active modules: ['zoning', 'current_use']
+2025-07-13 15:13:17,909 - geo_infer_place.core.unified_backend - INFO - Defined 0 total target hexagons across 0 states.
+2025-07-13 15:13:17,909 - geo_infer_place.core.unified_backend - INFO - SPACE integration: Spatial processor, data integrator, and visualization engine available
+2025-07-13 15:13:17,909 - __main__ - INFO - ✅ Enhanced backend initialized with SPACE integration
+2025-07-13 15:13:17,909 - __main__ - INFO - Step 1: Running comprehensive analysis across all modules...
+2025-07-13 15:13:17,922 - geo_infer_place.core.unified_backend - INFO - Starting enhanced comprehensive analysis with SPACE integration...
+2025-07-13 15:13:17,922 - geo_infer_place.core.unified_backend - INFO - --- Processing Module: ZONING with SPACE integration ---
+2025-07-13 15:13:17,922 - geo_infer_space.core.base_module - INFO - [zoning] No cached H3 data found. Starting data acquisition...
+2025-07-13 15:13:17,922 - zoning.data_sources - INFO - [zoning] Fetching zoning data from sources...
+2025-07-13 15:13:17,926 - zoning.data_sources - INFO - [zoning] Saving consolidated raw data to output/data/zoning/raw_zoning_data.geojson
+2025-07-13 15:13:17,933 - pyogrio._io - INFO - Created 2 records
+2025-07-13 15:13:17,933 - geo_infer_space.core.base_module - INFO - [zoning] Using H3 loader to process output/data/zoning/raw_zoning_data.geojson -> output/data/zoning/temp_zoning_h3.geojson
+2025-07-13 15:13:17,933 - geo_infer_space.osc_geo.core.loader - INFO - Loading data from output/data/zoning/raw_zoning_data.geojson to output/data/zoning/temp_zoning_h3.geojson at H3 resolution 8

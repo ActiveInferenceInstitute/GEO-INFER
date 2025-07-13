@@ -1,0 +1,29 @@
+Metadata-Version: 2.4
+Name: geo-infer-ops
+Version: 0.1.0
+Summary: Operations and infrastructure management for GEO-INFER framework
+Author: GEO-INFER Team
+Requires-Python: >=3.8
+Requires-Dist: fastapi>=0.68.0
+Requires-Dist: pydantic>=1.8.0
+Requires-Dist: pytest>=6.0.0
+Requires-Dist: pytest-cov>=2.12.0
+Requires-Dist: pytest-timeout>=2.0.0
+Requires-Dist: prometheus-client>=0.12.0
+Requires-Dist: prometheus-fastapi-instrumentator>=5.7.0
+Requires-Dist: structlog>=21.1.0
+Provides-Extra: dev
+Requires-Dist: black; extra == "dev"
+Requires-Dist: flake8; extra == "dev"
+Requires-Dist: mypy; extra == "dev"
+Requires-Dist: isort; extra == "dev"
+Provides-Extra: test
+Requires-Dist: pytest; extra == "test"
+Requires-Dist: pytest-cov; extra == "test"
+Requires-Dist: pytest-timeout; extra == "test"
+Requires-Dist: pytest-asyncio; extra == "test"
+Dynamic: author
+Dynamic: provides-extra
+Dynamic: requires-dist
+Dynamic: requires-python
+Dynamic: summary

@@ -1,0 +1,2 @@
+[console_scripts]
+geo-infer-intra = geo_infer_intra.cli:main

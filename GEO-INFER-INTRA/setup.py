@@ -12,8 +12,11 @@ with open("src/geo_infer_intra/__init__.py", "r") as f:
         version = "0.1.0"
 
 # Read README for long description
-with open("GEO-INFER-INTRA-README.md", "r") as f:
-    long_description = f.read()
+try:
+    with open("README.md", "r") as f:
+        long_description = f.read()
+except FileNotFoundError:
+    long_description = "Knowledge management backbone for the GEO-INFER framework"
 
 setup(
     name="geo-infer-intra",

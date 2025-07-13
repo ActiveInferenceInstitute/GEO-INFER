@@ -61,6 +61,78 @@ GEO-INFER-API is the **central nervous system for communication and interoperabi
 -   **Security & Access Control:** Robust implementation of authentication (e.g., API keys, OAuth 2.0, JWT) and authorization (e.g., role-based access control - RBAC) mechanisms, integrated with GEO-INFER-SEC.
 -   **Geospatial Data Streaming:** Capabilities for streaming large geospatial datasets or real-time sensor data efficiently over APIs.
 
+## Data Flow
+
+### Inputs
+- **Client Requests**:
+  - HTTP/HTTPS requests from web applications, mobile apps, GIS tools
+  - GraphQL queries for flexible data retrieval
+  - WebSocket connections for real-time data streams
+  - SDK calls from Python, JavaScript, R, and CLI applications
+  - Webhook subscriptions for event notifications
+
+- **Backend Module Services**:
+  - Data services from GEO-INFER-DATA (spatial datasets, metadata)
+  - Analysis services from GEO-INFER-SPACE, TIME, AI modules
+  - Processing workflows from GEO-INFER-ACT, SIM, AGENT
+  - Configuration and monitoring from GEO-INFER-OPS
+  - Security policies from GEO-INFER-SEC
+
+- **Configuration Requirements**:
+  - `api_config.yaml`: Server settings, rate limits, authentication
+  - `endpoints.yaml`: API route definitions and permissions
+  - OpenAPI specifications for automated documentation generation
+  - Authentication provider configurations (OAuth, JWT)
+
+- **Dependencies**:
+  - **Required**: All GEO-INFER modules (for service exposure), GEO-INFER-SEC (authentication)
+  - **Optional**: GEO-INFER-OPS (monitoring), GEO-INFER-INTRA (documentation)
+
+### Processes
+- **Request Processing & Routing**:
+  - Authentication and authorization validation
+  - Rate limiting and request throttling
+  - Input validation and sanitization
+  - Request routing to appropriate backend services
+  - Load balancing across service instances
+
+- **Data Transformation & Serialization**:
+  - Format conversion (GeoJSON, WKT, raster formats)
+  - Response pagination and streaming for large datasets
+  - Coordinate reference system transformations
+  - Error handling and standardized error responses
+
+- **Standards Compliance & Interoperability**:
+  - OGC API standards implementation (Features, Processes, Maps, Tiles)
+  - STAC (SpatioTemporal Asset Catalog) compliance
+  - OpenAPI specification generation and validation
+  - Cross-origin resource sharing (CORS) handling
+
+### Outputs
+- **RESTful API Services**:
+  - OGC-compliant endpoints for geospatial data access
+  - CRUD operations for spatial features and datasets
+  - Asynchronous processing endpoints for long-running analyses
+  - File upload/download endpoints for data exchange
+
+- **GraphQL Services**:
+  - Flexible query interface for complex data relationships
+  - Real-time subscriptions for live data updates
+  - Type-safe schema with introspection capabilities
+  - Efficient data fetching with custom resolvers
+
+- **Documentation & Developer Tools**:
+  - Interactive API documentation (Swagger UI, ReDoc)
+  - Auto-generated client SDKs for multiple languages
+  - Code examples and integration tutorials
+  - API testing tools and validation utilities
+
+- **Integration Points**:
+  - Service endpoints for all GEO-INFER modules
+  - Real-time data streams for GEO-INFER-APP dashboards
+  - Webhook integrations for external system notifications
+  - API gateway functionality for microservices orchestration
+
 ## API Gateway Architecture (Conceptual)
 
 ```mermaid
@@ -141,112 +213,683 @@ GEO-INFER-API/
 └── tests/               # Unit and integration tests for API endpoints
 ```
 
-## Getting Started
+## 🚀 Quick Start (5 minutes)
 
-### Prerequisites
-- Python 3.9+
-- FastAPI, Uvicorn (or similar ASGI server)
-- GraphQL libraries (e.g., Strawberry, Ariadne)
-- Relevant database connectors if API directly queries data stores.
-
-### Installation
+### 1. Prerequisites Check
 ```bash
-# Clone the GEO-INFER repository if you haven't already
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER/GEO-INFER-API
+# Verify Python version
+python --version  # Should be 3.9+
 
-pip install -e .
-# or poetry install if pyproject.toml is configured
+# Check web framework dependencies
+python -c "import fastapi, uvicorn; print('✅ Web framework available')"
+
+# Check required GEO-INFER modules
+pip list | grep geo-infer
 ```
 
-### Configuration
-API server settings (host, port), security parameters (e.g., JWT secrets, OAuth provider details), database connections, and upstream service endpoints are configured in `config/` files or environment variables.
+### 2. Installation
 ```bash
-# cp config/example_api_server.yaml config/local_api_server.yaml
-# # Edit local_api_server.yaml
+# Install GEO-INFER-API and dependencies
+pip install -e ./GEO-INFER-API
+
+# Install additional API dependencies
+pip install fastapi uvicorn strawberry-graphql
+
+# Verify installation
+python -c "import geo_infer_api; print('✅ API installation successful')"
 ```
 
-### Running Tests
+### 3. Initial Configuration
 ```bash
-pytest tests/
+# Copy example configuration
+cp config/example.yaml config/api_config.yaml
+
+# Configure your API settings
+nano config/api_config.yaml
 ```
 
-### Starting the API server
-(Typically using an ASGI server like Uvicorn for FastAPI applications)
+### 4. Launch the API Server
 ```bash
-# Example using Uvicorn for a FastAPI app defined in geo_infer_api.app:main_app
-uvicorn geo_infer_api.app:main_app --host 0.0.0.0 --port 8000 --reload
+# Development mode
+python -m geo_infer_api.app
+
+# Production mode (requires gunicorn)
+gunicorn geo_infer_api.app:main_app --workers 4 --bind 0.0.0.0:8000
 ```
 
-## API Standards Adherence
+### 5. Verify Installation
+```bash
+# Test health endpoint
+curl http://localhost:8000/health
 
-GEO-INFER-API strives to implement and promote the use of key industry and community standards:
+# View API documentation
+open http://localhost:8000/docs
+```
 
--   **OGC API Suite:**
-    -   `OGC API - Features`: For accessing vector feature data.
-    -   `OGC API - Processes`: For executing geospatial processing tasks asynchronously.
-    -   `OGC API - Maps` & `OGC API - Tiles`: For serving pre-rendered maps and map tiles.
-    -   `OGC API - Environmental Data Retrieval (EDR)`: For accessing environmental data using spatio-temporal queries.
-    -   `OGC SensorThings API`: For accessing observations and metadata from IoT sensors.
--   **SpatioTemporal Asset Catalog (STAC) API:** For discovering and accessing collections of Earth observation data and other spatio-temporal assets.
--   **GeoJSON & GeoJSON-LD:** For representing geospatial features and linked data.
--   **OpenAPI Specification (OAS v3+):** For designing, documenting, and testing RESTful APIs.
--   **GraphQL Best Practices:** For schema design, query optimization, and pagination.
+## 🔧 Configuration
 
-## Authentication & Authorization
+### Core Configuration (`config/api_config.yaml`)
 
-The module provides a comprehensive security layer for all API interactions:
+```yaml
+# Server Configuration
+server:
+  host: "0.0.0.0"
+  port: 8000
+  workers: 4
+  log_level: "info"
 
--   **API Key Authentication:** Simple token-based authentication for basic access.
--   **OAuth 2.0 / OpenID Connect (OIDC):** Robust, standard-based authorization framework for delegated access and integration with identity providers.
--   **JSON Web Tokens (JWT):** Used for securely transmitting information between parties as a JSON object, commonly for stateless authentication.
--   **Role-Based Access Control (RBAC):** Defining roles and permissions to control access to specific API endpoints or data resources based on user identity and group membership.
--   **Rate Limiting & Throttling:** Protecting backend services from abuse and ensuring fair usage by limiting the number of requests a client can make in a given time period.
--   **Input Validation:** Rigorous validation of all incoming API request parameters and payloads to prevent injection attacks and ensure data integrity.
--   **HTTPS Enforcement:** All API traffic must be over HTTPS.
+# API Settings
+api:
+  title: "GEO-INFER API Gateway"
+  version: "1.0.0"
+  description: "Standardized geospatial interfaces"
+  cors_origins: ["*"]
+  rate_limit:
+    requests_per_minute: 1000
+    burst_size: 100
 
-## API Documentation
+# Authentication
+auth:
+  jwt_secret: "${JWT_SECRET}"
+  token_expire_minutes: 1440
+  oauth2_providers:
+    - name: "google"
+      client_id: "${GOOGLE_CLIENT_ID}"
+      client_secret: "${GOOGLE_CLIENT_SECRET}"
 
-Interactive and comprehensive API documentation is a priority:
+# Database Connections
+databases:
+  primary:
+    url: "postgresql://user:pass@localhost:5432/geoinfer"
+    pool_size: 20
+  spatial:
+    url: "postgresql://user:pass@localhost:5432/geoinfer_spatial"
+    pool_size: 10
 
--   **OpenAPI/Swagger UI:** Automatically generated interactive UI for RESTful APIs, typically available at a `/docs` or `/swagger` endpoint. Allows users to explore endpoints, view schemas, and test requests directly in the browser.
--   **ReDoc Interface:** Alternative, more static documentation format generated from OpenAPI specs, often available at a `/redoc` endpoint. Provides a clean, three-panel view of the API.
--   **GraphQL Playground/Explorer:** Interactive environments like GraphQL Playground or GraphiQL for exploring GraphQL schemas, writing queries, and viewing results, usually at `/graphql`.
--   **Dedicated Documentation Portal:** For more detailed guides, tutorials, authentication instructions, and SDK usage examples, often integrated with the main GEO-INFER-INTRA documentation system.
+# External Service Integration
+services:
+  geo_infer_data:
+    url: "http://localhost:8001"
+    timeout: 30
+  geo_infer_space:
+    url: "http://localhost:8002"
+    timeout: 60
+  geo_infer_time:
+    url: "http://localhost:8003"
+    timeout: 45
+```
 
-## Integration with Other Modules
+### Environment Variables
 
-GEO-INFER-API acts as the primary interface layer:
+```bash
+# Core API Configuration
+export JWT_SECRET="your-super-secret-jwt-key"
+export DATABASE_URL="postgresql://user:pass@localhost:5432/geoinfer"
 
--   **GEO-INFER-OPS (Operations):** OPS may monitor API health, performance, and usage statistics. OPS might also manage the deployment and scaling of API gateway instances.
--   **GEO-INFER-DATA (Data Management):** API exposes data managed by DATA through standardized interfaces (e.g., OGC API Features for vector data, STAC for imagery).
--   **GEO-INFER-SEC (Security):** API implements the authentication and authorization policies defined and managed by SEC. It forwards security events to SEC for auditing.
--   **GEO-INFER-APP (Applications):** User-facing applications built with APP consume services exposed by API to fetch data, trigger analyses, and interact with backend functionalities.
--   **All Analytical Modules (SPACE, TIME, AI, ACT, SIM, AGENT, etc.):** The functionalities of these modules (e.g., running a spatial analysis, training a model, querying an agent's state) are often exposed via API, allowing them to be invoked programmatically or integrated into larger workflows.
--   **GEO-INFER-INTRA (Knowledge Management):** API specifications and documentation generated by API are managed and disseminated by INTRA.
+# OAuth Configuration  
+export GOOGLE_CLIENT_ID="your-google-client-id"
+export GOOGLE_CLIENT_SECRET="your-google-client-secret"
 
-## Client Libraries & SDKs
+# Service Discovery
+export CONSUL_URL="http://localhost:8500"
+export REDIS_URL="redis://localhost:6379"
+```
 
-To facilitate easier integration, GEO-INFER-API aims to provide or support the development of:
+## 🚀 Usage Examples
 
--   **Python SDK:** A comprehensive Python library for interacting with all GEO-INFER APIs, simplifying request formation, authentication, and response parsing.
--   **JavaScript/TypeScript SDK:** For web frontend development and Node.js applications.
--   **R Package:** For data scientists and analysts working within the R environment.
--   **Command-Line Interface (CLI) Tools:** For scripting, automation, and quick interaction with API endpoints from the terminal.
--   **Cookbooks & Examples:** Extensive collections of code snippets and example applications demonstrating how to use the SDKs and APIs for common tasks.
+### Basic API Client Usage
 
-## Contributing
+```python
+import requests
+from geo_infer_api.client import GeoInferClient
 
-Contributions are welcome in many areas:
--   Implementing new OGC or other standard API endpoints.
--   Improving API security features.
--   Developing or enhancing client SDKs.
--   Writing more comprehensive API documentation and examples.
--   Optimizing API performance and scalability.
--   Adding support for new authentication/authorization schemes.
+# Initialize client
+client = GeoInferClient(
+    base_url="http://localhost:8000",
+    api_key="your-api-key"
+)
 
-Follow the contribution guidelines in the main GEO-INFER documentation (`CONTRIBUTING.md`) and any specific guidelines for API development in `GEO-INFER-API/docs/CONTRIBUTING_API.md` (to be created).
+# List available collections
+collections = client.get_collections()
+print(f"Available collections: {len(collections)}")
 
-## License
+# Get features from a collection
+features = client.get_collection_features(
+    collection_id="land_use",
+    bbox=[-122.5, 37.7, -122.3, 37.8],
+    limit=100
+)
 
-This module is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details. 
+# Create a new feature
+new_feature = {
+    "type": "Feature",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [-122.4, 37.75]
+    },
+    "properties": {
+        "name": "Sample Location",
+        "type": "monitoring_station"
+    }
+}
+
+result = client.create_feature("monitoring_stations", new_feature)
+print(f"Created feature with ID: {result['id']}")
+```
+
+### GraphQL Query Examples
+
+```python
+import gql
+from gql.transport.requests import RequestsHTTPTransport
+
+# Setup GraphQL client
+transport = RequestsHTTPTransport(
+    url="http://localhost:8000/graphql",
+    headers={"Authorization": "Bearer your-jwt-token"}
+)
+client = gql.Client(transport=transport, fetch_schema_from_transport=True)
+
+# Complex spatial query
+query = gql.gql("""
+    query GetSpatialData($bbox: [Float!]!, $timeRange: TimeRange!) {
+        spatialFeatures(
+            filter: {
+                bbox: $bbox
+                timeRange: $timeRange
+                properties: {
+                    category: "environmental"
+                }
+            }
+        ) {
+            id
+            geometry
+            properties {
+                name
+                value
+                timestamp
+            }
+            relationships {
+                relatedFeatures {
+                    id
+                    distance
+                }
+            }
+        }
+    }
+""")
+
+result = client.execute(query, variable_values={
+    "bbox": [-122.5, 37.7, -122.3, 37.8],
+    "timeRange": {
+        "start": "2024-01-01T00:00:00Z",
+        "end": "2024-12-31T23:59:59Z"
+    }
+})
+```
+
+### Real-time Data Streaming
+
+```python
+import asyncio
+import websockets
+import json
+
+async def stream_spatial_updates():
+    uri = "ws://localhost:8000/ws/spatial-updates"
+    
+    async with websockets.connect(uri) as websocket:
+        # Subscribe to updates for specific area
+        subscription = {
+            "type": "subscribe",
+            "channel": "spatial_updates",
+            "filters": {
+                "bbox": [-122.5, 37.7, -122.3, 37.8],
+                "categories": ["traffic", "environmental", "emergency"]
+            }
+        }
+        
+        await websocket.send(json.dumps(subscription))
+        
+        # Listen for updates
+        async for message in websocket:
+            data = json.loads(message)
+            print(f"Received update: {data['type']} at {data['location']}")
+            
+            # Process real-time update
+            if data['type'] == 'emergency':
+                await handle_emergency_alert(data)
+
+# Run the streaming client
+asyncio.run(stream_spatial_updates())
+```
+
+## 🔌 Integration Patterns
+
+### Module Integration Example
+
+```python
+from geo_infer_api.integration import ModuleConnector
+from geo_infer_api.workflows import SpatialWorkflow
+
+# Create integrated workflow
+workflow = SpatialWorkflow("urban_analysis")
+
+# Add processing steps from different modules
+workflow.add_step("data_ingestion", 
+    module="GEO-INFER-DATA",
+    endpoint="/datasets/urban/load",
+    params={"format": "geojson", "crs": "EPSG:4326"}
+)
+
+workflow.add_step("spatial_analysis",
+    module="GEO-INFER-SPACE", 
+    endpoint="/analysis/proximity",
+    depends_on=["data_ingestion"]
+)
+
+workflow.add_step("temporal_trends",
+    module="GEO-INFER-TIME",
+    endpoint="/analysis/trends",
+    depends_on=["spatial_analysis"]
+)
+
+workflow.add_step("ai_prediction",
+    module="GEO-INFER-AI",
+    endpoint="/models/predict",
+    depends_on=["spatial_analysis", "temporal_trends"]
+)
+
+# Execute workflow
+result = await workflow.execute()
+print(f"Workflow completed in {result.execution_time}s")
+```
+
+## 📈 Performance & Monitoring
+
+### API Performance Metrics
+
+```python
+from geo_infer_api.monitoring import PerformanceMonitor
+
+# Setup monitoring
+monitor = PerformanceMonitor()
+
+@monitor.track_performance
+async def complex_spatial_query(bbox, filters):
+    """Example of monitored API endpoint"""
+    return await execute_spatial_analysis(bbox, filters)
+
+# View performance statistics
+stats = monitor.get_performance_stats()
+print(f"Average response time: {stats.avg_response_time}ms")
+print(f"95th percentile: {stats.p95_response_time}ms")
+print(f"Error rate: {stats.error_rate}%")
+```
+
+### Health Monitoring
+
+```bash
+# Check API health
+curl http://localhost:8000/health
+
+# Detailed system status
+curl http://localhost:8000/status/detailed
+
+# Module connectivity status
+curl http://localhost:8000/status/modules
+```
+
+## 🔒 Security Implementation
+
+### Authentication Setup
+
+```python
+from geo_infer_api.auth import AuthManager
+from geo_infer_api.permissions import SpatialPermissions
+
+# Configure authentication
+auth = AuthManager(
+    jwt_secret="your-secret-key",
+    providers=["google", "github", "api_key"]
+)
+
+# Define spatial permissions
+@auth.require_permissions([SpatialPermissions.READ_SPATIAL_DATA])
+async def get_sensitive_locations(request):
+    """Endpoint requiring spatial data access permissions"""
+    user = auth.get_current_user(request)
+    allowed_areas = user.get_spatial_permissions()
+    return await query_locations(allowed_areas)
+
+# Role-based access control
+@auth.require_roles(["researcher", "admin"])  
+async def bulk_data_export(request):
+    """Restricted endpoint for bulk operations"""
+    return await generate_data_export()
+```
+
+## 🧪 Testing & Validation
+
+### API Testing Framework
+
+```python
+import pytest
+from fastapi.testclient import TestClient
+from geo_infer_api.app import main_app
+
+client = TestClient(main_app)
+
+class TestSpatialAPI:
+    def test_collections_endpoint(self):
+        """Test collections listing"""
+        response = client.get("/collections")
+        assert response.status_code == 200
+        assert "collections" in response.json()
+    
+    def test_spatial_query(self):
+        """Test spatial query functionality"""
+        query_params = {
+            "bbox": "-122.5,37.7,-122.3,37.8",
+            "limit": 10
+        }
+        response = client.get("/collections/test/items", params=query_params)
+        assert response.status_code == 200
+        
+        features = response.json()["features"]
+        assert len(features) <= 10
+        
+        # Verify spatial filtering
+        for feature in features:
+            coords = feature["geometry"]["coordinates"]
+            assert -122.5 <= coords[0] <= -122.3
+            assert 37.7 <= coords[1] <= 37.8
+```
+
+## 📚 Advanced Topics
+
+### Custom Endpoint Development
+
+```python
+from fastapi import APIRouter, Depends, HTTPException
+from geo_infer_api.core.auth import get_current_user
+from geo_infer_api.models.spatial import SpatialQuery
+
+router = APIRouter(prefix="/custom", tags=["Custom Endpoints"])
+
+@router.post("/spatial-analysis")
+async def custom_spatial_analysis(
+    query: SpatialQuery,
+    user = Depends(get_current_user)
+):
+    """Custom spatial analysis endpoint"""
+    
+    # Validate user permissions
+    if not user.can_access_area(query.bbox):
+        raise HTTPException(403, "Access denied for specified area")
+    
+    # Execute custom analysis
+    result = await perform_custom_analysis(query)
+    
+    return {
+        "analysis_id": result.id,
+        "status": "completed",
+        "results": result.data,
+        "execution_time": result.duration
+    }
+
+# Register custom router
+main_app.include_router(router)
+```
+
+### Plugin System
+
+```python
+from geo_infer_api.plugins import PluginManager
+
+# Register custom plugins
+plugin_manager = PluginManager()
+
+@plugin_manager.register_plugin("custom_processor")
+class CustomSpatialProcessor:
+    def process(self, data):
+        """Custom processing logic"""
+        return enhanced_spatial_analysis(data)
+
+# Use plugins in workflows
+workflow.add_plugin_step("custom_processing", "custom_processor")
+```
+
+## 🚀 Deployment Guide
+
+### Docker Deployment
+
+```dockerfile
+# Dockerfile for GEO-INFER-API
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gdal-bin \
+    libgdal-dev \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+# Copy application code
+COPY src/ ./src/
+COPY config/ ./config/
+
+# Expose API port
+EXPOSE 8000
+
+# Start the API server
+CMD ["uvicorn", "geo_infer_api.app:main_app", "--host", "0.0.0.0", "--port", "8000"]
+```
+
+### Kubernetes Deployment
+
+```yaml
+# k8s-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: geo-infer-api
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: geo-infer-api
+  template:
+    metadata:
+      labels:
+        app: geo-infer-api
+    spec:
+      containers:
+      - name: api
+        image: geo-infer/api:latest
+        ports:
+        - containerPort: 8000
+        env:
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: database-url
+        - name: JWT_SECRET
+          valueFrom:
+            secretKeyRef:
+              name: api-secrets
+              key: jwt-secret
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geo-infer-api-service
+spec:
+  selector:
+    app: geo-infer-api
+  ports:
+  - port: 80
+    targetPort: 8000
+  type: LoadBalancer
+```
+
+## 🔗 External Integrations
+
+### Third-party Service Integration
+
+```python
+from geo_infer_api.integrations import ExternalServiceConnector
+
+# Configure external services
+external_services = ExternalServiceConnector({
+    "weather_api": {
+        "url": "https://api.weather.service/v1",
+        "auth": {"api_key": "your-weather-api-key"}
+    },
+    "satellite_imagery": {
+        "url": "https://earth-engine.googleapis.com",
+        "auth": {"service_account": "/path/to/credentials.json"}
+    }
+})
+
+# Use external data in API endpoints
+@router.get("/enhanced-analysis/{location}")
+async def enhanced_location_analysis(location: str):
+    # Get weather data
+    weather = await external_services.weather_api.get_current_weather(location)
+    
+    # Get satellite imagery
+    imagery = await external_services.satellite_imagery.get_latest_image(location)
+    
+    # Combine with internal analysis
+    spatial_data = await internal_spatial_analysis(location)
+    
+    return {
+        "location": location,
+        "spatial_analysis": spatial_data,
+        "weather_context": weather,
+        "imagery_analysis": analyze_imagery(imagery)
+    }
+```
+
+## 🎓 Learning Resources
+
+### API Documentation Structure
+- [OpenAPI Specification](docs/openapi_spec.yaml)
+- [GraphQL Schema](docs/graphql_schema.graphql)
+- [Integration Examples](examples/)
+- [SDK Documentation](docs/sdk/)
+
+### Tutorial Series
+1. **Getting Started**: Basic API usage and authentication
+2. **Spatial Queries**: Working with geospatial data
+3. **Real-time Integration**: WebSocket and streaming APIs
+4. **Advanced Workflows**: Multi-module integration patterns
+5. **Custom Development**: Creating custom endpoints and plugins
+
+## 🤝 Contributing to API Development
+
+### Development Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/geo-infer/GEO-INFER-API.git
+cd GEO-INFER-API
+
+# Set up development environment
+python -m venv venv
+source venv/bin/activate
+pip install -e ".[dev]"
+
+# Install pre-commit hooks
+pre-commit install
+
+# Start development server
+uvicorn geo_infer_api.app:main_app --reload --host 0.0.0.0 --port 8000
+```
+
+### API Development Guidelines
+
+1. **Follow OpenAPI Standards**: All endpoints must be documented in OpenAPI spec
+2. **Implement Comprehensive Testing**: Unit, integration, and performance tests
+3. **Security First**: All endpoints require proper authentication/authorization
+4. **Performance Optimization**: Monitor and optimize response times
+5. **Backward Compatibility**: Maintain API versioning for breaking changes
+
+## 📋 API Roadmap
+
+### Current Version (v1.0)
+- ✅ Core OGC-compliant endpoints
+- ✅ Authentication & authorization
+- ✅ Basic spatial queries
+- ✅ Real-time WebSocket support
+
+### Upcoming Features (v1.1)
+- 🔄 Advanced GraphQL resolvers
+- 🔄 Enhanced streaming capabilities  
+- 🔄 Plugin system for custom processors
+- 🔄 Machine learning model serving
+
+### Future Enhancements (v2.0)
+- 📋 Federated query capabilities
+- 📋 Advanced caching strategies
+- 📋 Distributed processing support
+- 📋 Enhanced security features
+
+---
+
+## 🆘 Support & Troubleshooting
+
+### Common Issues
+
+**Issue**: "Connection refused to backend services"
+```bash
+# Check service connectivity
+curl http://localhost:8001/health  # GEO-INFER-DATA
+curl http://localhost:8002/health  # GEO-INFER-SPACE
+
+# Verify service discovery
+consul members  # If using Consul
+```
+
+**Issue**: "Authentication failed"
+```bash
+# Verify JWT token
+python -c "
+import jwt
+token = 'your-jwt-token'
+try:
+    decoded = jwt.decode(token, verify=False)
+    print('Token valid:', decoded)
+except:
+    print('Invalid token')
+"
+```
+
+**Issue**: "Slow spatial queries"
+```sql
+-- Check spatial indexes
+SELECT schemaname, tablename, indexname 
+FROM pg_indexes 
+WHERE indexdef LIKE '%gist%';
+
+-- Create missing spatial index
+CREATE INDEX CONCURRENTLY idx_features_geom ON features USING GIST (geometry);
+```
+
+### Getting Help
+
+- 📧 **Email**: api-support@geo-infer.org
+- 💬 **Discord**: [GEO-INFER Community](https://discord.gg/geo-infer)
+- 🐛 **Issues**: [GitHub Issues](https://github.com/geo-infer/GEO-INFER-API/issues)
+- 📖 **Documentation**: [Full API Documentation](https://docs.geo-infer.org/api/)
+
+---
+
+*This documentation is maintained by the GEO-INFER development team and community contributors. Last updated: 2024* 
