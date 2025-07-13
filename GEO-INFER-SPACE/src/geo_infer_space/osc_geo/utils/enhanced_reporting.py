@@ -14,11 +14,17 @@ from typing import Dict, List, Optional, Tuple, Any, Union
 
 try:
     from .visualization import OSCVisualizationEngine, quick_status_visualization, quick_test_visualization
-    from .osc_simple_status import check_repo_status, generate_summary
     HAS_VISUALIZATION = True
 except ImportError:
     HAS_VISUALIZATION = False
     logging.warning("Visualization module not available - running without visual enhancements")
+
+try:
+    from .osc_simple_status import check_repo_status, generate_summary
+    HAS_STATUS_FUNCTIONS = True
+except ImportError:
+    HAS_STATUS_FUNCTIONS = False
+    logging.warning("Status functions not available - running without status checking")
 
 logger = logging.getLogger(__name__)
 
@@ -73,7 +79,12 @@ class EnhancedOSCReporter:
         logger.info("Generating enhanced OSC status report...")
         
         # Get basic status data
-        status_data = check_repo_status()
+        if HAS_STATUS_FUNCTIONS:
+            status_data = check_repo_status()
+            summary = generate_summary(status_data)
+        else:
+            status_data = {"error": "Status functions not available"}
+            summary = "Status checking not available"
         
         # Add timestamp and metadata
         report_data = {
@@ -83,7 +94,7 @@ class EnhancedOSCReporter:
                 "visualizations_enabled": self.enable_visualizations and include_visualizations
             },
             "status_data": status_data,
-            "summary": generate_summary(status_data)
+            "summary": summary
         }
         
         # Generate visualizations if enabled

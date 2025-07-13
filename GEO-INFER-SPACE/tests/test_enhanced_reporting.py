@@ -54,17 +54,17 @@ def test_enhanced_reporting():
             for name, path in report['visualizations'].items():
                 print(f"    * {name.replace('_', ' ').title()}: {path}")
         
-        return True
+        assert True, "Enhanced reporting test completed successfully"
         
     except ImportError as e:
         print(f"❌ Import Error: {e}")
         print("📝 Note: Visualization dependencies may not be installed")
-        return False
+        assert False, f"Import error: {e}"
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"Test error: {e}"
 
 def test_basic_status():
     """Test basic status checking functionality."""
@@ -81,13 +81,13 @@ def test_basic_status():
         print("📋 Summary:")
         print(summary)
         
-        return True
+        assert True, "Basic status test completed successfully"
         
     except Exception as e:
         print(f"❌ Error: {e}")
         import traceback
         traceback.print_exc()
-        return False
+        assert False, f"Test error: {e}"
 
 def main():
     """Main test function."""

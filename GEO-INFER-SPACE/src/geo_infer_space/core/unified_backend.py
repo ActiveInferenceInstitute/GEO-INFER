@@ -217,8 +217,10 @@ class UnifiedH3Backend:
             
             # Add geometry and metadata
             try:
-                hex_data['centroid'] = h3.h3_to_geo(hexagon)
-                hex_data['boundary'] = h3.h3_to_geo_boundary(hexagon)
+                # Use the correct h3-py v4.x API
+                lat, lng = h3.cell_to_lat_lng(hexagon)
+                hex_data['centroid'] = [lat, lng]
+                hex_data['boundary'] = h3.cell_to_boundary(hexagon)
             except Exception as e:
                 logger.warning(f"Could not process geometry for {hexagon}: {e}")
                 hex_data['centroid'] = None
@@ -334,7 +336,7 @@ class UnifiedH3Backend:
         features = []
         for hex_id, properties in data_to_export.items():
             # Get geometry for the hexagon
-            boundary = h3.h3_to_geo_boundary(hex_id)
+            boundary = h3.cell_to_boundary(hex_id)
             
             features.append({
                 'type': 'Feature',
@@ -385,7 +387,7 @@ class UnifiedH3Backend:
         if not self.target_hexagons:
             map_center = [0, 0]  # Default
         else:
-            centroids = [h3.h3_to_geo(h) for h in self.target_hexagons]
+            centroids = [h3.cell_to_lat_lng(h) for h in self.target_hexagons]
             lats, lons = zip(*centroids)
             map_center = [np.mean(lats), np.mean(lons)]
 
