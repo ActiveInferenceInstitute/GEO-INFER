@@ -192,7 +192,25 @@ def get_repo_path(
     print(f"DEBUG: get_repo_path - OSC_REPOS_DIR env var: {os.environ.get('OSC_REPOS_DIR')}")
 
     if not base_dir:
-        base_dir = os.environ.get("OSC_REPOS_DIR", "./repo")
+        # Try to find the repo directory relative to the current working directory
+        # or use the environment variable
+        base_dir = os.environ.get("OSC_REPOS_DIR")
+        if not base_dir:
+            # Look for repo directory in common locations
+            current_dir = os.getcwd()
+            possible_paths = [
+                os.path.join(current_dir, "repo"),
+                os.path.join(current_dir, "GEO-INFER-SPACE", "repo"),
+                os.path.join(os.path.dirname(current_dir), "repo"),
+                "./repo"  # Fallback
+            ]
+            
+            for path in possible_paths:
+                if os.path.exists(path):
+                    base_dir = path
+                    break
+            else:
+                base_dir = "./repo"  # Default fallback
     
     # Corrected path to exclude the owner directory
     repo_path = os.path.join(base_dir, repo)

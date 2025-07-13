@@ -49,18 +49,37 @@ class TestUnifiedH3Backend(unittest.TestCase):
 
     def test_define_target_region(self):
         """Test target region definition with small real geometry."""
-        # Small real polygon as GeoJSON dict
+        # Pass a valid GeoJSON dict with [lat, lon] coordinates
+        geojson_polygon = {
+            "type": "Polygon",
+            "coordinates": [
+                [
+                    [0.0, 0.0],
+                    [0.0, 1.0],
+                    [1.0, 1.0],
+                    [1.0, 0.0],
+                    [0.0, 0.0]
+                ]
+            ]
+        }
         test_geom = {
             'TestArea': {
-                'all': {
-                    'type': 'Polygon',
-                    'coordinates': [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]
-                }
+                'all': geojson_polygon
             }
         }
-        # Override _get_geometries to return real dict
-        self.backend._get_geometries = lambda x: test_geom
-        hex_by_area, all_hex = self.backend._define_target_region({'TestArea': ['all']})
+        test_backend = UnifiedH3Backend.__new__(UnifiedH3Backend)
+        test_backend.resolution = 8
+        test_backend.target_region = 'TestArea'
+        test_backend.modules = {}
+        test_backend.base_data_dir = Path('test_data')
+        test_backend.unified_data = {}
+        test_backend.analysis_scores = {}
+        def mock_get_geometries(target_areas):
+            return test_geom
+        test_backend._get_geometries = mock_get_geometries
+        print(f"DEBUG: geom type: {type(test_geom['TestArea']['all'])}")
+        hex_by_area, all_hex = test_backend._define_target_region({'TestArea': ['all']})
+        print(f"Generated hexes: {all_hex}")
         self.assertGreater(len(all_hex), 0)
 
     def test_run_comprehensive_analysis(self):

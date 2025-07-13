@@ -22,6 +22,7 @@ from folium.plugins import HeatMap, MarkerCluster
 # --- H3 and OSC Integration ---
 import h3
 from geo_infer_space.osc_geo import create_h3_data_loader, H3DataLoader
+from h3 import LatLngPoly, h3shape_to_cells
 
 # --- Local Core Imports ---
 # Base class for type hinting
@@ -119,18 +120,29 @@ class UnifiedH3Backend:
         for area, geoms in area_geoms.items():
             for geom_name, geom in geoms.items():
                 logger.info(f"Generating hexagons for {geom_name}, {area}...")
+                print(f"DEBUG: geom_name={geom_name}, area={area}, type={type(geom)}")
                 try:
+                    # Handle Shapely Polygon
                     if isinstance(geom, (Polygon, MultiPolygon)):
-                        hexagons_in_area = h3.polygon_to_cells(mapping(geom), self.resolution)
+                        coords = list(geom.exterior.coords)
+                        # LatLngPoly expects (lat, lng) tuples
+                        latlngs = [(y, x) for x, y in coords]
+                        poly = LatLngPoly(latlngs)
+                        hexagons_in_area = h3shape_to_cells(poly, self.resolution)
                         hexagons_by_area[area].update(hexagons_in_area)
-                    elif isinstance(geom, dict):
-                        # Handle case where geom is already a dict (from test override)
-                        hexagons_in_area = h3.polygon_to_cells(geom, self.resolution)
+                    # Handle GeoJSON dict
+                    elif isinstance(geom, dict) and geom.get('type') == 'Polygon':
+                        coords = geom['coordinates'][0]
+                        latlngs = [(y, x) for x, y in coords]
+                        poly = LatLngPoly(latlngs)
+                        hexagons_in_area = h3shape_to_cells(poly, self.resolution)
                         hexagons_by_area[area].update(hexagons_in_area)
                     else:
                         logger.warning(f"Skipping invalid geometry for {geom_name}, {area}: {type(geom)}")
+                        print(f"WARNING: Skipping invalid geometry for {geom_name}, {area}: {type(geom)}")
                 except Exception as e:
                     logger.error(f"H3 polyfill failed for {geom_name}, {area}: {e}")
+                    print(f"ERROR: H3 polyfill failed for {geom_name}, {area}: {e}")
 
         final_hex_by_area = {k: sorted(list(v)) for k, v in hexagons_by_area.items() if v}
         final_all_hexagons = sorted(list(set.union(*[set(v) for v in hexagons_by_area.values()])))
