@@ -12,7 +12,7 @@ import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
 from geo_infer_space.osc_geo.utils.repo_management import RepoManager
-from geo_infer_space.osc_geo.utils.enhanced_reporting import generate_enhanced_report
+from geo_infer_space.osc_geo.utils.enhanced_reporting import generate_enhanced_status_report
 
 def main():
     try:
@@ -31,8 +31,9 @@ def main():
         print("\n=== Enhanced Status Report ===\n")
         
         # Generate enhanced report
-        report = generate_enhanced_report()
-        print(report)
+        report = generate_enhanced_status_report()
+        print("Enhanced status report generated successfully!")
+        print(f"Report saved to: {report.get('report_metadata', {}).get('timestamp', 'Unknown')}")
         
     except Exception as e:
         print(f"Error generating status report: {e}")

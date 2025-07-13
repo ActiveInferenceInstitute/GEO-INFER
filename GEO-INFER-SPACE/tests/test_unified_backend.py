@@ -49,8 +49,15 @@ class TestUnifiedH3Backend(unittest.TestCase):
 
     def test_define_target_region(self):
         """Test target region definition with small real geometry."""
-        # Small real polygon
-        test_geom = {'TestArea': {'all': Polygon([(0,0), (1,0), (1,1), (0,1)])}}
+        # Small real polygon as GeoJSON dict
+        test_geom = {
+            'TestArea': {
+                'all': {
+                    'type': 'Polygon',
+                    'coordinates': [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]
+                }
+            }
+        }
         # Override _get_geometries to return real dict
         self.backend._get_geometries = lambda x: test_geom
         hex_by_area, all_hex = self.backend._define_target_region({'TestArea': ['all']})
