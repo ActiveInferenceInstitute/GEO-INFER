@@ -20,7 +20,9 @@ class TestOSCScripts(unittest.TestCase):
             del os.environ['OSC_REPOS_DIR']
 
     def test_osc_setup_all(self):
-        """Test osc_setup_all.py clones repos without running tests."""
+        """
+        Test osc_setup_all.py clones repos without running tests. Fails if script is missing or times out.
+        """
         script = self.script_dir / 'osc_setup_all.py'
         if script.exists():
             try:
@@ -33,18 +35,20 @@ class TestOSCScripts(unittest.TestCase):
                 self.assertTrue(result.returncode == 0 or 'Repository' in result.stdout or 'Repository' in result.stderr,
                               f"Script should run successfully. Return code: {result.returncode}")
             except subprocess.TimeoutExpired:
-                self.skipTest("Script timed out - skipping in test environment")
+                raise AssertionError("Script timed out - test failed")
             except Exception as e:
-                self.skipTest(f"Script execution failed: {e}")
+                raise AssertionError(f"Script execution failed: {e}")
         else:
-            self.skipTest(f"Script not found: {script}")
+            raise AssertionError(f"Script not found: {script}")
 
     def test_osc_status(self):
-        """Test osc_status.py runs and outputs status information."""
+        """
+        Test osc_status.py runs and outputs status information. Fails if script is missing.
+        """
         script = self.script_dir / 'osc_status.py'
         if script.exists():
             result = subprocess.run([str(script)], capture_output=True, text=True)
             # The script should run without error, even if no repos are found
             self.assertIn('Repository Status', result.stdout or result.stderr)
         else:
-            self.skipTest(f"Script not found: {script}") 
+            raise AssertionError(f"Script not found: {script}") 

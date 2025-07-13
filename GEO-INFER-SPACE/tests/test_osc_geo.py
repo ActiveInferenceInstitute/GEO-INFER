@@ -24,7 +24,10 @@ def test_check_status():
 
 @pytest.mark.integration
 def test_h3_grid_manager():
-    """Test H3GridManager lifecycle."""
+    """
+    Test H3GridManager lifecycle. This test requires H3GridManager to be available and functional.
+    Fails if the dependency is missing or broken.
+    """
     try:
         manager = H3GridManager(auto_start=False)
         assert not manager.is_server_running()
@@ -32,12 +35,14 @@ def test_h3_grid_manager():
         # Just test that the manager can be created
         assert manager is not None
     except Exception as e:
-        # If H3GridManager is not available, skip this test
-        pytest.skip(f"H3GridManager not available: {e}")
+        raise AssertionError(f"H3GridManager not available or failed: {e}")
 
 @pytest.mark.integration
 def test_h3_data_loader(tmp_path):
-    """Test loading data to H3 grid."""
+    """
+    Test loading data to H3 grid. Requires H3DataLoader to be available and functional.
+    Fails if the dependency is missing or broken.
+    """
     try:
         # Create sample GeoJSON
         sample_geojson = {
@@ -57,12 +62,14 @@ def test_h3_data_loader(tmp_path):
         assert success
         assert output_file.exists()
     except Exception as e:
-        # If H3DataLoader is not available, skip this test
-        pytest.skip(f"H3DataLoader not available: {e}")
+        raise AssertionError(f"H3DataLoader not available or failed: {e}")
 
 @pytest.mark.integration
 def test_load_data_to_h3_grid(tmp_path):
-    """Test high-level load_data_to_h3_grid function."""
+    """
+    Test high-level load_data_to_h3_grid function. Requires load_data_to_h3_grid to be available and functional.
+    Fails if the dependency is missing or broken.
+    """
     try:
         # Create sample GeoJSON
         sample_geojson = {
@@ -81,8 +88,7 @@ def test_load_data_to_h3_grid(tmp_path):
         assert success
         assert output_file.exists()
     except Exception as e:
-        # If load_data_to_h3_grid is not available, skip this test
-        pytest.skip(f"load_data_to_h3_grid not available: {e}")
+        raise AssertionError(f"load_data_to_h3_grid not available or failed: {e}")
 
 @pytest.mark.unit
 def test_h3_to_geojson():
