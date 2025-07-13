@@ -142,8 +142,8 @@ class SpatialUtils:
         # Get bounding box
         minx, miny, maxx, maxy = polygon.bounds
         
-        # Get cells in bounding box
-        cells = h3.polyfill(
+        # Use H3 v4 API: polygon_to_cells
+        cells = h3.polygon_to_cells(
             {
                 "type": "Polygon",
                 "coordinates": [list(polygon.exterior.coords)]
@@ -151,7 +151,7 @@ class SpatialUtils:
             resolution
         )
         
-        return [h3.cell_to_string(cell) for cell in cells]
+        return list(cells)
     
     def validate_coordinates(self, lat: float, lon: float) -> bool:
         """

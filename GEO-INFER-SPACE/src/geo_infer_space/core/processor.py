@@ -136,29 +136,24 @@ class SpatialProcessor:
     def h3_to_coordinates(self, h3_cell: str) -> Tuple[float, float]:
         """
         Get the center coordinates (lat, lon) of an H3 cell.
-
         Args:
             h3_cell: H3 cell identifier.
-
         Returns:
             Tuple of (latitude, longitude).
-
         Raises:
             ValueError: If invalid H3 cell.
         """
         try:
-            return h3.h3_to_geo(h3_cell)
+            return h3.cell_to_latlng(h3_cell)
         except Exception as e:
             raise ValueError(f"Invalid H3 cell: {e}")
 
     def create_h3_grid(self, bounds: Tuple[float, float, float, float], resolution: int = 8) -> List[str]:
         """
         Generate H3 cells covering a bounding box.
-
         Args:
             bounds: (min_lon, min_lat, max_lon, max_lat)
             resolution: H3 resolution level.
-
         Returns:
             List of H3 cell identifiers covering the bounds.
         """

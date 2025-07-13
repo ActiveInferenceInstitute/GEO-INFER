@@ -1,0 +1,183 @@
+H3 v3 to v4 Upgrade Report
+Repo: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src
+
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/spatial_utils.py
+Line: 182
+Code: center_lat, center_lon = h3.cell_to_latlng(cell)
+Context:
+cell = h3.latlng_to_cell(lat, lon, resolution)
+        center_lat, center_lon = h3.cell_to_latlng(cell)
+        return center_lat, center_lon
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/core/unified_backend.py
+Line: 221
+Code: lat, lng = h3.cell_to_latlng(hexagon)
+Context:
+# Use the correct h3-py v4.x API
+                lat, lng = h3.cell_to_latlng(hexagon)
+                hex_data['centroid'] = [lat, lng]
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/core/unified_backend.py
+Line: 223
+Code: hex_data['boundary'] = h3.cell_to_boundary(hexagon)
+Context:
+hex_data['centroid'] = [lat, lng]
+                hex_data['boundary'] = h3.cell_to_boundary(hexagon)
+            except Exception as e:
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/core/unified_backend.py
+Line: 339
+Code: boundary = h3.cell_to_boundary(hex_id)
+Context:
+# Get geometry for the hexagon
+            boundary = h3.cell_to_boundary(hex_id)
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/core/unified_backend.py
+Line: 390
+Code: centroids = [h3.cell_to_latlng(h) for h in self.target_hexagons]
+Context:
+else:
+            centroids = [h3.cell_to_latlng(h) for h in self.target_hexagons]
+            lats, lons = zip(*centroids)
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/core/visualization_engine.py
+Line: 384
+Code: h3_boundary = h3.cell_to_boundary(h3_cell)
+Context:
+# Get H3 cell boundary
+            h3_boundary = h3.cell_to_boundary(h3_cell)
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/core/processor.py
+Line: 147
+Code: return h3.cell_to_latlng(h3_cell)
+Context:
+try:
+            return h3.cell_to_latlng(h3_cell)
+        except Exception as e:
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
+Line: 15
+Code: def geo_to_h3(lat: float, lng: float, resolution: int) -> str:
+Context:
+def geo_to_h3(lat: float, lng: float, resolution: int) -> str:
+    """
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
+Line: 27
+Code: def h3_to_geo(h3_index: str) -> Tuple[float, float]:
+Context:
+def h3_to_geo(h3_index: str) -> Tuple[float, float]:
+    """
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
+Line: 36
+Code: return h3.cell_to_latlng(h3_index)
+Context:
+raise ImportError("h3-py package required for h3_to_geo")
+    return h3.cell_to_latlng(h3_index)
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
+Line: 39
+Code: def h3_to_geo_boundary(h3_index: str) -> List[Tuple[float, float]]:
+Context:
+def h3_to_geo_boundary(h3_index: str) -> List[Tuple[float, float]]:
+    """
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
+Line: 48
+Code: return list(h3.cell_to_boundary(h3_index))
+Context:
+raise ImportError("h3-py package required for h3_to_geo_boundary")
+    return list(h3.cell_to_boundary(h3_index))
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
+Line: 51
+Code: def polyfill(geojson_polygon: Dict[str, Any], resolution: int) -> List[str]:
+Context:
+def polyfill(geojson_polygon: Dict[str, Any], resolution: int) -> List[str]:
+    """
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
+Line: 80
+Code: boundary = list(h3.cell_to_boundary(h3_index))
+Context:
+# Get the hexagon boundary as a GeoJSON polygon
+        boundary = list(h3.cell_to_boundary(h3_index))
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/h3_utils.py
+Line: 37
+Code: boundary = list(h3.cell_to_boundary(h3_index))
+Context:
+# Get the hexagon boundary as a GeoJSON polygon
+        boundary = list(h3.cell_to_boundary(h3_index))
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/h3_utils.py
+Line: 149
+Code: def polyfill(geojson_polygon: Dict[str, Any], resolution: int) -> List[str]:
+Context:
+def polyfill(geojson_polygon: Dict[str, Any], resolution: int) -> List[str]:
+    """
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/visualization.py
+Line: 572
+Code: lat, lon = h3.h3_to_geo(h3_cells[0])
+Context:
+# Calculate center from first H3 cell
+            lat, lon = h3.h3_to_geo(h3_cells[0])
+            center = (lat, lon)
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/visualization.py
+Line: 586
+Code: boundary = h3.cell_to_boundary(cell)
+Context:
+# Get cell boundary
+            boundary = h3.cell_to_boundary(cell)
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/examples/h3_geospatial_demo.py
+Line: 212
+Code: center_coords = h3.cell_to_latlng(h3_cell)
+Context:
+if h3_cell not in h3_data["h3_cells"]:
+                center_coords = h3.cell_to_latlng(h3_cell)
+                boundary_coords = h3.cell_to_boundary(h3_cell)
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/examples/h3_geospatial_demo.py
+Line: 213
+Code: boundary_coords = h3.cell_to_boundary(h3_cell)
+Context:
+center_coords = h3.cell_to_latlng(h3_cell)
+                boundary_coords = h3.cell_to_boundary(h3_cell)
+                h3_data["h3_cells"][h3_cell] = {
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/examples/h3_geospatial_demo.py
+Line: 244
+Code: "density_score": len(points) / h3.cell_area(h3_cell, unit='km^2')
+Context:
+"temperature_std": round(np.std(temperatures), 2),
+                "density_score": len(points) / h3.cell_area(h3_cell, unit='km^2')
+            }
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/examples/h3_geospatial_demo.py
+Line: 380
+Code: <b>Cell Area:</b> {h3.cell_area(h3_cell, unit='km^2'):.2f} km²<br>
+Context:
+<b>Density Score:</b> {agg_data['density_score']:.2f}<br>
+                    <b>Cell Area:</b> {h3.cell_area(h3_cell, unit='km^2'):.2f} km²<br>
+                    <b>Population Density:</b> {agg_data['total_population']/h3.cell_area(h3_cell, unit='km^2'):.0f}/km²
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/examples/h3_geospatial_demo.py
+Line: 381
+Code: <b>Population Density:</b> {agg_data['total_population']/h3.cell_area(h3_cell, unit='km^2'):.0f}/km²
+Context:
+<b>Cell Area:</b> {h3.cell_area(h3_cell, unit='km^2'):.2f} km²<br>
+                    <b>Population Density:</b> {agg_data['total_population']/h3.cell_area(h3_cell, unit='km^2'):.0f}/km²
+                    """,
+----------------------------------------
+File: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/examples/california_multilayer_demo.py
+Line: 216
+Code: boundary = cell_to_boundary(h3_index)
+Context:
+for h3_index in h3_indices:
+        boundary = cell_to_boundary(h3_index)
+        prop = properties.get(h3_index, {})
+----------------------------------------

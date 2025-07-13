@@ -145,3 +145,14 @@ def geojson_to_h3(
     result["h3_indices"] = list(set(result["h3_indices"]))
     
     return result 
+
+def polyfill(geojson_polygon: Dict[str, Any], resolution: int) -> List[str]:
+    """
+    Fill a GeoJSON polygon with H3 cells at the given resolution (H3 4.x API).
+    """
+    try:
+        import h3
+    except ImportError:
+        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        raise ImportError("h3-py package required for polyfill")
+    return list(h3.polygon_to_cells(geojson_polygon, resolution)) 

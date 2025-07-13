@@ -106,14 +106,11 @@ class PlaceAnalyzer:
             resolution = 7
         else:
             resolution = 6
-        
         # Get center cell
         center_cell = h3.latlng_to_cell(lat, lon, resolution)
-        
         # Get cells within radius
         cells = h3.grid_disk(center_cell, int(radius_km / 2))
-        
-        return [str(cell) for cell in cells]
+        return list(cells)
     
     def _calculate_spatial_metrics(self, area: Polygon) -> Dict[str, float]:
         """Calculate spatial metrics for the analysis area."""
