@@ -121,10 +121,14 @@ class UnifiedH3Backend:
                 logger.info(f"Generating hexagons for {geom_name}, {area}...")
                 try:
                     if isinstance(geom, (Polygon, MultiPolygon)):
-                         hexagons_in_area = h3.polygon_to_cells(mapping(geom), self.resolution)
-                         hexagons_by_area[area].update(hexagons_in_area)
+                        hexagons_in_area = h3.polygon_to_cells(mapping(geom), self.resolution)
+                        hexagons_by_area[area].update(hexagons_in_area)
+                    elif isinstance(geom, dict):
+                        # Handle case where geom is already a dict (from test override)
+                        hexagons_in_area = h3.polygon_to_cells(geom, self.resolution)
+                        hexagons_by_area[area].update(hexagons_in_area)
                     else:
-                        logger.warning(f"Skipping invalid geometry for {geom_name}, {area}")
+                        logger.warning(f"Skipping invalid geometry for {geom_name}, {area}: {type(geom)}")
                 except Exception as e:
                     logger.error(f"H3 polyfill failed for {geom_name}, {area}: {e}")
 
