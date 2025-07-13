@@ -276,7 +276,8 @@ Examples:
 
         # The backend will be initialized with dummy modules first
         # Then we will instantiate the real ones needed for the run
-        osc_repo_dir = os.path.join(project_root, 'ext')
+        # --- PATCH: Use the correct OSC repo directory (@/repo, not @/ext) ---
+        osc_repo_dir = os.path.join(project_root, 'GEO-INFER-SPACE', 'repo')  # PATCHED: was 'ext', now 'repo'
         backend_for_init = CascadianAgriculturalH3Backend(
             modules={},
             base_data_dir=os.path.join(cascadian_dir, 'data'),
@@ -304,7 +305,7 @@ Examples:
             target_region=args.bioregion,
             target_areas=target_counties,
             base_data_dir=Path(args.output_dir) / 'data_cache',
-            osc_repo_dir=actual_osc_repo_dir
+            osc_repo_dir=osc_repo_dir  # PATCHED: use correct repo dir
         )
         
         # Link the modules to the fully initialized backend

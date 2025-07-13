@@ -42,11 +42,24 @@ class H3DataLoader:
     
     def _check_loader_installation(self) -> None:
         """
-        Check if the H3 loader CLI is installed, and install it if not.
+        Check if the H3 loader CLI is installed and install it if necessary.
         """
         try:
-            # Path to the virtual environment's Python interpreter
-            venv_python = os.path.join(self.repo_path, 'venv', 'bin', 'python3')
+            # Try different Python executable names
+            venv_python_candidates = [
+                os.path.join(self.repo_path, 'venv', 'bin', 'python'),
+                os.path.join(self.repo_path, 'venv', 'bin', 'python3'),
+                os.path.join(self.repo_path, 'venv', 'Scripts', 'python.exe')  # Windows
+            ]
+            
+            venv_python = None
+            for candidate in venv_python_candidates:
+                if os.path.exists(candidate):
+                    venv_python = candidate
+                    break
+            
+            if not venv_python:
+                raise ValueError(f"H3 loader CLI repository not found. Please clone it first.")
             
             # Environment with the correct PYTHONPATH
             env = os.environ.copy()
@@ -67,8 +80,12 @@ class H3DataLoader:
                 logger.info("H3 loader CLI not found, installing...")
                 
                 # Install the CLI in development mode using the venv's pip
+                pip_executable = venv_python.replace('python', 'pip').replace('python3', 'pip')
+                if not os.path.exists(pip_executable):
+                    pip_executable = venv_python.replace('python', 'pip3').replace('python3', 'pip3')
+                
                 install_process = subprocess.run(
-                    [venv_python, "-m", "pip", "install", "-e", "."],
+                    [pip_executable, "install", "-e", "."],
                     stdout=subprocess.PIPE,
                     stderr=subprocess.PIPE,
                     check=False,
@@ -120,8 +137,21 @@ class H3DataLoader:
         try:
             logger.info(f"Loading data from {input_file} to {output_file} at H3 resolution {resolution}")
             
-            # Path to the virtual environment's Python interpreter
-            venv_python = os.path.join(self.repo_path, 'venv', 'bin', 'python3')
+            # Try different Python executable names
+            venv_python_candidates = [
+                os.path.join(self.repo_path, 'venv', 'bin', 'python'),
+                os.path.join(self.repo_path, 'venv', 'bin', 'python3'),
+                os.path.join(self.repo_path, 'venv', 'Scripts', 'python.exe')  # Windows
+            ]
+            
+            venv_python = None
+            for candidate in venv_python_candidates:
+                if os.path.exists(candidate):
+                    venv_python = candidate
+                    break
+            
+            if not venv_python:
+                raise ValueError(f"H3 loader CLI repository not found. Please clone it first.")
             
             # Environment with the correct PYTHONPATH
             env = os.environ.copy()

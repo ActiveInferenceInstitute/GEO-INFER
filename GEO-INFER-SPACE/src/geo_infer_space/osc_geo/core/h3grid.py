@@ -61,25 +61,47 @@ class H3GridManager:
         try:
             logger.info(f"Starting H3 grid service on port {self.server_port}")
             
-            # Change to the repository directory
-            os.chdir(self.repo_path)
+            # Try different Python executable names in the virtual environment
+            venv_python_candidates = [
+                os.path.join(self.repo_path, 'venv', 'bin', 'python'),
+                os.path.join(self.repo_path, 'venv', 'bin', 'python3'),
+                os.path.join(self.repo_path, 'venv', 'Scripts', 'python.exe')  # Windows
+            ]
             
-            # Start the server as a subprocess
+            venv_python = None
+            for candidate in venv_python_candidates:
+                if os.path.exists(candidate):
+                    venv_python = candidate
+                    break
+            
+            if not venv_python:
+                logger.error(f"Virtual environment not found for H3 grid service at {self.repo_path}")
+                return False
+            
+            # Environment with the correct PYTHONPATH
+            env = os.environ.copy()
+            python_path = env.get('PYTHONPATH', '')
+            src_path = os.path.join(self.repo_path, 'src')
+            env['PYTHONPATH'] = f"{src_path}{os.pathsep}{python_path}"
+            
+            # Start the server as a subprocess using the virtual environment Python
             self.server_process = subprocess.Popen(
                 [
-                    "python", "-m", "uvicorn", 
+                    venv_python, "-m", "uvicorn", 
                     "osc_geo_h3grid_srv.main:app", 
                     "--host", "0.0.0.0", 
                     "--port", str(self.server_port)
                 ],
                 stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE
+                stderr=subprocess.PIPE,
+                cwd=self.repo_path,
+                env=env
             )
             
             # Check if the server started successfully
             # Wait a bit for the server to start
             import time
-            time.sleep(1)
+            time.sleep(2)
             
             if self.server_process.poll() is None:
                 logger.info("H3 grid service started successfully")
@@ -89,7 +111,7 @@ class H3GridManager:
                 logger.error(f"Failed to start H3 grid service: {stderr}")
                 return False
         except Exception as e:
-            logger.error(f"Error starting H3 grid service: {e}")
+            logger.error(f"Failed to start H3 grid service: {e}")
             return False
     
     def stop_server(self) -> bool:

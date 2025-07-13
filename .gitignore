@@ -18,5 +18,3 @@ GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/reports/osc-geo-h3loader-cli/
 /venv
 /GEO-INFER-SPACE/build
 *.pyc
-*.pyc
-*.pyc

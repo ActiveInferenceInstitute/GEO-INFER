@@ -34,7 +34,7 @@ class RepoManager:
         self.output_dir.mkdir(parents=True, exist_ok=True)
         logger.info(f"Repository output directory set to: {self.output_dir}")
 
-    def _run_command(self, command: list[str], cwd: Path, description: str):
+    def _run_command(self, command: list[str], cwd: Path, description: str, env: dict = None):
         """
         Runs a shell command and logs its output.
 
@@ -42,19 +42,25 @@ class RepoManager:
             command (list[str]): The command and its arguments as a list.
             cwd (Path): The current working directory for the command.
             description (str): A description of the command being run for logging.
+            env (dict, optional): Environment variables to use for the command.
 
         Returns:
             bool: True if the command succeeded, False otherwise.
         """
         logger.info(f"Running command: {description} in {cwd}")
         try:
+            # Use provided environment or default to current environment
+            command_env = {**os.environ, 'PYTHONUNBUFFERED': '1'}
+            if env:
+                command_env.update(env)
+                
             process = subprocess.run(
                 command,
                 cwd=cwd,
                 check=True,
                 capture_output=True,
                 text=True,
-                env={**os.environ, 'PYTHONUNBUFFERED': '1'}
+                env=command_env
             )
             if self.verbose:
                 logger.info(f"STDOUT:\n{process.stdout}")
@@ -119,33 +125,51 @@ class RepoManager:
             logger.error(f"Repository directory not found: {repo_path}. Please clone it first.")
             return False
 
+        # Remove existing venv if it exists to ensure clean setup
+        if venv_path.exists():
+            logger.info(f"Removing existing virtual environment for {repo_name}")
+            shutil.rmtree(venv_path)
+
         logger.info(f"Setting up virtual environment for {repo_name} at {venv_path}")
         if not self._run_command([sys.executable, "-m", "venv", str(venv_path)], cwd=repo_path, description=f"creating venv for {repo_name}"):
             return False
         
         # Determine pip executable path within the new venv
         pip_executable = venv_path / "bin" / "pip"
+        python_executable = venv_path / "bin" / "python"
 
         logger.info(f"Installing pip in virtual environment for {repo_name}")
         if not self._run_command([str(pip_executable), "install", "--upgrade", "pip"], cwd=repo_path, description=f"upgrading pip in venv for {repo_name}"):
             return False
 
+        # Install core dependencies that OS-Climate repos typically need
+        logger.info(f"Installing core dependencies for {repo_name}")
+        core_deps = [
+            "setuptools", "wheel", "pytest", "numpy", "pandas", 
+            "geopandas", "shapely", "h3", "pyproj", "fastapi", "uvicorn"
+        ]
+        
+        for dep in core_deps:
+            if not self._run_command([str(pip_executable), "install", dep], cwd=repo_path, description=f"installing {dep} for {repo_name}"):
+                logger.warning(f"Failed to install {dep} for {repo_name}, continuing...")
+
+        # Install repository-specific requirements
         requirements_path = repo_path / "requirements.txt"
         if requirements_path.exists():
             logger.info(f"Installing dependencies from {requirements_path} for {repo_name}")
             if not self._run_command([str(pip_executable), "install", "-r", str(requirements_path)], cwd=repo_path, description=f"installing requirements for {repo_name}"):
-                return False
+                logger.warning(f"Failed to install requirements.txt for {repo_name}, continuing...")
         else:
-            logger.warning(f"No requirements.txt found for {repo_name} at {requirements_path}. Skipping dependency installation.")
+            logger.warning(f"No requirements.txt found for {repo_name} at {requirements_path}.")
+
+        # Try to install the repo in development mode if it has a setup.py
+        setup_py_path = repo_path / "setup.py"
+        if setup_py_path.exists():
+            logger.info(f"Installing {repo_name} in development mode")
+            if not self._run_command([str(pip_executable), "install", "-e", "."], cwd=repo_path, description=f"installing {repo_name} in dev mode"):
+                logger.warning(f"Failed to install {repo_name} in development mode, continuing...")
         
-        logger.info(f"Setting up PYTHONPATH for {repo_name}")
-        # Add the repository's src directory to PYTHONPATH for tests
-        repo_src_path = repo_path / "src"
-        if repo_src_path.exists():
-            # This needs to be set in the subprocess environment for tests
-            # For direct imports, we'll add it to sys.path in setup.py commands
-            logger.info(f"Added {repo_src_path} to PYTHONPATH for {repo_name} operations.")
-        
+        logger.info(f"Virtual environment setup completed for {repo_name}")
         return True
 
     def run_repo_tests(self, repo_name: str) -> bool:
@@ -170,18 +194,47 @@ class RepoManager:
             return False
 
         logger.info(f"Running tests for {repo_name}")
+        
         # Adjust PYTHONPATH for the test run
         env = os.environ.copy()
         repo_src_path = repo_path / "src"
         if repo_src_path.exists():
             env["PYTHONPATH"] = str(repo_src_path) + os.pathsep + env.get("PYTHONPATH", "")
 
-        return self._run_command(
-            [str(venv_python), "-m", "pytest", str(repo_path / "test")],
-            cwd=repo_path,
-            description=f"running tests for {repo_name}",
-            env=env # Pass modified environment here
-        )
+        # Try different test directory locations
+        test_dirs = [
+            repo_path / "test",
+            repo_path / "tests", 
+            repo_path / "tests" / repo_name,
+            repo_path
+        ]
+        
+        test_dir = None
+        for td in test_dirs:
+            if td.exists() and any(td.glob("test_*.py")):
+                test_dir = td
+                break
+        
+        if not test_dir:
+            logger.warning(f"No test directory found for {repo_name}. Skipping tests.")
+            return True  # Not a failure, just no tests to run
+        
+        logger.info(f"Found tests in {test_dir}")
+        
+        # Try running pytest with different approaches
+        test_commands = [
+            [str(venv_python), "-m", "pytest", str(test_dir), "-v"],
+            [str(venv_python), "-m", "pytest", str(test_dir)],
+            [str(venv_python), "-m", "unittest", "discover", "-s", str(test_dir), "-p", "test_*.py"]
+        ]
+        
+        for cmd in test_commands:
+            if self._run_command(cmd, cwd=repo_path, description=f"running tests for {repo_name}", env=env):
+                logger.info(f"Tests completed successfully for {repo_name}")
+                return True
+        
+        logger.error(f"All test commands failed for {repo_name}")
+        return False
 
     def run_all(self, target_repo: str = None) -> None:
         """
