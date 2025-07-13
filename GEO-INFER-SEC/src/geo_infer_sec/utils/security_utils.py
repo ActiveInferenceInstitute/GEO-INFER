@@ -75,53 +75,53 @@ class SecurityUtils:
         return secrets.token_bytes(key_len)
     
     def hash_password(self, password: str, salt: Optional[bytes] = None) -> Tuple[bytes, bytes]:
-        """
+    """
         Hash a password using PBKDF2.
-        
-        Args:
-            password: Password to hash
+    
+    Args:
+        password: Password to hash
             salt: Salt for hashing (generated if None)
-            
-        Returns:
+        
+    Returns:
             Tuple of (hash, salt)
-        """
-        if salt is None:
+    """
+    if salt is None:
             salt = secrets.token_bytes(self.config.salt_length)
         
         # Use PBKDF2 for password hashing
-        hash_obj = hashlib.pbkdf2_hmac(
-            'sha256',
+    hash_obj = hashlib.pbkdf2_hmac(
+        'sha256',
             password.encode('utf-8'),
-            salt,
+        salt,
             self.config.iterations
-        )
-        
+    )
+    
         return hash_obj, salt
     
     def verify_password(self, password: str, stored_hash: bytes, salt: bytes) -> bool:
-        """
+    """
         Verify a password against stored hash.
-        
-        Args:
-            password: Password to verify
+    
+    Args:
+        password: Password to verify
             stored_hash: Stored password hash
             salt: Salt used for hashing
-            
-        Returns:
+        
+    Returns:
             True if password matches, False otherwise
-        """
+    """
         computed_hash, _ = self.hash_password(password, salt)
         return hmac.compare_digest(computed_hash, stored_hash)
     
     def encrypt_data(self, data: Union[str, bytes], key: bytes) -> Tuple[bytes, bytes]:
-        """
+    """
         Encrypt data using AES (simplified implementation).
         
         Args:
             data: Data to encrypt
             key: Encryption key
-            
-        Returns:
+    
+    Returns:
             Tuple of (encrypted_data, iv)
         """
         if isinstance(data, str):
@@ -129,24 +129,24 @@ class SecurityUtils:
         
         # Generate initialization vector
         iv = secrets.token_bytes(16)
-        
+    
         # Simple XOR encryption (for demonstration - use proper AES in production)
         encrypted = bytes(a ^ b for a, b in zip(data, key[:len(data)]))
         
         return encrypted, iv
     
     def decrypt_data(self, encrypted_data: bytes, key: bytes, iv: bytes) -> bytes:
-        """
+    """
         Decrypt data using AES (simplified implementation).
-        
-        Args:
+    
+    Args:
             encrypted_data: Encrypted data
             key: Decryption key
             iv: Initialization vector
-            
-        Returns:
+        
+    Returns:
             Decrypted data
-        """
+    """
         # Simple XOR decryption (for demonstration - use proper AES in production)
         decrypted = bytes(a ^ b for a, b in zip(encrypted_data, key[:len(encrypted_data)]))
         
@@ -157,16 +157,16 @@ class SecurityUtils:
                               lat_col: str = 'lat',
                               lon_col: str = 'lon',
                               precision: int = 2) -> pd.DataFrame:
-        """
+    """
         Anonymize spatial data by reducing precision.
-        
-        Args:
+    
+    Args:
             data: Input DataFrame
             lat_col: Latitude column name
             lon_col: Longitude column name
             precision: Decimal precision to keep
-            
-        Returns:
+        
+    Returns:
             Anonymized DataFrame
         """
         anonymized = data.copy()
@@ -183,15 +183,15 @@ class SecurityUtils:
                          data: pd.DataFrame,
                          sensitive_cols: List[str],
                          quasi_identifiers: List[str]) -> pd.DataFrame:
-        """
+    """
         Apply k-anonymity to protect sensitive data.
-        
-        Args:
+    
+    Args:
             data: Input DataFrame
             sensitive_cols: Columns containing sensitive information
             quasi_identifiers: Columns that could identify individuals
-            
-        Returns:
+        
+    Returns:
             K-anonymized DataFrame
         """
         k = self.config.k_anonymity
@@ -215,13 +215,13 @@ class SecurityUtils:
                               noise_level: float = 0.1) -> pd.DataFrame:
         """
         Add noise to numerical columns for privacy protection.
-        
-        Args:
+    
+    Args:
             data: Input DataFrame
             columns: Columns to add noise to
             noise_level: Standard deviation of noise as fraction of data std
-            
-        Returns:
+        
+    Returns:
             DataFrame with added noise
         """
         noisy_data = data.copy()
@@ -235,15 +235,15 @@ class SecurityUtils:
         return noisy_data
     
     def check_access_control(self, user_id: str, resource: str, action: str) -> bool:
-        """
+    """
         Check if user has permission to perform action on resource.
-        
-        Args:
+    
+    Args:
             user_id: User identifier
             resource: Resource being accessed
             action: Action being performed
-            
-        Returns:
+        
+    Returns:
             True if access is allowed, False otherwise
         """
         # Check for account lockout
@@ -335,15 +335,15 @@ class SecurityUtils:
                      start_time: Optional[datetime] = None,
                      end_time: Optional[datetime] = None,
                      user_id: Optional[str] = None) -> List[Dict[str, Any]]:
-        """
+    """
         Get audit log entries with optional filtering.
-        
-        Args:
+    
+    Args:
             start_time: Start time for filtering
             end_time: End time for filtering
             user_id: User ID for filtering
-            
-        Returns:
+        
+    Returns:
             List of audit log entries
         """
         filtered_log = self.audit_log.copy()
@@ -372,14 +372,14 @@ class SecurityUtils:
         ]
     
     def generate_secure_token(self, user_id: str, expiration_hours: int = 24) -> str:
-        """
+    """
         Generate a secure token for user authentication.
-        
-        Args:
+    
+    Args:
             user_id: User identifier
             expiration_hours: Token expiration time in hours
-            
-        Returns:
+        
+    Returns:
             Secure token string
         """
         payload = {
@@ -444,13 +444,13 @@ class SecurityUtils:
             return None
     
     def sanitize_input(self, input_data: str) -> str:
-        """
+    """
         Sanitize user input to prevent injection attacks.
-        
-        Args:
+    
+    Args:
             input_data: Input string to sanitize
-            
-        Returns:
+        
+    Returns:
             Sanitized string
         """
         # Remove potentially dangerous characters
@@ -466,15 +466,15 @@ class SecurityUtils:
                            file_path: str,
                            allowed_extensions: List[str],
                            max_size_mb: int = 10) -> Tuple[bool, str]:
-        """
+    """
         Validate file upload for security.
-        
-        Args:
+    
+    Args:
             file_path: Path to uploaded file
             allowed_extensions: List of allowed file extensions
             max_size_mb: Maximum file size in MB
-            
-        Returns:
+        
+    Returns:
             Tuple of (is_valid, error_message)
         """
         import os

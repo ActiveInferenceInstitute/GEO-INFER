@@ -7,7 +7,7 @@ security, and complies with relevant regulations.
 """
 
 __version__ = "0.1.0"
-__author__ = "GEO-INFER Team"
+__author__ = "GEO-INFER Team" 
 __email__ = "geo-infer@activeinference.institute"
 
 # Import core security components

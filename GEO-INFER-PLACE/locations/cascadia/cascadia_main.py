@@ -137,7 +137,7 @@ def setup_logging(verbose: bool = False, output_dir: str = '.') -> None:
             logging.FileHandler(log_filename)
         ]
     )
-    
+
     logger = logging.getLogger(__name__)
     logger.info(f"Enhanced Cascadia Analysis Framework initialized with SPACE integration")
     logger.info(f"Log file: {log_filename}")
@@ -175,9 +175,9 @@ def check_dependencies() -> bool:
         else:
             logger.warning("⚠️ SPACE integration needs setup")
             logger.info("Run: python -c 'from geo_infer_space.osc_geo import setup_osc_geo; setup_osc_geo()'")
-    except Exception as e:
+        except Exception as e:
         logger.error(f"❌ SPACE integration check failed: {e}")
-    
+            
     logger.info("✅ Dependency check complete")
     return True
 
@@ -496,9 +496,9 @@ Examples:
     parser.add_argument('--resolution', type=int, default=8,
                        help='H3 resolution level (default: 8)')
     parser.add_argument('--output-dir', type=str, default='./output',
-                       help='Output directory for results (default: ./output)')
+                        help='Output directory for results (default: ./output)')
     parser.add_argument('--export-format', type=str, default='geojson',
-                       choices=['geojson', 'csv', 'json'],
+                        choices=['geojson', 'csv', 'json'],
                        help='Export format (default: geojson)')
     parser.add_argument('--counties', type=str, default='all',
                        help='Comma-separated list of counties to analyze (default: all)')
@@ -547,7 +547,7 @@ Examples:
         if args.real_time:
             data_integrator = setup_data_integrator()
             logger.info("✅ Data integrator initialized")
-        
+    
         if args.enhanced_viz or args.generate_dashboard:
             output_dir = Path(args.output_dir)
             visualization_engine = setup_visualization_engine(output_dir)
@@ -598,7 +598,7 @@ Examples:
         try:
             # Create a temporary backend for module initialization
             temp_backend = CascadianAgriculturalH3Backend(
-                modules={},
+            modules={},
                 resolution=args.resolution,
                 bioregion='Cascadia',
                 target_counties=target_counties,
@@ -626,8 +626,8 @@ Examples:
     
     if not modules:
         logger.error("❌ No modules could be initialized. Exiting.")
-        sys.exit(1)
-    
+            sys.exit(1)
+
     # Initialize the enhanced backend with SPACE integration
     try:
         backend = CascadianAgriculturalH3Backend(
@@ -642,64 +642,64 @@ Examples:
     except Exception as e:
         logger.error(f"❌ Failed to initialize backend: {e}")
         sys.exit(1)
-    
-    # Link the modules to the fully initialized backend
-    for mod in backend.modules.values():
-        mod.backend = backend
+        
+        # Link the modules to the fully initialized backend
+        for mod in backend.modules.values():
+            mod.backend = backend
 
-    logger.info("Step 1: Running comprehensive analysis across all modules...")
+        logger.info("Step 1: Running comprehensive analysis across all modules...")
     
     # Add progress bar for analysis
     with tqdm(total=4, desc="Analysis Progress", unit="step") as pbar:
         try:
-            backend.run_comprehensive_analysis()
+        backend.run_comprehensive_analysis()
             pbar.update(1)
             pbar.set_description("Analysis Progress - Analysis Complete")
-            
-            logger.info("Step 2: Calculating agricultural redevelopment potential...")
-            redevelopment_scores = backend.calculate_agricultural_redevelopment_potential()
+        
+        logger.info("Step 2: Calculating agricultural redevelopment potential...")
+        redevelopment_scores = backend.calculate_agricultural_redevelopment_potential()
             pbar.update(1)
             pbar.set_description("Analysis Progress - Redevelopment Calculated")
-            
-            logger.info("Step 3: Generating comprehensive summary...")
-            summary = backend.get_comprehensive_summary()
+        
+        logger.info("Step 3: Generating comprehensive summary...")
+        summary = backend.get_comprehensive_summary()
             pbar.update(1)
             pbar.set_description("Analysis Progress - Summary Generated")
             
         except Exception as e:
             logger.error(f"❌ Analysis failed: {e}")
             raise
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = Path(args.output_dir)
+        
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        output_dir = Path(args.output_dir)
     bioregion_lower = 'cascadia'
-    
-    logger.info("Step 4: Exporting analysis results...")
-    
-    # Export unified data (includes module data and scores)
-    unified_path = output_dir / f"{bioregion_lower}_unified_data_{timestamp}.{args.export_format}"
-    backend.export_unified_data(str(unified_path), args.export_format)
+        
+        logger.info("Step 4: Exporting analysis results...")
+        
+        # Export unified data (includes module data and scores)
+        unified_path = output_dir / f"{bioregion_lower}_unified_data_{timestamp}.{args.export_format}"
+        backend.export_unified_data(str(unified_path), args.export_format)
     pbar.update(1)
     pbar.set_description("Analysis Progress - Export Complete")
-    
-    # Export redevelopment scores separately for specific use cases
-    redevelopment_path = output_dir / f"{bioregion_lower}_redevelopment_scores_{timestamp}.json"
-    with open(redevelopment_path, 'w') as f:
-        json.dump(redevelopment_scores, f, indent=2, cls=NumpyEncoder)
-    logger.info(f"Exported redevelopment scores to {redevelopment_path}")
-    
-    # Export summary
-    summary_path = output_dir / f"{bioregion_lower}_summary_{timestamp}.json"
-    with open(summary_path, 'w') as f:
-        json.dump(summary, f, indent=2, cls=NumpyEncoder)
-    logger.info(f"Exported summary to {summary_path}")
-    
+        
+        # Export redevelopment scores separately for specific use cases
+        redevelopment_path = output_dir / f"{bioregion_lower}_redevelopment_scores_{timestamp}.json"
+        with open(redevelopment_path, 'w') as f:
+            json.dump(redevelopment_scores, f, indent=2, cls=NumpyEncoder)
+        logger.info(f"Exported redevelopment scores to {redevelopment_path}")
+        
+        # Export summary
+        summary_path = output_dir / f"{bioregion_lower}_summary_{timestamp}.json"
+        with open(summary_path, 'w') as f:
+            json.dump(summary, f, indent=2, cls=NumpyEncoder)
+        logger.info(f"Exported summary to {summary_path}")
+        
     logger.info("Step 5: Generating enhanced analysis reports and dashboards...")
-    
-    # Generate Markdown report
-    report_path = output_dir / f"{bioregion_lower}_analysis_report_{timestamp}.md"
-    generate_analysis_report(summary, report_path)
-    
+        
+        # Generate Markdown report
+        report_path = output_dir / f"{bioregion_lower}_analysis_report_{timestamp}.md"
+        generate_analysis_report(summary, report_path)
+
     # Generate spatial analysis report if requested
     if args.spatial_analysis and spatial_processor:
         spatial_report_path = generate_spatial_analysis_report(backend, output_dir)
@@ -713,8 +713,8 @@ Examples:
             logger.info(f"Enhanced dashboard: {dashboard_path}")
     
     # Generate standard interactive dashboard
-    dashboard_path = output_dir / f"{bioregion_lower}_dashboard_{timestamp}.html"
-    backend.generate_interactive_dashboard(str(dashboard_path))
+        dashboard_path = output_dir / f"{bioregion_lower}_dashboard_{timestamp}.html"
+        backend.generate_interactive_dashboard(str(dashboard_path))
     logger.info(f"Standard dashboard: {dashboard_path}")
     
     logger.info("Step 6: Analysis complete!")
@@ -776,7 +776,7 @@ def generate_analysis_report(summary: Dict[str, Any], output_path: Path) -> None
         f.write("This section details the data coverage for each analysis module across the target hexagons.\n\n")
         f.write("| Module                    | Processed Hexagons | Coverage (%) |\n")
         f.write("|---------------------------|--------------------|--------------|\n")
-        
+    
         module_coverage = summary.get('module_coverage', {})
         total_hexagons = summary.get('total_hexagons', 1)
         

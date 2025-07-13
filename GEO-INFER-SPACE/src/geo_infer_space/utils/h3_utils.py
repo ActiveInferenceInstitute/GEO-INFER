@@ -67,12 +67,12 @@ def geojson_to_h3(
 ) -> Dict[str, Union[List[str], Dict[str, Dict[str, Any]]]]:
     """
     Convert GeoJSON to H3 indices (H3 4.x API).
-    
+
     Args:
         geojson_data: GeoJSON data as a string or dictionary.
         resolution: H3 resolution (0-15).
         feature_properties: Whether to include feature properties in the result.
-            
+
     Returns:
         Dictionary with H3 indices and properties.
     """

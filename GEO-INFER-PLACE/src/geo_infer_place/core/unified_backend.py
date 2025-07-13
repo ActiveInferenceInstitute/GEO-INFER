@@ -204,7 +204,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                             }
                             try:
                                 hexagons_in_county = h3.polygon_to_cells(geojson_geom, self.resolution)
-                                hexagons_by_state[state].update(hexagons_in_county)
+                         hexagons_by_state[state].update(hexagons_in_county)
                                 logger.info(f"Generated {len(hexagons_in_county)} hexagons for {county_name}, {state}")
                             except Exception as h3_error:
                                 logger.error(f"H3 polygon_to_cells failed: {h3_error}")
@@ -283,7 +283,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                     county = county_name.title()
                     
                     if state not in output_geoms:
-                        output_geoms[state] = {}
+                output_geoms[state] = {}
                     output_geoms[state][county] = geometry
                     
                     # Validate geometry
@@ -307,7 +307,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         logger.info("Creating placeholder geometries...")
         
         placeholder_geoms = {}
-        for state, counties in target_counties.items():
+            for state, counties in target_counties.items():
             if counties == ['all'] or 'all' in counties:
                 # Create a simple bounding box for the state
                 if state == 'CA':
@@ -960,7 +960,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                     locations=boundary, color="green", weight=1, fill_opacity=0.5,
                     popup=u_popup, tooltip=f"Use: {use_data.get('primary_use', 'N/A')}"
                 ).add_to(groups['current_use'])
-                
+
             # Enhanced Spatial Analysis Layer
             if h3_index in self.hotspot_analysis.get('hotspot_hexagons', []):
                 sa_popup = f"""

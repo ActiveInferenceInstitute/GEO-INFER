@@ -21,7 +21,7 @@ from .osc_geo import (
     detailed_report,
     IntegrationStatus,
     RepoStatus,
-)
+) 
 
 # Import additional components
 from .place_analyzer import PlaceAnalyzer

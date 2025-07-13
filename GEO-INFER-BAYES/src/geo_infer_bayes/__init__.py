@@ -14,28 +14,28 @@ __email__ = "geo-infer@activeinference.institute"
 
 # Import main submodules with error handling
 try:
-    from . import api
+from . import api
 except ImportError as e:
     api = None
     import logging
     logging.warning(f"BAYES API module not available: {e}")
 
 try:
-    from . import core
+from . import core
 except ImportError as e:
     core = None
     import logging
     logging.warning(f"BAYES core module not available: {e}")
 
 try:
-    from . import models
+from . import models
 except ImportError as e:
     models = None
     import logging
     logging.warning(f"BAYES models module not available: {e}")
 
 try:
-    from . import utils
+from . import utils
 except ImportError as e:
     utils = None
     import logging
@@ -43,17 +43,17 @@ except ImportError as e:
 
 # Expose key classes for easy import with error handling
 try:
-    from .models.spatial_gp import SpatialGP
+from .models.spatial_gp import SpatialGP
 except ImportError:
     SpatialGP = None
 
 try:
-    from .core.inference import BayesianInference
+from .core.inference import BayesianInference
 except ImportError:
     BayesianInference = None
 
 try:
-    from .core.posterior import PosteriorAnalysis
+from .core.posterior import PosteriorAnalysis 
 except ImportError:
     PosteriorAnalysis = None
 

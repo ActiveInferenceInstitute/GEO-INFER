@@ -14,7 +14,7 @@ with open("src/geo_infer_intra/__init__.py", "r") as f:
 # Read README for long description
 try:
     with open("README.md", "r") as f:
-        long_description = f.read()
+    long_description = f.read()
 except FileNotFoundError:
     long_description = "Knowledge management backbone for the GEO-INFER framework"
 
