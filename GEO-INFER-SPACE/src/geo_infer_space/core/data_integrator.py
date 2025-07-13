@@ -36,6 +36,8 @@ class DataIntegrator:
             Integrated GeoDataFrame
         """
         dataframes = []
+        target_crs = None
+        
         for source in self.sources:
             try:
                 if source['path'].endswith('.geojson'):
@@ -48,6 +50,15 @@ class DataIntegrator:
                     df = gpd.read_file(source['path'])
                 else:
                     continue
+                
+                # Set target CRS from first valid source
+                if target_crs is None and df.crs is not None:
+                    target_crs = df.crs
+                
+                # Harmonize CRS if needed
+                if df.crs is not None and target_crs is not None and df.crs != target_crs:
+                    df = df.to_crs(target_crs)
+                    logger.info(f"Transformed {source['name']} from {df.crs} to {target_crs}")
                 
                 df['source'] = source['name']
                 dataframes.append(df)
