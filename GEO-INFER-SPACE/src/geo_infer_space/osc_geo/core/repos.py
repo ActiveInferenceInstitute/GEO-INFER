@@ -50,7 +50,7 @@ def clone_repo(
         True if cloning was successful, False otherwise
     """
     # Build target directory
-    target_dir = os.path.join(output_dir, owner, repo)
+    target_dir = os.path.join(output_dir, repo)
     
     # Check if repository already exists
     if os.path.exists(target_dir):
@@ -199,8 +199,8 @@ def get_repo_path(
             # Look for repo directory in common locations
             current_dir = os.getcwd()
             possible_paths = [
-                os.path.join(current_dir, "repo"),
                 os.path.join(current_dir, "GEO-INFER-SPACE", "repo"),
+                os.path.join(current_dir, "repo"),
                 os.path.join(os.path.dirname(current_dir), "repo"),
                 "./repo"  # Fallback
             ]
@@ -212,14 +212,12 @@ def get_repo_path(
             else:
                 base_dir = "./repo"  # Default fallback
     
-    # Corrected path to exclude the owner directory
+    # Only look for repo in direct subfolder under base_dir
     repo_path = os.path.join(base_dir, repo)
-    
     if os.path.exists(repo_path):
         return repo_path
-    else:
-        logger.warning(f"Repository path not found: {repo_path}")
-        return None
+    logger.warning(f"Repository path not found: {repo_path}")
+    return None
 
 def is_geo_infer_git_available() -> bool:
     """Check if git command is available."""
