@@ -72,6 +72,8 @@ class PlaceAnalyzer:
                     # Convert to GeoDataFrame if geometry column exists
                     if 'geometry' in df.columns:
                         df = gpd.GeoDataFrame(df, geometry=gpd.GeoSeries.from_wkt(df['geometry']))
+                elif source['path'].endswith('.shp'):
+                    df = gpd.read_file(source['path'])
                 else:
                     logger.warning(f"Unsupported file type for {source['name']}")
                     continue

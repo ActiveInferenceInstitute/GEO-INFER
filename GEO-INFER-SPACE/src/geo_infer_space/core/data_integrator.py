@@ -44,6 +44,8 @@ class DataIntegrator:
                     df = pd.read_csv(source['path'])
                     if 'geometry' in df.columns:
                         df = gpd.GeoDataFrame(df, geometry=gpd.GeoSeries.from_wkt(df['geometry']))
+                elif source['path'].endswith('.shp'):
+                    df = gpd.read_file(source['path'])
                 else:
                     continue
                 

@@ -1,0 +1,33 @@
+2025-07-12 17:08:38,835 - __main__ - INFO - Final analysis settings -- Modules to run: ['zoning', 'current_use']
+2025-07-12 17:08:38,835 - __main__ - INFO - Final analysis settings -- Modules: ['zoning', 'current_use'], Counties: {'CA': ['Lassen'], 'OR': [], 'WA': []}
+2025-07-12 17:08:38,835 - __main__ - INFO - ================================================================================
+2025-07-12 17:08:38,835 - __main__ - INFO - STARTING CASCADIA AGRICULTURAL LAND ANALYSIS
+2025-07-12 17:08:38,835 - __main__ - INFO - ================================================================================
+2025-07-12 17:08:38,835 - __main__ - INFO - Using output directory: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/output
+2025-07-12 17:08:38,835 - __main__ - INFO - Configuration validation successful.
+2025-07-12 17:08:38,861 - geo_infer_space.osc_geo.core.loader - INFO - H3 loader CLI not found, installing...
+2025-07-12 17:08:47,916 - geo_infer_space.osc_geo.core.loader - INFO - H3 loader CLI installed successfully
+2025-07-12 17:08:47,916 - geo_infer_space.core.unified_backend - INFO - Successfully initialized H3DataLoader from GEO-INFER-SPACE.
+2025-07-12 17:08:47,916 - geo_infer_place.core.unified_backend - ERROR - No county geometries could be loaded or defined. Cannot define a target region.
+2025-07-12 17:08:47,916 - geo_infer_space.core.unified_backend - INFO - UnifiedH3Backend initialized for 'Cascadia' with 0 active modules at H3 resolution 8
+2025-07-12 17:08:47,916 - geo_infer_space.core.unified_backend - INFO - Active modules: []
+2025-07-12 17:08:47,916 - geo_infer_space.core.unified_backend - INFO - Defined 0 total target hexagons across 0 areas.
+2025-07-12 17:08:47,916 - geo_infer_place.core.unified_backend - ERROR - No county geometries could be loaded or defined. Cannot define a target region.
+2025-07-12 17:08:47,917 - __main__ - CRITICAL - A critical error occurred during analysis: 'CascadianAgriculturalH3Backend' object has no attribute 'bioregion'
+Traceback (most recent call last):
+  File "/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/cascadia_main.py", line 281, in main
+    backend_for_init = CascadianAgriculturalH3Backend(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/core/unified_backend.py", line 63, in __init__
+    logger.info(f"CascadianAgriculturalH3Backend initialized for '{self.bioregion}' with {len(self.modules)} active modules at H3 resolution {self.resolution}")
+                                                                   ^^^^^^^^^^^^^^
+AttributeError: 'CascadianAgriculturalH3Backend' object has no attribute 'bioregion'
+2025-07-12 17:08:47,919 - __main__ - ERROR - Traceback: Traceback (most recent call last):
+  File "/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/cascadia_main.py", line 281, in main
+    backend_for_init = CascadianAgriculturalH3Backend(
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/core/unified_backend.py", line 63, in __init__
+    logger.info(f"CascadianAgriculturalH3Backend initialized for '{self.bioregion}' with {len(self.modules)} active modules at H3 resolution {self.resolution}")
+                                                                   ^^^^^^^^^^^^^^
+AttributeError: 'CascadianAgriculturalH3Backend' object has no attribute 'bioregion'
+

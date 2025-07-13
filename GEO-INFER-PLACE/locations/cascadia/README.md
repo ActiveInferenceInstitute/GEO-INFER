@@ -1,5 +1,13 @@
 # Cascadian Agricultural Land Analysis Framework
 
+> **Integration Note:**
+> 
+> **All geospatial and H3 operations in PLACE must use the utilities, loaders, and wrappers from GEO-INFER-SPACE.**
+> The OS-Climate repositories (e.g., osc-geo-h3loader-cli) are expected to be cloned into `GEO-INFER-SPACE/repo`.
+> This is a strict requirement for all modules and the main pipeline, ensuring consistency, maintainability, and seamless cross-module integration.
+> 
+> **Do not use local or ad-hoc H3/geospatial code in PLACE. Always import from SPACE.**
+
 **Comprehensive Agricultural Data Analysis for Northern California + Oregon**
 
 ## Overview
@@ -226,3 +234,15 @@ If you see errors like `No h3_to_geo or cell_to_lat_lng in h3 module`, your h3-p
   ```
 - After reinstalling, rerun the analysis. The log will print the h3 version and available functions for debugging.
 - If you still see errors, check your Python environment and ensure no conflicting h3 packages are installed. 
+
+## Technical Integration Notes
+
+- **All geospatial/H3 operations must use the centralized utilities and loaders from GEO-INFER-SPACE.**
+    - Example: `from geo_infer_space.utils.h3_utils import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill`
+    - The H3 loader and OSC tools are accessed via the SPACE wrappers, not directly or via local code.
+    - The OS-Climate repo directory is always `GEO-INFER-SPACE/repo` (never `ext`).
+    - This ensures all modules and the main backend are fully interoperable and maintainable.
+
+- **Rationale:**
+    - Centralizing geospatial logic in SPACE ensures version consistency, reduces duplication, and enables robust cross-module analysis and visualization.
+    - This design is required for maintainability, correctness, and future extensibility. 
