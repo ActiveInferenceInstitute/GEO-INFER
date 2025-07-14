@@ -459,7 +459,7 @@ def demonstrate_h3_spatial_analysis():
         try:
             h3_cell = h3.latlng_to_cell(center_lat, center_lon, resolution)
         except AttributeError:
-            h3_cell = h3.geo_to_h3(center_lat, center_lon, resolution)
+            h3_cell = h3.latlng_to_cell(center_lat, center_lon, resolution)
         
         try:
             cell_area = h3.cell_area(h3_cell, unit='km^2')
@@ -470,7 +470,7 @@ def demonstrate_h3_spatial_analysis():
         try:
             neighbors = h3.grid_ring(h3_cell, 1)
         except AttributeError:
-            neighbors = h3.hex_ring(h3_cell, 1)
+            neighbors = h3.grid_ring_unsafe(h3_cell, 1)
         
         logger.info(f"Resolution {resolution}:")
         logger.info(f"  - Cell: {h3_cell}")
@@ -494,7 +494,7 @@ def demonstrate_h3_spatial_analysis():
             try:
                 cell = h3.latlng_to_cell(lat, lon, 8)
             except AttributeError:
-                cell = h3.geo_to_h3(lat, lon, 8)
+                cell = h3.latlng_to_cell(lat, lon, 8)
             h3_cells.add(cell)
     
     try:
@@ -553,8 +553,8 @@ def run_simplified_demo(output_dir: str = None, api_keys: dict = None):
                 h3_cell = h3.latlng_to_cell(lat, lon, 8)
                 h3_boundary = h3.cell_to_boundary(h3_cell)
             except AttributeError:
-                h3_cell = h3.geo_to_h3(lat, lon, 8)
-                h3_boundary = h3.h3_to_geo_boundary(h3_cell, geo_json=True)
+                h3_cell = h3.latlng_to_cell(lat, lon, 8)
+                h3_boundary = h3.cell_to_latlng_boundary(h3_cell, geo_json=True)
             
             folium.Polygon(
                 locations=[[lat, lon] for lon, lat in h3_boundary],

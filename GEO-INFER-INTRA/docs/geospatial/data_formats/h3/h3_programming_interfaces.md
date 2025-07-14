@@ -110,15 +110,15 @@ import h3
 
 # Convert a lat/lng point to an H3 index
 lat, lng = 37.7749, -122.4194  # San Francisco
-h3_index = h3.geo_to_h3(lat, lng, 9)
+h3_index = h3.latlng_to_cell(lat, lng, 9)
 print(f"H3 index: {h3_index}")  # '8928308281fffff'
 
 # Get the center coordinates of an H3 index
-center_coords = h3.h3_to_geo(h3_index)
+center_coords = h3.cell_to_latlng(h3_index)
 print(f"Center: {center_coords}")  # (37.77671781098822, -122.41968744914311)
 
 # Get the boundary of an H3 index
-boundary = h3.h3_to_geo_boundary(h3_index)
+boundary = h3.cell_to_latlng_boundary(h3_index)
 print(f"Boundary: {boundary}")  # List of (lat, lng) tuples
 ```
 
@@ -130,55 +130,55 @@ Python function names generally follow a pattern of converting the camelCase C f
 
 ```python
 # Convert coordinates to H3 index
-h3_index = h3.geo_to_h3(lat, lng, resolution)
+h3_index = h3.latlng_to_cell(lat, lng, resolution)
 
 # Get the center coordinates of an H3 index
-center = h3.h3_to_geo(h3_index)
+center = h3.cell_to_latlng(h3_index)
 
 # Get the boundary of an H3 index
-boundary = h3.h3_to_geo_boundary(h3_index)
+boundary = h3.cell_to_latlng_boundary(h3_index)
 ```
 
 #### Hierarchical Operations
 
 ```python
 # Get the parent of an H3 index
-parent = h3.h3_to_parent(h3_index, parent_resolution)
+parent = h3.cell_to_parent(h3_index, parent_resolution)
 
 # Get the children of an H3 index
-children = h3.h3_to_children(h3_index, child_resolution)
+children = h3.cell_to_children(h3_index, child_resolution)
 
 # Compact a set of H3 indices
-compacted = h3.compact_cells(h3_indices)
+compact_cellsed = h3.compact_cells_cells_cells(h3_indices)
 
-# Uncompact a set of H3 indices
-uncompacted = h3.uncompact_cells(h3_indices, resolution)
+# Uncompact_cells a set of H3 indices
+uncompact_cells_cellsed = h3.uncompact_cells_cells_cells_cells(h3_indices, resolution)
 ```
 
 #### Traversal Functions
 
 ```python
 # Get all indices within k distance
-neighbors = h3.k_ring(h3_index, k)
+neighbors = h3.grid_disk(h3_index, k)
 
 # Get indices within k distance as nested rings
-nested_rings = h3.k_ring_distances(h3_index, k)
+nested_rings = h3.grid_disk_distances(h3_index, k)
 
 # Calculate the grid distance between two indices
-distance = h3.h3_distance(h3_index1, h3_index2)
+distance = h3.grid_distance(h3_index1, h3_index2)
 
 # Get a line of indices between two points
-line = h3.h3_line(h3_index1, h3_index2)
+line = h3.grid_path_cells(h3_index1, h3_index2)
 ```
 
 #### Region Operations
 
 ```python
 # Fill a polygon with H3 cells
-cells = h3.polyfill(geo_json, resolution)
+cells = h3.polygon_to_cells(geo_json, resolution)
 
 # Get the hexagons in a specific ring
-ring = h3.hex_ring(h3_index, k)
+ring = h3.grid_ring_unsafe(h3_index, k)
 ```
 
 ### NumPy Integration
@@ -194,10 +194,10 @@ latlngs = np.array([
     [37.7749, -122.4194],
     [37.3382, -121.8863]
 ])
-indices = h3np.geo_to_h3(latlngs, 9)
+indices = h3np.latlng_to_cell(latlngs, 9)
 
 # Vectorized H3 to coordinate conversion
-centers = h3np.h3_to_geo(indices)
+centers = h3np.cell_to_latlng(indices)
 ```
 
 ### Pandas Integration
@@ -215,7 +215,7 @@ df = pd.DataFrame({
 })
 
 # Add H3 indices
-df_with_h3 = df.h3.geo_to_h3(lat_col='lat', lng_col='lng', resolution=9)
+df_with_h3 = df.h3.latlng_to_cell(lat_col='lat', lng_col='lng', resolution=9)
 
 # Spatial aggregation
 aggregated = df.h3.spatial_aggregate('value', resolution=7, operation='mean')
@@ -282,10 +282,10 @@ const parent = h3.cellToParent(h3Index, parentResolution);
 const children = h3.cellToChildren(h3Index, childResolution);
 
 // Compact a set of H3 indices
-const compacted = h3.compactCells(h3Indices);
+const compact_cellsed = h3.compact_cells_cellsCells(h3Indices);
 
-// Uncompact a set of H3 indices
-const uncompacted = h3.uncompactCells(h3Indices, resolution);
+// Uncompact_cells a set of H3 indices
+const uncompact_cells_cellsed = h3.uncompact_cells_cells_cellsCells(h3Indices, resolution);
 ```
 
 #### Traversal Functions
@@ -448,10 +448,10 @@ String parent = h3.cellToParent(h3Index, parentResolution);
 List<String> children = h3.cellToChildren(h3Index, childResolution);
 
 // Compact a set of H3 indices
-List<String> compacted = h3.compactCells(h3Indices);
+List<String> compact_cellsed = h3.compact_cells_cellsCells(h3Indices);
 
-// Uncompact a set of H3 indices
-List<String> uncompacted = h3.uncompactCells(h3Indices, resolution);
+// Uncompact_cells a set of H3 indices
+List<String> uncompact_cells_cellsed = h3.uncompact_cells_cells_cellsCells(h3Indices, resolution);
 ```
 
 #### Traversal Functions
@@ -569,10 +569,10 @@ parent := h3.CellToParent(h3Index, parentResolution)
 children := h3.CellToChildren(h3Index, childResolution)
 
 // Compact a set of H3 indices
-compacted := h3.CompactCells(h3Indices)
+compact_cellsed := h3.CompactCells(h3Indices)
 
-// Uncompact a set of H3 indices
-uncompacted := h3.UncompactCells(h3Indices, resolution)
+// Uncompact_cells a set of H3 indices
+uncompact_cells_cellsed := h3.Uncompact_cellsCells(h3Indices, resolution)
 ```
 
 #### Traversal Functions
@@ -630,15 +630,15 @@ library(h3)
 lat <- 37.7749
 lng <- -122.4194
 resolution <- 9
-h3_index <- geo_to_h3(lat, lng, resolution)
+h3_index <- latlng_to_cell(lat, lng, resolution)
 cat("H3 index:", h3_index, "\n")  # '8928308281fffff'
 
 # Get the center coordinates of an H3 index
-center <- h3_to_geo(h3_index)
+center <- cell_to_latlng(h3_index)
 cat("Center:", center, "\n")
 
 # Get the boundary of an H3 index
-boundary <- h3_to_geo_boundary(h3_index)
+boundary <- cell_to_latlng_boundary(h3_index)
 print(boundary)
 ```
 
@@ -650,13 +650,13 @@ R function names follow the snake_case convention:
 
 ```r
 # Convert coordinates to H3 index
-h3_index <- geo_to_h3(lat, lng, resolution)
+h3_index <- latlng_to_cell(lat, lng, resolution)
 
 # Get the center coordinates of an H3 index
-center <- h3_to_geo(h3_index)
+center <- cell_to_latlng(h3_index)
 
 # Get the boundary of an H3 index
-boundary <- h3_to_geo_boundary(h3_index)
+boundary <- cell_to_latlng_boundary(h3_index)
 ```
 
 #### Hierarchical Operations
@@ -669,20 +669,20 @@ parent <- h3_to_parent(h3_index, parent_resolution)
 children <- h3_to_children(h3_index, child_resolution)
 
 # Compact a set of H3 indices
-compacted <- compact_cells(h3_indices)
+compact_cellsed <- compact_cells_cells(h3_indices)
 
-# Uncompact a set of H3 indices
-uncompacted <- uncompact_cells(h3_indices, resolution)
+# Uncompact_cells a set of H3 indices
+uncompact_cells_cellsed <- uncompact_cells_cells_cells(h3_indices, resolution)
 ```
 
 #### Traversal Functions
 
 ```r
 # Get all indices within k distance
-neighbors <- k_ring(h3_index, k)
+neighbors <- grid_disk(h3_index, k)
 
 # Calculate the grid distance between two indices
-distance <- h3_distance(h3_index1, h3_index2)
+distance <- grid_distance(h3_index1, h3_index2)
 
 # Get a line of indices between two points
 line <- h3_line(h3_index1, h3_index2)
@@ -698,7 +698,7 @@ library(dplyr)
 # Convert H3 cells to sf polygons
 h3_to_sf <- function(h3_indices) {
   boundaries <- lapply(h3_indices, function(idx) {
-    coords <- h3_to_geo_boundary(idx)
+    coords <- cell_to_latlng_boundary(idx)
     # Convert to polygon format and close the ring
     poly_coords <- rbind(coords, coords[1, ])
     st_polygon(list(poly_coords[, c("lng", "lat")]))
@@ -713,7 +713,7 @@ h3_to_sf <- function(h3_indices) {
 }
 
 # Example usage
-indices <- k_ring("8928308281fffff", 2)
+indices <- grid_disk("8928308281fffff", 2)
 sf_hexagons <- h3_to_sf(indices)
 
 # Plot with ggplot2
@@ -802,7 +802,7 @@ Despite language-specific variations, H3 bindings follow common patterns:
 
 1. **Naming Conventions**: 
    - C, Java, Go, JavaScript: `camelCase` (e.g., `latLngToCell`)
-   - Python, R: `snake_case` (e.g., `geo_to_h3` or `lat_lng_to_cell`)
+   - Python, R: `snake_case` (e.g., `latlng_to_cell` or `lat_lng_to_cell`)
 
 2. **Core Functionality**:
    - Converting between coordinates and indices

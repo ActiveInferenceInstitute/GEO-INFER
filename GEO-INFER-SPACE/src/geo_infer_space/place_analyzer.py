@@ -117,7 +117,7 @@ class PlaceAnalyzer:
         return {
             'area_km2': area.area * 111.0 * 111.0,  # Rough conversion
             'perimeter_km': area.length * 111.0,
-            'compactness': 4 * np.pi * area.area / (area.length ** 2) if area.length > 0 else 0
+            'compact_cellsness': 4 * np.pi * area.area / (area.length ** 2) if area.length > 0 else 0
         }
     
     def _analyze_environmental_factors(self, lat: float, lon: float, radius_km: float) -> Dict[str, Any]:

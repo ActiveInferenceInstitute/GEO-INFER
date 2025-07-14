@@ -28,7 +28,7 @@ Each additional resolution level increases the cell count by approximately 7x, w
 
 ### Memory Usage Optimization
 
-H3 indexes are designed to be compact, stored as 64-bit integers, but collections of indexes can consume significant memory.
+H3 indexes are designed to be compact_cells, stored as 64-bit integers, but collections of indexes can consume significant memory.
 
 **Memory Requirements:**
 - Single H3 index: 8 bytes
@@ -36,25 +36,25 @@ H3 indexes are designed to be compact, stored as 64-bit integers, but collection
 - 1 billion H3 indexes: ~8 GB
 
 **Optimization Techniques:**
-1. **Compaction**: Use H3's `compact` function to represent regions with the fewest possible cells
+1. **Compaction**: Use H3's `compact_cells_cells` function to represent regions with the fewest possible cells
 2. **Streaming Processing**: Process large datasets in chunks rather than loading entirely into memory
 3. **Spatial Filtering**: Apply geographic bounds before generating H3 indexes
 4. **Custom Data Structures**: Consider specialized data structures for specific operations
 
 ```python
-# Example: Memory optimization with compaction
+# Example: Memory optimization with compact_cellsion
 import h3
 
 # Original set of cells at resolution 10 (potentially many cells)
-detailed_cells = [h3.geo_to_h3(lat, lng, 10) for lat, lng in points]
+detailed_cells = [h3.latlng_to_cell(lat, lng, 10) for lat, lng in points]
 
 # Compact representation (typically 70-90% fewer cells)
-compacted_cells = h3.compact(detailed_cells)
+compact_cellsed_cells = h3.compact_cells_cells(detailed_cells)
 
 # Memory usage comparison
 original_memory = len(detailed_cells) * 8  # bytes
-compacted_memory = len(compacted_cells) * 8  # bytes
-print(f"Memory reduction: {(1 - compacted_memory/original_memory) * 100:.1f}%")
+compact_cellsed_memory = len(compact_cellsed_cells) * 8  # bytes
+print(f"Memory reduction: {(1 - compact_cellsed_memory/original_memory) * 100:.1f}%")
 ```
 
 ### Algorithm Complexity Optimization
@@ -68,7 +68,7 @@ Several H3 operations have important complexity considerations:
 | k-ring | O(k²) | O(k²) | Grows quadratically with k |
 | Distance | O(1) | O(1) | Fast grid distance |
 | Polygon to cells | O(n·m) | O(n·m) | n=vertices, m=output cells |
-| Compact/Uncompact | O(n log n) | O(n) | n=input cells |
+| Compact/Uncompact_cells | O(n log n) | O(n) | n=input cells |
 
 **Optimization Strategies:**
 1. **Limit k-ring size**: Keep k values as small as possible for k-ring operations
@@ -95,7 +95,7 @@ print(f"Original vertices: {len(complex_shape.exterior.coords)}")
 print(f"Simplified vertices: {len(simplified_shape.exterior.coords)}")
 
 # Convert to H3 (much faster with simplified polygon)
-h3_cells = list(h3.polyfill(
+h3_cells = list(h3.polygon_to_cells(
     simplified_shape.__geo_interface__, 
     8,  # resolution
     True  # geoJson
@@ -153,10 +153,10 @@ lat_lng_grid = np.stack(np.meshgrid(lats, lngs), axis=-1).reshape(-1, 2)
 
 # Vectorized conversion to H3 (much faster than loops)
 resolution = 9
-h3_indexes = h3_numpy.geo_to_h3(lat_lng_grid, resolution)
+h3_indexes = h3_numpy.latlng_to_cell(lat_lng_grid, resolution)
 
 # Vectorized property extraction
-h3_centroids = h3_numpy.h3_to_geo(h3_indexes)
+h3_centroids = h3_numpy.cell_to_latlng(h3_indexes)
 ```
 
 ### Java
@@ -348,7 +348,7 @@ import spark.implicits._
 
 // Register H3 UDFs
 val h3 = H3Core.newInstance()
-spark.udf.register("geo_to_h3", 
+spark.udf.register("latlng_to_cell", 
   (lat: Double, lng: Double, res: Int) => h3.geoToH3(lat, lng, res))
 spark.udf.register("h3_to_parent", 
   (h3Index: Long, parentRes: Int) => h3.h3ToParent(h3Index, parentRes))
@@ -358,7 +358,7 @@ val pointsDF = spark.read.parquet("s3://bucket/points.parquet")
 
 // Create H3 indexes and partition by resolution properties
 val h3DF = pointsDF
-  .withColumn("h3_index", expr("geo_to_h3(lat, lng, 9)"))
+  .withColumn("h3_index", expr("latlng_to_cell(lat, lng, 9)"))
   .withColumn("h3_parent_7", expr("h3_to_parent(h3_index, 7)"))
   .repartition(col("h3_parent_7")) // Partition by parent for locality
   .cache()  // Cache for repeated access
@@ -394,7 +394,7 @@ def build_h3_graph(h3_indexes, max_distance=1):
     # Add edges (only between existing nodes)
     edges = []
     for idx in h3_indexes:
-        neighbors = h3.k_ring(idx, max_distance)
+        neighbors = h3.grid_disk(idx, max_distance)
         for neighbor in neighbors:
             if neighbor in h3_indexes and idx != neighbor:
                 edges.append((idx, neighbor))
@@ -437,12 +437,12 @@ import json
 
 # In-memory cache for very frequent operations
 @lru_cache(maxsize=10000)
-def cached_h3_to_geo(h3_index):
-    return h3.h3_to_geo(h3_index)
+def cached_cell_to_latlng(h3_index):
+    return h3.cell_to_latlng(h3_index)
 
 @lru_cache(maxsize=10000)
-def cached_k_ring(h3_index, k):
-    return h3.k_ring(h3_index, k)
+def cached_grid_disk(h3_index, k):
+    return h3.grid_disk(h3_index, k)
 
 # Redis cache for distributed caching
 class H3RedisCache:
@@ -450,26 +450,26 @@ class H3RedisCache:
         self.client = redis.Redis.from_url(redis_url)
         self.ttl = 86400  # 24 hours
     
-    def get_k_ring(self, h3_index, k):
+    def get_grid_disk(self, h3_index, k):
         key = f"h3:kring:{h3_index}:{k}"
         cached = self.client.get(key)
         if cached:
             return json.loads(cached)
         
-        result = list(h3.k_ring(h3_index, k))
+        result = list(h3.grid_disk(h3_index, k))
         self.client.setex(key, self.ttl, json.dumps(result))
         return result
     
-    def get_polyfill(self, polygon, resolution):
+    def get_polygon_to_cells(self, polygon, resolution):
         # Create a hash of the polygon coordinates
         poly_hash = hash(str(polygon))
-        key = f"h3:polyfill:{poly_hash}:{resolution}"
+        key = f"h3:polygon_to_cells:{poly_hash}:{resolution}"
         
         cached = self.client.get(key)
         if cached:
             return json.loads(cached)
         
-        result = list(h3.polyfill(polygon, resolution))
+        result = list(h3.polygon_to_cells(polygon, resolution))
         self.client.setex(key, self.ttl, json.dumps(result))
         return result
 ```
@@ -498,9 +498,9 @@ for idx, row in admin_boundaries.iterrows():
     geometry = row['geometry']
     precomputed[admin_id] = {
         # Store different resolutions
-        7: list(h3.polyfill(geometry.__geo_interface__, 7)),
-        8: list(h3.polyfill(geometry.__geo_interface__, 8)),
-        9: list(h3.polyfill(geometry.__geo_interface__, 9))
+        7: list(h3.polygon_to_cells(geometry.__geo_interface__, 7)),
+        8: list(h3.polygon_to_cells(geometry.__geo_interface__, 8)),
+        9: list(h3.polygon_to_cells(geometry.__geo_interface__, 9))
     }
 
 # Save precomputed results
@@ -536,26 +536,26 @@ random_points = [(random.uniform(-90, 90), random.uniform(-180, 180))
 # Benchmark different operations
 results = []
 
-# Benchmark geo_to_h3 at different resolutions
+# Benchmark latlng_to_cell at different resolutions
 for res in range(5, 11):
     avg_time = benchmark_operation(
-        lambda: h3.geo_to_h3(random_points[random.randint(0, 999)][0], 
+        lambda: h3.latlng_to_cell(random_points[random.randint(0, 999)][0], 
                              random_points[random.randint(0, 999)][1], 
                              res)
     )
     results.append({
-        "operation": f"geo_to_h3 (res {res})",
+        "operation": f"latlng_to_cell (res {res})",
         "avg_time_ms": avg_time * 1000
     })
 
-# Benchmark k_ring with different k values
-h3_index = h3.geo_to_h3(37.7749, -122.4194, 9)
+# Benchmark grid_disk with different k values
+h3_index = h3.latlng_to_cell(37.7749, -122.4194, 9)
 for k in [1, 2, 3, 5, 10]:
     avg_time = benchmark_operation(
-        lambda: h3.k_ring(h3_index, k)
+        lambda: h3.grid_disk(h3_index, k)
     )
     results.append({
-        "operation": f"k_ring (k={k})",
+        "operation": f"grid_disk (k={k})",
         "avg_time_ms": avg_time * 1000
     })
 
@@ -586,7 +586,7 @@ def h3_intensive_operation(iterations=100000):
               for _ in range(iterations)]
     
     # Convert points to H3
-    h3_indexes = [h3.geo_to_h3(lat, lng, 9) for lat, lng in points]
+    h3_indexes = [h3.latlng_to_cell(lat, lng, 9) for lat, lng in points]
     
     # Find unique indexes
     unique_indexes = set(h3_indexes)
@@ -597,11 +597,11 @@ def h3_intensive_operation(iterations=100000):
     
     all_neighbors = []
     for idx in sample_indexes:
-        neighbors = h3.k_ring(idx, 1)
+        neighbors = h3.grid_disk(idx, 1)
         all_neighbors.extend(neighbors)
     
     # Get boundaries for visualization
-    boundaries = [h3.h3_to_geo_boundary(idx) for idx in sample_indexes[:100]]
+    boundaries = [h3.cell_to_latlng_boundary(idx) for idx in sample_indexes[:100]]
     
     return len(unique_indexes), len(all_neighbors)
 

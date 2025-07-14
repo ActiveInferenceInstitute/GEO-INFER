@@ -431,7 +431,7 @@ def update_position():
     timestamp = request.json['timestamp']
     
     # Convert to H3 (resolution 9 for city-scale analysis)
-    h3_index = h3.geo_to_h3(lat, lng, 9)
+    h3_index = h3.latlng_to_cell(lat, lng, 9)
     
     vehicle_positions[vehicle_id] = {
         'h3_index': h3_index,
@@ -452,7 +452,7 @@ def demand_supply_heatmap():
     for vehicle_id, data in vehicle_positions.items():
         # Get the parent cell at requested resolution
         if resolution <= 9:
-            parent_cell = h3.h3_to_parent(data['h3_index'], resolution)
+            parent_cell = h3.cell_to_parent(data['h3_index'], resolution)
         else:
             parent_cell = data['h3_index']
             
@@ -471,7 +471,7 @@ def demand_supply_heatmap():
         ratio = supply_count / max(1, demand_count)
         
         # Get cell center for visualization
-        center = h3.h3_to_geo(cell)
+        center = h3.cell_to_latlng(cell)
         
         result.append({
             'h3_index': cell,

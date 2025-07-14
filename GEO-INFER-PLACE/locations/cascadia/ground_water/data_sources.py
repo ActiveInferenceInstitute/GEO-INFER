@@ -16,7 +16,7 @@ from typing import List, Tuple
 from shapely.geometry import Polygon
 
 # Import H3 utilities from the unified backend's path
-from geo_infer_space.utils.h3_utils import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
 
 
 logger = logging.getLogger(__name__)
@@ -40,7 +40,7 @@ class CascadianGroundWaterDataSources:
 
     def _calculate_bbox_from_hexagons(self, hexagons: List[str]) -> Tuple[float, float, float, float]:
         """Calculates a bounding box from a list of H3 hexagons."""
-        boundaries = [Polygon([(lon, lat) for lat, lon in h3_to_geo_boundary(h)]) for h in hexagons]
+        boundaries = [Polygon([(lon, lat) for lat, lon in cell_to_latlng_boundary(h)]) for h in hexagons]
         min_lon = min(b.bounds[0] for b in boundaries)
         min_lat = min(b.bounds[1] for b in boundaries)
         max_lon = max(b.bounds[2] for b in boundaries)

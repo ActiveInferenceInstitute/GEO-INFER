@@ -32,7 +32,7 @@ GEO-INFER-MATH serves as the **core mathematical and statistical engine** for th
     -   Distance and area calculations (Euclidean, Haversine, on various projections).
     -   Topological operations: intersections, unions, differences, buffering, convex hulls.
     -   Geometric predicates: contains, within, touches, overlaps.
-    -   Shape analysis: centroid, orientation, compactness, fractal dimension.
+    -   Shape analysis: centroid, orientation, compact_cellsness, fractal dimension.
 -   **Benefits:** Enables precise measurement, spatial querying, feature manipulation, and characterization of geographic entities.
 
 ### 3. Robust Coordinate Systems & Transformations

@@ -128,7 +128,7 @@ All modules must follow this workflow:
 ## 5. Unified H3-OSC Backend and Integration
 
 - **Backend**: `CascadianAgriculturalH3Backend` orchestrates all modules, passing the OSC repo path to all H3/OSC operations
-- **Target Region**: Defined by county boundaries or bioregion, polyfilled to H3 using SPACE utilities
+- **Target Region**: Defined by county boundaries or bioregion, polygon_to_cellsed to H3 using SPACE utilities
 - **Module Initialization**: Each module is initialized with the backend, config, and OSC repo path
 - **Analysis Pipeline**: For each module: acquire/cached data → process to H3 (OSC loader) → analyze → aggregate results
 - **Error Handling**: All errors are logged and surfaced to the backend; critical errors halt the pipeline

@@ -43,7 +43,7 @@ OS-Climate's choice of the H3 indexing system for climate data analysis offers s
 
 3. **Efficient Data Integration**: H3 indexes facilitate the integration of different data sources by providing a common spatial reference system.
 
-4. **Optimized Storage and Retrieval**: The compact integer representation of H3 indices enables efficient storage and retrieval of climate data in database systems.
+4. **Optimized Storage and Retrieval**: The compact_cells integer representation of H3 indices enables efficient storage and retrieval of climate data in database systems.
 
 5. **Enhanced Visualization**: Hexagonal cells provide more visually intuitive and less distorted representations of spatial patterns compared to rectangular grids.
 
@@ -88,7 +88,7 @@ asset_lng = -122.4194
 resolution = 9
 
 # Convert to H3 index
-asset_h3_index = h3.geo_to_h3(asset_lat, asset_lng, resolution)
+asset_h3_index = h3.latlng_to_cell(asset_lat, asset_lng, resolution)
 
 # Load flood hazard data 
 # (This would use OS-Climate Data Commons APIs in practice)
@@ -98,7 +98,7 @@ flood_hazard_by_h3 = physrisk.load_hazard_data('flood', scenario='ssp585', year=
 asset_flood_risk = flood_hazard_by_h3.get(asset_h3_index, 0)
 
 # Get surrounding area (e.g., for supply chain risk)
-surrounding_area = h3.k_ring(asset_h3_index, k=2)
+surrounding_area = h3.grid_disk(asset_h3_index, k=2)
 area_flood_risk = {h3_idx: flood_hazard_by_h3.get(h3_idx, 0) for h3_idx in surrounding_area}
 ```
 

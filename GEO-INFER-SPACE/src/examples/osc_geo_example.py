@@ -31,7 +31,7 @@ try:
         load_data_to_h3_grid
     )
     from geo_infer_space.osc_geo.utils import (
-        h3_to_geojson,
+        cell_to_latlngjson,
         geojson_to_h3
     )
 except ImportError:
@@ -134,11 +134,11 @@ def main():
             
             # Convert back to GeoJSON
             logger.info("Converting H3 indices back to GeoJSON...")
-            geojson_result = h3_to_geojson(h3_data["h3_indices"], h3_data["properties"])
+            geojson_result = cell_to_latlngjson(h3_data["h3_indices"], h3_data["properties"])
             logger.info(f"GeoJSON has {len(geojson_result['features'])} features")
             
             # Save the result
-            result_file = os.path.join(temp_dir, "h3_to_geojson.json")
+            result_file = os.path.join(temp_dir, "cell_to_latlngjson.json")
             with open(result_file, "w") as f:
                 json.dump(geojson_result, f)
                 

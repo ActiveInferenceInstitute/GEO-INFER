@@ -366,7 +366,7 @@ Response:
       "direction": "north"
     }
   ],
-  "k_ring": 1
+  "grid_disk": 1
 }
 ```
 
@@ -585,7 +585,7 @@ class HealthH3Integration:
         """Model disease spread using H3 spatial structure"""
         
         # Get H3 cells around outbreak location
-        affected_cells = await self.get_k_ring_cells(outbreak_location, k=10)
+        affected_cells = await self.get_grid_disk_cells(outbreak_location, k=10)
         
         # Model spread patterns
         spread_model = await self.model_disease_spread(affected_cells, disease_parameters)

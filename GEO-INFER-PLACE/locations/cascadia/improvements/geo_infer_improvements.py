@@ -11,7 +11,7 @@ import geopandas as gpd
 from shapely.geometry import Polygon
 
 from .data_sources import CascadianImprovementsDataSources
-from geo_infer_space.utils.h3_utils import h3_to_geo_boundary
+from geo_infer_space.utils.h3_utils import cell_to_latlng_boundary
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ class GeoInferImprovements:
             return {}
 
         # 2. Create a GeoDataFrame for the target hexagons
-        hex_geometries = [Polygon(h3_to_geo_boundary(h)) for h in target_hexagons]
+        hex_geometries = [Polygon(cell_to_latlng_boundary(h)) for h in target_hexagons]
         hex_gdf = gpd.GeoDataFrame(
             {'hex_id': target_hexagons}, 
             geometry=hex_geometries, 

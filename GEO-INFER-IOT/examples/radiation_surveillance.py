@@ -117,7 +117,7 @@ class RadiationSurveillanceSystem:
             sensor_id = f"{network}_sensor_{i:04d}"
             
             # Create H3 index for efficient spatial operations
-            h3_index = h3.geo_to_h3(lat, lon, 5)  # Global resolution
+            h3_index = h3.latlng_to_cell(lat, lon, 5)  # Global resolution
             
             # Simulate baseline radiation levels (realistic values)
             # Normal background: 0.05-0.2 μSv/h
@@ -183,7 +183,7 @@ class RadiationSurveillanceSystem:
         
         for measurement in self.measurements:
             # Convert to target resolution
-            target_h3 = h3.h3_to_parent(measurement["h3_index"], h3_resolution)
+            target_h3 = h3.cell_to_parent(measurement["h3_index"], h3_resolution)
             
             if target_h3 not in h3_aggregated:
                 h3_aggregated[target_h3] = []
@@ -203,7 +203,7 @@ class RadiationSurveillanceSystem:
                 "min_radiation": np.min(values),
                 "max_radiation": np.max(values),
                 "count": len(values),
-                "coordinates": h3.h3_to_geo(h3_index)
+                "coordinates": h3.cell_to_latlng(h3_index)
             }
             
             # Simple anomaly detection (values > 3 sigma above mean)
@@ -282,7 +282,7 @@ class RadiationSurveillanceSystem:
         
         for h3_index, stats in self.inference_results["cell_statistics"].items():
             # Get H3 cell boundary
-            boundary = h3.h3_to_geo_boundary(h3_index, geo_json=True)
+            boundary = h3.cell_to_latlng_boundary(h3_index, geo_json=True)
             
             feature = {
                 "type": "Feature",

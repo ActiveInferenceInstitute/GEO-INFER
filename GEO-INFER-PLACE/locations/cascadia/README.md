@@ -208,22 +208,22 @@ If files are missing, the script will log instructions and skip that data source
 
 ## H3 Utility Functions
 
-All H3 operations should use the centralized utilities in GEO-INFER-SPACE: `from geo_infer_space.utils.h3_utils import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill`. This ensures consistency and handles h3-py version differences across the framework.
+All H3 operations should use the centralized utilities in GEO-INFER-SPACE: `from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells`. This ensures consistency and handles h3-py version differences across the framework.
 
 Example usage:
 ```python
-from utils_h3 import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+from utils_h3 import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
 
-h3_index = geo_to_h3(40.0, -122.0, 8)
-lat, lng = h3_to_geo(h3_index)
-boundary = h3_to_geo_boundary(h3_index)
+h3_index = latlng_to_cell(40.0, -122.0, 8)
+lat, lng = cell_to_latlng(h3_index)
+boundary = cell_to_latlng_boundary(h3_index)
 ```
 
 All modules in this directory have been updated to use this utility for all H3 conversions. 
 
 ## Troubleshooting H3 Installation
 
-If you see errors like `No h3_to_geo or cell_to_lat_lng in h3 module`, your h3-py installation may be broken or incompatible. Try:
+If you see errors like `No cell_to_latlng or cell_to_lat_lng in h3 module`, your h3-py installation may be broken or incompatible. Try:
 
 - Uninstalling and reinstalling h3:
   ```bash
@@ -238,7 +238,7 @@ If you see errors like `No h3_to_geo or cell_to_lat_lng in h3 module`, your h3-p
 ## Technical Integration Notes
 
 - **All geospatial/H3 operations must use the centralized utilities and loaders from GEO-INFER-SPACE.**
-    - Example: `from geo_infer_space.utils.h3_utils import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill`
+    - Example: `from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells`
     - The H3 loader and OSC tools are accessed via the SPACE wrappers, not directly or via local code.
     - The OS-Climate repo directory is always `GEO-INFER-SPACE/repo` (never `ext`).
     - This ensures all modules and the main backend are fully interoperable and maintainable.

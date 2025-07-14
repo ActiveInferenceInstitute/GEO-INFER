@@ -12,7 +12,7 @@ from shapely.geometry import Polygon
 import pandas as pd
 
 from .data_sources import CascadianWaterRightsDataSources
-from geo_infer_space.utils.h3_utils import h3_to_geo_boundary
+from geo_infer_space.utils.h3_utils import cell_to_latlng_boundary
 
 logger = logging.getLogger(__name__)
 
@@ -51,7 +51,7 @@ class GeoInferWaterRights:
 
         hex_gdf = gpd.GeoDataFrame(
             {'hex_id': target_hexagons}, 
-            geometry=[Polygon(h3_to_geo_boundary(h)) for h in target_hexagons], 
+            geometry=[Polygon(cell_to_latlng_boundary(h)) for h in target_hexagons], 
             crs="EPSG:4326"
         )
         

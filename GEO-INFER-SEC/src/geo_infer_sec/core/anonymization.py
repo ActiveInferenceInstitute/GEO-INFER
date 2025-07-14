@@ -93,7 +93,7 @@ class GeospatialAnonymizer:
         
         # Add H3 cell IDs
         result["h3_cell"] = result.apply(
-            lambda row: h3.geo_to_h3(row[geometry_col].y, row[geometry_col].x, h3_resolution), 
+            lambda row: h3.latlng_to_cell(row[geometry_col].y, row[geometry_col].x, h3_resolution), 
             axis=1
         )
         
@@ -106,7 +106,7 @@ class GeospatialAnonymizer:
         # For cells with fewer than k points, merge with neighboring cells
         for small_cell in small_cells:
             # Get neighboring cells
-            neighbors = h3.k_ring(small_cell, 1)
+            neighbors = h3.grid_disk(small_cell, 1)
             
             # Find a neighbor with enough points or that would have enough when combined
             for neighbor in neighbors:
@@ -117,7 +117,7 @@ class GeospatialAnonymizer:
         
         # Replace coordinates with cell centroids
         for cell_id in result["h3_cell"].unique():
-            cell_center = h3.h3_to_geo(cell_id)
+            cell_center = h3.cell_to_latlng(cell_id)
             result.loc[result["h3_cell"] == cell_id, geometry_col] = Point(cell_center[1], cell_center[0])
             
         # Drop H3 cell column

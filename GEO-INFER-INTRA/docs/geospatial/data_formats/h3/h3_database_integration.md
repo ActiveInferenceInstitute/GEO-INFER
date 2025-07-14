@@ -62,13 +62,13 @@ CREATE INDEX h3_idx ON h3_data (h3_index);
 
 ```sql
 -- K-ring query (finding neighboring cells)
-SELECT h3_k_ring('8928308281fffff'::h3index, 1);
+SELECT h3_grid_disk('8928308281fffff'::h3index, 1);
 
 -- Finding all cells within a given distance of a point
 SELECT h3_cell 
 FROM h3_data 
 WHERE h3_cell IN (
-  SELECT h3_k_ring(h3_lat_lng_to_cell(37.7749, -122.4194, 9), 2)
+  SELECT h3_grid_disk(h3_lat_lng_to_cell(37.7749, -122.4194, 9), 2)
 );
 ```
 
@@ -154,7 +154,7 @@ from pyspark.sql.functions import expr
 
 # Register the H3 function
 spark.udf.register("h3_lat_lng_to_cell", 
-                   lambda lat, lng, res: h3.geo_to_h3(lat, lng, res))
+                   lambda lat, lng, res: h3.latlng_to_cell(lat, lng, res))
 ```
 
 #### Core Operations
@@ -291,7 +291,7 @@ SELECT
   store_id
 FROM customers c
 CROSS JOIN stores s
-WHERE h3_distance(
+WHERE grid_distance(
   h3_lat_lng_to_cell(c.latitude, c.longitude, 9),
   h3_lat_lng_to_cell(s.latitude, s.longitude, 9)
 ) <= 3;
@@ -397,7 +397,7 @@ WITH (FALSE_POSITIVE_PROBABILITY = 0.01);
 -- Query will use the bloom filter for initial filtering
 SELECT * FROM events
 WHERE h3_index IN (
-  SELECT h3_k_ring('8928308281fffff'::h3index, 2)
+  SELECT h3_grid_disk('8928308281fffff'::h3index, 2)
 );
 ```
 

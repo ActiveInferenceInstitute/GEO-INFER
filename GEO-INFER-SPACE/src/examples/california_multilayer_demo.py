@@ -49,7 +49,7 @@ try:
         load_data_to_h3_grid
     )
     from geo_infer_space.osc_geo.utils.h3_utils import (
-        h3_to_geojson,
+        cell_to_latlngjson,
         geojson_to_h3
     )
 except ImportError as e:
@@ -206,7 +206,7 @@ def geojson_to_h3_polygons(geojson: Dict[str, Any], resolution: int) -> Tuple[Li
     return h3_indices, properties
 
 
-def h3_to_geojson_polygons(h3_indices: List[str], properties: Dict[str, Any]) -> Dict[str, Any]:
+def cell_to_latlngjson_polygons(h3_indices: List[str], properties: Dict[str, Any]) -> Dict[str, Any]:
     """
     Convert H3 indices back to GeoJSON format.
     """

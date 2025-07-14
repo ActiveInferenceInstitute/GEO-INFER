@@ -7,7 +7,7 @@ import tempfile
 import json
 import shutil
 from geo_infer_space.osc_geo import H3GridManager, H3DataLoader, load_data_to_h3_grid
-from geo_infer_space.osc_geo.utils.h3_utils import h3_to_geojson, geojson_to_h3
+from geo_infer_space.osc_geo.utils.h3_utils import cell_to_latlngjson, geojson_to_h3
 
 @pytest.mark.setup
 @pytest.mark.integration
@@ -97,11 +97,11 @@ def test_load_data_to_h3_grid(tmp_path):
 
 @pytest.mark.setup
 @pytest.mark.unit
-def test_h3_to_geojson():
+def test_cell_to_latlngjson():
     """Test H3 to GeoJSON conversion."""
     h3_indices = ['8928308280fffff']
     properties = {'8928308280fffff': {'test': 'value'}}
-    geojson = h3_to_geojson(h3_indices, properties)
+    geojson = cell_to_latlngjson(h3_indices, properties)
     assert geojson['type'] == 'FeatureCollection'
     assert len(geojson['features']) == 1
     assert 'h3_index' in geojson['features'][0]['properties']

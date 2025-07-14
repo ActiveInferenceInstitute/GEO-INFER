@@ -4,7 +4,7 @@ from typing import Dict, List, Any, Tuple
 import geopandas as gpd
 from shapely.geometry import Polygon
 from .data_sources import CascadianGroundWaterDataSources
-from geo_infer_space.utils.h3_utils import h3_to_geo_boundary
+from geo_infer_space.utils.h3_utils import cell_to_latlng_boundary
 
 logger = logging.getLogger(__name__)
 
@@ -47,7 +47,7 @@ class GeoInferGroundWater:
         results = {}
         for h3_index in target_hexagons:
             try:
-                hex_poly = Polygon(h3_to_geo_boundary(h3_index))
+                hex_poly = Polygon(cell_to_latlng_boundary(h3_index))
                 
                 # Find wells that intersect with the hexagon's bounding box first
                 possible_matches_index = list(wells_sindex.intersection(hex_poly.bounds))

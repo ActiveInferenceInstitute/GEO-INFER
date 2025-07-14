@@ -50,7 +50,7 @@ class SoilHealthModel(AgricultureModel):
                 "microbial_activity",
                 "ph_balance",
                 "nutrient_availability",
-                "compaction",
+                "compact_cellsion",
                 "infiltration_rate"
             ]
         else:
@@ -83,7 +83,7 @@ class SoilHealthModel(AgricultureModel):
             "microbial_activity": 0.15,
             "ph_balance": 0.10,
             "nutrient_availability": 0.15,
-            "compaction": 0.10,
+            "compact_cellsion": 0.10,
             "infiltration_rate": 0.10
         }
         
@@ -217,10 +217,10 @@ class SoilHealthModel(AgricultureModel):
                 indicator_scores["ph_balance"] = 10 - np.clip(np.abs(soil_data["ph"] - 6.5) * 3, 0, 10)
                 
             # Compaction score (lower bulk density is better)
-            if "compaction" in self.soil_indicators:
+            if "compact_cellsion" in self.soil_indicators:
                 # Assuming bulk_density in g/cm³, lower is better
                 # 1.6 or higher is bad (score 0), 1.0 or lower is good (score 10)
-                indicator_scores["compaction"] = np.clip(10 - ((soil_data["bulk_density"] - 1.0) * 16.67), 0, 10)
+                indicator_scores["compact_cellsion"] = np.clip(10 - ((soil_data["bulk_density"] - 1.0) * 16.67), 0, 10)
             
             # For other indicators, we'd need additional soil properties
             # Here we're using dummy values for illustration

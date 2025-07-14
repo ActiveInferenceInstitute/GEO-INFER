@@ -42,7 +42,7 @@ logger = logging.getLogger("h3_geospatial_demo")
 
 # Import our modules
 try:
-    from geo_infer_space.osc_geo.utils.h3_utils import h3_to_geojson, geojson_to_h3
+    from geo_infer_space.osc_geo.utils.h3_utils import cell_to_latlngjson, geojson_to_h3
     from geo_infer_space.osc_geo.utils.visualization import OSCVisualizationEngine
     from geo_infer_space.osc_geo.utils.osc_simple_status import check_repo_status
 except ImportError as e:

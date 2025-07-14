@@ -32,7 +32,7 @@ class SensorMetadata:
     
     def __post_init__(self):
         if not self.h3_index:
-            self.h3_index = h3.geo_to_h3(
+            self.h3_index = h3.latlng_to_cell(
                 self.latitude, self.longitude, self.h3_resolution
             )
 
@@ -111,7 +111,7 @@ class SensorRegistry:
     
     def get_sensors_in_area(self, bounds: Dict, h3_resolution: int = 8) -> List[SensorMetadata]:
         """Get sensors within geographic bounds using H3 spatial indexing."""
-        # This would use H3 polyfill to get all cells in the area
+        # This would use H3 polygon_to_cells to get all cells in the area
         # For now, simple implementation
         matching_sensors = []
         

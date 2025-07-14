@@ -12,7 +12,7 @@ from shapely.geometry import box, Polygon
 from typing import List, Dict
 import json
 
-from geo_infer_space.utils.h3_utils import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
 
 logger = logging.getLogger(__name__)
 
@@ -89,7 +89,7 @@ class CascadianOwnershipDataSources:
             return gpd.GeoDataFrame()
 
         # 1. Calculate the total bounding box for the H3 hexagons
-        hex_polygons = [Polygon(h3_to_geo_boundary(h)) for h in target_hexagons]
+        hex_polygons = [Polygon(cell_to_latlng_boundary(h)) for h in target_hexagons]
         min_lon = min(p.bounds[0] for p in hex_polygons)
         min_lat = min(p.bounds[1] for p in hex_polygons)
         max_lon = max(p.bounds[2] for p in hex_polygons)

@@ -76,7 +76,7 @@ if success:
 The module provides utility functions for converting between GeoJSON and H3:
 
 ```python
-from geo_infer_space.osc_geo.utils import geojson_to_h3, h3_to_geojson
+from geo_infer_space.osc_geo.utils import geojson_to_h3, cell_to_latlngjson
 
 # Convert GeoJSON to H3 indices
 with open("path/to/geojson.json", "r") as f:
@@ -86,7 +86,7 @@ h3_data = geojson_to_h3(geojson_data, resolution=9)
 print(f"Number of H3 indices: {len(h3_data['h3_indices'])}")
 
 # Convert H3 indices back to GeoJSON
-geojson = h3_to_geojson(h3_data["h3_indices"], h3_data["properties"])
+geojson = cell_to_latlngjson(h3_data["h3_indices"], h3_data["properties"])
 ```
 
 ## API Reference

@@ -58,7 +58,7 @@ The hierarchy begins with 122 base cells at resolution 0 (110 hexagons and 12 pe
 
 ### 64-bit Integer Representation
 
-H3 represents spatial locations using 64-bit integer indexes, enabling efficient storage and processing of geospatial data[4][7]. The compact representation of an H3 cell index encodes several pieces of information in a specific bit layout:
+H3 represents spatial locations using 64-bit integer indexes, enabling efficient storage and processing of geospatial data[4][7]. The compact_cells representation of an H3 cell index encodes several pieces of information in a specific bit layout:
 
 - 1 bit reserved and set to 0
 - 4 bits to indicate the H3 Cell index mode
@@ -108,7 +108,7 @@ Basic usage examples demonstrate core functionality:
 import h3
 lat, lng = 37.7749, -122.4194  # San Francisco coordinates
 resolution = 9
-h3_index = h3.geo_to_h3(lat, lng, resolution)
+h3_index = h3.latlng_to_cell(lat, lng, resolution)
 ```
 
 The Python library supports all key H3 operations including coordinate conversion, neighbor finding, hierarchical traversal, and distance calculation.
@@ -133,29 +133,29 @@ Across all language implementations, H3 provides several core operations that fo
 
 1. **Coordinate Conversion**: Converting between geographic coordinates and H3 indices
    ```python
-   h3_index = h3.geo_to_h3(lat, lng, resolution)
-   center_coords = h3.h3_to_geo(h3_index)
+   h3_index = h3.latlng_to_cell(lat, lng, resolution)
+   center_coords = h3.cell_to_latlng(h3_index)
    ```
 
 2. **Boundary Retrieval**: Obtaining the geometric boundary of a cell
    ```python
-   boundary = h3.h3_to_geo_boundary(h3_index)
+   boundary = h3.cell_to_latlng_boundary(h3_index)
    ```
 
 3. **Hierarchical Operations**: Navigating the parent-child hierarchy
    ```python
-   parent_index = h3.h3_to_parent(h3_index, resolution - 1)
-   children_indices = h3.h3_to_children(h3_index, resolution + 1)
+   parent_index = h3.cell_to_parent(h3_index, resolution - 1)
+   children_indices = h3.cell_to_children(h3_index, resolution + 1)
    ```
 
 4. **Neighbor Traversal**: Finding adjacent cells and rings of neighbors
    ```python
-   neighbors = h3.k_ring(h3_index, k)
+   neighbors = h3.grid_disk(h3_index, k)
    ```
 
 5. **Distance Calculation**: Determining the distance between cells
    ```python
-   distance = h3.h3_distance(h3_index1, h3_index2)
+   distance = h3.grid_distance(h3_index1, h3_index2)
    ```
 
 6. **Area Calculation**: Computing geometric properties of cells
@@ -286,7 +286,7 @@ Citations:
 [12] https://h3geo.org/docs/comparisons/geohash/
 [13] https://h3geo.org/docs/comparisons/s2/
 [14] https://blog.tranzai.com/spatial-queries/
-[15] https://stackoverflow.com/questions/50725530/how-to-choose-the-suitable-h3-resolutions-when-use-polyfill
+[15] https://stackoverflow.com/questions/50725530/how-to-choose-the-suitable-h3-resolutions-when-use-polygon_to_cells
 [16] https://carto.com/blog/h3-spatial-indexes-10-use-cases
 [17] https://www.esri.com/arcgis-blog/products/arcgis-pro/analytics/use-h3-to-create-multiresolution-hexagon-grids-in-arcgis-pro-3-1/
 [18] https://www.youtube.com/watch?v=wDuKeUkNLkQ

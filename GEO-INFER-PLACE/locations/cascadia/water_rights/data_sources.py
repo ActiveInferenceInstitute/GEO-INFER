@@ -15,7 +15,7 @@ from typing import Dict, Tuple
 import json
 from datetime import datetime
 
-from geo_infer_space.utils.h3_utils import h3_to_geojson, geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+from geo_infer_space.utils.h3_utils import cell_to_latlngjson, latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
 from shapely.geometry import Polygon
 
 logger = logging.getLogger(__name__)
@@ -159,7 +159,7 @@ class CascadianWaterRightsDataSources:
             return gpd.GeoDataFrame()
 
         # Correct the bounding box creation for the polygon clipping
-        hex_boundaries = [Polygon([(lon, lat) for lat, lon in h3_to_geo_boundary(h)]) for h in target_hexagons]
+        hex_boundaries = [Polygon([(lon, lat) for lat, lon in cell_to_latlng_boundary(h)]) for h in target_hexagons]
         min_lon = min(p.bounds[0] for p in hex_boundaries)
         min_lat = min(p.bounds[1] for p in hex_boundaries)
         max_lon = max(p.bounds[2] for p in hex_boundaries)

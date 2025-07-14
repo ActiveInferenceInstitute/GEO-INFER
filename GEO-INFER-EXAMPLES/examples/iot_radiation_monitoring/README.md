@@ -94,7 +94,7 @@ The example begins by setting up simulated global radiation monitoring networks:
 
 ```python
 from geo_infer_iot import IoTSystem, GlobalMonitoringSystem
-from geo_infer_space.osc_geo.utils.h3_utils import h3_to_geojson
+from geo_infer_space.osc_geo.utils.h3_utils import cell_to_latlngjson
 
 # Initialize IoT system with H3 spatial indexing
 iot_system = IoTSystem(config={
@@ -223,7 +223,7 @@ Web Dashboard ← API Module ← Results Storage ← Anomaly Detection
 ### IoT ↔ SPACE Integration
 ```python
 # Automatic H3 indexing in IoT module
-sensor_measurement.h3_index = h3.geo_to_h3(lat, lon, resolution)
+sensor_measurement.h3_index = h3.latlng_to_cell(lat, lon, resolution)
 spatial_neighbors = get_h3_neighbors(sensor_measurement.h3_index)
 
 # Efficient spatial queries using SPACE module
@@ -237,10 +237,10 @@ nearby_sensors = space_module.query_h3_region(
 ```python
 # Bayesian inference on H3 grid
 h3_grid = space_module.generate_h3_grid(bounds, resolution=5)
-grid_coordinates = [h3.h3_to_geo(cell) for cell in h3_grid]
+grid_coordinates = [h3.cell_to_latlng(cell) for cell in h3_grid]
 
 # Spatial covariance using H3 distances
-spatial_distances = space_module.h3_distance_matrix(h3_grid)
+spatial_distances = space_module.grid_distance_matrix(h3_grid)
 covariance_matrix = matern_52_covariance(spatial_distances, length_scale)
 ```
 

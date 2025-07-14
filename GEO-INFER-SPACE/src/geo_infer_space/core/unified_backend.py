@@ -141,8 +141,8 @@ class UnifiedH3Backend:
                         logger.warning(f"Skipping invalid geometry for {geom_name}, {area}: {type(geom)}")
                         print(f"WARNING: Skipping invalid geometry for {geom_name}, {area}: {type(geom)}")
                 except Exception as e:
-                    logger.error(f"H3 polyfill failed for {geom_name}, {area}: {e}")
-                    print(f"ERROR: H3 polyfill failed for {geom_name}, {area}: {e}")
+                    logger.error(f"H3 polygon_to_cells failed for {geom_name}, {area}: {e}")
+                    print(f"ERROR: H3 polygon_to_cells failed for {geom_name}, {area}: {e}")
 
         final_hex_by_area = {k: sorted(list(v)) for k, v in hexagons_by_area.items() if v}
         final_all_hexagons = sorted(list(set.union(*[set(v) for v in hexagons_by_area.values()])))

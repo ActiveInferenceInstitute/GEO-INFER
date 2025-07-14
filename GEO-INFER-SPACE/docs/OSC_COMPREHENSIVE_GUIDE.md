@@ -108,7 +108,7 @@ The setup automatically installs all required dependencies:
 # Core dependencies
 numpy>=1.20.0
 geopandas>=0.10.0
-h3>=3.7.0
+h3>=4.0.0.0
 
 # Visualization dependencies
 matplotlib>=3.5.0

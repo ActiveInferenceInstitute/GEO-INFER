@@ -14,7 +14,7 @@ import h3
 
 # Convert a latitude/longitude point to an H3 index at resolution 9
 lat, lng = 37.7749, -122.4194  # San Francisco
-h3_index = h3.geo_to_h3(lat, lng, 9)  # Returns '8928308281fffff'
+h3_index = h3.latlng_to_cell(lat, lng, 9)  # Returns '8928308281fffff'
 ```
 
 This operation enables:
@@ -33,7 +33,7 @@ area_km2 = h3.cell_area(h3_index, 'km^2')
 edge_length_m = h3.edge_length(h3_index, 'm')
 
 # Get the center coordinates of a cell
-center_coords = h3.h3_to_geo(h3_index)  # Returns (lat, lng)
+center_coords = h3.cell_to_latlng(h3_index)  # Returns (lat, lng)
 ```
 
 ### Proximity Analysis
@@ -43,7 +43,7 @@ Finding cells within a specified grid distance:
 
 ```python
 # Get all cells within 2 grid steps (hexagonal distance)
-neighboring_indices = h3.k_ring(h3_index, 2)
+neighboring_indices = h3.grid_disk(h3_index, 2)
 ```
 
 K-ring operations create concentric rings of hexagons around a central cell, useful for:
@@ -56,9 +56,9 @@ Determining grid distance between cells:
 
 ```python
 # Calculate the grid distance between two H3 indices
-h3_index1 = h3.geo_to_h3(37.7749, -122.4194, 9)
-h3_index2 = h3.geo_to_h3(37.3382, -121.8863, 9)
-distance = h3.h3_distance(h3_index1, h3_index2)  # Returns grid steps
+h3_index1 = h3.latlng_to_cell(37.7749, -122.4194, 9)
+h3_index2 = h3.latlng_to_cell(37.3382, -121.8863, 9)
+distance = h3.grid_distance(h3_index1, h3_index2)  # Returns grid steps
 ```
 
 H3 grid distance provides:
@@ -87,7 +87,7 @@ polygon = {
 }
 
 # Fill the polygon with resolution 9 hexagons
-h3_indices = h3.polyfill(polygon, 9)
+h3_indices = h3.polygon_to_cells(polygon, 9)
 ```
 
 Polyfill enables:
@@ -121,11 +121,11 @@ Analyzing data across different scales:
 ```python
 # Aggregate from resolution 9 to resolution 6
 resolution_9_indices = {...}  # Set of resolution 9 indices
-resolution_6_indices = {h3.h3_to_parent(idx, 6) for idx in resolution_9_indices}
+resolution_6_indices = {h3.cell_to_parent(idx, 6) for idx in resolution_9_indices}
 
 # Count cells per parent
 from collections import Counter
-parent_counts = Counter(h3.h3_to_parent(idx, 6) for idx in resolution_9_indices)
+parent_counts = Counter(h3.cell_to_parent(idx, 6) for idx in resolution_9_indices)
 ```
 
 This approach enables:
@@ -139,10 +139,10 @@ Optimizing representation of contiguous regions:
 ```python
 # Compact a set of H3 indices to their optimal representation
 h3_indices = {...}  # Set of indices at mixed resolutions
-compacted = h3.compact(h3_indices)
+compact_cellsed = h3.compact_cells_cells(h3_indices)
 
-# Uncompact back to a specific resolution
-uncompacted = h3.uncompact(compacted, 9)
+# Uncompact_cells back to a specific resolution
+uncompact_cells_cellsed = h3.uncompact_cells_cells_cells(compact_cellsed, 9)
 ```
 
 Compaction reduces cell counts by:
@@ -158,7 +158,7 @@ Calculating spatial density metrics:
 ```python
 # Create a density map from point data
 points = [(lat1, lng1), (lat2, lng2), ...]  # List of coordinates
-h3_counts = Counter(h3.geo_to_h3(lat, lng, 9) for lat, lng in points)
+h3_counts = Counter(h3.latlng_to_cell(lat, lng, 9) for lat, lng in points)
 
 # Normalize by cell area
 h3_density = {idx: count / h3.cell_area(idx, 'km^2') for idx, count in h3_counts.items()}
@@ -178,7 +178,7 @@ def smooth_h3_data(h3_values, k=1):
     """Apply a spatial smoothing kernel to H3 values."""
     result = {}
     for idx, value in h3_values.items():
-        neighbors = h3.k_ring(idx, k)
+        neighbors = h3.grid_disk(idx, k)
         neighbor_values = [h3_values.get(n, 0) for n in neighbors]
         result[idx] = sum(neighbor_values) / len(neighbors)
     return result
@@ -212,9 +212,9 @@ Analyzing routes using H3:
 
 ```python
 # Find the shortest path between two H3 indices
-origin = h3.geo_to_h3(start_lat, start_lng, 9)
-destination = h3.geo_to_h3(end_lat, end_lng, 9)
-path = h3.h3_line(origin, destination)  # Returns indices along the line
+origin = h3.latlng_to_cell(start_lat, start_lng, 9)
+destination = h3.latlng_to_cell(end_lat, end_lng, 9)
+path = h3.grid_path_cells(origin, destination)  # Returns indices along the line
 ```
 
 H3 paths enable:
@@ -231,7 +231,7 @@ H3 paths enable:
 def h3_set_to_geojson(h3_indices):
     features = []
     for idx in h3_indices:
-        polygon = h3.h3_to_geo_boundary(idx, geo_json=True)
+        polygon = h3.cell_to_latlng_boundary(idx, geo_json=True)
         feature = {
             "type": "Feature",
             "properties": {"h3": idx},
@@ -261,11 +261,11 @@ def generate_h3_features(h3_index, data_dict):
     features.append(data_dict.get(h3_index, 0))
     
     # First-ring neighbor values
-    ring1 = h3.k_ring(h3_index, 1) - {h3_index}
+    ring1 = h3.grid_disk(h3_index, 1) - {h3_index}
     features.extend([data_dict.get(n, 0) for n in sorted(ring1)])
     
     # Second-ring neighbor values
-    ring2 = h3.k_ring(h3_index, 2) - h3.k_ring(h3_index, 1)
+    ring2 = h3.grid_disk(h3_index, 2) - h3.grid_disk(h3_index, 1)
     ring2_avg = sum(data_dict.get(n, 0) for n in ring2) / len(ring2) if ring2 else 0
     features.append(ring2_avg)
     
@@ -311,7 +311,7 @@ def estimate_cell_count(north, south, east, west, resolution):
 ### Memory Optimization
 For large-scale analysis:
 
-- Use compact indices where possible
+- Use compact_cells indices where possible
 - Consider using bit-packed representations
 - Leverage spatial locality for caching
 - Process data incrementally by H3 region

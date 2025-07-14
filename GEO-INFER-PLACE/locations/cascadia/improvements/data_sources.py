@@ -14,7 +14,7 @@ import zipfile
 import io
 from shapely.geometry import box
 
-from geo_infer_space.utils.h3_utils import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
 from shapely.geometry import Polygon
 import random
 
@@ -166,7 +166,7 @@ class CascadianImprovementsDataSources:
             return gpd.GeoDataFrame()
 
         
-        hex_boundaries = [Polygon(h3_to_geo_boundary(h)) for h in target_hexagons]
+        hex_boundaries = [Polygon(cell_to_latlng_boundary(h)) for h in target_hexagons]
         minx = min(p.bounds[0] for p in hex_boundaries)
         miny = min(p.bounds[1] for p in hex_boundaries)
         maxx = max(p.bounds[2] for p in hex_boundaries)
@@ -214,7 +214,7 @@ class CascadianImprovementsDataSources:
         logger.warning("Generating fully mock improvements data as a fallback.")
         
         
-        hex_boundaries = [Polygon(h3_to_geo_boundary(h)) for h in target_hexagons]
+        hex_boundaries = [Polygon(cell_to_latlng_boundary(h)) for h in target_hexagons]
         minx = min(p.bounds[0] for p in hex_boundaries)
         miny = min(p.bounds[1] for p in hex_boundaries)
         maxx = max(p.bounds[2] for p in hex_boundaries)

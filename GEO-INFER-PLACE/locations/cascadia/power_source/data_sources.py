@@ -14,7 +14,7 @@ import json
 from typing import List, Tuple
 from shapely.geometry import Polygon
 
-from geo_infer_space.utils.h3_utils import h3_to_geojson, geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+from geo_infer_space.utils.h3_utils import cell_to_latlngjson, latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +35,7 @@ class CascadianPowerSourceDataSources:
 
     def _calculate_bbox_from_hexagons(self, hexagons: List[str]) -> Tuple[float, float, float, float]:
         """Calculates a bounding box from a list of H3 hexagons."""
-        boundaries = [Polygon(h3_to_geo_boundary(h)) for h in hexagons]
+        boundaries = [Polygon(cell_to_latlng_boundary(h)) for h in hexagons]
         min_lon = min(b.bounds[0] for b in boundaries)
         min_lat = min(b.bounds[1] for b in boundaries)
         max_lon = max(b.bounds[2] for b in boundaries)

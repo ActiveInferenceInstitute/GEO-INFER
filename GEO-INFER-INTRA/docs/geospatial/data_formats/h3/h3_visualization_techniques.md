@@ -449,7 +449,7 @@ const fragmentShader = `
 
 ### Compact Representation
 
-Using H3's `compact` and `uncompact` functions to optimize visualization at different zoom levels:
+Using H3's `compact_cells_cells` and `uncompact_cells_cells` functions to optimize visualization at different zoom levels:
 
 ```javascript
 import * as h3 from 'h3-js';
@@ -462,7 +462,7 @@ const highResHexagons = [
 ];
 
 // Compact to create a mixed-resolution set
-const compactedHexagons = h3.compact(highResHexagons);
+const compact_cellsedHexagons = h3.compact_cells_cells(highResHexagons);
 
 // Render these instead - much more efficient
 // Note that different resolutions need different rendering approaches
@@ -496,7 +496,7 @@ map.on('zoom', () => {
 function updateVisualization(resolution) {
   // Either:
   // 1. Use pre-computed data at this resolution
-  // 2. Use h3.uncompact and h3.compact to generate appropriate resolution
+  // 2. Use h3.uncompact_cells_cells_cells and h3.compact_cells_cells to generate appropriate resolution
   // 3. Query backend for data at this resolution
   
   // Then update the visualization layer

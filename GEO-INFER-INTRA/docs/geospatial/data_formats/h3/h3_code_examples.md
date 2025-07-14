@@ -12,15 +12,15 @@ import h3
 # Convert lat/lng to H3 cell
 lat, lng = 37.7749, -122.4194  # San Francisco
 resolution = 9
-h3_index = h3.geo_to_h3(lat, lng, resolution)
+h3_index = h3.latlng_to_cell(lat, lng, resolution)
 print(f"H3 index: {h3_index}")  # 8928308280fffff
 
 # Convert H3 cell to lat/lng (center point)
-center_lat, center_lng = h3.h3_to_geo(h3_index)
+center_lat, center_lng = h3.cell_to_latlng(h3_index)
 print(f"Center: {center_lat}, {center_lng}")
 
 # Get the boundary of an H3 cell
-boundary = h3.h3_to_geo_boundary(h3_index)
+boundary = h3.cell_to_latlng_boundary(h3_index)
 print(f"Boundary: {boundary}")  # List of [lat, lng] coordinates
 ```
 
@@ -82,18 +82,18 @@ public class H3Example {
 import h3
 
 # Generate an H3 index
-h3_index = h3.geo_to_h3(37.7749, -122.4194, 9)  # Resolution 9
+h3_index = h3.latlng_to_cell(37.7749, -122.4194, 9)  # Resolution 9
 
 # Get the parent at resolution 7
-parent = h3.h3_to_parent(h3_index, 7)
+parent = h3.cell_to_parent(h3_index, 7)
 print(f"Parent: {parent}")
 
 # Get all children at resolution 10
-children = h3.h3_to_children(h3_index, 10)
+children = h3.cell_to_children(h3_index, 10)
 print(f"Number of children: {len(children)}")  # Approximately 7
 
 # Get the resolution of an H3 index
-resolution = h3.h3_get_resolution(h3_index)
+resolution = h3.get_resolution(h3_index)
 print(f"Resolution: {resolution}")  # 9
 ```
 
@@ -126,19 +126,19 @@ console.log(`Resolution: ${resolution}`);  // 9
 import h3
 
 # Generate an H3 index
-h3_index = h3.geo_to_h3(37.7749, -122.4194, 9)
+h3_index = h3.latlng_to_cell(37.7749, -122.4194, 9)
 
 # Get all neighbors within 1 step (k-ring)
-neighbors = h3.k_ring(h3_index, 1)
+neighbors = h3.grid_disk(h3_index, 1)
 print(f"Number of cells in 1-ring: {len(neighbors)}")  # 7 (including origin)
 
 # Get a ring of cells at exactly distance 2
-ring = h3.hex_ring(h3_index, 2)
+ring = h3.grid_ring_unsafe(h3_index, 2)
 print(f"Number of cells in 2-ring: {len(ring)}")  # 12
 
 # Calculate grid distance between two indexes
-other_index = h3.geo_to_h3(37.7850, -122.4050, 9)
-distance = h3.h3_distance(h3_index, other_index)
+other_index = h3.latlng_to_cell(37.7850, -122.4050, 9)
+distance = h3.grid_distance(h3_index, other_index)
 print(f"Grid distance: {distance}")
 ```
 
@@ -183,12 +183,12 @@ polygon = {
 }
 
 # Fill the polygon with hexagons
-hexagons = h3.polyfill(polygon, 9, geo_json=True)
+hexagons = h3.polygon_to_cells(polygon, 9, geo_json=True)
 print(f"Number of hexagons: {len(hexagons)}")
 
 # Convert H3 cells back to a polygon
 cells_to_polygon = [hexagons[0], hexagons[1], hexagons[2]]
-multi_polygon = h3.h3_set_to_multi_polygon(cells_to_polygon, geo_json=True)
+multi_polygon = h3.cells_to_h3shape(cells_to_polygon, geo_json=True)
 print(f"Multi-polygon structure: {len(multi_polygon)} polygon(s)")
 ```
 
@@ -209,7 +209,7 @@ const polygon = {
 };
 
 // Fill the polygon with hexagons
-const hexagons = h3.polyfill(polygon, 9, true);
+const hexagons = h3.polygon_to_cells(polygon, 9, true);
 console.log(`Number of hexagons: ${hexagons.length}`);
 
 // Convert H3 cells back to a polygon
@@ -218,7 +218,7 @@ const multiPolygon = h3.h3SetToMultiPolygon(cellsToPolygon, true);
 console.log(`Multi-polygon structure: ${multiPolygon.length} polygon(s)`);
 ```
 
-## Compact and Uncompact
+## Compact and Uncompact_cells
 
 ### Python
 
@@ -237,23 +237,23 @@ polygon = {
 }
 
 # Fill the polygon with hexagons at fine resolution
-hexagons = h3.polyfill(polygon, 10, geo_json=True)
+hexagons = h3.polygon_to_cells(polygon, 10, geo_json=True)
 print(f"Original hexagons at res 10: {len(hexagons)}")
 
 # Compact the set of hexagons (use mixed resolutions)
-compacted = h3.compact(hexagons)
-print(f"Compacted hexagons: {len(compacted)}")
+compact_cellsed = h3.compact_cells_cells(hexagons)
+print(f"Compacted hexagons: {len(compact_cellsed)}")
 
 # Count cells by resolution
 by_resolution = {}
-for h in compacted:
-    res = h3.h3_get_resolution(h)
+for h in compact_cellsed:
+    res = h3.get_resolution(h)
     by_resolution[res] = by_resolution.get(res, 0) + 1
 print(f"Cells by resolution: {by_resolution}")
 
-# Uncompact back to resolution 10
-uncompacted = h3.uncompact(compacted, 10)
-print(f"Uncompacted cells: {len(uncompacted)}")
+# Uncompact_cells back to resolution 10
+uncompact_cells_cellsed = h3.uncompact_cells_cells_cells(compact_cellsed, 10)
+print(f"Uncompact_cellsed cells: {len(uncompact_cells_cellsed)}")
 ```
 
 ### JavaScript
@@ -273,24 +273,24 @@ const polygon = {
 };
 
 // Fill the polygon with hexagons at fine resolution
-const hexagons = h3.polyfill(polygon, 10, true);
+const hexagons = h3.polygon_to_cells(polygon, 10, true);
 console.log(`Original hexagons at res 10: ${hexagons.length}`);
 
 // Compact the set of hexagons (use mixed resolutions)
-const compacted = h3.compact(hexagons);
-console.log(`Compacted hexagons: ${compacted.length}`);
+const compact_cellsed = h3.compact_cells_cells(hexagons);
+console.log(`Compacted hexagons: ${compact_cellsed.length}`);
 
 // Count cells by resolution
 const byResolution = {};
-for (const h of compacted) {
+for (const h of compact_cellsed) {
   const res = h3.h3GetResolution(h);
   byResolution[res] = (byResolution[res] || 0) + 1;
 }
 console.log(`Cells by resolution:`, byResolution);
 
-// Uncompact back to resolution 10
-const uncompacted = h3.uncompact(compacted, 10);
-console.log(`Uncompacted cells: ${uncompacted.length}`);
+// Uncompact_cells back to resolution 10
+const uncompact_cells_cellsed = h3.uncompact_cells_cells_cells(compact_cellsed, 10);
+console.log(`Uncompact_cellsed cells: ${uncompact_cells_cellsed.length}`);
 ```
 
 ## Integration Examples
@@ -304,17 +304,17 @@ import folium
 # Generate a central H3 cell
 center_lat, center_lng = 37.7749, -122.4194
 resolution = 9
-h3_index = h3.geo_to_h3(center_lat, center_lng, resolution)
+h3_index = h3.latlng_to_cell(center_lat, center_lng, resolution)
 
 # Get k-ring of neighbors
 k = 2
-neighbors = h3.k_ring(h3_index, k)
+neighbors = h3.grid_disk(h3_index, k)
 
 # Create map centered on central cell
 m = folium.Map(location=[center_lat, center_lng], zoom_start=13)
 
 # Add central cell in blue
-central_boundary = h3.h3_to_geo_boundary(h3_index)
+central_boundary = h3.cell_to_latlng_boundary(h3_index)
 folium.Polygon(
     locations=[(p[0], p[1]) for p in central_boundary],
     color='blue',
@@ -327,10 +327,10 @@ folium.Polygon(
 # Add neighbors in red with decreasing opacity by distance
 for neighbor in neighbors:
     if neighbor != h3_index:  # Skip central cell
-        distance = h3.h3_distance(h3_index, neighbor)
+        distance = h3.grid_distance(h3_index, neighbor)
         opacity = 0.6 / distance  # Decrease opacity with distance
         
-        neighbor_boundary = h3.h3_to_geo_boundary(neighbor)
+        neighbor_boundary = h3.cell_to_latlng_boundary(neighbor)
         folium.Polygon(
             locations=[(p[0], p[1]) for p in neighbor_boundary],
             color='red',
@@ -451,24 +451,24 @@ CREATE TABLE IF NOT EXISTS poi_locations (
 -- Insert some sample data
 INSERT INTO poi_locations (name, h3_index, resolution)
 VALUES 
-    ('Ferry Building', h3_geo_to_h3(37.7956, -122.3934, 9), 9),
-    ('Golden Gate Park', h3_geo_to_h3(37.7694, -122.4862, 9), 9),
-    ('Twin Peaks', h3_geo_to_h3(37.7544, -122.4477, 9), 9);
+    ('Ferry Building', h3_latlng_to_cell(37.7956, -122.3934, 9), 9),
+    ('Golden Gate Park', h3_latlng_to_cell(37.7694, -122.4862, 9), 9),
+    ('Twin Peaks', h3_latlng_to_cell(37.7544, -122.4477, 9), 9);
 
 -- Find POIs within 5 cells of a location
 WITH center AS (
-    SELECT h3_geo_to_h3(37.7749, -122.4194, 9) AS h3_index
+    SELECT h3_latlng_to_cell(37.7749, -122.4194, 9) AS h3_index
 )
 SELECT 
     p.name,
     p.h3_index,
-    h3_to_geo(p.h3_index) AS center_point,
-    h3_distance(center.h3_index, p.h3_index) AS distance
+    cell_to_latlng(p.h3_index) AS center_point,
+    grid_distance(center.h3_index, p.h3_index) AS distance
 FROM 
     poi_locations p, 
     center
 WHERE 
-    h3_distance(center.h3_index, p.h3_index) <= 5
+    grid_distance(center.h3_index, p.h3_index) <= 5
 ORDER BY 
     distance;
 
@@ -479,12 +479,12 @@ WITH area AS (
 SELECT 
     p.name,
     p.h3_index,
-    h3_to_geo(p.h3_index) AS center_point
+    cell_to_latlng(p.h3_index) AS center_point
 FROM 
     poi_locations p,
     area
 WHERE 
-    ST_Contains(area.geom, ST_SetSRID(ST_Point(h3_to_geo(p.h3_index)[1], h3_to_geo(p.h3_index)[0]), 4326));
+    ST_Contains(area.geom, ST_SetSRID(ST_Point(cell_to_latlng(p.h3_index)[1], cell_to_latlng(p.h3_index)[0]), 4326));
 ```
 
 ## Utility Functions
@@ -495,7 +495,7 @@ WHERE
 import h3
 
 # Calculate the area of a cell
-h3_index = h3.geo_to_h3(37.7749, -122.4194, 9)
+h3_index = h3.latlng_to_cell(37.7749, -122.4194, 9)
 
 # Area in square kilometers
 area_km2 = h3.cell_area(h3_index, unit='km^2')
@@ -514,16 +514,16 @@ edge_m = h3.edge_length(h3_index, unit='m')
 print(f"Edge length: {edge_m:.2f} m")
 
 # Check if an index is valid
-is_valid = h3.h3_is_valid(h3_index)
+is_valid = h3.is_valid_cell(h3_index)
 print(f"Is valid: {is_valid}")
 
 # Check if an index is a pentagon
-is_pentagon = h3.h3_is_pentagon(h3_index)
+is_pentagon = h3.is_pentagon(h3_index)
 print(f"Is pentagon: {is_pentagon}")
 
 # Check if two cells are neighbors
-neighbor = h3.hex_ring(h3_index, 1)[0]  # Get one neighbor
-are_neighbors = h3.h3_indexes_are_neighbors(h3_index, neighbor)
+neighbor = h3.grid_ring_unsafe(h3_index, 1)[0]  # Get one neighbor
+are_neighbors = h3.are_neighbor_cells(h3_index, neighbor)
 print(f"Are neighbors: {are_neighbors}")
 ```
 
@@ -567,7 +567,7 @@ console.log(`Are neighbors: ${areNeighbors}`);
 
 ## Performance Tips
 
-1. **Use compact/uncompact** for efficiently representing regions with mixed resolutions
+1. **Use compact_cells/uncompact_cells_cells** for efficiently representing regions with mixed resolutions
 2. **Pre-compute** H3 indexes for static geometries
 3. **Choose appropriate resolution** to balance precision and performance
 4. **Cache results** of computationally expensive operations

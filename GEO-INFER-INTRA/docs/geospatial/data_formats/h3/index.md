@@ -33,7 +33,7 @@ graph TD
     
     HIER --> PARENT[Parent-Child Relations]
     HIER --> COMP[Compaction]
-    HIER --> UNCOMP[Uncompaction]
+    HIER --> UNCOMP[Uncompact_cellsion]
     
     INDEX --> GEO[Geo Conversion]
     INDEX --> BITS[Bit Operations]
@@ -271,9 +271,9 @@ classDiagram
         +h3Line(h3Index1, h3Index2) : [h3Index]
         +h3ToParent(h3Index, res) : h3Index
         +h3ToChildren(h3Index, res) : [h3Index]
-        +compact(h3Set) : [h3Index]
-        +uncompact(h3Set, res) : [h3Index]
-        +polyfill(boundary, res) : [h3Index]
+        +compact_cells(h3Set) : [h3Index]
+        +uncompact_cells_cells(h3Set, res) : [h3Index]
+        +polygon_to_cells(boundary, res) : [h3Index]
         +h3SetToMultiPolygon(h3Set) : [[[{lat, lng}]]]
     }
     
@@ -293,12 +293,12 @@ classDiagram
     class HierarchyOps {
         +h3ToParent()
         +h3ToChildren()
-        +compact()
-        +uncompact()
+        +compact_cells()
+        +uncompact_cells_cells()
     }
     
     class RegionOps {
-        +polyfill()
+        +polygon_to_cells()
         +h3SetToMultiPolygon()
     }
     
@@ -468,9 +468,9 @@ graph TD
     class CONFIRM,USE final
 ```
 
-## Hexagon Compaction and Uncompaction
+## Hexagon Compaction and Uncompact_cellsion
 
-H3 provides compaction and uncompaction operations for efficient representation:
+H3 provides compact_cellsion and uncompact_cells_cellsion operations for efficient representation:
 
 ```mermaid
 graph TD
@@ -489,7 +489,7 @@ graph TD
         C7_REMAIN[Cell 7 (Resolution 9)]
     end
     
-    subgraph "Uncompacted Cells (Resolution 9)"
+    subgraph "Uncompact_cellsed Cells (Resolution 9)"
         U1[Cell 1]
         U2[Cell 2]
         U3[Cell 3]
@@ -518,7 +518,7 @@ graph TD
     COMPACT[Compact Operation] -.-> P1
     COMPACT -.-> C7_REMAIN
     
-    UNCOMPACT[Uncompact Operation] -.-> U1
+    UNCOMPACT[Uncompact_cells Operation] -.-> U1
     UNCOMPACT -.-> U2
     UNCOMPACT -.-> U3
     UNCOMPACT -.-> U4
@@ -527,13 +527,13 @@ graph TD
     UNCOMPACT -.-> U7
     
     classDef original fill:#bbf,stroke:#333,stroke-width:1px
-    classDef compacted fill:#f96,stroke:#333,stroke-width:2px
-    classDef uncompacted fill:#dfd,stroke:#333,stroke-width:1px
+    classDef compact_cellsed fill:#f96,stroke:#333,stroke-width:2px
+    classDef uncompact_cells_cellsed fill:#dfd,stroke:#333,stroke-width:1px
     classDef operation fill:#fdb,stroke:#333,stroke-width:1px
     
     class C1,C2,C3,C4,C5,C6,C7 original
-    class P1,C7_REMAIN compacted
-    class U1,U2,U3,U4,U5,U6,U7 uncompacted
+    class P1,C7_REMAIN compact_cellsed
+    class U1,U2,U3,U4,U5,U6,U7 uncompact_cells_cellsed
     class COMPACT,UNCOMPACT operation
 ```
 
@@ -554,7 +554,7 @@ lat, lng = h3_index.to_geo()
 boundary = h3_index.to_boundary()
 
 # Find all neighbors within distance k
-neighbors = h3_index.k_ring(k=1)
+neighbors = h3_index.grid_disk(k=1)
 
 # Get the parent cell at a lower resolution
 parent = h3_index.to_parent(resolution=8)
@@ -566,8 +566,8 @@ children = h3_index.to_children(resolution=10)
 distance = h3_index.distance_to(other_h3_index)
 
 # Convert a GeoJSON polygon to a set of H3 cells
-from geo_infer_space.index.h3 import polyfill
-h3_indices = polyfill(geojson_polygon, resolution=9)
+from geo_infer_space.index.h3 import polygon_to_cells
+h3_indices = polygon_to_cells(geojson_polygon, resolution=9)
 
 # Convert a set of H3 cells back to a GeoJSON polygon
 from geo_infer_space.index.h3 import h3_set_to_geojson
@@ -594,7 +594,7 @@ H3 operations in GEO-INFER have been benchmarked for performance:
 ## Best Practices for H3 in GEO-INFER
 
 1. **Choose the right resolution** for your analysis based on the spatial scale of your features
-2. **Use compaction** for efficient storage and transfer of H3 sets
+2. **Use compact_cellsion** for efficient storage and transfer of H3 sets
 3. **Consider hexagon edge effects** in your spatial algorithms
 4. **Cache H3 indices** for frequently used geometries
 5. **Be aware of pentagon cells** which have different connectivity properties

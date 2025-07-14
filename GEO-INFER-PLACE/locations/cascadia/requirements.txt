@@ -13,7 +13,7 @@ rasterio>=1.2.0
 fiona>=1.8.0
 
 # H3 Spatial Indexing
-h3>=3.7.0
+h3>=4.0.0
 
 # Web Requests and APIs
 requests>=2.25.0

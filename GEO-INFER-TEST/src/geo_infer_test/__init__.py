@@ -372,7 +372,7 @@ class SpatialValidator(BaseValidator):
         
         for idx, h3_index in enumerate(df["h3_index"]):
             try:
-                if h3.h3_is_valid(h3_index):
+                if h3.is_valid_cell(h3_index):
                     valid_count += 1
                 else:
                     invalid_indices.append(idx)

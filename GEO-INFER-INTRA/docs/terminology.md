@@ -62,7 +62,7 @@ This document serves as the central glossary for geospatial and active inference
 
 **GeoJSON** - A format for encoding geographic data structures using JavaScript Object Notation.
 
-**GeoPackage** - An open, standards-based, platform-independent, portable, self-describing, compact format for transferring geospatial information.
+**GeoPackage** - An open, standards-based, platform-independent, portable, self-describing, compact_cells format for transferring geospatial information.
 
 **GeoTIFF** - A TIFF file format that includes spatial reference information.
 

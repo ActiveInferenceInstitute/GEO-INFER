@@ -34,7 +34,7 @@ import h3
 # GEO-INFER imports
 try:
     from geo_infer_iot import IoTSystem, BayesianSpatialInference
-    from geo_infer_space.osc_geo.utils.h3_utils import h3_to_geojson, geojson_to_h3
+    from geo_infer_space.osc_geo.utils.h3_utils import cell_to_latlngjson, geojson_to_h3
     from geo_infer_space.osc_geo.utils.visualization import OSCVisualizationEngine
     from geo_infer_bayes import GaussianProcess, SpatialInference
     HAS_GEO_INFER = True
@@ -121,7 +121,7 @@ class SoilSensorNetwork:
             
             # Add H3 spatial index
             if measurement["latitude"] and measurement["longitude"]:
-                h3_index = h3.geo_to_h3(
+                h3_index = h3.latlng_to_cell(
                     measurement["latitude"], 
                     measurement["longitude"],
                     self.config.get("spatial", {}).get("h3_resolution", 8)
@@ -307,7 +307,7 @@ class SoilSensorNetwork:
             # Create H3 cell layer
             for h3_index in h3_cells:
                 # Get cell boundary
-                boundary = h3.h3_to_geo_boundary(h3_index, geo_json=True)
+                boundary = h3.cell_to_latlng_boundary(h3_index, geo_json=True)
                 
                 # Calculate average soil moisture for this cell
                 cell_measurements = [
@@ -483,7 +483,7 @@ async def main():
     
     # Add simulated sensors
     for sensor in sensors:
-        h3_index = h3.geo_to_h3(sensor["latitude"], sensor["longitude"], 8)
+        h3_index = h3.latlng_to_cell(sensor["latitude"], sensor["longitude"], 8)
         sensor["h3_index"] = h3_index
         network.sensors[sensor["sensor_id"]] = sensor
     

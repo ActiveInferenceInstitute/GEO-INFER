@@ -4,7 +4,7 @@
 # Core geospatial libraries (these extend the basic requirements)
 folium>=0.14.0              # Interactive maps with advanced plugins
 folium-plugins>=0.1.0       # Additional folium functionality
-h3>=3.7.0                   # H3 spatial indexing system
+h3>=4.0.0                   # H3 spatial indexing system
 geopandas>=0.12.0           # Geospatial data analysis
 shapely>=2.0.0              # Geometric operations
 fiona>=1.8.0                # Geospatial file I/O

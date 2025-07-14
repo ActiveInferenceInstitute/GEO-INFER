@@ -142,7 +142,7 @@ def create_h3_index(lat, lon, resolution=9):
     Returns:
         H3 index string
     """
-    return h3.geo_to_h3(lat, lon, resolution)
+    return h3.latlng_to_cell(lat, lon, resolution)
 ```
 
 ### Other Spatial Indexes

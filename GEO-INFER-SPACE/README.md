@@ -288,10 +288,10 @@ import h3
 
 # point_lat, point_lon = 40.7128, -74.0060 # New York City
 # h3_resolution = 9
-# h3_cell = h3.geo_to_h3(point_lat, point_lon, h3_resolution)
+# h3_cell = h3.latlng_to_cell(point_lat, point_lon, h3_resolution)
 # print(f"H3 Cell for NYC (Res {h3_resolution}): {h3_cell}")
 
-# h3_cell_boundary = h3.h3_to_geo_boundary(h3_cell, geo_json=True)
+# h3_cell_boundary = h3.cell_to_latlng_boundary(h3_cell, geo_json=True)
 # print(f"H3 Cell Boundary (GeoJSON): {h3_cell_boundary}")
 ```
 
@@ -379,7 +379,7 @@ GEO-INFER-SPACE serves as the central repository for **all general spatial metho
 
 Key Assertions:
 - **Spatial Methods**: All vector, raster, point cloud, and network operations are implemented here.
-- **H3 and Indexing**: Comprehensive H3 utilities, polyfill, boundary calculations, and other indexing systems.
+- **H3 and Indexing**: Comprehensive H3 utilities, polygon_to_cells, boundary calculations, and other indexing systems.
 - **OSC Integration**: Cloning, management, and usage of OS-Climate repositories for standardized geospatial processing.
 - **Data Integration**: General data loading, transformation, and integration logic for geospatial data sources.
 

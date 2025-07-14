@@ -23,11 +23,11 @@ from folium.plugins import HeatMap, MarkerCluster
 # --- Enhanced H3 and OSC Integration ---
 import h3
 from geo_infer_space.osc_geo import create_h3_data_loader, H3DataLoader
-from geo_infer_space.osc_geo.utils import h3_to_geojson, geojson_to_h3
+from geo_infer_space.osc_geo.utils import cell_to_latlngjson, geojson_to_h3
 from geo_infer_space.core.spatial_processor import SpatialProcessor
 from geo_infer_space.core.data_integrator import DataIntegrator
 from geo_infer_space.core.visualization_engine import InteractiveVisualizationEngine
-from geo_infer_space.utils.h3_utils import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
 from geo_infer_space.utils.config_loader import LocationConfigLoader, LocationBounds
 
 # --- Local Core Imports ---
@@ -160,9 +160,9 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                 logger.info(f"Generating hexagons for {county_name}, {state} using SPACE utilities...")
                 logger.debug(f"Geometry type: {type(geom)}, Geometry: {geom}")
                 try:
-                    # Use direct H3 library for polyfill (more reliable than SPACE polyfill)
+                    # Use direct H3 library for polygon_to_cells (more reliable than SPACE polygon_to_cells)
                     if isinstance(geom, (Polygon, MultiPolygon)):
-                        # Convert to GeoJSON format for H3 polyfill
+                        # Convert to GeoJSON format for H3 polygon_to_cells
                         geojson_geom = mapping(geom)
                         logger.debug(f"Converted to GeoJSON: {geojson_geom}")
                         try:
@@ -172,13 +172,13 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                             logger.info(f"Generated {len(hexagons_in_county)} hexagons for {county_name}, {state}")
                         except Exception as h3_error:
                             logger.error(f"H3 polygon_to_cells failed: {h3_error}")
-                            # Fallback to SPACE polyfill
+                            # Fallback to SPACE polygon_to_cells
                             try:
-                                hexagons_in_county = polyfill(geojson_geom, self.resolution)
+                                hexagons_in_county = polygon_to_cells(geojson_geom, self.resolution)
                                 hexagons_by_state[state].update(hexagons_in_county)
                                 logger.info(f"Generated {len(hexagons_in_county)} hexagons using SPACE fallback for {county_name}, {state}")
                             except Exception as space_error:
-                                logger.error(f"SPACE polyfill also failed: {space_error}")
+                                logger.error(f"SPACE polygon_to_cells also failed: {space_error}")
                     elif isinstance(geom, dict) and geom.get('type') == 'Polygon':
                         # Already in GeoJSON format
                         try:
@@ -187,13 +187,13 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                             logger.info(f"Generated {len(hexagons_in_county)} hexagons for {county_name}, {state}")
                         except Exception as h3_error:
                             logger.error(f"H3 polygon_to_cells failed: {h3_error}")
-                            # Fallback to SPACE polyfill
+                            # Fallback to SPACE polygon_to_cells
                             try:
-                                hexagons_in_county = polyfill(geom, self.resolution)
+                                hexagons_in_county = polygon_to_cells(geom, self.resolution)
                                 hexagons_by_state[state].update(hexagons_in_county)
                                 logger.info(f"Generated {len(hexagons_in_county)} hexagons using SPACE fallback for {county_name}, {state}")
                             except Exception as space_error:
-                                logger.error(f"SPACE polyfill also failed: {space_error}")
+                                logger.error(f"SPACE polygon_to_cells also failed: {space_error}")
                     elif isinstance(geom, dict):
                         # Try to convert plain dict to proper GeoJSON structure
                         logger.warning(f"Attempting to convert plain dict to GeoJSON for {county_name}, {state}")
@@ -213,7 +213,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                     else:
                         logger.warning(f"Skipping invalid geometry for {county_name}, {state}: {type(geom)}")
                 except Exception as e:
-                    logger.error(f"SPACE H3 polyfill failed for {county_name}, {state}: {e}")
+                    logger.error(f"SPACE H3 polygon_to_cells failed for {county_name}, {state}: {e}")
                     logger.debug(f"Geometry that failed: {geom}")
 
         final_hex_by_state = {k: sorted(list(v)) for k, v in hexagons_by_state.items() if v}
@@ -523,9 +523,9 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             # Add geometry and metadata using SPACE utilities
             try:
                 # Use SPACE H3 utilities for enhanced geometry processing
-                lat, lng = h3_to_geo(hexagon)
+                lat, lng = cell_to_latlng(hexagon)
                 hex_data['centroid'] = [lat, lng]
-                hex_data['boundary'] = h3_to_geo_boundary(hexagon)
+                hex_data['boundary'] = cell_to_latlng_boundary(hexagon)
             except Exception as e:
                 logger.warning(f"Could not process geometry for {hexagon} using SPACE utilities: {e}")
                 hex_data['centroid'] = None
@@ -792,7 +792,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             features = []
             for hex_id, properties in data_to_export.items():
                 # Get geometry for the hexagon using SPACE utilities
-                boundary = h3_to_geo_boundary(hex_id)
+                boundary = cell_to_latlng_boundary(hex_id)
                 
                 features.append({
                     'type': 'Feature',
@@ -829,7 +829,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         features = []
         for hex_id, properties in data_to_export.items():
             # Get geometry for the hexagon
-            boundary = h3.h3_to_geo_boundary(hex_id)
+            boundary = h3.cell_to_latlng_boundary(hex_id)
             
             features.append({
                 'type': 'Feature',
@@ -881,7 +881,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             map_center = [44.0, -120.5] # Default to center of Oregon
         else:
             # Calculate the centroid of the entire target region for the map center
-            all_boundaries = [Polygon(h3.h3_to_geo_boundary(h)) for h in self.target_hexagons]
+            all_boundaries = [Polygon(h3.cell_to_latlng_boundary(h)) for h in self.target_hexagons]
             gdf_all = gpd.GeoDataFrame({'geometry': all_boundaries}, crs="EPSG:4326")
             unified_geom = gdf_all.unary_union
             centroid = unified_geom.centroid

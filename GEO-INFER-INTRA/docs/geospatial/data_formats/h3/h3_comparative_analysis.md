@@ -299,11 +299,11 @@ import h3
 lat, lng = 37.7749, -122.4194
 
 # Convert to H3 index at resolution 9
-h3_index = h3.geo_to_h3(lat, lng, 9)
+h3_index = h3.latlng_to_cell(lat, lng, 9)
 print(h3_index)  # '8928308281fffff'
 
 # Get the neighbors
-neighbors = h3.k_ring(h3_index, 1)
+neighbors = h3.grid_disk(h3_index, 1)
 print(len(neighbors))  # 7 (center + 6 neighbors)
 ```
 

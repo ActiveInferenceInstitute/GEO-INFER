@@ -84,7 +84,7 @@ from geo_infer_space.osc_geo import (
     run_diagnostics
 )
 from geo_infer_space.osc_geo.utils import (
-    h3_to_geojson,
+    cell_to_latlngjson,
     geojson_to_h3,
     check_repo_status,
     generate_summary
@@ -98,7 +98,7 @@ from geo_infer_space.core.spatial_processor import SpatialProcessor
 from geo_infer_space.core.data_integrator import DataIntegrator
 from geo_infer_space.core.api_clients import BaseAPIManager, GeneralGeoDataFetcher
 from geo_infer_space.utils.config_loader import LocationConfigLoader, LocationBounds
-from geo_infer_space.utils.h3_utils import geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
 
 # Import from the new core location
 from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend

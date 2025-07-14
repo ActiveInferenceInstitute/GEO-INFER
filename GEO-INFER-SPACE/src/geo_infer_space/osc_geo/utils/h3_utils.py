@@ -12,7 +12,7 @@ from typing import Dict, List, Union, Any, Optional
 logger = logging.getLogger(__name__)
 
 
-def h3_to_geojson(
+def cell_to_latlngjson(
     h3_indices: List[str],
     properties: Optional[Dict[str, Dict[str, Any]]] = None
 ) -> Dict[str, Any]:
@@ -30,7 +30,7 @@ def h3_to_geojson(
         import h3
     except ImportError:
         logger.error("h3-py package not found. Please install it with 'pip install h3'")
-        raise ImportError("h3-py package required for h3_to_geojson")
+        raise ImportError("h3-py package required for cell_to_latlngjson")
 
     features = []
 

@@ -5,7 +5,7 @@ pandas>=1.3.0
 scipy>=1.7.0
 
 # Geospatial libraries
-h3>=3.7.0
+h3>=4.0.0
 geopandas>=0.12.0
 shapely>=1.8.0
 pyproj>=3.2.0

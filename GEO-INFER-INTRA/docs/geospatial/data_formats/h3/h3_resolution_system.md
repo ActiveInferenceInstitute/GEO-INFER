@@ -129,7 +129,7 @@ This property makes H3 suitable for area-based analyses where approximate unifor
 
 ### Hierarchical Encoding
 
-H3 uses a compact bit representation to encode the hierarchical relationship between cells:
+H3 uses a compact_cells bit representation to encode the hierarchical relationship between cells:
 
 - The base cell is identified by a 7-bit value (0-121)
 - Each subsequent resolution level adds 3 bits to identify which of the 7 children contains the location
@@ -143,7 +143,7 @@ To find the parent of an H3 index at a coarser resolution:
 
 ```python
 # Python example
-parent = h3.h3_to_parent(h3_index, parent_resolution)
+parent = h3.cell_to_parent(h3_index, parent_resolution)
 ```
 
 The parent calculation truncates the 3 bits corresponding to the current resolution, effectively moving up the hierarchy.
@@ -154,7 +154,7 @@ To find all children of an H3 index at a finer resolution:
 
 ```python
 # Python example
-children = h3.h3_to_children(h3_index, child_resolution)
+children = h3.cell_to_children(h3_index, child_resolution)
 ```
 
 For a single resolution step, this produces approximately 7 children. Multiple resolution steps multiply this effect:
@@ -221,26 +221,26 @@ H3 provides several operations that work across different resolution levels:
 
 ### Compaction
 
-The `compact` operation optimizes representation by using the coarsest possible cells to represent a set of hexagons:
+The `compact_cells_cells` operation optimizes representation by using the coarsest possible cells to represent a set of hexagons:
 
 ```python
-# Python example of compaction
+# Python example of compact_cellsion
 detailed_cells = [...]  # Many cells at resolution 9
-compacted_cells = h3.compact(detailed_cells)  # Converts to a mixed-resolution set
+compact_cellsed_cells = h3.compact_cells_cells(detailed_cells)  # Converts to a mixed-resolution set
 ```
 
 This operation can significantly reduce the number of cells needed to represent an area:
 - Before: 10,000 cells at resolution 9
 - After: ~1,500 mixed-resolution cells (resolutions 5-9)
 
-### Uncompaction
+### Uncompact_cellsion
 
-The inverse operation, `uncompact`, expands a mixed-resolution set to a specific uniform resolution:
+The inverse operation, `uncompact_cells_cells`, expands a mixed-resolution set to a specific uniform resolution:
 
 ```python
-# Python example of uncompaction
+# Python example of uncompact_cells_cellsion
 mixed_resolution_cells = [...]  # Cells at various resolutions
-uniform_cells = h3.uncompact(mixed_resolution_cells, 9)  # All at resolution 9
+uniform_cells = h3.uncompact_cells_cells_cells(mixed_resolution_cells, 9)  # All at resolution 9
 ```
 
 ### Resolution-appropriate Analysis
@@ -265,19 +265,19 @@ Uber uses different H3 resolutions to analyze ride demand patterns:
 # 1. Aggregate individual ride requests to resolution 9
 request_density = {}
 for lat, lng in ride_requests:
-    h3_cell = h3.geo_to_h3(lat, lng, 9)
+    h3_cell = h3.latlng_to_cell(lat, lng, 9)
     request_density[h3_cell] = request_density.get(h3_cell, 0) + 1
 
 # 2. Identify high-demand areas at resolution 9
 high_demand_cells = [cell for cell, count in request_density.items() if count > threshold]
 
 # 3. Compact for analytical efficiency
-compacted_high_demand = h3.compact(high_demand_cells)
+compact_cellsed_high_demand = h3.compact_cells_cells(high_demand_cells)
 
 # 4. Visualize at resolution 7 for dashboard
 visualization_cells = {}
 for cell in high_demand_cells:
-    parent = h3.h3_to_parent(cell, 7)
+    parent = h3.cell_to_parent(cell, 7)
     visualization_cells[parent] = visualization_cells.get(parent, 0) + 1
 ```
 
@@ -293,8 +293,8 @@ landcover_r4 = classify_satellite_imagery(resolution=4)
 # 2. Identify forest regions
 forest_cells_r4 = [cell for cell, class_type in landcover_r4.items() if class_type == 'forest']
 
-# 3. Uncompact forest areas to higher resolution for detailed analysis
-forest_cells_r7 = h3.uncompact(forest_cells_r4, 7)
+# 3. Uncompact_cells forest areas to higher resolution for detailed analysis
+forest_cells_r7 = h3.uncompact_cells_cells_cells(forest_cells_r4, 7)
 
 # 4. Analyze forest fragmentation at higher resolution
 fragmentation_metrics = analyze_fragmentation(forest_cells_r7)
@@ -302,7 +302,7 @@ fragmentation_metrics = analyze_fragmentation(forest_cells_r7)
 # 5. Reaggregate metrics to watershed level (resolution 5)
 watershed_metrics = {}
 for cell, metric in fragmentation_metrics.items():
-    watershed = h3.h3_to_parent(cell, 5)
+    watershed = h3.cell_to_parent(cell, 5)
     if watershed not in watershed_metrics:
         watershed_metrics[watershed] = []
     watershed_metrics[watershed].append(metric)
@@ -339,7 +339,7 @@ for gh, value in geohash_data.items():
     lat, lng = geohash_to_latlon(gh)
     # Determine appropriate H3 resolution based on geohash precision
     h3_res = 9 if len(gh) >= 6 else 7
-    h3_cell = h3.geo_to_h3(lat, lng, h3_res)
+    h3_cell = h3.latlng_to_cell(lat, lng, h3_res)
     h3_data[h3_cell] = value
 
 # 3. Perform H3-based analysis
@@ -348,7 +348,7 @@ results = analyze_with_h3(h3_data)
 # 4. Output in S2 format for visualization service
 s2_results = {}
 for h3_cell, result in results.items():
-    lat, lng = h3.h3_to_geo(h3_cell)
+    lat, lng = h3.cell_to_latlng(h3_cell)
     s2_cell = s2sphere.CellId.from_lat_lng(
         s2sphere.LatLng.from_degrees(lat, lng)
     ).parent(15)
@@ -405,7 +405,7 @@ Applications should be aware of pentagon edge cases, especially near icosahedron
 Some operations have resolution limits:
 
 - Maximum resolution: 15
-- Practical compaction limit: ~5 resolution levels at once
+- Practical compact_cellsion limit: ~5 resolution levels at once
 - Memory constraints for very large resolution transitions (e.g., parent(15) → children(15))
 
 ### Area Consistency
@@ -426,7 +426,7 @@ While H3 cells at the same resolution have similar areas, they are not exactly e
 
 ### Multi-resolution Operations
 
-1. **Use compaction**: Whenever representing complex shapes or regions
+1. **Use compact_cellsion**: Whenever representing complex shapes or regions
 2. **Leverage resolution transitions**: Use coarse resolutions for initial filtering, then refine
 3. **Store multi-resolution indices**: For large datasets, store indices at multiple resolutions to avoid recomputation
 4. **Standardize resolution interfaces**: When sharing data between systems, define resolution standards

@@ -10,7 +10,7 @@ import geopandas as gpd
 from shapely.geometry import Polygon, box
 
 from .data_sources import CascadianSurfaceWaterDataSources
-from geo_infer_space.utils.h3_utils import h3_to_geo_boundary
+from geo_infer_space.utils.h3_utils import cell_to_latlng_boundary
 
 logger = logging.getLogger(__name__)
 
@@ -27,7 +27,7 @@ class GeoInferSurfaceWater:
 
     def _get_analysis_bbox(self, target_hexagons: List[str]) -> Tuple[float, float, float, float]:
         """Calculates the total bounding box for a list of H3 hexagons."""
-        polygons = [Polygon(h3_to_geo_boundary(h)) for h in target_hexagons]
+        polygons = [Polygon(cell_to_latlng_boundary(h)) for h in target_hexagons]
         min_lons, min_lats, max_lons, max_lats = [], [], [], []
         for p in polygons:
             min_lon, min_lat, max_lon, max_lat = p.bounds
@@ -56,7 +56,7 @@ class GeoInferSurfaceWater:
             return {hex_id: {'water_body_area_sqkm': 0, 'flowline_length_km': 0} for hex_id in target_hexagons}
 
         # 3. Create a GeoDataFrame for the target hexagons
-        hex_geometries = [Polygon(h3_to_geo_boundary(h)) for h in target_hexagons]
+        hex_geometries = [Polygon(cell_to_latlng_boundary(h)) for h in target_hexagons]
         hex_gdf = gpd.GeoDataFrame(
             {'hex_id': target_hexagons}, 
             geometry=hex_geometries, 

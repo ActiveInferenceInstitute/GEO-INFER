@@ -16,7 +16,7 @@ import io
 import os
 
 from .data_sources import CascadianMortgageDataSources
-from geo_infer_space.utils.h3_utils import h3_to_geojson, geo_to_h3, h3_to_geo, h3_to_geo_boundary, polyfill
+from geo_infer_space.utils.h3_utils import cell_to_latlngjson, latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
 
 logger = logging.getLogger(__name__)
 
@@ -90,7 +90,7 @@ class GeoInferMortgageDebt:
             return {}
             
         # 4. Create a GeoDataFrame for the target hexagons
-        hex_geometries = [Polygon(h3_to_geo_boundary(h)) for h in target_hexagons]
+        hex_geometries = [Polygon(cell_to_latlng_boundary(h)) for h in target_hexagons]
         hex_gdf = gpd.GeoDataFrame(
             {'hex_id': target_hexagons}, 
             geometry=hex_geometries, 

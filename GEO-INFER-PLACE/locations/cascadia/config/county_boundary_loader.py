@@ -3,7 +3,7 @@
 County Boundary Loader for Cascadia Analysis
 
 This utility loads county boundary data from YAML configuration and GeoJSON files,
-providing proper geometry objects for H3 polyfill operations and spatial analysis.
+providing proper geometry objects for H3 polygon_to_cells operations and spatial analysis.
 """
 
 import yaml
@@ -271,7 +271,7 @@ class CountyBoundaryLoader:
         return geometries
     
     def validate_geometry(self, geometry: Polygon) -> bool:
-        """Validate that a geometry is suitable for H3 polyfill"""
+        """Validate that a geometry is suitable for H3 polygon_to_cells"""
         if not geometry.is_valid:
             logger.warning("Geometry is not valid")
             return False

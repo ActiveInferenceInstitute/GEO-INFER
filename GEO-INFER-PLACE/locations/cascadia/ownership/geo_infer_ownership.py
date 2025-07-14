@@ -11,7 +11,7 @@ import geopandas as gpd
 from shapely.geometry import Polygon
 
 from .data_sources import CascadianOwnershipDataSources
-from geo_infer_space.utils.h3_utils import h3_to_geo_boundary
+from geo_infer_space.utils.h3_utils import cell_to_latlng_boundary
 
 logger = logging.getLogger(__name__)
 
@@ -61,7 +61,7 @@ class GeoInferOwnership:
         logger.info(f"Using owner column: '{owner_col}' and area column: '{area_col}'")
 
         # 3. Create a GeoDataFrame for the target hexagons
-        hex_geometries = [Polygon(h3_to_geo_boundary(h)) for h in target_hexagons]
+        hex_geometries = [Polygon(cell_to_latlng_boundary(h)) for h in target_hexagons]
         hex_gdf = gpd.GeoDataFrame(
             {'hex_id': target_hexagons}, 
             geometry=hex_geometries, 

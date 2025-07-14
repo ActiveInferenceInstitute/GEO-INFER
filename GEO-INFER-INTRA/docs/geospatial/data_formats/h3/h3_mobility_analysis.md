@@ -48,7 +48,7 @@ import pandas as pd
 
 def trajectory_to_h3_sequence(points, resolution=9):
     """Convert a sequence of lat/lng points to H3 cell sequence."""
-    h3_cells = [h3.geo_to_h3(lat, lng, resolution) for lat, lng in points]
+    h3_cells = [h3.latlng_to_cell(lat, lng, resolution) for lat, lng in points]
     
     # Remove consecutive duplicates (stationary periods)
     unique_sequence = []
@@ -112,8 +112,8 @@ def aggregate_od_matrix(od_matrix, target_resolution=7):
     aggregated = {}
     
     for (orig, dest), count in od_matrix.items():
-        orig_parent = h3.h3_to_parent(orig, target_resolution)
-        dest_parent = h3.h3_to_parent(dest, target_resolution)
+        orig_parent = h3.cell_to_parent(orig, target_resolution)
+        dest_parent = h3.cell_to_parent(dest, target_resolution)
         od_pair = (orig_parent, dest_parent)
         
         aggregated[od_pair] = aggregated.get(od_pair, 0) + count
@@ -142,8 +142,8 @@ def generate_flow_lines(od_matrix, min_count=10):
             continue
             
         # Get centers of origin and destination cells
-        origin_center = h3.h3_to_geo(origin)
-        dest_center = h3.h3_to_geo(destination)
+        origin_center = h3.cell_to_latlng(origin)
+        dest_center = h3.cell_to_latlng(destination)
         
         # Create line feature
         feature = {
@@ -237,13 +237,13 @@ def calculate_accessibility(population_cells, service_cells, max_distance=3):
             continue
             
         # Get all service cells within max_distance
-        nearby_cells = h3.k_ring(pop_cell, max_distance)
+        nearby_cells = h3.grid_disk(pop_cell, max_distance)
         
         # Calculate accessibility with distance decay
         access_score = 0
         for nearby_cell in nearby_cells:
             if nearby_cell in service_cells:
-                distance = h3.h3_distance(pop_cell, nearby_cell)
+                distance = h3.grid_distance(pop_cell, nearby_cell)
                 # Simple distance decay function (1/d^2)
                 decay_factor = 1.0 / max(1, distance * distance)
                 access_score += service_cells[nearby_cell] * decay_factor
@@ -374,7 +374,7 @@ def analyze_temporal_patterns(trajectory_data, resolution=9):
         hour = row['timestamp'].hour
         lat, lng = row['latitude'], row['longitude']
         vehicle_id = row['vehicle_id']
-        h3_cell = h3.geo_to_h3(lat, lng, resolution)
+        h3_cell = h3.latlng_to_cell(lat, lng, resolution)
         
         # Determine which time period this falls into
         for period, (start, end) in time_bins.items():
@@ -412,7 +412,7 @@ def calculate_dwell_times(trajectory_data, resolution=9):
         cell_times = []
         for _, row in group.iterrows():
             lat, lng = row['latitude'], row['longitude']
-            h3_cell = h3.geo_to_h3(lat, lng, resolution)
+            h3_cell = h3.latlng_to_cell(lat, lng, resolution)
             timestamp = row['timestamp']
             cell_times.append((h3_cell, timestamp))
         
@@ -463,13 +463,13 @@ Uber has leveraged H3 for ride-sharing optimization through several key analyses
        """Calculate supply-demand balance by H3 cell."""
        # Count drivers per cell
        driver_counts = Counter([
-           h3.geo_to_h3(lat, lng, resolution) 
+           h3.latlng_to_cell(lat, lng, resolution) 
            for lat, lng in driver_locations
        ])
        
        # Count ride requests per cell
        request_counts = Counter([
-           h3.geo_to_h3(lat, lng, resolution) 
+           h3.latlng_to_cell(lat, lng, resolution) 
            for lat, lng in rider_requests
        ])
        
@@ -511,7 +511,7 @@ Cities can utilize H3 for transportation planning:
            origin_lat, origin_lng = trip['origin_lat'], trip['origin_lng']
            mode = trip['mode']  # e.g., 'car', 'transit', 'bike', 'walk'
            
-           origin_cell = h3.geo_to_h3(origin_lat, origin_lng, resolution)
+           origin_cell = h3.latlng_to_cell(origin_lat, origin_lng, resolution)
            
            if origin_cell not in mode_counts:
                mode_counts[origin_cell] = Counter()
@@ -548,14 +548,14 @@ Logistics companies use H3 to optimize supply chains:
        """Find optimal warehouse locations using H3-based clustering."""
        # Bin delivery locations into H3 cells
        delivery_cells = Counter([
-           h3.geo_to_h3(lat, lng, resolution) 
+           h3.latlng_to_cell(lat, lng, resolution) 
            for lat, lng in delivery_locations
        ])
        
        # Convert to weighted centroids for clustering
        weighted_points = []
        for cell, count in delivery_cells.items():
-           lat, lng = h3.h3_to_geo(cell)
+           lat, lng = h3.cell_to_latlng(cell)
            for _ in range(count):
                weighted_points.append((lat, lng))
        
@@ -596,7 +596,7 @@ def generate_mobility_features(trajectories, resolution=9):
                 continue
                 
             # Get surrounding context (k-ring)
-            surrounding_cells = h3.k_ring(origin, 1)
+            surrounding_cells = h3.grid_disk(origin, 1)
             
             # Count transitions to each neighbor
             transitions = Counter(h3_sequence[i+1] for i in range(len(h3_sequence)-1) 
@@ -635,7 +635,7 @@ def prepare_st_model_data(trajectory_data, resolution=9, time_steps=3):
     
     for timestamp, group in trajectory_data.groupby(pd.Grouper(key='timestamp', freq='1H')):
         cell_counts = Counter([
-            h3.geo_to_h3(row['latitude'], row['longitude'], resolution)
+            h3.latlng_to_cell(row['latitude'], row['longitude'], resolution)
             for _, row in group.iterrows()
         ])
         time_binned_data[timestamp] = cell_counts
@@ -663,7 +663,7 @@ def prepare_st_model_data(trajectory_data, resolution=9, time_steps=3):
             y = sequence[i+time_steps]
             
             # Add spatial context from neighbors
-            neighbors = h3.k_ring(cell, 1) - {cell}
+            neighbors = h3.grid_disk(cell, 1) - {cell}
             neighbor_features = []
             
             for neighbor in neighbors:
@@ -712,7 +712,7 @@ def create_mobility_graph(trajectories):
     
     for cell in all_cells:
         # Add node with geographic properties
-        lat, lng = h3.h3_to_geo(cell)
+        lat, lng = h3.cell_to_latlng(cell)
         G.add_node(cell, latitude=lat, longitude=lng)
     
     # Add edges with weights
@@ -759,7 +759,7 @@ Efficient mobility data pipelines with H3:
 
 2. **Processing**
    - Use hierarchical aggregation for scalable processing
-   - Leverage H3's compaction capabilities for storage efficiency
+   - Leverage H3's compact_cellsion capabilities for storage efficiency
    - Process at the finest resolution needed, then aggregate as required
 
 3. **Analysis**
@@ -787,7 +787,7 @@ Techniques for optimizing H3-based mobility analysis:
    - Implement locality-aware processing to leverage spatial coherence
 
 3. **Approximation Techniques**
-   - Use compacted representations for large spatial extents
+   - Use compact_cellsed representations for large spatial extents
    - Implement progressive refinement for interactive applications
    - Consider statistical sampling for massive trajectory datasets
 

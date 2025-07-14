@@ -820,7 +820,7 @@ graph TD
 | Layout issues (overlapping elements) | Inadequate layout algorithm for the ontology structure | Try different layout algorithms, adjust layout parameters, implement custom layout |
 | Missing relationships | Filtering settings excluding certain relation types | Check filter settings, ensure all relevant relation types are included |
 | Inconsistent visual appearance | Theme configuration issues, CSS conflicts | Review theme configuration, check for CSS conflicts, use scoped styles |
-| Browser compatibility issues | Different browser rendering engines | Test across browsers, use polyfills, implement graceful degradation |
+| Browser compatibility issues | Different browser rendering engines | Test across browsers, use polygon_to_cellss, implement graceful degradation |
 
 ### Performance Optimization Techniques
 

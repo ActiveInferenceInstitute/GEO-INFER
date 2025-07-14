@@ -201,13 +201,13 @@ class SpatialGenerativeModel:
             Dictionary of H3 indices with prior probabilities
         """
         # Get hexagons within radius
-        center_hex = h3.geo_to_h3(center_lat, center_lon, self.resolution)
-        hexagons = h3.k_ring(center_hex, int(radius_km / h3.edge_length(self.resolution)))
+        center_hex = h3.latlng_to_cell(center_lat, center_lon, self.resolution)
+        hexagons = h3.grid_disk(center_hex, int(radius_km / h3.edge_length(self.resolution)))
         
         # Initialize priors with distance-based falloff
         priors = {}
         for hex_id in hexagons:
-            hex_center = h3.h3_to_geo(hex_id)
+            hex_center = h3.cell_to_latlng(hex_id)
             distance = self._haversine(center_lat, center_lon, hex_center[0], hex_center[1])
             priors[hex_id] = np.exp(-distance / radius_km)
             

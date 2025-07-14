@@ -32,8 +32,8 @@ import pandas as pd
 # Optional dependencies (graceful degradation if not available)
 try:
     from geo_infer_space.osc_geo.utils.h3_utils import (
-        h3_to_geojson, geojson_to_h3, get_h3_neighbors, 
-        h3_distance, h3_resolution_stats
+        cell_to_latlngjson, geojson_to_h3, get_h3_neighbors, 
+        grid_distance, h3_resolution_stats
     )
     from geo_infer_space.osc_geo.utils.spatial_operations import (
         SpatialOperations, CoordinateTransform
@@ -87,7 +87,7 @@ class SensorMeasurement:
     def __post_init__(self):
         """Automatically compute H3 index from coordinates."""
         if self.h3_index is None and self.latitude and self.longitude:
-            self.h3_index = h3.geo_to_h3(
+            self.h3_index = h3.latlng_to_cell(
                 self.latitude, self.longitude, self.h3_resolution
             )
 
@@ -225,7 +225,7 @@ class IoTDataIngestion:
         """Add H3 spatial index to measurement and integrate with OSC methods."""
         # Basic H3 indexing
         if not measurement.h3_index:
-            measurement.h3_index = h3.geo_to_h3(
+            measurement.h3_index = h3.latlng_to_cell(
                 measurement.latitude, measurement.longitude, measurement.h3_resolution
             )
         
@@ -381,13 +381,13 @@ class IoTDataIngestion:
                 h3_cells.update(neighbors)
             else:
                 # Use basic H3 neighbor function
-                neighbors = h3.k_ring(h3_index, 2)
+                neighbors = h3.grid_disk(h3_index, 2)
                 h3_cells.update(neighbors)
         
         # Convert H3 cells to coordinates
         grid_coords = []
         for h3_index in h3_cells:
-            lat, lon = h3.h3_to_geo(h3_index)
+            lat, lon = h3.cell_to_latlng(h3_index)
             
             if HAS_GEO_SPACE:
                 x, y = self.coord_transform.latlon_to_meters(lat, lon)

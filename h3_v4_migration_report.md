@@ -1,0 +1,312 @@
+# GEO-INFER Framework H3 v3 to v4 Migration Report
+============================================================
+Generated: Mon Jul 14 06:56:23 PDT 2025
+
+## Changes Made
+Total files updated: 253
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SEC/requirements.txt
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/requirements.txt
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/del_norte_county/requirements_advanced.txt
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/requirements.txt
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-EXAMPLES/examples/iot_radiation_monitoring/requirements.txt
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3grid-srv/requirements.txt
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/examples/del_norte_county_demo.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/core/unified_backend.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/locations/del_norte_county/advanced_dashboard.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/cascadia_main.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/ground_water/geo_infer_ground_water.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/ground_water/data_sources.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/surface_water/geo_infer_surface_water.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundary_loader.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/improvements/data_sources.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/improvements/geo_infer_improvements.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/water_rights/geo_infer_water_rights.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/water_rights/data_sources.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/mortgage_debt/geo_infer_mortgage_debt.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/ownership/data_sources.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/ownership/geo_infer_ownership.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/power_source/geo_infer_power_source.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/power_source/data_sources.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/data_sources.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-EXAMPLES/examples/iot_radiation_monitoring/scripts/run_example.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/h3_v4_framework_upgrade.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/test_osc_geo.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/h3_v3_to_v4_upgrade.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/place_analyzer.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/examples/h3_geospatial_demo.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/examples/california_multilayer_demo.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/examples/osc_geo_example.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/core/unified_backend.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/h3_utils.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pip/_vendor/rich/progress.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pip/_vendor/pygments/lexers/_mapping.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pip/_internal/req/req_uninstall.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/src/shape/shape.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/src/cli/visualizer.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/src/loader/aggregation_step.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/src/loader/abstract_loader.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/src/loader/index_loader.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/src/loader/interpolator.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/src/geoserver/geomesh.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/cligj/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/shapely/io.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/h3/_h3shape.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/jinja2/ext.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pydantic/main.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/_pytest/terminal.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pandas/tests/window/test_cython_aggregations.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pandas/tests/io/sas/test_sas7bdat.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pandas/core/arrays/categorical.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pandas/core/arrays/datetimelike.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pandas/core/indexes/range.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/linalg/interpolative.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/linalg/_decomp_ldl.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/linalg/_basic.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/linalg/_special_matrices.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/differentiate/_differentiate.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/spatial/_kdtree.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/signal/_spectral_py.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/signal/_savitzky_golay.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/signal/_short_time_fft.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/stats/_multivariate.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/stats/_survival.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/stats/_stats_py.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/stats/tests/test_continuous.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/stats/tests/test_hypotests.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/spatial/tests/test_kdtree.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/sparse/linalg/_interface.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/scipy/interpolate/tests/test_ndgriddata.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/xarray/backends/zarr.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/duckdb/experimental/spark/sql/functions.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pip/_vendor/rich/progress.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pip/_vendor/pygments/lexers/_mapping.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pip/_internal/req/req_uninstall.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/numpy/lib/_npyio_impl.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/h3/_cy/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/h3/api/memview_int/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/h3/api/basic_str/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/h3/api/numpy_int/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/h3/api/basic_int/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pygments/lexers/configs.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pygments/lexers/idl.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pygments/lexers/rnc.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pygments/lexers/_php_builtins.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pygments/lexers/css.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pygments/lexers/_mapping.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pygments/lexers/_mysql_builtins.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/pygments/lexers/macaulay2.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/rasterio/rio/gcps.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/rasterio/rio/shapes.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/rasterio/rio/blocks.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/rasterio/rio/bounds.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/fiona/fio/collect.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/fiona/fio/cat.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/venv/lib/python3.13/site-packages/fiona/fio/dump.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/test/load_pipeline/test_loading_pipeline.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/test/parquet_loader/test_parquet_loader.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/test/csvloader/test_csvloader.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/build/lib/geo_infer_space/osc_geo/utils/h3_utils.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/build/lib/geo_infer_space/osc_geo/utils/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/build/lib/geo_infer_space/osc_geo/utils/visualization.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/src/shape/shape.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/src/geoserver/geomesh.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/cligj/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/shapely/io.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/h3/_h3shape.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/jinja2/ext.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pydantic/main.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/git/config.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/_pytest/terminal.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pyarrow/parquet/core.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pandas/tests/window/test_cython_aggregations.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pandas/tests/io/sas/test_sas7bdat.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pandas/core/arrays/categorical.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pandas/core/arrays/datetimelike.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pandas/core/indexes/range.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/linalg/interpolative.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/linalg/_decomp_ldl.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/linalg/_basic.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/linalg/_special_matrices.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/differentiate/_differentiate.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/spatial/_kdtree.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/signal/_spectral_py.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/signal/_savitzky_golay.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/signal/_short_time_fft.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/stats/_multivariate.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/stats/_survival.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/stats/_stats_py.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/stats/tests/test_continuous.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/stats/tests/test_hypotests.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/spatial/tests/test_kdtree.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/sparse/linalg/_interface.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/scipy/interpolate/tests/test_ndgriddata.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/xarray/backends/zarr.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/duckdb/experimental/spark/sql/functions.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pip/_vendor/rich/progress.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pip/_vendor/pygments/lexers/_mapping.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pip/_internal/req/req_uninstall.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/numpy/lib/_npyio_impl.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/h3/_cy/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/h3/api/memview_int/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/h3/api/basic_str/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/h3/api/numpy_int/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/h3/api/basic_int/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pygments/lexers/configs.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pygments/lexers/idl.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pygments/lexers/rnc.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pygments/lexers/_php_builtins.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pygments/lexers/css.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pygments/lexers/_mapping.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pygments/lexers/_mysql_builtins.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/pygments/lexers/macaulay2.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/rasterio/rio/gcps.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/rasterio/rio/shapes.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/rasterio/rio/blocks.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/rasterio/rio/bounds.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/fiona/fio/collect.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/fiona/fio/cat.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/venv/lib/python3.13/site-packages/fiona/fio/dump.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/cligj/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/shapely/io.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/h3/_h3shape.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/jinja2/ext.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/plotly/basedatatypes.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/matplotlib/dates.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pydantic/main.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/git/config.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/_pytest/terminal.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pandas/tests/window/test_cython_aggregations.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pandas/tests/io/sas/test_sas7bdat.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pandas/core/arrays/categorical.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pandas/core/arrays/datetimelike.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pandas/core/indexes/range.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/duckdb/experimental/spark/sql/functions.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/matplotlib/axes/_axes.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/matplotlib/tests/test_ft2font.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/matplotlib/tests/test_colors.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pip/_vendor/rich/progress.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pip/_vendor/pygments/lexers/_mapping.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pip/_internal/req/req_uninstall.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/numpy/lib/_npyio_impl.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/plotly/io/_json.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/fontTools/misc/roundTools.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/fontTools/config/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/fontTools/varLib/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/fontTools/varLib/merger.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/fontTools/otlLib/builder.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/fontTools/ttLib/woff2.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/fontTools/ttLib/tables/TupleVariation.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/fontTools/ttLib/tables/otTables.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/fontTools/ttLib/tables/_g_l_y_f.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/fontTools/ttLib/tables/ttProgram.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/fontTools/otlLib/optimize/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/fontTools/otlLib/optimize/gpos.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/seaborn/_core/scales.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/h3/_cy/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/h3/api/memview_int/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/h3/api/basic_str/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/h3/api/numpy_int/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/h3/api/basic_int/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pygments/lexers/configs.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pygments/lexers/idl.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pygments/lexers/rnc.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pygments/lexers/_php_builtins.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pygments/lexers/css.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pygments/lexers/_mapping.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pygments/lexers/_mysql_builtins.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/pygments/lexers/macaulay2.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/rasterio/rio/gcps.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/rasterio/rio/shapes.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/rasterio/rio/blocks.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/geo_infer_space_env/lib/python3.13/site-packages/rasterio/rio/bounds.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-TEST/src/geo_infer_test/__init__.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SEC/src/geo_infer_sec/core/anonymization.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AG/src/geo_infer_ag/models/soil_health.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-IOT/examples/soil_sensor_network.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-IOT/examples/radiation_surveillance.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-IOT/src/geo_infer_iot/core/ingestion.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-IOT/src/geo_infer_iot/core/registry.py
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-MATH/README.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/README.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/README.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/research_documents/cascadian_agricultural_data_modules_overview.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-EXAMPLES/examples/iot_radiation_monitoring/README.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/docs/H3_INTEGRATION_SCHEMA.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/docs/README.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/docs/OSC_COMPREHENSIVE_GUIDE.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli/README.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3grid-srv/README.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv/README.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/active_inference_guide.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/terminology.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial_standards.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/ontology/visualization.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial/data_formats/h3/h3_programming_interfaces.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial/data_formats/h3/h3_performance_optimization.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial/data_formats/h3/h3_mobility_analysis.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial/data_formats/h3/h3_api_reference.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial/data_formats/h3/h3_report.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial/data_formats/h3/h3_use_cases.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial/data_formats/h3/index.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial/data_formats/h3/h3_spatial_analysis.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial/data_formats/h3/h3_comparative_analysis.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial/data_formats/h3/h3_code_examples.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial/data_formats/h3/h3_visualization_techniques.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial/data_formats/h3/h3_resolution_system.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial/data_formats/h3/h3_database_integration.md
+- Updated /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-INTRA/docs/geospatial/data_formats/os-climate/os_climate_integration.md
+
+## Remaining H3 v3 Usage (Manual Review Required)
+- /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/h3_v4_framework_upgrade.py:44 - 'h3.compact_cells_cells': 'h3.compact_cells_cells_cells',
+- /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/h3_v4_framework_upgrade.py:45 - 'h3.uncompact_cells_cells_cells': 'h3.uncompact_cells_cells_cells_cells',
+
+## Migration Summary
+### Function Mappings Applied:
+- `h3.geo_to_h3` → `h3.latlng_to_cell`
+- `h3.h3_to_geo` → `h3.cell_to_latlng`
+- `h3.h3_to_geo_boundary` → `h3.cell_to_boundary`
+- `h3.polyfill` → `h3.polygon_to_cells`
+- `h3.h3_set_to_multi_polygon` → `h3.cells_to_h3shape`
+- `h3.h3_distance` → `h3.grid_distance`
+- `h3.h3_range` → `h3.grid_disk`
+- `h3.k_ring` → `h3.grid_disk`
+- `h3.k_ring_distances` → `h3.grid_ring_unsafe`
+- `h3.hex_ring` → `h3.grid_ring_unsafe`
+- `h3.h3_line` → `h3.grid_path_cells`
+- `h3.h3_get_resolution` → `h3.get_resolution`
+- `h3.h3_get_base_cell` → `h3.get_base_cell_number`
+- `h3.h3_is_valid` → `h3.is_valid_cell`
+- `h3.h3_is_res_class_iii` → `h3.is_res_class_iii`
+- `h3.h3_is_pentagon` → `h3.is_pentagon`
+- `h3.h3_get_faces` → `h3.get_icosahedron_faces`
+- `h3.compact` → `h3.compact_cells`
+- `h3.uncompact` → `h3.uncompact_cells`
+- `h3.h3_to_parent` → `h3.cell_to_parent`
+- `h3.h3_to_children` → `h3.cell_to_children`
+- `h3.h3_to_center_child` → `h3.cell_to_center_child`
+- `h3.h3_indexes_are_neighbors` → `h3.are_neighbor_cells`
+- `h3.get_h3_unidirectional_edge` → `h3.cells_to_directed_edge`
+- `h3.h3_unidirectional_edge_is_valid` → `h3.is_valid_directed_edge`
+- `h3.get_origin_h3_index_from_unidirectional_edge` → `h3.get_directed_edge_origin`
+- `h3.get_destination_h3_index_from_unidirectional_edge` → `h3.get_directed_edge_destination`
+- `h3.get_h3_indexes_from_unidirectional_edge` → `h3.directed_edge_to_cells`
+- `h3.get_h3_unidirectional_edges_from_hexagon` → `h3.origin_to_directed_edges`
+- `h3.get_h3_unidirectional_edge_boundary` → `h3.directed_edge_to_boundary`
+- `geo_to_h3` → `latlng_to_cell`
+- `h3_to_geo` → `cell_to_latlng`
+- `h3_to_geo_boundary` → `cell_to_boundary`
+- `polyfill` → `polygon_to_cells`
+- `k_ring` → `grid_disk`
+- `h3_get_resolution` → `get_resolution`
+- `h3_distance` → `grid_distance`
+- `compact` → `compact_cells`
+- `uncompact` → `uncompact_cells`
+
+### Next Steps:
+1. Run comprehensive tests to verify migration
+2. Update virtual environments with H3 v4: `pip install h3>=4.0.0`
+3. Review any remaining manual issues listed above
+4. Update CI/CD pipelines to use H3 v4
+5. Update project documentation
