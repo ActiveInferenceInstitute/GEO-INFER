@@ -6,7 +6,9 @@ from geo_infer_space.core.place_analyzer import PlaceAnalyzer
 from geo_infer_space.core.spatial_processor import SpatialProcessor
 import shutil
 from shapely.geometry import Point
+import pytest
 
+@pytest.mark.spatial
 class TestPlaceAnalyzer(unittest.TestCase):
     def setUp(self):
         self.temp_dir = Path('temp_place_data')

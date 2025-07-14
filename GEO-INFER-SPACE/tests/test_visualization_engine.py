@@ -1,7 +1,9 @@
 import unittest
 from pathlib import Path
+import pytest
 from geo_infer_space.core.visualization_engine import InteractiveVisualizationEngine
 
+@pytest.mark.reporting
 class TestInteractiveVisualizationEngine(unittest.TestCase):
     def setUp(self):
         self.config = {'location': {'bounds': {'north': 42, 'south': 41, 'east': -123, 'west': -125}}}

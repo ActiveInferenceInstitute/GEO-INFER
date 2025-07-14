@@ -5,6 +5,7 @@ from geo_infer_space.core.unified_backend import UnifiedH3Backend
 import tempfile
 import shutil
 
+@pytest.mark.core
 def test_backend_init():
     """Test UnifiedH3Backend initialization with real parameters."""
     temp_config_dir = Path('config')
@@ -27,6 +28,7 @@ def test_backend_init():
     assert isinstance(backend.base_data_dir, Path)
     shutil.rmtree(temp_config_dir)
 
+@pytest.mark.core
 def test_calculate_scores():
     """Test score calculation with real small data."""
     temp_config_dir = Path('config')

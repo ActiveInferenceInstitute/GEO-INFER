@@ -7,6 +7,7 @@ Using docxology forks of OS-Climate repos.
 import sys
 import os
 from pathlib import Path
+import pytest
 import matplotlib
 matplotlib.use('Agg')
 
@@ -14,6 +15,7 @@ matplotlib.use('Agg')
 src_dir = Path(__file__).parent / "src"
 sys.path.insert(0, str(src_dir.resolve()))
 
+@pytest.mark.reporting
 def test_enhanced_reporting():
     """Test the enhanced reporting functionality."""
     print("=== Testing Enhanced OSC Reporting with Visualizations ===\n")
@@ -66,6 +68,7 @@ def test_enhanced_reporting():
         traceback.print_exc()
         assert False, f"Test error: {e}"
 
+@pytest.mark.reporting
 def test_basic_status():
     """Test basic status checking functionality."""
     print("\n=== Testing Basic Status Functionality ===\n")

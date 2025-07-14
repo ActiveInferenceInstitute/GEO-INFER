@@ -5,7 +5,9 @@ import geopandas as gpd
 from shapely.geometry import Point
 from geo_infer_space.core.data_integrator import DataIntegrator
 import pandas as pd
+import pytest
 
+@pytest.mark.spatial
 class TestDataIntegrator(unittest.TestCase):
     def setUp(self):
         self.temp_dir = Path('temp_test_data')

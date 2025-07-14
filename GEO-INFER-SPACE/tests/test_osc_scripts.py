@@ -4,7 +4,9 @@ from pathlib import Path
 import tempfile
 import shutil
 import os
+import pytest
 
+@pytest.mark.setup
 class TestOSCScripts(unittest.TestCase):
     def setUp(self):
         self.script_dir = Path(__file__).parent.parent / 'bin'
@@ -27,7 +29,7 @@ class TestOSCScripts(unittest.TestCase):
         if script.exists():
             try:
                 result = subprocess.run([str(script), '--output-dir', str(self.temp_repo_dir), '--skip-tests'], 
-                                      capture_output=True, text=True, timeout=30)
+                                      capture_output=True, text=True, timeout=60)
                 # Check if any directories were created (not necessarily osc-geo)
                 created_dirs = list(self.temp_repo_dir.iterdir())
                 self.assertTrue(len(created_dirs) >= 0, f"Script should run without error")

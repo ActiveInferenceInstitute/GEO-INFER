@@ -9,6 +9,7 @@ import shutil
 from geo_infer_space.osc_geo import H3GridManager, H3DataLoader, load_data_to_h3_grid
 from geo_infer_space.osc_geo.utils.h3_utils import h3_to_geojson, geojson_to_h3
 
+@pytest.mark.setup
 @pytest.mark.integration
 def test_clone_repos(tmp_path):
     """Test cloning of OSC repos into temp path."""
@@ -16,12 +17,14 @@ def test_clone_repos(tmp_path):
     assert success
     assert len(list(tmp_path.iterdir())) > 0  # Check repos were cloned
 
+@pytest.mark.setup
 def test_check_status():
     """Test status checking returns dict."""
     status = check_repo_status()
     assert isinstance(status, dict)
     assert 'repositories' in status 
 
+@pytest.mark.setup
 @pytest.mark.integration
 def test_h3_grid_manager():
     """
@@ -37,6 +40,7 @@ def test_h3_grid_manager():
     except Exception as e:
         raise AssertionError(f"H3GridManager not available or failed: {e}")
 
+@pytest.mark.setup
 @pytest.mark.integration
 def test_h3_data_loader(tmp_path):
     """
@@ -64,6 +68,7 @@ def test_h3_data_loader(tmp_path):
     except Exception as e:
         raise AssertionError(f"H3DataLoader not available or failed: {e}")
 
+@pytest.mark.setup
 @pytest.mark.integration
 def test_load_data_to_h3_grid(tmp_path):
     """
@@ -90,6 +95,7 @@ def test_load_data_to_h3_grid(tmp_path):
     except Exception as e:
         raise AssertionError(f"load_data_to_h3_grid not available or failed: {e}")
 
+@pytest.mark.setup
 @pytest.mark.unit
 def test_h3_to_geojson():
     """Test H3 to GeoJSON conversion."""
@@ -100,6 +106,7 @@ def test_h3_to_geojson():
     assert len(geojson['features']) == 1
     assert 'h3_index' in geojson['features'][0]['properties']
 
+@pytest.mark.setup
 @pytest.mark.unit
 def test_geojson_to_h3():
     """Test GeoJSON to H3 conversion."""

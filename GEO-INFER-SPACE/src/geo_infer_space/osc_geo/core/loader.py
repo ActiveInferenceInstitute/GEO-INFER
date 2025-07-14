@@ -232,14 +232,18 @@ class H3DataLoader:
                     f"from cli.cliexec_load import CliExecLoad; loader = CliExecLoad(); loader.load('{config_path}')"
                 ]
             
-            # Run the command
-            process = subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=False,
-                env=env
-            )
+                # Run the command
+                try:
+                    process = subprocess.run(
+                        cmd,
+                        stdout=subprocess.PIPE,
+                        stderr=subprocess.PIPE,
+                        check=False,
+                        env=env
+                    )
+                except Exception as e:
+                    logger.error(f"Error running OSC CLI: {e}")
+                    return False
             except Exception as e:
                 logger.error(f"Error converting GeoJSON to CSV or creating config: {e}")
                 return False
@@ -297,14 +301,14 @@ class H3DataLoader:
             
             # Run the command with timeout to prevent hanging
             try:
-            process = subprocess.run(
-                cmd,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                check=False,
+                process = subprocess.run(
+                    cmd,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    check=False,
                     env=env,
                     timeout=300  # 5 minute timeout
-            )
+                )
             except subprocess.TimeoutExpired:
                 logger.error(f"OSC H3 loader timed out after 5 minutes")
                 return False

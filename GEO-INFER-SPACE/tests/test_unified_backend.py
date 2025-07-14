@@ -7,6 +7,7 @@ from geo_infer_space.core.base_module import BaseAnalysisModule
 import tempfile
 import shutil
 import json
+import pytest
 
 class MockModule(BaseAnalysisModule):
     def acquire_raw_data(self) -> Path:
@@ -18,6 +19,7 @@ class MockModule(BaseAnalysisModule):
     def run_final_analysis(self, h3_data: dict) -> dict:
         return {'mock_hex': {'value': 42}}
 
+@pytest.mark.core
 class TestUnifiedH3Backend(unittest.TestCase):
     def setUp(self):
         self.temp_config_dir = Path('config')

@@ -7,6 +7,7 @@ from geo_infer_space.core.spatial_processor import SpatialProcessor
 def sample_processor():
     return SpatialProcessor()
 
+@pytest.mark.spatial
 def test_buffer_analysis(sample_processor):
     """Test buffer creation with real points."""
     gdf = gpd.GeoDataFrame(geometry=[Point(0, 0), Point(1, 1)])
@@ -14,6 +15,7 @@ def test_buffer_analysis(sample_processor):
     assert len(buffered) == 2
     assert all(buffered.geometry.area > 0)
 
+@pytest.mark.spatial
 def test_proximity_analysis(sample_processor):
     """Test proximity calculation with real geometries."""
     gdf1 = gpd.GeoDataFrame(geometry=[Point(0, 0)])
@@ -22,6 +24,7 @@ def test_proximity_analysis(sample_processor):
     assert 'min_distance' in result
     assert result['min_distance'] > 0
 
+@pytest.mark.spatial
 def test_buffer_analysis_empty():
     """Test buffer with empty input."""
     processor = SpatialProcessor()

@@ -2,6 +2,7 @@ import unittest
 from pathlib import Path
 import json
 import shutil
+import pytest
 from geo_infer_space.core.base_module import BaseAnalysisModule
 from geo_infer_space.core.unified_backend import UnifiedH3Backend
 
@@ -12,6 +13,7 @@ class ConcreteModule(BaseAnalysisModule):
     def run_final_analysis(self, h3_data: dict) -> dict:
         return {'test_hex': {'value': 1}}
 
+@pytest.mark.core
 class TestBaseAnalysisModule(unittest.TestCase):
     def setUp(self):
         self.temp_config_dir = Path('config')
