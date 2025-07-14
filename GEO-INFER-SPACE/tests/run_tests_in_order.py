@@ -27,7 +27,8 @@ def run_test_category(category, verbose=False):
         "python", "-m", "pytest", 
         f"-m", category,
         "--tb=short",
-        "--durations=10"
+        "--durations=10",
+        "--maxfail=5"    # Stop after 5 failures
     ]
     
     if verbose:
@@ -37,8 +38,11 @@ def run_test_category(category, verbose=False):
     print()
     
     try:
-        result = subprocess.run(cmd, cwd=Path(__file__).parent, check=False)
+        result = subprocess.run(cmd, cwd=Path(__file__).parent, check=False, timeout=600)  # 10 minutes
         return result.returncode == 0
+    except subprocess.TimeoutExpired:
+        print(f"❌ {category.upper()} tests timed out after 10 minutes")
+        return False
     except Exception as e:
         print(f"❌ Error running {category} tests: {e}")
         return False
@@ -48,13 +52,20 @@ def run_all_tests(verbose=False):
     print("🚀 GEO-INFER-SPACE Test Suite (ALL TESTS)")
     print("="*60)
     cmd = [
-        "python", "-m", "pytest", "-v" if verbose else None, "--tb=short", "--durations=10"
+        "python", "-m", "pytest", 
+        "-v" if verbose else None, 
+        "--tb=short", 
+        "--durations=10",
+        "--maxfail=10"   # Stop after 10 failures
     ]
     cmd = [c for c in cmd if c]
     print(f"Command: {' '.join(cmd)}")
     try:
-        result = subprocess.run(cmd, cwd=Path(__file__).parent, check=False)
+        result = subprocess.run(cmd, cwd=Path(__file__).parent, check=False, timeout=900)  # 15 minutes
         return result.returncode == 0
+    except subprocess.TimeoutExpired:
+        print("❌ All tests timed out after 15 minutes")
+        return False
     except Exception as e:
         print(f"❌ Error running all tests: {e}")
         return False
