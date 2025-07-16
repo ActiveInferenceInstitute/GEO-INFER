@@ -425,6 +425,13 @@ python examples/generate_geospatial_webapp.py
 - Multi-scale ecological studies
 - Interdisciplinary research
 
+## References
+
+1. Friston, K. (2010). The free-energy principle: a unified brain theory? Nature Reviews Neuroscience, 11(2), 127-138.
+2. Friston, K., et al. (2017). Active inference: a process theory. Neural Computation, 29(1), 1-49.
+3. Parr, T., & Friston, K. J. (2019). Generalised free energy and active inference. Biological Cybernetics, 113(5), 495-513.
+4. Rao, D., et al. (2022). Synthetic Spatial Foraging With Active Inference in a Geocaching Task. Frontiers in Psychology. https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2022.809296/full
+
 ## Project Structure 📂
 
 Each module generally follows this standardized structure, though some may include additional directories specific to their domain or function (e.g., `etl/`, `storage/`, `repos/`).

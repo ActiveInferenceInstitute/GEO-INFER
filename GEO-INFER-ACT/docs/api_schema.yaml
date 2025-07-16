@@ -1,0 +1,953 @@
+openapi: 3.0.3
+info:
+  title: GEO-INFER-ACT API
+  description: |
+    Comprehensive API for Active Inference modeling in geospatial systems.
+    
+    This API provides access to state-of-the-art Active Inference algorithms,
+    hierarchical modeling capabilities, and integration with modern probabilistic
+    programming frameworks. Based on the latest research from the Active Inference
+    Institute and peer-reviewed literature.
+    
+    ## Key Features
+    - Hierarchical Active Inference with Markov blankets
+    - Integration with RxInfer, Bayeux, and other modern tools
+    - Spatial-temporal modeling for geospatial applications
+    - Multi-agent coordination and complex systems modeling
+    - Real-time belief updating and policy selection
+    
+    ## Mathematical Foundation
+    Built on the Free Energy Principle and implements cutting-edge algorithms
+    including variational message passing, constrained Bethe free energy,
+    and neural field extensions.
+  version: "0.2.0"
+  contact:
+    name: "GEO-INFER Team"
+    email: "blanket@activeinference.institute"
+  license:
+    name: "CC BY-ND-SA 4.0"
+    url: "https://creativecommons.org/licenses/by-nd-sa/4.0/"
+
+servers:
+  - url: https://api.geo-infer-act.org/v1
+    description: Production server
+  - url: http://localhost:8000/v1
+    description: Development server
+
+security:
+  - ApiKeyAuth: []
+
+paths:
+  /models:
+    post:
+      summary: Create a new Active Inference model
+      description: |
+        Create a new Active Inference model with specified type and parameters.
+        Supports categorical, Gaussian, hierarchical, and hybrid models.
+      operationId: createModel
+      tags:
+        - Models
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelCreationRequest'
+            examples:
+              categorical_model:
+                summary: Simple categorical model
+                value:
+                  model_id: "eco_niche_001"
+                  model_type: "categorical"
+                  parameters:
+                    state_dim: 5
+                    obs_dim: 3
+                    prior_precision: 2.0
+                    hierarchical: false
+              hierarchical_model:
+                summary: Hierarchical Gaussian model
+                value:
+                  model_id: "urban_planning_001"
+                  model_type: "hierarchical_gaussian"
+                  parameters:
+                    levels: 3
+                    state_dims: [10, 5, 2]
+                    obs_dims: [8, 4, 2]
+                    temporal_scales: [1.0, 5.0, 25.0]
+                    spatial_resolution: 0.1
+      responses:
+        '201':
+          description: Model created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Model ID already exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    get:
+      summary: List all models
+      description: Retrieve a list of all active inference models
+      operationId: listModels
+      tags:
+        - Models
+      parameters:
+        - name: model_type
+          in: query
+          description: Filter by model type
+          schema:
+            type: string
+            enum: [categorical, gaussian, hierarchical, spatial_temporal]
+        - name: status
+          in: query
+          description: Filter by model status
+          schema:
+            type: string
+            enum: [active, training, converged, error]
+      responses:
+        '200':
+          description: List of models
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  models:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/ModelSummary'
+                  total:
+                    type: integer
+                    description: Total number of models
+
+  /models/{model_id}:
+    get:
+      summary: Get model details
+      description: Retrieve detailed information about a specific model
+      operationId: getModel
+      tags:
+        - Models
+      parameters:
+        - $ref: '#/components/parameters/ModelId'
+      responses:
+        '200':
+          description: Model details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    put:
+      summary: Update model parameters
+      description: Update model parameters or configuration
+      operationId: updateModel
+      tags:
+        - Models
+      parameters:
+        - $ref: '#/components/parameters/ModelId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ModelUpdateRequest'
+      responses:
+        '200':
+          description: Model updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ModelResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+    delete:
+      summary: Delete model
+      description: Delete a model and all associated data
+      operationId: deleteModel
+      tags:
+        - Models
+      parameters:
+        - $ref: '#/components/parameters/ModelId'
+      responses:
+        '204':
+          description: Model deleted successfully
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /models/{model_id}/beliefs:
+    post:
+      summary: Update beliefs
+      description: |
+        Update model beliefs based on new observations using variational
+        inference or message passing algorithms
+      operationId: updateBeliefs
+      tags:
+        - Inference
+      parameters:
+        - $ref: '#/components/parameters/ModelId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BeliefUpdateRequest'
+      responses:
+        '200':
+          description: Beliefs updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BeliefResponse'
+
+    get:
+      summary: Get current beliefs
+      description: Retrieve current belief distributions
+      operationId: getBeliefs
+      tags:
+        - Inference
+      parameters:
+        - $ref: '#/components/parameters/ModelId'
+      responses:
+        '200':
+          description: Current beliefs
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BeliefResponse'
+
+  /models/{model_id}/policies:
+    post:
+      summary: Select optimal policy
+      description: |
+        Select optimal policy using expected free energy minimization.
+        Supports epistemic and pragmatic value balancing.
+      operationId: selectPolicy
+      tags:
+        - Policies
+      parameters:
+        - $ref: '#/components/parameters/ModelId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PolicySelectionRequest'
+      responses:
+        '200':
+          description: Optimal policy selected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PolicyResponse'
+
+  /models/{model_id}/free_energy:
+    get:
+      summary: Compute free energy
+      description: Compute current variational free energy of the model
+      operationId: computeFreeEnergy
+      tags:
+        - Metrics
+      parameters:
+        - $ref: '#/components/parameters/ModelId'
+        - name: decompose
+          in: query
+          description: Return decomposed free energy terms
+          schema:
+            type: boolean
+            default: false
+      responses:
+        '200':
+          description: Free energy computed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FreeEnergyResponse'
+
+  /models/{model_id}/simulate:
+    post:
+      summary: Run model simulation
+      description: |
+        Run forward simulation of the model for specified time steps.
+        Useful for prediction and planning.
+      operationId: simulateModel
+      tags:
+        - Simulation
+      parameters:
+        - $ref: '#/components/parameters/ModelId'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SimulationRequest'
+      responses:
+        '200':
+          description: Simulation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SimulationResponse'
+
+  /integration/rxinfer:
+    post:
+      summary: RxInfer integration
+      description: |
+        Create or update models using RxInfer Forney Factor Graphs.
+        Enables constrained Bayesian inference with message passing.
+      operationId: rxinferIntegration
+      tags:
+        - Integration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RxInferRequest'
+      responses:
+        '200':
+          description: RxInfer operation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationResponse'
+
+  /integration/bayeux:
+    post:
+      summary: Bayeux integration
+      description: |
+        Integrate with JAX-based Bayeux models for scalable inference.
+        Supports automatic differentiation and GPU acceleration.
+      operationId: bayeuxIntegration
+      tags:
+        - Integration
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/BayeuxRequest'
+      responses:
+        '200':
+          description: Bayeux operation completed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntegrationResponse'
+
+  /spatial/h3_models:
+    post:
+      summary: Create H3-based spatial model
+      description: |
+        Create spatial Active Inference model using H3 hexagonal indexing.
+        Integrates with GEO-INFER-SPACE for spatial-temporal dynamics.
+      operationId: createH3Model
+      tags:
+        - Spatial
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/H3ModelRequest'
+      responses:
+        '201':
+          description: H3 model created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SpatialModelResponse'
+
+  /multi_agent/coordination:
+    post:
+      summary: Multi-agent coordination
+      description: |
+        Coordinate multiple Active Inference agents with shared environments
+        and communication protocols.
+      operationId: coordinateAgents
+      tags:
+        - MultiAgent
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MultiAgentRequest'
+      responses:
+        '200':
+          description: Agents coordinated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MultiAgentResponse'
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+  parameters:
+    ModelId:
+      name: model_id
+      in: path
+      required: true
+      description: Unique identifier for the model
+      schema:
+        type: string
+        pattern: '^[a-zA-Z0-9_-]+$'
+
+  schemas:
+    ModelCreationRequest:
+      type: object
+      required:
+        - model_id
+        - model_type
+        - parameters
+      properties:
+        model_id:
+          type: string
+          description: Unique identifier for the model
+          pattern: '^[a-zA-Z0-9_-]+$'
+        model_type:
+          type: string
+          enum: [categorical, gaussian, hierarchical, hierarchical_gaussian, spatial_temporal, neural_field]
+          description: Type of Active Inference model
+        parameters:
+          type: object
+          description: Model-specific parameters
+          properties:
+            state_dim:
+              type: integer
+              minimum: 1
+              maximum: 10000
+            obs_dim:
+              type: integer
+              minimum: 1
+              maximum: 10000
+            prior_precision:
+              type: number
+              minimum: 0.001
+              maximum: 1000
+            hierarchical:
+              type: boolean
+              default: false
+            levels:
+              type: integer
+              minimum: 1
+              maximum: 10
+            state_dims:
+              type: array
+              items:
+                type: integer
+            obs_dims:
+              type: array
+              items:
+                type: integer
+            temporal_scales:
+              type: array
+              items:
+                type: number
+            spatial_resolution:
+              type: number
+              minimum: 0.001
+            markov_blankets:
+              type: boolean
+              default: false
+            message_passing:
+              type: boolean
+              default: true
+
+    ModelResponse:
+      type: object
+      properties:
+        model_id:
+          type: string
+        model_type:
+          type: string
+        status:
+          type: string
+          enum: [active, training, converged, error]
+        parameters:
+          type: object
+        beliefs:
+          type: object
+        free_energy:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        metadata:
+          type: object
+          properties:
+            iterations:
+              type: integer
+            convergence_criterion:
+              type: number
+            inference_algorithm:
+              type: string
+
+    ModelSummary:
+      type: object
+      properties:
+        model_id:
+          type: string
+        model_type:
+          type: string
+        status:
+          type: string
+        free_energy:
+          type: number
+        created_at:
+          type: string
+          format: date-time
+
+    ModelUpdateRequest:
+      type: object
+      properties:
+        parameters:
+          type: object
+        preferences:
+          type: object
+        precision_parameters:
+          type: object
+
+    BeliefUpdateRequest:
+      type: object
+      required:
+        - observations
+      properties:
+        observations:
+          type: object
+          description: Observations for belief updating
+          properties:
+            data:
+              type: array
+              items:
+                type: number
+            uncertainty:
+              type: array
+              items:
+                type: number
+            spatial_coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+            temporal_stamp:
+              type: string
+              format: date-time
+        algorithm:
+          type: string
+          enum: [variational_laplace, message_passing, particle_filter, kalman]
+          default: variational_laplace
+        max_iterations:
+          type: integer
+          minimum: 1
+          maximum: 10000
+          default: 100
+        convergence_threshold:
+          type: number
+          minimum: 1e-10
+          maximum: 0.1
+          default: 1e-6
+
+    BeliefResponse:
+      type: object
+      properties:
+        beliefs:
+          type: object
+          properties:
+            states:
+              type: array
+              items:
+                type: number
+            mean:
+              type: array
+              items:
+                type: number
+            covariance:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+            precision:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+            hierarchical_beliefs:
+              type: array
+              items:
+                type: object
+        uncertainty:
+          type: object
+          properties:
+            entropy:
+              type: number
+            mutual_information:
+              type: number
+            prediction_error:
+              type: number
+        metadata:
+          type: object
+          properties:
+            algorithm_used:
+              type: string
+            iterations:
+              type: integer
+            convergence_achieved:
+              type: boolean
+
+    PolicySelectionRequest:
+      type: object
+      properties:
+        time_horizon:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 5
+        precision_parameter:
+          type: number
+          minimum: 0.1
+          maximum: 100
+          default: 1.0
+        epistemic_weight:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 0.5
+        pragmatic_weight:
+          type: number
+          minimum: 0
+          maximum: 1
+          default: 0.5
+        policy_space:
+          type: object
+          properties:
+            type:
+              type: string
+              enum: [discrete, continuous, hierarchical]
+            actions:
+              type: array
+              items:
+                type: object
+            constraints:
+              type: object
+
+    PolicyResponse:
+      type: object
+      properties:
+        selected_policy:
+          type: object
+          properties:
+            id:
+              type: string
+            actions:
+              type: array
+              items:
+                type: object
+            expected_free_energy:
+              type: number
+            epistemic_value:
+              type: number
+            pragmatic_value:
+              type: number
+        all_policies:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+              probability:
+                type: number
+              expected_free_energy:
+                type: number
+        policy_probabilities:
+          type: array
+          items:
+            type: number
+
+    FreeEnergyResponse:
+      type: object
+      properties:
+        free_energy:
+          type: number
+        decomposition:
+          type: object
+          properties:
+            accuracy:
+              type: number
+            complexity:
+              type: number
+            epistemic_uncertainty:
+              type: number
+            aleatory_uncertainty:
+              type: number
+        hierarchical_free_energies:
+          type: array
+          items:
+            type: number
+
+    SimulationRequest:
+      type: object
+      required:
+        - time_steps
+      properties:
+        time_steps:
+          type: integer
+          minimum: 1
+          maximum: 10000
+        initial_state:
+          type: object
+        policies:
+          type: array
+          items:
+            type: object
+        stochastic:
+          type: boolean
+          default: true
+        save_trajectory:
+          type: boolean
+          default: true
+
+    SimulationResponse:
+      type: object
+      properties:
+        trajectory:
+          type: object
+          properties:
+            states:
+              type: array
+              items:
+                type: array
+            observations:
+              type: array
+              items:
+                type: array
+            actions:
+              type: array
+              items:
+                type: object
+            free_energies:
+              type: array
+              items:
+                type: number
+        final_state:
+          type: object
+        statistics:
+          type: object
+          properties:
+            total_free_energy:
+              type: number
+            average_uncertainty:
+              type: number
+            exploration_ratio:
+              type: number
+
+    RxInferRequest:
+      type: object
+      required:
+        - model_specification
+      properties:
+        model_specification:
+          type: string
+          description: Julia model specification for RxInfer
+        data:
+          type: object
+          description: Data for inference
+        inference_options:
+          type: object
+          properties:
+            iterations:
+              type: integer
+            algorithm:
+              type: string
+              enum: [variational_bayes, expectation_maximization]
+
+    BayeuxRequest:
+      type: object
+      required:
+        - log_density
+        - test_point
+      properties:
+        log_density:
+          type: string
+          description: Python function for log density
+        test_point:
+          type: object
+          description: Test point for model validation
+        transform_function:
+          type: string
+          description: Optional transformation function
+        inference_method:
+          type: string
+          enum: [optax_adam, nuts, hmc]
+          default: optax_adam
+
+    IntegrationResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [success, error, pending]
+        result:
+          type: object
+          description: Integration-specific results
+        execution_time:
+          type: number
+        memory_usage:
+          type: number
+
+    H3ModelRequest:
+      type: object
+      required:
+        - resolution
+        - boundary
+      properties:
+        resolution:
+          type: integer
+          minimum: 0
+          maximum: 15
+          description: H3 resolution level
+        boundary:
+          type: object
+          description: GeoJSON boundary for the model
+        state_variables:
+          type: array
+          items:
+            type: string
+        temporal_resolution:
+          type: string
+          enum: [hourly, daily, weekly, monthly]
+
+    SpatialModelResponse:
+      type: object
+      properties:
+        model_id:
+          type: string
+        h3_cells:
+          type: array
+          items:
+            type: string
+            description: H3 cell identifiers
+        spatial_graph:
+          type: object
+          description: Spatial connectivity graph
+        resolution:
+          type: integer
+
+    MultiAgentRequest:
+      type: object
+      required:
+        - agents
+      properties:
+        agents:
+          type: array
+          items:
+            type: object
+            properties:
+              agent_id:
+                type: string
+              model_id:
+                type: string
+              initial_state:
+                type: object
+        environment:
+          type: object
+          description: Shared environment specification
+        communication_protocol:
+          type: string
+          enum: [broadcast, pairwise, hierarchical]
+        coordination_algorithm:
+          type: string
+          enum: [consensus, game_theoretic, hierarchical_planning]
+
+    MultiAgentResponse:
+      type: object
+      properties:
+        coordination_result:
+          type: object
+        agent_states:
+          type: array
+          items:
+            type: object
+        environment_state:
+          type: object
+        collective_free_energy:
+          type: number
+
+    Error:
+      type: object
+      required:
+        - error
+        - message
+      properties:
+        error:
+          type: string
+          description: Error type
+        message:
+          type: string
+          description: Human-readable error message
+        details:
+          type: object
+          description: Additional error details
+        timestamp:
+          type: string
+          format: date-time
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    NotFound:
+      description: Resource not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+    InternalServerError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+
+tags:
+  - name: Models
+    description: Active Inference model management
+  - name: Inference
+    description: Belief updating and inference operations
+  - name: Policies
+    description: Policy selection and planning
+  - name: Metrics
+    description: Free energy and performance metrics
+  - name: Simulation
+    description: Model simulation and prediction
+  - name: Integration
+    description: Integration with external frameworks
+  - name: Spatial
+    description: Spatial modeling capabilities
+  - name: MultiAgent
+    description: Multi-agent coordination 
