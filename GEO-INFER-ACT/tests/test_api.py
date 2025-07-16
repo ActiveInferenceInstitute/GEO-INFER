@@ -60,6 +60,14 @@ class TestActiveInferenceInterface(unittest.TestCase):
         fe = self.interface.get_free_energy(model_id)
         self.assertIsInstance(fe, float)
 
+    def test_update_beliefs_gaussian(self):
+        model_id = 'test_gauss'
+        params = {'mean': np.zeros(2), 'cov': np.eye(2)}
+        self.interface.create_model(model_id, 'gaussian', params)
+        obs = {'observations': np.array([1,0])}
+        updated = self.interface.update_beliefs(model_id, obs)
+        self.assertIn('mean', updated)
+
     # Add tests for Gaussian and hierarchical
 
 class TestClient(unittest.TestCase):

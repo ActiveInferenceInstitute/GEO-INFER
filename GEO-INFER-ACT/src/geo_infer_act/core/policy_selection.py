@@ -100,7 +100,7 @@ class PolicySelector:
         
         return policies
     
-    def _compute_expected_free_energy(self,
+    def compute_expected_free_energy(self,
                                      beliefs: np.ndarray,
                                      policy: Dict[str, Any],
                                      preferences: Optional[np.ndarray] = None) -> float:
@@ -115,6 +115,8 @@ class PolicySelector:
         Returns:
             Expected free energy value
         """
+        if isinstance(policy, int):
+            policy = {'action': policy, 'exploration_bonus': 0.1}
         # Epistemic value (information gain / exploration)
         entropy = -np.sum(beliefs * np.log(beliefs + 1e-8))
         epistemic_value = entropy

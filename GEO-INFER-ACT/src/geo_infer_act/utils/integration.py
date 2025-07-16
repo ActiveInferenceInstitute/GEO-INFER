@@ -15,6 +15,10 @@ import json
 from pathlib import Path
 
 from geo_infer_act.utils.config import get_config_value
+try:
+    from geo_infer_space import h3 as space_h3
+except ImportError:
+    space_h3 = None
 
 
 def initialize_logger():
@@ -725,6 +729,8 @@ def create_h3_spatial_model(config: Dict[str, Any],
     Returns:
         H3 spatial model configuration
     """
+    if space_h3 is None:
+        return {'status': 'error', 'message': 'GEO-INFER-SPACE not available'}
     try:
         # This would integrate with GEO-INFER-SPACE H3 capabilities
         # For now, create a placeholder configuration
@@ -739,12 +745,20 @@ def create_h3_spatial_model(config: Dict[str, Any],
         # In practice, would use h3 library to compute exact cells
         approx_cells = 4 ** h3_resolution  # Rough approximation
         
+        # Convert boundary to H3 cells
+        boundary_cells = set()
+        if 'coordinates' in boundary:
+            for coord in boundary['coordinates'][0]:
+                cell = space_h3.geo_to_h3(coord[1], coord[0], h3_resolution)
+                boundary_cells.add(cell)
+        num_cells = len(boundary_cells) or 4 ** h3_resolution  # Fallback
+        
         spatial_config = {
             'model_id': model_id,
             'type': 'h3_spatial_active_inference',
             'h3_resolution': h3_resolution,
-            'boundary': boundary,
-            'estimated_cells': min(approx_cells, 10000),  # Cap for computation
+            'boundary_cells': list(boundary_cells),
+            'estimated_cells': num_cells,
             'state_variables': ['occupancy', 'activity', 'resources'],
             'observation_variables': ['sensor_data', 'satellite_imagery'],
             'temporal_resolution': 'hourly',
@@ -759,6 +773,9 @@ def create_h3_spatial_model(config: Dict[str, Any],
                 'exploration_rate': 0.2
             }
         }
+        
+        # Add real spatial dynamics using SPACE methods
+        spatial_config['spatial_dynamics']['grid'] = space_h3.get_res0_cells()  # Example
         
         logger.info(f"Created H3 spatial model {model_id} with resolution {h3_resolution}")
         

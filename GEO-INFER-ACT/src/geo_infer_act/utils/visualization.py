@@ -1092,3 +1092,19 @@ def create_interpretability_dashboard(analyzer, output_dir: Path):
     plt.close()
     
     logger.info(f"Interpretability dashboard saved to {output_dir}") 
+
+def plot_hierarchical_beliefs(beliefs: Dict[str, np.ndarray]) -> plt.Figure:
+    """Plot beliefs across hierarchical levels."""
+    fig, axs = plt.subplots(len(beliefs), 1, figsize=(8, 4*len(beliefs)))
+    for i, (level, bel) in enumerate(beliefs.items()):
+        axs[i].bar(range(len(bel)), bel)
+        axs[i].set_title(f'Level {level}')
+    plt.tight_layout()
+    return fig
+
+def plot_markov_blanket(blanket: Dict[str, List[int]]) -> plt.Figure:
+    """Plot Markov blanket structure."""
+    fig, ax = plt.subplots()
+    ax.plot([0], [0])  # Simple placeholder
+    ax.set_title('Markov Blanket')
+    return fig 

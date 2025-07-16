@@ -4,7 +4,7 @@ import tempfile
 from pathlib import Path
 from geo_infer_act.utils.config import load_config, save_config, merge_configs, get_config_value
 from geo_infer_act.utils.math import softmax, normalize_distribution, kl_divergence, entropy, precision_weighted_error, gaussian_log_likelihood, categorical_log_likelihood, dirichlet_kl_divergence, sample_categorical, compute_free_energy_categorical, compute_expected_free_energy
-from geo_infer_act.utils.visualization import plot_belief_update, plot_free_energy, plot_policies
+from geo_infer_act.utils.visualization import plot_belief_update, plot_free_energy, plot_policies, plot_hierarchical_beliefs, plot_markov_blanket
 # Add imports for integration if testable
 
 import matplotlib
@@ -86,7 +86,8 @@ class TestMathUtils(unittest.TestCase):
         mean = np.array([0, 0])
         target = np.array([1, 1])
         precision = np.eye(2) * 2
-        error = precision_weighted_error(mean, target, precision)
+        error = target - mean
+        weighted = precision_weighted_error(error, precision)
         self.assertEqual(error, 4.0)
 
     def test_gaussian_log_likelihood(self):
@@ -132,6 +133,18 @@ class TestMathUtils(unittest.TestCase):
         efe = compute_expected_free_energy(beliefs, prefs)
         self.assertIsInstance(efe, float)
 
+    def test_sample_dirichlet(self):
+        alpha = np.array([1,2,3])
+        sample = sample_dirichlet(alpha)
+        self.assertEqual(len(sample), 3)
+        self.assertAlmostEqual(sum(sample), 1.0)
+
+    def test_compute_precision(self):
+        error = np.array([0.1,0.2])
+        precision = np.array([10,5])
+        weighted = precision_weighted_error(error, precision)
+        self.assertEqual(len(weighted), 2)
+
 class TestVisualizationUtils(unittest.TestCase):
     """Tests for visualization utilities."""
 
@@ -157,6 +170,20 @@ class TestVisualizationUtils(unittest.TestCase):
         self.assertIsNotNone(fig)
         plt.close(fig)
 
+    def test_plot_hierarchical_beliefs(self):
+        """Test hierarchical belief plotting."""
+        beliefs = {'level_0': np.array([0.4,0.6]), 'level_1': np.array([0.3,0.7])}
+        fig = plot_hierarchical_beliefs(beliefs)
+        self.assertIsInstance(fig, plt.Figure)
+        plt.close(fig)
+
+    def test_plot_markov_blanket(self):
+        """Test Markov blanket visualization."""
+        blanket = {'internal': [0,1], 'sensory': [2,3]}
+        fig = plot_markov_blanket(blanket)
+        self.assertIsInstance(fig, plt.Figure)
+        plt.close(fig)
+
 class TestAnalysisUtils(unittest.TestCase):
     """Tests for analysis utilities."""
 
@@ -174,6 +201,12 @@ class TestAnalysisUtils(unittest.TestCase):
         analysis = self.analyzer.analyze_perception_patterns()
         self.assertIn('belief_dynamics', analysis)
 
+    def test_analyze_free_energy_patterns(self):
+        self.analyzer.record_step(np.array([0.5,0.5]), np.array([1,0]), 1, {'policy':{'id':1}}, 1.0)
+        self.analyzer.record_step(np.array([0.6,0.4]), np.array([0,1]), 2, {'policy':{'id':2}}, 0.8)
+        analysis = self.analyzer.analyze_free_energy_patterns()
+        self.assertIn('fe_dynamics', analysis)
+
     # Add tests for analyze_perception_patterns, etc. by calling and checking output structure
 
 class TestIntegrationUtils(unittest.TestCase):
@@ -186,6 +219,24 @@ class TestIntegrationUtils(unittest.TestCase):
         self.assertIsInstance(tools, dict)
 
     # Add conditional tests for integrate_rxinfer etc.
+
+    def test_create_h3_spatial_model(self):
+        """Test H3 spatial model creation."""
+        config = {}
+        boundary = {'coordinates': [[[0,0], [0,1], [1,1], [1,0], [0,0]]] }
+        result = create_h3_spatial_model(config, 9, boundary)
+        if 'error' in result['status']:
+            self.assertIn('GEO-INFER-SPACE', result['message'])
+        else:
+            self.assertEqual(result['status'], 'success')
+            self.assertIn('boundary_cells', result['model_config'])
+
+    @unittest.skipUnless(ModernToolsIntegration().available_tools.get('rxinfer', False), 'RxInfer not available')
+    def test_integrate_rxinfer(self):
+        config = {}
+        params = {'model_specification': '@model function test() end', 'data': {'observations': np.random.randn(5)}}
+        result = integrate_rxinfer(config, params)
+        self.assertEqual(result['status'], 'success')
 
 if __name__ == '__main__':
     unittest.main() 

@@ -13,7 +13,7 @@ import logging
 import copy
 
 from geo_infer_act.core.free_energy import FreeEnergyCalculator
-from geo_infer_act.utils.math import kl_divergence, entropy, softmax
+from geo_infer_act.utils.math import kl_divergence, entropy, softmax, normalize_distribution
 
 logger = logging.getLogger(__name__)
 
@@ -363,6 +363,8 @@ class GenerativeModel:
     
     def _send_message_up(self, level: HierarchicalLevel):
         """Send message from child level to parent."""
+        if level.parent_level is None:
+            return  # No parent to send to
         parent_key = f'level_{level.parent_level}'
         level_key = f'level_{level.level_id}'
         
@@ -374,7 +376,17 @@ class GenerativeModel:
                     child_beliefs = self.beliefs[child_key]['states']
                     # Dummy update: average with child
                     self.beliefs[parent_key]['states'] = (self.beliefs[parent_key]['states'] + child_beliefs[:len(self.beliefs[parent_key]['states'])]) / 2
-                    self.beliefs[parent_key]['states'] /= np.sum(self.beliefs[parent_key]['states'])
+                    self.beliefs[parent_key]['states'] = normalize_distribution(self.beliefs[parent_key]['states'])
+        else:
+            # Pass up level beliefs
+            child_states = self.beliefs[level_key]['states']
+            parent_dim = len(self.beliefs[parent_key]['states'])
+            if len(child_states) < parent_dim:
+                child_states = np.pad(child_states, (0, parent_dim - len(child_states)))
+            elif len(child_states) > parent_dim:
+                child_states = child_states[:parent_dim]
+            self.beliefs[parent_key]['states'] += 0.1 * (child_states - self.beliefs[parent_key]['states'])
+            self.beliefs[parent_key]['states'] = normalize_distribution(self.beliefs[parent_key]['states'])
     
     def _send_message_down(self, level: HierarchicalLevel):
         """Send message from parent level to children."""
@@ -576,6 +588,19 @@ class GenerativeModel:
         self.transition_model = self._initialize_spatial_transition_model()
         self.observation_model = self._initialize_spatial_observation_model()
         logger.info(f"Enabled spatial navigation with {grid_size}x{grid_size} grid")
+
+    def enable_h3_spatial(self, h3_resolution: int, boundary: Dict[str, Any]):
+        """Enable H3-based spatial modeling."""
+        from geo_infer_act.utils.integration import create_h3_spatial_model
+        result = create_h3_spatial_model({}, h3_resolution, boundary)
+        if result['status'] == 'success':
+            self.spatial_mode = True
+            self.spatial_config = result['model_config']
+            self.state_dim = self.spatial_config['estimated_cells']
+            self.beliefs = self._initialize_beliefs()
+            logger.info(f'Enabled H3 spatial mode with {self.state_dim} cells')
+        else:
+            logger.warning(result['message'])
 
     def _initialize_spatial_transition_model(self) -> Any:
         """Initialize transition model for spatial grid world."""

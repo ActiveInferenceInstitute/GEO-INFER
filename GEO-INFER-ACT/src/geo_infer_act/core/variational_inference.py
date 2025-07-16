@@ -83,6 +83,12 @@ class VariationalInference:
         else:
             # Default update
             return prior.copy()
+
+    def mean_field_update_categorical(self, prior: np.ndarray, likelihood: np.ndarray, observations: np.ndarray) -> np.ndarray:
+        return self.mean_field_update({'concentration': prior}, {'likelihood_matrix': likelihood}, observations)['mean']
+
+    def mean_field_update_gaussian(self, mean: np.ndarray, cov: np.ndarray, obs: np.ndarray) -> np.ndarray:
+        return self.mean_field_update({'mean': mean, 'precision': np.linalg.inv(cov)}, {'precision': np.eye(len(obs))*10}, obs)['mean']
     
     def structured_update(self,
                          factor_graph: Dict[str, Any],

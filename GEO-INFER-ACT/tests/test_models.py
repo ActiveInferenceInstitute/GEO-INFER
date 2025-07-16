@@ -162,5 +162,67 @@ class TestClimateModel(unittest.TestCase):
 
 # Add similar TestCase for EcologicalModel, MultiAgentModel, ResourceModel
 
+class TestEcologicalModel(unittest.TestCase):
+    """Tests for EcologicalModel."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.model = EcologicalModel()
+
+    def test_step(self):
+        """Test step."""
+        result = self.model.step()
+        self.assertIsInstance(result, dict)
+
+class TestMultiAgentModel(unittest.TestCase):
+    """Tests for MultiAgentModel."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.model = MultiAgentModel(n_agents=2, n_resources=2, n_locations=3, planning_horizon=2)
+
+    def test_initialization(self):
+        """Test initialization."""
+        self.assertEqual(self.model.n_agents, 2)
+        self.assertEqual(self.model.n_resources, 2)
+        self.assertEqual(self.model.n_locations, 3)
+        self.assertEqual(len(self.model.agent_models), 2)
+        self.assertEqual(self.model.resource_distribution.shape, (2,3))
+        self.assertEqual(self.model.location_connectivity.shape, (3,3))
+        self.assertEqual(self.model.agent_preferences.shape, (2,2))
+
+    def test_step(self):
+        """Test model step."""
+        state, done = self.model.step()
+        self.assertIn('resource_distribution', state)
+        self.assertIn('agent_locations', state)
+        self.assertFalse(done)
+
+    # Add more tests for private methods if needed
+
+class TestResourceModel(unittest.TestCase):
+    """Tests for ResourceModel."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.model = ResourceModel(n_resources=2, n_locations=3, planning_horizon=2)
+
+    def test_initialization(self):
+        """Test initialization."""
+        self.assertEqual(self.model.n_resources, 2)
+        self.assertEqual(self.model.n_locations, 3)
+        self.assertEqual(self.model.planning_horizon, 2)
+        self.assertEqual(self.model.resource_distribution.shape, (2,3))
+        self.assertEqual(self.model.location_connectivity.shape, (3,3))
+
+    def test_step(self):
+        """Test model step."""
+        state, done = self.model.step()
+        self.assertIn('resource_distribution', state)
+        self.assertIn('agent_locations', state)
+        self.assertFalse(done)
+
+    # Add more tests for private methods if needed
+
 if __name__ == '__main__':
     unittest.main() 
