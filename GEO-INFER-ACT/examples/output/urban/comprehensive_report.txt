@@ -1,0 +1,52 @@
+URBAN PLANNING ACTIVE INFERENCE - COMPREHENSIVE ANALYSIS REPORT
+======================================================================
+
+Simulation Parameters:
+  Locations: 6
+  Resources: 4
+  Agents: 3
+  Time Steps: 20
+
+Final System State:
+  Overall Urban Quality: 0.529
+  Quality Improvement: +0.004
+  Cooperation Index: 0.506
+  Average Agent Satisfaction: 1.000
+  Development Equity Score: 0.946
+
+Agent Performance Summary:
+
+  Agent 0 (Government):
+    Perception Quality: Fair - Limited Structure
+    Action Consistency: 0.300
+    Free Energy Efficiency: -0.016
+    Final Satisfaction: 1.000
+    Budget Utilization: 97.2%
+
+  Agent 1 (Developer):
+    Perception Quality: Fair - Limited Structure
+    Action Consistency: 0.250
+    Free Energy Efficiency: -0.007
+    Final Satisfaction: 1.000
+    Budget Utilization: 95.6%
+
+  Agent 2 (Community):
+    Perception Quality: Fair - Limited Structure
+    Action Consistency: 0.150
+    Free Energy Efficiency: -0.043
+    Final Satisfaction: 1.000
+    Budget Utilization: 95.6%
+
+Resource Development Summary:
+  Housing: 6.04
+  Commercial: 3.24
+  Transport: 5.24
+  Green Space: 3.33
+
+Key Insights:
+  • Quality improvement of +0.004 achieved through coordinated development
+  • Agent cooperation declined by 0.000
+  • Development equity score of 0.946 indicates balanced growth
+  • Most effective agent: 1 (Developer)
+
+Analysis completed at: 2025-07-16 14:43:10

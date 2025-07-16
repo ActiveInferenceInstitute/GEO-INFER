@@ -1,0 +1,126 @@
+{
+  "belief_dynamics": {
+    "belief_change_magnitude": {
+      "mean": 0.013915059086899302,
+      "std": 0.00516220859182012,
+      "max": 0.027026509618183654
+    },
+    "entropy_dynamics": {
+      "initial": 1.320553323748143,
+      "final": 1.1961109346922134,
+      "mean": 1.2550506959574173,
+      "trend": -0.00661620031531598
+    },
+    "stability_by_state": [
+      0.0026345824011539437,
+      0.0025237298027539724,
+      0.0006519968251532039,
+      0.005124725009114791
+    ],
+    "state_switches": 1,
+    "switch_rate": 0.05
+  },
+  "observation_response": {
+    "responsiveness": {
+      "mean": 0.0,
+      "std": 0.0,
+      "distribution": []
+    },
+    "correlation_analysis": {
+      "state_0_obs_0": 0.0,
+      "state_0_obs_1": 0.0,
+      "state_0_obs_2": 0.0,
+      "state_0_obs_3": 0.0,
+      "state_1_obs_0": 0.0,
+      "state_1_obs_1": 0.0,
+      "state_1_obs_2": 0.0,
+      "state_1_obs_3": 0.0,
+      "state_2_obs_0": 0.0,
+      "state_2_obs_1": 0.0,
+      "state_2_obs_2": 0.0,
+      "state_2_obs_3": 0.0,
+      "state_3_obs_0": 0.0,
+      "state_3_obs_1": 0.0,
+      "state_3_obs_2": 0.0,
+      "state_3_obs_3": 0.0
+    }
+  },
+  "perception_quality": {
+    "is_flat": false,
+    "randomness_score": 0.00016644971625734417,
+    "structure_score": 0.10728281159822095,
+    "quality_rating": "Fair - Limited Structure"
+  },
+  "pattern_detection": {
+    "oscillations": {
+      "state_0": {
+        "num_peaks": 0,
+        "num_valleys": 0,
+        "estimated_frequency": 0.0,
+        "amplitude": 0.05661478537509396
+      },
+      "state_1": {
+        "num_peaks": 1,
+        "num_valleys": 0,
+        "estimated_frequency": 0.0,
+        "amplitude": 0.012445490770693915
+      },
+      "state_2": {
+        "num_peaks": 0,
+        "num_valleys": 0,
+        "estimated_frequency": 0.0,
+        "amplitude": 0.03505714713683768
+      },
+      "state_3": {
+        "num_peaks": 0,
+        "num_valleys": 0,
+        "estimated_frequency": 0.0,
+        "amplitude": 0.03420381069612392
+      }
+    },
+    "convergence": {
+      "state_0": {
+        "is_converging": true,
+        "convergence_rate": 2.8421688310545656e-05,
+        "final_variance": 0.00015612768761621708
+      },
+      "state_1": {
+        "is_converging": true,
+        "convergence_rate": 6.219335055136633e-06,
+        "final_variance": 4.074264854304069e-08
+      },
+      "state_2": {
+        "is_converging": true,
+        "convergence_rate": 2.8204694662191176e-06,
+        "final_variance": 7.999575673601892e-05
+      },
+      "state_3": {
+        "is_converging": true,
+        "convergence_rate": 3.330697246442898e-05,
+        "final_variance": 1.1690637653983946e-05
+      }
+    },
+    "phase_transitions": {
+      "num_transitions": 1,
+      "transitions": [
+        {
+          "timestep": 12,
+          "from_state": 2,
+          "to_state": 0,
+          "strength": 0.002471266784232262
+        }
+      ],
+      "transition_rate": 0.05
+    }
+  },
+  "surprise_analysis": {
+    "surprise_statistics": {
+      "mean": 1.3862943211198915,
+      "std": 9.930136612989092e-17,
+      "min": 1.3862943211198913,
+      "max": 1.3862943211198917
+    },
+    "surprise_trend": -2.3439516489660386e-17,
+    "high_surprise_events": 0
+  }
+}

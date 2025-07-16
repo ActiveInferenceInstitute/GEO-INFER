@@ -297,6 +297,36 @@ paths:
               schema:
                 $ref: '#/components/schemas/SimulationResponse'
 
+  /models/{model_id}/diagram:
+    get:
+      summary: Generate Mermaid diagram for model structure
+      description: |
+        Generate a Mermaid diagram representing the model hierarchy and components.
+      operationId: generateModelDiagram
+      tags:
+        - Models
+      parameters:
+        - $ref: '#/components/parameters/ModelId'
+        - name: format
+          in: query
+          description: Diagram format
+          schema:
+            type: string
+            enum: [flowchart, mindmap, sequence]
+            default: flowchart
+      responses:
+        '200':
+          description: Mermaid diagram code
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  mermaid_code:
+                    type: string
+                  diagram_type:
+                    type: string
+
   /integration/rxinfer:
     post:
       summary: RxInfer integration

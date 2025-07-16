@@ -1,0 +1,92 @@
+2025-07-16 14:42:43,507 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_1
+2025-07-16 14:42:43,507 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_2
+2025-07-16 14:42:43,509 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=0.0587
+2025-07-16 14:42:43,510 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=0.0705
+2025-07-16 14:42:43,511 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=0.0139
+2025-07-16 14:42:43,512 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=0.0834
+2025-07-16 14:42:43,514 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=0.0770
+2025-07-16 14:42:43,515 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=0.0244
+2025-07-16 14:42:43,516 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=0.1089
+2025-07-16 14:42:43,517 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=0.0846
+2025-07-16 14:42:43,520 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=0.0555
+2025-07-16 14:42:43,522 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=0.1338
+2025-07-16 14:42:43,524 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=0.0929
+2025-07-16 14:42:43,525 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=0.1004
+2025-07-16 14:42:43,526 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=0.1576
+2025-07-16 14:42:43,527 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=0.1013
+2025-07-16 14:42:43,529 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=0.1539
+2025-07-16 14:42:46,134 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=0.1799
+2025-07-16 14:42:46,136 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=0.1096
+2025-07-16 14:42:46,140 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=0.2121
+2025-07-16 14:42:46,142 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=0.2005
+2025-07-16 14:42:46,144 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=0.1177
+2025-07-16 14:42:46,146 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=0.2724
+2025-07-16 14:42:46,149 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=0.2197
+2025-07-16 14:42:46,151 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=0.1255
+2025-07-16 14:42:46,154 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=0.3327
+2025-07-16 14:42:46,159 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=0.2374
+2025-07-16 14:42:46,163 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=0.1331
+2025-07-16 14:42:46,165 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=0.3917
+2025-07-16 14:42:46,169 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=0.2537
+2025-07-16 14:42:46,173 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=0.1403
+2025-07-16 14:42:46,176 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=0.4487
+2025-07-16 14:42:48,474 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=0.2689
+2025-07-16 14:42:48,475 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=0.1473
+2025-07-16 14:42:48,476 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=0.5031
+2025-07-16 14:42:48,477 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=0.2831
+2025-07-16 14:42:48,478 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=0.1541
+2025-07-16 14:42:48,480 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=0.5547
+2025-07-16 14:42:48,481 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=0.2964
+2025-07-16 14:42:48,483 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=0.1607
+2025-07-16 14:42:48,484 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=0.6035
+2025-07-16 14:42:48,486 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=0.3088
+2025-07-16 14:42:48,487 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=0.1671
+2025-07-16 14:42:48,488 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=0.6493
+2025-07-16 14:42:48,490 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=0.3206
+2025-07-16 14:42:48,491 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=0.1734
+2025-07-16 14:42:48,493 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=0.6923
+2025-07-16 14:42:50,705 - geo_infer_act.utils.analysis - DEBUG - Recorded step 16: FE=0.3318
+2025-07-16 14:42:50,706 - geo_infer_act.utils.analysis - DEBUG - Recorded step 16: FE=0.1796
+2025-07-16 14:42:50,707 - geo_infer_act.utils.analysis - DEBUG - Recorded step 16: FE=0.7327
+2025-07-16 14:42:50,708 - geo_infer_act.utils.analysis - DEBUG - Recorded step 17: FE=0.3424
+2025-07-16 14:42:50,709 - geo_infer_act.utils.analysis - DEBUG - Recorded step 17: FE=0.1858
+2025-07-16 14:42:50,710 - geo_infer_act.utils.analysis - DEBUG - Recorded step 17: FE=0.7706
+2025-07-16 14:42:50,711 - geo_infer_act.utils.analysis - DEBUG - Recorded step 18: FE=0.3526
+2025-07-16 14:42:50,712 - geo_infer_act.utils.analysis - DEBUG - Recorded step 18: FE=0.1918
+2025-07-16 14:42:50,713 - geo_infer_act.utils.analysis - DEBUG - Recorded step 18: FE=0.8061
+2025-07-16 14:42:50,715 - geo_infer_act.utils.analysis - DEBUG - Recorded step 19: FE=0.3624
+2025-07-16 14:42:50,716 - geo_infer_act.utils.analysis - DEBUG - Recorded step 19: FE=0.1979
+2025-07-16 14:42:50,717 - geo_infer_act.utils.analysis - DEBUG - Recorded step 19: FE=0.8395
+2025-07-16 14:42:50,718 - geo_infer_act.utils.analysis - DEBUG - Recorded step 20: FE=0.3718
+2025-07-16 14:42:50,719 - geo_infer_act.utils.analysis - DEBUG - Recorded step 20: FE=0.2039
+2025-07-16 14:42:50,720 - geo_infer_act.utils.analysis - DEBUG - Recorded step 20: FE=0.8709
+2025-07-16 14:42:53,018 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2025-07-16 14:42:53,025 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_0/analysis/perception_analysis.json
+2025-07-16 14:42:53,025 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2025-07-16 14:42:53,025 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2025-07-16 14:42:53,028 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_0/analysis/action_selection_analysis.json
+2025-07-16 14:42:53,028 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2025-07-16 14:42:53,028 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2025-07-16 14:42:53,029 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_0/analysis/free_energy_analysis.json
+2025-07-16 14:42:53,029 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2025-07-16 14:42:58,189 - geo_infer_act.utils.analysis - INFO - Traces saved to CSV files in /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_0/data
+2025-07-16 14:42:58,189 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2025-07-16 14:42:58,199 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_1/analysis/perception_analysis.json
+2025-07-16 14:42:58,200 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2025-07-16 14:42:58,200 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2025-07-16 14:42:58,204 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_1/analysis/action_selection_analysis.json
+2025-07-16 14:42:58,204 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2025-07-16 14:42:58,205 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2025-07-16 14:42:58,207 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_1/analysis/free_energy_analysis.json
+2025-07-16 14:42:58,207 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2025-07-16 14:43:03,166 - geo_infer_act.utils.analysis - INFO - Traces saved to CSV files in /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_1/data
+2025-07-16 14:43:03,167 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2025-07-16 14:43:03,173 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_2/analysis/perception_analysis.json
+2025-07-16 14:43:03,173 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2025-07-16 14:43:03,173 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2025-07-16 14:43:03,179 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_2/analysis/action_selection_analysis.json
+2025-07-16 14:43:03,180 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2025-07-16 14:43:03,180 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2025-07-16 14:43:03,181 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_2/analysis/free_energy_analysis.json
+2025-07-16 14:43:03,181 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2025-07-16 14:43:08,899 - geo_infer_act.utils.analysis - INFO - Traces saved to CSV files in /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_2/data

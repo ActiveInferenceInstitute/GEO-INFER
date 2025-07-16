@@ -1,193 +1,169 @@
 """
-Free Energy components for Active Inference.
+Free energy calculation for active inference models.
+
+This module implements variational free energy calculations for different
+types of active inference models, including categorical and Gaussian models.
 """
-from typing import Dict, List, Optional, Any
 import numpy as np
-from scipy import stats
-import torch
+from typing import Dict, Any, Optional, Union
+import logging
 
-from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error
+from geo_infer_act.utils.math import softmax
+
+logger = logging.getLogger(__name__)
 
 
-class FreeEnergy:
+class FreeEnergyCalculator:
     """
-    Computes variational free energy for active inference models.
+    Calculator for variational free energy in active inference models.
     
-    The variational free energy is a measure of the quality of
-    a model's representation of the environment, balancing accuracy 
-    and complexity.
+    The free energy serves as a cost function that agents minimize through
+    perception (belief updating) and action (policy selection).
     """
     
     def __init__(self):
-        """
-        Initialize the free energy calculator.
-        """
+        """Initialize the free energy calculator."""
         pass
     
-    def compute(self, beliefs: Dict[str, np.ndarray], 
-               observation_model: Any, transition_model: Any,
-               model_type: str) -> float:
+    def compute_categorical_free_energy(self, 
+                                       beliefs: np.ndarray,
+                                       observations: np.ndarray,
+                                       preferences: Optional[np.ndarray] = None) -> float:
         """
-        Compute the variational free energy.
+        Compute free energy for categorical models.
         
         Args:
-            beliefs: Current belief distributions
-            observation_model: Model mapping states to observations
-            transition_model: Model mapping states to successor states
-            model_type: Type of generative model
+            beliefs: Current belief distribution over states
+            observations: Observed data
+            preferences: Prior preferences over observations
             
         Returns:
-            Variational free energy value
+            Free energy value
         """
-        if model_type == 'categorical':
-            return self._compute_categorical(beliefs, observation_model, transition_model)
-        elif model_type == 'gaussian':
-            return self._compute_gaussian(beliefs, observation_model, transition_model)
+        # Ensure valid probability distributions
+        beliefs = beliefs + 1e-8
+        beliefs = beliefs / beliefs.sum()
+        
+        # Entropy term (uncertainty)
+        entropy = -np.sum(beliefs * np.log(beliefs))
+        
+        # Complexity term (KL divergence from prior)
+        if preferences is not None:
+            uniform_prior = np.ones_like(beliefs) / len(beliefs)
+            complexity = np.sum(beliefs * np.log(beliefs / uniform_prior))
         else:
-            raise ValueError(f"Unsupported model type: {model_type}")
+            complexity = 0.0
+        
+        # Accuracy term (expected log likelihood)
+        # For simplicity, if shapes mismatch, project to same dimension
+        if len(observations) != len(beliefs):
+            if len(observations) < len(beliefs):
+                obs_prob = np.pad(observations, (0, len(beliefs) - len(observations)), mode='constant')
+            else:
+                obs_prob = observations[:len(beliefs)]
+        else:
+            obs_prob = observations
+        obs_prob = softmax(obs_prob)  # Ensure valid prob
+        accuracy = np.sum(beliefs * np.log(obs_prob + 1e-8))
+        
+        # Free energy = Complexity - Accuracy
+        # (We want to minimize complexity while maximizing accuracy)
+        free_energy = complexity + accuracy
+        
+        return float(free_energy)
     
-    def _compute_categorical(self, beliefs: Dict[str, np.ndarray],
-                           observation_model: np.ndarray,
-                           transition_model: np.ndarray) -> float:
+    def compute_gaussian_free_energy(self,
+                                    mean: np.ndarray,
+                                    precision: np.ndarray,
+                                    observations: np.ndarray,
+                                    prior_mean: Optional[np.ndarray] = None,
+                                    prior_precision: Optional[np.ndarray] = None) -> float:
         """
-        Compute free energy for categorical model.
+        Compute free energy for Gaussian models.
         
         Args:
-            beliefs: Current belief distributions
-            observation_model: Categorical observation model
-            transition_model: Categorical transition model
+            mean: Current belief mean
+            precision: Current belief precision matrix
+            observations: Observed data
+            prior_mean: Prior mean
+            prior_precision: Prior precision matrix
             
         Returns:
             Free energy value
         """
-        # For categorical models, VFE = E_q[ln q(s) - ln p(s,o)]
-        # = E_q[ln q(s)] - E_q[ln p(s)] - E_q[ln p(o|s)]
+        # Set defaults
+        if prior_mean is None:
+            prior_mean = np.zeros_like(mean)
+        if prior_precision is None:
+            prior_precision = np.eye(len(mean))
         
-        # Get belief distribution
-        q_s = beliefs['states']
-        
-        # Compute E_q[ln q(s)] (negative entropy)
-        neg_entropy = -entropy(q_s)
-        
-        # Compute E_q[ln p(s)] (prior term)
-        # Assuming uniform prior for simplicity
-        prior = np.ones_like(q_s) / len(q_s)
-        prior_term = np.sum(q_s * np.log(prior + 1e-10))
-        
-        # Compute E_q[ln p(o|s)] (accuracy term)
-        # This would use actual observations and the observation model
-        # For demonstration, we'll use a placeholder
-        accuracy_term = 0.0  # Simplified
-        
-        # Combine terms
-        free_energy = neg_entropy - prior_term - accuracy_term
-        
-        return free_energy
-    
-    def _compute_gaussian(self, beliefs: Dict[str, np.ndarray],
-                         observation_model: Dict[str, np.ndarray],
-                         transition_model: Dict[str, np.ndarray]) -> float:
-        """
-        Compute free energy for Gaussian model.
-        
-        Args:
-            beliefs: Current belief distributions
-            observation_model: Gaussian observation model
-            transition_model: Gaussian transition model
-            
-        Returns:
-            Free energy value
-        """
-        # For Gaussian models, VFE has analytical forms
-        # Simplified implementation for demonstration
-        
-        # Get belief parameters
-        mean = beliefs['mean']
-        precision = beliefs['precision']
-        
-        # Compute accuracy term (simplified)
-        accuracy_term = 0.0  # Placeholder
-        
-        # Compute complexity term (simplified)
-        # Typically KL divergence between posterior and prior
-        complexity_term = 0.0  # Placeholder
-        
-        # Combine terms
-        free_energy = complexity_term - accuracy_term
-        
-        return free_energy
-
-
-class ExpectedFreeEnergy:
-    """
-    Computes expected free energy for policy evaluation.
-    
-    The expected free energy is used in active inference to
-    select policies that minimize expected future surprise.
-    """
-    
-    def __init__(self, time_horizon: int = 5, gamma: float = 1.0):
-        """
-        Initialize expected free energy calculator.
-        
-        Args:
-            time_horizon: How many steps to look ahead
-            gamma: Precision of goal-directed behavior
-        """
-        self.time_horizon = time_horizon
-        self.gamma = gamma
-    
-    def compute(self, beliefs: Dict[str, np.ndarray], 
-               preferences: Dict[str, np.ndarray],
-               policies: List[Any], model: Any) -> np.ndarray:
-        """
-        Compute expected free energy for each policy.
-        
-        Args:
-            beliefs: Current belief distributions
-            preferences: Prior preference distributions
-            policies: List of policies to evaluate
-            model: Generative model
-            
-        Returns:
-            Array of expected free energy values for each policy
-        """
-        n_policies = len(policies)
-        G = np.zeros(n_policies)
-        
-        for p_idx, policy in enumerate(policies):
-            G[p_idx] = self._compute_policy_efe(
-                beliefs=beliefs,
-                preferences=preferences,
-                policy=policy,
-                model=model
+        # Complexity term (KL divergence from prior)
+        try:
+            complexity = 0.5 * (
+                np.trace(np.linalg.solve(prior_precision, precision)) +
+                (mean - prior_mean).T @ prior_precision @ (mean - prior_mean) -
+                len(mean) +
+                np.log(np.linalg.det(prior_precision) / np.linalg.det(precision))
             )
-            
-        return G
+        except np.linalg.LinAlgError:
+            # Fallback calculation
+            complexity = 0.5 * np.trace(precision)
+        
+        # Accuracy term (negative log likelihood)
+        residual = observations - mean
+        accuracy = 0.5 * residual.T @ precision @ residual
+        
+        free_energy = complexity + accuracy
+        
+        return float(free_energy)
     
-    def _compute_policy_efe(self, beliefs: Dict[str, np.ndarray],
-                          preferences: Dict[str, np.ndarray],
-                          policy: Any, model: Any) -> float:
+    def compute_expected_free_energy(self,
+                                   beliefs: np.ndarray,
+                                   policy: Dict[str, Any],
+                                   preferences: Optional[np.ndarray] = None) -> float:
         """
-        Compute expected free energy for a specific policy.
+        Compute expected free energy for policy evaluation.
         
         Args:
-            beliefs: Current belief distributions
-            preferences: Prior preference distributions
+            beliefs: Current beliefs
             policy: Policy to evaluate
-            model: Generative model
+            preferences: Prior preferences
             
         Returns:
             Expected free energy value
         """
-        # This is a simplified placeholder
-        # In a real implementation, we would:
-        # 1. Project beliefs forward using the policy and model
-        # 2. Compute expected information gain
-        # 3. Compute expected value of observations (preference term)
-        # 4. Combine these terms across the time horizon
+        # Epistemic value (information gain)
+        entropy = -np.sum(beliefs * np.log(beliefs + 1e-8))
+        epistemic_value = entropy
         
-        # Placeholder implementation
-        efe = 0.0
+        # Pragmatic value (preference satisfaction)
+        if preferences is not None:
+            pragmatic_value = -np.sum(beliefs * np.log(preferences + 1e-8))
+        else:
+            pragmatic_value = 0.0
         
-        return efe 
+        # Policy-specific modulation
+        exploration_bonus = policy.get('exploration_bonus', 0.1)
+        risk_preference = policy.get('risk_preference', 0.0)
+        
+        # Expected free energy balances exploration and exploitation
+        expected_free_energy = (
+            pragmatic_value - 
+            exploration_bonus * epistemic_value +
+            risk_preference * np.var(beliefs)
+        )
+        
+        return float(expected_free_energy) 
+
+    def compute(self, beliefs: Union[np.ndarray, Dict], observations: np.ndarray = None, preferences: np.ndarray = None, model_type: str = 'categorical') -> float:
+        """General free energy compute dispatching."""
+        if model_type == 'categorical':
+            if isinstance(beliefs, dict):
+                beliefs = beliefs.get('states', beliefs.get('mean'))
+            return self.compute_categorical_free_energy(beliefs, observations or np.ones_like(beliefs)/len(beliefs), preferences)
+        elif model_type == 'gaussian':
+            mean = beliefs.get('mean', beliefs)
+            precision = beliefs.get('precision', np.eye(len(mean)))
+            return self.compute_gaussian_free_energy(mean, precision, observations or np.zeros_like(mean), preferences.get('mean') if preferences else None, preferences.get('precision') if preferences else None)
+        else:
+            raise ValueError(f"Unsupported model type: {model_type}") 

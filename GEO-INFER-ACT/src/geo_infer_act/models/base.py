@@ -131,15 +131,7 @@ class CategoricalModel(ActiveInferenceModel):
         self.likelihood_matrix = likelihood_matrix
     
     def update_beliefs(self, observation: np.ndarray) -> np.ndarray:
-        """
-        Update beliefs given observation.
-        
-        Args:
-            observation: Observation vector (one-hot encoded)
-            
-        Returns:
-            Updated belief distribution
-        """
+        """Update beliefs given observation."""
         if observation.shape != (self.obs_dim,):
             raise ValueError(f"Observation must have shape ({self.obs_dim},)")
         

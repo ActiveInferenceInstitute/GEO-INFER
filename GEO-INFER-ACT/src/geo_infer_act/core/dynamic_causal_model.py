@@ -171,7 +171,7 @@ class DynamicCausalModel:
         # Estimate A and B matrices from state dynamics
         X = estimated_states[:-1]  # Current states
         X_next = estimated_states[1:]  # Next states
-        U = inputs[:-1] if len(inputs) > 1 else np.zeros((len(X), self.input_dim))
+        U = inputs[:len(X)] if len(inputs) > 1 else np.zeros((len(X), self.input_dim))
         
         # Solve: X_next = X*A.T + U*B.T
         if len(X) > 0:

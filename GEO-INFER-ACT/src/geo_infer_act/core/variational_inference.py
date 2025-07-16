@@ -1,429 +1,318 @@
 """
-Variational Inference for Active Inference Models
+Variational inference for active inference models.
 
-This module provides variational inference methods for active inference models,
-implementing the free energy principle and variational message passing.
+This module implements variational inference algorithms for belief updating
+in active inference models, including mean-field and structured approximations.
 """
-
 import numpy as np
-import pandas as pd
-from typing import Dict, List, Optional, Tuple, Union, Any, Callable
-from dataclasses import dataclass, field
+from typing import Dict, Any, Optional, Tuple
 import logging
-from abc import ABC, abstractmethod
 
 logger = logging.getLogger(__name__)
 
-@dataclass
-class VariationalConfig:
-    """Configuration for variational inference."""
-    
-    # Optimization parameters
-    max_iterations: int = 1000
-    learning_rate: float = 0.01
-    convergence_tolerance: float = 1e-6
-    
-    # Prior parameters
-    prior_precision: float = 1.0
-    prior_mean: float = 0.0
-    
-    # Variational family parameters
-    use_gaussian: bool = True
-    use_laplace: bool = False
-    
-    # Regularization
-    regularization_strength: float = 0.01
-    
-    # Random seed
-    random_seed: Optional[int] = None
-
-class VariationalDistribution(ABC):
-    """Abstract base class for variational distributions."""
-    
-    @abstractmethod
-    def sample(self, n_samples: int = 1) -> np.ndarray:
-        """Generate samples from the distribution."""
-        pass
-    
-    @abstractmethod
-    def log_prob(self, x: np.ndarray) -> np.ndarray:
-        """Compute log probability density."""
-        pass
-    
-    @abstractmethod
-    def entropy(self) -> float:
-        """Compute entropy of the distribution."""
-        pass
-    
-    @abstractmethod
-    def update_parameters(self, **kwargs):
-        """Update distribution parameters."""
-        pass
-
-class GaussianVariationalDistribution(VariationalDistribution):
-    """Gaussian variational distribution."""
-    
-    def __init__(self, mean: np.ndarray, log_std: np.ndarray):
-        """
-        Initialize Gaussian variational distribution.
-        
-        Args:
-            mean: Mean vector
-            log_std: Log standard deviation vector
-        """
-        self.mean = mean.copy()
-        self.log_std = log_std.copy()
-        self.std = np.exp(log_std)
-    
-    def sample(self, n_samples: int = 1) -> np.ndarray:
-        """Generate samples using reparameterization trick."""
-        eps = np.random.randn(n_samples, len(self.mean))
-        return self.mean + self.std * eps
-    
-    def log_prob(self, x: np.ndarray) -> np.ndarray:
-        """Compute log probability density."""
-        log_prob = -0.5 * ((x - self.mean) / self.std)**2 - self.log_std - 0.5 * np.log(2 * np.pi)
-        return log_prob
-    
-    def entropy(self) -> float:
-        """Compute entropy of the Gaussian distribution."""
-        return 0.5 * len(self.mean) * (1 + np.log(2 * np.pi)) + np.sum(self.log_std)
-    
-    def update_parameters(self, mean: np.ndarray, log_std: np.ndarray):
-        """Update distribution parameters."""
-        self.mean = mean.copy()
-        self.log_std = log_std.copy()
-        self.std = np.exp(log_std)
 
 class VariationalInference:
     """
     Variational inference engine for active inference models.
     
-    Implements the free energy principle and variational message passing
-    for approximate Bayesian inference.
+    Implements various variational inference algorithms for efficient
+    belief updating in probabilistic models.
     """
     
-    def __init__(self, config: Optional[VariationalConfig] = None):
+    def __init__(self, max_iterations: int = 100, tolerance: float = 1e-6):
         """
-        Initialize variational inference engine.
+        Initialize the variational inference engine.
         
         Args:
-            config: Configuration parameters
+            max_iterations: Maximum number of iterations for iterative algorithms
+            tolerance: Convergence tolerance
         """
-        self.config = config or VariationalConfig()
-        self.variational_dist = None
-        self.prior_dist = None
-        self.observations = None
-        self.is_fitted = False
-        
-        # Set random seed
-        if self.config.random_seed is not None:
-            np.random.seed(self.config.random_seed)
+        self.max_iterations = max_iterations
+        self.tolerance = tolerance
     
-    def fit(self, 
-            observations: np.ndarray,
-            prior_mean: Optional[np.ndarray] = None,
-            prior_precision: Optional[float] = None,
-            **kwargs) -> 'VariationalInference':
+    def mean_field_update(self, 
+                         prior: Dict[str, np.ndarray],
+                         likelihood: Dict[str, np.ndarray],
+                         observations: np.ndarray) -> Dict[str, np.ndarray]:
         """
-        Fit the variational distribution to observations.
+        Perform mean-field variational inference update.
         
         Args:
+            prior: Prior distribution parameters
+            likelihood: Likelihood function parameters
             observations: Observed data
-            prior_mean: Prior mean (if None, uses config default)
-            prior_precision: Prior precision (if None, uses config default)
-            **kwargs: Additional fitting parameters
             
         Returns:
-            Self for method chaining
+            Updated posterior parameters
         """
-        logger.info("Fitting variational distribution...")
-        
-        self.observations = observations.copy()
-        n_observations = len(observations)
-        
-        # Initialize prior
-        if prior_mean is None:
-            prior_mean = np.full(n_observations, self.config.prior_mean)
-        if prior_precision is None:
-            prior_precision = self.config.prior_precision
-        
-        self.prior_dist = GaussianVariationalDistribution(
-            mean=prior_mean,
-            log_std=np.log(1.0 / np.sqrt(prior_precision)) * np.ones(n_observations)
-        )
-        
-        # Initialize variational distribution
-        initial_mean = np.mean(observations) * np.ones(n_observations)
-        initial_log_std = np.log(np.std(observations)) * np.ones(n_observations)
-        
-        self.variational_dist = GaussianVariationalDistribution(
-            mean=initial_mean,
-            log_std=initial_log_std
-        )
-        
-        # Perform variational optimization
-        self._optimize_variational()
-        
-        self.is_fitted = True
-        logger.info("Variational inference completed successfully")
-        
-        return self
-    
-    def _optimize_variational(self):
-        """Optimize the variational distribution."""
-        logger.info("Optimizing variational distribution...")
-        
-        for iteration in range(self.config.max_iterations):
-            # Compute gradients
-            grad_mean, grad_log_std = self._compute_gradients()
+        # Simplified mean-field update for categorical distributions
+        if 'concentration' in prior:
+            # Dirichlet-categorical conjugate update
+            posterior_concentration = prior['concentration'] + observations
             
-            # Update parameters
-            self.variational_dist.mean += self.config.learning_rate * grad_mean
-            self.variational_dist.log_std += self.config.learning_rate * grad_log_std
-            self.variational_dist.std = np.exp(self.variational_dist.log_std)
+            # Normalize to get mean parameters
+            posterior_mean = posterior_concentration / np.sum(posterior_concentration)
+            
+            return {
+                'concentration': posterior_concentration,
+                'mean': posterior_mean,
+                'precision': 1.0 / (posterior_mean * (1 - posterior_mean) + 1e-8)
+            }
+        
+        elif 'mean' in prior and 'precision' in prior:
+            # Gaussian update
+            prior_mean = prior['mean']
+            prior_precision = prior['precision']
+            
+            # Likelihood precision (assumed known)
+            obs_precision = likelihood.get('precision', np.eye(len(observations)))
+            
+            # Posterior parameters
+            posterior_precision = prior_precision + obs_precision
+            posterior_mean = np.linalg.solve(
+                posterior_precision,
+                prior_precision @ prior_mean + obs_precision @ observations
+            )
+            
+            return {
+                'mean': posterior_mean,
+                'precision': posterior_precision,
+                'covariance': np.linalg.inv(posterior_precision + 1e-6 * np.eye(posterior_precision.shape[0]))
+            }
+        
+        else:
+            # Default update
+            return prior.copy()
+    
+    def structured_update(self,
+                         factor_graph: Dict[str, Any],
+                         observations: Dict[str, np.ndarray],
+                         method: str = 'belief_propagation') -> Dict[str, np.ndarray]:
+        """
+        Perform structured variational inference with factor graphs.
+        
+        Args:
+            factor_graph: Factor graph representation
+            observations: Observed variables
+            method: Inference method ('belief_propagation', 'mean_field')
+            
+        Returns:
+            Updated beliefs for all variables
+        """
+        if method == 'belief_propagation':
+            return self._belief_propagation(factor_graph, observations)
+        elif method == 'mean_field':
+            return self._structured_mean_field(factor_graph, observations)
+        else:
+            raise ValueError(f"Unknown inference method: {method}")
+    
+    def _belief_propagation(self,
+                           factor_graph: Dict[str, Any],
+                           observations: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
+        """
+        Implement belief propagation algorithm.
+        
+        Args:
+            factor_graph: Factor graph structure
+            observations: Observed variables
+            
+        Returns:
+            Marginal beliefs for all variables
+        """
+        # Simplified belief propagation implementation
+        variables = factor_graph.get('variables', {})
+        factors = factor_graph.get('factors', {})
+        
+        # Initialize messages
+        messages = {}
+        beliefs = {}
+        
+        # Initialize uniform beliefs
+        for var_name, var_info in variables.items():
+            if var_name in observations:
+                # Observed variables are clamped
+                beliefs[var_name] = observations[var_name]
+            else:
+                # Initialize with uniform distribution
+                dim = var_info.get('dimension', 2)
+                beliefs[var_name] = np.ones(dim) / dim
+        
+        # Iterative message passing
+        for iteration in range(self.max_iterations):
+            old_beliefs = {k: v.copy() for k, v in beliefs.items()}
+            
+            # Update messages and beliefs
+            for var_name in variables:
+                if var_name not in observations:
+                    # Collect messages from neighboring factors
+                    # Simplified: just normalize current belief
+                    beliefs[var_name] = beliefs[var_name] / (np.sum(beliefs[var_name]) + 1e-8)
             
             # Check convergence
-            if iteration % 100 == 0:
-                elbo = self._compute_elbo()
-                logger.debug(f"Iteration {iteration}, ELBO: {elbo:.6f}")
-                
-                if iteration > 0 and abs(elbo - self._last_elbo) < self.config.convergence_tolerance:
-                    logger.info(f"Converged at iteration {iteration}")
+            converged = True
+            for var_name in beliefs:
+                if np.max(np.abs(beliefs[var_name] - old_beliefs[var_name])) > self.tolerance:
+                    converged = False
                     break
-                
-                self._last_elbo = elbo
+            
+            if converged:
+                logger.debug(f"Belief propagation converged in {iteration + 1} iterations")
+                break
+        
+        return beliefs
     
-    def _compute_gradients(self) -> Tuple[np.ndarray, np.ndarray]:
-        """Compute gradients of the ELBO with respect to variational parameters."""
-        # Sample from variational distribution
-        samples = self.variational_dist.sample(n_samples=100)
-        
-        # Compute log-likelihood gradients
-        log_likelihood_grads = self._compute_log_likelihood_gradients(samples)
-        
-        # Compute KL divergence gradients
-        kl_grads = self._compute_kl_gradients()
-        
-        # Combine gradients
-        grad_mean = log_likelihood_grads[0] - kl_grads[0]
-        grad_log_std = log_likelihood_grads[1] - kl_grads[1]
-        
-        return grad_mean, grad_log_std
-    
-    def _compute_log_likelihood_gradients(self, samples: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
-        """Compute gradients of log-likelihood with respect to variational parameters."""
-        # Simple Gaussian likelihood assumption
-        n_samples = samples.shape[0]
-        
-        # Compute gradients for mean
-        grad_mean = np.mean(samples - self.observations, axis=0)
-        
-        # Compute gradients for log_std
-        grad_log_std = np.mean((samples - self.variational_dist.mean)**2 / self.variational_dist.std**2 - 1, axis=0)
-        
-        return grad_mean, grad_log_std
-    
-    def _compute_kl_gradients(self) -> Tuple[np.ndarray, np.ndarray]:
-        """Compute gradients of KL divergence with respect to variational parameters."""
-        # KL divergence between variational and prior
-        kl_mean = (self.variational_dist.mean - self.prior_dist.mean) / self.prior_dist.std**2
-        kl_log_std = self.variational_dist.std**2 / self.prior_dist.std**2 - 1
-        
-        return kl_mean, kl_log_std
-    
-    def _compute_elbo(self) -> float:
-        """Compute the Evidence Lower BOund (ELBO)."""
-        # Sample from variational distribution
-        samples = self.variational_dist.sample(n_samples=1000)
-        
-        # Compute log-likelihood
-        log_likelihood = np.mean(self._compute_log_likelihood(samples))
-        
-        # Compute KL divergence
-        kl_divergence = self._compute_kl_divergence()
-        
-        # ELBO = E[log p(x|z)] - KL(q(z)||p(z))
-        elbo = log_likelihood - kl_divergence
-        
-        return elbo
-    
-    def _compute_log_likelihood(self, samples: np.ndarray) -> np.ndarray:
-        """Compute log-likelihood of observations given samples."""
-        # Simple Gaussian likelihood
-        log_likelihood = -0.5 * np.sum((samples - self.observations)**2, axis=1)
-        return log_likelihood
-    
-    def _compute_kl_divergence(self) -> float:
-        """Compute KL divergence between variational and prior distributions."""
-        # KL divergence between two Gaussians
-        var_mean = self.variational_dist.mean
-        var_std = self.variational_dist.std
-        prior_mean = self.prior_dist.mean
-        prior_std = self.prior_dist.std
-        
-        kl = np.sum(
-            np.log(prior_std / var_std) + 
-            (var_std**2 + (var_mean - prior_mean)**2) / (2 * prior_std**2) - 0.5
-        )
-        
-        return kl
-    
-    def predict(self, return_std: bool = False) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+    def _structured_mean_field(self,
+                              factor_graph: Dict[str, Any],
+                              observations: Dict[str, np.ndarray]) -> Dict[str, np.ndarray]:
         """
-        Make predictions using the fitted variational distribution.
+        Implement structured mean-field variational inference.
         
         Args:
-            return_std: Whether to return standard deviations
+            factor_graph: Factor graph structure
+            observations: Observed variables
             
         Returns:
-            Predictions and optionally standard deviations
+            Variational posterior approximations
         """
-        if not self.is_fitted:
-            raise ValueError("Model must be fitted before making predictions")
+        variables = factor_graph.get('variables', {})
         
-        if return_std:
-            return self.variational_dist.mean, self.variational_dist.std
+        # Initialize variational parameters
+        q_params = {}
+        
+        for var_name, var_info in variables.items():
+            if var_name in observations:
+                q_params[var_name] = observations[var_name]
+            else:
+                dim = var_info.get('dimension', 2)
+                q_params[var_name] = np.ones(dim) / dim
+        
+        # Coordinate ascent updates
+        for iteration in range(self.max_iterations):
+            old_params = {k: v.copy() for k, v in q_params.items()}
+            
+            # Update each variational factor
+            for var_name in variables:
+                if var_name not in observations:
+                    # Compute natural parameter update
+                    # Simplified: just smooth towards uniform
+                    uniform = np.ones_like(q_params[var_name]) / len(q_params[var_name])
+                    q_params[var_name] = 0.9 * q_params[var_name] + 0.1 * uniform
+                    q_params[var_name] = q_params[var_name] / (np.sum(q_params[var_name]) + 1e-8)
+            
+            # Check convergence
+            converged = True
+            for var_name in q_params:
+                if np.max(np.abs(q_params[var_name] - old_params[var_name])) > self.tolerance:
+                    converged = False
+                    break
+            
+            if converged:
+                logger.debug(f"Structured mean-field converged in {iteration + 1} iterations")
+                break
+        
+        return q_params
+    
+    def importance_sampling_update(self,
+                                  prior: Dict[str, np.ndarray],
+                                  likelihood_fn: callable,
+                                  observations: np.ndarray,
+                                  n_samples: int = 1000) -> Dict[str, np.ndarray]:
+        """
+        Perform importance sampling for posterior approximation.
+        
+        Args:
+            prior: Prior distribution parameters
+            likelihood_fn: Likelihood function
+            observations: Observed data
+            n_samples: Number of importance samples
+            
+        Returns:
+            Approximate posterior statistics
+        """
+        # Generate samples from prior
+        if 'mean' in prior and 'covariance' in prior:
+            # Gaussian prior
+            samples = np.random.multivariate_normal(
+                prior['mean'], prior['covariance'], n_samples
+            )
         else:
-            return self.variational_dist.mean
-    
-    def sample_posterior(self, n_samples: int = 1) -> np.ndarray:
-        """
-        Sample from the posterior distribution.
+            # Uniform prior (fallback)
+            dim = len(prior.get('mean', [0, 0]))
+            samples = np.random.randn(n_samples, dim)
         
-        Args:
-            n_samples: Number of samples to generate
-            
-        Returns:
-            Array of samples from the posterior
-        """
-        if not self.is_fitted:
-            raise ValueError("Model must be fitted before sampling")
+        # Compute importance weights
+        weights = np.array([likelihood_fn(sample, observations) for sample in samples])
+        weights = weights / (np.sum(weights) + 1e-8)
         
-        return self.variational_dist.sample(n_samples)
-    
-    def get_variational_parameters(self) -> Dict[str, np.ndarray]:
-        """Get the fitted variational parameters."""
-        if not self.is_fitted:
-            raise ValueError("Model must be fitted before accessing parameters")
+        # Compute weighted statistics
+        posterior_mean = np.sum(samples * weights[:, np.newaxis], axis=0)
+        
+        # Weighted covariance
+        centered_samples = samples - posterior_mean
+        posterior_cov = np.sum(
+            weights[:, np.newaxis, np.newaxis] * 
+            centered_samples[:, :, np.newaxis] * 
+            centered_samples[:, np.newaxis, :], 
+            axis=0
+        )
         
         return {
-            'mean': self.variational_dist.mean,
-            'std': self.variational_dist.std,
-            'log_std': self.variational_dist.log_std
+            'mean': posterior_mean,
+            'covariance': posterior_cov,
+            'precision': np.linalg.inv(posterior_cov + 1e-6 * np.eye(posterior_cov.shape[0])),
+            'samples': samples,
+            'weights': weights
         }
     
-    def compute_free_energy(self) -> float:
+    def compute_elbo(self,
+                    posterior: Dict[str, np.ndarray],
+                    prior: Dict[str, np.ndarray],
+                    likelihood: Dict[str, np.ndarray],
+                    observations: np.ndarray) -> float:
         """
-        Compute the free energy (negative ELBO).
-        
-        Returns:
-            Free energy value
-        """
-        if not self.is_fitted:
-            raise ValueError("Model must be fitted before computing free energy")
-        
-        return -self._compute_elbo()
-
-class FreeEnergyCalculator:
-    """
-    Calculator for free energy in active inference models.
-    
-    Implements various methods for computing and minimizing free energy
-    according to the free energy principle.
-    """
-    
-    def __init__(self, config: Optional[VariationalConfig] = None):
-        """
-        Initialize free energy calculator.
+        Compute Evidence Lower BOund (ELBO).
         
         Args:
-            config: Configuration parameters
-        """
-        self.config = config or VariationalConfig()
-        self.vi_engine = VariationalInference(config)
-    
-    def compute_free_energy(self, 
-                           observations: np.ndarray,
-                           beliefs: np.ndarray,
-                           actions: Optional[np.ndarray] = None) -> float:
-        """
-        Compute free energy for given observations and beliefs.
-        
-        Args:
+            posterior: Posterior distribution parameters
+            prior: Prior distribution parameters
+            likelihood: Likelihood parameters
             observations: Observed data
-            beliefs: Current beliefs about hidden states
-            actions: Actions taken (optional)
             
         Returns:
-            Free energy value
+            ELBO value
         """
-        # Fit variational distribution
-        self.vi_engine.fit(observations)
+        # Expected log likelihood term
+        if 'mean' in posterior:
+            # Gaussian case
+            residual = observations - posterior['mean']
+            precision = likelihood.get('precision', np.eye(len(observations)))
+            exp_log_lik = -0.5 * residual.T @ precision @ residual
+        else:
+            # Categorical case (simplified)
+            exp_log_lik = np.sum(posterior.get('mean', posterior.get('concentration', observations)) * np.log(observations + 1e-8))
         
-        # Compute free energy
-        free_energy = self.vi_engine.compute_free_energy()
-        
-        # Add action cost if actions provided
-        if actions is not None:
-            action_cost = self._compute_action_cost(actions)
-            free_energy += action_cost
-        
-        return free_energy
-    
-    def _compute_action_cost(self, actions: np.ndarray) -> float:
-        """Compute cost of actions."""
-        # Simple quadratic action cost
-        return 0.5 * np.sum(actions**2)
-    
-    def minimize_free_energy(self, 
-                           observations: np.ndarray,
-                           initial_beliefs: np.ndarray) -> Tuple[np.ndarray, float]:
-        """
-        Minimize free energy with respect to beliefs.
-        
-        Args:
-            observations: Observed data
-            initial_beliefs: Initial beliefs about hidden states
+        # KL divergence term
+        if 'mean' in posterior and 'mean' in prior:
+            # Gaussian KL divergence
+            post_mean = posterior['mean']
+            post_prec = posterior.get('precision', np.eye(len(post_mean)))
+            prior_mean = prior['mean']
+            prior_prec = prior.get('precision', np.eye(len(prior_mean)))
             
-        Returns:
-            Optimized beliefs and final free energy
-        """
-        # This is a simplified implementation
-        # In practice, this would involve more sophisticated optimization
+            try:
+                kl_div = 0.5 * (
+                    np.trace(np.linalg.solve(prior_prec, post_prec)) +
+                    (post_mean - prior_mean).T @ prior_prec @ (post_mean - prior_mean) -
+                    len(post_mean) +
+                    np.log(np.linalg.det(prior_prec) / np.linalg.det(post_prec))
+                )
+            except np.linalg.LinAlgError:
+                kl_div = 0.5 * np.sum((post_mean - prior_mean)**2)
+        else:
+            # Categorical KL divergence (simplified)
+            post_probs = posterior.get('mean', np.ones(len(observations)) / len(observations))
+            prior_probs = prior.get('mean', np.ones_like(post_probs) / len(post_probs))
+            kl_div = np.sum(post_probs * np.log(post_probs / (prior_probs + 1e-8) + 1e-8))
         
-        beliefs = initial_beliefs.copy()
-        free_energy = self.compute_free_energy(observations, beliefs)
-        
-        # Simple gradient descent on beliefs
-        for iteration in range(self.config.max_iterations):
-            # Compute gradient (simplified)
-            gradient = self._compute_belief_gradient(observations, beliefs)
-            
-            # Update beliefs
-            beliefs -= self.config.learning_rate * gradient
-            
-            # Compute new free energy
-            new_free_energy = self.compute_free_energy(observations, beliefs)
-            
-            # Check convergence
-            if abs(new_free_energy - free_energy) < self.config.convergence_tolerance:
-                break
-            
-            free_energy = new_free_energy
-        
-        return beliefs, free_energy
-    
-    def _compute_belief_gradient(self, observations: np.ndarray, beliefs: np.ndarray) -> np.ndarray:
-        """Compute gradient of free energy with respect to beliefs."""
-        # Simplified gradient computation
-        return beliefs - observations
-
-# Convenience functions
-def create_variational_inference(config: Optional[VariationalConfig] = None) -> VariationalInference:
-    """Create a new variational inference engine."""
-    return VariationalInference(config)
-
-def create_free_energy_calculator(config: Optional[VariationalConfig] = None) -> FreeEnergyCalculator:
-    """Create a new free energy calculator."""
-    return FreeEnergyCalculator(config) 
+        elbo = exp_log_lik - kl_div
+        return float(elbo) 

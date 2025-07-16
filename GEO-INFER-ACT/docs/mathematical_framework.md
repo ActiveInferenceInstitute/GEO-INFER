@@ -69,6 +69,24 @@ With message passing updates:
 
 $$q_i(s_i) \leftarrow \prod_{j \in \text{ne}(i)} m_{j \rightarrow i}(s_i)$$
 
+### Variational Message Passing Flow
+
+```mermaid
+graph TD
+    A[Initialize Beliefs] --> B[Compute Messages]
+    B --> C[Update Approximations]
+    C --> D[Check Convergence]
+    D -- No --> B
+    D -- Yes --> E[Final Posteriors]
+    subgraph "Message Passing Cycle"
+        B
+        C
+        D
+    end
+```
+
+This flowchart outlines the iterative process of variational message passing for belief updating.
+
 ## Expected Free Energy
 
 For policy selection, active inference uses the expected free energy, incorporating both epistemic and pragmatic value:

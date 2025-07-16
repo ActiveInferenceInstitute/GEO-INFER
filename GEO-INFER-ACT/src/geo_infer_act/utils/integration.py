@@ -898,8 +898,37 @@ def _pairwise_coordination(coordination_state: Dict[str, Any]) -> Dict[str, Any]
     return coordination_state
 
 
+class IntegrationUtils:
+    """
+    Utility class for integrating with other modules and tools.
+    
+    Provides convenience methods for common integration tasks.
+    """
+    
+    @staticmethod
+    def get_modern_tools():
+        """Get available modern tools integration."""
+        return ModernToolsIntegration()
+    
+    @staticmethod
+    def integrate_with_space(spatial_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Integrate with GEO-INFER-SPACE module."""
+        return integrate_space(spatial_data)
+    
+    @staticmethod  
+    def integrate_with_time(temporal_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Integrate with GEO-INFER-TIME module."""
+        return integrate_time(temporal_data)
+    
+    @staticmethod
+    def create_multi_agent_system(agent_configs: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Create and coordinate a multi-agent system."""
+        return coordinate_multi_agent_system(agent_configs)
+
+
 # Export integration functions for backward compatibility
 __all__ = [
+    'IntegrationUtils',
     'ModernToolsIntegration',
     'integrate_rxinfer',
     'integrate_bayeux', 

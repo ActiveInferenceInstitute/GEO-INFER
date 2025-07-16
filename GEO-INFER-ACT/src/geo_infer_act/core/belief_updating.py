@@ -135,3 +135,13 @@ class BayesianBeliefUpdate:
             mean = np.mean(predicted_distribution)
             var = np.var(predicted_distribution)
             return 0.5 * ((observation - mean) ** 2 / var + np.log(2 * np.pi * var)) 
+
+    def update_beliefs(self, prior_beliefs: np.ndarray, observation: np.ndarray, likelihood: np.ndarray) -> np.ndarray:
+        """General belief update dispatching to categorical or gaussian."""
+        if prior_beliefs.ndim == 1 and observation.ndim == 1 and likelihood.ndim == 2:
+            return self.update_categorical(prior_beliefs, observation, likelihood)
+        elif prior_beliefs.ndim == 1 and observation.ndim == 1 and likelihood.ndim == 2:
+            # Assuming gaussian for now, adjust as needed
+            return self.update_gaussian(prior_beliefs, np.eye(len(prior_beliefs)), observation, likelihood, np.eye(len(observation)))['mean']
+        else:
+            raise ValueError("Unsupported input shapes for update_beliefs") 

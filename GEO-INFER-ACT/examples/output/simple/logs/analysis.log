@@ -1,0 +1,35 @@
+2025-07-16 14:42:18,158 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple
+2025-07-16 14:42:18,159 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=0.0792
+2025-07-16 14:42:18,162 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=0.1235
+2025-07-16 14:42:18,164 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=0.1727
+2025-07-16 14:42:18,165 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=0.1056
+2025-07-16 14:42:18,166 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=0.0713
+2025-07-16 14:42:18,167 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=0.0521
+2025-07-16 14:42:18,168 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=0.0823
+2025-07-16 14:42:18,169 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=0.0704
+2025-07-16 14:42:18,170 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=0.0713
+2025-07-16 14:42:18,171 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=0.0705
+2025-07-16 14:42:18,172 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=0.0836
+2025-07-16 14:42:18,174 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=0.0909
+2025-07-16 14:42:18,177 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=0.1046
+2025-07-16 14:42:18,177 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2025-07-16 14:42:18,182 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/analysis/perception_analysis.json
+2025-07-16 14:42:18,182 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2025-07-16 14:42:18,182 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2025-07-16 14:42:18,183 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/analysis/action_selection_analysis.json
+2025-07-16 14:42:18,183 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2025-07-16 14:42:18,183 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2025-07-16 14:42:18,184 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/analysis/free_energy_analysis.json
+2025-07-16 14:42:18,184 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2025-07-16 14:42:26,676 - geo_infer_act.utils.analysis - INFO - Traces saved to CSV files in /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/data
+2025-07-16 14:42:26,676 - geo_infer_act.utils.analysis - INFO - Generating comprehensive analysis report...
+2025-07-16 14:42:26,676 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2025-07-16 14:42:26,684 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/analysis/perception_analysis.json
+2025-07-16 14:42:26,685 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2025-07-16 14:42:26,685 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2025-07-16 14:42:26,686 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/analysis/action_selection_analysis.json
+2025-07-16 14:42:26,686 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2025-07-16 14:42:26,686 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2025-07-16 14:42:26,687 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/analysis/free_energy_analysis.json
+2025-07-16 14:42:26,687 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2025-07-16 14:42:26,688 - geo_infer_act.utils.analysis - INFO - Comprehensive report saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/comprehensive_report.md

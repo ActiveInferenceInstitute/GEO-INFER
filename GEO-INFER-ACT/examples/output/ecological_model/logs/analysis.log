@@ -1,0 +1,64 @@
+2025-07-16 14:43:31,280 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/ecological_model
+2025-07-16 14:43:31,286 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=0.0565
+2025-07-16 14:43:31,287 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=0.0594
+2025-07-16 14:43:31,288 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=0.0636
+2025-07-16 14:43:31,288 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=0.0686
+2025-07-16 14:43:31,289 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=0.0721
+2025-07-16 14:43:31,290 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=0.0757
+2025-07-16 14:43:31,290 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=0.0810
+2025-07-16 14:43:31,291 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=0.0867
+2025-07-16 14:43:31,291 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=0.0904
+2025-07-16 14:43:31,292 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=0.1009
+2025-07-16 14:43:31,292 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=0.1099
+2025-07-16 14:43:31,292 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=0.1153
+2025-07-16 14:43:31,293 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=0.1186
+2025-07-16 14:43:31,293 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=0.1323
+2025-07-16 14:43:31,294 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=0.1333
+2025-07-16 14:43:31,294 - geo_infer_act.utils.analysis - DEBUG - Recorded step 16: FE=0.1359
+2025-07-16 14:43:31,295 - geo_infer_act.utils.analysis - DEBUG - Recorded step 17: FE=0.1357
+2025-07-16 14:43:31,295 - geo_infer_act.utils.analysis - DEBUG - Recorded step 18: FE=0.1365
+2025-07-16 14:43:31,295 - geo_infer_act.utils.analysis - DEBUG - Recorded step 19: FE=0.1400
+2025-07-16 14:43:31,296 - geo_infer_act.utils.analysis - DEBUG - Recorded step 20: FE=0.1381
+2025-07-16 14:43:31,296 - geo_infer_act.utils.analysis - DEBUG - Recorded step 21: FE=0.1368
+2025-07-16 14:43:31,297 - geo_infer_act.utils.analysis - DEBUG - Recorded step 22: FE=0.1381
+2025-07-16 14:43:31,297 - geo_infer_act.utils.analysis - DEBUG - Recorded step 23: FE=0.1395
+2025-07-16 14:43:31,298 - geo_infer_act.utils.analysis - DEBUG - Recorded step 24: FE=0.1396
+2025-07-16 14:43:31,298 - geo_infer_act.utils.analysis - DEBUG - Recorded step 25: FE=0.1419
+2025-07-16 14:43:31,298 - geo_infer_act.utils.analysis - DEBUG - Recorded step 26: FE=0.1431
+2025-07-16 14:43:31,299 - geo_infer_act.utils.analysis - DEBUG - Recorded step 27: FE=0.1426
+2025-07-16 14:43:31,299 - geo_infer_act.utils.analysis - DEBUG - Recorded step 28: FE=0.1408
+2025-07-16 14:43:31,300 - geo_infer_act.utils.analysis - DEBUG - Recorded step 29: FE=0.1414
+2025-07-16 14:43:31,300 - geo_infer_act.utils.analysis - DEBUG - Recorded step 30: FE=0.1416
+2025-07-16 14:43:31,300 - geo_infer_act.utils.analysis - DEBUG - Recorded step 31: FE=0.1410
+2025-07-16 14:43:31,301 - geo_infer_act.utils.analysis - DEBUG - Recorded step 32: FE=0.1427
+2025-07-16 14:43:31,302 - geo_infer_act.utils.analysis - DEBUG - Recorded step 33: FE=0.1406
+2025-07-16 14:43:31,303 - geo_infer_act.utils.analysis - DEBUG - Recorded step 34: FE=0.1401
+2025-07-16 14:43:31,303 - geo_infer_act.utils.analysis - DEBUG - Recorded step 35: FE=0.1396
+2025-07-16 14:43:31,304 - geo_infer_act.utils.analysis - DEBUG - Recorded step 36: FE=0.1428
+2025-07-16 14:43:31,304 - geo_infer_act.utils.analysis - DEBUG - Recorded step 37: FE=0.1431
+2025-07-16 14:43:31,305 - geo_infer_act.utils.analysis - DEBUG - Recorded step 38: FE=0.1440
+2025-07-16 14:43:31,305 - geo_infer_act.utils.analysis - DEBUG - Recorded step 39: FE=0.1459
+2025-07-16 14:43:31,305 - geo_infer_act.utils.analysis - DEBUG - Recorded step 40: FE=0.1483
+2025-07-16 14:43:31,306 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2025-07-16 14:43:31,314 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/ecological_model/analysis/perception_analysis.json
+2025-07-16 14:43:31,314 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2025-07-16 14:43:31,314 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2025-07-16 14:43:31,316 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/ecological_model/analysis/action_selection_analysis.json
+2025-07-16 14:43:31,316 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2025-07-16 14:43:31,316 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2025-07-16 14:43:31,318 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/ecological_model/analysis/free_energy_analysis.json
+2025-07-16 14:43:31,318 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2025-07-16 14:43:31,324 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/ecological_model/analysis/ecological_analysis.json
+2025-07-16 14:43:31,328 - geo_infer_act.utils.analysis - INFO - Traces saved to CSV files in /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/ecological_model/data
+2025-07-16 14:43:37,445 - geo_infer_act.utils.analysis - INFO - Shared visualizations created in /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/ecological_model/visualizations
+2025-07-16 14:43:49,159 - geo_infer_act.utils.analysis - INFO - Generating comprehensive analysis report...
+2025-07-16 14:43:49,160 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2025-07-16 14:43:49,177 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/ecological_model/analysis/perception_analysis.json
+2025-07-16 14:43:49,177 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2025-07-16 14:43:49,178 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2025-07-16 14:43:49,184 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/ecological_model/analysis/action_selection_analysis.json
+2025-07-16 14:43:49,184 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2025-07-16 14:43:49,184 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2025-07-16 14:43:49,186 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/ecological_model/analysis/free_energy_analysis.json
+2025-07-16 14:43:49,186 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2025-07-16 14:43:49,187 - geo_infer_act.utils.analysis - INFO - Comprehensive report saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/ecological_model/comprehensive_report.md

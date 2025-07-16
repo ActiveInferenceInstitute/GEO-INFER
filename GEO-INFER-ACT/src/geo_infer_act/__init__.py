@@ -13,7 +13,7 @@ __email__ = "blanket@activeinference.institute"
 try:
     from .core.active_inference import ActiveInferenceModel
     from .core.free_energy import FreeEnergyCalculator
-    from .models.generative_model import GenerativeModel
+    from .core.generative_model import GenerativeModel
     from .utils.integration import IntegrationUtils
     
     __all__ = [

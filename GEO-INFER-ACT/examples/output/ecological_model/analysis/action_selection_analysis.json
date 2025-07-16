@@ -1,0 +1,86 @@
+{
+  "policy_dynamics": {
+    "policy_entropy": {
+      "mean": 1.5723044017377656,
+      "trend": -0.00031628533316687546
+    },
+    "policy_stability": 0.17247851206097278,
+    "selected_policies": [
+      2,
+      2,
+      1,
+      2,
+      0,
+      1,
+      1,
+      2,
+      2,
+      0,
+      2,
+      1,
+      0,
+      3,
+      4,
+      4,
+      4,
+      4,
+      3,
+      4,
+      1,
+      2,
+      2,
+      0,
+      2,
+      1,
+      2,
+      0,
+      1,
+      0,
+      3,
+      3,
+      1,
+      0,
+      1,
+      1,
+      4,
+      2,
+      2,
+      3
+    ],
+    "policy_distribution": [
+      0.1988353129110822,
+      0.19509930740779732,
+      0.216345771027376,
+      0.1955075684795448,
+      0.19421204017419963
+    ]
+  },
+  "action_consistency": {
+    "consistency_score": 0.4642857142857143,
+    "num_action_changes": 5,
+    "action_diversity": 5
+  },
+  "exploration_exploitation": {
+    "exploration_scores": {
+      "mean": 0.9769276525615244,
+      "std": 0.013219943062135477,
+      "trend": -0.00019651912678541624
+    },
+    "exploration_pattern": "stable"
+  },
+  "policy_convergence": {
+    "is_converging": false,
+    "convergence_rate": 3.2330282160007114e-05,
+    "final_variance": 0.0021201208030893846,
+    "convergence_quality": "weak"
+  },
+  "decision_quality": {
+    "overall_quality_score": 0.2552152045813328,
+    "quality_rating": "Poor",
+    "components": {
+      "consistency": 0.4642857142857143,
+      "exploration_balance": 0.046144694876951275,
+      "free_energy_reduction": -0.09186877793957529
+    }
+  }
+}
