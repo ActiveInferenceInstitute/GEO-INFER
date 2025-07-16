@@ -13,6 +13,7 @@ src/geo_infer_act/core/free_energy.py
 src/geo_infer_act/core/generative_model.py
 src/geo_infer_act/core/markov_decision_process.py
 src/geo_infer_act/core/policy_selection.py
+src/geo_infer_act/core/variational_inference.py
 src/geo_infer_act/models/__init__.py
 src/geo_infer_act/models/base.py
 src/geo_infer_act/models/urban.py

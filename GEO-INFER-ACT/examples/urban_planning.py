@@ -16,7 +16,7 @@ import matplotlib.cm as cm
 # Add parent directory to path to import GEO-INFER-ACT
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.geo_infer_act.models.urban import UrbanModel
+from geo_infer_act.models.urban import UrbanModel
 
 
 def plot_resource_distribution(urban_model: UrbanModel, 

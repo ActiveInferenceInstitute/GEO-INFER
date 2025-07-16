@@ -14,8 +14,8 @@ import sys
 # Add parent directory to path to import GEO-INFER-ACT
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from src.geo_infer_act.api.interface import ActiveInferenceInterface
-from src.geo_infer_act.utils.visualization import plot_belief_update, plot_policies
+from geo_infer_act.api.interface import ActiveInferenceInterface
+from geo_infer_act.utils.visualization import plot_belief_update, plot_policies
 
 
 def main():

@@ -4,7 +4,18 @@
 
 ## Overview
 
-GEO-INFER-ACT is the dedicated module within the GEO-INFER framework for **analytical and formal Active Inference modeling**. It provides the mathematical and computational machinery to design, implement, and analyze intelligent agents and systems that perceive, learn, and act in complex, dynamic geospatial environments. Active Inference is a first-principles approach from theoretical neuroscience and biology that models sentient behavior as a process of minimizing variational free energy, which is equivalent to maximizing Bayesian model evidence or minimizing surprise. This module allows for the construction of sophisticated models for nested and interacting systems, particularly relevant for ecological, civic, and environmental applications where adaptive decision-making under uncertainty is paramount.
+GEO-INFER-ACT is the premier Active Inference module within the GEO-INFER framework, implementing **state-of-the-art mathematical and computational machinery** for designing, implementing, and analyzing intelligent agents and systems that perceive, learn, and act in complex, dynamic geospatial environments. 
+
+Built on the **Free Energy Principle** from theoretical neuroscience and biology, this module provides a first-principles approach that models sentient behavior as a process of minimizing variational free energy, equivalent to maximizing Bayesian model evidence or minimizing surprise. The implementation integrates the latest research from the [**Active Inference Institute**](https://www.activeinference.institute/) and peer-reviewed literature to deliver cutting-edge capabilities for nested and interacting systems.
+
+### 🌟 Advanced Capabilities
+
+- **Hierarchical Active Inference** with message passing between multiple timescales
+- **Markov Blanket Architectures** for conditional independence and self-organization  
+- **Modern Tool Integration** with [RxInfer.jl](https://github.com/biaslab/RxInfer.jl), [Bayeux](https://github.com/jax-ml/bayeux), [pymdp](https://github.com/infer-actively/pymdp)
+- **Spatial-Temporal Extensions** for geospatial applications with H3 integration
+- **Neural Field Dynamics** for large-scale spatial modeling
+- **Multi-Agent Coordination** with consensus and hierarchical protocols
 
 ## Core Principles of Active Inference
 
