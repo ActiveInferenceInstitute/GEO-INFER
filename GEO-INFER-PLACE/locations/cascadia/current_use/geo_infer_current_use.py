@@ -1,22 +1,16 @@
 """
-GeoInferCurrentUse: Current Agricultural Use Analysis Module
+GeoInfer Current Agricultural Use Module
 
 Real-time agricultural land use classification and crop production analysis
-with H3 spatial indexing and multi-temporal analysis capabilities.
+for agricultural redevelopment planning.
 """
 
 import logging
 from typing import Dict, List, Any, Tuple
-import numpy as np
-import rasterio
-from rasterio.mask import mask
-from shapely.geometry import Polygon
-from collections import Counter
 from pathlib import Path
 
 from .data_sources import CascadianCurrentUseDataSources
 from geo_infer_space.core.base_module import BaseAnalysisModule
-import h3
 
 logger = logging.getLogger(__name__)
 

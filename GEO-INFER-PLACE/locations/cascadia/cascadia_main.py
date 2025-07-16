@@ -44,6 +44,12 @@ try:
     cascadian_dir = os.path.dirname(os.path.realpath(__file__))
     project_root = os.path.abspath(os.path.join(cascadian_dir, '..', '..', '..'))
 
+    # --- FIX: Set OSC repository path environment variable early ---
+    osc_repo_path = os.path.join(project_root, 'GEO-INFER-SPACE', 'repo')
+    os.environ['OSC_REPOS_DIR'] = osc_repo_path
+    print(f"INFO: Set OSC_REPOS_DIR to {osc_repo_path}")
+    # --- END FIX ---
+
     # Define the 'src' paths for the required modules
     place_src_path = os.path.join(project_root, 'GEO-INFER-PLACE', 'src')
     space_src_path = os.path.join(project_root, 'GEO-INFER-SPACE', 'src')
@@ -66,6 +72,7 @@ except Exception as e:
 # --- End Path Setup ---
 
 import argparse
+import json
 import logging
 from typing import List, Dict, Any, Optional
 import yaml
@@ -89,10 +96,6 @@ from geo_infer_space.osc_geo.utils import (
     check_repo_status,
     generate_summary
 )
-from geo_infer_space.osc_geo.utils.enhanced_reporting import (
-    generate_enhanced_status_report,
-    generate_comprehensive_osc_report
-)
 from geo_infer_space.core.visualization_engine import InteractiveVisualizationEngine
 from geo_infer_space.core.spatial_processor import SpatialProcessor
 from geo_infer_space.core.data_integrator import DataIntegrator
@@ -108,12 +111,26 @@ from geo_infer_space.core.base_module import BaseAnalysisModule
 # Import all the specialized modules from the 'cascadia' location
 from zoning.geo_infer_zoning import GeoInferZoning
 from current_use.geo_infer_current_use import GeoInferCurrentUse
-# from ownership.geo_infer_ownership import GeoInferOwnership
+from ownership.geo_infer_ownership import GeoInferOwnership
 # from mortgage_debt.geo_infer_mortgage_debt import GeoInferMortgageDebt
-# from improvements.geo_infer_improvements import GeoInferImprovements
+from improvements.geo_infer_improvements import GeoInferImprovements
 # from surface_water.geo_infer_surface_water import GeoInferSurfaceWater
 # from ground_water.geo_infer_ground_water import GeoInferGroundWater
 # from power_source.geo_infer_power_source import GeoInferPowerSource
+
+# Add missing imports for enhanced reporting functions if they don't exist
+try:
+    from geo_infer_space.osc_geo.utils.enhanced_reporting import (
+        generate_enhanced_status_report,
+        generate_comprehensive_osc_report
+    )
+except ImportError:
+    # Create placeholder functions if enhanced_reporting doesn't exist
+    def generate_enhanced_status_report(*args, **kwargs):
+        return "Enhanced reporting not available"
+    
+    def generate_comprehensive_osc_report(*args, **kwargs):
+        return "Comprehensive reporting not available"
 
 def setup_logging(verbose: bool = False, output_dir: str = '.') -> None:
     """Setup logging configuration with enhanced SPACE integration"""
@@ -175,9 +192,9 @@ def check_dependencies() -> bool:
         else:
             logger.warning("⚠️ SPACE integration needs setup")
             logger.info("Run: python -c 'from geo_infer_space.osc_geo import setup_osc_geo; setup_osc_geo()'")
-        except Exception as e:
+    except Exception as e:
         logger.error(f"❌ SPACE integration check failed: {e}")
-            
+    
     logger.info("✅ Dependency check complete")
     return True
 
@@ -611,12 +628,38 @@ Examples:
             logger.error(f"❌ Failed to initialize current use module: {e}")
     
     # Add other modules as they become available
-    # if 'ownership' in active_modules:
-    #     modules['ownership'] = GeoInferOwnership(args.resolution)
+    if 'ownership' in active_modules:
+        try:
+            # Create a temporary backend for module initialization
+            temp_backend = CascadianAgriculturalH3Backend(
+                modules={},
+                resolution=args.resolution,
+                bioregion='Cascadia',
+                target_counties=target_counties,
+                base_data_dir=Path(args.output_dir) / 'data',
+                osc_repo_dir=Path(__file__).parent.parent.parent.parent / 'GEO-INFER-SPACE' / 'repo'
+            )
+            modules['ownership'] = GeoInferOwnership(temp_backend)
+            logger.info("✅ Ownership module initialized")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize ownership module: {e}")
     # if 'mortgage_debt' in active_modules:
     #     modules['mortgage_debt'] = GeoInferMortgageDebt(args.resolution)
-    # if 'improvements' in active_modules:
-    #     modules['improvements'] = GeoInferImprovements(args.resolution)
+    if 'improvements' in active_modules:
+        try:
+            # Create a temporary backend for module initialization
+            temp_backend = CascadianAgriculturalH3Backend(
+                modules={},
+                resolution=args.resolution,
+                bioregion='Cascadia',
+                target_counties=target_counties,
+                base_data_dir=Path(args.output_dir) / 'data',
+                osc_repo_dir=Path(__file__).parent.parent.parent.parent / 'GEO-INFER-SPACE' / 'repo'
+            )
+            modules['improvements'] = GeoInferImprovements(temp_backend)
+            logger.info("✅ Improvements module initialized")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize improvements module: {e}")
     # if 'surface_water' in active_modules:
     #     modules['surface_water'] = GeoInferSurfaceWater(args.resolution)
     # if 'ground_water' in active_modules:
@@ -626,7 +669,7 @@ Examples:
     
     if not modules:
         logger.error("❌ No modules could be initialized. Exiting.")
-            sys.exit(1)
+        sys.exit(1)
 
     # Initialize the enhanced backend with SPACE integration
     try:
@@ -647,22 +690,22 @@ Examples:
         for mod in backend.modules.values():
             mod.backend = backend
 
-        logger.info("Step 1: Running comprehensive analysis across all modules...")
+    logger.info("Step 1: Running comprehensive analysis across all modules...")
     
     # Add progress bar for analysis
     with tqdm(total=4, desc="Analysis Progress", unit="step") as pbar:
         try:
-        backend.run_comprehensive_analysis()
+            backend.run_comprehensive_analysis()
             pbar.update(1)
             pbar.set_description("Analysis Progress - Analysis Complete")
         
-        logger.info("Step 2: Calculating agricultural redevelopment potential...")
-        redevelopment_scores = backend.calculate_agricultural_redevelopment_potential()
+            logger.info("Step 2: Calculating agricultural redevelopment potential...")
+            redevelopment_scores = backend.calculate_agricultural_redevelopment_potential()
             pbar.update(1)
             pbar.set_description("Analysis Progress - Redevelopment Calculated")
         
-        logger.info("Step 3: Generating comprehensive summary...")
-        summary = backend.get_comprehensive_summary()
+            logger.info("Step 3: Generating comprehensive summary...")
+            summary = backend.get_comprehensive_summary()
             pbar.update(1)
             pbar.set_description("Analysis Progress - Summary Generated")
             
@@ -670,35 +713,35 @@ Examples:
             logger.error(f"❌ Analysis failed: {e}")
             raise
         
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        output_dir = Path(args.output_dir)
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_dir = Path(args.output_dir)
     bioregion_lower = 'cascadia'
-        
-        logger.info("Step 4: Exporting analysis results...")
-        
-        # Export unified data (includes module data and scores)
-        unified_path = output_dir / f"{bioregion_lower}_unified_data_{timestamp}.{args.export_format}"
-        backend.export_unified_data(str(unified_path), args.export_format)
+    
+    logger.info("Step 4: Exporting analysis results...")
+    
+    # Export unified data (includes module data and scores)
+    unified_path = output_dir / f"{bioregion_lower}_unified_data_{timestamp}.{args.export_format}"
+    backend.export_unified_data(str(unified_path), args.export_format)
     pbar.update(1)
     pbar.set_description("Analysis Progress - Export Complete")
-        
-        # Export redevelopment scores separately for specific use cases
-        redevelopment_path = output_dir / f"{bioregion_lower}_redevelopment_scores_{timestamp}.json"
-        with open(redevelopment_path, 'w') as f:
-            json.dump(redevelopment_scores, f, indent=2, cls=NumpyEncoder)
-        logger.info(f"Exported redevelopment scores to {redevelopment_path}")
-        
-        # Export summary
-        summary_path = output_dir / f"{bioregion_lower}_summary_{timestamp}.json"
-        with open(summary_path, 'w') as f:
-            json.dump(summary, f, indent=2, cls=NumpyEncoder)
-        logger.info(f"Exported summary to {summary_path}")
-        
+    
+    # Export redevelopment scores separately for specific use cases
+    redevelopment_path = output_dir / f"{bioregion_lower}_redevelopment_scores_{timestamp}.json"
+    with open(redevelopment_path, 'w') as f:
+        json.dump(redevelopment_scores, f, indent=2, cls=NumpyEncoder)
+    logger.info(f"Exported redevelopment scores to {redevelopment_path}")
+    
+    # Export summary
+    summary_path = output_dir / f"{bioregion_lower}_summary_{timestamp}.json"
+    with open(summary_path, 'w') as f:
+        json.dump(summary, f, indent=2, cls=NumpyEncoder)
+    logger.info(f"Exported summary to {summary_path}")
+    
     logger.info("Step 5: Generating enhanced analysis reports and dashboards...")
-        
-        # Generate Markdown report
-        report_path = output_dir / f"{bioregion_lower}_analysis_report_{timestamp}.md"
-        generate_analysis_report(summary, report_path)
+    
+    # Generate Markdown report
+    report_path = output_dir / f"{bioregion_lower}_analysis_report_{timestamp}.md"
+    generate_analysis_report(summary, report_path)
 
     # Generate spatial analysis report if requested
     if args.spatial_analysis and spatial_processor:

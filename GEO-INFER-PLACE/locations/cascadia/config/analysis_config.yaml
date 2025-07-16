@@ -10,6 +10,8 @@ analysis_settings:
   active_modules:
     - zoning
     - current_use
+    - ownership
+    - improvements
   
   h3_resolution: 8
   enhanced_visualization: true

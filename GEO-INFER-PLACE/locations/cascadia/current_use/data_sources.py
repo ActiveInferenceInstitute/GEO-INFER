@@ -1,30 +1,29 @@
 """
 Cascadian Current Use Data Sources
 
-Multi-source agricultural land use classification integrating NASS CDL,
-Land IQ crop mapping, and Oregon EFU reporting systems.
+This module provides real-time data fetching capabilities for current agricultural
+land use analysis across the Cascadian bioregion (Northern California + Oregon).
 """
 
+import logging
+import os
+from typing import Dict, List, Tuple, Optional, NamedTuple, Any
+from pathlib import Path
+import json
 import requests
-import rasterio
-import numpy as np
+import tempfile
+import zipfile
+from collections import defaultdict
+
 import pandas as pd
 import geopandas as gpd
-from typing import Dict, List, Optional, Tuple, Any, NamedTuple
-import logging
-from datetime import datetime
-import os
-import h3
+import numpy as np
 from shapely.geometry import Polygon
-from collections import Counter
-from rasterio.transform import from_origin
-from pathlib import Path
-import zipfile
-import rasterio.mask
+import rasterio
+from rasterio.mask import mask
 
-# Import H3 utilities from the unified backend's path 
+# Import H3 utilities from the unified backend's path
 from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
-
 
 logger = logging.getLogger(__name__)
 
@@ -119,7 +118,7 @@ class CascadianCurrentUseDataSources:
         """Generates a mock Cropland Data Layer (CDL) raster file."""
         logger.warning(f"Generating mock CDL raster at {filepath}")
         min_lon, min_lat, max_lon, max_lat = bbox
-        transform = from_origin(min_lon, max_lat, (max_lon - min_lon) / width, (max_lat - min_lat) / height)
+        transform = rasterio.transform.from_origin(min_lon, max_lat, (max_lon - min_lon) / width, (max_lat - min_lat) / height)
         
         mock_data = np.random.choice(list(self.crop_classifications.keys()), size=(height, width)).astype(np.uint8)
 
@@ -161,7 +160,7 @@ class CascadianCurrentUseDataSources:
             for h3_index in state_hexagons:
                 try:
                     hex_poly = Polygon(cell_to_latlng_boundary(h3_index))
-                    out_image, out_transform = rasterio.mask.mask(src, [hex_poly], crop=True)
+                    out_image, out_transform = mask(src, [hex_poly], crop=True)
                     
                     unique, counts = np.unique(out_image[out_image != src.nodata], return_counts=True)
                     total_pixels = np.sum(counts)
@@ -253,12 +252,20 @@ class CascadianCurrentUseDataSources:
             return state_clipped_path
 
         try:
-            # This is a simplification. A real implementation would need a state boundary shapefile.
-            # For this fix, we'll assume the bbox passed to the parent is good enough for a coarse clip.
-            # This part of the logic remains complex without proper state boundary files.
-            # We'll log a warning and return the national path for now.
-            logger.warning(f"State boundary clipping not fully implemented. Using full national raster {national_tif_path}. This will be slow.")
-            return national_tif_path
+            # Load state boundary
+            state_boundaries = gpd.read_file('path/to/state_boundaries.shp')  # Add actual path
+            state_geom = state_boundaries[state_boundaries['STUSPS'] == state].geometry.iloc[0]
+
+            # Clip national raster to state
+            with rasterio.open(national_tif_path) as src:
+                clipped_data, clipped_transform = mask(src, [state_geom], crop=True)
+                
+            # Save clipped raster
+            clipped_path = self.data_dir / f'clipped_{state}_{year}.tif'
+            with rasterio.open(clipped_path, 'w', driver='GTiff', height=clipped_data.shape[1], width=clipped_data.shape[2], count=1, dtype=clipped_data.dtype, crs=src.crs, transform=clipped_transform) as dst:
+                dst.write(clipped_data, 1)
+
+            return clipped_path
         
         except Exception as e:
             logger.error(f"Failed during clipping process for {state} {year}: {e}")
@@ -278,7 +285,7 @@ class CascadianCurrentUseDataSources:
                     logger.info(f"Opening raster {clipped_raster_path} for state {state}")
                     src = rasterio.open(clipped_raster_path)
                     # Further mask to the specific bbox of the hexagon batch
-                    masked_src, masked_transform = rasterio.mask.mask(src, [Polygon.from_bounds(*bbox)], crop=True)
+                    masked_src, masked_transform = mask(src, [Polygon.from_bounds(*bbox)], crop=True)
                     
                     # Save this smaller chunk to a temporary in-memory raster
                     memfile = rasterio.io.MemoryFile()

@@ -22,7 +22,6 @@ from folium.plugins import HeatMap, MarkerCluster
 # --- H3 and OSC Integration ---
 import h3
 from geo_infer_space.osc_geo import create_h3_data_loader, H3DataLoader
-from h3 import LatLngPoly, h3shape_to_cells
 
 # --- Local Core Imports ---
 # Base class for type hinting
