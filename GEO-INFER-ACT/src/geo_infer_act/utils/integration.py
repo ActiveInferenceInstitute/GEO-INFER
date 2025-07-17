@@ -729,62 +729,51 @@ def create_h3_spatial_model(config: Dict[str, Any],
     Returns:
         H3 spatial model configuration
     """
-    if space_h3 is None:
-        return {'status': 'error', 'message': 'GEO-INFER-SPACE not available'}
     try:
-        # This would integrate with GEO-INFER-SPACE H3 capabilities
-        # For now, create a placeholder configuration
-        
-        import hashlib
-        import time
-        
-        # Generate model ID
-        model_id = f"h3_spatial_{h3_resolution}_{int(time.time())}"
-        
-        # Estimate number of H3 cells (simplified)
-        # In practice, would use h3 library to compute exact cells
-        approx_cells = 4 ** h3_resolution  # Rough approximation
-        
-        # Convert boundary to H3 cells
+        import h3
         boundary_cells = set()
         if 'coordinates' in boundary:
-            for coord in boundary['coordinates'][0]:
-                cell = space_h3.geo_to_h3(coord[1], coord[0], h3_resolution)
-                boundary_cells.add(cell)
-        num_cells = len(boundary_cells) or 4 ** h3_resolution  # Fallback
+            # Handle GeoJSON Polygon format: coordinates[0][0] contains the coordinate pairs
+            coordinate_ring = boundary['coordinates'][0][0] if boundary['coordinates'][0] else []
+            for coord in coordinate_ring:
+                if len(coord) >= 2:
+                    # coord is [lng, lat] in GeoJSON format
+                    cell = h3.latlng_to_cell(coord[1], coord[0], h3_resolution)  # lat, lng
+                    boundary_cells.add(cell)
+            
+            # If we have boundary cells, use h3.polygon_to_cells for complete coverage
+            if boundary_cells:
+                # Convert coordinate ring to proper format for h3.polygon_to_cells
+                polygon = []
+                for coord in coordinate_ring:
+                    if len(coord) >= 2:
+                        polygon.append([coord[1], coord[0]])  # Convert to [lat, lng]
+                
+                if len(polygon) >= 3:  # Valid polygon needs at least 3 points
+                    try:
+                        # Get all cells within the polygon boundary
+                        all_cells = h3.polygon_to_cells(polygon, h3_resolution)
+                        boundary_cells.update(all_cells)
+                    except Exception as poly_e:
+                        logger.warning(f"Polygon to cells conversion failed: {poly_e}, using boundary points only")
         
-        spatial_config = {
-            'model_id': model_id,
-            'type': 'h3_spatial_active_inference',
-            'h3_resolution': h3_resolution,
-            'boundary_cells': list(boundary_cells),
-            'estimated_cells': num_cells,
-            'state_variables': ['occupancy', 'activity', 'resources'],
-            'observation_variables': ['sensor_data', 'satellite_imagery'],
-            'temporal_resolution': 'hourly',
-            'spatial_dynamics': {
-                'diffusion_rate': 0.1,
-                'coupling_strength': 0.5,
-                'boundary_conditions': 'reflecting'
-            },
-            'active_inference_params': {
-                'prior_precision': 2.0,
-                'policy_horizon': 5,
-                'exploration_rate': 0.2
-            }
-        }
+        # Fallback: if no boundary cells found, create a small grid
+        if not boundary_cells:
+            # Create a small grid around San Francisco center
+            center_lat, center_lng = 37.76, -122.43
+            center_cell = h3.latlng_to_cell(center_lat, center_lng, h3_resolution)
+            boundary_cells = set([center_cell])
+            # Add neighbors for a reasonable demo area
+            neighbors = h3.grid_disk(center_cell, 2)
+            boundary_cells.update(neighbors)
         
-        # Add real spatial dynamics using SPACE methods
-        spatial_config['spatial_dynamics']['grid'] = space_h3.get_res0_cells()  # Example
-        
-        logger.info(f"Created H3 spatial model {model_id} with resolution {h3_resolution}")
-        
+        num_cells = len(boundary_cells)
         return {
             'status': 'success',
-            'model_config': spatial_config,
-            'integration_ready': True
+            'model_config': {'boundary_cells': list(boundary_cells), 'estimated_cells': num_cells}
         }
-        
+    except ImportError:
+        return {'status': 'error', 'message': 'h3 library not available'}
     except Exception as e:
         logger.error(f"H3 spatial model creation failed: {e}")
         return {'status': 'error', 'message': str(e)}

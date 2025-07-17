@@ -1,139 +1,139 @@
 {
-  "adaptive_capacity": 0.010141262068517934,
-  "environmental_variability": 0.1483675510593748,
-  "tracking_efficiency": 0.06835183060094426,
-  "niche_stability": 0.95,
-  "niche_switches": 2,
+  "adaptive_capacity": 0.018029504329782103,
+  "environmental_variability": 0.1895833727538433,
+  "tracking_efficiency": 0.09510016077744786,
+  "niche_stability": 0.925,
+  "niche_switches": 3,
   "stress_events": [
     {
-      "timestep": 8,
-      "stress_level": 0.3226678236905557
+      "timestep": 2,
+      "stress_level": 0.7380742439986645
+    },
+    {
+      "timestep": 11,
+      "stress_level": 0.3318383397610849
     },
     {
       "timestep": 12,
-      "stress_level": 0.32173034278449836
+      "stress_level": 0.3439300077087182
+    },
+    {
+      "timestep": 13,
+      "stress_level": 0.35534554580664746
     },
     {
       "timestep": 14,
-      "stress_level": 0.4290257191398491
+      "stress_level": 0.37549322391914536
     },
     {
       "timestep": 15,
-      "stress_level": 0.33921330744511774
+      "stress_level": 0.3861903462705098
     },
     {
       "timestep": 16,
-      "stress_level": 0.37284555673430614
+      "stress_level": 0.4893849796460506
     },
     {
       "timestep": 17,
-      "stress_level": 0.37898721865473495
-    },
-    {
-      "timestep": 18,
-      "stress_level": 0.31382899780991136
-    },
-    {
-      "timestep": 19,
-      "stress_level": 0.45236020953727485
+      "stress_level": 0.4031574496708304
     },
     {
       "timestep": 20,
-      "stress_level": 0.47742910986000175
+      "stress_level": 0.446820876620957
     },
     {
       "timestep": 21,
-      "stress_level": 0.359107035340911
+      "stress_level": 0.3750554256680179
     },
     {
       "timestep": 22,
-      "stress_level": 0.3991377547004659
+      "stress_level": 0.33671719113637655
     },
     {
       "timestep": 23,
-      "stress_level": 0.4562880764921073
+      "stress_level": 0.37710558552042384
     },
     {
       "timestep": 24,
-      "stress_level": 0.39535948454372283
+      "stress_level": 0.3931774556550609
     },
     {
       "timestep": 25,
-      "stress_level": 0.46364099186994295
+      "stress_level": 0.3920411787598023
     },
     {
       "timestep": 26,
-      "stress_level": 0.48127532952489555
+      "stress_level": 0.4980332391966976
     },
     {
       "timestep": 27,
-      "stress_level": 0.5412951753752296
+      "stress_level": 0.6973139690668565
     },
     {
       "timestep": 28,
-      "stress_level": 0.4588239268433127
+      "stress_level": 0.48424150861538506
     },
     {
       "timestep": 29,
-      "stress_level": 0.46440993292609695
+      "stress_level": 0.623160782498569
     },
     {
       "timestep": 30,
-      "stress_level": 0.503022652119012
+      "stress_level": 0.5012524191246042
     },
     {
       "timestep": 31,
-      "stress_level": 0.3943467517359325
+      "stress_level": 0.457340970152898
     },
     {
       "timestep": 32,
-      "stress_level": 0.6250953304304919
+      "stress_level": 0.5502926678712065
     },
     {
       "timestep": 33,
-      "stress_level": 0.5935131016758812
+      "stress_level": 0.5855501112912688
     },
     {
       "timestep": 34,
-      "stress_level": 0.6853100123548324
+      "stress_level": 0.5516937984385109
     },
     {
       "timestep": 35,
-      "stress_level": 0.4558493535928287
+      "stress_level": 0.536863452079767
     },
     {
       "timestep": 36,
-      "stress_level": 0.5869136669582609
+      "stress_level": 0.6810555795747896
     },
     {
       "timestep": 37,
-      "stress_level": 0.5677930678429558
+      "stress_level": 0.6403941573920403
     },
     {
       "timestep": 38,
-      "stress_level": 0.6417459716863851
+      "stress_level": 0.7081513910219099
     },
     {
       "timestep": 39,
-      "stress_level": 0.6959094576799297
+      "stress_level": 0.6357922337507264
     }
   ],
   "belief_complexity": {
-    "overall_complexity": 0.3567198021582385
+    "overall_complexity": 0.4017931016882458
   },
   "environmental_complexity": {
-    "overall_complexity": 0.5163590067118032
+    "overall_complexity": 0.571106097638818
   },
   "belief_stationarity": {
     "is_stationary": "True",
     "stationarity_score": 1.0,
     "mean_variation": 7.703717851619475e-32,
-    "variance_variation": 2.732075423207685e-60
+    "variance_variation": 6.024893270527617e-60
   },
   "environmental_stationarity": {
     "is_stationary": "True",
     "stationarity_score": 1.0,
     "mean_variation": 0.0,
-    "variance_variation": 9.904390966863661e-60
+    "variance_variation": 9.378231775956571e-60
   }
 }

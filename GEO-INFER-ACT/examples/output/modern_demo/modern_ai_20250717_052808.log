@@ -1,0 +1,20 @@
+2025-07-17 05:28:08,894 - ModernActiveInference - INFO - Modern Active Inference - Comprehensive Analysis
+2025-07-17 05:28:08,894 - ModernActiveInference - INFO - ======================================================================
+2025-07-17 05:28:08,992 - geo_infer_act.api.interface - INFO - ActiveInferenceInterface initialized
+2025-07-17 05:28:08,992 - ModernActiveInference - INFO - Modern Active Inference Demo initialized
+2025-07-17 05:28:08,992 - ModernActiveInference - INFO - Enhanced with comprehensive analysis capabilities
+2025-07-17 05:28:08,992 - ModernActiveInference - INFO - Starting comprehensive modern Active Inference demonstration
+2025-07-17 05:28:08,992 - ModernActiveInference - INFO - 
+==================================================
+2025-07-17 05:28:08,992 - ModernActiveInference - INFO - 1. HIERARCHICAL ACTIVE INFERENCE
+2025-07-17 05:28:08,992 - ModernActiveInference - INFO - ==================================================
+2025-07-17 05:28:08,993 - ModernActiveInference - INFO - Creating hierarchical model: hierarchical_model
+2025-07-17 05:28:08,993 - geo_infer_act.core.generative_model - INFO - Initialized 3 hierarchical levels
+2025-07-17 05:28:08,993 - geo_infer_act.api.interface - INFO - Created categorical model: hierarchical_model
+2025-07-17 05:28:08,993 - geo_infer_act.core.generative_model - INFO - Initialized 3 hierarchical levels
+2025-07-17 05:28:08,993 - geo_infer_act.api.interface - INFO - Set preferences for model hierarchical_model
+2025-07-17 05:28:08,993 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/modern_demo/hierarchical
+2025-07-17 05:28:08,994 - ModernActiveInference - INFO -   Created 3-level hierarchical model
+2025-07-17 05:28:08,994 - ModernActiveInference - INFO -   Temporal horizons: [1, 5, 20]
+2025-07-17 05:28:08,994 - ModernActiveInference - INFO -   Message passing enabled: True
+2025-07-17 05:28:08,994 - ModernActiveInference - ERROR - Demo failed with error: 'states'

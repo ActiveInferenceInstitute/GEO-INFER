@@ -728,7 +728,6 @@ def assess_convergence(sequence: np.ndarray, window_size: int = 10, threshold: f
         'convergence_rate': 0.0
     } 
 
-
 def sample_dirichlet(alpha: np.ndarray) -> np.ndarray:
     """Sample from Dirichlet distribution."""
     return np.random.dirichlet(alpha) 

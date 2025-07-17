@@ -1,86 +1,86 @@
 {
   "policy_dynamics": {
     "policy_entropy": {
-      "mean": 1.5723044017377656,
-      "trend": -0.00031628533316687546
+      "mean": 1.578131643877978,
+      "trend": 0.0009240516725889369
     },
-    "policy_stability": 0.17247851206097278,
+    "policy_stability": 0.13848374288774076,
     "selected_policies": [
-      2,
-      2,
-      1,
-      2,
       0,
-      1,
-      1,
+      0,
       2,
       2,
       0,
       2,
+      1,
+      2,
+      3,
+      0,
+      4,
+      1,
+      2,
+      4,
+      0,
+      3,
+      0,
+      4,
+      0,
+      1,
       1,
       0,
       3,
+      0,
+      2,
+      2,
+      0,
+      1,
+      1,
       4,
       4,
-      4,
-      4,
+      1,
+      1,
+      3,
+      0,
       3,
       4,
-      1,
-      2,
-      2,
-      0,
-      2,
-      1,
-      2,
-      0,
-      1,
-      0,
-      3,
       3,
       1,
-      0,
-      1,
-      1,
-      4,
-      2,
-      2,
-      3
+      4
     ],
     "policy_distribution": [
-      0.1988353129110822,
-      0.19509930740779732,
-      0.216345771027376,
-      0.1955075684795448,
-      0.19421204017419963
+      0.21065584595152903,
+      0.20255983210871142,
+      0.20478211205301405,
+      0.19364361488637344,
+      0.18835859500037203
     ]
   },
   "action_consistency": {
-    "consistency_score": 0.4642857142857143,
+    "consistency_score": 0.3451327433628319,
     "num_action_changes": 5,
     "action_diversity": 5
   },
   "exploration_exploitation": {
     "exploration_scores": {
-      "mean": 0.9769276525615244,
-      "std": 0.013219943062135477,
-      "trend": -0.00019651912678541624
+      "mean": 0.9805483216753761,
+      "std": 0.013896451016289921,
+      "trend": 0.0005741455855177613
     },
     "exploration_pattern": "stable"
   },
   "policy_convergence": {
-    "is_converging": false,
-    "convergence_rate": 3.2330282160007114e-05,
-    "final_variance": 0.0021201208030893846,
+    "is_converging": true,
+    "convergence_rate": 7.238182653245342e-05,
+    "final_variance": 0.000701827091322981,
     "convergence_quality": "weak"
   },
   "decision_quality": {
-    "overall_quality_score": 0.2552152045813328,
+    "overall_quality_score": 0.19201805000603986,
     "quality_rating": "Poor",
     "components": {
-      "consistency": 0.4642857142857143,
-      "exploration_balance": 0.046144694876951275,
-      "free_energy_reduction": -0.09186877793957529
+      "consistency": 0.3451327433628319,
+      "exploration_balance": 0.03890335664924782,
+      "free_energy_reduction": -0.4866084292316155
     }
   }
 }

@@ -4,14 +4,23 @@ Enhanced visualization utilities for GEO-INFER-ACT.
 This module provides comprehensive visualization tools for Active Inference
 models, including perception analysis, action selection, and free energy dynamics.
 """
-import matplotlib.pyplot as plt
+import os
+import matplotlib
+# Set non-interactive backend if no display available
+if 'DISPLAY' not in os.environ:
+    matplotlib.use('Agg')
 import matplotlib.patches as patches
+import matplotlib.pyplot as plt
 import seaborn as sns
 import numpy as np
 import pandas as pd
 from typing import Dict, List, Any, Optional, Tuple, Union
 from pathlib import Path
 import logging
+import plotly.express as px
+import imageio
+import h3
+from shapely.geometry import Polygon
 
 logger = logging.getLogger(__name__)
 
@@ -1107,4 +1116,31 @@ def plot_markov_blanket(blanket: Dict[str, List[int]]) -> plt.Figure:
     fig, ax = plt.subplots()
     ax.plot([0], [0])  # Simple placeholder
     ax.set_title('Markov Blanket')
+    return fig 
+
+def plot_h3_grid_static(h3_data: Dict[str, Dict], metric: str = 'fe', title: str = 'H3 Grid') -> plt.Figure:
+    fig, ax = plt.subplots(figsize=(10,10))
+    for cell, data in h3_data.items():
+        boundary = h3.cell_to_boundary(cell)
+        poly = Polygon([(lng, lat) for lat, lng in boundary])
+        x,y = poly.exterior.xy
+        color = plt.cm.viridis(data.get(metric, 0)/max([d.get(metric,0) for d in h3_data.values()]))
+        ax.fill(x, y, color=color)
+    ax.set_title(title)
+    return fig
+
+def create_h3_gif(history: List[Dict[str, Dict]], output_path: str, metric: str = 'fe'):
+    images = []
+    for t, data in enumerate(history):
+        fig = plot_h3_grid_static(data, metric, f'Time {t}')
+        fig.canvas.draw()
+        image = np.frombuffer(fig.canvas.buffer_rgba(), dtype=np.uint8).reshape(fig.canvas.get_width_height()[::-1] + (4,))[:,:,:3]
+        images.append(image)
+        plt.close(fig)
+    imageio.mimsave(output_path, images, fps=2)
+    logger.info(f'GIF saved to {output_path}')
+
+def create_interactive_h3_slider(history: List[Dict[str, Dict]], metric: str = 'fe') -> Any:
+    df = pd.DataFrame([{'time': t, 'cell': cell, metric: data[metric], 'lat': h3.cell_to_latlng(cell)[0], 'lon': h3.cell_to_latlng(cell)[1]} for t, step in enumerate(history) for cell, data in step.items()])
+    fig = px.scatter_geo(df, lat='lat', lon='lon', color=metric, animation_frame='time', projection='natural earth', range_color=[df[metric].min(), df[metric].max()])
     return fig 

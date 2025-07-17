@@ -1,38 +1,38 @@
 {
   "policy_dynamics": {
     "policy_entropy": {
-      "mean": 1.589337087573626,
-      "trend": 0.001549579436580904
+      "mean": 1.592384836721333,
+      "trend": 0.0011198311070778053
     },
-    "policy_stability": 0.11552763527465089,
+    "policy_stability": 0.11228609373191786,
     "selected_policies": [
-      2,
-      0,
+      1,
       3,
-      3,
-      4,
-      1,
-      4,
-      1,
-      0,
-      1,
-      1,
-      4,
-      1,
-      0,
       2,
       4,
       1,
-      3,
       0,
+      0,
+      3,
+      1,
+      2,
+      0,
+      1,
+      3,
+      4,
+      3,
+      4,
+      1,
+      3,
+      4,
       4
     ],
     "policy_distribution": [
-      0.20501625368996873,
-      0.21092306705236075,
-      0.19645987209905055,
-      0.19947457410007027,
-      0.18812623305854975
+      0.22160057477327294,
+      0.1902386057515692,
+      0.19996841384331324,
+      0.18507195121226205,
+      0.2031204544195825
     ]
   },
   "action_consistency": {
@@ -42,25 +42,25 @@
   },
   "exploration_exploitation": {
     "exploration_scores": {
-      "mean": 0.9875106553007231,
-      "std": 0.007564886471534716,
-      "trend": 0.0009628078378229011
+      "mean": 0.9894043283179675,
+      "std": 0.0063638376125475585,
+      "trend": 0.000695790187634022
     },
     "exploration_pattern": "stable"
   },
   "policy_convergence": {
     "is_converging": true,
-    "convergence_rate": 0.00011785060859743696,
-    "final_variance": 0.0008292503646828156,
+    "convergence_rate": 0.00011258538556304783,
+    "final_variance": 0.0004587777754241321,
     "convergence_quality": "weak"
   },
   "decision_quality": {
-    "overall_quality_score": 0.08748934469927688,
+    "overall_quality_score": 0.08559567168203247,
     "quality_rating": "Poor",
     "components": {
       "consistency": 0.15000000000000002,
-      "exploration_balance": 0.024978689398553744,
-      "free_energy_reduction": -0.8569905365000036
+      "exploration_balance": 0.02119134336406492,
+      "free_energy_reduction": -0.7207558975321509
     }
   }
 }

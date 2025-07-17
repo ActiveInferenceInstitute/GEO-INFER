@@ -3,9 +3,9 @@
     "error": "No policy probability data available"
   },
   "action_consistency": {
-    "consistency_score": 0.3846153846153846,
-    "num_action_changes": 8,
-    "action_diversity": 4
+    "consistency_score": 0.23076923076923073,
+    "num_action_changes": 10,
+    "action_diversity": 5
   },
   "exploration_exploitation": {
     "error": "No exploration data available"
@@ -14,12 +14,12 @@
     "error": "Insufficient policy probability data"
   },
   "decision_quality": {
-    "overall_quality_score": 0.3846153846153846,
+    "overall_quality_score": 0.23076923076923073,
     "quality_rating": "Poor",
     "components": {
-      "consistency": 0.3846153846153846,
+      "consistency": 0.23076923076923073,
       "exploration_balance": 0.5,
-      "free_energy_reduction": -0.02531470698854789
+      "free_energy_reduction": -0.17879412735367217
     }
   }
 }

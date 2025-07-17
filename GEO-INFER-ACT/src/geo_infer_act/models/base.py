@@ -3,10 +3,10 @@ Base models for active inference framework.
 """
 from typing import Dict, List, Optional, Any
 import numpy as np
-from abc import ABC, abstractmethod
+# from abc import ABC, abstractmethod
 
 
-class ActiveInferenceModel(ABC):
+class ActiveInferenceModel:
     """
     Base class for active inference models.
     
@@ -23,7 +23,6 @@ class ActiveInferenceModel(ABC):
         """
         self.config = config if config is not None else {}
     
-    @abstractmethod
     def step(self, actions: Optional[Any] = None) -> Any:
         """
         Advance the model by one step.
@@ -176,6 +175,12 @@ class CategoricalModel(ActiveInferenceModel):
         """
         self.beliefs = np.ones(self.state_dim) / self.state_dim
         return self.beliefs
+
+    def compute_free_energy(self) -> float:
+        if self.beliefs is None:
+            return np.inf
+        preferences = np.ones_like(self.beliefs) / len(self.beliefs)
+        return np.sum(self.beliefs * np.log(self.beliefs / preferences))
 
 
 class GaussianModel(ActiveInferenceModel):

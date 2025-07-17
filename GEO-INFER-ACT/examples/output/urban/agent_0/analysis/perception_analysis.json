@@ -1,25 +1,25 @@
 {
   "belief_dynamics": {
     "belief_change_magnitude": {
-      "mean": 0.01268365784135104,
-      "std": 0.0077063413283464,
-      "max": 0.03284200867731222
+      "mean": 0.021541653755305,
+      "std": 0.017201975500016887,
+      "max": 0.06772297243823454
     },
     "entropy_dynamics": {
-      "initial": 1.5541484697417223,
-      "final": 1.25939874705568,
-      "mean": 1.380071040036863,
-      "trend": -0.015242789891985756
+      "initial": 1.5803880085894106,
+      "final": 1.081543245167853,
+      "mean": 1.2955935929146931,
+      "trend": -0.02718157898337624
     },
     "stability_by_state": [
-      0.0038869533539417902,
-      0.0010765162358769371,
-      0.004238573941503041,
-      0.003382967385447105,
-      0.004766579984834899
+      0.0016792542440229401,
+      0.008842979855236025,
+      0.011517921183624378,
+      0.008543469805696806,
+      0.005030449064617588
     ],
-    "state_switches": 0,
-    "switch_rate": 0.0
+    "state_switches": 1,
+    "switch_rate": 0.05
   },
   "observation_response": {
     "responsiveness": {
@@ -52,8 +52,8 @@
   },
   "perception_quality": {
     "is_flat": false,
-    "randomness_score": 0.0009517047730069894,
-    "structure_score": 0.12395562202323421,
+    "randomness_score": 0.00023933013162957817,
+    "structure_score": 0.20179566934412846,
     "quality_rating": "Fair - Limited Structure"
   },
   "pattern_detection": {
@@ -62,64 +62,71 @@
         "num_peaks": 0,
         "num_valleys": 0,
         "estimated_frequency": 0.0,
-        "amplitude": 0.0335076338349284
+        "amplitude": 0.034661568788310226
       },
       "state_1": {
-        "num_peaks": 1,
+        "num_peaks": 0,
         "num_valleys": 0,
         "estimated_frequency": 0.0,
-        "amplitude": 0.009623425312544363
+        "amplitude": 0.06699593687769057
       },
       "state_2": {
         "num_peaks": 0,
         "num_valleys": 0,
         "estimated_frequency": 0.0,
-        "amplitude": 0.024057779446684257
+        "amplitude": 0.060155517249593476
       },
       "state_3": {
         "num_peaks": 0,
         "num_valleys": 0,
         "estimated_frequency": 0.0,
-        "amplitude": 0.04539400070502904
+        "amplitude": 0.05496256902107075
       },
       "state_4": {
         "num_peaks": 0,
         "num_valleys": 0,
         "estimated_frequency": 0.0,
-        "amplitude": 0.027226486716950948
+        "amplitude": 0.0284631575741324
       }
     },
     "convergence": {
       "state_0": {
         "is_converging": true,
-        "convergence_rate": 2.528767012232653e-05,
-        "final_variance": 1.8084772406747566e-05
+        "convergence_rate": 1.1755169299085334e-05,
+        "final_variance": 3.94951860481922e-05
       },
       "state_1": {
-        "is_converging": false,
-        "convergence_rate": 8.087630781259372e-07,
-        "final_variance": 1.0854735754123211e-05
+        "is_converging": true,
+        "convergence_rate": 0.00011243487056137923,
+        "final_variance": 6.15039262775257e-05
       },
       "state_2": {
         "is_converging": true,
-        "convergence_rate": 1.974277653189885e-05,
-        "final_variance": 1.8291603453808485e-06
+        "convergence_rate": 0.00012860975418003688,
+        "final_variance": 1.7890523782693674e-05
       },
       "state_3": {
         "is_converging": true,
-        "convergence_rate": 2.8872404648737316e-05,
-        "final_variance": 7.230916522143437e-05
+        "convergence_rate": 8.97002444695465e-05,
+        "final_variance": 2.3691352119278218e-05
       },
       "state_4": {
         "is_converging": true,
-        "convergence_rate": 2.4222703344401092e-05,
-        "final_variance": 5.305394835255705e-06
+        "convergence_rate": 2.6995638823214906e-05,
+        "final_variance": 4.82393736613948e-06
       }
     },
     "phase_transitions": {
-      "num_transitions": 0,
-      "transitions": [],
-      "transition_rate": 0.0
+      "num_transitions": 1,
+      "transitions": [
+        {
+          "timestep": 1,
+          "from_state": 2,
+          "to_state": 1,
+          "strength": 0.017176566714551422
+        }
+      ],
+      "transition_rate": 0.05
     }
   },
   "surprise_analysis": {

@@ -1,5 +1,5 @@
 # Active Inference Analysis Report
-Generated at: 2025-07-16 14:43:49.186800
+Generated at: 2025-07-17 05:27:28.017995
 Output directory: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/ecological_model
 Total steps analyzed: 40
 
@@ -7,15 +7,15 @@ Total steps analyzed: 40
 
 **Perception Quality**: Fair - Limited Structure
 - Flatness detected: False
-- Randomness score: 0.008
-- Structure score: 0.104
+- Randomness score: 0.011
+- Structure score: 0.213
 
 **Decision Quality**: Poor
-- Overall score: 0.255
+- Overall score: 0.192
 
 **Free Energy Minimization**: Poor - Increasing free energy
-- Total reduction: -0.0919
-- Efficiency: -0.0023
+- Total reduction: -0.4866
+- Efficiency: -0.0122
 
 ## Detailed Analysis
 

@@ -741,3 +741,13 @@ class GenerativeModel:
             return "exploring"
         else:
             return "learning" 
+
+    def update_h3_beliefs(self, h3_observations: Dict[str, np.ndarray]):
+        if not self.spatial_mode:
+            raise ValueError('Enable spatial mode first')
+        beliefs = {}
+        for cell, obs in h3_observations.items():
+            beliefs[cell] = self.update_beliefs({'observations': obs})['states']
+        # Minimize free energy across cells (simplified average)
+        avg_beliefs = np.mean(list(beliefs.values()), axis=0)
+        return {'h3_beliefs': beliefs, 'average': avg_beliefs} 

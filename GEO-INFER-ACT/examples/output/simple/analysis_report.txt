@@ -1,5 +1,5 @@
 # Active Inference Analysis Report
-Generated at: 2025-07-16 14:42:26.687978
+Generated at: 2025-07-17 05:23:52.223070
 Output directory: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple
 Total steps analyzed: 13
 
@@ -7,15 +7,15 @@ Total steps analyzed: 13
 
 **Perception Quality**: Fair - Limited Structure
 - Flatness detected: False
-- Randomness score: 0.103
-- Structure score: 0.116
+- Randomness score: 0.337
+- Structure score: 0.108
 
 **Decision Quality**: Poor
-- Overall score: 0.385
+- Overall score: 0.231
 
 **Free Energy Minimization**: Poor - Increasing free energy
-- Total reduction: -0.0253
-- Efficiency: -0.0019
+- Total reduction: -0.1788
+- Efficiency: -0.0138
 
 ## Detailed Analysis
 

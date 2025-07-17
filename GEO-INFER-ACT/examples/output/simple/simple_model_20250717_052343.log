@@ -1,0 +1,245 @@
+2025-07-17 05:23:43,094 - SimpleActiveInference - INFO - Simple Active Inference Model - Comprehensive Analysis
+2025-07-17 05:23:43,094 - SimpleActiveInference - INFO - ======================================================================
+2025-07-17 05:23:43,094 - SimpleActiveInference - INFO - Starting Simple Active Inference Model with Enhanced Analysis
+2025-07-17 05:23:43,094 - SimpleActiveInference - INFO - Demonstrating dynamic belief updating, policy selection, and pattern detection
+2025-07-17 05:23:43,204 - geo_infer_act.api.interface - INFO - ActiveInferenceInterface initialized
+2025-07-17 05:23:43,205 - geo_infer_act.api.interface - INFO - Created categorical model: simple_model
+2025-07-17 05:23:43,205 - SimpleActiveInference - INFO - Created enhanced model: simple_model (type: categorical)
+2025-07-17 05:23:43,205 - SimpleActiveInference - INFO - State dimensions: 4, Observation dimensions: 3
+2025-07-17 05:23:43,206 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple
+2025-07-17 05:23:43,206 - SimpleActiveInference - INFO - Initialized ActiveInferenceAnalyzer for comprehensive tracing
+2025-07-17 05:23:43,206 - geo_infer_act.api.interface - INFO - Set preferences for model simple_model
+2025-07-17 05:23:43,206 - SimpleActiveInference - INFO - Set structured prior preferences: [0.2 0.6 0.2]
+2025-07-17 05:23:43,206 - SimpleActiveInference - INFO - Initial beliefs:
+2025-07-17 05:23:43,206 - SimpleActiveInference - INFO -   Exploration: 0.1912
+2025-07-17 05:23:43,206 - SimpleActiveInference - INFO -   Exploitation: 0.1912
+2025-07-17 05:23:43,206 - SimpleActiveInference - INFO -   Planning: 0.4265
+2025-07-17 05:23:43,206 - SimpleActiveInference - INFO -   Rest: 0.1912
+2025-07-17 05:23:43,207 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=0.0792
+2025-07-17 05:23:43,208 - SimpleActiveInference - INFO - Creating structured observation sequence for dynamic analysis...
+2025-07-17 05:23:43,208 - SimpleActiveInference - INFO - Running simulation with comprehensive real-time analysis...
+2025-07-17 05:23:43,208 - SimpleActiveInference - INFO - --------------------------------------------------
+2025-07-17 05:23:43,208 - SimpleActiveInference - INFO - Step 1: Initial Search (exploration phase)
+2025-07-17 05:23:43,208 - SimpleActiveInference - INFO -   Observation: [1 0 0] (Search)
+2025-07-17 05:23:43,210 - SimpleActiveInference - INFO -   Pre-update beliefs: [0.19117647 0.19117647 0.42647059 0.19117647]
+2025-07-17 05:23:43,210 - SimpleActiveInference - INFO -   Post-update beliefs: [0.16783491 0.17288299 0.49558586 0.16369624]
+2025-07-17 05:23:43,210 - SimpleActiveInference - INFO -   Belief entropy: 1.2471
+2025-07-17 05:23:43,210 - SimpleActiveInference - INFO -   Surprise: 0.0000
+2025-07-17 05:23:43,210 - SimpleActiveInference - INFO -   Information gain: 0.0652
+2025-07-17 05:23:43,210 - SimpleActiveInference - INFO -   Free energy change: 0.0792 → 0.1492 (Δ=0.0699)
+2025-07-17 05:23:43,211 - SimpleActiveInference - INFO -   Selected policy: 4 (prob: 0.162)
+2025-07-17 05:23:43,211 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=0.1492
+2025-07-17 05:23:43,211 - SimpleActiveInference - INFO - 
+2025-07-17 05:23:43,211 - SimpleActiveInference - INFO - Step 2: Continued Search (exploration phase)
+2025-07-17 05:23:43,211 - SimpleActiveInference - INFO -   Observation: [1 0 0] (Search)
+2025-07-17 05:23:43,212 - SimpleActiveInference - INFO -   Pre-update beliefs: [0.16783491 0.17288299 0.49558586 0.16369624]
+2025-07-17 05:23:43,212 - SimpleActiveInference - INFO -   Post-update beliefs: [0.14729085 0.15566044 0.55644802 0.14060069]
+2025-07-17 05:23:43,213 - SimpleActiveInference - INFO -   Belief entropy: 1.1737
+2025-07-17 05:23:43,213 - SimpleActiveInference - INFO -   Surprise: 0.0000
+2025-07-17 05:23:43,213 - SimpleActiveInference - INFO -   Information gain: 0.0735
+2025-07-17 05:23:43,213 - SimpleActiveInference - INFO -   Free energy change: 0.1492 → 0.2280 (Δ=0.0788)
+2025-07-17 05:23:43,213 - SimpleActiveInference - INFO -   Selected policy: 2 (prob: 0.217)
+2025-07-17 05:23:43,213 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=0.2280
+2025-07-17 05:23:43,213 - SimpleActiveInference - INFO - 
+2025-07-17 05:23:43,213 - SimpleActiveInference - INFO - Step 3: First Discovery (exploitation phase)
+2025-07-17 05:23:43,213 - SimpleActiveInference - INFO -   Observation: [0 1 0] (Success)
+2025-07-17 05:23:43,215 - SimpleActiveInference - INFO -   Pre-update beliefs: [0.14729085 0.15566044 0.55644802 0.14060069]
+2025-07-17 05:23:43,215 - SimpleActiveInference - INFO -   Post-update beliefs: [0.13221313 0.20587607 0.50770887 0.15420193]
+2025-07-17 05:23:43,215 - SimpleActiveInference - INFO -   Belief entropy: 1.2253
+2025-07-17 05:23:43,216 - SimpleActiveInference - INFO -   Surprise: 0.0000
+2025-07-17 05:23:43,217 - SimpleActiveInference - INFO -   Information gain: 0.0000
+2025-07-17 05:23:43,217 - SimpleActiveInference - INFO -   Free energy change: 0.2280 → 0.1726 (Δ=-0.0554)
+2025-07-17 05:23:43,217 - SimpleActiveInference - INFO -   Selected policy: 3 (prob: 0.184)
+2025-07-17 05:23:43,218 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=0.1726
+2025-07-17 05:23:43,218 - SimpleActiveInference - INFO - 
+2025-07-17 05:23:43,218 - SimpleActiveInference - INFO - Step 4: Successful Exploitation (exploitation phase)
+2025-07-17 05:23:43,218 - SimpleActiveInference - INFO -   Observation: [0 1 0] (Success)
+2025-07-17 05:23:43,220 - SimpleActiveInference - INFO -   Pre-update beliefs: [0.13221313 0.20587607 0.50770887 0.15420193]
+2025-07-17 05:23:43,220 - SimpleActiveInference - INFO -   Post-update beliefs: [0.11862842 0.25639417 0.46163196 0.16334544]
+2025-07-17 05:23:43,220 - SimpleActiveInference - INFO -   Belief entropy: 1.2546
+2025-07-17 05:23:43,220 - SimpleActiveInference - INFO -   Surprise: 0.0000
+2025-07-17 05:23:43,222 - SimpleActiveInference - INFO -   Information gain: 0.0000
+2025-07-17 05:23:43,222 - SimpleActiveInference - INFO -   Free energy change: 0.1726 → 0.1411 (Δ=-0.0314)
+2025-07-17 05:23:43,222 - SimpleActiveInference - INFO -   Selected policy: 3 (prob: 0.137)
+2025-07-17 05:23:43,223 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=0.1411
+2025-07-17 05:23:43,223 - SimpleActiveInference - INFO - 
+2025-07-17 05:23:43,223 - SimpleActiveInference - INFO - Step 5: Transition/Rest (planning phase)
+2025-07-17 05:23:43,223 - SimpleActiveInference - INFO -   Observation: [0 0 1] (Transition)
+2025-07-17 05:23:43,224 - SimpleActiveInference - INFO -   Pre-update beliefs: [0.11862842 0.25639417 0.46163196 0.16334544]
+2025-07-17 05:23:43,225 - SimpleActiveInference - INFO -   Post-update beliefs: [0.11079957 0.24206591 0.50941067 0.13772385]
+2025-07-17 05:23:43,225 - SimpleActiveInference - INFO -   Belief entropy: 1.2038
+2025-07-17 05:23:43,225 - SimpleActiveInference - INFO -   Surprise: 0.0000
+2025-07-17 05:23:43,225 - SimpleActiveInference - INFO -   Information gain: 0.0509
+2025-07-17 05:23:43,225 - SimpleActiveInference - INFO -   Free energy change: 0.1411 → 0.1957 (Δ=0.0545)
+2025-07-17 05:23:43,225 - SimpleActiveInference - INFO -   Selected policy: 1 (prob: 0.165)
+2025-07-17 05:23:43,225 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=0.1957
+2025-07-17 05:23:43,225 - SimpleActiveInference - INFO - 
+2025-07-17 05:23:43,225 - SimpleActiveInference - INFO - Step 6: New Search Phase (exploration phase)
+2025-07-17 05:23:43,225 - SimpleActiveInference - INFO -   Observation: [1 0 0] (Search)
+2025-07-17 05:23:43,227 - SimpleActiveInference - INFO -   Pre-update beliefs: [0.11079957 0.24206591 0.50941067 0.13772385]
+2025-07-17 05:23:43,228 - SimpleActiveInference - INFO -   Post-update beliefs: [0.09964297 0.21956135 0.55958021 0.12121548]
+2025-07-17 05:23:43,228 - SimpleActiveInference - INFO -   Belief entropy: 1.1433
+2025-07-17 05:23:43,228 - SimpleActiveInference - INFO -   Surprise: 0.0000
+2025-07-17 05:23:43,229 - SimpleActiveInference - INFO -   Information gain: 0.0604
+2025-07-17 05:23:43,229 - SimpleActiveInference - INFO -   Free energy change: 0.1957 → 0.2605 (Δ=0.0648)
+2025-07-17 05:23:43,229 - SimpleActiveInference - INFO -   Selected policy: 3 (prob: 0.267)
+2025-07-17 05:23:43,229 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=0.2605
+2025-07-17 05:23:43,230 - SimpleActiveInference - INFO - 
+2025-07-17 05:23:43,230 - SimpleActiveInference - INFO - Step 7: Quick Rediscovery (exploitation phase)
+2025-07-17 05:23:43,230 - SimpleActiveInference - INFO -   Observation: [0 1 0] (Success)
+2025-07-17 05:23:43,232 - SimpleActiveInference - INFO -   Pre-update beliefs: [0.09964297 0.21956135 0.55958021 0.12121548]
+2025-07-17 05:23:43,232 - SimpleActiveInference - INFO -   Post-update beliefs: [0.09187063 0.26703199 0.51215624 0.12894113]
+2025-07-17 05:23:43,232 - SimpleActiveInference - INFO -   Belief entropy: 1.1787
+2025-07-17 05:23:43,233 - SimpleActiveInference - INFO -   Surprise: 0.0000
+2025-07-17 05:23:43,233 - SimpleActiveInference - INFO -   Information gain: 0.0000
+2025-07-17 05:23:43,233 - SimpleActiveInference - INFO -   Free energy change: 0.2605 → 0.2225 (Δ=-0.0380)
+2025-07-17 05:23:43,233 - SimpleActiveInference - INFO -   Selected policy: 3 (prob: 0.216)
+2025-07-17 05:23:43,233 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=0.2225
+2025-07-17 05:23:43,234 - SimpleActiveInference - INFO - 
+2025-07-17 05:23:43,234 - SimpleActiveInference - INFO - Step 8: Sustained Success (exploitation phase)
+2025-07-17 05:23:43,234 - SimpleActiveInference - INFO -   Observation: [0 1 0] (Success)
+2025-07-17 05:23:43,236 - SimpleActiveInference - INFO -   Pre-update beliefs: [0.09187063 0.26703199 0.51215624 0.12894113]
+2025-07-17 05:23:43,237 - SimpleActiveInference - INFO -   Post-update beliefs: [0.08451098 0.3130884  0.46842992 0.1339707 ]
+2025-07-17 05:23:43,237 - SimpleActiveInference - INFO -   Belief entropy: 1.1969
+2025-07-17 05:23:43,237 - SimpleActiveInference - INFO -   Surprise: 0.0000
+2025-07-17 05:23:43,238 - SimpleActiveInference - INFO -   Information gain: 0.0000
+2025-07-17 05:23:43,238 - SimpleActiveInference - INFO -   Free energy change: 0.2225 → 0.2030 (Δ=-0.0195)
+2025-07-17 05:23:43,238 - SimpleActiveInference - INFO -   Selected policy: 4 (prob: 0.249)
+2025-07-17 05:23:43,238 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=0.2030
+2025-07-17 05:23:43,238 - SimpleActiveInference - INFO - 
+2025-07-17 05:23:43,238 - SimpleActiveInference - INFO - Step 9: Strategic Rest (planning phase)
+2025-07-17 05:23:43,239 - SimpleActiveInference - INFO -   Observation: [0 0 1] (Transition)
+2025-07-17 05:23:43,241 - SimpleActiveInference - INFO -   Pre-update beliefs: [0.08451098 0.3130884  0.46842992 0.1339707 ]
+2025-07-17 05:23:43,241 - SimpleActiveInference - INFO -   Post-update beliefs: [0.08018855 0.29466863 0.50976109 0.11538173]
+2025-07-17 05:23:43,242 - SimpleActiveInference - INFO -   Belief entropy: 1.1551
+2025-07-17 05:23:43,242 - SimpleActiveInference - INFO -   Surprise: 0.0000
+2025-07-17 05:23:43,242 - SimpleActiveInference - INFO -   Information gain: 0.0419
+2025-07-17 05:23:43,243 - SimpleActiveInference - INFO -   Free energy change: 0.2030 → 0.2479 (Δ=0.0449)
+2025-07-17 05:23:43,243 - SimpleActiveInference - INFO -   Selected policy: 3 (prob: 0.191)
+2025-07-17 05:23:43,243 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=0.2479
+2025-07-17 05:23:43,244 - SimpleActiveInference - INFO - 
+2025-07-17 05:23:43,244 - SimpleActiveInference - INFO - Step 10: Exploration Again (exploration phase)
+2025-07-17 05:23:43,244 - SimpleActiveInference - INFO -   Observation: [1 0 0] (Search)
+2025-07-17 05:23:43,246 - SimpleActiveInference - INFO -   Pre-update beliefs: [0.08018855 0.29466863 0.50976109 0.11538173]
+2025-07-17 05:23:43,247 - SimpleActiveInference - INFO -   Post-update beliefs: [0.07354178 0.26823259 0.55496399 0.10326165]
+2025-07-17 05:23:43,247 - SimpleActiveInference - INFO -   Belief entropy: 1.1062
+2025-07-17 05:23:43,247 - SimpleActiveInference - INFO -   Surprise: 0.0000
+2025-07-17 05:23:43,247 - SimpleActiveInference - INFO -   Information gain: 0.0489
+2025-07-17 05:23:43,247 - SimpleActiveInference - INFO -   Free energy change: 0.2479 → 0.3004 (Δ=0.0524)
+2025-07-17 05:23:43,247 - SimpleActiveInference - INFO -   Selected policy: 0 (prob: 0.156)
+2025-07-17 05:23:43,247 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=0.3004
+2025-07-17 05:23:43,248 - SimpleActiveInference - INFO - 
+2025-07-17 05:23:43,248 - SimpleActiveInference - INFO - Step 11: Efficient Discovery (exploitation phase)
+2025-07-17 05:23:43,248 - SimpleActiveInference - INFO -   Observation: [0 1 0] (Success)
+2025-07-17 05:23:43,250 - SimpleActiveInference - INFO -   Pre-update beliefs: [0.07354178 0.26823259 0.55496399 0.10326165]
+2025-07-17 05:23:43,253 - SimpleActiveInference - INFO -   Post-update beliefs: [0.06899658 0.31366411 0.50862901 0.10871031]
+2025-07-17 05:23:43,253 - SimpleActiveInference - INFO -   Belief entropy: 1.1332
+2025-07-17 05:23:43,254 - SimpleActiveInference - INFO -   Surprise: 0.0000
+2025-07-17 05:23:43,254 - SimpleActiveInference - INFO -   Information gain: 0.0000
+2025-07-17 05:23:43,254 - SimpleActiveInference - INFO -   Free energy change: 0.3004 → 0.2713 (Δ=-0.0290)
+2025-07-17 05:23:43,254 - SimpleActiveInference - INFO -   Selected policy: 2 (prob: 0.141)
+2025-07-17 05:23:43,254 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=0.2713
+2025-07-17 05:23:43,254 - SimpleActiveInference - INFO - 
+2025-07-17 05:23:43,254 - SimpleActiveInference - INFO - Step 12: Optimization (exploitation phase)
+2025-07-17 05:23:43,255 - SimpleActiveInference - INFO -   Observation: [0 1 0] (Success)
+2025-07-17 05:23:43,256 - SimpleActiveInference - INFO -   Pre-update beliefs: [0.06899658 0.31366411 0.50862901 0.10871031]
+2025-07-17 05:23:43,257 - SimpleActiveInference - INFO -   Post-update beliefs: [0.06447212 0.35692437 0.46641203 0.11219147]
+2025-07-17 05:23:43,257 - SimpleActiveInference - INFO -   Belief entropy: 1.1456
+2025-07-17 05:23:43,257 - SimpleActiveInference - INFO -   Surprise: 0.0000
+2025-07-17 05:23:43,258 - SimpleActiveInference - INFO -   Information gain: 0.0000
+2025-07-17 05:23:43,258 - SimpleActiveInference - INFO -   Free energy change: 0.2713 → 0.2580 (Δ=-0.0133)
+2025-07-17 05:23:43,258 - SimpleActiveInference - INFO -   Selected policy: 4 (prob: 0.307)
+2025-07-17 05:23:43,258 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=0.2580
+2025-07-17 05:23:43,258 - SimpleActiveInference - INFO - 
+2025-07-17 05:23:43,258 - SimpleActiveInference - INFO - Performing comprehensive post-simulation analysis...
+2025-07-17 05:23:43,258 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2025-07-17 05:23:43,268 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/analysis/perception_analysis.json
+2025-07-17 05:23:43,269 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2025-07-17 05:23:43,269 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2025-07-17 05:23:43,270 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/analysis/action_selection_analysis.json
+2025-07-17 05:23:43,270 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2025-07-17 05:23:43,271 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2025-07-17 05:23:43,274 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/analysis/free_energy_analysis.json
+2025-07-17 05:23:43,275 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2025-07-17 05:23:43,275 - SimpleActiveInference - INFO - PERCEPTION ANALYSIS:
+2025-07-17 05:23:43,275 - SimpleActiveInference - INFO -   Analysis completed: 5 components analyzed
+2025-07-17 05:23:43,275 - SimpleActiveInference - INFO - ACTION SELECTION ANALYSIS:
+2025-07-17 05:23:43,275 - SimpleActiveInference - INFO -   Analysis completed: 5 components analyzed
+2025-07-17 05:23:43,275 - SimpleActiveInference - INFO - FREE ENERGY ANALYSIS:
+2025-07-17 05:23:43,275 - SimpleActiveInference - INFO -   Analysis completed: 5 components analyzed
+2025-07-17 05:23:43,276 - SimpleActiveInference - INFO - Running advanced pattern detection...
+2025-07-17 05:23:43,278 - SimpleActiveInference - INFO - ADVANCED PATTERN ANALYSIS:
+2025-07-17 05:23:43,278 - SimpleActiveInference - INFO -   Belief stationarity: {'is_stationary': False, 'stationarity_score': 0.0}
+2025-07-17 05:23:43,278 - SimpleActiveInference - INFO -   Belief periodicity: {'is_periodic': False, 'period': 0, 'strength': 0.0}
+2025-07-17 05:23:43,279 - SimpleActiveInference - INFO -   Belief complexity: 0.419
+2025-07-17 05:23:43,279 - SimpleActiveInference - INFO -   Free energy convergence: {'converged': False, 'convergence_step': -1, 'final_variance': 0.0021774581700312657, 'convergence_rate': 0.0}
+2025-07-17 05:23:43,279 - SimpleActiveInference - INFO -   Free energy stationarity: {'is_stationary': False, 'stationarity_score': 0.0}
+2025-07-17 05:23:43,279 - SimpleActiveInference - INFO - Creating comprehensive visualizations...
+2025-07-17 05:23:46,227 - geo_infer_act.utils.visualization - INFO - Perception analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple
+2025-07-17 05:23:47,160 - geo_infer_act.utils.visualization - INFO - Action analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple
+2025-07-17 05:23:49,498 - geo_infer_act.utils.visualization - INFO - Interpretability dashboard saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple
+2025-07-17 05:23:52,210 - SimpleActiveInference - INFO - Exporting data and generating reports...
+2025-07-17 05:23:52,214 - geo_infer_act.utils.analysis - INFO - Traces saved to CSV files in /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/data
+2025-07-17 05:23:52,215 - geo_infer_act.utils.analysis - INFO - Generating comprehensive analysis report...
+2025-07-17 05:23:52,215 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2025-07-17 05:23:52,220 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/analysis/perception_analysis.json
+2025-07-17 05:23:52,220 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2025-07-17 05:23:52,220 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2025-07-17 05:23:52,221 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/analysis/action_selection_analysis.json
+2025-07-17 05:23:52,221 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2025-07-17 05:23:52,221 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2025-07-17 05:23:52,222 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/analysis/free_energy_analysis.json
+2025-07-17 05:23:52,222 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2025-07-17 05:23:52,223 - geo_infer_act.utils.analysis - INFO - Comprehensive report saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/comprehensive_report.md
+2025-07-17 05:23:52,223 - SimpleActiveInference - INFO - 
+======================================================================
+2025-07-17 05:23:52,223 - SimpleActiveInference - INFO - COMPREHENSIVE SIMPLE MODEL ANALYSIS COMPLETE
+2025-07-17 05:23:52,223 - SimpleActiveInference - INFO - ======================================================================
+2025-07-17 05:23:52,223 - SimpleActiveInference - INFO - BELIEF EVOLUTION SUMMARY:
+2025-07-17 05:23:52,223 - SimpleActiveInference - INFO -   Exploration: 0.1912 → 0.0645 (Δ=-0.1267)
+2025-07-17 05:23:52,223 - SimpleActiveInference - INFO -   Exploitation: 0.1912 → 0.3569 (Δ=+0.1657)
+2025-07-17 05:23:52,223 - SimpleActiveInference - INFO -   Planning: 0.4265 → 0.4664 (Δ=+0.0399)
+2025-07-17 05:23:52,223 - SimpleActiveInference - INFO -   Rest: 0.1912 → 0.1122 (Δ=-0.0790)
+2025-07-17 05:23:52,223 - SimpleActiveInference - INFO - 
+BELIEF UNCERTAINTY ANALYSIS:
+2025-07-17 05:23:52,223 - SimpleActiveInference - INFO -   Initial entropy: 1.3124
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Final entropy: 1.1456
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Entropy change: -0.1668
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO - 
+FREE ENERGY ANALYSIS:
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Initial: 0.0792
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Final: 0.2580
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Total reduction: -0.1788
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Minimization efficiency: -225.6%
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO - 
+PERFORMANCE METRICS:
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Average surprise: 0.0000
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Average information gain: 0.0284
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Total information gain: 0.3408
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Learning efficiency: 0.0284 per step
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO - 
+QUALITY ASSESSMENTS:
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Perception quality: 0.000/1.0
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Action quality: 0.000/1.0
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Free energy quality: 0.000/1.0
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO - 
+OUTPUTS GENERATED:
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Analysis data: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/simple_model_data.csv
+2025-07-17 05:23:52,224 - SimpleActiveInference - INFO -   Comprehensive report: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/analysis_report.txt
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO -   Visualizations: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple/*.png
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO -   Log file: Multiple .log files in /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/simple
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO - 
+FEATURES DEMONSTRATED:
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO - • Comprehensive belief dynamics tracking and analysis
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO - • Real-time perception pattern detection and quality assessment
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO - • Advanced action selection analysis with convergence detection
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO - • Free energy minimization efficiency analysis
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO - • Information-theoretic learning metrics and pattern detection
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO - • Multi-phase behavioral analysis and interpretation
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO - • Professional visualization suite with interpretability dashboards
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO - • Automated pattern detection and convergence analysis
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO - • Comprehensive data export and reporting capabilities
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO - 
+Simple Active Inference model with comprehensive analysis complete!
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO - Total steps analyzed: 13
+2025-07-17 05:23:52,225 - SimpleActiveInference - INFO - Analysis completed successfully at: 2025-07-17 05:23:52

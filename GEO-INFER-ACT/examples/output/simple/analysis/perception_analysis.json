@@ -1,140 +1,121 @@
 {
   "belief_dynamics": {
     "belief_change_magnitude": {
-      "mean": 0.0594417195991383,
-      "std": 0.012193517348092462,
-      "max": 0.08731665170790052
+      "mean": 0.06417792146625048,
+      "std": 0.008411816045794976,
+      "max": 0.08007223605593339
     },
     "entropy_dynamics": {
       "initial": 1.3123811356083477,
-      "final": 1.2887696381354083,
-      "mean": 1.3017682660244745,
-      "trend": 0.0023282838295814075
+      "final": 1.1456165316136258,
+      "mean": 1.1904619659436944,
+      "trend": -0.012040908290329461
     },
     "stability_by_state": [
-      0.019377446077847634,
-      0.009680395261588743,
-      0.0353247474547357,
-      0.036445920047667356
+      0.006091408259546007,
+      0.03351072740972273,
+      0.04957179099096775,
+      0.014678518104677086
     ],
-    "state_switches": 3,
-    "switch_rate": 0.23076923076923078
+    "state_switches": 0,
+    "switch_rate": 0.0
   },
   "observation_response": {
     "responsiveness": {
-      "mean": 0.04622428118137751,
-      "std": 0.011478948610599364,
+      "mean": 0.04753062301512356,
+      "std": 0.013325783230674206,
       "distribution": [
-        0.0678131981068269,
-        0.06174219653316039,
-        0.040170503264759475,
-        0.04248182477851808,
-        0.041740849841202105,
-        0.03695905894166831,
-        0.046467559286269784,
-        0.032419058698615055
+        0.08007223605593339,
+        0.05152400568211128,
+        0.04003661325245059,
+        0.04135477055125919,
+        0.048075924415655974,
+        0.0347259748928845,
+        0.03829649282362075,
+        0.04615896644707279
       ]
     },
     "correlation_analysis": {
-      "state_0_obs_0": -0.20572429092293112,
-      "state_0_obs_1": 0.5370574664821177,
-      "state_0_obs_2": -0.019853672317084552,
-      "state_1_obs_0": 0.09789524412142915,
-      "state_1_obs_1": -0.4314398821341151,
-      "state_1_obs_2": -0.049940916725812426,
-      "state_2_obs_0": 0.4613462615782567,
-      "state_2_obs_1": -0.40010097753182583,
-      "state_2_obs_2": -0.2431768382016718,
-      "state_3_obs_0": -0.4716400216200654,
-      "state_3_obs_1": 0.29848912013450385,
-      "state_3_obs_2": 0.34060005007156036
+      "state_0_obs_0": 0.20931695193756408,
+      "state_0_obs_1": -0.4035183078202229,
+      "state_0_obs_2": -0.16300382439528793,
+      "state_1_obs_0": -0.5364162125755985,
+      "state_1_obs_1": 0.5600951255098225,
+      "state_1_obs_2": 0.13149821596004804,
+      "state_2_obs_0": 0.6738577697695224,
+      "state_2_obs_1": -0.3707619707913524,
+      "state_2_obs_2": 0.07473671438991568,
+      "state_3_obs_0": -0.1156154775095228,
+      "state_3_obs_1": -0.10953033787141427,
+      "state_3_obs_2": -0.17095004575786418
     }
   },
   "perception_quality": {
     "is_flat": false,
-    "randomness_score": 0.10330214316341968,
-    "structure_score": 0.11644799497489783,
+    "randomness_score": 0.33661722418631235,
+    "structure_score": 0.1083601478662986,
     "quality_rating": "Fair - Limited Structure"
   },
   "pattern_detection": {
     "oscillations": {
       "state_0": {
-        "num_peaks": 2,
-        "num_valleys": 1,
-        "estimated_frequency": 0.25,
-        "amplitude": 0.04608638478842624
+        "num_peaks": 0,
+        "num_valleys": 0,
+        "estimated_frequency": 0.0,
+        "amplitude": 0.03818088112823586
       },
       "state_1": {
-        "num_peaks": 1,
-        "num_valleys": 1,
-        "estimated_frequency": 0.0,
-        "amplitude": 0.027353269900739843
+        "num_peaks": 2,
+        "num_valleys": 2,
+        "estimated_frequency": 0.25,
+        "amplitude": 0.05775567271768099
       },
       "state_2": {
-        "num_peaks": 2,
+        "num_peaks": 3,
         "num_valleys": 2,
         "estimated_frequency": 0.25,
-        "amplitude": 0.07994418500553903
+        "amplitude": 0.03836998483254155
       },
       "state_3": {
-        "num_peaks": 2,
+        "num_peaks": 1,
         "num_valleys": 2,
-        "estimated_frequency": 0.25,
-        "amplitude": 0.06377452232861613
+        "estimated_frequency": 0.0,
+        "amplitude": 0.02479545916496584
       }
     },
     "convergence": {
       "state_0": {
         "is_converging": true,
-        "convergence_rate": 8.856617848109018e-05,
-        "final_variance": 0.00028364056844787546
+        "convergence_rate": 5.0249544299206516e-05,
+        "final_variance": 3.3739626442664815e-05
       },
       "state_1": {
         "is_converging": true,
-        "convergence_rate": 3.659353399924722e-05,
-        "final_variance": 5.0620226284044765e-05
+        "convergence_rate": 5.145626303233018e-05,
+        "final_variance": 0.0010460734487917549
       },
       "state_2": {
         "is_converging": true,
-        "convergence_rate": 0.00020981087796856766,
-        "final_variance": 0.00045676749518075617
+        "convergence_rate": 9.756486847939805e-05,
+        "final_variance": 0.0009808985550431174
       },
       "state_3": {
         "is_converging": true,
-        "convergence_rate": 3.778910145673923e-05,
-        "final_variance": 0.0005305330600892297
+        "convergence_rate": 1.6706482071489605e-05,
+        "final_variance": 2.0195660669838914e-05
       }
     },
     "phase_transitions": {
-      "num_transitions": 3,
-      "transitions": [
-        {
-          "timestep": 8,
-          "from_state": 2,
-          "to_state": 0,
-          "strength": 0.005524910486546908
-        },
-        {
-          "timestep": 9,
-          "from_state": 0,
-          "to_state": 3,
-          "strength": 0.005377449861948935
-        },
-        {
-          "timestep": 10,
-          "from_state": 3,
-          "to_state": 0,
-          "strength": 0.01405311996902664
-        }
-      ],
-      "transition_rate": 0.23076923076923078
+      "num_transitions": 0,
+      "transitions": [],
+      "transition_rate": 0.0
     }
   },
   "surprise_analysis": {
     "surprise_statistics": {
       "mean": 1.3862943211198913,
-      "std": 2.220446049250313e-16,
-      "min": 1.3862943211198915,
+      "std": 2.1333355589415134e-16,
+      "min": 1.3862943211198913,
       "max": 1.3862943211198915
     },
     "surprise_trend": 7.405893363788134e-17,

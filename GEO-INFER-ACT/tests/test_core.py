@@ -400,6 +400,14 @@ class TestGenerativeModel(unittest.TestCase):
             self.assertTrue(model.spatial_mode)
             self.assertGreater(model.state_dim, 1)
 
+    def test_update_h3_beliefs(self):
+        model = GenerativeModel('categorical', {'state_dim': 2})
+        model.enable_h3_spatial(8, {'coordinates': [[[0,0],[1,0],[1,1],[0,1]]] })
+        obs = {'cell1': np.array([1,0]), 'cell2': np.array([0,1])}
+        updated = model.update_h3_beliefs(obs)
+        self.assertIn('h3_beliefs', updated)
+        self.assertTrue(all(np.allclose(np.sum(b), 1.0) for b in updated['h3_beliefs'].values()))
+
 
 class TestMarkovDecisionProcess(unittest.TestCase):
     """Tests for MarkovDecisionProcess class."""

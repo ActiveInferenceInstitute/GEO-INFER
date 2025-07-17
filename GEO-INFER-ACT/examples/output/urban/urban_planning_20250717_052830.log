@@ -1,0 +1,791 @@
+2025-07-17 05:28:30,646 - UrbanActiveInference - INFO - Urban Planning Active Inference - Comprehensive Analysis
+2025-07-17 05:28:30,646 - UrbanActiveInference - INFO - ======================================================================
+2025-07-17 05:28:30,646 - UrbanActiveInference - INFO - Starting Urban Planning Active Inference Model
+2025-07-17 05:28:30,646 - UrbanActiveInference - INFO - Multi-agent resource allocation and coordination simulation
+2025-07-17 05:28:30,647 - UrbanActiveInference - INFO - Initialized urban model: 6 locations, 4 resources, 3 agents
+2025-07-17 05:28:30,737 - geo_infer_act.api.interface - INFO - ActiveInferenceInterface initialized
+2025-07-17 05:28:30,738 - geo_infer_act.api.interface - INFO - Created categorical model: agent_0_government
+2025-07-17 05:28:30,738 - geo_infer_act.api.interface - INFO - Set preferences for model agent_0_government
+2025-07-17 05:28:30,738 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_0
+2025-07-17 05:28:30,738 - UrbanActiveInference - INFO - Created model for Government agent (ID: 0)
+2025-07-17 05:28:30,738 - geo_infer_act.api.interface - INFO - Created categorical model: agent_1_developer
+2025-07-17 05:28:30,738 - geo_infer_act.api.interface - INFO - Set preferences for model agent_1_developer
+2025-07-17 05:28:30,739 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_1
+2025-07-17 05:28:30,739 - UrbanActiveInference - INFO - Created model for Developer agent (ID: 1)
+2025-07-17 05:28:30,739 - geo_infer_act.api.interface - INFO - Created categorical model: agent_2_community
+2025-07-17 05:28:30,739 - geo_infer_act.api.interface - INFO - Set preferences for model agent_2_community
+2025-07-17 05:28:30,740 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_2
+2025-07-17 05:28:30,740 - UrbanActiveInference - INFO - Created model for Community agent (ID: 2)
+2025-07-17 05:28:30,740 - UrbanActiveInference - INFO - Running urban development simulation for 20 steps...
+2025-07-17 05:28:30,740 - UrbanActiveInference - INFO - 
+--- Step 1/20 ---
+2025-07-17 05:28:30,740 - UrbanActiveInference - INFO - Overall urban quality: 0.528
+2025-07-17 05:28:30,740 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:30,741 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:30,741 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,741 - UrbanActiveInference - INFO -     Belief entropy: 1.5804
+2025-07-17 05:28:30,741 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:30,741 - UrbanActiveInference - INFO -     Information gain: 0.0000
+2025-07-17 05:28:30,741 - UrbanActiveInference - INFO -     Free energy change: 0.0370 → 0.0309
+2025-07-17 05:28:30,741 - UrbanActiveInference - INFO -     Action: Invest 20.0 in Green at location 1
+2025-07-17 05:28:30,741 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:30,741 - UrbanActiveInference - INFO -     Satisfaction: 0.658
+2025-07-17 05:28:30,741 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=0.0309
+2025-07-17 05:28:30,742 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:30,742 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,742 - UrbanActiveInference - INFO -     Belief entropy: 1.3661
+2025-07-17 05:28:30,742 - UrbanActiveInference - INFO -     Surprise: 1.4018
+2025-07-17 05:28:30,742 - UrbanActiveInference - INFO -     Information gain: 0.0000
+2025-07-17 05:28:30,742 - UrbanActiveInference - INFO -     Free energy change: 0.0663 → 0.0217
+2025-07-17 05:28:30,742 - UrbanActiveInference - INFO -     Action: Invest 20.0 in Housing at location 3
+2025-07-17 05:28:30,742 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:30,742 - UrbanActiveInference - INFO -     Satisfaction: 0.500
+2025-07-17 05:28:30,742 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=0.0217
+2025-07-17 05:28:30,743 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:30,743 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,743 - UrbanActiveInference - INFO -     Belief entropy: 1.3234
+2025-07-17 05:28:30,743 - UrbanActiveInference - INFO -     Surprise: 1.6094
+2025-07-17 05:28:30,743 - UrbanActiveInference - INFO -     Information gain: 0.0331
+2025-07-17 05:28:30,743 - UrbanActiveInference - INFO -     Free energy change: 0.0320 → 0.0675
+2025-07-17 05:28:30,743 - UrbanActiveInference - INFO -     Action: Invest 20.0 in Commercial at location 5
+2025-07-17 05:28:30,743 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:30,743 - UrbanActiveInference - INFO -     Satisfaction: 0.494
+2025-07-17 05:28:30,743 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=0.0675
+2025-07-17 05:28:30,743 - UrbanActiveInference - INFO - 
+--- Step 2/20 ---
+2025-07-17 05:28:30,743 - UrbanActiveInference - INFO - Overall urban quality: 0.529
+2025-07-17 05:28:30,743 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:30,744 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:30,744 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,744 - UrbanActiveInference - INFO -     Belief entropy: 1.5597
+2025-07-17 05:28:30,744 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:30,744 - UrbanActiveInference - INFO -     Information gain: 0.0207
+2025-07-17 05:28:30,744 - UrbanActiveInference - INFO -     Free energy change: 0.0309 → 0.0528
+2025-07-17 05:28:30,744 - UrbanActiveInference - INFO -     Action: Invest 16.0 in Housing at location 2
+2025-07-17 05:28:30,744 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:30,744 - UrbanActiveInference - INFO -     Satisfaction: 0.658
+2025-07-17 05:28:30,744 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=0.0528
+2025-07-17 05:28:30,745 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:30,745 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,745 - UrbanActiveInference - INFO -     Belief entropy: 1.3674
+2025-07-17 05:28:30,745 - UrbanActiveInference - INFO -     Surprise: 1.4413
+2025-07-17 05:28:30,745 - UrbanActiveInference - INFO -     Information gain: 0.0000
+2025-07-17 05:28:30,745 - UrbanActiveInference - INFO -     Free energy change: 0.0217 → 0.0202
+2025-07-17 05:28:30,745 - UrbanActiveInference - INFO -     Action: Invest 20.0 in Transport at location 5
+2025-07-17 05:28:30,745 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:30,745 - UrbanActiveInference - INFO -     Satisfaction: 0.485
+2025-07-17 05:28:30,745 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=0.0202
+2025-07-17 05:28:30,746 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:30,746 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,746 - UrbanActiveInference - INFO -     Belief entropy: 1.2785
+2025-07-17 05:28:30,746 - UrbanActiveInference - INFO -     Surprise: 1.5717
+2025-07-17 05:28:30,746 - UrbanActiveInference - INFO -     Information gain: 0.0448
+2025-07-17 05:28:30,746 - UrbanActiveInference - INFO -     Free energy change: 0.0675 → 0.1155
+2025-07-17 05:28:30,746 - UrbanActiveInference - INFO -     Action: Invest 16.0 in Green at location 3
+2025-07-17 05:28:30,746 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:30,746 - UrbanActiveInference - INFO -     Satisfaction: 0.494
+2025-07-17 05:28:30,746 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=0.1155
+2025-07-17 05:28:30,746 - UrbanActiveInference - INFO - 
+--- Step 3/20 ---
+2025-07-17 05:28:30,746 - UrbanActiveInference - INFO - Overall urban quality: 0.529
+2025-07-17 05:28:30,746 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:30,747 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:30,747 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,747 - UrbanActiveInference - INFO -     Belief entropy: 1.5268
+2025-07-17 05:28:30,747 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:30,747 - UrbanActiveInference - INFO -     Information gain: 0.0329
+2025-07-17 05:28:30,747 - UrbanActiveInference - INFO -     Free energy change: 0.0528 → 0.0878
+2025-07-17 05:28:30,747 - UrbanActiveInference - INFO -     Action: Invest 16.0 in Transport at location 1
+2025-07-17 05:28:30,747 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:30,747 - UrbanActiveInference - INFO -     Satisfaction: 0.866
+2025-07-17 05:28:30,747 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=0.0878
+2025-07-17 05:28:30,748 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:30,748 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,748 - UrbanActiveInference - INFO -     Belief entropy: 1.3435
+2025-07-17 05:28:30,748 - UrbanActiveInference - INFO -     Surprise: 1.5051
+2025-07-17 05:28:30,748 - UrbanActiveInference - INFO -     Information gain: 0.0239
+2025-07-17 05:28:30,748 - UrbanActiveInference - INFO -     Free energy change: 0.0202 → 0.0459
+2025-07-17 05:28:30,748 - UrbanActiveInference - INFO -     Action: Invest 16.0 in Commercial at location 3
+2025-07-17 05:28:30,748 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:30,748 - UrbanActiveInference - INFO -     Satisfaction: 0.485
+2025-07-17 05:28:30,748 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=0.0459
+2025-07-17 05:28:30,749 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:30,749 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,749 - UrbanActiveInference - INFO -     Belief entropy: 1.2286
+2025-07-17 05:28:30,749 - UrbanActiveInference - INFO -     Surprise: 1.5564
+2025-07-17 05:28:30,749 - UrbanActiveInference - INFO -     Information gain: 0.0499
+2025-07-17 05:28:30,749 - UrbanActiveInference - INFO -     Free energy change: 0.1155 → 0.1691
+2025-07-17 05:28:30,749 - UrbanActiveInference - INFO -     Action: Invest 16.0 in Transport at location 2
+2025-07-17 05:28:30,749 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:30,749 - UrbanActiveInference - INFO -     Satisfaction: 0.494
+2025-07-17 05:28:30,749 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=0.1691
+2025-07-17 05:28:30,749 - UrbanActiveInference - INFO - 
+--- Step 4/20 ---
+2025-07-17 05:28:30,749 - UrbanActiveInference - INFO - Overall urban quality: 0.529
+2025-07-17 05:28:30,749 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:30,750 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:30,750 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,750 - UrbanActiveInference - INFO -     Belief entropy: 1.4888
+2025-07-17 05:28:30,750 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:30,750 - UrbanActiveInference - INFO -     Information gain: 0.0380
+2025-07-17 05:28:30,750 - UrbanActiveInference - INFO -     Free energy change: 0.0878 → 0.1282
+2025-07-17 05:28:30,750 - UrbanActiveInference - INFO -     Action: Invest 12.8 in Green at location 3
+2025-07-17 05:28:30,750 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:30,750 - UrbanActiveInference - INFO -     Satisfaction: 0.866
+2025-07-17 05:28:30,750 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=0.1282
+2025-07-17 05:28:30,751 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:30,751 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,751 - UrbanActiveInference - INFO -     Belief entropy: 1.3039
+2025-07-17 05:28:30,751 - UrbanActiveInference - INFO -     Surprise: 1.5818
+2025-07-17 05:28:30,751 - UrbanActiveInference - INFO -     Information gain: 0.0395
+2025-07-17 05:28:30,751 - UrbanActiveInference - INFO -     Free energy change: 0.0459 → 0.0883
+2025-07-17 05:28:30,751 - UrbanActiveInference - INFO -     Action: Invest 16.0 in Transport at location 4
+2025-07-17 05:28:30,751 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:30,751 - UrbanActiveInference - INFO -     Satisfaction: 0.485
+2025-07-17 05:28:30,751 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=0.0883
+2025-07-17 05:28:30,752 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:30,752 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,752 - UrbanActiveInference - INFO -     Belief entropy: 1.1774
+2025-07-17 05:28:30,752 - UrbanActiveInference - INFO -     Surprise: 1.5553
+2025-07-17 05:28:30,752 - UrbanActiveInference - INFO -     Information gain: 0.0512
+2025-07-17 05:28:30,752 - UrbanActiveInference - INFO -     Free energy change: 0.1691 → 0.2240
+2025-07-17 05:28:30,752 - UrbanActiveInference - INFO -     Action: Invest 16.0 in Housing at location 5
+2025-07-17 05:28:30,752 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:30,752 - UrbanActiveInference - INFO -     Satisfaction: 0.494
+2025-07-17 05:28:30,752 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=0.2240
+2025-07-17 05:28:30,752 - UrbanActiveInference - INFO - 
+--- Step 5/20 ---
+2025-07-17 05:28:30,752 - UrbanActiveInference - INFO - Overall urban quality: 0.529
+2025-07-17 05:28:30,752 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:30,753 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:30,753 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,753 - UrbanActiveInference - INFO -     Belief entropy: 1.4495
+2025-07-17 05:28:30,753 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:30,753 - UrbanActiveInference - INFO -     Information gain: 0.0393
+2025-07-17 05:28:30,753 - UrbanActiveInference - INFO -     Free energy change: 0.1282 → 0.1699
+2025-07-17 05:28:30,753 - UrbanActiveInference - INFO -     Action: Invest 12.8 in Transport at location 3
+2025-07-17 05:28:30,753 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:30,753 - UrbanActiveInference - INFO -     Satisfaction: 0.866
+2025-07-17 05:28:30,753 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=0.1699
+2025-07-17 05:28:30,754 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:30,754 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,754 - UrbanActiveInference - INFO -     Belief entropy: 1.2553
+2025-07-17 05:28:30,754 - UrbanActiveInference - INFO -     Surprise: 1.6656
+2025-07-17 05:28:30,754 - UrbanActiveInference - INFO -     Information gain: 0.0487
+2025-07-17 05:28:30,754 - UrbanActiveInference - INFO -     Free energy change: 0.0883 → 0.1405
+2025-07-17 05:28:30,754 - UrbanActiveInference - INFO -     Action: Invest 16.0 in Housing at location 4
+2025-07-17 05:28:30,754 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:30,754 - UrbanActiveInference - INFO -     Satisfaction: 0.578
+2025-07-17 05:28:30,754 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=0.1405
+2025-07-17 05:28:30,755 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:30,755 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:30,755 - UrbanActiveInference - INFO -     Belief entropy: 1.1270
+2025-07-17 05:28:30,755 - UrbanActiveInference - INFO -     Surprise: 1.5638
+2025-07-17 05:28:30,755 - UrbanActiveInference - INFO -     Information gain: 0.0504
+2025-07-17 05:28:30,755 - UrbanActiveInference - INFO -     Free energy change: 0.2240 → 0.2780
+2025-07-17 05:28:30,755 - UrbanActiveInference - INFO -     Action: Invest 16.0 in Commercial at location 1
+2025-07-17 05:28:30,755 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:30,755 - UrbanActiveInference - INFO -     Satisfaction: 0.497
+2025-07-17 05:28:30,755 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=0.2780
+2025-07-17 05:28:33,877 - UrbanActiveInference - INFO -     Generated urban analysis visualization
+2025-07-17 05:28:33,877 - UrbanActiveInference - INFO - 
+--- Step 6/20 ---
+2025-07-17 05:28:33,877 - UrbanActiveInference - INFO - Overall urban quality: 0.530
+2025-07-17 05:28:33,877 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:33,878 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:33,878 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,878 - UrbanActiveInference - INFO -     Belief entropy: 1.4111
+2025-07-17 05:28:33,878 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:33,878 - UrbanActiveInference - INFO -     Information gain: 0.0384
+2025-07-17 05:28:33,878 - UrbanActiveInference - INFO -     Free energy change: 0.1699 → 0.2107
+2025-07-17 05:28:33,878 - UrbanActiveInference - INFO -     Action: Invest 12.8 in Housing at location 0
+2025-07-17 05:28:33,879 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:33,879 - UrbanActiveInference - INFO -     Satisfaction: 0.866
+2025-07-17 05:28:33,879 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=0.2107
+2025-07-17 05:28:33,879 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:33,879 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,879 - UrbanActiveInference - INFO -     Belief entropy: 1.2018
+2025-07-17 05:28:33,880 - UrbanActiveInference - INFO -     Surprise: 1.7533
+2025-07-17 05:28:33,880 - UrbanActiveInference - INFO -     Information gain: 0.0535
+2025-07-17 05:28:33,880 - UrbanActiveInference - INFO -     Free energy change: 0.1405 → 0.1978
+2025-07-17 05:28:33,880 - UrbanActiveInference - INFO -     Action: Invest 12.8 in Transport at location 2
+2025-07-17 05:28:33,880 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:33,880 - UrbanActiveInference - INFO -     Satisfaction: 0.578
+2025-07-17 05:28:33,880 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=0.1978
+2025-07-17 05:28:33,880 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:33,881 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,881 - UrbanActiveInference - INFO -     Belief entropy: 1.0787
+2025-07-17 05:28:33,881 - UrbanActiveInference - INFO -     Surprise: 1.5790
+2025-07-17 05:28:33,881 - UrbanActiveInference - INFO -     Information gain: 0.0483
+2025-07-17 05:28:33,881 - UrbanActiveInference - INFO -     Free energy change: 0.2780 → 0.3298
+2025-07-17 05:28:33,881 - UrbanActiveInference - INFO -     Action: Invest 12.8 in Housing at location 3
+2025-07-17 05:28:33,881 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:33,881 - UrbanActiveInference - INFO -     Satisfaction: 0.497
+2025-07-17 05:28:33,881 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=0.3298
+2025-07-17 05:28:33,881 - UrbanActiveInference - INFO - 
+--- Step 7/20 ---
+2025-07-17 05:28:33,881 - UrbanActiveInference - INFO - Overall urban quality: 0.530
+2025-07-17 05:28:33,881 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:33,882 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:33,882 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,882 - UrbanActiveInference - INFO -     Belief entropy: 1.3745
+2025-07-17 05:28:33,882 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:33,882 - UrbanActiveInference - INFO -     Information gain: 0.0365
+2025-07-17 05:28:33,882 - UrbanActiveInference - INFO -     Free energy change: 0.2107 → 0.2495
+2025-07-17 05:28:33,882 - UrbanActiveInference - INFO -     Action: Invest 12.8 in Commercial at location 5
+2025-07-17 05:28:33,882 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:33,882 - UrbanActiveInference - INFO -     Satisfaction: 0.920
+2025-07-17 05:28:33,882 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=0.2495
+2025-07-17 05:28:33,883 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:33,883 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,883 - UrbanActiveInference - INFO -     Belief entropy: 1.1464
+2025-07-17 05:28:33,883 - UrbanActiveInference - INFO -     Surprise: 1.8427
+2025-07-17 05:28:33,883 - UrbanActiveInference - INFO -     Information gain: 0.0554
+2025-07-17 05:28:33,883 - UrbanActiveInference - INFO -     Free energy change: 0.1978 → 0.2572
+2025-07-17 05:28:33,883 - UrbanActiveInference - INFO -     Action: Invest 12.8 in Green at location 2
+2025-07-17 05:28:33,883 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:33,883 - UrbanActiveInference - INFO -     Satisfaction: 0.847
+2025-07-17 05:28:33,883 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=0.2572
+2025-07-17 05:28:33,884 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:33,884 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,884 - UrbanActiveInference - INFO -     Belief entropy: 1.0331
+2025-07-17 05:28:33,884 - UrbanActiveInference - INFO -     Surprise: 1.5987
+2025-07-17 05:28:33,884 - UrbanActiveInference - INFO -     Information gain: 0.0456
+2025-07-17 05:28:33,884 - UrbanActiveInference - INFO -     Free energy change: 0.3298 → 0.3787
+2025-07-17 05:28:33,884 - UrbanActiveInference - INFO -     Action: Invest 12.8 in Housing at location 2
+2025-07-17 05:28:33,884 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:33,884 - UrbanActiveInference - INFO -     Satisfaction: 0.497
+2025-07-17 05:28:33,884 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=0.3787
+2025-07-17 05:28:33,884 - UrbanActiveInference - INFO - 
+--- Step 8/20 ---
+2025-07-17 05:28:33,885 - UrbanActiveInference - INFO - Overall urban quality: 0.530
+2025-07-17 05:28:33,885 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:33,885 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:33,885 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,885 - UrbanActiveInference - INFO -     Belief entropy: 1.3403
+2025-07-17 05:28:33,885 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:33,886 - UrbanActiveInference - INFO -     Information gain: 0.0342
+2025-07-17 05:28:33,886 - UrbanActiveInference - INFO -     Free energy change: 0.2495 → 0.2858
+2025-07-17 05:28:33,886 - UrbanActiveInference - INFO -     Action: Invest 10.2 in Commercial at location 3
+2025-07-17 05:28:33,886 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:33,886 - UrbanActiveInference - INFO -     Satisfaction: 0.920
+2025-07-17 05:28:33,886 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=0.2858
+2025-07-17 05:28:33,886 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:33,887 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,887 - UrbanActiveInference - INFO -     Belief entropy: 1.0911
+2025-07-17 05:28:33,887 - UrbanActiveInference - INFO -     Surprise: 1.9324
+2025-07-17 05:28:33,887 - UrbanActiveInference - INFO -     Information gain: 0.0553
+2025-07-17 05:28:33,887 - UrbanActiveInference - INFO -     Free energy change: 0.2572 → 0.3165
+2025-07-17 05:28:33,887 - UrbanActiveInference - INFO -     Action: Invest 10.2 in Housing at location 1
+2025-07-17 05:28:33,887 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:33,887 - UrbanActiveInference - INFO -     Satisfaction: 0.921
+2025-07-17 05:28:33,887 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=0.3165
+2025-07-17 05:28:33,888 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:33,888 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,888 - UrbanActiveInference - INFO -     Belief entropy: 0.9903
+2025-07-17 05:28:33,888 - UrbanActiveInference - INFO -     Surprise: 1.6218
+2025-07-17 05:28:33,888 - UrbanActiveInference - INFO -     Information gain: 0.0428
+2025-07-17 05:28:33,888 - UrbanActiveInference - INFO -     Free energy change: 0.3787 → 0.4246
+2025-07-17 05:28:33,888 - UrbanActiveInference - INFO -     Action: Invest 12.8 in Green at location 0
+2025-07-17 05:28:33,888 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:33,888 - UrbanActiveInference - INFO -     Satisfaction: 0.497
+2025-07-17 05:28:33,888 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=0.4246
+2025-07-17 05:28:33,888 - UrbanActiveInference - INFO - 
+--- Step 9/20 ---
+2025-07-17 05:28:33,888 - UrbanActiveInference - INFO - Overall urban quality: 0.530
+2025-07-17 05:28:33,889 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:33,889 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:33,889 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,889 - UrbanActiveInference - INFO -     Belief entropy: 1.3086
+2025-07-17 05:28:33,889 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:33,890 - UrbanActiveInference - INFO -     Information gain: 0.0317
+2025-07-17 05:28:33,890 - UrbanActiveInference - INFO -     Free energy change: 0.2858 → 0.3195
+2025-07-17 05:28:33,890 - UrbanActiveInference - INFO -     Action: Invest 10.2 in Housing at location 4
+2025-07-17 05:28:33,890 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:33,890 - UrbanActiveInference - INFO -     Satisfaction: 1.000
+2025-07-17 05:28:33,890 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=0.3195
+2025-07-17 05:28:33,891 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:33,891 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,891 - UrbanActiveInference - INFO -     Belief entropy: 1.0370
+2025-07-17 05:28:33,891 - UrbanActiveInference - INFO -     Surprise: 2.0217
+2025-07-17 05:28:33,891 - UrbanActiveInference - INFO -     Information gain: 0.0541
+2025-07-17 05:28:33,891 - UrbanActiveInference - INFO -     Free energy change: 0.3165 → 0.3745
+2025-07-17 05:28:33,891 - UrbanActiveInference - INFO -     Action: Invest 8.2 in Transport at location 1
+2025-07-17 05:28:33,891 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:33,891 - UrbanActiveInference - INFO -     Satisfaction: 0.916
+2025-07-17 05:28:33,891 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=0.3745
+2025-07-17 05:28:33,892 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:33,892 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,892 - UrbanActiveInference - INFO -     Belief entropy: 0.9504
+2025-07-17 05:28:33,892 - UrbanActiveInference - INFO -     Surprise: 1.6471
+2025-07-17 05:28:33,892 - UrbanActiveInference - INFO -     Information gain: 0.0399
+2025-07-17 05:28:33,892 - UrbanActiveInference - INFO -     Free energy change: 0.4246 → 0.4673
+2025-07-17 05:28:33,893 - UrbanActiveInference - INFO -     Action: Invest 12.8 in Commercial at location 5
+2025-07-17 05:28:33,893 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:33,893 - UrbanActiveInference - INFO -     Satisfaction: 0.493
+2025-07-17 05:28:33,893 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=0.4673
+2025-07-17 05:28:33,893 - UrbanActiveInference - INFO - 
+--- Step 10/20 ---
+2025-07-17 05:28:33,893 - UrbanActiveInference - INFO - Overall urban quality: 0.531
+2025-07-17 05:28:33,893 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:33,894 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:33,894 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,894 - UrbanActiveInference - INFO -     Belief entropy: 1.2794
+2025-07-17 05:28:33,894 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:33,894 - UrbanActiveInference - INFO -     Information gain: 0.0293
+2025-07-17 05:28:33,894 - UrbanActiveInference - INFO -     Free energy change: 0.3195 → 0.3506
+2025-07-17 05:28:33,894 - UrbanActiveInference - INFO -     Action: Invest 8.2 in Transport at location 1
+2025-07-17 05:28:33,894 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:33,894 - UrbanActiveInference - INFO -     Satisfaction: 1.000
+2025-07-17 05:28:33,895 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=0.3506
+2025-07-17 05:28:33,895 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:33,895 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,895 - UrbanActiveInference - INFO -     Belief entropy: 0.9848
+2025-07-17 05:28:33,896 - UrbanActiveInference - INFO -     Surprise: 2.1098
+2025-07-17 05:28:33,896 - UrbanActiveInference - INFO -     Information gain: 0.0521
+2025-07-17 05:28:33,896 - UrbanActiveInference - INFO -     Free energy change: 0.3745 → 0.4304
+2025-07-17 05:28:33,896 - UrbanActiveInference - INFO -     Action: Invest 6.6 in Housing at location 5
+2025-07-17 05:28:33,896 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:33,896 - UrbanActiveInference - INFO -     Satisfaction: 0.916
+2025-07-17 05:28:33,896 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=0.4304
+2025-07-17 05:28:33,896 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:33,897 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:33,897 - UrbanActiveInference - INFO -     Belief entropy: 0.9133
+2025-07-17 05:28:33,897 - UrbanActiveInference - INFO -     Surprise: 1.6741
+2025-07-17 05:28:33,897 - UrbanActiveInference - INFO -     Information gain: 0.0371
+2025-07-17 05:28:33,897 - UrbanActiveInference - INFO -     Free energy change: 0.4673 → 0.5071
+2025-07-17 05:28:33,897 - UrbanActiveInference - INFO -     Action: Invest 10.2 in Transport at location 5
+2025-07-17 05:28:33,897 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:33,897 - UrbanActiveInference - INFO -     Satisfaction: 0.541
+2025-07-17 05:28:33,897 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=0.5071
+2025-07-17 05:28:36,474 - UrbanActiveInference - INFO -     Generated urban analysis visualization
+2025-07-17 05:28:36,475 - UrbanActiveInference - INFO - 
+--- Step 11/20 ---
+2025-07-17 05:28:36,475 - UrbanActiveInference - INFO - Overall urban quality: 0.531
+2025-07-17 05:28:36,475 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:36,476 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:36,477 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,477 - UrbanActiveInference - INFO -     Belief entropy: 1.2524
+2025-07-17 05:28:36,477 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:36,477 - UrbanActiveInference - INFO -     Information gain: 0.0270
+2025-07-17 05:28:36,478 - UrbanActiveInference - INFO -     Free energy change: 0.3506 → 0.3792
+2025-07-17 05:28:36,478 - UrbanActiveInference - INFO -     Action: Invest 6.6 in Green at location 0
+2025-07-17 05:28:36,478 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:36,478 - UrbanActiveInference - INFO -     Satisfaction: 1.000
+2025-07-17 05:28:36,478 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=0.3792
+2025-07-17 05:28:36,479 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:36,479 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,479 - UrbanActiveInference - INFO -     Belief entropy: 0.9351
+2025-07-17 05:28:36,479 - UrbanActiveInference - INFO -     Surprise: 2.1964
+2025-07-17 05:28:36,480 - UrbanActiveInference - INFO -     Information gain: 0.0497
+2025-07-17 05:28:36,480 - UrbanActiveInference - INFO -     Free energy change: 0.4304 → 0.4837
+2025-07-17 05:28:36,480 - UrbanActiveInference - INFO -     Action: Invest 6.6 in Transport at location 1
+2025-07-17 05:28:36,480 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:36,480 - UrbanActiveInference - INFO -     Satisfaction: 0.912
+2025-07-17 05:28:36,480 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=0.4837
+2025-07-17 05:28:36,481 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:36,481 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,481 - UrbanActiveInference - INFO -     Belief entropy: 0.8787
+2025-07-17 05:28:36,482 - UrbanActiveInference - INFO -     Surprise: 1.7021
+2025-07-17 05:28:36,482 - UrbanActiveInference - INFO -     Information gain: 0.0345
+2025-07-17 05:28:36,482 - UrbanActiveInference - INFO -     Free energy change: 0.5071 → 0.5442
+2025-07-17 05:28:36,482 - UrbanActiveInference - INFO -     Action: Invest 8.2 in Housing at location 4
+2025-07-17 05:28:36,482 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:36,482 - UrbanActiveInference - INFO -     Satisfaction: 0.547
+2025-07-17 05:28:36,482 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=0.5442
+2025-07-17 05:28:36,482 - UrbanActiveInference - INFO - 
+--- Step 12/20 ---
+2025-07-17 05:28:36,482 - UrbanActiveInference - INFO - Overall urban quality: 0.531
+2025-07-17 05:28:36,482 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:36,483 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:36,483 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,483 - UrbanActiveInference - INFO -     Belief entropy: 1.2275
+2025-07-17 05:28:36,483 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:36,484 - UrbanActiveInference - INFO -     Information gain: 0.0249
+2025-07-17 05:28:36,484 - UrbanActiveInference - INFO -     Free energy change: 0.3792 → 0.4056
+2025-07-17 05:28:36,484 - UrbanActiveInference - INFO -     Action: Invest 6.6 in Transport at location 5
+2025-07-17 05:28:36,484 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:36,484 - UrbanActiveInference - INFO -     Satisfaction: 1.000
+2025-07-17 05:28:36,484 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=0.4056
+2025-07-17 05:28:36,485 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:36,485 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,485 - UrbanActiveInference - INFO -     Belief entropy: 0.8880
+2025-07-17 05:28:36,485 - UrbanActiveInference - INFO -     Surprise: 2.2812
+2025-07-17 05:28:36,485 - UrbanActiveInference - INFO -     Information gain: 0.0471
+2025-07-17 05:28:36,485 - UrbanActiveInference - INFO -     Free energy change: 0.4837 → 0.5342
+2025-07-17 05:28:36,486 - UrbanActiveInference - INFO -     Action: Invest 5.2 in Commercial at location 4
+2025-07-17 05:28:36,486 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:36,486 - UrbanActiveInference - INFO -     Satisfaction: 0.922
+2025-07-17 05:28:36,486 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=0.5342
+2025-07-17 05:28:36,487 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:36,489 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,489 - UrbanActiveInference - INFO -     Belief entropy: 0.8466
+2025-07-17 05:28:36,489 - UrbanActiveInference - INFO -     Surprise: 1.7308
+2025-07-17 05:28:36,489 - UrbanActiveInference - INFO -     Information gain: 0.0322
+2025-07-17 05:28:36,489 - UrbanActiveInference - INFO -     Free energy change: 0.5442 → 0.5786
+2025-07-17 05:28:36,489 - UrbanActiveInference - INFO -     Action: Invest 6.6 in Commercial at location 2
+2025-07-17 05:28:36,489 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:36,489 - UrbanActiveInference - INFO -     Satisfaction: 0.549
+2025-07-17 05:28:36,489 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=0.5786
+2025-07-17 05:28:36,489 - UrbanActiveInference - INFO - 
+--- Step 13/20 ---
+2025-07-17 05:28:36,489 - UrbanActiveInference - INFO - Overall urban quality: 0.532
+2025-07-17 05:28:36,490 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:36,491 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:36,491 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,493 - UrbanActiveInference - INFO -     Belief entropy: 1.2045
+2025-07-17 05:28:36,494 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:36,494 - UrbanActiveInference - INFO -     Information gain: 0.0230
+2025-07-17 05:28:36,494 - UrbanActiveInference - INFO -     Free energy change: 0.4056 → 0.4301
+2025-07-17 05:28:36,494 - UrbanActiveInference - INFO -     Action: Invest 5.2 in Transport at location 1
+2025-07-17 05:28:36,494 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:36,494 - UrbanActiveInference - INFO -     Satisfaction: 1.000
+2025-07-17 05:28:36,494 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=0.4301
+2025-07-17 05:28:36,496 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:36,496 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,496 - UrbanActiveInference - INFO -     Belief entropy: 0.8436
+2025-07-17 05:28:36,496 - UrbanActiveInference - INFO -     Surprise: 2.3641
+2025-07-17 05:28:36,497 - UrbanActiveInference - INFO -     Information gain: 0.0444
+2025-07-17 05:28:36,497 - UrbanActiveInference - INFO -     Free energy change: 0.5342 → 0.5819
+2025-07-17 05:28:36,497 - UrbanActiveInference - INFO -     Action: Invest 4.2 in Transport at location 0
+2025-07-17 05:28:36,497 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:36,497 - UrbanActiveInference - INFO -     Satisfaction: 0.922
+2025-07-17 05:28:36,497 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=0.5819
+2025-07-17 05:28:36,498 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:36,498 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,498 - UrbanActiveInference - INFO -     Belief entropy: 0.8166
+2025-07-17 05:28:36,498 - UrbanActiveInference - INFO -     Surprise: 1.7599
+2025-07-17 05:28:36,499 - UrbanActiveInference - INFO -     Information gain: 0.0300
+2025-07-17 05:28:36,499 - UrbanActiveInference - INFO -     Free energy change: 0.5786 → 0.6108
+2025-07-17 05:28:36,499 - UrbanActiveInference - INFO -     Action: Invest 5.2 in Green at location 3
+2025-07-17 05:28:36,499 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:36,499 - UrbanActiveInference - INFO -     Satisfaction: 0.549
+2025-07-17 05:28:36,499 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=0.6108
+2025-07-17 05:28:36,499 - UrbanActiveInference - INFO - 
+--- Step 14/20 ---
+2025-07-17 05:28:36,499 - UrbanActiveInference - INFO - Overall urban quality: 0.532
+2025-07-17 05:28:36,499 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:36,500 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:36,500 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,501 - UrbanActiveInference - INFO -     Belief entropy: 1.1832
+2025-07-17 05:28:36,501 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:36,501 - UrbanActiveInference - INFO -     Information gain: 0.0213
+2025-07-17 05:28:36,501 - UrbanActiveInference - INFO -     Free energy change: 0.4301 → 0.4527
+2025-07-17 05:28:36,501 - UrbanActiveInference - INFO -     Action: Invest 4.2 in Green at location 1
+2025-07-17 05:28:36,501 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:36,501 - UrbanActiveInference - INFO -     Satisfaction: 1.000
+2025-07-17 05:28:36,501 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=0.4527
+2025-07-17 05:28:36,502 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:36,502 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,502 - UrbanActiveInference - INFO -     Belief entropy: 0.8018
+2025-07-17 05:28:36,502 - UrbanActiveInference - INFO -     Surprise: 2.4450
+2025-07-17 05:28:36,502 - UrbanActiveInference - INFO -     Information gain: 0.0418
+2025-07-17 05:28:36,502 - UrbanActiveInference - INFO -     Free energy change: 0.5819 → 0.6267
+2025-07-17 05:28:36,502 - UrbanActiveInference - INFO -     Action: Invest 4.2 in Housing at location 3
+2025-07-17 05:28:36,502 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:36,502 - UrbanActiveInference - INFO -     Satisfaction: 0.922
+2025-07-17 05:28:36,503 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=0.6267
+2025-07-17 05:28:36,504 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:36,504 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,504 - UrbanActiveInference - INFO -     Belief entropy: 0.7885
+2025-07-17 05:28:36,504 - UrbanActiveInference - INFO -     Surprise: 1.7892
+2025-07-17 05:28:36,504 - UrbanActiveInference - INFO -     Information gain: 0.0281
+2025-07-17 05:28:36,504 - UrbanActiveInference - INFO -     Free energy change: 0.6108 → 0.6409
+2025-07-17 05:28:36,504 - UrbanActiveInference - INFO -     Action: Invest 5.2 in Housing at location 2
+2025-07-17 05:28:36,505 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:36,505 - UrbanActiveInference - INFO -     Satisfaction: 0.549
+2025-07-17 05:28:36,506 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=0.6409
+2025-07-17 05:28:36,506 - UrbanActiveInference - INFO - 
+--- Step 15/20 ---
+2025-07-17 05:28:36,507 - UrbanActiveInference - INFO - Overall urban quality: 0.532
+2025-07-17 05:28:36,507 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:36,509 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:36,510 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,510 - UrbanActiveInference - INFO -     Belief entropy: 1.1634
+2025-07-17 05:28:36,510 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:36,510 - UrbanActiveInference - INFO -     Information gain: 0.0198
+2025-07-17 05:28:36,511 - UrbanActiveInference - INFO -     Free energy change: 0.4527 → 0.4737
+2025-07-17 05:28:36,511 - UrbanActiveInference - INFO -     Action: Invest 3.4 in Green at location 3
+2025-07-17 05:28:36,511 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:36,511 - UrbanActiveInference - INFO -     Satisfaction: 1.000
+2025-07-17 05:28:36,511 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=0.4737
+2025-07-17 05:28:36,513 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:36,513 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,514 - UrbanActiveInference - INFO -     Belief entropy: 0.7625
+2025-07-17 05:28:36,514 - UrbanActiveInference - INFO -     Surprise: 2.5238
+2025-07-17 05:28:36,514 - UrbanActiveInference - INFO -     Information gain: 0.0393
+2025-07-17 05:28:36,514 - UrbanActiveInference - INFO -     Free energy change: 0.6267 → 0.6688
+2025-07-17 05:28:36,514 - UrbanActiveInference - INFO -     Action: Invest 4.2 in Commercial at location 2
+2025-07-17 05:28:36,514 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:36,514 - UrbanActiveInference - INFO -     Satisfaction: 0.933
+2025-07-17 05:28:36,514 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=0.6688
+2025-07-17 05:28:36,515 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:36,515 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:36,515 - UrbanActiveInference - INFO -     Belief entropy: 0.7622
+2025-07-17 05:28:36,515 - UrbanActiveInference - INFO -     Surprise: 1.8187
+2025-07-17 05:28:36,515 - UrbanActiveInference - INFO -     Information gain: 0.0263
+2025-07-17 05:28:36,515 - UrbanActiveInference - INFO -     Free energy change: 0.6409 → 0.6691
+2025-07-17 05:28:36,516 - UrbanActiveInference - INFO -     Action: Invest 5.2 in Green at location 1
+2025-07-17 05:28:36,516 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:36,516 - UrbanActiveInference - INFO -     Satisfaction: 0.907
+2025-07-17 05:28:36,516 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=0.6691
+2025-07-17 05:28:39,489 - UrbanActiveInference - INFO -     Generated urban analysis visualization
+2025-07-17 05:28:39,489 - UrbanActiveInference - INFO - 
+--- Step 16/20 ---
+2025-07-17 05:28:39,489 - UrbanActiveInference - INFO - Overall urban quality: 0.532
+2025-07-17 05:28:39,489 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:39,490 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:39,490 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,490 - UrbanActiveInference - INFO -     Belief entropy: 1.1450
+2025-07-17 05:28:39,490 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:39,491 - UrbanActiveInference - INFO -     Information gain: 0.0185
+2025-07-17 05:28:39,491 - UrbanActiveInference - INFO -     Free energy change: 0.4737 → 0.4933
+2025-07-17 05:28:39,491 - UrbanActiveInference - INFO -     Action: Invest 3.4 in Transport at location 1
+2025-07-17 05:28:39,491 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:39,491 - UrbanActiveInference - INFO -     Satisfaction: 1.000
+2025-07-17 05:28:39,491 - geo_infer_act.utils.analysis - DEBUG - Recorded step 16: FE=0.4933
+2025-07-17 05:28:39,492 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:39,492 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,492 - UrbanActiveInference - INFO -     Belief entropy: 0.7255
+2025-07-17 05:28:39,492 - UrbanActiveInference - INFO -     Surprise: 2.6008
+2025-07-17 05:28:39,492 - UrbanActiveInference - INFO -     Information gain: 0.0369
+2025-07-17 05:28:39,492 - UrbanActiveInference - INFO -     Free energy change: 0.6688 → 0.7084
+2025-07-17 05:28:39,492 - UrbanActiveInference - INFO -     Action: Invest 3.4 in Commercial at location 4
+2025-07-17 05:28:39,492 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:39,492 - UrbanActiveInference - INFO -     Satisfaction: 0.939
+2025-07-17 05:28:39,492 - geo_infer_act.utils.analysis - DEBUG - Recorded step 16: FE=0.7084
+2025-07-17 05:28:39,493 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:39,493 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,493 - UrbanActiveInference - INFO -     Belief entropy: 0.7375
+2025-07-17 05:28:39,493 - UrbanActiveInference - INFO -     Surprise: 1.8481
+2025-07-17 05:28:39,493 - UrbanActiveInference - INFO -     Information gain: 0.0248
+2025-07-17 05:28:39,493 - UrbanActiveInference - INFO -     Free energy change: 0.6691 → 0.6956
+2025-07-17 05:28:39,493 - UrbanActiveInference - INFO -     Action: Invest 4.2 in Housing at location 5
+2025-07-17 05:28:39,493 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:39,493 - UrbanActiveInference - INFO -     Satisfaction: 0.907
+2025-07-17 05:28:39,493 - geo_infer_act.utils.analysis - DEBUG - Recorded step 16: FE=0.6956
+2025-07-17 05:28:39,493 - UrbanActiveInference - INFO - 
+--- Step 17/20 ---
+2025-07-17 05:28:39,494 - UrbanActiveInference - INFO - Overall urban quality: 0.532
+2025-07-17 05:28:39,494 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:39,494 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:39,495 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,495 - UrbanActiveInference - INFO -     Belief entropy: 1.1277
+2025-07-17 05:28:39,495 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:39,495 - UrbanActiveInference - INFO -     Information gain: 0.0173
+2025-07-17 05:28:39,495 - UrbanActiveInference - INFO -     Free energy change: 0.4933 → 0.5117
+2025-07-17 05:28:39,495 - UrbanActiveInference - INFO -     Action: Invest 2.7 in Housing at location 1
+2025-07-17 05:28:39,495 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:39,495 - UrbanActiveInference - INFO -     Satisfaction: 1.000
+2025-07-17 05:28:39,495 - geo_infer_act.utils.analysis - DEBUG - Recorded step 17: FE=0.5117
+2025-07-17 05:28:39,496 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:39,496 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,496 - UrbanActiveInference - INFO -     Belief entropy: 0.6908
+2025-07-17 05:28:39,496 - UrbanActiveInference - INFO -     Surprise: 2.6758
+2025-07-17 05:28:39,496 - UrbanActiveInference - INFO -     Information gain: 0.0347
+2025-07-17 05:28:39,496 - UrbanActiveInference - INFO -     Free energy change: 0.7084 → 0.7456
+2025-07-17 05:28:39,496 - UrbanActiveInference - INFO -     Action: Invest 2.7 in Housing at location 3
+2025-07-17 05:28:39,497 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:39,497 - UrbanActiveInference - INFO -     Satisfaction: 0.939
+2025-07-17 05:28:39,497 - geo_infer_act.utils.analysis - DEBUG - Recorded step 17: FE=0.7456
+2025-07-17 05:28:39,498 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:39,498 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,498 - UrbanActiveInference - INFO -     Belief entropy: 0.7141
+2025-07-17 05:28:39,498 - UrbanActiveInference - INFO -     Surprise: 1.8775
+2025-07-17 05:28:39,498 - UrbanActiveInference - INFO -     Information gain: 0.0233
+2025-07-17 05:28:39,498 - UrbanActiveInference - INFO -     Free energy change: 0.6956 → 0.7207
+2025-07-17 05:28:39,499 - UrbanActiveInference - INFO -     Action: Invest 4.2 in Commercial at location 2
+2025-07-17 05:28:39,499 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:39,499 - UrbanActiveInference - INFO -     Satisfaction: 0.908
+2025-07-17 05:28:39,499 - geo_infer_act.utils.analysis - DEBUG - Recorded step 17: FE=0.7207
+2025-07-17 05:28:39,499 - UrbanActiveInference - INFO - 
+--- Step 18/20 ---
+2025-07-17 05:28:39,499 - UrbanActiveInference - INFO - Overall urban quality: 0.533
+2025-07-17 05:28:39,499 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:39,500 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:39,500 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,501 - UrbanActiveInference - INFO -     Belief entropy: 1.1114
+2025-07-17 05:28:39,501 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:39,501 - UrbanActiveInference - INFO -     Information gain: 0.0163
+2025-07-17 05:28:39,501 - UrbanActiveInference - INFO -     Free energy change: 0.5117 → 0.5290
+2025-07-17 05:28:39,501 - UrbanActiveInference - INFO -     Action: Invest 2.1 in Housing at location 3
+2025-07-17 05:28:39,501 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:39,501 - UrbanActiveInference - INFO -     Satisfaction: 1.000
+2025-07-17 05:28:39,501 - geo_infer_act.utils.analysis - DEBUG - Recorded step 18: FE=0.5290
+2025-07-17 05:28:39,502 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:39,502 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,502 - UrbanActiveInference - INFO -     Belief entropy: 0.6582
+2025-07-17 05:28:39,502 - UrbanActiveInference - INFO -     Surprise: 2.7490
+2025-07-17 05:28:39,502 - UrbanActiveInference - INFO -     Information gain: 0.0326
+2025-07-17 05:28:39,502 - UrbanActiveInference - INFO -     Free energy change: 0.7456 → 0.7806
+2025-07-17 05:28:39,502 - UrbanActiveInference - INFO -     Action: Invest 2.7 in Commercial at location 1
+2025-07-17 05:28:39,502 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:39,502 - UrbanActiveInference - INFO -     Satisfaction: 0.946
+2025-07-17 05:28:39,502 - geo_infer_act.utils.analysis - DEBUG - Recorded step 18: FE=0.7806
+2025-07-17 05:28:39,503 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:39,503 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,503 - UrbanActiveInference - INFO -     Belief entropy: 0.6920
+2025-07-17 05:28:39,503 - UrbanActiveInference - INFO -     Surprise: 1.9068
+2025-07-17 05:28:39,503 - UrbanActiveInference - INFO -     Information gain: 0.0221
+2025-07-17 05:28:39,503 - UrbanActiveInference - INFO -     Free energy change: 0.7207 → 0.7444
+2025-07-17 05:28:39,503 - UrbanActiveInference - INFO -     Action: Invest 3.4 in Green at location 0
+2025-07-17 05:28:39,504 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:39,504 - UrbanActiveInference - INFO -     Satisfaction: 0.908
+2025-07-17 05:28:39,504 - geo_infer_act.utils.analysis - DEBUG - Recorded step 18: FE=0.7444
+2025-07-17 05:28:39,504 - UrbanActiveInference - INFO - 
+--- Step 19/20 ---
+2025-07-17 05:28:39,504 - UrbanActiveInference - INFO - Overall urban quality: 0.533
+2025-07-17 05:28:39,504 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:39,505 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:39,505 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,505 - UrbanActiveInference - INFO -     Belief entropy: 1.0961
+2025-07-17 05:28:39,505 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:39,505 - UrbanActiveInference - INFO -     Information gain: 0.0153
+2025-07-17 05:28:39,505 - UrbanActiveInference - INFO -     Free energy change: 0.5290 → 0.5453
+2025-07-17 05:28:39,505 - UrbanActiveInference - INFO -     Action: Invest 2.1 in Commercial at location 1
+2025-07-17 05:28:39,505 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:39,505 - UrbanActiveInference - INFO -     Satisfaction: 1.000
+2025-07-17 05:28:39,505 - geo_infer_act.utils.analysis - DEBUG - Recorded step 19: FE=0.5453
+2025-07-17 05:28:39,506 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:39,506 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,506 - UrbanActiveInference - INFO -     Belief entropy: 0.6275
+2025-07-17 05:28:39,506 - UrbanActiveInference - INFO -     Surprise: 2.8206
+2025-07-17 05:28:39,506 - UrbanActiveInference - INFO -     Information gain: 0.0307
+2025-07-17 05:28:39,506 - UrbanActiveInference - INFO -     Free energy change: 0.7806 → 0.8135
+2025-07-17 05:28:39,506 - UrbanActiveInference - INFO -     Action: Invest 2.1 in Transport at location 5
+2025-07-17 05:28:39,507 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:39,507 - UrbanActiveInference - INFO -     Satisfaction: 0.944
+2025-07-17 05:28:39,507 - geo_infer_act.utils.analysis - DEBUG - Recorded step 19: FE=0.8135
+2025-07-17 05:28:39,507 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:39,507 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,507 - UrbanActiveInference - INFO -     Belief entropy: 0.6710
+2025-07-17 05:28:39,508 - UrbanActiveInference - INFO -     Surprise: 1.9359
+2025-07-17 05:28:39,508 - UrbanActiveInference - INFO -     Information gain: 0.0210
+2025-07-17 05:28:39,508 - UrbanActiveInference - INFO -     Free energy change: 0.7444 → 0.7668
+2025-07-17 05:28:39,508 - UrbanActiveInference - INFO -     Action: Invest 3.4 in Housing at location 0
+2025-07-17 05:28:39,508 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:39,508 - UrbanActiveInference - INFO -     Satisfaction: 0.908
+2025-07-17 05:28:39,508 - geo_infer_act.utils.analysis - DEBUG - Recorded step 19: FE=0.7668
+2025-07-17 05:28:39,508 - UrbanActiveInference - INFO - 
+--- Step 20/20 ---
+2025-07-17 05:28:39,508 - UrbanActiveInference - INFO - Overall urban quality: 0.533
+2025-07-17 05:28:39,508 - UrbanActiveInference - INFO - Cooperation index: 0.592
+2025-07-17 05:28:39,509 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2025-07-17 05:28:39,509 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,509 - UrbanActiveInference - INFO -     Belief entropy: 1.0815
+2025-07-17 05:28:39,509 - UrbanActiveInference - INFO -     Surprise: 0.0000
+2025-07-17 05:28:39,509 - UrbanActiveInference - INFO -     Information gain: 0.0145
+2025-07-17 05:28:39,509 - UrbanActiveInference - INFO -     Free energy change: 0.5453 → 0.5607
+2025-07-17 05:28:39,509 - UrbanActiveInference - INFO -     Action: Invest 1.7 in Transport at location 3
+2025-07-17 05:28:39,509 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:39,509 - UrbanActiveInference - INFO -     Satisfaction: 1.000
+2025-07-17 05:28:39,509 - geo_infer_act.utils.analysis - DEBUG - Recorded step 20: FE=0.5607
+2025-07-17 05:28:39,510 - UrbanActiveInference - INFO -   Agent 1 (Developer):
+2025-07-17 05:28:39,510 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,510 - UrbanActiveInference - INFO -     Belief entropy: 0.5986
+2025-07-17 05:28:39,510 - UrbanActiveInference - INFO -     Surprise: 2.8906
+2025-07-17 05:28:39,510 - UrbanActiveInference - INFO -     Information gain: 0.0289
+2025-07-17 05:28:39,510 - UrbanActiveInference - INFO -     Free energy change: 0.8135 → 0.8445
+2025-07-17 05:28:39,510 - UrbanActiveInference - INFO -     Action: Invest 1.7 in Housing at location 0
+2025-07-17 05:28:39,510 - UrbanActiveInference - INFO -     Action success: False
+2025-07-17 05:28:39,510 - UrbanActiveInference - INFO -     Satisfaction: 0.944
+2025-07-17 05:28:39,510 - geo_infer_act.utils.analysis - DEBUG - Recorded step 20: FE=0.8445
+2025-07-17 05:28:39,511 - UrbanActiveInference - INFO -   Agent 2 (Community):
+2025-07-17 05:28:39,511 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2025-07-17 05:28:39,511 - UrbanActiveInference - INFO -     Belief entropy: 0.6511
+2025-07-17 05:28:39,512 - UrbanActiveInference - INFO -     Surprise: 1.9648
+2025-07-17 05:28:39,512 - UrbanActiveInference - INFO -     Information gain: 0.0199
+2025-07-17 05:28:39,512 - UrbanActiveInference - INFO -     Free energy change: 0.7668 → 0.7882
+2025-07-17 05:28:39,512 - UrbanActiveInference - INFO -     Action: Invest 3.4 in Housing at location 4
+2025-07-17 05:28:39,512 - UrbanActiveInference - INFO -     Action success: True
+2025-07-17 05:28:39,512 - UrbanActiveInference - INFO -     Satisfaction: 0.911
+2025-07-17 05:28:39,512 - geo_infer_act.utils.analysis - DEBUG - Recorded step 20: FE=0.7882
+2025-07-17 05:28:43,342 - UrbanActiveInference - INFO -     Generated urban analysis visualization
+2025-07-17 05:28:43,342 - UrbanActiveInference - INFO - 
+======================================================================
+2025-07-17 05:28:43,342 - UrbanActiveInference - INFO - COMPREHENSIVE URBAN PLANNING ANALYSIS
+2025-07-17 05:28:43,342 - UrbanActiveInference - INFO - ======================================================================
+2025-07-17 05:28:43,343 - UrbanActiveInference - INFO - 
+AGENT 0 (Government) ANALYSIS:
+2025-07-17 05:28:43,343 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2025-07-17 05:28:43,359 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_0/analysis/perception_analysis.json
+2025-07-17 05:28:43,360 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2025-07-17 05:28:43,360 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2025-07-17 05:28:43,370 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_0/analysis/action_selection_analysis.json
+2025-07-17 05:28:43,371 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2025-07-17 05:28:43,371 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2025-07-17 05:28:43,373 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_0/analysis/free_energy_analysis.json
+2025-07-17 05:28:43,373 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2025-07-17 05:28:43,374 - UrbanActiveInference - INFO -   Perception quality: Fair - Limited Structure
+2025-07-17 05:28:43,374 - UrbanActiveInference - INFO -   Action consistency: 0.200
+2025-07-17 05:28:43,374 - UrbanActiveInference - INFO -   Free energy efficiency: -0.026
+2025-07-17 05:28:43,374 - UrbanActiveInference - INFO -   Final satisfaction: 1.000
+2025-07-17 05:28:43,374 - UrbanActiveInference - INFO -   Remaining budget: 8.6
+2025-07-17 05:28:46,764 - geo_infer_act.utils.visualization - INFO - Perception analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_0
+2025-07-17 05:28:49,573 - geo_infer_act.utils.visualization - INFO - Action analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_0
+2025-07-17 05:28:49,585 - geo_infer_act.utils.analysis - INFO - Traces saved to CSV files in /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_0/data
+2025-07-17 05:28:49,586 - UrbanActiveInference - INFO - 
+AGENT 1 (Developer) ANALYSIS:
+2025-07-17 05:28:49,586 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2025-07-17 05:28:49,595 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_1/analysis/perception_analysis.json
+2025-07-17 05:28:49,596 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2025-07-17 05:28:49,596 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2025-07-17 05:28:49,601 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_1/analysis/action_selection_analysis.json
+2025-07-17 05:28:49,601 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2025-07-17 05:28:49,601 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2025-07-17 05:28:49,603 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_1/analysis/free_energy_analysis.json
+2025-07-17 05:28:49,603 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2025-07-17 05:28:49,603 - UrbanActiveInference - INFO -   Perception quality: Fair - Limited Structure
+2025-07-17 05:28:49,603 - UrbanActiveInference - INFO -   Action consistency: 0.100
+2025-07-17 05:28:49,603 - UrbanActiveInference - INFO -   Free energy efficiency: -0.041
+2025-07-17 05:28:49,603 - UrbanActiveInference - INFO -   Final satisfaction: 0.944
+2025-07-17 05:28:49,603 - UrbanActiveInference - INFO -   Remaining budget: 8.6
+2025-07-17 05:28:52,314 - geo_infer_act.utils.visualization - INFO - Perception analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_1
+2025-07-17 05:28:55,621 - geo_infer_act.utils.visualization - INFO - Action analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_1
+2025-07-17 05:28:55,625 - geo_infer_act.utils.analysis - INFO - Traces saved to CSV files in /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_1/data
+2025-07-17 05:28:55,625 - UrbanActiveInference - INFO - 
+AGENT 2 (Community) ANALYSIS:
+2025-07-17 05:28:55,625 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2025-07-17 05:28:55,633 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_2/analysis/perception_analysis.json
+2025-07-17 05:28:55,633 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2025-07-17 05:28:55,633 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2025-07-17 05:28:55,637 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_2/analysis/action_selection_analysis.json
+2025-07-17 05:28:55,637 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2025-07-17 05:28:55,637 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2025-07-17 05:28:55,638 - geo_infer_act.utils.analysis - INFO - Analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_2/analysis/free_energy_analysis.json
+2025-07-17 05:28:55,638 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2025-07-17 05:28:55,638 - UrbanActiveInference - INFO -   Perception quality: Fair - Limited Structure
+2025-07-17 05:28:55,638 - UrbanActiveInference - INFO -   Action consistency: 0.150
+2025-07-17 05:28:55,638 - UrbanActiveInference - INFO -   Free energy efficiency: -0.036
+2025-07-17 05:28:55,638 - UrbanActiveInference - INFO -   Final satisfaction: 0.911
+2025-07-17 05:28:55,638 - UrbanActiveInference - INFO -   Remaining budget: 13.4
+2025-07-17 05:28:58,573 - geo_infer_act.utils.visualization - INFO - Perception analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_2
+2025-07-17 05:29:01,951 - geo_infer_act.utils.visualization - INFO - Action analysis saved to /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_2
+2025-07-17 05:29:01,955 - geo_infer_act.utils.analysis - INFO - Traces saved to CSV files in /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban/agent_2/data
+2025-07-17 05:29:01,955 - UrbanActiveInference - INFO - 
+SYSTEM-WIDE URBAN DEVELOPMENT ANALYSIS:
+2025-07-17 05:29:01,955 - UrbanActiveInference - INFO -   Urban quality change: 0.528 → 0.533 (Δ=+0.005)
+2025-07-17 05:29:01,955 - UrbanActiveInference - INFO -   Cooperation change: 0.592 → 0.592 (Δ=+0.000)
+2025-07-17 05:29:01,955 - UrbanActiveInference - INFO -   Housing development: +3.15
+2025-07-17 05:29:01,955 - UrbanActiveInference - INFO -   Commercial development: +3.68
+2025-07-17 05:29:01,955 - UrbanActiveInference - INFO -   Transport development: +0.24
+2025-07-17 05:29:01,955 - UrbanActiveInference - INFO -   Green Space development: +5.07
+2025-07-17 05:29:01,955 - UrbanActiveInference - INFO -   Average agent satisfaction: 0.952 (±0.037)
+2025-07-17 05:29:01,955 - UrbanActiveInference - INFO -   Development equity score: 0.950
+2025-07-17 05:29:03,503 - UrbanActiveInference - INFO - 
+Exporting comprehensive analysis data...
+2025-07-17 05:29:03,507 - UrbanActiveInference - INFO - 
+FEATURES DEMONSTRATED:
+2025-07-17 05:29:03,507 - UrbanActiveInference - INFO - • Multi-agent Active Inference coordination for urban planning
+2025-07-17 05:29:03,507 - UrbanActiveInference - INFO - • Comprehensive stakeholder behavior analysis and pattern detection
+2025-07-17 05:29:03,507 - UrbanActiveInference - INFO - • Real-time resource allocation optimization with constraint handling
+2025-07-17 05:29:03,507 - UrbanActiveInference - INFO - • Spatial-temporal urban development modeling and quality assessment
+2025-07-17 05:29:03,508 - UrbanActiveInference - INFO - • Agent-specific preference learning and satisfaction tracking
+2025-07-17 05:29:03,508 - UrbanActiveInference - INFO - • System-wide cooperation dynamics and equity analysis
+2025-07-17 05:29:03,508 - UrbanActiveInference - INFO - • Professional visualization suite for urban planning insights
+2025-07-17 05:29:03,508 - UrbanActiveInference - INFO - • Comprehensive data export and reporting for policy analysis
+2025-07-17 05:29:03,508 - UrbanActiveInference - INFO - 
+Urban Planning Active Inference simulation complete!
+2025-07-17 05:29:03,508 - UrbanActiveInference - INFO - Results saved to: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/output/urban
+2025-07-17 05:29:03,508 - UrbanActiveInference - INFO - Total simulation time: 20 steps
+2025-07-17 05:29:03,508 - UrbanActiveInference - INFO - Analysis completed at: 2025-07-17 05:29:03

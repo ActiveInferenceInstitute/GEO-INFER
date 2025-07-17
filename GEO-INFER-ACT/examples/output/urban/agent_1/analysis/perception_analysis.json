@@ -1,21 +1,21 @@
 {
   "belief_dynamics": {
     "belief_change_magnitude": {
-      "mean": 0.013915059086899302,
-      "std": 0.00516220859182012,
-      "max": 0.027026509618183654
+      "mean": 0.03738405530217584,
+      "std": 0.02278427098938923,
+      "max": 0.08889590306658376
     },
     "entropy_dynamics": {
-      "initial": 1.320553323748143,
-      "final": 1.1961109346922134,
-      "mean": 1.2550506959574173,
-      "trend": -0.00661620031531598
+      "initial": 1.3660918326094702,
+      "final": 0.5986205643125613,
+      "mean": 0.9814472553455061,
+      "trend": -0.04461341722051467
     },
     "stability_by_state": [
-      0.0026345824011539437,
-      0.0025237298027539724,
-      0.0006519968251532039,
-      0.005124725009114791
+      0.0024890678203732587,
+      0.004444946414529992,
+      0.014727173481946793,
+      0.017896627107624404
     ],
     "state_switches": 1,
     "switch_rate": 0.05
@@ -47,67 +47,67 @@
   },
   "perception_quality": {
     "is_flat": false,
-    "randomness_score": 0.00016644971625734417,
-    "structure_score": 0.10728281159822095,
+    "randomness_score": 0.0006307300136189076,
+    "structure_score": 0.2313643301675445,
     "quality_rating": "Fair - Limited Structure"
   },
   "pattern_detection": {
     "oscillations": {
       "state_0": {
-        "num_peaks": 0,
-        "num_valleys": 0,
-        "estimated_frequency": 0.0,
-        "amplitude": 0.05661478537509396
-      },
-      "state_1": {
         "num_peaks": 1,
         "num_valleys": 0,
         "estimated_frequency": 0.0,
-        "amplitude": 0.012445490770693915
+        "amplitude": 0.03911988467717401
+      },
+      "state_1": {
+        "num_peaks": 0,
+        "num_valleys": 0,
+        "estimated_frequency": 0.0,
+        "amplitude": 0.057091282684677114
       },
       "state_2": {
         "num_peaks": 0,
         "num_valleys": 0,
         "estimated_frequency": 0.0,
-        "amplitude": 0.03505714713683768
+        "amplitude": 0.08335851038123293
       },
       "state_3": {
         "num_peaks": 0,
         "num_valleys": 0,
         "estimated_frequency": 0.0,
-        "amplitude": 0.03420381069612392
+        "amplitude": 0.17699753006753494
       }
     },
     "convergence": {
       "state_0": {
         "is_converging": true,
-        "convergence_rate": 2.8421688310545656e-05,
-        "final_variance": 0.00015612768761621708
+        "convergence_rate": 5.077291145308478e-06,
+        "final_variance": 6.713507812797887e-05
       },
       "state_1": {
         "is_converging": true,
-        "convergence_rate": 6.219335055136633e-06,
-        "final_variance": 4.074264854304069e-08
+        "convergence_rate": 5.4939131730811017e-05,
+        "final_variance": 5.8299829720070365e-05
       },
       "state_2": {
         "is_converging": true,
-        "convergence_rate": 2.8204694662191176e-06,
-        "final_variance": 7.999575673601892e-05
+        "convergence_rate": 0.00023280472194435776,
+        "final_variance": 3.567306608020688e-05
       },
       "state_3": {
         "is_converging": true,
-        "convergence_rate": 3.330697246442898e-05,
-        "final_variance": 1.1690637653983946e-05
+        "convergence_rate": 0.0006427661647891369,
+        "final_variance": 0.000475212474434385
       }
     },
     "phase_transitions": {
       "num_transitions": 1,
       "transitions": [
         {
-          "timestep": 12,
+          "timestep": 1,
           "from_state": 2,
-          "to_state": 0,
-          "strength": 0.002471266784232262
+          "to_state": 3,
+          "strength": 0.011925922568931546
         }
       ],
       "transition_rate": 0.05
@@ -116,11 +116,11 @@
   "surprise_analysis": {
     "surprise_statistics": {
       "mean": 1.3862943211198915,
-      "std": 9.930136612989092e-17,
-      "min": 1.3862943211198913,
+      "std": 4.965068306494546e-17,
+      "min": 1.3862943211198915,
       "max": 1.3862943211198917
     },
     "surprise_trend": -2.3439516489660386e-17,
-    "high_surprise_events": 0
+    "high_surprise_events": 1
   }
 }

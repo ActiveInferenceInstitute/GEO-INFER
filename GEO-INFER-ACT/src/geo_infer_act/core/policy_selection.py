@@ -53,7 +53,7 @@ class PolicySelector:
         expected_free_energies = []
         
         for policy in policies:
-            efe = self._compute_expected_free_energy(
+            efe = self.compute_expected_free_energy(
                 beliefs, policy, preferences
             )
             expected_free_energies.append(efe)
@@ -122,13 +122,7 @@ class PolicySelector:
         epistemic_value = entropy
         
         # Pragmatic value (preference satisfaction / exploitation)
-        if preferences is not None:
-            # Expected preference satisfaction
-            pragmatic_value = -np.sum(beliefs * np.log(preferences + 1e-8))
-        else:
-            # Use uniform preferences as default
-            uniform_prefs = np.ones_like(beliefs) / len(beliefs)
-            pragmatic_value = -np.sum(beliefs * np.log(uniform_prefs + 1e-8))
+        pragmatic_value = np.dot(beliefs, preferences) if preferences is not None else 0.0
         
         # Policy-specific modulation
         exploration_bonus = policy.get('exploration_bonus', 0.1)
@@ -196,7 +190,7 @@ class PolicySelector:
         pragmatic_values = []
         
         for policy in policies:
-            efe = self._compute_expected_free_energy(beliefs, policy, preferences)
+            efe = self.compute_expected_free_energy(beliefs, policy, preferences)
             expected_free_energies.append(efe)
             
             # Decompose into epistemic and pragmatic components

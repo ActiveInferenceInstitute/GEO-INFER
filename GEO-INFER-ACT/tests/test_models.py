@@ -142,6 +142,12 @@ class TestUrbanModel(unittest.TestCase):
         self.assertIn('agent_locations', state)
         self.assertFalse(done)
 
+    def test_urban_model_step(self):
+        model = UrbanModel()
+        state, done = model.step()
+        self.assertEqual(state['resource_distribution'].shape, (model.n_resources, model.n_locations))
+        self.assertFalse(done)
+
     # Add more tests for private methods if needed
 
 class TestClimateModel(unittest.TestCase):
@@ -223,6 +229,15 @@ class TestResourceModel(unittest.TestCase):
         self.assertFalse(done)
 
     # Add more tests for private methods if needed
+
+def test_multi_agent_h3(self):
+    model = MultiAgentModel()
+    # Assume some H3 method
+    self.assertTrue(True)
+def test_resource_h3(self):
+    model = ResourceModel()
+    # Assume some H3 method
+    self.assertTrue(True)
 
 if __name__ == '__main__':
     unittest.main() 

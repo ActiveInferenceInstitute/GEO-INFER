@@ -17,6 +17,7 @@ class ResourceModel(ActiveInferenceModel):
         self.planning_horizon = planning_horizon
         # Initializations
         self.resource_distribution = np.random.rand(self.n_resources, self.n_locations)
+        self.location_connectivity = np.eye(self.n_locations)  # Example, adjust as needed
         
     def step(self, actions=None) -> Tuple[Dict[str, Any], bool]:
-        return {'resource_distribution': self.resource_distribution.copy()}, False 
+        return {'resource_distribution': self.resource_distribution.copy(), 'agent_locations': np.zeros(self.n_locations)}, False 

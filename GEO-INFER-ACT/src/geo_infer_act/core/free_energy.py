@@ -30,15 +30,40 @@ class FreeEnergyCalculator:
                                        observations: np.ndarray,
                                        preferences: Optional[np.ndarray] = None) -> float:
         """
-        Compute free energy for categorical models.
+        Compute variational free energy for categorical models.
+        
+        The free energy F is decomposed into accuracy (expected log-likelihood)
+        and complexity (KL divergence from prior):
+        
+        F[q(s), o] = E_q[log q(s)] - E_q[log p(o,s)]
+                   = D_KL[q(s)||p(s)] - E_q[log p(o|s)]
+                   = Complexity - Accuracy
+        
+        Where:
+        - q(s) is the variational posterior (beliefs)
+        - p(s) is the prior
+        - p(o|s) is the likelihood of observations given states
+        - D_KL is the Kullback-Leibler divergence
+        
+        Mathematical Foundation:
+        The free energy provides an upper bound on the negative log evidence:
+        -log p(o) ≤ F[q(s), o]
+        
+        Minimizing free energy simultaneously:
+        1. Maximizes model evidence (Occam's principle)
+        2. Minimizes prediction error (Darwinian imperative)
         
         Args:
-            beliefs: Current belief distribution over states
-            observations: Observed data
-            preferences: Prior preferences over observations
+            beliefs: Current variational posterior q(s) over hidden states
+            observations: Observed data vector o
+            preferences: Prior preferences C (log prior probabilities)
             
         Returns:
-            Free energy value
+            Free energy value F[q(s), o]
+            
+        References:
+            - Friston, K. (2010). The free-energy principle: a unified brain theory?
+            - Parr, T., Pezzulo, G., & Friston, K. (2022). Active Inference
         """
         # Ensure valid probability distributions
         beliefs = beliefs + 1e-8

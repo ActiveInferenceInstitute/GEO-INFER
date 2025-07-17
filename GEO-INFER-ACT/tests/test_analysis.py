@@ -28,8 +28,9 @@ class TestActiveInferenceAnalyzer(unittest.TestCase):
 
     def test_analyze_action_selection_patterns(self):
         """Test action selection analysis."""
+        self.analyzer.record_step(np.array([0.5,0.5]), np.array([1,0]), 1, {'all_probabilities': np.array([0.3,0.7])}, 1.0)
+        self.analyzer.record_step(np.array([0.6,0.4]), np.array([0,1]), 2, {'all_probabilities': np.array([0.4,0.6])}, 0.8)
         analysis = self.analyzer.analyze_action_selection_patterns()
-        self.assertIsInstance(analysis, dict)
         self.assertIn('policy_dynamics', analysis)
 
     def test_analyze_free_energy_patterns(self):
@@ -44,8 +45,9 @@ class TestActiveInferenceAnalyzer(unittest.TestCase):
 
     def test_save_traces_to_csv(self):
         """Test saving traces."""
+        self.analyzer.record_step(np.array([0.5,0.5]), np.array([1,0]), 1, {}, 1.0)
         self.analyzer.save_traces_to_csv()
-        self.assertTrue((self.output_dir / 'data' / 'beliefs.csv').exists())
+        self.assertTrue((Path(self.output_dir) / 'data' / 'beliefs.csv').exists())
 
     def test_generate_comprehensive_report(self):
         """Test report generation."""

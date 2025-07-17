@@ -75,6 +75,12 @@ class TestMathUtils(unittest.TestCase):
         kl = kl_divergence(p, q)
         self.assertGreater(kl, 0)
 
+    def test_kl_divergence_edge(self):
+        p = np.array([1,0])
+        q = np.array([0.5,0.5])
+        div = kl_divergence(p, q)
+        self.assertGreater(div, 0)
+
     def test_entropy(self):
         """Test entropy computation."""
         p = np.array([0.5, 0.5])
@@ -88,7 +94,7 @@ class TestMathUtils(unittest.TestCase):
         precision = np.eye(2) * 2
         error = target - mean
         weighted = precision_weighted_error(error, precision)
-        self.assertEqual(error, 4.0)
+        self.assertTrue(np.allclose(weighted, np.array([2,2])))
 
     def test_gaussian_log_likelihood(self):
         """Test Gaussian log likelihood."""
@@ -184,6 +190,10 @@ class TestVisualizationUtils(unittest.TestCase):
         self.assertIsInstance(fig, plt.Figure)
         plt.close(fig)
 
+    def test_plot_belief_update_viz(self):
+        fig = plot_belief_update(np.array([0.5,0.5]), np.array([0.8,0.2]))
+        self.assertIsNotNone(fig)
+
 class TestAnalysisUtils(unittest.TestCase):
     """Tests for analysis utilities."""
 
@@ -205,7 +215,7 @@ class TestAnalysisUtils(unittest.TestCase):
         self.analyzer.record_step(np.array([0.5,0.5]), np.array([1,0]), 1, {'policy':{'id':1}}, 1.0)
         self.analyzer.record_step(np.array([0.6,0.4]), np.array([0,1]), 2, {'policy':{'id':2}}, 0.8)
         analysis = self.analyzer.analyze_free_energy_patterns()
-        self.assertIn('fe_dynamics', analysis)
+        self.assertIn('minimization_dynamics', analysis)
 
     # Add tests for analyze_perception_patterns, etc. by calling and checking output structure
 

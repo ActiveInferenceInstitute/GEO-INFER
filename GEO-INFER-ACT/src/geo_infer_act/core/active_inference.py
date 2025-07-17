@@ -179,3 +179,16 @@ class ActiveInferenceModel:
             'free_energy': self.compute_free_energy(),
             'model_type': self.model_type
         } 
+
+    def apply_to_h3(self, h3_obs: Dict[str, np.ndarray]):
+        if self.generative_model is None:
+            raise ValueError('Set generative model first')
+        return self.generative_model.update_h3_beliefs(h3_obs) 
+
+    def infer_over_h3_grid(self, h3_grid: Dict[str, Any]):
+        results = {}
+        for cell in h3_grid:
+            obs = h3_grid[cell]
+            beliefs, action = self.step(obs)
+            results[cell] = {'beliefs': beliefs, 'action': action}
+        return results 
