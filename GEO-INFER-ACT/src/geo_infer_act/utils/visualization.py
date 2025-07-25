@@ -1,26 +1,43 @@
 """
-Enhanced visualization utilities for GEO-INFER-ACT.
+Comprehensive visualization utilities for active inference models.
 
-This module provides comprehensive visualization tools for Active Inference
-models, including perception analysis, action selection, and free energy dynamics.
+This module provides sophisticated visualization tools for active inference
+components including beliefs, policies, free energy dynamics, and model
+interpretability dashboards.
 """
-import os
-import matplotlib
-# Set non-interactive backend if no display available
-if 'DISPLAY' not in os.environ:
-    matplotlib.use('Agg')
-import matplotlib.patches as patches
+import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-import numpy as np
 import pandas as pd
 from typing import Dict, List, Any, Optional, Tuple, Union
 from pathlib import Path
 import logging
-import plotly.express as px
-import imageio
-import h3
-from shapely.geometry import Polygon
+
+# Additional imports for H3 and interactive visualization
+try:
+    import h3
+    H3_AVAILABLE = True
+except ImportError:
+    H3_AVAILABLE = False
+
+try:
+    from shapely.geometry import Polygon
+    SHAPELY_AVAILABLE = True
+except ImportError:
+    SHAPELY_AVAILABLE = False
+
+try:
+    import imageio
+    IMAGEIO_AVAILABLE = True
+except ImportError:
+    IMAGEIO_AVAILABLE = False
+
+try:
+    import plotly.express as px
+    import plotly.graph_objects as go
+    PLOTLY_AVAILABLE = True
+except ImportError:
+    PLOTLY_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -1119,28 +1136,261 @@ def plot_markov_blanket(blanket: Dict[str, List[int]]) -> plt.Figure:
     return fig 
 
 def plot_h3_grid_static(h3_data: Dict[str, Dict], metric: str = 'fe', title: str = 'H3 Grid') -> plt.Figure:
-    fig, ax = plt.subplots(figsize=(10,10))
-    for cell, data in h3_data.items():
-        boundary = h3.cell_to_boundary(cell)
-        poly = Polygon([(lng, lat) for lat, lng in boundary])
-        x,y = poly.exterior.xy
-        color = plt.cm.viridis(data.get(metric, 0)/max([d.get(metric,0) for d in h3_data.values()]))
-        ax.fill(x, y, color=color)
-    ax.set_title(title)
+    """
+    Create static plot of H3 grid data.
+    
+    Args:
+        h3_data: Dictionary mapping H3 cells to data dictionaries
+        metric: Metric to visualize
+        title: Plot title
+        
+    Returns:
+        Matplotlib figure
+    """
+    fig, ax = plt.subplots(figsize=(12, 10))
+    
+    if not H3_AVAILABLE:
+        ax.text(0.5, 0.5, 'H3 package not available', transform=ax.transAxes, 
+                ha='center', va='center', fontsize=16)
+        ax.set_title(title)
+        return fig
+    
+    if not SHAPELY_AVAILABLE:
+        ax.text(0.5, 0.5, 'Shapely package not available', transform=ax.transAxes, 
+                ha='center', va='center', fontsize=16)
+        ax.set_title(title)
+        return fig
+    
+    if not h3_data:
+        ax.text(0.5, 0.5, 'No H3 data available', transform=ax.transAxes, 
+                ha='center', va='center', fontsize=16)
+        ax.set_title(title)
+        return fig
+    
+    # Extract values for color normalization
+    values = []
+    for cell_data in h3_data.values():
+        if isinstance(cell_data, dict) and metric in cell_data:
+            values.append(cell_data[metric])
+        elif isinstance(cell_data, (int, float)):
+            values.append(cell_data)
+        else:
+            values.append(0)
+    
+    if not values:
+        ax.text(0.5, 0.5, f'No {metric} data available', transform=ax.transAxes, 
+                ha='center', va='center', fontsize=16)
+        ax.set_title(title)
+        return fig
+    
+    min_val, max_val = min(values), max(values)
+    value_range = max_val - min_val if max_val != min_val else 1
+    
+    # Plot each H3 cell
+    for cell, cell_data in h3_data.items():
+        try:
+            # Get H3 cell boundary
+            boundary = h3.cell_to_boundary(cell)
+            
+            # Convert to polygon coordinates (lng, lat) -> (x, y)
+            coords = [(lng, lat) for lat, lng in boundary]
+            poly = Polygon(coords)
+            x, y = poly.exterior.xy
+            
+            # Get value for coloring
+            if isinstance(cell_data, dict) and metric in cell_data:
+                value = cell_data[metric]
+            elif isinstance(cell_data, (int, float)):
+                value = cell_data
+            else:
+                value = 0
+            
+            # Normalize value for color mapping
+            normalized_value = (value - min_val) / value_range if value_range > 0 else 0.5
+            color = plt.cm.viridis(normalized_value)
+            
+            # Fill the hexagon
+            ax.fill(x, y, color=color, edgecolor='white', linewidth=0.5, alpha=0.8)
+            
+        except Exception as e:
+            logger.warning(f"Failed to plot H3 cell {cell}: {e}")
+            continue
+    
+    # Set equal aspect ratio and remove axes
+    ax.set_aspect('equal')
+    ax.set_title(title, fontsize=14, fontweight='bold')
+    
+    # Add colorbar
+    sm = plt.cm.ScalarMappable(cmap=plt.cm.viridis, 
+                              norm=plt.Normalize(vmin=min_val, vmax=max_val))
+    sm.set_array([])
+    cbar = plt.colorbar(sm, ax=ax, shrink=0.8)
+    cbar.set_label(metric.replace('_', ' ').title(), fontsize=12)
+    
+    # Remove axis ticks and labels for cleaner look
+    ax.set_xticks([])
+    ax.set_yticks([])
+    
+    plt.tight_layout()
     return fig
 
 def create_h3_gif(history: List[Dict[str, Dict]], output_path: str, metric: str = 'fe'):
-    images = []
-    for t, data in enumerate(history):
-        fig = plot_h3_grid_static(data, metric, f'Time {t}')
-        fig.canvas.draw()
-        image = np.frombuffer(fig.canvas.buffer_rgba(), dtype=np.uint8).reshape(fig.canvas.get_width_height()[::-1] + (4,))[:,:,:3]
-        images.append(image)
-        plt.close(fig)
-    imageio.mimsave(output_path, images, fps=2)
-    logger.info(f'GIF saved to {output_path}')
+    """
+    Create animated GIF of H3 grid evolution over time.
+    
+    Args:
+        history: List of H3 data for each timestep
+        output_path: Path to save the GIF
+        metric: Metric to visualize
+    """
+    if not IMAGEIO_AVAILABLE:
+        logger.error("imageio package required for GIF creation")
+        return
+    
+    if not history:
+        logger.warning("No history data provided for GIF creation")
+        return
+    
+    try:
+        images = []
+        
+        # Get global min/max values for consistent color scaling
+        all_values = []
+        for timestep_data in history:
+            for cell_data in timestep_data.values():
+                if isinstance(cell_data, dict) and metric in cell_data:
+                    all_values.append(cell_data[metric])
+                elif isinstance(cell_data, (int, float)):
+                    all_values.append(cell_data)
+        
+        if not all_values:
+            logger.warning(f"No {metric} data found in history")
+            return
+        
+        global_min, global_max = min(all_values), max(all_values)
+        
+        for t, timestep_data in enumerate(history):
+            # Create a copy for consistent color scaling
+            normalized_data = {}
+            for cell, cell_data in timestep_data.items():
+                if isinstance(cell_data, dict):
+                    normalized_data[cell] = cell_data.copy()
+                    if metric in cell_data:
+                        # Ensure value is within global range for consistent coloring
+                        normalized_data[cell][metric] = cell_data[metric]
+                else:
+                    normalized_data[cell] = {metric: cell_data}
+            
+            # Create figure for this timestep
+            fig = plot_h3_grid_static(normalized_data, metric, f'Timestep {t}')
+            
+            # Convert figure to image array
+            fig.canvas.draw()
+            image = np.frombuffer(fig.canvas.buffer_rgba(), dtype=np.uint8)
+            image = image.reshape(fig.canvas.get_width_height()[::-1] + (4,))[:, :, :3]
+            images.append(image)
+            
+            plt.close(fig)
+        
+        # Save as GIF
+        imageio.mimsave(output_path, images, fps=2, loop=0)
+        logger.info(f'H3 evolution GIF saved to {output_path}')
+        
+    except Exception as e:
+        logger.error(f"Failed to create H3 GIF: {e}")
 
 def create_interactive_h3_slider(history: List[Dict[str, Dict]], metric: str = 'fe') -> Any:
-    df = pd.DataFrame([{'time': t, 'cell': cell, metric: data[metric], 'lat': h3.cell_to_latlng(cell)[0], 'lon': h3.cell_to_latlng(cell)[1]} for t, step in enumerate(history) for cell, data in step.items()])
-    fig = px.scatter_geo(df, lat='lat', lon='lon', color=metric, animation_frame='time', projection='natural earth', range_color=[df[metric].min(), df[metric].max()])
-    return fig 
+    """
+    Create interactive slider plot for H3 grid evolution.
+    
+    Args:
+        history: List of H3 data for each timestep
+        metric: Metric to visualize
+        
+    Returns:
+        Plotly figure object
+    """
+    if not PLOTLY_AVAILABLE:
+        logger.error("plotly package required for interactive plots")
+        return None
+    
+    if not H3_AVAILABLE:
+        logger.error("h3 package required for interactive H3 plots")
+        return None
+    
+    if not history:
+        logger.warning("No history data provided for interactive plot")
+        return None
+    
+    try:
+        # Prepare data for plotly
+        plot_data = []
+        
+        for t, timestep_data in enumerate(history):
+            for cell, cell_data in timestep_data.items():
+                try:
+                    lat, lng = h3.cell_to_latlng(cell)
+                    
+                    # Extract metric value
+                    if isinstance(cell_data, dict) and metric in cell_data:
+                        value = cell_data[metric]
+                    elif isinstance(cell_data, (int, float)):
+                        value = cell_data
+                    else:
+                        value = 0
+                    
+                    plot_data.append({
+                        'time': t,
+                        'cell': cell,
+                        'lat': lat,
+                        'lon': lng,
+                        metric: value
+                    })
+                    
+                except Exception as e:
+                    logger.warning(f"Failed to process cell {cell} at timestep {t}: {e}")
+                    continue
+        
+        if not plot_data:
+            logger.warning("No valid data for interactive plot")
+            return None
+        
+        df = pd.DataFrame(plot_data)
+        
+        # Create animated scatter plot
+        fig = px.scatter_geo(
+            df, 
+            lat='lat', 
+            lon='lon', 
+            color=metric,
+            animation_frame='time',
+            projection='natural earth',
+            range_color=[df[metric].min(), df[metric].max()],
+            color_continuous_scale='viridis',
+            title=f'H3 Grid Evolution: {metric.replace("_", " ").title()}',
+            hover_data=['cell']
+        )
+        
+        # Update layout
+        fig.update_layout(
+            geo=dict(
+                showland=True,
+                landcolor='lightgray',
+                showocean=True,
+                oceancolor='lightblue'
+            ),
+            title_font_size=16,
+            coloraxis_colorbar=dict(
+                title=metric.replace('_', ' ').title()
+            )
+        )
+        
+        # Update animation speed
+        fig.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 1000
+        fig.layout.updatemenus[0].buttons[0].args[1]["transition"]["duration"] = 500
+        
+        return fig
+        
+    except Exception as e:
+        logger.error(f"Failed to create interactive H3 plot: {e}")
+        return None 

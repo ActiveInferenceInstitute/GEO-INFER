@@ -82,26 +82,11 @@ class SpatialPrediction:
 
 class EnvironmentalActiveInferenceEngine:
     """
-    Advanced environmental modeling using Active Inference principles.
+    Advanced Environmental Active Inference Engine for geospatial modeling.
     
-    This engine models environmental dynamics as a hierarchical generative model
-    where environmental states generate observations through complex spatial-temporal
-    processes. The engine uses variational free energy minimization to:
-    
-    1. Learn environmental dynamics from observations
-    2. Predict future environmental states
-    3. Optimize resource allocation decisions
-    4. Quantify environmental uncertainty
-    
-    Mathematical Framework:
-    The environmental generative model is:
-    p(o,s,a) = p(o|s)p(s|s',a)p(a|π)p(s')
-    
-    Where:
-    - o: environmental observations (temperature, vegetation, etc.)
-    - s: hidden environmental states
-    - a: environmental actions/interventions
-    - π: environmental policy (resource allocation strategy)
+    This engine implements sophisticated environmental modeling using Active Inference
+    principles, integrating spatial-temporal dynamics, uncertainty quantification,
+    and resource optimization for environmental management.
     """
     
     def __init__(self, 
@@ -180,7 +165,7 @@ class EnvironmentalActiveInferenceEngine:
             raise
     
     def _generate_h3_cells_from_boundary(self, boundary: Dict[str, Any]) -> List[str]:
-        """Generate H3 cells within the specified boundary."""
+        """Generate H3 cells from boundary specification."""
         cells = set()
         
         if 'coordinates' in boundary:
@@ -191,16 +176,19 @@ class EnvironmentalActiveInferenceEngine:
                     cell = h3.latlng_to_cell(lat, lng, self.h3_resolution)
                     cells.add(cell)
                     
-                    # Add nearby cells to ensure coverage
+                    # Add nearby cells for coverage
                     for ring_distance in range(1, 3):
-                        neighbors = h3.grid_ring(cell, ring_distance)
-                        if isinstance(neighbors, list):
-                            cells.update(neighbors)
-                        else:
-                            cells.update(list(neighbors))
+                        try:
+                            neighbors = h3.grid_ring(cell, ring_distance)
+                            if isinstance(neighbors, list):
+                                cells.update(neighbors)
+                            else:
+                                cells.update(list(neighbors))
+                        except Exception:
+                            continue
                             
-                except (ValueError, TypeError) as e:
-                    logger.warning(f"Invalid coordinate {coord}: {e}")
+                except (ValueError, TypeError):
+                    continue
         
         return list(cells)
     
@@ -226,7 +214,7 @@ class EnvironmentalActiveInferenceEngine:
                             self.neighbors[cell][distance] = set()
         
         return H3SpatialGraph(h3_cells, max_neighbor_distance)
-    
+
     def observe_environment(self, 
                            observations: Dict[str, Dict[str, float]], 
                            timestamp: float) -> None:
@@ -600,161 +588,213 @@ class EnvironmentalActiveInferenceEngine:
                     'min': np.min(uncertainties)
                 }
         
-        # High uncertainty regions
+        # Identify high uncertainty regions
+        high_uncertainty_cells = []
         for cell, env_state in self.environmental_states.items():
-            avg_uncertainty = np.mean(list(env_state.uncertainty.values())) if env_state.uncertainty else 0.5
-            
-            if avg_uncertainty > self.uncertainty_threshold:
-                lat, lng = h3.cell_to_latlng(cell)
-                uncertainty_analysis['high_uncertainty_regions'].append({
-                    'location': cell,
-                    'coordinates': [lat, lng],
-                    'uncertainty_level': avg_uncertainty,
-                    'primary_sources': [k for k, v in env_state.uncertainty.items() if v > self.uncertainty_threshold]
+            total_uncertainty = sum(env_state.uncertainty.values()) / len(env_state.uncertainty) if env_state.uncertainty else 0.5
+            if total_uncertainty > self.uncertainty_threshold:
+                high_uncertainty_cells.append({
+                    'cell': cell,
+                    'uncertainty': total_uncertainty,
+                    'coordinates': h3.cell_to_latlng(cell)
                 })
         
-        logger.info(f"Identified {len(uncertainty_analysis['high_uncertainty_regions'])} high uncertainty regions")
+        uncertainty_analysis['high_uncertainty_regions'] = high_uncertainty_cells
+        
+        # Spatial clustering of uncertainty
+        if high_uncertainty_cells:
+            coords = np.array([h3.cell_to_latlng(item['cell']) for item in high_uncertainty_cells])
+            try:
+                clustering = DBSCAN(eps=0.01, min_samples=2).fit(coords)
+                n_clusters = len(set(clustering.labels_)) - (1 if -1 in clustering.labels_ else 0)
+                uncertainty_analysis['spatial_uncertainty_patterns']['n_clusters'] = n_clusters
+                uncertainty_analysis['spatial_uncertainty_patterns']['clustered_fraction'] = np.sum(clustering.labels_ != -1) / len(clustering.labels_)
+            except Exception:
+                uncertainty_analysis['spatial_uncertainty_patterns'] = {'error': 'Clustering failed'}
+        
         return uncertainty_analysis
     
     def compute_environmental_free_energy(self) -> Dict[str, float]:
         """
-        Compute environmental free energy for the entire spatial domain.
+        Compute environmental free energy across the spatial domain.
         
-        Environmental free energy quantifies the "surprise" or unexpectedness
-        of current environmental observations given the learned environmental model.
-        High free energy indicates:
-        1. Unexpected environmental changes
-        2. Model inadequacy
-        3. Need for more observations/interventions
+        The environmental free energy represents the total "surprise" or 
+        mismatch between expected and observed environmental states.
+        
+        Mathematical Foundation:
+        F = E_q[log q(s)] - E_q[log p(o,s)]
+          = KL[q(s)||p(s)] - E_q[log p(o|s)]
+          = Complexity - Accuracy
         
         Returns:
-            Free energy components and total free energy
+            Dictionary containing free energy metrics
         """
-        if not self.observation_history:
-            return {'total_free_energy': np.inf, 'components': {}}
-        
-        free_energy_components = {}
-        total_accuracy = 0.0
-        total_complexity = 0.0
-        
-        latest_observations = self.observation_history[-1]['observations']
-        
-        for var in self.environmental_variables:
-            if var in self.gp_models:
-                var_accuracy = 0.0
-                var_complexity = 0.0
-                var_observations = 0
-                
-                for cell, obs_data in latest_observations.items():
-                    if var in obs_data and cell in self.environmental_states:
-                        # Get current prediction
-                        lat, lng = h3.cell_to_latlng(cell)
-                        current_time = self.observation_history[-1]['timestamp']
-                        
-                        try:
-                            X_pred = np.array([[lat, lng, current_time]])
-                            mean_pred, std_pred = self.gp_models[var].predict(X_pred, return_std=True)
-                            
-                            # Accuracy: negative log-likelihood of observation
-                            observed_value = obs_data[var]
-                            log_likelihood = stats.norm.logpdf(observed_value, mean_pred[0], std_pred[0])
-                            accuracy = -log_likelihood
-                            
-                            # Complexity: KL divergence from prior (simplified)
-                            prior_mean = 0.5  # Assume neutral prior
-                            prior_std = 0.5
-                            complexity = stats.norm.logpdf(mean_pred[0], prior_mean, prior_std)
-                            
-                            var_accuracy += accuracy
-                            var_complexity += complexity
-                            var_observations += 1
-                            
-                        except Exception as e:
-                            logger.warning(f"Free energy computation failed for {var} at {cell}: {e}")
-                
-                if var_observations > 0:
-                    var_accuracy /= var_observations
-                    var_complexity /= var_observations
-                    var_free_energy = var_accuracy + var_complexity
-                    
-                    free_energy_components[var] = {
-                        'accuracy': var_accuracy,
-                        'complexity': var_complexity,
-                        'free_energy': var_free_energy,
-                        'observations': var_observations
-                    }
-                    
-                    total_accuracy += var_accuracy
-                    total_complexity += var_complexity
-        
-        total_free_energy = total_accuracy + total_complexity
-        
-        return {
-            'total_free_energy': total_free_energy,
-            'total_accuracy': total_accuracy,
-            'total_complexity': total_complexity,
-            'components': free_energy_components,
-            'n_variables': len(free_energy_components)
+        free_energy_metrics = {
+            'total_free_energy': 0.0,
+            'spatial_free_energy': {},
+            'variable_free_energy': {},
+            'complexity_term': 0.0,
+            'accuracy_term': 0.0
         }
+        
+        total_fe = 0.0
+        complexity_sum = 0.0
+        accuracy_sum = 0.0
+        
+        for cell, env_state in self.environmental_states.items():
+            cell_fe = 0.0
+            
+            # For each environmental variable, compute its contribution to free energy
+            for var in self.environmental_variables:
+                if hasattr(env_state, var):
+                    observed_value = getattr(env_state, var)
+                    
+                    # Prior belief (uniform distribution in [0, 1] range)
+                    prior_mean = 0.5
+                    prior_variance = 1.0 / 12.0  # Uniform distribution variance
+                    
+                    # Prediction from GP model if available
+                    if var in self.gp_models and len(self.observation_history) > 5:
+                        try:
+                            lat, lng = h3.cell_to_latlng(cell)
+                            current_time = env_state.timestamp or 0.0
+                            X_pred = np.array([[lat, lng, current_time]])
+                            predicted_mean, predicted_std = self.gp_models[var].predict(X_pred, return_std=True)
+                            
+                            # Complexity: KL divergence between posterior and prior
+                            complexity = 0.5 * (np.log(prior_variance / (predicted_std[0]**2 + 1e-8)) + 
+                                               (predicted_std[0]**2 + (predicted_mean[0] - prior_mean)**2) / prior_variance - 1)
+                            
+                            # Accuracy: log likelihood of observation under posterior
+                            accuracy = -0.5 * ((observed_value - predicted_mean[0])**2 / (predicted_std[0]**2 + 1e-8) + 
+                                             np.log(2 * np.pi * (predicted_std[0]**2 + 1e-8)))
+                            
+                        except Exception:
+                            # Fallback to simple calculation
+                            complexity = 0.5 * (observed_value - prior_mean)**2 / prior_variance
+                            accuracy = -0.5 * np.log(2 * np.pi * prior_variance)
+                    else:
+                        # Simple free energy based on deviation from prior
+                        complexity = 0.5 * (observed_value - prior_mean)**2 / prior_variance
+                        accuracy = -0.5 * np.log(2 * np.pi * prior_variance)
+                    
+                    var_fe = complexity - accuracy
+                    cell_fe += var_fe
+                    complexity_sum += complexity
+                    accuracy_sum += accuracy
+                    
+                    # Store variable-specific free energy
+                    if var not in free_energy_metrics['variable_free_energy']:
+                        free_energy_metrics['variable_free_energy'][var] = 0.0
+                    free_energy_metrics['variable_free_energy'][var] += var_fe
+            
+            free_energy_metrics['spatial_free_energy'][cell] = cell_fe
+            total_fe += cell_fe
+        
+        free_energy_metrics['total_free_energy'] = total_fe
+        free_energy_metrics['complexity_term'] = complexity_sum
+        free_energy_metrics['accuracy_term'] = accuracy_sum
+        
+        return free_energy_metrics
     
     def get_environmental_summary(self) -> Dict[str, Any]:
-        """Get comprehensive summary of environmental state and dynamics."""
+        """
+        Get comprehensive summary of environmental state and analysis.
+        
+        Returns:
+            Dictionary containing environmental summary statistics
+        """
         summary = {
             'spatial_domain': {
                 'n_cells': len(self.environmental_states),
                 'h3_resolution': self.h3_resolution,
-                'coverage_area_km2': len(self.environmental_states) * (
-                    h3.cell_area(list(self.environmental_states.keys())[0], 'km^2') 
-                    if self.environmental_states else 0.0
-                )
-            },
-            'temporal_domain': {
-                'n_observations': len(self.observation_history),
-                'time_span': (
-                    self.observation_history[-1]['timestamp'] - self.observation_history[0]['timestamp']
-                    if len(self.observation_history) > 1 else 0.0
-                )
+                'boundary_extent': self._compute_spatial_extent()
             },
             'environmental_variables': self.environmental_variables,
-            'model_status': {
-                'trained_models': len([m for m in self.gp_models.values() if hasattr(m, 'X_train_')]),
-                'total_models': len(self.gp_models)
+            'observation_history': {
+                'n_observations': len(self.observation_history),
+                'time_span': self._compute_time_span(),
+                'last_update': max([obs['timestamp'] for obs in self.observation_history]) if self.observation_history else None
+            },
+            'prediction_models': {
+                'trained_variables': list(self.gp_models.keys()),
+                'model_status': self._assess_model_status()
             }
         }
         
-        # Current environmental statistics
-        if self.environmental_states:
-            for var in self.environmental_variables:
-                values = []
-                for env_state in self.environmental_states.values():
-                    if hasattr(env_state, var):
-                        values.append(getattr(env_state, var))
-                
-                if values:
-                    summary[f'{var}_stats'] = {
-                        'mean': np.mean(values),
-                        'std': np.std(values),
-                        'min': np.min(values),
-                        'max': np.max(values)
-                    }
+        # Variable statistics
+        for var in self.environmental_variables:
+            values = []
+            for env_state in self.environmental_states.values():
+                if hasattr(env_state, var):
+                    values.append(getattr(env_state, var))
+            
+            if values:
+                summary[f'{var}_stats'] = {
+                    'mean': np.mean(values),
+                    'std': np.std(values),
+                    'min': np.min(values),
+                    'max': np.max(values)
+                }
         
         return summary
+    
+    def _compute_spatial_extent(self) -> Dict[str, float]:
+        """Compute spatial extent of the domain."""
+        if not self.environmental_states:
+            return {}
+        
+        lats, lngs = [], []
+        for cell in self.environmental_states.keys():
+            lat, lng = h3.cell_to_latlng(cell)
+            lats.append(lat)
+            lngs.append(lng)
+        
+        return {
+            'lat_min': min(lats),
+            'lat_max': max(lats),
+            'lng_min': min(lngs),
+            'lng_max': max(lngs),
+            'lat_span': max(lats) - min(lats),
+            'lng_span': max(lngs) - min(lngs)
+        }
+    
+    def _compute_time_span(self) -> Dict[str, float]:
+        """Compute time span of observations."""
+        if not self.observation_history:
+            return {}
+        
+        timestamps = [obs['timestamp'] for obs in self.observation_history]
+        return {
+            'start_time': min(timestamps),
+            'end_time': max(timestamps),
+            'duration': max(timestamps) - min(timestamps)
+        }
+    
+    def _assess_model_status(self) -> Dict[str, str]:
+        """Assess status of prediction models."""
+        status = {}
+        for var, model in self.gp_models.items():
+            if hasattr(model, 'X_train_') and model.X_train_ is not None:
+                n_training_points = len(model.X_train_)
+                if n_training_points >= 10:
+                    status[var] = 'well_trained'
+                elif n_training_points >= 5:
+                    status[var] = 'partially_trained'
+                else:
+                    status[var] = 'minimal_training'
+            else:
+                status[var] = 'untrained'
+        return status
 
 
 class MultiScaleHierarchicalAnalyzer:
     """
-    Multi-scale hierarchical analysis for geospatial active inference.
+    Multi-scale hierarchical analyzer for geospatial active inference.
     
-    This class implements hierarchical spatial models that operate across
-    multiple scales simultaneously, enabling analysis of:
-    1. Local environmental dynamics
-    2. Regional patterns and trends  
-    3. Global emergent phenomena
-    4. Cross-scale interactions
-    
-    The hierarchical structure follows Active Inference principles where
-    higher levels provide priors for lower levels, and lower levels
-    provide evidence for higher level inference.
+    This analyzer implements hierarchical active inference across multiple spatial
+    scales using H3 hexagonal grids, enabling analysis of emergent patterns,
+    cross-scale interactions, and hierarchical belief propagation.
     """
     
     def __init__(self, 
@@ -762,21 +802,21 @@ class MultiScaleHierarchicalAnalyzer:
                  hierarchy_levels: int = 3,
                  scale_factor: int = 3):
         """
-        Initialize multi-scale hierarchical analyzer.
+        Initialize Multi-Scale Hierarchical Analyzer.
         
         Args:
-            base_resolution: Finest H3 resolution level
+            base_resolution: Base H3 resolution (finest scale)
             hierarchy_levels: Number of hierarchical levels
-            scale_factor: Factor by which each level scales up
+            scale_factor: Factor for scaling between levels
         """
         self.base_resolution = base_resolution
         self.hierarchy_levels = hierarchy_levels
         self.scale_factor = scale_factor
         
-        # Initialize hierarchical models
-        self.level_models = {}
-        self.cross_scale_influences = {}
+        # Hierarchical structures
+        self.hierarchical_graphs = {}
         self.hierarchical_beliefs = {}
+        self.scale_relationships = {}
         
         logger.info(f"Initialized MultiScaleHierarchicalAnalyzer with {hierarchy_levels} levels")
     
@@ -830,34 +870,30 @@ class MultiScaleHierarchicalAnalyzer:
                 self.neighbors = {}
                 
                 for cell in cells:
-                    self.neighbors[cell] = {}
                     try:
-                        ring_neighbors = h3.grid_ring(cell, 1)
-                        if isinstance(ring_neighbors, list):
-                            valid_neighbors = set(ring_neighbors) & set(cells)
+                        direct_neighbors = h3.grid_ring(cell, 1)
+                        if isinstance(direct_neighbors, list):
+                            valid_neighbors = set(direct_neighbors) & set(cells)
                         else:
-                            valid_neighbors = set(list(ring_neighbors)) & set(cells)
-                        self.neighbors[cell][1] = valid_neighbors
+                            valid_neighbors = set(list(direct_neighbors)) & set(cells)
+                        self.neighbors[cell] = valid_neighbors
                     except Exception:
-                        self.neighbors[cell][1] = set()
+                        self.neighbors[cell] = set()
         
         return LevelSpatialGraph(cells)
     
     def initialize_hierarchy(self, boundary: Dict[str, Any]) -> None:
-        """Initialize hierarchical spatial models."""
-        # Create hierarchical H3 models
+        """Initialize hierarchical structure."""
         self.hierarchical_graphs = self._create_hierarchical_h3_model(
             self.base_resolution, boundary, self.hierarchy_levels
         )
         
-        # Initialize beliefs at each level
-        for level_name, spatial_graph in self.hierarchical_graphs.items():
-            n_cells = len(spatial_graph.cells)
-            # Initialize with uniform beliefs
-            self.hierarchical_beliefs[level_name] = {
-                cell: np.ones(4) / 4  # 4-state categorical model
-                for cell in spatial_graph.cells
-            }
+        # Initialize beliefs for each level
+        for level_name, graph in self.hierarchical_graphs.items():
+            self.hierarchical_beliefs[level_name] = {}
+            for cell in graph.cells:
+                # Initialize with uniform beliefs (4-state model)
+                self.hierarchical_beliefs[level_name][cell] = np.ones(4) / 4
         
         logger.info(f"Initialized hierarchy with {len(self.hierarchical_graphs)} levels")
     
@@ -865,302 +901,420 @@ class MultiScaleHierarchicalAnalyzer:
                                        bottom_up_evidence: Dict[str, Dict[str, np.ndarray]],
                                        top_down_priors: Dict[str, Dict[str, np.ndarray]] = None) -> Dict[str, Dict[str, np.ndarray]]:
         """
-        Propagate beliefs through the hierarchical structure.
+        Propagate beliefs hierarchically using message passing.
         
-        Implements hierarchical message passing where:
-        - Bottom-up: evidence flows from fine to coarse scales
-        - Top-down: priors flow from coarse to fine scales
+        Implements hierarchical active inference with bottom-up evidence
+        propagation and top-down prior propagation.
         
         Args:
-            bottom_up_evidence: Evidence from finest scale observations
-            top_down_priors: Priors from coarsest scale (optional)
+            bottom_up_evidence: Evidence from lower levels
+            top_down_priors: Prior beliefs from higher levels
             
         Returns:
             Updated hierarchical beliefs
         """
-        # Sort levels by resolution (finest to coarsest)
-        sorted_levels = sorted(
-            self.hierarchical_graphs.keys(),
-            key=lambda x: int(x.split('_res_')[1]),
-            reverse=True
-        )
+        updated_beliefs = {}
         
-        # Bottom-up pass: propagate evidence upward
-        for i, level_name in enumerate(sorted_levels):
-            if i == 0:
-                # Finest level: use bottom-up evidence
-                if level_name in bottom_up_evidence:
-                    self.hierarchical_beliefs[level_name].update(bottom_up_evidence[level_name])
-            else:
-                # Higher levels: aggregate from lower level
-                lower_level = sorted_levels[i-1]
-                self._aggregate_beliefs_upward(lower_level, level_name)
-        
-        # Top-down pass: propagate priors downward
-        if top_down_priors:
-            for i in reversed(range(len(sorted_levels))):
-                level_name = sorted_levels[i]
-                if i == len(sorted_levels) - 1:
-                    # Coarsest level: use top-down priors
-                    if level_name in top_down_priors:
-                        self.hierarchical_beliefs[level_name].update(top_down_priors[level_name])
-                else:
-                    # Lower levels: receive priors from higher level
-                    higher_level = sorted_levels[i+1]
-                    self._propagate_priors_downward(higher_level, level_name)
-        
-        return self.hierarchical_beliefs.copy()
-    
-    def _aggregate_beliefs_upward(self, lower_level: str, higher_level: str) -> None:
-        """Aggregate beliefs from lower level to higher level."""
-        lower_beliefs = self.hierarchical_beliefs[lower_level]
-        higher_beliefs = self.hierarchical_beliefs[higher_level]
-        
-        # Simple aggregation: spatial averaging within parent cells
-        for higher_cell in higher_beliefs:
-            # Find corresponding cells in lower level
-            lower_cells = self._find_child_cells(higher_cell, lower_level)
-            
-            if lower_cells:
-                # Average beliefs from child cells
-                child_beliefs = [lower_beliefs[cell] for cell in lower_cells if cell in lower_beliefs]
-                if child_beliefs:
-                    aggregated_belief = np.mean(child_beliefs, axis=0)
-                    higher_beliefs[higher_cell] = aggregated_belief / np.sum(aggregated_belief)
-    
-    def _propagate_priors_downward(self, higher_level: str, lower_level: str) -> None:
-        """Propagate priors from higher level to lower level."""
-        higher_beliefs = self.hierarchical_beliefs[higher_level]
-        lower_beliefs = self.hierarchical_beliefs[lower_level]
-        
-        # Propagate parent beliefs to child cells
-        for lower_cell in lower_beliefs:
-            parent_cell = self._find_parent_cell(lower_cell, higher_level)
-            
-            if parent_cell and parent_cell in higher_beliefs:
-                # Weighted combination of local belief and parent prior
-                local_belief = lower_beliefs[lower_cell]
-                parent_prior = higher_beliefs[parent_cell]
+        # Bottom-up propagation
+        for level_name in sorted(self.hierarchical_graphs.keys()):
+            if level_name in bottom_up_evidence:
+                # Update beliefs with evidence
+                for cell, evidence in bottom_up_evidence[level_name].items():
+                    if cell in self.hierarchical_beliefs[level_name]:
+                        # Bayesian update
+                        prior = self.hierarchical_beliefs[level_name][cell]
+                        posterior = prior * evidence
+                        posterior = posterior / (np.sum(posterior) + 1e-8)
+                        self.hierarchical_beliefs[level_name][cell] = posterior
                 
-                # Hierarchical belief update (weighted average)
-                alpha = 0.7  # Weight for local evidence
-                updated_belief = alpha * local_belief + (1 - alpha) * parent_prior
-                lower_beliefs[lower_cell] = updated_belief / np.sum(updated_belief)
+                # Propagate to higher levels
+                self._aggregate_beliefs_upward(level_name)
+        
+        # Top-down propagation if priors provided
+        if top_down_priors:
+            for level_name in sorted(self.hierarchical_graphs.keys(), reverse=True):
+                if level_name in top_down_priors:
+                    self._propagate_priors_downward(level_name, top_down_priors[level_name])
+        
+        # Collect updated beliefs
+        for level_name in self.hierarchical_graphs.keys():
+            updated_beliefs[level_name] = self.hierarchical_beliefs[level_name].copy()
+        
+        return updated_beliefs
+    
+    def _aggregate_beliefs_upward(self, lower_level: str, higher_level: str = None) -> None:
+        """Aggregate beliefs from lower level to higher level."""
+        if higher_level is None:
+            # Find the next higher level
+            level_numbers = []
+            for level_name in self.hierarchical_graphs.keys():
+                if level_name.startswith('level_'):
+                    level_num = int(level_name.split('_')[1])
+                    level_numbers.append(level_num)
+            
+            current_level_num = int(lower_level.split('_')[1])
+            higher_level_nums = [num for num in level_numbers if num > current_level_num]
+            
+            if not higher_level_nums:
+                return  # This is the highest level
+            
+            higher_level_num = min(higher_level_nums)
+            higher_level = f"level_{higher_level_num}_res_{max(0, self.base_resolution - higher_level_num)}"
+        
+        if higher_level not in self.hierarchical_graphs:
+            return
+        
+        # Aggregate beliefs from child cells to parent cells
+        for parent_cell in self.hierarchical_beliefs[higher_level].keys():
+            child_cells = self._find_child_cells(parent_cell, lower_level)
+            
+            if child_cells:
+                # Average beliefs from children
+                aggregated_belief = np.zeros(4)
+                for child_cell in child_cells:
+                    if child_cell in self.hierarchical_beliefs[lower_level]:
+                        aggregated_belief += self.hierarchical_beliefs[lower_level][child_cell]
+                
+                aggregated_belief = aggregated_belief / (len(child_cells) + 1e-8)
+                
+                # Update parent belief with aggregated evidence
+                prior = self.hierarchical_beliefs[higher_level][parent_cell]
+                posterior = 0.7 * prior + 0.3 * aggregated_belief  # Weighted combination
+                posterior = posterior / (np.sum(posterior) + 1e-8)
+                self.hierarchical_beliefs[higher_level][parent_cell] = posterior
+    
+    def _propagate_priors_downward(self, higher_level: str, lower_level: str = None) -> None:
+        """Propagate priors from higher level to lower level."""
+        if lower_level is None:
+            # Find the next lower level
+            level_numbers = []
+            for level_name in self.hierarchical_graphs.keys():
+                if level_name.startswith('level_'):
+                    level_num = int(level_name.split('_')[1])
+                    level_numbers.append(level_num)
+            
+            current_level_num = int(higher_level.split('_')[1])
+            lower_level_nums = [num for num in level_numbers if num < current_level_num]
+            
+            if not lower_level_nums:
+                return  # This is the lowest level
+            
+            lower_level_num = max(lower_level_nums)
+            lower_level = f"level_{lower_level_num}_res_{max(0, self.base_resolution - lower_level_num)}"
+        
+        if lower_level not in self.hierarchical_graphs:
+            return
+        
+        # Propagate priors from parent to children
+        for parent_cell, parent_belief in self.hierarchical_beliefs[higher_level].items():
+            child_cells = self._find_child_cells(parent_cell, lower_level)
+            
+            for child_cell in child_cells:
+                if child_cell in self.hierarchical_beliefs[lower_level]:
+                    # Modulate child belief with parent prior
+                    child_belief = self.hierarchical_beliefs[lower_level][child_cell]
+                    modulated_belief = 0.8 * child_belief + 0.2 * parent_belief
+                    modulated_belief = modulated_belief / (np.sum(modulated_belief) + 1e-8)
+                    self.hierarchical_beliefs[lower_level][child_cell] = modulated_belief
     
     def _find_child_cells(self, parent_cell: str, child_level: str) -> List[str]:
-        """Find child cells corresponding to a parent cell."""
-        # Simplified: use spatial proximity
-        child_graph = self.hierarchical_graphs[child_level]
+        """Find child cells that map to a parent cell."""
+        child_cells = []
+        
+        # Get parent cell coordinates
         parent_lat, parent_lng = h3.cell_to_latlng(parent_cell)
         
-        child_cells = []
-        for child_cell in child_graph.cells:
-            child_lat, child_lng = h3.cell_to_latlng(child_cell)
-            
-            # Check if child is within parent's approximate area
-            distance = np.sqrt((parent_lat - child_lat)**2 + (parent_lng - child_lng)**2)
-            if distance < 0.01:  # Threshold in degrees
-                child_cells.append(child_cell)
+        # Check which child cells fall within parent area
+        if child_level in self.hierarchical_graphs:
+            for child_cell in self.hierarchical_graphs[child_level].cells:
+                try:
+                    # Check if child cell is descendant of parent
+                    child_resolution = h3.get_resolution(child_cell)
+                    parent_resolution = h3.get_resolution(parent_cell)
+                    
+                    if child_resolution > parent_resolution:
+                        # Get parent of child at parent resolution
+                        child_parent = h3.cell_to_parent(child_cell, parent_resolution)
+                        if child_parent == parent_cell:
+                            child_cells.append(child_cell)
+                except Exception:
+                    continue
         
         return child_cells
     
     def _find_parent_cell(self, child_cell: str, parent_level: str) -> Optional[str]:
-        """Find parent cell corresponding to a child cell."""
-        parent_graph = self.hierarchical_graphs[parent_level]
-        child_lat, child_lng = h3.cell_to_latlng(child_cell)
-        
-        # Find closest parent cell
-        min_distance = float('inf')
-        closest_parent = None
-        
-        for parent_cell in parent_graph.cells:
-            parent_lat, parent_lng = h3.cell_to_latlng(parent_cell)
-            distance = np.sqrt((child_lat - parent_lat)**2 + (child_lng - parent_lng)**2)
+        """Find parent cell for a given child cell."""
+        try:
+            # Extract resolution from parent level name
+            parent_resolution = int(parent_level.split('_res_')[1])
+            parent_cell = h3.cell_to_parent(child_cell, parent_resolution)
             
-            if distance < min_distance:
-                min_distance = distance
-                closest_parent = parent_cell
+            # Check if parent exists in the level
+            if parent_level in self.hierarchical_graphs:
+                if parent_cell in self.hierarchical_graphs[parent_level].cells:
+                    return parent_cell
+        except Exception:
+            pass
         
-        return closest_parent
+        return None
     
     def analyze_cross_scale_interactions(self) -> Dict[str, Any]:
-        """Analyze interactions between different spatial scales."""
+        """
+        Analyze interactions across different spatial scales.
+        
+        Returns:
+            Analysis of cross-scale patterns and interactions
+        """
         interactions = {
             'scale_coherence': {},
             'information_flow': {},
-            'emergent_patterns': {},
+            'emergence_indicators': {},
             'scale_dependencies': {}
         }
         
-        level_names = list(self.hierarchical_graphs.keys())
+        level_names = sorted(self.hierarchical_graphs.keys())
         
-        # Compute scale coherence (similarity between levels)
+        # Analyze coherence between adjacent scales
         for i in range(len(level_names) - 1):
             lower_level = level_names[i]
             higher_level = level_names[i + 1]
             
             coherence = self._compute_scale_coherence(lower_level, higher_level)
-            interactions['scale_coherence'][f'{lower_level}_to_{higher_level}'] = coherence
+            interactions['scale_coherence'][f"{lower_level}_to_{higher_level}"] = coherence
         
-        # Analyze information flow
+        # Analyze information flow efficiency
         for level_name in level_names:
-            beliefs = self.hierarchical_beliefs[level_name]
-            
-            # Compute information content at each level
-            level_entropy = np.mean([
-                -np.sum(belief * np.log(belief + 1e-8))
-                for belief in beliefs.values()
-            ])
-            
-            interactions['information_flow'][level_name] = {
-                'entropy': level_entropy,
-                'n_cells': len(beliefs),
-                'information_density': level_entropy / len(beliefs) if len(beliefs) > 0 else 0
-            }
+            beliefs = self.hierarchical_beliefs.get(level_name, {})
+            if beliefs:
+                entropies = []
+                for belief in beliefs.values():
+                    entropy = -np.sum(belief * np.log(belief + 1e-8))
+                    entropies.append(entropy)
+                
+                interactions['information_flow'][level_name] = {
+                    'mean_entropy': np.mean(entropies),
+                    'entropy_variance': np.var(entropies),
+                    'information_content': np.mean([np.max(belief) for belief in beliefs.values()])
+                }
+        
+        # Detect emergence indicators
+        for level_name in level_names:
+            beliefs = self.hierarchical_beliefs.get(level_name, {})
+            if beliefs and len(beliefs) > 1:
+                belief_matrix = np.array(list(beliefs.values()))
+                
+                # Measure spatial correlation
+                correlations = []
+                for i in range(belief_matrix.shape[1]):  # For each belief dimension
+                    for j in range(i + 1, belief_matrix.shape[1]):
+                        corr = np.corrcoef(belief_matrix[:, i], belief_matrix[:, j])[0, 1]
+                        if not np.isnan(corr):
+                            correlations.append(abs(corr))
+                
+                emergence_score = np.mean(correlations) if correlations else 0.0
+                interactions['emergence_indicators'][level_name] = emergence_score
         
         return interactions
     
     def _compute_scale_coherence(self, lower_level: str, higher_level: str) -> float:
         """Compute coherence between two hierarchical levels."""
-        lower_beliefs = self.hierarchical_beliefs[lower_level]
-        higher_beliefs = self.hierarchical_beliefs[higher_level]
+        if (lower_level not in self.hierarchical_beliefs or 
+            higher_level not in self.hierarchical_beliefs):
+            return 0.0
         
-        coherences = []
+        coherence_scores = []
         
-        for higher_cell, higher_belief in higher_beliefs.items():
-            child_cells = self._find_child_cells(higher_cell, lower_level)
+        # For each parent-child relationship
+        for parent_cell in self.hierarchical_beliefs[higher_level].keys():
+            child_cells = self._find_child_cells(parent_cell, lower_level)
             
-            if child_cells:
-                child_beliefs = [lower_beliefs[cell] for cell in child_cells if cell in lower_beliefs]
+            if len(child_cells) > 1:
+                parent_belief = self.hierarchical_beliefs[higher_level][parent_cell]
+                
+                # Aggregate child beliefs
+                child_beliefs = []
+                for child_cell in child_cells:
+                    if child_cell in self.hierarchical_beliefs[lower_level]:
+                        child_beliefs.append(self.hierarchical_beliefs[lower_level][child_cell])
                 
                 if child_beliefs:
-                    # Compute similarity between parent and aggregated child beliefs
-                    aggregated_child = np.mean(child_beliefs, axis=0)
-                    aggregated_child = aggregated_child / np.sum(aggregated_child)
+                    avg_child_belief = np.mean(child_beliefs, axis=0)
                     
-                    # Use cosine similarity
-                    similarity = np.dot(higher_belief, aggregated_child) / (
-                        np.linalg.norm(higher_belief) * np.linalg.norm(aggregated_child) + 1e-8
-                    )
-                    coherences.append(similarity)
+                    # Compute similarity between parent and aggregated child beliefs
+                    similarity = np.dot(parent_belief, avg_child_belief)
+                    coherence_scores.append(similarity)
         
-        return np.mean(coherences) if coherences else 0.0
+        return np.mean(coherence_scores) if coherence_scores else 0.0
     
     def detect_emergent_patterns(self) -> List[Dict[str, Any]]:
-        """Detect emergent patterns across scales."""
+        """
+        Detect emergent spatial patterns across hierarchical levels.
+        
+        Returns:
+            List of detected emergent patterns
+        """
         patterns = []
         
-        # Analyze each hierarchical level
         for level_name, beliefs in self.hierarchical_beliefs.items():
-            spatial_graph = self.hierarchical_graphs[level_name]
+            if len(beliefs) < 3:
+                continue
+            
+            # Convert beliefs to matrix
+            cells = list(beliefs.keys())
+            belief_matrix = np.array([beliefs[cell] for cell in cells])
             
             # Detect spatial clusters of similar beliefs
-            from sklearn.cluster import DBSCAN
-            
-            # Prepare data for clustering
-            coordinates = []
-            belief_features = []
-            cell_ids = []
-            
-            for cell, belief in beliefs.items():
-                lat, lng = h3.cell_to_latlng(cell)
-                coordinates.append([lat, lng])
-                belief_features.append(belief)
-                cell_ids.append(cell)
-            
-            if len(coordinates) > 3:
-                coordinates = np.array(coordinates)
-                belief_features = np.array(belief_features)
+            try:
+                # Get spatial coordinates
+                coordinates = np.array([h3.cell_to_latlng(cell) for cell in cells])
                 
-                # Combine spatial and belief features
-                combined_features = np.hstack([
-                    coordinates * 100,  # Scale coordinates
-                    belief_features
-                ])
+                # Cluster based on belief similarity
+                from sklearn.cluster import KMeans
+                n_clusters = min(5, len(cells) // 2)
                 
-                # Apply DBSCAN clustering
-                clustering = DBSCAN(eps=0.5, min_samples=2)
-                cluster_labels = clustering.fit_predict(combined_features)
-                
-                # Analyze clusters
-                unique_labels = set(cluster_labels)
-                for label in unique_labels:
-                    if label != -1:  # Ignore noise points
-                        cluster_cells = [cell_ids[i] for i, l in enumerate(cluster_labels) if l == label]
-                        cluster_beliefs = belief_features[cluster_labels == label]
+                if n_clusters >= 2:
+                    kmeans = KMeans(n_clusters=n_clusters, random_state=42, n_init=10)
+                    belief_clusters = kmeans.fit_predict(belief_matrix)
+                    
+                    # Analyze each cluster
+                    for cluster_id in range(n_clusters):
+                        cluster_mask = belief_clusters == cluster_id
+                        cluster_cells = [cells[i] for i in range(len(cells)) if cluster_mask[i]]
                         
                         if len(cluster_cells) >= 2:
-                            # Compute cluster characteristics
-                            mean_belief = np.mean(cluster_beliefs, axis=0)
-                            belief_coherence = 1.0 - np.std(cluster_beliefs, axis=0).mean()
+                            # Compute spatial extent
+                            cluster_coords = coordinates[cluster_mask]
+                            spatial_extent = self._compute_spatial_extent(cluster_cells)
+                            
+                            # Compute belief coherence within cluster
+                            cluster_beliefs = belief_matrix[cluster_mask]
+                            coherence = 1.0 - np.mean(np.std(cluster_beliefs, axis=0))
                             
                             pattern = {
-                                'type': 'spatial_cluster',
                                 'level': level_name,
-                                'cells': cluster_cells,
+                                'pattern_type': 'belief_cluster',
                                 'size': len(cluster_cells),
-                                'mean_belief': mean_belief.tolist(),
-                                'coherence': float(belief_coherence),
-                                'spatial_extent': self._compute_spatial_extent(cluster_cells)
+                                'coherence': coherence,
+                                'spatial_extent': spatial_extent,
+                                'cells': cluster_cells[:10],  # Limit for storage
+                                'representative_belief': np.mean(cluster_beliefs, axis=0).tolist()
                             }
+                            
                             patterns.append(pattern)
+                            
+            except Exception as e:
+                logger.warning(f"Pattern detection failed for {level_name}: {e}")
         
-        logger.info(f"Detected {len(patterns)} emergent patterns across scales")
+        # Sort patterns by size and coherence
+        patterns.sort(key=lambda p: p['size'] * p['coherence'], reverse=True)
+        
         return patterns
     
     def _compute_spatial_extent(self, cells: List[str]) -> Dict[str, float]:
-        """Compute spatial extent of a cell cluster."""
-        latitudes = []
-        longitudes = []
+        """Compute spatial extent of a set of cells."""
+        if not cells:
+            return {}
         
-        for cell in cells:
-            lat, lng = h3.cell_to_latlng(cell)
-            latitudes.append(lat)
-            longitudes.append(lng)
+        coordinates = [h3.cell_to_latlng(cell) for cell in cells]
+        lats = [coord[0] for coord in coordinates]
+        lngs = [coord[1] for coord in coordinates]
         
         return {
-            'lat_range': max(latitudes) - min(latitudes),
-            'lng_range': max(longitudes) - min(longitudes),
-            'centroid_lat': np.mean(latitudes),
-            'centroid_lng': np.mean(longitudes),
-            'area_km2': len(cells) * h3.cell_area(cells[0], unit='km^2') if cells else 0.0
+            'lat_min': min(lats),
+            'lat_max': max(lats),
+            'lng_min': min(lngs),
+            'lng_max': max(lngs),
+            'lat_span': max(lats) - min(lats),
+            'lng_span': max(lngs) - min(lngs),
+            'centroid_lat': np.mean(lats),
+            'centroid_lng': np.mean(lngs)
         }
 
 
 def analyze_multi_scale_patterns(hierarchical_graphs: Dict[str, Any], 
                                hierarchical_beliefs: Dict[str, Dict[str, np.ndarray]]) -> Dict[str, Any]:
     """
-    Analyze patterns across multiple spatial scales.
+    Analyze multi-scale patterns in hierarchical belief structures.
     
     Args:
-        hierarchical_graphs: Dictionary of spatial graphs at different scales
-        hierarchical_beliefs: Beliefs at each hierarchical level
+        hierarchical_graphs: Hierarchical spatial graphs
+        hierarchical_beliefs: Hierarchical belief distributions
         
     Returns:
-        Multi-scale pattern analysis
+        Multi-scale pattern analysis results
     """
-    analyzer = MultiScaleHierarchicalAnalyzer()
-    analyzer.hierarchical_graphs = hierarchical_graphs
-    analyzer.hierarchical_beliefs = hierarchical_beliefs
-    
     analysis = {
-        'cross_scale_interactions': analyzer.analyze_cross_scale_interactions(),
-        'emergent_patterns': analyzer.detect_emergent_patterns(),
-        'scale_statistics': {}
+        'scale_statistics': {},
+        'pattern_diversity': {},
+        'information_integration': {},
+        'scale_relationships': {}
     }
     
-    # Compute statistics for each scale
-    for level_name, beliefs in hierarchical_beliefs.items():
-        level_stats = {
-            'n_cells': len(beliefs),
-            'mean_entropy': np.mean([
-                -np.sum(belief * np.log(belief + 1e-8))
-                for belief in beliefs.values()
-            ]),
-            'belief_variance': np.var([
-                belief.tolist() for belief in beliefs.values()
-            ], axis=0).tolist() if beliefs else [0.0]
-        }
-        analysis['scale_statistics'][level_name] = level_stats
+    # Analyze each scale
+    for level_name in hierarchical_graphs.keys():
+        if level_name in hierarchical_beliefs:
+            beliefs = hierarchical_beliefs[level_name]
+            
+            # Basic statistics
+            n_cells = len(beliefs)
+            belief_matrix = np.array(list(beliefs.values()))
+            
+            # Entropy and information content
+            entropies = []
+            for belief in beliefs.values():
+                entropy = -np.sum(belief * np.log(belief + 1e-8))
+                entropies.append(entropy)
+            
+            mean_entropy = np.mean(entropies)
+            entropy_variance = np.var(entropies)
+            
+            # Pattern diversity
+            diversity = 0.0
+            if len(beliefs) > 1:
+                pairwise_distances = []
+                belief_list = list(beliefs.values())
+                for i in range(len(belief_list)):
+                    for j in range(i + 1, len(belief_list)):
+                        distance = np.linalg.norm(belief_list[i] - belief_list[j])
+                        pairwise_distances.append(distance)
+                diversity = np.mean(pairwise_distances) if pairwise_distances else 0.0
+            
+            analysis['scale_statistics'][level_name] = {
+                'n_cells': n_cells,
+                'mean_entropy': mean_entropy,
+                'entropy_variance': entropy_variance,
+                'pattern_diversity': diversity,
+                'mean_confidence': np.mean([np.max(belief) for belief in beliefs.values()])
+            }
+    
+    # Cross-scale relationships
+    level_names = sorted(hierarchical_graphs.keys())
+    for i in range(len(level_names) - 1):
+        lower_level = level_names[i]
+        higher_level = level_names[i + 1]
+        
+        if (lower_level in hierarchical_beliefs and 
+            higher_level in hierarchical_beliefs):
+            
+            # Information integration measure
+            lower_entropies = []
+            higher_entropies = []
+            
+            for belief in hierarchical_beliefs[lower_level].values():
+                entropy = -np.sum(belief * np.log(belief + 1e-8))
+                lower_entropies.append(entropy)
+            
+            for belief in hierarchical_beliefs[higher_level].values():
+                entropy = -np.sum(belief * np.log(belief + 1e-8))
+                higher_entropies.append(entropy)
+            
+            integration_ratio = (np.mean(higher_entropies) + 1e-8) / (np.mean(lower_entropies) + 1e-8)
+            
+            relationship_key = f"{lower_level}_to_{higher_level}"
+            analysis['scale_relationships'][relationship_key] = {
+                'integration_ratio': integration_ratio,
+                'lower_complexity': np.mean(lower_entropies),
+                'higher_complexity': np.mean(higher_entropies)
+            }
     
     return analysis
