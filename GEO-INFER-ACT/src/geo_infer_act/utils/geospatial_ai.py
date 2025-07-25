@@ -214,7 +214,7 @@ class EnvironmentalActiveInferenceEngine:
                             self.neighbors[cell][distance] = set()
         
         return H3SpatialGraph(h3_cells, max_neighbor_distance)
-
+    
     def observe_environment(self, 
                            observations: Dict[str, Dict[str, float]], 
                            timestamp: float) -> None:
@@ -694,6 +694,10 @@ class EnvironmentalActiveInferenceEngine:
         free_energy_metrics['total_free_energy'] = total_fe
         free_energy_metrics['complexity_term'] = complexity_sum
         free_energy_metrics['accuracy_term'] = accuracy_sum
+        free_energy_metrics['components'] = {
+            'complexity': complexity_sum,
+            'accuracy': accuracy_sum
+        }
         
         return free_energy_metrics
     
@@ -708,7 +712,13 @@ class EnvironmentalActiveInferenceEngine:
             'spatial_domain': {
                 'n_cells': len(self.environmental_states),
                 'h3_resolution': self.h3_resolution,
-                'boundary_extent': self._compute_spatial_extent()
+                'boundary_extent': self._compute_spatial_extent(),
+                'coverage_area_km2': sum(h3.cell_area(c, 'km^2') for c in self.environmental_states)
+            },
+            'temporal_domain': {
+                'n_observations': len(self.observation_history),
+                'time_span': self._compute_time_span(),
+                'last_update': max([obs['timestamp'] for obs in self.observation_history]) if self.observation_history else None
             },
             'environmental_variables': self.environmental_variables,
             'observation_history': {
@@ -719,7 +729,8 @@ class EnvironmentalActiveInferenceEngine:
             'prediction_models': {
                 'trained_variables': list(self.gp_models.keys()),
                 'model_status': self._assess_model_status()
-            }
+            },
+            'model_status': self._assess_model_status()
         }
         
         # Variable statistics
@@ -728,7 +739,7 @@ class EnvironmentalActiveInferenceEngine:
             for env_state in self.environmental_states.values():
                 if hasattr(env_state, var):
                     values.append(getattr(env_state, var))
-            
+                
             if values:
                 summary[f'{var}_stats'] = {
                     'mean': np.mean(values),
@@ -1090,11 +1101,10 @@ class MultiScaleHierarchicalAnalyzer:
                 for belief in beliefs.values():
                     entropy = -np.sum(belief * np.log(belief + 1e-8))
                     entropies.append(entropy)
-                
-                interactions['information_flow'][level_name] = {
-                    'mean_entropy': np.mean(entropies),
-                    'entropy_variance': np.var(entropies),
-                    'information_content': np.mean([np.max(belief) for belief in beliefs.values()])
+            
+            interactions['information_flow'][level_name] = {
+                    'entropy': np.mean(entropies),
+                    'n_cells': len(beliefs)
                 }
         
         # Detect emergence indicators
@@ -1192,6 +1202,7 @@ class MultiScaleHierarchicalAnalyzer:
                             
                             pattern = {
                                 'level': level_name,
+                                'type': 'belief_cluster',
                                 'pattern_type': 'belief_cluster',
                                 'size': len(cluster_cells),
                                 'coherence': coherence,
@@ -1201,7 +1212,7 @@ class MultiScaleHierarchicalAnalyzer:
                             }
                             
                             patterns.append(pattern)
-                            
+        
             except Exception as e:
                 logger.warning(f"Pattern detection failed for {level_name}: {e}")
         
@@ -1227,7 +1238,8 @@ class MultiScaleHierarchicalAnalyzer:
             'lat_span': max(lats) - min(lats),
             'lng_span': max(lngs) - min(lngs),
             'centroid_lat': np.mean(lats),
-            'centroid_lng': np.mean(lngs)
+            'centroid_lng': np.mean(lngs),
+            'area_km2': sum(h3.cell_area(c, 'km^2') for c in cells)
         }
 
 
@@ -1247,7 +1259,9 @@ def analyze_multi_scale_patterns(hierarchical_graphs: Dict[str, Any],
         'scale_statistics': {},
         'pattern_diversity': {},
         'information_integration': {},
-        'scale_relationships': {}
+        'scale_relationships': {},
+        'cross_scale_interactions': {},
+        'emergent_patterns': []
     }
     
     # Analyze each scale

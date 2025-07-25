@@ -42,14 +42,23 @@ from geo_infer_act.utils.math import (
 )
 
 
+def create_output_directory() -> Path:
+    """Create timestamped output directory in the root /output folder."""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # Create output in the repository root /output directory
+    repo_root = Path(__file__).parent.parent.parent  # Go up from examples/urban_planning.py to repo root
+    output_dir = repo_root / "output" / f"urban_planning_{timestamp}"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
+
+
 def setup_logging() -> logging.Logger:
     """Set up comprehensive logging for the urban planning example."""
     # Create output directory
-    output_dir = os.path.join(os.path.dirname(__file__), 'output', 'urban')
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = create_output_directory()
     
     # Configure logging
-    log_file = os.path.join(output_dir, f'urban_planning_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+    log_file = output_dir / f'urban_planning_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
     
     logging.basicConfig(
         level=logging.INFO,
@@ -63,6 +72,7 @@ def setup_logging() -> logging.Logger:
     logger = logging.getLogger('UrbanActiveInference')
     logger.info("Urban Planning Active Inference - Comprehensive Analysis")
     logger.info("=" * 70)
+    logger.info(f"Output directory: {output_dir}")
     
     return logger
 
@@ -369,7 +379,7 @@ def main():
     """Run comprehensive urban planning example with Active Inference."""
     # Set up logging
     logger = setup_logging()
-    output_dir = os.path.join(os.path.dirname(__file__), 'output', 'urban')
+    output_dir = create_output_directory()
     
     logger.info("Starting Urban Planning Active Inference Model")
     logger.info("Multi-agent resource allocation and coordination simulation")
@@ -434,7 +444,7 @@ def main():
         
         # Initialize analyzer for each agent
         analyzers[i] = ActiveInferenceAnalyzer(
-            output_dir=os.path.join(output_dir, f'agent_{i}')
+            output_dir=str(output_dir / f'agent_{i}')
         )
         
         logger.info(f"Created model for {agent['type']} agent (ID: {i})")
@@ -576,8 +586,8 @@ def main():
         logger.info(f"  Remaining budget: {agent['budget']:.1f}")
         
         # Create individual agent analysis visualizations
-        agent_output_dir = os.path.join(output_dir, f'agent_{agent_id}')
-        os.makedirs(agent_output_dir, exist_ok=True)
+        agent_output_dir = output_dir / f'agent_{agent_id}'
+        agent_output_dir.mkdir(parents=True, exist_ok=True)
         
         plot_perception_analysis(
             analyzer.traces['beliefs'],
@@ -695,7 +705,7 @@ def main():
     axes[1, 1].set_title('Final Resource Distribution', fontweight='bold')
     
     plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, 'urban_planning_summary.png'), dpi=300, bbox_inches='tight')
+    plt.savefig(output_dir / 'urban_planning_summary.png', dpi=300, bbox_inches='tight')
     plt.close()
     
     # 6. Export comprehensive data and reports
@@ -715,7 +725,7 @@ def main():
     }
     
     import json
-    with open(os.path.join(output_dir, 'system_analysis.json'), 'w') as f:
+    with open(output_dir / 'system_analysis.json', 'w') as f:
         # Convert numpy arrays to lists for JSON serialization
         def convert_numpy(obj):
             if isinstance(obj, np.ndarray):
@@ -779,7 +789,7 @@ def main():
     
     report_content = '\n'.join(report_lines)
     
-    with open(os.path.join(output_dir, 'comprehensive_report.txt'), 'w') as f:
+    with open(output_dir / 'comprehensive_report.txt', 'w') as f:
         f.write(report_content)
     
     logger.info("\nFEATURES DEMONSTRATED:")

@@ -30,12 +30,15 @@ class MultiAgentModel(ActiveInferenceModel):
             self.agent_models.append(agent)
         
         self.resource_distribution = np.random.rand(self.n_resources, self.n_locations)
+        self.location_connectivity = np.eye(self.n_locations)  # Example, adjust as needed
+        self.agent_preferences = np.random.rand(self.n_agents, self.n_resources)
         
         # H3 spatial properties
         self.spatial_mode = False
         self.h3_cells = []
         self.h3_resolution = 8
         self.spatial_graph = None
+        self.agent_location_map = {}
         
     def _create_environmental_observation_model(self) -> np.ndarray:
         """Create realistic environmental observation model for agents."""
@@ -69,7 +72,13 @@ class MultiAgentModel(ActiveInferenceModel):
         return transition_model
 
     def step(self, actions: Optional[List[Dict[str, Any]]] = None) -> Tuple[Dict[str, Any], bool]:
-        return {'resource_distribution': self.resource_distribution.copy()}, False 
+        agent_locations = []
+        for agent in self.agent_models:
+            if hasattr(agent, 'location'):
+                agent_locations.append(agent.location)
+            else:
+                agent_locations.append(0) # Default location
+        return {'resource_distribution': self.resource_distribution.copy(), 'agent_locations': agent_locations}, False 
 
     def enable_h3_spatial(self, resolution: int, boundary: Dict[str, Any]):
         """Enable H3 spatial modeling for multi-agent active inference."""
@@ -329,3 +338,6 @@ class MultiAgentModel(ActiveInferenceModel):
             'coordination_variance': np.var(coordination_matrix[np.triu_indices_from(coordination_matrix, k=1)]),
             'n_coordinated_agents': n_cells
         }
+
+    def get_agent_messages(self, agent_id):
+        return {}

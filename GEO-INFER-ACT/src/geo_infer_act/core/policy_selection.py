@@ -122,6 +122,9 @@ class PolicySelector:
         epistemic_value = entropy
         
         # Pragmatic value (preference satisfaction / exploitation)
+        if preferences is not None:
+            if isinstance(preferences, dict):
+                preferences = preferences.get('observations', np.ones_like(beliefs) / len(beliefs))
         pragmatic_value = np.dot(beliefs, preferences) if preferences is not None else 0.0
         
         # Policy-specific modulation

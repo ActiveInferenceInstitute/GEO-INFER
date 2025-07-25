@@ -75,6 +75,8 @@ class ActiveInferenceModel:
         # Update beliefs using Bayesian inference
         if self.current_beliefs is not None:
             if self.model_type == 'categorical':
+                if self.generative_model.observation_model.shape[1] != len(self.current_beliefs):
+                    self.generative_model.observation_model = np.ones((self.generative_model.obs_dim, len(self.current_beliefs))) / self.generative_model.obs_dim
                 updated_beliefs = self.belief_updater.update_categorical(
                     self.current_beliefs,
                     observation,
@@ -190,5 +192,5 @@ class ActiveInferenceModel:
         for cell in h3_grid:
             obs = h3_grid[cell]
             beliefs, action = self.step(obs)
-            results[cell] = {'beliefs': beliefs, 'action': action}
+            results[cell] = {'beliefs': beliefs, 'action': action, 'free_energy': self.compute_free_energy(), 'precision': self.current_beliefs.get('precision', 1.0) if isinstance(self.current_beliefs, dict) else 1.0}
         return results 

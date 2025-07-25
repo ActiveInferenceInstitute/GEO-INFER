@@ -14,6 +14,7 @@ import os
 import sys
 import time
 import logging
+from datetime import datetime
 from typing import Dict, List, Tuple
 from pathlib import Path
 
@@ -33,6 +34,17 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 logger = logging.getLogger(__name__)
 
 
+def create_output_directory() -> Path:
+    """Create timestamped output directory in the root /output folder."""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # Create output in the repository root /output directory
+    repo_root = Path(__file__).parent.parent.parent  # Go up from examples/ecological_model.py to repo root
+    output_dir = repo_root / "output" / f"ecological_model_{timestamp}"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Created output directory: {output_dir}")
+    return output_dir
+
+
 class EcologicalNicheModel:
     """
     A model of ecological niche dynamics using active inference.
@@ -50,8 +62,7 @@ class EcologicalNicheModel:
         """
         # Create script-specific output directory
         self.script_name = "ecological_model"
-        self.output_dir = Path(__file__).parent / 'output' / self.script_name
-        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.output_dir = create_output_directory()
         
         # Initialize Active Inference Analyzer
         self.analyzer = ActiveInferenceAnalyzer(output_dir=str(self.output_dir))

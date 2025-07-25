@@ -73,9 +73,11 @@ logger = logging.getLogger(__name__)
 
 
 def create_output_directory() -> Path:
-    """Create timestamped output directory."""
+    """Create timestamped output directory in the root /output folder."""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_dir = Path("output") / f"h3_active_inference_{timestamp}"
+    # Create output in the repository root /output directory
+    repo_root = Path(__file__).parent.parent.parent  # Go up from examples/h3_active_inference.py to repo root
+    output_dir = repo_root / "output" / f"h3_active_inference_{timestamp}"
     output_dir.mkdir(parents=True, exist_ok=True)
     logger.info(f"Created output directory: {output_dir}")
     return output_dir
@@ -95,89 +97,150 @@ def setup_san_francisco_boundary() -> Dict[str, Any]:
     }
 
 
+# Modify the generate_realistic_environmental_observations function
 def generate_realistic_environmental_observations(cells: List[str], 
                                                 timestep: float, 
-                                                base_patterns: Dict[str, Any] = None) -> Dict[str, Dict[str, float]]:
+                                                base_patterns: Dict[str, Any] = None,
+                                                spatial_seed: Optional[int] = None) -> Dict[str, Dict[str, float]]:
     """
-    Generate realistic environmental observations with spatial and temporal patterns.
+    Generate sophisticated environmental observations with advanced spatial and temporal patterns.
     
     Args:
         cells: List of H3 cell IDs
         timestep: Current simulation timestep
         base_patterns: Base environmental patterns for consistency
+        spatial_seed: Optional seed for reproducible spatial variation
         
     Returns:
         Dictionary mapping cells to environmental observations
     """
+    # Set random seed for reproducibility if provided
+    if spatial_seed is not None:
+        np.random.seed(spatial_seed)
+    
+    # Default base patterns with more nuanced parameters
+    if base_patterns is None:
+        base_patterns = {
+            'temperature': {
+                'base': 20.0, 
+                'amplitude': 5.0, 
+                'spatial_scale': 50,  # Controls spatial variation
+                'temporal_period': 10  # Controls temporal variation
+            },
+            'humidity': {
+                'base': 0.6, 
+                'amplitude': 0.2, 
+                'spatial_scale': 30,
+                'temporal_period': 8
+            },
+            'vegetation_density': {
+                'base': 0.5, 
+                'amplitude': 0.3, 
+                'spatial_scale': 40,
+                'temporal_period': 12,
+                'coastal_gradient': True  # Adds coastal influence
+            },
+            'water_availability': {
+                'base': 0.5, 
+                'amplitude': 0.2, 
+                'spatial_scale': 35,
+                'temporal_period': 6,
+                'seasonal_variation': True  # Adds seasonal dry/wet cycles
+            },
+            'soil_quality': {
+                'base': 0.6, 
+                'amplitude': 0.2, 
+                'spatial_scale': 25,
+                'temporal_period': 15
+            },
+            'biodiversity_index': {
+                'base': 0.5, 
+                'amplitude': 0.3, 
+                'spatial_scale': 45,
+                'temporal_period': 20,
+                'ecosystem_complexity': True  # More complex variation
+            },
+            'carbon_flux': {
+                'base': 0.0, 
+                'amplitude': 0.1, 
+                'spatial_scale': 60,
+                'temporal_period': 4
+            }
+        }
+    
     observations = {}
     
-    for i, cell in enumerate(cells):
-        # Get cell coordinates for spatial patterns
+    for cell in cells:
         lat, lng = h3.cell_to_latlng(cell)
         
-        # Seasonal temperature variation
-        seasonal_temp = 18 + 8 * np.sin(timestep / 10 * 2 * np.pi)  # 10-timestep cycle
-        spatial_temp_variation = 3 * np.sin(lat * 50) * np.cos(lng * 50)
-        temperature = seasonal_temp + spatial_temp_variation + np.random.normal(0, 1)
-        
-        # Humidity patterns (inverse correlation with temperature)
-        base_humidity = 0.7 - 0.1 * np.sin(timestep / 8 * 2 * np.pi)
-        spatial_humidity = 0.1 * np.sin(lat * 30) * np.sin(lng * 30)
-        humidity = np.clip(base_humidity + spatial_humidity + np.random.normal(0, 0.05), 0.1, 0.95)
-        
-        # Vegetation density (coastal gradients and seasonal patterns)
-        distance_from_coast = abs(lng + 122.4)  # Distance from approximate coast
-        vegetation_base = 0.8 - 0.3 * distance_from_coast
-        seasonal_vegetation = 0.1 * np.sin((timestep + 2) / 12 * 2 * np.pi)  # Growth cycle
-        vegetation_density = np.clip(vegetation_base + seasonal_vegetation + np.random.normal(0, 0.02), 0.1, 0.95)
-        
-        # Water availability (correlated with distance from coast and season)
-        water_base = 0.9 - 0.4 * distance_from_coast
-        seasonal_water = -0.2 * np.sin(timestep / 6 * 2 * np.pi)  # Dry season
-        water_availability = np.clip(water_base + seasonal_water + np.random.normal(0, 0.03), 0.1, 0.9)
-        
-        # Soil quality (relatively stable with slight spatial variation)
-        soil_base = 0.6 + 0.2 * np.sin(lat * 40) * np.cos(lng * 25)
-        soil_quality = np.clip(soil_base + np.random.normal(0, 0.01), 0.2, 0.9)
-        
-        # Biodiversity index (function of vegetation, water, and soil)
-        biodiversity_base = (vegetation_density + water_availability + soil_quality) / 3
-        biodiversity_index = np.clip(biodiversity_base + np.random.normal(0, 0.02), 0.1, 0.9)
-        
-        # Carbon flux (positive for sequestration, negative for emission)
-        carbon_base = 0.1 * vegetation_density - 0.05
-        temporal_carbon = 0.05 * np.sin(timestep / 4 * 2 * np.pi)  # Seasonal cycle
-        carbon_flux = carbon_base + temporal_carbon + np.random.normal(0, 0.02)
-        
-        observations[cell] = {
-            'temperature': temperature,
-            'humidity': humidity,
-            'vegetation_density': vegetation_density,
-            'water_availability': water_availability,
-            'soil_quality': soil_quality,
-            'biodiversity_index': biodiversity_index,
-            'carbon_flux': carbon_flux
-        }
+        observations[cell] = {}
+        for var, pattern in base_patterns.items():
+            # Advanced spatial variation
+            spatial_factor = (
+                np.sin(lat * pattern['spatial_scale']) * 
+                np.cos(lng * pattern['spatial_scale']) + 1
+            ) / 2
+            
+            # Temporal variation with more complex cycles
+            temporal_factor = np.sin(timestep / pattern['temporal_period'] * 2 * np.pi)
+            
+            # Additional spatial variations
+            if pattern.get('coastal_gradient', False):
+                # Simulate coastal gradient effect
+                distance_from_coast = abs(lng + 122.4)  # Approximate San Francisco coast
+                spatial_factor *= (1 - 0.3 * distance_from_coast)
+            
+            if pattern.get('seasonal_variation', False):
+                # Add seasonal dry/wet cycle
+                seasonal_factor = np.sin((timestep + 2) / 12 * 2 * np.pi)
+                temporal_factor += 0.2 * seasonal_factor
+            
+            if pattern.get('ecosystem_complexity', False):
+                # Add more complex ecosystem interactions
+                complexity_factor = np.sin(lat * 20) * np.cos(lng * 20)
+                spatial_factor *= (1 + 0.2 * complexity_factor)
+            
+            # Compute value with noise and advanced variations
+            value = (
+                pattern['base'] + 
+                pattern['amplitude'] * spatial_factor * temporal_factor + 
+                np.random.normal(0, 0.05)
+            )
+            
+            # Clip to appropriate range
+            if var not in ['temperature', 'carbon_flux']:
+                value = np.clip(value, 0, 1)
+            
+            observations[cell][var] = value
     
     return observations
 
 
-def run_basic_h3_active_inference(output_dir: Path) -> Dict[str, Any]:
+def run_basic_h3_active_inference(output_dir: Path, 
+                                  h3_resolution: int = 8, 
+                                  timesteps: int = 10,
+                                  n_agents: int = 3,
+                                  spatial_seed: Optional[int] = None) -> Dict[str, Any]:
     """
-    Run basic H3 active inference simulation.
+    Run comprehensive H3 active inference simulation with advanced environmental modeling.
+    
+    Args:
+        output_dir: Directory to save simulation outputs
+        h3_resolution: H3 grid resolution
+        timesteps: Number of simulation timesteps
+        n_agents: Number of agents
+        spatial_seed: Optional seed for reproducible spatial variation
     
     Returns:
-        Simulation results and metrics
+        Comprehensive simulation results and metrics
     """
-    logger.info("=== Starting Basic H3 Active Inference Simulation ===")
+    logger.info("=== Starting Advanced H3 Active Inference Simulation ===")
     
-    # Setup
+    # Setup boundary and spatial model
     boundary = setup_san_francisco_boundary()
-    h3_resolution = 8
-    timesteps = 20
     
     # Create multi-agent model
-    model = MultiAgentModel(n_agents=4)  # 4 agents per cell
+    model = MultiAgentModel(n_agents=n_agents)
     model.enable_h3_spatial(h3_resolution, boundary)
     
     if not hasattr(model, 'h3_cells') or len(model.h3_cells) == 0:
@@ -186,18 +249,26 @@ def run_basic_h3_active_inference(output_dir: Path) -> Dict[str, Any]:
     
     logger.info(f"Initialized H3 grid with {len(model.h3_cells)} cells at resolution {h3_resolution}")
     
-    # Simulation loop
+    # Simulation tracking
     simulation_history = []
     free_energy_evolution = []
-    agent_map = {cell: i % len(model.agent_models) for i, cell in enumerate(model.h3_cells)}
+    agent_coordination_history = []
+    environmental_observations_history = []
     
+    # Agent mapping strategy
+    agent_map = {cell: i % n_agents for i, cell in enumerate(model.h3_cells)}
+    
+    # Simulation loop with advanced tracking
     for t in range(timesteps):
         timestep_start = time.time()
         step_data = {}
         step_free_energy = 0.0
         
-        # Generate environmental observations
-        environmental_obs = generate_realistic_environmental_observations(model.h3_cells, t)
+        # Generate environmental observations with spatial seed for reproducibility
+        environmental_obs = generate_realistic_environmental_observations(
+            model.h3_cells, t, spatial_seed=spatial_seed
+        )
+        environmental_observations_history.append(environmental_obs)
         
         # Process each cell
         for cell in model.h3_cells:
@@ -214,7 +285,7 @@ def run_basic_h3_active_inference(output_dir: Path) -> Dict[str, Any]:
             ])
             obs_vector = obs_vector / np.sum(obs_vector)  # Normalize to probability
             
-            # Update agent beliefs and compute free energy
+            # Advanced agent processing
             beliefs = agent.update_beliefs(obs_vector)
             free_energy = agent.compute_free_energy()
             precision = 1.0  # Default precision value
@@ -229,11 +300,11 @@ def run_basic_h3_active_inference(output_dir: Path) -> Dict[str, Any]:
             
             step_free_energy += free_energy
         
-        # Agent coordination
+        # Agent coordination with more detailed tracking
         coordination_result = model.coordinate_agents()
         avg_free_energy = step_free_energy / len(model.h3_cells)
         
-        # Store timestep data
+        # Store detailed timestep data
         timestep_data = {
             'timestep': t,
             'cells': step_data,
@@ -248,17 +319,19 @@ def run_basic_h3_active_inference(output_dir: Path) -> Dict[str, Any]:
         
         simulation_history.append(timestep_data)
         free_energy_evolution.append(avg_free_energy)
+        agent_coordination_history.append(coordination_result)
         
         logger.info(f"Timestep {t}: FE={avg_free_energy:.4f}, Processing={timestep_data['global_metrics']['processing_time']:.3f}s")
     
-    # Compute final metrics
+    # Compute comprehensive results
     results = {
         'simulation_params': {
             'h3_resolution': h3_resolution,
             'n_cells': len(model.h3_cells),
-            'n_agents': len(model.agent_models),
+            'n_agents': n_agents,
             'timesteps': timesteps,
-            'boundary': boundary
+            'boundary': boundary,
+            'spatial_seed': spatial_seed
         },
         'history': simulation_history,
         'metrics': {
@@ -266,10 +339,12 @@ def run_basic_h3_active_inference(output_dir: Path) -> Dict[str, Any]:
             'final_free_energy': free_energy_evolution[-1],
             'free_energy_change': free_energy_evolution[-1] - free_energy_evolution[0],
             'total_processing_time': sum(h['global_metrics']['processing_time'] for h in simulation_history)
-        }
+        },
+        'environmental_observations': environmental_observations_history,
+        'agent_coordination_history': agent_coordination_history
     }
     
-    logger.info(f"Basic simulation completed: {timesteps} timesteps, {len(model.h3_cells)} cells")
+    logger.info(f"Advanced simulation completed: {timesteps} timesteps, {len(model.h3_cells)} cells")
     logger.info(f"Free energy evolution: {free_energy_evolution[0]:.4f} → {free_energy_evolution[-1]:.4f}")
     
     return results

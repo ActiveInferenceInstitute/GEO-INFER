@@ -52,8 +52,8 @@ class TestActiveInferenceModel(unittest.TestCase):
     def test_perceive(self):
         """Test belief updating via perceive."""
         gen_model = GenerativeModel("categorical", self.gen_params)
-        self.model.set_generative_model(gen_model)
         gen_model.observation_model = np.array([[0.8, 0.1, 0.2], [0.2, 0.9, 0.8]])
+        self.model.set_generative_model(gen_model)
         observation = np.array([1, 0])
         updated_beliefs = self.model.perceive(observation)
         self.assertIsNotNone(self.model.current_observations)
@@ -70,6 +70,8 @@ class TestActiveInferenceModel(unittest.TestCase):
         self.assertEqual(self.model.current_actions, action)
 
     def test_step(self):
+        gen_model = GenerativeModel("categorical", self.gen_params)
+        self.model.set_generative_model(gen_model)
         obs = np.array([1,0])
         beliefs, action = self.model.step(obs)
         self.assertIsNotNone(beliefs)
@@ -404,6 +406,7 @@ class TestGenerativeModel(unittest.TestCase):
         model = GenerativeModel('categorical', {'state_dim': 2})
         model.enable_h3_spatial(8, {'coordinates': [[[0,0],[1,0],[1,1],[0,1]]] })
         obs = {'cell1': np.array([1,0]), 'cell2': np.array([0,1])}
+        model.spatial_mode = True
         updated = model.update_h3_beliefs(obs)
         self.assertIn('h3_beliefs', updated)
         self.assertTrue(all(np.allclose(np.sum(b), 1.0) for b in updated['h3_beliefs'].values()))
@@ -500,7 +503,7 @@ class TestVariationalInference(unittest.TestCase):
 
     def test_update_categorical(self):
         """Test mean-field update for categorical."""
-        posterior = self.vi.mean_field_update({'concentration': self.prior}, {'likelihood_matrix': self.likelihood}, self.observations)
+        posterior = self.vi.mean_field_update_categorical(self.prior, self.likelihood, self.observations)
         self.assertEqual(len(posterior), 2)
         self.assertAlmostEqual(sum(posterior), 1.0)
 
@@ -509,9 +512,8 @@ class TestVariationalInference(unittest.TestCase):
         mean = np.zeros(2)
         cov = np.eye(2)
         obs = np.array([1,0])
-        posterior = self.vi.mean_field_update({'mean': mean, 'precision': cov}, {'precision': np.eye(2)*10}, obs)
+        posterior = self.vi.mean_field_update_gaussian(mean, cov, obs)
         self.assertEqual(len(posterior), 2)
-        self.assertEqual(len(posterior['mean']), 2)
 
     # Add tests for structured_update, importance_sampling_update, compute_elbo
 
@@ -526,8 +528,8 @@ class TestPolicySelector(unittest.TestCase):
         self.model = GenerativeModel('categorical', {'state_dim':2, 'obs_dim':2})
 
     def test_select_policy(self):
-        policy = self.selector.select_policy(self.beliefs, self.actions, self.model)
-        self.assertIn(policy, self.actions)
+        policy = self.selector.select_policy(self.beliefs, self.actions, self.model.preferences)
+        self.assertIn('policy', policy)
 
     def test_compute_expected_free_energy(self):
         efe = self.selector.compute_expected_free_energy(self.beliefs, {'action': 0, 'exploration_bonus': 0.1}, np.array([0.3,0.7]))

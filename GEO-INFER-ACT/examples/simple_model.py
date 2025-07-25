@@ -34,14 +34,23 @@ from geo_infer_act.utils.math import (
 )
 
 
+def create_output_directory() -> Path:
+    """Create timestamped output directory in the root /output folder."""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # Create output in the repository root /output directory
+    repo_root = Path(__file__).parent.parent.parent  # Go up from examples/simple_model.py to repo root
+    output_dir = repo_root / "output" / f"simple_model_{timestamp}"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
+
+
 def setup_logging() -> logging.Logger:
     """Set up comprehensive logging for the simple model example."""
     # Create output directory
-    output_dir = os.path.join(os.path.dirname(__file__), 'output', 'simple')
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = create_output_directory()
     
     # Configure logging
-    log_file = os.path.join(output_dir, f'simple_model_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+    log_file = output_dir / f'simple_model_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
     
     logging.basicConfig(
         level=logging.INFO,
@@ -55,6 +64,7 @@ def setup_logging() -> logging.Logger:
     logger = logging.getLogger('SimpleActiveInference')
     logger.info("Simple Active Inference Model - Comprehensive Analysis")
     logger.info("=" * 70)
+    logger.info(f"Output directory: {output_dir}")
     
     return logger
 
@@ -63,7 +73,7 @@ def main():
     """Run a simple active inference model example with comprehensive analysis."""
     # Set up logging
     logger = setup_logging()
-    output_dir = os.path.join(os.path.dirname(__file__), 'output', 'simple')
+    output_dir = create_output_directory()
     
     logger.info("Starting Simple Active Inference Model with Enhanced Analysis")
     logger.info("Demonstrating dynamic belief updating, policy selection, and pattern detection")

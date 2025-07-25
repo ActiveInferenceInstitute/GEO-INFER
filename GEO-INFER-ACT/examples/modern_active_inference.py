@@ -48,14 +48,23 @@ from geo_infer_act.utils.math import (
 from geo_infer_act.utils.config import load_config
 
 
+def create_output_directory() -> Path:
+    """Create timestamped output directory in the root /output folder."""
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    # Create output in the repository root /output directory
+    repo_root = Path(__file__).parent.parent.parent  # Go up from examples/modern_active_inference.py to repo root
+    output_dir = repo_root / "output" / f"modern_active_inference_{timestamp}"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
+
+
 def setup_logging() -> logging.Logger:
     """Set up comprehensive logging for the modern Active Inference example."""
     # Create output directory
-    output_dir = os.path.join(os.path.dirname(__file__), 'output', 'modern_demo')
-    os.makedirs(output_dir, exist_ok=True)
+    output_dir = create_output_directory()
     
     # Configure logging
-    log_file = os.path.join(output_dir, f'modern_ai_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log')
+    log_file = output_dir / f'modern_ai_{datetime.now().strftime("%Y%m%d_%H%M%S")}.log'
     
     logging.basicConfig(
         level=logging.INFO,
@@ -69,6 +78,7 @@ def setup_logging() -> logging.Logger:
     logger = logging.getLogger('ModernActiveInference')
     logger.info("Modern Active Inference - Comprehensive Analysis")
     logger.info("=" * 70)
+    logger.info(f"Output directory: {output_dir}")
     
     return logger
 
@@ -90,8 +100,7 @@ class ModernActiveInferenceDemo:
     def __init__(self):
         """Initialize the modern Active Inference demonstration."""
         self.logger = setup_logging()
-        self.output_dir = os.path.join(os.path.dirname(__file__), 'output', 'modern_demo')
-        os.makedirs(self.output_dir, exist_ok=True)
+        self.output_dir = create_output_directory()
         
         # Initialize Active Inference interface
         config_path = os.path.join(os.path.dirname(__file__), '../config/example.yaml')
@@ -157,7 +166,7 @@ class ModernActiveInferenceDemo:
         
         # Initialize comprehensive analyzer
         self.analyzers[model_id] = ActiveInferenceAnalyzer(
-            output_dir=os.path.join(self.output_dir, 'hierarchical')
+            output_dir=str(self.output_dir / 'hierarchical')
         )
         
         self.logger.info(f"  Created {parameters['hierarchical_levels']}-level hierarchical model")
@@ -192,7 +201,7 @@ class ModernActiveInferenceDemo:
         
         # Initialize analyzer for Markov blanket analysis
         self.analyzers[model_id] = ActiveInferenceAnalyzer(
-            output_dir=os.path.join(self.output_dir, 'markov_blanket')
+            output_dir=str(self.output_dir / 'markov_blanket')
         )
         
         # Simulate Markov blanket dynamics
@@ -437,7 +446,7 @@ class ModernActiveInferenceDemo:
         
         # Initialize analyzer
         self.analyzers[model_id] = ActiveInferenceAnalyzer(
-            output_dir=os.path.join(self.output_dir, 'spatial_temporal')
+            output_dir=str(self.output_dir / 'spatial_temporal')
         )
         
         # Simulate spatial-temporal dynamics
@@ -576,7 +585,7 @@ class ModernActiveInferenceDemo:
             
             # Initialize analyzer for each agent
             self.analyzers[model_id] = ActiveInferenceAnalyzer(
-                output_dir=os.path.join(self.output_dir, 'multi_agent', f'agent_{i}')
+                output_dir=str(self.output_dir / 'multi_agent' / f'agent_{i}')
             )
             
             self.logger.info(f"  Created agent {i} ({['Leader', 'Coordinator', 'Follower', 'Follower'][i]})")
@@ -776,7 +785,7 @@ class ModernActiveInferenceDemo:
                     analyzer.step_history,
                     title=f"Modern AI: {model_id} - Perception Analysis"
                 )
-                perception_fig.savefig(os.path.join(self.output_dir, f'{model_id}_perception.png'), 
+                perception_fig.savefig(self.output_dir / f'{model_id}_perception.png', 
                                      dpi=300, bbox_inches='tight')
                 plt.close(perception_fig)
                 
@@ -785,7 +794,7 @@ class ModernActiveInferenceDemo:
                     analyzer.step_history,
                     title=f"Modern AI: {model_id} - Action Analysis"
                 )
-                action_fig.savefig(os.path.join(self.output_dir, f'{model_id}_action.png'), 
+                action_fig.savefig(self.output_dir / f'{model_id}_action.png', 
                                  dpi=300, bbox_inches='tight')
                 plt.close(action_fig)
                 
@@ -794,12 +803,12 @@ class ModernActiveInferenceDemo:
                     analyzer.step_history,
                     title=f"Modern AI: {model_id} - Interpretability Dashboard"
                 )
-                dashboard_fig.savefig(os.path.join(self.output_dir, f'{model_id}_dashboard.png'), 
+                dashboard_fig.savefig(self.output_dir / f'{model_id}_dashboard.png', 
                                     dpi=300, bbox_inches='tight')
                 plt.close(dashboard_fig)
                 
                 # Export data
-                analyzer.export_to_csv(os.path.join(self.output_dir, f'{model_id}_data.csv'))
+                analyzer.export_to_csv(str(self.output_dir / f'{model_id}_data.csv'))
                 
                 self.logger.info(f"  Generated visualizations for {model_id}")
     
@@ -994,7 +1003,7 @@ class ModernActiveInferenceDemo:
         
         report_content = '\n'.join(report_lines)
         
-        report_file = os.path.join(self.output_dir, 'comprehensive_modern_ai_report.txt')
+        report_file = self.output_dir / 'comprehensive_modern_ai_report.txt'
         with open(report_file, 'w') as f:
             f.write(report_content)
         

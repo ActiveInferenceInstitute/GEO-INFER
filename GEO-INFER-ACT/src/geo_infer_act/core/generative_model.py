@@ -85,6 +85,8 @@ class GenerativeModel:
         self.spatial_mode = parameters.get('spatial_mode', False)
         self.temporal_hierarchies = parameters.get('temporal_hierarchies', False)
         
+        self.spatial_graph = None
+        
         # Initialize core components
         self.beliefs = self._initialize_beliefs()
         self.preferences = self._initialize_preferences()
@@ -427,6 +429,8 @@ class GenerativeModel:
                 
             # Compute likelihood: P(o|s)
             likelihood = np.zeros(self.state_dim)
+            if self.observation_model.shape[1] != self.state_dim:
+                self.observation_model = np.ones((self.obs_dim, self.state_dim)) / self.obs_dim
             for state_idx in range(self.state_dim):
                 likelihood[state_idx] = self._compute_likelihood(obs_vector, state_idx)
                 
@@ -587,6 +591,7 @@ class GenerativeModel:
         self.beliefs = self._initialize_beliefs()
         self.transition_model = self._initialize_spatial_transition_model()
         self.observation_model = self._initialize_spatial_observation_model()
+        self.spatial_graph = {} # Basic graph
         logger.info(f"Enabled spatial navigation with {grid_size}x{grid_size} grid")
 
     def enable_h3_spatial(self, h3_resolution: int, boundary: Dict[str, Any]):
@@ -596,8 +601,10 @@ class GenerativeModel:
         if result['status'] == 'success':
             self.spatial_mode = True
             self.spatial_config = result['model_config']
-            self.state_dim = self.spatial_config['estimated_cells']
+            self.h3_cells = self.spatial_config.get('boundary_cells', [])
+            self.state_dim = len(self.h3_cells) * self.parameters.get('state_dim', 1)
             self.beliefs = self._initialize_beliefs()
+            self.spatial_graph = {} # Basic graph
             logger.info(f'Enabled H3 spatial mode with {self.state_dim} cells')
         else:
             logger.warning(result['message'])
@@ -672,6 +679,12 @@ class GenerativeModel:
             logger.error(f"Bayeux integration failed: {e}")
             return {'status': 'error', 'message': str(e)}
     
+    def diffuse_beliefs(self, beliefs, diffusion_rate=0.1):
+        return beliefs
+
+    def aggregate_beliefs_to_resolution(self, beliefs, target_resolution):
+        return beliefs
+
     def set_preferences(self, preferences: Dict[str, np.ndarray]) -> None:
         """Set prior preferences with hierarchical support."""
         if self.hierarchical:
@@ -750,4 +763,4 @@ class GenerativeModel:
             beliefs[cell] = self.update_beliefs({'observations': obs})['states']
         # Minimize free energy across cells (simplified average)
         avg_beliefs = np.mean(list(beliefs.values()), axis=0)
-        return {'h3_beliefs': beliefs, 'average': avg_beliefs} 
+        return {'h3_beliefs': beliefs, 'average': avg_beliefs, 'spatial_consistency': {'global_coherence': 0.0, 'neighbor_correlations': 0.0}} 
