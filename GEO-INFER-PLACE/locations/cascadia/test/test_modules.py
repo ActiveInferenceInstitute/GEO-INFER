@@ -81,9 +81,9 @@ def test_module_initialization():
             modules={},
             resolution=8,
             bioregion='Cascadia',
-            target_counties=target_counties,
-            base_data_dir=Path('./test_output/data'),
-            osc_repo_dir=Path(project_root) / 'GEO-INFER-SPACE' / 'repo'
+            target_counties={'CA': ['Lassen']},
+            base_data_dir=output_dir / 'data',
+            osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
         )
         
         logger.info(f"✅ Backend created with {len(backend.target_hexagons)} target hexagons")

@@ -174,27 +174,41 @@ class H3DataLoader:
             
             try:
                 # Read the GeoJSON file
+                logger.info(f"Reading GeoJSON file: {input_file}")
                 gdf = gpd.read_file(input_file)
+                logger.info(f"Found {len(gdf)} features in GeoJSON file")
                 
-                # Extract coordinates and properties
-                for idx, row in gdf.iterrows():
-                    geom = row.geometry
-                    if geom.geom_type == 'Point':
-                        lon, lat = geom.x, geom.y
-                    elif geom.geom_type in ['Polygon', 'MultiPolygon']:
-                        # Use centroid for polygons
-                        lon, lat = geom.centroid.x, geom.centroid.y
-                    else:
-                        continue
+                # Process features in chunks for better performance
+                chunk_size = 1000  # Process 1000 features at a time
+                csv_data = []
+                
+                for chunk_start in range(0, len(gdf), chunk_size):
+                    chunk_end = min(chunk_start + chunk_size, len(gdf))
+                    chunk_gdf = gdf.iloc[chunk_start:chunk_end]
                     
-                    # Extract a data value (use first numeric column or default to 1.0)
-                    data_value = 1.0
-                    for col in gdf.columns:
-                        if col != 'geometry' and pd.api.types.is_numeric_dtype(gdf[col]):
-                            data_value = float(row[col])
-                            break
+                    logger.info(f"Processing features {chunk_start+1}-{chunk_end} of {len(gdf)}")
                     
-                    csv_data.append(f"{lon},{lat},{data_value}")
+                    # Extract coordinates and properties for this chunk
+                    for idx, row in chunk_gdf.iterrows():
+                        geom = row.geometry
+                        if geom.geom_type == 'Point':
+                            lon, lat = geom.x, geom.y
+                        elif geom.geom_type in ['Polygon', 'MultiPolygon']:
+                            # Use centroid for polygons
+                            lon, lat = geom.centroid.x, geom.centroid.y
+                        else:
+                            continue
+                        
+                        # Extract a data value (use first numeric column or default to 1.0)
+                        data_value = 1.0
+                        for col in gdf.columns:
+                            if col != 'geometry' and pd.api.types.is_numeric_dtype(gdf[col]):
+                                data_value = float(row[col])
+                                break
+                        
+                        csv_data.append(f"{lon},{lat},{data_value}")
+                
+                logger.info(f"Converted {len(csv_data)} features to CSV format")
                 
                 # Create temporary CSV file
                 csv_file = tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False)
@@ -234,15 +248,36 @@ class H3DataLoader:
             
                 # Run the command
                 try:
+                    logger.info(f"Running OSC CLI data loading process (timeout: 600s)...")
                     process = subprocess.run(
                         cmd,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE,
                         check=False,
-                        env=env
+                        env=env,
+                        timeout=600  # 10 minute timeout to prevent hanging
                     )
+                except subprocess.TimeoutExpired:
+                    logger.error(f"OSC H3 loader timed out after 10 minutes")
+                    # Clean up temporary files on timeout
+                    try:
+                        if csv_file and os.path.exists(csv_file.name):
+                            os.unlink(csv_file.name)
+                        if config_path and os.path.exists(config_path):
+                            os.unlink(config_path)
+                    except:
+                        pass
+                    return False
                 except Exception as e:
                     logger.error(f"Error running OSC CLI: {e}")
+                    # Clean up temporary files on error
+                    try:
+                        if csv_file and os.path.exists(csv_file.name):
+                            os.unlink(csv_file.name)
+                        if config_path and os.path.exists(config_path):
+                            os.unlink(config_path)
+                    except:
+                        pass
                     return False
             except Exception as e:
                 logger.error(f"Error converting GeoJSON to CSV or creating config: {e}")

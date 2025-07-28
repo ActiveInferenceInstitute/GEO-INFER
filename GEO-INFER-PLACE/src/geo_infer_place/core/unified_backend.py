@@ -35,39 +35,114 @@ from geo_infer_space.utils.config_loader import LocationConfigLoader, LocationBo
 from .base_module import BaseAnalysisModule
 from geo_infer_space.core.unified_backend import UnifiedH3Backend, NumpyEncoder
 
+import hashlib
+from typing import List, Dict, Any, Optional, Tuple
+import logging
+import time
+from collections import defaultdict
+
+# Import SPACE components with fallback handling
+try:
+    from geo_infer_space.core.unified_backend import UnifiedH3Backend
+    from geo_infer_space.osc_geo import create_h3_data_loader
+    from geo_infer_space.utils.config_loader import LocationConfigLoader
+    from geo_infer_space.utils.h3_utils import polygon_to_cells
+    SPACE_AVAILABLE = True
+except ImportError as e:
+    logging.warning(f"SPACE components not fully available: {e}")
+    SPACE_AVAILABLE = False
+    UnifiedH3Backend = object
+
+# Standard imports
+import h3
+import numpy as np
+from shapely.geometry import Point, Polygon, MultiPolygon, shape as shapely_shape
+from shapely.geometry.base import BaseGeometry
+from shapely.ops import unary_union
+from shapely import mapping
+
 logger = logging.getLogger(__name__)
 
 
 class CascadianAgriculturalH3Backend(UnifiedH3Backend):
     """
-    Enhanced Unified H3-indexed backend for comprehensive agricultural land analysis
-    across the Cascadian bioregion (Northern California + Oregon) with maximum
-    SPACE integration.
+    Enhanced H3-based backend for agricultural analysis in the Cascadian bioregion
+    with integrated SPACE functionality, persistent caching, and performance optimizations.
+    
+    Supports:
+    - Cross-border analysis between California and Oregon
+    - Multiple agricultural analysis modules
+    - H3 spatial indexing for consistent analysis
+    - SPACE integration for advanced geospatial operations
+    - Persistent caching for improved performance
     """
     
-    def __init__(self,
-                 modules: Dict[str, 'BaseAnalysisModule'],
+    def __init__(self, 
+                 modules: Dict[str, Any],
                  resolution: int = 8,
                  bioregion: str = 'Cascadia',
                  target_counties: Optional[Dict[str, List[str]]] = None,
                  base_data_dir: Optional[Path] = None,
-                 osc_repo_dir: Optional[str] = None):
+                 osc_repo_dir: Optional[str] = None,
+                 enable_caching: bool = True):
         """
-        Initialize the enhanced unified backend with H3 spatial indexing and SPACE integration.
+        Initialize the enhanced Cascadian H3 backend with SPACE integration and caching.
         
         Args:
-            modules: A dictionary of initialized analysis module instances.
-            resolution: H3 resolution level (default: 8)
-            bioregion: Bioregion identifier (default: 'Cascadia')
-            target_counties: A dict specifying counties to run, e.g., {'CA': ['all']}.
-            base_data_dir: The root directory for data caching.
-            osc_repo_dir: The root directory of the cloned OS-Climate repositories.
+            modules: Dictionary of analysis modules
+            resolution: H3 resolution level (0-15)
+            bioregion: Target bioregion identifier
+            target_counties: Dictionary mapping states to county lists
+            base_data_dir: Base directory for data storage
+            osc_repo_dir: Path to OSC repository for SPACE integration
+            enable_caching: Whether to enable persistent caching
         """
-        # Set bioregion attribute before parent constructor to avoid AttributeError
         self.bioregion = bioregion
+        self.enable_caching = enable_caching
+        self.cache_dir = Path(base_data_dir or '.') / 'cache' if enable_caching else None
         
-        # Map bioregion to target_region for parent class compatibility
-        super().__init__(modules, resolution, target_region=bioregion, target_areas=target_counties, base_data_dir=base_data_dir, osc_repo_dir=osc_repo_dir)
+        if self.cache_dir:
+            self.cache_dir.mkdir(parents=True, exist_ok=True)
+        
+        logger = logging.getLogger(__name__)
+        
+        # Initialize SPACE data loader if available
+        self.h3_data_loader = None
+        self.osc_repo_dir = osc_repo_dir
+        if SPACE_AVAILABLE and osc_repo_dir:
+            try:
+                self.h3_data_loader = create_h3_data_loader(osc_repo_dir)
+                logger.info("Successfully initialized H3DataLoader from GEO-INFER-SPACE.")
+            except Exception as e:
+                logger.warning(f"Failed to initialize H3DataLoader: {e}")
+        
+        # Get target counties and generate hexagons with caching
+        county_geoms, all_hexagons = self._define_target_region_cached(target_counties)
+        
+        # Initialize the parent UnifiedH3Backend if SPACE is available
+        if SPACE_AVAILABLE:
+            try:
+                super().__init__(
+                    modules=modules,
+                    resolution=resolution,
+                    target_region=bioregion,
+                    target_areas={area: list(geoms.keys()) for area, geoms in county_geoms.items()},
+                    base_data_dir=base_data_dir,
+                    osc_repo_dir=osc_repo_dir
+                )
+            except Exception as e:
+                logger.warning(f"Failed to initialize UnifiedH3Backend: {e}")
+                # Initialize basic attributes directly
+                self.modules = modules
+                self.resolution = resolution
+                self.target_hexagons = all_hexagons
+                self.unified_data = {}
+        else:
+            # Initialize basic attributes directly
+            self.modules = modules
+            self.resolution = resolution
+            self.target_hexagons = all_hexagons
+            self.unified_data = {}
         
         # Enhanced SPACE integration
         self.spatial_processor = SpatialProcessor()
@@ -131,6 +206,107 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             logger.warning(f"⚠️ Failed to load Cascadia configuration: {e}. Using defaults.")
             return {}
 
+    def _get_cache_key(self, target_counties: Dict[str, List[str]]) -> str:
+        """Generate a cache key based on target counties and resolution."""
+        cache_data = {
+            'target_counties': target_counties,
+            'resolution': self.resolution,
+            'bioregion': self.bioregion
+        }
+        cache_str = json.dumps(cache_data, sort_keys=True)
+        return hashlib.md5(cache_str.encode()).hexdigest()
+    
+    def _load_from_cache(self, cache_key: str) -> Optional[Tuple[Dict[str, Dict[str, Any]], List[str]]]:
+        """Load county geometries and hexagons from cache."""
+        if not self.cache_dir:
+            return None
+            
+        cache_file = self.cache_dir / f"region_cache_{cache_key}.json"
+        
+        if not cache_file.exists():
+            return None
+            
+        try:
+            logger.info(f"Loading region data from cache: {cache_file}")
+            with open(cache_file, 'r') as f:
+                cache_data = json.load(f)
+            
+            # Reconstruct geometries from GeoJSON
+            county_geoms = {}
+            for state, counties in cache_data['county_geoms'].items():
+                county_geoms[state] = {}
+                for county, geom_data in counties.items():
+                    county_geoms[state][county] = shapely_shape(geom_data)
+            
+            hexagons = cache_data['hexagons']
+            logger.info(f"✅ Loaded {len(hexagons)} hexagons from cache")
+            return county_geoms, hexagons
+            
+        except Exception as e:
+            logger.warning(f"Failed to load from cache: {e}")
+            return None
+    
+    def _save_to_cache(self, cache_key: str, county_geoms: Dict[str, Dict[str, Any]], hexagons: List[str]) -> None:
+        """Save county geometries and hexagons to cache."""
+        if not self.cache_dir:
+            return
+            
+        cache_file = self.cache_dir / f"region_cache_{cache_key}.json"
+        
+        try:
+            # Convert geometries to GeoJSON for serialization
+            serializable_geoms = {}
+            for state, counties in county_geoms.items():
+                serializable_geoms[state] = {}
+                for county, geom in counties.items():
+                    serializable_geoms[state][county] = mapping(geom)
+            
+            cache_data = {
+                'county_geoms': serializable_geoms,
+                'hexagons': hexagons,
+                'cached_at': time.time(),
+                'resolution': self.resolution,
+                'bioregion': self.bioregion
+            }
+            
+            logger.info(f"Saving region data to cache: {cache_file}")
+            with open(cache_file, 'w') as f:
+                json.dump(cache_data, f, indent=2)
+            logger.info(f"✅ Cached {len(hexagons)} hexagons")
+            
+        except Exception as e:
+            logger.warning(f"Failed to save to cache: {e}")
+    
+    def _define_target_region_cached(self, target_counties: Optional[Dict[str, List[str]]] = None) -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
+        """
+        Define target region with caching support.
+        
+        Args:
+            target_counties: Dictionary mapping states to county lists
+            
+        Returns:
+            Tuple of (county_geometries, all_hexagons)
+        """
+        if target_counties is None:
+            target_counties = {'CA': ['all'], 'OR': ['all']}
+        
+        # Try to load from cache first
+        cache_key = self._get_cache_key(target_counties)
+        cached_result = self._load_from_cache(cache_key)
+        
+        if cached_result is not None:
+            logger.info("Using cached region data")
+            return cached_result
+        
+        # Generate new data if not in cache
+        logger.info("Generating new region data (not in cache)")
+        county_geoms, all_hexagons = self._define_target_region(target_counties)
+        
+        # Save to cache for future use
+        self._save_to_cache(cache_key, county_geoms, all_hexagons)
+        
+        return county_geoms, all_hexagons
+
     def _define_target_region(self, target_counties: Optional[Dict[str, List[str]]] = None) -> Tuple[Dict[str, List[str]], List[str]]:
         """
         Enhanced target region definition using SPACE H3 utilities.
@@ -167,12 +343,12 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                         geojson_geom = mapping(geom)
                         logger.debug(f"Converted to GeoJSON: {geojson_geom}")
                         try:
-                            # Use correct H3 API for version 4.x
-                            hexagons_in_county = h3.polygon_to_cells(geojson_geom, self.resolution)
+                            # Use correct H3 API for version 4.x - geo_to_cells for GeoJSON
+                            hexagons_in_county = h3.geo_to_cells(geojson_geom, self.resolution)
                             hexagons_by_state[state].update(hexagons_in_county)
                             logger.info(f"Generated {len(hexagons_in_county)} hexagons for {county_name}, {state}")
                         except Exception as h3_error:
-                            logger.error(f"H3 polygon_to_cells failed: {h3_error}")
+                            logger.error(f"H3 geo_to_cells failed: {h3_error}")
                             # Fallback to SPACE polygon_to_cells
                             try:
                                 hexagons_in_county = polygon_to_cells(geojson_geom, self.resolution)
@@ -183,11 +359,11 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                     elif isinstance(geom, dict) and geom.get('type') == 'Polygon':
                         # Already in GeoJSON format
                         try:
-                            hexagons_in_county = h3.polygon_to_cells(geom, self.resolution)
+                            hexagons_in_county = h3.geo_to_cells(geom, self.resolution)
                             hexagons_by_state[state].update(hexagons_in_county)
                             logger.info(f"Generated {len(hexagons_in_county)} hexagons for {county_name}, {state}")
                         except Exception as h3_error:
-                            logger.error(f"H3 polygon_to_cells failed: {h3_error}")
+                            logger.error(f"H3 geo_to_cells failed: {h3_error}")
                             # Fallback to SPACE polygon_to_cells
                             try:
                                 hexagons_in_county = polygon_to_cells(geom, self.resolution)
@@ -204,11 +380,11 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                                 'coordinates': geom['coordinates']
                             }
                             try:
-                                hexagons_in_county = h3.polygon_to_cells(geojson_geom, self.resolution)
+                                hexagons_in_county = h3.geo_to_cells(geojson_geom, self.resolution)
                                 hexagons_by_state[state].update(hexagons_in_county)
                                 logger.info(f"Generated {len(hexagons_in_county)} hexagons for {county_name}, {state}")
                             except Exception as h3_error:
-                                logger.error(f"H3 polygon_to_cells failed: {h3_error}")
+                                logger.error(f"H3 geo_to_cells failed: {h3_error}")
                         else:
                             logger.error(f"Invalid geometry structure for {county_name}, {state}: {geom}")
                     else:

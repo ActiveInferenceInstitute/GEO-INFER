@@ -45,7 +45,8 @@ try:
     project_root = os.path.abspath(os.path.join(cascadian_dir, '..', '..', '..'))
 
     # --- FIX: Set OSC repository path environment variable early ---
-    osc_repo_path = os.path.join(project_root, 'GEO-INFER-SPACE', 'repo')
+    # Use the correct absolute path to GEO-INFER-SPACE/repo as confirmed by user
+    osc_repo_path = "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
     os.environ['OSC_REPOS_DIR'] = osc_repo_path
     print(f"INFO: Set OSC_REPOS_DIR to {osc_repo_path}")
     # --- END FIX ---
@@ -594,35 +595,33 @@ Examples:
     # Initialize modules
     modules = {}
     
-    # Initialize available modules
+    # Create a single shared backend for all modules to avoid redundant initialization
+    logger.info("🔧 Creating shared backend for all modules...")
+    try:
+        shared_backend = CascadianAgriculturalH3Backend(
+            modules={},  # Start with empty modules, will be populated
+            resolution=args.resolution,
+            bioregion='Cascadia',
+            target_counties=target_counties,
+            base_data_dir=Path(args.output_dir) / 'data',
+            osc_repo_dir=osc_repo_path
+        )
+        logger.info(f"✅ Shared backend created with {len(shared_backend.target_hexagons)} target hexagons")
+    except Exception as e:
+        logger.error(f"❌ Failed to create shared backend: {e}")
+        sys.exit(1)
+    
+    # Initialize available modules using the shared backend
     if 'zoning' in active_modules:
         try:
-            # Create a temporary backend for module initialization
-            temp_backend = CascadianAgriculturalH3Backend(
-                modules={},
-                resolution=args.resolution,
-                bioregion='Cascadia',
-                target_counties=target_counties,
-                base_data_dir=Path(args.output_dir) / 'data',
-                osc_repo_dir=Path(__file__).parent.parent.parent.parent / 'GEO-INFER-SPACE' / 'repo'
-            )
-            modules['zoning'] = GeoInferZoning(temp_backend)
+            modules['zoning'] = GeoInferZoning(shared_backend)
             logger.info("✅ Zoning module initialized")
         except Exception as e:
             logger.error(f"❌ Failed to initialize zoning module: {e}")
     
     if 'current_use' in active_modules:
         try:
-            # Create a temporary backend for module initialization
-            temp_backend = CascadianAgriculturalH3Backend(
-            modules={},
-                resolution=args.resolution,
-                bioregion='Cascadia',
-                target_counties=target_counties,
-                base_data_dir=Path(args.output_dir) / 'data',
-                osc_repo_dir=Path(__file__).parent.parent.parent.parent / 'GEO-INFER-SPACE' / 'repo'
-            )
-            modules['current_use'] = GeoInferCurrentUse(temp_backend)
+            modules['current_use'] = GeoInferCurrentUse(shared_backend)
             logger.info("✅ Current use module initialized")
         except Exception as e:
             logger.error(f"❌ Failed to initialize current use module: {e}")
@@ -630,16 +629,7 @@ Examples:
     # Add other modules as they become available
     if 'ownership' in active_modules:
         try:
-            # Create a temporary backend for module initialization
-            temp_backend = CascadianAgriculturalH3Backend(
-                modules={},
-                resolution=args.resolution,
-                bioregion='Cascadia',
-                target_counties=target_counties,
-                base_data_dir=Path(args.output_dir) / 'data',
-                osc_repo_dir=Path(__file__).parent.parent.parent.parent / 'GEO-INFER-SPACE' / 'repo'
-            )
-            modules['ownership'] = GeoInferOwnership(temp_backend)
+            modules['ownership'] = GeoInferOwnership(shared_backend)
             logger.info("✅ Ownership module initialized")
         except Exception as e:
             logger.error(f"❌ Failed to initialize ownership module: {e}")
@@ -647,16 +637,7 @@ Examples:
     #     modules['mortgage_debt'] = GeoInferMortgageDebt(args.resolution)
     if 'improvements' in active_modules:
         try:
-            # Create a temporary backend for module initialization
-            temp_backend = CascadianAgriculturalH3Backend(
-                modules={},
-                resolution=args.resolution,
-                bioregion='Cascadia',
-                target_counties=target_counties,
-                base_data_dir=Path(args.output_dir) / 'data',
-                osc_repo_dir=Path(__file__).parent.parent.parent.parent / 'GEO-INFER-SPACE' / 'repo'
-            )
-            modules['improvements'] = GeoInferImprovements(temp_backend)
+            modules['improvements'] = GeoInferImprovements(shared_backend)
             logger.info("✅ Improvements module initialized")
         except Exception as e:
             logger.error(f"❌ Failed to initialize improvements module: {e}")
@@ -671,52 +652,59 @@ Examples:
         logger.error("❌ No modules could be initialized. Exiting.")
         sys.exit(1)
 
-    # Initialize the enhanced backend with SPACE integration
-    try:
-        backend = CascadianAgriculturalH3Backend(
-            modules=modules,
-            resolution=args.resolution,
-            bioregion='Cascadia',
-            target_counties=target_counties,
-            base_data_dir=Path(args.output_dir) / 'data',
-            osc_repo_dir=Path(__file__).parent.parent.parent.parent / 'GEO-INFER-SPACE' / 'repo'
-        )
-        logger.info("✅ Enhanced backend initialized with SPACE integration")
-    except Exception as e:
-        logger.error(f"❌ Failed to initialize backend: {e}")
-        sys.exit(1)
+    # Update the shared backend with initialized modules
+    shared_backend.modules = modules
+    logger.info(f"✅ Updated shared backend with {len(modules)} active modules")
+    
+    # Use the shared backend as the main backend
+    backend = shared_backend
         
-        # Link the modules to the fully initialized backend
-        for mod in backend.modules.values():
-            mod.backend = backend
-
     logger.info("Step 1: Running comprehensive analysis across all modules...")
     
-    # Add progress bar for analysis
+    # Add progress bar for analysis with performance monitoring
+    start_time = time.time()
     with tqdm(total=4, desc="Analysis Progress", unit="step") as pbar:
         try:
+            # Step 1: Run comprehensive analysis
+            analysis_start = time.time()
             backend.run_comprehensive_analysis()
+            analysis_time = time.time() - analysis_start
             pbar.update(1)
-            pbar.set_description("Analysis Progress - Analysis Complete")
+            pbar.set_description(f"Analysis Progress - Analysis Complete ({analysis_time:.1f}s)")
+            logger.info(f"📊 Comprehensive analysis completed in {analysis_time:.1f} seconds")
         
+            # Step 2: Calculate redevelopment potential
+            redevelopment_start = time.time()
             logger.info("Step 2: Calculating agricultural redevelopment potential...")
             redevelopment_scores = backend.calculate_agricultural_redevelopment_potential()
+            redevelopment_time = time.time() - redevelopment_start
             pbar.update(1)
-            pbar.set_description("Analysis Progress - Redevelopment Calculated")
+            pbar.set_description(f"Analysis Progress - Redevelopment Calculated ({redevelopment_time:.1f}s)")
+            logger.info(f"📊 Redevelopment calculation completed in {redevelopment_time:.1f} seconds")
         
+            # Step 3: Generate summary
+            summary_start = time.time()
             logger.info("Step 3: Generating comprehensive summary...")
             summary = backend.get_comprehensive_summary()
+            summary_time = time.time() - summary_start
             pbar.update(1)
-            pbar.set_description("Analysis Progress - Summary Generated")
+            pbar.set_description(f"Analysis Progress - Summary Generated ({summary_time:.1f}s)")
+            logger.info(f"📊 Summary generation completed in {summary_time:.1f} seconds")
             
         except Exception as e:
             logger.error(f"❌ Analysis failed: {e}")
+            logger.error(f"Stack trace: {traceback.format_exc()}")
             raise
         
+    total_analysis_time = time.time() - start_time
+    logger.info(f"📊 Total analysis time: {total_analysis_time:.1f} seconds")
+    
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     output_dir = Path(args.output_dir)
     bioregion_lower = 'cascadia'
     
+    # Step 4: Export results with performance tracking
+    export_start = time.time()
     logger.info("Step 4: Exporting analysis results...")
     
     # Export unified data (includes module data and scores)
@@ -724,6 +712,9 @@ Examples:
     backend.export_unified_data(str(unified_path), args.export_format)
     pbar.update(1)
     pbar.set_description("Analysis Progress - Export Complete")
+    
+    export_time = time.time() - export_start
+    logger.info(f"📊 Data export completed in {export_time:.1f} seconds")
     
     # Export redevelopment scores separately for specific use cases
     redevelopment_path = output_dir / f"{bioregion_lower}_redevelopment_scores_{timestamp}.json"

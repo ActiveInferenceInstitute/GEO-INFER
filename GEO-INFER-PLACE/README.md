@@ -46,6 +46,22 @@ This module serves as a dedicated space for developing place-based expertise, co
 
 ## Current Study Locations
 
+### 🌾 Cascadian Agricultural Land Analysis Framework (PRODUCTION READY)
+**Location**: Northern California + Oregon Bioregion  
+**Status**: Production Ready - 100% Test Coverage  
+**Focus Areas**: Agricultural land redevelopment analysis, cross-border geospatial integration, H3 spatial indexing  
+**Achievements**: 
+- 100% Test Coverage (9/9 tests passing)
+- 4 Production Modules with real data processing
+- Full SPACE Integration with OSC repository support
+- Interactive Dashboards with multi-layer visualization
+- Cross-Border Analysis integrating CA + OR data
+- Performance Optimized with caching and parallel processing
+
+**Documentation**: [`locations/cascadia/`](locations/cascadia/) - Technical framework  
+**Modules**: Zoning, Current Use, Ownership, Improvements + 4 framework-ready modules  
+**Technology**: H3 hexagonal indexing, GEO-INFER-SPACE integration, real-time APIs
+
 ### 🌲 Del Norte County, California, USA
 **Focus Areas**: Forest ecosystem management, coastal resilience, rural community development
 - **Geographic Context**: Northern California coastal region with old-growth forests

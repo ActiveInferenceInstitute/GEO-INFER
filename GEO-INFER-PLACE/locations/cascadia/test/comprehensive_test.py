@@ -29,8 +29,10 @@ cascadian_dir = os.path.dirname(os.path.realpath(__file__))
 project_root = os.path.abspath(os.path.join(cascadian_dir, '..', '..', '..'))
 place_src_path = os.path.join(project_root, 'GEO-INFER-PLACE', 'src')
 space_src_path = os.path.join(project_root, 'GEO-INFER-SPACE', 'src')
+# Add the parent directory (cascadia) to path for local module imports
+cascadia_parent_dir = os.path.dirname(cascadian_dir)
 
-for p in [cascadian_dir, place_src_path, space_src_path]:
+for p in [cascadian_dir, cascadia_parent_dir, place_src_path, space_src_path]:
     if os.path.isdir(p) and p not in sys.path:
         sys.path.insert(0, p)
 
@@ -140,7 +142,7 @@ class ComprehensiveTestSuite:
                     bioregion='Cascadia',
                     target_counties=self.test_config['analysis_settings']['target_counties'],
                     base_data_dir=self.temp_dir / 'data',
-                    osc_repo_dir=Path(project_root) / 'GEO-INFER-SPACE' / 'repo'
+                    osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
                 )
                 
                 # Validate backend properties
@@ -170,7 +172,7 @@ class ComprehensiveTestSuite:
                     bioregion='Cascadia',
                     target_counties=self.test_config['analysis_settings']['target_counties'],
                     base_data_dir=self.temp_dir / 'data',
-                    osc_repo_dir=Path(project_root) / 'GEO-INFER-SPACE' / 'repo'
+                    osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
                 )
                 
                 modules = {}
@@ -218,7 +220,7 @@ class ComprehensiveTestSuite:
             import importlib.util
             spec = importlib.util.spec_from_file_location(
                 "cascadia_main",
-                Path(cascadian_dir) / "cascadia_main.py"
+                Path(cascadia_parent_dir) / "cascadia_main.py"
             )
             cascadia_main = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(cascadia_main)
@@ -257,7 +259,7 @@ class ComprehensiveTestSuite:
                     bioregion='Cascadia',
                     target_counties={'CA': ['Lassen'], 'OR': ['Marion']},
                     base_data_dir=self.temp_dir / 'data',
-                    osc_repo_dir=Path(project_root) / 'GEO-INFER-SPACE' / 'repo'
+                    osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
                 )
                 
                 # Add mock unified data
@@ -301,7 +303,7 @@ class ComprehensiveTestSuite:
                     bioregion='Cascadia',
                     target_counties={'CA': ['Lassen']},
                     base_data_dir=self.temp_dir / 'data',
-                    osc_repo_dir=Path(project_root) / 'GEO-INFER-SPACE' / 'repo'
+                    osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
                 )
                 
                 # Add test data
@@ -338,7 +340,7 @@ class ComprehensiveTestSuite:
             import importlib.util
             spec = importlib.util.spec_from_file_location(
                 "cascadia_main",
-                Path(cascadian_dir) / "cascadia_main.py"
+                Path(cascadia_parent_dir) / "cascadia_main.py"
             )
             cascadia_main = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(cascadia_main)
@@ -379,7 +381,7 @@ class ComprehensiveTestSuite:
                         bioregion='Cascadia',
                         target_counties={'INVALID': ['INVALID']},
                         base_data_dir=self.temp_dir / 'data',
-                        osc_repo_dir=Path(project_root) / 'GEO-INFER-SPACE' / 'repo'
+                        osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
                     )
                     logger.warning("⚠️ Backend should have failed with invalid config")
                 except Exception:
@@ -416,7 +418,7 @@ class ComprehensiveTestSuite:
                     bioregion='Cascadia',
                     target_counties={'CA': ['Lassen']},
                     base_data_dir=self.temp_dir / 'data',
-                    osc_repo_dir=Path(project_root) / 'GEO-INFER-SPACE' / 'repo'
+                    osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
                 )
                 
                 # Add modules
@@ -438,7 +440,7 @@ class ComprehensiveTestSuite:
                 import importlib.util
                 spec = importlib.util.spec_from_file_location(
                     "cascadia_main",
-                    Path(cascadian_dir) / "cascadia_main.py"
+                    Path(cascadia_parent_dir) / "cascadia_main.py"
                 )
                 cascadia_main = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(cascadia_main)

@@ -1,0 +1,61 @@
+{
+  "data_sources": {
+    "ca_parcels": {
+      "name": "California Parcel Data",
+      "url": "https://services.gis.ca.gov/arcgis/rest/services/Boundaries/CA_Parcels/FeatureServer/0",
+      "type": "arcgis",
+      "description": "California statewide parcel boundaries from CAL FIRE",
+      "coverage": "California",
+      "update_frequency": "Quarterly",
+      "fields_of_interest": ["OWNER_NAME", "PARCEL_SIZE", "LAND_USE", "ASSESSED_VALUE"]
+    },
+    "or_parcels": {
+      "name": "Oregon Parcel Data (ORMAP)",
+      "url": "https://gis.oregon.gov/arcgis/rest/services/ORMAP/ORMAP_Parcels/MapServer/0",
+      "type": "arcgis",
+      "description": "Oregon statewide parcel mapping from ORMAP consortium",
+      "coverage": "Oregon",
+      "update_frequency": "Continuous",
+      "fields_of_interest": ["OWNER_NAME", "ACRES", "PROP_CLASS", "MARKET_VALUE"]
+    },
+    "wa_parcels": {
+      "name": "Washington County Parcel Data",
+      "url": "https://gisdata.kingcounty.gov/arcgis/rest/services/Property/Parcels/MapServer/0",
+      "type": "arcgis",
+      "description": "King County parcel data (example for Washington state)",
+      "coverage": "King County, WA",
+      "update_frequency": "Weekly",
+      "fields_of_interest": ["TAXPAYER_NAME", "SQFT_LOT", "CURRENT_ZONING", "APPRAISED_VALUE"]
+    }
+  },
+  "fallback_sources": {
+    "parcelquest": {
+      "name": "ParcelQuest API",
+      "description": "Commercial parcel data service with comprehensive coverage",
+      "requires_api_key": true,
+      "coverage": "National"
+    },
+    "county_assessors": {
+      "name": "County Assessor Offices",
+      "description": "Direct county-level parcel and ownership data",
+      "requires_manual_download": true,
+      "coverage": "County-specific"
+    }
+  },
+  "field_mappings": {
+    "standard_fields": {
+      "owner_name": ["OWNER_NAME", "TAXPAYER_NAME", "OWNER"],
+      "parcel_size": ["PARCEL_SIZE", "ACRES", "SQFT_LOT", "AREA"],
+      "land_use": ["LAND_USE", "PROP_CLASS", "CURRENT_ZONING", "USE_CODE"],
+      "assessed_value": ["ASSESSED_VALUE", "MARKET_VALUE", "APPRAISED_VALUE", "TOTAL_VALUE"]
+    }
+  },
+  "data_quality": {
+    "minimum_fields": ["owner_name", "parcel_size"],
+    "validation_rules": {
+      "owner_name": "Required, non-empty string",
+      "parcel_size": "Positive numeric value",
+      "assessed_value": "Optional, positive numeric value"
+    }
+  }
+} 

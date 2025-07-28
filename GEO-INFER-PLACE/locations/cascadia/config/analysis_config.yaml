@@ -1,6 +1,6 @@
 # Cascadia Agricultural Land Analysis Configuration
-# Enhanced with SPACE integration and real data sources
 
+# Core analysis settings
 analysis_settings:
   target_counties:
     CA: ["Lassen"]
@@ -14,23 +14,33 @@ analysis_settings:
     - improvements
   
   h3_resolution: 8
-  enhanced_visualization: true
   real_time_integration: false
   
+  # Spatial analysis configuration
   spatial_analysis:
     buffer_distance: 1000  # meters
     proximity_analysis: true
     multi_overlay: true
     correlation_analysis: true
     hotspot_detection: true
+    clustering_enabled: true
+    spatial_autocorrelation: true
   
+  # Data source management
   data_sources:
     caching_enabled: true
     cache_duration: 86400  # 24 hours
+    cache_directory: "./cache"
+    fallback_mode: true
     api_rate_limits:
       requests_per_minute: 60
       requests_per_hour: 1000
+    retry_settings:
+      max_retries: 3
+      retry_delay: 1  # seconds
+      exponential_backoff: true
   
+  # Visualization configuration
   visualization:
     base_map: "CartoDB positron"
     default_zoom: 7
@@ -39,72 +49,160 @@ analysis_settings:
       zoning:
         color: "#1f77b4"
         opacity: 0.6
+        popup_fields: ["zone_type", "acres", "redevelopment_score"]
       current_use:
         color: "#2ca02c"
         opacity: 0.6
+        popup_fields: ["crop_type", "intensity", "water_usage"]
       water:
         color: "#d62728"
         opacity: 0.6
+        popup_fields: ["water_source", "availability", "rights"]
       ownership:
         color: "#ff7f0e"
         opacity: 0.6
+        popup_fields: ["owner_type", "parcel_count", "concentration"]
       redevelopment:
         color: "#9467bd"
         opacity: 0.7
+        popup_fields: ["potential_score", "ranking", "factors"]
+    export_formats: ["geojson", "csv", "json", "html"]
+    
+  # Error handling and validation
+  error_handling:
+    strict_mode: false
+    log_level: "INFO"
+    continue_on_module_failure: true
+    data_validation:
+      geometry_validation: true
+      attribute_validation: true
+      coordinate_system_validation: true
+      h3_validity_check: true
+    
+  # Performance optimization
+  performance:
+    parallel_processing: true
+    max_workers: 4
+    memory_limit_mb: 2048
+    chunk_size: 1000
+    lazy_loading: true
 
 # Module-specific configurations
 zoning:
   ca_fmmp:
     page_url: "https://www.conservation.ca.gov/dlrp/fmmp/inventory-products"
     latest_year: 2022
+    fallback_data: "./data/zoning/ca_fallback.geojson"
+    validation:
+      required_fields: ["polygon_ty", "acres", "county"]
+      geometry_type: "Polygon"
   or_dlcd_service_url: "https://maps.oregon.gov/arcgis/rest/services/LandUsePlanning/Statewide_Zoning/FeatureServer/0"
   wa_king_county_service_url: "https://gisdata.kingcounty.gov/arcgis/rest/services/Planning/KingCo_Zoning/MapServer/0"
+  
+  # Zoning classification system
+  classification_mapping:
+    agricultural_prime: ["PRIME_FARMLAND", "AG_PRIME", "EXCLUSIVE_FARM_USE"]
+    agricultural_secondary: ["FARMLAND_STATEWIDE", "AG_SECONDARY", "RURAL_AGRICULTURAL"]
+    grazing: ["GRAZING_LAND", "RANGELAND", "PASTORAL"]
+    rural_residential: ["RURAL_RESIDENTIAL", "RURAL_DEVELOPMENT"]
+    conservation: ["FORESTRY", "CONSERVATION", "OPEN_SPACE"]
 
 ownership:
   ca_parcels_service_url: "https://services.gis.ca.gov/arcgis/rest/services/Boundaries/CA_Parcels/FeatureServer/0"
+  data_urls_config: "./config/data_urls.json"
+  
+  # Ownership analysis
+  analysis_settings:
+    concentration_threshold: 0.7  # HHI threshold for high concentration
+    large_parcel_threshold: 100  # acres
+    institutional_owners: ["GOVERNMENT", "TRUST", "CORPORATION", "LLC"]
+    individual_patterns: ["FAMILY", "INDIVIDUAL", "PARTNERSHIP"]
 
 surface_water:
   nhd_flowlines_url: "https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer/1"
   nhd_waterbodies_url: "https://hydro.nationalmap.gov/arcgis/rest/services/NHDPlus_HR/MapServer/2"
+  buffer_distances: [100, 500, 1000]  # meters from water features
+  water_quality_sources:
+    - "https://waterdata.usgs.gov/nwis"
+    - "https://www.waterboards.ca.gov/water_issues/programs/gama/"
 
 current_use:
   nass_cdl_api_url: "https://nassgeodata.gmu.edu/CropScape/nass_data_service.php"
   land_iq_api_url: "https://www.landiq.com/api/v1/parcels"
+  
+  # Crop analysis
+  crop_categories:
+    high_value: ["GRAPES", "ALMONDS", "CITRUS", "BERRIES"]
+    field_crops: ["WHEAT", "CORN", "SOYBEANS", "ALFALFA"]
+    specialty: ["HOPS", "LAVENDER", "HEMP", "ORGANIC"]
+  
+  water_intensity_mapping:
+    high: ["RICE", "ALFALFA", "CITRUS"]
+    medium: ["WHEAT", "CORN", "VEGETABLES"]
+    low: ["DRYLAND_WHEAT", "RANGELAND", "PASTURE"]
 
 ground_water:
   nwis_url: "https://waterservices.usgs.gov/nwis/gwlevels/"
   parameter_cd: "72019"
+  ca_sources:
+    dwr_casgem: "https://data.cnra.ca.gov/dataset/periodic-groundwater-level-measurements"
+    dwr_sgma: "https://sgma.water.ca.gov/webgis"
+  or_sources:
+    oregon_gwic: "https://apps.wrd.state.or.us/apps/gw/gw_data_viewer/"
 
 water_rights:
   ca_ewrims_csv_url: "https://data.ca.gov/datastore/dump/e87a4933-2125-4676-928d-294b22c6b44a"
+  or_wrd_url: "https://apps.wrd.state.or.us/apps/wr/wrinfo/"
+  
+  # Water rights analysis configuration
+  priority_categories:
+    senior: "Pre-1914 rights"
+    appropriative: "Post-1914 appropriative rights"
+    riparian: "Riparian rights"
+    groundwater: "Groundwater extraction permits"
 
-mortgage_debt:
-  hmda_bulk_url: "https://ffiec.cfpb.gov/v2/data-browser-api/view/csv?states={state}&years={year}"
-
-power_source:
-  hifld_transmission_url: "https://services7.arcgis.com/FGr1D95XCGALwU45/arcgis/rest/services/Electric_Power_Transmission_Lines/FeatureServer/0"
-  hifld_power_plants_url: "https://services7.arcgis.com/FGr1D95XCGALwU45/arcgis/rest/services/Power_Plants/FeatureServer/0"
+improvements:
+  data_sources:
+    building_footprints: "https://github.com/microsoft/BuildingFootprints"
+    nass_structures: "https://www.nass.usda.gov/Research_and_Science/Cropland/sarsfaqs2.php"
+  
+  # Infrastructure analysis
+  improvement_categories:
+    agricultural: ["BARN", "SILO", "GREENHOUSE", "EQUIPMENT_SHED"]
+    residential: ["HOUSE", "MOBILE_HOME", "CABIN"]
+    commercial: ["PROCESSING_FACILITY", "STORAGE", "OFFICE"]
+    infrastructure: ["ROADS", "UTILITIES", "IRRIGATION"]
 
 # SPACE integration settings
 space_integration:
   osc_geo:
     enabled: true
-    repo_path: "../../../GEO-INFER-SPACE/repo"
+    repo_path: "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
     h3_loader:
       timeout_seconds: 300
       max_retries: 3
       batch_size: 1000
+      parallel_processing: true
   
   spatial_processor:
     enabled: true
     buffer_distances: [500, 1000, 2000]  # meters
     correlation_threshold: 0.3
+    clustering_algorithm: "DBSCAN"
+    cluster_min_samples: 5
   
   data_integrator:
     enabled: true
     cache_dir: "./cache"
     max_file_size_mb: 100
     compression_enabled: true
+    format_validation: true
+  
+  visualization_engine:
+    enabled: true
+    interactive_features: true
+    real_time_updates: false
+    export_capabilities: ["png", "svg", "html", "pdf"]
 
 # County boundary data sources
 county_boundaries:
@@ -120,7 +218,40 @@ county_boundaries:
       - name: "US Census TIGER/Line"
         url: "https://www2.census.gov/geo/tiger/TIGER2022/COUNTY/tl_2022_06_county.zip"
         format: "shapefile"
+        priority: 1
       - name: "California State Boundary"
         url: "https://data.ca.gov/dataset/california-county-boundaries"
         format: "geojson"
-    geometry_file: "ca_lassen_boundary.geojson" 
+        priority: 2
+    geometry_file: "ca_lassen_boundary.geojson"
+    
+    # County-specific settings
+    agricultural_focus_areas:
+      - "Honey Lake Valley"
+      - "Long Valley"
+      - "Secret Valley"
+    conservation_areas:
+      - "Lassen National Forest"
+      - "Modoc National Forest"
+    major_water_sources:
+      - "Susan River"
+      - "Honey Lake"
+      - "Eagle Lake"
+
+# Quality assurance and validation
+quality_assurance:
+  data_validation:
+    geometry_checks: true
+    attribute_completeness: 0.8  # Minimum 80% completeness
+    coordinate_system_validation: true
+    outlier_detection: true
+  
+  analysis_validation:
+    cross_validation: true
+    sensitivity_analysis: false
+    uncertainty_quantification: false
+  
+  reporting:
+    generate_qa_report: true
+    include_data_lineage: true
+    validation_metrics: true 
