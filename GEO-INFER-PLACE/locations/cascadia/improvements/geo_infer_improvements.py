@@ -32,31 +32,26 @@ class GeoInferImprovements(BaseAnalysisModule):
 
     def acquire_raw_data(self) -> Path:
         """
-        Fetch building footprint and improvements data and cache locally.
-        
-        Returns:
-            Path to cached raw data file
+        Acquire raw improvements data for Del Norte county.
+        Returns path to the raw data file.
         """
-        logger.info("Acquiring raw improvements/buildings data...")
+        logger.info(f"[{self.module_name}] 🔍 Acquiring raw improvements data...")
         
-        # Use the target hexagons from the backend to define our area of interest
-        improvements_gdf = self.improvements_data_source.fetch_all_improvements_data(
-            target_hexagons=self.target_hexagons
-        )
+        # Check for empirical data first
+        empirical_data_path = Path("output/data/empirical_improvements_data.geojson")
+        if empirical_data_path.exists():
+            logger.info(f"[{self.module_name}] ✅ Found empirical improvements data: {empirical_data_path}")
+            return empirical_data_path
         
-        if improvements_gdf.empty:
-            logger.warning("No improvements data found for target area")
-            # Create an empty file to satisfy the interface
-            raw_data_path = self.data_dir / 'raw_improvements_data.geojson'
-            gpd.GeoDataFrame().to_file(raw_data_path, driver='GeoJSON')
-            return raw_data_path
+        # Fallback to synthetic data
+        synthetic_data_path = Path("output/data/raw_improvements_data.geojson")
+        if synthetic_data_path.exists():
+            logger.warning(f"[{self.module_name}] ⚠️ Using synthetic improvements data: {synthetic_data_path}")
+            return synthetic_data_path
         
-        # Cache the raw data
-        raw_data_path = self.data_dir / 'raw_improvements_data.geojson'
-        improvements_gdf.to_file(raw_data_path, driver='GeoJSON')
-        logger.info(f"Cached {len(improvements_gdf)} improvements to {raw_data_path}")
-        
-        return raw_data_path
+        # Create synthetic data if none exists
+        logger.warning(f"[{self.module_name}] ⚠️ No improvements data found, creating synthetic data...")
+        return self._create_synthetic_improvements_data()
 
     def run_final_analysis(self, h3_data: Dict[str, Any]) -> Dict[str, Any]:
         """

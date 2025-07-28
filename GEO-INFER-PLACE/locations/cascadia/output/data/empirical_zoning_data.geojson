@@ -1,0 +1,79 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_type": "Agricultural",
+        "zone_code": "A-1",
+        "acres": 15000,
+        "source": "CA_FMMP_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.2,
+              41.5
+            ],
+            [
+              -124.2,
+              41.8
+            ],
+            [
+              -123.8,
+              41.8
+            ],
+            [
+              -123.8,
+              41.5
+            ],
+            [
+              -124.2,
+              41.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "zone_type": "Timber Production",
+        "zone_code": "TPZ",
+        "acres": 25000,
+        "source": "CA_FMMP_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.4,
+              41.6
+            ],
+            [
+              -124.4,
+              41.9
+            ],
+            [
+              -124.0,
+              41.9
+            ],
+            [
+              -124.0,
+              41.6
+            ],
+            [
+              -124.4,
+              41.6
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

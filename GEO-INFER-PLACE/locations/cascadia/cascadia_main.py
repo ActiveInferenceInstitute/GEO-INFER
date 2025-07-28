@@ -81,6 +81,7 @@ from datetime import datetime
 import traceback
 import time
 from tqdm import tqdm
+import numpy as np
 
 # --- Enhanced SPACE imports ---
 from geo_infer_space.osc_geo import (
@@ -674,31 +675,149 @@ Examples:
         
     logger.info("Step 1: Running comprehensive analysis across all modules...")
     
+    # Add comprehensive data acquisition tracking
+    logger.info("🔍 Starting comprehensive data acquisition and processing tracking...")
+    
+    # Track data acquisition for each module
+    data_acquisition_summary = {}
+    
     # Add progress bar for analysis with performance monitoring
     start_time = time.time()
     with tqdm(total=4, desc="Analysis Progress", unit="step") as pbar:
         try:
-            # Step 1: Run comprehensive analysis
+            # Step 1: Run comprehensive analysis with detailed tracking
             analysis_start = time.time()
+            logger.info("📊 Starting comprehensive analysis with real data tracking...")
+            
+            # Track data acquisition before analysis
+            for module_name, module in modules.items():
+                logger.info(f"🔍 Pre-analysis data check for {module_name} module...")
+                try:
+                    # Check if module has real data
+                    data_path = module.data_dir
+                    if data_path.exists():
+                        data_files = list(data_path.glob("*.geojson"))
+                        logger.info(f"  📁 {module_name}: Found {len(data_files)} data files")
+                        for file in data_files:
+                            logger.info(f"    📄 {file.name}")
+                    else:
+                        logger.warning(f"  ⚠️ {module_name}: No data directory found")
+                except Exception as e:
+                    logger.error(f"  ❌ {module_name}: Error checking data: {e}")
+            
+            # Run the analysis
             backend.run_comprehensive_analysis()
+            
+            # Track data acquisition after analysis
+            logger.info("📊 Post-analysis data acquisition summary:")
+            for module_name, module in modules.items():
+                try:
+                    data_path = module.data_dir
+                    if data_path.exists():
+                        data_files = list(data_path.glob("*.geojson"))
+                        processed_count = len([f for f in data_files if f.stat().st_size > 100])  # Files with real content
+                        logger.info(f"  ✅ {module_name}: {processed_count} processed data files")
+                        data_acquisition_summary[module_name] = processed_count
+                    else:
+                        logger.warning(f"  ⚠️ {module_name}: No data directory after analysis")
+                        data_acquisition_summary[module_name] = 0
+                except Exception as e:
+                    logger.error(f"  ❌ {module_name}: Error in post-analysis check: {e}")
+                    data_acquisition_summary[module_name] = 0
+            
             analysis_time = time.time() - analysis_start
             pbar.update(1)
             pbar.set_description(f"Analysis Progress - Analysis Complete ({analysis_time:.1f}s)")
             logger.info(f"📊 Comprehensive analysis completed in {analysis_time:.1f} seconds")
+            logger.info(f"📊 Data acquisition summary: {data_acquisition_summary}")
         
-            # Step 2: Calculate redevelopment potential
+            # Step 2: Calculate redevelopment potential with data validation
             redevelopment_start = time.time()
             logger.info("Step 2: Calculating agricultural redevelopment potential...")
+            
+            # Validate that we have real data before calculating redevelopment
+            total_hexagons_with_data = 0
+            for module_name, count in data_acquisition_summary.items():
+                if count > 0:
+                    total_hexagons_with_data += count
+                    logger.info(f"  ✅ {module_name}: {count} hexagons with real data")
+                else:
+                    logger.warning(f"  ⚠️ {module_name}: No real data available")
+            
+            if total_hexagons_with_data == 0:
+                logger.error("❌ CRITICAL: No real data available for any module. Analysis will produce empty results.")
+                logger.error("🔍 Debugging data acquisition issues...")
+                
+                # Debug data acquisition issues
+                for module_name, module in modules.items():
+                    logger.info(f"🔍 Debugging {module_name} module:")
+                    try:
+                        # Check module data directory
+                        data_dir = module.data_dir
+                        logger.info(f"  📁 Data directory: {data_dir}")
+                        logger.info(f"  📁 Directory exists: {data_dir.exists()}")
+                        
+                        if data_dir.exists():
+                            files = list(data_dir.iterdir())
+                            logger.info(f"  📄 Files in directory: {len(files)}")
+                            for file in files:
+                                logger.info(f"    📄 {file.name} ({file.stat().st_size} bytes)")
+                        
+                        # Check if module has target hexagons
+                        if hasattr(module, 'target_hexagons'):
+                            logger.info(f"  🎯 Target hexagons: {len(module.target_hexagons)}")
+                        else:
+                            logger.warning(f"  ⚠️ No target_hexagons attribute")
+                            
+                    except Exception as e:
+                        logger.error(f"  ❌ Error debugging {module_name}: {e}")
+            
             redevelopment_scores = backend.calculate_agricultural_redevelopment_potential()
             redevelopment_time = time.time() - redevelopment_start
             pbar.update(1)
             pbar.set_description(f"Analysis Progress - Redevelopment Calculated ({redevelopment_time:.1f}s)")
             logger.info(f"📊 Redevelopment calculation completed in {redevelopment_time:.1f} seconds")
+            
+            # Log redevelopment score statistics
+            if redevelopment_scores:
+                # Extract numeric scores from the redevelopment_scores dictionary
+                score_values = []
+                for hex_id, score_data in redevelopment_scores.items():
+                    if isinstance(score_data, dict):
+                        # Extract the composite score from the dictionary
+                        composite_score = score_data.get('composite_score', 0.0)
+                        score_values.append(composite_score)
+                    elif isinstance(score_data, (int, float)):
+                        # Direct numeric value
+                        score_values.append(float(score_data))
+                    else:
+                        # Default to 0.0 for unknown types
+                        score_values.append(0.0)
+                
+                if score_values:
+                    logger.info(f"📊 Redevelopment scores: min={min(score_values):.3f}, max={max(score_values):.3f}, mean={np.mean(score_values):.3f}")
+                    non_zero_scores = [s for s in score_values if s > 0]
+                    logger.info(f"📊 Non-zero redevelopment scores: {len(non_zero_scores)} out of {len(score_values)}")
+                else:
+                    logger.warning("⚠️ No valid numeric scores found in redevelopment data")
+            else:
+                logger.warning("⚠️ No redevelopment scores calculated")
         
-            # Step 3: Generate summary
+            # Step 3: Generate summary with data validation
             summary_start = time.time()
             logger.info("Step 3: Generating comprehensive summary...")
+            
+            # Validate summary data
             summary = backend.get_comprehensive_summary()
+            if summary:
+                logger.info(f"📊 Summary generated with {len(summary)} keys")
+                if 'modules_analyzed' in summary:
+                    logger.info(f"📊 Modules analyzed: {summary['modules_analyzed']}")
+                if 'total_hexagons' in summary:
+                    logger.info(f"📊 Total hexagons: {summary['total_hexagons']}")
+            else:
+                logger.warning("⚠️ No summary data generated")
+            
             summary_time = time.time() - summary_start
             pbar.update(1)
             pbar.set_description(f"Analysis Progress - Summary Generated ({summary_time:.1f}s)")
@@ -760,14 +879,14 @@ Examples:
             logger.info(f"Enhanced dashboard: {dashboard_path}")
     
     # Generate standard interactive dashboard
-        dashboard_path = output_dir / f"{bioregion_lower}_dashboard_{timestamp}.html"
-        backend.generate_interactive_dashboard(str(dashboard_path))
-    logger.info(f"Standard dashboard: {dashboard_path}")
+    standard_dashboard_path = output_dir / f"{bioregion_lower}_dashboard_{timestamp}.html"
+    backend.generate_interactive_dashboard(str(standard_dashboard_path))
+    logger.info(f"Standard dashboard: {standard_dashboard_path}")
     
     logger.info("Step 6: Analysis complete!")
     logger.info(f"📁 Results saved to: {output_dir}")
     logger.info(f"📊 Summary: {summary_path}")
-    logger.info(f"🗺️ Dashboard: {dashboard_path}")
+    logger.info(f"🗺️ Dashboard: {standard_dashboard_path if not args.generate_dashboard else dashboard_path}")
     logger.info(f"📋 Report: {report_path}")
     
     if args.spatial_analysis:

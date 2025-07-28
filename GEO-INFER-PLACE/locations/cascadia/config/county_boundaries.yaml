@@ -70,6 +70,75 @@ ca_lassen:
     conservation_areas: ["Lassen National Forest", "Modoc National Forest"]
     special_districts: ["water_districts", "irrigation_districts"]
 
+# Del Norte County, California
+ca_del_norte:
+  name: "Del Norte County"
+  state: "CA"
+  fips_code: "06015"
+  full_name: "Del Norte County, California"
+  
+  # Geographic bounds (approximate)
+  bounds:
+    north: 42.0
+    south: 41.4
+    east: -123.5
+    west: -124.5
+    center: [41.7, -124.0]
+  
+  # Area information
+  area_km2: 3180.0
+  population: 28000
+  
+  # Data sources for boundary geometry
+  data_sources:
+    - name: "US Census TIGER/Line 2022"
+      url: "https://www2.census.gov/geo/tiger/TIGER2022/COUNTY/tl_2022_06_county.zip"
+      format: "shapefile"
+      description: "Official US Census county boundaries"
+      priority: 1
+    
+    - name: "California State Boundary"
+      url: "https://data.ca.gov/dataset/california-county-boundaries"
+      format: "geojson"
+      description: "California state-maintained county boundaries"
+      priority: 2
+  
+  # Local file paths
+  geometry_file: "ca_del_norte_boundary.geojson"
+  simplified_file: "ca_del_norte_boundary_simplified.geojson"
+  
+  # Analysis settings
+  analysis:
+    h3_resolution: 8
+    buffer_distance_meters: 1000
+    include_adjacent_counties: true
+    agricultural_focus: true
+  
+  # Agricultural characteristics
+  agricultural_info:
+    total_agricultural_land_acres: 150000
+    primary_crops: ["dairy", "timber", "berries", "vegetables"]
+    irrigation_sources: ["surface_water", "rainfall"]
+    soil_types: ["sandy_loam", "clay_loam", "organic"]
+  
+  # Water resources
+  water_resources:
+    major_rivers: ["Smith River", "Klamath River"]
+    lakes: ["Crescent City Harbor"]
+    groundwater_basins: ["Smith River Basin", "Klamath River Basin"]
+  
+  # Infrastructure
+  infrastructure:
+    major_highways: ["US-101", "CA-199", "CA-197"]
+    rail_lines: ["Amtrak Coast Starlight"]
+    power_transmission: ["Pacific Gas & Electric"]
+  
+  # Zoning and land use
+  zoning:
+    primary_zones: ["agricultural", "forestry", "residential", "commercial"]
+    conservation_areas: ["Redwood National and State Parks", "Six Rivers National Forest"]
+    special_districts: ["water_districts", "timber_districts"]
+
 # Modoc County, California
 ca_modoc:
   name: "Modoc County"

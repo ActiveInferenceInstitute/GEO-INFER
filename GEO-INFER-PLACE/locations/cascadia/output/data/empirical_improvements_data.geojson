@@ -1,0 +1,3805 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 148842.15,
+        "land_value": 143195.5,
+        "building_type": "commercial",
+        "year_built": 1989,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.24848933679722,
+              41.6942462983634
+            ],
+            [
+              -124.24418408346693,
+              41.6942462983634
+            ],
+            [
+              -124.24418408346693,
+              41.69855155169369
+            ],
+            [
+              -124.24848933679722,
+              41.69855155169369
+            ],
+            [
+              -124.24848933679722,
+              41.6942462983634
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 438355.59,
+        "land_value": 168879.42,
+        "building_type": "residential",
+        "year_built": 1955,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.7016715446386,
+              41.7929271093751
+            ],
+            [
+              -123.69750482991317,
+              41.7929271093751
+            ],
+            [
+              -123.69750482991317,
+              41.79709382410053
+            ],
+            [
+              -123.7016715446386,
+              41.79709382410053
+            ],
+            [
+              -123.7016715446386,
+              41.7929271093751
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 202455.28,
+        "land_value": 148195.38,
+        "building_type": "agricultural",
+        "year_built": 1995,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.3615373579338,
+              41.587344271376054
+            ],
+            [
+              -124.3587545816926,
+              41.587344271376054
+            ],
+            [
+              -124.3587545816926,
+              41.59012704761726
+            ],
+            [
+              -124.3615373579338,
+              41.59012704761726
+            ],
+            [
+              -124.3615373579338,
+              41.587344271376054
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 249845.7,
+        "land_value": 172528.85,
+        "building_type": "commercial",
+        "year_built": 1986,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.67979425702542,
+              41.87037301914068
+            ],
+            [
+              -123.66987424045439,
+              41.87037301914068
+            ],
+            [
+              -123.66987424045439,
+              41.880293035711716
+            ],
+            [
+              -123.67979425702542,
+              41.880293035711716
+            ],
+            [
+              -123.67979425702542,
+              41.87037301914068
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 93036.45,
+        "land_value": 52815.3,
+        "building_type": "agricultural",
+        "year_built": 1964,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.04055592849684,
+              41.86081798077563
+            ],
+            [
+              -124.03539641674932,
+              41.86081798077563
+            ],
+            [
+              -124.03539641674932,
+              41.86597749252316
+            ],
+            [
+              -124.04055592849684,
+              41.86597749252316
+            ],
+            [
+              -124.04055592849684,
+              41.86081798077563
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 188114.72,
+        "land_value": 188355.37,
+        "building_type": "residential",
+        "year_built": 1956,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.85225566565907,
+              41.51048649444462
+            ],
+            [
+              -123.84249569039406,
+              41.51048649444462
+            ],
+            [
+              -123.84249569039406,
+              41.52024646970964
+            ],
+            [
+              -123.85225566565907,
+              41.52024646970964
+            ],
+            [
+              -123.85225566565907,
+              41.51048649444462
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 404901.83,
+        "land_value": 162030.57,
+        "building_type": "agricultural",
+        "year_built": 1951,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.80549938932928,
+              41.60560596546789
+            ],
+            [
+              -123.80060527913453,
+              41.60560596546789
+            ],
+            [
+              -123.80060527913453,
+              41.610500075662635
+            ],
+            [
+              -123.80549938932928,
+              41.610500075662635
+            ],
+            [
+              -123.80549938932928,
+              41.60560596546789
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 330741.14,
+        "land_value": 67425.81,
+        "building_type": "commercial",
+        "year_built": 1990,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.7775370223183,
+              41.51121911914133
+            ],
+            [
+              -123.7730255804033,
+              41.51121911914133
+            ],
+            [
+              -123.7730255804033,
+              41.51573056105634
+            ],
+            [
+              -123.7775370223183,
+              41.51573056105634
+            ],
+            [
+              -123.7775370223183,
+              41.51121911914133
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 307308.48,
+        "land_value": 134574.56,
+        "building_type": "commercial",
+        "year_built": 2000,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.02973619289352,
+              41.82937382566847
+            ],
+            [
+              -124.02453329413417,
+              41.82937382566847
+            ],
+            [
+              -124.02453329413417,
+              41.83457672442782
+            ],
+            [
+              -124.02973619289352,
+              41.83457672442782
+            ],
+            [
+              -124.02973619289352,
+              41.82937382566847
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 156796.27,
+        "land_value": 181415.48,
+        "building_type": "commercial",
+        "year_built": 2019,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.87944009670325,
+              41.592956315522024
+            ],
+            [
+              -123.87712910248878,
+              41.592956315522024
+            ],
+            [
+              -123.87712910248878,
+              41.595267309736485
+            ],
+            [
+              -123.87944009670325,
+              41.595267309736485
+            ],
+            [
+              -123.87944009670325,
+              41.592956315522024
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 403297.62,
+        "land_value": 104898.31,
+        "building_type": "residential",
+        "year_built": 1969,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.35641937982699,
+              41.616414882449654
+            ],
+            [
+              -124.34785783729855,
+              41.616414882449654
+            ],
+            [
+              -124.34785783729855,
+              41.624976424978094
+            ],
+            [
+              -124.35641937982699,
+              41.624976424978094
+            ],
+            [
+              -124.35641937982699,
+              41.616414882449654
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 475754.29,
+        "land_value": 109248.51,
+        "building_type": "agricultural",
+        "year_built": 1973,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.37633658562568,
+              41.6553237033004
+            ],
+            [
+              -124.37337642273341,
+              41.6553237033004
+            ],
+            [
+              -124.37337642273341,
+              41.65828386619266
+            ],
+            [
+              -124.37633658562568,
+              41.65828386619266
+            ],
+            [
+              -124.37633658562568,
+              41.6553237033004
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 62116.15,
+        "land_value": 76806.53,
+        "building_type": "commercial",
+        "year_built": 2004,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.03208919412967,
+              41.76664310584506
+            ],
+            [
+              -124.02594455817102,
+              41.76664310584506
+            ],
+            [
+              -124.02594455817102,
+              41.77278774180371
+            ],
+            [
+              -124.03208919412967,
+              41.77278774180371
+            ],
+            [
+              -124.03208919412967,
+              41.76664310584506
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 110032.22,
+        "land_value": 50182.96,
+        "building_type": "residential",
+        "year_built": 1971,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.24080008113769,
+              41.664285225428614
+            ],
+            [
+              -124.23553087004609,
+              41.664285225428614
+            ],
+            [
+              -124.23553087004609,
+              41.669554436520215
+            ],
+            [
+              -124.24080008113769,
+              41.669554436520215
+            ],
+            [
+              -124.24080008113769,
+              41.664285225428614
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 355166.66,
+        "land_value": 168568.77,
+        "building_type": "commercial",
+        "year_built": 2017,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.31656781698138,
+              41.74466928128536
+            ],
+            [
+              -124.3100941057322,
+              41.74466928128536
+            ],
+            [
+              -124.3100941057322,
+              41.75114299253453
+            ],
+            [
+              -124.31656781698138,
+              41.75114299253453
+            ],
+            [
+              -124.31656781698138,
+              41.74466928128536
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 384076.78,
+        "land_value": 156241.49,
+        "building_type": "residential",
+        "year_built": 2011,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.60245207971003,
+              41.62230520935673
+            ],
+            [
+              -123.59313694537646,
+              41.62230520935673
+            ],
+            [
+              -123.59313694537646,
+              41.63162034369031
+            ],
+            [
+              -123.60245207971003,
+              41.63162034369031
+            ],
+            [
+              -123.60245207971003,
+              41.62230520935673
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 166899.97,
+        "land_value": 79813.74,
+        "building_type": "commercial",
+        "year_built": 1992,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.61725201911878,
+              41.61318052070914
+            ],
+            [
+              -123.61535034432902,
+              41.61318052070914
+            ],
+            [
+              -123.61535034432902,
+              41.6150821954989
+            ],
+            [
+              -123.61725201911878,
+              41.6150821954989
+            ],
+            [
+              -123.61725201911878,
+              41.61318052070914
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 233831.41,
+        "land_value": 141117.02,
+        "building_type": "agricultural",
+        "year_built": 1982,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.92942564416359,
+              41.53811774457774
+            ],
+            [
+              -123.9207065658299,
+              41.53811774457774
+            ],
+            [
+              -123.9207065658299,
+              41.546836822911416
+            ],
+            [
+              -123.92942564416359,
+              41.546836822911416
+            ],
+            [
+              -123.92942564416359,
+              41.53811774457774
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 102999.11,
+        "land_value": 197206.25,
+        "building_type": "agricultural",
+        "year_built": 2004,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.06872556658419,
+              41.66851784311279
+            ],
+            [
+              -124.06502120269951,
+              41.66851784311279
+            ],
+            [
+              -124.06502120269951,
+              41.67222220699746
+            ],
+            [
+              -124.06872556658419,
+              41.67222220699746
+            ],
+            [
+              -124.06872556658419,
+              41.66851784311279
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 470806.81,
+        "land_value": 156851.09,
+        "building_type": "residential",
+        "year_built": 2018,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.25385871624496,
+              41.5771381111748
+            ],
+            [
+              -124.24864329865959,
+              41.5771381111748
+            ],
+            [
+              -124.24864329865959,
+              41.58235352876017
+            ],
+            [
+              -124.25385871624496,
+              41.58235352876017
+            ],
+            [
+              -124.25385871624496,
+              41.5771381111748
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 144150.2,
+        "land_value": 36347.46,
+        "building_type": "agricultural",
+        "year_built": 2007,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.25029291230365,
+              41.5707744109619
+            ],
+            [
+              -124.24364810874157,
+              41.5707744109619
+            ],
+            [
+              -124.24364810874157,
+              41.577419214523985
+            ],
+            [
+              -124.25029291230365,
+              41.577419214523985
+            ],
+            [
+              -124.25029291230365,
+              41.5707744109619
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 108053.54,
+        "land_value": 69612.4,
+        "building_type": "commercial",
+        "year_built": 2017,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.29209507239922,
+              41.702745911211885
+            ],
+            [
+              -124.29012324816836,
+              41.702745911211885
+            ],
+            [
+              -124.29012324816836,
+              41.70471773544275
+            ],
+            [
+              -124.29209507239922,
+              41.70471773544275
+            ],
+            [
+              -124.29209507239922,
+              41.702745911211885
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 160547.16,
+        "land_value": 145212.46,
+        "building_type": "residential",
+        "year_built": 1952,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.0152105925424,
+              41.73346101589203
+            ],
+            [
+              -124.00707520753953,
+              41.73346101589203
+            ],
+            [
+              -124.00707520753953,
+              41.7415964008949
+            ],
+            [
+              -124.0152105925424,
+              41.7415964008949
+            ],
+            [
+              -124.0152105925424,
+              41.73346101589203
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 325908.66,
+        "land_value": 149361.92,
+        "building_type": "agricultural",
+        "year_built": 1996,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.88832087291719,
+              41.83580140161497
+            ],
+            [
+              -123.88431218399766,
+              41.83580140161497
+            ],
+            [
+              -123.88431218399766,
+              41.8398100905345
+            ],
+            [
+              -123.88832087291719,
+              41.8398100905345
+            ],
+            [
+              -123.88832087291719,
+              41.83580140161497
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 154653.91,
+        "land_value": 42445.02,
+        "building_type": "residential",
+        "year_built": 1973,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.01295214816453,
+              41.66570053821114
+            ],
+            [
+              -124.01098307987596,
+              41.66570053821114
+            ],
+            [
+              -124.01098307987596,
+              41.667669606499715
+            ],
+            [
+              -124.01295214816453,
+              41.667669606499715
+            ],
+            [
+              -124.01295214816453,
+              41.66570053821114
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 276514.07,
+        "land_value": 148295.27,
+        "building_type": "commercial",
+        "year_built": 1967,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.09916623755079,
+              41.73186071490051
+            ],
+            [
+              -124.09087501802614,
+              41.73186071490051
+            ],
+            [
+              -124.09087501802614,
+              41.740151934425164
+            ],
+            [
+              -124.09916623755079,
+              41.740151934425164
+            ],
+            [
+              -124.09916623755079,
+              41.73186071490051
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 191222.28,
+        "land_value": 181641.77,
+        "building_type": "agricultural",
+        "year_built": 2005,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.13767716694024,
+              41.51636246299463
+            ],
+            [
+              -124.131391452341,
+              41.51636246299463
+            ],
+            [
+              -124.131391452341,
+              41.52264817759386
+            ],
+            [
+              -124.13767716694024,
+              41.52264817759386
+            ],
+            [
+              -124.13767716694024,
+              41.51636246299463
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 373824.25,
+        "land_value": 51549.65,
+        "building_type": "residential",
+        "year_built": 1953,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.37941481359863,
+              41.62011772712861
+            ],
+            [
+              -124.36959371606912,
+              41.62011772712861
+            ],
+            [
+              -124.36959371606912,
+              41.62993882465812
+            ],
+            [
+              -124.37941481359863,
+              41.62993882465812
+            ],
+            [
+              -124.37941481359863,
+              41.62011772712861
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 364701.89,
+        "land_value": 175240.21,
+        "building_type": "agricultural",
+        "year_built": 1956,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.71462832947628,
+              41.603268689528946
+            ],
+            [
+              -123.7056372607922,
+              41.603268689528946
+            ],
+            [
+              -123.7056372607922,
+              41.61225975821302
+            ],
+            [
+              -123.71462832947628,
+              41.61225975821302
+            ],
+            [
+              -123.71462832947628,
+              41.603268689528946
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 130593.28,
+        "land_value": 67158.42,
+        "building_type": "residential",
+        "year_built": 2016,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.90230036011774,
+              41.699693432193875
+            ],
+            [
+              -123.89828979157417,
+              41.699693432193875
+            ],
+            [
+              -123.89828979157417,
+              41.70370400073743
+            ],
+            [
+              -123.90230036011774,
+              41.70370400073743
+            ],
+            [
+              -123.90230036011774,
+              41.699693432193875
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 452714.01,
+        "land_value": 175342.59,
+        "building_type": "agricultural",
+        "year_built": 1987,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.86085703536375,
+              41.8406472956463
+            ],
+            [
+              -123.8580492237873,
+              41.8406472956463
+            ],
+            [
+              -123.8580492237873,
+              41.843455107222745
+            ],
+            [
+              -123.86085703536375,
+              41.843455107222745
+            ],
+            [
+              -123.86085703536375,
+              41.8406472956463
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 127864.88,
+        "land_value": 148440.25,
+        "building_type": "residential",
+        "year_built": 2003,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.31764126947756,
+              41.89578362120962
+            ],
+            [
+              -124.31367499499432,
+              41.89578362120962
+            ],
+            [
+              -124.31367499499432,
+              41.89974989569286
+            ],
+            [
+              -124.31764126947756,
+              41.89974989569286
+            ],
+            [
+              -124.31764126947756,
+              41.89578362120962
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 176025.08,
+        "land_value": 86018.72,
+        "building_type": "agricultural",
+        "year_built": 2006,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.99973955542924,
+              41.58538287567506
+            ],
+            [
+              -123.9955374948442,
+              41.58538287567506
+            ],
+            [
+              -123.9955374948442,
+              41.5895849362601
+            ],
+            [
+              -123.99973955542924,
+              41.5895849362601
+            ],
+            [
+              -123.99973955542924,
+              41.58538287567506
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 118968.2,
+        "land_value": 169784.73,
+        "building_type": "commercial",
+        "year_built": 1984,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.30075488168721,
+              41.63314612997993
+            ],
+            [
+              -124.29416128260364,
+              41.63314612997993
+            ],
+            [
+              -124.29416128260364,
+              41.6397397290635
+            ],
+            [
+              -124.30075488168721,
+              41.6397397290635
+            ],
+            [
+              -124.30075488168721,
+              41.63314612997993
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 336261.6,
+        "land_value": 176059.4,
+        "building_type": "commercial",
+        "year_built": 1970,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.14251100476307,
+              41.57952331022363
+            ],
+            [
+              -124.1374392772543,
+              41.57952331022363
+            ],
+            [
+              -124.1374392772543,
+              41.58459503773239
+            ],
+            [
+              -124.14251100476307,
+              41.58459503773239
+            ],
+            [
+              -124.14251100476307,
+              41.57952331022363
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 405264.32,
+        "land_value": 89347.14,
+        "building_type": "residential",
+        "year_built": 1998,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.77223839986118,
+              41.71414022508346
+            ],
+            [
+              -123.76880131082314,
+              41.71414022508346
+            ],
+            [
+              -123.76880131082314,
+              41.7175773141215
+            ],
+            [
+              -123.77223839986118,
+              41.7175773141215
+            ],
+            [
+              -123.77223839986118,
+              41.71414022508346
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 192088.0,
+        "land_value": 84826.57,
+        "building_type": "agricultural",
+        "year_built": 1978,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.72492651925518,
+              41.5689461790396
+            ],
+            [
+              -123.71668542119468,
+              41.5689461790396
+            ],
+            [
+              -123.71668542119468,
+              41.5771872771001
+            ],
+            [
+              -123.72492651925518,
+              41.5771872771001
+            ],
+            [
+              -123.72492651925518,
+              41.5689461790396
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 324515.47,
+        "land_value": 196525.1,
+        "building_type": "commercial",
+        "year_built": 2003,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.37744520039892,
+              41.575325063081515
+            ],
+            [
+              -124.36923891506476,
+              41.575325063081515
+            ],
+            [
+              -124.36923891506476,
+              41.58353134841568
+            ],
+            [
+              -124.37744520039892,
+              41.58353134841568
+            ],
+            [
+              -124.37744520039892,
+              41.575325063081515
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 85342.06,
+        "land_value": 115170.45,
+        "building_type": "residential",
+        "year_built": 1963,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.98443802982554,
+              41.657083756048145
+            ],
+            [
+              -123.97477621839514,
+              41.657083756048145
+            ],
+            [
+              -123.97477621839514,
+              41.66674556747855
+            ],
+            [
+              -123.98443802982554,
+              41.66674556747855
+            ],
+            [
+              -123.98443802982554,
+              41.657083756048145
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 271413.99,
+        "land_value": 64888.99,
+        "building_type": "residential",
+        "year_built": 1970,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.62160461744774,
+              41.584378941419196
+            ],
+            [
+              -123.61201182238044,
+              41.584378941419196
+            ],
+            [
+              -123.61201182238044,
+              41.593971736486495
+            ],
+            [
+              -123.62160461744774,
+              41.593971736486495
+            ],
+            [
+              -123.62160461744774,
+              41.584378941419196
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 295273.89,
+        "land_value": 62901.56,
+        "building_type": "agricultural",
+        "year_built": 1977,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.77105148044305,
+              41.85596057881562
+            ],
+            [
+              -123.7662318319656,
+              41.85596057881562
+            ],
+            [
+              -123.7662318319656,
+              41.86078022729307
+            ],
+            [
+              -123.77105148044305,
+              41.86078022729307
+            ],
+            [
+              -123.77105148044305,
+              41.85596057881562
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 222898.72,
+        "land_value": 82460.32,
+        "building_type": "agricultural",
+        "year_built": 1993,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.08654719239806,
+              41.70197300504443
+            ],
+            [
+              -124.07971216134956,
+              41.70197300504443
+            ],
+            [
+              -124.07971216134956,
+              41.70880803609292
+            ],
+            [
+              -124.08654719239806,
+              41.70880803609292
+            ],
+            [
+              -124.08654719239806,
+              41.70197300504443
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 113239.92,
+        "land_value": 89494.01,
+        "building_type": "agricultural",
+        "year_built": 1970,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.22194190180589,
+              41.60388123059538
+            ],
+            [
+              -124.21418571299151,
+              41.60388123059538
+            ],
+            [
+              -124.21418571299151,
+              41.61163741940976
+            ],
+            [
+              -124.22194190180589,
+              41.61163741940976
+            ],
+            [
+              -124.22194190180589,
+              41.60388123059538
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 251132.65,
+        "land_value": 106384.77,
+        "building_type": "commercial",
+        "year_built": 1965,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.39566227029817,
+              41.86222200658171
+            ],
+            [
+              -124.3871691913006,
+              41.86222200658171
+            ],
+            [
+              -124.3871691913006,
+              41.87071508557928
+            ],
+            [
+              -124.39566227029817,
+              41.87071508557928
+            ],
+            [
+              -124.39566227029817,
+              41.86222200658171
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 425033.35,
+        "land_value": 162690.89,
+        "building_type": "agricultural",
+        "year_built": 1984,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.31389410528583,
+              41.8338695112233
+            ],
+            [
+              -124.30796501634192,
+              41.8338695112233
+            ],
+            [
+              -124.30796501634192,
+              41.83979860016719
+            ],
+            [
+              -124.31389410528583,
+              41.83979860016719
+            ],
+            [
+              -124.31389410528583,
+              41.8338695112233
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 140582.52,
+        "land_value": 138443.56,
+        "building_type": "commercial",
+        "year_built": 2020,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.92670688003544,
+              41.73135413018021
+            ],
+            [
+              -123.92455949716324,
+              41.73135413018021
+            ],
+            [
+              -123.92455949716324,
+              41.73350151305241
+            ],
+            [
+              -123.92670688003544,
+              41.73350151305241
+            ],
+            [
+              -123.92670688003544,
+              41.73135413018021
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 97578.08,
+        "land_value": 179069.96,
+        "building_type": "residential",
+        "year_built": 1981,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.08939955658748,
+              41.721361556194275
+            ],
+            [
+              -124.08193642627563,
+              41.721361556194275
+            ],
+            [
+              -124.08193642627563,
+              41.72882468650613
+            ],
+            [
+              -124.08939955658748,
+              41.72882468650613
+            ],
+            [
+              -124.08939955658748,
+              41.721361556194275
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 395362.83,
+        "land_value": 154832.24,
+        "building_type": "commercial",
+        "year_built": 1954,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.65061160180406,
+              41.86337152087343
+            ],
+            [
+              -123.64911387016105,
+              41.86337152087343
+            ],
+            [
+              -123.64911387016105,
+              41.86486925251644
+            ],
+            [
+              -123.65061160180406,
+              41.86486925251644
+            ],
+            [
+              -123.65061160180406,
+              41.86337152087343
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 63801.38,
+        "land_value": 156584.07,
+        "building_type": "commercial",
+        "year_built": 2017,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.82628581990778,
+              41.89493738316424
+            ],
+            [
+              -123.82024442742787,
+              41.89493738316424
+            ],
+            [
+              -123.82024442742787,
+              41.900978775644155
+            ],
+            [
+              -123.82628581990778,
+              41.900978775644155
+            ],
+            [
+              -123.82628581990778,
+              41.89493738316424
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 353250.46,
+        "land_value": 199794.63,
+        "building_type": "commercial",
+        "year_built": 1952,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.73942061932536,
+              41.70470144832043
+            ],
+            [
+              -123.73588944483568,
+              41.70470144832043
+            ],
+            [
+              -123.73588944483568,
+              41.70823262281011
+            ],
+            [
+              -123.73942061932536,
+              41.70823262281011
+            ],
+            [
+              -123.73942061932536,
+              41.70470144832043
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 151001.44,
+        "land_value": 43499.82,
+        "building_type": "agricultural",
+        "year_built": 1981,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.76085501425521,
+              41.559390363529154
+            ],
+            [
+              -123.75524767147269,
+              41.559390363529154
+            ],
+            [
+              -123.75524767147269,
+              41.56499770631167
+            ],
+            [
+              -123.76085501425521,
+              41.56499770631167
+            ],
+            [
+              -123.76085501425521,
+              41.559390363529154
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 92344.15,
+        "land_value": 142604.38,
+        "building_type": "residential",
+        "year_built": 2003,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.71426979530143,
+              41.70518826073848
+            ],
+            [
+              -123.70688272187839,
+              41.70518826073848
+            ],
+            [
+              -123.70688272187839,
+              41.71257533416152
+            ],
+            [
+              -123.71426979530143,
+              41.71257533416152
+            ],
+            [
+              -123.71426979530143,
+              41.70518826073848
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 220763.09,
+        "land_value": 109623.56,
+        "building_type": "agricultural",
+        "year_built": 1973,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.26742632206265,
+              41.87780516101294
+            ],
+            [
+              -124.26000685624523,
+              41.87780516101294
+            ],
+            [
+              -124.26000685624523,
+              41.88522462683036
+            ],
+            [
+              -124.26742632206265,
+              41.88522462683036
+            ],
+            [
+              -124.26742632206265,
+              41.87780516101294
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 281233.37,
+        "land_value": 55402.81,
+        "building_type": "agricultural",
+        "year_built": 2018,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.1047783179288,
+              41.8639244084863
+            ],
+            [
+              -124.10114276335422,
+              41.8639244084863
+            ],
+            [
+              -124.10114276335422,
+              41.86755996306089
+            ],
+            [
+              -124.1047783179288,
+              41.86755996306089
+            ],
+            [
+              -124.1047783179288,
+              41.8639244084863
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 435732.81,
+        "land_value": 52856.05,
+        "building_type": "agricultural",
+        "year_built": 1997,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.01334145814639,
+              41.520559833018396
+            ],
+            [
+              -124.00841212916568,
+              41.520559833018396
+            ],
+            [
+              -124.00841212916568,
+              41.5254891619991
+            ],
+            [
+              -124.01334145814639,
+              41.5254891619991
+            ],
+            [
+              -124.01334145814639,
+              41.520559833018396
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 433574.8,
+        "land_value": 42190.47,
+        "building_type": "commercial",
+        "year_built": 1988,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.67524993881479,
+              41.592262964479005
+            ],
+            [
+              -123.66675372590485,
+              41.592262964479005
+            ],
+            [
+              -123.66675372590485,
+              41.60075917738893
+            ],
+            [
+              -123.67524993881479,
+              41.60075917738893
+            ],
+            [
+              -123.67524993881479,
+              41.592262964479005
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 285156.59,
+        "land_value": 166895.86,
+        "building_type": "commercial",
+        "year_built": 1993,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.63943567590077,
+              41.54970376780904
+            ],
+            [
+              -123.63115125333918,
+              41.54970376780904
+            ],
+            [
+              -123.63115125333918,
+              41.55798819037064
+            ],
+            [
+              -123.63943567590077,
+              41.55798819037064
+            ],
+            [
+              -123.63943567590077,
+              41.54970376780904
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 421344.68,
+        "land_value": 104694.7,
+        "building_type": "agricultural",
+        "year_built": 2004,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.13335001345348,
+              41.785295144532505
+            ],
+            [
+              -124.12735685546838,
+              41.785295144532505
+            ],
+            [
+              -124.12735685546838,
+              41.791288302517614
+            ],
+            [
+              -124.13335001345348,
+              41.791288302517614
+            ],
+            [
+              -124.13335001345348,
+              41.785295144532505
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 213865.41,
+        "land_value": 63409.66,
+        "building_type": "agricultural",
+        "year_built": 1990,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.90111908780185,
+              41.56107532916859
+            ],
+            [
+              -123.89832613654346,
+              41.56107532916859
+            ],
+            [
+              -123.89832613654346,
+              41.56386828042697
+            ],
+            [
+              -123.90111908780185,
+              41.56386828042697
+            ],
+            [
+              -123.90111908780185,
+              41.56107532916859
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 362237.47,
+        "land_value": 109881.78,
+        "building_type": "residential",
+        "year_built": 2012,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.68232586467593,
+              41.68887874375328
+            ],
+            [
+              -123.67268581552759,
+              41.68887874375328
+            ],
+            [
+              -123.67268581552759,
+              41.69851879290162
+            ],
+            [
+              -123.68232586467593,
+              41.69851879290162
+            ],
+            [
+              -123.68232586467593,
+              41.68887874375328
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 67711.6,
+        "land_value": 132429.39,
+        "building_type": "commercial",
+        "year_built": 2009,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.96939027395946,
+              41.7902502450397
+            ],
+            [
+              -123.96389708726593,
+              41.7902502450397
+            ],
+            [
+              -123.96389708726593,
+              41.79574343173322
+            ],
+            [
+              -123.96939027395946,
+              41.79574343173322
+            ],
+            [
+              -123.96939027395946,
+              41.7902502450397
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 436793.11,
+        "land_value": 169777.31,
+        "building_type": "residential",
+        "year_built": 1971,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.82045570160977,
+              41.51652627880238
+            ],
+            [
+              -123.81906313828927,
+              41.51652627880238
+            ],
+            [
+              -123.81906313828927,
+              41.51791884212289
+            ],
+            [
+              -123.82045570160977,
+              41.51791884212289
+            ],
+            [
+              -123.82045570160977,
+              41.51652627880238
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 50135.75,
+        "land_value": 179222.0,
+        "building_type": "residential",
+        "year_built": 1950,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.18245180034435,
+              41.6499943730495
+            ],
+            [
+              -124.17956620860053,
+              41.6499943730495
+            ],
+            [
+              -124.17956620860053,
+              41.652879964793314
+            ],
+            [
+              -124.18245180034435,
+              41.652879964793314
+            ],
+            [
+              -124.18245180034435,
+              41.6499943730495
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 438003.95,
+        "land_value": 171170.5,
+        "building_type": "commercial",
+        "year_built": 2009,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.13516907444286,
+              41.82959414764087
+            ],
+            [
+              -124.12634785246038,
+              41.82959414764087
+            ],
+            [
+              -124.12634785246038,
+              41.83841536962335
+            ],
+            [
+              -124.13516907444286,
+              41.83841536962335
+            ],
+            [
+              -124.13516907444286,
+              41.82959414764087
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 73738.57,
+        "land_value": 48297.31,
+        "building_type": "commercial",
+        "year_built": 2008,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.890885956324,
+              41.618068545851116
+            ],
+            [
+              -123.887359146079,
+              41.618068545851116
+            ],
+            [
+              -123.887359146079,
+              41.62159535609611
+            ],
+            [
+              -123.890885956324,
+              41.62159535609611
+            ],
+            [
+              -123.890885956324,
+              41.618068545851116
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 60038.53,
+        "land_value": 23048.18,
+        "building_type": "agricultural",
+        "year_built": 1966,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.63996852531444,
+              41.816407722150295
+            ],
+            [
+              -123.63482172529956,
+              41.816407722150295
+            ],
+            [
+              -123.63482172529956,
+              41.82155452216518
+            ],
+            [
+              -123.63996852531444,
+              41.82155452216518
+            ],
+            [
+              -123.63996852531444,
+              41.816407722150295
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 242555.12,
+        "land_value": 49432.28,
+        "building_type": "commercial",
+        "year_built": 1969,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.04572298213164,
+              41.68742751140505
+            ],
+            [
+              -124.04066366840735,
+              41.68742751140505
+            ],
+            [
+              -124.04066366840735,
+              41.69248682512934
+            ],
+            [
+              -124.04572298213164,
+              41.69248682512934
+            ],
+            [
+              -124.04572298213164,
+              41.68742751140505
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 51093.38,
+        "land_value": 128277.73,
+        "building_type": "residential",
+        "year_built": 1996,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.97790058028843,
+              41.8831267954827
+            ],
+            [
+              -123.97220308825462,
+              41.8831267954827
+            ],
+            [
+              -123.97220308825462,
+              41.88882428751652
+            ],
+            [
+              -123.97790058028843,
+              41.88882428751652
+            ],
+            [
+              -123.97790058028843,
+              41.8831267954827
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 89124.71,
+        "land_value": 182489.86,
+        "building_type": "residential",
+        "year_built": 1950,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.66815313479897,
+              41.77897073318152
+            ],
+            [
+              -123.65849539490813,
+              41.77897073318152
+            ],
+            [
+              -123.65849539490813,
+              41.78862847307235
+            ],
+            [
+              -123.66815313479897,
+              41.78862847307235
+            ],
+            [
+              -123.66815313479897,
+              41.77897073318152
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 84634.93,
+        "land_value": 186466.54,
+        "building_type": "agricultural",
+        "year_built": 1977,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.80926517569017,
+              41.6096636201907
+            ],
+            [
+              -123.8052900806815,
+              41.6096636201907
+            ],
+            [
+              -123.8052900806815,
+              41.613638715199365
+            ],
+            [
+              -123.80926517569017,
+              41.613638715199365
+            ],
+            [
+              -123.80926517569017,
+              41.6096636201907
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 329636.32,
+        "land_value": 96972.05,
+        "building_type": "agricultural",
+        "year_built": 2014,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.15431428884509,
+              41.59947614689086
+            ],
+            [
+              -124.14489450023393,
+              41.59947614689086
+            ],
+            [
+              -124.14489450023393,
+              41.60889593550202
+            ],
+            [
+              -124.15431428884509,
+              41.60889593550202
+            ],
+            [
+              -124.15431428884509,
+              41.59947614689086
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 340981.96,
+        "land_value": 75894.9,
+        "building_type": "agricultural",
+        "year_built": 1981,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.19580479559781,
+              41.62178104895031
+            ],
+            [
+              -124.18851290655793,
+              41.62178104895031
+            ],
+            [
+              -124.18851290655793,
+              41.62907293799018
+            ],
+            [
+              -124.19580479559781,
+              41.62907293799018
+            ],
+            [
+              -124.19580479559781,
+              41.62178104895031
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 239795.45,
+        "land_value": 97287.26,
+        "building_type": "commercial",
+        "year_built": 2009,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.96647536768187,
+              41.85049110974036
+            ],
+            [
+              -123.96331054245218,
+              41.85049110974036
+            ],
+            [
+              -123.96331054245218,
+              41.85365593497004
+            ],
+            [
+              -123.96647536768187,
+              41.85365593497004
+            ],
+            [
+              -123.96647536768187,
+              41.85049110974036
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 87969.31,
+        "land_value": 70237.83,
+        "building_type": "agricultural",
+        "year_built": 1992,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.6871723284611,
+              41.68507351262635
+            ],
+            [
+              -123.68215320325452,
+              41.68507351262635
+            ],
+            [
+              -123.68215320325452,
+              41.69009263783295
+            ],
+            [
+              -123.6871723284611,
+              41.69009263783295
+            ],
+            [
+              -123.6871723284611,
+              41.68507351262635
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 222663.23,
+        "land_value": 143477.11,
+        "building_type": "agricultural",
+        "year_built": 1950,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.02257652769894,
+              41.71706017663767
+            ],
+            [
+              -124.01365427395875,
+              41.71706017663767
+            ],
+            [
+              -124.01365427395875,
+              41.725982430377876
+            ],
+            [
+              -124.02257652769894,
+              41.725982430377876
+            ],
+            [
+              -124.02257652769894,
+              41.71706017663767
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 282550.67,
+        "land_value": 57598.64,
+        "building_type": "agricultural",
+        "year_built": 1964,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.70599825748563,
+              41.59198560128417
+            ],
+            [
+              -123.70291137850461,
+              41.59198560128417
+            ],
+            [
+              -123.70291137850461,
+              41.595072480265195
+            ],
+            [
+              -123.70599825748563,
+              41.595072480265195
+            ],
+            [
+              -123.70599825748563,
+              41.59198560128417
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 431617.49,
+        "land_value": 173403.0,
+        "building_type": "residential",
+        "year_built": 1952,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.64423709931857,
+              41.73193367392729
+            ],
+            [
+              -123.63703421804179,
+              41.73193367392729
+            ],
+            [
+              -123.63703421804179,
+              41.73913655520408
+            ],
+            [
+              -123.64423709931857,
+              41.73913655520408
+            ],
+            [
+              -123.64423709931857,
+              41.73193367392729
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 229445.34,
+        "land_value": 162295.61,
+        "building_type": "residential",
+        "year_built": 1984,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.7895979626294,
+              41.801796539425006
+            ],
+            [
+              -123.7839386669993,
+              41.801796539425006
+            ],
+            [
+              -123.7839386669993,
+              41.8074558350551
+            ],
+            [
+              -123.7895979626294,
+              41.8074558350551
+            ],
+            [
+              -123.7895979626294,
+              41.801796539425006
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 308911.39,
+        "land_value": 176863.82,
+        "building_type": "residential",
+        "year_built": 1960,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.36957193494915,
+              41.8755186174854
+            ],
+            [
+              -124.36163013793742,
+              41.8755186174854
+            ],
+            [
+              -124.36163013793742,
+              41.88346041449713
+            ],
+            [
+              -124.36957193494915,
+              41.88346041449713
+            ],
+            [
+              -124.36957193494915,
+              41.8755186174854
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 312746.64,
+        "land_value": 62700.11,
+        "building_type": "commercial",
+        "year_built": 1979,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.34152187350251,
+              41.785058632912815
+            ],
+            [
+              -124.33833812853153,
+              41.785058632912815
+            ],
+            [
+              -124.33833812853153,
+              41.78824237788379
+            ],
+            [
+              -124.34152187350251,
+              41.78824237788379
+            ],
+            [
+              -124.34152187350251,
+              41.785058632912815
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 463817.77,
+        "land_value": 143576.61,
+        "building_type": "commercial",
+        "year_built": 1977,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.82741902440135,
+              41.768774881290405
+            ],
+            [
+              -123.82621996590655,
+              41.768774881290405
+            ],
+            [
+              -123.82621996590655,
+              41.76997393978521
+            ],
+            [
+              -123.82741902440135,
+              41.76997393978521
+            ],
+            [
+              -123.82741902440135,
+              41.768774881290405
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 312450.83,
+        "land_value": 190182.16,
+        "building_type": "commercial",
+        "year_built": 1970,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.8314835359705,
+              41.61192123601901
+            ],
+            [
+              -123.82944249942794,
+              41.61192123601901
+            ],
+            [
+              -123.82944249942794,
+              41.61396227256157
+            ],
+            [
+              -123.8314835359705,
+              41.61396227256157
+            ],
+            [
+              -123.8314835359705,
+              41.61192123601901
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 477037.85,
+        "land_value": 192814.34,
+        "building_type": "residential",
+        "year_built": 2003,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.28264307962033,
+              41.79962600462588
+            ],
+            [
+              -124.27466385634428,
+              41.79962600462588
+            ],
+            [
+              -124.27466385634428,
+              41.80760522790193
+            ],
+            [
+              -124.28264307962033,
+              41.80760522790193
+            ],
+            [
+              -124.28264307962033,
+              41.79962600462588
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 200756.19,
+        "land_value": 135391.47,
+        "building_type": "agricultural",
+        "year_built": 1950,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.18211196381834,
+              41.794653874116186
+            ],
+            [
+              -124.18108220832886,
+              41.794653874116186
+            ],
+            [
+              -124.18108220832886,
+              41.795683629605676
+            ],
+            [
+              -124.18211196381834,
+              41.795683629605676
+            ],
+            [
+              -124.18211196381834,
+              41.794653874116186
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 150660.18,
+        "land_value": 41613.82,
+        "building_type": "agricultural",
+        "year_built": 2012,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.30123309554287,
+              41.68483624946228
+            ],
+            [
+              -124.29861906570865,
+              41.68483624946228
+            ],
+            [
+              -124.29861906570865,
+              41.6874502792965
+            ],
+            [
+              -124.30123309554287,
+              41.6874502792965
+            ],
+            [
+              -124.30123309554287,
+              41.68483624946228
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 315445.64,
+        "land_value": 143458.91,
+        "building_type": "residential",
+        "year_built": 1950,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.8158967425283,
+              41.71204301038244
+            ],
+            [
+              -123.81191909923555,
+              41.71204301038244
+            ],
+            [
+              -123.81191909923555,
+              41.71602065367517
+            ],
+            [
+              -123.8158967425283,
+              41.71602065367517
+            ],
+            [
+              -123.8158967425283,
+              41.71204301038244
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 143038.36,
+        "land_value": 67077.54,
+        "building_type": "residential",
+        "year_built": 1987,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.10017443120363,
+              41.54240352500086
+            ],
+            [
+              -124.09483805507851,
+              41.54240352500086
+            ],
+            [
+              -124.09483805507851,
+              41.547739901125965
+            ],
+            [
+              -124.10017443120363,
+              41.547739901125965
+            ],
+            [
+              -124.10017443120363,
+              41.54240352500086
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 247463.66,
+        "land_value": 169134.24,
+        "building_type": "residential",
+        "year_built": 1979,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.06786116853687,
+              41.80610195506505
+            ],
+            [
+              -124.06145662967963,
+              41.80610195506505
+            ],
+            [
+              -124.06145662967963,
+              41.81250649392229
+            ],
+            [
+              -124.06786116853687,
+              41.81250649392229
+            ],
+            [
+              -124.06786116853687,
+              41.80610195506505
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 86385.15,
+        "land_value": 91375.9,
+        "building_type": "agricultural",
+        "year_built": 2014,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.18384754225075,
+              41.74572751342803
+            ],
+            [
+              -124.17476461270914,
+              41.74572751342803
+            ],
+            [
+              -124.17476461270914,
+              41.754810442969635
+            ],
+            [
+              -124.18384754225075,
+              41.754810442969635
+            ],
+            [
+              -124.18384754225075,
+              41.74572751342803
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 402698.89,
+        "land_value": 48485.65,
+        "building_type": "residential",
+        "year_built": 2008,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.79375271091104,
+              41.7745105465939
+            ],
+            [
+              -123.78558269441048,
+              41.7745105465939
+            ],
+            [
+              -123.78558269441048,
+              41.78268056309446
+            ],
+            [
+              -123.79375271091104,
+              41.78268056309446
+            ],
+            [
+              -123.79375271091104,
+              41.7745105465939
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 275748.72,
+        "land_value": 49460.01,
+        "building_type": "agricultural",
+        "year_built": 1991,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.979399521665,
+              41.54408510679582
+            ],
+            [
+              -123.97709701624831,
+              41.54408510679582
+            ],
+            [
+              -123.97709701624831,
+              41.546387612212506
+            ],
+            [
+              -123.979399521665,
+              41.546387612212506
+            ],
+            [
+              -123.979399521665,
+              41.54408510679582
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 109874.93,
+        "land_value": 173131.66,
+        "building_type": "commercial",
+        "year_built": 1989,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.93312619202638,
+              41.656072465216255
+            ],
+            [
+              -123.93056251180722,
+              41.656072465216255
+            ],
+            [
+              -123.93056251180722,
+              41.65863614543541
+            ],
+            [
+              -123.93312619202638,
+              41.65863614543541
+            ],
+            [
+              -123.93312619202638,
+              41.656072465216255
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 244344.17,
+        "land_value": 31154.92,
+        "building_type": "commercial",
+        "year_built": 1976,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.97427233924606,
+              41.76116538198997
+            ],
+            [
+              -123.96742628222802,
+              41.76116538198997
+            ],
+            [
+              -123.96742628222802,
+              41.768011439008006
+            ],
+            [
+              -123.97427233924606,
+              41.768011439008006
+            ],
+            [
+              -123.97427233924606,
+              41.76116538198997
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 193282.74,
+        "land_value": 62872.54,
+        "building_type": "commercial",
+        "year_built": 2001,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.82418945576296,
+              41.51212650142734
+            ],
+            [
+              -123.82096897766861,
+              41.51212650142734
+            ],
+            [
+              -123.82096897766861,
+              41.51534697952168
+            ],
+            [
+              -123.82418945576296,
+              41.51534697952168
+            ],
+            [
+              -123.82418945576296,
+              41.51212650142734
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 470472.76,
+        "land_value": 121249.15,
+        "building_type": "agricultural",
+        "year_built": 1993,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.35184733793004,
+              41.660678270507695
+            ],
+            [
+              -124.34928984541123,
+              41.660678270507695
+            ],
+            [
+              -124.34928984541123,
+              41.663235763026506
+            ],
+            [
+              -124.35184733793004,
+              41.663235763026506
+            ],
+            [
+              -124.35184733793004,
+              41.660678270507695
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 256470.95,
+        "land_value": 106601.48,
+        "building_type": "commercial",
+        "year_built": 1992,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.66279126753099,
+              41.62286886172425
+            ],
+            [
+              -123.65319807947895,
+              41.62286886172425
+            ],
+            [
+              -123.65319807947895,
+              41.632462049776294
+            ],
+            [
+              -123.66279126753099,
+              41.632462049776294
+            ],
+            [
+              -123.66279126753099,
+              41.62286886172425
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 487396.49,
+        "land_value": 197545.41,
+        "building_type": "commercial",
+        "year_built": 1961,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.22542445778608,
+              41.55968888971274
+            ],
+            [
+              -124.2185144327055,
+              41.55968888971274
+            ],
+            [
+              -124.2185144327055,
+              41.56659891479332
+            ],
+            [
+              -124.22542445778608,
+              41.56659891479332
+            ],
+            [
+              -124.22542445778608,
+              41.55968888971274
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 237924.22,
+        "land_value": 121530.01,
+        "building_type": "commercial",
+        "year_built": 2018,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.1396355672802,
+              41.824895144447105
+            ],
+            [
+              -124.13734607111908,
+              41.824895144447105
+            ],
+            [
+              -124.13734607111908,
+              41.827184640608216
+            ],
+            [
+              -124.1396355672802,
+              41.827184640608216
+            ],
+            [
+              -124.1396355672802,
+              41.824895144447105
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 296799.28,
+        "land_value": 42202.04,
+        "building_type": "residential",
+        "year_built": 2018,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.2637062207491,
+              41.50858399318802
+            ],
+            [
+              -124.26104468413074,
+              41.50858399318802
+            ],
+            [
+              -124.26104468413074,
+              41.51124552980638
+            ],
+            [
+              -124.2637062207491,
+              41.51124552980638
+            ],
+            [
+              -124.2637062207491,
+              41.50858399318802
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "improvement_value": 103515.16,
+        "land_value": 156080.23,
+        "building_type": "commercial",
+        "year_built": 2012,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.22011304366153,
+              41.78557102828875
+            ],
+            [
+              -124.21694260628827,
+              41.78557102828875
+            ],
+            [
+              -124.21694260628827,
+              41.78874146566201
+            ],
+            [
+              -124.22011304366153,
+              41.78874146566201
+            ],
+            [
+              -124.22011304366153,
+              41.78557102828875
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

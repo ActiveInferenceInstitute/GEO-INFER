@@ -3,9 +3,9 @@
 # Core analysis settings
 analysis_settings:
   target_counties:
-    CA: ["Lassen"]
-    OR: []
-    WA: []
+    CA:
+      - "Del Norte"  # Focus only on Del Norte county
+    OR: []  # Remove Oregon counties for now
   
   active_modules:
     - zoning
@@ -14,78 +14,47 @@ analysis_settings:
     - improvements
   
   h3_resolution: 8
-  real_time_integration: false
+  enable_spatial_analysis: true
+  enable_visualization: true
+  enable_dashboard: true
   
-  # Spatial analysis configuration
-  spatial_analysis:
-    buffer_distance: 1000  # meters
-    proximity_analysis: true
-    multi_overlay: true
-    correlation_analysis: true
-    hotspot_detection: true
-    clustering_enabled: true
-    spatial_autocorrelation: true
+  # Enhanced logging for empirical data assessment
+  logging:
+    level: "INFO"
+    empirical_data_tracking: true
+    data_quality_assessment: true
+    spatial_variability_analysis: true
+    detailed_module_logging: true
+
+visualization:
+  center: [41.5, -123.5]  # Del Norte county center
+  zoom: 10  # Closer zoom for county-level analysis
+  layers:
+    - redevelopment_potential
+    - zoning_data
+    - current_use_data
+    - ownership_data
+    - improvements_data
   
-  # Data source management
-  data_sources:
-    caching_enabled: true
-    cache_duration: 86400  # 24 hours
-    cache_directory: "./cache"
-    fallback_mode: true
-    api_rate_limits:
-      requests_per_minute: 60
-      requests_per_hour: 1000
-    retry_settings:
-      max_retries: 3
-      retry_delay: 1  # seconds
-      exponential_backoff: true
+  # Enhanced visualization settings for empirical data
+  empirical_data_visualization:
+    show_data_sources: true
+    show_data_quality_indicators: true
+    show_spatial_variability: true
+    color_by_data_source: true
+    highlight_empirical_vs_synthetic: true
+
+spatial_analysis:
+  enable_correlation_analysis: true
+  enable_hotspot_detection: true
+  enable_spatial_relationships: true
   
-  # Visualization configuration
-  visualization:
-    base_map: "CartoDB positron"
-    default_zoom: 7
-    center: [40.5, -120.5]  # Center of Lassen County area
-    layers:
-      zoning:
-        color: "#1f77b4"
-        opacity: 0.6
-        popup_fields: ["zone_type", "acres", "redevelopment_score"]
-      current_use:
-        color: "#2ca02c"
-        opacity: 0.6
-        popup_fields: ["crop_type", "intensity", "water_usage"]
-      water:
-        color: "#d62728"
-        opacity: 0.6
-        popup_fields: ["water_source", "availability", "rights"]
-      ownership:
-        color: "#ff7f0e"
-        opacity: 0.6
-        popup_fields: ["owner_type", "parcel_count", "concentration"]
-      redevelopment:
-        color: "#9467bd"
-        opacity: 0.7
-        popup_fields: ["potential_score", "ranking", "factors"]
-    export_formats: ["geojson", "csv", "json", "html"]
-    
-  # Error handling and validation
-  error_handling:
-    strict_mode: false
-    log_level: "INFO"
-    continue_on_module_failure: true
-    data_validation:
-      geometry_validation: true
-      attribute_validation: true
-      coordinate_system_validation: true
-      h3_validity_check: true
-    
-  # Performance optimization
-  performance:
-    parallel_processing: true
-    max_workers: 4
-    memory_limit_mb: 2048
-    chunk_size: 1000
-    lazy_loading: true
+  # Empirical data analysis settings
+  empirical_analysis:
+    assess_data_coverage: true
+    measure_spatial_variability: true
+    validate_data_quality: true
+    track_data_sources: true
 
 # Module-specific configurations
 zoning:
@@ -237,6 +206,39 @@ county_boundaries:
       - "Susan River"
       - "Honey Lake"
       - "Eagle Lake"
+
+  ca_del_norte:
+    name: "Del Norte County, CA"
+    fips_code: "06015"
+    bounds:
+      north: 42.0
+      south: 41.4
+      east: -123.5
+      west: -124.5
+    data_sources:
+      - name: "US Census TIGER/Line"
+        url: "https://www2.census.gov/geo/tiger/TIGER2022/COUNTY/tl_2022_06_county.zip"
+        format: "shapefile"
+        priority: 1
+      - name: "California State Boundary"
+        url: "https://data.ca.gov/dataset/california-county-boundaries"
+        format: "geojson"
+        priority: 2
+    geometry_file: "ca_del_norte_boundary.geojson"
+    
+    # County-specific settings
+    agricultural_focus_areas:
+      - "Smith River Valley"
+      - "Crescent City Area"
+      - "Klamath River Valley"
+    conservation_areas:
+      - "Redwood National and State Parks"
+      - "Six Rivers National Forest"
+      - "Del Norte Coast Redwoods State Park"
+    major_water_sources:
+      - "Smith River"
+      - "Klamath River"
+      - "Crescent City Harbor"
 
 # Quality assurance and validation
 quality_assurance:

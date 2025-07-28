@@ -282,7 +282,7 @@ class RadiationSurveillanceSystem:
         
         for h3_index, stats in self.inference_results["cell_statistics"].items():
             # Get H3 cell boundary
-            boundary = h3.cell_to_latlng_boundary(h3_index, geo_json=True)
+            boundary = h3.cell_to_boundary(h3_index)
             
             feature = {
                 "type": "Feature",

@@ -9,6 +9,7 @@ import os
 import sys
 import subprocess
 from typing import Dict, List, Optional, Tuple, Union, Any
+import time
 
 from ..core.repos import get_repo_path
 
@@ -246,19 +247,117 @@ class H3DataLoader:
                     f"from cli.cliexec_load import CliExecLoad; loader = CliExecLoad(); loader.load('{config_path}')"
                 ]
             
-                # Run the command
+                # Run the command with enhanced logging
                 try:
-                    logger.info(f"Running OSC CLI data loading process (timeout: 600s)...")
-                    process = subprocess.run(
+                    logger.info(f"🚀 Starting OSC CLI data loading process...")
+                    logger.info(f"📁 Input file: {input_file}")
+                    logger.info(f"📁 Output file: {output_file}")
+                    logger.info(f"🎯 Resolution: {resolution}")
+                    logger.info(f"📊 Features to process: {len(csv_data)}")
+                    logger.info(f"⏱️ Timeout: 120 seconds (2 minutes)")
+                    
+                    # Start the process with real-time logging
+                    process = subprocess.Popen(
                         cmd,
                         stdout=subprocess.PIPE,
                         stderr=subprocess.PIPE,
-                        check=False,
                         env=env,
-                        timeout=600  # 10 minute timeout to prevent hanging
+                        universal_newlines=True,
+                        bufsize=1
                     )
+                    
+                    # Monitor the process with real-time output
+                    start_time = time.time()
+                    logger.info(f"⏳ OSC CLI process started at {time.strftime('%H:%M:%S')}")
+                    
+                    # Read output in real-time
+                    stdout_lines = []
+                    stderr_lines = []
+                    
+                    # Track repeated error messages to detect infinite loops
+                    error_patterns = {}
+                    max_repeated_errors = 5  # Reduced from 10 to 5 for faster detection
+                    
+                    while process.poll() is None:
+                        # Check for timeout
+                        elapsed = time.time() - start_time
+                        if elapsed > 120:  # 2 minute timeout
+                            logger.error(f"⏰ OSC H3 loader timed out after 2 minutes")
+                            process.terminate()
+                            try:
+                                process.wait(timeout=10)  # Give it 10 seconds to terminate
+                            except subprocess.TimeoutExpired:
+                                process.kill()  # Force kill if it doesn't terminate
+                            return False
+                        
+                        # Read available output
+                        stdout_line = process.stdout.readline()
+                        if stdout_line:
+                            stdout_line = stdout_line.strip()
+                            stdout_lines.append(stdout_line)
+                            logger.info(f"📤 OSC CLI: {stdout_line}")
+                        
+                        stderr_line = process.stderr.readline()
+                        if stderr_line:
+                            stderr_line = stderr_line.strip()
+                            stderr_lines.append(stderr_line)
+                            logger.warning(f"⚠️ OSC CLI Error: {stderr_line}")
+                            
+                            # Track repeated error patterns to detect infinite loops
+                            if "index" in stderr_line and "out of bounds" in stderr_line:
+                                error_key = "index_out_of_bounds"
+                                error_patterns[error_key] = error_patterns.get(error_key, 0) + 1
+                                
+                                logger.info(f"🔄 Error pattern count: {error_patterns[error_key]}/{max_repeated_errors}")
+                                
+                                if error_patterns[error_key] >= max_repeated_errors:
+                                    logger.error(f"🔄 Detected infinite loop in OSC CLI after {error_patterns[error_key]} repeated errors")
+                                    logger.error(f"⏱️ Process ran for {elapsed:.1f} seconds before detecting loop")
+                                    process.terminate()
+                                    try:
+                                        process.wait(timeout=5)  # Give it 5 seconds to terminate
+                                    except subprocess.TimeoutExpired:
+                                        process.kill()  # Force kill if it doesn't terminate
+                                    return False
+                        
+                        # Log progress every 10 seconds
+                        if int(elapsed) % 10 == 0 and elapsed > 0:
+                            logger.info(f"⏳ OSC CLI still running... ({int(elapsed)}s elapsed)")
+                            
+                            # If we've been running for more than 30 seconds with no progress, consider it stuck
+                            if elapsed > 30 and len(stdout_lines) < 5:
+                                logger.warning(f"⚠️ OSC CLI appears to be stuck after {elapsed:.1f}s with minimal output")
+                                logger.warning(f"📊 Output lines: {len(stdout_lines)}, Error lines: {len(stderr_lines)}")
+                                
+                                # If we have many error lines but few output lines, it's likely stuck
+                                if len(stderr_lines) > 20 and len(stdout_lines) < 10:
+                                    logger.error(f"🔄 Detected stuck OSC CLI process - terminating")
+                                    process.terminate()
+                                    try:
+                                        process.wait(timeout=5)
+                                    except subprocess.TimeoutExpired:
+                                        process.kill()
+                                    return False
+                    
+                    # Get final return code
+                    return_code = process.poll()
+                    elapsed = time.time() - start_time
+                    
+                    if return_code == 0:
+                        logger.info(f"✅ OSC CLI completed successfully in {elapsed:.1f} seconds")
+                        logger.info(f"📊 Processed {len(csv_data)} features")
+                        return True
+                    else:
+                        logger.error(f"❌ OSC CLI failed with return code {return_code}")
+                        logger.error(f"⏱️ Process ran for {elapsed:.1f} seconds")
+                        if stderr_lines:
+                            logger.error(f"🔍 Error output:")
+                            for line in stderr_lines[-5:]:  # Show last 5 error lines
+                                logger.error(f"   {line}")
+                        return False
+                        
                 except subprocess.TimeoutExpired:
-                    logger.error(f"OSC H3 loader timed out after 10 minutes")
+                    logger.error(f"⏰ OSC H3 loader timed out after 2 minutes")
                     # Clean up temporary files on timeout
                     try:
                         if csv_file and os.path.exists(csv_file.name):
@@ -269,7 +368,7 @@ class H3DataLoader:
                         pass
                     return False
                 except Exception as e:
-                    logger.error(f"Error running OSC CLI: {e}")
+                    logger.error(f"❌ Error running OSC CLI: {e}")
                     # Clean up temporary files on error
                     try:
                         if csv_file and os.path.exists(csv_file.name):

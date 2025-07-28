@@ -307,7 +307,7 @@ class SoilSensorNetwork:
             # Create H3 cell layer
             for h3_index in h3_cells:
                 # Get cell boundary
-                boundary = h3.cell_to_latlng_boundary(h3_index, geo_json=True)
+                boundary = h3.cell_to_boundary(h3_index)
                 
                 # Calculate average soil moisture for this cell
                 cell_measurements = [

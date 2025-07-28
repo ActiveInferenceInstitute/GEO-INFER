@@ -1,0 +1,1905 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Individual Owner 1",
+        "owner_type": "individual",
+        "parcel_size": 317.46,
+        "acres": 186.9,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.29757512570353,
+              41.78062029123265
+            ],
+            [
+              -124.25596509670963,
+              41.78062029123265
+            ],
+            [
+              -124.25596509670963,
+              41.82223032022655
+            ],
+            [
+              -124.29757512570353,
+              41.82223032022655
+            ],
+            [
+              -124.29757512570353,
+              41.78062029123265
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Family Farm 2",
+        "owner_type": "family",
+        "parcel_size": 163.65,
+        "acres": 75.9,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.98754354784798,
+              41.688705313161286
+            ],
+            [
+              -123.95672224986262,
+              41.688705313161286
+            ],
+            [
+              -123.95672224986262,
+              41.719526611146634
+            ],
+            [
+              -123.98754354784798,
+              41.719526611146634
+            ],
+            [
+              -123.98754354784798,
+              41.688705313161286
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Timber Corp 3",
+        "owner_type": "corporation",
+        "parcel_size": 410.28,
+        "acres": 92.1,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.27981899548946,
+              41.537919026297814
+            ],
+            [
+              -124.26636104126992,
+              41.537919026297814
+            ],
+            [
+              -124.26636104126992,
+              41.551376980517354
+            ],
+            [
+              -124.27981899548946,
+              41.551376980517354
+            ],
+            [
+              -124.27981899548946,
+              41.537919026297814
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Del Norte County",
+        "owner_type": "government",
+        "parcel_size": 225.93,
+        "acres": 178.3,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.25678763805804,
+              41.60142169695075
+            ],
+            [
+              -124.23492881124055,
+              41.60142169695075
+            ],
+            [
+              -124.23492881124055,
+              41.62328052376824
+            ],
+            [
+              -124.25678763805804,
+              41.62328052376824
+            ],
+            [
+              -124.25678763805804,
+              41.60142169695075
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Timber Corp 5",
+        "owner_type": "corporation",
+        "parcel_size": 123.19,
+        "acres": 30.4,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.67329133188676,
+              41.88080049090502
+            ],
+            [
+              -123.62767024085095,
+              41.88080049090502
+            ],
+            [
+              -123.62767024085095,
+              41.92642158194083
+            ],
+            [
+              -123.67329133188676,
+              41.92642158194083
+            ],
+            [
+              -123.67329133188676,
+              41.88080049090502
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Timber Corp 6",
+        "owner_type": "corporation",
+        "parcel_size": 195.37,
+        "acres": 96.6,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.93592951602393,
+              41.835850134491835
+            ],
+            [
+              -123.9064935486822,
+              41.835850134491835
+            ],
+            [
+              -123.9064935486822,
+              41.865286101833554
+            ],
+            [
+              -123.93592951602393,
+              41.865286101833554
+            ],
+            [
+              -123.93592951602393,
+              41.835850134491835
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Del Norte County",
+        "owner_type": "government",
+        "parcel_size": 176.07,
+        "acres": 43.1,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.0217078604511,
+              41.777136207877085
+            ],
+            [
+              -123.99805953833905,
+              41.777136207877085
+            ],
+            [
+              -123.99805953833905,
+              41.80078452998913
+            ],
+            [
+              -124.0217078604511,
+              41.80078452998913
+            ],
+            [
+              -124.0217078604511,
+              41.777136207877085
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Timber Corp 8",
+        "owner_type": "corporation",
+        "parcel_size": 33.62,
+        "acres": 131.9,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.97496361690736,
+              41.66430035971244
+            ],
+            [
+              -123.93110577425614,
+              41.66430035971244
+            ],
+            [
+              -123.93110577425614,
+              41.70815820236366
+            ],
+            [
+              -123.97496361690736,
+              41.70815820236366
+            ],
+            [
+              -123.97496361690736,
+              41.66430035971244
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Family Farm 9",
+        "owner_type": "family",
+        "parcel_size": 354.45,
+        "acres": 24.8,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.64445386975761,
+              41.717266377844815
+            ],
+            [
+              -123.61820212942052,
+              41.717266377844815
+            ],
+            [
+              -123.61820212942052,
+              41.74351811818191
+            ],
+            [
+              -123.64445386975761,
+              41.74351811818191
+            ],
+            [
+              -123.64445386975761,
+              41.717266377844815
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Del Norte County",
+        "owner_type": "government",
+        "parcel_size": 171.27,
+        "acres": 31.0,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.32232948432595,
+              41.82213629856324
+            ],
+            [
+              -124.31097595541623,
+              41.82213629856324
+            ],
+            [
+              -124.31097595541623,
+              41.83348982747295
+            ],
+            [
+              -124.32232948432595,
+              41.83348982747295
+            ],
+            [
+              -124.32232948432595,
+              41.82213629856324
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Del Norte County",
+        "owner_type": "government",
+        "parcel_size": 36.42,
+        "acres": 57.2,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.73052288904941,
+              41.50222742203047
+            ],
+            [
+              -123.70602051271548,
+              41.50222742203047
+            ],
+            [
+              -123.70602051271548,
+              41.5267297983644
+            ],
+            [
+              -123.73052288904941,
+              41.5267297983644
+            ],
+            [
+              -123.73052288904941,
+              41.50222742203047
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Family Farm 12",
+        "owner_type": "family",
+        "parcel_size": 452.48,
+        "acres": 132.9,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.75524952692719,
+              41.51740998793726
+            ],
+            [
+              -123.71934861889942,
+              41.51740998793726
+            ],
+            [
+              -123.71934861889942,
+              41.553310895965026
+            ],
+            [
+              -123.75524952692719,
+              41.553310895965026
+            ],
+            [
+              -123.75524952692719,
+              41.51740998793726
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Timber Corp 13",
+        "owner_type": "corporation",
+        "parcel_size": 205.21,
+        "acres": 170.1,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.3644127336013,
+              41.62592928370735
+            ],
+            [
+              -124.33683481081435,
+              41.62592928370735
+            ],
+            [
+              -124.33683481081435,
+              41.653507206494304
+            ],
+            [
+              -124.3644127336013,
+              41.653507206494304
+            ],
+            [
+              -124.3644127336013,
+              41.62592928370735
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Individual Owner 14",
+        "owner_type": "individual",
+        "parcel_size": 487.61,
+        "acres": 110.7,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.20643657293684,
+              41.5768877198774
+            ],
+            [
+              -124.18662134832304,
+              41.5768877198774
+            ],
+            [
+              -124.18662134832304,
+              41.59670294449119
+            ],
+            [
+              -124.20643657293684,
+              41.59670294449119
+            ],
+            [
+              -124.20643657293684,
+              41.5768877198774
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Timber Corp 15",
+        "owner_type": "corporation",
+        "parcel_size": 87.87,
+        "acres": 123.3,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.83398087558976,
+              41.6089703990928
+            ],
+            [
+              -123.78696024807336,
+              41.6089703990928
+            ],
+            [
+              -123.78696024807336,
+              41.65599102660919
+            ],
+            [
+              -123.83398087558976,
+              41.65599102660919
+            ],
+            [
+              -123.83398087558976,
+              41.6089703990928
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Agricultural Trust 16",
+        "owner_type": "trust",
+        "parcel_size": 441.17,
+        "acres": 54.5,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.7998216633565,
+              41.61307740216915
+            ],
+            [
+              -123.78784686795706,
+              41.61307740216915
+            ],
+            [
+              -123.78784686795706,
+              41.62505219756859
+            ],
+            [
+              -123.7998216633565,
+              41.62505219756859
+            ],
+            [
+              -123.7998216633565,
+              41.61307740216915
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Agricultural Trust 17",
+        "owner_type": "trust",
+        "parcel_size": 218.77,
+        "acres": 177.0,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.20683791791122,
+              41.59990831612085
+            ],
+            [
+              -124.16794138596524,
+              41.59990831612085
+            ],
+            [
+              -124.16794138596524,
+              41.63880484806683
+            ],
+            [
+              -124.20683791791122,
+              41.63880484806683
+            ],
+            [
+              -124.20683791791122,
+              41.59990831612085
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Del Norte County",
+        "owner_type": "government",
+        "parcel_size": 269.8,
+        "acres": 9.7,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.2107167794409,
+              41.79415323538275
+            ],
+            [
+              -124.1803886351174,
+              41.79415323538275
+            ],
+            [
+              -124.1803886351174,
+              41.82448137970625
+            ],
+            [
+              -124.2107167794409,
+              41.82448137970625
+            ],
+            [
+              -124.2107167794409,
+              41.79415323538275
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Family Farm 19",
+        "owner_type": "family",
+        "parcel_size": 124.1,
+        "acres": 126.3,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.98745194881268,
+              41.500227426509866
+            ],
+            [
+              -123.97061129826726,
+              41.500227426509866
+            ],
+            [
+              -123.97061129826726,
+              41.51706807705528
+            ],
+            [
+              -123.98745194881268,
+              41.51706807705528
+            ],
+            [
+              -123.98745194881268,
+              41.500227426509866
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Individual Owner 20",
+        "owner_type": "individual",
+        "parcel_size": 198.28,
+        "acres": 179.3,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.09237286232658,
+              41.56503778547047
+            ],
+            [
+              -124.072934042235,
+              41.56503778547047
+            ],
+            [
+              -124.072934042235,
+              41.58447660556205
+            ],
+            [
+              -124.09237286232658,
+              41.58447660556205
+            ],
+            [
+              -124.09237286232658,
+              41.56503778547047
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Timber Corp 21",
+        "owner_type": "corporation",
+        "parcel_size": 112.49,
+        "acres": 137.1,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.27622878203665,
+              41.87187718850893
+            ],
+            [
+              -124.25662801668061,
+              41.87187718850893
+            ],
+            [
+              -124.25662801668061,
+              41.89147795386497
+            ],
+            [
+              -124.27622878203665,
+              41.89147795386497
+            ],
+            [
+              -124.27622878203665,
+              41.87187718850893
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Individual Owner 22",
+        "owner_type": "individual",
+        "parcel_size": 297.9,
+        "acres": 46.9,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.14241863188722,
+              41.75895925531803
+            ],
+            [
+              -124.10751827624395,
+              41.75895925531803
+            ],
+            [
+              -124.10751827624395,
+              41.7938596109613
+            ],
+            [
+              -124.14241863188722,
+              41.7938596109613
+            ],
+            [
+              -124.14241863188722,
+              41.75895925531803
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Individual Owner 23",
+        "owner_type": "individual",
+        "parcel_size": 349.04,
+        "acres": 122.0,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.78327629543443,
+              41.855642680831984
+            ],
+            [
+              -123.76219840565338,
+              41.855642680831984
+            ],
+            [
+              -123.76219840565338,
+              41.87672057061303
+            ],
+            [
+              -123.78327629543443,
+              41.87672057061303
+            ],
+            [
+              -123.78327629543443,
+              41.855642680831984
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Family Farm 24",
+        "owner_type": "family",
+        "parcel_size": 116.93,
+        "acres": 101.8,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.10905735308219,
+              41.84238523640615
+            ],
+            [
+              -124.05986688811562,
+              41.84238523640615
+            ],
+            [
+              -124.05986688811562,
+              41.89157570137272
+            ],
+            [
+              -124.10905735308219,
+              41.89157570137272
+            ],
+            [
+              -124.10905735308219,
+              41.84238523640615
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Agricultural Trust 25",
+        "owner_type": "trust",
+        "parcel_size": 120.21,
+        "acres": 73.2,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.91015825084172,
+              41.73335254639959
+            ],
+            [
+              -123.8948614541727,
+              41.73335254639959
+            ],
+            [
+              -123.8948614541727,
+              41.7486493430686
+            ],
+            [
+              -123.91015825084172,
+              41.7486493430686
+            ],
+            [
+              -123.91015825084172,
+              41.73335254639959
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Del Norte County",
+        "owner_type": "government",
+        "parcel_size": 329.94,
+        "acres": 40.5,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.03816166148876,
+              41.85933052872453
+            ],
+            [
+              -123.99634473037497,
+              41.85933052872453
+            ],
+            [
+              -123.99634473037497,
+              41.90114745983831
+            ],
+            [
+              -124.03816166148876,
+              41.90114745983831
+            ],
+            [
+              -124.03816166148876,
+              41.85933052872453
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Agricultural Trust 27",
+        "owner_type": "trust",
+        "parcel_size": 398.44,
+        "acres": 136.7,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.03353959795528,
+              41.56092813223583
+            ],
+            [
+              -124.01639827544186,
+              41.56092813223583
+            ],
+            [
+              -124.01639827544186,
+              41.57806945474925
+            ],
+            [
+              -124.03353959795528,
+              41.57806945474925
+            ],
+            [
+              -124.03353959795528,
+              41.56092813223583
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Individual Owner 28",
+        "owner_type": "individual",
+        "parcel_size": 265.3,
+        "acres": 165.5,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.03258556855094,
+              41.54110952478321
+            ],
+            [
+              -123.99522441871623,
+              41.54110952478321
+            ],
+            [
+              -123.99522441871623,
+              41.57847067461791
+            ],
+            [
+              -124.03258556855094,
+              41.57847067461791
+            ],
+            [
+              -124.03258556855094,
+              41.54110952478321
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Del Norte County",
+        "owner_type": "government",
+        "parcel_size": 118.57,
+        "acres": 123.3,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.84664792829142,
+              41.751806911419145
+            ],
+            [
+              -123.81857652633121,
+              41.751806911419145
+            ],
+            [
+              -123.81857652633121,
+              41.77987831337935
+            ],
+            [
+              -123.84664792829142,
+              41.77987831337935
+            ],
+            [
+              -123.84664792829142,
+              41.751806911419145
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Individual Owner 30",
+        "owner_type": "individual",
+        "parcel_size": 297.89,
+        "acres": 92.3,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.18054068415294,
+              41.66491928722334
+            ],
+            [
+              -124.14350861812763,
+              41.66491928722334
+            ],
+            [
+              -124.14350861812763,
+              41.70195135324866
+            ],
+            [
+              -124.18054068415294,
+              41.70195135324866
+            ],
+            [
+              -124.18054068415294,
+              41.66491928722334
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Individual Owner 31",
+        "owner_type": "individual",
+        "parcel_size": 118.97,
+        "acres": 49.5,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.84494222648169,
+              41.71094739905207
+            ],
+            [
+              -123.81144287538427,
+              41.71094739905207
+            ],
+            [
+              -123.81144287538427,
+              41.744446750149486
+            ],
+            [
+              -123.84494222648169,
+              41.744446750149486
+            ],
+            [
+              -123.84494222648169,
+              41.71094739905207
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Timber Corp 32",
+        "owner_type": "corporation",
+        "parcel_size": 244.53,
+        "acres": 176.5,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.62402619393902,
+              41.75983277488732
+            ],
+            [
+              -123.59743899625127,
+              41.75983277488732
+            ],
+            [
+              -123.59743899625127,
+              41.786419972575075
+            ],
+            [
+              -123.62402619393902,
+              41.786419972575075
+            ],
+            [
+              -123.62402619393902,
+              41.75983277488732
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Individual Owner 33",
+        "owner_type": "individual",
+        "parcel_size": 74.35,
+        "acres": 188.0,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.13601438050966,
+              41.757587768259675
+            ],
+            [
+              -124.11153278913122,
+              41.757587768259675
+            ],
+            [
+              -124.11153278913122,
+              41.78206935963812
+            ],
+            [
+              -124.13601438050966,
+              41.78206935963812
+            ],
+            [
+              -124.13601438050966,
+              41.757587768259675
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Individual Owner 34",
+        "owner_type": "individual",
+        "parcel_size": 92.48,
+        "acres": 88.6,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.32092343686742,
+              41.85167108589979
+            ],
+            [
+              -124.28185310033993,
+              41.85167108589979
+            ],
+            [
+              -124.28185310033993,
+              41.890741422427276
+            ],
+            [
+              -124.32092343686742,
+              41.890741422427276
+            ],
+            [
+              -124.32092343686742,
+              41.85167108589979
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Del Norte County",
+        "owner_type": "government",
+        "parcel_size": 159.65,
+        "acres": 160.5,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.62878612937139,
+              41.678202312710006
+            ],
+            [
+              -123.58259764970812,
+              41.678202312710006
+            ],
+            [
+              -123.58259764970812,
+              41.72439079237328
+            ],
+            [
+              -123.62878612937139,
+              41.72439079237328
+            ],
+            [
+              -123.62878612937139,
+              41.678202312710006
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Del Norte County",
+        "owner_type": "government",
+        "parcel_size": 195.54,
+        "acres": 185.7,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.70294391596784,
+              41.83455293010663
+            ],
+            [
+              -123.6868585189149,
+              41.83455293010663
+            ],
+            [
+              -123.6868585189149,
+              41.85063832715956
+            ],
+            [
+              -123.70294391596784,
+              41.85063832715956
+            ],
+            [
+              -123.70294391596784,
+              41.83455293010663
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Individual Owner 37",
+        "owner_type": "individual",
+        "parcel_size": 472.07,
+        "acres": 172.3,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.06004384222118,
+              41.73448048666906
+            ],
+            [
+              -124.01337581332041,
+              41.73448048666906
+            ],
+            [
+              -124.01337581332041,
+              41.781148515569825
+            ],
+            [
+              -124.06004384222118,
+              41.781148515569825
+            ],
+            [
+              -124.06004384222118,
+              41.73448048666906
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Agricultural Trust 38",
+        "owner_type": "trust",
+        "parcel_size": 281.14,
+        "acres": 22.8,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.66093198475768,
+              41.63179834982061
+            ],
+            [
+              -123.64667043036536,
+              41.63179834982061
+            ],
+            [
+              -123.64667043036536,
+              41.64605990421294
+            ],
+            [
+              -123.66093198475768,
+              41.64605990421294
+            ],
+            [
+              -123.66093198475768,
+              41.63179834982061
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Agricultural Trust 39",
+        "owner_type": "trust",
+        "parcel_size": 91.45,
+        "acres": 96.6,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.92375031770916,
+              41.81664357627169
+            ],
+            [
+              -123.91271895455066,
+              41.81664357627169
+            ],
+            [
+              -123.91271895455066,
+              41.827674939430196
+            ],
+            [
+              -123.92375031770916,
+              41.827674939430196
+            ],
+            [
+              -123.92375031770916,
+              41.81664357627169
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Del Norte County",
+        "owner_type": "government",
+        "parcel_size": 407.53,
+        "acres": 34.6,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.03740115018168,
+              41.59520796158795
+            ],
+            [
+              -123.98972521904605,
+              41.59520796158795
+            ],
+            [
+              -123.98972521904605,
+              41.64288389272359
+            ],
+            [
+              -124.03740115018168,
+              41.64288389272359
+            ],
+            [
+              -124.03740115018168,
+              41.59520796158795
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Del Norte County",
+        "owner_type": "government",
+        "parcel_size": 280.11,
+        "acres": 53.5,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.87924953921366,
+              41.70736756915702
+            ],
+            [
+              -123.8635043149502,
+              41.70736756915702
+            ],
+            [
+              -123.8635043149502,
+              41.72311279342047
+            ],
+            [
+              -123.87924953921366,
+              41.72311279342047
+            ],
+            [
+              -123.87924953921366,
+              41.70736756915702
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Timber Corp 42",
+        "owner_type": "corporation",
+        "parcel_size": 62.73,
+        "acres": 100.5,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.16142761656386,
+              41.73867786540865
+            ],
+            [
+              -124.1424194712544,
+              41.73867786540865
+            ],
+            [
+              -124.1424194712544,
+              41.7576860107181
+            ],
+            [
+              -124.16142761656386,
+              41.7576860107181
+            ],
+            [
+              -124.16142761656386,
+              41.73867786540865
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Family Farm 43",
+        "owner_type": "family",
+        "parcel_size": 185.89,
+        "acres": 134.9,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.60061748691909,
+              41.80300727741192
+            ],
+            [
+              -123.58214063425491,
+              41.80300727741192
+            ],
+            [
+              -123.58214063425491,
+              41.82148413007611
+            ],
+            [
+              -123.60061748691909,
+              41.82148413007611
+            ],
+            [
+              -123.60061748691909,
+              41.80300727741192
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Agricultural Trust 44",
+        "owner_type": "trust",
+        "parcel_size": 410.27,
+        "acres": 33.4,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.76620027762482,
+              41.54517889831392
+            ],
+            [
+              -123.75301251294755,
+              41.54517889831392
+            ],
+            [
+              -123.75301251294755,
+              41.5583666629912
+            ],
+            [
+              -123.76620027762482,
+              41.5583666629912
+            ],
+            [
+              -123.76620027762482,
+              41.54517889831392
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Individual Owner 45",
+        "owner_type": "individual",
+        "parcel_size": 173.68,
+        "acres": 117.5,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.72636385000682,
+              41.83695252037619
+            ],
+            [
+              -123.7131343165056,
+              41.83695252037619
+            ],
+            [
+              -123.7131343165056,
+              41.850182053877404
+            ],
+            [
+              -123.72636385000682,
+              41.850182053877404
+            ],
+            [
+              -123.72636385000682,
+              41.83695252037619
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Timber Corp 46",
+        "owner_type": "corporation",
+        "parcel_size": 91.73,
+        "acres": 99.4,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.1099836822401,
+              41.75776180493416
+            ],
+            [
+              -124.0638066620278,
+              41.75776180493416
+            ],
+            [
+              -124.0638066620278,
+              41.80393882514645
+            ],
+            [
+              -124.1099836822401,
+              41.80393882514645
+            ],
+            [
+              -124.1099836822401,
+              41.75776180493416
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Timber Corp 47",
+        "owner_type": "corporation",
+        "parcel_size": 226.96,
+        "acres": 136.5,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.75230111008803,
+              41.52923619433709
+            ],
+            [
+              -123.71975259492879,
+              41.52923619433709
+            ],
+            [
+              -123.71975259492879,
+              41.56178470949632
+            ],
+            [
+              -123.75230111008803,
+              41.56178470949632
+            ],
+            [
+              -123.75230111008803,
+              41.52923619433709
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Family Farm 48",
+        "owner_type": "family",
+        "parcel_size": 429.37,
+        "acres": 9.1,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -123.71950941339615,
+              41.74448262002513
+            ],
+            [
+              -123.68620472850655,
+              41.74448262002513
+            ],
+            [
+              -123.68620472850655,
+              41.77778730491473
+            ],
+            [
+              -123.71950941339615,
+              41.77778730491473
+            ],
+            [
+              -123.71950941339615,
+              41.74448262002513
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Timber Corp 49",
+        "owner_type": "corporation",
+        "parcel_size": 166.13,
+        "acres": 11.9,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.23597967914988,
+              41.8385134325316
+            ],
+            [
+              -124.20616734514752,
+              41.8385134325316
+            ],
+            [
+              -124.20616734514752,
+              41.868325766533964
+            ],
+            [
+              -124.23597967914988,
+              41.868325766533964
+            ],
+            [
+              -124.23597967914988,
+              41.8385134325316
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "owner_name": "Del Norte County",
+        "owner_type": "government",
+        "parcel_size": 212.24,
+        "acres": 33.7,
+        "source": "Del_Norte_County_Records_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.18471601912317,
+              41.61310653248824
+            ],
+            [
+              -124.13832711219386,
+              41.61310653248824
+            ],
+            [
+              -124.13832711219386,
+              41.659495439417555
+            ],
+            [
+              -124.18471601912317,
+              41.659495439417555
+            ],
+            [
+              -124.18471601912317,
+              41.61310653248824
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

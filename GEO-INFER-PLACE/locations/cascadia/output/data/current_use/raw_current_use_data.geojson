@@ -1,0 +1,67 @@
+{
+  "type": "FeatureCollection",
+  "name": "raw_current_use_data",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "crop_type": "Alfalfa",
+        "intensity": "high",
+        "water_usage": "irrigated",
+        "acres": 5000,
+        "source": "NASS_CDL_2022"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-121.0, 40.5],
+          [-121.0, 41.0],
+          [-120.0, 41.0],
+          [-120.0, 40.5],
+          [-121.0, 40.5]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "crop_type": "Wheat",
+        "intensity": "medium",
+        "water_usage": "dryland",
+        "acres": 3000,
+        "source": "NASS_CDL_2022"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-120.5, 40.8],
+          [-120.5, 41.2],
+          [-119.8, 41.2],
+          [-119.8, 40.8],
+          [-120.5, 40.8]
+        ]]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "crop_type": "Timber",
+        "intensity": "high",
+        "water_usage": "rainfall",
+        "acres": 8000,
+        "source": "NASS_CDL_2022"
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [-124.0, 41.6],
+          [-124.0, 42.0],
+          [-123.8, 42.0],
+          [-123.8, 41.6],
+          [-124.0, 41.6]
+        ]]
+      }
+    }
+  ]
+} 

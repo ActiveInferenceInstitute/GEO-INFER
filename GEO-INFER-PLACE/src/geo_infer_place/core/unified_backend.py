@@ -113,10 +113,12 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         
         # Initialize SPACE data loader if available
         self.h3_data_loader = None
+        self.h3_loader = None  # Add this attribute for compatibility with SPACE BaseAnalysisModule
         self.osc_repo_dir = osc_repo_dir
         if SPACE_AVAILABLE and osc_repo_dir:
             try:
                 self.h3_data_loader = create_h3_data_loader(osc_repo_dir)
+                self.h3_loader = self.h3_data_loader  # Set h3_loader to h3_data_loader for compatibility
                 logger.info("Successfully initialized H3DataLoader from GEO-INFER-SPACE.")
             except Exception as e:
                 logger.warning(f"Failed to initialize H3DataLoader: {e}")
@@ -592,29 +594,123 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
     def run_comprehensive_analysis(self) -> None:
         """
         Enhanced comprehensive analysis with SPACE integration.
-        This follows the standardized workflow with additional spatial analysis:
-        1.  Check for cached H3 data.
-        2.  If not cached, acquire raw data.
-        3.  Process raw data to H3 using the OSC loader.
-        4.  Run the module's final analysis on the H3 data.
-        5.  Aggregate results.
-        6.  Perform spatial analysis using SPACE utilities.
+        
+        This method orchestrates the complete analysis pipeline:
+        1.  Acquire raw data for each module.
+        2.  Process raw data to H3 using the OSC loader.
+        3.  Run the module's final analysis on the H3 data.
+        4.  Aggregate results.
+        5.  Perform spatial analysis using SPACE utilities.
         """
         logger.info("Starting enhanced comprehensive analysis with SPACE integration...")
         module_results = {}
+        data_acquisition_stats = {}
 
         for name, module in self.modules.items():
             logger.info(f"--- Processing Module: {name.upper()} with SPACE integration ---")
+            
+            # Track data acquisition for this module
+            module_stats = {
+                'raw_data_acquired': False,
+                'h3_data_processed': 0,
+                'final_analysis_completed': False,
+                'errors': []
+            }
+            
             try:
-                # Each module instance now has a reference to the backend and its methods.
-                # The module's run_analysis method is responsible for orchestrating
-                # its specific logic for acquisition, processing, and analysis.
-                result = module.run_analysis()
+                # Step 1: Acquire raw data with detailed tracking
+                logger.info(f"[{name}] Starting real data acquisition...")
+                try:
+                    raw_data_path = module.acquire_raw_data()
+                    if raw_data_path and raw_data_path.exists():
+                        # Check if file has real content
+                        file_size = raw_data_path.stat().st_size
+                        if file_size > 100:  # More than just headers
+                            module_stats['raw_data_acquired'] = True
+                            logger.info(f"[{name}] ✅ Raw data acquired: {raw_data_path} ({file_size} bytes)")
+                        else:
+                            logger.warning(f"[{name}] ⚠️ Raw data file too small: {raw_data_path} ({file_size} bytes)")
+                    else:
+                        logger.warning(f"[{name}] ⚠️ No raw data path returned or file doesn't exist")
+                except Exception as e:
+                    error_msg = f"Raw data acquisition failed: {e}"
+                    module_stats['errors'].append(error_msg)
+                    logger.error(f"[{name}] ❌ {error_msg}")
+                
+                # Step 2: Run module analysis with detailed tracking
+                logger.info(f"[{name}] Starting module analysis...")
+                try:
+                    result = module.run_analysis()
+                    
+                    # Track H3 data processing
+                    if result:
+                        h3_count = len(result)
+                        module_stats['h3_data_processed'] = h3_count
+                        module_stats['final_analysis_completed'] = True
+                        logger.info(f"[{name}] ✅ Analysis completed: {h3_count} H3 cells processed")
+                        
+                        # Log sample of processed data
+                        if h3_count > 0:
+                            sample_keys = list(result.keys())[:3]
+                            logger.info(f"[{name}] 📊 Sample processed data keys: {sample_keys}")
+                            for key in sample_keys:
+                                sample_data = result[key]
+                                logger.info(f"[{name}] 📊 Sample data for {key}: {sample_data}")
+                    else:
+                        logger.warning(f"[{name}] ⚠️ Analysis returned empty result")
+                        
+                except Exception as e:
+                    error_msg = f"Module analysis failed: {e}"
+                    module_stats['errors'].append(error_msg)
+                    logger.error(f"[{name}] ❌ {error_msg}")
+                
                 module_results[name] = result
+                data_acquisition_stats[name] = module_stats
+                
+                # Log module summary
+                logger.info(f"[{name}] 📊 Module processing summary:")
+                logger.info(f"[{name}]   - Raw data acquired: {module_stats['raw_data_acquired']}")
+                logger.info(f"[{name}]   - H3 cells processed: {module_stats['h3_data_processed']}")
+                logger.info(f"[{name}]   - Final analysis completed: {module_stats['final_analysis_completed']}")
+                if module_stats['errors']:
+                    logger.info(f"[{name}]   - Errors: {len(module_stats['errors'])}")
+                    for error in module_stats['errors']:
+                        logger.info(f"[{name}]     ❌ {error}")
+                
                 logger.info(f"✅ Successfully processed module: {name.upper()}")
+                
             except Exception as e:
+                error_msg = f"Module processing failed: {e}"
+                module_stats['errors'].append(error_msg)
                 logger.error(f"❌ Failed to process module {name.upper()}: {e}", exc_info=True)
                 module_results[name] = {}
+                data_acquisition_stats[name] = module_stats
+        
+        # Log comprehensive data acquisition summary
+        logger.info("📊 COMPREHENSIVE DATA ACQUISITION SUMMARY:")
+        total_hexagons_processed = 0
+        modules_with_data = 0
+        
+        for name, stats in data_acquisition_stats.items():
+            logger.info(f"📊 {name.upper()}:")
+            logger.info(f"   - Raw data acquired: {stats['raw_data_acquired']}")
+            logger.info(f"   - H3 cells processed: {stats['h3_data_processed']}")
+            logger.info(f"   - Final analysis completed: {stats['final_analysis_completed']}")
+            logger.info(f"   - Errors: {len(stats['errors'])}")
+            
+            if stats['h3_data_processed'] > 0:
+                modules_with_data += 1
+                total_hexagons_processed += stats['h3_data_processed']
+        
+        logger.info(f"📊 OVERALL SUMMARY:")
+        logger.info(f"   - Modules with data: {modules_with_data}/{len(self.modules)}")
+        logger.info(f"   - Total hexagons processed: {total_hexagons_processed}")
+        logger.info(f"   - Target hexagons: {len(self.target_hexagons)}")
+        
+        if total_hexagons_processed == 0:
+            logger.error("❌ CRITICAL: No hexagons processed by any module!")
+            logger.error("🔍 This indicates a fundamental data acquisition or processing failure.")
+            logger.error("🔍 Check module data sources, file paths, and processing logic.")
         
         self._aggregate_module_results(module_results)
         
@@ -1076,7 +1172,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         features = []
         for hex_id, properties in data_to_export.items():
             # Get geometry for the hexagon
-            boundary = h3.cell_to_latlng_boundary(hex_id)
+            boundary = h3.cell_to_boundary(hex_id)
             
             features.append({
                 'type': 'Feature',
@@ -1128,7 +1224,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             map_center = [44.0, -120.5] # Default to center of Oregon
         else:
             # Calculate the centroid of the entire target region for the map center
-            all_boundaries = [Polygon(h3.cell_to_latlng_boundary(h)) for h in self.target_hexagons]
+            all_boundaries = [Polygon(h3.cell_to_boundary(h)) for h in self.target_hexagons]
             gdf_all = gpd.GeoDataFrame({'geometry': all_boundaries}, crs="EPSG:4326")
             unified_geom = gdf_all.unary_union
             centroid = unified_geom.centroid

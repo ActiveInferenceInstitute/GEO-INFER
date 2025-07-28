@@ -3,12 +3,16 @@
 [![License: CC BY-ND-SA 4.0](https://img.shields.io/badge/License-CC%20BY--ND--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nd-sa/4.0/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289DA.svg)](https://discord.activeinference.institute/)
-
+[![H3 Version](https://img.shields.io/badge/H3-v4.0+-blue.svg)](https://h3geo.org/)
+[![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://python.org/)
+[![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen.svg)]()
 
 <div align="center">
   <a href="#getting-started-">🚀 Get Started</a> •
   <a href="#module-categories-">📦 Module Categories</a> •
   <a href="#core-modules-">🔧 Core Modules</a> •
+  <a href="#architecture-overview-">🏗️ Architecture</a> •
+  <a href="#data-flow-">🔄 Data Flow</a> •
   <a href="#use-cases-">📋 Use Cases</a> •
   <a href="#contributing-">👥 Contributing</a> •
   <a href="#community-">🌐 Community</a> •
@@ -17,7 +21,33 @@
 
 ## Overview 📋
 
-GEO-INFER is a geospatial inference framework designed for ecological, civic, and commercial applications. It provides a modular architecture for spatial-temporal analysis, active inference modeling, and community engagement.
+GEO-INFER is a comprehensive geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. The framework consists of 30+ specialized modules organized into distinct categories with clear dependency relationships and data flow patterns.
+
+### 🎯 Key Features
+
+- **🌍 Advanced Spatial Analysis**: H3 v4 spatial indexing with full geospatial processing capabilities
+- **🧠 Active Inference Integration**: Mathematical foundations for autonomous decision-making
+- **📊 Data Processing**: Comprehensive data pipelines with validation and quality control
+- **🔧 Modular Architecture**: 30+ specialized modules with clear dependencies
+- **⚡ Performance Optimized**: Efficient algorithms for large-scale geospatial analysis
+- **🛡️ Production Ready**: Comprehensive testing, error handling, and documentation
+
+## 🚀 Getting Started
+
+### Quick Start
+
+```bash
+# Clone the repository
+git clone https://github.com/your-org/GEO-INFER.git
+cd GEO-INFER
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run a basic example
+cd GEO-INFER-PLACE/locations/cascadia
+python cascadia_main.py --counties "CA:Lassen" --modules "zoning,current_use"
+```
 
 ## 📦 Module Categories
 
@@ -33,8 +63,9 @@ mindmap
       AGENT - Intelligent Agents
       SPM - Statistical Parametric Mapping
     Spatial-Temporal
-      SPACE - Spatial methods
+      SPACE - Spatial methods (H3 v4)
       TIME - Temporal methods
+      IOT - Internet of Things
     Data Management
       DATA - Data processing
       API - Interfaces
@@ -69,6 +100,7 @@ mindmap
       TEST - Quality Assurance
       EXAMPLES - Cross-module demos
 ```
+
 ## 🧭 Quick Navigation
 
 | Category                     | Modules                                                                                                                                                      |
@@ -84,90 +116,371 @@ mindmap
 | **📍 Place-Based**           | [PLACE](./GEO-INFER-PLACE/)                                                                                                                                                                      |
 | **⚙️ Operations**            | [OPS](./GEO-INFER-OPS/), [INTRA](./GEO-INFER-INTRA/), [GIT](./GEO-INFER-GIT/), [TEST](./GEO-INFER-TEST/), [EXAMPLES](./GEO-INFER-EXAMPLES/)                                                    |
 
+## 🏗️ Architecture Overview
 
+```mermaid
+graph TB
+    classDef coreNode fill:#ff9e80,stroke:#d50000,stroke-width:3px
+    classDef spatialNode fill:#80d8ff,stroke:#0091ea,stroke-width:2px
+    classDef dataNode fill:#b9f6ca,stroke:#00c853,stroke-width:2px
+    classDef domainNode fill:#e1bee7,stroke:#8e24aa,stroke-width:2px
+    classDef opsNode fill:#fff59d,stroke:#f57f17,stroke-width:2px
+    classDef appNode fill:#f8bbd9,stroke:#c2185b,stroke-width:2px
 
-## 📊 Module Dependencies Matrix
+    %% Core Analytical Layer
+    MATH[GEO-INFER-MATH<br/>Mathematical Foundations]:::coreNode
+    BAYES[GEO-INFER-BAYES<br/>Bayesian Inference]:::coreNode
+    ACT[GEO-INFER-ACT<br/>Active Inference]:::coreNode
+    AI[GEO-INFER-AI<br/>Artificial Intelligence]:::coreNode
+    COG[GEO-INFER-COG<br/>Cognitive Modeling]:::coreNode
+    AGENT[GEO-INFER-AGENT<br/>Intelligent Agents]:::coreNode
+    SPM[GEO-INFER-SPM<br/>Statistical Mapping]:::coreNode
 
-| Module | Core Dependencies | Optional Dependencies | Provides Services To | Data Flow Direction |
-|--------|------------------|--------------------|-------------------|-------------------|
-| **OPS** | - | SEC | ALL modules | → All |
-| **DATA** | OPS, SEC | - | ALL modules | → All |
-| **SPACE** | DATA, MATH | TIME, AI, IOT | AG, HEALTH, SIM, APP, ART | → Domain/App |
-| **TIME** | DATA, MATH | SPACE, AI, IOT | AG, HEALTH, ECON, SIM | → Domain/Analytics |
-| **IOT** | SPACE, DATA | BAYES, TIME, AI | All sensor-based modules | → Sensor/Real-time |
-| **AI** | DATA, SPACE | TIME, AGENT | All analytical modules | → Analytics/Prediction |
-| **ACT** | MATH, BAYES | AI, AGENT, SIM | AGENT, SIM, decision systems | → Inference/Decision |
-| **BAYES** | MATH | SPACE, TIME | ACT, AI, statistical modules | → Statistical/Inference |
-| **MATH** | - | - | ALL analytical modules | → All analytics |
-| **API** | All modules | - | External systems, APP | ↔ External |
-| **APP** | API, SPACE | All modules | End users | ← All modules |
-| **AGENT** | ACT, AI | SPACE, TIME, SIM | SIM, autonomous systems | ↔ Agent systems |
-| **SIM** | SPACE, TIME | AI, AGENT, ACT | Domain modules, decision support | ↔ Simulation systems |
-| **AG** | SPACE, TIME, DATA | AI, ECON, SIM | APP, ECON, food systems | ↔ Agricultural systems |
-| **HEALTH** | SPACE, TIME, DATA | AI, RISK, BIO, SPM | APP, policy makers | ↔ Health systems |
-| **ECON** | SPACE, TIME, DATA | AI, AG, SIM | Policy makers, RISK | ↔ Economic systems |
-| **ANT** | ACT, SIM | AI, AGENT | SIM, complex systems | ↔ Complex systems |
-| **ART** | SPACE, APP | AI, TIME | APP, visualization | ← Artistic/Creative |
-| **BIO** | SPACE, TIME, DATA | AI, HEALTH | HEALTH, research | ↔ Biological systems |
-| **COG** | SPACE, AI | ACT, AGENT | AGENT, human factors | → Cognitive modeling |
-| **COMMS** | INTRA, APP | ALL modules | External stakeholders | ← All modules |
-| **GIT** | OPS | - | All development | → Version control |
-| **INTRA** | - | ALL modules | Documentation, standards | ← All modules |
-| **LOG** | SPACE, TIME, DATA | AI, SIM | ECON, operations | ↔ Logistics systems |
-| **NORMS** | SPACE, DATA | REQ, SEC | All compliance | → Regulatory/Ethics |
-| **ORG** | PEP, COMMS | CIV, NORMS | Governance systems | ↔ Organizational |
-| **PEP** | ORG, COMMS | CIV | HR, community | ↔ People management |
-| **REQ** | NORMS, SEC | ALL modules | System specifications | → Requirements |
-| **RISK** | SPACE, TIME, DATA | AI, HEALTH, ECON | Decision support | ↔ Risk assessment |
-| **SEC** | - | ALL modules | Security services | → All modules |
-| **SPM** | MATH, SPACE | TIME, BAYES | Statistical analysis | → Statistical mapping |
-| **TEST** | ALL modules | - | Quality assurance | ← All modules |
-| **EXAMPLES** | All modules | - | New users, developers | ← All modules (demo only) |
+    %% Spatial-Temporal Layer
+    SPACE[GEO-INFER-SPACE<br/>Spatial Methods (H3 v4)]:::spatialNode
+    TIME[GEO-INFER-TIME<br/>Temporal Methods]:::spatialNode
+    IOT[GEO-INFER-IOT<br/>IoT Integration]:::spatialNode
+
+    %% Data Management Layer
+    DATA[GEO-INFER-DATA<br/>Data Management]:::dataNode
+    API[GEO-INFER-API<br/>API Services]:::dataNode
+
+    %% Operations Layer
+    OPS[GEO-INFER-OPS<br/>Orchestration]:::opsNode
+    SEC[GEO-INFER-SEC<br/>Security]:::opsNode
+    INTRA[GEO-INFER-INTRA<br/>Documentation]:::opsNode
+    GIT[GEO-INFER-GIT<br/>Version Control]:::opsNode
+    TEST[GEO-INFER-TEST<br/>Quality Assurance]:::opsNode
+
+    %% Domain-Specific Layer
+    AG[GEO-INFER-AG<br/>Agriculture]:::domainNode
+    HEALTH[GEO-INFER-HEALTH<br/>Health Applications]:::domainNode
+    ECON[GEO-INFER-ECON<br/>Economics]:::domainNode
+    RISK[GEO-INFER-RISK<br/>Risk Management]:::domainNode
+    LOG[GEO-INFER-LOG<br/>Logistics]:::domainNode
+    BIO[GEO-INFER-BIO<br/>Bioinformatics]:::domainNode
+
+    %% Application Layer
+    APP[GEO-INFER-APP<br/>User Interfaces]:::appNode
+    ART[GEO-INFER-ART<br/>Artistic Expression]:::appNode
+    PLACE[GEO-INFER-PLACE<br/>Place-Based Analysis]:::appNode
+
+    %% Simulation Layer
+    SIM[GEO-INFER-SIM<br/>Simulation]:::domainNode
+    ANT[GEO-INFER-ANT<br/>Complex Systems]:::domainNode
+
+    %% People & Community Layer
+    CIV[GEO-INFER-CIV<br/>Civic Engagement]:::domainNode
+    PEP[GEO-INFER-PEP<br/>People Management]:::domainNode
+    ORG[GEO-INFER-ORG<br/>Organizations]:::domainNode
+    COMMS[GEO-INFER-COMMS<br/>Communications]:::domainNode
+
+    %% Governance Layer
+    NORMS[GEO-INFER-NORMS<br/>Compliance]:::opsNode
+    REQ[GEO-INFER-REQ<br/>Requirements]:::opsNode
+
+    %% Examples Layer
+    EXAMPLES[GEO-INFER-EXAMPLES<br/>Cross-Module Demos]:::opsNode
+
+    %% Core Dependencies
+    MATH --> BAYES
+    MATH --> ACT
+    MATH --> AI
+    MATH --> SPM
+    BAYES --> ACT
+    AI --> AGENT
+    ACT --> AGENT
+    COG --> AGENT
+
+    %% Spatial Dependencies
+    SPACE --> AG
+    SPACE --> HEALTH
+    SPACE --> ECON
+    SPACE --> RISK
+    SPACE --> LOG
+    SPACE --> BIO
+    SPACE --> PLACE
+    TIME --> AG
+    TIME --> HEALTH
+    TIME --> ECON
+    TIME --> SIM
+    IOT --> SPACE
+    IOT --> TIME
+
+    %% Data Dependencies
+    DATA --> SPACE
+    DATA --> TIME
+    DATA --> AI
+    DATA --> AG
+    DATA --> HEALTH
+    DATA --> ECON
+    API --> APP
+    API --> ART
+
+    %% Operations Dependencies
+    OPS --> DATA
+    OPS --> SEC
+    SEC --> DATA
+    SEC --> API
+    INTRA --> COMMS
+    GIT --> OPS
+    TEST --> OPS
+
+    %% Domain Dependencies
+    AG --> APP
+    HEALTH --> APP
+    ECON --> APP
+    RISK --> APP
+    LOG --> ECON
+    BIO --> HEALTH
+
+    %% Simulation Dependencies
+    SIM --> SPACE
+    SIM --> TIME
+    SIM --> AI
+    ANT --> ACT
+    ANT --> SIM
+
+    %% People Dependencies
+    CIV --> APP
+    PEP --> ORG
+    ORG --> COMMS
+    COMMS --> INTRA
+
+    %% Governance Dependencies
+    NORMS --> SEC
+    REQ --> NORMS
+    REQ --> SEC
+
+    %% Examples Dependencies
+    EXAMPLES --> APP
+    EXAMPLES --> SPACE
+    EXAMPLES --> TIME
+```
+
+## 📊 Complete Module Dependencies Matrix
+
+| Module | Core Dependencies | Optional Dependencies | Provides Services To | Data Flow Direction | Status | H3 v4 Status |
+|--------|------------------|--------------------|-------------------|-------------------|---------|---------------|
+| **OPS** | - | SEC | ALL modules | → All | Alpha | ✅ Updated |
+| **DATA** | OPS, SEC | - | ALL modules | → All | Alpha | ✅ Updated |
+| **SPACE** | DATA, MATH | TIME, AI, IOT | AG, HEALTH, SIM, APP, ART, PLACE, LOG, RISK, BIO, ECON | → Domain/App | Beta | ✅ **FULLY MIGRATED** |
+| **TIME** | DATA, MATH | SPACE, AI, IOT | AG, HEALTH, ECON, SIM, LOG, RISK, BIO | → Domain/Analytics | Alpha | ✅ Updated |
+| **IOT** | SPACE, DATA | BAYES, TIME, AI | All sensor-based modules | → Sensor/Real-time | Alpha | ✅ Updated |
+| **AI** | DATA, SPACE | TIME, AGENT | All analytical modules | → Analytics/Prediction | Alpha | ✅ Updated |
+| **ACT** | MATH, BAYES | AI, AGENT, SIM | AGENT, SIM, decision systems | → Inference/Decision | Alpha | ✅ Updated |
+| **BAYES** | MATH | SPACE, TIME | ACT, AI, statistical modules | → Statistical/Inference | Alpha | ✅ Updated |
+| **MATH** | - | - | ALL analytical modules | → All analytics | Beta | ✅ Updated |
+| **API** | All modules | - | External systems, APP | ↔ External | Beta | ✅ Updated |
+| **APP** | API, SPACE | All modules | End users | ← All modules | Alpha | ✅ Updated |
+| **AGENT** | ACT, AI | SPACE, TIME, SIM | SIM, autonomous systems | ↔ Agent systems | Alpha | ✅ Updated |
+| **SIM** | SPACE, TIME | AI, AGENT, ACT | Domain modules, decision support | ↔ Simulation systems | Alpha | ✅ Updated |
+| **AG** | SPACE, TIME, DATA | AI, ECON, SIM | APP, ECON, food systems | ↔ Agricultural systems | Alpha | ✅ Updated |
+| **HEALTH** | SPACE, TIME, DATA | AI, RISK, BIO, SPM | APP, policy makers | ↔ Health systems | Alpha | ✅ Updated |
+| **ECON** | SPACE, TIME, DATA | AI, AG, SIM | Policy makers, RISK | ↔ Economic systems | Alpha | ✅ Updated |
+| **ANT** | ACT, SIM | AI, AGENT | SIM, complex systems | ↔ Complex systems | Alpha | ✅ Updated |
+| **ART** | SPACE, APP | AI, TIME | APP, visualization | ← Artistic/Creative | Alpha | ✅ Updated |
+| **BIO** | SPACE, TIME, DATA | AI, HEALTH | HEALTH, research | ↔ Biological systems | Alpha | ✅ Updated |
+| **COG** | SPACE, AI | ACT, AGENT | AGENT, human factors | → Cognitive modeling | Alpha | ✅ Updated |
+| **COMMS** | INTRA, APP | ALL modules | External stakeholders | ← All modules | Alpha | ✅ Updated |
+| **GIT** | OPS | - | All development | → Version control | Beta | ✅ Updated |
+| **INTRA** | - | ALL modules | Documentation, standards | ← All modules | Beta | ✅ Updated |
+| **LOG** | SPACE, TIME, DATA | AI, SIM | ECON, operations | ↔ Logistics systems | Alpha | ✅ Updated |
+| **NORMS** | SPACE, DATA | REQ, SEC | All compliance | → Regulatory/Ethics | Alpha | ✅ Updated |
+| **ORG** | PEP, COMMS | CIV, NORMS | Governance systems | ↔ Organizational | Alpha | ✅ Updated |
+| **PEP** | ORG, COMMS | CIV | HR, community | ↔ People management | Alpha | ✅ Updated |
+| **REQ** | NORMS, SEC | ALL modules | System specifications | → Requirements | Alpha | ✅ Updated |
+| **RISK** | SPACE, TIME, DATA | AI, HEALTH, ECON | Decision support | ↔ Risk assessment | Alpha | ✅ Updated |
+| **SEC** | - | ALL modules | Security services | → All modules | Alpha | ✅ Updated |
+| **SPM** | MATH, SPACE | TIME, BAYES | Statistical analysis | → Statistical mapping | Alpha | ✅ Updated |
+| **TEST** | ALL modules | - | Quality assurance | ← All modules | Alpha | ✅ Updated |
+| **EXAMPLES** | All modules | - | New users, developers | ← All modules (demo only) | Beta | ✅ Updated |
+| **PLACE** | SPACE, TIME, DATA, ALL | - | Regional analyses, place-based insights | ↔ Place-based systems | Beta | ✅ **FULLY MIGRATED** |
+| **CIV** | SPACE, APP | COMMS, ORG | Community engagement | ↔ Civic systems | Alpha | ✅ Updated |
 
 ### Legend
 - **→** : Provides data/services to  
 - **←** : Consumes data/services from  
 - **↔** : Bidirectional data exchange
+- **Status**: Alpha (Production Ready), Beta (Development), Gamma (Experimental)
 
-## Core Modules (Enhanced)
+## 🔄 Data Flow Architecture
 
-| **Module Name**     | **Purpose**                                                                                        | **Input Types** | **Output Types** | **Dependencies** | **Status** |
-| ------------------- | -------------------------------------------------------------------------------------------------- | --------------- | ---------------- | ---------------- | ---------- |
-| **GEO-INFER-ACT**   | [Active Inference modeling for nested and interacting systems](./GEO-INFER-ACT/README.md) | Observations, beliefs, policies, generative models | Belief updates, action selections, free energy estimates | MATH, BAYES | Alpha |
-| **GEO-INFER-AG**    | [Agricultural methods and farming applications](./GEO-INFER-AG/README.md) | Satellite imagery, soil data, weather data, field boundaries | Yield predictions, crop health maps, precision agriculture recommendations | SPACE, TIME, DATA | Alpha |
-| **GEO-INFER-AI**    | [Artificial Intelligence and Machine Learning for geospatial workflows](./GEO-INFER-AI/README.md) | Imagery, spatial features, training labels, time-series data | Trained models, predictions, classifications, forecasts | DATA, SPACE | Alpha |
-| **GEO-INFER-AGENT** | [Intelligent agent frameworks for autonomous geospatial decision-making](./GEO-INFER-AGENT/README.md) | Agent configurations, spatial environments, behavior rules | Autonomous decisions, agent interactions, simulation results | ACT, AI | Alpha |
-| **GEO-INFER-ANT**   | [Complex systems modeling using Active Inference principles](./GEO-INFER-ANT/README.md) | Movement data, colony parameters, environmental conditions | Emergent behaviors, optimization solutions, swarm dynamics | ACT, SIM | Alpha |
-| **GEO-INFER-API**   | [API development and integration services for interoperability](./GEO-INFER-API/README.md) | Module functions, data requests, external API calls | REST/GraphQL APIs, webhooks, standardized responses | All modules | Beta |
-| **GEO-INFER-APP**   | [User interfaces, accessibility tools, and application development](./GEO-INFER-APP/README.md) | Analysis results, data products, user interactions | Interactive maps, dashboards, reports, mobile apps | API, SPACE | Alpha |
-| **GEO-INFER-ART**   | [Art production and aesthetics with geospatial dimensions](./GEO-INFER-ART/README.md) | Geospatial data, artistic parameters, aesthetic rules | Artistic visualizations, generative maps, aesthetic frameworks | SPACE, APP | Alpha |
-| **GEO-INFER-BAYES** | [Generalized Bayesian inference processes](./GEO-INFER-BAYES/README.md) | Observations, priors, model specifications | Posterior distributions, uncertainty estimates, model evidence | MATH | Alpha |
-| **GEO-INFER-BIO**   | [Bioinformatics analysis with spatial context](./GEO-INFER-BIO/README.md) | Genomic data, biological sequences, sample locations | Spatial omics analysis, phylogeographic patterns, ecological modeling | SPACE, TIME, DATA | Alpha |
-| **GEO-INFER-CIV**   | [Community engagement and participatory mapping tools](./GEO-INFER-CIV/README.md) | Community input, stakeholder data, participatory mapping | STEW-MAP visualizations, community-driven spatial planning | SPACE, APP | Alpha |
-| **GEO-INFER-COG**   | [Cognitive phenomena and modeling for geospatial systems](./GEO-INFER-COG/README.md) | User behavior, cognitive models, spatial perception data | Attention mechanisms, spatial memory models, trust modeling | SPACE, AI | Alpha |
-| **GEO-INFER-COMMS** | [Communications within and outside of the project](./GEO-INFER-COMMS/README.md) | Project communications, documentation needs, outreach requirements | Communication strategies, documentation, public engagement | INTRA, APP | Alpha |
-| **GEO-INFER-DATA**  | [Data management, ETL processes, and storage optimization](./GEO-INFER-DATA/README.md) | Raw geospatial data, external APIs, sensor feeds | Processed datasets, data pipelines, storage solutions | OPS, SEC | Alpha |
-| **GEO-INFER-ECON**  | [Economic modeling with spatial dimensions](./GEO-INFER-ECON/README.md) | Economic indicators, market data, spatial boundaries | Economic models, policy analysis, market simulations | SPACE, TIME, DATA | Alpha |
-| **GEO-INFER-GIT**   | [Git integration and version control workflows](./GEO-INFER-GIT/README.md) | Repository configurations, version control needs | Automated versioning, repository management, CI/CD integration | OPS | Beta |
-| **GEO-INFER-HEALTH** | [Geospatial applications for public health and epidemiology](./GEO-INFER-HEALTH/README.md) | Health data, epidemiological records, environmental factors | Disease surveillance, healthcare accessibility analysis, health risk assessment | SPACE, TIME, DATA | Alpha |
-| **GEO-INFER-INTRA** | [Project documentation, workflows, and ontology management](./GEO-INFER-INTRA/README.md) | Project requirements, documentation needs, ontological structures | Comprehensive documentation, workflow templates, standardized ontologies | All modules | Beta |
-| **GEO-INFER-IOT** | [Internet of Things sensors and spatial web integration](./GEO-INFER-IOT/README.md) | IoT sensor streams, device metadata, spatial coordinates | Real-time sensor data fusion, Bayesian spatial interpolation, global sensor networks | SPACE, BAYES, DATA | Alpha |
-| **GEO-INFER-MATH**  | [Mathematical foundations and computational methods](./GEO-INFER-MATH/README.md) | Mathematical problems, spatial calculations, statistical requirements | Mathematical solutions, spatial statistics, optimization results | - | Beta |
-| **GEO-INFER-NORMS** | [Social-technical compliance modeling](./GEO-INFER-NORMS/README.md) | Regulatory requirements, compliance data, social norms | Compliance tracking, regulatory impact mapping, social norm modeling | SPACE, DATA | Alpha |
-| **GEO-INFER-OPS**   | [Operational kernel for system orchestration and monitoring](./GEO-INFER-OPS/README.md) | System metrics, configuration files, infrastructure requirements | Monitoring dashboards, automated deployment, system health reports | SEC | Alpha |
-| **GEO-INFER-ORG**   | [Organizations and Decentralized Autonomous Organizations](./GEO-INFER-ORG/README.md) | Organizational structures, governance requirements, DAO parameters | Governance frameworks, token engineering, proposal systems | PEP, COMMS | Alpha |
-| **GEO-INFER-PEP**   | [People management, HR, and CRM functions](./GEO-INFER-PEP/README.md) | Personnel data, community relationships, skill requirements | Talent management, community engagement, conflict resolution | ORG, COMMS | Alpha |
-| **GEO-INFER-REQ**   | [Requirements engineering using P3IF framework](./GEO-INFER-REQ/README.md) | Requirements specifications, stakeholder needs, system constraints | Validated requirements, compliance frameworks, system specifications | NORMS, SEC | Alpha |
-| **GEO-INFER-SEC**   | [Security and privacy frameworks for geospatial information](./GEO-INFER-SEC/README.md) | Security requirements, privacy constraints, access control needs | Security protocols, data anonymization, compliance frameworks | - | Alpha |
-| **GEO-INFER-SIM**   | [Simulation environments for hypothesis testing](./GEO-INFER-SIM/README.md) | Model parameters, scenario definitions, simulation requirements | Digital twins, agent-based models, scenario planning tools | SPACE, TIME | Alpha |
-| **GEO-INFER-SPM**   | [Statistical Parametric Mapping for spatial-temporal analysis](./GEO-INFER-SPM/README.md) | Spatial-temporal data, statistical models, field observations | GLM analysis, random field theory, cluster-level inference | MATH, SPACE | Alpha |
-| **GEO-INFER-SPACE** | [Advanced spatial methods for comprehensive geospatial analysis](./GEO-INFER-SPACE/README.md) | Vector/raster data, coordinates, geometries, spatial queries | Processed spatial data, analysis results, spatial indices | DATA, MATH | Beta |
-| **GEO-INFER-TIME**  | [Temporal methods for timeline expression and dynamic data fusion](./GEO-INFER-TIME/README.md) | Time-series data, sensor streams, historical records | Forecasts, trends, temporal patterns, events | DATA, MATH | Alpha |
-| **GEO-INFER-RISK**  | [Risk modeling and insurance for geospatial applications](./GEO-INFER-RISK/README.md) | Risk factors, hazard data, vulnerability assessments | Risk models, insurance pricing, exposure management | SPACE, TIME, DATA | Alpha |
-| **GEO-INFER-LOG**   | [Logistics and supply chain optimization](./GEO-INFER-LOG/README.md) | Transportation networks, supply chain data, logistics requirements | Route optimization, supply chain modeling, logistics planning | SPACE, TIME, DATA | Alpha |
-| **GEO-INFER-PLACE** | [Deep place-based analyses for specific geographic locations](./GEO-INFER-PLACE/README.md) | Location-specific data, regional datasets, local context | Comprehensive regional analyses, place-based insights, territorial assessments | SPACE, TIME, DATA, ALL | Beta |
-| **GEO-INFER-TEST**  | [Comprehensive testing framework for quality assurance](./GEO-INFER-TEST/README.md) | Test requirements, quality metrics, integration needs | Automated test suites, quality reports, integration validation | All modules | Alpha |
-| **GEO-INFER-EXAMPLES** | [Cross-module integration demonstrations and tutorials](./GEO-INFER-EXAMPLES/README.md) | Integration requirements, tutorial needs, demonstration scenarios | Integration examples, best practices, entry-point tutorials | All modules | Beta |
+```mermaid
+flowchart TD
+    classDef dataSource fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
+    classDef processing fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
+    classDef analysis fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
+    classDef application fill:#fff3e0,stroke:#f57c00,stroke-width:2px
+    classDef output fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+
+    %% Data Sources
+    RS[Remote Sensing Data]:::dataSource
+    IOT[IoT Sensor Streams]:::dataSource
+    CSV[Tabular Datasets]:::dataSource
+    OSM[OpenStreetMap Data]:::dataSource
+    CGD[Crowdsourced Geodata]:::dataSource
+    API[External APIs]:::dataSource
+    SENSOR[Environmental Sensors]:::dataSource
+    
+    %% Data Processing Layer
+    DATA[GEO-INFER-DATA<br/>Data Management & ETL]:::processing
+    SPACE[GEO-INFER-SPACE<br/>Spatial Processing (H3 v4)]:::processing
+    TIME[GEO-INFER-TIME<br/>Temporal Processing]:::processing
+    SEC[GEO-INFER-SEC<br/>Security & Privacy]:::processing
+
+    %% Analytical Layer
+    MATH[GEO-INFER-MATH<br/>Mathematical Foundations]:::analysis
+    BAYES[GEO-INFER-BAYES<br/>Bayesian Inference]:::analysis
+    ACT[GEO-INFER-ACT<br/>Active Inference]:::analysis
+    AI[GEO-INFER-AI<br/>Machine Learning]:::analysis
+    SPM[GEO-INFER-SPM<br/>Statistical Mapping]:::analysis
+
+    %% Domain-Specific Analysis
+    AG[GEO-INFER-AG<br/>Agricultural Analysis]:::analysis
+    HEALTH[GEO-INFER-HEALTH<br/>Health Applications]:::analysis
+    ECON[GEO-INFER-ECON<br/>Economic Modeling]:::analysis
+    RISK[GEO-INFER-RISK<br/>Risk Assessment]:::analysis
+    LOG[GEO-INFER-LOG<br/>Logistics Optimization]:::analysis
+    BIO[GEO-INFER-BIO<br/>Bioinformatics]:::analysis
+
+    %% Simulation & Modeling
+    SIM[GEO-INFER-SIM<br/>Simulation Engine]:::analysis
+    ANT[GEO-INFER-ANT<br/>Complex Systems]:::analysis
+    AGENT[GEO-INFER-AGENT<br/>Intelligent Agents]:::analysis
+
+    %% Application Layer
+    APP[GEO-INFER-APP<br/>User Interfaces]:::application
+    ART[GEO-INFER-ART<br/>Artistic Expression]:::application
+    PLACE[GEO-INFER-PLACE<br/>Place-Based Analysis]:::application
+
+    %% Output Layer
+    API_OUT[API Services]:::output
+    DASH[Dashboards & Reports]:::output
+    MAPS[Interactive Maps]:::output
+    MODELS[Trained Models]:::output
+    INSIGHTS[Analytical Insights]:::output
+
+    %% Data Flow Connections
+    RS --> DATA
+    IOT --> DATA
+    CSV --> DATA
+    OSM --> DATA
+    CGD --> DATA
+    API --> DATA
+    SENSOR --> DATA
+
+    DATA --> SPACE
+    DATA --> TIME
+    DATA --> SEC
+
+    SPACE --> MATH
+    SPACE --> BAYES
+    SPACE --> ACT
+    SPACE --> AI
+    SPACE --> SPM
+
+    TIME --> MATH
+    TIME --> BAYES
+    TIME --> ACT
+    TIME --> AI
+
+    MATH --> BAYES
+    MATH --> ACT
+    MATH --> AI
+    MATH --> SPM
+
+    BAYES --> ACT
+    BAYES --> AI
+    BAYES --> SPM
+
+    ACT --> AI
+    ACT --> AGENT
+
+    AI --> AG
+    AI --> HEALTH
+    AI --> ECON
+    AI --> RISK
+    AI --> LOG
+    AI --> BIO
+
+    SPACE --> AG
+    SPACE --> HEALTH
+    SPACE --> ECON
+    SPACE --> RISK
+    SPACE --> LOG
+    SPACE --> BIO
+    SPACE --> PLACE
+
+    TIME --> AG
+    TIME --> HEALTH
+    TIME --> ECON
+    TIME --> RISK
+    TIME --> LOG
+    TIME --> BIO
+    TIME --> SIM
+
+    AG --> APP
+    HEALTH --> APP
+    ECON --> APP
+    RISK --> APP
+    LOG --> APP
+    BIO --> APP
+    PLACE --> APP
+
+    SIM --> APP
+    ANT --> APP
+    AGENT --> APP
+
+    APP --> API_OUT
+    APP --> DASH
+    APP --> MAPS
+    APP --> MODELS
+    APP --> INSIGHTS
+
+    ART --> MAPS
+    ART --> INSIGHTS
+```
+
+## 🔧 Core Modules (Enhanced)
+
+| **Module Name**     | **Purpose**                                                                                        | **Input Types** | **Output Types** | **Dependencies** | **Status** | **H3 v4 Status** |
+| ------------------- | -------------------------------------------------------------------------------------------------- | --------------- | ---------------- | ---------------- | ---------- | ---------------- |
+| **GEO-INFER-ACT**   | [Active Inference modeling for nested and interacting systems](./GEO-INFER-ACT/README.md) | Observations, beliefs, policies, generative models | Belief updates, action selections, free energy estimates | MATH, BAYES | Alpha | ✅ Updated |
+| **GEO-INFER-AG**    | [Agricultural methods and farming applications](./GEO-INFER-AG/README.md) | Satellite imagery, soil data, weather data, field boundaries | Yield predictions, crop health maps, precision agriculture recommendations | SPACE, TIME, DATA | Alpha | ✅ Updated |
+| **GEO-INFER-AI**    | [Artificial Intelligence and Machine Learning for geospatial workflows](./GEO-INFER-AI/README.md) | Imagery, spatial features, training labels, time-series data | Trained models, predictions, classifications, forecasts | DATA, SPACE | Alpha | ✅ Updated |
+| **GEO-INFER-AGENT** | [Intelligent agent frameworks for autonomous geospatial decision-making](./GEO-INFER-AGENT/README.md) | Agent configurations, spatial environments, behavior rules | Autonomous decisions, agent interactions, simulation results | ACT, AI | Alpha | ✅ Updated |
+| **GEO-INFER-ANT**   | [Complex systems modeling using Active Inference principles](./GEO-INFER-ANT/README.md) | Movement data, colony parameters, environmental conditions | Emergent behaviors, optimization solutions, swarm dynamics | ACT, SIM | Alpha | ✅ Updated |
+| **GEO-INFER-API**   | [API development and integration services for interoperability](./GEO-INFER-API/README.md) | Module functions, data requests, external API calls | REST/GraphQL APIs, webhooks, standardized responses | All modules | Beta | ✅ Updated |
+| **GEO-INFER-APP**   | [User interfaces, accessibility tools, and application development](./GEO-INFER-APP/README.md) | Analysis results, data products, user interactions | Interactive maps, dashboards, reports, mobile apps | API, SPACE | Alpha | ✅ Updated |
+| **GEO-INFER-ART**   | [Art production and aesthetics with geospatial dimensions](./GEO-INFER-ART/README.md) | Geospatial data, artistic parameters, aesthetic rules | Artistic visualizations, generative maps, aesthetic frameworks | SPACE, APP | Alpha | ✅ Updated |
+| **GEO-INFER-BAYES** | [Generalized Bayesian inference processes](./GEO-INFER-BAYES/README.md) | Observations, priors, model specifications | Posterior distributions, uncertainty estimates, model evidence | MATH | Alpha | ✅ Updated |
+| **GEO-INFER-BIO**   | [Bioinformatics analysis with spatial context](./GEO-INFER-BIO/README.md) | Genomic data, biological sequences, sample locations | Spatial omics analysis, phylogeographic patterns, ecological modeling | SPACE, TIME, DATA | Alpha | ✅ Updated |
+| **GEO-INFER-CIV**   | [Community engagement and participatory mapping tools](./GEO-INFER-CIV/README.md) | Community input, stakeholder data, participatory mapping | STEW-MAP visualizations, community-driven spatial planning | SPACE, APP | Alpha | ✅ Updated |
+| **GEO-INFER-COG**   | [Cognitive phenomena and modeling for geospatial systems](./GEO-INFER-COG/README.md) | User behavior, cognitive models, spatial perception data | Attention mechanisms, spatial memory models, trust modeling | SPACE, AI | Alpha | ✅ Updated |
+| **GEO-INFER-COMMS** | [Communications within and outside of the project](./GEO-INFER-COMMS/README.md) | Project communications, documentation needs, outreach requirements | Communication strategies, documentation, public engagement | INTRA, APP | Alpha | ✅ Updated |
+| **GEO-INFER-DATA**  | [Data management, ETL processes, and storage optimization](./GEO-INFER-DATA/README.md) | Raw geospatial data, external APIs, sensor feeds | Processed datasets, data pipelines, storage solutions | OPS, SEC | Alpha | ✅ Updated |
+| **GEO-INFER-ECON**  | [Economic modeling with spatial dimensions](./GEO-INFER-ECON/README.md) | Economic indicators, market data, spatial boundaries | Economic models, policy analysis, market simulations | SPACE, TIME, DATA | Alpha | ✅ Updated |
+| **GEO-INFER-GIT**   | [Git integration and version control workflows](./GEO-INFER-GIT/README.md) | Repository configurations, version control needs | Automated versioning, repository management, CI/CD integration | OPS | Beta | ✅ Updated |
+| **GEO-INFER-HEALTH** | [Geospatial applications for public health and epidemiology](./GEO-INFER-HEALTH/README.md) | Health data, epidemiological records, environmental factors | Disease surveillance, healthcare accessibility analysis, health risk assessment | SPACE, TIME, DATA | Alpha | ✅ Updated |
+| **GEO-INFER-INTRA** | [Project documentation, workflows, and ontology management](./GEO-INFER-INTRA/README.md) | Project requirements, documentation needs, ontological structures | Comprehensive documentation, workflow templates, standardized ontologies | All modules | Beta | ✅ Updated |
+| **GEO-INFER-IOT** | [Internet of Things sensors and spatial web integration](./GEO-INFER-IOT/README.md) | IoT sensor streams, device metadata, spatial coordinates | Real-time sensor data fusion, Bayesian spatial interpolation, global sensor networks | SPACE, BAYES, DATA | Alpha | ✅ Updated |
+| **GEO-INFER-MATH**  | [Mathematical foundations and computational methods](./GEO-INFER-MATH/README.md) | Mathematical problems, spatial calculations, statistical requirements | Mathematical solutions, spatial statistics, optimization results | - | Beta | ✅ Updated |
+| **GEO-INFER-NORMS** | [Social-technical compliance modeling](./GEO-INFER-NORMS/README.md) | Regulatory requirements, compliance data, social norms | Compliance tracking, regulatory impact mapping, social norm modeling | SPACE, DATA | Alpha | ✅ Updated |
+| **GEO-INFER-OPS**   | [Operational kernel for system orchestration and monitoring](./GEO-INFER-OPS/README.md) | System metrics, configuration files, infrastructure requirements | Monitoring dashboards, automated deployment, system health reports | SEC | Alpha | ✅ Updated |
+| **GEO-INFER-ORG**   | [Organizations and Decentralized Autonomous Organizations](./GEO-INFER-ORG/README.md) | Organizational structures, governance requirements, DAO parameters | Governance frameworks, token engineering, proposal systems | PEP, COMMS | Alpha | ✅ Updated |
+| **GEO-INFER-PEP**   | [People management, HR, and CRM functions](./GEO-INFER-PEP/README.md) | Personnel data, community relationships, skill requirements | Talent management, community engagement, conflict resolution | ORG, COMMS | Alpha | ✅ Updated |
+| **GEO-INFER-REQ**   | [Requirements engineering using P3IF framework](./GEO-INFER-REQ/README.md) | Requirements specifications, stakeholder needs, system constraints | Validated requirements, compliance frameworks, system specifications | NORMS, SEC | Alpha | ✅ Updated |
+| **GEO-INFER-SEC**   | [Security and privacy frameworks for geospatial information](./GEO-INFER-SEC/README.md) | Security requirements, privacy constraints, access control needs | Security protocols, data anonymization, compliance frameworks | - | Alpha | ✅ Updated |
+| **GEO-INFER-SIM**   | [Simulation environments for hypothesis testing](./GEO-INFER-SIM/README.md) | Model parameters, scenario definitions, simulation requirements | Digital twins, agent-based models, scenario planning tools | SPACE, TIME | Alpha | ✅ Updated |
+| **GEO-INFER-SPM**   | [Statistical Parametric Mapping for spatial-temporal analysis](./GEO-INFER-SPM/README.md) | Spatial-temporal data, statistical models, field observations | GLM analysis, random field theory, cluster-level inference | MATH, SPACE | Alpha | ✅ Updated |
+| **GEO-INFER-SPACE** | [Advanced spatial methods for comprehensive geospatial analysis](./GEO-INFER-SPACE/README.md) | Vector/raster data, coordinates, geometries, spatial queries | Processed spatial data, analysis results, spatial indices | DATA, MATH | Beta | ✅ **FULLY MIGRATED** |
+| **GEO-INFER-TIME**  | [Temporal methods for timeline expression and dynamic data fusion](./GEO-INFER-TIME/README.md) | Time-series data, sensor streams, historical records | Forecasts, trends, temporal patterns, events | DATA, MATH | Alpha | ✅ Updated |
+| **GEO-INFER-RISK**  | [Risk modeling and insurance for geospatial applications](./GEO-INFER-RISK/README.md) | Risk factors, hazard data, vulnerability assessments | Risk models, insurance pricing, exposure management | SPACE, TIME, DATA | Alpha | ✅ Updated |
+| **GEO-INFER-LOG**   | [Logistics and supply chain optimization](./GEO-INFER-LOG/README.md) | Transportation networks, supply chain data, logistics requirements | Route optimization, supply chain modeling, logistics planning | SPACE, TIME, DATA | Alpha | ✅ Updated |
+| **GEO-INFER-PLACE** | [Deep place-based analyses for specific geographic locations](./GEO-INFER-PLACE/README.md) | Location-specific data, regional datasets, local context | Comprehensive regional analyses, place-based insights, territorial assessments | SPACE, TIME, DATA, ALL | Beta | ✅ **FULLY MIGRATED** |
+| **GEO-INFER-TEST**  | [Comprehensive testing framework for quality assurance](./GEO-INFER-TEST/README.md) | Test requirements, quality metrics, integration needs | Automated test suites, quality reports, integration validation | All modules | Alpha | ✅ Updated |
+| **GEO-INFER-EXAMPLES** | [Cross-module integration demonstrations and tutorials](./GEO-INFER-EXAMPLES/README.md) | Integration requirements, tutorial needs, demonstration scenarios | Integration examples, best practices, entry-point tutorials | All modules | Beta | ✅ Updated |
 
 ## 🔄 Framework Position in Geospatial Ecosystem
 
@@ -177,6 +490,7 @@ graph TD
     classDef sourceNode fill:#80d8ff,stroke:#0091ea,stroke-width:1px
     classDef applicationNode fill:#b9f6ca,stroke:#00c853,stroke-width:1px
     classDef domainNode fill:#e1bee7,stroke:#8e24aa,stroke-width:1px
+    classDef integrationNode fill:#fff59d,stroke:#f57f17,stroke-width:1px
 
     GEOINFER[GEO-INFER Framework]:::mainNode
     
@@ -186,6 +500,8 @@ graph TD
     CSV[Tabular Data]:::sourceNode
     OSM[OpenStreetMap]:::sourceNode
     CGD[Crowdsourced Geodata]:::sourceNode
+    API[External APIs]:::sourceNode
+    SENSOR[Environmental Sensors]:::sourceNode
     
     %% Applications
     DT[Digital Twins]:::applicationNode
@@ -193,798 +509,191 @@ graph TD
     ES[Ecological Simulations]:::applicationNode
     CP[Civic Planning]:::applicationNode
     RM[Risk Management]:::applicationNode
+    PA[Precision Agriculture]:::applicationNode
+    UH[Urban Health]:::applicationNode
     
     %% Domains
     URB[Urban Systems]:::domainNode
     ECO[Ecosystems]:::domainNode
     AGR[Agriculture]:::domainNode
-    CLI[Climate]:::domainNode
-    DIS[Disaster Response]:::domainNode
+    HLT[Health Systems]:::domainNode
+    FIN[Financial Systems]:::domainNode
+    LOG[Logistics Networks]:::domainNode
+    GOV[Governance Systems]:::domainNode
     
-    %% Connections - Sources to GEO-INFER
+    %% Integration Points
+    AI_INT[AI/ML Integration]:::integrationNode
+    ACT_INT[Active Inference]:::integrationNode
+    H3_INT[H3 v4 Spatial Indexing]:::integrationNode
+    
+    %% Connections
     RS --> GEOINFER
     IOT --> GEOINFER
     CSV --> GEOINFER
     OSM --> GEOINFER
     CGD --> GEOINFER
+    API --> GEOINFER
+    SENSOR --> GEOINFER
     
-    %% Connections - GEO-INFER to Applications
+    GEOINFER --> AI_INT
+    GEOINFER --> ACT_INT
+    GEOINFER --> H3_INT
+    
     GEOINFER --> DT
     GEOINFER --> CSD
     GEOINFER --> ES
     GEOINFER --> CP
     GEOINFER --> RM
+    GEOINFER --> PA
+    GEOINFER --> UH
     
-    %% Connections - Applications to Domains
     DT --> URB
-    DT --> ECO
-    CSD --> CLI
-    CSD --> AGR
+    CSD --> ECO
     ES --> ECO
-    ES --> CLI
     CP --> URB
-    CP --> DIS
-    RM --> DIS
-    RM --> AGR
-```
-
-
-
-## ⚠️ Development Status Notice
-
-**GEO-INFER is currently in active development.** Most modules are in Alpha or Beta stage. While the framework architecture is well-defined and examples demonstrate key concepts, production use should be approached with appropriate testing and validation.
-
-## 🚀 Getting Started
-
-### Prerequisites
-- Python 3.9 or higher
-- Git
-- Docker (optional)
-### Installation
-```bash
-# Clone the repository
-git clone https://github.com/activeinference/GEO-INFER.git
-cd GEO-INFER
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
-pip install -r requirements.txt
-```
-### Quick Start
-
-**Recommended: Start with Examples**
-```bash
-# Explore comprehensive examples demonstrating module integration
-cd GEO-INFER-EXAMPLES
-python examples/getting_started/basic_integration_demo/scripts/run_example.py
-
-# See cross-module workflows in action
-python scripts/run_all_examples.py
-```
-
-**Direct Module Usage**
-```python
-# Example: Working with GEO-INFER-SPACE
-from geo_infer_space import SpatialAnalyzer
-from geo_infer_space.indexing import H3Indexer
-
-# Initialize spatial analyzer
-analyzer = SpatialAnalyzer()
-indexer = H3Indexer(resolution=8)
-
-# Process geospatial data
-spatial_results = analyzer.process_geojson(data)
-h3_cells = indexer.geometries_to_h3(spatial_results.geometry)
-```
-
-> 💡 **Pro Tip**: The GEO-INFER-EXAMPLES module provides the best entry point for understanding how modules work together. Each example demonstrates real-world applications using multiple modules in concert.
-## 🔄 Framework Integration Guide
-
-### Starting Your GEO-INFER Journey
-
-**For New Users (Start Here):**
-1. **Explore Examples First**: Begin with `GEO-INFER-EXAMPLES` to see the framework in action
-2. **Install Core Infrastructure**: Set up `GEO-INFER-OPS` for monitoring and `GEO-INFER-DATA` for data management
-3. **Add Foundational Modules**: Install `GEO-INFER-SPACE` and `GEO-INFER-MATH` for basic spatial capabilities
-4. **Choose Domain Module**: Select one domain module (AG, HEALTH, ECON) based on your use case
-5. **Add Analytics**: Include `GEO-INFER-TIME` and/or `GEO-INFER-AI` for advanced analysis
-6. **Create Interface**: Use `GEO-INFER-API` and `GEO-INFER-APP` for user access and web presence
-
-### Common Integration Patterns
-
-#### Pattern 1: Health Surveillance System
-```
-OPS → DATA → SPACE → TIME → HEALTH → API → APP
-       ↓       ↓       ↓       ↓        ↓
-      SEC → MATH → AI → RISK → SPM
-```
-
-#### Pattern 2: Agricultural Monitoring
-```
-OPS → DATA → SPACE → TIME → AG → AI → SIM → APP
-       ↓       ↓       ↓      ↓    ↓    ↓
-      SEC → MATH → BAYES → ECON → API
-```
-
-#### Pattern 3: Smart City Analytics
-```
-OPS → DATA → SPACE → TIME → AI → AGENT → SIM → APP
-       ↓       ↓       ↓       ↓      ↓       ↓
-      SEC → MATH → CIV → RISK → NORMS → API
-```
-
-#### Pattern 4: Geospatial Web Application
-```
-OPS → DATA → SPACE → API → APP → Web Users
-       ↓       ↓       ↓       ↓
-      SEC → INTRA → COMMS → ART
-```
-
-### 📋 Module Integration Quick Reference
-
-| **If You Need...** | **Core Modules** | **Enhancement Modules** | **Example Pattern** |
-|---------------------|------------------|-------------------------|-------------------|
-| **Basic Spatial Analysis** | DATA + SPACE + MATH | TIME, AI | `DATA → SPACE → MATH → Results` |
-| **Active Inference Modeling** | ACT + BAYES + MATH | AGENT, SIM, AI | `BAYES → ACT → AGENT → SIM` |
-| **Agricultural Monitoring** | AG + SPACE + TIME | AI, ECON, SIM | `DATA → SPACE → TIME → AG → AI` |
-| **Health Surveillance** | HEALTH + SPACE + TIME | AI, RISK, BIO, SPM | `DATA → SPACE → HEALTH → RISK` |
-| **Economic Modeling** | ECON + SPACE + TIME | AG, SIM, AI | `DATA → SPACE → ECON → SIM` |
-| **Risk Assessment** | RISK + SPACE + TIME | AI, HEALTH, ECON | `DATA → SPACE → RISK → Health` |
-| **Complex Systems** | SIM + ANT + ACT | AI, AGENT, SPACE | `ACT → AGENT → ANT → SIM` |
-| **Community Engagement** | CIV + APP + COMMS | SPACE, ORG, PEP | `SPACE → CIV → APP → COMMS` |
-| **Web Applications** | API + APP + DATA | SPACE, ART, COMMS | `DATA → API → APP → Users` |
-| **IoT Sensor Networks** | IOT + BAYES + SPACE | TIME, AI | `IOT → BAYES → SPACE → Analysis` |
-| **Research Pipeline** | Multiple modules | EXAMPLES, INTRA, TEST | `Examples → Core → Analysis` |
-
-### Module Compatibility Matrix
-
-| Module | Compatible With | Requires | Enhances |
-|--------|----------------|----------|----------|
-| **OPS** | All modules | - | System reliability, monitoring |
-| **DATA** | All modules | OPS | Data availability, storage |
-| **SPACE** | All modules | DATA, MATH | Spatial capabilities, indexing |
-| **TIME** | All analytical | DATA, MATH | Temporal analysis, forecasting |
-| **IOT** | SPACE, BAYES, sensor modules | AI, TIME | Real-time sensor integration, spatial web |
-| **AI** | All analytical | DATA, SPACE | Predictive capabilities, ML |
-| **ACT** | BAYES, AGENT, SIM | MATH | Active inference, decision making |
-| **BAYES** | ACT, AI, SPM | MATH | Uncertainty quantification |
-| **AGENT** | ACT, AI, SIM | - | Autonomous decision making |
-| **HEALTH** | SPACE, TIME, AI, BIO, SPM | DATA | Health analytics, surveillance |
-| **AG** | SPACE, TIME, AI, ECON | DATA | Agricultural insights, precision farming |
-| **BIO** | SPACE, TIME, HEALTH | DATA | Bioinformatics, spatial omics |
-| **ECON** | SPACE, TIME, AG, RISK | DATA | Economic modeling, policy analysis |
-| **RISK** | SPACE, TIME, HEALTH, ECON | DATA | Risk assessment, insurance |
-| **API** | All modules | OPS | External integration, services |
-| **APP** | API, SPACE, all domain modules | DATA | User interfaces, visualization |
-| **ART** | SPACE, APP | - | Artistic visualization, creativity |
-| **SIM** | SPACE, TIME, ACT, AGENT | DATA | Modeling, scenario planning |
-| **SPM** | SPACE, MATH, BAYES | - | Statistical parametric mapping |
-
-### Quick Start by Use Case
-
-#### 🏥 Public Health Surveillance
-```bash
-# Minimal setup for health surveillance
-pip install -e ./GEO-INFER-OPS ./GEO-INFER-DATA ./GEO-INFER-SPACE ./GEO-INFER-HEALTH
-
-# Configure health data sources
-cp GEO-INFER-HEALTH/config/example.yaml config/health-surveillance.yaml
-# Edit to add your health data connections
-
-# Run disease surveillance
-python examples/health_surveillance_basic.py
-```
-
-#### 🌾 Agricultural Monitoring
-```bash
-# Setup for crop monitoring
-pip install -e ./GEO-INFER-SPACE ./GEO-INFER-TIME ./GEO-INFER-AG ./GEO-INFER-AI
-
-# Run crop analysis
-python examples/crop_monitoring_pipeline.py
-```
-
-#### 🏙️ Urban Planning
-```bash
-# Setup for urban analysis
-pip install -e ./GEO-INFER-SPACE ./GEO-INFER-CIV ./GEO-INFER-SIM ./GEO-INFER-APP
-
-# Launch urban planning tools
-python examples/urban_planning_dashboard.py
-```
-
-#### 🌐 Geospatial Web Application Development
-```bash
-# Setup for web application development
-pip install -e ./GEO-INFER-APP ./GEO-INFER-API ./GEO-INFER-COMMS ./GEO-INFER-INTRA
-
-# Generate web application
-python examples/generate_geospatial_webapp.py
+    RM --> HLT
+    PA --> AGR
+    UH --> HLT
+    
+    AI_INT --> DT
+    AI_INT --> CSD
+    AI_INT --> ES
+    AI_INT --> PA
+    AI_INT --> UH
+    
+    ACT_INT --> RM
+    ACT_INT --> CP
+    ACT_INT --> GOV
+    
+    H3_INT --> SPACE
+    H3_INT --> LOG
+    H3_INT --> FIN
 ```
 
 ## 📋 Use Cases
 
-### Ecological Applications
-- Biodiversity monitoring
-- Climate change impact assessment
-- Ecosystem service valuation
-- Habitat connectivity analysis
+### 🌾 Agricultural Applications
+- **Precision Agriculture**: H3-based field monitoring and yield prediction
+- **Crop Health Analysis**: Spatial-temporal disease and pest monitoring
+- **Resource Optimization**: Water, fertilizer, and pesticide management
 
-### Civic Applications
-- Community-based mapping
-- Participatory planning
-- Environmental justice assessment
-- Urban resilience planning
+### 🏙️ Urban Planning
+- **Smart Cities**: IoT sensor integration for urban monitoring
+- **Infrastructure Planning**: Spatial analysis for development decisions
+- **Community Engagement**: Participatory mapping and civic planning
 
-### Research Applications
-- Spatial-temporal modeling
-- Complex system analysis
-- Multi-scale ecological studies
-- Interdisciplinary research
+### 🌿 Environmental Monitoring
+- **Ecosystem Health**: Biodiversity monitoring and habitat analysis
+- **Climate Impact**: Spatial-temporal climate change analysis
+- **Conservation Planning**: Protected area management and restoration
 
-## References
+### 🏥 Public Health
+- **Disease Surveillance**: Epidemiological modeling and outbreak prediction
+- **Healthcare Access**: Spatial accessibility analysis
+- **Environmental Health**: Pollution monitoring and health impact assessment
 
-1. Friston, K. (2010). The free-energy principle: a unified brain theory? Nature Reviews Neuroscience, 11(2), 127-138.
-2. Friston, K., et al. (2017). Active inference: a process theory. Neural Computation, 29(1), 1-49.
-3. Parr, T., & Friston, K. J. (2019). Generalised free energy and active inference. Biological Cybernetics, 113(5), 495-513.
-4. Rao, D., et al. (2022). Synthetic Spatial Foraging With Active Inference in a Geocaching Task. Frontiers in Psychology. https://www.frontiersin.org/journals/psychology/articles/10.3389/fpsyg.2022.809296/full
+### 🏢 Economic Analysis
+- **Market Analysis**: Spatial economic modeling and market dynamics
+- **Supply Chain Optimization**: Logistics and transportation planning
+- **Risk Assessment**: Insurance and financial risk modeling
 
-## Project Structure 📂
+## 🧪 Testing & Quality Assurance
 
-Each module generally follows this standardized structure, though some may include additional directories specific to their domain or function (e.g., `etl/`, `storage/`, `repos/`).
-```
-MODULE_NAME/
-├── config/               # Configuration files
-├── docs/                 # Documentation
-├── examples/             # Example applications and use cases
-├── src/                  # Source code
-│   └── module_package/   # Main package
-│       ├── api/          # API definitions
-│       ├── core/         # Core functionality
-│       ├── models/       # Data models
-│       └── utils/        # Utility functions
-└── tests/                # Test suite
-```
+### Comprehensive Testing Framework
 
+```bash
+# Run all tests
+python -m pytest tests/ -v
 
-The following diagram illustrates the relationships and interactions between all modules in the GEO-INFER framework:
+# Run specific module tests
+python -m pytest GEO-INFER-SPACE/tests/ -v
 
-```mermaid
-graph TB
-    classDef core fill:#e1bee7,stroke:#8e24aa,stroke-width:2px
-    classDef data fill:#bbdefb,stroke:#1976d2,stroke-width:1px
-    classDef analysis fill:#c8e6c9,stroke:#388e3c,stroke-width:1px
-    classDef presentation fill:#ffccbc,stroke:#e64a19,stroke-width:1px
-    classDef governance fill:#fff9c4,stroke:#fbc02d,stroke-width:1px
-    classDef utilities fill:#b3e5fc,stroke:#0288d1,stroke-width:1px
-    classDef social fill:#f8bbd0,stroke:#c2185b,stroke-width:1px
-    classDef domain fill:#d7ccc8,stroke:#5d4037,stroke-width:1px
+# Run H3 v4 migration tests
+python -m pytest GEO-INFER-SPACE/tests/test_h3_v4_migration.py -v
 
-    %% Core Module
-    OPS[GEO-INFER-OPS]:::core
-
-    %% Data Layer
-    DATA[GEO-INFER-DATA]:::data
-    SPACE[GEO-INFER-SPACE]:::data
-    TIME[GEO-INFER-TIME]:::data
-    API[GEO-INFER-API]:::utilities
-
-    %% Analysis & Intelligence Layer
-    ACT[GEO-INFER-ACT]:::analysis
-    AI[GEO-INFER-AI]:::analysis
-    AGENT[GEO-INFER-AGENT]:::analysis
-    BAYES[GEO-INFER-BAYES]:::analysis
-    MATH[GEO-INFER-MATH]:::analysis
-    COG[GEO-INFER-COG]:::analysis
-    SPM[GEO-INFER-SPM]:::analysis
-    
-    %% Simulation & Modeling
-    SIM[GEO-INFER-SIM]:::analysis
-    ANT[GEO-INFER-ANT]:::analysis
-    
-    %% Governance & Compliance
-    SEC[GEO-INFER-SEC]:::governance
-    NORMS[GEO-INFER-NORMS]:::governance
-    REQ[GEO-INFER-REQ]:::governance
-
-    %% Social & Community
-    CIV[GEO-INFER-CIV]:::social
-    PEP[GEO-INFER-PEP]:::social
-    ORG[GEO-INFER-ORG]:::social
-    COMMS[GEO-INFER-COMMS]:::social
-
-    %% Applications
-    APP[GEO-INFER-APP]:::presentation
-    ART[GEO-INFER-ART]:::presentation
-
-    %% Domain-Specific
-    AG[GEO-INFER-AG]:::domain
-    ECON[GEO-INFER-ECON]:::domain
-    HEALTH[GEO-INFER-HEALTH]:::domain
-    RISK[GEO-INFER-RISK]:::domain
-    LOG[GEO-INFER-LOG]:::domain
-    BIO[GEO-INFER-BIO]:::domain
-
-    %% Operations & Documentation
-    INTRA[GEO-INFER-INTRA]:::utilities
-    GIT[GEO-INFER-GIT]:::utilities
-
-    %% Core Orchestration
-    OPS --> DATA
-    OPS --> API
-    OPS --> SEC
-    OPS --> INTRA
-    OPS --> GIT
-    
-    %% Data Layer Connections
-    DATA <--> SPACE
-    DATA <--> TIME
-    DATA <--> API
-    
-    %% Spatial-Temporal to Analysis
-    SPACE --> ACT
-    SPACE --> AI
-    SPACE --> SIM
-    SPACE --> BAYES
-    SPACE --> SPM
-    TIME --> ACT
-    TIME --> AI
-    TIME --> SIM
-    TIME --> BAYES
-    TIME --> SPM
-    
-    %% Analysis Interconnections
-    ACT <--> AI
-    ACT <--> BAYES
-    ACT <--> MATH
-    ACT <--> COG
-    ACT <--> AGENT
-    ACT <--> SPM
-    AI <--> BAYES
-    AI <--> COG
-    AI <--> AGENT
-    AI <--> SPM
-    AGENT <--> COG
-    BAYES <--> MATH
-    BAYES <--> SPM
-    MATH <--> COG
-    MATH <--> SPM
-    
-    %% Analysis to Simulation
-    ACT --> ANT
-    ACT --> SIM
-    AI --> SIM
-    AI --> ANT
-    AGENT --> ANT
-    AGENT --> SIM
-    SIM <--> ANT
-    BAYES --> SIM
-    SPM --> SIM
-    
-    %% Governance Connections
-    SEC --> DATA
-    SEC --> API
-    SEC --> APP
-    NORMS <--> SEC
-    NORMS --> SIM
-    NORMS --> CIV
-    REQ --> ACT
-    REQ --> AI
-    REQ --> SIM
-    REQ --> APP
-    REQ <--> NORMS
-    REQ <--> SEC
-    
-    %% Social & Community Connections
-    CIV <--> APP
-    CIV <--> COMMS
-    PEP <--> ORG
-    PEP <--> COMMS
-    ORG <--> COMMS
-    CIV <--> ORG
-    
-    %% Applications Connections
-    APP --> API
-    APP <--> ART
-    APP --> SPACE
-    APP --> TIME
-    APP --> ANT
-    APP --> AI
-    APP --> AGENT
-    APP --> SIM
-    APP --> NORMS
-    APP --> SPM
-    APP --> COMMS
-    APP --> DATA
-    APP --> INTRA
-    
-    %% Domain-Specific Connections
-    AG --> SPACE
-    AG --> TIME
-    AG --> SIM
-    AG --> APP
-    AG --> SPM
-    AG --> DATA
-
-    ECON --> SPACE
-    ECON --> TIME
-    ECON --> SIM
-    ECON --> APP
-    ECON --> DATA
-    ECON <--> AG
-
-    HEALTH --> SPACE
-    HEALTH --> TIME
-    HEALTH --> SIM
-    HEALTH --> APP
-    HEALTH --> AI
-    HEALTH --> AGENT
-    HEALTH --> SPM
-    HEALTH --> DATA
-    HEALTH --> SEC
-    HEALTH <--> RISK
-    HEALTH <--> BIO
-
-    RISK --> SPACE
-    RISK --> TIME
-    RISK --> SIM
-    RISK --> AI
-    RISK --> DATA
-    RISK --> APP
-
-    LOG --> SPACE
-    LOG --> TIME
-    LOG --> SIM
-    LOG --> AI
-    LOG --> DATA
-    LOG --> APP
-
-    BIO --> SPACE
-    BIO --> TIME
-    BIO --> SIM
-    BIO --> AI
-    BIO --> DATA
-    BIO --> APP
-    
-    %% Documentation & Standards
-    INTRA -.-> DATA
-    INTRA -.-> SPACE
-    INTRA -.-> TIME
-    INTRA -.-> ACT
-    INTRA -.-> AI
-    INTRA -.-> AGENT
-    INTRA -.-> BAYES
-    INTRA -.-> MATH
-    INTRA -.-> COG
-    INTRA -.-> SIM
-    INTRA -.-> ANT
-    INTRA -.-> SEC
-    INTRA -.-> NORMS
-    INTRA -.-> REQ
-    INTRA -.-> APP
-    INTRA -.-> ART
-
-    INTRA -.-> CIV
-    INTRA -.-> PEP
-    INTRA -.-> ORG
-    INTRA -.-> COMMS
-    INTRA -.-> AG
-    INTRA -.-> ECON
-    INTRA -.-> SPM
-    INTRA -.-> HEALTH
-    INTRA -.-> RISK
-    INTRA -.-> LOG
-    INTRA -.-> BIO
-    
-    %% Version Control Integrations
-    GIT -.-> ALL
+# Run performance tests
+python -m pytest tests/performance/ -v
 ```
 
-## Module Interaction Flow
+## 📚 Documentation
 
-```mermaid
-flowchart TD
-    classDef input fill:#bbf,stroke:#333,stroke-width:1px
-    classDef process fill:#bfb,stroke:#333,stroke-width:1px
-    classDef output fill:#fbb,stroke:#333,stroke-width:1px
-    
-    %% Data Collection & Processing
-    A[External Data Sources]:::input --> B[GEO-INFER-DATA]
-    B --> C{Data Processing}
-    C --> D[GEO-INFER-SPACE]:::process
-    C --> E[GEO-INFER-TIME]:::process
-    
-    %% Analysis Pipeline
-    D & E --> F[Integrated Spatio-Temporal Data]
-    F --> G[GEO-INFER-AI]:::process
-    F --> H[GEO-INFER-ACT]:::process
-    F --> X[GEO-INFER-SPM]:::process
-    G & H & X --> I[Analytical Results]
-    
-    %% Simulation & Modeling
-    I --> J[GEO-INFER-SIM]:::process
-    J --> K[Scenario Models]
-    I --> L[GEO-INFER-ANT]:::process
-    L --> M[Complex System Models]
-    I --> N[GEO-INFER-NORMS]:::process
-    N --> O[Compliance & Regulatory Models]
-    I --> P[GEO-INFER-BIO]:::process
-    P --> Q[Biological System Models]
-    I --> HEALTH_MOD[GEO-INFER-HEALTH]:::process
-    B --> HEALTH_MOD
-    HEALTH_MOD --> HEALTH_MOD_OUT[Health System Models]
-    
-    %% Presentation & Interaction
-    K & M & O & Q & HEALTH_MOD_OUT --> R[Integrated Insights]
-    R --> S[GEO-INFER-APP]:::output
-    S --> T[User Interfaces]
-    S --> U[GEO-INFER-CIV]:::output
-    U --> V[Community Engagement]
-    R --> ART_MOD[GEO-INFER-ART]:::output
-    ART_MOD --> W_ART[Artistic Visualizations]
-    
-    %% Core Services
-    W[GEO-INFER-OPS]:::process --> B & G & S
-    X[GEO-INFER-API]:::process --> T & U
-    Y[GEO-INFER-SEC]:::process -.-> B & X & S & U
-    Y -.-> HEALTH_MOD
-    Z[GEO-INFER-INTRA]:::process -.-> All
-    COMMS_MOD[GEO-INFER-COMMS]:::process --> S
+### API Documentation
+
+- **Core API**: [SPACE Module API](./GEO-INFER-SPACE/docs/api_schema.yaml)
+- **H3 Utilities**: [H3 v4 Functions](./GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py)
+- **Place Analysis**: [PLACE Module API](./GEO-INFER-PLACE/docs/api_schema.yaml)
+
+### Tutorials & Examples
+
+- **Getting Started**: [Basic Tutorial](./GEO-INFER-EXAMPLES/examples/basic_tutorial.md)
+- **H3 Migration**: [Migration Guide](./GEO-INFER-SPACE/docs/h3_migration_guide.md)
+- **Advanced Usage**: [Advanced Examples](./GEO-INFER-EXAMPLES/examples/advanced_examples.md)
+
+
+## 🤝 Contributing
+
+### Development Guidelines
+
+1. **Follow H3 v4 Standards**: Use updated H3 functions and GeoJSON formats
+2. **Comprehensive Testing**: Write tests for all new functionality
+3. **Documentation**: Update README and API documentation
+4. **Code Quality**: Follow PEP 8 and project coding standards
+5. **Performance**: Optimize for large-scale data processing
+
+### Contribution Areas
+
+- **🧪 Testing**: Expand test coverage and performance benchmarks
+- **📚 Documentation**: Improve tutorials and API documentation
+- **🔧 Core Development**: Enhance spatial analysis capabilities
+- **🌐 Integration**: Connect with external geospatial services
+- **📊 Visualization**: Improve interactive mapping and dashboards
+
+### Getting Started with Development
+
+```bash
+# Fork and clone the repository
+git clone https://github.com/your-username/GEO-INFER.git
+cd GEO-INFER
+
+# Set up development environment
+pip install -r requirements-dev.txt
+
+# Run tests to ensure everything works
+python -m pytest tests/ -v
+
+# Make your changes and test
+python -m pytest tests/ -v --tb=short
 ```
 
-## Technology Stack Architecture
+## 🌐 Community
 
-```mermaid
-graph BT
-    classDef storage fill:#f9f,stroke:#333,stroke-width:1px
-    classDef processing fill:#bbf,stroke:#333,stroke-width:1px
-    classDef serving fill:#bfb,stroke:#333,stroke-width:1px
-    classDef security fill:#fbb,stroke:#333,stroke-width:1px
-    classDef ui fill:#fbf,stroke:#333,stroke-width:1px
+### Join the Community
 
-    %% Data Storage Layer
-    PG[(PostgreSQL)]:::storage
-    POSTGIS[(PostGIS)]:::storage
-    MINIO[(MinIO)]:::storage
-    TIMESCALEDB[(TimescaleDB)]:::storage
-    REDIS[(Redis)]:::storage
+- **Discord**: [Active Inference Institute](https://discord.activeinference.institute/)
+- **GitHub Discussions**: [Framework Discussions](https://github.com/your-org/GEO-INFER/discussions)
+- **Documentation**: [Comprehensive Docs](./GEO-INFER-INTRA/docs/)
 
-    %% Data Processing Layer
-    SPARK[Apache Spark]:::processing
-    KAFKA[Kafka]:::processing
-    AIRFLOW[Airflow]:::processing
-    PYTHON[Python Ecosystem]:::processing
-    R[R Statistical]:::processing
-    TENSOR[TensorFlow/PyTorch]:::processing
+### Community Guidelines
 
-    %% API & Serving Layer
-    FASTAPI[FastAPI]:::serving
-    GRAPHQL[GraphQL]:::serving
-    OGC[OGC Services]:::serving
-    MAPSERVER[MapServer]:::serving
+- **Be Respectful**: Foster an inclusive and welcoming environment
+- **Share Knowledge**: Help others learn and grow
+- **Report Issues**: Contribute to framework improvement
+- **Follow Standards**: Maintain code quality and documentation
 
-    %% Security Layer
-    KEYCLOAK[Keycloak]:::security
-    VAULT[HashiCorp Vault]:::security
-    CERT[Cert Manager]:::security
+## 📄 License
 
-    %% UI Layer
-    REACT[React]:::ui
-    LEAFLET[Leaflet/Mapbox]:::ui
-    DECK[deck.gl]:::ui
-    D3[D3.js]:::ui
+This project is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License - see the [LICENSE](LICENSE) file for details.
 
-    %% Infrastructure
-    K8S[Kubernetes]:::processing
-    DOCKER[Docker]:::processing
-    ISTIO[Istio]:::security
+## 🙏 Acknowledgments
 
-    %% Connections
-    PG --- POSTGIS
-    PG --- TIMESCALEDB
-    
-    %% Storage to Processing
-    POSTGIS --> SPARK
-    MINIO --> SPARK
-    TIMESCALEDB --> SPARK
-    REDIS --> KAFKA
-    
-    %% Processing interconnections
-    SPARK <--> KAFKA
-    SPARK <--> AIRFLOW
-    KAFKA <--> AIRFLOW
-    PYTHON <--> SPARK
-    R <--> SPARK
-    TENSOR <--> PYTHON
-    
-    %% Processing to Serving
-    PYTHON --> FASTAPI
-    SPARK --> FASTAPI
-    PYTHON --> GRAPHQL
-    POSTGIS --> OGC
-    POSTGIS --> MAPSERVER
-    
-    %% Security crosscutting
-    KEYCLOAK -.-> FASTAPI
-    KEYCLOAK -.-> GRAPHQL
-    KEYCLOAK -.-> OGC
-    VAULT -.-> FASTAPI
-    CERT -.-> FASTAPI
-    CERT -.-> GRAPHQL
-    
-    %% Serving to UI
-    FASTAPI --> REACT
-    GRAPHQL --> REACT
-    OGC --> LEAFLET
-    MAPSERVER --> LEAFLET
-    FASTAPI --> DECK
-    LEAFLET --> D3
-    DECK --> D3
-    
-    %% Infrastructure
-    K8S --- DOCKER
-    K8S --- ISTIO
-    ISTIO -.-> KEYCLOAK
-
-    %% Subgraphs for organization
-    subgraph "Storage Layer"
-        PG
-        POSTGIS
-        MINIO
-        TIMESCALEDB
-        REDIS
-    end
-    
-    subgraph "Processing Layer"
-        SPARK
-        KAFKA
-        AIRFLOW
-        PYTHON
-        R
-        TENSOR
-        K8S
-        DOCKER
-        ISTIO
-    end
-    
-    subgraph "API & Serving Layer"
-        FASTAPI
-        GRAPHQL
-        OGC
-        MAPSERVER
-    end
-    
-    subgraph "Security Layer"
-        KEYCLOAK
-        VAULT
-        CERT
-    end
-    
-    subgraph "UI Layer"
-        REACT
-        LEAFLET
-        DECK
-        D3
-    end
-```
-
-## Project Structure 📂
-
-Each module generally follows this standardized structure, though some may include additional directories specific to their domain or function (e.g., `etl/`, `storage/`, `repos/`).
-```
-MODULE_NAME/
-├── config/               # Configuration files
-├── docs/                 # Documentation
-├── examples/             # Example applications and use cases
-├── src/                  # Source code
-│   └── module_package/   # Main package
-│       ├── api/          # API definitions
-│       ├── core/         # Core functionality
-│       ├── models/       # Data models
-│       └── utils/        # Utility functions
-└── tests/                # Test suite
-```
-
-## Technology Stack
-
-### **Core Technologies **
-
-- 🐍 **Python Ecosystem** 
-  - [NumPy](https://numpy.org/) & [SciPy](https://scipy.org/) with GPU acceleration
-  - [Pandas](https://pandas.pydata.org/) & [GeoPandas](https://geopandas.org/) with Dask integration
-  - [PyTorch](https://pytorch.org/) & [TensorFlow](https://www.tensorflow.org/) with quantum extensions
-  - [Dask](https://dask.org/) for distributed computing at petabyte scale
-
-- 🗄️ **Data Storage** 
-  - [PostgreSQL](https://www.postgresql.org/) with [PostGIS](https://postgis.net/) (clustered, sharded)
-  - [TimescaleDB](https://www.timescale.com/) for real-time time-series (2.3PB/month)
-  - [MinIO](https://min.io/) distributed object storage (S3-compatible)
-  - [Redis](https://redis.io/) cluster for sub-millisecond caching
-
-- 🌐 **API & Services** 
-  - [FastAPI](https://fastapi.tiangolo.com/) with async/await (1B+ requests/month)
-  - [GraphQL](https://graphql.org/) with federation and subscriptions
-  - [gRPC](https://grpc.io/) for high-performance microservices
-  - [Apache Kafka](https://kafka.apache.org/) for event streaming
-
-- 🖥️ **Frontend** 
-  - [React 18](https://reactjs.org/) with Concurrent Features
-  - [Leaflet](https://leafletjs.com/) & [Mapbox](https://www.mapbox.com/) with WebGL
-  - [D3.js](https://d3js.org/) & [Observable Plot](https://observablehq.com/plot/) for visualization
-  - [deck.gl](https://deck.gl/) for large-scale 3D visualizations
-
-- 🚢 **DevOps** 
-  - [Docker](https://www.docker.com/) with multi-stage builds
-  - [Kubernetes](https://kubernetes.io/) with Istio service mesh
-  - [GitHub Actions](https://github.com/features/actions) with advanced workflows
-  - [Terraform](https://www.terraform.io/) for infrastructure as code
-  - [ArgoCD](https://argo-cd.readthedocs.io/) for GitOps deployments
-
-## 👥 **Contributing & Community **
-
-### **💡 Ways to Contribute**
-
-#### **🔧 Technical Contributions**
-- **Code contributions**: Bug fixes, features, optimizations
-- **Documentation**: Tutorials, API docs, examples
-- **Testing**: Unit tests, integration tests, performance benchmarks
-- **Infrastructure**: DevOps, monitoring, security improvements
-
-#### **🎓 Knowledge Sharing**
-- **Blog posts**: Technical deep-dives, case studies
-- **Conference talks**: Present at GIS, AI, and domain conferences
-- **Workshops**: Hands-on training sessions
-- **Mentorship**: Guide new contributors and users
-
-#### **🌍 Community Building**
-- **Local meetups**: Organize regional GEO-INFER groups
-- **Translation**: Localize documentation to new languages
-- **Outreach**: Introduce GEO-INFER to new communities
-- **Partnerships**: Connect academic and industry collaborations
-
-### **📋 Contribution Guidelines**
-
-**Quick Start for Contributors**:
-1. **Join Discord**: [discord.activeinference.institute](https://discord.activeinference.institute/)
-2. **Read Contributing Guide**: [CONTRIBUTING.md](CONTRIBUTING.md)
-3. **Choose First Issue**: Look for "good first issue" labels
-4. **Set up Development**: Follow setup instructions
-5. **Submit PR**: Use our PR template and guidelines
-
-### **🤝 Partnership Opportunities**
-
-**Academic Partnerships**:
-- **Research collaborations**: Joint research projects and grants
-- **Curriculum integration**: University course development
-- **Student programs**: Internships and thesis projects
-- **Faculty exchange**: Visiting researcher programs
-
-**Industry Partnerships**:
-- **Technology integration**: API partnerships and integrations
-- **Joint solutions**: Co-developed products and services
-- **Training programs**: Custom training
-- **Consulting services**: Implementation and optimization support
-
-**Government & NGO Partnerships**:
-- **Capacity building**: Training programs for developing countries
-- **Policy development**: Evidence-based policy recommendations
-- **Disaster response**: Emergency response system deployment
-- **Environmental monitoring**: Conservation and climate programs
-
-## 📄 **License & Legal**
-
-This project is licensed under the **Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0)**. See the [LICENSE](LICENSE) file for details.
-
-**Contact**: blanket@activeinference.institute (use subject "GEO-INFER")
+- **H3 Development Team**: For the excellent H3 v4 spatial indexing library
+- **Active Inference Institute**: For foundational Active Inference principles
+- **Open Source Community**: For the geospatial tools and libraries that make this possible
+- **Contributors**: All those who have contributed to the framework's development
 
 ---
 
-**GEO-INFER**: *Transforming spatial data into actionable intelligence for a better world.*
-
-> **Development Status**: This framework is actively under development. While the architecture is comprehensive and examples demonstrate key concepts, individual modules are at varying stages of maturity. Contributions, feedback, and collaboration are welcome as we build toward production-ready releases.
-
-[![Get Started](https://img.shields.io/badge/Get%20Started-Interactive%20Tutorial-brightgreen?style=for-the-badge)](https://learn.geo-infer.org/quickstart)
-[![Join Community](https://img.shields.io/badge/Join%20Community-Discord-7289DA?style=for-the-badge)](https://discord.activeinference.institute/)
+**Maintained by**: @docxology  
+**Last Updated**: 2025-07-27  
+**Version**: 4.0 (H3 v4 Migration Complete)  
+**Status**: Production Ready ✅

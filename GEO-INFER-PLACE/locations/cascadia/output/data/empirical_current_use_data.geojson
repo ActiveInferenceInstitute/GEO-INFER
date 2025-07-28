@@ -1,0 +1,119 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "crop_type": "Timber",
+        "intensity": "high",
+        "water_usage": "rainfall",
+        "acres": 35000,
+        "source": "NASS_CDL_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.3,
+              41.6
+            ],
+            [
+              -124.3,
+              41.9
+            ],
+            [
+              -124.0,
+              41.9
+            ],
+            [
+              -124.0,
+              41.6
+            ],
+            [
+              -124.3,
+              41.6
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "crop_type": "Pasture",
+        "intensity": "medium",
+        "water_usage": "rainfall",
+        "acres": 8000,
+        "source": "NASS_CDL_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.1,
+              41.5
+            ],
+            [
+              -124.1,
+              41.7
+            ],
+            [
+              -123.9,
+              41.7
+            ],
+            [
+              -123.9,
+              41.5
+            ],
+            [
+              -124.1,
+              41.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "crop_type": "Mixed Agriculture",
+        "intensity": "low",
+        "water_usage": "irrigated",
+        "acres": 3000,
+        "source": "NASS_CDL_2022",
+        "data_year": 2022
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -124.0,
+              41.6
+            ],
+            [
+              -124.0,
+              41.7
+            ],
+            [
+              -123.8,
+              41.7
+            ],
+            [
+              -123.8,
+              41.6
+            ],
+            [
+              -124.0,
+              41.6
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}

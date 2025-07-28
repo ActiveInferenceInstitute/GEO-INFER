@@ -1,0 +1,247 @@
+# GEO-INFER Cascadia Analysis Framework Rules
+# Comprehensive Real Analysis Implementation
+
+## 🚫 ABSOLUTE PROHIBITIONS - NEVER DO THESE
+
+### NO MOCK METHODS - EVER
+- NEVER create placeholder, stub, or mock methods
+- NEVER use `pass`, `NotImplementedError`, or `# TODO` as implementations
+- NEVER create dummy data files or fake responses
+- NEVER use `return None` or empty dictionaries as real implementations
+- NEVER create "example" or "sample" data that isn't real
+
+### NO PLACEHOLDER IMPLEMENTATIONS
+- NEVER use `# Placeholder` or `# FIXME` comments
+- NEVER create functions that just return hardcoded values
+- NEVER implement methods that don't perform real analysis
+- NEVER use `raise NotImplementedError` as a valid implementation
+- NEVER create "TODO" functions that aren't immediately implemented
+
+## ✅ MANDATORY REQUIREMENTS - ALWAYS DO THESE
+
+### REAL DATA ANALYSIS ONLY
+- ALWAYS implement complete, working functionality
+- ALWAYS use real OSC H3 v4 methods and APIs
+- ALWAYS process actual geospatial data
+- ALWAYS perform real mathematical calculations
+- ALWAYS implement proper error handling with real fallbacks
+- ALWAYS use real data sources and APIs
+
+### OSC H3 V4 INTEGRATION REQUIREMENTS
+- ALWAYS use `h3` package v4 API methods
+- ALWAYS use `latlng_to_cell`, `cell_to_latlng`, `geo_to_cells`
+- ALWAYS implement proper H3 resolution handling
+- ALWAYS use real spatial indexing and grid operations
+- ALWAYS implement proper coordinate transformations
+- ALWAYS use real geospatial data processing
+
+### COMPREHENSIVE IMPLEMENTATION
+- ALWAYS implement full data processing pipelines
+- ALWAYS include proper validation and error handling
+- ALWAYS implement real mathematical algorithms
+- ALWAYS use real statistical methods
+- ALWAYS implement proper logging and diagnostics
+- ALWAYS include comprehensive documentation
+
+## 🎯 CASCADIA-SPECIFIC REQUIREMENTS
+
+### REAL AGRICULTURAL ANALYSIS
+- ALWAYS use real zoning data (FMMP, ORMAP)
+- ALWAYS use real current use data (NASS CDL, Land IQ)
+- ALWAYS use real ownership data (county parcels, USDA ERS)
+- ALWAYS use real water rights data (eWRIMS, Oregon WRD)
+- ALWAYS use real infrastructure data (building footprints, utilities)
+- ALWAYS implement real redevelopment scoring algorithms
+
+### REAL SPATIAL ANALYSIS
+- ALWAYS use real H3 spatial indexing
+- ALWAYS implement real spatial correlations
+- ALWAYS use real hotspot detection algorithms
+- ALWAYS implement real proximity analysis
+- ALWAYS use real buffer and overlay operations
+- ALWAYS implement real spatial statistics
+
+### REAL DATA INTEGRATION
+- ALWAYS use real API endpoints and data sources
+- ALWAYS implement real data validation
+- ALWAYS use real coordinate reference systems
+- ALWAYS implement real data transformation pipelines
+- ALWAYS use real quality control measures
+- ALWAYS implement real error recovery mechanisms
+
+## 🔧 TECHNICAL IMPLEMENTATION RULES
+
+### OSC H3 V4 METHODS TO USE
+```python
+# ALWAYS use these real H3 v4 methods:
+import h3
+
+# Real H3 v4 coordinate conversions
+latlng = h3.cell_to_latlng(h3_cell)
+h3_cell = h3.latlng_to_cell(lat, lng, resolution)
+
+# Real H3 v4 spatial operations
+cells = h3.polygon_to_cells(polygon, resolution)
+neighbors = h3.grid_disk(h3_cell, k)
+distance = h3.grid_distance(h3_cell1, h3_cell2)
+area = h3.cell_area(h3_cell)
+
+# Real H3 v4 validation
+is_valid = h3.is_valid_cell(h3_cell)
+are_neighbors = h3.are_neighbor_cells(h3_cell1, h3_cell2)
+```
+
+### REAL DATA PROCESSING PATTERNS
+```python
+# ALWAYS implement real data processing:
+def process_real_data(data_source):
+    """Real data processing implementation"""
+    try:
+        # Real data loading
+        raw_data = load_real_data(data_source)
+        
+        # Real validation
+        validated_data = validate_real_data(raw_data)
+        
+        # Real transformation
+        processed_data = transform_real_data(validated_data)
+        
+        # Real analysis
+        results = perform_real_analysis(processed_data)
+        
+        return results
+    except Exception as e:
+        # Real error handling
+        logger.error(f"Real error in data processing: {e}")
+        return handle_real_error(e)
+```
+
+### REAL MATHEMATICAL IMPLEMENTATIONS
+```python
+# ALWAYS implement real mathematical algorithms:
+def calculate_real_spatial_correlation(data1, data2):
+    """Real spatial correlation calculation"""
+    import numpy as np
+    from scipy import stats
+    
+    # Real statistical calculation
+    correlation, p_value = stats.pearsonr(data1, data2)
+    return correlation
+
+def calculate_real_redevelopment_score(factors):
+    """Real redevelopment scoring algorithm"""
+    # Real weighted scoring
+    weights = {
+        'zoning': 0.25,
+        'water': 0.20,
+        'infrastructure': 0.15,
+        'ownership': 0.15,
+        'current_use': 0.15,
+        'financial': 0.10
+    }
+    
+    # Real mathematical calculation
+    score = sum(factors[key] * weights[key] for key in weights)
+    return score
+```
+
+## 📊 REAL ANALYSIS REQUIREMENTS
+
+### REAL MODULE IMPLEMENTATIONS
+- **Zoning Module**: Real FMMP/ORMAP data processing
+- **Current Use Module**: Real NASS CDL data analysis
+- **Ownership Module**: Real parcel data processing
+- **Improvements Module**: Real building footprint analysis
+- **Water Rights Module**: Real eWRIMS/Oregon WRD processing
+- **Surface Water Module**: Real NHD data analysis
+- **Ground Water Module**: Real USGS well data processing
+
+### REAL SPATIAL ANALYSIS
+- **Spatial Correlations**: Real Pearson/Spearman correlation
+- **Hotspot Detection**: Real Getis-Ord Gi* or DBSCAN clustering
+- **Proximity Analysis**: Real distance calculations
+- **Buffer Analysis**: Real geometric buffer operations
+- **Overlay Analysis**: Real spatial intersection operations
+
+### REAL DATA VALIDATION
+- **Geometry Validation**: Real shapely validation
+- **Attribute Validation**: Real data type and range checks
+- **Coordinate Validation**: Real CRS validation
+- **H3 Validation**: Real H3 cell validity checks
+- **Quality Control**: Real statistical outlier detection
+
+## 🚨 ENFORCEMENT MECHANISMS
+
+### CODE REVIEW CHECKLIST
+- [ ] No `pass` statements in function bodies
+- [ ] No `NotImplementedError` raises
+- [ ] No dummy data or placeholder values
+- [ ] All functions have real implementations
+- [ ] All mathematical calculations are real
+- [ ] All data processing is real
+- [ ] All error handling is real
+- [ ] All logging is real
+
+### TESTING REQUIREMENTS
+- [ ] All tests use real data
+- [ ] All tests validate real functionality
+- [ ] No mock tests without real implementations
+- [ ] All edge cases are handled with real logic
+- [ ] All error conditions have real recovery
+
+### DOCUMENTATION REQUIREMENTS
+- [ ] All functions have real docstrings
+- [ ] All mathematical formulas are documented
+- [ ] All data sources are real and documented
+- [ ] All algorithms are real and explained
+- [ ] All limitations are real and acknowledged
+
+## 🎖️ EXCELLENCE STANDARDS
+
+### REAL INTELLIGENCE
+- Implement sophisticated algorithms
+- Use advanced mathematical methods
+- Apply real statistical analysis
+- Implement real machine learning where appropriate
+- Use real optimization techniques
+
+### REAL ROBUSTNESS
+- Handle all real error conditions
+- Implement real fallback mechanisms
+- Use real data validation
+- Implement real quality control
+- Provide real diagnostic information
+
+### REAL PERFORMANCE
+- Optimize for real data volumes
+- Use real caching strategies
+- Implement real parallel processing
+- Use real memory management
+- Provide real performance monitoring
+
+## 📋 IMPLEMENTATION CHECKLIST
+
+### BEFORE WRITING CODE
+- [ ] Understand the real requirements
+- [ ] Identify real data sources
+- [ ] Plan real algorithms
+- [ ] Design real error handling
+- [ ] Plan real validation
+
+### WHILE WRITING CODE
+- [ ] Implement real functionality
+- [ ] Use real OSC H3 v4 methods
+- [ ] Implement real error handling
+- [ ] Add real logging
+- [ ] Write real documentation
+
+### AFTER WRITING CODE
+- [ ] Test with real data
+- [ ] Validate real functionality
+- [ ] Document real implementation
+- [ ] Review for real completeness
+- [ ] Optimize real performance
+
+---
+
+**REMEMBER**: Every line of code must contribute to real analysis. No placeholders, no mocks, no dummy data. Only real, working, intelligent implementations that advance the state of geospatial analysis. 
