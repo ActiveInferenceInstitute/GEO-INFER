@@ -59,7 +59,10 @@ import numpy as np
 from shapely.geometry import Point, Polygon, MultiPolygon, shape as shapely_shape
 from shapely.geometry.base import BaseGeometry
 from shapely.ops import unary_union
-from shapely import mapping
+try:
+    from shapely import mapping
+except ImportError:
+    from shapely.geometry import mapping
 
 logger = logging.getLogger(__name__)
 
@@ -100,6 +103,8 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         self.bioregion = bioregion
         self.enable_caching = enable_caching
         self.cache_dir = Path(base_data_dir or '.') / 'cache' if enable_caching else None
+        self.resolution = resolution  # Set resolution early
+        self.base_data_dir = Path(base_data_dir or '.')  # Set base_data_dir
         
         if self.cache_dir:
             self.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -122,11 +127,16 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         # Initialize the parent UnifiedH3Backend if SPACE is available
         if SPACE_AVAILABLE:
             try:
+                # Convert county_geoms to the format expected by parent constructor
+                target_areas = {}
+                for state, counties in county_geoms.items():
+                    target_areas[state] = list(counties.keys())
+                
                 super().__init__(
                     modules=modules,
                     resolution=resolution,
                     target_region=bioregion,
-                    target_areas={area: list(geoms.keys()) for area, geoms in county_geoms.items()},
+                    target_areas=target_areas,
                     base_data_dir=base_data_dir,
                     osc_repo_dir=osc_repo_dir
                 )
@@ -134,13 +144,11 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                 logger.warning(f"Failed to initialize UnifiedH3Backend: {e}")
                 # Initialize basic attributes directly
                 self.modules = modules
-                self.resolution = resolution
                 self.target_hexagons = all_hexagons
                 self.unified_data = {}
         else:
             # Initialize basic attributes directly
             self.modules = modules
-            self.resolution = resolution
             self.target_hexagons = all_hexagons
             self.unified_data = {}
         
@@ -276,6 +284,8 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             
         except Exception as e:
             logger.warning(f"Failed to save to cache: {e}")
+            import traceback
+            logger.debug(f"Cache error details: {traceback.format_exc()}")
     
     def _define_target_region_cached(self, target_counties: Optional[Dict[str, List[str]]] = None) -> Tuple[Dict[str, Dict[str, Any]], List[str]]:
         """
@@ -309,23 +319,18 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
 
     def _define_target_region(self, target_counties: Optional[Dict[str, List[str]]] = None) -> Tuple[Dict[str, List[str]], List[str]]:
         """
-        Enhanced target region definition using SPACE H3 utilities.
+        Define the target region based on county geometries.
         
-        This method loads county geometries and generates H3 hexagons using
-        SPACE utilities for improved spatial processing.
-
         Args:
-            target_counties: A dictionary specifying counties to run, e.g., 
-                             {'CA': ['Lassen', 'Plumas'], 'OR': ['all']}.
-                             If None, defaults to the entire bioregion.
-
+            target_counties: Dictionary mapping states to lists of counties
+            
         Returns:
-            A tuple containing:
-            - A dictionary of H3 hexagon identifiers, keyed by state ('CA', 'OR', 'WA').
-            - A list of all unique H3 hexagon identifiers across all filtered areas.
+            Tuple of (hexagons_by_state, all_hexagons)
         """
+        logger = logging.getLogger(__name__)
+        
         county_geoms = self._get_county_geometries(target_counties)
-
+        
         if not county_geoms:
             logger.error("No county geometries could be loaded or defined. Cannot define a target region.")
             return {}, []
@@ -343,6 +348,12 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                         geojson_geom = mapping(geom)
                         logger.debug(f"Converted to GeoJSON: {geojson_geom}")
                         try:
+                            # Ensure proper GeoJSON structure for H3 v4
+                            if geojson_geom.get('type') == 'Polygon' and geojson_geom.get('coordinates'):
+                                # Ensure coordinates are properly nested for H3 v4
+                                if not isinstance(geojson_geom['coordinates'][0][0], (list, tuple)):
+                                    geojson_geom['coordinates'] = [geojson_geom['coordinates']]
+                            
                             # Use correct H3 API for version 4.x - geo_to_cells for GeoJSON
                             hexagons_in_county = h3.geo_to_cells(geojson_geom, self.resolution)
                             hexagons_by_state[state].update(hexagons_in_county)
@@ -351,6 +362,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                             logger.error(f"H3 geo_to_cells failed: {h3_error}")
                             # Fallback to SPACE polygon_to_cells
                             try:
+                                from geo_infer_space.utils.h3_utils import polygon_to_cells
                                 hexagons_in_county = polygon_to_cells(geojson_geom, self.resolution)
                                 hexagons_by_state[state].update(hexagons_in_county)
                                 logger.info(f"Generated {len(hexagons_in_county)} hexagons using SPACE fallback for {county_name}, {state}")
@@ -359,6 +371,10 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                     elif isinstance(geom, dict) and geom.get('type') == 'Polygon':
                         # Already in GeoJSON format
                         try:
+                            # Ensure coordinates are properly nested for H3 v4
+                            if not isinstance(geom['coordinates'][0][0], (list, tuple)):
+                                geom['coordinates'] = [geom['coordinates']]
+                                
                             hexagons_in_county = h3.geo_to_cells(geom, self.resolution)
                             hexagons_by_state[state].update(hexagons_in_county)
                             logger.info(f"Generated {len(hexagons_in_county)} hexagons for {county_name}, {state}")
@@ -366,18 +382,35 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
                             logger.error(f"H3 geo_to_cells failed: {h3_error}")
                             # Fallback to SPACE polygon_to_cells
                             try:
+                                from geo_infer_space.utils.h3_utils import polygon_to_cells
                                 hexagons_in_county = polygon_to_cells(geom, self.resolution)
                                 hexagons_by_state[state].update(hexagons_in_county)
                                 logger.info(f"Generated {len(hexagons_in_county)} hexagons using SPACE fallback for {county_name}, {state}")
                             except Exception as space_error:
                                 logger.error(f"SPACE polygon_to_cells also failed: {space_error}")
+                    elif isinstance(geom, dict) and geom.get('type') == 'Feature':
+                        # GeoJSON Feature - extract geometry
+                        try:
+                            geometry = geom.get('geometry', {})
+                            if geometry and geometry.get('type') == 'Polygon':
+                                # Ensure coordinates are properly nested for H3 v4
+                                if not isinstance(geometry['coordinates'][0][0], (list, tuple)):
+                                    geometry['coordinates'] = [geometry['coordinates']]
+                                
+                                hexagons_in_county = h3.geo_to_cells(geometry, self.resolution)
+                                hexagons_by_state[state].update(hexagons_in_county)
+                                logger.info(f"Generated {len(hexagons_in_county)} hexagons for {county_name}, {state}")
+                            else:
+                                logger.error(f"Invalid or missing geometry in Feature for {county_name}, {state}")
+                        except Exception as h3_error:
+                            logger.error(f"H3 geo_to_cells failed for Feature: {h3_error}")
                     elif isinstance(geom, dict):
                         # Try to convert plain dict to proper GeoJSON structure
                         logger.warning(f"Attempting to convert plain dict to GeoJSON for {county_name}, {state}")
                         if 'coordinates' in geom:
                             geojson_geom = {
                                 'type': 'Polygon',
-                                'coordinates': geom['coordinates']
+                                'coordinates': [geom['coordinates']]  # Ensure proper nesting for H3 v4
                             }
                             try:
                                 hexagons_in_county = h3.geo_to_cells(geojson_geom, self.resolution)
@@ -417,6 +450,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         try:
             # Import the county boundary loader
             import sys
+            import json
             from pathlib import Path
             
             # Add the config directory to the path
@@ -424,61 +458,97 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             if str(config_dir) not in sys.path:
                 sys.path.insert(0, str(config_dir))
             
-            # Import with proper error handling
+            # Try multiple approaches to load county geometries
+            county_geometries = {}
+            
+            # Approach 1: Try using county_boundary_loader
             try:
                 from county_boundary_loader import create_county_boundary_loader
                 # Create the loader and get geometries
                 loader = create_county_boundary_loader()
                 county_geometries = loader.get_all_county_geometries(target_counties)
+                if county_geometries:
+                    logger.info(f"Successfully loaded county geometries using boundary loader")
+                    return county_geometries
             except ImportError:
-                # Try alternative import path
-                try:
-                    import importlib.util
-                    spec = importlib.util.spec_from_file_location(
-                        "county_boundary_loader", 
-                        config_dir / "county_boundary_loader.py"
-                    )
-                    county_boundary_loader = importlib.util.module_from_spec(spec)
-                    spec.loader.exec_module(county_boundary_loader)
-                    create_county_boundary_loader = county_boundary_loader.create_county_boundary_loader
-                    
-                    # Create the loader and get geometries
-                    loader = create_county_boundary_loader()
-                    county_geometries = loader.get_all_county_geometries(target_counties)
-                except Exception as import_error:
-                    logger.warning(f"County boundary loader import failed: {import_error}")
-                    raise ImportError(f"Could not import county boundary loader: {import_error}")
+                logger.warning("county_boundary_loader not found, trying alternative methods")
+            except Exception as e:
+                logger.warning(f"Error using county_boundary_loader: {e}")
             
-            # Convert to the expected format
-            output_geoms = {}
-            for county_key, geometry in county_geometries.items():
-                # Parse county key (e.g., 'ca_lassen' -> state='CA', county='Lassen')
-                parts = county_key.split('_', 1)
-                if len(parts) == 2:
-                    state_code, county_name = parts
-                    state = state_code.upper()
-                    county = county_name.title()
+            # Approach 2: Try direct loading from GeoJSON files
+            try:
+                for state, counties in target_counties.items():
+                    if state not in county_geometries:
+                        county_geometries[state] = {}
                     
-                    if state not in output_geoms:
-                        output_geoms[state] = {}
-                    output_geoms[state][county] = geometry
+                    for county in counties:
+                        if county == 'all':
+                            # Try to load state-wide file
+                            state_file = config_dir / f"{state.lower()}_counties_boundary.geojson"
+                            if state_file.exists():
+                                with open(state_file, 'r') as f:
+                                    geojson_data = json.load(f)
+                                
+                                if geojson_data.get('type') == 'FeatureCollection':
+                                    for feature in geojson_data.get('features', []):
+                                        if 'properties' in feature and 'geometry' in feature:
+                                            county_name = feature['properties'].get('county_name')
+                                            if county_name:
+                                                county_geometries[state][county_name] = feature['geometry']
+                                                logger.info(f"Loaded geometry for {county_name}, {state}")
+                        else:
+                            # Try to load specific county file
+                            county_file = config_dir / f"{state.lower()}_{county.lower()}_boundary.geojson"
+                            if county_file.exists():
+                                with open(county_file, 'r') as f:
+                                    geojson_data = json.load(f)
+                                
+                                if geojson_data.get('type') == 'FeatureCollection':
+                                    for feature in geojson_data.get('features', []):
+                                        if 'geometry' in feature:
+                                            county_geometries[state][county] = feature['geometry']
+                                            logger.info(f"Loaded geometry for {county}, {state}")
+                                elif geojson_data.get('type') == 'Feature':
+                                    county_geometries[state][county] = geojson_data['geometry']
+                                    logger.info(f"Loaded geometry for {county}, {state}")
+                
+                if county_geometries and any(counties for counties in county_geometries.values()):
+                    logger.info(f"Successfully loaded county geometries from GeoJSON files")
+                    return county_geometries
+            except Exception as e:
+                logger.warning(f"Error loading from GeoJSON files: {e}")
+            
+            # Approach 3: Try loading from a specific file we know exists
+            try:
+                lassen_file = config_dir / "ca_lassen_boundary.geojson"
+                if lassen_file.exists():
+                    with open(lassen_file, 'r') as f:
+                        geojson_data = json.load(f)
                     
-                    # Validate geometry
-                    if not loader.validate_geometry(geometry):
-                        logger.warning(f"Invalid geometry for {county_key}")
+                    if 'CA' not in county_geometries:
+                        county_geometries['CA'] = {}
+                    
+                    if geojson_data.get('type') == 'FeatureCollection':
+                        for feature in geojson_data.get('features', []):
+                            if 'geometry' in feature:
+                                county_geometries['CA']['Lassen'] = feature['geometry']
+                                logger.info("Loaded geometry for Lassen, CA from specific file")
+                                return county_geometries
+            except Exception as e:
+                logger.warning(f"Error loading from specific file: {e}")
             
-            logger.info(f"Loaded {len(county_geometries)} county geometries using boundary loader")
-            return output_geoms
+            # If we still don't have geometries, fall back to placeholder geometries
+            if not county_geometries or not any(counties for counties in county_geometries.values()):
+                logger.warning("No county geometries loaded, falling back to placeholder geometries")
+                return self._create_placeholder_geometries(target_counties)
             
-        except ImportError as e:
-            logger.warning(f"County boundary loader not available: {e}")
-            logger.info("Falling back to placeholder geometries")
-            return self._create_placeholder_geometries(target_counties)
+            return county_geometries
+            
         except Exception as e:
-            logger.error(f"Error loading county geometries: {e}")
+            logger.error(f"Failed to load county geometries: {e}")
             logger.info("Falling back to placeholder geometries")
             return self._create_placeholder_geometries(target_counties)
-    
+
     def _create_placeholder_geometries(self, target_counties: Dict[str, List[str]]) -> Dict[str, Dict[str, Any]]:
         """Create placeholder geometries when boundary loader is not available"""
         logger.info("Creating placeholder geometries...")

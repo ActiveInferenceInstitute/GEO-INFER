@@ -14,15 +14,15 @@ logger = logging.getLogger(__name__)
 
 def latlng_to_cell(lat: float, lng: float, resolution: int) -> str:
     """
-    Convert latitude/longitude to H3 cell index.
+    Convert lat/lng to H3 cell index using H3 v4 API.
     
     Args:
-        lat: Latitude in degrees
-        lng: Longitude in degrees  
+        lat: Latitude
+        lng: Longitude
         resolution: H3 resolution (0-15)
         
     Returns:
-        H3 cell index as string
+        H3 cell index
     """
     try:
         import h3
@@ -35,13 +35,13 @@ def latlng_to_cell(lat: float, lng: float, resolution: int) -> str:
 
 def cell_to_latlng(h3_index: str) -> Tuple[float, float]:
     """
-    Convert H3 cell index to latitude/longitude center point.
+    Convert H3 cell index to lat/lng using H3 v4 API.
     
     Args:
-        h3_index: H3 cell index as string
+        h3_index: H3 cell index
         
     Returns:
-        Tuple of (latitude, longitude) in degrees
+        (lat, lng) tuple
     """
     try:
         import h3
@@ -54,13 +54,13 @@ def cell_to_latlng(h3_index: str) -> Tuple[float, float]:
 
 def cell_to_latlng_boundary(h3_index: str) -> List[Tuple[float, float]]:
     """
-    Convert H3 cell index to boundary coordinates.
+    Get H3 cell boundary as list of lat/lng pairs using H3 v4 API.
     
     Args:
-        h3_index: H3 cell index as string
+        h3_index: H3 cell index
         
     Returns:
-        List of (latitude, longitude) tuples forming the hexagon boundary
+        List of (lat, lng) tuples representing the boundary
     """
     try:
         import h3
@@ -90,14 +90,37 @@ def polygon_to_cells(polygon: Union[Dict[str, Any], List[List[float]]], resoluti
     
     # Handle different input formats
     if isinstance(polygon, dict):
-        # GeoJSON-like dictionary - use geo_to_cells for h3 v4
-        return list(h3.geo_to_cells(polygon, resolution))
+        # For GeoJSON Feature or FeatureCollection
+        if polygon.get('type') == 'Feature':
+            return list(h3.geo_to_cells(polygon['geometry'], resolution))
+        # For GeoJSON Geometry objects
+        elif polygon.get('type') in ('Polygon', 'MultiPolygon'):
+            # Ensure coordinates are properly nested for H3 v4
+            if polygon.get('type') == 'Polygon' and polygon.get('coordinates'):
+                if not isinstance(polygon['coordinates'][0][0], (list, tuple)):
+                    polygon['coordinates'] = [polygon['coordinates']]
+            return list(h3.geo_to_cells(polygon, resolution))
+        # For GeoJSON FeatureCollection
+        elif polygon.get('type') == 'FeatureCollection':
+            all_cells = set()
+            for feature in polygon.get('features', []):
+                if 'geometry' in feature:
+                    cells = h3.geo_to_cells(feature['geometry'], resolution)
+                    all_cells.update(cells)
+            return list(all_cells)
+        else:
+            raise ValueError(f"Unsupported GeoJSON type: {polygon.get('type')}")
     elif isinstance(polygon, list):
-        # List of coordinates - convert to LatLngPoly for h3 v4
-        # Assume coordinates are in [lng, lat] format, convert to (lat, lng) for LatLngPoly
-        lat_lng_coords = [(coord[1], coord[0]) for coord in polygon]
-        h3_poly = h3.LatLngPoly(lat_lng_coords)
-        return list(h3.polygon_to_cells(h3_poly, resolution))
+        # For coordinate lists, create a proper GeoJSON structure
+        if polygon and isinstance(polygon[0], (list, tuple)) and len(polygon[0]) >= 2:
+            # Create a GeoJSON polygon
+            geojson = {
+                "type": "Polygon",
+                "coordinates": [polygon]  # Wrap in an array as GeoJSON requires
+            }
+            return list(h3.geo_to_cells(geojson, resolution))
+        else:
+            raise ValueError(f"Invalid coordinate list format: {polygon}")
     else:
         raise ValueError(f"Unsupported polygon format: {type(polygon)}")
 
@@ -182,52 +205,126 @@ def geojson_to_h3(
     elif "type" in geojson_data and geojson_data["type"] == "Feature":
         features = [geojson_data]
     else:
-        features = []
+        # Assume it's a geometry object
+        features = [{"type": "Feature", "geometry": geojson_data, "properties": {}}]
     
-    # Initialize result
-    result = {
-        "h3_indices": [],
-        "properties": {}
-    }
+    h3_indices = []
+    properties_dict = {}
     
     for feature in features:
         geometry = feature.get("geometry", {})
-        geometry_type = geometry.get("type", "")
-        coordinates = geometry.get("coordinates", [])
-        properties = feature.get("properties", {})
+        props = feature.get("properties", {})
         
-        h3_indices = []
+        # Skip features without geometry
+        if not geometry:
+            continue
         
-        if geometry_type == "Point":
-            # Convert point to H3
-            lat, lng = coordinates[1], coordinates[0]
-            h3_index = h3.latlng_to_cell(lat, lng, resolution)
-            h3_indices.append(h3_index)
+        # Convert geometry to H3 indices
+        try:
+            cells = h3.geo_to_cells(geometry, resolution)
             
-        elif geometry_type == "Polygon":
-            # Convert polygon to H3
-            if coordinates:
-                # Assuming first ring is exterior, rest are holes
-                exterior = coordinates[0]
-                h3_indices = h3.polygon_to_cells(exterior, resolution)
-        
-        elif geometry_type == "MultiPolygon":
-            # Convert each polygon to H3
-            for polygon in coordinates:
-                # Assuming first ring is exterior, rest are holes
-                exterior = polygon[0]
-                indices = h3.polygon_to_cells(exterior, resolution)
-                h3_indices.extend(indices)
-        
-        # Add H3 indices to result
-        result["h3_indices"].extend(h3_indices)
-        
-        # Add properties if requested
-        if feature_properties and properties:
-            for h3_index in h3_indices:
-                result["properties"][h3_index] = properties
+            # Add to results
+            for cell in cells:
+                h3_indices.append(cell)
+                if feature_properties:
+                    properties_dict[cell] = props
+        except Exception as e:
+            logger.error(f"Failed to convert geometry to H3: {e}")
     
-    # Remove duplicates
-    result["h3_indices"] = list(set(result["h3_indices"]))
+    result = {"h3_indices": h3_indices}
+    if feature_properties:
+        result["properties"] = properties_dict
     
-    return result 
+    return result
+
+# Additional H3 v4 utility functions
+
+def geo_to_cells(geojson: Dict[str, Any], resolution: int) -> List[str]:
+    """Convert GeoJSON to H3 cells using H3 v4 API."""
+    try:
+        import h3
+    except ImportError:
+        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        raise ImportError("h3-py package required for geo_to_cells")
+    
+    return list(h3.geo_to_cells(geojson, resolution))
+
+def grid_disk(h3_index: str, k: int) -> List[str]:
+    """Get k-ring around H3 index using H3 v4 API."""
+    try:
+        import h3
+    except ImportError:
+        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        raise ImportError("h3-py package required for grid_disk")
+    
+    return list(h3.grid_disk(h3_index, k))
+
+def grid_distance(h3_index1: str, h3_index2: str) -> int:
+    """Get grid distance between two H3 indices using H3 v4 API."""
+    try:
+        import h3
+    except ImportError:
+        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        raise ImportError("h3-py package required for grid_distance")
+    
+    return h3.grid_distance(h3_index1, h3_index2)
+
+def compact_cells(h3_indices: List[str]) -> List[str]:
+    """Compact H3 cells using H3 v4 API."""
+    try:
+        import h3
+    except ImportError:
+        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        raise ImportError("h3-py package required for compact_cells")
+    
+    return list(h3.compact_cells(h3_indices))
+
+def uncompact_cells(h3_indices: List[str], resolution: int) -> List[str]:
+    """Uncompact H3 cells using H3 v4 API."""
+    try:
+        import h3
+    except ImportError:
+        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        raise ImportError("h3-py package required for uncompact_cells")
+    
+    return list(h3.uncompact_cells(h3_indices, resolution))
+
+def cell_area(h3_index: str, unit: str = 'km^2') -> float:
+    """Get area of H3 cell using H3 v4 API."""
+    try:
+        import h3
+    except ImportError:
+        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        raise ImportError("h3-py package required for cell_area")
+    
+    return h3.cell_area(h3_index, unit)
+
+def get_resolution(h3_index: str) -> int:
+    """Get resolution of H3 index using H3 v4 API."""
+    try:
+        import h3
+    except ImportError:
+        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        raise ImportError("h3-py package required for get_resolution")
+    
+    return h3.get_resolution(h3_index)
+
+def is_valid_cell(h3_index: str) -> bool:
+    """Check if H3 index is valid using H3 v4 API."""
+    try:
+        import h3
+    except ImportError:
+        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        raise ImportError("h3-py package required for is_valid_cell")
+    
+    return h3.is_valid_cell(h3_index)
+
+def are_neighbor_cells(h3_index1: str, h3_index2: str) -> bool:
+    """Check if two H3 indices are neighbors using H3 v4 API."""
+    try:
+        import h3
+    except ImportError:
+        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        raise ImportError("h3-py package required for are_neighbor_cells")
+    
+    return h3.are_neighbor_cells(h3_index1, h3_index2) 

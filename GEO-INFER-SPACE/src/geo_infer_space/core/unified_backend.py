@@ -93,20 +93,13 @@ class UnifiedH3Backend:
 
     def _define_target_region(self, target_areas: Optional[Dict[str, List[str]]] = None) -> Tuple[Dict[str, List[str]], List[str]]:
         """
-        Define the target region using H3 hexagons, categorized by area and filtered.
+        Define the target region based on geometries.
         
-        This method loads geometries from a GeoJSON file and generates H3 hexagons
-        that cover the specified areas.
-
         Args:
-            target_areas: A dictionary specifying areas to run, e.g., 
-                          {'CA': ['Lassen', 'Plumas'], 'OR': ['all']}.
-                          If None, defaults to the entire region.
-
+            target_areas: Dictionary mapping areas to lists of subareas
+            
         Returns:
-            A tuple containing:
-            - A dictionary of H3 hexagon identifiers, keyed by area.
-            - A list of all unique H3 hexagon identifiers across all filtered areas.
+            Tuple of (hexagons_by_area, all_hexagons)
         """
         area_geoms = self._get_geometries(target_areas)
 
@@ -119,29 +112,72 @@ class UnifiedH3Backend:
         for area, geoms in area_geoms.items():
             for geom_name, geom in geoms.items():
                 logger.info(f"Generating hexagons for {geom_name}, {area}...")
-                print(f"DEBUG: geom_name={geom_name}, area={area}, type={type(geom)}")
                 try:
                     # Handle Shapely Polygon
                     if isinstance(geom, (Polygon, MultiPolygon)):
-                        coords = list(geom.exterior.coords)
-                        # LatLngPoly expects (lat, lng) tuples
-                        latlngs = [(y, x) for x, y in coords]
-                        poly = LatLngPoly(latlngs)
-                        hexagons_in_area = h3shape_to_cells(poly, self.resolution)
+                        # Convert to GeoJSON format for H3 v4 API
+                        geojson_geom = mapping(geom)
+                        
+                        # Ensure proper GeoJSON structure for H3 v4
+                        if geojson_geom.get('type') == 'Polygon' and geojson_geom.get('coordinates'):
+                            # Ensure coordinates are properly nested for H3 v4
+                            if not isinstance(geojson_geom['coordinates'][0][0], (list, tuple)):
+                                geojson_geom['coordinates'] = [geojson_geom['coordinates']]
+                        
+                        # Use H3 v4 API
+                        hexagons_in_area = h3.geo_to_cells(geojson_geom, self.resolution)
                         hexagons_by_area[area].update(hexagons_in_area)
+                        logger.info(f"Generated {len(hexagons_in_area)} hexagons for {geom_name}, {area}")
+                    
                     # Handle GeoJSON dict
                     elif isinstance(geom, dict) and geom.get('type') == 'Polygon':
-                        coords = geom['coordinates'][0]
-                        latlngs = [(y, x) for x, y in coords]
-                        poly = LatLngPoly(latlngs)
-                        hexagons_in_area = h3shape_to_cells(poly, self.resolution)
+                        # Ensure coordinates are properly nested for H3 v4
+                        if not isinstance(geom['coordinates'][0][0], (list, tuple)):
+                            geom['coordinates'] = [geom['coordinates']]
+                        
+                        # Use H3 v4 API
+                        hexagons_in_area = h3.geo_to_cells(geom, self.resolution)
                         hexagons_by_area[area].update(hexagons_in_area)
+                        logger.info(f"Generated {len(hexagons_in_area)} hexagons for {geom_name}, {area}")
+                    
+                    # Handle GeoJSON Feature
+                    elif isinstance(geom, dict) and geom.get('type') == 'Feature':
+                        geometry = geom.get('geometry', {})
+                        if geometry and geometry.get('type') in ('Polygon', 'MultiPolygon'):
+                            # Ensure coordinates are properly nested for H3 v4
+                            if geometry.get('type') == 'Polygon' and geometry.get('coordinates'):
+                                if not isinstance(geometry['coordinates'][0][0], (list, tuple)):
+                                    geometry['coordinates'] = [geometry['coordinates']]
+                            
+                            # Use H3 v4 API
+                            hexagons_in_area = h3.geo_to_cells(geometry, self.resolution)
+                            hexagons_by_area[area].update(hexagons_in_area)
+                            logger.info(f"Generated {len(hexagons_in_area)} hexagons for {geom_name}, {area}")
+                        else:
+                            logger.warning(f"Invalid or missing geometry in Feature for {geom_name}, {area}")
+                    
                     else:
                         logger.warning(f"Skipping invalid geometry for {geom_name}, {area}: {type(geom)}")
-                        print(f"WARNING: Skipping invalid geometry for {geom_name}, {area}: {type(geom)}")
+                
                 except Exception as e:
-                    logger.error(f"H3 polygon_to_cells failed for {geom_name}, {area}: {e}")
-                    print(f"ERROR: H3 polygon_to_cells failed for {geom_name}, {area}: {e}")
+                    logger.error(f"H3 geo_to_cells failed for {geom_name}, {area}: {e}")
+                    logger.debug(f"Geometry that failed: {geom}")
+                    
+                    # Try fallback method with polygon_to_cells
+                    try:
+                        from geo_infer_space.utils.h3_utils import polygon_to_cells
+                        if isinstance(geom, (Polygon, MultiPolygon)):
+                            geojson_geom = mapping(geom)
+                            hexagons_in_area = polygon_to_cells(geojson_geom, self.resolution)
+                        elif isinstance(geom, dict):
+                            hexagons_in_area = polygon_to_cells(geom, self.resolution)
+                        else:
+                            raise ValueError(f"Unsupported geometry type: {type(geom)}")
+                        
+                        hexagons_by_area[area].update(hexagons_in_area)
+                        logger.info(f"Generated {len(hexagons_in_area)} hexagons using fallback for {geom_name}, {area}")
+                    except Exception as fallback_error:
+                        logger.error(f"Fallback also failed for {geom_name}, {area}: {fallback_error}")
 
         final_hex_by_area = {k: sorted(list(v)) for k, v in hexagons_by_area.items() if v}
         final_all_hexagons = sorted(list(set.union(*[set(v) for v in hexagons_by_area.values()])))

@@ -3,16 +3,17 @@
 County Boundary Loader for Cascadia Analysis
 
 This utility loads county boundary data from YAML configuration and GeoJSON files,
-providing proper geometry objects for H3 polygon_to_cells operations and spatial analysis.
+providing proper geometry objects for H3 geo_to_cells operations and spatial analysis.
+Updated to use H3 v4 API.
 """
 
 import yaml
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Union
 import geopandas as gpd
-from shapely.geometry import Polygon, MultiPolygon
+from shapely.geometry import Polygon, MultiPolygon, mapping
 import requests
 import tempfile
 import zipfile
@@ -47,11 +48,15 @@ class CountyBoundaryLoader:
     
     def get_county_info(self, county_key: str) -> Optional[Dict[str, Any]]:
         """Get county information from configuration"""
-        counties = self.boundaries_config.get('counties', {})
-        return counties.get(county_key)
+        return self.boundaries_config.get(county_key)
     
-    def load_county_geometry(self, county_key: str) -> Optional[Polygon]:
-        """Load county geometry from GeoJSON file"""
+    def load_county_geometry(self, county_key: str) -> Optional[Union[Polygon, Dict[str, Any]]]:
+        """
+        Load county geometry from GeoJSON file
+        
+        Returns either a Shapely geometry object or a properly formatted GeoJSON dict
+        suitable for H3 v4 geo_to_cells API
+        """
         if county_key in self.county_geometries:
             return self.county_geometries[county_key]
         
@@ -69,14 +74,66 @@ class CountyBoundaryLoader:
         
         try:
             if geometry_path.exists():
-                # Load from local GeoJSON file
+                # First try loading as GeoJSON directly
+                try:
+                    with open(geometry_path, 'r') as f:
+                        geojson_data = json.load(f)
+                    
+                    # If it's a FeatureCollection, extract the first feature's geometry
+                    if geojson_data.get('type') == 'FeatureCollection' and geojson_data.get('features'):
+                        feature = geojson_data['features'][0]
+                        if feature.get('geometry'):
+                            geometry = feature['geometry']
+                            # Ensure proper GeoJSON structure for H3 v4
+                            if geometry.get('type') == 'Polygon' and geometry.get('coordinates'):
+                                if not isinstance(geometry['coordinates'][0][0], (list, tuple)):
+                                    geometry['coordinates'] = [geometry['coordinates']]
+                            
+                            self.county_geometries[county_key] = geometry
+                            logger.info(f"Loaded GeoJSON geometry for {county_key} from {geometry_path}")
+                            return geometry
+                    
+                    # If it's a Feature, extract its geometry
+                    elif geojson_data.get('type') == 'Feature' and geojson_data.get('geometry'):
+                        geometry = geojson_data['geometry']
+                        # Ensure proper GeoJSON structure for H3 v4
+                        if geometry.get('type') == 'Polygon' and geometry.get('coordinates'):
+                            if not isinstance(geometry['coordinates'][0][0], (list, tuple)):
+                                geometry['coordinates'] = [geometry['coordinates']]
+                        
+                        self.county_geometries[county_key] = geometry
+                        logger.info(f"Loaded GeoJSON geometry for {county_key} from {geometry_path}")
+                        return geometry
+                    
+                    # If it's a Geometry object directly
+                    elif geojson_data.get('type') in ('Polygon', 'MultiPolygon'):
+                        # Ensure proper GeoJSON structure for H3 v4
+                        if geojson_data.get('type') == 'Polygon' and geojson_data.get('coordinates'):
+                            if not isinstance(geojson_data['coordinates'][0][0], (list, tuple)):
+                                geojson_data['coordinates'] = [geojson_data['coordinates']]
+                        
+                        self.county_geometries[county_key] = geojson_data
+                        logger.info(f"Loaded GeoJSON geometry for {county_key} from {geometry_path}")
+                        return geojson_data
+                
+                except Exception as json_error:
+                    logger.warning(f"Failed to load as direct GeoJSON: {json_error}, trying geopandas")
+                
+                # Fall back to geopandas if direct JSON loading fails
                 gdf = gpd.read_file(geometry_path)
                 if not gdf.empty:
                     geometry = gdf.iloc[0].geometry
                     if isinstance(geometry, (Polygon, MultiPolygon)):
-                        self.county_geometries[county_key] = geometry
-                        logger.info(f"Loaded geometry for {county_key} from {geometry_path}")
-                        return geometry
+                        # Convert to GeoJSON for H3 v4 compatibility
+                        geojson_geometry = mapping(geometry)
+                        # Ensure proper GeoJSON structure for H3 v4
+                        if geojson_geometry.get('type') == 'Polygon' and geojson_geometry.get('coordinates'):
+                            if not isinstance(geojson_geometry['coordinates'][0][0], (list, tuple)):
+                                geojson_geometry['coordinates'] = [geojson_geometry['coordinates']]
+                        
+                        self.county_geometries[county_key] = geojson_geometry
+                        logger.info(f"Loaded geometry for {county_key} from {geometry_path} using geopandas")
+                        return geojson_geometry
                     else:
                         logger.error(f"Invalid geometry type for {county_key}: {type(geometry)}")
                         return None
@@ -92,8 +149,8 @@ class CountyBoundaryLoader:
             logger.error(f"Failed to load geometry for {county_key}: {e}")
             return None
     
-    def _create_geometry_from_bounds(self, county_info: Dict[str, Any]) -> Optional[Polygon]:
-        """Create a simple polygon from county bounds"""
+    def _create_geometry_from_bounds(self, county_info: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+        """Create a simple polygon from county bounds as GeoJSON for H3 v4"""
         bounds = county_info.get('bounds', {})
         if not bounds:
             logger.error("No bounds information available")
@@ -106,18 +163,22 @@ class CountyBoundaryLoader:
             south = bounds.get('south', 40.0)
             north = bounds.get('north', 41.2)
             
-            polygon = Polygon([
-                (west, south),
-                (east, south),
-                (east, north),
-                (west, north),
-                (west, south)
-            ])
+            # Create GeoJSON directly for H3 v4
+            geojson_polygon = {
+                "type": "Polygon",
+                "coordinates": [[
+                    [west, south],
+                    [east, south],
+                    [east, north],
+                    [west, north],
+                    [west, south]
+                ]]
+            }
             
             county_key = county_info.get('name', 'unknown').lower().replace(' ', '_')
-            self.county_geometries[county_key] = polygon
-            logger.info(f"Created geometry from bounds for {county_key}")
-            return polygon
+            self.county_geometries[county_key] = geojson_polygon
+            logger.info(f"Created GeoJSON geometry from bounds for {county_key}")
+            return geojson_polygon
             
         except Exception as e:
             logger.error(f"Failed to create geometry from bounds: {e}")
@@ -130,12 +191,13 @@ class CountyBoundaryLoader:
             logger.error(f"County info not found for: {county_key}")
             return False
         
-        data_sources = county_info.get('data_sources', {})
-        primary_source = data_sources.get('primary', {})
-        
-        if not primary_source:
-            logger.error(f"No primary data source for {county_key}")
+        data_sources = county_info.get('data_sources', [])
+        if not data_sources:
+            logger.error(f"No data sources for {county_key}")
             return False
+        
+        # Try the first data source
+        primary_source = data_sources[0]
         
         url = primary_source.get('url')
         format_type = primary_source.get('format')
@@ -194,13 +256,21 @@ class CountyBoundaryLoader:
                     gdf = gdf[gdf['GEOID'] == fips_code]
                 
                 if not gdf.empty:
-                    geometry = gdf.iloc[0].geometry
-                    self.county_geometries[county_key] = geometry
-                    
-                    # Save to local file
+                    # Save to local file as GeoJSON
                     geometry_file = county_info.get('geometry_file', f"{county_key}_boundary.geojson")
                     geometry_path = self.config_dir / geometry_file
                     gdf.to_file(geometry_path, driver='GeoJSON')
+                    
+                    # Create GeoJSON for H3 v4
+                    geometry = gdf.iloc[0].geometry
+                    geojson_geometry = mapping(geometry)
+                    
+                    # Ensure proper GeoJSON structure for H3 v4
+                    if geojson_geometry.get('type') == 'Polygon' and geojson_geometry.get('coordinates'):
+                        if not isinstance(geojson_geometry['coordinates'][0][0], (list, tuple)):
+                            geojson_geometry['coordinates'] = [geojson_geometry['coordinates']]
+                    
+                    self.county_geometries[county_key] = geojson_geometry
                     
                     logger.info(f"Successfully processed and saved boundary for {county_key}")
                     return True
@@ -218,43 +288,46 @@ class CountyBoundaryLoader:
             # Parse GeoJSON
             geojson_data = json.loads(content.decode('utf-8'))
             
-            # Load with geopandas
-            gdf = gpd.GeoDataFrame.from_features(geojson_data['features'])
-            
-            # Filter for the specific county if needed
+            # Save to local file
             county_info = self.get_county_info(county_key)
-            fips_code = county_info.get('fips_code')
+            geometry_file = county_info.get('geometry_file', f"{county_key}_boundary.geojson")
+            geometry_path = self.config_dir / geometry_file
             
-            if fips_code and 'GEOID' in gdf.columns:
-                gdf = gdf[gdf['GEOID'] == fips_code]
+            with open(geometry_path, 'w') as f:
+                json.dump(geojson_data, f)
             
-            if not gdf.empty:
-                geometry = gdf.iloc[0].geometry
-                self.county_geometries[county_key] = geometry
-                
-                # Save to local file
-                geometry_file = county_info.get('geometry_file', f"{county_key}_boundary.geojson")
-                geometry_path = self.config_dir / geometry_file
-                gdf.to_file(geometry_path, driver='GeoJSON')
-                
-                logger.info(f"Successfully processed and saved boundary for {county_key}")
-                return True
-            else:
-                logger.error(f"No geometry found for {county_key}")
-                return False
+            # Extract geometry for H3 v4
+            if geojson_data.get('type') == 'FeatureCollection' and geojson_data.get('features'):
+                feature = geojson_data['features'][0]
+                if feature.get('geometry'):
+                    geometry = feature['geometry']
+                    # Ensure proper GeoJSON structure for H3 v4
+                    if geometry.get('type') == 'Polygon' and geometry.get('coordinates'):
+                        if not isinstance(geometry['coordinates'][0][0], (list, tuple)):
+                            geometry['coordinates'] = [geometry['coordinates']]
+                    
+                    self.county_geometries[county_key] = geometry
+                    logger.info(f"Successfully processed and saved boundary for {county_key}")
+                    return True
+            
+            logger.error(f"Invalid or missing geometry in GeoJSON for {county_key}")
+            return False
                 
         except Exception as e:
             logger.error(f"Failed to process GeoJSON for {county_key}: {e}")
             return False
     
-    def get_all_county_geometries(self, target_counties: Dict[str, List[str]]) -> Dict[str, Polygon]:
+    def get_all_county_geometries(self, target_counties: Dict[str, List[str]]) -> Dict[str, Dict[str, Any]]:
         """Get geometries for all target counties"""
         geometries = {}
         
         for state, counties in target_counties.items():
+            if not state in geometries:
+                geometries[state] = {}
+                
             if counties == ['all'] or 'all' in counties:
                 # Get all counties for this state
-                state_counties = [key for key in self.boundaries_config.get('counties', {}).keys() 
+                state_counties = [key for key in self.boundaries_config.keys() 
                                 if key.startswith(f"{state.lower()}_")]
             else:
                 # Get specific counties
@@ -264,27 +337,52 @@ class CountyBoundaryLoader:
             for county_key in state_counties:
                 geometry = self.load_county_geometry(county_key)
                 if geometry:
-                    geometries[county_key] = geometry
+                    # Extract county name from key (e.g., 'ca_lassen' -> 'Lassen')
+                    parts = county_key.split('_', 1)
+                    if len(parts) == 2:
+                        county_name = parts[1].title()
+                        geometries[state][county_name] = geometry
+                    else:
+                        # Use full key if we can't parse it
+                        geometries[state][county_key] = geometry
                 else:
                     logger.warning(f"Could not load geometry for {county_key}")
         
         return geometries
     
-    def validate_geometry(self, geometry: Polygon) -> bool:
-        """Validate that a geometry is suitable for H3 polygon_to_cells"""
-        if not geometry.is_valid:
-            logger.warning("Geometry is not valid")
-            return False
+    def validate_geometry(self, geometry: Union[Dict[str, Any], Polygon]) -> bool:
+        """Validate that a geometry is suitable for H3 geo_to_cells"""
+        # For GeoJSON dict
+        if isinstance(geometry, dict):
+            if geometry.get('type') not in ('Polygon', 'MultiPolygon'):
+                logger.warning(f"Invalid GeoJSON geometry type: {geometry.get('type')}")
+                return False
+            
+            if not geometry.get('coordinates'):
+                logger.warning("Missing coordinates in GeoJSON geometry")
+                return False
+            
+            return True
         
-        if geometry.is_empty:
-            logger.warning("Geometry is empty")
-            return False
+        # For Shapely geometry
+        elif isinstance(geometry, (Polygon, MultiPolygon)):
+            if not geometry.is_valid:
+                logger.warning("Geometry is not valid")
+                return False
+            
+            if geometry.is_empty:
+                logger.warning("Geometry is empty")
+                return False
+            
+            if geometry.area < 0.001:  # Very small area
+                logger.warning("Geometry area is too small")
+                return False
+            
+            return True
         
-        if geometry.area < 0.001:  # Very small area
-            logger.warning("Geometry area is too small")
+        else:
+            logger.warning(f"Unsupported geometry type: {type(geometry)}")
             return False
-        
-        return True
 
 def create_county_boundary_loader() -> CountyBoundaryLoader:
     """Factory function to create a county boundary loader"""
@@ -302,6 +400,12 @@ if __name__ == "__main__":
     if lassen_geometry:
         print(f"Successfully loaded Lassen County geometry: {lassen_geometry}")
         print(f"Geometry type: {type(lassen_geometry)}")
-        print(f"Geometry area: {lassen_geometry.area}")
+        
+        # For GeoJSON dict
+        if isinstance(lassen_geometry, dict):
+            print(f"GeoJSON type: {lassen_geometry.get('type')}")
+        # For Shapely geometry
+        elif isinstance(lassen_geometry, (Polygon, MultiPolygon)):
+            print(f"Geometry area: {lassen_geometry.area}")
     else:
         print("Failed to load Lassen County geometry") 

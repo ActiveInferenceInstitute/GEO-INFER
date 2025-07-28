@@ -82,7 +82,7 @@ import traceback
 import time
 from tqdm import tqdm
 
-# Enhanced SPACE imports
+# --- Enhanced SPACE imports ---
 from geo_infer_space.osc_geo import (
     setup_osc_geo,
     create_h3_data_loader,
@@ -102,7 +102,19 @@ from geo_infer_space.core.spatial_processor import SpatialProcessor
 from geo_infer_space.core.data_integrator import DataIntegrator
 from geo_infer_space.core.api_clients import BaseAPIManager, GeneralGeoDataFetcher
 from geo_infer_space.utils.config_loader import LocationConfigLoader, LocationBounds
-from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
+from geo_infer_space.utils.h3_utils import (
+    latlng_to_cell,
+    cell_to_latlng,
+    cell_to_latlng_boundary,  # Use the existing function name
+    geo_to_cells,      # New function for H3 v4
+    polygon_to_cells,
+    grid_disk,
+    grid_distance,
+    cell_area,
+    get_resolution,
+    is_valid_cell,
+    are_neighbor_cells
+)
 
 # Import from the new core location
 from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend
@@ -188,7 +200,8 @@ def check_dependencies() -> bool:
     # Check SPACE integration
     try:
         status = check_integration_status()
-        if status.is_ready():
+        # Check if status is ready without calling a method
+        if hasattr(status, 'status') and status.status == 'ready':
             logger.info("✅ SPACE integration ready")
         else:
             logger.warning("⚠️ SPACE integration needs setup")

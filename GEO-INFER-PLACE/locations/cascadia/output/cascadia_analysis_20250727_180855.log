@@ -1,0 +1,19 @@
+2025-07-27 18:08:55,004 - __main__ - INFO - Enhanced Cascadia Analysis Framework initialized with SPACE integration
+2025-07-27 18:08:55,004 - __main__ - INFO - Log file: output/cascadia_analysis_20250727_180855.log
+2025-07-27 18:08:55,004 - __main__ - INFO - 🚀 Starting Enhanced Cascadia Analysis Framework with SPACE Integration
+2025-07-27 18:08:55,004 - __main__ - INFO - Arguments: {'resolution': 8, 'output_dir': './output', 'export_format': 'geojson', 'counties': 'all', 'modules': 'all', 'verbose': True, 'check_deps': False, 'enhanced_viz': False, 'real_time': False, 'spatial_analysis': True, 'generate_dashboard': True}
+2025-07-27 18:08:55,004 - __main__ - INFO - Initializing SPACE spatial processor...
+2025-07-27 18:08:55,004 - __main__ - INFO - ✅ Spatial processor initialized successfully
+2025-07-27 18:08:55,004 - __main__ - INFO - ✅ Spatial processor initialized
+2025-07-27 18:08:55,004 - __main__ - INFO - Initializing SPACE visualization engine...
+2025-07-27 18:08:55,004 - geo_infer_space.core.visualization_engine - INFO - InteractiveVisualizationEngine initialized
+2025-07-27 18:08:55,005 - geo_infer_space.core.visualization_engine - INFO - Location center: (41.500, -124.000)
+2025-07-27 18:08:55,005 - geo_infer_space.core.visualization_engine - INFO - H3 resolution: 8
+2025-07-27 18:08:55,005 - __main__ - INFO - ✅ Visualization engine initialized successfully
+2025-07-27 18:08:55,005 - __main__ - INFO - ✅ Visualization engine initialized
+2025-07-27 18:08:55,050 - __main__ - INFO - Loaded analysis configuration from config/analysis_config.yaml
+2025-07-27 18:08:55,050 - __main__ - INFO - Target counties: {'CA': ['Lassen'], 'OR': [], 'WA': []}
+2025-07-27 18:08:55,050 - __main__ - INFO - Active modules: ['zoning', 'current_use', 'ownership', 'improvements']
+2025-07-27 18:08:55,050 - __main__ - INFO - 🔧 Creating shared backend for all modules...
+2025-07-27 18:08:58,563 - geo_infer_place.core.unified_backend - INFO - Successfully initialized H3DataLoader from GEO-INFER-SPACE.
+2025-07-27 18:08:58,565 - __main__ - ERROR - ❌ Failed to create shared backend: 'CascadianAgriculturalH3Backend' object has no attribute 'resolution'
