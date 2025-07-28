@@ -54,7 +54,7 @@ python cascadia_main.py --counties "CA:Lassen" --modules "zoning,current_use"
 ```mermaid
 mindmap
   root((GEO-INFER<br/>Framework))
-    🧠 Analytical Core
+    Analytical Core
       ACT
         Active Inference
         Belief updates
@@ -83,7 +83,7 @@ mindmap
         Statistical mapping
         Spatial statistics
         Field analysis
-    🗺️ Spatial-Temporal
+    Spatial-Temporal
       SPACE
         H3 v4 indexing
         Geospatial analysis
@@ -96,7 +96,7 @@ mindmap
         Sensor networks
         Real-time data
         Spatial web
-    💾 Data Management
+    Data Management
       DATA
         ETL processes
         Data pipelines
@@ -105,7 +105,7 @@ mindmap
         REST services
         GraphQL
         External integration
-    🔒 Security & Governance
+    Security & Governance
       SEC
         Security frameworks
         Privacy protection
@@ -118,7 +118,7 @@ mindmap
         Requirements engineering
         System specifications
         Validation
-    🧪 Simulation & Modeling
+    Simulation & Modeling
       SIM
         Digital twins
         Scenario planning
@@ -127,7 +127,7 @@ mindmap
         Complex systems
         Emergent behavior
         Swarm dynamics
-    👥 People & Community
+    People & Community
       CIV
         Civic engagement
         Participatory mapping
@@ -144,7 +144,7 @@ mindmap
         Communications
         Documentation
         Outreach
-    🖥️ Applications
+    Applications
       APP
         User interfaces
         Dashboards
@@ -153,7 +153,7 @@ mindmap
         Artistic expression
         Creative visualization
         Aesthetic frameworks
-    🏢 Domain-Specific
+    Domain-Specific
       AG
         Agriculture
         Precision farming
@@ -178,12 +178,12 @@ mindmap
         Public health
         Epidemiology
         Healthcare access
-    📍 Place-Based
+    Place-Based
       PLACE
         Location analysis
         Regional insights
         Territorial assessment
-    ⚙️ Operations
+    Operations
       OPS
         Orchestration
         System monitoring
