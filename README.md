@@ -52,100 +52,158 @@ python cascadia_main.py --counties "CA:Lassen" --modules "zoning,current_use"
 ## 📦 Module Categories
 
 ```mermaid
-graph TD
-    GEOINFER[GEO-INFER Framework]
-    
-    %% Analytical Core
-    ACT[ACT - Active Inference]
-    BAYES[BAYES - Bayesian methods]
-    AI[AI - Artificial Intelligence]
-    MATH[MATH - Mathematical foundations]
-    COG[COG - Cognitive modeling]
-    AGENT[AGENT - Intelligent Agents]
-    SPM[SPM - Statistical Parametric Mapping]
-    
-    %% Spatial-Temporal
-    SPACE[SPACE - Spatial methods H3 v4]
-    TIME[TIME - Temporal methods]
-    IOT[IOT - Internet of Things]
-    
-    %% Data Management
-    DATA[DATA - Data processing]
-    API[API - Interfaces]
-    
-    %% Security and Governance
-    SEC[SEC - Security]
-    NORMS[NORMS - Compliance]
-    REQ[REQ - Requirements]
-    
-    %% Simulation & Modeling
-    SIM[SIM - Simulation]
-    ANT[ANT - Complex systems]
-    
-    %% People and Community
-    CIV[CIV - Civic engagement]
-    PEP[PEP - People management]
-    ORG[ORG - Organizations]
-    COMMS[COMMS - Communications]
-    
-    %% Applications
-    APP[APP - User interfaces]
-    ART[ART - Artistic expression]
-    
-    %% Domain-Specific
-    AG[AG - Agriculture]
-    ECON[ECON - Economics]
-    RISK[RISK - Risk management]
-    LOG[LOG - Logistics]
-    BIO[BIO - Bioinformatics]
-    HEALTH[HEALTH - Health Applications]
-    
-    %% Place-Based
-    PLACE[PLACE - Location-specific analyses]
-    
-    %% Operations
-    OPS[OPS - Orchestration]
-    INTRA[INTRA - Documentation]
-    GIT[GIT - Version control]
-    TEST[TEST - Quality Assurance]
-    EXAMPLES[EXAMPLES - Cross-module demos]
-    
-    %% Connections to root
-    GEOINFER --> ACT
-    GEOINFER --> BAYES
-    GEOINFER --> AI
-    GEOINFER --> MATH
-    GEOINFER --> COG
-    GEOINFER --> AGENT
-    GEOINFER --> SPM
-    GEOINFER --> SPACE
-    GEOINFER --> TIME
-    GEOINFER --> IOT
-    GEOINFER --> DATA
-    GEOINFER --> API
-    GEOINFER --> SEC
-    GEOINFER --> NORMS
-    GEOINFER --> REQ
-    GEOINFER --> SIM
-    GEOINFER --> ANT
-    GEOINFER --> CIV
-    GEOINFER --> PEP
-    GEOINFER --> ORG
-    GEOINFER --> COMMS
-    GEOINFER --> APP
-    GEOINFER --> ART
-    GEOINFER --> AG
-    GEOINFER --> ECON
-    GEOINFER --> RISK
-    GEOINFER --> LOG
-    GEOINFER --> BIO
-    GEOINFER --> HEALTH
-    GEOINFER --> PLACE
-    GEOINFER --> OPS
-    GEOINFER --> INTRA
-    GEOINFER --> GIT
-    GEOINFER --> TEST
-    GEOINFER --> EXAMPLES
+mindmap
+  root((GEO-INFER<br/>Framework))
+    🧠 Analytical Core
+      ACT
+        Active Inference
+        Belief updates
+        Free energy
+      BAYES
+        Bayesian methods
+        Uncertainty quantification
+        Posterior inference
+      AI
+        Machine Learning
+        Neural networks
+        Predictive modeling
+      MATH
+        Mathematical foundations
+        Statistical methods
+        Optimization
+      COG
+        Cognitive modeling
+        Spatial cognition
+        Human factors
+      AGENT
+        Intelligent agents
+        Autonomous systems
+        Decision making
+      SPM
+        Statistical mapping
+        Spatial statistics
+        Field analysis
+    🗺️ Spatial-Temporal
+      SPACE
+        H3 v4 indexing
+        Geospatial analysis
+        Spatial processing
+      TIME
+        Temporal methods
+        Time series
+        Dynamic analysis
+      IOT
+        Sensor networks
+        Real-time data
+        Spatial web
+    💾 Data Management
+      DATA
+        ETL processes
+        Data pipelines
+        Storage optimization
+      API
+        REST services
+        GraphQL
+        External integration
+    🔒 Security & Governance
+      SEC
+        Security frameworks
+        Privacy protection
+        Access control
+      NORMS
+        Compliance modeling
+        Social norms
+        Regulatory frameworks
+      REQ
+        Requirements engineering
+        System specifications
+        Validation
+    🧪 Simulation & Modeling
+      SIM
+        Digital twins
+        Scenario planning
+        Hypothesis testing
+      ANT
+        Complex systems
+        Emergent behavior
+        Swarm dynamics
+    👥 People & Community
+      CIV
+        Civic engagement
+        Participatory mapping
+        Community planning
+      PEP
+        People management
+        HR systems
+        Community relations
+      ORG
+        Organizations
+        DAO frameworks
+        Governance
+      COMMS
+        Communications
+        Documentation
+        Outreach
+    🖥️ Applications
+      APP
+        User interfaces
+        Dashboards
+        Mobile apps
+      ART
+        Artistic expression
+        Creative visualization
+        Aesthetic frameworks
+    🏢 Domain-Specific
+      AG
+        Agriculture
+        Precision farming
+        Crop monitoring
+      ECON
+        Economics
+        Market analysis
+        Policy modeling
+      RISK
+        Risk management
+        Insurance
+        Hazard assessment
+      LOG
+        Logistics
+        Supply chains
+        Route optimization
+      BIO
+        Bioinformatics
+        Spatial omics
+        Ecological modeling
+      HEALTH
+        Public health
+        Epidemiology
+        Healthcare access
+    📍 Place-Based
+      PLACE
+        Location analysis
+        Regional insights
+        Territorial assessment
+    ⚙️ Operations
+      OPS
+        Orchestration
+        System monitoring
+        Deployment
+      INTRA
+        Documentation
+        Workflows
+        Ontology management
+      GIT
+        Version control
+        Repository management
+        CI/CD
+      TEST
+        Quality assurance
+        Testing frameworks
+        Performance validation
+      EXAMPLES
+        Cross-module demos
+        Tutorials
+        Integration examples
 ```
 
 ## 🧭 Quick Navigation
