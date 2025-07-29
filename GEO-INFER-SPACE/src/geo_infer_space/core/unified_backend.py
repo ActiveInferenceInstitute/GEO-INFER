@@ -31,11 +31,12 @@ logger = logging.getLogger(__name__)
 
 
 class NumpyEncoder(json.JSONEncoder):
-    """Custom JSON encoder for numpy data types."""
+    """Custom JSON encoder that handles numpy types and Shapely geometries."""
+    
     def default(self, obj):
-        if isinstance(obj, (np.integer, np.int64)):
+        if isinstance(obj, np.integer):
             return int(obj)
-        elif isinstance(obj, (np.floating, np.float64)):
+        elif isinstance(obj, np.floating):
             return float(obj)
         elif isinstance(obj, np.ndarray):
             return obj.tolist()
@@ -43,6 +44,9 @@ class NumpyEncoder(json.JSONEncoder):
             return bool(obj)
         elif pd.isna(obj):
             return None
+        # Handle Shapely geometry objects
+        elif hasattr(obj, '__geo_interface__'):
+            return obj.__geo_interface__
         return super(NumpyEncoder, self).default(obj)
 
 

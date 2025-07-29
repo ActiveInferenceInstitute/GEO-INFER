@@ -706,17 +706,22 @@ graph TD
 ### Comprehensive Testing Framework
 
 ```bash
-# Run all tests
-python -m pytest tests/ -v
+# Run unified test suite
+python GEO-INFER-TEST/run_unified_tests.py
 
-# Run specific module tests
-python -m pytest GEO-INFER-SPACE/tests/ -v
+# Run specific test categories
+python GEO-INFER-TEST/run_unified_tests.py --category unit
+python GEO-INFER-TEST/run_unified_tests.py --category integration
+python GEO-INFER-TEST/run_unified_tests.py --category performance
+
+# Run tests for specific module
+python GEO-INFER-TEST/run_unified_tests.py --module SPACE
 
 # Run H3 v4 migration tests
-python -m pytest GEO-INFER-SPACE/tests/test_h3_v4_migration.py -v
+python GEO-INFER-TEST/run_unified_tests.py --h3-migration
 
-# Run performance tests
-python -m pytest tests/performance/ -v
+# Run with pytest directly
+python -m pytest GEO-INFER-TEST/tests/ -v
 ```
 
 ## 📚 Documentation

@@ -30,7 +30,11 @@ class GeoInferOwnership(BaseAnalysisModule):
     """
 
     def __init__(self, backend: 'CascadianAgriculturalH3Backend'):
-        super().__init__(backend, 'ownership')
+        super().__init__('ownership', h3_resolution=8)
+        self.backend = backend
+        self.data_dir = Path("output/data")
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.target_hexagons = backend.target_hexagons
         self.data_source = CascadianOwnershipDataSources()
         logger.info(f"Initialized GeoInferOwnership module with real OSC H3 v4 integration.")
 
@@ -137,7 +141,7 @@ class GeoInferOwnership(BaseAnalysisModule):
         
         # Load real ownership data for spatial analysis
         try:
-            ownership_gdf = gpd.read_file(self.data_dir / "raw_ownership_data.geojson")
+            ownership_gdf = gpd.read_file(self.data_dir / "empirical_ownership_data.geojson")
             logger.info(f"Loaded {len(ownership_gdf)} real ownership features for analysis")
         except Exception as e:
             logger.error(f"Failed to load real ownership data: {e}")

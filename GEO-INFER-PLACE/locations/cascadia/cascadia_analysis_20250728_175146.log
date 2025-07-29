@@ -1,0 +1,831 @@
+2025-07-28 17:51:46,307 - utils.setup_manager - INFO - Enhanced Cascadia Analysis Framework initialized with SPACE integration
+2025-07-28 17:51:46,307 - utils.setup_manager - INFO - Log file: cascadia_analysis_20250728_175146.log
+2025-07-28 17:51:46,307 - __main__ - INFO - 🌲 Starting Cascadia Agricultural Analysis Framework
+2025-07-28 17:51:46,307 - __main__ - INFO - 📊 Analysis Parameters:
+2025-07-28 17:51:46,307 - __main__ - INFO -    H3 Resolution: 8
+2025-07-28 17:51:46,307 - __main__ - INFO -    Target Counties: CA:Del Norte
+2025-07-28 17:51:46,307 - __main__ - INFO -    Active Modules: zoning,current_use,ownership,improvements
+2025-07-28 17:51:46,308 - __main__ - INFO -    Export Format: geojson
+2025-07-28 17:51:46,308 - __main__ - INFO -    Output Directory: output
+2025-07-28 17:51:46,308 - __main__ - INFO -    Visualization Options: Lightweight Static Visualizations
+2025-07-28 17:51:46,345 - utils.setup_manager - INFO - Loaded analysis configuration from config/analysis_config.yaml
+2025-07-28 17:51:46,345 - __main__ - INFO - Target counties: {'CA': ['Del Norte']}
+2025-07-28 17:51:46,345 - __main__ - INFO - Active modules: ['zoning', 'current_use', 'ownership', 'improvements']
+2025-07-28 17:51:46,345 - utils.data_processor - INFO - 🔧 Creating shared backend for all modules...
+2025-07-28 17:51:48,821 - geo_infer_place.core.unified_backend - INFO - Successfully initialized H3DataLoader from GEO-INFER-SPACE.
+2025-07-28 17:51:48,822 - geo_infer_place.core.unified_backend - INFO - Generating new region data (not in cache)
+2025-07-28 17:51:48,822 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2025-07-28 17:51:48,864 - county_boundary_loader - INFO - Loaded county boundaries configuration from /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2025-07-28 17:51:48,866 - county_boundary_loader - INFO - Loaded GeoJSON geometry for ca_del_norte from /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_del_norte_boundary.geojson
+2025-07-28 17:51:48,866 - geo_infer_place.core.unified_backend - INFO - Successfully loaded county geometries using boundary loader
+2025-07-28 17:51:48,866 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Del_Norte, CA using SPACE utilities...
+2025-07-28 17:51:48,866 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'dict'>, Geometry: {'type': 'Polygon', 'coordinates': [[[-124.5, 41.4], [-124.5, 42.0], [-123.5, 42.0], [-123.5, 41.4], [-124.5, 41.4]]]}
+2025-07-28 17:51:48,889 - geo_infer_place.core.unified_backend - INFO - Generated 7749 hexagons for Del_Norte, CA
+2025-07-28 17:51:48,901 - geo_infer_place.core.unified_backend - INFO - ✅ Generated 7749 H3 hexagons using SPACE utilities
+2025-07-28 17:51:48,903 - geo_infer_place.core.unified_backend - WARNING - Failed to save to cache: 'list' object has no attribute 'items'
+2025-07-28 17:51:48,909 - geo_infer_place.core.unified_backend - DEBUG - Cache error details: Traceback (most recent call last):
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/core/unified_backend.py", line 271, in _save_to_cache
+    for county, geom in counties.items():
+AttributeError: 'list' object has no attribute 'items'
+
+2025-07-28 17:51:48,910 - geo_infer_place.core.unified_backend - WARNING - Failed to initialize UnifiedH3Backend: 'list' object has no attribute 'keys'
+2025-07-28 17:51:48,911 - geo_infer_space.utils.config_loader - INFO - Config loader initialized with directory: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config
+2025-07-28 17:51:48,912 - geo_infer_space.utils.config_loader - WARNING - Location config not found: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config/cascadia.yaml
+2025-07-28 17:51:48,912 - geo_infer_space.utils.config_loader - DEBUG - Configuration validation passed
+2025-07-28 17:51:48,913 - geo_infer_place.core.unified_backend - INFO - ✅ Cascadia configuration loaded successfully
+2025-07-28 17:51:48,914 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2025-07-28 17:51:48,959 - county_boundary_loader - INFO - Loaded county boundaries configuration from /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2025-07-28 17:51:48,960 - county_boundary_loader - INFO - Loaded GeoJSON geometry for ca_del_norte from /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_del_norte_boundary.geojson
+2025-07-28 17:51:48,960 - geo_infer_place.core.unified_backend - INFO - Successfully loaded county geometries using boundary loader
+2025-07-28 17:51:48,960 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Del_Norte, CA using SPACE utilities...
+2025-07-28 17:51:48,960 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'dict'>, Geometry: {'type': 'Polygon', 'coordinates': [[[-124.5, 41.4], [-124.5, 42.0], [-123.5, 42.0], [-123.5, 41.4], [-124.5, 41.4]]]}
+2025-07-28 17:51:48,988 - geo_infer_place.core.unified_backend - INFO - Generated 7749 hexagons for Del_Norte, CA
+2025-07-28 17:51:48,995 - geo_infer_place.core.unified_backend - INFO - ✅ Generated 7749 H3 hexagons using SPACE utilities
+2025-07-28 17:51:48,995 - geo_infer_place.core.unified_backend - INFO - Enhanced CascadianAgriculturalH3Backend initialized for 'Cascadia' with 0 active modules at H3 resolution 8
+2025-07-28 17:51:48,995 - geo_infer_place.core.unified_backend - INFO - Active modules: []
+2025-07-28 17:51:48,995 - geo_infer_place.core.unified_backend - INFO - Defined 7749 total target hexagons across 1 states.
+2025-07-28 17:51:48,995 - geo_infer_place.core.unified_backend - INFO - SPACE integration: Spatial processor, data integrator, and visualization engine available
+2025-07-28 17:51:48,996 - utils.data_processor - INFO - ✅ Shared backend created with 7749 target hexagons
+2025-07-28 17:51:48,996 - zoning.geo_infer_zoning - INFO - Initialized GeoInferZoning module with real OSC H3 v4 integration.
+2025-07-28 17:51:48,997 - utils.data_processor - INFO - ✅ Zoning module initialized
+2025-07-28 17:51:48,998 - current_use.data_sources - INFO - Initialized CascadianCurrentUseDataSources
+2025-07-28 17:51:48,998 - current_use.geo_infer_current_use - INFO - Initialized GeoInferCurrentUse module with real OSC H3 v4 integration.
+2025-07-28 17:51:48,999 - utils.data_processor - INFO - ✅ Current use module initialized
+2025-07-28 17:51:48,999 - ownership.geo_infer_ownership - INFO - Initialized GeoInferOwnership module with real OSC H3 v4 integration.
+2025-07-28 17:51:48,999 - utils.data_processor - INFO - ✅ Ownership module initialized
+2025-07-28 17:51:49,000 - improvements.data_sources - INFO - Initialized CascadianImprovementsDataSources.
+2025-07-28 17:51:49,000 - improvements.geo_infer_improvements - INFO - Initialized GeoInferImprovements module.
+2025-07-28 17:51:49,000 - utils.data_processor - INFO - ✅ Improvements module initialized
+2025-07-28 17:51:49,000 - utils.data_processor - INFO - ✅ Updated shared backend with 4 active modules
+2025-07-28 17:51:49,010 - utils.analysis_engine - INFO - 📊 Starting comprehensive analysis with real data tracking...
+2025-07-28 17:51:49,010 - utils.analysis_engine - INFO - 🔍 Pre-analysis data check for zoning module...
+2025-07-28 17:51:49,011 - utils.analysis_engine - INFO -   📁 zoning: Found 4 data files
+2025-07-28 17:51:49,011 - utils.analysis_engine - INFO -     📄 empirical_current_use_data.geojson
+2025-07-28 17:51:49,012 - utils.analysis_engine - INFO -     📄 empirical_improvements_data.geojson
+2025-07-28 17:51:49,012 - utils.analysis_engine - INFO -     📄 empirical_zoning_data.geojson
+2025-07-28 17:51:49,012 - utils.analysis_engine - INFO -     📄 empirical_ownership_data.geojson
+2025-07-28 17:51:49,012 - utils.analysis_engine - INFO - 🔍 Pre-analysis data check for current_use module...
+2025-07-28 17:51:49,013 - utils.analysis_engine - INFO -   📁 current_use: Found 4 data files
+2025-07-28 17:51:49,013 - utils.analysis_engine - INFO -     📄 empirical_current_use_data.geojson
+2025-07-28 17:51:49,013 - utils.analysis_engine - INFO -     📄 empirical_improvements_data.geojson
+2025-07-28 17:51:49,013 - utils.analysis_engine - INFO -     📄 empirical_zoning_data.geojson
+2025-07-28 17:51:49,016 - utils.analysis_engine - INFO -     📄 empirical_ownership_data.geojson
+2025-07-28 17:51:49,016 - utils.analysis_engine - INFO - 🔍 Pre-analysis data check for ownership module...
+2025-07-28 17:51:49,016 - utils.analysis_engine - INFO -   📁 ownership: Found 4 data files
+2025-07-28 17:51:49,016 - utils.analysis_engine - INFO -     📄 empirical_current_use_data.geojson
+2025-07-28 17:51:49,016 - utils.analysis_engine - INFO -     📄 empirical_improvements_data.geojson
+2025-07-28 17:51:49,016 - utils.analysis_engine - INFO -     📄 empirical_zoning_data.geojson
+2025-07-28 17:51:49,017 - utils.analysis_engine - INFO -     📄 empirical_ownership_data.geojson
+2025-07-28 17:51:49,017 - utils.analysis_engine - INFO - 🔍 Pre-analysis data check for improvements module...
+2025-07-28 17:51:49,017 - utils.analysis_engine - INFO -   📁 improvements: Found 4 data files
+2025-07-28 17:51:49,017 - utils.analysis_engine - INFO -     📄 empirical_current_use_data.geojson
+2025-07-28 17:51:49,017 - utils.analysis_engine - INFO -     📄 empirical_improvements_data.geojson
+2025-07-28 17:51:49,017 - utils.analysis_engine - INFO -     📄 empirical_zoning_data.geojson
+2025-07-28 17:51:49,017 - utils.analysis_engine - INFO -     📄 empirical_ownership_data.geojson
+2025-07-28 17:51:49,017 - geo_infer_place.core.unified_backend - INFO - Starting enhanced comprehensive analysis with SPACE integration...
+2025-07-28 17:51:49,017 - geo_infer_place.core.unified_backend - INFO - --- Processing Module: ZONING with SPACE integration ---
+2025-07-28 17:51:49,017 - geo_infer_place.core.unified_backend - INFO - [zoning] Starting real data acquisition...
+2025-07-28 17:51:49,017 - zoning.geo_infer_zoning - INFO - [zoning] 🔍 Acquiring raw zoning data...
+2025-07-28 17:51:49,018 - zoning.geo_infer_zoning - INFO - [zoning] ✅ Found empirical zoning data: output/data/empirical_zoning_data.geojson
+2025-07-28 17:51:49,018 - geo_infer_place.core.unified_backend - INFO - [zoning] ✅ Raw data acquired: output/data/empirical_zoning_data.geojson (1420 bytes)
+2025-07-28 17:51:49,018 - geo_infer_place.core.unified_backend - INFO - [zoning] Starting module analysis...
+2025-07-28 17:51:49,018 - geo_infer_space.core.base_module - INFO - [zoning] 🚀 Starting real data analysis workflow...
+2025-07-28 17:51:49,018 - geo_infer_space.core.base_module - INFO - [zoning] 📁 Found cached H3 data. Loading from output/zoning_h3_res8.json
+2025-07-28 17:51:49,019 - geo_infer_space.core.base_module - WARNING - [zoning] ⚠️ Cache validation failed: Expecting value: line 1 column 188 (char 187)
+2025-07-28 17:51:49,020 - geo_infer_space.core.base_module - WARNING - [zoning] ⚠️ Cached data file is corrupted. Deleting and regenerating...
+2025-07-28 17:51:49,020 - geo_infer_space.core.base_module - INFO - [zoning] 🔍 Acquiring raw data...
+2025-07-28 17:51:49,020 - zoning.geo_infer_zoning - INFO - [zoning] 🔍 Acquiring raw zoning data...
+2025-07-28 17:51:49,021 - zoning.geo_infer_zoning - INFO - [zoning] ✅ Found empirical zoning data: output/data/empirical_zoning_data.geojson
+2025-07-28 17:51:49,021 - geo_infer_space.core.base_module - INFO - [zoning] ✅ Raw data acquired: output/data/empirical_zoning_data.geojson (1420 bytes)
+2025-07-28 17:51:49,021 - geo_infer_space.core.base_module - INFO - [zoning] 🔄 Processing raw data to H3...
+2025-07-28 17:51:49,021 - geo_infer_space.core.base_module - INFO - [zoning] 🔄 Using direct H3 processing for output/data/empirical_zoning_data.geojson
+2025-07-28 17:51:49,021 - geo_infer_space.core.base_module - INFO - [zoning] 🔄 Using direct H3 processing for output/data/empirical_zoning_data.geojson
+2025-07-28 17:51:49,021 - geo_infer_space.core.base_module - INFO - [zoning] 🔄 Starting direct H3 processing for output/data/empirical_zoning_data.geojson
+2025-07-28 17:51:49,022 - geo_infer_space.core.base_module - INFO - [zoning] 📁 Loading GeoJSON data...
+2025-07-28 17:51:49,079 - geo_infer_space.core.base_module - INFO - [zoning] 📊 Loaded 2 features for direct processing
+2025-07-28 17:51:49,079 - geo_infer_space.core.base_module - INFO - [zoning] 🔄 Processing features...
+2025-07-28 17:51:49,080 - geo_infer_space.core.base_module - DEBUG - [zoning] 🔍 Feature 0 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:51:49,082 - geo_infer_space.core.base_module - DEBUG - [zoning] ✅ Feature 0 has shapely geometry: Polygon
+2025-07-28 17:51:49,088 - geo_infer_space.core.base_module - DEBUG - [zoning] ✅ Feature 0 converted to 1551 H3 cells
+2025-07-28 17:51:49,403 - geo_infer_space.core.base_module - DEBUG - [zoning] 🔍 Feature 1 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:51:49,403 - geo_infer_space.core.base_module - DEBUG - [zoning] ✅ Feature 1 has shapely geometry: Polygon
+2025-07-28 17:51:49,410 - geo_infer_space.core.base_module - DEBUG - [zoning] ✅ Feature 1 converted to 1553 H3 cells
+2025-07-28 17:51:49,933 - geo_infer_space.core.base_module - INFO - [zoning] ✅ Direct processing completed:
+2025-07-28 17:51:49,933 - geo_infer_space.core.base_module - INFO - [zoning]   📊 Processed features: 2
+2025-07-28 17:51:49,934 - geo_infer_space.core.base_module - INFO - [zoning]   ❌ Failed features: 0
+2025-07-28 17:51:49,934 - geo_infer_space.core.base_module - INFO - [zoning]   🎯 H3 cells generated: 2588
+2025-07-28 17:51:49,946 - geo_infer_space.core.base_module - INFO - [zoning] ✅ Direct H3 processing completed successfully in 0.9s
+2025-07-28 17:51:49,947 - geo_infer_space.core.base_module - INFO - [zoning] 🎯 Generated 2588 H3 cells
+2025-07-28 17:51:49,947 - geo_infer_space.core.base_module - INFO - [zoning] ✅ Processed 2588 hexagons to H3
+2025-07-28 17:51:49,947 - geo_infer_space.core.base_module - INFO - [zoning] 💾 Caching new H3 data to output/zoning_h3_res8.json
+2025-07-28 17:51:49,947 - geo_infer_space.core.base_module - ERROR - [zoning] ❌ Failed to cache H3 data: Object of type Polygon is not JSON serializable
+2025-07-28 17:51:49,948 - geo_infer_space.core.base_module - INFO - [zoning] 🔬 Running final analysis on 2588 hexagons...
+2025-07-28 17:51:49,948 - zoning.geo_infer_zoning - INFO - [zoning] Starting real final analysis on 2588 hexagons using OSC H3 v4 methods.
+2025-07-28 17:51:49,956 - zoning.geo_infer_zoning - INFO - Loaded 2 real zoning features for analysis
+2025-07-28 17:51:54,100 - zoning.geo_infer_zoning - INFO - [zoning] Completed real final analysis using OSC H3 v4 methods.
+2025-07-28 17:51:54,101 - geo_infer_space.core.base_module - INFO - [zoning] ✅ Final analysis completed: 2588 results
+2025-07-28 17:51:54,102 - geo_infer_space.core.base_module - INFO - [zoning] 📊 Sample final results keys: ['88281c8e89fffff', '88281c1665fffff', '88281c8513fffff']
+2025-07-28 17:51:54,103 - geo_infer_space.core.base_module - INFO - [zoning] 📊 Sample result for 88281c8e89fffff: {'zoning': [{'feature_id': 0, 'properties': {'zone_type': 'Agricultural', 'zone_code': 'A-1', 'acres': 15000, 'source': 'CA_FMMP_2022', 'data_year': 2022, 'geometry': <POLYGON ((-124.2 41.5, -124.2 41.8, -123.8 41.8, -123.8 41.5, -124.2 41.5))>}, 'geometry': {'type': 'Polygon', 'coordinates': (((-124.2, 41.5), (-124.2, 41.8), (-123.8, 41.8), (-123.8, 41.5), (-124.2, 41.5)),)}}], 'zoning_class': 'OTHER', 'is_ag_zone': False, 'redevelopment_potential': 0.2, 'zoning_coverage': 0.0, 'primary_zone_type': 'Unknown'}
+2025-07-28 17:51:54,104 - geo_infer_space.core.base_module - INFO - [zoning] 📊 Sample result for 88281c1665fffff: {'zoning': [{'feature_id': 0, 'properties': {'zone_type': 'Agricultural', 'zone_code': 'A-1', 'acres': 15000, 'source': 'CA_FMMP_2022', 'data_year': 2022, 'geometry': <POLYGON ((-124.2 41.5, -124.2 41.8, -123.8 41.8, -123.8 41.5, -124.2 41.5))>}, 'geometry': {'type': 'Polygon', 'coordinates': (((-124.2, 41.5), (-124.2, 41.8), (-123.8, 41.8), (-123.8, 41.5), (-124.2, 41.5)),)}}], 'zoning_class': 'OTHER', 'is_ag_zone': False, 'redevelopment_potential': 0.2, 'zoning_coverage': 0.0, 'primary_zone_type': 'Unknown'}
+2025-07-28 17:51:54,105 - geo_infer_space.core.base_module - INFO - [zoning] 📊 Sample result for 88281c8513fffff: {'zoning': [{'feature_id': 0, 'properties': {'zone_type': 'Agricultural', 'zone_code': 'A-1', 'acres': 15000, 'source': 'CA_FMMP_2022', 'data_year': 2022, 'geometry': <POLYGON ((-124.2 41.5, -124.2 41.8, -123.8 41.8, -123.8 41.5, -124.2 41.5))>}, 'geometry': {'type': 'Polygon', 'coordinates': (((-124.2, 41.5), (-124.2, 41.8), (-123.8, 41.8), (-123.8, 41.5), (-124.2, 41.5)),)}}], 'zoning_class': 'OTHER', 'is_ag_zone': False, 'redevelopment_potential': 0.2, 'zoning_coverage': 0.0, 'primary_zone_type': 'Unknown'}
+2025-07-28 17:51:54,106 - geo_infer_space.core.base_module - INFO - [zoning] 📊 ANALYSIS SUMMARY:
+2025-07-28 17:51:54,107 - geo_infer_space.core.base_module - INFO - [zoning]   - Cached data used: False
+2025-07-28 17:51:54,107 - geo_infer_space.core.base_module - INFO - [zoning]   - Raw data acquired: True
+2025-07-28 17:51:54,107 - geo_infer_space.core.base_module - INFO - [zoning]   - H3 cells processed: 2588
+2025-07-28 17:51:54,107 - geo_infer_space.core.base_module - INFO - [zoning]   - Final analysis completed: True
+2025-07-28 17:51:54,107 - geo_infer_space.core.base_module - INFO - [zoning]   - Final results: 2588 hexagons
+2025-07-28 17:51:54,107 - geo_infer_space.core.base_module - INFO - [zoning]   - Errors: 1
+2025-07-28 17:51:54,107 - geo_infer_space.core.base_module - INFO - [zoning]     ❌ Failed to cache H3 data: Object of type Polygon is not JSON serializable
+2025-07-28 17:51:54,107 - geo_infer_place.core.unified_backend - INFO - [zoning] ✅ Analysis completed: 2588 H3 cells processed
+2025-07-28 17:51:54,107 - geo_infer_place.core.unified_backend - INFO - [zoning] 📊 Sample processed data keys: ['88281c8e89fffff', '88281c1665fffff', '88281c8513fffff']
+2025-07-28 17:51:54,107 - geo_infer_place.core.unified_backend - INFO - [zoning] 📊 Sample data for 88281c8e89fffff: {'zoning': [{'feature_id': 0, 'properties': {'zone_type': 'Agricultural', 'zone_code': 'A-1', 'acres': 15000, 'source': 'CA_FMMP_2022', 'data_year': 2022, 'geometry': <POLYGON ((-124.2 41.5, -124.2 41.8, -123.8 41.8, -123.8 41.5, -124.2 41.5))>}, 'geometry': {'type': 'Polygon', 'coordinates': (((-124.2, 41.5), (-124.2, 41.8), (-123.8, 41.8), (-123.8, 41.5), (-124.2, 41.5)),)}}], 'zoning_class': 'OTHER', 'is_ag_zone': False, 'redevelopment_potential': 0.2, 'zoning_coverage': 0.0, 'primary_zone_type': 'Unknown'}
+2025-07-28 17:51:54,107 - geo_infer_place.core.unified_backend - INFO - [zoning] 📊 Sample data for 88281c1665fffff: {'zoning': [{'feature_id': 0, 'properties': {'zone_type': 'Agricultural', 'zone_code': 'A-1', 'acres': 15000, 'source': 'CA_FMMP_2022', 'data_year': 2022, 'geometry': <POLYGON ((-124.2 41.5, -124.2 41.8, -123.8 41.8, -123.8 41.5, -124.2 41.5))>}, 'geometry': {'type': 'Polygon', 'coordinates': (((-124.2, 41.5), (-124.2, 41.8), (-123.8, 41.8), (-123.8, 41.5), (-124.2, 41.5)),)}}], 'zoning_class': 'OTHER', 'is_ag_zone': False, 'redevelopment_potential': 0.2, 'zoning_coverage': 0.0, 'primary_zone_type': 'Unknown'}
+2025-07-28 17:51:54,108 - geo_infer_place.core.unified_backend - INFO - [zoning] 📊 Sample data for 88281c8513fffff: {'zoning': [{'feature_id': 0, 'properties': {'zone_type': 'Agricultural', 'zone_code': 'A-1', 'acres': 15000, 'source': 'CA_FMMP_2022', 'data_year': 2022, 'geometry': <POLYGON ((-124.2 41.5, -124.2 41.8, -123.8 41.8, -123.8 41.5, -124.2 41.5))>}, 'geometry': {'type': 'Polygon', 'coordinates': (((-124.2, 41.5), (-124.2, 41.8), (-123.8, 41.8), (-123.8, 41.5), (-124.2, 41.5)),)}}], 'zoning_class': 'OTHER', 'is_ag_zone': False, 'redevelopment_potential': 0.2, 'zoning_coverage': 0.0, 'primary_zone_type': 'Unknown'}
+2025-07-28 17:51:54,108 - geo_infer_place.core.unified_backend - INFO - [zoning] 📊 Module processing summary:
+2025-07-28 17:51:54,108 - geo_infer_place.core.unified_backend - INFO - [zoning]   - Raw data acquired: True
+2025-07-28 17:51:54,108 - geo_infer_place.core.unified_backend - INFO - [zoning]   - H3 cells processed: 2588
+2025-07-28 17:51:54,108 - geo_infer_place.core.unified_backend - INFO - [zoning]   - Final analysis completed: True
+2025-07-28 17:51:54,108 - geo_infer_place.core.unified_backend - INFO - ✅ Successfully processed module: ZONING
+2025-07-28 17:51:54,108 - geo_infer_place.core.unified_backend - INFO - --- Processing Module: CURRENT_USE with SPACE integration ---
+2025-07-28 17:51:54,108 - geo_infer_place.core.unified_backend - INFO - [current_use] Starting real data acquisition...
+2025-07-28 17:51:54,108 - current_use.geo_infer_current_use - INFO - [current_use] 🔍 Acquiring raw current use data...
+2025-07-28 17:51:54,108 - current_use.geo_infer_current_use - INFO - [current_use] ✅ Found empirical current use data: output/data/empirical_current_use_data.geojson
+2025-07-28 17:51:54,109 - geo_infer_place.core.unified_backend - INFO - [current_use] ✅ Raw data acquired: output/data/empirical_current_use_data.geojson (2201 bytes)
+2025-07-28 17:51:54,109 - geo_infer_place.core.unified_backend - INFO - [current_use] Starting module analysis...
+2025-07-28 17:51:54,109 - geo_infer_space.core.base_module - INFO - [current_use] 🚀 Starting real data analysis workflow...
+2025-07-28 17:51:54,110 - geo_infer_space.core.base_module - INFO - [current_use] 📁 Found cached H3 data. Loading from output/current_use_h3_res8.json
+2025-07-28 17:51:54,110 - geo_infer_space.core.base_module - WARNING - [current_use] ⚠️ Cache validation failed: Expecting value: line 1 column 216 (char 215)
+2025-07-28 17:51:54,111 - geo_infer_space.core.base_module - WARNING - [current_use] ⚠️ Cached data file is corrupted. Deleting and regenerating...
+2025-07-28 17:51:54,111 - geo_infer_space.core.base_module - INFO - [current_use] 🔍 Acquiring raw data...
+2025-07-28 17:51:54,112 - current_use.geo_infer_current_use - INFO - [current_use] 🔍 Acquiring raw current use data...
+2025-07-28 17:51:54,113 - current_use.geo_infer_current_use - INFO - [current_use] ✅ Found empirical current use data: output/data/empirical_current_use_data.geojson
+2025-07-28 17:51:54,113 - geo_infer_space.core.base_module - INFO - [current_use] ✅ Raw data acquired: output/data/empirical_current_use_data.geojson (2201 bytes)
+2025-07-28 17:51:54,113 - geo_infer_space.core.base_module - INFO - [current_use] 🔄 Processing raw data to H3...
+2025-07-28 17:51:54,113 - geo_infer_space.core.base_module - INFO - [current_use] 🔄 Using direct H3 processing for output/data/empirical_current_use_data.geojson
+2025-07-28 17:51:54,113 - geo_infer_space.core.base_module - INFO - [current_use] 🔄 Using direct H3 processing for output/data/empirical_current_use_data.geojson
+2025-07-28 17:51:54,113 - geo_infer_space.core.base_module - INFO - [current_use] 🔄 Starting direct H3 processing for output/data/empirical_current_use_data.geojson
+2025-07-28 17:51:54,113 - geo_infer_space.core.base_module - INFO - [current_use] 📁 Loading GeoJSON data...
+2025-07-28 17:51:54,122 - geo_infer_space.core.base_module - INFO - [current_use] 📊 Loaded 3 features for direct processing
+2025-07-28 17:51:54,122 - geo_infer_space.core.base_module - INFO - [current_use] 🔄 Processing features...
+2025-07-28 17:51:54,123 - geo_infer_space.core.base_module - DEBUG - [current_use] 🔍 Feature 0 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:51:54,123 - geo_infer_space.core.base_module - DEBUG - [current_use] ✅ Feature 0 has shapely geometry: Polygon
+2025-07-28 17:51:54,126 - geo_infer_space.core.base_module - DEBUG - [current_use] ✅ Feature 0 converted to 1164 H3 cells
+2025-07-28 17:51:54,318 - geo_infer_space.core.base_module - DEBUG - [current_use] 🔍 Feature 1 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:51:54,319 - geo_infer_space.core.base_module - DEBUG - [current_use] ✅ Feature 1 has shapely geometry: Polygon
+2025-07-28 17:51:54,322 - geo_infer_space.core.base_module - DEBUG - [current_use] ✅ Feature 1 converted to 516 H3 cells
+2025-07-28 17:51:54,426 - geo_infer_space.core.base_module - DEBUG - [current_use] 🔍 Feature 2 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:51:54,427 - geo_infer_space.core.base_module - DEBUG - [current_use] ✅ Feature 2 has shapely geometry: Polygon
+2025-07-28 17:51:54,428 - geo_infer_space.core.base_module - DEBUG - [current_use] ✅ Feature 2 converted to 260 H3 cells
+2025-07-28 17:51:54,474 - geo_infer_space.core.base_module - INFO - [current_use] ✅ Direct processing completed:
+2025-07-28 17:51:54,475 - geo_infer_space.core.base_module - INFO - [current_use]   📊 Processed features: 3
+2025-07-28 17:51:54,475 - geo_infer_space.core.base_module - INFO - [current_use]   ❌ Failed features: 0
+2025-07-28 17:51:54,476 - geo_infer_space.core.base_module - INFO - [current_use]   🎯 H3 cells generated: 1681
+2025-07-28 17:51:54,491 - geo_infer_space.core.base_module - INFO - [current_use] ✅ Direct H3 processing completed successfully in 0.4s
+2025-07-28 17:51:54,495 - geo_infer_space.core.base_module - INFO - [current_use] 🎯 Generated 1681 H3 cells
+2025-07-28 17:51:54,495 - geo_infer_space.core.base_module - INFO - [current_use] ✅ Processed 1681 hexagons to H3
+2025-07-28 17:51:54,495 - geo_infer_space.core.base_module - INFO - [current_use] 💾 Caching new H3 data to output/current_use_h3_res8.json
+2025-07-28 17:51:54,495 - geo_infer_space.core.base_module - ERROR - [current_use] ❌ Failed to cache H3 data: Object of type Polygon is not JSON serializable
+2025-07-28 17:51:54,495 - geo_infer_space.core.base_module - INFO - [current_use] 🔬 Running final analysis on 1681 hexagons...
+2025-07-28 17:51:54,496 - current_use.geo_infer_current_use - INFO - Starting real current use analysis for 7749 hexagons for the year 2023.
+2025-07-28 17:51:54,515 - current_use.geo_infer_current_use - INFO - Loaded 3 real current use features
+2025-07-28 17:52:06,059 - current_use.geo_infer_current_use - INFO - Completed real current use analysis. Processed 7749 of 7749 hexagons.
+2025-07-28 17:52:06,060 - geo_infer_space.core.base_module - INFO - [current_use] ✅ Final analysis completed: 7749 results
+2025-07-28 17:52:06,061 - geo_infer_space.core.base_module - INFO - [current_use] 📊 Sample final results keys: ['88280341b7fffff', '8828034513fffff', '8828034515fffff']
+2025-07-28 17:52:06,061 - geo_infer_space.core.base_module - INFO - [current_use] 📊 Sample result for 88280341b7fffff: {'primary_crop_code': 0, 'primary_crop_name': 'No Data', 'primary_crop_category': 'Unknown', 'primary_crop_coverage': 0.0, 'crop_diversity': 0, 'is_mock_data': False, 'intensity_score': 0.0, 'total_acres': 0.0, 'water_usage': 'Unknown'}
+2025-07-28 17:52:06,061 - geo_infer_space.core.base_module - INFO - [current_use] 📊 Sample result for 8828034513fffff: {'primary_crop_code': 0, 'primary_crop_name': 'No Data', 'primary_crop_category': 'Unknown', 'primary_crop_coverage': 0.0, 'crop_diversity': 0, 'is_mock_data': False, 'intensity_score': 0.0, 'total_acres': 0.0, 'water_usage': 'Unknown'}
+2025-07-28 17:52:06,061 - geo_infer_space.core.base_module - INFO - [current_use] 📊 Sample result for 8828034515fffff: {'primary_crop_code': 0, 'primary_crop_name': 'No Data', 'primary_crop_category': 'Unknown', 'primary_crop_coverage': 0.0, 'crop_diversity': 0, 'is_mock_data': False, 'intensity_score': 0.0, 'total_acres': 0.0, 'water_usage': 'Unknown'}
+2025-07-28 17:52:06,061 - geo_infer_space.core.base_module - INFO - [current_use] 📊 ANALYSIS SUMMARY:
+2025-07-28 17:52:06,061 - geo_infer_space.core.base_module - INFO - [current_use]   - Cached data used: False
+2025-07-28 17:52:06,061 - geo_infer_space.core.base_module - INFO - [current_use]   - Raw data acquired: True
+2025-07-28 17:52:06,061 - geo_infer_space.core.base_module - INFO - [current_use]   - H3 cells processed: 1681
+2025-07-28 17:52:06,062 - geo_infer_space.core.base_module - INFO - [current_use]   - Final analysis completed: True
+2025-07-28 17:52:06,062 - geo_infer_space.core.base_module - INFO - [current_use]   - Final results: 7749 hexagons
+2025-07-28 17:52:06,062 - geo_infer_space.core.base_module - INFO - [current_use]   - Errors: 1
+2025-07-28 17:52:06,062 - geo_infer_space.core.base_module - INFO - [current_use]     ❌ Failed to cache H3 data: Object of type Polygon is not JSON serializable
+2025-07-28 17:52:06,065 - geo_infer_place.core.unified_backend - INFO - [current_use] ✅ Analysis completed: 7749 H3 cells processed
+2025-07-28 17:52:06,066 - geo_infer_place.core.unified_backend - INFO - [current_use] 📊 Sample processed data keys: ['88280341b7fffff', '8828034513fffff', '8828034515fffff']
+2025-07-28 17:52:06,066 - geo_infer_place.core.unified_backend - INFO - [current_use] 📊 Sample data for 88280341b7fffff: {'primary_crop_code': 0, 'primary_crop_name': 'No Data', 'primary_crop_category': 'Unknown', 'primary_crop_coverage': 0.0, 'crop_diversity': 0, 'is_mock_data': False, 'intensity_score': 0.0, 'total_acres': 0.0, 'water_usage': 'Unknown'}
+2025-07-28 17:52:06,066 - geo_infer_place.core.unified_backend - INFO - [current_use] 📊 Sample data for 8828034513fffff: {'primary_crop_code': 0, 'primary_crop_name': 'No Data', 'primary_crop_category': 'Unknown', 'primary_crop_coverage': 0.0, 'crop_diversity': 0, 'is_mock_data': False, 'intensity_score': 0.0, 'total_acres': 0.0, 'water_usage': 'Unknown'}
+2025-07-28 17:52:06,066 - geo_infer_place.core.unified_backend - INFO - [current_use] 📊 Sample data for 8828034515fffff: {'primary_crop_code': 0, 'primary_crop_name': 'No Data', 'primary_crop_category': 'Unknown', 'primary_crop_coverage': 0.0, 'crop_diversity': 0, 'is_mock_data': False, 'intensity_score': 0.0, 'total_acres': 0.0, 'water_usage': 'Unknown'}
+2025-07-28 17:52:06,066 - geo_infer_place.core.unified_backend - INFO - [current_use] 📊 Module processing summary:
+2025-07-28 17:52:06,066 - geo_infer_place.core.unified_backend - INFO - [current_use]   - Raw data acquired: True
+2025-07-28 17:52:06,066 - geo_infer_place.core.unified_backend - INFO - [current_use]   - H3 cells processed: 7749
+2025-07-28 17:52:06,066 - geo_infer_place.core.unified_backend - INFO - [current_use]   - Final analysis completed: True
+2025-07-28 17:52:06,066 - geo_infer_place.core.unified_backend - INFO - ✅ Successfully processed module: CURRENT_USE
+2025-07-28 17:52:06,066 - geo_infer_place.core.unified_backend - INFO - --- Processing Module: OWNERSHIP with SPACE integration ---
+2025-07-28 17:52:06,066 - geo_infer_place.core.unified_backend - INFO - [ownership] Starting real data acquisition...
+2025-07-28 17:52:06,066 - ownership.geo_infer_ownership - INFO - [ownership] 🔍 Acquiring raw ownership data...
+2025-07-28 17:52:06,067 - ownership.geo_infer_ownership - INFO - [ownership] ✅ Found empirical ownership data: output/data/empirical_ownership_data.geojson
+2025-07-28 17:52:06,067 - geo_infer_place.core.unified_backend - INFO - [ownership] ✅ Raw data acquired: output/data/empirical_ownership_data.geojson (43591 bytes)
+2025-07-28 17:52:06,067 - geo_infer_place.core.unified_backend - INFO - [ownership] Starting module analysis...
+2025-07-28 17:52:06,067 - geo_infer_space.core.base_module - INFO - [ownership] 🚀 Starting real data analysis workflow...
+2025-07-28 17:52:06,067 - geo_infer_space.core.base_module - INFO - [ownership] 📁 Found cached H3 data. Loading from output/ownership_h3_res8.json
+2025-07-28 17:52:06,067 - geo_infer_space.core.base_module - WARNING - [ownership] ⚠️ Cache validation failed: Expecting value: line 1 column 246 (char 245)
+2025-07-28 17:52:06,067 - geo_infer_space.core.base_module - WARNING - [ownership] ⚠️ Cached data file is corrupted. Deleting and regenerating...
+2025-07-28 17:52:06,067 - geo_infer_space.core.base_module - INFO - [ownership] 🔍 Acquiring raw data...
+2025-07-28 17:52:06,067 - ownership.geo_infer_ownership - INFO - [ownership] 🔍 Acquiring raw ownership data...
+2025-07-28 17:52:06,067 - ownership.geo_infer_ownership - INFO - [ownership] ✅ Found empirical ownership data: output/data/empirical_ownership_data.geojson
+2025-07-28 17:52:06,067 - geo_infer_space.core.base_module - INFO - [ownership] ✅ Raw data acquired: output/data/empirical_ownership_data.geojson (43591 bytes)
+2025-07-28 17:52:06,067 - geo_infer_space.core.base_module - INFO - [ownership] 🔄 Processing raw data to H3...
+2025-07-28 17:52:06,067 - geo_infer_space.core.base_module - INFO - [ownership] 🔄 Using direct H3 processing for output/data/empirical_ownership_data.geojson
+2025-07-28 17:52:06,068 - geo_infer_space.core.base_module - INFO - [ownership] 🔄 Using direct H3 processing for output/data/empirical_ownership_data.geojson
+2025-07-28 17:52:06,068 - geo_infer_space.core.base_module - INFO - [ownership] 🔄 Starting direct H3 processing for output/data/empirical_ownership_data.geojson
+2025-07-28 17:52:06,068 - geo_infer_space.core.base_module - INFO - [ownership] 📁 Loading GeoJSON data...
+2025-07-28 17:52:06,078 - geo_infer_space.core.base_module - INFO - [ownership] 📊 Loaded 50 features for direct processing
+2025-07-28 17:52:06,079 - geo_infer_space.core.base_module - INFO - [ownership] 🔄 Processing features...
+2025-07-28 17:52:06,079 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 0 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,080 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 0 has shapely geometry: Polygon
+2025-07-28 17:52:06,080 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 0 converted to 22 H3 cells
+2025-07-28 17:52:06,083 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 1 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,083 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 1 has shapely geometry: Polygon
+2025-07-28 17:52:06,084 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 1 converted to 13 H3 cells
+2025-07-28 17:52:06,087 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 2 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,087 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 2 has shapely geometry: Polygon
+2025-07-28 17:52:06,088 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 2 converted to 3 H3 cells
+2025-07-28 17:52:06,090 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 3 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,090 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 3 has shapely geometry: Polygon
+2025-07-28 17:52:06,090 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 3 converted to 6 H3 cells
+2025-07-28 17:52:06,092 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 4 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,092 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 4 has shapely geometry: Polygon
+2025-07-28 17:52:06,093 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 4 converted to 28 H3 cells
+2025-07-28 17:52:06,097 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 5 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,098 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 5 has shapely geometry: Polygon
+2025-07-28 17:52:06,098 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 5 converted to 11 H3 cells
+2025-07-28 17:52:06,101 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 6 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,102 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 6 has shapely geometry: Polygon
+2025-07-28 17:52:06,102 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 6 converted to 7 H3 cells
+2025-07-28 17:52:06,104 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 7 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,104 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 7 has shapely geometry: Polygon
+2025-07-28 17:52:06,105 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 7 converted to 25 H3 cells
+2025-07-28 17:52:06,110 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 8 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,110 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 8 has shapely geometry: Polygon
+2025-07-28 17:52:06,111 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 8 converted to 9 H3 cells
+2025-07-28 17:52:06,113 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 9 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,113 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 9 has shapely geometry: Polygon
+2025-07-28 17:52:06,114 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 9 converted to 2 H3 cells
+2025-07-28 17:52:06,115 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 10 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,115 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 10 has shapely geometry: Polygon
+2025-07-28 17:52:06,115 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 10 converted to 7 H3 cells
+2025-07-28 17:52:06,116 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 11 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,117 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 11 has shapely geometry: Polygon
+2025-07-28 17:52:06,117 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 11 converted to 17 H3 cells
+2025-07-28 17:52:06,121 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 12 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,122 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 12 has shapely geometry: Polygon
+2025-07-28 17:52:06,122 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 12 converted to 9 H3 cells
+2025-07-28 17:52:06,125 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 13 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,126 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 13 has shapely geometry: Polygon
+2025-07-28 17:52:06,126 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 13 converted to 5 H3 cells
+2025-07-28 17:52:06,128 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 14 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,128 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 14 has shapely geometry: Polygon
+2025-07-28 17:52:06,129 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 14 converted to 29 H3 cells
+2025-07-28 17:52:06,135 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 15 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,135 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 15 has shapely geometry: Polygon
+2025-07-28 17:52:06,136 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 15 converted to 2 H3 cells
+2025-07-28 17:52:06,137 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 16 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,138 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 16 has shapely geometry: Polygon
+2025-07-28 17:52:06,138 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 16 converted to 21 H3 cells
+2025-07-28 17:52:06,143 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 17 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,144 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 17 has shapely geometry: Polygon
+2025-07-28 17:52:06,145 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 17 converted to 13 H3 cells
+2025-07-28 17:52:06,148 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 18 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,149 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 18 has shapely geometry: Polygon
+2025-07-28 17:52:06,149 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 18 converted to 4 H3 cells
+2025-07-28 17:52:06,151 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 19 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,151 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 19 has shapely geometry: Polygon
+2025-07-28 17:52:06,151 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 19 converted to 4 H3 cells
+2025-07-28 17:52:06,152 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 20 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,152 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 20 has shapely geometry: Polygon
+2025-07-28 17:52:06,152 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 20 converted to 4 H3 cells
+2025-07-28 17:52:06,154 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 21 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,155 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 21 has shapely geometry: Polygon
+2025-07-28 17:52:06,155 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 21 converted to 17 H3 cells
+2025-07-28 17:52:06,160 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 22 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,160 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 22 has shapely geometry: Polygon
+2025-07-28 17:52:06,160 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 22 converted to 6 H3 cells
+2025-07-28 17:52:06,162 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 23 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,163 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 23 has shapely geometry: Polygon
+2025-07-28 17:52:06,164 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 23 converted to 31 H3 cells
+2025-07-28 17:52:06,173 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 24 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,173 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 24 has shapely geometry: Polygon
+2025-07-28 17:52:06,174 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 24 converted to 4 H3 cells
+2025-07-28 17:52:06,176 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 25 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,177 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 25 has shapely geometry: Polygon
+2025-07-28 17:52:06,178 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 25 converted to 24 H3 cells
+2025-07-28 17:52:06,182 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 26 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,182 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 26 has shapely geometry: Polygon
+2025-07-28 17:52:06,182 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 26 converted to 4 H3 cells
+2025-07-28 17:52:06,183 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 27 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,184 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 27 has shapely geometry: Polygon
+2025-07-28 17:52:06,184 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 27 converted to 18 H3 cells
+2025-07-28 17:52:06,188 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 28 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,189 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 28 has shapely geometry: Polygon
+2025-07-28 17:52:06,189 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 28 converted to 10 H3 cells
+2025-07-28 17:52:06,193 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 29 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,193 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 29 has shapely geometry: Polygon
+2025-07-28 17:52:06,194 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 29 converted to 18 H3 cells
+2025-07-28 17:52:06,198 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 30 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,198 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 30 has shapely geometry: Polygon
+2025-07-28 17:52:06,199 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 30 converted to 15 H3 cells
+2025-07-28 17:52:06,202 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 31 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,202 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 31 has shapely geometry: Polygon
+2025-07-28 17:52:06,203 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 31 converted to 9 H3 cells
+2025-07-28 17:52:06,205 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 32 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,206 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 32 has shapely geometry: Polygon
+2025-07-28 17:52:06,206 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 32 converted to 8 H3 cells
+2025-07-28 17:52:06,209 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 33 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,209 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 33 has shapely geometry: Polygon
+2025-07-28 17:52:06,210 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 33 converted to 20 H3 cells
+2025-07-28 17:52:06,214 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 34 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,215 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 34 has shapely geometry: Polygon
+2025-07-28 17:52:06,215 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 34 converted to 28 H3 cells
+2025-07-28 17:52:06,221 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 35 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,222 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 35 has shapely geometry: Polygon
+2025-07-28 17:52:06,223 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 35 converted to 3 H3 cells
+2025-07-28 17:52:06,225 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 36 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,225 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 36 has shapely geometry: Polygon
+2025-07-28 17:52:06,226 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 36 converted to 29 H3 cells
+2025-07-28 17:52:06,231 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 37 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,231 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 37 has shapely geometry: Polygon
+2025-07-28 17:52:06,231 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 37 converted to 3 H3 cells
+2025-07-28 17:52:06,233 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 38 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,233 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 38 has shapely geometry: Polygon
+2025-07-28 17:52:06,233 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 38 converted to 2 H3 cells
+2025-07-28 17:52:06,234 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 39 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,235 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 39 has shapely geometry: Polygon
+2025-07-28 17:52:06,236 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 39 converted to 29 H3 cells
+2025-07-28 17:52:06,243 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 40 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,244 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 40 has shapely geometry: Polygon
+2025-07-28 17:52:06,245 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 40 converted to 4 H3 cells
+2025-07-28 17:52:06,247 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 41 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,247 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 41 has shapely geometry: Polygon
+2025-07-28 17:52:06,248 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 41 converted to 5 H3 cells
+2025-07-28 17:52:06,250 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 42 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,250 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 42 has shapely geometry: Polygon
+2025-07-28 17:52:06,250 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 42 converted to 5 H3 cells
+2025-07-28 17:52:06,251 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 43 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,252 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 43 has shapely geometry: Polygon
+2025-07-28 17:52:06,252 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 43 converted to 3 H3 cells
+2025-07-28 17:52:06,253 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 44 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,253 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 44 has shapely geometry: Polygon
+2025-07-28 17:52:06,254 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 44 converted to 2 H3 cells
+2025-07-28 17:52:06,255 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 45 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,256 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 45 has shapely geometry: Polygon
+2025-07-28 17:52:06,258 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 45 converted to 27 H3 cells
+2025-07-28 17:52:06,265 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 46 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,266 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 46 has shapely geometry: Polygon
+2025-07-28 17:52:06,266 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 46 converted to 14 H3 cells
+2025-07-28 17:52:06,268 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 47 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,269 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 47 has shapely geometry: Polygon
+2025-07-28 17:52:06,269 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 47 converted to 16 H3 cells
+2025-07-28 17:52:06,274 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 48 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,275 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 48 has shapely geometry: Polygon
+2025-07-28 17:52:06,276 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 48 converted to 11 H3 cells
+2025-07-28 17:52:06,279 - geo_infer_space.core.base_module - DEBUG - [ownership] 🔍 Feature 49 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:06,279 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 49 has shapely geometry: Polygon
+2025-07-28 17:52:06,280 - geo_infer_space.core.base_module - DEBUG - [ownership] ✅ Feature 49 converted to 28 H3 cells
+2025-07-28 17:52:06,284 - geo_infer_space.core.base_module - INFO - [ownership] ✅ Direct processing completed:
+2025-07-28 17:52:06,284 - geo_infer_space.core.base_module - INFO - [ownership]   📊 Processed features: 50
+2025-07-28 17:52:06,284 - geo_infer_space.core.base_module - INFO - [ownership]   ❌ Failed features: 0
+2025-07-28 17:52:06,284 - geo_infer_space.core.base_module - INFO - [ownership]   🎯 H3 cells generated: 594
+2025-07-28 17:52:06,288 - geo_infer_space.core.base_module - INFO - [ownership] ✅ Direct H3 processing completed successfully in 0.2s
+2025-07-28 17:52:06,288 - geo_infer_space.core.base_module - INFO - [ownership] 🎯 Generated 594 H3 cells
+2025-07-28 17:52:06,288 - geo_infer_space.core.base_module - INFO - [ownership] ✅ Processed 594 hexagons to H3
+2025-07-28 17:52:06,288 - geo_infer_space.core.base_module - INFO - [ownership] 💾 Caching new H3 data to output/ownership_h3_res8.json
+2025-07-28 17:52:06,289 - geo_infer_space.core.base_module - ERROR - [ownership] ❌ Failed to cache H3 data: Object of type Polygon is not JSON serializable
+2025-07-28 17:52:06,289 - geo_infer_space.core.base_module - INFO - [ownership] 🔬 Running final analysis on 594 hexagons...
+2025-07-28 17:52:06,289 - ownership.geo_infer_ownership - INFO - Running real ownership analysis on 594 H3 cells using OSC H3 v4 methods...
+2025-07-28 17:52:06,301 - ownership.geo_infer_ownership - INFO - Loaded 50 real ownership features for analysis
+2025-07-28 17:52:16,028 - ownership.geo_infer_ownership - INFO - Completed real ownership analysis for 7749 cells using OSC H3 v4 methods
+2025-07-28 17:52:16,028 - geo_infer_space.core.base_module - INFO - [ownership] ✅ Final analysis completed: 7749 results
+2025-07-28 17:52:16,028 - geo_infer_space.core.base_module - INFO - [ownership] 📊 Sample final results keys: ['88280341b7fffff', '8828034513fffff', '8828034515fffff']
+2025-07-28 17:52:16,029 - geo_infer_space.core.base_module - INFO - [ownership] 📊 Sample result for 88280341b7fffff: {'ownership_concentration_hhi': 0.0, 'largest_owner_share_pct': 0.0, 'number_of_unique_owners': 0, 'number_of_parcels': 0, 'average_parcel_size_acres': 0.0, 'total_parcel_area_acres': 0.0, 'score': 0.0, 'owner_diversity': 0.0, 'parcel_fragmentation': 0.0}
+2025-07-28 17:52:16,029 - geo_infer_space.core.base_module - INFO - [ownership] 📊 Sample result for 8828034513fffff: {'ownership_concentration_hhi': 0.0, 'largest_owner_share_pct': 0.0, 'number_of_unique_owners': 0, 'number_of_parcels': 0, 'average_parcel_size_acres': 0.0, 'total_parcel_area_acres': 0.0, 'score': 0.0, 'owner_diversity': 0.0, 'parcel_fragmentation': 0.0}
+2025-07-28 17:52:16,029 - geo_infer_space.core.base_module - INFO - [ownership] 📊 Sample result for 8828034515fffff: {'ownership_concentration_hhi': 0.0, 'largest_owner_share_pct': 0.0, 'number_of_unique_owners': 0, 'number_of_parcels': 0, 'average_parcel_size_acres': 0.0, 'total_parcel_area_acres': 0.0, 'score': 0.0, 'owner_diversity': 0.0, 'parcel_fragmentation': 0.0}
+2025-07-28 17:52:16,029 - geo_infer_space.core.base_module - INFO - [ownership] 📊 ANALYSIS SUMMARY:
+2025-07-28 17:52:16,029 - geo_infer_space.core.base_module - INFO - [ownership]   - Cached data used: False
+2025-07-28 17:52:16,029 - geo_infer_space.core.base_module - INFO - [ownership]   - Raw data acquired: True
+2025-07-28 17:52:16,029 - geo_infer_space.core.base_module - INFO - [ownership]   - H3 cells processed: 594
+2025-07-28 17:52:16,029 - geo_infer_space.core.base_module - INFO - [ownership]   - Final analysis completed: True
+2025-07-28 17:52:16,029 - geo_infer_space.core.base_module - INFO - [ownership]   - Final results: 7749 hexagons
+2025-07-28 17:52:16,029 - geo_infer_space.core.base_module - INFO - [ownership]   - Errors: 1
+2025-07-28 17:52:16,029 - geo_infer_space.core.base_module - INFO - [ownership]     ❌ Failed to cache H3 data: Object of type Polygon is not JSON serializable
+2025-07-28 17:52:16,031 - geo_infer_place.core.unified_backend - INFO - [ownership] ✅ Analysis completed: 7749 H3 cells processed
+2025-07-28 17:52:16,032 - geo_infer_place.core.unified_backend - INFO - [ownership] 📊 Sample processed data keys: ['88280341b7fffff', '8828034513fffff', '8828034515fffff']
+2025-07-28 17:52:16,032 - geo_infer_place.core.unified_backend - INFO - [ownership] 📊 Sample data for 88280341b7fffff: {'ownership_concentration_hhi': 0.0, 'largest_owner_share_pct': 0.0, 'number_of_unique_owners': 0, 'number_of_parcels': 0, 'average_parcel_size_acres': 0.0, 'total_parcel_area_acres': 0.0, 'score': 0.0, 'owner_diversity': 0.0, 'parcel_fragmentation': 0.0}
+2025-07-28 17:52:16,032 - geo_infer_place.core.unified_backend - INFO - [ownership] 📊 Sample data for 8828034513fffff: {'ownership_concentration_hhi': 0.0, 'largest_owner_share_pct': 0.0, 'number_of_unique_owners': 0, 'number_of_parcels': 0, 'average_parcel_size_acres': 0.0, 'total_parcel_area_acres': 0.0, 'score': 0.0, 'owner_diversity': 0.0, 'parcel_fragmentation': 0.0}
+2025-07-28 17:52:16,032 - geo_infer_place.core.unified_backend - INFO - [ownership] 📊 Sample data for 8828034515fffff: {'ownership_concentration_hhi': 0.0, 'largest_owner_share_pct': 0.0, 'number_of_unique_owners': 0, 'number_of_parcels': 0, 'average_parcel_size_acres': 0.0, 'total_parcel_area_acres': 0.0, 'score': 0.0, 'owner_diversity': 0.0, 'parcel_fragmentation': 0.0}
+2025-07-28 17:52:16,032 - geo_infer_place.core.unified_backend - INFO - [ownership] 📊 Module processing summary:
+2025-07-28 17:52:16,033 - geo_infer_place.core.unified_backend - INFO - [ownership]   - Raw data acquired: True
+2025-07-28 17:52:16,033 - geo_infer_place.core.unified_backend - INFO - [ownership]   - H3 cells processed: 7749
+2025-07-28 17:52:16,033 - geo_infer_place.core.unified_backend - INFO - [ownership]   - Final analysis completed: True
+2025-07-28 17:52:16,033 - geo_infer_place.core.unified_backend - INFO - ✅ Successfully processed module: OWNERSHIP
+2025-07-28 17:52:16,033 - geo_infer_place.core.unified_backend - INFO - --- Processing Module: IMPROVEMENTS with SPACE integration ---
+2025-07-28 17:52:16,033 - geo_infer_place.core.unified_backend - INFO - [improvements] Starting real data acquisition...
+2025-07-28 17:52:16,033 - improvements.geo_infer_improvements - INFO - [improvements] 🔍 Acquiring raw improvements data...
+2025-07-28 17:52:16,033 - improvements.geo_infer_improvements - INFO - [improvements] ✅ Found empirical improvements data: output/data/empirical_improvements_data.geojson
+2025-07-28 17:52:16,033 - geo_infer_place.core.unified_backend - INFO - [improvements] ✅ Raw data acquired: output/data/empirical_improvements_data.geojson (88059 bytes)
+2025-07-28 17:52:16,033 - geo_infer_place.core.unified_backend - INFO - [improvements] Starting module analysis...
+2025-07-28 17:52:16,033 - geo_infer_space.core.base_module - INFO - [improvements] 🚀 Starting real data analysis workflow...
+2025-07-28 17:52:16,033 - geo_infer_space.core.base_module - INFO - [improvements] 📁 Found cached H3 data. Loading from output/improvements_h3_res8.json
+2025-07-28 17:52:16,033 - geo_infer_space.core.base_module - WARNING - [improvements] ⚠️ Cache validation failed: Expecting value: line 1 column 256 (char 255)
+2025-07-28 17:52:16,033 - geo_infer_space.core.base_module - WARNING - [improvements] ⚠️ Cached data file is corrupted. Deleting and regenerating...
+2025-07-28 17:52:16,034 - geo_infer_space.core.base_module - INFO - [improvements] 🔍 Acquiring raw data...
+2025-07-28 17:52:16,034 - improvements.geo_infer_improvements - INFO - [improvements] 🔍 Acquiring raw improvements data...
+2025-07-28 17:52:16,034 - improvements.geo_infer_improvements - INFO - [improvements] ✅ Found empirical improvements data: output/data/empirical_improvements_data.geojson
+2025-07-28 17:52:16,034 - geo_infer_space.core.base_module - INFO - [improvements] ✅ Raw data acquired: output/data/empirical_improvements_data.geojson (88059 bytes)
+2025-07-28 17:52:16,034 - geo_infer_space.core.base_module - INFO - [improvements] 🔄 Processing raw data to H3...
+2025-07-28 17:52:16,034 - geo_infer_space.core.base_module - INFO - [improvements] 🔄 Using direct H3 processing for output/data/empirical_improvements_data.geojson
+2025-07-28 17:52:16,034 - geo_infer_space.core.base_module - INFO - [improvements] 🔄 Using direct H3 processing for output/data/empirical_improvements_data.geojson
+2025-07-28 17:52:16,034 - geo_infer_space.core.base_module - INFO - [improvements] 🔄 Starting direct H3 processing for output/data/empirical_improvements_data.geojson
+2025-07-28 17:52:16,034 - geo_infer_space.core.base_module - INFO - [improvements] 📁 Loading GeoJSON data...
+2025-07-28 17:52:16,068 - geo_infer_space.core.base_module - INFO - [improvements] 📊 Loaded 100 features for direct processing
+2025-07-28 17:52:16,070 - geo_infer_space.core.base_module - INFO - [improvements] 🔄 Processing features...
+2025-07-28 17:52:16,070 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 0 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,071 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 0 has shapely geometry: Polygon
+2025-07-28 17:52:16,071 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 0 converted to 0 H3 cells
+2025-07-28 17:52:16,071 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 1 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,071 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 1 has shapely geometry: Polygon
+2025-07-28 17:52:16,071 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 1 converted to 1 H3 cells
+2025-07-28 17:52:16,072 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 2 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,075 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 2 has shapely geometry: Polygon
+2025-07-28 17:52:16,084 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 2 converted to 0 H3 cells
+2025-07-28 17:52:16,085 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 3 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,085 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 3 has shapely geometry: Polygon
+2025-07-28 17:52:16,085 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 3 converted to 1 H3 cells
+2025-07-28 17:52:16,085 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 4 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,086 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 4 has shapely geometry: Polygon
+2025-07-28 17:52:16,086 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 4 converted to 0 H3 cells
+2025-07-28 17:52:16,086 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 5 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,086 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 5 has shapely geometry: Polygon
+2025-07-28 17:52:16,086 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 5 converted to 1 H3 cells
+2025-07-28 17:52:16,087 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 6 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,087 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 6 has shapely geometry: Polygon
+2025-07-28 17:52:16,087 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 6 converted to 0 H3 cells
+2025-07-28 17:52:16,087 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 7 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,087 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 7 has shapely geometry: Polygon
+2025-07-28 17:52:16,087 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 7 converted to 0 H3 cells
+2025-07-28 17:52:16,087 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 8 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,087 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 8 has shapely geometry: Polygon
+2025-07-28 17:52:16,088 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 8 converted to 1 H3 cells
+2025-07-28 17:52:16,088 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 9 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,088 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 9 has shapely geometry: Polygon
+2025-07-28 17:52:16,088 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 9 converted to 0 H3 cells
+2025-07-28 17:52:16,088 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 10 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,088 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 10 has shapely geometry: Polygon
+2025-07-28 17:52:16,089 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 10 converted to 1 H3 cells
+2025-07-28 17:52:16,089 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 11 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,089 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 11 has shapely geometry: Polygon
+2025-07-28 17:52:16,089 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 11 converted to 0 H3 cells
+2025-07-28 17:52:16,089 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 12 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,090 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 12 has shapely geometry: Polygon
+2025-07-28 17:52:16,098 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 12 converted to 0 H3 cells
+2025-07-28 17:52:16,099 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 13 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,099 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 13 has shapely geometry: Polygon
+2025-07-28 17:52:16,099 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 13 converted to 0 H3 cells
+2025-07-28 17:52:16,100 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 14 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,100 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 14 has shapely geometry: Polygon
+2025-07-28 17:52:16,100 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 14 converted to 0 H3 cells
+2025-07-28 17:52:16,100 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 15 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,100 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 15 has shapely geometry: Polygon
+2025-07-28 17:52:16,100 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 15 converted to 1 H3 cells
+2025-07-28 17:52:16,101 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 16 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,101 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 16 has shapely geometry: Polygon
+2025-07-28 17:52:16,101 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 16 converted to 0 H3 cells
+2025-07-28 17:52:16,101 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 17 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,101 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 17 has shapely geometry: Polygon
+2025-07-28 17:52:16,102 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 17 converted to 1 H3 cells
+2025-07-28 17:52:16,102 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 18 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,115 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 18 has shapely geometry: Polygon
+2025-07-28 17:52:16,116 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 18 converted to 1 H3 cells
+2025-07-28 17:52:16,116 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 19 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,116 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 19 has shapely geometry: Polygon
+2025-07-28 17:52:16,117 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 19 converted to 0 H3 cells
+2025-07-28 17:52:16,117 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 20 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,117 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 20 has shapely geometry: Polygon
+2025-07-28 17:52:16,117 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 20 converted to 1 H3 cells
+2025-07-28 17:52:16,117 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 21 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,117 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 21 has shapely geometry: Polygon
+2025-07-28 17:52:16,118 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 21 converted to 0 H3 cells
+2025-07-28 17:52:16,118 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 22 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,118 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 22 has shapely geometry: Polygon
+2025-07-28 17:52:16,118 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 22 converted to 0 H3 cells
+2025-07-28 17:52:16,118 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 23 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,118 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 23 has shapely geometry: Polygon
+2025-07-28 17:52:16,118 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 23 converted to 0 H3 cells
+2025-07-28 17:52:16,119 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 24 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,119 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 24 has shapely geometry: Polygon
+2025-07-28 17:52:16,119 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 24 converted to 0 H3 cells
+2025-07-28 17:52:16,119 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 25 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,125 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 25 has shapely geometry: Polygon
+2025-07-28 17:52:16,126 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 25 converted to 1 H3 cells
+2025-07-28 17:52:16,126 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 26 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,126 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 26 has shapely geometry: Polygon
+2025-07-28 17:52:16,127 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 26 converted to 1 H3 cells
+2025-07-28 17:52:16,127 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 27 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,127 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 27 has shapely geometry: Polygon
+2025-07-28 17:52:16,128 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 27 converted to 1 H3 cells
+2025-07-28 17:52:16,131 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 28 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,131 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 28 has shapely geometry: Polygon
+2025-07-28 17:52:16,131 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 28 converted to 1 H3 cells
+2025-07-28 17:52:16,132 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 29 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,132 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 29 has shapely geometry: Polygon
+2025-07-28 17:52:16,133 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 29 converted to 0 H3 cells
+2025-07-28 17:52:16,133 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 30 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,133 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 30 has shapely geometry: Polygon
+2025-07-28 17:52:16,134 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 30 converted to 0 H3 cells
+2025-07-28 17:52:16,134 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 31 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,134 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 31 has shapely geometry: Polygon
+2025-07-28 17:52:16,134 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 31 converted to 0 H3 cells
+2025-07-28 17:52:16,134 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 32 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,135 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 32 has shapely geometry: Polygon
+2025-07-28 17:52:16,135 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 32 converted to 0 H3 cells
+2025-07-28 17:52:16,135 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 33 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,135 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 33 has shapely geometry: Polygon
+2025-07-28 17:52:16,135 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 33 converted to 0 H3 cells
+2025-07-28 17:52:16,136 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 34 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,136 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 34 has shapely geometry: Polygon
+2025-07-28 17:52:16,136 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 34 converted to 1 H3 cells
+2025-07-28 17:52:16,136 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 35 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,136 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 35 has shapely geometry: Polygon
+2025-07-28 17:52:16,137 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 35 converted to 0 H3 cells
+2025-07-28 17:52:16,137 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 36 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,137 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 36 has shapely geometry: Polygon
+2025-07-28 17:52:16,137 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 36 converted to 0 H3 cells
+2025-07-28 17:52:16,138 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 37 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,139 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 37 has shapely geometry: Polygon
+2025-07-28 17:52:16,140 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 37 converted to 1 H3 cells
+2025-07-28 17:52:16,143 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 38 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,145 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 38 has shapely geometry: Polygon
+2025-07-28 17:52:16,145 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 38 converted to 2 H3 cells
+2025-07-28 17:52:16,147 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 39 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,148 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 39 has shapely geometry: Polygon
+2025-07-28 17:52:16,148 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 39 converted to 1 H3 cells
+2025-07-28 17:52:16,149 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 40 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,150 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 40 has shapely geometry: Polygon
+2025-07-28 17:52:16,150 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 40 converted to 0 H3 cells
+2025-07-28 17:52:16,151 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 41 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,151 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 41 has shapely geometry: Polygon
+2025-07-28 17:52:16,151 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 41 converted to 1 H3 cells
+2025-07-28 17:52:16,152 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 42 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,152 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 42 has shapely geometry: Polygon
+2025-07-28 17:52:16,152 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 42 converted to 1 H3 cells
+2025-07-28 17:52:16,153 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 43 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,153 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 43 has shapely geometry: Polygon
+2025-07-28 17:52:16,154 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 43 converted to 1 H3 cells
+2025-07-28 17:52:16,154 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 44 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,154 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 44 has shapely geometry: Polygon
+2025-07-28 17:52:16,155 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 44 converted to 0 H3 cells
+2025-07-28 17:52:16,155 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 45 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,155 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 45 has shapely geometry: Polygon
+2025-07-28 17:52:16,155 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 45 converted to 0 H3 cells
+2025-07-28 17:52:16,156 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 46 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,156 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 46 has shapely geometry: Polygon
+2025-07-28 17:52:16,156 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 46 converted to 1 H3 cells
+2025-07-28 17:52:16,157 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 47 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,158 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 47 has shapely geometry: Polygon
+2025-07-28 17:52:16,159 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 47 converted to 0 H3 cells
+2025-07-28 17:52:16,160 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 48 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,160 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 48 has shapely geometry: Polygon
+2025-07-28 17:52:16,160 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 48 converted to 0 H3 cells
+2025-07-28 17:52:16,161 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 49 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,161 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 49 has shapely geometry: Polygon
+2025-07-28 17:52:16,161 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 49 converted to 0 H3 cells
+2025-07-28 17:52:16,162 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 50 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,162 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 50 has shapely geometry: Polygon
+2025-07-28 17:52:16,163 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 50 converted to 1 H3 cells
+2025-07-28 17:52:16,164 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 51 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,164 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 51 has shapely geometry: Polygon
+2025-07-28 17:52:16,164 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 51 converted to 0 H3 cells
+2025-07-28 17:52:16,165 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 52 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,165 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 52 has shapely geometry: Polygon
+2025-07-28 17:52:16,165 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 52 converted to 1 H3 cells
+2025-07-28 17:52:16,165 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 53 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,166 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 53 has shapely geometry: Polygon
+2025-07-28 17:52:16,166 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 53 converted to 1 H3 cells
+2025-07-28 17:52:16,167 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 54 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,167 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 54 has shapely geometry: Polygon
+2025-07-28 17:52:16,167 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 54 converted to 0 H3 cells
+2025-07-28 17:52:16,168 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 55 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,168 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 55 has shapely geometry: Polygon
+2025-07-28 17:52:16,168 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 55 converted to 2 H3 cells
+2025-07-28 17:52:16,169 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 56 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,170 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 56 has shapely geometry: Polygon
+2025-07-28 17:52:16,170 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 56 converted to 1 H3 cells
+2025-07-28 17:52:16,171 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 57 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,171 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 57 has shapely geometry: Polygon
+2025-07-28 17:52:16,171 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 57 converted to 1 H3 cells
+2025-07-28 17:52:16,172 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 58 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,172 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 58 has shapely geometry: Polygon
+2025-07-28 17:52:16,172 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 58 converted to 0 H3 cells
+2025-07-28 17:52:16,172 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 59 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,173 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 59 has shapely geometry: Polygon
+2025-07-28 17:52:16,173 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 59 converted to 1 H3 cells
+2025-07-28 17:52:16,173 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 60 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,174 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 60 has shapely geometry: Polygon
+2025-07-28 17:52:16,174 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 60 converted to 1 H3 cells
+2025-07-28 17:52:16,176 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 61 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,176 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 61 has shapely geometry: Polygon
+2025-07-28 17:52:16,176 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 61 converted to 0 H3 cells
+2025-07-28 17:52:16,176 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 62 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,177 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 62 has shapely geometry: Polygon
+2025-07-28 17:52:16,177 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 62 converted to 1 H3 cells
+2025-07-28 17:52:16,178 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 63 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,178 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 63 has shapely geometry: Polygon
+2025-07-28 17:52:16,179 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 63 converted to 1 H3 cells
+2025-07-28 17:52:16,179 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 64 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,180 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 64 has shapely geometry: Polygon
+2025-07-28 17:52:16,180 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 64 converted to 0 H3 cells
+2025-07-28 17:52:16,181 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 65 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,181 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 65 has shapely geometry: Polygon
+2025-07-28 17:52:16,182 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 65 converted to 0 H3 cells
+2025-07-28 17:52:16,183 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 66 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,184 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 66 has shapely geometry: Polygon
+2025-07-28 17:52:16,184 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 66 converted to 0 H3 cells
+2025-07-28 17:52:16,185 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 67 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,185 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 67 has shapely geometry: Polygon
+2025-07-28 17:52:16,185 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 67 converted to 0 H3 cells
+2025-07-28 17:52:16,185 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 68 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,186 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 68 has shapely geometry: Polygon
+2025-07-28 17:52:16,186 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 68 converted to 1 H3 cells
+2025-07-28 17:52:16,186 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 69 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,186 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 69 has shapely geometry: Polygon
+2025-07-28 17:52:16,187 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 69 converted to 0 H3 cells
+2025-07-28 17:52:16,187 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 70 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,187 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 70 has shapely geometry: Polygon
+2025-07-28 17:52:16,187 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 70 converted to 2 H3 cells
+2025-07-28 17:52:16,188 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 71 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,188 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 71 has shapely geometry: Polygon
+2025-07-28 17:52:16,188 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 71 converted to 1 H3 cells
+2025-07-28 17:52:16,189 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 72 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,189 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 72 has shapely geometry: Polygon
+2025-07-28 17:52:16,189 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 72 converted to 0 H3 cells
+2025-07-28 17:52:16,190 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 73 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,191 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 73 has shapely geometry: Polygon
+2025-07-28 17:52:16,192 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 73 converted to 0 H3 cells
+2025-07-28 17:52:16,193 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 74 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,193 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 74 has shapely geometry: Polygon
+2025-07-28 17:52:16,193 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 74 converted to 1 H3 cells
+2025-07-28 17:52:16,194 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 75 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,194 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 75 has shapely geometry: Polygon
+2025-07-28 17:52:16,195 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 75 converted to 0 H3 cells
+2025-07-28 17:52:16,196 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 76 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,196 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 76 has shapely geometry: Polygon
+2025-07-28 17:52:16,196 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 76 converted to 0 H3 cells
+2025-07-28 17:52:16,197 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 77 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,197 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 77 has shapely geometry: Polygon
+2025-07-28 17:52:16,198 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 77 converted to 1 H3 cells
+2025-07-28 17:52:16,199 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 78 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,199 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 78 has shapely geometry: Polygon
+2025-07-28 17:52:16,200 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 78 converted to 1 H3 cells
+2025-07-28 17:52:16,201 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 79 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,201 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 79 has shapely geometry: Polygon
+2025-07-28 17:52:16,201 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 79 converted to 0 H3 cells
+2025-07-28 17:52:16,202 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 80 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,202 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 80 has shapely geometry: Polygon
+2025-07-28 17:52:16,203 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 80 converted to 0 H3 cells
+2025-07-28 17:52:16,203 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 81 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,203 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 81 has shapely geometry: Polygon
+2025-07-28 17:52:16,204 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 81 converted to 0 H3 cells
+2025-07-28 17:52:16,204 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 82 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,205 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 82 has shapely geometry: Polygon
+2025-07-28 17:52:16,205 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 82 converted to 1 H3 cells
+2025-07-28 17:52:16,206 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 83 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,206 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 83 has shapely geometry: Polygon
+2025-07-28 17:52:16,207 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 83 converted to 0 H3 cells
+2025-07-28 17:52:16,208 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 84 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,208 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 84 has shapely geometry: Polygon
+2025-07-28 17:52:16,209 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 84 converted to 0 H3 cells
+2025-07-28 17:52:16,210 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 85 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,210 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 85 has shapely geometry: Polygon
+2025-07-28 17:52:16,210 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 85 converted to 0 H3 cells
+2025-07-28 17:52:16,211 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 86 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,211 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 86 has shapely geometry: Polygon
+2025-07-28 17:52:16,211 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 86 converted to 0 H3 cells
+2025-07-28 17:52:16,211 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 87 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,212 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 87 has shapely geometry: Polygon
+2025-07-28 17:52:16,212 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 87 converted to 1 H3 cells
+2025-07-28 17:52:16,212 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 88 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,213 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 88 has shapely geometry: Polygon
+2025-07-28 17:52:16,213 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 88 converted to 2 H3 cells
+2025-07-28 17:52:16,214 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 89 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,214 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 89 has shapely geometry: Polygon
+2025-07-28 17:52:16,215 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 89 converted to 1 H3 cells
+2025-07-28 17:52:16,215 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 90 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,216 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 90 has shapely geometry: Polygon
+2025-07-28 17:52:16,216 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 90 converted to 0 H3 cells
+2025-07-28 17:52:16,217 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 91 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,218 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 91 has shapely geometry: Polygon
+2025-07-28 17:52:16,219 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 91 converted to 0 H3 cells
+2025-07-28 17:52:16,220 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 92 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,220 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 92 has shapely geometry: Polygon
+2025-07-28 17:52:16,221 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 92 converted to 0 H3 cells
+2025-07-28 17:52:16,221 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 93 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,221 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 93 has shapely geometry: Polygon
+2025-07-28 17:52:16,221 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 93 converted to 0 H3 cells
+2025-07-28 17:52:16,222 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 94 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,222 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 94 has shapely geometry: Polygon
+2025-07-28 17:52:16,222 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 94 converted to 0 H3 cells
+2025-07-28 17:52:16,223 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 95 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,223 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 95 has shapely geometry: Polygon
+2025-07-28 17:52:16,224 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 95 converted to 2 H3 cells
+2025-07-28 17:52:16,226 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 96 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,227 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 96 has shapely geometry: Polygon
+2025-07-28 17:52:16,227 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 96 converted to 1 H3 cells
+2025-07-28 17:52:16,228 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 97 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,228 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 97 has shapely geometry: Polygon
+2025-07-28 17:52:16,229 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 97 converted to 0 H3 cells
+2025-07-28 17:52:16,229 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 98 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,229 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 98 has shapely geometry: Polygon
+2025-07-28 17:52:16,229 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 98 converted to 0 H3 cells
+2025-07-28 17:52:16,230 - geo_infer_space.core.base_module - DEBUG - [improvements] 🔍 Feature 99 geometry type: <class 'shapely.geometry.polygon.Polygon'>
+2025-07-28 17:52:16,230 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 99 has shapely geometry: Polygon
+2025-07-28 17:52:16,230 - geo_infer_space.core.base_module - DEBUG - [improvements] ✅ Feature 99 converted to 1 H3 cells
+2025-07-28 17:52:16,231 - geo_infer_space.core.base_module - INFO - [improvements] ✅ Direct processing completed:
+2025-07-28 17:52:16,232 - geo_infer_space.core.base_module - INFO - [improvements]   📊 Processed features: 100
+2025-07-28 17:52:16,232 - geo_infer_space.core.base_module - INFO - [improvements]   ❌ Failed features: 0
+2025-07-28 17:52:16,232 - geo_infer_space.core.base_module - INFO - [improvements]   🎯 H3 cells generated: 49
+2025-07-28 17:52:16,233 - geo_infer_space.core.base_module - INFO - [improvements] ✅ Direct H3 processing completed successfully in 0.2s
+2025-07-28 17:52:16,233 - geo_infer_space.core.base_module - INFO - [improvements] 🎯 Generated 49 H3 cells
+2025-07-28 17:52:16,234 - geo_infer_space.core.base_module - INFO - [improvements] ✅ Processed 49 hexagons to H3
+2025-07-28 17:52:16,234 - geo_infer_space.core.base_module - INFO - [improvements] 💾 Caching new H3 data to output/improvements_h3_res8.json
+2025-07-28 17:52:16,234 - geo_infer_space.core.base_module - ERROR - [improvements] ❌ Failed to cache H3 data: Object of type Polygon is not JSON serializable
+2025-07-28 17:52:16,234 - geo_infer_space.core.base_module - INFO - [improvements] 🔬 Running final analysis on 49 hexagons...
+2025-07-28 17:52:16,234 - improvements.geo_infer_improvements - INFO - Running improvements analysis on 49 H3 cells...
+2025-07-28 17:52:16,285 - improvements.geo_infer_improvements - INFO - Completed improvements analysis for 49 cells
+2025-07-28 17:52:16,285 - geo_infer_space.core.base_module - INFO - [improvements] ✅ Final analysis completed: 49 results
+2025-07-28 17:52:16,285 - geo_infer_space.core.base_module - INFO - [improvements] 📊 Sample final results keys: ['88281c023bfffff', '88281c01d1fffff', '88281c8e41fffff']
+2025-07-28 17:52:16,286 - geo_infer_space.core.base_module - INFO - [improvements] 📊 Sample result for 88281c023bfffff: {'total_improvement_value': 0.0, 'total_land_value': 0.0, 'improvement_to_land_value_ratio': 0.0, 'number_of_improvements': 1, 'modernization_score': 0.3, 'building_density': 2.1739130434782608, 'average_building_value': 0.0, 'score': 0.6849999999999999}
+2025-07-28 17:52:16,286 - geo_infer_space.core.base_module - INFO - [improvements] 📊 Sample result for 88281c01d1fffff: {'total_improvement_value': 0.0, 'total_land_value': 0.0, 'improvement_to_land_value_ratio': 0.0, 'number_of_improvements': 1, 'modernization_score': 0.3, 'building_density': 2.1739130434782608, 'average_building_value': 0.0, 'score': 0.6849999999999999}
+2025-07-28 17:52:16,286 - geo_infer_space.core.base_module - INFO - [improvements] 📊 Sample result for 88281c8e41fffff: {'total_improvement_value': 0.0, 'total_land_value': 0.0, 'improvement_to_land_value_ratio': 0.0, 'number_of_improvements': 1, 'modernization_score': 0.3, 'building_density': 2.1739130434782608, 'average_building_value': 0.0, 'score': 0.6849999999999999}
+2025-07-28 17:52:16,286 - geo_infer_space.core.base_module - INFO - [improvements] 📊 ANALYSIS SUMMARY:
+2025-07-28 17:52:16,286 - geo_infer_space.core.base_module - INFO - [improvements]   - Cached data used: False
+2025-07-28 17:52:16,286 - geo_infer_space.core.base_module - INFO - [improvements]   - Raw data acquired: True
+2025-07-28 17:52:16,286 - geo_infer_space.core.base_module - INFO - [improvements]   - H3 cells processed: 49
+2025-07-28 17:52:16,286 - geo_infer_space.core.base_module - INFO - [improvements]   - Final analysis completed: True
+2025-07-28 17:52:16,286 - geo_infer_space.core.base_module - INFO - [improvements]   - Final results: 49 hexagons
+2025-07-28 17:52:16,286 - geo_infer_space.core.base_module - INFO - [improvements]   - Errors: 1
+2025-07-28 17:52:16,286 - geo_infer_space.core.base_module - INFO - [improvements]     ❌ Failed to cache H3 data: Object of type Polygon is not JSON serializable
+2025-07-28 17:52:16,286 - geo_infer_place.core.unified_backend - INFO - [improvements] ✅ Analysis completed: 49 H3 cells processed
+2025-07-28 17:52:16,287 - geo_infer_place.core.unified_backend - INFO - [improvements] 📊 Sample processed data keys: ['88281c023bfffff', '88281c01d1fffff', '88281c8e41fffff']
+2025-07-28 17:52:16,287 - geo_infer_place.core.unified_backend - INFO - [improvements] 📊 Sample data for 88281c023bfffff: {'total_improvement_value': 0.0, 'total_land_value': 0.0, 'improvement_to_land_value_ratio': 0.0, 'number_of_improvements': 1, 'modernization_score': 0.3, 'building_density': 2.1739130434782608, 'average_building_value': 0.0, 'score': 0.6849999999999999}
+2025-07-28 17:52:16,287 - geo_infer_place.core.unified_backend - INFO - [improvements] 📊 Sample data for 88281c01d1fffff: {'total_improvement_value': 0.0, 'total_land_value': 0.0, 'improvement_to_land_value_ratio': 0.0, 'number_of_improvements': 1, 'modernization_score': 0.3, 'building_density': 2.1739130434782608, 'average_building_value': 0.0, 'score': 0.6849999999999999}
+2025-07-28 17:52:16,287 - geo_infer_place.core.unified_backend - INFO - [improvements] 📊 Sample data for 88281c8e41fffff: {'total_improvement_value': 0.0, 'total_land_value': 0.0, 'improvement_to_land_value_ratio': 0.0, 'number_of_improvements': 1, 'modernization_score': 0.3, 'building_density': 2.1739130434782608, 'average_building_value': 0.0, 'score': 0.6849999999999999}
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO - [improvements] 📊 Module processing summary:
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO - [improvements]   - Raw data acquired: True
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO - [improvements]   - H3 cells processed: 49
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO - [improvements]   - Final analysis completed: True
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO - ✅ Successfully processed module: IMPROVEMENTS
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO - 📊 COMPREHENSIVE DATA ACQUISITION SUMMARY:
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO - 📊 ZONING:
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO -    - Raw data acquired: True
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO -    - H3 cells processed: 2588
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO -    - Final analysis completed: True
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO -    - Errors: 0
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO - 📊 CURRENT_USE:
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO -    - Raw data acquired: True
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO -    - H3 cells processed: 7749
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO -    - Final analysis completed: True
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO -    - Errors: 0
+2025-07-28 17:52:16,288 - geo_infer_place.core.unified_backend - INFO - 📊 OWNERSHIP:
+2025-07-28 17:52:16,289 - geo_infer_place.core.unified_backend - INFO -    - Raw data acquired: True
+2025-07-28 17:52:16,289 - geo_infer_place.core.unified_backend - INFO -    - H3 cells processed: 7749
+2025-07-28 17:52:16,289 - geo_infer_place.core.unified_backend - INFO -    - Final analysis completed: True
+2025-07-28 17:52:16,289 - geo_infer_place.core.unified_backend - INFO -    - Errors: 0
+2025-07-28 17:52:16,289 - geo_infer_place.core.unified_backend - INFO - 📊 IMPROVEMENTS:
+2025-07-28 17:52:16,289 - geo_infer_place.core.unified_backend - INFO -    - Raw data acquired: True
+2025-07-28 17:52:16,289 - geo_infer_place.core.unified_backend - INFO -    - H3 cells processed: 49
+2025-07-28 17:52:16,289 - geo_infer_place.core.unified_backend - INFO -    - Final analysis completed: True
+2025-07-28 17:52:16,290 - geo_infer_place.core.unified_backend - INFO -    - Errors: 0
+2025-07-28 17:52:16,290 - geo_infer_place.core.unified_backend - INFO - 📊 OVERALL SUMMARY:
+2025-07-28 17:52:16,290 - geo_infer_place.core.unified_backend - INFO -    - Modules with data: 4/4
+2025-07-28 17:52:16,291 - geo_infer_place.core.unified_backend - INFO -    - Total hexagons processed: 18135
+2025-07-28 17:52:16,291 - geo_infer_place.core.unified_backend - INFO -    - Target hexagons: 7749
+2025-07-28 17:52:16,292 - geo_infer_place.core.unified_backend - INFO - Aggregating results from all modules using SPACE utilities...
+2025-07-28 17:52:16,423 - geo_infer_place.core.unified_backend - INFO - ✅ Aggregated data for 7749 hexagons from 4 modules using SPACE utilities.
+2025-07-28 17:52:16,424 - geo_infer_place.core.unified_backend - INFO - Performing enhanced spatial analysis with SPACE utilities...
+2025-07-28 17:52:16,424 - geo_infer_place.core.unified_backend - INFO - Performing spatial analysis with SPACE integration...
+2025-07-28 17:52:16,424 - geo_infer_place.core.unified_backend - INFO - Analyzing spatial correlations between modules...
+2025-07-28 17:52:16,424 - geo_infer_place.core.unified_backend - INFO - 📊 Spatial correlations disabled for performance - skipping calculation
+2025-07-28 17:52:16,424 - geo_infer_place.core.unified_backend - INFO - Analyzing hotspots using SPACE utilities...
+2025-07-28 17:52:16,437 - geo_infer_place.core.unified_backend - INFO - ✅ Identified 0 hotspots with threshold 0.000
+2025-07-28 17:52:16,438 - geo_infer_place.core.unified_backend - INFO - Analyzing spatial relationships using SPACE spatial processor...
+2025-07-28 17:52:17,384 - geo_infer_place.core.unified_backend - INFO - ✅ Spatial relationship analysis completed for 7749 features
+2025-07-28 17:52:17,405 - geo_infer_place.core.unified_backend - INFO - ✅ Spatial analysis completed successfully
+2025-07-28 17:52:17,405 - geo_infer_place.core.unified_backend - INFO - ✅ Enhanced comprehensive analysis complete. All module data has been aggregated and spatially analyzed.
+2025-07-28 17:52:17,406 - utils.analysis_engine - INFO -  Post-analysis data acquisition summary:
+2025-07-28 17:52:17,406 - utils.analysis_engine - INFO -   ✅ zoning: 4 processed data files
+2025-07-28 17:52:17,406 - utils.analysis_engine - ERROR -   ❌ zoning: Error in post-analysis check: 'Namespace' object does not support item assignment
+2025-07-28 17:52:17,406 - utils.analysis_engine - ERROR - ❌ Analysis failed: 'Namespace' object does not support item assignment
+2025-07-28 17:52:17,407 - utils.analysis_engine - ERROR - Stack trace: Traceback (most recent call last):
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/utils/analysis_engine.py", line 138, in run_comprehensive_analysis
+    data_acquisition_summary[module_name] = processed_count
+TypeError: 'Namespace' object does not support item assignment
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/utils/analysis_engine.py", line 144, in run_comprehensive_analysis
+    data_acquisition_summary[module_name] = 0
+TypeError: 'Namespace' object does not support item assignment
+
+2025-07-28 17:52:17,408 - __main__ - ERROR - ❌ Analysis failed: 'Namespace' object does not support item assignment

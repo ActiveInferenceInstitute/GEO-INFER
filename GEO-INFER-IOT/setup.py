@@ -12,7 +12,7 @@ setup(
         "numpy>=1.20.0",
         "pandas>=1.3.0",
         "geopandas>=0.10.0",
-        "h3>=3.7.0",
+        "h3>=4.0.0",
         
         # IoT communication protocols
         "paho-mqtt>=1.6.0",

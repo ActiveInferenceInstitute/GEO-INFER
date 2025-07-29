@@ -33,7 +33,7 @@ CORE_REQUIREMENTS = [
     "dask>=2021.9.0",
     
     # Spatial analysis and indexing
-    "h3>=3.7.0",
+    "h3>=4.0.0",
     "pyproj>=3.2.0",
     "rtree>=0.9.0",
     

@@ -1,0 +1,17 @@
+{
+  "total_hexagons": 0,
+  "modules": {},
+  "redevelopment_scores": {
+    "min": Infinity,
+    "max": -Infinity,
+    "mean": 0.0,
+    "median": 0.0,
+    "std": 0.0
+  },
+  "geographic_bounds": {
+    "min_lat": Infinity,
+    "max_lat": -Infinity,
+    "min_lng": Infinity,
+    "max_lng": -Infinity
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "metadata": {
+    "total_points": 0,
+    "description": "Cascadia Agricultural Analysis Data",
+    "coordinate_system": "WGS84",
+    "data_format": "H3 Hexagons"
+  },
+  "points": []
+}

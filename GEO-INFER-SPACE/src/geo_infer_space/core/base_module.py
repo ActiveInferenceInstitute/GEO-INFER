@@ -38,23 +38,35 @@ class BaseAnalysisModule(ABC):
     4.  Cache the H3 data.
     5.  Load and perform final analysis on the H3 data.
     """
-    def __init__(self, backend: 'UnifiedH3Backend', module_name: str):
+    def __init__(self, module_name: str, config_path: Optional[Path] = None, h3_resolution: int = 8):
         """
-        Initialize the module.
+        Initialize the base analysis module.
         
         Args:
-            backend: A reference to the main UnifiedH3Backend instance.
-            module_name: The name of the module (e.g., 'zoning').
+            module_name: Name of the module for logging and identification
+            config_path: Path to configuration file (optional)
+            h3_resolution: H3 resolution for spatial indexing (default: 8)
         """
-        self.backend = backend
         self.module_name = module_name
-        self.resolution = backend.resolution
-        self.target_hexagons = backend.target_hexagons
+        self.config_path = config_path
+        self.h3_resolution = h3_resolution
+        self.output_dir = Path("output")
+        self.output_dir.mkdir(exist_ok=True)
         
-        # Define standardized data paths
-        self.data_dir = Path(self.backend.base_data_dir) / self.module_name
-        self.data_dir.mkdir(parents=True, exist_ok=True)
-        self.h3_cache_path = self.data_dir / f'{self.module_name}_h3_res{self.resolution}.json'
+        # Initialize H3 cache path
+        self.h3_cache_path = self.output_dir / f'{self.module_name}_h3_res{self.h3_resolution}.json'
+        
+        # Initialize target hexagons (will be set by backend)
+        self.target_hexagons = set()
+        
+        # Initialize logging
+        logging.basicConfig(level=logging.INFO)
+        self.logger = logging.getLogger(f"{__name__}.{module_name}")
+        
+        # Load configuration if provided
+        self.config = {}
+        if config_path and config_path.exists():
+            self._load_config()
 
     @abstractmethod
     def acquire_raw_data(self) -> Path:
@@ -148,13 +160,31 @@ class BaseAnalysisModule(ABC):
                     # Get the geometry - this should already be a shapely geometry from geopandas
                     geom = row.geometry
                     
+                    # Debug the geometry type
+                    logger.debug(f"[{self.module_name}] 🔍 Feature {idx} geometry type: {type(geom)}")
+                    
                     # Ensure we have a shapely geometry
                     if hasattr(geom, 'geom_type'):
                         # It's already a shapely geometry
                         shapely_geom = geom
+                        logger.debug(f"[{self.module_name}] ✅ Feature {idx} has shapely geometry: {shapely_geom.geom_type}")
                     elif isinstance(geom, dict):
                         # Convert from GeoJSON dict to shapely
                         shapely_geom = shape(geom)
+                        logger.debug(f"[{self.module_name}] ✅ Feature {idx} converted from dict to shapely: {shapely_geom.geom_type}")
+                    elif isinstance(geom, list):
+                        # This is a list of coordinates - convert to shapely polygon
+                        logger.debug(f"[{self.module_name}] 🔄 Feature {idx} has coordinate list, converting to polygon")
+                        # Create a polygon from the coordinate list
+                        if len(geom) >= 3:
+                            # Convert to shapely polygon
+                            from shapely.geometry import Polygon
+                            shapely_geom = Polygon(geom)
+                            logger.debug(f"[{self.module_name}] ✅ Feature {idx} converted from list to shapely: {shapely_geom.geom_type}")
+                        else:
+                            logger.warning(f"[{self.module_name}] ⚠️ Invalid coordinate list (less than 3 points) for feature {idx}")
+                            failed_features += 1
+                            continue
                     else:
                         logger.warning(f"[{self.module_name}] ⚠️ Unrecognized geometry type: {type(geom)} for feature {idx}")
                         failed_features += 1
@@ -168,62 +198,75 @@ class BaseAnalysisModule(ABC):
                     
                     if shapely_geom.geom_type == 'Polygon':
                         # Convert polygon to H3 cells using H3 v4 API
-                        # Extract coordinates from shapely polygon
-                        coords = list(shapely_geom.exterior.coords)
-                        # Remove the last coordinate if it's the same as the first (closing point)
-                        if coords[0] == coords[-1]:
-                            coords = coords[:-1]
-                        
-                        # Validate coordinates
-                        if len(coords) < 3:
-                            logger.warning(f"[{self.module_name}] ⚠️ Invalid polygon (less than 3 points) for feature {idx}")
-                            failed_features += 1
-                            continue
-                        
-                        # Convert to the format expected by H3 v4 polygon_to_cells
-                        # H3 v4 expects a list of [lat, lng] pairs
-                        # Shapely stores as [lng, lat], so we need to swap
-                        h3_coords = [[lat, lng] for lng, lat in coords]
-                        
-                        # Validate coordinate ranges
-                        valid_coords = True
-                        for lat, lng in h3_coords:
-                            if not (-90 <= lat <= 90) or not (-180 <= lng <= 180):
-                                logger.warning(f"[{self.module_name}] ⚠️ Invalid coordinates [{lat}, {lng}] for feature {idx}")
-                                valid_coords = False
-                                break
-                        
-                        if not valid_coords:
-                            failed_features += 1
-                            continue
+                        # H3 v4 expects a GeoJSON-like polygon format
+                        # Convert shapely polygon to GeoJSON format
+                        geojson_polygon = {
+                            "type": "Polygon",
+                            "coordinates": [list(shapely_geom.exterior.coords)]
+                        }
                         
                         try:
-                            h3_cells = h3.polygon_to_cells(h3_coords, self.resolution)
+                            # Use H3 v4 API to convert polygon to cells
+                            # Try the correct H3 v4 method: geo_to_cells instead of polygon_to_cells
+                            h3_cells = h3.geo_to_cells(geojson_polygon, self.h3_resolution)
+                            logger.debug(f"[{self.module_name}] ✅ Feature {idx} converted to {len(h3_cells)} H3 cells")
                             
-                            # Add properties to each H3 cell
-                            properties = {}
-                            for col in row.index:
-                                if col != 'geometry':
-                                    value = row[col]
-                                    # Convert to serializable types
-                                    if isinstance(value, (np.integer, np.floating)):
-                                        properties[col] = int(value) if isinstance(value, np.integer) else float(value)
-                                    elif isinstance(value, (int, float, str, bool)):
-                                        properties[col] = value
-                                    else:
-                                        properties[col] = str(value)
-                            
-                            # Add to H3 data
+                            # Store the H3 cells for this feature
                             for h3_cell in h3_cells:
                                 if h3_cell not in h3_data:
                                     h3_data[h3_cell] = {}
-                                h3_data[h3_cell].update(properties)
+                                
+                                # Store the feature data in the H3 cell
+                                if self.module_name not in h3_data[h3_cell]:
+                                    h3_data[h3_cell][self.module_name] = []
+                                
+                                h3_data[h3_cell][self.module_name].append({
+                                    'feature_id': idx,
+                                    'properties': row.to_dict(),
+                                    'geometry': shapely_geom.__geo_interface__
+                                })
                             
+                            # Increment processed features counter
                             processed_features += 1
-                            
-                        except Exception as h3_error:
-                            logger.warning(f"[{self.module_name}] ⚠️ H3 conversion failed for feature {idx}: {h3_error}")
+                                
+                        except Exception as e:
+                            logger.warning(f"[{self.module_name}] ⚠️ H3 conversion failed for feature {idx}: {e}")
                             failed_features += 1
+                            continue
+                        
+                    elif shapely_geom.geom_type == 'MultiPolygon':
+                        # Handle MultiPolygon by processing each polygon separately
+                        logger.debug(f"[{self.module_name}] 🔄 Processing MultiPolygon for feature {idx}")
+                        
+                        for polygon_idx, polygon in enumerate(shapely_geom.geoms):
+                            try:
+                                geojson_polygon = {
+                                    "type": "Polygon",
+                                    "coordinates": [list(polygon.exterior.coords)]
+                                }
+                                
+                                h3_cells = h3.geo_to_cells(geojson_polygon, self.h3_resolution)
+                                logger.debug(f"[{self.module_name}] ✅ Feature {idx} polygon {polygon_idx} converted to {len(h3_cells)} H3 cells")
+                                
+                                # Store the H3 cells for this feature
+                                for h3_cell in h3_cells:
+                                    if h3_cell not in h3_data:
+                                        h3_data[h3_cell] = {}
+                                    
+                                    if self.module_name not in h3_data[h3_cell]:
+                                        h3_data[h3_cell][self.module_name] = []
+                                    
+                                    h3_data[h3_cell][self.module_name].append({
+                                        'feature_id': f"{idx}_{polygon_idx}",
+                                        'properties': row.to_dict(),
+                                        'geometry': polygon.__geo_interface__
+                                    })
+                                
+                            except Exception as e:
+                                logger.warning(f"[{self.module_name}] ⚠️ H3 conversion failed for feature {idx} polygon {polygon_idx}: {e}")
+                                continue
+                        
+                        processed_features += 1
                         
                     else:
                         logger.warning(f"[{self.module_name}] ⚠️ Unsupported geometry type: {shapely_geom.geom_type} for feature {idx}")
@@ -242,7 +285,21 @@ class BaseAnalysisModule(ABC):
                 logger.error(f"[{self.module_name}] ❌ Direct H3 processing failed")
                 return {}
             
-            return {'h3_data': h3_data}
+            # Convert the h3_data to a serializable format before returning
+            # This ensures that Shapely geometries are converted to GeoJSON
+            serializable_h3_data = {}
+            for h3_cell, cell_data in h3_data.items():
+                serializable_h3_data[h3_cell] = {}
+                for module_name, module_data in cell_data.items():
+                    serializable_h3_data[h3_cell][module_name] = []
+                    for feature_data in module_data:
+                        # Ensure geometry is in GeoJSON format
+                        if 'geometry' in feature_data:
+                            if hasattr(feature_data['geometry'], '__geo_interface__'):
+                                feature_data['geometry'] = feature_data['geometry'].__geo_interface__
+                        serializable_h3_data[h3_cell][module_name].append(feature_data)
+            
+            return serializable_h3_data
             
         except Exception as e:
             logger.error(f"[{self.module_name}] ❌ Error in direct H3 processing: {e}")
@@ -260,6 +317,43 @@ class BaseAnalysisModule(ABC):
             A dictionary of H3 hexagons with the final analysis results.
         """
         pass
+
+    def _validate_cache_file(self, cache_path: Path) -> bool:
+        """
+        Validate that a cache file is not corrupted.
+        
+        Args:
+            cache_path: Path to the cache file
+            
+        Returns:
+            True if the cache file is valid, False otherwise
+        """
+        try:
+            if not cache_path.exists():
+                return False
+                
+            # Check file size - if it's too small, it's probably corrupted
+            file_size = cache_path.stat().st_size
+            if file_size < 100:  # Less than 100 bytes is suspicious
+                logger.warning(f"[{self.module_name}] ⚠️ Cache file too small ({file_size} bytes), likely corrupted")
+                return False
+            
+            # Try to read the first few characters to check if it's valid JSON
+            with open(cache_path, 'r') as f:
+                first_chars = f.read(50)
+                if not first_chars.strip().startswith('{'):
+                    logger.warning(f"[{self.module_name}] ⚠️ Cache file doesn't start with valid JSON")
+                    return False
+            
+            # Try to parse the entire file
+            with open(cache_path, 'r') as f:
+                json.load(f)
+            
+            return True
+            
+        except Exception as e:
+            logger.warning(f"[{self.module_name}] ⚠️ Cache validation failed: {e}")
+            return False
 
     def run_analysis(self) -> dict:
         """
@@ -283,32 +377,51 @@ class BaseAnalysisModule(ABC):
         
         try:
             # 1. Check for cached H3 data
+            h3_data = {}
+            raw_data_acquired = False
+            
             if self.h3_cache_path.exists():
                 logger.info(f"[{self.module_name}] 📁 Found cached H3 data. Loading from {self.h3_cache_path}")
                 try:
-                    with open(self.h3_cache_path, 'r') as f:
-                        h3_data = json.load(f)
-                    
-                    if h3_data and len(h3_data) > 0:
-                        analysis_stats['cached_data_used'] = True
-                        analysis_stats['h3_data_processed'] = len(h3_data)
-                        logger.info(f"[{self.module_name}] ✅ Loaded {len(h3_data)} hexagons from cache")
+                    if self._validate_cache_file(self.h3_cache_path):
+                        with open(self.h3_cache_path, 'r') as f:
+                            h3_data = json.load(f)
+                        
+                        if h3_data and len(h3_data) > 0:
+                            analysis_stats['cached_data_used'] = True
+                            analysis_stats['h3_data_processed'] = len(h3_data)
+                            logger.info(f"[{self.module_name}] ✅ Loaded {len(h3_data)} hexagons from cache")
+                        else:
+                            logger.warning(f"[{self.module_name}] ⚠️ Cached data is empty")
+                            h3_data = {}
                     else:
-                        logger.warning(f"[{self.module_name}] ⚠️ Cached data is empty")
+                        logger.warning(f"[{self.module_name}] ⚠️ Cached data file is corrupted. Deleting and regenerating...")
+                        self.h3_cache_path.unlink()
                         h3_data = {}
                         
                 except Exception as e:
                     error_msg = f"Failed to load cached data: {e}"
                     analysis_stats['errors'].append(error_msg)
                     logger.error(f"[{self.module_name}] ❌ {error_msg}")
+                    logger.info(f"[{self.module_name}] 🗑️ Deleting corrupted cache file and regenerating...")
+                    
+                    # Delete the corrupted cache file
+                    try:
+                        self.h3_cache_path.unlink()
+                        logger.info(f"[{self.module_name}] ✅ Deleted corrupted cache file")
+                    except Exception as del_e:
+                        logger.warning(f"[{self.module_name}] ⚠️ Could not delete corrupted cache file: {del_e}")
+                    
                     h3_data = {}
             else:
                 logger.info(f"[{self.module_name}] 📁 No cached H3 data found. Starting real data acquisition...")
-                h3_data = {}
+            
+            # 2. If no valid cached data, acquire and process raw data
+            if not h3_data or len(h3_data) == 0:
+                logger.info(f"[{self.module_name}] 🔍 Acquiring raw data...")
                 
-                # 2. Acquire raw data with detailed tracking
+                # Acquire raw data with detailed tracking
                 try:
-                    logger.info(f"[{self.module_name}] 🔍 Acquiring raw data...")
                     raw_data_path = self.acquire_raw_data()
                     
                     if raw_data_path and raw_data_path.exists():
@@ -316,6 +429,7 @@ class BaseAnalysisModule(ABC):
                         file_size = raw_data_path.stat().st_size
                         if file_size > 100:  # More than just headers
                             analysis_stats['raw_data_acquired'] = True
+                            raw_data_acquired = True
                             logger.info(f"[{self.module_name}] ✅ Raw data acquired: {raw_data_path} ({file_size} bytes)")
                         else:
                             logger.warning(f"[{self.module_name}] ⚠️ Raw data file too small: {raw_data_path} ({file_size} bytes)")
@@ -329,7 +443,7 @@ class BaseAnalysisModule(ABC):
                     raw_data_path = None
                 
                 # 3. Process raw data to H3 if acquisition was successful
-                if raw_data_path and raw_data_path.exists():
+                if raw_data_acquired and raw_data_path and raw_data_path.exists():
                     try:
                         logger.info(f"[{self.module_name}] 🔄 Processing raw data to H3...")
                         h3_data = self.process_to_h3(raw_data_path)

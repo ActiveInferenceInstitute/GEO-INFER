@@ -91,7 +91,7 @@ setup(
         "pandas>=1.3.0",
         "geopandas>=0.10.0",
         "shapely>=1.8.0",
-        "h3>=3.7.0",
+        "h3>=4.0.0",
         "pyproj>=3.3.0",
         "fastapi>=0.68.0",
         "uvicorn>=0.15.0",

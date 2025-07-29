@@ -31,7 +31,11 @@ class GeoInferZoning(BaseAnalysisModule):
     """
 
     def __init__(self, backend: 'CascadianAgriculturalH3Backend'):
-        super().__init__(backend, 'zoning')
+        super().__init__('zoning', h3_resolution=8)
+        self.backend = backend
+        self.data_dir = Path("output/data")
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.target_hexagons = backend.target_hexagons
         self.data_source = CascadianZoningDataSources(self.data_dir)
         # Define a standardized internal schema for agricultural zoning
         self.ZONING_SCHEMA = {
@@ -83,7 +87,7 @@ class GeoInferZoning(BaseAnalysisModule):
         
         # Load real zoning data for spatial analysis
         try:
-            zoning_gdf = gpd.read_file(self.data_dir / "raw_zoning_data.geojson")
+            zoning_gdf = gpd.read_file(self.data_dir / "empirical_zoning_data.geojson")
             logger.info(f"Loaded {len(zoning_gdf)} real zoning features for analysis")
         except Exception as e:
             logger.error(f"Failed to load real zoning data: {e}")
@@ -339,3 +343,67 @@ class GeoInferZoning(BaseAnalysisModule):
             'OTHER': 0.2
         }
         return potential_map.get(std_zone, 0.2) 
+
+    def _create_synthetic_zoning_data(self) -> Path:
+        """
+        Create synthetic zoning data when no real data is available.
+        This method generates realistic zoning data for Del Norte County testing and development.
+        """
+        logger.info("Creating synthetic Del Norte County zoning data for testing...")
+        
+        # Del Norte County boundaries (approximate)
+        # Del Norte County: roughly 41.4°N to 42.0°N, 124.5°W to 123.5°W
+        synthetic_features = [
+            # Smith River Valley - Prime agricultural land
+            {
+                'geometry': Polygon([(-124.2, 41.6), (-124.2, 41.8), (-124.0, 41.8), (-124.0, 41.6), (-124.2, 41.6)]),
+                'CI_CLASSNM': 'Prime Farmland',
+                'source': 'CA_FMMP',
+                'county': 'Del Norte'
+            },
+            # Crescent City area - Urban and built-up
+            {
+                'geometry': Polygon([(-124.2, 41.7), (-124.2, 41.8), (-124.1, 41.8), (-124.1, 41.7), (-124.2, 41.7)]),
+                'CI_CLASSNM': 'Urban and Built-up Land',
+                'source': 'CA_FMMP',
+                'county': 'Del Norte'
+            },
+            # Klamath River Valley - Farmland of statewide importance
+            {
+                'geometry': Polygon([(-124.0, 41.5), (-124.0, 41.7), (-123.8, 41.7), (-123.8, 41.5), (-124.0, 41.5)]),
+                'CI_CLASSNM': 'Farmland of Statewide Importance',
+                'source': 'CA_FMMP',
+                'county': 'Del Norte'
+            },
+            # Coastal grazing areas
+            {
+                'geometry': Polygon([(-124.3, 41.8), (-124.3, 42.0), (-124.1, 42.0), (-124.1, 41.8), (-124.3, 41.8)]),
+                'CI_CLASSNM': 'Grazing Land',
+                'source': 'CA_FMMP',
+                'county': 'Del Norte'
+            },
+            # Forest conservation areas
+            {
+                'geometry': Polygon([(-123.8, 41.4), (-123.8, 41.6), (-123.6, 41.6), (-123.6, 41.4), (-123.8, 41.4)]),
+                'CI_CLASSNM': 'Forestry',
+                'source': 'CA_FMMP',
+                'county': 'Del Norte'
+            },
+            # Rural residential areas
+            {
+                'geometry': Polygon([(-123.9, 41.6), (-123.9, 41.8), (-123.7, 41.8), (-123.7, 41.6), (-123.9, 41.6)]),
+                'CI_CLASSNM': 'Rural Residential',
+                'source': 'CA_FMMP',
+                'county': 'Del Norte'
+            }
+        ]
+        
+        # Create GeoDataFrame
+        gdf = gpd.GeoDataFrame(synthetic_features, crs="EPSG:4326")
+        
+        # Save to file
+        output_path = self.data_dir / "raw_zoning_data.geojson"
+        gdf.to_file(output_path, driver='GeoJSON')
+        
+        logger.info(f"Created synthetic Del Norte County zoning data with {len(synthetic_features)} features")
+        return output_path 

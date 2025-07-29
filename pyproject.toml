@@ -39,7 +39,7 @@ dependencies = [
     # Geospatial libraries
     "geopandas>=0.10.0",
     "shapely>=1.8.0",
-    "h3>=3.7.0",
+    "h3>=4.0.0",
     "pyproj>=3.3.0",
     "rasterio>=1.2.0",
     "xarray>=0.19.0",
