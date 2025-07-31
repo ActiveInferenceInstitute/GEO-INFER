@@ -150,29 +150,29 @@ The integration between AlphaEarth Foundations and GEO-INFER creates a powerful 
 ```mermaid
 graph TD
     subgraph "AlphaEarth Foundations"
-        AE_DATA[AlphaEarth Embeddings<br/>64-Dimensional Vectors]
-        AE_GEE[Google Earth Engine<br/>Global Dataset]
-        AE_STP[Space Time Precision<br/>Continuous Modeling]
+        AE_DATA["AlphaEarth Embeddings<br/>64-Dimensional Vectors"]
+        AE_GEE["Google Earth Engine<br/>Global Dataset"]
+        AE_STP["Space Time Precision<br/>Continuous Modeling"]
     end
     
     subgraph "GEO-INFER Integration Layer"
-        DATA_ADAPTER[GEO-INFER-DATA<br/>AlphaEarth Adapter]
-        SPACE_INTEGRATION[GEO-INFER-SPACE<br/>Embedding Processing]
-        TIME_INTEGRATION[GEO-INFER-TIME<br/>Temporal Analysis]
-        API_GATEWAY[GEO-INFER-API<br/>Unified Interface]
+        DATA_ADAPTER["GEO-INFER-DATA<br/>AlphaEarth Adapter"]
+        SPACE_INTEGRATION["GEO-INFER-SPACE<br/>Embedding Processing"]
+        TIME_INTEGRATION["GEO-INFER-TIME<br/>Temporal Analysis"]
+        API_GATEWAY["GEO-INFER-API<br/>Unified Interface"]
     end
     
     subgraph "Active Inference Applications"
-        ACT_ANALYSIS[GEO-INFER-ACT<br/>Environmental Inference]
-        AGENT_MODELS[GEO-INFER-AGENT<br/>Ecosystem Agents]
-        BAYES_MODELS[GEO-INFER-BAYES<br/>Probabilistic Analysis]
+        ACT_ANALYSIS["GEO-INFER-ACT<br/>Environmental Inference"]
+        AGENT_MODELS["GEO-INFER-AGENT<br/>Ecosystem Agents"]
+        BAYES_MODELS["GEO-INFER-BAYES<br/>Probabilistic Analysis"]
     end
     
     subgraph "Domain-Specific Applications"
-        AG_APPS[GEO-INFER-AG<br/>Agricultural Monitoring]
-        BIO_APPS[GEO-INFER-BIO<br/>Biodiversity Analysis]
-        CIV_APPS[GEO-INFER-CIV<br/>Urban Planning]
-        RISK_APPS[GEO-INFER-RISK<br/>Environmental Risk]
+        AG_APPS["GEO-INFER-AG<br/>Agricultural Monitoring"]
+        BIO_APPS["GEO-INFER-BIO<br/>Biodiversity Analysis"]
+        CIV_APPS["GEO-INFER-CIV<br/>Urban Planning"]
+        RISK_APPS["GEO-INFER-RISK<br/>Environmental Risk"]
     end
     
     %% Data flow
