@@ -266,10 +266,24 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         try:
             # Convert geometries to GeoJSON for serialization
             serializable_geoms = {}
-            for state, counties in county_geoms.items():
-                serializable_geoms[state] = {}
-                for county, geom in counties.items():
-                    serializable_geoms[state][county] = mapping(geom)
+            
+            # Handle case where county_geoms might be a list or have unexpected structure
+            if isinstance(county_geoms, dict):
+                for state, counties in county_geoms.items():
+                    if isinstance(counties, dict):
+                        serializable_geoms[state] = {}
+                        for county, geom in counties.items():
+                            if hasattr(geom, '__geo_interface__'):
+                                # Convert Shapely geometry to GeoJSON
+                                serializable_geoms[state][county] = geom.__geo_interface__
+                            else:
+                                # Already in GeoJSON format
+                                serializable_geoms[state][county] = geom
+                    else:
+                        logger.warning(f"Unexpected counties structure for state {state}: {type(counties)}")
+            else:
+                logger.warning(f"Unexpected county_geoms structure: {type(county_geoms)}")
+                return
             
             cache_data = {
                 'county_geoms': serializable_geoms,

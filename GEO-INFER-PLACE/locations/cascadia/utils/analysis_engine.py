@@ -123,6 +123,11 @@ def run_comprehensive_analysis(backend, modules: Dict, args) -> Tuple[Dict, Dict
     
     # Run backend analysis
     try:
+        # First run the comprehensive analysis to populate unified data
+        logger.info("🔧 Running comprehensive backend analysis to populate unified data...")
+        backend.run_comprehensive_analysis()
+        
+        # Now calculate redevelopment scores
         redevelopment_scores = backend.calculate_agricultural_redevelopment_potential()
         summary = backend.get_comprehensive_summary()
         
@@ -132,7 +137,9 @@ def run_comprehensive_analysis(backend, modules: Dict, args) -> Tuple[Dict, Dict
         
         for module_name, module in modules.items():
             try:
-                processed_count = len(module.data_dir.glob("*.geojson"))
+                # Convert generator to list to get proper length
+                data_files = list(module.data_dir.glob("*.geojson"))
+                processed_count = len(data_files)
                 logger.info(f"  ✅ {module_name}: {processed_count} processed data files")
                 data_acquisition_summary[module_name] = processed_count
             except Exception as e:

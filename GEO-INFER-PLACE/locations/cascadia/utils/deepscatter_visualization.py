@@ -249,7 +249,7 @@ class CascadiaDeepscatterVisualizer:
         
         const yScale = d3.scaleLinear()
             .domain(d3.extent(data, d => d.y))
-            .range([height - margin.top - margin.bottom, 0]);
+            .range([height - ${{margin.top}} - ${{margin.bottom}}, 0]);
         
         const colorScale = d3.scaleSequential()
             .domain([0, d3.max(data, d => d.redevelopment_score)])
@@ -281,7 +281,7 @@ class CascadiaDeepscatterVisualizer:
         
         // Add axes
         g.append('g')
-            .attr('transform', `translate(0,${{height - margin.top - margin.bottom}})`)
+            .attr('transform', f'translate(0,{height} - margin.top - margin.bottom)')
             .call(d3.axisBottom(xScale));
         
         g.append('g')
@@ -289,15 +289,15 @@ class CascadiaDeepscatterVisualizer:
         
         // Add labels
         g.append('text')
-            .attr('x', (width - margin.left - margin.right) / 2)
-            .attr('y', height - margin.top - margin.bottom + 25)
+            .attr('x', (width - ${{margin.left}} - ${{margin.right}}) / 2)
+            .attr('y', height - ${{margin.top}} - ${{margin.bottom}} + 25)
             .style('text-anchor', 'middle')
             .text('Longitude');
         
         g.append('text')
             .attr('transform', 'rotate(-90)')
-            .attr('y', -margin.left + 20)
-            .attr('x', -(height - margin.top - margin.bottom) / 2)
+            .attr('y', -${{margin.left}} + 20)
+            .attr('x', -(height - ${{margin.top}} - ${{margin.bottom}}) / 2)
             .style('text-anchor', 'middle')
             .text('Latitude');
         

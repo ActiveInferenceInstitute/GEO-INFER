@@ -318,6 +318,26 @@ class BaseAnalysisModule(ABC):
         """
         pass
 
+    def _ensure_json_serializable(self, data):
+        """
+        Recursively convert any Shapely geometry objects to GeoJSON format for JSON serialization.
+        
+        Args:
+            data: Any data structure that might contain Shapely objects
+            
+        Returns:
+            The same data structure with all Shapely objects converted to GeoJSON
+        """
+        if isinstance(data, dict):
+            return {key: self._ensure_json_serializable(value) for key, value in data.items()}
+        elif isinstance(data, list):
+            return [self._ensure_json_serializable(item) for item in data]
+        elif hasattr(data, '__geo_interface__'):
+            # Convert Shapely geometry to GeoJSON
+            return data.__geo_interface__
+        else:
+            return data
+
     def _validate_cache_file(self, cache_path: Path) -> bool:
         """
         Validate that a cache file is not corrupted.
@@ -464,8 +484,12 @@ class BaseAnalysisModule(ABC):
                 if h3_data and len(h3_data) > 0:
                     try:
                         logger.info(f"[{self.module_name}] 💾 Caching new H3 data to {self.h3_cache_path}")
+                        
+                        # Ensure all data is JSON serializable by converting any remaining Shapely objects
+                        serializable_h3_data = self._ensure_json_serializable(h3_data)
+                        
                         with open(self.h3_cache_path, 'w') as f:
-                            json.dump(h3_data, f)
+                            json.dump(serializable_h3_data, f)
                         logger.info(f"[{self.module_name}] ✅ H3 data cached successfully")
                     except Exception as e:
                         error_msg = f"Failed to cache H3 data: {e}"

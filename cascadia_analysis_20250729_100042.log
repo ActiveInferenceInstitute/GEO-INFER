@@ -1,0 +1,16 @@
+2025-07-29 10:00:42,614 - utils.setup_manager - INFO - Enhanced Cascadia Analysis Framework initialized with SPACE integration
+2025-07-29 10:00:42,614 - utils.setup_manager - INFO - Log file: cascadia_analysis_20250729_100042.log
+2025-07-29 10:00:42,614 - __main__ - INFO - 🌲 Starting Cascadia Agricultural Analysis Framework
+2025-07-29 10:00:42,614 - __main__ - INFO - 📊 Analysis Parameters:
+2025-07-29 10:00:42,614 - __main__ - INFO -    H3 Resolution: 8
+2025-07-29 10:00:42,614 - __main__ - INFO -    Target Counties: CA:Del Norte,CA:Humboldt
+2025-07-29 10:00:42,615 - __main__ - INFO -    Active Modules: zoning,current_use,ownership,improvements
+2025-07-29 10:00:42,615 - __main__ - INFO -    Export Format: geojson
+2025-07-29 10:00:42,615 - __main__ - INFO -    Output Directory: ./output
+2025-07-29 10:00:42,615 - __main__ - INFO -    Visualization: None (use --lightweight-viz for efficient options)
+2025-07-29 10:00:42,615 - utils.setup_manager - INFO - Using enhanced default configuration with SPACE integration
+2025-07-29 10:00:42,615 - __main__ - INFO - Target counties: {'CA': ['Del Norte', 'Humboldt']}
+2025-07-29 10:00:42,615 - __main__ - INFO - Active modules: ['zoning', 'current_use', 'ownership', 'improvements']
+2025-07-29 10:00:42,615 - utils.data_processor - INFO - 🔧 Creating shared backend for all modules...
+2025-07-29 10:00:42,615 - utils.data_processor - ERROR - ❌ Failed to create shared backend: 'NoneType' object is not callable
+2025-07-29 10:00:42,615 - __main__ - ERROR - ❌ Analysis failed: 'NoneType' object is not callable

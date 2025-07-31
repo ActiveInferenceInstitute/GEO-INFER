@@ -1,0 +1,88 @@
+2025-07-29 10:02:45,117 - utils.setup_manager - INFO - Enhanced Cascadia Analysis Framework initialized with SPACE integration
+2025-07-29 10:02:45,117 - utils.setup_manager - INFO - Log file: cascadia_analysis_20250729_100245.log
+2025-07-29 10:02:45,117 - __main__ - INFO - 🌲 Starting Cascadia Agricultural Analysis Framework
+2025-07-29 10:02:45,117 - __main__ - INFO - 📊 Analysis Parameters:
+2025-07-29 10:02:45,117 - __main__ - INFO -    H3 Resolution: 8
+2025-07-29 10:02:45,117 - __main__ - INFO -    Target Counties: CA:Del Norte,CA:Humboldt
+2025-07-29 10:02:45,117 - __main__ - INFO -    Active Modules: zoning,current_use,ownership,improvements
+2025-07-29 10:02:45,117 - __main__ - INFO -    Export Format: geojson
+2025-07-29 10:02:45,117 - __main__ - INFO -    Output Directory: ./output
+2025-07-29 10:02:45,117 - __main__ - INFO -    Visualization: None (use --lightweight-viz for efficient options)
+2025-07-29 10:02:45,117 - utils.setup_manager - INFO - Using enhanced default configuration with SPACE integration
+2025-07-29 10:02:45,117 - __main__ - INFO - Target counties: {'CA': ['Del Norte', 'Humboldt']}
+2025-07-29 10:02:45,117 - __main__ - INFO - Active modules: ['zoning', 'current_use', 'ownership', 'improvements']
+2025-07-29 10:02:45,118 - utils.data_processor - INFO - 🔧 Creating shared backend for all modules...
+2025-07-29 10:02:46,384 - geo_infer_place.core.unified_backend - INFO - Successfully initialized H3DataLoader from GEO-INFER-SPACE.
+2025-07-29 10:02:46,385 - geo_infer_place.core.unified_backend - INFO - Generating new region data (not in cache)
+2025-07-29 10:02:46,385 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2025-07-29 10:02:46,412 - county_boundary_loader - INFO - Loaded county boundaries configuration from /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2025-07-29 10:02:46,412 - county_boundary_loader - INFO - Loaded GeoJSON geometry for ca_del_norte from /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_del_norte_boundary.geojson
+2025-07-29 10:02:46,412 - county_boundary_loader - INFO - Loaded GeoJSON geometry for ca_humboldt from /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_humboldt_boundary.geojson
+2025-07-29 10:02:46,412 - geo_infer_place.core.unified_backend - INFO - Successfully loaded county geometries using boundary loader
+2025-07-29 10:02:46,412 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Del_Norte, CA using SPACE utilities...
+2025-07-29 10:02:46,412 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'dict'>, Geometry: {'type': 'Polygon', 'coordinates': [[[-124.5, 41.4], [-124.5, 42.0], [-123.5, 42.0], [-123.5, 41.4], [-124.5, 41.4]]]}
+2025-07-29 10:02:46,428 - geo_infer_place.core.unified_backend - INFO - Generated 7749 hexagons for Del_Norte, CA
+2025-07-29 10:02:46,428 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Humboldt, CA using SPACE utilities...
+2025-07-29 10:02:46,428 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'dict'>, Geometry: {'type': 'Polygon', 'coordinates': [[[-124.5, 40.5], [-123.0, 40.5], [-123.0, 42.0], [-124.5, 42.0], [-124.5, 40.5]]]}
+2025-07-29 10:02:46,491 - geo_infer_place.core.unified_backend - INFO - Generated 28992 hexagons for Humboldt, CA
+2025-07-29 10:02:46,514 - geo_infer_place.core.unified_backend - INFO - ✅ Generated 28992 H3 hexagons using SPACE utilities
+2025-07-29 10:02:46,515 - geo_infer_place.core.unified_backend - WARNING - Failed to save to cache: 'list' object has no attribute 'items'
+2025-07-29 10:02:46,516 - geo_infer_place.core.unified_backend - DEBUG - Cache error details: Traceback (most recent call last):
+  File "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/src/geo_infer_place/core/unified_backend.py", line 271, in _save_to_cache
+    for county, geom in counties.items():
+                        ^^^^^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'items'
+
+2025-07-29 10:02:46,516 - geo_infer_place.core.unified_backend - WARNING - Failed to initialize UnifiedH3Backend: 'list' object has no attribute 'keys'
+2025-07-29 10:02:46,517 - geo_infer_space.utils.config_loader - INFO - Config loader initialized with directory: /home/trim/.pyenv/versions/3.12.0/lib/python3.12/site-packages/config
+2025-07-29 10:02:46,517 - geo_infer_space.utils.config_loader - WARNING - Location config not found: /home/trim/.pyenv/versions/3.12.0/lib/python3.12/site-packages/config/cascadia.yaml
+2025-07-29 10:02:46,517 - geo_infer_space.utils.config_loader - DEBUG - Configuration validation passed
+2025-07-29 10:02:46,517 - geo_infer_place.core.unified_backend - INFO - ✅ Cascadia configuration loaded successfully
+2025-07-29 10:02:46,517 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2025-07-29 10:02:46,543 - county_boundary_loader - INFO - Loaded county boundaries configuration from /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2025-07-29 10:02:46,543 - county_boundary_loader - INFO - Loaded GeoJSON geometry for ca_del_norte from /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_del_norte_boundary.geojson
+2025-07-29 10:02:46,543 - county_boundary_loader - INFO - Loaded GeoJSON geometry for ca_humboldt from /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_humboldt_boundary.geojson
+2025-07-29 10:02:46,543 - geo_infer_place.core.unified_backend - INFO - Successfully loaded county geometries using boundary loader
+2025-07-29 10:02:46,543 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Del_Norte, CA using SPACE utilities...
+2025-07-29 10:02:46,544 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'dict'>, Geometry: {'type': 'Polygon', 'coordinates': [[[-124.5, 41.4], [-124.5, 42.0], [-123.5, 42.0], [-123.5, 41.4], [-124.5, 41.4]]]}
+2025-07-29 10:02:46,560 - geo_infer_place.core.unified_backend - INFO - Generated 7749 hexagons for Del_Norte, CA
+2025-07-29 10:02:46,560 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Humboldt, CA using SPACE utilities...
+2025-07-29 10:02:46,560 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'dict'>, Geometry: {'type': 'Polygon', 'coordinates': [[[-124.5, 40.5], [-123.0, 40.5], [-123.0, 42.0], [-124.5, 42.0], [-124.5, 40.5]]]}
+2025-07-29 10:02:46,618 - geo_infer_place.core.unified_backend - INFO - Generated 28992 hexagons for Humboldt, CA
+2025-07-29 10:02:46,643 - geo_infer_place.core.unified_backend - INFO - ✅ Generated 28992 H3 hexagons using SPACE utilities
+2025-07-29 10:02:46,645 - geo_infer_place.core.unified_backend - INFO - Enhanced CascadianAgriculturalH3Backend initialized for 'Cascadia' with 0 active modules at H3 resolution 8
+2025-07-29 10:02:46,645 - geo_infer_place.core.unified_backend - INFO - Active modules: []
+2025-07-29 10:02:46,646 - geo_infer_place.core.unified_backend - INFO - Defined 28992 total target hexagons across 1 states.
+2025-07-29 10:02:46,646 - geo_infer_place.core.unified_backend - INFO - SPACE integration: Spatial processor, data integrator, and visualization engine available
+2025-07-29 10:02:46,647 - utils.data_processor - INFO - ✅ Shared backend created with 28992 target hexagons
+2025-07-29 10:02:46,648 - zoning.geo_infer_zoning - INFO - Initialized GeoInferZoning module with real OSC H3 v4 integration.
+2025-07-29 10:02:46,648 - utils.data_processor - INFO - ✅ Zoning module initialized
+2025-07-29 10:02:46,648 - current_use.data_sources - INFO - Initialized CascadianCurrentUseDataSources
+2025-07-29 10:02:46,648 - current_use.geo_infer_current_use - INFO - Initialized GeoInferCurrentUse module with real OSC H3 v4 integration.
+2025-07-29 10:02:46,648 - utils.data_processor - INFO - ✅ Current use module initialized
+2025-07-29 10:02:46,649 - ownership.geo_infer_ownership - INFO - Initialized GeoInferOwnership module with real OSC H3 v4 integration.
+2025-07-29 10:02:46,649 - utils.data_processor - INFO - ✅ Ownership module initialized
+2025-07-29 10:02:46,649 - improvements.data_sources - INFO - Initialized CascadianImprovementsDataSources.
+2025-07-29 10:02:46,649 - improvements.geo_infer_improvements - INFO - Initialized GeoInferImprovements module.
+2025-07-29 10:02:46,649 - utils.data_processor - INFO - ✅ Improvements module initialized
+2025-07-29 10:02:46,649 - utils.data_processor - INFO - ✅ Updated shared backend with 4 active modules
+2025-07-29 10:02:46,649 - utils.analysis_engine - INFO - 📊 Starting comprehensive analysis with real data tracking...
+2025-07-29 10:02:46,649 - utils.analysis_engine - INFO - 🔍 Pre-analysis data check for all modules...
+2025-07-29 10:02:46,649 - utils.analysis_engine - INFO -   📁 zoning: Found 0 data files
+2025-07-29 10:02:46,650 - utils.analysis_engine - INFO -   📁 current_use: Found 0 data files
+2025-07-29 10:02:46,650 - utils.analysis_engine - INFO -   📁 ownership: Found 0 data files
+2025-07-29 10:02:46,650 - utils.analysis_engine - INFO -   📁 improvements: Found 0 data files
+2025-07-29 10:02:46,650 - geo_infer_place.core.unified_backend - INFO - Calculating enhanced agricultural redevelopment potential scores with SPACE integration...
+2025-07-29 10:02:46,650 - geo_infer_place.core.unified_backend - WARNING - Unified data is not available. Cannot calculate redevelopment scores.
+2025-07-29 10:02:46,650 - utils.analysis_engine - INFO -  Post-analysis data acquisition summary:
+2025-07-29 10:02:46,650 - utils.analysis_engine - ERROR -   ❌ zoning: Error in post-analysis check: object of type 'generator' has no len()
+2025-07-29 10:02:46,650 - utils.analysis_engine - ERROR -   ❌ current_use: Error in post-analysis check: object of type 'generator' has no len()
+2025-07-29 10:02:46,650 - utils.analysis_engine - ERROR -   ❌ ownership: Error in post-analysis check: object of type 'generator' has no len()
+2025-07-29 10:02:46,650 - utils.analysis_engine - ERROR -   ❌ improvements: Error in post-analysis check: object of type 'generator' has no len()
+2025-07-29 10:02:46,650 - utils.analysis_engine - INFO - ✅ Comprehensive analysis completed successfully
+2025-07-29 10:02:46,650 - utils.data_processor - INFO - Step 4: Exporting analysis results...
+2025-07-29 10:02:46,650 - utils.data_processor - ERROR - ❌ Export failed: No unified data to export. Please run the analysis first.
+2025-07-29 10:02:46,650 - utils.reporting_engine - INFO - Generating enhanced analysis report to output/cascadia_analysis_report_20250729_100246.md...
+2025-07-29 10:02:46,650 - utils.reporting_engine - INFO - ✅ Analysis report generated: output/cascadia_analysis_report_20250729_100246.md
+2025-07-29 10:02:46,651 - __main__ - INFO - 📋 Analysis report: output/cascadia_analysis_report_20250729_100246.md
+2025-07-29 10:02:46,651 - __main__ - INFO - ✅ Cascadia analysis completed successfully!
