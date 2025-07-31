@@ -47,6 +47,15 @@ GEO-INFER is a comprehensive geospatial inference framework implementing Active 
 - Design perception-action loops for autonomous systems
 - Apply probabilistic reasoning to spatial-temporal problems
 
+### 5. Concise Professional Communication
+- Avoid unnecessary adjectives and descriptive hyperbole
+- Use precise, understated language that shows rather than tells
+- Prefer "comprehensive" over "comprehensive and sophisticated"
+- Choose "robust" over "extremely robust and highly sophisticated"
+- Eliminate redundant descriptors like "advanced", "sophisticated", "comprehensive" when not adding value
+- Focus on functionality and capabilities rather than marketing language
+- Use technical accuracy over promotional language
+
 ## 📁 Module Structure Standards
 
 Every module follows this standardized structure:
@@ -92,7 +101,7 @@ GEO-INFER-MODULE/
 ## 🔧 Implementation Guidelines
 
 ### Code Quality Standards
-- Use professional, functional, intelligent, wise, modular, concise, elegant code
+- Use professional, functional, intelligent, modular, concise, elegant code
 - Apply all programming best practices thoughtfully
 - Write clearly-commented, interpretable code
 - Assess context and file type before making changes
@@ -222,6 +231,14 @@ GEO-INFER-MODULE/
 - Maintain example outputs and expected results
 - Provide sample data and configuration files
 
+### Language Guidelines
+- Use precise, technical language over marketing terms
+- Prefer "provides" over "provides comprehensive and sophisticated"
+- Choose "implements" over "implements advanced and cutting-edge"
+- Use "supports" rather than "supports extensive and robust"
+- Eliminate redundant adjectives that don't add technical value
+- Focus on capabilities and functionality rather than superlatives
+
 ## 🔍 Code Review Checklist
 
 ### Functionality
@@ -237,6 +254,7 @@ GEO-INFER-MODULE/
 - [ ] README updated if needed
 - [ ] Examples provided and tested
 - [ ] Mathematical foundations documented
+- [ ] Language is concise and professional
 
 ### Integration
 - [ ] Follows existing module patterns
@@ -286,6 +304,7 @@ GEO-INFER-MODULE/
 - Duplicate functionality that exists elsewhere
 - Process data without proper validation
 - Ignore performance implications
+- Use excessive adjectives or marketing language in technical documentation
 
 ### ALWAYS Do These Things
 - Implement complete, working functionality
@@ -296,6 +315,7 @@ GEO-INFER-MODULE/
 - "Show don't tell" - use accurate understated language
 - Validate and process real data
 - Optimize for performance and scalability
+- Use precise, technical language over promotional terms
 
 ## 🧭 Navigation Guide
 
@@ -345,4 +365,4 @@ GEO-INFER-MODULE/
 
 ---
 
-**Remember**: You are building a sophisticated, production-quality geospatial inference framework. Every line of code should reflect the highest standards of software engineering, mathematical rigor, and system thinking. The goal is to create something that advances the state of the art in geospatial analysis while being elegant, maintainable, and extensible. Focus on real data processing, comprehensive documentation, and robust integration patterns that enable the framework to handle complex, real-world geospatial challenges. 
+**Remember**: You are building a sophisticated, production-quality geospatial inference framework. Every line of code should reflect the highest standards of software engineering, mathematical rigor, and system thinking. The goal is to create something that advances the state of the art in geospatial analysis while being elegant, maintainable, and extensible. Focus on real data processing, comprehensive documentation, and robust integration patterns that enable the framework to handle complex, real-world geospatial challenges. Use precise, technical language that demonstrates capabilities without unnecessary embellishment. 
