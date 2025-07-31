@@ -139,28 +139,6 @@ graph TD
     class ACT,AGENT,BAYES,COG,MATH active
     class AG,BIO,CIV,ECON,RISK,SIM domain
 ```
-    BIO --> SPACE
-    BIO --> TIME
-    BIO --> ACT
-    CIV --> SPACE
-    CIV --> ACT
-    ECON --> SPACE
-    ECON --> TIME
-    ECON --> BAYES
-    RISK --> SPACE
-    RISK --> TIME
-    RISK --> BAYES
-    SIM --> SPACE
-    SIM --> TIME
-    SIM --> ACT
-    
-    classDef core fill:#bbf,stroke:#333,stroke-width:2px
-    classDef active fill:#dfd,stroke:#333,stroke-width:2px
-    classDef domain fill:#fdb,stroke:#333,stroke-width:2px
-    
-    class SPACE,TIME,DATA,API,OPS,INTRA core
-    class ACT,AGENT,BAYES,COG,MATH active
-    class AG,BIO,CIV,ECON,RISK,SIM domain
 ```
 
 ## Integration Architecture
