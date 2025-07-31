@@ -139,7 +139,6 @@ graph TD
     class ACT,AGENT,BAYES,COG,MATH active
     class AG,BIO,CIV,ECON,RISK,SIM domain
 ```
-```
 
 ## Integration Architecture
 
