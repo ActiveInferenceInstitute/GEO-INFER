@@ -55,6 +55,9 @@ New to GEO-INFER? Start here:
 - **[Algorithms](geospatial/algorithms/index.md)** - Spatial analysis algorithms
 - **[Visualization](geospatial/visualization/index.md)** - Mapping and visualization
 - **[Analysis](geospatial/analysis/index.md)** - Spatial analysis techniques
+- **[H3 Geospatial Indexing](h3_guide.md)** - H3 hexagonal indexing
+- **[Coordinate Systems](geospatial/coordinate_systems.md)** - CRS and transformations
+- **[Spatial Relationships](geospatial/spatial_relationships.md)** - Topological analysis
 
 ### 👥 User Guides
 - **[User Guide](user_guide/index.md)** - End-user documentation
@@ -76,6 +79,10 @@ New to GEO-INFER? Start here:
 - **[Custom Models](advanced/custom_models.md)** - Build specialized models
 - **[Scaling Guide](advanced/scaling_guide.md)** - Handle large datasets
 - **[Production Architecture](advanced/production_architecture.md)** - Production deployment
+- **[Module Integration](modules/index.md)** - Complete module overview
+- **[Active Inference Deep Dive](active_inference_guide.md)** - Advanced AI concepts
+- **[Bayesian Methods](bayesian_inference_guide.md)** - Statistical inference
+- **[Temporal Analysis](temporal_analysis_guide.md)** - Time series analysis
 
 ### 🆘 Support & Troubleshooting
 - **[Support Hub](support/index.md)** - Get help with issues
@@ -90,6 +97,11 @@ New to GEO-INFER? Start here:
 - **[Terminology](terminology.md)** - Glossary of terms
 - **[Geospatial Standards](geospatial_standards.md)** - Industry standards
 - **[Module README Template](module_readme_template.md)** - Documentation templates
+- **[Module Documentation](modules/index.md)** - Complete module documentation
+- **[GEO-INFER-ACT](modules/geo-infer-act.md)** - Active Inference Engine
+- **[GEO-INFER-SPACE](modules/geo-infer-space.md)** - Spatial Analysis Engine
+- **[GEO-INFER-TIME](modules/geo-infer-time.md)** - Temporal Analysis Engine
+- **[Documentation Standards](DOCUMENTATION_STANDARDS.md)** - Documentation guidelines
 
 ## 🎯 Quick Navigation
 
