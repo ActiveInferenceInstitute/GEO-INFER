@@ -308,6 +308,9 @@ flowchart TD
     class AG,BIO,CIV,RISK,ECON,SIM application
     class API,OPS,VISUALIZATION,ALERTS output
 ```
+    class AG,BIO,CIV,RISK,ECON,SIM application
+    class API,OPS,VISUALIZATION,ALERTS output
+```
 
 ```mermaid
 flowchart TD
