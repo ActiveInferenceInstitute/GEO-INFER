@@ -6,10 +6,10 @@
 
 ## 🎯 What is GEO-INFER-CIV?
 
-GEO-INFER-CIV is the civic engagement engine that provides comprehensive participatory governance and community engagement capabilities for geospatial information systems. It enables:
+GEO-INFER-CIV is the civic engagement engine that provides participatory governance and community engagement capabilities for geospatial information systems. It enables:
 
-- **Community Participation**: Comprehensive community engagement and participation
-- **Stakeholder Engagement**: Advanced stakeholder analysis and engagement
+- **Community Participation**: Community engagement and participation
+- **Stakeholder Engagement**: Stakeholder analysis and engagement
 - **Public Consultation**: Public consultation and feedback systems
 - **Democratic Decision-Making**: Participatory decision-making frameworks
 - **Civic Technology**: Civic technology and digital democracy tools
@@ -17,7 +17,7 @@ GEO-INFER-CIV is the civic engagement engine that provides comprehensive partici
 ### Key Concepts
 
 #### Community Participation
-The module provides comprehensive community participation capabilities:
+The module provides community participation capabilities:
 
 ```python
 from geo_infer_civ import CivicFramework
@@ -43,7 +43,7 @@ civic_model = civic_framework.model_civic_systems(
 ```
 
 #### Stakeholder Engagement
-Implement comprehensive stakeholder engagement for participatory governance:
+Implement stakeholder engagement for participatory governance:
 
 ```python
 from geo_infer_civ.stakeholders import StakeholderEngagementEngine

@@ -6,10 +6,10 @@
 
 ## 🎯 What is GEO-INFER-AG?
 
-GEO-INFER-AG is the agricultural systems engine that provides comprehensive agricultural analysis and precision farming capabilities for geospatial information systems. It enables:
+GEO-INFER-AG is the agricultural systems engine that provides agricultural analysis and precision farming capabilities for geospatial information systems. It enables:
 
-- **Crop Modeling**: Advanced crop modeling and yield prediction with physiological models
-- **Soil Analysis**: Comprehensive soil analysis and monitoring with spatial variability mapping
+- **Crop Modeling**: Crop modeling and yield prediction with physiological models
+- **Soil Analysis**: Soil analysis and monitoring with spatial variability mapping
 - **Precision Agriculture**: Precision agriculture tools and techniques with variable rate application
 - **Climate Impact Assessment**: Climate change impact assessment on agriculture with adaptation strategies
 - **Resource Optimization**: Water, fertilizer, and pesticide management with sustainability focus
@@ -49,13 +49,13 @@ The SPAC model integrates soil, plant, and atmospheric processes:
 
 ### Key Concepts
 
-#### Advanced Crop Modeling
-The module provides comprehensive crop modeling capabilities with physiological processes:
+#### Crop Modeling
+The module provides crop modeling capabilities with physiological processes:
 
 ```python
 from geo_infer_ag import AgriculturalFramework
 
-# Create agricultural framework with advanced modeling
+# Create agricultural framework with modeling
 ag_framework = AgriculturalFramework(
     agricultural_parameters={
         'crop_modeling': 'physiological',
@@ -68,7 +68,7 @@ ag_framework = AgriculturalFramework(
     }
 )
 
-# Model agricultural systems with advanced features
+# Model agricultural systems
 ag_model = ag_framework.model_agricultural_systems(
     geospatial_data=agricultural_spatial_data,
     crop_data=crop_information,
@@ -79,13 +79,13 @@ ag_model = ag_framework.model_agricultural_systems(
 ```
 
 #### Precision Agriculture with ML
-Implement advanced precision agriculture techniques with machine learning:
+Implement precision agriculture techniques with machine learning:
 
 ```python
-from geo_infer_ag.precision import AdvancedPrecisionAgricultureEngine
+from geo_infer_ag.precision import PrecisionAgricultureEngine
 
-# Create advanced precision agriculture engine
-precision_engine = AdvancedPrecisionAgricultureEngine(
+# Create precision agriculture engine
+precision_engine = PrecisionAgricultureEngine(
     precision_parameters={
         'variable_rate_application': 'ml_optimized',
         'soil_mapping': 'high_resolution',
@@ -97,13 +97,13 @@ precision_engine = AdvancedPrecisionAgricultureEngine(
     }
 )
 
-# Implement advanced precision agriculture
+# Implement precision agriculture
 precision_result = precision_engine.implement_precision_agriculture(
-    field_data=field_characteristics,
-    crop_data=crop_requirements,
-    soil_data=soil_conditions,
-    weather_data=climate_conditions,
-    historical_data=previous_yields
+    agricultural_data=farming_data,
+    soil_data=soil_information,
+    crop_data=crop_characteristics,
+    climate_data=weather_conditions,
+    management_data=farming_operations
 )
 ```
 

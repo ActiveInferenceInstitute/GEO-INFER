@@ -2,30 +2,30 @@
 
 > **Explanation**: Understanding API Management in GEO-INFER
 > 
-> This module provides comprehensive API management capabilities for external integrations, including RESTful APIs, GraphQL, authentication, and client libraries.
+> This module provides API management capabilities for external integrations, including RESTful APIs, GraphQL, authentication, and client libraries.
 
 ## 🎯 What is GEO-INFER-API?
 
-GEO-INFER-API is the API management system that provides comprehensive external integration capabilities for the GEO-INFER framework. It enables:
+GEO-INFER-API is the API management system that provides external integration capabilities for the GEO-INFER framework. It enables:
 
-- **RESTful APIs**: Standard REST endpoints for all GEO-INFER functionality with advanced features
+- **RESTful APIs**: Standard REST endpoints for all GEO-INFER functionality with features
 - **GraphQL Support**: Flexible GraphQL schema for complex queries with real-time subscriptions
 - **Authentication & Authorization**: Secure access control with multi-factor authentication
-- **Client Libraries**: SDKs for multiple programming languages with comprehensive documentation
+- **Client Libraries**: SDKs for multiple programming languages with documentation
 - **Rate Limiting**: API usage management and monitoring with adaptive throttling
-- **API Versioning**: Comprehensive versioning and backward compatibility management
-- **API Analytics**: Advanced analytics and monitoring for API performance
-- **Security Framework**: Comprehensive security framework for API protection
+- **API Versioning**: Versioning and backward compatibility management
+- **API Analytics**: Analytics and monitoring for API performance
+- **Security Framework**: Security framework for API protection
 
 ### Key Concepts
 
 #### RESTful API Design
-The module provides RESTful endpoints following OpenAPI standards with advanced features:
+The module provides RESTful endpoints following OpenAPI standards with features:
 
 ```python
 from geo_infer_api import APIManager
 
-# Initialize API manager with advanced features
+# Initialize API manager with features
 api_manager = APIManager(
     api_version='v1',
     security_enabled=True,
@@ -33,8 +33,8 @@ api_manager = APIManager(
     analytics_enabled=True
 )
 
-# Define comprehensive REST endpoints
-endpoints = api_manager.define_advanced_endpoints([
+# Define REST endpoints
+endpoints = api_manager.define_endpoints([
     {
         'path': '/api/v1/spatial/analyze',
         'method': 'POST',
@@ -63,8 +63,8 @@ endpoints = api_manager.define_advanced_endpoints([
     }
 ])
 
-# Start API server with advanced configuration
-api_manager.start_advanced_server(
+# Start API server with configuration
+api_manager.start_server(
     host='0.0.0.0',
     port=8000,
     ssl_enabled=True,
@@ -77,17 +77,17 @@ api_manager.start_advanced_server(
 Flexible GraphQL schema for complex queries with real-time capabilities:
 
 ```python
-from geo_infer_api.graphql import AdvancedGraphQLSchema
+from geo_infer_api.graphql import GraphQLSchema
 
-# Define advanced GraphQL schema
-schema = AdvancedGraphQLSchema(
+# Define GraphQL schema
+schema = GraphQLSchema(
     real_time_subscriptions=True,
     caching_enabled=True,
     introspection_enabled=True
 )
 
-# Define comprehensive types
-spatial_analysis_type = schema.define_advanced_type('SpatialAnalysis', {
+# Define types
+spatial_analysis_type = schema.define_type('SpatialAnalysis', {
     'id': 'ID!',
     'analysis_type': 'String!',
     'results': 'JSON!',
@@ -97,8 +97,8 @@ spatial_analysis_type = schema.define_advanced_type('SpatialAnalysis', {
     'metadata': 'JSON'
 })
 
-# Define advanced queries with filtering
-schema.define_advanced_query('spatialAnalysis', {
+# Define queries with filtering
+schema.define_query('spatialAnalysis', {
     'type': '[SpatialAnalysis]',
     'args': {
         'analysis_type': 'String',

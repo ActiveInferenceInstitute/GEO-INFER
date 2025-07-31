@@ -9,11 +9,11 @@
 GEO-INFER-AGENT is the multi-agent systems engine that provides intelligent agent frameworks for autonomous geospatial decision-making. It enables:
 
 - **Intelligent Agents**: Autonomous decision-making entities with spatial awareness and active inference
-- **Multi-Agent Coordination**: Collaborative behavior and emergent intelligence with advanced coordination strategies
+- **Multi-Agent Coordination**: Collaborative behavior and emergent intelligence with coordination strategies
 - **Spatial Reasoning**: Geographic context in agent decision processes with spatial-temporal awareness
 - **Adaptive Behavior**: Learning and evolution of agent strategies with reinforcement learning
 - **Swarm Intelligence**: Collective behavior from individual agent interactions with emergent properties
-- **Agent Communication**: Advanced communication protocols and negotiation mechanisms
+- **Agent Communication**: Communication protocols and negotiation mechanisms
 - **Agent Security**: Secure agent interactions and privacy-preserving coordination
 
 ### Mathematical Foundations
@@ -60,14 +60,14 @@ U_coord(a_i, a_j, d_ij) = U_individual(a_i) + α * f(d_ij) * U_cooperation(a_i, 
 
 ### Key Concepts
 
-#### Advanced Intelligent Agent Architecture
-The module provides a comprehensive framework for creating intelligent agents with advanced capabilities:
+#### Intelligent Agent Architecture
+The module provides a framework for creating intelligent agents with capabilities:
 
 ```python
-from geo_infer_agent import AdvancedIntelligentAgent
+from geo_infer_agent import IntelligentAgent
 
-# Create advanced intelligent agent
-agent = AdvancedIntelligentAgent(
+# Create intelligent agent
+agent = IntelligentAgent(
     agent_id="environmental_monitor_001",
     capabilities=['spatial_analysis', 'decision_making', 'learning', 'communication'],
     spatial_context=spatial_bounds,
@@ -76,7 +76,7 @@ agent = AdvancedIntelligentAgent(
     communication_protocol='secure_broadcast'
 )
 
-# Define advanced agent behavior
+# Define agent behavior
 agent.set_behavior_rules({
     'exploration_radius': 1000,  # meters
     'decision_frequency': 'real_time',
@@ -87,36 +87,21 @@ agent.set_behavior_rules({
 })
 ```
 
-#### Advanced Multi-Agent Coordination
-Enable agents to work together in complex spatial environments with advanced coordination:
+#### Multi-Agent Coordination
+Enable agents to work together in complex spatial environments with coordination:
 
 ```python
-from geo_infer_agent import AdvancedMultiAgentSystem
+from geo_infer_agent import MultiAgentSystem
 
-# Create advanced multi-agent system
-mas = AdvancedMultiAgentSystem(
+# Create multi-agent system
+mas = MultiAgentSystem(
     environment=spatial_environment,
     coordination_strategy='hierarchical_emergent',
     communication_protocol='secure_spatial_broadcast',
-    negotiation_mechanism='auction_based',
-    consensus_algorithm='byzantine_fault_tolerant'
-)
-
-# Add advanced agents to system
-mas.add_agent(environmental_agent)
-mas.add_agent(infrastructure_agent)
-mas.add_agent(transport_agent)
-
-# Run advanced coordinated simulation
-results = mas.run_simulation(
-    duration='24h',
-    coordination_rules={
-        'resource_sharing': 'dynamic_allocation',
-        'conflict_resolution': 'negotiation_consensus',
-        'emergent_behavior': 'swarm_intelligence',
-        'security_protocols': 'end_to_end_encryption',
-        'privacy_preservation': 'differential_privacy'
-    }
+    agent_population=100,
+    spatial_distribution='uniform',
+    learning_enabled=True,
+    security_enabled=True
 )
 ```
 

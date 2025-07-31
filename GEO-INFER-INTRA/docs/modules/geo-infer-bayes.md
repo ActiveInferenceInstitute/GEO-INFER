@@ -2,14 +2,14 @@
 
 > **Explanation**: Understanding Bayesian Inference in GEO-INFER
 > 
-> This module provides comprehensive Bayesian statistical analysis capabilities for geospatial data, including uncertainty quantification, model comparison, and hierarchical modeling.
+> This module provides Bayesian statistical analysis capabilities for geospatial data, including uncertainty quantification, model comparison, and hierarchical modeling.
 
 ## 🎯 What is GEO-INFER-BAYES?
 
-GEO-INFER-BAYES is the Bayesian inference engine that provides advanced statistical analysis capabilities for geospatial data. It enables:
+GEO-INFER-BAYES is the Bayesian inference engine that provides statistical analysis capabilities for geospatial data. It enables:
 
 - **Bayesian Parameter Estimation**: Probabilistic parameter inference with MCMC sampling
-- **Uncertainty Quantification**: Comprehensive uncertainty analysis with credible intervals
+- **Uncertainty Quantification**: Uncertainty analysis with credible intervals
 - **Model Comparison**: Bayesian model selection and averaging with evidence ratios
 - **Hierarchical Modeling**: Multi-level statistical models with spatial dependencies
 - **Spatial Bayesian Analysis**: Geospatial statistical inference with spatial priors
@@ -35,7 +35,7 @@ Where:
 ```python
 from geo_infer_bayes import BayesianAnalyzer
 
-# Initialize Bayesian analyzer with advanced features
+# Initialize Bayesian analyzer with features
 analyzer = BayesianAnalyzer(
     sampling_method='nuts',  # No-U-Turn Sampler
     n_samples=10000,
@@ -43,7 +43,7 @@ analyzer = BayesianAnalyzer(
     parallel_processing=True
 )
 
-# Perform Bayesian parameter estimation with advanced diagnostics
+# Perform Bayesian parameter estimation with diagnostics
 posterior = analyzer.estimate_parameters(
     data=observation_data,
     model='gaussian_process',
@@ -51,7 +51,7 @@ posterior = analyzer.estimate_parameters(
     diagnostics=True
 )
 
-# Get comprehensive uncertainty estimates
+# Get uncertainty estimates
 uncertainty = analyzer.quantify_uncertainty(
     posterior=posterior,
     methods=['credible_intervals', 'highest_density_intervals', 'posterior_predictive']
@@ -60,12 +60,12 @@ print(f"Parameter uncertainty: {uncertainty}")
 ```
 
 #### Uncertainty Quantification
-The module provides comprehensive uncertainty analysis with multiple methods:
+The module provides uncertainty analysis with multiple methods:
 
 ```python
 from geo_infer_bayes.uncertainty import UncertaintyQuantifier
 
-# Initialize uncertainty quantifier with advanced features
+# Initialize uncertainty quantifier with features
 uncertainty = UncertaintyQuantifier(
     confidence_levels=[0.5, 0.8, 0.95, 0.99],
     methods=['monte_carlo', 'bootstrap', 'bayesian']
@@ -80,7 +80,7 @@ prediction_uncertainty = uncertainty.quantify_prediction_uncertainty(
     include_parameter_uncertainty=True
 )
 
-# Calculate comprehensive confidence intervals
+# Calculate confidence intervals
 confidence_intervals = uncertainty.calculate_confidence_intervals(
     predictions=model_predictions,
     confidence_level=0.95,
@@ -97,7 +97,7 @@ uncertainty_decomposition = uncertainty.decompose_uncertainty(
 
 ### 1. Bayesian Parameter Estimation
 
-**Purpose**: Estimate model parameters using advanced Bayesian inference methods.
+**Purpose**: Estimate model parameters using Bayesian inference methods.
 
 ```python
 from geo_infer_bayes.estimation import BayesianEstimator

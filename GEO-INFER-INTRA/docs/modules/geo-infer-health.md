@@ -2,69 +2,63 @@
 
 > **Explanation**: Understanding Health Systems in GEO-INFER
 > 
-> This module provides health modeling and analysis for geospatial applications, including epidemiological modeling, public health surveillance, health impact assessment, and healthcare resource optimization.
+> This module provides health systems modeling and analysis for geospatial applications, including health impact assessment, disease modeling, and healthcare resource optimization.
 
 ## 🎯 What is GEO-INFER-HEALTH?
 
-GEO-INFER-HEALTH is the health systems engine that provides comprehensive health modeling and analysis capabilities for geospatial information systems. It enables:
+GEO-INFER-HEALTH is the health systems engine that provides health modeling and analysis capabilities for geospatial information systems. It enables:
 
-- **Epidemiological Modeling**: Comprehensive disease spread and outbreak modeling
-- **Public Health Surveillance**: Advanced public health monitoring and surveillance
-- **Health Impact Assessment**: Environmental and social health impact analysis
-- **Healthcare Resource Optimization**: Healthcare facility and resource planning
-- **Health Risk Assessment**: Spatial health risk analysis and prediction
+- **Health Impact Assessment**: Health impact analysis for populations and regions
+- **Disease Modeling**: Infectious disease modeling and forecasting
+- **Healthcare Resource Optimization**: Optimization of healthcare resources and logistics
+- **Epidemiological Analysis**: Epidemiological modeling and surveillance
+- **Health Data Integration**: Integration of health data sources and standards
 
 ### Key Concepts
 
-#### Epidemiological Modeling
-The module provides comprehensive epidemiological modeling capabilities:
+#### Health Impact Assessment
+The module provides health impact assessment capabilities:
 
 ```python
-from geo_infer_health import HealthFramework
+from geo_infer_health import HealthImpactEngine
 
-# Create health framework
-health_framework = HealthFramework(
-    health_parameters={
-        'epidemiological_modeling': True,
-        'public_health_surveillance': True,
-        'health_impact_assessment': True,
-        'healthcare_optimization': True,
-        'health_risk_assessment': True
+# Create health impact engine
+health_engine = HealthImpactEngine(
+    impact_parameters={
+        'population_analysis': True,
+        'regional_assessment': True,
+        'exposure_modeling': True
     }
 )
 
-# Model health systems
-health_model = health_framework.model_health_systems(
-    geospatial_data=health_spatial_data,
-    epidemiological_data=disease_information,
-    population_data=demographic_characteristics,
-    environmental_data=environmental_conditions
+# Assess health impacts
+health_impact = health_engine.assess_health_impacts(
+    health_data=population_health_data,
+    exposure_data=exposure_information,
+    region_data=region_boundaries
 )
 ```
 
-#### Public Health Surveillance
-Implement comprehensive public health surveillance for monitoring:
+#### Disease Modeling
+Model infectious disease spread and forecasting:
 
 ```python
-from geo_infer_health.surveillance import PublicHealthSurveillanceEngine
+from geo_infer_health.disease import DiseaseModelingEngine
 
-# Create public health surveillance engine
-surveillance_engine = PublicHealthSurveillanceEngine(
-    surveillance_parameters={
-        'disease_monitoring': True,
-        'outbreak_detection': True,
-        'case_tracking': True,
-        'contact_tracing': True,
-        'risk_assessment': True
+# Create disease modeling engine
+disease_engine = DiseaseModelingEngine(
+    disease_parameters={
+        'infection_modeling': True,
+        'forecasting': True,
+        'intervention_analysis': True
     }
 )
 
-# Monitor public health
-surveillance_result = surveillance_engine.monitor_public_health(
-    health_data=health_indicators,
-    population_data=demographic_information,
-    environmental_data=environmental_conditions,
-    spatial_data=geographic_boundaries
+# Model disease spread
+disease_result = disease_engine.model_disease_spread(
+    disease_data=case_reports,
+    intervention_data=intervention_measures,
+    region_data=region_boundaries
 )
 ```
 

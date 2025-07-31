@@ -2,69 +2,65 @@
 
 > **Explanation**: Understanding Economic Analysis in GEO-INFER
 > 
-> This module provides economic modeling and analysis with spatial dimensions for geospatial applications, including economic impact assessment, market analysis tools, cost-benefit analysis, and economic forecasting.
+> This module provides economic modeling and analysis for geospatial applications, including economic forecasting, resource allocation, and impact assessment.
 
 ## 🎯 What is GEO-INFER-ECON?
 
-GEO-INFER-ECON is the economic analysis engine that provides comprehensive economic modeling and analysis capabilities with spatial dimensions for geospatial information systems. It enables:
+GEO-INFER-ECON is the economic analysis engine that provides economic modeling and forecasting capabilities for geospatial information systems. It enables:
 
-- **Economic Impact Assessment**: Comprehensive economic impact analysis
-- **Market Analysis**: Advanced market analysis tools and techniques
-- **Cost-Benefit Analysis**: Detailed cost-benefit analysis frameworks
-- **Economic Forecasting**: Predictive economic modeling and forecasting
-- **Spatial Economics**: Spatial economic modeling and analysis
+- **Economic Forecasting**: Economic trend prediction and scenario analysis
+- **Resource Allocation**: Optimization of resource distribution and allocation
+- **Impact Assessment**: Economic impact analysis for projects and policies
+- **Market Analysis**: Market trend analysis and demand forecasting
+- **Cost-Benefit Analysis**: Evaluation of economic feasibility and efficiency
 
 ### Key Concepts
 
-#### Economic Impact Assessment
-The module provides comprehensive economic impact assessment capabilities:
+#### Economic Forecasting
+The module provides economic forecasting capabilities:
 
 ```python
-from geo_infer_econ import EconomicFramework
+from geo_infer_econ import EconomicForecastingEngine
 
-# Create economic framework
-econ_framework = EconomicFramework(
-    economic_parameters={
-        'impact_assessment': True,
-        'market_analysis': True,
-        'cost_benefit_analysis': True,
-        'economic_forecasting': True,
-        'spatial_economics': True
+# Create economic forecasting engine
+econ_engine = EconomicForecastingEngine(
+    forecasting_parameters={
+        'trend_analysis': True,
+        'scenario_simulation': True,
+        'market_dynamics': True,
+        'policy_impact': True
     }
 )
 
-# Model economic systems
-econ_model = econ_framework.model_economic_systems(
-    geospatial_data=economic_spatial_data,
-    economic_data=economic_indicators,
-    market_data=market_information,
-    policy_data=policy_impacts
+# Forecast economic trends
+economic_forecast = econ_engine.forecast_economic_trends(
+    economic_data=historical_economic_data,
+    scenario_data=scenario_assumptions,
+    policy_data=policy_changes
 )
 ```
 
-#### Spatial Economic Modeling
-Implement spatial economic modeling for regional analysis:
+#### Resource Allocation
+Optimize resource allocation:
 
 ```python
-from geo_infer_econ.spatial import SpatialEconomicEngine
+from geo_infer_econ.resources import ResourceAllocationEngine
 
-# Create spatial economic engine
-spatial_econ_engine = SpatialEconomicEngine(
-    spatial_parameters={
-        'regional_analysis': True,
-        'market_areas': True,
-        'economic_clusters': True,
-        'spatial_interaction': True,
-        'location_analysis': True
+# Create resource allocation engine
+resource_engine = ResourceAllocationEngine(
+    allocation_parameters={
+        'resource_distribution': True,
+        'cost_optimization': True,
+        'demand_forecasting': True,
+        'supply_chain': True
     }
 )
 
-# Model spatial economics
-spatial_econ_result = spatial_econ_engine.model_spatial_economics(
-    regional_data=regional_economic_data,
-    market_data=market_boundaries,
-    economic_data=economic_indicators,
-    spatial_data=geographic_boundaries
+# Allocate resources
+allocation_result = resource_engine.allocate_resources(
+    resource_data=resource_information,
+    demand_data=demand_forecasts,
+    supply_data=supply_chain_data
 )
 ```
 

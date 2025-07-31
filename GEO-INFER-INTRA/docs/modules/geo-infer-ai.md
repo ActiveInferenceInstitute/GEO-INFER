@@ -2,15 +2,15 @@
 
 > **Explanation**: Understanding Artificial Intelligence in GEO-INFER
 > 
-> This module provides comprehensive artificial intelligence and machine learning capabilities for geospatial analysis, including neural networks, predictive modeling, and automated decision-making.
+> This module provides artificial intelligence and machine learning capabilities for geospatial analysis, including neural networks, predictive modeling, and automated decision-making.
 
 ## 🎯 What is GEO-INFER-AI?
 
-GEO-INFER-AI is the artificial intelligence engine that provides advanced machine learning capabilities for geospatial analysis. It enables:
+GEO-INFER-AI is the artificial intelligence engine that provides machine learning capabilities for geospatial analysis. It enables:
 
-- **Neural Networks**: Deep learning models for spatial data with advanced architectures
+- **Neural Networks**: Deep learning models for spatial data with architectures
 - **Predictive Modeling**: Forecasting and trend analysis with uncertainty quantification
-- **Computer Vision**: Image and satellite data processing with advanced algorithms
+- **Computer Vision**: Image and satellite data processing with algorithms
 - **Natural Language Processing**: Text analysis for geospatial context with semantic understanding
 - **Automated Decision Making**: AI-driven spatial reasoning with explainable AI
 - **Reinforcement Learning**: Adaptive learning for spatial decision-making
@@ -19,7 +19,7 @@ GEO-INFER-AI is the artificial intelligence engine that provides advanced machin
 ### Mathematical Foundations
 
 #### Deep Learning for Spatial Data
-The module implements advanced neural network architectures for spatial data:
+The module implements neural network architectures for spatial data:
 
 ```python
 # Spatial Convolutional Neural Network
@@ -66,22 +66,22 @@ Bayesian neural networks for uncertainty estimation:
 
 ### Key Concepts
 
-#### Advanced Machine Learning for Geospatial Data
-The module provides specialized ML capabilities for spatial data with advanced features:
+#### Machine Learning for Geospatial Data
+The module provides specialized ML capabilities for spatial data with features:
 
 ```python
-from geo_infer_ai import AdvancedAIEngine
+from geo_infer_ai import AIEngine
 
-# Initialize advanced AI engine
-ai_engine = AdvancedAIEngine(
+# Initialize AI engine
+ai_engine = AIEngine(
     capabilities=['deep_learning', 'reinforcement_learning', 'federated_learning'],
     hardware_acceleration=True,
     uncertainty_quantification=True,
     explainable_ai=True
 )
 
-# Train advanced spatial neural network
-spatial_model = ai_engine.train_advanced_spatial_neural_network(
+# Train spatial neural network
+spatial_model = ai_engine.train_spatial_neural_network(
     data=spatial_training_data,
     architecture='transformer_convolutional',
     target_variable='land_use_classification',
@@ -93,33 +93,11 @@ spatial_model = ai_engine.train_advanced_spatial_neural_network(
 predictions, uncertainty = spatial_model.predict_with_uncertainty(new_spatial_data)
 ```
 
-#### Advanced Computer Vision for Remote Sensing
-Advanced image processing for satellite and aerial imagery with deep learning:
+#### Computer Vision for Remote Sensing
+Image processing for satellite and aerial imagery with deep learning:
 
 ```python
-from geo_infer_ai.vision import AdvancedComputerVisionEngine
-
-# Initialize advanced computer vision engine
-cv_engine = AdvancedComputerVisionEngine(
-    models=['transformer', 'attention_mechanisms', 'multi_scale_analysis'],
-    real_time_processing=True,
-    edge_computing=True
-)
-
-# Process satellite imagery with advanced features
-processed_imagery = cv_engine.process_advanced_satellite_imagery(
-    imagery=satellite_data,
-    tasks=['object_detection', 'land_cover_classification', 'change_detection', 'semantic_segmentation'],
-    real_time=True,
-    uncertainty_quantification=True
-)
-
-# Extract advanced features from imagery
-features = cv_engine.extract_advanced_spatial_features(
-    processed_imagery,
-    feature_types=['semantic', 'temporal', 'spectral'],
-    attention_mechanisms=True
-)
+from geo_infer_ai.vision import ComputerVisionEngine
 ```
 
 ## 📚 Core Features
@@ -417,27 +395,27 @@ deployed_model = federated_engine.deploy_federated_model(
 )
 ```
 
-## 🔧 API Reference
+## �� API Reference
 
-### AdvancedAIEngine
+### AIEngine
 
-The main advanced AI engine class with enhanced capabilities.
+The main AI engine class with enhanced capabilities.
 
 ```python
-class AdvancedAIEngine:
+class AIEngine:
     def __init__(self, capabilities, hardware_acceleration, uncertainty_quantification, explainable_ai):
         """
-        Initialize advanced AI engine.
+        Initialize AI engine.
         
         Args:
-            capabilities (list): Advanced AI capabilities
+            capabilities (list): AI capabilities
             hardware_acceleration (bool): Enable hardware acceleration
             uncertainty_quantification (bool): Enable uncertainty quantification
             explainable_ai (bool): Enable explainable AI
         """
     
-    def train_advanced_spatial_neural_network(self, data, architecture, target_variable, uncertainty_quantification, explainable_ai):
-        """Train advanced neural network for spatial data with uncertainty and explanations."""
+    def train_spatial_neural_network(self, data, architecture, target_variable, uncertainty_quantification, explainable_ai):
+        """Train neural network for spatial data with uncertainty and explanations."""
     
     def build_advanced_predictive_model(self, data, model_type, parameters, uncertainty_quantification):
         """Build advanced predictive model with uncertainty quantification."""
@@ -723,11 +701,11 @@ response_recommendations = decision_engine.generate_advanced_disaster_recommenda
 ### GEO-INFER-SPACE Integration
 
 ```python
-from geo_infer_ai import AdvancedAIEngine
+from geo_infer_ai import AIEngine
 from geo_infer_space import AdvancedSpatialAnalyzer
 
 # Combine advanced AI with spatial analysis
-ai_engine = AdvancedAIEngine(
+ai_engine = AIEngine(
     capabilities=['deep_learning', 'reinforcement_learning'],
     hardware_acceleration=True,
     uncertainty_quantification=True
@@ -771,11 +749,11 @@ ai_forecast = prediction_engine.forecast_with_advanced_temporal_patterns(
 ### GEO-INFER-ACT Integration
 
 ```python
-from geo_infer_ai import AdvancedAIEngine
+from geo_infer_ai import AIEngine
 from geo_infer_act import AdvancedActiveInferenceModel
 
 # Combine advanced AI with active inference
-ai_engine = AdvancedAIEngine(
+ai_engine = AIEngine(
     capabilities=['deep_learning', 'reinforcement_learning'],
     uncertainty_quantification=True,
     explainable_ai=True
@@ -798,11 +776,11 @@ active_model.update_advanced_beliefs({
 ### GEO-INFER-SEC Integration
 
 ```python
-from geo_infer_ai import AdvancedAIEngine
+from geo_infer_ai import AIEngine
 from geo_infer_sec import AdvancedSecurityEngine
 
 # Combine advanced AI with security capabilities
-ai_engine = AdvancedAIEngine(
+ai_engine = AIEngine(
     capabilities=['deep_learning', 'federated_learning'],
     privacy_preservation=True,
     secure_inference=True
@@ -823,7 +801,7 @@ secure_ai_model = security_engine.secure_ai_model_deployment(
 **Advanced model training problems:**
 ```python
 # Handle insufficient training data with advanced techniques
-ai_engine = AdvancedAIEngine()
+ai_engine = AIEngine()
 augmented_data = ai_engine.augment_advanced_training_data(
     data=small_dataset,
     augmentation_methods=['rotation', 'scaling', 'noise_addition', 'synthetic_data_generation'],
