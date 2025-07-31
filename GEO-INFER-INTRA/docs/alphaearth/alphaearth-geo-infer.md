@@ -139,24 +139,6 @@ graph TD
     class ACT,AGENT,BAYES,COG,MATH active
     class AG,BIO,CIV,ECON,RISK,SIM domain
 ```
-    SPACE <--> DATA
-    TIME <--> DATA
-    DATA <--> API
-    API <--> OPS
-    INTRA <--> API
-    
-    %% Active inference connections
-    ACT <--> SPACE
-    ACT <--> TIME
-    ACT <--> BAYES
-    AGENT <--> ACT
-    COG <--> ACT
-    MATH <--> ACT
-    
-    %% Domain module connections
-    AG --> SPACE
-    AG --> TIME
-    AG --> ACT
     BIO --> SPACE
     BIO --> TIME
     BIO --> ACT
@@ -931,24 +913,25 @@ The integration addresses critical gaps in environmental monitoring:
 ### Future Development Roadmap
 
 ```mermaid
-timeline
+gantt
     title AlphaEarth-GEO-INFER Integration Timeline
+    dateFormat  YYYY-MM-DD
     section Phase 1 (Months 1-3)
-        Data Integration : AlphaEarth embeddings
-        Spatial Processing : 64-dimensional analysis
-        Temporal Analysis : Continuous time modeling
+        Data Integration           :done,    p1, 2024-01-01, 2024-03-31
+        Spatial Processing         :done,    p2, 2024-01-01, 2024-03-31
+        Temporal Analysis          :done,    p3, 2024-01-01, 2024-03-31
     section Phase 2 (Months 4-6)
-        Active Inference : Environmental modeling
-        Bayesian Integration : Uncertainty quantification
-        Agent Modeling : Ecosystem simulation
+        Active Inference           :active,  p4, 2024-04-01, 2024-06-30
+        Bayesian Integration       :active,  p5, 2024-04-01, 2024-06-30
+        Agent Modeling             :active,  p6, 2024-04-01, 2024-06-30
     section Phase 3 (Months 7-9)
-        Agricultural Apps : Crop monitoring
-        Biodiversity Apps : Conservation planning
-        Urban Planning : Smart city development
+        Agricultural Apps          :         p7, 2024-07-01, 2024-09-30
+        Biodiversity Apps          :         p8, 2024-07-01, 2024-09-30
+        Urban Planning             :         p9, 2024-07-01, 2024-09-30
     section Phase 4 (Months 10-12)
-        Production Deployment : Global scaling
-        API Integration : Unified interfaces
-        Performance Optimization : Efficiency gains
+        Production Deployment      :         p10, 2024-10-01, 2024-12-31
+        API Integration            :         p11, 2024-10-01, 2024-12-31
+        Performance Optimization   :         p12, 2024-10-01, 2024-12-31
 ```
 
 ### Long-term Vision
