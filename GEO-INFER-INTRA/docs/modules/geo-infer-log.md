@@ -1,70 +1,64 @@
-# GEO-INFER-LOG: Logistics Systems
+# GEO-INFER-LOG: Logistics
 
-> **Explanation**: Understanding Logistics Systems in GEO-INFER
+> **Explanation**: Understanding Logistics in GEO-INFER
 > 
-> This module provides logistics and supply chain optimization for geospatial applications, including route optimization, supply chain modeling, logistics planning, and transportation network analysis.
+> This module provides logistics and supply chain management capabilities for geospatial applications, including route optimization, supply chain analysis, and logistics planning.
 
 ## 🎯 What is GEO-INFER-LOG?
 
-GEO-INFER-LOG is the logistics systems engine that provides comprehensive logistics and supply chain optimization capabilities for geospatial information systems. It enables:
+GEO-INFER-LOG is the logistics engine that provides supply chain and logistics management capabilities for geospatial information systems. It enables:
 
-- **Route Optimization**: Advanced route planning and optimization
-- **Supply Chain Modeling**: Comprehensive supply chain analysis and modeling
-- **Logistics Planning**: Strategic logistics planning and management
-- **Transportation Networks**: Transportation network analysis and optimization
-- **Inventory Management**: Spatial inventory management and optimization
+- **Route Optimization**: Optimize transportation routes and logistics paths
+- **Supply Chain Analysis**: Analyze supply chain networks and performance
+- **Logistics Planning**: Plan and optimize logistics operations
+- **Transportation Management**: Manage transportation networks and fleets
+- **Inventory Optimization**: Optimize inventory levels and distribution
 
 ### Key Concepts
 
 #### Route Optimization
-The module provides comprehensive route optimization capabilities:
+The module provides route optimization capabilities:
 
 ```python
-from geo_infer_log import LogisticsFramework
+from geo_infer_log import RouteOptimizationEngine
 
-# Create logistics framework
-logistics_framework = LogisticsFramework(
-    logistics_parameters={
-        'route_optimization': True,
-        'supply_chain_modeling': True,
-        'logistics_planning': True,
-        'transportation_networks': True,
-        'inventory_management': True
-    }
-)
-
-# Model logistics systems
-logistics_model = logistics_framework.model_logistics_systems(
-    geospatial_data=logistics_spatial_data,
-    network_data=transportation_networks,
-    demand_data=demand_information,
-    supply_data=supply_characteristics
-)
-```
-
-#### Supply Chain Modeling
-Implement comprehensive supply chain modeling for optimization:
-
-```python
-from geo_infer_log.supply_chain import SupplyChainModelingEngine
-
-# Create supply chain modeling engine
-supply_chain_engine = SupplyChainModelingEngine(
-    modeling_parameters={
-        'network_analysis': True,
-        'flow_optimization': True,
-        'capacity_planning': True,
-        'demand_forecasting': True,
+# Create route optimization engine
+route_engine = RouteOptimizationEngine(
+    optimization_parameters={
+        'route_planning': True,
+        'traffic_analysis': True,
         'cost_optimization': True
     }
 )
 
-# Model supply chain
-supply_chain_result = supply_chain_engine.model_supply_chain(
-    network_data=supply_chain_network,
-    demand_data=customer_demand,
-    supply_data=supplier_capacity,
-    cost_data=transportation_costs
+# Optimize routes
+route_result = route_engine.optimize_routes(
+    route_data=transportation_routes,
+    traffic_data=traffic_conditions,
+    cost_data=cost_parameters
+)
+```
+
+#### Supply Chain Analysis
+Analyze supply chain networks:
+
+```python
+from geo_infer_log.supply_chain import SupplyChainAnalysisEngine
+
+# Create supply chain analysis engine
+supply_engine = SupplyChainAnalysisEngine(
+    analysis_parameters={
+        'network_analysis': True,
+        'performance_metrics': True,
+        'risk_assessment': True
+    }
+)
+
+# Analyze supply chain
+supply_result = supply_engine.analyze_supply_chain(
+    supply_data=supply_chain_data,
+    performance_data=performance_metrics,
+    risk_data=risk_factors
 )
 ```
 
@@ -287,7 +281,7 @@ class SupplyChainModelingEngine:
 
 **Problem**: Optimize last-mile delivery routes for e-commerce.
 
-**Solution**: Use comprehensive route optimization framework.
+**Solution**: Use route optimization framework.
 
 ```python
 from geo_infer_log import LastMileDeliveryFramework
@@ -316,7 +310,7 @@ last_mile_result = last_mile.optimize_last_mile_delivery(
 
 **Problem**: Design optimal supply chain networks for global operations.
 
-**Solution**: Use comprehensive supply chain modeling framework.
+**Solution**: Use supply chain modeling framework.
 
 ```python
 from geo_infer_log.supply_chain import SupplyChainDesignFramework
@@ -345,7 +339,7 @@ design_result = supply_chain_design.design_supply_chain_network(
 
 **Problem**: Analyze and optimize transportation networks for urban areas.
 
-**Solution**: Use comprehensive transportation network analysis framework.
+**Solution**: Use transportation network analysis framework.
 
 ```python
 from geo_infer_log.transportation import TransportationAnalysisFramework
@@ -355,7 +349,7 @@ transport_analysis = TransportationAnalysisFramework()
 
 # Define transportation analysis parameters
 transport_config = transport_analysis.configure_transportation_analysis({
-    'network_analysis': 'comprehensive',
+    'network_analysis': 'systematic',
     'flow_optimization': 'multi_modal',
     'congestion_modeling': 'real_time',
     'accessibility_analysis': 'spatial',
@@ -431,8 +425,8 @@ economic_logistics_system = economic_logistics_engine.integrate_with_economic_an
 ```python
 # Improve route optimization
 route_engine.configure_route_optimization({
-    'algorithm': 'advanced_genetic',
-    'constraints': 'comprehensive',
+    'algorithm': 'effective_genetic',
+    'constraints': 'systematic',
     'objectives': 'multi_objective',
     'real_time_updates': 'continuous',
     'dynamic_routing': 'adaptive'
@@ -448,8 +442,8 @@ route_engine.enable_route_optimization_diagnostics(
 ```python
 # Improve supply chain modeling
 supply_chain_engine.configure_supply_chain_modeling({
-    'network_analysis': 'comprehensive',
-    'flow_optimization': 'advanced',
+    'network_analysis': 'systematic',
+    'flow_optimization': 'effective',
     'capacity_planning': 'strategic',
     'demand_forecasting': 'accurate',
     'cost_optimization': 'multi_objective'
@@ -465,7 +459,7 @@ supply_chain_engine.enable_supply_chain_monitoring(
 ```python
 # Improve transportation network analysis
 transport_engine.configure_transportation_networks({
-    'network_analysis': 'comprehensive',
+    'network_analysis': 'systematic',
     'flow_optimization': 'multi_modal',
     'capacity_analysis': 'detailed',
     'congestion_modeling': 'real_time',

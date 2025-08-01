@@ -1,76 +1,64 @@
-# GEO-INFER-SIM: Simulation Engine
+# GEO-INFER-SIM: Simulation
 
 > **Explanation**: Understanding Simulation in GEO-INFER
 > 
-> This module provides simulation environments for hypothesis testing, enabling digital twins, agent-based models, and scenario planning for complex geospatial systems.
+> This module provides simulation and modeling capabilities for geospatial applications, including scenario modeling, simulation frameworks, and predictive modeling.
 
 ## 🎯 What is GEO-INFER-SIM?
 
-GEO-INFER-SIM is the simulation engine that provides comprehensive simulation capabilities for geospatial systems. It enables:
+GEO-INFER-SIM is the simulation engine that provides modeling and simulation capabilities for geospatial information systems. It enables:
 
-- **Digital Twins**: Virtual representations of real-world systems
-- **Agent-Based Models**: Complex system simulations with intelligent agents
-- **Scenario Planning**: Future scenario exploration and testing
-- **Hypothesis Testing**: Scientific validation of spatial theories
-- **System Dynamics**: Modeling complex spatial-temporal interactions
+- **Scenario Modeling**: Model different scenarios and outcomes
+- **Simulation Frameworks**: Create simulation frameworks and models
+- **Predictive Modeling**: Build predictive models and forecasts
+- **Monte Carlo Simulation**: Implement Monte Carlo simulation methods
+- **Agent-Based Modeling**: Create agent-based simulation models
 
 ### Key Concepts
 
-#### Simulation Framework
-The module provides a comprehensive framework for geospatial simulations:
+#### Scenario Modeling
+The module provides scenario modeling capabilities:
 
 ```python
-from geo_infer_sim import SimulationEngine
+from geo_infer_sim import ScenarioModeler
 
-# Initialize simulation engine
-sim_engine = SimulationEngine()
-
-# Create simulation environment
-simulation_env = sim_engine.create_environment(
-    environment_type='urban_ecosystem',
-    spatial_bounds=urban_boundaries,
-    temporal_scope='10_years',
-    resolution='daily'
+# Create scenario modeler
+scenario_modeler = ScenarioModeler(
+    modeling_parameters={
+        'scenario_definition': True,
+        'outcome_analysis': True,
+        'sensitivity_analysis': True
+    }
 )
 
-# Configure simulation parameters
-sim_config = sim_engine.configure_simulation({
-    'model_type': 'agent_based',
-    'spatial_resolution': 'h3_resolution_9',
-    'temporal_resolution': 'hourly',
-    'agents': ['residents', 'businesses', 'infrastructure'],
-    'interactions': ['economic', 'environmental', 'social']
-})
+# Model scenarios
+scenario_result = scenario_modeler.model_scenarios(
+    scenario_data=scenario_definitions,
+    parameter_data=model_parameters,
+    outcome_data=expected_outcomes
+)
 ```
 
-#### Digital Twin Capabilities
-Create virtual representations of real-world systems:
+#### Simulation Frameworks
+Create simulation frameworks:
 
 ```python
-from geo_infer_sim.digital_twin import DigitalTwinEngine
+from geo_infer_sim.frameworks import SimulationFramework
 
-# Initialize digital twin engine
-dt_engine = DigitalTwinEngine()
-
-# Create digital twin
-digital_twin = dt_engine.create_digital_twin(
-    system_type='smart_city',
-    real_world_data=city_sensor_data,
-    model_components=['infrastructure', 'population', 'environment'],
-    update_frequency='real_time'
+# Create simulation framework
+sim_framework = SimulationFramework(
+    framework_parameters={
+        'model_creation': True,
+        'simulation_execution': True,
+        'result_analysis': True
+    }
 )
 
-# Synchronize with real-world data
-digital_twin.synchronize_data(
-    data_sources=['iot_sensors', 'satellite_imagery', 'social_media'],
-    sync_strategy='continuous'
-)
-
-# Run predictive simulations
-predictions = digital_twin.run_predictive_simulation(
-    scenario='climate_change_2050',
-    simulation_duration='5_years',
-    output_formats=['geojson', 'statistics', 'visualization']
+# Create simulation
+simulation_result = sim_framework.create_simulation(
+    model_data=simulation_models,
+    execution_config=execution_settings,
+    analysis_config=analysis_parameters
 )
 ```
 

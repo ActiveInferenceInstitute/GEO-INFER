@@ -1,66 +1,64 @@
-# GEO-INFER-SEC: Security Framework
+# GEO-INFER-SEC: Security
 
-> **Explanation**: Understanding Security Framework in GEO-INFER
+> **Explanation**: Understanding Security in GEO-INFER
 > 
-> This module provides comprehensive security and privacy frameworks for geospatial information, ensuring data protection, access control, and compliance with security standards.
+> This module provides security and cybersecurity capabilities for geospatial applications, including data protection, access control, and security monitoring.
 
 ## 🎯 What is GEO-INFER-SEC?
 
-GEO-INFER-SEC is the security framework engine that provides comprehensive security and privacy capabilities for geospatial information systems. It enables:
+GEO-INFER-SEC is the security engine that provides cybersecurity and data protection capabilities for geospatial information systems. It enables:
 
-- **Data Protection**: Encryption, anonymization, and privacy-preserving techniques
-- **Access Control**: Role-based access control and authentication systems
-- **Compliance Management**: Regulatory compliance and audit frameworks
-- **Security Monitoring**: Real-time security monitoring and threat detection
-- **Privacy Preservation**: Differential privacy and data anonymization
+- **Data Protection**: Protect sensitive geospatial data and information
+- **Access Control**: Manage access control and authentication
+- **Security Monitoring**: Monitor security threats and vulnerabilities
+- **Encryption**: Implement data encryption and security measures
+- **Compliance**: Ensure security compliance and standards
 
 ### Key Concepts
 
 #### Data Protection
-The module provides comprehensive data protection capabilities:
+The module provides data protection capabilities:
 
 ```python
-from geo_infer_sec import SecurityFramework
+from geo_infer_sec import SecurityManager
 
-# Create security framework
-security_framework = SecurityFramework(
+# Create security manager
+security_manager = SecurityManager(
     security_parameters={
-        'encryption_level': 'AES-256',
-        'privacy_level': 'differential_privacy',
-        'access_control': 'role_based',
-        'audit_logging': True
+        'data_protection': True,
+        'access_control': True,
+        'encryption': True
     }
 )
 
-# Protect geospatial data
-protected_data = security_framework.protect_data(
-    geospatial_data=spatial_data,
-    protection_level='high',
-    privacy_requirements=privacy_config
+# Manage security
+security_result = security_manager.manage_security(
+    data_protection=protection_requirements,
+    access_control=access_policies,
+    encryption=encryption_settings
 )
 ```
 
 #### Access Control
-Implement role-based access control for geospatial data:
+Manage access control and authentication:
 
 ```python
 from geo_infer_sec.access import AccessControlManager
 
 # Create access control manager
 access_manager = AccessControlManager(
-    access_parameters={
-        'authentication_method': 'oauth2',
-        'authorization_model': 'rbac',
-        'session_management': True,
-        'audit_trail': True
+    control_parameters={
+        'authentication': True,
+        'authorization': True,
+        'audit_logging': True
     }
 )
 
-# Manage access to geospatial resources
-access_result = access_manager.manage_access(
-    user_identity=user_profile,
-    resource=geospatial_resource,
-    access_level=required_permissions
+# Manage access control
+access_result = access_manager.manage_access_control(
+    user_data=user_information,
+    permission_data=permission_settings,
+    audit_data=audit_requirements
 )
 ```
 

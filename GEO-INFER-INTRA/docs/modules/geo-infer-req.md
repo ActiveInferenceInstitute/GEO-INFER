@@ -2,66 +2,63 @@
 
 > **Explanation**: Understanding Requirements Management in GEO-INFER
 > 
-> This module provides requirements engineering using the P3IF framework for geospatial applications, ensuring comprehensive system specifications, stakeholder needs analysis, and validation frameworks.
+> This module provides requirements management capabilities for geospatial applications, including requirement analysis, specification management, and validation frameworks.
 
 ## 🎯 What is GEO-INFER-REQ?
 
-GEO-INFER-REQ is the requirements management engine that provides comprehensive requirements engineering capabilities using the P3IF (Process, Product, Project, Information, Framework) methodology for geospatial information systems. It enables:
+GEO-INFER-REQ is the requirements management engine that provides requirement analysis and specification capabilities for geospatial information systems. It enables:
 
-- **Requirements Engineering**: Systematic requirements gathering and analysis
-- **Stakeholder Management**: Comprehensive stakeholder needs analysis
-- **System Specifications**: Detailed system specification development
-- **Validation Frameworks**: Requirements validation and verification
-- **Traceability Management**: Requirements traceability and change management
+- **Requirement Analysis**: Analyze and model system requirements
+- **Specification Management**: Manage requirement specifications and documentation
+- **Validation Frameworks**: Validate requirements and specifications
+- **Traceability**: Track requirement traceability and relationships
+- **Change Management**: Manage requirement changes and evolution
 
 ### Key Concepts
 
-#### Requirements Engineering
-The module provides comprehensive requirements engineering capabilities:
+#### Requirement Analysis
+The module provides requirement analysis capabilities:
 
 ```python
-from geo_infer_req import RequirementsFramework
+from geo_infer_req import RequirementAnalyzer
 
-# Create requirements framework
-requirements_framework = RequirementsFramework(
-    requirements_parameters={
-        'engineering_methodology': 'p3if',
+# Create requirement analyzer
+req_analyzer = RequirementAnalyzer(
+    analysis_parameters={
+        'requirement_modeling': True,
         'stakeholder_analysis': True,
-        'validation_framework': True,
-        'traceability_management': True
+        'validation_frameworks': True
     }
 )
 
-# Engineer requirements
-requirements_model = requirements_framework.engineer_requirements(
-    geospatial_system=spatial_system,
-    stakeholder_needs=stakeholder_requirements,
-    system_constraints=technical_constraints
+# Analyze requirements
+req_result = req_analyzer.analyze_requirements(
+    requirement_data=system_requirements,
+    stakeholder_data=stakeholder_needs,
+    validation_data=validation_criteria
 )
 ```
 
-#### P3IF Framework
-Implement the P3IF (Process, Product, Project, Information, Framework) methodology:
+#### Specification Management
+Manage requirement specifications:
 
 ```python
-from geo_infer_req.p3if import P3IFFramework
+from geo_infer_req.specification import SpecificationManager
 
-# Create P3IF framework
-p3if_framework = P3IFFramework(
-    framework_parameters={
-        'process_analysis': True,
-        'product_specification': True,
-        'project_management': True,
-        'information_architecture': True,
-        'framework_integration': True
+# Create specification manager
+spec_manager = SpecificationManager(
+    management_parameters={
+        'specification_documentation': True,
+        'version_control': True,
+        'change_tracking': True
     }
 )
 
-# Apply P3IF methodology
-p3if_result = p3if_framework.apply_p3if_methodology(
-    geospatial_project=spatial_project,
-    stakeholder_context=stakeholder_context,
-    system_requirements=system_specifications
+# Manage specifications
+spec_result = spec_manager.manage_specifications(
+    specification_data=requirement_specifications,
+    version_data=version_information,
+    change_data=change_history
 )
 ```
 

@@ -2,69 +2,63 @@
 
 > **Explanation**: Understanding Testing Framework in GEO-INFER
 > 
-> This module provides comprehensive testing and quality assurance capabilities for geospatial applications, including unit testing, integration testing, performance testing, and automated testing frameworks.
+> This module provides testing and validation capabilities for geospatial applications, including unit testing, integration testing, and performance testing.
 
 ## 🎯 What is GEO-INFER-TEST?
 
-GEO-INFER-TEST is the testing framework engine that provides comprehensive testing and quality assurance capabilities for geospatial information systems. It enables:
+GEO-INFER-TEST is the testing framework engine that provides testing and validation capabilities for GEO-INFER modules. It enables:
 
-- **Unit Testing**: Comprehensive unit testing and code validation
-- **Integration Testing**: Integration testing and system validation
-- **Performance Testing**: Performance testing and optimization validation
-- **Automated Testing**: Automated testing frameworks and continuous testing
-- **Quality Assurance**: Quality assurance and testing intelligence
+- **Unit Testing**: Test individual components and functions
+- **Integration Testing**: Test module integration and interactions
+- **Performance Testing**: Test system performance and scalability
+- **Validation Testing**: Validate data and model accuracy
+- **Regression Testing**: Test for regressions and changes
 
 ### Key Concepts
 
 #### Unit Testing
-The module provides comprehensive unit testing capabilities:
+The module provides unit testing capabilities:
 
 ```python
 from geo_infer_test import TestFramework
 
 # Create test framework
 test_framework = TestFramework(
-    test_parameters={
+    testing_parameters={
         'unit_testing': True,
         'integration_testing': True,
-        'performance_testing': True,
-        'automated_testing': True,
-        'quality_assurance': True
+        'performance_testing': True
     }
 )
 
-# Model testing systems
-test_model = test_framework.model_testing_systems(
-    geospatial_data=test_spatial_data,
-    validation_data=validation_information,
-    quality_data=quality_characteristics,
-    performance_data=performance_patterns
+# Run tests
+test_result = test_framework.run_tests(
+    test_data=test_cases,
+    validation_data=validation_criteria,
+    performance_data=performance_metrics
 )
 ```
 
 #### Integration Testing
-Implement comprehensive integration testing for system validation:
+Test module integration:
 
 ```python
-from geo_infer_test.integration import IntegrationTestingEngine
+from geo_infer_test.integration import IntegrationTester
 
-# Create integration testing engine
-integration_engine = IntegrationTestingEngine(
+# Create integration tester
+integration_tester = IntegrationTester(
     testing_parameters={
-        'system_integration': True,
-        'module_validation': True,
-        'interface_testing': True,
-        'data_flow_validation': True,
-        'integration_optimization': True
+        'module_integration': True,
+        'data_flow_testing': True,
+        'api_testing': True
     }
 )
 
-# Conduct integration testing
-integration_result = integration_engine.conduct_integration_testing(
-    system_data=system_information,
-    module_data=module_components,
-    interface_data=interface_specifications,
-    spatial_data=geographic_context
+# Test integrations
+integration_result = integration_tester.test_integrations(
+    module_data=module_configurations,
+    data_flow_data=data_flow_patterns,
+    api_data=api_endpoints
 )
 ```
 

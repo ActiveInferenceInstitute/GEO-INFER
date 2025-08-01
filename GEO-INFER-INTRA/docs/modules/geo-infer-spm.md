@@ -2,64 +2,63 @@
 
 > **Explanation**: Understanding Spatial Process Modeling in GEO-INFER
 > 
-> This module provides statistical parametric mapping and spatial process modeling capabilities for advanced spatial-temporal analysis and statistical inference.
+> This module provides spatial process modeling capabilities for geospatial applications, including process analysis, spatial dynamics, and process optimization.
 
 ## 🎯 What is GEO-INFER-SPM?
 
-GEO-INFER-SPM is the spatial process modeling engine that provides advanced statistical analysis and parametric mapping capabilities for geospatial data. It enables:
+GEO-INFER-SPM is the spatial process modeling engine that provides process analysis and modeling capabilities for geospatial information systems. It enables:
 
-- **Statistical Parametric Mapping**: Advanced statistical analysis of spatial data
-- **Random Field Theory**: Modeling spatial processes as random fields
-- **Cluster-Level Inference**: Statistical inference at spatial cluster levels
-- **GLM Analysis**: Generalized Linear Model analysis for spatial data
-- **Spatial Statistics**: Comprehensive spatial statistical methods
+- **Process Analysis**: Analyze spatial processes and dynamics
+- **Spatial Dynamics**: Model spatial dynamics and interactions
+- **Process Optimization**: Optimize spatial processes and workflows
+- **Spatial Modeling**: Create spatial process models
+- **Process Monitoring**: Monitor and track process changes
 
 ### Key Concepts
 
-#### Statistical Parametric Mapping
-The module provides advanced statistical analysis for spatial data:
+#### Process Analysis
+The module provides process analysis capabilities:
 
 ```python
-from geo_infer_spm import StatisticalParametricMapper
+from geo_infer_spm import ProcessAnalyzer
 
-# Create statistical parametric mapper
-spm_mapper = StatisticalParametricMapper(
-    statistical_parameters={
-        'significance_level': 0.05,
-        'cluster_threshold': 0.01,
-        'smoothing_kernel': 'gaussian',
-        'random_field_theory': True
+# Create process analyzer
+process_analyzer = ProcessAnalyzer(
+    analysis_parameters={
+        'process_identification': True,
+        'dynamics_analysis': True,
+        'optimization_analysis': True
     }
 )
 
-# Perform statistical parametric mapping
-spm_result = spm_mapper.analyze_spatial_data(
-    spatial_data=geospatial_data,
-    statistical_model='glm',
-    design_matrix=experimental_design
+# Analyze processes
+process_result = process_analyzer.analyze_processes(
+    process_data=spatial_processes,
+    dynamic_data=process_dynamics,
+    optimization_data=optimization_parameters
 )
 ```
 
-#### Random Field Theory
-Model spatial processes as random fields:
+#### Spatial Dynamics
+Model spatial dynamics and interactions:
 
 ```python
-from geo_infer_spm.random_fields import RandomFieldAnalyzer
+from geo_infer_spm.dynamics import SpatialDynamicsModeler
 
-# Create random field analyzer
-rf_analyzer = RandomFieldAnalyzer(
-    field_parameters={
-        'field_type': 'gaussian',
-        'spatial_correlation': 0.3,
-        'temporal_correlation': 0.2,
-        'stationarity': True
+# Create spatial dynamics modeler
+dynamics_modeler = SpatialDynamicsModeler(
+    modeling_parameters={
+        'interaction_modeling': True,
+        'temporal_analysis': True,
+        'spatial_patterns': True
     }
 )
 
-# Analyze spatial random field
-field_analysis = rf_analyzer.analyze_random_field(
-    spatial_data=spatial_process_data,
-    field_model='stationary_gaussian'
+# Model spatial dynamics
+dynamics_result = dynamics_modeler.model_spatial_dynamics(
+    spatial_data=spatial_information,
+    interaction_data=spatial_interactions,
+    temporal_data=temporal_patterns
 )
 ```
 

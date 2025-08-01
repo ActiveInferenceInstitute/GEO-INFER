@@ -1,66 +1,64 @@
-# GEO-INFER-NORMS: Normative Systems
+# GEO-INFER-NORMS: Norms & Standards
 
-> **Explanation**: Understanding Normative Systems in GEO-INFER
+> **Explanation**: Understanding Norms & Standards in GEO-INFER
 > 
-> This module provides social-technical compliance modeling and normative systems for geospatial applications, ensuring regulatory compliance, social norm modeling, and ethical framework implementation.
+> This module provides norms, standards, and governance capabilities for geospatial applications, including compliance management, standards enforcement, and governance frameworks.
 
 ## 🎯 What is GEO-INFER-NORMS?
 
-GEO-INFER-NORMS is the normative systems engine that provides comprehensive social-technical compliance modeling and normative framework capabilities for geospatial information systems. It enables:
+GEO-INFER-NORMS is the norms and standards engine that provides governance and compliance capabilities for geospatial information systems. It enables:
 
-- **Regulatory Compliance**: Automated compliance tracking and regulatory impact mapping
-- **Social Norm Modeling**: Modeling of social norms and behavioral patterns
-- **Ethical Framework**: Implementation of ethical guidelines and principles
-- **Policy Analysis**: Analysis of policy impacts and regulatory frameworks
-- **Compliance Monitoring**: Continuous monitoring of compliance status
+- **Compliance Management**: Manage regulatory compliance and standards adherence
+- **Standards Enforcement**: Enforce data and process standards
+- **Governance Frameworks**: Implement governance frameworks and policies
+- **Quality Assurance**: Ensure quality standards and best practices
+- **Audit Management**: Manage audits and compliance monitoring
 
 ### Key Concepts
 
-#### Regulatory Compliance
-The module provides comprehensive regulatory compliance capabilities:
+#### Compliance Management
+The module provides compliance management capabilities:
 
 ```python
-from geo_infer_norms import NormativeFramework
+from geo_infer_norms import ComplianceManager
 
-# Create normative framework
-normative_framework = NormativeFramework(
-    normative_parameters={
-        'regulatory_framework': 'gdpr',
-        'compliance_level': 'strict',
-        'audit_frequency': 'continuous',
-        'social_norms': 'inclusive'
+# Create compliance manager
+compliance_manager = ComplianceManager(
+    compliance_parameters={
+        'regulatory_compliance': True,
+        'standards_enforcement': True,
+        'audit_management': True
     }
 )
 
-# Model compliance requirements
-compliance_model = normative_framework.model_compliance(
-    geospatial_system=spatial_system,
-    regulatory_requirements=compliance_standards,
-    social_context=community_norms
+# Manage compliance
+compliance_result = compliance_manager.manage_compliance(
+    compliance_data=regulatory_requirements,
+    standards_data=industry_standards,
+    audit_data=audit_requirements
 )
 ```
 
-#### Social Norm Modeling
-Model social norms and behavioral patterns in geospatial contexts:
+#### Standards Enforcement
+Enforce data and process standards:
 
 ```python
-from geo_infer_norms.social import SocialNormModeler
+from geo_infer_norms.standards import StandardsEnforcementEngine
 
-# Create social norm modeler
-norm_modeler = SocialNormModeler(
-    modeling_parameters={
-        'norm_detection': 'automated',
-        'behavioral_analysis': True,
-        'cultural_sensitivity': True,
-        'community_engagement': True
+# Create standards enforcement engine
+standards_engine = StandardsEnforcementEngine(
+    enforcement_parameters={
+        'data_standards': True,
+        'process_standards': True,
+        'quality_assurance': True
     }
 )
 
-# Model social norms
-norm_model = norm_modeler.model_social_norms(
-    community_data=community_geospatial_data,
-    behavioral_patterns=behavioral_data,
-    cultural_context=cultural_framework
+# Enforce standards
+standards_result = standards_engine.enforce_standards(
+    data_standards=data_quality_standards,
+    process_standards=workflow_standards,
+    compliance_data=compliance_requirements
 )
 ```
 
@@ -285,7 +283,7 @@ class RegulatoryComplianceManager:
 
 **Problem**: Ensure government geospatial systems comply with regulatory requirements.
 
-**Solution**: Use comprehensive normative framework for government applications.
+**Solution**: Use normative framework for government applications.
 
 ```python
 from geo_infer_norms import GovernmentNormativeFramework
@@ -299,7 +297,7 @@ gov_config = gov_norms.configure_government_norms({
     'compliance_level': 'strict',
     'audit_requirements': 'continuous',
     'transparency_standards': 'high',
-    'accountability_framework': 'comprehensive'
+    'accountability_framework': 'systematic'
 })
 
 # Implement government normative framework
@@ -445,7 +443,7 @@ compliance_engine.enable_compliance_diagnostics(
 ```python
 # Improve social norm modeling
 norm_engine.configure_social_norms({
-    'norm_detection': 'advanced_ml',
+    'norm_detection': 'effective_ml',
     'behavioral_analysis': 'deep_learning',
     'cultural_sensitivity': 'adaptive',
     'community_engagement': 'participatory'
@@ -461,11 +459,11 @@ norm_engine.enable_norm_modeling_monitoring(
 ```python
 # Improve ethical framework
 ethics_engine.configure_ethics({
-    'ethical_principles': 'comprehensive_framework',
-    'bias_detection': 'advanced_algorithms',
+    'ethical_principles': 'systematic_framework',
+    'bias_detection': 'effective_algorithms',
     'discrimination_prevention': 'proactive',
     'transparency_requirements': 'maximum',
-    'accountability_framework': 'comprehensive'
+    'accountability_framework': 'systematic'
 })
 
 # Enable ethical monitoring

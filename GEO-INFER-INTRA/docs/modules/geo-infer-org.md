@@ -2,69 +2,63 @@
 
 > **Explanation**: Understanding Organizational Systems in GEO-INFER
 > 
-> This module provides organizational systems and institutional capabilities for geospatial applications, including organizational modeling, institutional analysis, governance structures, and organizational optimization.
+> This module provides organizational modeling and analysis capabilities for geospatial applications, including organizational structure analysis, governance modeling, and institutional frameworks.
 
 ## 🎯 What is GEO-INFER-ORG?
 
-GEO-INFER-ORG is the organizational systems engine that provides comprehensive organizational and institutional capabilities for geospatial information systems. It enables:
+GEO-INFER-ORG is the organizational systems engine that provides organizational modeling and analysis capabilities for geospatial information systems. It enables:
 
-- **Organizational Modeling**: Comprehensive organizational structure and behavior modeling
-- **Institutional Analysis**: Analysis of institutional frameworks and governance structures
-- **Governance Optimization**: Optimization of governance and organizational structures
-- **Organizational Intelligence**: Organizational intelligence and decision-making systems
-- **Institutional Capacity Building**: Institutional capacity building and development
+- **Organizational Modeling**: Model organizational structures and relationships
+- **Governance Analysis**: Analyze governance structures and decision-making
+- **Institutional Frameworks**: Model institutional frameworks and policies
+- **Stakeholder Analysis**: Analyze stakeholder relationships and interests
+- **Organizational Dynamics**: Model organizational change and adaptation
 
 ### Key Concepts
 
 #### Organizational Modeling
-The module provides comprehensive organizational modeling capabilities:
+The module provides organizational modeling capabilities:
 
 ```python
-from geo_infer_org import OrganizationalFramework
+from geo_infer_org import OrganizationalModeler
 
-# Create organizational framework
-org_framework = OrganizationalFramework(
-    org_parameters={
-        'organizational_modeling': True,
-        'institutional_analysis': True,
-        'governance_optimization': True,
-        'organizational_intelligence': True,
-        'institutional_capacity_building': True
+# Create organizational modeler
+org_modeler = OrganizationalModeler(
+    modeling_parameters={
+        'structure_analysis': True,
+        'relationship_mapping': True,
+        'dynamics_modeling': True
     }
 )
 
-# Model organizational systems
-org_model = org_framework.model_organizational_systems(
-    geospatial_data=org_spatial_data,
-    institutional_data=institutional_information,
-    governance_data=governance_characteristics,
-    capacity_data=capacity_patterns
+# Model organizations
+org_result = org_modeler.model_organizations(
+    org_data=organizational_structures,
+    relationship_data=organizational_relationships,
+    dynamic_data=organizational_dynamics
 )
 ```
 
-#### Institutional Analysis
-Implement comprehensive institutional analysis for organizational effectiveness:
+#### Governance Analysis
+Analyze governance structures:
 
 ```python
-from geo_infer_org.analysis import InstitutionalAnalysisEngine
+from geo_infer_org.governance import GovernanceAnalyzer
 
-# Create institutional analysis engine
-institutional_engine = InstitutionalAnalysisEngine(
+# Create governance analyzer
+governance_analyzer = GovernanceAnalyzer(
     analysis_parameters={
-        'institutional_frameworks': True,
-        'governance_structures': True,
-        'organizational_behavior': True,
-        'capacity_assessment': True,
-        'institutional_optimization': True
+        'decision_making': True,
+        'policy_analysis': True,
+        'stakeholder_mapping': True
     }
 )
 
-# Analyze institutional systems
-analysis_result = institutional_engine.analyze_institutional_systems(
-    institutional_data=institutional_frameworks,
+# Analyze governance
+governance_result = governance_analyzer.analyze_governance(
     governance_data=governance_structures,
-    capacity_data=organizational_capacity,
-    spatial_data=geographic_distribution
+    policy_data=policy_frameworks,
+    stakeholder_data=stakeholder_information
 )
 ```
 
@@ -284,7 +278,7 @@ class GovernanceOptimizationEngine:
 
 **Problem**: Optimize organizational structures for geospatial institutions.
 
-**Solution**: Use comprehensive organizational modeling framework.
+**Solution**: Use organizational modeling framework.
 
 ```python
 from geo_infer_org import OrganizationalStructureOptimizationFramework
@@ -294,8 +288,8 @@ org_optimization = OrganizationalStructureOptimizationFramework()
 
 # Define organizational optimization parameters
 org_config = org_optimization.configure_organizational_optimization({
-    'structure_modeling': 'comprehensive',
-    'governance_optimization': 'advanced',
+    'structure_modeling': 'systematic',
+    'governance_optimization': 'effective',
     'capacity_assessment': 'detailed',
     'performance_analysis': 'systematic',
     'improvement_planning': 'strategic'
@@ -313,7 +307,7 @@ org_result = org_optimization.optimize_organizational_structures(
 
 **Problem**: Build institutional capacity for geospatial organizations.
 
-**Solution**: Use comprehensive institutional capacity building framework.
+**Solution**: Use institutional capacity building framework.
 
 ```python
 from geo_infer_org.capacity import InstitutionalCapacityBuildingPlatformFramework
@@ -323,7 +317,7 @@ capacity_platform = InstitutionalCapacityBuildingPlatformFramework()
 
 # Define institutional capacity building parameters
 capacity_config = capacity_platform.configure_institutional_capacity_building({
-    'capacity_assessment': 'comprehensive',
+    'capacity_assessment': 'systematic',
     'development_planning': 'strategic',
     'capability_building': 'systematic',
     'institutional_strengthening': 'proactive',
@@ -342,7 +336,7 @@ capacity_result = capacity_platform.build_institutional_capacity(
 
 **Problem**: Implement organizational intelligence and decision-making systems.
 
-**Solution**: Use comprehensive organizational intelligence framework.
+**Solution**: Use organizational intelligence framework.
 
 ```python
 from geo_infer_org.intelligence import GovernanceIntelligenceSystemFramework
@@ -352,8 +346,8 @@ intelligence_system = GovernanceIntelligenceSystemFramework()
 
 # Define organizational intelligence parameters
 intelligence_config = intelligence_system.configure_organizational_intelligence({
-    'decision_support': 'comprehensive',
-    'knowledge_management': 'advanced',
+    'decision_support': 'systematic',
+    'knowledge_management': 'effective',
     'learning_systems': 'adaptive',
     'adaptive_capabilities': 'dynamic',
     'strategic_planning': 'systematic'
@@ -428,8 +422,8 @@ civ_org_system = civ_org_engine.integrate_with_civic_engagement(
 ```python
 # Improve organizational modeling
 modeling_engine.configure_organizational_modeling({
-    'structure_modeling': 'comprehensive',
-    'behavior_analysis': 'advanced',
+    'structure_modeling': 'systematic',
+    'behavior_analysis': 'effective',
     'relationship_mapping': 'detailed',
     'dynamics_simulation': 'systematic',
     'performance_modeling': 'accurate'
@@ -445,7 +439,7 @@ modeling_engine.enable_organizational_modeling_diagnostics(
 ```python
 # Improve institutional analysis
 analysis_engine.configure_institutional_analysis({
-    'framework_analysis': 'comprehensive',
+    'framework_analysis': 'systematic',
     'governance_assessment': 'detailed',
     'capacity_evaluation': 'systematic',
     'performance_analysis': 'accurate',
@@ -462,7 +456,7 @@ analysis_engine.enable_institutional_analysis_monitoring(
 ```python
 # Improve governance optimization
 governance_engine.configure_governance_optimization({
-    'structure_optimization': 'comprehensive',
+    'structure_optimization': 'systematic',
     'process_improvement': 'systematic',
     'decision_making': 'efficient',
     'accountability_frameworks': 'robust',
@@ -501,7 +495,7 @@ org_framework.enable_adaptive_organizational_systems(
 ```python
 # Enable efficient institutional analysis
 analysis_engine.enable_efficient_institutional_analysis(
-    analysis_strategy='advanced_algorithms',
+    analysis_strategy='effective_algorithms',
     framework_optimization=True,
     governance_enhancement=True
 )

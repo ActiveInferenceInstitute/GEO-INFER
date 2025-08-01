@@ -2,69 +2,63 @@
 
 > **Explanation**: Understanding Place-Based Analysis in GEO-INFER
 > 
-> This module provides deep place-based analyses for specific geographic locations, enabling comprehensive regional insights and territorial assessments with full H3 v4 spatial indexing integration.
+> This module provides place-based analysis capabilities for geospatial applications, including location analysis, place modeling, and spatial context understanding.
 
 ## 🎯 What is GEO-INFER-PLACE?
 
-GEO-INFER-PLACE is the place-based analysis engine that provides deep, location-specific analyses for geographic regions. It enables:
+GEO-INFER-PLACE is the place-based analysis engine that provides location and place modeling capabilities for geospatial information systems. It enables:
 
-- **Regional Analysis**: Comprehensive analysis of specific geographic areas
-- **Territorial Assessment**: Deep understanding of place-based characteristics
-- **Location Intelligence**: Spatial insights for decision-making
-- **Place-Based Modeling**: Contextual analysis for specific locations
-- **H3 v4 Integration**: Full spatial indexing with H3 v4 capabilities
+- **Location Analysis**: Analyze locations and their characteristics
+- **Place Modeling**: Model places and their spatial contexts
+- **Spatial Context**: Understand spatial context and relationships
+- **Place-Based Intelligence**: Apply place-based intelligence and insights
+- **Location Optimization**: Optimize location-based decisions
 
 ### Key Concepts
 
-#### Place-Based Analysis Framework
-The module provides comprehensive analysis capabilities for specific geographic locations:
+#### Location Analysis
+The module provides location analysis capabilities:
 
 ```python
-from geo_infer_place import PlaceBasedAnalyzer
+from geo_infer_place import LocationAnalyzer
 
-# Initialize place-based analyzer
-place_analyzer = PlaceBasedAnalyzer()
-
-# Define analysis region
-analysis_region = place_analyzer.define_region(
-    region_type='administrative',
-    boundaries=county_boundaries,
-    spatial_resolution='h3_resolution_9',
-    analysis_scope='comprehensive'
+# Create location analyzer
+location_analyzer = LocationAnalyzer(
+    analysis_parameters={
+        'location_characteristics': True,
+        'spatial_relationships': True,
+        'context_analysis': True
+    }
 )
 
-# Configure place-based analysis
-analysis_config = place_analyzer.configure_analysis({
-    'spatial_analysis': True,
-    'temporal_analysis': True,
-    'demographic_analysis': True,
-    'environmental_analysis': True,
-    'economic_analysis': True,
-    'infrastructure_analysis': True
-})
+# Analyze locations
+location_result = location_analyzer.analyze_locations(
+    location_data=location_information,
+    spatial_data=spatial_context,
+    characteristic_data=location_characteristics
+)
 ```
 
-#### H3 v4 Spatial Integration
-Full integration with H3 v4 spatial indexing for precise location analysis:
+#### Place Modeling
+Model places and their contexts:
 
 ```python
-from geo_infer_place.spatial import H3PlaceAnalyzer
+from geo_infer_place.modeling import PlaceModeler
 
-# Initialize H3-based place analyzer
-h3_analyzer = H3PlaceAnalyzer()
-
-# Create H3 grid for analysis region
-h3_grid = h3_analyzer.create_analysis_grid(
-    region_boundaries=analysis_region,
-    h3_resolution=9,
-    grid_type='adaptive'
+# Create place modeler
+place_modeler = PlaceModeler(
+    modeling_parameters={
+        'place_characteristics': True,
+        'context_modeling': True,
+        'relationship_analysis': True
+    }
 )
 
-# Perform H3-based spatial analysis
-spatial_analysis = h3_analyzer.analyze_spatial_patterns(
-    h3_grid=h3_grid,
-    data_sources=['demographics', 'environmental', 'infrastructure'],
-    analysis_types=['clustering', 'hotspot_detection', 'accessibility']
+# Model places
+place_result = place_modeler.model_places(
+    place_data=place_information,
+    context_data=spatial_context,
+    relationship_data=spatial_relationships
 )
 ```
 

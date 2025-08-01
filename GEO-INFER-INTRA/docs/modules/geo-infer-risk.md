@@ -2,69 +2,63 @@
 
 > **Explanation**: Understanding Risk Assessment in GEO-INFER
 > 
-> This module provides risk modeling and insurance for geospatial applications, including multi-hazard risk modeling, vulnerability assessment, risk communication tools, and scenario analysis.
+> This module provides risk assessment and management capabilities for geospatial applications, including risk modeling, vulnerability analysis, and risk mitigation strategies.
 
 ## 🎯 What is GEO-INFER-RISK?
 
-GEO-INFER-RISK is the risk assessment engine that provides comprehensive risk modeling and insurance capabilities for geospatial information systems. It enables:
+GEO-INFER-RISK is the risk assessment engine that provides risk modeling and analysis capabilities for geospatial information systems. It enables:
 
-- **Multi-Hazard Risk Modeling**: Comprehensive multi-hazard risk assessment
-- **Vulnerability Assessment**: Detailed vulnerability analysis and mapping
-- **Risk Communication**: Advanced risk communication tools and frameworks
-- **Scenario Analysis**: Comprehensive scenario planning and analysis
-- **Insurance Modeling**: Insurance pricing and exposure management
+- **Risk Modeling**: Model and analyze various types of risks
+- **Vulnerability Analysis**: Analyze vulnerabilities and exposure
+- **Risk Assessment**: Assess risk levels and impacts
+- **Mitigation Strategies**: Develop risk mitigation strategies
+- **Risk Monitoring**: Monitor and track risk changes
 
 ### Key Concepts
 
-#### Multi-Hazard Risk Modeling
-The module provides comprehensive multi-hazard risk modeling capabilities:
+#### Risk Modeling
+The module provides risk modeling capabilities:
 
 ```python
-from geo_infer_risk import RiskFramework
+from geo_infer_risk import RiskModeler
 
-# Create risk framework
-risk_framework = RiskFramework(
-    risk_parameters={
-        'multi_hazard_modeling': True,
-        'vulnerability_assessment': True,
-        'risk_communication': True,
-        'scenario_analysis': True,
-        'insurance_modeling': True
+# Create risk modeler
+risk_modeler = RiskModeler(
+    modeling_parameters={
+        'risk_identification': True,
+        'risk_quantification': True,
+        'scenario_analysis': True
     }
 )
 
-# Model risk systems
-risk_model = risk_framework.model_risk_systems(
-    geospatial_data=risk_spatial_data,
-    hazard_data=hazard_information,
-    vulnerability_data=vulnerability_indicators,
-    exposure_data=exposure_characteristics
+# Model risks
+risk_result = risk_modeler.model_risks(
+    risk_data=risk_information,
+    scenario_data=risk_scenarios,
+    impact_data=impact_assessments
 )
 ```
 
-#### Vulnerability Assessment
-Implement comprehensive vulnerability assessment for risk analysis:
+#### Vulnerability Analysis
+Analyze vulnerabilities and exposure:
 
 ```python
-from geo_infer_risk.vulnerability import VulnerabilityAssessmentEngine
+from geo_infer_risk.vulnerability import VulnerabilityAnalyzer
 
-# Create vulnerability assessment engine
-vulnerability_engine = VulnerabilityAssessmentEngine(
-    vulnerability_parameters={
-        'social_vulnerability': True,
-        'physical_vulnerability': True,
-        'economic_vulnerability': True,
-        'environmental_vulnerability': True,
-        'institutional_vulnerability': True
+# Create vulnerability analyzer
+vulnerability_analyzer = VulnerabilityAnalyzer(
+    analysis_parameters={
+        'exposure_assessment': True,
+        'vulnerability_mapping': True,
+        'resilience_analysis': True
     }
 )
 
-# Assess vulnerability
-vulnerability_result = vulnerability_engine.assess_vulnerability(
-    population_data=demographic_information,
-    infrastructure_data=built_environment,
-    economic_data=economic_indicators,
-    environmental_data=environmental_conditions
+# Analyze vulnerabilities
+vulnerability_result = vulnerability_analyzer.analyze_vulnerabilities(
+    vulnerability_data=vulnerability_information,
+    exposure_data=exposure_characteristics,
+    resilience_data=resilience_factors
 )
 ```
 
