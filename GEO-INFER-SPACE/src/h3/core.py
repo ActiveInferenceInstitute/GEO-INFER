@@ -13,7 +13,7 @@ License: Apache-2.0
 import h3 as h3_lib
 import numpy as np
 from typing import Union, List, Tuple, Optional, Dict, Any
-from .constants import (
+from constants import (
     MAX_H3_RES, MIN_H3_RES, LAT_MIN, LAT_MAX, LNG_MIN, LNG_MAX,
     ERROR_MESSAGES, H3_AREA_KM2, H3_EDGE_LENGTH_KM
 )
@@ -73,13 +73,12 @@ def cell_to_latlng(cell: str) -> Tuple[float, float]:
     return h3_lib.cell_to_latlng(cell)
 
 
-def cell_to_boundary(cell: str, format: str = 'latlng') -> List[Tuple[float, float]]:
+def cell_to_boundary(cell: str) -> List[Tuple[float, float]]:
     """
     Get the boundary coordinates of an H3 cell.
     
     Args:
         cell: H3 cell index as string
-        format: Output format ('latlng' or 'geo')
         
     Returns:
         List of coordinate tuples defining the cell boundary
@@ -94,7 +93,7 @@ def cell_to_boundary(cell: str, format: str = 'latlng') -> List[Tuple[float, flo
     if not h3_lib.is_valid_cell(cell):
         raise ValueError(ERROR_MESSAGES['INVALID_CELL'])
     
-    return list(h3_lib.cell_to_boundary(cell, format=format))
+    return list(h3_lib.cell_to_boundary(cell))
 
 
 def cell_to_polygon(cell: str) -> Dict[str, Any]:
