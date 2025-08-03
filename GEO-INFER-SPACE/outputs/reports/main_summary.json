@@ -1,0 +1,192 @@
+{
+  "test_summary": {
+    "total_tests": 0,
+    "passed_tests": 0,
+    "failed_tests": 0,
+    "total_test_time": 0
+  },
+  "coverage_summary": {
+    "total_methods": 33,
+    "available_methods": 15,
+    "tested_methods": 15,
+    "coverage_percentage": 100.0,
+    "method_details": {
+      "latlng_to_cell": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "cell_to_latlng": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "cell_to_boundary": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "cell_to_polygon": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "polygon_to_cells": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "polyfill": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "cell_area": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "cell_perimeter": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "edge_length": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "num_cells": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "get_resolution": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "is_valid_cell": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "is_pentagon": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "is_class_iii": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "is_res_class_iii": {
+        "available": true,
+        "tested": true,
+        "status": "PASS"
+      },
+      "get_base_cell_number": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "get_icosahedron_faces": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "grid_disk": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "grid_ring": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "grid_path_cells": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "cell_to_parent": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "cell_to_children": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "average_hexagon_edge_length": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "average_hexagon_area": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "cell_to_geojson": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "geojson_to_cells": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "wkt_to_cells": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "cells_to_wkt": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "cells_to_geojson": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "cells_to_shapefile_data": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "cells_to_kml": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      },
+      "cells_to_csv": {
+        "available": false,
+        "tested": false,
+        "status": "FAIL"
+      }
+    }
+  },
+  "timing_summary": {
+    "visual_outputs": 1.075578212738037,
+    "interactive_outputs": 0.00017976760864257812,
+    "validation_outputs": 0.004710674285888672,
+    "comprehensive_outputs": 1.0846683979034424,
+    "complete_coverage_outputs": 0.0006463527679443359
+  },
+  "total_execution_time": 1.0861897468566895,
+  "outputs_generated": {
+    "animations": 0,
+    "gifs": 0,
+    "reports": 1,
+    "visualizations": 0,
+    "data_files": 1
+  },
+  "timestamp": "2025-08-01T14:56:44.277349"
+}

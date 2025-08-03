@@ -1,12 +1,12 @@
 # GEO-INFER-AG: Agricultural Systems
 
-> **Explanation**: Understanding Agricultural Systems in GEO-INFER
+> **Purpose**: Agricultural analysis and precision farming capabilities
 > 
 > This module provides specialized analysis for agricultural applications, including crop modeling, soil analysis, precision agriculture tools, and climate impact assessment for geospatial agricultural systems.
 
-## 🎯 What is GEO-INFER-AG?
+## Overview
 
-GEO-INFER-AG is the agricultural systems engine that provides agricultural analysis and precision farming capabilities for geospatial information systems. It enables:
+GEO-INFER-AG provides agricultural analysis and precision farming capabilities for geospatial information systems. It enables:
 
 - **Crop Modeling**: Crop modeling and yield prediction with physiological models
 - **Soil Analysis**: Soil analysis and monitoring with spatial variability mapping
@@ -19,7 +19,7 @@ GEO-INFER-AG is the agricultural systems engine that provides agricultural analy
 ### Mathematical Foundations
 
 #### Crop Growth Modeling
-The module implements physiological crop growth models based on the following mathematical framework:
+The module implements physiological crop growth models:
 
 ```python
 # Crop growth rate equation
@@ -55,7 +55,7 @@ The module provides crop modeling capabilities with physiological processes:
 ```python
 from geo_infer_ag import AgriculturalFramework
 
-# Create agricultural framework with modeling
+# Create agricultural framework
 ag_framework = AgriculturalFramework(
     agricultural_parameters={
         'crop_modeling': 'physiological',
@@ -107,17 +107,17 @@ precision_result = precision_engine.implement_precision_agriculture(
 )
 ```
 
-## 📚 Core Features
+## Core Features
 
-### 1. Advanced Crop Modeling Engine
+### 1. Crop Modeling Engine
 
 **Purpose**: Model crop growth, development, and yield prediction with physiological processes.
 
 ```python
-from geo_infer_ag.crops import AdvancedCropModelingEngine
+from geo_infer_ag.crops import CropModelingEngine
 
-# Initialize advanced crop modeling engine
-crop_engine = AdvancedCropModelingEngine(
+# Initialize crop modeling engine
+crop_engine = CropModelingEngine(
     modeling_approach='physiological',
     stress_modeling=True,
     disease_modeling=True,
@@ -125,7 +125,7 @@ crop_engine = AdvancedCropModelingEngine(
     climate_adaptation=True
 )
 
-# Define advanced crop modeling parameters
+# Define crop modeling parameters
 crop_config = crop_engine.configure_crop_modeling({
     'growth_model': 'physiological',
     'yield_prediction': 'ml_enhanced',
@@ -137,7 +137,7 @@ crop_config = crop_engine.configure_crop_modeling({
     'water_use_efficiency': True
 })
 
-# Model crop systems with advanced features
+# Model crop systems
 crop_result = crop_engine.model_crop_systems(
     crop_data=crop_information,
     soil_data=soil_conditions,
@@ -146,7 +146,7 @@ crop_result = crop_engine.model_crop_systems(
     crop_config=crop_config
 )
 
-# Get advanced crop insights
+# Get crop insights
 crop_insights = crop_engine.get_crop_insights(
     include_stress_analysis=True,
     include_disease_risk=True,
@@ -154,22 +154,22 @@ crop_insights = crop_engine.get_crop_insights(
 )
 ```
 
-### 2. Advanced Soil Analysis Engine
+### 2. Soil Analysis Engine
 
 **Purpose**: Analyze soil characteristics and monitor soil health with spatial variability.
 
 ```python
-from geo_infer_ag.soil import AdvancedSoilAnalysisEngine
+from geo_infer_ag.soil import SoilAnalysisEngine
 
-# Initialize advanced soil analysis engine
-soil_engine = AdvancedSoilAnalysisEngine(
+# Initialize soil analysis engine
+soil_engine = SoilAnalysisEngine(
     analysis_resolution='high',
     spatial_mapping=True,
     temporal_monitoring=True,
     nutrient_modeling=True
 )
 
-# Define advanced soil analysis parameters
+# Define soil analysis parameters
 soil_config = soil_engine.configure_soil_analysis({
     'soil_mapping': 'spatial_variability',
     'nutrient_analysis': 'comprehensive',
@@ -181,7 +181,7 @@ soil_config = soil_engine.configure_soil_analysis({
     'contamination_assessment': True
 })
 
-# Analyze soil characteristics with advanced features
+# Analyze soil characteristics
 soil_result = soil_engine.analyze_soil_characteristics(
     soil_data=soil_samples,
     spatial_data=field_boundaries,
@@ -197,25 +197,25 @@ soil_health = soil_engine.assess_soil_health(
 )
 ```
 
-### 3. Advanced Precision Agriculture Engine
+### 3. Precision Agriculture Engine
 
 **Purpose**: Implement precision agriculture techniques and tools with machine learning.
 
 ```python
-from geo_infer_ag.precision import AdvancedPrecisionAgricultureEngine
+from geo_infer_ag.precision import PrecisionAgricultureEngine
 
-# Initialize advanced precision agriculture engine
-precision_engine = AdvancedPrecisionAgricultureEngine(
-    precision_level='ultra_high',
+# Initialize precision agriculture engine
+precision_engine = PrecisionAgricultureEngine(
+    precision_level='high',
     ml_integration=True,
     real_time_optimization=True,
     autonomous_operation=True
 )
 
-# Define advanced precision agriculture parameters
+# Define precision agriculture parameters
 precision_config = precision_engine.configure_precision_agriculture({
     'variable_rate_application': 'ml_optimized',
-    'soil_mapping': 'ultra_high_resolution',
+    'soil_mapping': 'high_resolution',
     'yield_monitoring': 'real_time',
     'remote_sensing': 'multi_spectral',
     'gps_guidance': 'autonomous',
@@ -225,7 +225,7 @@ precision_config = precision_engine.configure_precision_agriculture({
     'harvest_optimization': 'predictive'
 })
 
-# Implement advanced precision agriculture
+# Implement precision agriculture
 precision_result = precision_engine.implement_precision_agriculture(
     field_data=field_characteristics,
     crop_data=crop_requirements,
@@ -243,22 +243,22 @@ precision_insights = precision_engine.get_precision_insights(
 )
 ```
 
-### 4. Advanced Climate Impact Assessment Engine
+### 4. Climate Impact Assessment Engine
 
 **Purpose**: Assess climate change impacts on agricultural systems with adaptation strategies.
 
 ```python
-from geo_infer_ag.climate import AdvancedClimateImpactEngine
+from geo_infer_ag.climate import ClimateImpactEngine
 
-# Initialize advanced climate impact engine
-climate_engine = AdvancedClimateImpactEngine(
+# Initialize climate impact engine
+climate_engine = ClimateImpactEngine(
     impact_modeling='comprehensive',
     adaptation_strategies=True,
     risk_assessment=True,
     scenario_analysis=True
 )
 
-# Define advanced climate impact parameters
+# Define climate impact parameters
 climate_config = climate_engine.configure_climate_impact({
     'temperature_analysis': 'detailed',
     'precipitation_modeling': 'advanced',
@@ -270,7 +270,7 @@ climate_config = climate_engine.configure_climate_impact({
     'crop_diversification': True
 })
 
-# Assess climate impacts with advanced features
+# Assess climate impacts
 climate_result = climate_engine.assess_climate_impacts(
     climate_data=weather_conditions,
     agricultural_data=farming_systems,
@@ -287,22 +287,22 @@ adaptation_recommendations = climate_engine.get_adaptation_recommendations(
 )
 ```
 
-### 5. Advanced Resource Optimization Engine
+### 5. Resource Optimization Engine
 
 **Purpose**: Optimize agricultural resource management with sustainability focus.
 
 ```python
-from geo_infer_ag.resources import AdvancedResourceOptimizationEngine
+from geo_infer_ag.resources import ResourceOptimizationEngine
 
-# Initialize advanced resource optimization engine
-resource_engine = AdvancedResourceOptimizationEngine(
+# Initialize resource optimization engine
+resource_engine = ResourceOptimizationEngine(
     optimization_strategy='multi_objective',
     sustainability_focus=True,
     cost_optimization=True,
     environmental_impact=True
 )
 
-# Define advanced resource optimization parameters
+# Define resource optimization parameters
 resource_config = resource_engine.configure_resource_optimization({
     'water_management': 'smart_irrigation',
     'fertilizer_optimization': 'precision',
@@ -314,7 +314,7 @@ resource_config = resource_engine.configure_resource_optimization({
     'biodiversity_promotion': True
 })
 
-# Optimize resource management with advanced features
+# Optimize resource management
 resource_result = resource_engine.optimize_resource_management(
     resource_data=agricultural_resources,
     field_data=field_characteristics,
@@ -414,20 +414,20 @@ sustainability_assessment = sustainability_engine.assess_sustainability(
 )
 ```
 
-## 🔧 API Reference
+## API Reference
 
-### AdvancedAgriculturalFramework
+### AgriculturalFramework
 
-The core agricultural framework class with advanced capabilities.
+The core agricultural framework class.
 
 ```python
-class AdvancedAgriculturalFramework:
+class AgriculturalFramework:
     def __init__(self, agricultural_parameters):
         """
-        Initialize advanced agricultural framework.
+        Initialize agricultural framework.
         
         Args:
-            agricultural_parameters (dict): Advanced agricultural configuration parameters
+            agricultural_parameters (dict): Agricultural configuration parameters
         """
     
     def model_agricultural_systems(self, geospatial_data, crop_data, soil_data, climate_data, management_data):
@@ -452,23 +452,23 @@ class AdvancedAgriculturalFramework:
         """Get comprehensive agricultural insights and recommendations."""
 ```
 
-### AdvancedCropModelingEngine
+### CropModelingEngine
 
-Advanced engine for crop modeling and yield prediction with physiological processes.
+Engine for crop modeling and yield prediction with physiological processes.
 
 ```python
-class AdvancedCropModelingEngine:
+class CropModelingEngine:
     def __init__(self, modeling_approach='physiological', stress_modeling=True, disease_modeling=True):
-        """Initialize advanced crop modeling engine."""
+        """Initialize crop modeling engine."""
     
     def configure_crop_modeling(self, modeling_parameters):
-        """Configure advanced crop modeling parameters."""
+        """Configure crop modeling parameters."""
     
     def model_crop_growth(self, crop_data, environmental_conditions, management_practices):
         """Model crop growth and development with physiological processes."""
     
     def predict_yield(self, crop_model, environmental_conditions, management_optimization):
-        """Predict crop yield based on advanced modeling."""
+        """Predict crop yield based on modeling."""
     
     def assess_crop_stress(self, crop_data, stress_conditions, stress_mitigation):
         """Assess crop stress and damage with mitigation strategies."""
@@ -483,17 +483,17 @@ class AdvancedCropModelingEngine:
         """Get comprehensive crop insights and recommendations."""
 ```
 
-### AdvancedSoilAnalysisEngine
+### SoilAnalysisEngine
 
-Advanced engine for soil analysis and monitoring with spatial variability.
+Engine for soil analysis and monitoring with spatial variability.
 
 ```python
-class AdvancedSoilAnalysisEngine:
+class SoilAnalysisEngine:
     def __init__(self, analysis_resolution='high', spatial_mapping=True, temporal_monitoring=True):
-        """Initialize advanced soil analysis engine."""
+        """Initialize soil analysis engine."""
     
     def configure_soil_analysis(self, analysis_parameters):
-        """Configure advanced soil analysis parameters."""
+        """Configure soil analysis parameters."""
     
     def analyze_soil_characteristics(self, soil_data, spatial_data, temporal_data):
         """Analyze soil characteristics and properties with spatial-temporal analysis."""
@@ -502,7 +502,7 @@ class AdvancedSoilAnalysisEngine:
         """Monitor soil health over time with comprehensive indicators."""
     
     def map_soil_variability(self, soil_samples, field_boundaries, interpolation_method):
-        """Map soil variability across fields with advanced interpolation."""
+        """Map soil variability across fields with interpolation."""
     
     def assess_soil_quality(self, soil_data, quality_indicators, quality_thresholds):
         """Assess soil quality with comprehensive indicators."""
@@ -514,28 +514,28 @@ class AdvancedSoilAnalysisEngine:
         """Get comprehensive soil insights and management recommendations."""
 ```
 
-## 🎯 Use Cases
+## Use Cases
 
-### 1. Advanced Precision Agriculture Implementation
+### 1. Precision Agriculture Implementation
 
 **Problem**: Implement comprehensive precision agriculture for optimal resource management and sustainability.
 
-**Solution**: Use advanced precision agriculture framework with machine learning.
+**Solution**: Use precision agriculture framework with machine learning.
 
 ```python
-from geo_infer_ag import AdvancedPrecisionAgricultureFramework
+from geo_infer_ag import PrecisionAgricultureFramework
 
-# Initialize advanced precision agriculture framework
-precision_ag = AdvancedPrecisionAgricultureFramework(
-    precision_level='ultra_high',
+# Initialize precision agriculture framework
+precision_ag = PrecisionAgricultureFramework(
+    precision_level='high',
     ml_integration=True,
     sustainability_focus=True
 )
 
-# Define advanced precision agriculture parameters
+# Define precision agriculture parameters
 precision_config = precision_ag.configure_precision_agriculture({
     'variable_rate_application': 'ml_optimized',
-    'soil_mapping': 'ultra_high_resolution',
+    'soil_mapping': 'high_resolution',
     'yield_monitoring': 'real_time',
     'remote_sensing': 'multi_spectral',
     'gps_guidance': 'autonomous',
@@ -546,7 +546,7 @@ precision_config = precision_ag.configure_precision_agriculture({
     'carbon_footprint': 'minimization'
 })
 
-# Implement advanced precision agriculture
+# Implement precision agriculture
 precision_result = precision_ag.implement_precision_agriculture(
     agricultural_system=farming_system,
     precision_config=precision_config,
@@ -568,19 +568,19 @@ precision_insights = precision_ag.get_precision_insights(
 
 **Problem**: Adapt agricultural systems to climate change impacts with comprehensive adaptation strategies.
 
-**Solution**: Use advanced climate impact assessment for agricultural adaptation.
+**Solution**: Use climate impact assessment for agricultural adaptation.
 
 ```python
-from geo_infer_ag.climate import AdvancedClimateSmartAgricultureFramework
+from geo_infer_ag.climate import ClimateSmartAgricultureFramework
 
-# Initialize advanced climate-smart agriculture framework
-climate_ag = AdvancedClimateSmartAgricultureFramework(
+# Initialize climate-smart agriculture framework
+climate_ag = ClimateSmartAgricultureFramework(
     impact_modeling='comprehensive',
     adaptation_strategies=True,
     risk_assessment=True
 )
 
-# Define advanced climate-smart parameters
+# Define climate-smart parameters
 climate_config = climate_ag.configure_climate_smart_agriculture({
     'temperature_analysis': 'detailed',
     'precipitation_modeling': 'advanced',
@@ -593,7 +593,7 @@ climate_config = climate_ag.configure_climate_smart_agriculture({
     'resilient_varieties': True
 })
 
-# Implement advanced climate-smart agriculture
+# Implement climate-smart agriculture
 climate_result = climate_ag.implement_climate_smart_agriculture(
     agricultural_system=farming_system,
     climate_config=climate_config,
@@ -615,19 +615,19 @@ adaptation_recommendations = climate_ag.get_adaptation_recommendations(
 
 **Problem**: Implement sustainable agricultural practices with comprehensive environmental impact assessment.
 
-**Solution**: Use advanced sustainable agriculture framework with environmental assessment.
+**Solution**: Use sustainable agriculture framework with environmental assessment.
 
 ```python
-from geo_infer_ag.sustainability import AdvancedSustainableAgricultureFramework
+from geo_infer_ag.sustainability import SustainableAgricultureFramework
 
-# Initialize advanced sustainable agriculture framework
-sustainable_ag = AdvancedSustainableAgricultureFramework(
+# Initialize sustainable agriculture framework
+sustainable_ag = SustainableAgricultureFramework(
     sustainability_framework='comprehensive',
     environmental_assessment=True,
     social_impact=True
 )
 
-# Define advanced sustainable agriculture parameters
+# Define sustainable agriculture parameters
 sustainability_config = sustainable_ag.configure_sustainable_agriculture({
     'organic_farming': 'certified',
     'conservation_agriculture': 'no_till',
@@ -641,7 +641,7 @@ sustainability_config = sustainable_ag.configure_sustainable_agriculture({
     'waste_recycling': 'composting'
 })
 
-# Implement advanced sustainable agriculture
+# Implement sustainable agriculture
 sustainability_result = sustainable_ag.implement_sustainable_agriculture(
     agricultural_system=farming_system,
     sustainability_config=sustainability_config,
@@ -704,27 +704,27 @@ ml_insights = ag_ml.get_ml_insights(
 )
 ```
 
-## 🔗 Integration with Other Modules
+## Integration with Other Modules
 
 ### GEO-INFER-SPACE Integration
 
 ```python
-from geo_infer_ag import AdvancedAgriculturalFramework
-from geo_infer_space import AdvancedSpatialAnalysisEngine
+from geo_infer_ag import AgriculturalFramework
+from geo_infer_space import SpatialAnalyzer
 
-# Combine agricultural systems with advanced spatial analysis
-ag_framework = AdvancedAgriculturalFramework(agricultural_parameters)
-spatial_engine = AdvancedSpatialAnalysisEngine()
+# Combine agricultural systems with spatial analysis
+ag_framework = AgriculturalFramework(agricultural_parameters)
+spatial_analyzer = SpatialAnalyzer()
 
 # Integrate agricultural systems with spatial analysis
 spatial_agricultural_system = ag_framework.integrate_with_spatial_analysis(
-    spatial_engine=spatial_engine,
+    spatial_engine=spatial_analyzer,
     agricultural_config=agricultural_config,
     spatial_analysis_config=spatial_config
 )
 
 # Perform spatial agricultural analysis
-spatial_ag_result = spatial_engine.analyze_agricultural_spatial_patterns(
+spatial_ag_result = spatial_analyzer.analyze_agricultural_spatial_patterns(
     agricultural_data=agricultural_spatial_data,
     spatial_resolution='high',
     include_spatial_optimization=True
@@ -735,21 +735,21 @@ spatial_ag_result = spatial_engine.analyze_agricultural_spatial_patterns(
 
 ```python
 from geo_infer_ag import TemporalAgriculturalEngine
-from geo_infer_time import AdvancedTemporalAnalysisEngine
+from geo_infer_time import TemporalAnalyzer
 
-# Combine agricultural systems with advanced temporal analysis
+# Combine agricultural systems with temporal analysis
 temporal_ag_engine = TemporalAgriculturalEngine()
-temporal_engine = AdvancedTemporalAnalysisEngine()
+temporal_analyzer = TemporalAnalyzer()
 
 # Integrate agricultural systems with temporal analysis
 temporal_agricultural_system = temporal_ag_engine.integrate_with_temporal_analysis(
-    temporal_engine=temporal_engine,
+    temporal_engine=temporal_analyzer,
     temporal_config=temporal_config,
     agricultural_temporal_config=ag_temporal_config
 )
 
 # Perform temporal agricultural analysis
-temporal_ag_result = temporal_engine.analyze_agricultural_temporal_patterns(
+temporal_ag_result = temporal_analyzer.analyze_agricultural_temporal_patterns(
     agricultural_temporal_data=ag_time_series_data,
     temporal_resolution='daily',
     include_forecasting=True
@@ -760,11 +760,11 @@ temporal_ag_result = temporal_engine.analyze_agricultural_temporal_patterns(
 
 ```python
 from geo_infer_ag import AgriculturalDataEngine
-from geo_infer_data import AdvancedDataManager
+from geo_infer_data import DataManager
 
-# Combine agricultural systems with advanced data management
+# Combine agricultural systems with data management
 ag_data_engine = AgriculturalDataEngine()
-data_manager = AdvancedDataManager()
+data_manager = DataManager()
 
 # Integrate agricultural systems with data management
 agricultural_data_system = ag_data_engine.integrate_with_data_management(
@@ -785,36 +785,39 @@ ag_data_result = data_manager.process_agricultural_data(
 
 ```python
 from geo_infer_ag import AgriculturalActiveInferenceEngine
-from geo_infer_act import AdvancedActiveInferenceEngine
+from geo_infer_act import ActiveInferenceModel
 
 # Combine agricultural systems with active inference
 ag_act_engine = AgriculturalActiveInferenceEngine()
-act_engine = AdvancedActiveInferenceEngine()
+active_model = ActiveInferenceModel(
+    state_space=['crop_health', 'soil_conditions', 'weather'],
+    observation_space=['sensor_reading', 'yield_data']
+)
 
 # Integrate agricultural systems with active inference
 agricultural_active_inference = ag_act_engine.integrate_with_active_inference(
-    act_engine=act_engine,
+    active_model=active_model,
     agricultural_config=ag_config,
     active_inference_config=act_config
 )
 
 # Apply active inference to agricultural decision making
-ag_act_result = act_engine.apply_agricultural_active_inference(
+ag_act_result = active_model.apply_agricultural_active_inference(
     agricultural_observations=ag_observations,
     agricultural_actions=ag_actions,
     include_uncertainty_quantification=True
 )
 ```
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
-**Advanced crop modeling problems:**
+**Crop modeling problems:**
 ```python
-# Improve advanced crop modeling
+# Improve crop modeling
 crop_engine.configure_crop_modeling({
-    'growth_model': 'advanced_physiological',
+    'growth_model': 'physiological',
     'yield_prediction': 'ml_enhanced',
     'stress_modeling': 'comprehensive',
     'disease_modeling': 'predictive',
@@ -824,7 +827,7 @@ crop_engine.configure_crop_modeling({
     'water_use_efficiency': True
 })
 
-# Add advanced crop modeling diagnostics
+# Add crop modeling diagnostics
 crop_engine.enable_crop_modeling_diagnostics(
     diagnostics=['growth_monitoring', 'yield_accuracy', 'stress_detection', 'disease_prediction']
 )
@@ -835,9 +838,9 @@ crop_engine.enable_crop_optimization(
 )
 ```
 
-**Advanced soil analysis issues:**
+**Soil analysis issues:**
 ```python
-# Improve advanced soil analysis
+# Improve soil analysis
 soil_engine.configure_soil_analysis({
     'soil_mapping': 'spatial_variability',
     'nutrient_analysis': 'comprehensive',
@@ -849,7 +852,7 @@ soil_engine.configure_soil_analysis({
     'contamination_assessment': True
 })
 
-# Enable advanced soil analysis monitoring
+# Enable soil analysis monitoring
 soil_engine.enable_soil_analysis_monitoring(
     monitoring=['soil_health', 'nutrient_levels', 'moisture_content', 'biological_activity']
 )
@@ -860,12 +863,12 @@ soil_engine.enable_soil_quality_assessment(
 )
 ```
 
-**Advanced precision agriculture issues:**
+**Precision agriculture issues:**
 ```python
-# Improve advanced precision agriculture
+# Improve precision agriculture
 precision_engine.configure_precision_agriculture({
     'variable_rate_application': 'ml_optimized',
-    'soil_mapping': 'ultra_high_resolution',
+    'soil_mapping': 'high_resolution',
     'yield_monitoring': 'real_time',
     'remote_sensing': 'multi_spectral',
     'gps_guidance': 'autonomous',
@@ -875,7 +878,7 @@ precision_engine.configure_precision_agriculture({
     'harvest_optimization': 'predictive'
 })
 
-# Enable advanced precision agriculture monitoring
+# Enable precision agriculture monitoring
 precision_engine.enable_precision_agriculture_monitoring(
     monitoring=['application_accuracy', 'yield_variability', 'resource_efficiency', 'environmental_impact']
 )
@@ -909,7 +912,7 @@ ag_ml_engine.enable_ml_optimization(
 )
 ```
 
-## 📊 Performance Optimization
+## Performance Optimization
 
 ### Efficient Agricultural Processing
 
@@ -930,7 +933,7 @@ ag_framework.enable_adaptive_agricultural_systems(
 )
 ```
 
-### Advanced Resource Optimization
+### Resource Optimization
 
 ```python
 # Enable efficient resource optimization
@@ -966,7 +969,7 @@ ag_ml_engine.enable_ml_monitoring(
 )
 ```
 
-## 🔒 Security Considerations
+## Security Considerations
 
 ### Agricultural Data Security
 
@@ -1005,34 +1008,34 @@ ag_framework.enable_agricultural_security_monitoring(
 )
 ```
 
-## 🔗 Related Documentation
+## Related Documentation
 
 ### Tutorials
-- **[Advanced Agricultural Systems Basics](../getting_started/advanced_agricultural_basics.md)** - Learn advanced agricultural systems fundamentals
-- **[Precision Agriculture Advanced Tutorial](../getting_started/precision_agriculture_advanced_tutorial.md)** - Build advanced precision agriculture systems
+- **[Agricultural Systems Basics](../getting_started/agricultural_basics.md)** - Learn agricultural systems fundamentals
+- **[Precision Agriculture Tutorial](../getting_started/precision_agriculture_tutorial.md)** - Build precision agriculture systems
 
 ### How-to Guides
-- **[Advanced Precision Agriculture Implementation](../examples/advanced_precision_agriculture.md)** - Implement advanced precision agriculture systems
-- **[Climate-Smart Agriculture with Adaptation](../examples/climate_smart_agriculture_advanced.md)** - Develop advanced climate-smart agricultural systems
+- **[Precision Agriculture Implementation](../examples/precision_agriculture.md)** - Implement precision agriculture systems
+- **[Climate-Smart Agriculture with Adaptation](../examples/climate_smart_agriculture.md)** - Develop climate-smart agricultural systems
 - **[Agricultural Machine Learning](../examples/agricultural_ml.md)** - Implement ML-based agricultural optimization
 
 ### Technical Reference
-- **[Advanced Agricultural Systems API Reference](../api/advanced_agricultural_reference.md)** - Complete advanced agricultural systems API documentation
-- **[Precision Agriculture Advanced Patterns](../api/precision_agriculture_advanced_patterns.md)** - Advanced precision agriculture patterns and best practices
+- **[Agricultural Systems API Reference](../api/agricultural_reference.md)** - Complete agricultural systems API documentation
+- **[Precision Agriculture Patterns](../api/precision_agriculture_patterns.md)** - Precision agriculture patterns and best practices
 - **[Agricultural ML Models](../api/agricultural_ml_models.md)** - Agricultural machine learning models and algorithms
 
 ### Explanations
-- **[Advanced Agricultural Systems Theory](../advanced_agricultural_systems_theory.md)** - Deep dive into advanced agricultural concepts
-- **[Precision Agriculture Advanced Principles](../precision_agriculture_advanced_principles.md)** - Understanding advanced precision agriculture foundations
+- **[Agricultural Systems Theory](../agricultural_systems_theory.md)** - Deep dive into agricultural concepts
+- **[Precision Agriculture Principles](../precision_agriculture_principles.md)** - Understanding precision agriculture foundations
 - **[Agricultural Machine Learning Theory](../agricultural_ml_theory.md)** - Agricultural machine learning theory and applications
 
 ### Related Modules
-- **[GEO-INFER-SPACE](../modules/geo-infer-space.md)** - Advanced spatial analysis capabilities
-- **[GEO-INFER-TIME](../modules/geo-infer-time.md)** - Advanced temporal analysis capabilities
-- **[GEO-INFER-DATA](../modules/geo-infer-data.md)** - Advanced data management capabilities
+- **[GEO-INFER-SPACE](../modules/geo-infer-space.md)** - Spatial analysis capabilities
+- **[GEO-INFER-TIME](../modules/geo-infer-time.md)** - Temporal analysis capabilities
+- **[GEO-INFER-DATA](../modules/geo-infer-data.md)** - Data management capabilities
 - **[GEO-INFER-ACT](../modules/geo-infer-act.md)** - Active inference capabilities
 - **[GEO-INFER-ECON](../modules/geo-infer-econ.md)** - Economic analysis capabilities
 
 ---
 
-**Ready to get started?** Check out the **[Advanced Agricultural Systems Basics Tutorial](../getting_started/advanced_agricultural_basics.md)** or explore **[Advanced Precision Agriculture Examples](../examples/advanced_precision_agriculture.md)**! 
+**Ready to get started?** Check out the **[Agricultural Systems Basics Tutorial](../getting_started/agricultural_basics.md)** or explore **[Precision Agriculture Examples](../examples/precision_agriculture.md)**! 

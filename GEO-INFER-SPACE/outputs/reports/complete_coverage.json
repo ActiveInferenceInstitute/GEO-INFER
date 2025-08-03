@@ -1,0 +1,168 @@
+{
+  "total_methods": 33,
+  "available_methods": 15,
+  "tested_methods": 15,
+  "coverage_percentage": 45.45454545454545,
+  "method_details": {
+    "latlng_to_cell": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "cell_to_latlng": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "cell_to_boundary": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "cell_to_polygon": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "polygon_to_cells": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "polyfill": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "cell_area": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "cell_perimeter": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "edge_length": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "num_cells": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "get_resolution": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "is_valid_cell": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "is_pentagon": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "is_class_iii": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "is_res_class_iii": {
+      "available": true,
+      "tested": true,
+      "status": "PASS"
+    },
+    "get_base_cell_number": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "get_icosahedron_faces": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "grid_disk": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "grid_ring": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "grid_path_cells": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "cell_to_parent": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "cell_to_children": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "average_hexagon_edge_length": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "average_hexagon_area": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "cell_to_geojson": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "geojson_to_cells": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "wkt_to_cells": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "cells_to_wkt": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "cells_to_geojson": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "cells_to_shapefile_data": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "cells_to_kml": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    },
+    "cells_to_csv": {
+      "available": false,
+      "tested": false,
+      "status": "FAIL"
+    }
+  }
+}

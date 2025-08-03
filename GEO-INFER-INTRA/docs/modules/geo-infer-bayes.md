@@ -1,12 +1,12 @@
 # GEO-INFER-BAYES: Bayesian Inference Engine
 
-> **Explanation**: Understanding Bayesian Inference in GEO-INFER
+> **Purpose**: Bayesian statistical analysis capabilities for geospatial data
 > 
 > This module provides Bayesian statistical analysis capabilities for geospatial data, including uncertainty quantification, model comparison, and hierarchical modeling.
 
-## 🎯 What is GEO-INFER-BAYES?
+## Overview
 
-GEO-INFER-BAYES is the Bayesian inference engine that provides statistical analysis capabilities for geospatial data. It enables:
+GEO-INFER-BAYES provides statistical analysis capabilities for geospatial data. It enables:
 
 - **Bayesian Parameter Estimation**: Probabilistic parameter inference with MCMC sampling
 - **Uncertainty Quantification**: Uncertainty analysis with credible intervals
@@ -35,9 +35,9 @@ Where:
 ```python
 from geo_infer_bayes import BayesianAnalyzer
 
-# Initialize Bayesian analyzer with features
+# Initialize Bayesian analyzer
 analyzer = BayesianAnalyzer(
-    sampling_method='nuts',  # No-U-Turn Sampler
+    sampling_method='nuts',
     n_samples=10000,
     n_chains=4,
     parallel_processing=True
@@ -65,7 +65,7 @@ The module provides uncertainty analysis with multiple methods:
 ```python
 from geo_infer_bayes.uncertainty import UncertaintyQuantifier
 
-# Initialize uncertainty quantifier with features
+# Initialize uncertainty quantifier
 uncertainty = UncertaintyQuantifier(
     confidence_levels=[0.5, 0.8, 0.95, 0.99],
     methods=['monte_carlo', 'bootstrap', 'bayesian']
@@ -93,7 +93,7 @@ uncertainty_decomposition = uncertainty.decompose_uncertainty(
 )
 ```
 
-## 📚 Core Features
+## Core Features
 
 ### 1. Bayesian Parameter Estimation
 
@@ -102,7 +102,7 @@ uncertainty_decomposition = uncertainty.decompose_uncertainty(
 ```python
 from geo_infer_bayes.estimation import BayesianEstimator
 
-# Initialize Bayesian estimator with advanced features
+# Initialize Bayesian estimator
 estimator = BayesianEstimator(
     sampling_method='nuts',
     n_samples=10000,
@@ -121,7 +121,7 @@ posterior_samples = estimator.estimate_parameters(
     convergence_criteria='gelman_rubin'
 )
 
-# Analyze posterior distributions with advanced diagnostics
+# Analyze posterior distributions with diagnostics
 posterior_analysis = estimator.analyze_posterior(
     samples=posterior_samples,
     parameters=['length_scale', 'amplitude', 'noise'],
@@ -145,7 +145,7 @@ ppc_results = estimator.posterior_predictive_checks(
 
 ### 2. Model Comparison and Selection
 
-**Purpose**: Compare and select the best model using advanced Bayesian methods.
+**Purpose**: Compare and select the best model using Bayesian methods.
 
 ```python
 from geo_infer_bayes.model_comparison import BayesianModelComparison
@@ -245,9 +245,9 @@ spatial_bayes = SpatialBayesianAnalyzer(
 # Define spatial prior
 spatial_prior = spatial_bayes.define_spatial_prior({
     'kernel': 'matern',
-    'length_scale': 1000,  # meters
+    'length_scale': 1000,
     'amplitude': 1.0,
-    'nu': 1.5  # smoothness parameter
+    'nu': 1.5
 })
 
 # Perform spatial Bayesian inference
@@ -346,7 +346,7 @@ optimization_analysis = bayesian_optimizer.analyze_results(
 )
 ```
 
-## 🔧 API Reference
+## API Reference
 
 ### BayesianAnalyzer
 
@@ -379,7 +379,7 @@ class BayesianAnalyzer:
 
 ### UncertaintyQuantifier
 
-Advanced uncertainty quantification capabilities.
+Uncertainty quantification capabilities.
 
 ```python
 class UncertaintyQuantifier:
@@ -426,7 +426,7 @@ class HierarchicalBayesianModel:
         """Analyze effects at different hierarchy levels."""
 ```
 
-## 🎯 Use Cases
+## Use Cases
 
 ### 1. Environmental Risk Assessment
 
@@ -575,13 +575,13 @@ economic_results = temporal_bayes.fit_economic_model(
 # Generate economic forecasts
 economic_forecasts = temporal_bayes.forecast_economic_indicators(
     results=economic_results,
-    forecast_horizon=24,  # months
+    forecast_horizon=24,
     scenarios=['baseline', 'optimistic', 'pessimistic'],
     include_uncertainty=True
 )
 ```
 
-## 🔗 Integration with Other Modules
+## Integration with Other Modules
 
 ### GEO-INFER-ACT Integration
 
@@ -646,7 +646,7 @@ bayesian_results = temporal_bayes.temporal_bayesian_inference(
 )
 ```
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -670,7 +670,7 @@ alternative_results = analyzer.estimate_parameters(
     data=data,
     model=model,
     prior=prior,
-    sampling_method='hmc'  # Hamiltonian Monte Carlo
+    sampling_method='hmc'
 )
 ```
 
@@ -710,7 +710,7 @@ comprehensive_uncertainty = uncertainty.combine_uncertainty_methods(
 )
 ```
 
-## 📊 Performance Optimization
+## Performance Optimization
 
 ### Efficient Bayesian Processing
 
@@ -734,7 +734,7 @@ analyzer.enable_bayesian_caching(
 )
 ```
 
-### Advanced Optimization
+### Optimization
 
 ```python
 # Enable adaptive sampling
@@ -750,7 +750,7 @@ analyzer.enable_hierarchical_optimization(
 )
 ```
 
-## 🔒 Security Considerations
+## Security Considerations
 
 ### Bayesian Data Privacy
 ```python
@@ -768,7 +768,7 @@ analyzer.enable_secure_bayesian_computation(
 )
 ```
 
-## 🔗 Related Documentation
+## Related Documentation
 
 ### Tutorials
 - **[Bayesian Inference Basics](../getting_started/bayesian_basics.md)** - Learn Bayesian inference fundamentals

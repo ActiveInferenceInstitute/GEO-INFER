@@ -1,0 +1,12 @@
+{
+  "animation_type": "spatial_distribution",
+  "filename": "spatial_distribution_grid.gif",
+  "frame_count": 3,
+  "frame_generation_time": 0.8861885070800781,
+  "normalization_time": 0.2605471611022949,
+  "gif_creation_time": 0.17896318435668945,
+  "total_time": 1.326155662536621,
+  "file_size_mb": 0.10863399505615234,
+  "is_long_distance": false,
+  "timestamp": "2025-08-03T14:46:09.055568"
+}

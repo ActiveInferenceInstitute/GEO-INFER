@@ -1,25 +1,24 @@
 # GEO-INFER-ACT: Active Inference Engine
 
-> **Explanation**: Understanding Active Inference in GEO-INFER
+> **Purpose**: Active Inference implementation for geospatial analysis
 > 
-> This module implements Active Inference principles for geospatial analysis, providing the mathematical foundation for intelligent spatial reasoning and decision-making.
+> This module provides Active Inference capabilities for geospatial data, implementing the Free Energy Principle for intelligent spatial reasoning and decision-making.
 
-## 🎯 What is GEO-INFER-ACT?
+## Overview
 
-GEO-INFER-ACT is the core Active Inference engine that implements the Free Energy Principle for geospatial analysis. It provides the mathematical framework for:
+GEO-INFER-ACT implements Active Inference principles for geospatial analysis. It provides:
 
-- **Generative Models**: Building internal models of spatial processes
+- **Generative Models**: Internal models of spatial processes
 - **Belief Updating**: Learning from observations to update understanding
 - **Policy Selection**: Choosing optimal actions based on uncertainty
 - **Precision Weighting**: Balancing exploration vs exploitation
 - **Free Energy Minimization**: Core mathematical principle driving inference
 
-### Key Concepts
+### Mathematical Foundation
 
 #### Free Energy Principle
-Active inference is based on the Free Energy Principle, which states that adaptive systems minimize "surprise" by updating their internal models of the world.
+Active inference minimizes "surprise" by updating internal models:
 
-**Mathematical Foundation**:
 ```
 F(s,μ) = D_KL[q(μ|s)||p(s,μ)] - log p(s)
 ```
@@ -32,42 +31,40 @@ Where:
 - `p(s)` is the evidence
 
 #### Generative Models
-The module provides comprehensive generative modeling capabilities:
+The module provides generative modeling capabilities:
 
 ```python
 from geo_infer_act import EnvironmentalModel
 
-# Create environmental monitoring generative model
+# Create environmental monitoring model
 class EnvironmentalModel:
     def __init__(self):
         self.state_space = ['temperature', 'humidity', 'air_quality']
         self.observation_space = ['sensor_reading']
-        self.precision = 1.0  # Controls exploration vs exploitation
-        self.free_energy_threshold = 0.01  # Convergence threshold
+        self.precision = 1.0
+        self.free_energy_threshold = 0.01
     
     def predict_observation(self, state):
         """Predict observations given current state"""
         return self.observation_model(state)
     
     def update_beliefs(self, observation):
-        """Update beliefs based on new observation using variational inference"""
-        # Minimize free energy by updating beliefs
+        """Update beliefs based on new observation"""
         self.beliefs = self.belief_update(observation, self.beliefs)
         self.free_energy = self.calculate_free_energy(observation, self.beliefs)
     
     def calculate_free_energy(self, observation, beliefs):
         """Calculate free energy for current observation and beliefs"""
-        # Implementation of free energy calculation
         return self.free_energy_function(observation, beliefs)
 ```
 
 #### Belief Updating
-The module implements variational Bayesian inference to update beliefs about hidden states:
+Implements variational Bayesian inference to update beliefs:
 
 ```python
 from geo_infer_act import ActiveInferenceModel
 
-# Create active inference model with mathematical rigor
+# Create active inference model
 model = ActiveInferenceModel(
     state_space=['temperature', 'humidity'],
     observation_space=['sensor_reading'],
@@ -76,7 +73,7 @@ model = ActiveInferenceModel(
     convergence_threshold=0.01
 )
 
-# Update beliefs with observation using variational inference
+# Update beliefs with observation
 observation = {'sensor_reading': 25.5}
 model.update_beliefs(observation)
 
@@ -91,7 +88,7 @@ if model.is_converged():
     print("Model has converged to stable beliefs")
 ```
 
-## 📚 Core Features
+## Core Features
 
 ### 1. Spatial Active Inference
 
@@ -104,10 +101,10 @@ from geo_infer_act.spatial import SpatialActiveInferenceModel
 spatial_model = SpatialActiveInferenceModel(
     state_space=['temperature', 'humidity'],
     observation_space=['sensor_reading'],
-    spatial_resolution=0.01,  # 0.1 degree resolution
+    spatial_resolution=0.01,
     precision=1.0,
-    spatial_kernel='rbf',  # Radial basis function for spatial correlation
-    correlation_length=1000  # meters
+    spatial_kernel='rbf',
+    correlation_length=1000
 )
 
 # Update with spatial observations
@@ -126,7 +123,7 @@ prediction = spatial_model.predict_spatial(
 # Get spatial free energy landscape
 free_energy_map = spatial_model.get_spatial_free_energy(
     region=spatial_bounds,
-    resolution=100  # meters
+    resolution=100
 )
 ```
 
@@ -137,14 +134,14 @@ free_energy_map = spatial_model.get_spatial_free_energy(
 ```python
 from geo_infer_act.temporal import TemporalActiveInferenceModel
 
-# Create temporal model with advanced features
+# Create temporal model
 temporal_model = TemporalActiveInferenceModel(
     state_space=['temperature', 'trend'],
     observation_space=['daily_temp'],
     temporal_resolution='D',
     precision=1.0,
-    temporal_kernel='matern',  # Matern kernel for temporal correlation
-    memory_length=30  # days
+    temporal_kernel='matern',
+    memory_length=30
 )
 
 # Update with temporal observations
@@ -175,7 +172,7 @@ free_energy_trajectory = temporal_model.get_temporal_free_energy(
 ```python
 from geo_infer_act.multiscale import MultiScaleActiveInferenceModel
 
-# Create multi-scale model with hierarchical structure
+# Create multi-scale model
 multiscale_model = MultiScaleActiveInferenceModel(
     scales=['local', 'regional', 'global'],
     state_spaces={
@@ -183,8 +180,8 @@ multiscale_model = MultiScaleActiveInferenceModel(
         'regional': ['climate_zone', 'elevation'],
         'global': ['latitude', 'longitude']
     },
-    scale_interactions=True,  # Enable cross-scale interactions
-    hierarchical_precision=True  # Adaptive precision per scale
+    scale_interactions=True,
+    hierarchical_precision=True
 )
 
 # Update beliefs at multiple scales
@@ -201,10 +198,10 @@ multi_scale_free_energy = multiscale_model.get_multi_scale_free_energy()
 
 ### 4. Uncertainty Quantification
 
-**Purpose**: Provide comprehensive uncertainty estimates for all predictions.
+**Purpose**: Provide uncertainty estimates for all predictions.
 
 ```python
-# Get predictions with uncertainty using Monte Carlo methods
+# Get predictions with uncertainty
 uncertainty_analysis = model.predict_with_uncertainty(
     input_state={'temperature': 25, 'humidity': 60},
     n_samples=1000,
@@ -222,37 +219,7 @@ uncertainty_decomposition = model.decompose_uncertainty(
 )
 ```
 
-### 5. Advanced Mathematical Features
-
-**Purpose**: Provide advanced mathematical capabilities for active inference.
-
-```python
-from geo_infer_act.mathematical import MathematicalActiveInference
-
-# Create mathematically advanced model
-math_model = MathematicalActiveInference(
-    state_space=['temperature', 'humidity'],
-    observation_space=['sensor_reading'],
-    precision_matrix='adaptive',  # Adaptive precision matrix
-    variational_family='gaussian',  # Gaussian variational family
-    optimization_method='natural_gradient'  # Natural gradient descent
-)
-
-# Perform advanced variational inference
-math_model.perform_variational_inference(
-    observations=observation_data,
-    max_iterations=1000,
-    convergence_criterion='free_energy'
-)
-
-# Get mathematical diagnostics
-diagnostics = math_model.get_mathematical_diagnostics()
-print(f"ELBO: {diagnostics['elbo']:.4f}")
-print(f"KL Divergence: {diagnostics['kl_divergence']:.4f}")
-print(f"Evidence Lower Bound: {diagnostics['evidence_lower_bound']:.4f}")
-```
-
-## 🔧 API Reference
+## API Reference
 
 ### ActiveInferenceModel
 
@@ -361,7 +328,7 @@ class TemporalActiveInferenceModel:
         """Get temporal free energy trajectory."""
 ```
 
-## 🎯 Use Cases
+## Use Cases
 
 ### 1. Environmental Monitoring
 
@@ -372,7 +339,7 @@ class TemporalActiveInferenceModel:
 ```python
 from geo_infer_act import EnvironmentalMonitoringModel
 
-# Create environmental monitoring model with advanced features
+# Create environmental monitoring model
 env_model = EnvironmentalMonitoringModel(
     variables=['temperature', 'humidity', 'air_quality', 'soil_moisture'],
     spatial_resolution=0.01,
@@ -402,7 +369,7 @@ prediction = env_model.predict_conditions(
 
 # Detect anomalies
 anomalies = env_model.detect_anomalies(
-    threshold=2.0,  # Standard deviations
+    threshold=2.0,
     method='statistical'
 )
 
@@ -424,10 +391,10 @@ if anomalies:
 ```python
 from geo_infer_act.urban import UrbanPlanningModel
 
-# Create urban planning model with multi-scale analysis
+# Create urban planning model
 urban_model = UrbanPlanningModel(
     variables=['population_density', 'infrastructure_quality', 'environmental_impact'],
-    spatial_resolution=0.001,  # 100m resolution
+    spatial_resolution=0.001,
     precision=1.0,
     multi_scale_analysis=True,
     social_network_modeling=True
@@ -465,7 +432,7 @@ optimal_strategy = urban_model.optimize_development_strategy(
 ```python
 from geo_infer_act.climate import ClimateAnalysisModel
 
-# Create climate analysis model with advanced features
+# Create climate analysis model
 climate_model = ClimateAnalysisModel(
     variables=['temperature', 'precipitation', 'wind_speed'],
     spatial_resolution=0.1,
@@ -495,52 +462,11 @@ prediction = climate_model.predict_climate_change(
 # Model extreme events
 extreme_events = climate_model.model_extreme_events(
     event_types=['heat_waves', 'floods', 'droughts'],
-    return_period=100  # years
+    return_period=100
 )
 ```
 
-### 4. Smart City Operations
-
-**Problem**: Coordinate multiple city services with real-time decision making.
-
-**Solution**: Use active inference for intelligent city management.
-
-```python
-from geo_infer_act.smart_city import SmartCityActiveInference
-
-# Create smart city active inference system
-smart_city_ai = SmartCityActiveInference(
-    services=['traffic', 'energy', 'waste', 'security'],
-    spatial_resolution=0.001,  # 100m resolution
-    temporal_resolution='M',  # Minute resolution
-    real_time_processing=True,
-    multi_service_coordination=True
-)
-
-# Update with real-time city data
-city_data = {
-    'traffic': {'congestion_level': 0.7, 'location': Point(-122.4194, 37.7749)},
-    'energy': {'demand': 8500, 'location': Point(-122.4194, 37.7749)},
-    'waste': {'collection_needed': True, 'location': Point(-122.4194, 37.7749)},
-    'security': {'incident_reported': False, 'location': Point(-122.4194, 37.7749)}
-}
-smart_city_ai.update_city_state(city_data)
-
-# Make real-time decisions
-decisions = smart_city_ai.make_real_time_decisions(
-    decision_threshold=0.8,
-    response_time_ms=100
-)
-
-# Optimize resource allocation
-resource_allocation = smart_city_ai.optimize_resources(
-    available_resources=city_resources,
-    current_demands=city_demands,
-    optimization_objective='efficiency'
-)
-```
-
-## 🔗 Integration with Other Modules
+## Integration with Other Modules
 
 ### GEO-INFER-SPACE Integration
 
@@ -615,34 +541,7 @@ bayesian_active_inference = active_model.perform_bayesian_active_inference(
 )
 ```
 
-### GEO-INFER-AI Integration
-
-```python
-from geo_infer_act import ActiveInferenceModel
-from geo_infer_ai import AIEngine
-
-# Combine AI with active inference
-ai_engine = AIEngine()
-active_model = ActiveInferenceModel(
-    state_space=['temperature', 'humidity'],
-    observation_space=['sensor_reading']
-)
-
-# Use AI predictions to enhance active inference
-ai_predictions = ai_engine.predict_spatial(spatial_data)
-active_model.update_beliefs({
-    'ai_prediction': ai_predictions,
-    'sensor_reading': sensor_data
-})
-
-# Create AI-enhanced active inference
-ai_enhanced_active_inference = active_model.create_ai_enhanced_model(
-    ai_model=ai_engine,
-    enhancement_type='prediction_improvement'
-)
-```
-
-## 🚨 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -715,7 +614,7 @@ model.enable_early_stopping(
 )
 ```
 
-## 📊 Performance Optimization
+## Performance Optimization
 
 ### Efficient Belief Updates
 
@@ -780,7 +679,7 @@ model.enable_meta_learning(
 )
 ```
 
-## 🔒 Security Considerations
+## Security Considerations
 
 ### Data Privacy
 ```python
@@ -812,7 +711,7 @@ model.enable_secure_inference(
 )
 ```
 
-## 🔗 Related Documentation
+## Related Documentation
 
 ### Tutorials
 - **[Active Inference Basics](../getting_started/active_inference_basics.md)** - Learn active inference fundamentals

@@ -1,0 +1,19 @@
+{
+  "animation_types": {
+    "resolution_transition": "Zoom in/out between resolutions",
+    "grid_expansion": "Growing disk expansion",
+    "path_finding": "Path between two locations",
+    "hierarchy": "Parent-child relationships",
+    "spatial_distribution": "Spatial pattern distribution"
+  },
+  "locations": [
+    "san_francisco",
+    "new_york",
+    "los_angeles",
+    "chicago",
+    "miami"
+  ],
+  "total_animations_generated": 26,
+  "total_frames_generated": 18069,
+  "generated_at": "2025-08-01T14:46:54.219584"
+}

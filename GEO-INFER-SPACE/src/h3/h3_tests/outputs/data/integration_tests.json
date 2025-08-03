@@ -1,0 +1,85 @@
+{
+  "spatial_analysis": {
+    "total_cells": 20,
+    "average_area_km2": 5.385864326329405,
+    "total_boundary_points": 120,
+    "coverage_area_km2": 107.7172865265881
+  },
+  "workflow_tests": {
+    "total_workflows": 10,
+    "successful_workflows": 10,
+    "workflow_details": [
+      {
+        "original_cell": "872936484ffffff",
+        "reconstructed_cell": "872936484ffffff",
+        "boundary_points": 6,
+        "area_km2": 5.839750093726243,
+        "success": true
+      },
+      {
+        "original_cell": "8748e1d70ffffff",
+        "reconstructed_cell": "8748e1d70ffffff",
+        "boundary_points": 6,
+        "area_km2": 6.134632308191854,
+        "success": true
+      },
+      {
+        "original_cell": "87489d84effffff",
+        "reconstructed_cell": "87489d84effffff",
+        "boundary_points": 6,
+        "area_km2": 5.992273201270523,
+        "success": true
+      },
+      {
+        "original_cell": "874446402ffffff",
+        "reconstructed_cell": "874446402ffffff",
+        "boundary_points": 6,
+        "area_km2": 5.438096454508368,
+        "success": true
+      },
+      {
+        "original_cell": "87448d395ffffff",
+        "reconstructed_cell": "87448d395ffffff",
+        "boundary_points": 6,
+        "area_km2": 4.564766063230241,
+        "success": true
+      },
+      {
+        "original_cell": "8729aca80ffffff",
+        "reconstructed_cell": "8729aca80ffffff",
+        "boundary_points": 6,
+        "area_km2": 5.640636049288206,
+        "success": true
+      },
+      {
+        "original_cell": "8748c810bffffff",
+        "reconstructed_cell": "8748c810bffffff",
+        "boundary_points": 6,
+        "area_km2": 5.9128707716482785,
+        "success": true
+      },
+      {
+        "original_cell": "8726dc934ffffff",
+        "reconstructed_cell": "8726dc934ffffff",
+        "boundary_points": 6,
+        "area_km2": 5.781657979442881,
+        "success": true
+      },
+      {
+        "original_cell": "872659ae1ffffff",
+        "reconstructed_cell": "872659ae1ffffff",
+        "boundary_points": 6,
+        "area_km2": 5.268207783818926,
+        "success": true
+      },
+      {
+        "original_cell": "8744dace1ffffff",
+        "reconstructed_cell": "8744dace1ffffff",
+        "boundary_points": 6,
+        "area_km2": 4.580407623279206,
+        "success": true
+      }
+    ]
+  },
+  "error_handling": {}
+}

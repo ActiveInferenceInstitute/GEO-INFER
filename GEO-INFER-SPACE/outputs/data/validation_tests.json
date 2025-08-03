@@ -1,0 +1,114 @@
+{
+  "validation_tests": [
+    {
+      "test_case": 0,
+      "input": {
+        "cell": "8928308280fffff",
+        "expected_valid": true
+      },
+      "result": {
+        "error": "maximum recursion depth exceeded",
+        "is_valid": false,
+        "expected_valid": true,
+        "passed": false
+      }
+    },
+    {
+      "test_case": 1,
+      "input": {
+        "cell": "invalid_cell",
+        "expected_valid": false
+      },
+      "result": {
+        "error": "maximum recursion depth exceeded",
+        "is_valid": false,
+        "expected_valid": false,
+        "passed": false
+      }
+    },
+    {
+      "test_case": 2,
+      "input": {
+        "lat": 37.7749,
+        "lng": -122.4194,
+        "res": 9,
+        "expected_valid": true
+      },
+      "result": {
+        "error": "maximum recursion depth exceeded in comparison",
+        "is_valid": false,
+        "expected_valid": true,
+        "passed": false
+      }
+    },
+    {
+      "test_case": 3,
+      "input": {
+        "lat": 100,
+        "lng": 200,
+        "res": 9,
+        "expected_valid": false
+      },
+      "result": {
+        "error": "Latitude must be between -90.0 and 90.0",
+        "is_valid": false,
+        "expected_valid": false,
+        "passed": true
+      }
+    },
+    {
+      "test_case": 4,
+      "input": {
+        "lat": 37.7749,
+        "lng": -122.4194,
+        "res": 20,
+        "expected_valid": false
+      },
+      "result": {
+        "error": "Resolution must be between 0 and 15",
+        "is_valid": false,
+        "expected_valid": false,
+        "passed": true
+      }
+    }
+  ],
+  "error_handling": [],
+  "edge_cases": [
+    {
+      "input": {
+        "lat": 90,
+        "lng": 0,
+        "res": 0
+      },
+      "error": "maximum recursion depth exceeded in comparison",
+      "success": false
+    },
+    {
+      "input": {
+        "lat": -90,
+        "lng": 0,
+        "res": 0
+      },
+      "error": "maximum recursion depth exceeded in comparison",
+      "success": false
+    },
+    {
+      "input": {
+        "lat": 0,
+        "lng": 180,
+        "res": 0
+      },
+      "error": "maximum recursion depth exceeded in comparison",
+      "success": false
+    },
+    {
+      "input": {
+        "lat": 0,
+        "lng": -180,
+        "res": 0
+      },
+      "error": "maximum recursion depth exceeded in comparison",
+      "success": false
+    }
+  ]
+}

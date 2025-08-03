@@ -1,0 +1,43 @@
+{
+  "test_file": "complete_coverage/test_complete_h3_coverage.py",
+  "total_methods": 33,
+  "covered_methods": 17,
+  "coverage_percentage": 51.515151515151516,
+  "covered_method_list": [
+    "latlng_to_cell",
+    "cell_to_latlng",
+    "cell_to_boundary",
+    "polygon_to_cells",
+    "cell_area",
+    "edge_length",
+    "num_cells",
+    "get_resolution",
+    "is_class_iii",
+    "get_base_cell_number",
+    "get_icosahedron_faces",
+    "grid_disk",
+    "cell_to_parent",
+    "cell_to_children",
+    "average_hexagon_edge_length",
+    "average_hexagon_area",
+    "get_icosahedron_faces"
+  ],
+  "missing_methods": [
+    "cell_to_polygon",
+    "polyfill",
+    "cell_perimeter",
+    "is_valid_cell",
+    "is_pentagon",
+    "is_res_class_iii",
+    "grid_ring",
+    "grid_path_cells",
+    "cell_to_geojson",
+    "geojson_to_cells",
+    "wkt_to_cells",
+    "cells_to_wkt",
+    "cells_to_geojson",
+    "cells_to_shapefile_data",
+    "cells_to_kml",
+    "cells_to_csv"
+  ]
+}

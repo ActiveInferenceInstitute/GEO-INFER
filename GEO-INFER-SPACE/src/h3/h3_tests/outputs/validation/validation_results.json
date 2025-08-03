@@ -1,0 +1,15 @@
+{
+  "valid_cell": "89283082e73ffff",
+  "cell_validation": true,
+  "cell_resolution": 9,
+  "cell_is_pentagon": false,
+  "test_coordinates": [
+    37.7749,
+    -122.4194
+  ],
+  "validation_summary": {
+    "total_tests": 10,
+    "passed_tests": 10,
+    "failed_tests": 0
+  }
+}

@@ -1,0 +1,112 @@
+{
+  "validation_tests": [
+    {
+      "test_case": 0,
+      "input": {
+        "cell": "8928308280fffff",
+        "expected_valid": true
+      },
+      "result": {
+        "is_valid": true,
+        "expected_valid": true,
+        "passed": true
+      }
+    },
+    {
+      "test_case": 1,
+      "input": {
+        "cell": "invalid_cell",
+        "expected_valid": false
+      },
+      "result": {
+        "is_valid": false,
+        "expected_valid": false,
+        "passed": true
+      }
+    },
+    {
+      "test_case": 2,
+      "input": {
+        "lat": 37.7749,
+        "lng": -122.4194,
+        "res": 9,
+        "expected_valid": true
+      },
+      "result": {
+        "cell": "89283082803ffff",
+        "is_valid": true,
+        "expected_valid": true,
+        "passed": true
+      }
+    },
+    {
+      "test_case": 3,
+      "input": {
+        "lat": 100,
+        "lng": 200,
+        "res": 9,
+        "expected_valid": false
+      },
+      "result": {
+        "cell": "890029cb38bffff",
+        "is_valid": true,
+        "expected_valid": false,
+        "passed": false
+      }
+    },
+    {
+      "test_case": 4,
+      "input": {
+        "lat": 37.7749,
+        "lng": -122.4194,
+        "res": 20,
+        "expected_valid": false
+      },
+      "result": {
+        "error": "",
+        "is_valid": false,
+        "expected_valid": false,
+        "passed": true
+      }
+    }
+  ],
+  "error_handling": [],
+  "edge_cases": [
+    {
+      "input": {
+        "lat": 90,
+        "lng": 0,
+        "res": 0
+      },
+      "cell": "8001fffffffffff",
+      "success": true
+    },
+    {
+      "input": {
+        "lat": -90,
+        "lng": 0,
+        "res": 0
+      },
+      "cell": "80f3fffffffffff",
+      "success": true
+    },
+    {
+      "input": {
+        "lat": 0,
+        "lng": 180,
+        "res": 0
+      },
+      "cell": "807ffffffffffff",
+      "success": true
+    },
+    {
+      "input": {
+        "lat": 0,
+        "lng": -180,
+        "res": 0
+      },
+      "cell": "807ffffffffffff",
+      "success": true
+    }
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "test_file": "performance/test_performance_benchmarks.py",
+  "total_methods": 33,
+  "covered_methods": 13,
+  "coverage_percentage": 39.39393939393939,
+  "covered_method_list": [
+    "latlng_to_cell",
+    "cell_to_latlng",
+    "cell_to_boundary",
+    "cell_area",
+    "cell_perimeter",
+    "edge_length",
+    "get_resolution",
+    "grid_disk",
+    "grid_ring",
+    "grid_path_cells",
+    "cell_to_parent",
+    "cell_to_children",
+    "average_hexagon_edge_length"
+  ],
+  "missing_methods": [
+    "cell_to_polygon",
+    "polygon_to_cells",
+    "polyfill",
+    "num_cells",
+    "is_valid_cell",
+    "is_pentagon",
+    "is_class_iii",
+    "is_res_class_iii",
+    "get_base_cell_number",
+    "get_icosahedron_faces",
+    "average_hexagon_area",
+    "get_icosahedron_faces",
+    "cell_to_geojson",
+    "geojson_to_cells",
+    "wkt_to_cells",
+    "cells_to_wkt",
+    "cells_to_geojson",
+    "cells_to_shapefile_data",
+    "cells_to_kml",
+    "cells_to_csv"
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "animation_type": "spatial_distribution",
+  "filename": "spatial_distribution_spiral.gif",
+  "frame_count": 9,
+  "frame_generation_time": 4.678089618682861,
+  "normalization_time": 0.8288428783416748,
+  "gif_creation_time": 0.3659398555755615,
+  "total_time": 5.873098134994507,
+  "file_size_mb": 0.4731311798095703,
+  "is_long_distance": false,
+  "timestamp": "2025-08-03T14:47:03.660649"
+}
