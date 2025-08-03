@@ -2,11 +2,11 @@
   "animation_type": "grid_expansion",
   "filename": "grid_expansion_chicago.gif",
   "frame_count": 6,
-  "frame_generation_time": 2.1296279430389404,
-  "normalization_time": 0.7482395172119141,
-  "gif_creation_time": 0.5023221969604492,
-  "total_time": 3.380330801010132,
+  "frame_generation_time": 1.0841937065124512,
+  "normalization_time": 0.43843674659729004,
+  "gif_creation_time": 0.2972116470336914,
+  "total_time": 1.8201324939727783,
   "file_size_mb": 0.2459716796875,
   "is_long_distance": false,
-  "timestamp": "2025-08-03T14:46:41.801958"
+  "timestamp": "2025-08-03T14:51:48.168214"
 }

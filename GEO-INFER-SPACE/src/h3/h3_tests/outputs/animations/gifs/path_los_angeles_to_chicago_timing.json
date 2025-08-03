@@ -2,11 +2,11 @@
   "animation_type": "path_finding",
   "filename": "path_los_angeles_to_chicago.gif",
   "frame_count": 52,
-  "frame_generation_time": 12.860024452209473,
-  "normalization_time": 5.5261006355285645,
-  "gif_creation_time": 4.448111057281494,
-  "total_time": 22.834433555603027,
+  "frame_generation_time": 11.154088497161865,
+  "normalization_time": 4.389645576477051,
+  "gif_creation_time": 2.5058083534240723,
+  "total_time": 18.04962730407715,
   "file_size_mb": 1.633646011352539,
   "is_long_distance": false,
-  "timestamp": "2025-08-03T14:48:00.670909"
+  "timestamp": "2025-08-03T14:53:04.680002"
 }

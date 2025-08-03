@@ -2,11 +2,11 @@
   "animation_type": "path_finding",
   "filename": "path_san_francisco_to_new_york.gif",
   "frame_count": 7,
-  "frame_generation_time": 1.4870049953460693,
-  "normalization_time": 0.21183133125305176,
-  "gif_creation_time": 0.44796180725097656,
-  "total_time": 2.146878480911255,
+  "frame_generation_time": 1.5879764556884766,
+  "normalization_time": 0.14745235443115234,
+  "gif_creation_time": 0.38370800018310547,
+  "total_time": 2.119389295578003,
   "file_size_mb": 0.15191173553466797,
   "is_long_distance": false,
-  "timestamp": "2025-08-03T14:47:37.831049"
+  "timestamp": "2025-08-03T14:52:46.629299"
 }

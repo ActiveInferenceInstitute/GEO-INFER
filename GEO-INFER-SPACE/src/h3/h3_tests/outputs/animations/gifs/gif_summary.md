@@ -36,7 +36,7 @@ Generated: 23 GIF animations
 
 ## Statistics
 - **Total GIFs**: 23
-- **Total Size**: 9.67 MB
+- **Total Size**: 9.64 MB
 - **Average Size**: 0.42 MB per GIF
 
 ## Usage

@@ -2,11 +2,11 @@
   "animation_type": "grid_expansion",
   "filename": "grid_expansion_miami.gif",
   "frame_count": 6,
-  "frame_generation_time": 0.9967718124389648,
-  "normalization_time": 0.35381102561950684,
-  "gif_creation_time": 0.25662899017333984,
-  "total_time": 1.6072907447814941,
+  "frame_generation_time": 1.648238182067871,
+  "normalization_time": 0.48777294158935547,
+  "gif_creation_time": 0.4348597526550293,
+  "total_time": 2.5711801052093506,
   "file_size_mb": 0.23827171325683594,
   "is_long_distance": false,
-  "timestamp": "2025-08-03T14:47:07.171119"
+  "timestamp": "2025-08-03T14:52:08.622548"
 }

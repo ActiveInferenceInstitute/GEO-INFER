@@ -2,11 +2,11 @@
   "animation_type": "path_finding",
   "filename": "path_chicago_to_miami.gif",
   "frame_count": 52,
-  "frame_generation_time": 8.812946557998657,
-  "normalization_time": 4.252304792404175,
-  "gif_creation_time": 2.7687742710113525,
-  "total_time": 15.834492921829224,
+  "frame_generation_time": 10.978267669677734,
+  "normalization_time": 4.72250771522522,
+  "gif_creation_time": 3.4925246238708496,
+  "total_time": 19.193425178527832,
   "file_size_mb": 1.7878141403198242,
   "is_long_distance": false,
-  "timestamp": "2025-08-03T14:47:33.716211"
+  "timestamp": "2025-08-03T14:52:41.865529"
 }

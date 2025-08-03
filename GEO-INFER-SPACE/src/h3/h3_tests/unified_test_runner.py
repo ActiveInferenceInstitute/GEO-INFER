@@ -992,6 +992,7 @@ python3 unified_test_runner.py
             'integration/test_integration_scenarios.py',
             'comprehensive/test_comprehensive_coverage.py',
             'comprehensive/test_complete_h3_v4_coverage.py',
+            'comprehensive/test_spatial_operations.py',
             'animations/test_animation_generation.py',
             'interactive/test_interactive_features.py',
             'visual/test_visual_analysis.py',

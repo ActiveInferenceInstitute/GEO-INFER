@@ -1,9 +1,9 @@
 {
   "test_summary": {
-    "total_tests": 11,
-    "passed_tests": 10,
-    "failed_tests": 1,
-    "total_test_time": 5.34662127494812
+    "total_tests": 12,
+    "passed_tests": 12,
+    "failed_tests": 0,
+    "total_test_time": 6.232564449310303
   },
   "coverage_summary": {
     "total_methods": 33,
@@ -174,22 +174,22 @@
     }
   },
   "timing_summary": {
-    "visual_outputs": 1.9899911880493164,
-    "performance_outputs": 0.05483865737915039,
-    "integration_outputs": 0.0024280548095703125,
-    "interactive_outputs": 0.0006110668182373047,
-    "animation_outputs": 117.14706993103027,
-    "validation_outputs": 0.0010294914245605469,
-    "comprehensive_outputs": 119.19784045219421,
-    "complete_coverage_outputs": 0.000934600830078125
+    "visual_outputs": 2.3177666664123535,
+    "performance_outputs": 0.050911664962768555,
+    "integration_outputs": 0.0006263256072998047,
+    "interactive_outputs": 6.723403930664062e-05,
+    "animation_outputs": 106.7176263332367,
+    "validation_outputs": 0.0003211498260498047,
+    "comprehensive_outputs": 109.08784008026123,
+    "complete_coverage_outputs": 0.0003597736358642578
   },
-  "total_execution_time": 124.56261992454529,
+  "total_execution_time": 115.33288478851318,
   "outputs_generated": {
     "animations": 25,
     "gifs": 23,
-    "reports": 13,
+    "reports": 14,
     "visualizations": 2,
     "data_files": 3
   },
-  "timestamp": "2025-08-03T14:48:04.430921"
+  "timestamp": "2025-08-03T14:53:06.670347"
 }

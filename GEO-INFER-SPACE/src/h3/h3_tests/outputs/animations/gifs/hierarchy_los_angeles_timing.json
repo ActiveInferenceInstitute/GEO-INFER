@@ -2,11 +2,11 @@
   "animation_type": "hierarchy",
   "filename": "hierarchy_los_angeles.gif",
   "frame_count": 6,
-  "frame_generation_time": 2.152435302734375,
-  "normalization_time": 0.5538876056671143,
-  "gif_creation_time": 0.4679884910583496,
-  "total_time": 3.174497127532959,
+  "frame_generation_time": 1.0678725242614746,
+  "normalization_time": 0.3038749694824219,
+  "gif_creation_time": 0.25506162643432617,
+  "total_time": 1.626896858215332,
   "file_size_mb": 0.1569385528564453,
   "is_long_distance": false,
-  "timestamp": "2025-08-03T14:46:50.757993"
+  "timestamp": "2025-08-03T14:51:53.430672"
 }
