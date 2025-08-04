@@ -17,10 +17,8 @@ from typing import List, Dict, Any, Optional, Tuple
 import time
 
 # Import from our local H3 framework
-from core import (
-    latlng_to_cell, cell_to_latlng, cell_to_boundary, cell_area,
-    get_resolution, is_valid_cell
-)
+# Import h3 library directly to avoid circular imports
+import h3 as h3_lib
 
 from conversion import (
     cells_to_geojson, cells_to_csv
@@ -77,15 +75,15 @@ def create_interactive_map(cells: List[str],
     layer_groups = {}
     
     for cell in cells:
-        if not is_valid_cell(cell):
+        if not h3_lib.is_valid_cell(cell):
             continue
             
-        resolution = get_resolution(cell)
-        area = cell_area(cell, 'km^2')
-        center_lat, center_lng = cell_to_latlng(cell)
+        resolution = h3_lib.get_resolution(cell)
+        area = h3_lib.cell_area(cell, 'km^2')
+        center_lat, center_lng = h3_lib.cell_to_latlng(cell)
         
         # Get boundary coordinates
-        boundary = cell_to_boundary(cell)
+        boundary = h3_lib.cell_to_boundary(cell)
         boundary_coords = [[coord[0], coord[1]] for coord in boundary]
         
         # Create polygon
@@ -153,9 +151,9 @@ def create_interactive_map(cells: List[str],
         'title': title,
         'center': [center_lat, center_lng],
         'zoom': zoom,
-        'cell_count': len([c for c in cells if is_valid_cell(c)]),
-        'resolutions': list(set(get_resolution(c) for c in cells if is_valid_cell(c))),
-        'total_area_km2': sum(cell_area(c, 'km^2') for c in cells if is_valid_cell(c))
+        'cell_count': len([c for c in cells if h3_lib.is_valid_cell(c)]),
+        'resolutions': list(set(h3_lib.get_resolution(c) for c in cells if h3_lib.is_valid_cell(c))),
+        'total_area_km2': sum(h3_lib.cell_area(c, 'km^2') for c in cells if h3_lib.is_valid_cell(c))
     }
     
     return map_data
@@ -247,9 +245,9 @@ def create_simple_html_map(cells: List[str],
     # Get map data
     map_data = {
         'title': title,
-        'cell_count': len([c for c in cells if is_valid_cell(c)]),
-        'resolutions': list(set(get_resolution(c) for c in cells if is_valid_cell(c))),
-        'total_area_km2': sum(cell_area(c, 'km^2') for c in cells if is_valid_cell(c))
+        'cell_count': len([c for c in cells if h3_lib.is_valid_cell(c)]),
+        'resolutions': list(set(h3_lib.get_resolution(c) for c in cells if h3_lib.is_valid_cell(c))),
+        'total_area_km2': sum(h3_lib.cell_area(c, 'km^2') for c in cells if h3_lib.is_valid_cell(c))
     }
     
     return map_data
@@ -454,7 +452,7 @@ def create_interactive_dashboard(cells: List[str],
             Plotly.newPlot('resolutionChart', [resolutionChart], resolutionLayout);
             
             // Area distribution chart
-            var areas = {json.dumps([cell_area(c, 'km^2') for c in cells if is_valid_cell(c)])};
+            var areas = {json.dumps([h3_lib.cell_area(c, 'km^2') for c in cells if h3_lib.is_valid_cell(c)])};
             
             var areaChart = {{
                 x: areas,
@@ -516,9 +514,9 @@ def create_zoomable_map(cells: List[str],
     # Group cells by resolution
     cells_by_resolution = {}
     for cell in cells:
-        if not is_valid_cell(cell):
+        if not h3_lib.is_valid_cell(cell):
             continue
-        resolution = get_resolution(cell)
+        resolution = h3_lib.get_resolution(cell)
         if resolution not in cells_by_resolution:
             cells_by_resolution[resolution] = []
         cells_by_resolution[resolution].append(cell)
@@ -637,7 +635,7 @@ def create_zoomable_map(cells: List[str],
     # Get map data
     map_data = {
         'title': title,
-        'cell_count': len([c for c in cells if is_valid_cell(c)]),
+        'cell_count': len([c for c in cells if h3_lib.is_valid_cell(c)]),
         'resolutions': list(cells_by_resolution.keys()),
         'layers': len(cells_by_resolution)
     }

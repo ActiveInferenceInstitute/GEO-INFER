@@ -205,14 +205,11 @@ def cell_to_int(cell: str) -> int:
 
 
 # Re-export core functions for convenience
-from core import latlng_to_cell, cell_to_latlng, cell_to_boundary
+# Removed to avoid circular import
 
 
 # Export all functions
 __all__ = [
-    'latlng_to_cell',
-    'cell_to_latlng',
-    'cell_to_boundary',
     'cell_to_center_child',
     'cell_to_children',
     'cell_to_parent',

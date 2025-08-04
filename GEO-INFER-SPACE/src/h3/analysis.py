@@ -14,10 +14,10 @@ import h3
 import numpy as np
 from typing import Union, List, Tuple, Optional, Dict, Any
 from constants import (
-    MAX_H3_RES, MIN_H3_RES, ERROR_MESSAGES, H3_AREA_KM2, H3_EDGE_LENGTH_KM
+    MAX_H3_RES, MIN_H3_RES, ERROR_MESSAGES, H3_AREA_KM2, H3_EDGE_LENGTH_KM, WGS84_EARTH_RADIUS_KM
 )
-from core import is_class_iii, is_res_class_iii, cell_perimeter
-from traversal import great_circle_distance
+# Import h3 library directly to avoid circular imports
+import h3 as h3_lib
 
 
 def cell_area(cell: str, unit: str = 'km^2') -> float:
@@ -156,6 +156,53 @@ def is_pentagon(cell: str) -> bool:
     return h3.is_pentagon(cell)
 
 
+def is_class_iii(cell: str) -> bool:
+    """
+    Check if an H3 cell is a Class III cell.
+    
+    Args:
+        cell: H3 cell index as string
+        
+    Returns:
+        True if Class III cell, False otherwise
+        
+    Raises:
+        ValueError: If cell index is invalid
+        
+    Example:
+        >>> is_class_iii('89283082e73ffff')
+        True
+    """
+    if not h3.is_valid_cell(cell):
+        raise ValueError(ERROR_MESSAGES['INVALID_CELL'])
+    
+    res = h3.get_resolution(cell)
+    return res % 2 == 1
+
+
+def is_res_class_iii(resolution: int) -> bool:
+    """
+    Check if a resolution produces Class III cells.
+    
+    Args:
+        resolution: H3 resolution (0-15)
+        
+    Returns:
+        True if Class III resolution, False otherwise
+        
+    Raises:
+        ValueError: If resolution is invalid
+        
+    Example:
+        >>> is_res_class_iii(9)
+        True
+    """
+    if not MIN_H3_RES <= resolution <= MAX_H3_RES:
+        raise ValueError(f"Resolution must be between {MIN_H3_RES} and {MAX_H3_RES}")
+    
+    return resolution % 2 == 1
+
+
 def get_base_cell_number(cell: str) -> int:
     """
     Get the base cell number of an H3 cell.
@@ -289,7 +336,9 @@ def analyze_cell_distribution(cells: List[str]) -> Dict[str, Any]:
         if h3.is_pentagon(cell):
             pentagons += 1
         
-        if is_class_iii(cell):
+        # Check if resolution is class III (odd resolutions are class III)
+        resolution = h3_lib.get_resolution(cell)
+        if resolution % 2 == 1:  # Class III resolutions are odd
             class_iii_cells += 1
         
         total_area += h3.cell_area(cell, 'km^2')
@@ -344,7 +393,8 @@ def calculate_spatial_statistics(cells: List[str]) -> Dict[str, Any]:
     
     # Calculate total area and perimeter
     total_area = sum(h3.cell_area(cell, 'km^2') for cell in cells)
-    total_perimeter = sum(cell_perimeter(cell, 'km') for cell in cells)
+    # Calculate perimeter manually (6 edges * average edge length for hexagons)
+    total_perimeter = sum(6 * h3_lib.average_hexagon_edge_length(h3_lib.get_resolution(cell), 'km') for cell in cells)
     
     # Calculate compactness (isoperimetric ratio)
     # For a perfect circle, compactness = 1.0
@@ -389,7 +439,17 @@ def find_nearest_cell(target_lat: float, target_lng: float, cells: List[str]) ->
     
     for cell in cells:
         cell_lat, cell_lng = h3.cell_to_latlng(cell)
-        distance = great_circle_distance(target_lat, target_lng, cell_lat, cell_lng, unit='km')
+        # Calculate great circle distance using haversine formula
+        lat1, lng1 = np.radians(target_lat), np.radians(target_lng)
+        lat2, lng2 = np.radians(cell_lat), np.radians(cell_lng)
+        
+        dlat = lat2 - lat1
+        dlng = lng2 - lng1
+        
+        a = np.sin(dlat/2)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(dlng/2)**2
+        c = 2 * np.arcsin(np.sqrt(a))
+        
+        distance = WGS84_EARTH_RADIUS_KM * c
         
         if distance < min_distance:
             min_distance = distance

@@ -1,6 +1,6 @@
 # H3 Animation Suite Summary
 
-Generated: 2025-08-03 14:51:20
+Generated: 2025-08-04 09:53:17
 
 ## Animation Types
 - **Resolution Transitions**: 5 animations
@@ -10,7 +10,7 @@ Generated: 2025-08-03 14:51:20
 - **Spatial Distribution**: 3 animations
 
 ## Statistics
-- **Total Animations**: 24
+- **Total Animations**: 25
 - **Total Frames**: 293
 - **Locations**: san_francisco, new_york, los_angeles, chicago, miami
 
@@ -26,6 +26,7 @@ Generated: 2025-08-03 14:51:20
 - resolution_animation_new_york.json
 - resolution_animation_san_francisco.json
 - spatial_distribution_spiral.json
+- animation_summary.json
 - resolution_animation_miami.json
 - comprehensive_animation_suite.json
 - grid_expansion_miami.json

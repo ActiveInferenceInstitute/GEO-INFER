@@ -22,10 +22,8 @@ from typing import List, Dict, Any, Tuple, Optional
 import contextlib
 
 # Import from our local H3 framework
-from core import (
-    latlng_to_cell, cell_to_latlng, cell_to_boundary, cell_area,
-    get_resolution, is_valid_cell
-)
+# Import h3 library directly to avoid circular imports
+import h3 as h3_lib
 
 from conversion import (
     cells_to_geojson, cells_to_csv
@@ -70,13 +68,13 @@ def create_cell_map(cells: List[str],
     center_lat, center_lng = 0.0, 0.0  # Initialize with default values
     
     for cell in cells:
-        if not is_valid_cell(cell):
+        if not h3_lib.is_valid_cell(cell):
             continue
             
         # Get cell boundary
-        boundary = cell_to_boundary(cell)
-        resolution = get_resolution(cell)
-        area = cell_area(cell, 'km^2')
+        boundary = h3_lib.cell_to_boundary(cell)
+        resolution = h3_lib.get_resolution(cell)
+        area = h3_lib.cell_area(cell, 'km^2')
         
         # Convert boundary to plotting coordinates
         lats = [coord[0] for coord in boundary]
@@ -92,12 +90,12 @@ def create_cell_map(cells: List[str],
         
         # Add cell center label for small datasets
         if len(cells) <= 20:
-            cell_center_lat, cell_center_lng = cell_to_latlng(cell)
+            cell_center_lat, cell_center_lng = h3_lib.cell_to_latlng(cell)
             ax.text(cell_center_lng, cell_center_lat, f'R{resolution}', 
                    fontsize=8, ha='center', va='center')
         
         # Store cell data
-        cell_center_lat, cell_center_lng = cell_to_latlng(cell)
+        cell_center_lat, cell_center_lng = h3_lib.cell_to_latlng(cell)
         cell_data.append({
             'cell': cell,
             'resolution': resolution,
@@ -172,11 +170,11 @@ def create_resolution_chart(cells: List[str],
     resolution_areas = {}
     
     for cell in cells:
-        if not is_valid_cell(cell):
+        if not h3_lib.is_valid_cell(cell):
             continue
             
-        resolution = get_resolution(cell)
-        area = cell_area(cell, 'km^2')
+        resolution = h3_lib.get_resolution(cell)
+        area = h3_lib.cell_area(cell, 'km^2')
         
         resolution_counts[resolution] = resolution_counts.get(resolution, 0) + 1
         resolution_areas[resolution] = resolution_areas.get(resolution, 0) + area
@@ -257,11 +255,11 @@ def create_area_distribution_plot(cells: List[str],
     resolutions = []
     
     for cell in cells:
-        if not is_valid_cell(cell):
+        if not h3_lib.is_valid_cell(cell):
             continue
             
-        area = cell_area(cell, 'km^2')
-        resolution = get_resolution(cell)
+        area = h3_lib.cell_area(cell, 'km^2')
+        resolution = h3_lib.get_resolution(cell)
         
         areas.append(area)
         resolutions.append(resolution)
@@ -352,14 +350,14 @@ def create_density_heatmap(cells: List[str],
     for cell in grid_cells:
         # Count how many of our cells are in this grid cell
         # For simplicity, we'll use a distance-based density
-        center_lat, center_lng = cell_to_latlng(cell)
+        center_lat, center_lng = h3_lib.cell_to_latlng(cell)
         density = 0
         
         for target_cell in cells:
-            if not is_valid_cell(target_cell):
+            if not h3_lib.is_valid_cell(target_cell):
                 continue
                 
-            target_lat, target_lng = cell_to_latlng(target_cell)
+            target_lat, target_lng = h3_lib.cell_to_latlng(target_cell)
             # Simple distance calculation
             distance = ((center_lat - target_lat)**2 + (center_lng - target_lng)**2)**0.5
             if distance < 0.1:  # Within ~10km
@@ -375,7 +373,7 @@ def create_density_heatmap(cells: List[str],
     colors = plt.cm.Reds(np.linspace(0, 1, max_density + 1))
     
     for cell, density in density_data.items():
-        boundary = cell_to_boundary(cell)
+        boundary = h3_lib.cell_to_boundary(cell)
         lats = [coord[0] for coord in boundary]
         lngs = [coord[1] for coord in boundary]
         
@@ -388,7 +386,7 @@ def create_density_heatmap(cells: List[str],
         ax.add_patch(polygon)
         
         # Add density label
-        center_lat, center_lng = cell_to_latlng(cell)
+        center_lat, center_lng = h3_lib.cell_to_latlng(cell)
         ax.text(center_lng, center_lat, str(density), 
                fontsize=8, ha='center', va='center', 
                color='white' if density > max_density/2 else 'black')
@@ -398,7 +396,7 @@ def create_density_heatmap(cells: List[str],
         all_lats = []
         all_lngs = []
         for cell in density_data.keys():
-            boundary = cell_to_boundary(cell)
+            boundary = h3_lib.cell_to_boundary(cell)
             all_lats.extend([coord[0] for coord in boundary])
             all_lngs.extend([coord[1] for coord in boundary])
         
@@ -469,11 +467,11 @@ def create_comparison_plot(cells_list: List[List[str]],
             continue
         
         # Calculate statistics
-        resolutions = [get_resolution(cell) for cell in cells if is_valid_cell(cell)]
-        areas = [cell_area(cell, 'km^2') for cell in cells if is_valid_cell(cell)]
+        resolutions = [h3_lib.get_resolution(cell) for cell in cells if h3_lib.is_valid_cell(cell)]
+        areas = [h3_lib.cell_area(cell, 'km^2') for cell in cells if h3_lib.is_valid_cell(cell)]
         
         stats = {
-            'cell_count': len([c for c in cells if is_valid_cell(c)]),
+            'cell_count': len([c for c in cells if h3_lib.is_valid_cell(c)]),
             'resolutions': list(set(resolutions)),
             'total_area': sum(areas),
             'avg_area': np.mean(areas) if areas else 0

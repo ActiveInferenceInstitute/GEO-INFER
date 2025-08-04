@@ -2,11 +2,11 @@
   "animation_type": "grid_expansion",
   "filename": "grid_expansion_san_francisco.gif",
   "frame_count": 6,
-  "frame_generation_time": 1.791975975036621,
-  "normalization_time": 0.5330474376678467,
-  "gif_creation_time": 0.3933722972869873,
-  "total_time": 2.718524932861328,
+  "frame_generation_time": 0.9019725322723389,
+  "normalization_time": 0.36934971809387207,
+  "gif_creation_time": 0.2311255931854248,
+  "total_time": 1.5026905536651611,
   "file_size_mb": 0.23865222930908203,
   "is_long_distance": false,
-  "timestamp": "2025-08-03T14:52:13.863028"
+  "timestamp": "2025-08-04T09:53:53.664445"
 }

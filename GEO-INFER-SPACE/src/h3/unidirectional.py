@@ -13,7 +13,7 @@ License: Apache-2.0
 import h3
 import numpy as np
 from typing import Union, List, Tuple, Optional, Dict, Any
-from .constants import (
+from constants import (
     MAX_H3_RES, MIN_H3_RES, ERROR_MESSAGES
 )
 

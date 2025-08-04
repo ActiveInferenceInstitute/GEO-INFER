@@ -2,11 +2,11 @@
   "animation_type": "spatial_distribution",
   "filename": "spatial_distribution_random.gif",
   "frame_count": 11,
-  "frame_generation_time": 2.1537444591522217,
-  "normalization_time": 0.949751615524292,
-  "gif_creation_time": 0.5262022018432617,
-  "total_time": 3.6297857761383057,
-  "file_size_mb": 0.3719005584716797,
+  "frame_generation_time": 1.536393404006958,
+  "normalization_time": 0.7081396579742432,
+  "gif_creation_time": 0.4772319793701172,
+  "total_time": 2.721841335296631,
+  "file_size_mb": 0.4288606643676758,
   "is_long_distance": false,
-  "timestamp": "2025-08-03T14:51:51.799361"
+  "timestamp": "2025-08-04T09:53:38.868564"
 }

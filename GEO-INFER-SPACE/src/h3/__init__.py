@@ -34,8 +34,10 @@ from .indexing import (
     cell_to_center_child,
     cell_to_children,
     cell_to_parent,
-    cell_to_children_size,
-    cell_to_children_positions
+    cell_to_string,
+    string_to_cell,
+    int_to_cell,
+    cell_to_int
 )
 
 # Import traversal operations
@@ -45,7 +47,13 @@ from .traversal import (
     grid_path_cells,
     grid_distance,
     grid_neighbors,
-    great_circle_distance
+    great_circle_distance,
+    cell_to_local_ij,
+    local_ij_to_cell,
+    haversine_distance,
+    grid_disk_rings,
+    grid_compact,
+    grid_uncompact
 )
 
 # Import hierarchy operations
@@ -95,30 +103,32 @@ from .constants import (
 from .validation import (
     validate_cell,
     validate_resolution,
-    validate_coordinates,
-    validate_polygon
+    validate_latlng,
+    validate_polygon,
+    validate_edge,
+    validate_vertex,
+    validate_geojson,
+    validate_wkt,
+    validate_cells,
+    validate_resolution_range
 )
 
 # Import unidirectional operations
 from .unidirectional import (
-    get_unidirectional_edge,
-    get_origin_cell_from_unidirectional_edge,
-    get_destination_cell_from_unidirectional_edge,
-    get_unidirectional_edges_from_hexagon,
-    get_unidirectional_edge_boundary_vertices,
-    get_unidirectional_edge_boundary_vertices_geojson,
-    get_unidirectional_edge_boundary_vertices_wkt,
-    get_unidirectional_edge_boundary_vertices_latlng,
-    get_unidirectional_edge_boundary_vertices_latlng_geojson,
-    get_unidirectional_edge_boundary_vertices_latlng_wkt,
-    get_unidirectional_edge_boundary_vertices_latlng_csv,
-    get_unidirectional_edge_boundary_vertices_latlng_kml,
-    get_unidirectional_edge_boundary_vertices_latlng_shapefile_data,
-    get_unidirectional_edge_boundary_vertices_latlng_geojson,
-    get_unidirectional_edge_boundary_vertices_latlng_wkt,
-    get_unidirectional_edge_boundary_vertices_latlng_csv,
-    get_unidirectional_edge_boundary_vertices_latlng_kml,
-    get_unidirectional_edge_boundary_vertices_latlng_shapefile_data
+    cell_to_vertexes,
+    cell_to_vertex,
+    vertex_to_latlng,
+    latlng_to_vertex,
+    vertex_to_cells,
+    edge_boundary,
+    edge_length,
+    edge_lengths,
+    get_icosahedron_faces,
+    cell_to_icosahedron_faces,
+    get_cell_vertices,
+    get_cell_edges,
+    get_vertex_neighbors,
+    get_edge_cells
 )
 
 # Import visualization operations
@@ -160,11 +170,12 @@ __all__ = [
     
     # Indexing operations
     'cell_to_center_child', 'cell_to_children', 'cell_to_parent',
-    'cell_to_children_size', 'cell_to_children_positions',
+    'cell_to_string', 'string_to_cell', 'int_to_cell', 'cell_to_int',
     
     # Traversal operations
     'grid_disk', 'grid_ring', 'grid_path_cells', 'grid_distance', 'grid_neighbors',
-    'great_circle_distance',
+    'great_circle_distance', 'cell_to_local_ij', 'local_ij_to_cell', 'haversine_distance',
+    'grid_disk_rings', 'grid_compact', 'grid_uncompact',
     
     # Hierarchy operations
     'get_hierarchy_path', 'get_ancestors', 'get_descendants',
@@ -183,18 +194,15 @@ __all__ = [
     'H3_AREA_KM2',
     
     # Validation operations
-    'validate_cell', 'validate_resolution', 'validate_coordinates', 'validate_polygon',
+    'validate_cell', 'validate_resolution', 'validate_latlng', 'validate_polygon',
+    'validate_edge', 'validate_vertex', 'validate_geojson', 'validate_wkt',
+    'validate_cells', 'validate_resolution_range',
     
     # Unidirectional operations
-    'get_unidirectional_edge', 'get_origin_cell_from_unidirectional_edge',
-    'get_destination_cell_from_unidirectional_edge', 'get_unidirectional_edges_from_hexagon',
-    'get_unidirectional_edge_boundary_vertices', 'get_unidirectional_edge_boundary_vertices_geojson',
-    'get_unidirectional_edge_boundary_vertices_wkt', 'get_unidirectional_edge_boundary_vertices_latlng',
-    'get_unidirectional_edge_boundary_vertices_latlng_geojson', 'get_unidirectional_edge_boundary_vertices_latlng_wkt',
-    'get_unidirectional_edge_boundary_vertices_latlng_csv', 'get_unidirectional_edge_boundary_vertices_latlng_kml',
-    'get_unidirectional_edge_boundary_vertices_latlng_shapefile_data', 'get_unidirectional_edge_boundary_vertices_latlng_geojson',
-    'get_unidirectional_edge_boundary_vertices_latlng_wkt', 'get_unidirectional_edge_boundary_vertices_latlng_csv',
-    'get_unidirectional_edge_boundary_vertices_latlng_kml', 'get_unidirectional_edge_boundary_vertices_latlng_shapefile_data',
+    'cell_to_vertexes', 'cell_to_vertex', 'vertex_to_latlng', 'latlng_to_vertex',
+    'vertex_to_cells', 'edge_boundary', 'edge_length', 'edge_lengths',
+    'get_icosahedron_faces', 'cell_to_icosahedron_faces', 'get_cell_vertices',
+    'get_cell_edges', 'get_vertex_neighbors', 'get_edge_cells',
     
     # Visualization operations
     'create_cell_map', 'create_resolution_chart', 'create_area_distribution_plot',

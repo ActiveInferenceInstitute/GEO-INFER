@@ -2,11 +2,11 @@
   "animation_type": "grid_expansion",
   "filename": "grid_expansion_los_angeles.gif",
   "frame_count": 6,
-  "frame_generation_time": 1.6885261535644531,
-  "normalization_time": 0.503803014755249,
-  "gif_creation_time": 0.42821431159973145,
-  "total_time": 2.6208949089050293,
+  "frame_generation_time": 0.9060447216033936,
+  "normalization_time": 0.3736863136291504,
+  "gif_creation_time": 0.22564005851745605,
+  "total_time": 1.5056965351104736,
   "file_size_mb": 0.25705528259277344,
   "is_long_distance": false,
-  "timestamp": "2025-08-03T14:52:44.508243"
+  "timestamp": "2025-08-04T09:54:13.190352"
 }

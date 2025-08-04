@@ -2,11 +2,11 @@
   "animation_type": "resolution_transition",
   "filename": "resolution_animation_chicago.gif",
   "frame_count": 8,
-  "frame_generation_time": 2.007622003555298,
-  "normalization_time": 0.5092020034790039,
-  "gif_creation_time": 0.5301659107208252,
-  "total_time": 3.047078847885132,
+  "frame_generation_time": 1.0114789009094238,
+  "normalization_time": 0.3208324909210205,
+  "gif_creation_time": 0.3229217529296875,
+  "total_time": 1.655301809310913,
   "file_size_mb": 0.21266937255859375,
   "is_long_distance": false,
-  "timestamp": "2025-08-03T14:52:16.911407"
+  "timestamp": "2025-08-04T09:53:55.320469"
 }

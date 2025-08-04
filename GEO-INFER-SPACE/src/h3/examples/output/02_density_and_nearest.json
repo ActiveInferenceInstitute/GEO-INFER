@@ -23,7 +23,7 @@
         "lng": -122.4094
       },
       "nearest_cell": "89283082803ffff",
-      "distance_km": 1.4867600916186618
+      "distance_km": 1.486758415854892
     },
     {
       "test_point": {
@@ -31,7 +31,7 @@
         "lng": -73.996
       },
       "nearest_cell": "892a1072893ffff",
-      "distance_km": 1.4154002885588302
+      "distance_km": 1.4153986932264448
     }
   ]
 }

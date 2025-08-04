@@ -24,10 +24,8 @@ from typing import List, Dict, Any, Tuple, Optional, Callable
 import time
 
 # Import from our local H3 framework
-from core import (
-    latlng_to_cell, cell_to_latlng, cell_to_boundary, cell_area,
-    get_resolution, is_valid_cell
-)
+# Import h3 library directly to avoid circular imports
+import h3 as h3_lib
 
 from traversal import (
     grid_disk, grid_ring, grid_path_cells
@@ -99,11 +97,11 @@ def create_grid_expansion_animation(cells: List[str],
             
             # Plot each cell
             for cell in current_cells:
-                if not is_valid_cell(cell):
+                if not h3_lib.is_valid_cell(cell):
                     continue
                     
-                boundary = cell_to_boundary(cell)
-                resolution = get_resolution(cell)
+                boundary = h3_lib.cell_to_boundary(cell)
+                resolution = h3_lib.get_resolution(cell)
                 
                 # Convert boundary to plotting coordinates
                 lats = [coord[0] for coord in boundary]
@@ -122,8 +120,8 @@ def create_grid_expansion_animation(cells: List[str],
                 all_lats = []
                 all_lngs = []
                 for cell in current_cells:
-                    if is_valid_cell(cell):
-                        boundary = cell_to_boundary(cell)
+                    if h3_lib.is_valid_cell(cell):
+                        boundary = h3_lib.cell_to_boundary(cell)
                         all_lats.extend([coord[0] for coord in boundary])
                         all_lngs.extend([coord[1] for coord in boundary])
                 
@@ -143,7 +141,7 @@ def create_grid_expansion_animation(cells: List[str],
                 'radius': radius,
                 'frame_idx': frame_idx,
                 'cell_count': len(current_cells),
-                'total_area': sum(cell_area(cell, 'km^2') for cell in current_cells if is_valid_cell(cell))
+                'total_area': sum(h3_lib.cell_area(cell, 'km^2') for cell in current_cells if h3_lib.is_valid_cell(cell))
             })
             
             plt.close(fig)
@@ -201,13 +199,13 @@ def create_resolution_transition_animation(cells: List[str],
     
     # Get center coordinates from first cell
     if cells:
-        center_lat, center_lng = cell_to_latlng(cells[0])
+        center_lat, center_lng = h3_lib.cell_to_latlng(cells[0])
     else:
         center_lat, center_lng = 37.7749, -122.4194  # San Francisco
     
     for resolution in resolutions:
         # Get cell for this resolution
-        current_cell = latlng_to_cell(center_lat, center_lng, resolution)
+        current_cell = h3_lib.latlng_to_cell(center_lat, center_lng, resolution)
         
         # Create frame for this resolution
         for frame_idx in range(frames_per_resolution):
@@ -215,9 +213,9 @@ def create_resolution_transition_animation(cells: List[str],
             fig, ax = plt.subplots(figsize=(10, 8))
             
             # Plot the cell
-            if is_valid_cell(current_cell):
-                boundary = cell_to_boundary(current_cell)
-                area = cell_area(current_cell, 'km^2')
+            if h3_lib.is_valid_cell(current_cell):
+                boundary = h3_lib.cell_to_boundary(current_cell)
+                area = h3_lib.cell_area(current_cell, 'km^2')
                 
                 # Convert boundary to plotting coordinates
                 lats = [coord[0] for coord in boundary]
@@ -237,8 +235,8 @@ def create_resolution_transition_animation(cells: List[str],
                        bbox=dict(boxstyle="round,pad=0.3", facecolor="white", alpha=0.8))
             
             # Set plot limits
-            if is_valid_cell(current_cell):
-                boundary = cell_to_boundary(current_cell)
+            if h3_lib.is_valid_cell(current_cell):
+                boundary = h3_lib.cell_to_boundary(current_cell)
                 lats = [coord[0] for coord in boundary]
                 lngs = [coord[1] for coord in boundary]
                 
@@ -257,7 +255,7 @@ def create_resolution_transition_animation(cells: List[str],
                 'resolution': resolution,
                 'frame_idx': frame_idx,
                 'cell': current_cell,
-                'area_km2': cell_area(current_cell, 'km^2') if is_valid_cell(current_cell) else 0
+                'area_km2': h3_lib.cell_area(current_cell, 'km^2') if h3_lib.is_valid_cell(current_cell) else 0
             })
             
             plt.close(fig)
@@ -322,10 +320,10 @@ def create_path_animation(start_cell: str,
                 
                 # Plot all path cells up to current position
                 for j, path_cell in enumerate(path_cells[:i+1]):
-                    if not is_valid_cell(path_cell):
+                    if not h3_lib.is_valid_cell(path_cell):
                         continue
                         
-                    boundary = cell_to_boundary(path_cell)
+                    boundary = h3_lib.cell_to_boundary(path_cell)
                     
                     # Convert boundary to plotting coordinates
                     lats = [coord[0] for coord in boundary]
@@ -352,8 +350,8 @@ def create_path_animation(start_cell: str,
                     all_lats = []
                     all_lngs = []
                     for path_cell in path_cells:
-                        if is_valid_cell(path_cell):
-                            boundary = cell_to_boundary(path_cell)
+                        if h3_lib.is_valid_cell(path_cell):
+                            boundary = h3_lib.cell_to_boundary(path_cell)
                             all_lats.extend([coord[0] for coord in boundary])
                             all_lngs.extend([coord[1] for coord in boundary])
                     
@@ -384,8 +382,8 @@ def create_path_animation(start_cell: str,
         fig, ax = plt.subplots(figsize=(10, 8))
         
         for cell in [start_cell, end_cell]:
-            if is_valid_cell(cell):
-                boundary = cell_to_boundary(cell)
+            if h3_lib.is_valid_cell(cell):
+                boundary = h3_lib.cell_to_boundary(cell)
                 lats = [coord[0] for coord in boundary]
                 lngs = [coord[1] for coord in boundary]
                 
@@ -466,11 +464,11 @@ def create_temporal_animation(cells: List[str],
             
             # Plot cells with temporal properties
             for cell in cells:
-                if not is_valid_cell(cell):
+                if not h3_lib.is_valid_cell(cell):
                     continue
                     
-                boundary = cell_to_boundary(cell)
-                resolution = get_resolution(cell)
+                boundary = h3_lib.cell_to_boundary(cell)
+                resolution = h3_lib.get_resolution(cell)
                 
                 # Get temporal properties
                 activity_level = time_step.get('activity_level', 0.5)
@@ -496,8 +494,8 @@ def create_temporal_animation(cells: List[str],
                 all_lats = []
                 all_lngs = []
                 for cell in cells:
-                    if is_valid_cell(cell):
-                        boundary = cell_to_boundary(cell)
+                    if h3_lib.is_valid_cell(cell):
+                        boundary = h3_lib.cell_to_boundary(cell)
                         all_lats.extend([coord[0] for coord in boundary])
                         all_lngs.extend([coord[1] for coord in boundary])
                 
@@ -596,10 +594,10 @@ def create_animated_heatmap(cells: List[str],
             
             # Calculate density for each cell in the grid
             for cell in grid_cells:
-                if not is_valid_cell(cell):
+                if not h3_lib.is_valid_cell(cell):
                     continue
                     
-                center_lat, center_lng = cell_to_latlng(cell)
+                center_lat, center_lng = h3_lib.cell_to_latlng(cell)
                 
                 # Normalize coordinates for pattern
                 x = (center_lng + 180) / 360  # Normalize longitude
@@ -608,7 +606,7 @@ def create_animated_heatmap(cells: List[str],
                 # Calculate density using pattern function
                 density = max(0, min(1, pattern_func(x, y)))
                 
-                boundary = cell_to_boundary(cell)
+                boundary = h3_lib.cell_to_boundary(cell)
                 lats = [coord[0] for coord in boundary]
                 lngs = [coord[1] for coord in boundary]
                 
@@ -632,8 +630,8 @@ def create_animated_heatmap(cells: List[str],
                 all_lats = []
                 all_lngs = []
                 for cell in grid_cells:
-                    if is_valid_cell(cell):
-                        boundary = cell_to_boundary(cell)
+                    if h3_lib.is_valid_cell(cell):
+                        boundary = h3_lib.cell_to_boundary(cell)
                         all_lats.extend([coord[0] for coord in boundary])
                         all_lngs.extend([coord[1] for coord in boundary])
                 

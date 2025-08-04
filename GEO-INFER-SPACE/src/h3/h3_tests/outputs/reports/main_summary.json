@@ -3,7 +3,7 @@
     "total_tests": 12,
     "passed_tests": 12,
     "failed_tests": 0,
-    "total_test_time": 6.232564449310303
+    "total_test_time": 3.0657472610473633
   },
   "coverage_summary": {
     "total_methods": 33,
@@ -174,22 +174,22 @@
     }
   },
   "timing_summary": {
-    "visual_outputs": 2.3177666664123535,
-    "performance_outputs": 0.050911664962768555,
-    "integration_outputs": 0.0006263256072998047,
-    "interactive_outputs": 6.723403930664062e-05,
-    "animation_outputs": 106.7176263332367,
-    "validation_outputs": 0.0003211498260498047,
-    "comprehensive_outputs": 109.08784008026123,
-    "complete_coverage_outputs": 0.0003597736358642578
+    "visual_outputs": 1.0883548259735107,
+    "performance_outputs": 0.026189088821411133,
+    "integration_outputs": 0.0007112026214599609,
+    "interactive_outputs": 5.841255187988281e-05,
+    "animation_outputs": 70.83012580871582,
+    "validation_outputs": 0.00030875205993652344,
+    "comprehensive_outputs": 71.94618391990662,
+    "complete_coverage_outputs": 0.0003304481506347656
   },
-  "total_execution_time": 115.33288478851318,
+  "total_execution_time": 75.02013444900513,
   "outputs_generated": {
     "animations": 25,
     "gifs": 23,
-    "reports": 14,
+    "reports": 15,
     "visualizations": 2,
     "data_files": 3
   },
-  "timestamp": "2025-08-03T14:53:06.670347"
+  "timestamp": "2025-08-04T09:54:27.731742"
 }

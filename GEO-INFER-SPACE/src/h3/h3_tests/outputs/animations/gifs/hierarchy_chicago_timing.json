@@ -2,11 +2,11 @@
   "animation_type": "hierarchy",
   "filename": "hierarchy_chicago.gif",
   "frame_count": 6,
-  "frame_generation_time": 1.6842210292816162,
-  "normalization_time": 0.506399393081665,
-  "gif_creation_time": 0.5210404396057129,
-  "total_time": 2.711829900741577,
+  "frame_generation_time": 0.8511991500854492,
+  "normalization_time": 0.2714395523071289,
+  "gif_creation_time": 0.23629188537597656,
+  "total_time": 1.358999252319336,
   "file_size_mb": 0.17335796356201172,
   "is_long_distance": false,
-  "timestamp": "2025-08-03T14:51:24.743446"
+  "timestamp": "2025-08-04T09:53:19.219035"
 }

@@ -2,11 +2,11 @@
   "animation_type": "path_finding",
   "filename": "path_new_york_to_chicago.gif",
   "frame_count": 52,
-  "frame_generation_time": 9.4784517288208,
-  "normalization_time": 3.9447152614593506,
-  "gif_creation_time": 2.8905739784240723,
-  "total_time": 16.314002990722656,
+  "frame_generation_time": 6.8153510093688965,
+  "normalization_time": 3.3274917602539062,
+  "gif_creation_time": 2.4675040245056152,
+  "total_time": 12.610454797744751,
   "file_size_mb": 1.6860628128051758,
   "is_long_distance": true,
-  "timestamp": "2025-08-03T14:51:46.333161"
+  "timestamp": "2025-08-04T09:53:34.548667"
 }

@@ -1,38 +1,38 @@
 {
   "latlng_to_cell": {
-    "total_time_seconds": 0.002523183822631836,
-    "average_time_microseconds": 2.523183822631836,
-    "operations_per_second": 396324.6716432014,
+    "total_time_seconds": 0.0010673999786376953,
+    "average_time_microseconds": 1.0673999786376953,
+    "operations_per_second": 936855.9303104758,
     "iterations": 1000
   },
   "cell_to_latlng": {
-    "total_time_seconds": 0.0014891624450683594,
-    "average_time_microseconds": 1.4891624450683594,
-    "operations_per_second": 671518.4117835414,
+    "total_time_seconds": 0.0006666183471679688,
+    "average_time_microseconds": 0.6666183471679688,
+    "operations_per_second": 1500108.7267525035,
     "iterations": 1000
   },
   "cell_to_boundary": {
-    "total_time_seconds": 0.004670381546020508,
-    "average_time_microseconds": 4.670381546020508,
-    "operations_per_second": 214115.26877329114,
+    "total_time_seconds": 0.002131938934326172,
+    "average_time_microseconds": 2.131938934326172,
+    "operations_per_second": 469056.58689331246,
     "iterations": 1000
   },
   "cell_area": {
-    "total_time_seconds": 0.0061228275299072266,
-    "average_time_microseconds": 6.122827529907227,
-    "operations_per_second": 163323.2350765157,
+    "total_time_seconds": 0.0031747817993164062,
+    "average_time_microseconds": 3.1747817993164062,
+    "operations_per_second": 314982.27696004807,
     "iterations": 1000
   },
   "grid_disk": {
-    "total_time_seconds": 0.020781755447387695,
-    "average_time_microseconds": 20.781755447387695,
-    "operations_per_second": 48119.1303849022,
+    "total_time_seconds": 0.01044321060180664,
+    "average_time_microseconds": 10.44321060180664,
+    "operations_per_second": 95755.99287703758,
     "iterations": 1000
   },
   "grid_path_cells": {
-    "total_time_seconds": 0.009755373001098633,
-    "average_time_microseconds": 9.755373001098633,
-    "operations_per_second": 102507.61297260308,
+    "total_time_seconds": 0.005530834197998047,
+    "average_time_microseconds": 5.530834197998047,
+    "operations_per_second": 180804.55211656177,
     "iterations": 1000
   }
 }
