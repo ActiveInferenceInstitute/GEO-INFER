@@ -1,0 +1,93 @@
+{
+  "start_cell": "89283082803ffff",
+  "up_path": {
+    "target_resolution": 6,
+    "cells": [
+      {
+        "index": 0,
+        "cell": "86283082fffffff",
+        "resolution": 6,
+        "coordinates": {
+          "lat": 37.773515097238146,
+          "lng": -122.4182710369247
+        },
+        "area_km2": 37.52504174735086
+      },
+      {
+        "index": 1,
+        "cell": "872830828ffffff",
+        "resolution": 7,
+        "coordinates": {
+          "lat": 37.773515097238146,
+          "lng": -122.4182710369247
+        },
+        "area_km2": 5.360721068516899
+      },
+      {
+        "index": 2,
+        "cell": "8828308281fffff",
+        "resolution": 8,
+        "coordinates": {
+          "lat": 37.773515097238146,
+          "lng": -122.4182710369247
+        },
+        "area_km2": 0.7658173122144916
+      },
+      {
+        "index": 3,
+        "cell": "89283082803ffff",
+        "resolution": 9,
+        "coordinates": {
+          "lat": 37.773515097238146,
+          "lng": -122.4182710369247
+        },
+        "area_km2": 0.10940247351409498
+      }
+    ]
+  },
+  "down_path": {
+    "target_resolution": 12,
+    "cells": [
+      {
+        "index": 0,
+        "cell": "89283082803ffff",
+        "resolution": 9,
+        "coordinates": {
+          "lat": 37.773515097238146,
+          "lng": -122.4182710369247
+        },
+        "area_km2": 0.10940247351409498
+      },
+      {
+        "index": 1,
+        "cell": "8a2830828007fff",
+        "resolution": 10,
+        "coordinates": {
+          "lat": 37.773515097238146,
+          "lng": -122.4182710369247
+        },
+        "area_km2": 0.01562892479468205
+      },
+      {
+        "index": 2,
+        "cell": "8b2830828000fff",
+        "resolution": 11,
+        "coordinates": {
+          "lat": 37.773515097238146,
+          "lng": -122.4182710369247
+        },
+        "area_km2": 0.002232703542265256
+      },
+      {
+        "index": 3,
+        "cell": "8c28308280001ff",
+        "resolution": 12,
+        "coordinates": {
+          "lat": 37.773515097238146,
+          "lng": -122.4182710369247
+        },
+        "area_km2": 0.0003189576489147554
+      }
+    ]
+  }
+}

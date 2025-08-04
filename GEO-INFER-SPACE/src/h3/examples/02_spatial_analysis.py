@@ -18,208 +18,191 @@ from pathlib import Path
 # Add the parent directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from h3 import (
-    # Core operations
-    latlng_to_cell, cell_to_latlng, cell_area,
-    
-    # Traversal operations
-    grid_disk, grid_ring, grid_path_cells, grid_distance,
-    great_circle_distance, grid_neighbors,
-    
-    # Analysis operations
+# Import from our local H3 framework
+from core import (
+    latlng_to_cell, cell_to_latlng, cell_area
+)
+
+from traversal import (
+    grid_disk, grid_ring, great_circle_distance
+)
+
+from analysis import (
     analyze_cell_distribution, calculate_spatial_statistics,
-    find_nearest_cell, calculate_cell_density, analyze_resolution_distribution
+    find_nearest_cell, calculate_cell_density
+)
+
+from visualization import (
+    create_cell_map, create_density_heatmap
 )
 
 
-def demo_grid_operations():
-    """Demonstrate grid disk and ring operations."""
-    print("🔹 Grid Operations")
-    print("-" * 40)
+def ensure_output_dir():
+    """Ensure the output directory exists."""
+    output_dir = Path("output")
+    output_dir.mkdir(exist_ok=True)
+    return output_dir
+
+
+def demo_grid_and_distance_analysis():
+    """Demonstrate grid operations and distance calculations."""
+    print("🔹 Grid Operations & Distance Analysis")
+    print("-" * 50)
+    
+    output_dir = ensure_output_dir()
     
     # Test cell
     center_cell = latlng_to_cell(37.7749, -122.4194, 9)
     print(f"Center cell: {center_cell}")
     
-    # Grid disk (cells within k steps)
-    for k in [1, 2, 3]:
-        disk_cells = grid_disk(center_cell, k)
-        print(f"\nGrid disk (k={k}):")
-        print(f"  Number of cells: {len(disk_cells)}")
-        print(f"  Total area: {sum(cell_area(cell, 'km^2') for cell in disk_cells):.6f} km²")
-        
-        # Show first few cells
-        for i, cell in enumerate(disk_cells[:5]):
-            lat, lng = cell_to_latlng(cell)
-            area = cell_area(cell, 'km^2')
-            print(f"    Cell {i+1}: {cell} ({lat:.4f}, {lng:.4f}) - {area:.6f} km²")
+    # Grid disk and ring operations
+    disk_cells = grid_disk(center_cell, 2)
+    ring_cells = grid_ring(center_cell, 1)
     
-    # Grid ring (cells exactly k steps away)
-    for k in [1, 2]:
-        ring_cells = grid_ring(center_cell, k)
-        print(f"\nGrid ring (k={k}):")
-        print(f"  Number of cells: {len(ring_cells)}")
-        print(f"  Average area: {sum(cell_area(cell, 'km^2') for cell in ring_cells) / len(ring_cells):.6f} km²")
-
-
-def demo_distance_calculations():
-    """Demonstrate distance calculations."""
-    print("\n🔹 Distance Calculations")
-    print("-" * 40)
+    print(f"Grid disk (k=2): {len(disk_cells)} cells")
+    print(f"Grid ring (k=1): {len(ring_cells)} cells")
     
-    # Test locations
-    locations = [
+    # Distance calculations between cities
+    cities = [
         ("San Francisco", 37.7749, -122.4194),
-        ("New York", 40.7128, -74.0060),
         ("Los Angeles", 34.0522, -118.2437),
-        ("Chicago", 41.8781, -87.6298),
-        ("Miami", 25.7617, -80.1918)
+        ("New York", 40.7128, -74.0060)
     ]
     
-    # Convert to cells at resolution 9
-    cells = []
-    for city, lat, lng in locations:
-        cell = latlng_to_cell(lat, lng, 9)
-        cells.append((city, cell, lat, lng))
+    cells = [(city, latlng_to_cell(lat, lng, 9), lat, lng) for city, lat, lng in cities]
     
-    # Calculate distances between all pairs
-    print("Great Circle Distances (km):")
-    print("City 1 -> City 2 | Distance")
-    print("-" * 40)
-    
+    print("\nGreat Circle Distances:")
+    distance_data = []
     for i, (city1, cell1, lat1, lng1) in enumerate(cells):
         for j, (city2, cell2, lat2, lng2) in enumerate(cells[i+1:], i+1):
-            # Great circle distance
             gc_distance = great_circle_distance(lat1, lng1, lat2, lng2, 'km')
+            print(f"  {city1} -> {city2}: {gc_distance:.1f} km")
             
-            # Grid distance
-            grid_dist = grid_distance(cell1, cell2)
-            
-            print(f"{city1:15s} -> {city2:15s} | {gc_distance:8.1f} km (grid: {grid_dist})")
-
-
-def demo_path_analysis():
-    """Demonstrate path finding between cells."""
-    print("\n🔹 Path Analysis")
-    print("-" * 40)
+            distance_data.append({
+                "city1": city1, "city2": city2,
+                "distance_km": gc_distance
+            })
     
-    # Test path: San Francisco to New York
-    sf_cell = latlng_to_cell(37.7749, -122.4194, 9)
-    ny_cell = latlng_to_cell(40.7128, -74.0060, 9)
+    # Save data
+    grid_data = {
+        "center_cell": center_cell,
+        "disk_cells": disk_cells,
+        "ring_cells": ring_cells,
+        "distance_calculations": distance_data
+    }
     
-    print(f"Path from San Francisco to New York:")
-    print(f"  SF Cell: {sf_cell}")
-    print(f"  NY Cell: {ny_cell}")
+    output_file = output_dir / "02_grid_and_distance.json"
+    with open(output_file, 'w') as f:
+        json.dump(grid_data, f, indent=2)
+    print(f"✅ Saved grid and distance data to {output_file}")
     
-    # Find path
-    path_cells = grid_path_cells(sf_cell, ny_cell)
-    print(f"  Path length: {len(path_cells)} cells")
-    print(f"  Grid distance: {grid_distance(sf_cell, ny_cell)} steps")
-    
-    # Calculate path statistics
-    path_areas = [cell_area(cell, 'km^2') for cell in path_cells]
-    total_area = sum(path_areas)
-    avg_area = total_area / len(path_areas)
-    
-    print(f"  Total path area: {total_area:.6f} km²")
-    print(f"  Average cell area: {avg_area:.6f} km²")
-    
-    # Show path coordinates
-    print("  Path coordinates:")
-    for i, cell in enumerate(path_cells[::10]):  # Show every 10th cell
-        lat, lng = cell_to_latlng(cell)
-        print(f"    Step {i*10}: ({lat:.4f}, {lng:.4f})")
+    # Create visualization
+    all_cells = disk_cells + [cell for _, cell, _, _ in cells]
+    map_path = output_dir / "02_grid_and_distance_map.png"
+    create_cell_map(all_cells, title="Grid & Distance Analysis", output_path=map_path)
 
 
 def demo_spatial_statistics():
     """Demonstrate spatial statistics analysis."""
     print("\n🔹 Spatial Statistics")
-    print("-" * 40)
+    print("-" * 50)
     
-    # Create a set of cells around San Francisco
+    output_dir = ensure_output_dir()
+    
+    # Spatial statistics on a disk
     center_cell = latlng_to_cell(37.7749, -122.4194, 9)
     disk_cells = grid_disk(center_cell, 3)
     
-    print(f"Analyzing {len(disk_cells)} cells around San Francisco:")
-    
-    # Analyze cell distribution
     distribution = analyze_cell_distribution(disk_cells)
-    print(f"  Total cells: {distribution['total_cells']}")
-    print(f"  Resolution distribution: {distribution['resolutions']}")
-    print(f"  Pentagons: {distribution['pentagons']}")
-    print(f"  Class III cells: {distribution['class_iii_cells']}")
+    stats = calculate_spatial_statistics(disk_cells)
+    
+    print(f"Spatial Statistics on {len(disk_cells)} cells:")
     print(f"  Total area: {distribution['total_area_km2']:.6f} km²")
     print(f"  Average area: {distribution['avg_area_km2']:.6f} km²")
-    
-    # Calculate spatial statistics
-    stats = calculate_spatial_statistics(disk_cells)
-    print(f"\nSpatial Statistics:")
-    print(f"  Centroid: {stats['centroid']}")
-    print(f"  Total area: {stats['total_area_km2']:.6f} km²")
     print(f"  Compactness: {stats['compactness']:.4f}")
     
-    # Analyze resolution distribution
-    res_analysis = analyze_resolution_distribution(disk_cells)
-    print(f"\nResolution Analysis:")
-    print(f"  Min resolution: {res_analysis['min_resolution']}")
-    print(f"  Max resolution: {res_analysis['max_resolution']}")
-    print(f"  Average resolution: {res_analysis['avg_resolution']:.2f}")
-    print(f"  Resolution std dev: {res_analysis['resolution_std']:.2f}")
-
-
-def demo_nearest_cell_analysis():
-    """Demonstrate nearest cell finding."""
-    print("\n🔹 Nearest Cell Analysis")
-    print("-" * 40)
+    # Save data
+    spatial_data = {
+        "center_cell": center_cell,
+        "analysis_cells": disk_cells,
+        "distribution": distribution,
+        "statistics": stats
+    }
     
-    # Create a set of reference cells
-    reference_cells = [
-        latlng_to_cell(37.7749, -122.4194, 9),  # San Francisco
-        latlng_to_cell(40.7128, -74.0060, 9),   # New York
-        latlng_to_cell(34.0522, -118.2437, 9),  # Los Angeles
-    ]
+    output_file = output_dir / "02_spatial_statistics.json"
+    with open(output_file, 'w') as f:
+        json.dump(spatial_data, f, indent=2)
+    print(f"✅ Saved spatial statistics to {output_file}")
     
-    # Test points
-    test_points = [
-        (37.7849, -122.4094),  # Near San Francisco
-        (40.7228, -73.9960),   # Near New York
-        (34.0622, -118.2337),  # Near Los Angeles
-        (39.7392, -104.9903),  # Denver (far from all)
-    ]
-    
-    for i, (lat, lng) in enumerate(test_points):
-        nearest_cell, distance = find_nearest_cell(lat, lng, reference_cells)
-        nearest_lat, nearest_lng = cell_to_latlng(nearest_cell)
-        
-        print(f"Test point {i+1} ({lat:.4f}, {lng:.4f}):")
-        print(f"  Nearest cell: {nearest_cell}")
-        print(f"  Nearest center: ({nearest_lat:.4f}, {nearest_lng:.4f})")
-        print(f"  Distance: {distance:.6f} km")
+    # Create heatmap
+    heatmap_path = output_dir / "02_spatial_heatmap.png"
+    create_density_heatmap(disk_cells, center_cell, radius=3, 
+                          title="Spatial Statistics Heatmap", output_path=heatmap_path)
 
 
 def demo_density_analysis():
-    """Demonstrate cell density calculations."""
-    print("\n🔹 Cell Density Analysis")
-    print("-" * 40)
+    """Demonstrate density analysis and nearest cell finding."""
+    print("\n🔹 Density & Nearest Cell Analysis")
+    print("-" * 50)
     
-    # Create cells at different resolutions
+    output_dir = ensure_output_dir()
+    
+    # Density analysis at different resolutions
     center_lat, center_lng = 37.7749, -122.4194
     
-    for resolution in [7, 9, 11]:
+    density_data = []
+    all_cells = []
+    
+    for resolution in [8, 9, 10]:
         center_cell = latlng_to_cell(center_lat, center_lng, resolution)
         disk_cells = grid_disk(center_cell, 2)
-        
-        # Calculate density
         density = calculate_cell_density(disk_cells)
         
-        print(f"Resolution {resolution}:")
-        print(f"  Number of cells: {len(disk_cells)}")
-        print(f"  Cell density: {density:.2f} cells/km²")
+        print(f"Resolution {resolution}: {len(disk_cells)} cells, {density:.2f} cells/km²")
         
-        # Calculate density with custom area
-        custom_area = 100.0  # 100 km²
-        custom_density = calculate_cell_density(disk_cells, custom_area)
-        print(f"  Density in {custom_area} km² area: {custom_density:.2f} cells/km²")
+        density_data.append({
+            "resolution": resolution,
+            "cell_count": len(disk_cells),
+            "density_cells_per_km2": density
+        })
+        all_cells.extend(disk_cells)
+    
+    # Nearest cell analysis
+    reference_cells = [
+        latlng_to_cell(37.7749, -122.4194, 9),  # San Francisco
+        latlng_to_cell(40.7128, -74.0060, 9),   # New York
+    ]
+    
+    test_points = [
+        (37.7849, -122.4094),  # Near San Francisco
+        (40.7228, -73.9960),   # Near New York
+    ]
+    
+    nearest_analysis = []
+    for i, (lat, lng) in enumerate(test_points):
+        nearest_cell, distance = find_nearest_cell(lat, lng, reference_cells)
+        print(f"Test point {i+1}: nearest to {nearest_cell} ({distance:.6f} km)")
+        
+        nearest_analysis.append({
+            "test_point": {"lat": lat, "lng": lng},
+            "nearest_cell": nearest_cell,
+            "distance_km": distance
+        })
+    
+    # Save data
+    analysis_data = {
+        "density_analysis": density_data,
+        "nearest_cell_analysis": nearest_analysis
+    }
+    
+    output_file = output_dir / "02_density_and_nearest.json"
+    with open(output_file, 'w') as f:
+        json.dump(analysis_data, f, indent=2)
+    print(f"✅ Saved density and nearest cell data to {output_file}")
+    
+    # Create visualization
+    map_path = output_dir / "02_density_and_nearest_map.png"
+    create_cell_map(all_cells, title="Density & Nearest Analysis", output_path=map_path)
 
 
 def main():
@@ -229,14 +212,16 @@ def main():
     print("Demonstrating advanced spatial analysis using tested H3 methods")
     print("=" * 50)
     
-    demo_grid_operations()
-    demo_distance_calculations()
-    demo_path_analysis()
+    demo_grid_and_distance_analysis()
     demo_spatial_statistics()
-    demo_nearest_cell_analysis()
     demo_density_analysis()
     
     print("\n✅ Spatial analysis demonstration completed!")
+    print("📁 All outputs saved to the 'output' directory")
+    print("📊 Generated visualizations:")
+    print("   - 02_grid_and_distance_map.png")
+    print("   - 02_spatial_heatmap.png")
+    print("   - 02_density_and_nearest_map.png")
 
 
 if __name__ == "__main__":

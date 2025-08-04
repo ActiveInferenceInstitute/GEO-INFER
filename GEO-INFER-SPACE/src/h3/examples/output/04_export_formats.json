@@ -1,0 +1,20 @@
+{
+  "geojson": {
+    "features_count": 3,
+    "size": 1207
+  },
+  "csv": {
+    "lines": 4,
+    "size": 334
+  },
+  "kml": {
+    "size": 1632
+  },
+  "shapefile": {
+    "geometries": 3,
+    "properties": 3
+  },
+  "wkt": {
+    "size": 723
+  }
+}

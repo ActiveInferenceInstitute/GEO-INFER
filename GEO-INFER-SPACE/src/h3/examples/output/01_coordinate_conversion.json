@@ -1,0 +1,227 @@
+[
+  {
+    "city": "San Francisco",
+    "original_coordinates": {
+      "lat": 37.7749,
+      "lng": -122.4194
+    },
+    "resolutions": {
+      "0": {
+        "cell": "8029fffffffffff",
+        "center": {
+          "lat": 40.13171663764596,
+          "lng": -124.76072993368852
+        },
+        "area_km2": 4106166.3344639163,
+        "is_pentagon": false
+      },
+      "5": {
+        "cell": "85283083fffffff",
+        "center": {
+          "lat": 37.790261155803734,
+          "lng": -122.34547859788444
+        },
+        "area_km2": 262.8086000037041,
+        "is_pentagon": false
+      },
+      "9": {
+        "cell": "89283082803ffff",
+        "center": {
+          "lat": 37.773515097238146,
+          "lng": -122.4182710369247
+        },
+        "area_km2": 0.10940247351409498,
+        "is_pentagon": false
+      },
+      "12": {
+        "cell": "8c283082800b3ff",
+        "center": {
+          "lat": 37.77492392281598,
+          "lng": -122.41950107861491
+        },
+        "area_km2": 0.00031894857610739974,
+        "is_pentagon": false
+      }
+    }
+  },
+  {
+    "city": "New York",
+    "original_coordinates": {
+      "lat": 40.7128,
+      "lng": -74.006
+    },
+    "resolutions": {
+      "0": {
+        "cell": "802bfffffffffff",
+        "center": {
+          "lat": 39.99258019370348,
+          "lng": -70.14899547703764
+        },
+        "area_km2": 4106166.3344639163,
+        "is_pentagon": false
+      },
+      "5": {
+        "cell": "852a1073fffffff",
+        "center": {
+          "lat": 40.72057966485312,
+          "lng": -74.09152905917782
+        },
+        "area_km2": 254.13299544168237,
+        "is_pentagon": false
+      },
+      "9": {
+        "cell": "892a1072893ffff",
+        "center": {
+          "lat": 40.71237820442782,
+          "lng": -74.0056425771711
+        },
+        "area_km2": 0.10581802216722129,
+        "is_pentagon": false
+      },
+      "12": {
+        "cell": "8c2a107289061ff",
+        "center": {
+          "lat": 40.71274700969083,
+          "lng": -74.00596269489478
+        },
+        "area_km2": 0.0003085096081906964,
+        "is_pentagon": false
+      }
+    }
+  },
+  {
+    "city": "Los Angeles",
+    "original_coordinates": {
+      "lat": 34.0522,
+      "lng": -118.2437
+    },
+    "resolutions": {
+      "0": {
+        "cell": "8029fffffffffff",
+        "center": {
+          "lat": 40.13171663764596,
+          "lng": -124.76072993368852
+        },
+        "area_km2": 4106166.3344639163,
+        "is_pentagon": false
+      },
+      "5": {
+        "cell": "8529a1d7fffffff",
+        "center": {
+          "lat": 34.10103463373918,
+          "lng": -118.26966322581116
+        },
+        "area_km2": 282.3060620115841,
+        "is_pentagon": false
+      },
+      "9": {
+        "cell": "8929a1d7577ffff",
+        "center": {
+          "lat": 34.05052759172434,
+          "lng": -118.24445333040731
+        },
+        "area_km2": 0.11765031220033427,
+        "is_pentagon": false
+      },
+      "12": {
+        "cell": "8c29a1d7575b5ff",
+        "center": {
+          "lat": 34.05224162356408,
+          "lng": -118.24377735022108
+        },
+        "area_km2": 0.0003430004571147204,
+        "is_pentagon": false
+      }
+    }
+  },
+  {
+    "city": "Chicago",
+    "original_coordinates": {
+      "lat": 41.8781,
+      "lng": -87.6298
+    },
+    "resolutions": {
+      "0": {
+        "cell": "8027fffffffffff",
+        "center": {
+          "lat": 43.422814939048976,
+          "lng": -97.42465926125902
+        },
+        "area_km2": 4446443.838398237,
+        "is_pentagon": false
+      },
+      "5": {
+        "cell": "852664c3fffffff",
+        "center": {
+          "lat": 41.924548685246,
+          "lng": -87.5585861277719
+        },
+        "area_km2": 255.31509208622003,
+        "is_pentagon": false
+      },
+      "9": {
+        "cell": "892664c1a8fffff",
+        "center": {
+          "lat": 41.87852820516526,
+          "lng": -87.62957437716702
+        },
+        "area_km2": 0.10622148012791267,
+        "is_pentagon": false
+      },
+      "12": {
+        "cell": "8c2664c1a8c31ff",
+        "center": {
+          "lat": 41.87811165580047,
+          "lng": -87.62975058043361
+        },
+        "area_km2": 0.000309681093426466,
+        "is_pentagon": false
+      }
+    }
+  },
+  {
+    "city": "Miami",
+    "original_coordinates": {
+      "lat": 25.7617,
+      "lng": -80.1918
+    },
+    "resolutions": {
+      "0": {
+        "cell": "8045fffffffffff",
+        "center": {
+          "lat": 25.469138983872874,
+          "lng": -85.15938986229017
+        },
+        "area_km2": 4106166.3344639153,
+        "is_pentagon": false
+      },
+      "5": {
+        "cell": "8544a113fffffff",
+        "center": {
+          "lat": 25.75458563999004,
+          "lng": -80.14144910832735
+        },
+        "area_km2": 224.8711623077899,
+        "is_pentagon": false
+      },
+      "9": {
+        "cell": "8944a112847ffff",
+        "center": {
+          "lat": 25.760423802034506,
+          "lng": -80.19302705275574
+        },
+        "area_km2": 0.09376613557604957,
+        "is_pentagon": false
+      },
+      "12": {
+        "cell": "8c44a112845a7ff",
+        "center": {
+          "lat": 25.76164980228586,
+          "lng": -80.19182289573857
+        },
+        "area_km2": 0.0002733637795936012,
+        "is_pentagon": false
+      }
+    }
+  }
+]

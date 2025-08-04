@@ -1,0 +1,92 @@
+[
+  {
+    "city": "San Francisco",
+    "coordinates": {
+      "lat": 37.7749,
+      "lng": -122.4194
+    },
+    "resolutions": {
+      "6": {
+        "cell": "86283082fffffff",
+        "area_km2": 37.52504174735086,
+        "parent_area_km2": 262.8086000037041,
+        "children_count": 7,
+        "children_area_km2": 37.52504158356368
+      },
+      "8": {
+        "cell": "8828308281fffff",
+        "area_km2": 0.7658173122144916,
+        "parent_area_km2": 5.360721068516899,
+        "children_count": 7,
+        "children_area_km2": 0.7658173121459926
+      },
+      "10": {
+        "cell": "8a283082800ffff",
+        "area_km2": 0.01562861231244619,
+        "parent_area_km2": 0.10940247351409498,
+        "children_count": 7,
+        "children_area_km2": 0.01562861231242189
+      }
+    }
+  },
+  {
+    "city": "New York",
+    "coordinates": {
+      "lat": 40.7128,
+      "lng": -74.006
+    },
+    "resolutions": {
+      "6": {
+        "cell": "862a1072fffffff",
+        "area_km2": 36.29040678187,
+        "parent_area_km2": 254.13299544168237,
+        "children_count": 7,
+        "children_area_km2": 36.290406637114955
+      },
+      "8": {
+        "cell": "882a107289fffff",
+        "area_km2": 0.7406903132301453,
+        "parent_area_km2": 5.184344549765711,
+        "children_count": 7,
+        "children_area_km2": 0.7406903131708586
+      },
+      "10": {
+        "cell": "8a2a10728907fff",
+        "area_km2": 0.01511686031592192,
+        "parent_area_km2": 0.10581802216722129,
+        "children_count": 7,
+        "children_area_km2": 0.015116860315714534
+      }
+    }
+  },
+  {
+    "city": "Los Angeles",
+    "coordinates": {
+      "lat": 34.0522,
+      "lng": -118.2437
+    },
+    "resolutions": {
+      "6": {
+        "cell": "8629a1d77ffffff",
+        "area_km2": 40.35892439207448,
+        "parent_area_km2": 282.3060620115841,
+        "children_count": 7,
+        "children_area_km2": 40.35892417987327
+      },
+      "8": {
+        "cell": "8829a1d757fffff",
+        "area_km2": 0.8235596827654444,
+        "parent_area_km2": 5.7651949458826985,
+        "children_count": 7,
+        "children_area_km2": 0.8235596826773046
+      },
+      "10": {
+        "cell": "8a29a1d7575ffff",
+        "area_km2": 0.016807071922820244,
+        "parent_area_km2": 0.11765031220033427,
+        "children_count": 7,
+        "children_area_km2": 0.0168070719226046
+      }
+    }
+  }
+]

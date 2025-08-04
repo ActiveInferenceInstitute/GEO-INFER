@@ -13,7 +13,7 @@ License: Apache-2.0
 import h3
 import numpy as np
 from typing import Union, List, Tuple, Optional, Dict, Any
-from .constants import (
+from constants import (
     MAX_H3_RES, MIN_H3_RES, ERROR_MESSAGES
 )
 
@@ -111,57 +111,6 @@ def cell_to_parent(cell: str, resolution: int) -> str:
     return h3.cell_to_parent(cell, resolution)
 
 
-def cell_to_pos(cell: str) -> int:
-    """
-    Convert H3 cell to position within its parent.
-    
-    Args:
-        cell: H3 cell index as string
-        
-    Returns:
-        Position within parent (0-6 for hexagons, 0-4 for pentagons)
-        
-    Raises:
-        ValueError: If cell index is invalid
-        
-    Example:
-        >>> cell_to_pos('89283082e73ffff')
-        0
-    """
-    if not h3.is_valid_cell(cell):
-        raise ValueError(ERROR_MESSAGES['INVALID_CELL'])
-    
-    return h3.cell_to_pos(cell)
-
-
-def pos_to_cell(parent: str, pos: int) -> str:
-    """
-    Convert position within parent to H3 cell.
-    
-    Args:
-        parent: Parent H3 cell index as string
-        pos: Position within parent (0-6 for hexagons, 0-4 for pentagons)
-        
-    Returns:
-        Child cell index
-        
-    Raises:
-        ValueError: If parent cell is invalid or position is out of range
-        
-    Example:
-        >>> pos_to_cell('88283082e73ffff', 0)
-        '89283082e73ffff'
-    """
-    if not h3.is_valid_cell(parent):
-        raise ValueError(ERROR_MESSAGES['INVALID_CELL'])
-    
-    max_pos = 4 if h3.is_pentagon(parent) else 6
-    if not 0 <= pos < max_pos:
-        raise ValueError(f"Position must be between 0 and {max_pos-1}")
-    
-    return h3.pos_to_cell(parent, pos)
-
-
 def cell_to_string(cell: Union[str, int]) -> str:
     """
     Convert H3 cell to string representation.
@@ -256,7 +205,7 @@ def cell_to_int(cell: str) -> int:
 
 
 # Re-export core functions for convenience
-from .core import latlng_to_cell, cell_to_latlng, cell_to_boundary
+from core import latlng_to_cell, cell_to_latlng, cell_to_boundary
 
 
 # Export all functions
@@ -267,8 +216,6 @@ __all__ = [
     'cell_to_center_child',
     'cell_to_children',
     'cell_to_parent',
-    'cell_to_pos',
-    'pos_to_cell',
     'cell_to_string',
     'string_to_cell',
     'int_to_cell',

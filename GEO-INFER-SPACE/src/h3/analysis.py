@@ -13,9 +13,11 @@ License: Apache-2.0
 import h3
 import numpy as np
 from typing import Union, List, Tuple, Optional, Dict, Any
-from .constants import (
+from constants import (
     MAX_H3_RES, MIN_H3_RES, ERROR_MESSAGES, H3_AREA_KM2, H3_EDGE_LENGTH_KM
 )
+from core import is_class_iii, is_res_class_iii, cell_perimeter
+from traversal import great_circle_distance
 
 
 def cell_area(cell: str, unit: str = 'km^2') -> float:
@@ -40,30 +42,6 @@ def cell_area(cell: str, unit: str = 'km^2') -> float:
         raise ValueError(ERROR_MESSAGES['INVALID_CELL'])
     
     return h3.cell_area(cell, unit=unit)
-
-
-def cell_perimeter(cell: str, unit: str = 'km') -> float:
-    """
-    Calculate the perimeter of an H3 cell.
-    
-    Args:
-        cell: H3 cell index as string
-        unit: Length unit ('km', 'm', 'rads')
-        
-    Returns:
-        Cell perimeter in specified units
-        
-    Raises:
-        ValueError: If cell index is invalid
-        
-    Example:
-        >>> cell_perimeter('89283082e73ffff', 'km')
-        0.174375668
-    """
-    if not h3.is_valid_cell(cell):
-        raise ValueError(ERROR_MESSAGES['INVALID_CELL'])
-    
-    return h3.cell_perimeter(cell, unit=unit)
 
 
 def edge_length(resolution: int, unit: str = 'km') -> float:
@@ -176,52 +154,6 @@ def is_pentagon(cell: str) -> bool:
         raise ValueError(ERROR_MESSAGES['INVALID_CELL'])
     
     return h3.is_pentagon(cell)
-
-
-def is_class_iii(cell: str) -> bool:
-    """
-    Check if an H3 cell is a Class III cell.
-    
-    Args:
-        cell: H3 cell index as string
-        
-    Returns:
-        True if Class III, False otherwise
-        
-    Raises:
-        ValueError: If cell index is invalid
-        
-    Example:
-        >>> is_class_iii('89283082e73ffff')
-        True
-    """
-    if not h3.is_valid_cell(cell):
-        raise ValueError(ERROR_MESSAGES['INVALID_CELL'])
-    
-    return h3.is_class_iii(cell)
-
-
-def is_res_class_iii(resolution: int) -> bool:
-    """
-    Check if a resolution produces Class III cells.
-    
-    Args:
-        resolution: H3 resolution (0-15)
-        
-    Returns:
-        True if Class III resolution, False otherwise
-        
-    Raises:
-        ValueError: If resolution is invalid
-        
-    Example:
-        >>> is_res_class_iii(9)
-        True
-    """
-    if not MIN_H3_RES <= resolution <= MAX_H3_RES:
-        raise ValueError(f"Resolution must be between {MIN_H3_RES} and {MAX_H3_RES}")
-    
-    return h3.is_res_class_iii(resolution)
 
 
 def get_base_cell_number(cell: str) -> int:
@@ -349,13 +281,15 @@ def analyze_cell_distribution(cells: List[str]) -> Dict[str, Any]:
     total_area = 0.0
     
     for cell in cells:
+        if not h3.is_valid_cell(cell):
+            continue
         res = h3.get_resolution(cell)
         resolutions[res] = resolutions.get(res, 0) + 1
         
         if h3.is_pentagon(cell):
             pentagons += 1
         
-        if h3.is_class_iii(cell):
+        if is_class_iii(cell):
             class_iii_cells += 1
         
         total_area += h3.cell_area(cell, 'km^2')
@@ -410,7 +344,7 @@ def calculate_spatial_statistics(cells: List[str]) -> Dict[str, Any]:
     
     # Calculate total area and perimeter
     total_area = sum(h3.cell_area(cell, 'km^2') for cell in cells)
-    total_perimeter = sum(h3.cell_perimeter(cell, 'km') for cell in cells)
+    total_perimeter = sum(cell_perimeter(cell, 'km') for cell in cells)
     
     # Calculate compactness (isoperimetric ratio)
     # For a perfect circle, compactness = 1.0
@@ -455,7 +389,7 @@ def find_nearest_cell(target_lat: float, target_lng: float, cells: List[str]) ->
     
     for cell in cells:
         cell_lat, cell_lng = h3.cell_to_latlng(cell)
-        distance = h3.great_circle_distance(target_lat, target_lng, cell_lat, cell_lng, 'km')
+        distance = great_circle_distance(target_lat, target_lng, cell_lat, cell_lng, unit='km')
         
         if distance < min_distance:
             min_distance = distance
@@ -548,7 +482,6 @@ def analyze_resolution_distribution(cells: List[str]) -> Dict[str, Any]:
 # Export all functions
 __all__ = [
     'cell_area',
-    'cell_perimeter',
     'edge_length',
     'num_cells',
     'get_resolution',

@@ -1,0 +1,45 @@
+{
+  "title": "Interactive Report",
+  "total_cells": 19,
+  "interactive_files": {
+    "interactive_map": {
+      "title": "H3 Interactive Map",
+      "center": [
+        37.76714034231634,
+        -122.41789449835915
+      ],
+      "zoom": 10,
+      "cell_count": 19,
+      "resolutions": [
+        9
+      ],
+      "total_area_km2": 2.078646977131209
+    },
+    "dashboard": {
+      "title": "H3 Interactive Dashboard",
+      "cell_count": 19,
+      "total_area_km2": 2.078646977131209,
+      "resolutions": {
+        "9": 19
+      },
+      "pentagons": 0,
+      "statistics": {
+        "centroid": [
+          37.77351496212393,
+          -122.41827096231162
+        ],
+        "total_area_km2": 2.078646977131209,
+        "total_perimeter_km": 22.889620872000002,
+        "compactness": 0.049855537558709195
+      }
+    },
+    "zoomable_map": {
+      "title": "H3 Zoomable Map",
+      "cell_count": 19,
+      "resolutions": [
+        9
+      ],
+      "layers": 1
+    }
+  }
+}

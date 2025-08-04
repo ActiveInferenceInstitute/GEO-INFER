@@ -195,25 +195,11 @@ def cell_area(cell: str, unit: str = 'km^2') -> float:
 def cell_perimeter(cell: str, unit: str = 'km') -> float:
     """
     Calculate the perimeter of an H3 cell.
-    
-    Args:
-        cell: H3 cell index as string
-        unit: Length unit ('km', 'm', 'rads')
-        
-    Returns:
-        Cell perimeter in specified units
-        
-    Raises:
-        ValueError: If cell index is invalid
-        
-    Example:
-        >>> cell_perimeter('89283082e73ffff', 'km')
-        0.174375668
     """
     if not h3_lib.is_valid_cell(cell):
         raise ValueError(ERROR_MESSAGES['INVALID_CELL'])
-    
-    return h3_lib.cell_perimeter(cell, unit=unit)
+    res = h3_lib.get_resolution(cell)
+    return 6 * h3_lib.average_hexagon_edge_length(res, unit=unit)
 
 
 def edge_length(resolution: int, unit: str = 'km') -> float:
@@ -331,47 +317,20 @@ def is_pentagon(cell: str) -> bool:
 def is_class_iii(cell: str) -> bool:
     """
     Check if an H3 cell is a Class III cell.
-    
-    Args:
-        cell: H3 cell index as string
-        
-    Returns:
-        True if Class III, False otherwise
-        
-    Raises:
-        ValueError: If cell index is invalid
-        
-    Example:
-        >>> is_class_iii('89283082e73ffff')
-        True
     """
     if not h3_lib.is_valid_cell(cell):
         raise ValueError(ERROR_MESSAGES['INVALID_CELL'])
-    
-    return h3_lib.is_class_iii(cell)
+    res = h3_lib.get_resolution(cell)
+    return res % 2 == 1
 
 
 def is_res_class_iii(resolution: int) -> bool:
     """
     Check if a resolution produces Class III cells.
-    
-    Args:
-        resolution: H3 resolution (0-15)
-        
-    Returns:
-        True if Class III resolution, False otherwise
-        
-    Raises:
-        ValueError: If resolution is invalid
-        
-    Example:
-        >>> is_res_class_iii(9)
-        True
     """
     if not MIN_H3_RES <= resolution <= MAX_H3_RES:
         raise ValueError(f"Resolution must be between {MIN_H3_RES} and {MAX_H3_RES}")
-    
-    return h3_lib.is_res_class_iii(resolution)
+    return resolution % 2 == 1
 
 
 # Export all functions

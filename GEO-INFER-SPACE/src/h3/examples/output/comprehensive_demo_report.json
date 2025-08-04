@@ -1,0 +1,107 @@
+{
+  "framework_info": {
+    "name": "GEO-INFER H3 Framework",
+    "version": "4.3.0",
+    "h3_version": "4.3.0",
+    "resolution_range": "0 to 15",
+    "available_resolutions": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ]
+  },
+  "example_scripts": [
+    {
+      "name": "01_basic_operations.py",
+      "description": "Basic H3 Operations",
+      "features": [
+        "Coordinate conversion",
+        "Cell properties",
+        "Validation",
+        "Resolution comparison",
+        "Cell classification"
+      ]
+    },
+    {
+      "name": "02_spatial_analysis.py",
+      "description": "Spatial Analysis",
+      "features": [
+        "Grid operations",
+        "Distance calculations",
+        "Path analysis",
+        "Spatial statistics",
+        "Density analysis"
+      ]
+    },
+    {
+      "name": "03_hierarchical_operations.py",
+      "description": "Hierarchical Operations",
+      "features": [
+        "Parent-child relationships",
+        "Hierarchy paths",
+        "Ancestors and descendants",
+        "Multi-resolution operations"
+      ]
+    },
+    {
+      "name": "04_data_conversion.py",
+      "description": "Data Conversion",
+      "features": [
+        "GeoJSON conversion",
+        "WKT conversion",
+        "CSV export",
+        "KML export",
+        "Multi-channel fusion"
+      ]
+    },
+    {
+      "name": "05_visualization_outputs.py",
+      "description": "Visualization Outputs",
+      "features": [
+        "Static visualizations",
+        "Animated visualizations",
+        "Interactive visualizations",
+        "Heatmaps",
+        "Temporal data"
+      ]
+    },
+    {
+      "name": "06_comprehensive_workflow.py",
+      "description": "Comprehensive Workflow",
+      "features": [
+        "End-to-end pipeline",
+        "Data processing",
+        "Analysis",
+        "Visualization",
+        "Export capabilities"
+      ]
+    }
+  ],
+  "output_structure": {
+    "data": "Raw data files (JSON, CSV)",
+    "reports": "Analysis reports and summaries",
+    "visualizations": "Static and interactive visualizations",
+    "animations": "Animated visualizations (GIF)",
+    "comprehensive": "End-to-end workflow outputs"
+  },
+  "framework_architecture": {
+    "modular_design": "Functions organized in specialized modules",
+    "thin_orchestrators": "Example scripts call modular functions",
+    "h3_v4_compatibility": "All methods use valid H3 v4 API",
+    "output_organization": "Structured output to subdirectories"
+  },
+  "timestamp": "2025-08-04 07:13:05"
+}

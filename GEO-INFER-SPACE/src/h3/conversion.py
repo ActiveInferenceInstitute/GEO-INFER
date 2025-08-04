@@ -13,9 +13,10 @@ License: Apache-2.0
 import h3
 import numpy as np
 from typing import Union, List, Tuple, Optional, Dict, Any
-from .constants import (
+from constants import (
     MAX_H3_RES, MIN_H3_RES, ERROR_MESSAGES
 )
+from core import is_class_iii
 
 
 def cell_to_geojson(cell: str) -> Dict[str, Any]:
@@ -258,7 +259,7 @@ def cells_to_shapefile_data(cells: List[str]) -> Dict[str, Any]:
             'resolution': h3.get_resolution(cell),
             'area_km2': h3.cell_area(cell, 'km^2'),
             'is_pentagon': h3.is_pentagon(cell),
-            'is_class_iii': h3.is_class_iii(cell)
+            'is_class_iii': is_class_iii(cell)
         })
     
     return {
@@ -360,14 +361,14 @@ def cells_to_csv(cells: List[str]) -> str:
         center_lat, center_lng = h3.cell_to_latlng(cell)
         csv_lines.append(
             f'{cell},{h3.get_resolution(cell)},{center_lat},{center_lng},'
-            f'{h3.cell_area(cell, "km^2")},{h3.is_pentagon(cell)},{h3.is_class_iii(cell)}'
+            f'{h3.cell_area(cell, "km^2")},{h3.is_pentagon(cell)},{is_class_iii(cell)}'
         )
     
     return '\n'.join(csv_lines)
 
 
 # Re-export core functions for convenience
-from .core import latlng_to_cell, cell_to_latlng, cell_to_boundary, cell_to_polygon, polygon_to_cells, polyfill
+from core import latlng_to_cell, cell_to_latlng, cell_to_boundary, cell_to_polygon, polygon_to_cells, polyfill
 
 
 # Export all functions

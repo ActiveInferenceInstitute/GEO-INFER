@@ -1,0 +1,233 @@
+{
+  "grid_analysis": {
+    "San Francisco": {
+      "disk_cells": 37,
+      "disk_area": 4.047891443909084,
+      "ring_cells": 6,
+      "neighbors": 6
+    },
+    "New York": {
+      "disk_cells": 37,
+      "disk_area": 3.91526675287584,
+      "ring_cells": 6,
+      "neighbors": 6
+    },
+    "Los Angeles": {
+      "disk_cells": 37,
+      "disk_area": 4.353061452807046,
+      "ring_cells": 6,
+      "neighbors": 6
+    },
+    "Chicago": {
+      "disk_cells": 37,
+      "disk_area": 3.9301946964588512,
+      "ring_cells": 6,
+      "neighbors": 6
+    },
+    "Miami": {
+      "disk_cells": 37,
+      "disk_area": 3.469346974507033,
+      "ring_cells": 6,
+      "neighbors": 6
+    }
+  },
+  "distance_analysis": [
+    {
+      "from": "San Francisco",
+      "to": "New York",
+      "cell1": "89283082803ffff",
+      "cell2": "892a1072893ffff",
+      "great_circle_distance_km": 4129.090819056859,
+      "grid_distance": null
+    },
+    {
+      "from": "San Francisco",
+      "to": "Los Angeles",
+      "cell1": "89283082803ffff",
+      "cell2": "8929a1d7577ffff",
+      "great_circle_distance_km": 559.1212072607813,
+      "grid_distance": 1790
+    },
+    {
+      "from": "San Francisco",
+      "to": "Chicago",
+      "cell1": "89283082803ffff",
+      "cell2": "892664c1a8fffff",
+      "great_circle_distance_km": 2984.911028158427,
+      "grid_distance": 9220
+    },
+    {
+      "from": "San Francisco",
+      "to": "Miami",
+      "cell1": "89283082803ffff",
+      "cell2": "8944a112847ffff",
+      "great_circle_distance_km": 4169.768911725514,
+      "grid_distance": null
+    },
+    {
+      "from": "New York",
+      "to": "Los Angeles",
+      "cell1": "892a1072893ffff",
+      "cell2": "8929a1d7577ffff",
+      "great_circle_distance_km": 3935.7506906908707,
+      "grid_distance": null
+    },
+    {
+      "from": "New York",
+      "to": "Chicago",
+      "cell1": "892a1072893ffff",
+      "cell2": "892664c1a8fffff",
+      "great_circle_distance_km": 1144.2925637065655,
+      "grid_distance": 3514
+    },
+    {
+      "from": "New York",
+      "to": "Miami",
+      "cell1": "892a1072893ffff",
+      "cell2": "8944a112847ffff",
+      "great_circle_distance_km": 1757.963206516864,
+      "grid_distance": 5477
+    },
+    {
+      "from": "Los Angeles",
+      "to": "Chicago",
+      "cell1": "8929a1d7577ffff",
+      "cell2": "892664c1a8fffff",
+      "great_circle_distance_km": 2803.9746674038215,
+      "grid_distance": 8065
+    },
+    {
+      "from": "Los Angeles",
+      "to": "Miami",
+      "cell1": "8929a1d7577ffff",
+      "cell2": "8944a112847ffff",
+      "great_circle_distance_km": 3758.773692991331,
+      "grid_distance": null
+    },
+    {
+      "from": "Chicago",
+      "to": "Miami",
+      "cell1": "892664c1a8fffff",
+      "cell2": "8944a112847ffff",
+      "great_circle_distance_km": 1917.3120531787006,
+      "grid_distance": 6350
+    }
+  ],
+  "results": {
+    "status": "completed",
+    "grid_analysis": {
+      "San Francisco": {
+        "disk_cells": 37,
+        "disk_area": 4.047891443909084,
+        "ring_cells": 6,
+        "neighbors": 6
+      },
+      "New York": {
+        "disk_cells": 37,
+        "disk_area": 3.91526675287584,
+        "ring_cells": 6,
+        "neighbors": 6
+      },
+      "Los Angeles": {
+        "disk_cells": 37,
+        "disk_area": 4.353061452807046,
+        "ring_cells": 6,
+        "neighbors": 6
+      },
+      "Chicago": {
+        "disk_cells": 37,
+        "disk_area": 3.9301946964588512,
+        "ring_cells": 6,
+        "neighbors": 6
+      },
+      "Miami": {
+        "disk_cells": 37,
+        "disk_area": 3.469346974507033,
+        "ring_cells": 6,
+        "neighbors": 6
+      }
+    },
+    "distance_analysis": [
+      {
+        "from": "San Francisco",
+        "to": "New York",
+        "cell1": "89283082803ffff",
+        "cell2": "892a1072893ffff",
+        "great_circle_distance_km": 4129.090819056859,
+        "grid_distance": null
+      },
+      {
+        "from": "San Francisco",
+        "to": "Los Angeles",
+        "cell1": "89283082803ffff",
+        "cell2": "8929a1d7577ffff",
+        "great_circle_distance_km": 559.1212072607813,
+        "grid_distance": 1790
+      },
+      {
+        "from": "San Francisco",
+        "to": "Chicago",
+        "cell1": "89283082803ffff",
+        "cell2": "892664c1a8fffff",
+        "great_circle_distance_km": 2984.911028158427,
+        "grid_distance": 9220
+      },
+      {
+        "from": "San Francisco",
+        "to": "Miami",
+        "cell1": "89283082803ffff",
+        "cell2": "8944a112847ffff",
+        "great_circle_distance_km": 4169.768911725514,
+        "grid_distance": null
+      },
+      {
+        "from": "New York",
+        "to": "Los Angeles",
+        "cell1": "892a1072893ffff",
+        "cell2": "8929a1d7577ffff",
+        "great_circle_distance_km": 3935.7506906908707,
+        "grid_distance": null
+      },
+      {
+        "from": "New York",
+        "to": "Chicago",
+        "cell1": "892a1072893ffff",
+        "cell2": "892664c1a8fffff",
+        "great_circle_distance_km": 1144.2925637065655,
+        "grid_distance": 3514
+      },
+      {
+        "from": "New York",
+        "to": "Miami",
+        "cell1": "892a1072893ffff",
+        "cell2": "8944a112847ffff",
+        "great_circle_distance_km": 1757.963206516864,
+        "grid_distance": 5477
+      },
+      {
+        "from": "Los Angeles",
+        "to": "Chicago",
+        "cell1": "8929a1d7577ffff",
+        "cell2": "892664c1a8fffff",
+        "great_circle_distance_km": 2803.9746674038215,
+        "grid_distance": 8065
+      },
+      {
+        "from": "Los Angeles",
+        "to": "Miami",
+        "cell1": "8929a1d7577ffff",
+        "cell2": "8944a112847ffff",
+        "great_circle_distance_km": 3758.773692991331,
+        "grid_distance": null
+      },
+      {
+        "from": "Chicago",
+        "to": "Miami",
+        "cell1": "892664c1a8fffff",
+        "cell2": "8944a112847ffff",
+        "great_circle_distance_km": 1917.3120531787006,
+        "grid_distance": 6350
+      }
+    ]
+  }
+}

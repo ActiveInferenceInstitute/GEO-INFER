@@ -1,0 +1,236 @@
+{
+  "fusion_data": [
+    {
+      "cell": "892a1072893ffff",
+      "coordinates": {
+        "lat": 40.71237820442782,
+        "lng": -74.0056425771711
+      },
+      "area_km2": 0.10581802216722129,
+      "population": 8336817,
+      "density": 11000,
+      "air_quality": 52,
+      "temperature": 12.8,
+      "hospitals": 89,
+      "schools": 234,
+      "parks": 67
+    },
+    {
+      "cell": "8929a1d7577ffff",
+      "coordinates": {
+        "lat": 34.05052759172434,
+        "lng": -118.24445333040731
+      },
+      "area_km2": 0.11765031220033427,
+      "population": 3979576,
+      "density": 3200,
+      "air_quality": 65,
+      "temperature": 18.2,
+      "hospitals": 34,
+      "schools": 156,
+      "parks": 89
+    },
+    {
+      "cell": "89283082803ffff",
+      "coordinates": {
+        "lat": 37.773515097238146,
+        "lng": -122.4182710369247
+      },
+      "area_km2": 0.10940247351409498,
+      "population": 873965,
+      "density": 7200,
+      "air_quality": 45,
+      "temperature": 14.5,
+      "hospitals": 12,
+      "schools": 45,
+      "parks": 23
+    }
+  ],
+  "fused_geojson": {
+    "type": "FeatureCollection",
+    "features": [
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                40.714138089736345,
+                -74.0057122762948
+              ],
+              [
+                40.71319995679591,
+                -74.00781372666268
+              ],
+              [
+                40.71144009204547,
+                -74.00774395008956
+              ],
+              [
+                40.71061835800672,
+                -74.00557288327344
+              ],
+              [
+                40.7115564212349,
+                -74.00347150729532
+              ],
+              [
+                40.713316288211296,
+                -74.0035411237431
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "h3_index": "892a1072893ffff",
+          "resolution": 9,
+          "population": 8336817,
+          "density": 11000,
+          "air_quality": 52,
+          "temperature": 12.8,
+          "hospitals": 89,
+          "schools": 234,
+          "parks": 67
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                34.04891054918894,
+                -118.24326787807877
+              ],
+              [
+                34.05060598751605,
+                -118.24214342180282
+              ],
+              [
+                34.052223024842746,
+                -118.24332888211038
+              ],
+              [
+                34.05214459904132,
+                -118.24563881047831
+              ],
+              [
+                34.05044915354662,
+                -118.24676321069539
+              ],
+              [
+                34.04883214102074,
+                -118.24557773860613
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "h3_index": "8929a1d7577ffff",
+          "resolution": 9,
+          "population": 3979576,
+          "density": 3200,
+          "air_quality": 65,
+          "temperature": 18.2,
+          "hospitals": 34,
+          "schools": 156,
+          "parks": 89
+        }
+      },
+      {
+        "type": "Feature",
+        "geometry": {
+          "type": "Polygon",
+          "coordinates": [
+            [
+              [
+                37.772010477332394,
+                -122.41701147197294
+              ],
+              [
+                37.77369317299805,
+                -122.41594013984891
+              ],
+              [
+                37.775197782893386,
+                -122.41719971841658
+              ],
+              [
+                37.775019673792606,
+                -122.41953062807342
+              ],
+              [
+                37.7733369780061,
+                -122.42060189084884
+              ],
+              [
+                37.771832391440924,
+                -122.41934231331867
+              ]
+            ]
+          ]
+        },
+        "properties": {
+          "h3_index": "89283082803ffff",
+          "resolution": 9,
+          "population": 873965,
+          "density": 7200,
+          "air_quality": 45,
+          "temperature": 14.5,
+          "hospitals": 12,
+          "schools": 45,
+          "parks": 23
+        }
+      }
+    ]
+  },
+  "channels": {
+    "population": {
+      "89283082803ffff": {
+        "population": 873965,
+        "density": 7200
+      },
+      "892a1072893ffff": {
+        "population": 8336817,
+        "density": 11000
+      },
+      "8929a1d7577ffff": {
+        "population": 3979576,
+        "density": 3200
+      }
+    },
+    "environmental": {
+      "89283082803ffff": {
+        "air_quality": 45,
+        "temperature": 14.5
+      },
+      "892a1072893ffff": {
+        "air_quality": 52,
+        "temperature": 12.8
+      },
+      "8929a1d7577ffff": {
+        "air_quality": 65,
+        "temperature": 18.2
+      }
+    },
+    "infrastructure": {
+      "89283082803ffff": {
+        "hospitals": 12,
+        "schools": 45,
+        "parks": 23
+      },
+      "892a1072893ffff": {
+        "hospitals": 89,
+        "schools": 234,
+        "parks": 67
+      },
+      "8929a1d7577ffff": {
+        "hospitals": 34,
+        "schools": 156,
+        "parks": 89
+      }
+    }
+  }
+}

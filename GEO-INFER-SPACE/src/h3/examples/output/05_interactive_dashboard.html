@@ -1,0 +1,202 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Interactive H3 Dashboard</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                margin: 0;
+                padding: 20px;
+                background-color: #f5f5f5;
+            }
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background-color: white;
+                padding: 20px;
+                border-radius: 10px;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 30px;
+                color: #333;
+            }
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+            .stat-card {
+                background-color: #f8f9fa;
+                padding: 20px;
+                border-radius: 8px;
+                text-align: center;
+                border-left: 4px solid #007bff;
+            }
+            .stat-value {
+                font-size: 2em;
+                font-weight: bold;
+                color: #007bff;
+            }
+            .stat-label {
+                color: #666;
+                margin-top: 5px;
+            }
+            .chart-container {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+                margin-bottom: 30px;
+            }
+            .chart {
+                background-color: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            .map-container {
+                height: 500px;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            }
+            #map {
+                height: 100%;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>Interactive H3 Dashboard</h1>
+                <p>Interactive H3 Geospatial Analysis Dashboard</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Total Cells</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">0.53</div>
+                    <div class="stat-label">Total Area (km²)</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">1</div>
+                    <div class="stat-label">Resolutions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">0</div>
+                    <div class="stat-label">Pentagons</div>
+                </div>
+            </div>
+            
+            <div class="chart-container">
+                <div class="chart">
+                    <h3>Resolution Distribution</h3>
+                    <div id="resolutionChart"></div>
+                </div>
+                <div class="chart">
+                    <h3>Area Distribution</h3>
+                    <div id="areaChart"></div>
+                </div>
+            </div>
+            
+            <div class="map-container">
+                <div id="map"></div>
+            </div>
+        </div>
+        
+        <script>
+            // Map setup
+            var map = L.map('map').setView([37.7749, -122.4194], 10);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetmap contributors'
+            }).addTo(map);
+            
+            var geojsonData = {"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[37.772010477332394, -122.41701147197294], [37.77369317299805, -122.41594013984891], [37.775197782893386, -122.41719971841658], [37.775019673792606, -122.41953062807342], [37.7733369780061, -122.42060189084884], [37.771832391440924, -122.41934231331867]]]}, "properties": {"h3_index": "89283082803ffff", "resolution": 9}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[40.714138089736345, -74.0057122762948], [40.71319995679591, -74.00781372666268], [40.71144009204547, -74.00774395008956], [40.71061835800672, -74.00557288327344], [40.7115564212349, -74.00347150729532], [40.713316288211296, -74.0035411237431]]]}, "properties": {"h3_index": "892a1072893ffff", "resolution": 9}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[34.04891054918894, -118.24326787807877], [34.05060598751605, -118.24214342180282], [34.052223024842746, -118.24332888211038], [34.05214459904132, -118.24563881047831], [34.05044915354662, -118.24676321069539], [34.04883214102074, -118.24557773860613]]]}, "properties": {"h3_index": "8929a1d7577ffff", "resolution": 9}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[41.88026392883539, -87.63015920464527], [41.87908374447383, -87.63197744506171], [41.877348057632055, -87.63139256683408], [41.876792512159824, -87.62898959278748], [41.87797261617584, -87.6271713528428], [41.879708346007725, -87.6277560864674]]]}, "properties": {"h3_index": "892664c1a8fffff", "resolution": 9}}, {"type": "Feature", "geometry": {"type": "Polygon", "coordinates": [[[25.75868741182908, -80.19258328849136], [25.75995562647984, -80.19129097608717], [25.761692010150824, -80.19173471687346], [25.76216020517536, -80.19347083364988], [25.760891969297475, -80.19476318872348], [25.759155559622542, -80.19431938435116]]]}, "properties": {"h3_index": "8944a112847ffff", "resolution": 9}}]};
+            
+            L.geoJSON(geojsonData, {
+                style: function(feature) {
+                    var resolution = feature.properties.resolution;
+                    var colors = ['#ff0000', '#0000ff', '#00ff00', '#ff00ff', '#ffff00', '#00ffff'];
+                    return {
+                        fillColor: colors[resolution % colors.length],
+                        weight: 2,
+                        opacity: 1,
+                        color: 'black',
+                        fillOpacity: 0.3
+                    };
+                },
+                onEachFeature: function(feature, layer) {
+                    var popupContent = '<div style="width: 200px;">' +
+                        '<h4>H3 Cell</h4>' +
+                        '<p><strong>Index:</strong> ' + feature.properties.h3_index + '</p>' +
+                        '<p><strong>Resolution:</strong> ' + feature.properties.resolution + '</p>' +
+                        '<p><strong>Area:</strong> ' + feature.properties.area_km2.toFixed(6) + ' km²</p>' +
+                        '</div>';
+                    layer.bindPopup(popupContent);
+                    layer.bindTooltip('R' + feature.properties.resolution + ': ' + feature.properties.area_km2.toFixed(4) + ' km²');
+                }
+            }).addTo(map);
+            
+            // Resolution distribution chart
+            var resolutionData = {"9": 5};
+            var resolutionCounts = {};
+            resolutionData.forEach(function(res) {
+                resolutionCounts[res] = (resolutionCounts[res] || 0) + 1;
+            });
+            
+            var resolutionChart = {
+                x: Object.keys(resolutionCounts),
+                y: Object.values(resolutionCounts),
+                type: 'bar',
+                marker: {
+                    color: 'rgb(55, 83, 109)'
+                }
+            };
+            
+            var resolutionLayout = {
+                title: 'Cells by Resolution',
+                xaxis: { title: 'Resolution' },
+                yaxis: { title: 'Number of Cells' }
+            };
+            
+            Plotly.newPlot('resolutionChart', [resolutionChart], resolutionLayout);
+            
+            // Area distribution chart
+            var areas = [0.10940247351409498, 0.10581802216722129, 0.11765031220033427, 0.10622148012791267, 0.09376613557604957];
+            
+            var areaChart = {
+                x: areas,
+                type: 'histogram',
+                marker: {
+                    color: 'rgb(158, 202, 225)',
+                    line: {
+                        color: 'rgb(8, 48, 107)',
+                        width: 1.5
+                    }
+                }
+            };
+            
+            var areaLayout = {
+                title: 'Area Distribution',
+                xaxis: { title: 'Area (km²)' },
+                yaxis: { title: 'Frequency' }
+            };
+            
+            Plotly.newPlot('areaChart', [areaChart], areaLayout);
+        </script>
+    </body>
+    </html>
+    

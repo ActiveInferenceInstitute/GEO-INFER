@@ -1,0 +1,103 @@
+
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <title>Zoomable H3 Map</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+        <style>
+            body {
+                padding: 0;
+                margin: 0;
+            }
+            html, body, #map {
+                height: 100%;
+                width: 100%;
+            }
+            .legend {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                background: white;
+                padding: 10px;
+                border-radius: 5px;
+                box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+                z-index: 1000;
+            }
+            .legend-item {
+                margin: 5px 0;
+            }
+            .legend-color {
+                display: inline-block;
+                width: 20px;
+                height: 20px;
+                margin-right: 5px;
+                border: 1px solid black;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <div class="legend">
+            <h4>Resolutions</h4>
+            <div id="legend-content"></div>
+        </div>
+        
+        <script>
+            var map = L.map('map').setView([37.7749, -122.4194], 10);
+            
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors'
+            }).addTo(map);
+            
+            var layers = {};
+            var colors = ['#ff0000', '#0000ff', '#00ff00', '#ff00ff', '#ffff00', '#00ffff', '#ff8800', '#8800ff'];
+            
+            var cellsByResolution = {"9": ["89283082803ffff", "892a1072893ffff", "8929a1d7577ffff", "892664c1a8fffff", "8944a112847ffff"]};
+            
+            Object.keys(cellsByResolution).forEach(function(resolution) {
+                var color = colors[parseInt(resolution) % colors.length];
+                var layer = L.layerGroup();
+                
+                cellsByResolution[resolution].forEach(function(cell) {
+                    // Create a simple polygon for the cell (simplified)
+                    var center = [37.7749, -122.4194]; // This should be calculated from cell
+                    var size = 0.01 / Math.pow(2, parseInt(resolution));
+                    
+                    var polygon = L.polygon([
+                        [center[0] - size, center[1] - size],
+                        [center[0] + size, center[1] - size],
+                        [center[0] + size, center[1] + size],
+                        [center[0] - size, center[1] + size]
+                    ], {
+                        color: color,
+                        fillColor: color,
+                        fillOpacity: 0.3,
+                        weight: 2
+                    });
+                    
+                    polygon.bindPopup('<strong>H3 Cell</strong><br>Resolution: ' + resolution + '<br>Index: ' + cell);
+                    polygon.addTo(layer);
+                });
+                
+                layers[resolution] = layer;
+                layer.addTo(map);
+                
+                // Add to legend
+                var legendItem = document.createElement('div');
+                legendItem.className = 'legend-item';
+                legendItem.innerHTML = '<span class="legend-color" style="background-color: ' + color + '"></span>Resolution ' + resolution;
+                document.getElementById('legend-content').appendChild(legendItem);
+            });
+            
+            // Add zoom control
+            var zoomControl = L.control.zoom({
+                position: 'bottomright'
+            });
+            zoomControl.addTo(map);
+        </script>
+    </body>
+    </html>
+    

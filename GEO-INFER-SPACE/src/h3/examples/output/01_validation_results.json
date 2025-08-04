@@ -1,0 +1,22 @@
+[
+  {
+    "cell": "invalid_cell",
+    "is_valid": false,
+    "reason": "Invalid format"
+  },
+  {
+    "cell": "89283082e73fff",
+    "is_valid": false,
+    "reason": "Invalid format"
+  },
+  {
+    "cell": "89283082e73fffff",
+    "is_valid": false,
+    "reason": "Invalid format"
+  },
+  {
+    "cell": "89283082e73fffg",
+    "is_valid": false,
+    "reason": "Invalid format"
+  }
+]

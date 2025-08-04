@@ -13,25 +13,51 @@ License: Apache-2.0
 import sys
 import os
 import json
+import csv
 import time
 from pathlib import Path
 
 # Add the parent directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from h3 import (
-    # Core operations
-    latlng_to_cell, cell_to_latlng, cell_to_boundary, cell_area,
-    
-    # Traversal operations
-    grid_disk, grid_ring, grid_path_cells, grid_distance,
-    
-    # Conversion operations
-    cells_to_geojson, cells_to_csv,
-    
-    # Analysis operations
+from core import (
+    latlng_to_cell, cell_to_latlng, cell_to_boundary, cell_area
+)
+
+from traversal import (
+    grid_disk, grid_ring, grid_path_cells, grid_distance
+)
+
+from conversion import (
+    cells_to_geojson, cells_to_csv
+)
+
+from analysis import (
     analyze_cell_distribution, calculate_spatial_statistics
 )
+
+from visualization import (
+    create_cell_map, create_resolution_chart, create_area_distribution_plot,
+    create_density_heatmap, create_comparison_plot, generate_visualization_report
+)
+
+from animation import (
+    create_grid_expansion_animation, create_resolution_transition_animation,
+    create_path_animation, create_temporal_animation, create_animated_heatmap,
+    generate_animation_report
+)
+
+from interactive import (
+    create_interactive_map, create_simple_html_map, create_interactive_dashboard,
+    create_zoomable_map, create_interactive_report
+)
+
+
+def ensure_output_dir():
+    """Ensure the output directory exists."""
+    output_dir = Path("output")
+    output_dir.mkdir(exist_ok=True)
+    return output_dir
 
 
 def demo_static_visualization():
@@ -39,42 +65,64 @@ def demo_static_visualization():
     print("🔹 Static Visualization")
     print("-" * 40)
     
+    output_dir = ensure_output_dir()
+    
     # Create test dataset
     center_cell = latlng_to_cell(37.7749, -122.4194, 9)
     cells = grid_disk(center_cell, 3)
     
     print(f"Creating static visualization for {len(cells)} cells:")
     
-    # 1. Generate GeoJSON for web mapping
-    geojson_output = cells_to_geojson(cells)
-    print(f"  1. GeoJSON: {len(geojson_output['features'])} features")
+    # 1. Generate cell map
+    map_path = output_dir / "05_static_visualization_map.png"
+    create_cell_map(cells, title="Static H3 Cell Map", output_path=map_path)
+    print(f"  1. Cell Map: {map_path}")
     
-    # 2. Generate CSV for data analysis
-    csv_output = cells_to_csv(cells)
-    print(f"  2. CSV: {len(csv_output.splitlines())} lines")
+    # 2. Generate resolution chart
+    chart_path = output_dir / "05_static_resolution_chart.png"
+    create_resolution_chart(cells, title="Resolution Distribution", output_path=chart_path)
+    print(f"  2. Resolution Chart: {chart_path}")
     
-    # 3. Generate summary statistics
+    # 3. Generate area distribution plot
+    plot_path = output_dir / "05_static_area_distribution.png"
+    create_area_distribution_plot(cells, title="Area Distribution", output_path=plot_path)
+    print(f"  3. Area Distribution Plot: {plot_path}")
+    
+    # 4. Generate density heatmap
+    heatmap_path = output_dir / "05_static_density_heatmap.png"
+    create_density_heatmap(cells, center_cell, radius=3, 
+                          title="Density Heatmap", output_path=heatmap_path)
+    print(f"  4. Density Heatmap: {heatmap_path}")
+    
+    # 5. Generate summary statistics
     distribution = analyze_cell_distribution(cells)
     stats = calculate_spatial_statistics(cells)
     
-    print(f"  3. Summary Statistics:")
+    print(f"  5. Summary Statistics:")
     print(f"     Total cells: {distribution['total_cells']}")
     print(f"     Total area: {distribution['total_area_km2']:.6f} km²")
     print(f"     Average area: {distribution['avg_area_km2']:.6f} km²")
     print(f"     Centroid: {stats['centroid']}")
     print(f"     Compactness: {stats['compactness']:.4f}")
     
-    # 4. Generate cell properties table
-    print(f"  4. Cell Properties Table:")
-    print(f"     Cell Index | Center Coordinates | Area (km²)")
-    print(f"     {'-' * 50}")
-    for i, cell in enumerate(cells[:10]):  # Show first 10
-        lat, lng = cell_to_latlng(cell)
-        area = cell_area(cell, 'km^2')
-        print(f"     {cell} | ({lat:.4f}, {lng:.4f}) | {area:.6f}")
+    # Save static visualization data
+    static_data = {
+        "center_cell": center_cell,
+        "cells": cells,
+        "distribution": distribution,
+        "statistics": stats,
+        "visualization_files": [
+            str(map_path),
+            str(chart_path),
+            str(plot_path),
+            str(heatmap_path)
+        ]
+    }
     
-    if len(cells) > 10:
-        print(f"     ... and {len(cells) - 10} more cells")
+    output_file = output_dir / "05_static_visualization.json"
+    with open(output_file, 'w') as f:
+        json.dump(static_data, f, indent=2)
+    print(f"✅ Saved static visualization data to {output_file}")
 
 
 def demo_animated_visualization():
@@ -82,71 +130,66 @@ def demo_animated_visualization():
     print("\n🔹 Animated Visualization")
     print("-" * 40)
     
+    output_dir = ensure_output_dir()
+    
     # Create animation frames
     center_cell = latlng_to_cell(37.7749, -122.4194, 9)
     
     print("Creating animation frames:")
     
     # 1. Grid expansion animation
-    print("  1. Grid Expansion Animation:")
-    expansion_frames = []
-    for k in range(0, 4):
-        frame_cells = grid_disk(center_cell, k)
-        frame_data = {
-            'frame': k,
-            'cells': frame_cells,
-            'cell_count': len(frame_cells),
-            'total_area': sum(cell_area(cell, 'km^2') for cell in frame_cells)
-        }
-        expansion_frames.append(frame_data)
-        print(f"    Frame {k}: {len(frame_cells)} cells, {frame_data['total_area']:.6f} km²")
+    expansion_path = output_dir / "05_grid_expansion_animation.gif"
+    create_grid_expansion_animation([center_cell], center_cell, max_radius=4,
+                                  title="Grid Expansion Animation", output_path=expansion_path)
+    print(f"  1. Grid Expansion Animation: {expansion_path}")
     
     # 2. Resolution transition animation
-    print("  2. Resolution Transition Animation:")
-    transition_frames = []
-    for resolution in range(6, 12):
-        frame_cell = latlng_to_cell(37.7749, -122.4194, resolution)
-        frame_data = {
-            'frame': resolution - 6,
-            'resolution': resolution,
-            'cell': frame_cell,
-            'area': cell_area(frame_cell, 'km^2')
-        }
-        transition_frames.append(frame_data)
-        print(f"    Frame {resolution-6}: Res {resolution}, {frame_cell}, {frame_data['area']:.6f} km²")
+    transition_path = output_dir / "05_resolution_transition_animation.gif"
+    create_resolution_transition_animation([center_cell], start_resolution=6, end_resolution=12,
+                                        title="Resolution Transition Animation", output_path=transition_path)
+    print(f"  2. Resolution Transition Animation: {transition_path}")
     
     # 3. Path animation
-    print("  3. Path Animation:")
-    end_cell = latlng_to_cell(40.7128, -74.0060, 9)  # New York
-    path_cells = grid_path_cells(center_cell, end_cell)
+    end_cell = latlng_to_cell(37.7849, -122.4094, 9)  # Closer to San Francisco
+    path_path = output_dir / "05_path_animation.gif"
+    create_path_animation(center_cell, end_cell, title="Path Animation", output_path=path_path)
+    print(f"  3. Path Animation: {path_path}")
     
-    path_frames = []
-    for i, cell in enumerate(path_cells[::5]):  # Sample every 5th cell
-        frame_data = {
-            'frame': i,
-            'cell': cell,
-            'progress': i / (len(path_cells) // 5),
-            'coordinates': cell_to_latlng(cell)
-        }
-        path_frames.append(frame_data)
-        print(f"    Frame {i}: {cell}, Progress: {frame_data['progress']:.2f}")
+    # 4. Animated heatmap
+    heatmap_path = output_dir / "05_animated_heatmap.gif"
+    create_animated_heatmap([center_cell], center_cell, radius=3,
+                           title="Animated Heatmap", output_path=heatmap_path)
+    print(f"  4. Animated Heatmap: {heatmap_path}")
     
-    # Generate animation data
+    # Generate animation report
+    animation_report_path = output_dir / "05_animation_report.json"
+    generate_animation_report([center_cell], output_dir / "animations", title="Animation Report")
+    print(f"  5. Animation Report: {animation_report_path}")
+    
+    # Save animation data
     animation_data = {
-        'expansion': expansion_frames,
-        'transition': transition_frames,
-        'path': path_frames
+        "center_cell": center_cell,
+        "end_cell": end_cell,
+        "animation_files": [
+            str(expansion_path),
+            str(transition_path),
+            str(path_path),
+            str(heatmap_path)
+        ]
     }
     
-    print(f"  Generated {len(expansion_frames)} expansion frames")
-    print(f"  Generated {len(transition_frames)} transition frames")
-    print(f"  Generated {len(path_frames)} path frames")
+    output_file = output_dir / "05_animated_visualization.json"
+    with open(output_file, 'w') as f:
+        json.dump(animation_data, f, indent=2)
+    print(f"✅ Saved animated visualization data to {output_file}")
 
 
 def demo_interactive_visualization():
     """Demonstrate interactive visualization outputs."""
     print("\n🔹 Interactive Visualization")
     print("-" * 40)
+    
+    output_dir = ensure_output_dir()
     
     # Create interactive dataset
     locations = [
@@ -159,86 +202,53 @@ def demo_interactive_visualization():
     
     print("Creating interactive visualization data:")
     
-    # 1. Generate interactive GeoJSON
-    interactive_features = []
+    # Convert locations to cells
+    cells = []
     for city, lat, lng in locations:
         cell = latlng_to_cell(lat, lng, 9)
-        geojson = cells_to_geojson([cell])
-        
-        # Add interactive properties
-        feature = geojson['features'][0]
-        feature['properties'].update({
-            'city': city,
-            'population': {
-                'San Francisco': 873965,
-                'New York': 8336817,
-                'Los Angeles': 3979576,
-                'Chicago': 2693976,
-                'Miami': 454279
-            }.get(city, 0),
-            'timezone': {
-                'San Francisco': 'PST',
-                'New York': 'EST',
-                'Los Angeles': 'PST',
-                'Chicago': 'CST',
-                'Miami': 'EST'
-            }.get(city, ''),
-            'clickable': True,
-            'zoom_level': 12
-        })
-        
-        interactive_features.append(feature)
+        cells.append(cell)
     
-    interactive_geojson = {
-        'type': 'FeatureCollection',
-        'features': interactive_features
+    # 1. Generate interactive map
+    map_path = output_dir / "05_interactive_map.html"
+    create_interactive_map(cells, title="Interactive H3 Map", output_path=map_path)
+    print(f"  1. Interactive Map: {map_path}")
+    
+    # 2. Generate interactive dashboard
+    dashboard_path = output_dir / "05_interactive_dashboard.html"
+    create_interactive_dashboard(cells, title="Interactive H3 Dashboard", output_path=dashboard_path)
+    print(f"  2. Interactive Dashboard: {dashboard_path}")
+    
+    # 3. Generate zoomable map
+    zoomable_path = output_dir / "05_zoomable_map.html"
+    create_zoomable_map(cells, title="Zoomable H3 Map", output_path=zoomable_path)
+    print(f"  3. Zoomable Map: {zoomable_path}")
+    
+    # 4. Generate simple HTML map
+    simple_path = output_dir / "05_simple_html_map.html"
+    create_simple_html_map(cells, title="Simple HTML Map", output_path=simple_path)
+    print(f"  4. Simple HTML Map: {simple_path}")
+    
+    # Generate interactive report
+    interactive_report_path = output_dir / "05_interactive_report.json"
+    create_interactive_report(cells, output_dir / "interactive", title="Interactive Report")
+    print(f"  5. Interactive Report: {interactive_report_path}")
+    
+    # Save interactive visualization data
+    interactive_data = {
+        "locations": locations,
+        "cells": cells,
+        "interactive_files": [
+            str(map_path),
+            str(dashboard_path),
+            str(zoomable_path),
+            str(simple_path)
+        ]
     }
     
-    print(f"  1. Interactive GeoJSON: {len(interactive_features)} features")
-    
-    # 2. Generate interactive data table
-    print("  2. Interactive Data Table:")
-    print(f"     City | Cell Index | Population | Timezone")
-    print(f"     {'-' * 50}")
-    for feature in interactive_features:
-        props = feature['properties']
-        print(f"     {props['city']:15s} | {feature['properties']['h3_index']} | {props['population']:10d} | {props['timezone']}")
-    
-    # 3. Generate zoom levels data
-    print("  3. Zoom Levels Data:")
-    zoom_data = {}
-    for city, lat, lng in locations:
-        zoom_data[city] = {}
-        for resolution in [6, 8, 10, 12]:
-            cell = latlng_to_cell(lat, lng, resolution)
-            area = cell_area(cell, 'km^2')
-            zoom_data[city][resolution] = {
-                'cell': cell,
-                'area': area,
-                'zoom_level': 15 - resolution
-            }
-            print(f"    {city} Res {resolution}: {cell}, {area:.6f} km², Zoom {15-resolution}")
-    
-    # 4. Generate click handlers data
-    print("  4. Click Handlers Data:")
-    click_handlers = {}
-    for feature in interactive_features:
-        city = feature['properties']['city']
-        cell = feature['properties']['h3_index']
-        
-        # Generate disk cells for click expansion
-        disk_cells = grid_disk(cell, 2)
-        disk_geojson = cells_to_geojson(disk_cells)
-        
-        click_handlers[city] = {
-            'cell': cell,
-            'disk_cells': disk_cells,
-            'disk_geojson': disk_geojson,
-            'cell_count': len(disk_cells),
-            'total_area': sum(cell_area(c, 'km^2') for c in disk_cells)
-        }
-        
-        print(f"    {city}: {len(disk_cells)} disk cells, {click_handlers[city]['total_area']:.6f} km²")
+    output_file = output_dir / "05_interactive_visualization.json"
+    with open(output_file, 'w') as f:
+        json.dump(interactive_data, f, indent=2)
+    print(f"✅ Saved interactive visualization data to {output_file}")
 
 
 def demo_heatmap_visualization():
@@ -246,63 +256,41 @@ def demo_heatmap_visualization():
     print("\n🔹 Heatmap Visualization")
     print("-" * 40)
     
+    output_dir = ensure_output_dir()
+    
     # Create heatmap data
     center_cell = latlng_to_cell(37.7749, -122.4194, 9)
     heatmap_cells = grid_disk(center_cell, 4)
     
     print(f"Creating heatmap for {len(heatmap_cells)} cells:")
     
-    # 1. Generate heatmap data with intensity values
-    heatmap_data = []
-    for i, cell in enumerate(heatmap_cells):
-        # Simulate intensity based on distance from center
-        distance = grid_distance(center_cell, cell)
-        intensity = max(0, 1 - distance / 4)  # Intensity decreases with distance
-        
-        heatmap_data.append({
-            'cell': cell,
-            'coordinates': cell_to_latlng(cell),
-            'intensity': intensity,
-            'distance': distance,
-            'area': cell_area(cell, 'km^2')
-        })
+    # Generate density heatmap
+    heatmap_path = output_dir / "05_heatmap_visualization.png"
+    create_density_heatmap(heatmap_cells, center_cell, radius=4,
+                          title="H3 Cell Density Heatmap", output_path=heatmap_path)
+    print(f"  1. Density Heatmap: {heatmap_path}")
     
-    print(f"  1. Heatmap Data: {len(heatmap_data)} data points")
-    print(f"     Intensity range: {min(d['intensity'] for d in heatmap_data):.3f} - {max(d['intensity'] for d in heatmap_data):.3f}")
+    # Generate animated heatmap
+    animated_heatmap_path = output_dir / "05_animated_heatmap_visualization.gif"
+    create_animated_heatmap(heatmap_cells, center_cell, radius=4,
+                           title="Animated Heatmap Visualization", output_path=animated_heatmap_path)
+    print(f"  2. Animated Heatmap: {animated_heatmap_path}")
     
-    # 2. Generate intensity categories
-    intensity_categories = {
-        'high': [d for d in heatmap_data if d['intensity'] > 0.7],
-        'medium': [d for d in heatmap_data if 0.3 <= d['intensity'] <= 0.7],
-        'low': [d for d in heatmap_data if d['intensity'] < 0.3]
+    # Save heatmap visualization data
+    heatmap_data = {
+        "center_cell": center_cell,
+        "heatmap_cells": heatmap_cells,
+        "cell_count": len(heatmap_cells),
+        "heatmap_files": [
+            str(heatmap_path),
+            str(animated_heatmap_path)
+        ]
     }
     
-    print(f"  2. Intensity Categories:")
-    for category, data in intensity_categories.items():
-        print(f"    {category.capitalize()}: {len(data)} cells")
-    
-    # 3. Generate color-coded GeoJSON
-    color_coded_features = []
-    for data in heatmap_data:
-        geojson = cells_to_geojson([data['cell']])
-        feature = geojson['features'][0]
-        
-        # Add heatmap properties
-        feature['properties'].update({
-            'intensity': data['intensity'],
-            'distance': data['distance'],
-            'color': f"rgb({int(255 * (1 - data['intensity']))}, {int(255 * data['intensity'])}, 0)",
-            'opacity': data['intensity']
-        })
-        
-        color_coded_features.append(feature)
-    
-    color_coded_geojson = {
-        'type': 'FeatureCollection',
-        'features': color_coded_features
-    }
-    
-    print(f"  3. Color-coded GeoJSON: {len(color_coded_features)} features")
+    output_file = output_dir / "05_heatmap_visualization.json"
+    with open(output_file, 'w') as f:
+        json.dump(heatmap_data, f, indent=2)
+    print(f"✅ Saved heatmap visualization data to {output_file}")
 
 
 def demo_temporal_visualization():
@@ -310,12 +298,14 @@ def demo_temporal_visualization():
     print("\n🔹 Temporal Visualization")
     print("-" * 40)
     
+    output_dir = ensure_output_dir()
+    
     # Create temporal data
     base_cell = latlng_to_cell(37.7749, -122.4194, 9)
     
     print("Creating temporal visualization data:")
     
-    # 1. Generate time series data
+    # Generate time series data
     time_series = []
     for hour in range(0, 24, 2):  # Every 2 hours
         # Simulate temporal changes (e.g., traffic, activity)
@@ -331,39 +321,22 @@ def demo_temporal_visualization():
         time_series.append(frame_data)
         print(f"  Hour {hour:02d}: Activity {activity_level:.2f}, {frame_data['cell_count']} cells")
     
-    # 2. Generate temporal heatmap
-    temporal_heatmap = []
-    for hour in range(24):
-        activity_level = 0.5 + 0.3 * abs(12 - hour) / 12
-        temporal_heatmap.append({
-            'hour': hour,
-            'activity': activity_level,
-            'color': f"rgb({int(255 * (1 - activity_level))}, {int(255 * activity_level)}, 0)"
-        })
+    # Create temporal animation
+    temporal_path = output_dir / "05_temporal_visualization.gif"
+    create_temporal_animation([base_cell], time_series, title="Temporal Visualization", output_path=temporal_path)
+    print(f"  1. Temporal Animation: {temporal_path}")
     
-    print(f"  2. Temporal Heatmap: {len(temporal_heatmap)} time points")
+    # Save temporal visualization data
+    temporal_data = {
+        "base_cell": base_cell,
+        "time_series": time_series,
+        "temporal_files": [str(temporal_path)]
+    }
     
-    # 3. Generate animation frames
-    animation_frames = []
-    for i, frame in enumerate(time_series):
-        frame_geojson = cells_to_geojson(frame['cells'])
-        
-        # Add temporal properties
-        for feature in frame_geojson['features']:
-            feature['properties'].update({
-                'time': frame['time'],
-                'activity_level': frame['activity_level'],
-                'frame': i
-            })
-        
-        animation_frames.append({
-            'frame': i,
-            'time': frame['time'],
-            'geojson': frame_geojson,
-            'activity_level': frame['activity_level']
-        })
-    
-    print(f"  3. Animation Frames: {len(animation_frames)} frames")
+    output_file = output_dir / "05_temporal_visualization.json"
+    with open(output_file, 'w') as f:
+        json.dump(temporal_data, f, indent=2)
+    print(f"✅ Saved temporal visualization data to {output_file}")
 
 
 def demo_export_formats():
@@ -371,48 +344,51 @@ def demo_export_formats():
     print("\n🔹 Export Formats")
     print("-" * 40)
     
+    output_dir = ensure_output_dir()
+    
     # Create sample dataset
     center_cell = latlng_to_cell(37.7749, -122.4194, 9)
     cells = grid_disk(center_cell, 2)
     
     print("Exporting visualization data in multiple formats:")
     
-    # 1. GeoJSON for web mapping
-    geojson_output = cells_to_geojson(cells)
-    print(f"  1. GeoJSON: {len(geojson_output)} characters")
+    # 1. Generate comprehensive visualization report
+    viz_report_path = output_dir / "05_visualization_report.json"
+    generate_visualization_report(cells, output_dir / "visualizations", title="Visualization Report")
+    print(f"  1. Visualization Report: {viz_report_path}")
     
-    # 2. CSV for data analysis
-    csv_output = cells_to_csv(cells)
-    print(f"  2. CSV: {len(csv_output)} characters")
+    # 2. Generate comprehensive animation report
+    anim_report_path = output_dir / "05_animation_report.json"
+    generate_animation_report(cells, output_dir / "animations", title="Animation Report")
+    print(f"  2. Animation Report: {anim_report_path}")
     
-    # 3. JSON for JavaScript applications
-    json_data = {
-        'cells': cells,
-        'metadata': {
-            'center_cell': center_cell,
-            'cell_count': len(cells),
-            'total_area': sum(cell_area(c, 'km^2') for c in cells),
-            'generated_at': time.strftime('%Y-%m-%d %H:%M:%S')
-        }
-    }
-    json_output = json.dumps(json_data, indent=2)
-    print(f"  3. JSON: {len(json_output)} characters")
+    # 3. Generate comprehensive interactive report
+    int_report_path = output_dir / "05_interactive_report.json"
+    create_interactive_report(cells, output_dir / "interactive", title="Interactive Report")
+    print(f"  3. Interactive Report: {int_report_path}")
     
-    # 4. Summary statistics
-    distribution = analyze_cell_distribution(cells)
-    stats = calculate_spatial_statistics(cells)
+    # 4. Generate comparison plots
+    comparison_path = output_dir / "05_export_comparison.png"
+    create_comparison_plot([cells], ["Sample Dataset"], title="Export Comparison", output_path=comparison_path)
+    print(f"  4. Comparison Plot: {comparison_path}")
     
-    summary_data = {
-        'distribution': distribution,
-        'statistics': stats,
-        'visualization_info': {
-            'type': 'grid_disk',
-            'radius': 2,
-            'center_coordinates': cell_to_latlng(center_cell)
-        }
+    # Save export format data
+    export_data = {
+        "center_cell": center_cell,
+        "cells": cells,
+        "cell_count": len(cells),
+        "export_files": [
+            str(viz_report_path),
+            str(anim_report_path),
+            str(int_report_path),
+            str(comparison_path)
+        ]
     }
     
-    print(f"  4. Summary: {len(json.dumps(summary_data))} characters")
+    output_file = output_dir / "05_export_formats.json"
+    with open(output_file, 'w') as f:
+        json.dump(export_data, f, indent=2)
+    print(f"✅ Saved export format data to {output_file}")
 
 
 def main():
@@ -431,6 +407,32 @@ def main():
     demo_export_formats()
     
     print("\n✅ Visualization outputs demonstration completed!")
+    print("📁 All outputs saved to the 'output' directory")
+    print("📊 Generated visualizations, animations, and interactive outputs:")
+    print("   Static Visualizations:")
+    print("   - 05_static_visualization_map.png")
+    print("   - 05_static_resolution_chart.png")
+    print("   - 05_static_area_distribution.png")
+    print("   - 05_static_density_heatmap.png")
+    print("   Animations:")
+    print("   - 05_grid_expansion_animation.gif")
+    print("   - 05_resolution_transition_animation.gif")
+    print("   - 05_path_animation.gif")
+    print("   - 05_animated_heatmap.gif")
+    print("   - 05_temporal_visualization.gif")
+    print("   Interactive Outputs:")
+    print("   - 05_interactive_map.html")
+    print("   - 05_interactive_dashboard.html")
+    print("   - 05_zoomable_map.html")
+    print("   - 05_simple_html_map.html")
+    print("   Heatmaps:")
+    print("   - 05_heatmap_visualization.png")
+    print("   - 05_animated_heatmap_visualization.gif")
+    print("   Reports:")
+    print("   - 05_visualization_report.json")
+    print("   - 05_animation_report.json")
+    print("   - 05_interactive_report.json")
+    print("   - 05_export_comparison.png")
 
 
 if __name__ == "__main__":

@@ -1,0 +1,50 @@
+[
+  {
+    "test_point": {
+      "lat": 37.7849,
+      "lng": -122.4094
+    },
+    "nearest_cell": "89283082803ffff",
+    "nearest_coordinates": {
+      "lat": 37.773515097238146,
+      "lng": -122.4182710369247
+    },
+    "distance_km": 1.4867600916186618
+  },
+  {
+    "test_point": {
+      "lat": 40.7228,
+      "lng": -73.996
+    },
+    "nearest_cell": "892a1072893ffff",
+    "nearest_coordinates": {
+      "lat": 40.71237820442782,
+      "lng": -74.0056425771711
+    },
+    "distance_km": 1.4154002885588302
+  },
+  {
+    "test_point": {
+      "lat": 34.0622,
+      "lng": -118.2337
+    },
+    "nearest_cell": "8929a1d7577ffff",
+    "nearest_coordinates": {
+      "lat": 34.05052759172434,
+      "lng": -118.24445333040731
+    },
+    "distance_km": 1.6327709330420717
+  },
+  {
+    "test_point": {
+      "lat": 39.7392,
+      "lng": -104.9903
+    },
+    "nearest_cell": "8929a1d7577ffff",
+    "nearest_coordinates": {
+      "lat": 34.05052759172434,
+      "lng": -118.24445333040731
+    },
+    "distance_km": 1335.6756180041214
+  }
+]

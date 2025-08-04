@@ -1,0 +1,27 @@
+{
+  "sf_cell": "89283082803ffff",
+  "hierarchy_path": [
+    "86283082fffffff",
+    "872830828ffffff",
+    "8828308281fffff",
+    "89283082803ffff"
+  ],
+  "ancestors": [
+    "8828308281fffff",
+    "872830828ffffff",
+    "86283082fffffff"
+  ],
+  "descendants": [
+    "8a2830828007fff",
+    "8a283082800ffff",
+    "8a2830828017fff",
+    "8a283082801ffff",
+    "8a2830828027fff"
+  ],
+  "results": {
+    "status": "completed",
+    "hierarchy_path_length": 4,
+    "ancestors_count": 3,
+    "descendants_count": 5
+  }
+}

@@ -1,0 +1,55 @@
+{
+  "start_cell": "89283082803ffff",
+  "parent_cell": "8828308281fffff",
+  "children_count": 7,
+  "children_sample": [
+    {
+      "child_index": 1,
+      "cell": "8a2830828007fff",
+      "coordinates": {
+        "lat": 37.773515097238146,
+        "lng": -122.4182710369247
+      },
+      "area_km2": 0.01562892479468205
+    },
+    {
+      "child_index": 2,
+      "cell": "8a283082800ffff",
+      "coordinates": {
+        "lat": 37.774349414912955,
+        "lng": -122.41932378288854
+      },
+      "area_km2": 0.01562861231244619
+    },
+    {
+      "child_index": 3,
+      "cell": "8a2830828017fff",
+      "coordinates": {
+        "lat": 37.7738572442097,
+        "lng": -122.41678605354981
+      },
+      "area_km2": 0.015629087466210823
+    },
+    {
+      "child_index": 4,
+      "cell": "8a283082801ffff",
+      "coordinates": {
+        "lat": 37.77469157570971,
+        "lng": -122.41783880117737
+      },
+      "area_km2": 0.015628774989365393
+    },
+    {
+      "child_index": 5,
+      "cell": "8a2830828027fff",
+      "coordinates": {
+        "lat": 37.77233860967053,
+        "lng": -122.41870326167826
+      },
+      "area_km2": 0.015629074580535723
+    }
+  ],
+  "center_child": "8a2830828007fff",
+  "center_child_parent": "89283082803ffff",
+  "parent_child_match": true
+}

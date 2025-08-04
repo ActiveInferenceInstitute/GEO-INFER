@@ -13,38 +13,47 @@ License: Apache-2.0
 import sys
 import os
 import json
+import csv
 import time
 from pathlib import Path
 
 # Add the parent directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from h3 import (
-    # Core operations
+# Import from our local H3 framework
+from core import (
     latlng_to_cell, cell_to_latlng, cell_to_boundary, cell_area,
-    get_resolution, is_valid_cell, is_pentagon, is_class_iii,
-    
-    # Indexing operations
-    cell_to_center_child, cell_to_children, cell_to_parent,
-    cell_to_pos, pos_to_cell,
-    
-    # Traversal operations
+    get_resolution, is_valid_cell, is_pentagon
+)
+
+from indexing import (
+    cell_to_center_child, cell_to_children, cell_to_parent
+)
+
+from traversal import (
     grid_disk, grid_ring, grid_path_cells, grid_distance,
-    great_circle_distance, grid_neighbors,
-    
-    # Hierarchy operations
-    cell_to_sub_center_child, cell_to_sub_center_children,
-    cell_to_sub_center_parent, get_hierarchy_path,
-    get_ancestors, get_descendants,
-    
-    # Conversion operations
-    cell_to_geojson, cells_to_geojson, cells_to_csv,
-    cells_to_shapefile_data, cells_to_kml, cells_to_wkt,
-    
-    # Analysis operations
+    great_circle_distance, grid_neighbors
+)
+
+from hierarchy import (
+    get_hierarchy_path, get_ancestors, get_descendants
+)
+
+from conversion import (
+    cells_to_geojson, cells_to_csv, cells_to_shapefile_data, cells_to_kml, cells_to_wkt
+)
+
+from analysis import (
     analyze_cell_distribution, calculate_spatial_statistics,
     find_nearest_cell, calculate_cell_density, analyze_resolution_distribution
 )
+
+
+def ensure_output_dir():
+    """Ensure the output directory exists."""
+    output_dir = Path("output")
+    output_dir.mkdir(exist_ok=True)
+    return output_dir
 
 
 class H3Workflow:
@@ -54,6 +63,7 @@ class H3Workflow:
         """Initialize the workflow."""
         self.results = {}
         self.start_time = time.time()
+        self.output_dir = ensure_output_dir()
         
     def step_1_data_ingestion(self):
         """Step 1: Data ingestion and validation."""
@@ -98,6 +108,18 @@ class H3Workflow:
         }
         
         print(f"  ✅ Validated {len(self.cells)} locations")
+        
+        # Save step 1 data
+        step1_data = {
+            "input_data": self.input_data,
+            "cells": self.cells,
+            "results": self.results['step_1']
+        }
+        
+        output_file = self.output_dir / "06_step1_data_ingestion.json"
+        with open(output_file, 'w') as f:
+            json.dump(step1_data, f, indent=2)
+        print(f"✅ Saved step 1 data to {output_file}")
     
     def step_2_spatial_analysis(self):
         """Step 2: Spatial analysis and statistics."""
@@ -135,6 +157,20 @@ class H3Workflow:
             'statistics': stats,
             'resolution_analysis': res_analysis
         }
+        
+        # Save step 2 data
+        step2_data = {
+            "all_cells": all_cells,
+            "distribution": distribution,
+            "statistics": stats,
+            "resolution_analysis": res_analysis,
+            "results": self.results['step_2']
+        }
+        
+        output_file = self.output_dir / "06_step2_spatial_analysis.json"
+        with open(output_file, 'w') as f:
+            json.dump(step2_data, f, indent=2)
+        print(f"✅ Saved step 2 data to {output_file}")
     
     def step_3_hierarchical_analysis(self):
         """Step 3: Hierarchical analysis and relationships."""
@@ -159,17 +195,26 @@ class H3Workflow:
         print(f"  Ancestors: {len(ancestors)} cells")
         print(f"  Descendants: {len(descendants)} cells")
         
-        # Analyze sub-center relationships
-        sub_center_children = cell_to_sub_center_children(sf_cell, 10)
-        print(f"  Sub-center children: {len(sub_center_children)} cells")
-        
         self.results['step_3'] = {
             'status': 'completed',
             'hierarchy_path_length': len(hierarchy_path),
             'ancestors_count': len(ancestors),
-            'descendants_count': len(descendants),
-            'sub_center_children_count': len(sub_center_children)
+            'descendants_count': len(descendants)
         }
+        
+        # Save step 3 data
+        step3_data = {
+            "sf_cell": sf_cell,
+            "hierarchy_path": hierarchy_path,
+            "ancestors": ancestors,
+            "descendants": descendants,
+            "results": self.results['step_3']
+        }
+        
+        output_file = self.output_dir / "06_step3_hierarchical_analysis.json"
+        with open(output_file, 'w') as f:
+            json.dump(step3_data, f, indent=2)
+        print(f"✅ Saved step 3 data to {output_file}")
     
     def step_4_grid_operations(self):
         """Step 4: Grid operations and spatial relationships."""
@@ -207,6 +252,7 @@ class H3Workflow:
         # Calculate distances between all pairs
         print(f"  Distance Analysis:")
         locations = list(self.cells.keys())
+        distance_analysis = []
         for i, loc1 in enumerate(locations):
             for j, loc2 in enumerate(locations[i+1:], i+1):
                 cell1 = self.cells[loc1]['cell']
@@ -218,14 +264,39 @@ class H3Workflow:
                 gc_distance = great_circle_distance(lat1, lng1, lat2, lng2, 'km')
                 
                 # Grid distance
-                grid_dist = grid_distance(cell1, cell2)
+                try:
+                    grid_dist = grid_distance(cell1, cell2)
+                except Exception:
+                    grid_dist = None
                 
-                print(f"    {loc1} -> {loc2}: {gc_distance:.1f} km (grid: {grid_dist})")
+                print(f"    {loc1} -> {loc2}: {gc_distance:.1f} km (grid: {grid_dist if grid_dist is not None else 'too far'})")
+                
+                distance_analysis.append({
+                    "from": loc1,
+                    "to": loc2,
+                    "cell1": cell1,
+                    "cell2": cell2,
+                    "great_circle_distance_km": gc_distance,
+                    "grid_distance": grid_dist
+                })
         
         self.results['step_4'] = {
             'status': 'completed',
-            'grid_analysis': grid_analysis
+            'grid_analysis': grid_analysis,
+            'distance_analysis': distance_analysis
         }
+        
+        # Save step 4 data
+        step4_data = {
+            "grid_analysis": grid_analysis,
+            "distance_analysis": distance_analysis,
+            "results": self.results['step_4']
+        }
+        
+        output_file = self.output_dir / "06_step4_grid_operations.json"
+        with open(output_file, 'w') as f:
+            json.dump(step4_data, f, indent=2)
+        print(f"✅ Saved step 4 data to {output_file}")
     
     def step_5_data_conversion(self):
         """Step 5: Data conversion and export."""
@@ -280,6 +351,34 @@ class H3Workflow:
             'status': 'completed',
             'conversions': conversions
         }
+        
+        # Save step 5 data
+        step5_data = {
+            "all_cells": all_cells,
+            "conversions": conversions,
+            "geojson_output": geojson_output,
+            "csv_output": csv_output,
+            "kml_output": kml_output,
+            "shapefile_data": shapefile_data,
+            "wkt_output": wkt_output,
+            "results": self.results['step_5']
+        }
+        
+        output_file = self.output_dir / "06_step5_data_conversion.json"
+        with open(output_file, 'w') as f:
+            json.dump(step5_data, f, indent=2)
+        print(f"✅ Saved step 5 data to {output_file}")
+        
+        # Also save the actual files
+        geojson_file = self.output_dir / "06_workflow_cells.geojson"
+        with open(geojson_file, 'w') as f:
+            json.dump(geojson_output, f, indent=2)
+        print(f"✅ Saved workflow GeoJSON to {geojson_file}")
+        
+        csv_file = self.output_dir / "06_workflow_cells.csv"
+        with open(csv_file, 'w') as f:
+            f.write(csv_output)
+        print(f"✅ Saved workflow CSV to {csv_file}")
     
     def step_6_advanced_analysis(self):
         """Step 6: Advanced analysis and multi-resolution operations."""
@@ -364,6 +463,19 @@ class H3Workflow:
             'density_analysis': density_analysis,
             'nearest_analysis': nearest_analysis
         }
+        
+        # Save step 6 data
+        step6_data = {
+            "multi_res_analysis": multi_res_analysis,
+            "density_analysis": density_analysis,
+            "nearest_analysis": nearest_analysis,
+            "results": self.results['step_6']
+        }
+        
+        output_file = self.output_dir / "06_step6_advanced_analysis.json"
+        with open(output_file, 'w') as f:
+            json.dump(step6_data, f, indent=2)
+        print(f"✅ Saved step 6 data to {output_file}")
     
     def step_7_visualization_preparation(self):
         """Step 7: Visualization preparation and output generation."""
@@ -443,6 +555,23 @@ class H3Workflow:
             'status': 'completed',
             'visualization_data': viz_data
         }
+        
+        # Save step 7 data
+        step7_data = {
+            "visualization_data": viz_data,
+            "results": self.results['step_7']
+        }
+        
+        output_file = self.output_dir / "06_step7_visualization_preparation.json"
+        with open(output_file, 'w') as f:
+            json.dump(step7_data, f, indent=2)
+        print(f"✅ Saved step 7 data to {output_file}")
+        
+        # Also save the interactive GeoJSON
+        interactive_file = self.output_dir / "06_interactive_cities.geojson"
+        with open(interactive_file, 'w') as f:
+            json.dump(viz_data['interactive']['cities'], f, indent=2)
+        print(f"✅ Saved interactive cities GeoJSON to {interactive_file}")
     
     def generate_summary_report(self):
         """Generate comprehensive summary report."""
@@ -471,6 +600,12 @@ class H3Workflow:
             status = step_result['status']
             print(f"    {step_name}: {status}")
         
+        # Save summary report
+        output_file = self.output_dir / "06_workflow_summary.json"
+        with open(output_file, 'w') as f:
+            json.dump(summary, f, indent=2)
+        print(f"✅ Saved workflow summary to {output_file}")
+        
         return summary
 
 
@@ -498,6 +633,7 @@ def main():
         summary = workflow.generate_summary_report()
         
         print("\n✅ Comprehensive workflow completed successfully!")
+        print("📁 All outputs saved to the 'output' directory")
         
     except Exception as e:
         print(f"\n❌ Workflow failed: {e}")

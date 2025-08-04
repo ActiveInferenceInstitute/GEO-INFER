@@ -13,7 +13,7 @@ License: Apache-2.0
 import h3
 import numpy as np
 from typing import Union, List, Tuple, Optional, Dict, Any
-from .constants import (
+from constants import (
     MAX_H3_RES, MIN_H3_RES, ERROR_MESSAGES, WGS84_EARTH_RADIUS_KM
 )
 
@@ -196,7 +196,8 @@ def great_circle_distance(lat1: float, lng1: float, lat2: float, lng2: float, un
         >>> great_circle_distance(37.7749, -122.4194, 40.7128, -74.0060)
         4129.0
     """
-    return h3.great_circle_distance(lat1, lng1, lat2, lng2, unit=unit)
+    # H3 v4 API change: great_circle_distance expects tuple coordinates
+    return h3.great_circle_distance((lat1, lng1), (lat2, lng2), unit=unit)
 
 
 def haversine_distance(lat1: float, lng1: float, lat2: float, lng2: float, unit: str = 'km') -> float:

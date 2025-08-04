@@ -1,0 +1,45 @@
+{
+  "center_cell": "89283082803ffff",
+  "analysis_cells": [
+    "89283082803ffff",
+    "8928308281bffff",
+    "8928308280bffff",
+    "8928308280fffff",
+    "89283082807ffff",
+    "89283082817ffff",
+    "89283082813ffff",
+    "892830828c7ffff",
+    "892830828cfffff",
+    "89283082857ffff",
+    "89283082847ffff",
+    "89283082873ffff",
+    "89283082877ffff",
+    "8928308283bffff",
+    "89283082833ffff",
+    "892830828abffff",
+    "892830828bbffff",
+    "8928308288fffff",
+    "8928308288bffff"
+  ],
+  "distribution": {
+    "total_cells": 19,
+    "resolutions": {
+      "9": 19
+    },
+    "pentagons": 0,
+    "class_iii_cells": 19,
+    "total_area_km2": 2.078646977131209,
+    "avg_area_km2": 0.10940247248058994
+  },
+  "statistics": {
+    "centroid": [
+      37.77351496212393,
+      -122.41827096231162
+    ],
+    "total_area_km2": 2.078646977131209,
+    "total_perimeter_km": 22.889620872000002,
+    "compactness": 0.049855537558709195
+  },
+  "geojson_features": 19,
+  "csv_lines": 20
+}

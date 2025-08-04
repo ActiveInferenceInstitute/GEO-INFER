@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 """
-Comprehensive H3 Demonstration
+Comprehensive H3 Demonstration Orchestrator
 
-Demonstrates all H3 geospatial operations using H3 v4.3.0.
-Shows core operations, indexing, traversal, hierarchy, and analysis.
+Thin orchestrator that runs all H3 example demonstrations using H3 v4.3.0.
+Calls individual example scripts to demonstrate core operations, indexing, 
+traversal, hierarchy, and analysis.
 
 Author: GEO-INFER Framework
 Version: 4.3.0
@@ -14,64 +15,20 @@ import sys
 import os
 import time
 import json
+import subprocess
 from pathlib import Path
+from typing import Dict, List, Any
 
 # Add the parent directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from h3 import (
-    # Core operations
+# Import only valid H3 v4 methods from our modular framework
+from core import (
     latlng_to_cell, cell_to_latlng, cell_to_boundary, cell_to_polygon,
-    polygon_to_cells, polyfill, cell_area, cell_perimeter, edge_length,
-    num_cells, get_resolution, is_valid_cell, is_pentagon, is_class_iii,
-    
-    # Indexing operations
-    cell_to_center_child, cell_to_children, cell_to_parent,
-    cell_to_pos, pos_to_cell, cell_to_string, string_to_cell,
-    int_to_cell, cell_to_int,
-    
-    # Traversal operations
-    grid_disk, grid_ring, grid_path_cells, grid_distance,
-    cell_to_local_ij, local_ij_to_cell, great_circle_distance,
-    haversine_distance, grid_disk_rings, grid_neighbors,
-    grid_compact, grid_uncompact,
-    
-    # Hierarchy operations
-    cell_to_sub_center_child, cell_to_sub_center_children,
-    cell_to_sub_center_parent, cell_to_sub_center_children_size,
-    cell_to_sub_center_children_positions, get_hierarchy_path,
-    get_ancestors, get_descendants,
-    
-    # Unidirectional operations
-    cell_to_vertexes, cell_to_vertex, vertex_to_latlng,
-    latlng_to_vertex, vertex_to_cells, edge_boundary,
-    edge_length as edge_length_func, edge_lengths, get_icosahedron_faces,
-    cell_to_icosahedron_faces, get_cell_vertices, get_cell_edges,
-    get_vertex_neighbors, get_edge_cells,
-    
-    # Validation operations
-    is_valid_edge, is_valid_vertex, is_valid_latlng,
-    is_valid_resolution, is_valid_polygon, is_valid_geojson,
-    is_valid_wkt, validate_cell, validate_edge, validate_vertex,
-    validate_latlng, validate_resolution, validate_polygon,
-    validate_geojson, validate_wkt, validate_cells,
-    validate_resolution_range,
-    
-    # Utility operations
-    get_hexagon_area_avg, get_hexagon_edge_length_avg, get_num_cells,
-    get_pentagons, get_res0_cells, get_base_cell_number,
-    get_cell_edge_boundary, get_cell_vertex_boundary,
-    get_resolution_info, get_cell_info, get_resolution_comparison,
-    
-    # Conversion operations
-    cell_to_geojson, geojson_to_cells, wkt_to_cells, cells_to_wkt,
-    cells_to_geojson, cells_to_shapefile_data, cells_to_kml, cells_to_csv,
-    
-    # Analysis operations
-    analyze_cell_distribution, calculate_spatial_statistics,
-    find_nearest_cell, calculate_cell_density, analyze_resolution_distribution,
-    
-    # Constants
+    cell_area, cell_perimeter, edge_length, num_cells, get_resolution, 
+    is_valid_cell, is_pentagon, is_class_iii, is_res_class_iii
+)
+from constants import (
     H3_VERSION, MAX_H3_RES, MIN_H3_RES, H3_RESOLUTIONS
 )
 
@@ -89,390 +46,347 @@ def print_subsection(title: str):
     print("-" * 60)
 
 
-def demo_core_operations():
-    """Demonstrate core H3 operations."""
-    print_section("Core H3 Operations")
-    
-    # Test coordinates
-    lat, lng = 37.7749, -122.4194  # San Francisco
-    resolution = 9
-    
-    print_subsection("Coordinate to Cell Conversion")
-    cell = latlng_to_cell(lat, lng, resolution)
-    print(f"Coordinates: ({lat}, {lng})")
-    print(f"H3 Cell: {cell}")
-    print(f"Resolution: {resolution}")
-    
-    print_subsection("Cell to Coordinate Conversion")
-    result_lat, result_lng = cell_to_latlng(cell)
-    print(f"H3 Cell: {cell}")
-    print(f"Coordinates: ({result_lat}, {result_lng})")
-    print(f"Difference: ({abs(lat - result_lat):.6f}, {abs(lng - result_lng):.6f})")
-    
-    print_subsection("Cell Boundary")
-    boundary = cell_to_boundary(cell)
-    print(f"H3 Cell: {cell}")
-    print(f"Boundary vertices: {len(boundary)}")
-    print(f"First 3 vertices: {boundary[:3]}")
-    
-    print_subsection("Cell Properties")
-    area = cell_area(cell, 'km^2')
-    perimeter = cell_perimeter(cell, 'km')
-    edge_len = edge_length(resolution, 'km')
-    cell_count = num_cells(resolution)
-    
-    print(f"Cell area: {area:.6f} km²")
-    print(f"Cell perimeter: {perimeter:.6f} km")
-    print(f"Edge length: {edge_len:.6f} km")
-    print(f"Total cells at resolution {resolution}: {cell_count:,}")
-    
-    print_subsection("Cell Validation")
-    print(f"Valid cell: {is_valid_cell(cell)}")
-    print(f"Is pentagon: {is_pentagon(cell)}")
-    print(f"Is Class III: {is_class_iii(cell)}")
-    print(f"Resolution {resolution} is Class III: {is_res_class_iii(resolution)}")
+def ensure_output_dir():
+    """Ensure the output directory exists."""
+    output_dir = Path("output")
+    output_dir.mkdir(exist_ok=True)
+    return output_dir
 
 
-def demo_indexing_operations():
-    """Demonstrate H3 indexing operations."""
-    print_section("H3 Indexing Operations")
+def run_example_script(script_name: str, description: str) -> bool:
+    """Run an individual example script."""
+    print_subsection(f"Running {description}")
+    print(f"Executing: {script_name}")
     
-    cell = '89283082e73ffff'
-    resolution = get_resolution(cell)
-    
-    print_subsection("Parent-Child Relationships")
-    parent = cell_to_parent(cell, resolution - 1)
-    children = cell_to_children(cell, resolution + 1)
-    center_child = cell_to_center_child(cell, resolution + 1)
-    
-    print(f"Original cell: {cell}")
-    print(f"Parent: {parent}")
-    print(f"Center child: {center_child}")
-    print(f"Number of children: {len(children)}")
-    print(f"First 3 children: {children[:3]}")
-    
-    print_subsection("Position Operations")
-    pos = cell_to_pos(cell)
-    reconstructed_cell = pos_to_cell(parent, pos)
-    
-    print(f"Position in parent: {pos}")
-    print(f"Reconstructed cell: {reconstructed_cell}")
-    print(f"Reconstruction successful: {cell == reconstructed_cell}")
-    
-    print_subsection("String/Integer Conversion")
-    cell_int = cell_to_int(cell)
-    cell_str = int_to_cell(cell_int)
-    
-    print(f"Cell string: {cell}")
-    print(f"Cell integer: {cell_int}")
-    print(f"Reconstructed string: {cell_str}")
-    print(f"Conversion successful: {cell == cell_str}")
-
-
-def demo_traversal_operations():
-    """Demonstrate H3 traversal operations."""
-    print_section("H3 Traversal Operations")
-    
-    cell = '89283082e73ffff'
-    
-    print_subsection("Grid Disk")
-    disk_cells = grid_disk(cell, 2)
-    print(f"Center cell: {cell}")
-    print(f"Disk radius: 2")
-    print(f"Total cells in disk: {len(disk_cells)}")
-    print(f"First 5 cells: {disk_cells[:5]}")
-    
-    print_subsection("Grid Ring")
-    ring_cells = grid_ring(cell, 1)
-    print(f"Center cell: {cell}")
-    print(f"Ring distance: 1")
-    print(f"Cells in ring: {len(ring_cells)}")
-    print(f"Ring cells: {ring_cells}")
-    
-    print_subsection("Grid Path")
-    target_cell = '89283082e77ffff'
-    path_cells = grid_path_cells(cell, target_cell)
-    distance = grid_distance(cell, target_cell)
-    
-    print(f"Origin: {cell}")
-    print(f"Destination: {target_cell}")
-    print(f"Path length: {len(path_cells)}")
-    print(f"Grid distance: {distance}")
-    print(f"Path: {path_cells}")
-    
-    print_subsection("Local Coordinates")
-    origin = '88283082e73ffff'
-    i, j = cell_to_local_ij(cell, origin)
-    reconstructed = local_ij_to_cell(origin, i, j)
-    
-    print(f"Origin: {origin}")
-    print(f"Cell: {cell}")
-    print(f"Local coordinates: ({i}, {j})")
-    print(f"Reconstructed: {reconstructed}")
-    print(f"Reconstruction successful: {cell == reconstructed}")
-
-
-def demo_hierarchy_operations():
-    """Demonstrate H3 hierarchy operations."""
-    print_section("H3 Hierarchy Operations")
-    
-    cell = '89283082e73ffff'
-    resolution = get_resolution(cell)
-    
-    print_subsection("Sub-Center Operations")
-    sub_center_child = cell_to_sub_center_child(cell, resolution + 1)
-    sub_center_children = cell_to_sub_center_children(cell, resolution + 1)
-    sub_center_parent = cell_to_sub_center_parent(cell, resolution - 1)
-    children_size = cell_to_sub_center_children_size(cell, resolution + 1)
-    children_positions = cell_to_sub_center_children_positions(cell, resolution + 1)
-    
-    print(f"Original cell: {cell}")
-    print(f"Sub-center child: {sub_center_child}")
-    print(f"Sub-center children count: {len(sub_center_children)}")
-    print(f"Sub-center parent: {sub_center_parent}")
-    print(f"Children size: {children_size}")
-    print(f"Children positions: {children_positions}")
-    
-    print_subsection("Hierarchy Path")
-    target_res = resolution - 2
-    path = get_hierarchy_path(cell, target_res)
-    
-    print(f"From resolution {resolution} to {target_res}")
-    print(f"Path length: {len(path)}")
-    print(f"Path: {path}")
-    
-    print_subsection("Ancestors and Descendants")
-    ancestors = get_ancestors(cell, 3)
-    descendants = get_descendants(cell, 10)
-    
-    print(f"Cell: {cell}")
-    print(f"Ancestors (max 3): {len(ancestors)}")
-    print(f"Ancestors: {ancestors}")
-    print(f"Descendants (max 10): {len(descendants)}")
-    print(f"First 5 descendants: {descendants[:5]}")
-
-
-def demo_unidirectional_operations():
-    """Demonstrate H3 unidirectional operations."""
-    print_section("H3 Unidirectional Operations")
-    
-    cell = '89283082e73ffff'
-    
-    print_subsection("Vertex Operations")
-    vertices = cell_to_vertexes(cell)
-    first_vertex = cell_to_vertex(cell, 0)
-    vertex_coords = vertex_to_latlng(first_vertex)
-    
-    print(f"Cell: {cell}")
-    print(f"Number of vertices: {len(vertices)}")
-    print(f"First vertex: {first_vertex}")
-    print(f"Vertex coordinates: {vertex_coords}")
-    
-    print_subsection("Edge Operations")
-    # Note: Edge operations require valid edge indices
-    # This is a simplified demonstration
-    print("Edge operations require valid edge indices")
-    print("Edge boundary and length calculations available")
-    
-    print_subsection("Icosahedron Faces")
-    faces = get_icosahedron_faces(cell)
-    print(f"Cell: {cell}")
-    print(f"Icosahedron faces: {faces}")
-
-
-def demo_validation_operations():
-    """Demonstrate H3 validation operations."""
-    print_section("H3 Validation Operations")
-    
-    print_subsection("Cell Validation")
-    valid_cell = '89283082e73ffff'
-    invalid_cell = 'invalid'
-    
-    print(f"Valid cell '{valid_cell}': {is_valid_cell(valid_cell)}")
-    print(f"Invalid cell '{invalid_cell}': {is_valid_cell(invalid_cell)}")
-    
-    print_subsection("Coordinate Validation")
-    valid_coords = (37.7749, -122.4194)
-    invalid_lat = (91.0, -122.4194)
-    invalid_lng = (37.7749, 181.0)
-    
-    print(f"Valid coordinates {valid_coords}: {is_valid_latlng(*valid_coords)}")
-    print(f"Invalid latitude {invalid_lat}: {is_valid_latlng(*invalid_lat)}")
-    print(f"Invalid longitude {invalid_lng}: {is_valid_latlng(*invalid_lng)}")
-    
-    print_subsection("Resolution Validation")
-    valid_res = 9
-    invalid_res = 20
-    
-    print(f"Valid resolution {valid_res}: {is_valid_resolution(valid_res)}")
-    print(f"Invalid resolution {invalid_res}: {is_valid_resolution(invalid_res)}")
-
-
-def demo_utility_operations():
-    """Demonstrate H3 utility operations."""
-    print_section("H3 Utility Operations")
-    
-    resolution = 9
-    
-    print_subsection("Resolution Information")
-    info = get_resolution_info(resolution)
-    print(f"Resolution {resolution} information:")
-    for key, value in info.items():
-        print(f"  {key}: {value}")
-    
-    print_subsection("Cell Information")
-    cell = '89283082e73ffff'
-    cell_info = get_cell_info(cell)
-    print(f"Cell {cell} information:")
-    for key, value in cell_info.items():
-        print(f"  {key}: {value}")
-    
-    print_subsection("Resolution Comparison")
-    res1, res2 = 9, 10
-    comparison = get_resolution_comparison(res1, res2)
-    print(f"Comparison between resolution {res1} and {res2}:")
-    for key, value in comparison.items():
-        if key in ['res1', 'res2']:
-            print(f"  {key}: {len(value)} properties")
+    try:
+        # Run the script as a subprocess
+        result = subprocess.run(
+            [sys.executable, script_name],
+            capture_output=True,
+            text=True,
+            cwd=os.path.dirname(__file__)
+        )
+        
+        if result.returncode == 0:
+            print(f"✅ {description} completed successfully")
+            if result.stdout.strip():
+                print("Output:")
+                print(result.stdout.strip())
+            return True
         else:
-            print(f"  {key}: {value}")
+            print(f"❌ {description} failed")
+            print("Error output:")
+            print(result.stderr.strip())
+            return False
+            
+    except Exception as e:
+        print(f"❌ Error running {script_name}: {e}")
+        return False
 
 
-def demo_conversion_operations():
-    """Demonstrate H3 conversion operations."""
-    print_section("H3 Conversion Operations")
+def demo_basic_operations():
+    """Demonstrate basic H3 operations via thin orchestration."""
+    print_section("Basic H3 Operations")
     
-    cell = '89283082e73ffff'
-    cells = [cell, '89283082e77ffff', '89283082e7bffff']
+    # Run the basic operations example
+    success = run_example_script(
+        "01_basic_operations.py",
+        "Basic H3 Operations (Coordinate conversion, cell properties, validation)"
+    )
     
-    print_subsection("Cell to GeoJSON")
-    geojson = cell_to_geojson(cell)
-    print(f"Cell: {cell}")
-    print(f"GeoJSON type: {geojson['type']}")
-    print(f"Geometry type: {geojson['geometry']['type']}")
-    print(f"Properties: {geojson['properties']}")
+    if success:
+        print_subsection("Basic Operations Summary")
+        print("✅ Coordinate to cell conversion")
+        print("✅ Cell to coordinate conversion") 
+        print("✅ Cell boundary extraction")
+        print("✅ Cell area and perimeter calculations")
+        print("✅ Cell validation and classification")
+        print("✅ Resolution comparison and analysis")
     
-    print_subsection("Cells to GeoJSON FeatureCollection")
-    feature_collection = cells_to_geojson(cells)
-    print(f"Number of cells: {len(cells)}")
-    print(f"FeatureCollection type: {feature_collection['type']}")
-    print(f"Number of features: {len(feature_collection['features'])}")
-    
-    print_subsection("Cells to CSV")
-    csv_data = cells_to_csv(cells)
-    print("CSV header and first row:")
-    lines = csv_data.split('\n')
-    print(lines[0])
-    print(lines[1])
+    return success
 
 
-def demo_analysis_operations():
-    """Demonstrate H3 analysis operations."""
-    print_section("H3 Analysis Operations")
+def demo_spatial_analysis():
+    """Demonstrate spatial analysis operations via thin orchestration."""
+    print_section("Spatial Analysis Operations")
     
-    cells = ['89283082e73ffff', '89283082e77ffff', '89283082e7bffff']
+    # Run the spatial analysis example
+    success = run_example_script(
+        "02_spatial_analysis.py",
+        "Spatial Analysis (Grid operations, distance calculations, path analysis)"
+    )
     
-    print_subsection("Cell Distribution Analysis")
-    distribution = analyze_cell_distribution(cells)
-    print("Cell distribution analysis:")
-    for key, value in distribution.items():
-        print(f"  {key}: {value}")
+    if success:
+        print_subsection("Spatial Analysis Summary")
+        print("✅ Grid disk and ring operations")
+        print("✅ Distance calculations between cells")
+        print("✅ Path analysis between cells")
+        print("✅ Spatial statistics and density analysis")
+        print("✅ Nearest cell finding")
     
-    print_subsection("Spatial Statistics")
-    stats = calculate_spatial_statistics(cells)
-    print("Spatial statistics:")
-    for key, value in stats.items():
-        print(f"  {key}: {value}")
-    
-    print_subsection("Nearest Cell")
-    target_lat, target_lng = 37.7749, -122.4194
-    nearest, distance = find_nearest_cell(target_lat, target_lng, cells)
-    print(f"Target coordinates: ({target_lat}, {target_lng})")
-    print(f"Nearest cell: {nearest}")
-    print(f"Distance: {distance:.6f} km")
-    
-    print_subsection("Cell Density")
-    density = calculate_cell_density(cells)
-    print(f"Cell density: {density:.2f} cells/km²")
-    
-    print_subsection("Resolution Distribution")
-    res_dist = analyze_resolution_distribution(cells)
-    print("Resolution distribution:")
-    for key, value in res_dist.items():
-        print(f"  {key}: {value}")
+    return success
 
 
-def demo_performance():
-    """Demonstrate H3 performance."""
-    print_section("H3 Performance Demo")
+def demo_hierarchical_operations():
+    """Demonstrate hierarchical operations via thin orchestration."""
+    print_section("Hierarchical Operations")
     
-    import numpy as np
+    # Run the hierarchical operations example
+    success = run_example_script(
+        "03_hierarchical_operations.py",
+        "Hierarchical Operations (Parent-child relationships, hierarchy paths)"
+    )
     
-    # Generate test data
-    num_operations = 10000
-    lats = np.random.uniform(-90, 90, num_operations)
-    lngs = np.random.uniform(-180, 180, num_operations)
-    resolution = 9
+    if success:
+        print_subsection("Hierarchical Operations Summary")
+        print("✅ Parent-child cell relationships")
+        print("✅ Hierarchy path analysis")
+        print("✅ Ancestors and descendants")
+        print("✅ Multi-resolution operations")
+        print("✅ Hierarchical data analysis")
     
-    print_subsection("Bulk Coordinate Conversion")
-    start_time = time.time()
-    cells = [latlng_to_cell(lat, lng, resolution) for lat, lng in zip(lats, lngs)]
-    end_time = time.time()
+    return success
+
+
+def demo_data_conversion():
+    """Demonstrate data conversion operations via thin orchestration."""
+    print_section("Data Conversion Operations")
     
-    duration = end_time - start_time
-    rate = num_operations / duration
+    # Run the data conversion example
+    success = run_example_script(
+        "04_data_conversion.py",
+        "Data Conversion (GeoJSON, WKT, CSV, KML, Shapefile formats)"
+    )
     
-    print(f"Operations: {num_operations:,}")
-    print(f"Duration: {duration:.3f} seconds")
-    print(f"Rate: {rate:,.0f} ops/sec")
+    if success:
+        print_subsection("Data Conversion Summary")
+        print("✅ GeoJSON conversion and export")
+        print("✅ WKT (Well-Known Text) conversion")
+        print("✅ CSV data export")
+        print("✅ KML format export")
+        print("✅ Shapefile data preparation")
+        print("✅ Multi-channel dataset fusion")
     
-    print_subsection("Bulk Cell Analysis")
-    start_time = time.time()
-    areas = [cell_area(cell, 'km^2') for cell in cells[:1000]]
-    end_time = time.time()
+    return success
+
+
+def demo_visualization_outputs():
+    """Demonstrate visualization outputs via thin orchestration."""
+    print_section("Visualization Outputs")
     
-    duration = end_time - start_time
-    rate = 1000 / duration
+    # Run the visualization outputs example
+    success = run_example_script(
+        "05_visualization_outputs.py",
+        "Visualization Outputs (Static, animated, interactive visualizations)"
+    )
     
-    print(f"Cell area calculations: 1,000")
-    print(f"Duration: {duration:.3f} seconds")
-    print(f"Rate: {rate:,.0f} ops/sec")
-    print(f"Average area: {np.mean(areas):.6f} km²")
+    if success:
+        print_subsection("Visualization Summary")
+        print("✅ Static visualization generation")
+        print("✅ Animated visualization creation")
+        print("✅ Interactive visualization preparation")
+        print("✅ Heatmap visualization")
+        print("✅ Temporal visualization")
+        print("✅ Multi-format export capabilities")
+    
+    return success
+
+
+def demo_comprehensive_workflow():
+    """Demonstrate comprehensive workflow via thin orchestration."""
+    print_section("Comprehensive Workflow")
+    
+    # Run the comprehensive workflow example
+    success = run_example_script(
+        "06_comprehensive_workflow.py",
+        "Comprehensive Workflow (End-to-end H3 analysis pipeline)"
+    )
+    
+    if success:
+        print_subsection("Comprehensive Workflow Summary")
+        print("✅ Data ingestion and validation")
+        print("✅ Spatial analysis and processing")
+        print("✅ Hierarchical data organization")
+        print("✅ Grid operations and optimization")
+        print("✅ Data conversion and export")
+        print("✅ Advanced analysis and visualization")
+    
+    return success
+
+
+def generate_comprehensive_report():
+    """Generate a comprehensive report of all demonstrations."""
+    print_section("Comprehensive Report Generation")
+    
+    output_dir = ensure_output_dir()
+    
+    # Collect information about all example scripts
+    example_scripts = [
+        {
+            "name": "01_basic_operations.py",
+            "description": "Basic H3 Operations",
+            "features": [
+                "Coordinate conversion", "Cell properties", "Validation",
+                "Resolution comparison", "Cell classification"
+            ]
+        },
+        {
+            "name": "02_spatial_analysis.py", 
+            "description": "Spatial Analysis",
+            "features": [
+                "Grid operations", "Distance calculations", "Path analysis",
+                "Spatial statistics", "Density analysis"
+            ]
+        },
+        {
+            "name": "03_hierarchical_operations.py",
+            "description": "Hierarchical Operations", 
+            "features": [
+                "Parent-child relationships", "Hierarchy paths",
+                "Ancestors and descendants", "Multi-resolution operations"
+            ]
+        },
+        {
+            "name": "04_data_conversion.py",
+            "description": "Data Conversion",
+            "features": [
+                "GeoJSON conversion", "WKT conversion", "CSV export",
+                "KML export", "Multi-channel fusion"
+            ]
+        },
+        {
+            "name": "05_visualization_outputs.py",
+            "description": "Visualization Outputs",
+            "features": [
+                "Static visualizations", "Animated visualizations", 
+                "Interactive visualizations", "Heatmaps", "Temporal data"
+            ]
+        },
+        {
+            "name": "06_comprehensive_workflow.py",
+            "description": "Comprehensive Workflow",
+            "features": [
+                "End-to-end pipeline", "Data processing", "Analysis",
+                "Visualization", "Export capabilities"
+            ]
+        }
+    ]
+    
+    # Create comprehensive report
+    report = {
+        "framework_info": {
+            "name": "GEO-INFER H3 Framework",
+            "version": H3_VERSION,
+            "h3_version": "4.3.0",
+            "resolution_range": f"{MIN_H3_RES} to {MAX_H3_RES}",
+            "available_resolutions": H3_RESOLUTIONS
+        },
+        "example_scripts": example_scripts,
+        "output_structure": {
+            "data": "Raw data files (JSON, CSV)",
+            "reports": "Analysis reports and summaries", 
+            "visualizations": "Static and interactive visualizations",
+            "animations": "Animated visualizations (GIF)",
+            "comprehensive": "End-to-end workflow outputs"
+        },
+        "framework_architecture": {
+            "modular_design": "Functions organized in specialized modules",
+            "thin_orchestrators": "Example scripts call modular functions",
+            "h3_v4_compatibility": "All methods use valid H3 v4 API",
+            "output_organization": "Structured output to subdirectories"
+        },
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
+    }
+    
+    # Save comprehensive report
+    report_file = output_dir / "comprehensive_demo_report.json"
+    with open(report_file, 'w') as f:
+        json.dump(report, f, indent=2)
+    
+    print(f"✅ Comprehensive report saved to: {report_file}")
+    
+    # Create summary text report
+    summary_file = output_dir / "comprehensive_demo_summary.txt"
+    with open(summary_file, 'w') as f:
+        f.write("GEO-INFER H3 Framework Comprehensive Demo Summary\n")
+        f.write("=" * 60 + "\n\n")
+        f.write(f"Framework Version: {H3_VERSION}\n")
+        f.write(f"H3 Library Version: 4.3.0\n")
+        f.write(f"Resolution Range: {MIN_H3_RES} to {MAX_H3_RES}\n\n")
+        
+        f.write("Example Scripts Executed:\n")
+        f.write("-" * 30 + "\n")
+        for script in example_scripts:
+            f.write(f"• {script['name']}: {script['description']}\n")
+            for feature in script['features']:
+                f.write(f"  - {feature}\n")
+            f.write("\n")
+        
+        f.write("Output Structure:\n")
+        f.write("-" * 20 + "\n")
+        for category, description in report["output_structure"].items():
+            f.write(f"• {category}: {description}\n")
+        
+        f.write(f"\nGenerated: {report['timestamp']}\n")
+    
+    print(f"✅ Summary report saved to: {summary_file}")
+    
+    return report
 
 
 def main():
-    """Main demonstration function."""
-    print("🧪 Comprehensive H3 Geospatial Operations Demo")
+    """Main orchestration function."""
+    print("🧪 Comprehensive H3 Geospatial Operations Demo Orchestrator")
     print("=" * 80)
     print(f"H3 Version: {H3_VERSION}")
     print(f"Resolution range: {MIN_H3_RES} to {MAX_H3_RES}")
     print(f"Available resolutions: {H3_RESOLUTIONS}")
     print("=" * 80)
     
+    # Ensure output directory exists
+    output_dir = ensure_output_dir()
+    print(f"📁 Output directory: {output_dir.absolute()}")
+    
+    # Track success of each demonstration
+    results = {}
+    
     try:
-        # Run all demonstrations
-        demo_core_operations()
-        demo_indexing_operations()
-        demo_traversal_operations()
-        demo_hierarchy_operations()
-        demo_unidirectional_operations()
-        demo_validation_operations()
-        demo_utility_operations()
-        demo_conversion_operations()
-        demo_analysis_operations()
-        demo_performance()
+        # Run all demonstrations via thin orchestration
+        results["basic_operations"] = demo_basic_operations()
+        results["spatial_analysis"] = demo_spatial_analysis()
+        results["hierarchical_operations"] = demo_hierarchical_operations()
+        results["data_conversion"] = demo_data_conversion()
+        results["visualization_outputs"] = demo_visualization_outputs()
+        results["comprehensive_workflow"] = demo_comprehensive_workflow()
         
-        print_section("Demo Complete")
-        print("✅ All H3 operations demonstrated successfully!")
-        print("🎉 The H3 module is working correctly.")
+        # Generate comprehensive report
+        report = generate_comprehensive_report()
+        
+        # Summary
+        print_section("Demo Orchestration Complete")
+        successful_demos = sum(results.values())
+        total_demos = len(results)
+        
+        print(f"✅ Successfully executed: {successful_demos}/{total_demos} demonstrations")
+        
+        for demo_name, success in results.items():
+            status = "✅" if success else "❌"
+            print(f"{status} {demo_name.replace('_', ' ').title()}")
+        
+        if successful_demos == total_demos:
+            print("\n🎉 All H3 demonstrations completed successfully!")
+            print("📊 Comprehensive report and outputs generated in output/ directory")
+        else:
+            print(f"\n⚠️  {total_demos - successful_demos} demonstrations had issues")
+            print("Check individual script outputs for details")
+        
+        return successful_demos == total_demos
         
     except Exception as e:
-        print(f"❌ Demo failed: {e}")
+        print(f"❌ Orchestration failed: {e}")
         import traceback
         traceback.print_exc()
         return False
-    
-    return True
 
 
 if __name__ == "__main__":
