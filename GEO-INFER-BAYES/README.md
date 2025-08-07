@@ -16,10 +16,10 @@ GEO-INFER-BAYES provides a comprehensive framework for Bayesian inference proces
 
 ## Installation
 
-### From PyPI
+### Install (monorepo)
 
 ```bash
-pip install geo-infer-bayes
+pip install -e ./GEO-INFER-BAYES
 ```
 
 ### Development Installation
@@ -33,28 +33,7 @@ pip install -e .
 ## Quick Start
 
 ```python
-from geo_infer_bayes.models import SpatialGP
-from geo_infer_bayes.core import BayesianInference
-import numpy as np
-
-# Generate synthetic data
-X = np.random.uniform(0, 10, size=(50, 2))  # 50 points in 2D space
-y = np.sin(X[:, 0]) * np.cos(X[:, 1]) + np.random.normal(0, 0.1, size=50)  # Target with noise
-
-# Define spatial model
-model = SpatialGP(kernel='rbf', lengthscale=1.0, variance=1.0, noise=0.1)
-
-# Perform Bayesian inference
-inference = BayesianInference(model=model, method='mcmc')
-posterior = inference.run(data={'X': X, 'y': y})
-
-# Make predictions with uncertainty
-X_new = np.random.uniform(0, 10, size=(10, 2))  # 10 new points
-mean, std = posterior.predict(X_new, return_std=True)
-
-# Visualize results
-posterior.plot_posterior()
-posterior.plot_trace()
+# See examples/ for runnable scripts; APIs may change
 ```
 
 ## Module Structure

@@ -21,6 +21,10 @@ from utils.data_processor import (
 from utils.analysis_engine import run_comprehensive_analysis
 from utils.reporting_engine import generate_analysis_report
 
+# Import enhanced modules for H3 geospatial data fusion
+from utils.enhanced_data_manager import create_enhanced_data_manager
+from utils.enhanced_h3_fusion import create_enhanced_h3_fusion
+
 def parse_counties(counties_str: str) -> dict:
     """Parse counties string into dictionary format"""
     counties_dict = {}
@@ -58,14 +62,121 @@ def initialize_analysis(args):
     osc_repo_path = "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
     shared_backend = create_shared_backend(args.h3_resolution, counties_dict, Path(args.output_dir), osc_repo_path)
     
-    # Initialize modules
-    modules = initialize_modules(active_modules, shared_backend, osc_repo_path)
+    # Initialize enhanced data manager
+    data_manager = create_enhanced_data_manager(
+        base_data_dir=Path(args.output_dir) / "data",
+        h3_resolution=args.h3_resolution
+    )
+    
+    # Initialize enhanced H3 fusion engine
+    h3_fusion = create_enhanced_h3_fusion(
+        h3_resolution=args.h3_resolution,
+        enable_spatial_analysis=args.spatial_analysis
+    )
+    
+    # Validate H3 operations
+    h3_validation = h3_fusion.validate_h3_operations()
+    logger.info(f"H3 validation result: {h3_validation}")
+    
+    # Initialize modules with enhanced data management
+    modules = initialize_modules_with_enhanced_data_management(
+        active_modules, shared_backend, data_manager, h3_fusion, osc_repo_path
+    )
     
     if not modules:
         logger.error("❌ No modules could be initialized. Exiting.")
         sys.exit(1)
     
-    return shared_backend, modules
+    return shared_backend, modules, data_manager, h3_fusion
+
+def initialize_modules_with_enhanced_data_management(active_modules, shared_backend, data_manager, h3_fusion, osc_repo_path):
+    """Initialize modules with enhanced data management and H3 fusion"""
+    logger = logging.getLogger(__name__)
+    modules = {}
+    
+    # Import all the specialized modules from the 'cascadia' location
+    try:
+        from zoning.geo_infer_zoning import GeoInferZoning
+        ZONING_AVAILABLE = True
+    except ImportError as e:
+        logger.warning(f"Zoning module not available: {e}")
+        ZONING_AVAILABLE = False
+        GeoInferZoning = None
+
+    try:
+        from current_use.geo_infer_current_use import GeoInferCurrentUse
+        CURRENT_USE_AVAILABLE = True
+    except ImportError as e:
+        logger.warning(f"Current use module not available: {e}")
+        CURRENT_USE_AVAILABLE = False
+        GeoInferCurrentUse = None
+
+    try:
+        from ownership.geo_infer_ownership import GeoInferOwnership
+        OWNERSHIP_AVAILABLE = True
+    except ImportError as e:
+        logger.warning(f"Ownership module not available: {e}")
+        OWNERSHIP_AVAILABLE = False
+        GeoInferOwnership = None
+
+    try:
+        from improvements.geo_infer_improvements import GeoInferImprovements
+        IMPROVEMENTS_AVAILABLE = True
+    except ImportError as e:
+        logger.warning(f"Improvements module not available: {e}")
+        IMPROVEMENTS_AVAILABLE = False
+        GeoInferImprovements = None
+    
+    # Initialize available modules using the shared backend with enhanced data management
+    if 'zoning' in active_modules and ZONING_AVAILABLE:
+        try:
+            modules['zoning'] = GeoInferZoning(shared_backend)
+            # Integrate enhanced data management
+            modules['zoning'].data_manager = data_manager
+            modules['zoning'].h3_fusion = h3_fusion
+            logger.info("✅ Zoning module initialized with enhanced data management")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize zoning module: {e}")
+    
+    if 'current_use' in active_modules and CURRENT_USE_AVAILABLE:
+        try:
+            modules['current_use'] = GeoInferCurrentUse(shared_backend)
+            # Integrate enhanced data management
+            modules['current_use'].data_manager = data_manager
+            modules['current_use'].h3_fusion = h3_fusion
+            logger.info("✅ Current use module initialized with enhanced data management")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize current use module: {e}")
+    
+    if 'ownership' in active_modules and OWNERSHIP_AVAILABLE:
+        try:
+            modules['ownership'] = GeoInferOwnership(shared_backend)
+            # Integrate enhanced data management
+            modules['ownership'].data_manager = data_manager
+            modules['ownership'].h3_fusion = h3_fusion
+            logger.info("✅ Ownership module initialized with enhanced data management")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize ownership module: {e}")
+    
+    if 'improvements' in active_modules and IMPROVEMENTS_AVAILABLE:
+        try:
+            modules['improvements'] = GeoInferImprovements(shared_backend)
+            # Integrate enhanced data management
+            modules['improvements'].data_manager = data_manager
+            modules['improvements'].h3_fusion = h3_fusion
+            logger.info("✅ Improvements module initialized with enhanced data management")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize improvements module: {e}")
+    
+    if not modules:
+        logger.error("❌ No modules could be initialized.")
+        return {}
+    
+    # Update the shared backend with initialized modules
+    shared_backend.modules = modules
+    logger.info(f"✅ Updated shared backend with {len(modules)} active modules")
+    
+    return modules
 
 def generate_reports(summary, output_dir, spatial_analysis=False):
     """Generate analysis reports"""
@@ -93,6 +204,8 @@ Enhanced Features:
 - Real-time data integration capabilities
 - Spatial analysis and correlation features
 - Advanced dashboard generation
+- Enhanced H3 v4 geospatial data fusion
+- Reproducible data module structure with intelligent caching
 
 Usage:
     python cascadia_main.py [options]
@@ -109,6 +222,8 @@ Options:
     --real-time: Enable real-time data integration
     --spatial-analysis: Enable advanced spatial analysis features
     --generate-dashboard: Generate interactive dashboard
+    --force-refresh: Force refresh of cached data
+    --validate-h3: Validate H3 operations and API usage
 """
 
 import sys
@@ -185,6 +300,10 @@ from utils.data_processor import (
     export_results,
     validate_data_acquisition
 )
+
+# Import enhanced modules
+from utils.enhanced_data_manager import create_enhanced_data_manager
+from utils.enhanced_h3_fusion import create_enhanced_h3_fusion
 
 # Existing imports for SPACE and PLACE
 try:
@@ -409,6 +528,12 @@ Examples:
   
   # Export in different formats
   python3 cascadia_main.py --export-format csv --verbose
+  
+  # Force refresh of cached data
+  python3 cascadia_main.py --force-refresh --verbose
+  
+  # Validate H3 operations
+  python3 cascadia_main.py --validate-h3
         """
     )
     
@@ -488,6 +613,18 @@ Examples:
         help='Skip cache and regenerate all data'
     )
     
+    parser.add_argument(
+        '--force-refresh',
+        action='store_true',
+        help='Force refresh of cached data'
+    )
+    
+    parser.add_argument(
+        '--validate-h3',
+        action='store_true',
+        help='Validate H3 operations and API usage'
+    )
+    
     # Logging and debugging
     parser.add_argument(
         '--verbose',
@@ -536,12 +673,30 @@ def main():
     else:
         logger.info("   Visualization: None (use --lightweight-viz for efficient options)")
     
+    # Enhanced features
+    if args.force_refresh:
+        logger.info("   Force Refresh: Enabled (will refresh cached data)")
+    if args.validate_h3:
+        logger.info("   H3 Validation: Enabled")
+    
     try:
-        # Initialize analysis
-        backend, modules = initialize_analysis(args)
+        # Initialize analysis with enhanced modules
+        backend, modules, data_manager, h3_fusion = initialize_analysis(args)
         
-        # Run comprehensive analysis
-        redevelopment_scores, summary = run_comprehensive_analysis(backend, modules, args)
+        # Validate H3 operations if requested
+        if args.validate_h3:
+            logger.info("🔍 Validating H3 operations...")
+            h3_validation = h3_fusion.validate_h3_operations()
+            logger.info(f"H3 validation result: {h3_validation}")
+            
+            if h3_validation.get('errors'):
+                logger.error(f"H3 validation failed: {h3_validation['errors']}")
+                return
+        
+        # Run comprehensive analysis with enhanced data management
+        redevelopment_scores, summary = run_comprehensive_analysis_with_enhanced_data(
+            backend, modules, data_manager, h3_fusion, args
+        )
         
         # Export results with visualization options
         export_paths = export_results_with_visualizations(
@@ -562,6 +717,149 @@ def main():
             import traceback
             traceback.print_exc()
         sys.exit(1)
+
+def run_comprehensive_analysis_with_enhanced_data(backend, modules, data_manager, h3_fusion, args):
+    """Run comprehensive analysis with enhanced data management and H3 fusion"""
+    logger = logging.getLogger(__name__)
+    
+    logger.info("🚀 Starting enhanced comprehensive analysis with H3 geospatial fusion...")
+    
+    # Collect data from all modules with enhanced data management
+    module_data = {}
+    
+    for module_name, module in modules.items():
+        logger.info(f"📊 Processing module: {module_name}")
+        
+        try:
+            # Use enhanced data manager for data acquisition
+            data_path = data_manager.acquire_data_with_caching(
+                module_name=module_name,
+                data_source_func=module.acquire_raw_data,
+                force_refresh=args.force_refresh
+            )
+            
+            # Process data to H3 format with enhanced fusion
+            h3_data = data_manager.process_to_h3_with_caching(
+                data_path=data_path,
+                module_name=module_name,
+                target_hexagons=list(backend.target_hexagons)
+            )
+            
+            module_data[module_name] = h3_data
+            
+            # Generate data quality report
+            quality_report = data_manager.get_data_quality_report(module_name)
+            logger.info(f"📋 {module_name} data quality: {quality_report.get('quality_metrics', {}).get('quality_score', 0):.2f}")
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to process {module_name}: {e}")
+            continue
+    
+    # Perform enhanced H3 geospatial fusion
+    logger.info("🔗 Performing enhanced H3 geospatial fusion...")
+    fused_data = h3_fusion.fuse_geospatial_data(
+        data_sources=module_data,
+        target_hexagons=list(backend.target_hexagons)
+    )
+    
+    # Run final analysis on fused data
+    logger.info("🔬 Running final analysis on fused data...")
+    redevelopment_scores = {}
+    
+    for hex_id, hex_data in fused_data.items():
+        try:
+            # Calculate redevelopment score based on fused data
+            score = calculate_enhanced_redevelopment_score(hex_data)
+            redevelopment_scores[hex_id] = score
+        except Exception as e:
+            logger.warning(f"Error calculating score for {hex_id}: {e}")
+            redevelopment_scores[hex_id] = 0.0
+    
+    # Generate summary
+    summary = {
+        'total_hexagons': len(backend.target_hexagons),
+        'processed_hexagons': len(fused_data),
+        'module_count': len(modules),
+        'data_sources': list(module_data.keys()),
+        'h3_resolution': args.h3_resolution,
+        'spatial_analysis_enabled': args.spatial_analysis,
+        'enhanced_data_management': True,
+        'h3_fusion_enabled': True,
+        'analysis_timestamp': datetime.now().isoformat()
+    }
+    
+    return redevelopment_scores, summary
+
+def calculate_enhanced_redevelopment_score(hex_data):
+    """Calculate enhanced redevelopment score based on fused data"""
+    score = 0.0
+    factors = []
+    
+    # Analyze zoning data
+    if 'zoning' in hex_data:
+        zoning_data = hex_data['zoning']
+        if isinstance(zoning_data, list) and len(zoning_data) > 0:
+            # Extract zoning information
+            zoning_score = 0.0
+            for zoning_item in zoning_data:
+                if isinstance(zoning_item, dict):
+                    zone_type = zoning_item.get('zone_type', '').lower()
+                    if 'agricultural' in zone_type:
+                        zoning_score += 0.3
+                    elif 'residential' in zone_type:
+                        zoning_score += 0.1
+            factors.append(zoning_score)
+    
+    # Analyze current use data
+    if 'current_use' in hex_data:
+        current_use_data = hex_data['current_use']
+        if isinstance(current_use_data, list) and len(current_use_data) > 0:
+            # Extract current use information
+            use_score = 0.0
+            for use_item in current_use_data:
+                if isinstance(use_item, dict):
+                    crop_type = use_item.get('crop_type', '').lower()
+                    if 'hay' in crop_type or 'alfalfa' in crop_type:
+                        use_score += 0.2
+                    elif 'vegetables' in crop_type:
+                        use_score += 0.3
+            factors.append(use_score)
+    
+    # Analyze ownership data
+    if 'ownership' in hex_data:
+        ownership_data = hex_data['ownership']
+        if isinstance(ownership_data, list) and len(ownership_data) > 0:
+            # Extract ownership information
+            ownership_score = 0.0
+            for ownership_item in ownership_data:
+                if isinstance(ownership_item, dict):
+                    owner_type = ownership_item.get('owner_type', '').lower()
+                    if 'individual' in owner_type:
+                        ownership_score += 0.2
+                    elif 'corporate' in owner_type:
+                        ownership_score += 0.1
+            factors.append(ownership_score)
+    
+    # Analyze improvements data
+    if 'improvements' in hex_data:
+        improvements_data = hex_data['improvements']
+        if isinstance(improvements_data, list) and len(improvements_data) > 0:
+            # Extract improvements information
+            improvements_score = 0.0
+            for improvement_item in improvements_data:
+                if isinstance(improvement_item, dict):
+                    improvement_type = improvement_item.get('improvement_type', '').lower()
+                    if 'barn' in improvement_type:
+                        improvements_score += 0.2
+                    elif 'house' in improvement_type:
+                        improvements_score += 0.1
+            factors.append(improvements_score)
+    
+    # Calculate final score
+    if factors:
+        score = sum(factors) / len(factors)
+    
+    return min(score, 1.0)  # Normalize to 0-1 range
 
 def export_results_with_visualizations(backend, redevelopment_scores, summary, args):
     """Export results with selected visualization options"""
@@ -623,15 +921,20 @@ def print_analysis_summary(summary, export_paths, args):
     # Analysis statistics
     print(f"\n📊 Analysis Statistics:")
     print(f"   Total Hexagons: {summary.get('total_hexagons', 0):,}")
-    print(f"   Modules Analyzed: {len(summary.get('module_summaries', {}))}")
-    print(f"   Analysis Time: {summary.get('analysis_time', 0):.1f} seconds")
+    print(f"   Processed Hexagons: {summary.get('processed_hexagons', 0):,}")
+    print(f"   Data Sources: {len(summary.get('data_sources', []))}")
+    print(f"   H3 Resolution: {summary.get('h3_resolution', 8)}")
     
-    # Module coverage
-    print(f"\n📋 Module Coverage:")
-    for module, stats in summary.get('module_summaries', {}).items():
-        processed = stats.get('processed_hexagons', 0)
-        coverage = stats.get('coverage', 0)
-        print(f"   {module.replace('_', ' ').title()}: {processed:,} hexagons ({coverage:.1f}%)")
+    # Enhanced features
+    print(f"\n🔧 Enhanced Features:")
+    print(f"   Enhanced Data Management: {summary.get('enhanced_data_management', False)}")
+    print(f"   H3 Fusion Enabled: {summary.get('h3_fusion_enabled', False)}")
+    print(f"   Spatial Analysis: {summary.get('spatial_analysis_enabled', False)}")
+    
+    # Data sources
+    print(f"\n📋 Data Sources:")
+    for source in summary.get('data_sources', []):
+        print(f"   • {source}")
     
     # Visualization outputs
     print(f"\n🎨 Generated Visualizations:")
@@ -655,6 +958,9 @@ def print_analysis_summary(summary, export_paths, args):
     
     if args.generate_dashboard:
         print("   • Consider using --lightweight-viz instead of --generate-dashboard for better performance")
+    
+    if not args.spatial_analysis:
+        print("   • Use --spatial-analysis for enhanced spatial correlation analysis")
     
     print("\n" + "="*80)
 

@@ -196,11 +196,11 @@ pip list | grep geo-infer
 # Install GEO-INFER-API and dependencies
 pip install -e ./GEO-INFER-API
 
-# Install additional API dependencies
+# Optional: install extras for REST/GraphQL servers
 pip install fastapi uvicorn strawberry-graphql
 
-# Verify installation
-python -c "import geo_infer_api; print('✅ API installation successful')"
+# Verify import
+python -c "import geo_infer_api; print('import ok')"
 ```
 
 ### 3. Initial Configuration

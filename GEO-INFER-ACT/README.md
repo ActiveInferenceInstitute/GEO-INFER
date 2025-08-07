@@ -168,12 +168,8 @@ GEO-INFER-ACT/
 
 ### Installation
 ```bash
-# Clone the GEO-INFER repository if you haven't already
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER/GEO-INFER-ACT
-
-pip install -e .
-# or poetry install if pyproject.toml is configured
+# From the monorepo root
+pip install -e ./GEO-INFER-ACT
 ```
 
 ### Configuration

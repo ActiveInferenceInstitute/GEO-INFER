@@ -601,7 +601,7 @@ class TestCompleteH3V4Coverage(unittest.TestCase):
         """Test geo to H3Shape conversion (geo_to_h3shape)."""
         try:
             geo = h3.cells_to_geo(self.test_cells)
-            shape = h3.geo_to_h3shape(geo)
+            shape = h3.geo_to_cells(geo)
             self.assertIsInstance(shape, h3.H3Shape)
         except Exception:
             self.skipTest("Geo to H3Shape conversion requires valid geo object")

@@ -1,0 +1,294 @@
+2025-08-07 13:07:24,283 - utils.setup_manager - INFO - Enhanced Cascadia Analysis Framework initialized with SPACE integration
+2025-08-07 13:07:24,283 - utils.setup_manager - INFO - Log file: cascadia_analysis_20250807_130724.log
+2025-08-07 13:07:24,283 - __main__ - INFO - 🌲 Starting Cascadia Agricultural Analysis Framework
+2025-08-07 13:07:24,283 - __main__ - INFO - 📊 Analysis Parameters:
+2025-08-07 13:07:24,283 - __main__ - INFO -    H3 Resolution: 8
+2025-08-07 13:07:24,283 - __main__ - INFO -    Target Counties: CA:Del Norte
+2025-08-07 13:07:24,283 - __main__ - INFO -    Active Modules: zoning,current_use,ownership,improvements
+2025-08-07 13:07:24,283 - __main__ - INFO -    Export Format: geojson
+2025-08-07 13:07:24,283 - __main__ - INFO -    Output Directory: output
+2025-08-07 13:07:24,283 - __main__ - INFO -    Visualization Options: Lightweight Static Visualizations
+2025-08-07 13:07:24,290 - utils.setup_manager - INFO - Loaded analysis configuration from config/analysis_config.yaml
+2025-08-07 13:07:24,290 - __main__ - INFO - Target counties: {'CA': ['Del Norte']}
+2025-08-07 13:07:24,291 - __main__ - INFO - Active modules: ['zoning', 'current_use', 'ownership', 'improvements']
+2025-08-07 13:07:24,291 - utils.data_processor - INFO - 🔧 Creating shared backend for all modules...
+2025-08-07 13:07:24,311 - geo_infer_space.osc_geo.core.repos - WARNING - Repository path not found: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli
+2025-08-07 13:07:24,311 - geo_infer_place.core.unified_backend - WARNING - Failed to initialize H3DataLoader: H3 loader CLI repository not found. Please clone it first.
+2025-08-07 13:07:24,311 - geo_infer_place.core.unified_backend - INFO - Loading region data from cache: output/data/cache/region_cache_4e2b5626c8c4ca7a05c736003fae87ed.json
+2025-08-07 13:07:24,311 - geo_infer_place.core.unified_backend - INFO - ✅ Loaded 7749 hexagons from cache
+2025-08-07 13:07:24,311 - geo_infer_place.core.unified_backend - INFO - Using cached region data
+2025-08-07 13:07:24,325 - geo_infer_space.osc_geo.core.repos - WARNING - Repository path not found: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli
+2025-08-07 13:07:24,325 - geo_infer_space.core.unified_backend - ERROR - Failed to initialize H3DataLoader from GEO-INFER-SPACE: H3 loader CLI repository not found. Please clone it first.
+2025-08-07 13:07:24,325 - geo_infer_place.core.unified_backend - WARNING - Failed to initialize UnifiedH3Backend: Failed to initialize H3DataLoader: H3 loader CLI repository not found. Please clone it first.
+2025-08-07 13:07:24,325 - geo_infer_space.utils.config_loader - INFO - Config loader initialized with directory: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config
+2025-08-07 13:07:24,325 - geo_infer_space.utils.config_loader - WARNING - Location config not found: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config/cascadia.yaml
+2025-08-07 13:07:24,325 - geo_infer_space.utils.config_loader - DEBUG - Configuration validation passed
+2025-08-07 13:07:24,325 - geo_infer_place.core.unified_backend - INFO - ✅ Cascadia configuration loaded successfully
+2025-08-07 13:07:24,325 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2025-08-07 13:07:24,332 - county_boundary_loader - INFO - Loaded county boundaries configuration from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2025-08-07 13:07:24,332 - county_boundary_loader - INFO - Loaded GeoJSON geometry for ca_del_norte from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_del_norte_boundary.geojson
+2025-08-07 13:07:24,332 - geo_infer_place.core.unified_backend - INFO - Successfully loaded county geometries using boundary loader
+2025-08-07 13:07:24,333 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Del_Norte, CA using SPACE utilities...
+2025-08-07 13:07:24,333 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'dict'>, Geometry: {'type': 'Polygon', 'coordinates': [[[-124.5, 41.4], [-124.5, 42.0], [-123.5, 42.0], [-123.5, 41.4], [-124.5, 41.4]]]}
+2025-08-07 13:07:24,337 - geo_infer_place.core.unified_backend - INFO - Generated 7749 hexagons for Del_Norte, CA
+2025-08-07 13:07:24,339 - geo_infer_place.core.unified_backend - INFO - ✅ Generated 7749 H3 hexagons using SPACE utilities
+2025-08-07 13:07:24,339 - geo_infer_place.core.unified_backend - INFO - Enhanced CascadianAgriculturalH3Backend initialized for 'Cascadia' with 0 active modules at H3 resolution 8
+2025-08-07 13:07:24,339 - geo_infer_place.core.unified_backend - INFO - Active modules: []
+2025-08-07 13:07:24,339 - geo_infer_place.core.unified_backend - INFO - Defined 7749 total target hexagons across 1 states.
+2025-08-07 13:07:24,339 - geo_infer_place.core.unified_backend - INFO - SPACE integration: Spatial processor, data integrator, and visualization engine available
+2025-08-07 13:07:24,339 - utils.data_processor - INFO - ✅ Shared backend created with 7749 target hexagons
+2025-08-07 13:07:24,339 - zoning.geo_infer_zoning - INFO - Initialized GeoInferZoning module with real OSC H3 v4 integration.
+2025-08-07 13:07:24,339 - utils.data_processor - INFO - ✅ Zoning module initialized
+2025-08-07 13:07:24,339 - current_use.data_sources - INFO - Initialized CascadianCurrentUseDataSources
+2025-08-07 13:07:24,339 - current_use.geo_infer_current_use - INFO - Initialized GeoInferCurrentUse module with real OSC H3 v4 integration.
+2025-08-07 13:07:24,339 - utils.data_processor - INFO - ✅ Current use module initialized
+2025-08-07 13:07:24,340 - ownership.geo_infer_ownership - INFO - Initialized GeoInferOwnership module with real OSC H3 v4 integration.
+2025-08-07 13:07:24,340 - utils.data_processor - INFO - ✅ Ownership module initialized
+2025-08-07 13:07:24,340 - improvements.data_sources - INFO - Initialized CascadianImprovementsDataSources.
+2025-08-07 13:07:24,340 - improvements.geo_infer_improvements - INFO - Initialized GeoInferImprovements module.
+2025-08-07 13:07:24,340 - utils.data_processor - INFO - ✅ Improvements module initialized
+2025-08-07 13:07:24,340 - utils.data_processor - INFO - ✅ Updated shared backend with 4 active modules
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO - 📊 Starting comprehensive analysis with real data tracking...
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO - 🔍 Pre-analysis data check for all modules...
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -   📁 zoning: Found 4 data files
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_ownership_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_zoning_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_current_use_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_improvements_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -   📁 current_use: Found 4 data files
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_ownership_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_zoning_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_current_use_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_improvements_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -   📁 ownership: Found 4 data files
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_ownership_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_zoning_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_current_use_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_improvements_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -   📁 improvements: Found 4 data files
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_ownership_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_zoning_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_current_use_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO -     📄 empirical_improvements_data.geojson
+2025-08-07 13:07:24,340 - utils.analysis_engine - INFO - 🔧 Running comprehensive backend analysis to populate unified data...
+2025-08-07 13:07:24,340 - geo_infer_place.core.unified_backend - INFO - Starting enhanced comprehensive analysis with SPACE integration...
+2025-08-07 13:07:24,340 - geo_infer_place.core.unified_backend - INFO - --- Processing Module: ZONING with SPACE integration ---
+2025-08-07 13:07:24,340 - geo_infer_place.core.unified_backend - INFO - [zoning] Starting real data acquisition...
+2025-08-07 13:07:24,340 - zoning.geo_infer_zoning - INFO - [zoning] 🔍 Acquiring raw zoning data...
+2025-08-07 13:07:24,340 - zoning.geo_infer_zoning - INFO - [zoning] ✅ Found empirical zoning data: output/data/empirical_zoning_data.geojson
+2025-08-07 13:07:24,340 - geo_infer_place.core.unified_backend - INFO - [zoning] ✅ Raw data acquired: output/data/empirical_zoning_data.geojson (1420 bytes)
+2025-08-07 13:07:24,340 - geo_infer_place.core.unified_backend - INFO - [zoning] Starting module analysis...
+2025-08-07 13:07:24,340 - geo_infer_space.core.base_module - INFO - [zoning] 🚀 Starting real data analysis workflow...
+2025-08-07 13:07:24,340 - geo_infer_space.core.base_module - INFO - [zoning] 📁 Found cached H3 data. Loading from output/zoning_h3_res8.json
+2025-08-07 13:07:24,363 - geo_infer_space.core.base_module - INFO - [zoning] ✅ Loaded 2588 hexagons from cache
+2025-08-07 13:07:24,363 - geo_infer_space.core.base_module - INFO - [zoning] 🔬 Running final analysis on 2588 hexagons...
+2025-08-07 13:07:24,363 - zoning.geo_infer_zoning - INFO - [zoning] Starting real final analysis on 2588 hexagons using OSC H3 v4 methods.
+2025-08-07 13:07:24,801 - zoning.geo_infer_zoning - INFO - Loaded 2 real zoning features for analysis
+2025-08-07 13:07:25,150 - zoning.geo_infer_zoning - INFO - [zoning] Completed real final analysis using OSC H3 v4 methods.
+2025-08-07 13:07:25,150 - geo_infer_space.core.base_module - INFO - [zoning] ✅ Final analysis completed: 2588 results
+2025-08-07 13:07:25,150 - geo_infer_space.core.base_module - INFO - [zoning] 📊 Sample final results keys: ['88281c8e89fffff', '88281c1665fffff', '88281c8513fffff']
+2025-08-07 13:07:25,150 - geo_infer_space.core.base_module - INFO - [zoning] 📊 Sample result for 88281c8e89fffff: {'zoning': [{'feature_id': 0, 'properties': {'zone_type': 'Agricultural', 'zone_code': 'A-1', 'acres': 15000, 'source': 'CA_FMMP_2022', 'data_year': 2022, 'geometry': {'type': 'Polygon', 'coordinates': [[[-124.2, 41.5], [-124.2, 41.8], [-123.8, 41.8], [-123.8, 41.5], [-124.2, 41.5]]]}}, 'geometry': {'type': 'Polygon', 'coordinates': [[[-124.2, 41.5], [-124.2, 41.8], [-123.8, 41.8], [-123.8, 41.5], [-124.2, 41.5]]]}}], 'zoning_class': 'OTHER', 'is_ag_zone': False, 'redevelopment_potential': 0.2, 'zoning_coverage': 0.0, 'primary_zone_type': 'Unknown'}
+2025-08-07 13:07:25,150 - geo_infer_space.core.base_module - INFO - [zoning] 📊 Sample result for 88281c1665fffff: {'zoning': [{'feature_id': 0, 'properties': {'zone_type': 'Agricultural', 'zone_code': 'A-1', 'acres': 15000, 'source': 'CA_FMMP_2022', 'data_year': 2022, 'geometry': {'type': 'Polygon', 'coordinates': [[[-124.2, 41.5], [-124.2, 41.8], [-123.8, 41.8], [-123.8, 41.5], [-124.2, 41.5]]]}}, 'geometry': {'type': 'Polygon', 'coordinates': [[[-124.2, 41.5], [-124.2, 41.8], [-123.8, 41.8], [-123.8, 41.5], [-124.2, 41.5]]]}}], 'zoning_class': 'OTHER', 'is_ag_zone': False, 'redevelopment_potential': 0.2, 'zoning_coverage': 0.0, 'primary_zone_type': 'Unknown'}
+2025-08-07 13:07:25,150 - geo_infer_space.core.base_module - INFO - [zoning] 📊 Sample result for 88281c8513fffff: {'zoning': [{'feature_id': 0, 'properties': {'zone_type': 'Agricultural', 'zone_code': 'A-1', 'acres': 15000, 'source': 'CA_FMMP_2022', 'data_year': 2022, 'geometry': {'type': 'Polygon', 'coordinates': [[[-124.2, 41.5], [-124.2, 41.8], [-123.8, 41.8], [-123.8, 41.5], [-124.2, 41.5]]]}}, 'geometry': {'type': 'Polygon', 'coordinates': [[[-124.2, 41.5], [-124.2, 41.8], [-123.8, 41.8], [-123.8, 41.5], [-124.2, 41.5]]]}}], 'zoning_class': 'OTHER', 'is_ag_zone': False, 'redevelopment_potential': 0.2, 'zoning_coverage': 0.0, 'primary_zone_type': 'Unknown'}
+2025-08-07 13:07:25,150 - geo_infer_space.core.base_module - INFO - [zoning] 📊 ANALYSIS SUMMARY:
+2025-08-07 13:07:25,150 - geo_infer_space.core.base_module - INFO - [zoning]   - Cached data used: True
+2025-08-07 13:07:25,150 - geo_infer_space.core.base_module - INFO - [zoning]   - Raw data acquired: False
+2025-08-07 13:07:25,150 - geo_infer_space.core.base_module - INFO - [zoning]   - H3 cells processed: 2588
+2025-08-07 13:07:25,150 - geo_infer_space.core.base_module - INFO - [zoning]   - Final analysis completed: True
+2025-08-07 13:07:25,151 - geo_infer_space.core.base_module - INFO - [zoning]   - Final results: 2588 hexagons
+2025-08-07 13:07:25,151 - geo_infer_place.core.unified_backend - INFO - [zoning] ✅ Analysis completed: 2588 H3 cells processed
+2025-08-07 13:07:25,151 - geo_infer_place.core.unified_backend - INFO - [zoning] 📊 Sample processed data keys: ['88281c8e89fffff', '88281c1665fffff', '88281c8513fffff']
+2025-08-07 13:07:25,151 - geo_infer_place.core.unified_backend - INFO - [zoning] 📊 Sample data for 88281c8e89fffff: {'zoning': [{'feature_id': 0, 'properties': {'zone_type': 'Agricultural', 'zone_code': 'A-1', 'acres': 15000, 'source': 'CA_FMMP_2022', 'data_year': 2022, 'geometry': {'type': 'Polygon', 'coordinates': [[[-124.2, 41.5], [-124.2, 41.8], [-123.8, 41.8], [-123.8, 41.5], [-124.2, 41.5]]]}}, 'geometry': {'type': 'Polygon', 'coordinates': [[[-124.2, 41.5], [-124.2, 41.8], [-123.8, 41.8], [-123.8, 41.5], [-124.2, 41.5]]]}}], 'zoning_class': 'OTHER', 'is_ag_zone': False, 'redevelopment_potential': 0.2, 'zoning_coverage': 0.0, 'primary_zone_type': 'Unknown'}
+2025-08-07 13:07:25,151 - geo_infer_place.core.unified_backend - INFO - [zoning] 📊 Sample data for 88281c1665fffff: {'zoning': [{'feature_id': 0, 'properties': {'zone_type': 'Agricultural', 'zone_code': 'A-1', 'acres': 15000, 'source': 'CA_FMMP_2022', 'data_year': 2022, 'geometry': {'type': 'Polygon', 'coordinates': [[[-124.2, 41.5], [-124.2, 41.8], [-123.8, 41.8], [-123.8, 41.5], [-124.2, 41.5]]]}}, 'geometry': {'type': 'Polygon', 'coordinates': [[[-124.2, 41.5], [-124.2, 41.8], [-123.8, 41.8], [-123.8, 41.5], [-124.2, 41.5]]]}}], 'zoning_class': 'OTHER', 'is_ag_zone': False, 'redevelopment_potential': 0.2, 'zoning_coverage': 0.0, 'primary_zone_type': 'Unknown'}
+2025-08-07 13:07:25,151 - geo_infer_place.core.unified_backend - INFO - [zoning] 📊 Sample data for 88281c8513fffff: {'zoning': [{'feature_id': 0, 'properties': {'zone_type': 'Agricultural', 'zone_code': 'A-1', 'acres': 15000, 'source': 'CA_FMMP_2022', 'data_year': 2022, 'geometry': {'type': 'Polygon', 'coordinates': [[[-124.2, 41.5], [-124.2, 41.8], [-123.8, 41.8], [-123.8, 41.5], [-124.2, 41.5]]]}}, 'geometry': {'type': 'Polygon', 'coordinates': [[[-124.2, 41.5], [-124.2, 41.8], [-123.8, 41.8], [-123.8, 41.5], [-124.2, 41.5]]]}}], 'zoning_class': 'OTHER', 'is_ag_zone': False, 'redevelopment_potential': 0.2, 'zoning_coverage': 0.0, 'primary_zone_type': 'Unknown'}
+2025-08-07 13:07:25,151 - geo_infer_place.core.unified_backend - INFO - [zoning] 📊 Module processing summary:
+2025-08-07 13:07:25,151 - geo_infer_place.core.unified_backend - INFO - [zoning]   - Raw data acquired: True
+2025-08-07 13:07:25,151 - geo_infer_place.core.unified_backend - INFO - [zoning]   - H3 cells processed: 2588
+2025-08-07 13:07:25,151 - geo_infer_place.core.unified_backend - INFO - [zoning]   - Final analysis completed: True
+2025-08-07 13:07:25,151 - geo_infer_place.core.unified_backend - INFO - ✅ Successfully processed module: ZONING
+2025-08-07 13:07:25,151 - geo_infer_place.core.unified_backend - INFO - --- Processing Module: CURRENT_USE with SPACE integration ---
+2025-08-07 13:07:25,151 - geo_infer_place.core.unified_backend - INFO - [current_use] Starting real data acquisition...
+2025-08-07 13:07:25,151 - current_use.geo_infer_current_use - INFO - [current_use] 🔍 Acquiring raw current use data...
+2025-08-07 13:07:25,151 - current_use.geo_infer_current_use - INFO - [current_use] ✅ Found empirical current use data: output/data/empirical_current_use_data.geojson
+2025-08-07 13:07:25,151 - geo_infer_place.core.unified_backend - INFO - [current_use] ✅ Raw data acquired: output/data/empirical_current_use_data.geojson (2201 bytes)
+2025-08-07 13:07:25,151 - geo_infer_place.core.unified_backend - INFO - [current_use] Starting module analysis...
+2025-08-07 13:07:25,151 - geo_infer_space.core.base_module - INFO - [current_use] 🚀 Starting real data analysis workflow...
+2025-08-07 13:07:25,151 - geo_infer_space.core.base_module - INFO - [current_use] 📁 Found cached H3 data. Loading from output/current_use_h3_res8.json
+2025-08-07 13:07:25,165 - geo_infer_space.core.base_module - INFO - [current_use] ✅ Loaded 1681 hexagons from cache
+2025-08-07 13:07:25,166 - geo_infer_space.core.base_module - INFO - [current_use] 🔬 Running final analysis on 1681 hexagons...
+2025-08-07 13:07:25,166 - current_use.geo_infer_current_use - INFO - Starting real current use analysis for 7749 hexagons for the year 2023.
+2025-08-07 13:07:25,167 - current_use.geo_infer_current_use - INFO - Loaded 3 real current use features
+2025-08-07 13:07:26,178 - current_use.geo_infer_current_use - INFO - Completed real current use analysis. Processed 7749 of 7749 hexagons.
+2025-08-07 13:07:26,178 - geo_infer_space.core.base_module - INFO - [current_use] ✅ Final analysis completed: 7749 results
+2025-08-07 13:07:26,178 - geo_infer_space.core.base_module - INFO - [current_use] 📊 Sample final results keys: ['88280341b7fffff', '8828034513fffff', '8828034515fffff']
+2025-08-07 13:07:26,178 - geo_infer_space.core.base_module - INFO - [current_use] 📊 Sample result for 88280341b7fffff: {'primary_crop_code': 0, 'primary_crop_name': 'No Data', 'primary_crop_category': 'Unknown', 'primary_crop_coverage': 0.0, 'crop_diversity': 0, 'is_mock_data': False, 'intensity_score': 0.0, 'total_acres': 0.0, 'water_usage': 'Unknown'}
+2025-08-07 13:07:26,178 - geo_infer_space.core.base_module - INFO - [current_use] 📊 Sample result for 8828034513fffff: {'primary_crop_code': 0, 'primary_crop_name': 'No Data', 'primary_crop_category': 'Unknown', 'primary_crop_coverage': 0.0, 'crop_diversity': 0, 'is_mock_data': False, 'intensity_score': 0.0, 'total_acres': 0.0, 'water_usage': 'Unknown'}
+2025-08-07 13:07:26,178 - geo_infer_space.core.base_module - INFO - [current_use] 📊 Sample result for 8828034515fffff: {'primary_crop_code': 0, 'primary_crop_name': 'No Data', 'primary_crop_category': 'Unknown', 'primary_crop_coverage': 0.0, 'crop_diversity': 0, 'is_mock_data': False, 'intensity_score': 0.0, 'total_acres': 0.0, 'water_usage': 'Unknown'}
+2025-08-07 13:07:26,178 - geo_infer_space.core.base_module - INFO - [current_use] 📊 ANALYSIS SUMMARY:
+2025-08-07 13:07:26,178 - geo_infer_space.core.base_module - INFO - [current_use]   - Cached data used: True
+2025-08-07 13:07:26,178 - geo_infer_space.core.base_module - INFO - [current_use]   - Raw data acquired: False
+2025-08-07 13:07:26,178 - geo_infer_space.core.base_module - INFO - [current_use]   - H3 cells processed: 1681
+2025-08-07 13:07:26,178 - geo_infer_space.core.base_module - INFO - [current_use]   - Final analysis completed: True
+2025-08-07 13:07:26,178 - geo_infer_space.core.base_module - INFO - [current_use]   - Final results: 7749 hexagons
+2025-08-07 13:07:26,180 - geo_infer_place.core.unified_backend - INFO - [current_use] ✅ Analysis completed: 7749 H3 cells processed
+2025-08-07 13:07:26,180 - geo_infer_place.core.unified_backend - INFO - [current_use] 📊 Sample processed data keys: ['88280341b7fffff', '8828034513fffff', '8828034515fffff']
+2025-08-07 13:07:26,180 - geo_infer_place.core.unified_backend - INFO - [current_use] 📊 Sample data for 88280341b7fffff: {'primary_crop_code': 0, 'primary_crop_name': 'No Data', 'primary_crop_category': 'Unknown', 'primary_crop_coverage': 0.0, 'crop_diversity': 0, 'is_mock_data': False, 'intensity_score': 0.0, 'total_acres': 0.0, 'water_usage': 'Unknown'}
+2025-08-07 13:07:26,180 - geo_infer_place.core.unified_backend - INFO - [current_use] 📊 Sample data for 8828034513fffff: {'primary_crop_code': 0, 'primary_crop_name': 'No Data', 'primary_crop_category': 'Unknown', 'primary_crop_coverage': 0.0, 'crop_diversity': 0, 'is_mock_data': False, 'intensity_score': 0.0, 'total_acres': 0.0, 'water_usage': 'Unknown'}
+2025-08-07 13:07:26,180 - geo_infer_place.core.unified_backend - INFO - [current_use] 📊 Sample data for 8828034515fffff: {'primary_crop_code': 0, 'primary_crop_name': 'No Data', 'primary_crop_category': 'Unknown', 'primary_crop_coverage': 0.0, 'crop_diversity': 0, 'is_mock_data': False, 'intensity_score': 0.0, 'total_acres': 0.0, 'water_usage': 'Unknown'}
+2025-08-07 13:07:26,180 - geo_infer_place.core.unified_backend - INFO - [current_use] 📊 Module processing summary:
+2025-08-07 13:07:26,180 - geo_infer_place.core.unified_backend - INFO - [current_use]   - Raw data acquired: True
+2025-08-07 13:07:26,180 - geo_infer_place.core.unified_backend - INFO - [current_use]   - H3 cells processed: 7749
+2025-08-07 13:07:26,180 - geo_infer_place.core.unified_backend - INFO - [current_use]   - Final analysis completed: True
+2025-08-07 13:07:26,180 - geo_infer_place.core.unified_backend - INFO - ✅ Successfully processed module: CURRENT_USE
+2025-08-07 13:07:26,180 - geo_infer_place.core.unified_backend - INFO - --- Processing Module: OWNERSHIP with SPACE integration ---
+2025-08-07 13:07:26,180 - geo_infer_place.core.unified_backend - INFO - [ownership] Starting real data acquisition...
+2025-08-07 13:07:26,180 - ownership.geo_infer_ownership - INFO - [ownership] 🔍 Acquiring raw ownership data...
+2025-08-07 13:07:26,180 - ownership.geo_infer_ownership - INFO - [ownership] ✅ Found empirical ownership data: output/data/empirical_ownership_data.geojson
+2025-08-07 13:07:26,180 - geo_infer_place.core.unified_backend - INFO - [ownership] ✅ Raw data acquired: output/data/empirical_ownership_data.geojson (43591 bytes)
+2025-08-07 13:07:26,180 - geo_infer_place.core.unified_backend - INFO - [ownership] Starting module analysis...
+2025-08-07 13:07:26,180 - geo_infer_space.core.base_module - INFO - [ownership] 🚀 Starting real data analysis workflow...
+2025-08-07 13:07:26,180 - geo_infer_space.core.base_module - INFO - [ownership] 📁 Found cached H3 data. Loading from output/ownership_h3_res8.json
+2025-08-07 13:07:26,188 - geo_infer_space.core.base_module - INFO - [ownership] ✅ Loaded 594 hexagons from cache
+2025-08-07 13:07:26,189 - geo_infer_space.core.base_module - INFO - [ownership] 🔬 Running final analysis on 594 hexagons...
+2025-08-07 13:07:26,189 - ownership.geo_infer_ownership - INFO - Running real ownership analysis on 594 H3 cells using OSC H3 v4 methods...
+2025-08-07 13:07:26,191 - ownership.geo_infer_ownership - INFO - Loaded 50 real ownership features for analysis
+2025-08-07 13:07:27,237 - ownership.geo_infer_ownership - INFO - Completed real ownership analysis for 7749 cells using OSC H3 v4 methods
+2025-08-07 13:07:27,237 - geo_infer_space.core.base_module - INFO - [ownership] ✅ Final analysis completed: 7749 results
+2025-08-07 13:07:27,237 - geo_infer_space.core.base_module - INFO - [ownership] 📊 Sample final results keys: ['88280341b7fffff', '8828034513fffff', '8828034515fffff']
+2025-08-07 13:07:27,237 - geo_infer_space.core.base_module - INFO - [ownership] 📊 Sample result for 88280341b7fffff: {'ownership_concentration_hhi': 0.0, 'largest_owner_share_pct': 0.0, 'number_of_unique_owners': 0, 'number_of_parcels': 0, 'average_parcel_size_acres': 0.0, 'total_parcel_area_acres': 0.0, 'score': 0.0, 'owner_diversity': 0.0, 'parcel_fragmentation': 0.0}
+2025-08-07 13:07:27,237 - geo_infer_space.core.base_module - INFO - [ownership] 📊 Sample result for 8828034513fffff: {'ownership_concentration_hhi': 0.0, 'largest_owner_share_pct': 0.0, 'number_of_unique_owners': 0, 'number_of_parcels': 0, 'average_parcel_size_acres': 0.0, 'total_parcel_area_acres': 0.0, 'score': 0.0, 'owner_diversity': 0.0, 'parcel_fragmentation': 0.0}
+2025-08-07 13:07:27,237 - geo_infer_space.core.base_module - INFO - [ownership] 📊 Sample result for 8828034515fffff: {'ownership_concentration_hhi': 0.0, 'largest_owner_share_pct': 0.0, 'number_of_unique_owners': 0, 'number_of_parcels': 0, 'average_parcel_size_acres': 0.0, 'total_parcel_area_acres': 0.0, 'score': 0.0, 'owner_diversity': 0.0, 'parcel_fragmentation': 0.0}
+2025-08-07 13:07:27,237 - geo_infer_space.core.base_module - INFO - [ownership] 📊 ANALYSIS SUMMARY:
+2025-08-07 13:07:27,237 - geo_infer_space.core.base_module - INFO - [ownership]   - Cached data used: True
+2025-08-07 13:07:27,237 - geo_infer_space.core.base_module - INFO - [ownership]   - Raw data acquired: False
+2025-08-07 13:07:27,237 - geo_infer_space.core.base_module - INFO - [ownership]   - H3 cells processed: 594
+2025-08-07 13:07:27,237 - geo_infer_space.core.base_module - INFO - [ownership]   - Final analysis completed: True
+2025-08-07 13:07:27,237 - geo_infer_space.core.base_module - INFO - [ownership]   - Final results: 7749 hexagons
+2025-08-07 13:07:27,237 - geo_infer_place.core.unified_backend - INFO - [ownership] ✅ Analysis completed: 7749 H3 cells processed
+2025-08-07 13:07:27,237 - geo_infer_place.core.unified_backend - INFO - [ownership] 📊 Sample processed data keys: ['88280341b7fffff', '8828034513fffff', '8828034515fffff']
+2025-08-07 13:07:27,238 - geo_infer_place.core.unified_backend - INFO - [ownership] 📊 Sample data for 88280341b7fffff: {'ownership_concentration_hhi': 0.0, 'largest_owner_share_pct': 0.0, 'number_of_unique_owners': 0, 'number_of_parcels': 0, 'average_parcel_size_acres': 0.0, 'total_parcel_area_acres': 0.0, 'score': 0.0, 'owner_diversity': 0.0, 'parcel_fragmentation': 0.0}
+2025-08-07 13:07:27,238 - geo_infer_place.core.unified_backend - INFO - [ownership] 📊 Sample data for 8828034513fffff: {'ownership_concentration_hhi': 0.0, 'largest_owner_share_pct': 0.0, 'number_of_unique_owners': 0, 'number_of_parcels': 0, 'average_parcel_size_acres': 0.0, 'total_parcel_area_acres': 0.0, 'score': 0.0, 'owner_diversity': 0.0, 'parcel_fragmentation': 0.0}
+2025-08-07 13:07:27,238 - geo_infer_place.core.unified_backend - INFO - [ownership] 📊 Sample data for 8828034515fffff: {'ownership_concentration_hhi': 0.0, 'largest_owner_share_pct': 0.0, 'number_of_unique_owners': 0, 'number_of_parcels': 0, 'average_parcel_size_acres': 0.0, 'total_parcel_area_acres': 0.0, 'score': 0.0, 'owner_diversity': 0.0, 'parcel_fragmentation': 0.0}
+2025-08-07 13:07:27,238 - geo_infer_place.core.unified_backend - INFO - [ownership] 📊 Module processing summary:
+2025-08-07 13:07:27,238 - geo_infer_place.core.unified_backend - INFO - [ownership]   - Raw data acquired: True
+2025-08-07 13:07:27,238 - geo_infer_place.core.unified_backend - INFO - [ownership]   - H3 cells processed: 7749
+2025-08-07 13:07:27,238 - geo_infer_place.core.unified_backend - INFO - [ownership]   - Final analysis completed: True
+2025-08-07 13:07:27,238 - geo_infer_place.core.unified_backend - INFO - ✅ Successfully processed module: OWNERSHIP
+2025-08-07 13:07:27,238 - geo_infer_place.core.unified_backend - INFO - --- Processing Module: IMPROVEMENTS with SPACE integration ---
+2025-08-07 13:07:27,238 - geo_infer_place.core.unified_backend - INFO - [improvements] Starting real data acquisition...
+2025-08-07 13:07:27,238 - improvements.geo_infer_improvements - INFO - [improvements] 🔍 Acquiring raw improvements data...
+2025-08-07 13:07:27,238 - improvements.geo_infer_improvements - INFO - [improvements] ✅ Found empirical improvements data: output/data/empirical_improvements_data.geojson
+2025-08-07 13:07:27,238 - geo_infer_place.core.unified_backend - INFO - [improvements] ✅ Raw data acquired: output/data/empirical_improvements_data.geojson (88059 bytes)
+2025-08-07 13:07:27,238 - geo_infer_place.core.unified_backend - INFO - [improvements] Starting module analysis...
+2025-08-07 13:07:27,238 - geo_infer_space.core.base_module - INFO - [improvements] 🚀 Starting real data analysis workflow...
+2025-08-07 13:07:27,238 - geo_infer_space.core.base_module - INFO - [improvements] 📁 Found cached H3 data. Loading from output/improvements_h3_res8.json
+2025-08-07 13:07:27,240 - geo_infer_space.core.base_module - INFO - [improvements] ✅ Loaded 49 hexagons from cache
+2025-08-07 13:07:27,240 - geo_infer_space.core.base_module - INFO - [improvements] 🔬 Running final analysis on 49 hexagons...
+2025-08-07 13:07:27,240 - improvements.geo_infer_improvements - INFO - Running improvements analysis on 49 H3 cells...
+2025-08-07 13:07:27,246 - improvements.geo_infer_improvements - INFO - Completed improvements analysis for 49 cells
+2025-08-07 13:07:27,246 - geo_infer_space.core.base_module - INFO - [improvements] ✅ Final analysis completed: 49 results
+2025-08-07 13:07:27,246 - geo_infer_space.core.base_module - INFO - [improvements] 📊 Sample final results keys: ['88281c023bfffff', '88281c01d1fffff', '88281c8e41fffff']
+2025-08-07 13:07:27,246 - geo_infer_space.core.base_module - INFO - [improvements] 📊 Sample result for 88281c023bfffff: {'total_improvement_value': 0.0, 'total_land_value': 0.0, 'improvement_to_land_value_ratio': 0.0, 'number_of_improvements': 1, 'modernization_score': 0.3, 'building_density': 2.1739130434782608, 'average_building_value': 0.0, 'score': 0.6849999999999999}
+2025-08-07 13:07:27,246 - geo_infer_space.core.base_module - INFO - [improvements] 📊 Sample result for 88281c01d1fffff: {'total_improvement_value': 0.0, 'total_land_value': 0.0, 'improvement_to_land_value_ratio': 0.0, 'number_of_improvements': 1, 'modernization_score': 0.3, 'building_density': 2.1739130434782608, 'average_building_value': 0.0, 'score': 0.6849999999999999}
+2025-08-07 13:07:27,246 - geo_infer_space.core.base_module - INFO - [improvements] 📊 Sample result for 88281c8e41fffff: {'total_improvement_value': 0.0, 'total_land_value': 0.0, 'improvement_to_land_value_ratio': 0.0, 'number_of_improvements': 1, 'modernization_score': 0.3, 'building_density': 2.1739130434782608, 'average_building_value': 0.0, 'score': 0.6849999999999999}
+2025-08-07 13:07:27,246 - geo_infer_space.core.base_module - INFO - [improvements] 📊 ANALYSIS SUMMARY:
+2025-08-07 13:07:27,246 - geo_infer_space.core.base_module - INFO - [improvements]   - Cached data used: True
+2025-08-07 13:07:27,246 - geo_infer_space.core.base_module - INFO - [improvements]   - Raw data acquired: False
+2025-08-07 13:07:27,246 - geo_infer_space.core.base_module - INFO - [improvements]   - H3 cells processed: 49
+2025-08-07 13:07:27,246 - geo_infer_space.core.base_module - INFO - [improvements]   - Final analysis completed: True
+2025-08-07 13:07:27,246 - geo_infer_space.core.base_module - INFO - [improvements]   - Final results: 49 hexagons
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - [improvements] ✅ Analysis completed: 49 H3 cells processed
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - [improvements] 📊 Sample processed data keys: ['88281c023bfffff', '88281c01d1fffff', '88281c8e41fffff']
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - [improvements] 📊 Sample data for 88281c023bfffff: {'total_improvement_value': 0.0, 'total_land_value': 0.0, 'improvement_to_land_value_ratio': 0.0, 'number_of_improvements': 1, 'modernization_score': 0.3, 'building_density': 2.1739130434782608, 'average_building_value': 0.0, 'score': 0.6849999999999999}
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - [improvements] 📊 Sample data for 88281c01d1fffff: {'total_improvement_value': 0.0, 'total_land_value': 0.0, 'improvement_to_land_value_ratio': 0.0, 'number_of_improvements': 1, 'modernization_score': 0.3, 'building_density': 2.1739130434782608, 'average_building_value': 0.0, 'score': 0.6849999999999999}
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - [improvements] 📊 Sample data for 88281c8e41fffff: {'total_improvement_value': 0.0, 'total_land_value': 0.0, 'improvement_to_land_value_ratio': 0.0, 'number_of_improvements': 1, 'modernization_score': 0.3, 'building_density': 2.1739130434782608, 'average_building_value': 0.0, 'score': 0.6849999999999999}
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - [improvements] 📊 Module processing summary:
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - [improvements]   - Raw data acquired: True
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - [improvements]   - H3 cells processed: 49
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - [improvements]   - Final analysis completed: True
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - ✅ Successfully processed module: IMPROVEMENTS
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - 📊 COMPREHENSIVE DATA ACQUISITION SUMMARY:
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - 📊 ZONING:
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - Raw data acquired: True
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - H3 cells processed: 2588
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - Final analysis completed: True
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - Errors: 0
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - 📊 CURRENT_USE:
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - Raw data acquired: True
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - H3 cells processed: 7749
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - Final analysis completed: True
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - Errors: 0
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - 📊 OWNERSHIP:
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - Raw data acquired: True
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - H3 cells processed: 7749
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - Final analysis completed: True
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - Errors: 0
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO - 📊 IMPROVEMENTS:
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - Raw data acquired: True
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - H3 cells processed: 49
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - Final analysis completed: True
+2025-08-07 13:07:27,246 - geo_infer_place.core.unified_backend - INFO -    - Errors: 0
+2025-08-07 13:07:27,247 - geo_infer_place.core.unified_backend - INFO - 📊 OVERALL SUMMARY:
+2025-08-07 13:07:27,247 - geo_infer_place.core.unified_backend - INFO -    - Modules with data: 4/4
+2025-08-07 13:07:27,247 - geo_infer_place.core.unified_backend - INFO -    - Total hexagons processed: 18135
+2025-08-07 13:07:27,247 - geo_infer_place.core.unified_backend - INFO -    - Target hexagons: 7749
+2025-08-07 13:07:27,247 - geo_infer_place.core.unified_backend - INFO - Aggregating results from all modules using SPACE utilities...
+2025-08-07 13:07:27,294 - geo_infer_place.core.unified_backend - INFO - ✅ Aggregated data for 7749 hexagons from 4 modules using SPACE utilities.
+2025-08-07 13:07:27,295 - geo_infer_place.core.unified_backend - INFO - Performing enhanced spatial analysis with SPACE utilities...
+2025-08-07 13:07:27,295 - geo_infer_place.core.unified_backend - INFO - Performing spatial analysis with SPACE integration...
+2025-08-07 13:07:27,295 - geo_infer_place.core.unified_backend - INFO - Analyzing spatial correlations between modules...
+2025-08-07 13:07:27,295 - geo_infer_place.core.unified_backend - INFO - 📊 Spatial correlations disabled for performance - skipping calculation
+2025-08-07 13:07:27,295 - geo_infer_place.core.unified_backend - INFO - Analyzing hotspots using SPACE utilities...
+2025-08-07 13:07:27,296 - geo_infer_place.core.unified_backend - INFO - ✅ Identified 0 hotspots with threshold 0.000
+2025-08-07 13:07:27,296 - geo_infer_place.core.unified_backend - INFO - Analyzing spatial relationships using SPACE spatial processor...
+2025-08-07 13:07:27,409 - geo_infer_place.core.unified_backend - INFO - ✅ Spatial relationship analysis completed for 7749 features
+2025-08-07 13:07:27,412 - geo_infer_place.core.unified_backend - INFO - ✅ Spatial analysis completed successfully
+2025-08-07 13:07:27,412 - geo_infer_place.core.unified_backend - INFO - ✅ Enhanced comprehensive analysis complete. All module data has been aggregated and spatially analyzed.
+2025-08-07 13:07:27,412 - geo_infer_place.core.unified_backend - INFO - Calculating enhanced agricultural redevelopment potential scores with SPACE integration...
+2025-08-07 13:07:27,521 - geo_infer_place.core.unified_backend - INFO - ✅ Calculated enhanced redevelopment scores for 7749 hexagons with SPACE integration.
+2025-08-07 13:07:27,523 - utils.analysis_engine - INFO -  Post-analysis data acquisition summary:
+2025-08-07 13:07:27,523 - utils.analysis_engine - INFO -   ✅ zoning: 4 processed data files
+2025-08-07 13:07:27,523 - utils.analysis_engine - INFO -   ✅ current_use: 4 processed data files
+2025-08-07 13:07:27,524 - utils.analysis_engine - INFO -   ✅ ownership: 4 processed data files
+2025-08-07 13:07:27,524 - utils.analysis_engine - INFO -   ✅ improvements: 4 processed data files
+2025-08-07 13:07:27,524 - utils.analysis_engine - INFO - ✅ Comprehensive analysis completed successfully
+2025-08-07 13:07:27,524 - utils.data_processor - INFO - Step 4: Exporting analysis results...
+2025-08-07 13:07:28,100 - geo_infer_place.core.unified_backend - INFO - ✅ Enhanced GeoJSON export completed with 7749 features
+2025-08-07 13:07:28,102 - geo_infer_place.core.unified_backend - INFO - ✅ Successfully exported enhanced unified data to output/cascadia_unified_data_20250807_130727.geojson
+2025-08-07 13:07:28,102 - utils.data_processor - INFO - ✅ Successfully exported enhanced unified data to output/cascadia_unified_data_20250807_130727.geojson
+2025-08-07 13:07:28,179 - utils.data_processor - INFO - Exported redevelopment scores to output/cascadia_redevelopment_scores_20250807_130727.json
+2025-08-07 13:07:28,179 - utils.data_processor - INFO - Exported summary to output/cascadia_summary_20250807_130727.json
+2025-08-07 13:07:28,179 - utils.data_processor - INFO - Creating efficient visualization alternatives...
+2025-08-07 13:07:28,180 - utils.data_processor - WARNING - Datashader not available: No module named 'datashader'
+2025-08-07 13:07:28,181 - utils.deepscatter_visualization - INFO - Creating Deepscatter visualizations...
+2025-08-07 13:07:28,181 - geo_infer_place.core.unified_backend - INFO - Calculating enhanced agricultural redevelopment potential scores with SPACE integration...
+2025-08-07 13:07:28,331 - geo_infer_place.core.unified_backend - INFO - ✅ Calculated enhanced redevelopment scores for 7749 hexagons with SPACE integration.
+2025-08-07 13:07:28,331 - utils.deepscatter_visualization - INFO - Preparing H3 data for Deepscatter visualization...
+2025-08-07 13:07:28,345 - utils.deepscatter_visualization - INFO - Prepared 7749 data points for Deepscatter
+2025-08-07 13:07:28,345 - utils.deepscatter_visualization - INFO - Creating Deepscatter HTML visualization...
+2025-08-07 13:07:28,400 - utils.deepscatter_visualization - ERROR - Failed to create Deepscatter visualizations: name 'top' is not defined
+2025-08-07 13:07:28,401 - utils.data_processor - INFO - ✅ Deepscatter visualizations created successfully
+2025-08-07 13:07:28,407 - utils.static_visualization - INFO - Creating static visualization plots...
+2025-08-07 13:07:28,407 - geo_infer_place.core.unified_backend - INFO - Calculating enhanced agricultural redevelopment potential scores with SPACE integration...
+2025-08-07 13:07:28,701 - geo_infer_place.core.unified_backend - INFO - ✅ Calculated enhanced redevelopment scores for 7749 hexagons with SPACE integration.
+2025-08-07 13:07:28,701 - utils.static_visualization - INFO - Creating summary statistics...
+2025-08-07 13:07:28,753 - utils.static_visualization - INFO - Summary statistics created for 7749 hexagons
+2025-08-07 13:07:28,753 - utils.static_visualization - INFO - Creating data export for external visualization...
+2025-08-07 13:07:28,755 - utils.static_visualization - INFO - Data export created with 1550 sampled points
+2025-08-07 13:07:28,774 - utils.static_visualization - INFO - Static visualizations created successfully
+2025-08-07 13:07:28,774 - utils.data_processor - INFO - ✅ Static plots created successfully
+2025-08-07 13:07:28,774 - utils.data_processor - INFO - 📊 Data export completed in 1.3 seconds
+2025-08-07 13:07:28,774 - __main__ - INFO - 📊 Generating lightweight static visualizations...
+2025-08-07 13:07:28,774 - utils.static_visualization - INFO - Creating static visualization plots...
+2025-08-07 13:07:28,774 - geo_infer_place.core.unified_backend - INFO - Calculating enhanced agricultural redevelopment potential scores with SPACE integration...
+2025-08-07 13:07:28,939 - geo_infer_place.core.unified_backend - INFO - ✅ Calculated enhanced redevelopment scores for 7749 hexagons with SPACE integration.
+2025-08-07 13:07:28,939 - utils.static_visualization - INFO - Creating summary statistics...
+2025-08-07 13:07:28,953 - utils.static_visualization - INFO - Summary statistics created for 7749 hexagons
+2025-08-07 13:07:28,954 - utils.static_visualization - INFO - Creating data export for external visualization...
+2025-08-07 13:07:28,957 - utils.static_visualization - INFO - Data export created with 1550 sampled points
+2025-08-07 13:07:28,975 - utils.static_visualization - INFO - Static visualizations created successfully
+2025-08-07 13:07:28,975 - __main__ - INFO - ✅ Lightweight visualizations created
+2025-08-07 13:07:28,975 - utils.reporting_engine - INFO - Generating enhanced analysis report to output/cascadia_analysis_report_20250807_130728.md...
+2025-08-07 13:07:28,975 - utils.reporting_engine - INFO - ✅ Analysis report generated: output/cascadia_analysis_report_20250807_130728.md
+2025-08-07 13:07:28,975 - __main__ - INFO - 📋 Analysis report: output/cascadia_analysis_report_20250807_130728.md
+2025-08-07 13:07:28,975 - __main__ - INFO - ✅ Cascadia analysis completed successfully!

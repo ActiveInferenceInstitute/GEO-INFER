@@ -49,7 +49,7 @@ import h3
 detailed_cells = [h3.latlng_to_cell(lat, lng, 10) for lat, lng in points]
 
 # Compact representation (typically 70-90% fewer cells)
-compact_cellsed_cells = h3.compact_cells_cells(detailed_cells)
+compact_cellsed_cells = h3.compact_cells(detailed_cells)
 
 # Memory usage comparison
 original_memory = len(detailed_cells) * 8  # bytes

@@ -175,9 +175,9 @@ Compacts a set of cells to the highest resolution possible while preserving cove
 | Language | Syntax | Example |
 |----------|--------|---------|
 | C | `int h3_compact_cells(const H3Index *h3Set, H3Index *compact_cellsedSet, const int numHexes)` | `H3Index compact_cellsed[MAX_SIZE]; h3_compact_cells(cells, compact_cellsed, cellCount);` |
-| Python | `h3.compact_cells_cells(h3_set)` | `compact_cellsed = h3.compact_cells_cells(cells)` |
-| JavaScript | `h3.compact_cells_cells(h3Set)` | `const compact_cellsed = h3.compact_cells_cells(cells);` |
-| Java | `List<Long> compact_cells(Collection<Long> h3Indices)` | `List<Long> compact_cellsed = h3.compact_cells_cells(cells);` |
+| Python | `h3.compact_cells(h3_set)` | `compact_cellsed = h3.compact_cells(cells)` |
+| JavaScript | `h3.compact_cells(h3Set)` | `const compact_cellsed = h3.compact_cells(cells);` |
+| Java | `List<Long> compact_cells(Collection<Long> h3Indices)` | `List<Long> compact_cellsed = h3.compact_cells(cells);` |
 | Go | `func Compact(h3Set []H3Index) []H3Index` | `compact_cellsed := h3.Compact(cells)` |
 
 Uncompact_cellss a set of cells to the specified resolution.
@@ -185,9 +185,9 @@ Uncompact_cellss a set of cells to the specified resolution.
 | Language | Syntax | Example |
 |----------|--------|---------|
 | C | `int h3_uncompact_cells_cells(const H3Index *compact_cellsedSet, const int numCompacted, H3Index *h3Set, const int maxHexes, const int res)` | `H3Index uncompact_cells_cellsed[MAX_SIZE]; h3_uncompact_cells_cells(compact_cellsed, compact_cellsedCount, uncompact_cells_cellsed, MAX_SIZE, 10);` |
-| Python | `h3.uncompact_cells_cells_cells(h3_set, resolution)` | `uncompact_cells_cellsed = h3.uncompact_cells_cells_cells(compact_cellsed, 10)` |
-| JavaScript | `h3.uncompact_cells_cells_cells(compact_cellsedSet, resolution)` | `const uncompact_cells_cellsed = h3.uncompact_cells_cells_cells(compact_cellsed, 10);` |
-| Java | `List<Long> uncompact_cells_cells(Collection<Long> h3Indices, int res)` | `List<Long> uncompact_cells_cellsed = h3.uncompact_cells_cells_cells(compact_cellsed, 10);` |
+| Python | `h3.uncompact_cells(h3_set, resolution)` | `uncompact_cells_cellsed = h3.uncompact_cells(compact_cellsed, 10)` |
+| JavaScript | `h3.uncompact_cells(compact_cellsedSet, resolution)` | `const uncompact_cells_cellsed = h3.uncompact_cells(compact_cellsed, 10);` |
+| Java | `List<Long> uncompact_cells_cells(Collection<Long> h3Indices, int res)` | `List<Long> uncompact_cells_cellsed = h3.uncompact_cells(compact_cellsed, 10);` |
 | Go | `func Uncompact_cells(compact_cellsed []H3Index, res int) []H3Index` | `uncompact_cells_cellsed := h3.Uncompact_cells(compact_cellsed, 10)` |
 
 ### Area and Edge Length
@@ -384,7 +384,7 @@ const hexagons = h3.polygon_to_cells(polygon, 9, true);
 console.log(`Generated ${hexagons.length} hexagons`);
 
 // Compact the hexagons (use mixed resolutions)
-const compact_cellsed = h3.compact_cells_cells(hexagons);
+const compact_cellsed = h3.compact_cells(hexagons);
 console.log(`Compacted to ${compact_cellsed.length} mixed-resolution hexagons`);
 
 // Convert back to GeoJSON for visualization

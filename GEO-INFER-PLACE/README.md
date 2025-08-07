@@ -161,7 +161,7 @@ This separation ensures PLACE remains focused on unique geographic contexts whil
 ## Getting Started
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.9+
 - Core geospatial packages (installed automatically)
 - Optional: API keys for real-time data access
 

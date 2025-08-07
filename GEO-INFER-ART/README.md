@@ -1,4 +1,4 @@
-# GEO-INFER-ART 🎨🗺️
+# GEO-INFER-ART
 
 **Geospatial Art, Aesthetics, and Generative Systems**
 
@@ -144,41 +144,7 @@ pip install -e .
 ## Quick Start
 
 ```python
-from geo_infer_art.core.visualization import geo_art # Adjusted import path
-from geo_infer_art.core.aesthetics import style_transfer # Adjusted import path
-from geo_infer_art.core.generation import generative_map # Adjusted import path
-
-# Example: Load geospatial data (pseudo-code for brevity)
-# geo_data = geo_art.load_vector_data("path/to/data.geojson")
-# elevation_data = geo_art.load_raster_data("path/to/elevation.tif")
-
-# Placeholder for actual data loading, which would depend on GEO-INFER-DATA integration
-class MockGeoData:
-    def __init__(self, name):
-        self.name = name
-    def save(self, path):
-        print(f"{self.name} saved to {path}")
-
-geo_data = MockGeoData("vector_data")
-elevation_data = MockGeoData("elevation_data")
-
-# Apply artistic style transfer to a map concept
-styled_map = style_transfer.apply_style(
-    source_data=geo_data, # Conceptual representation of map data
-    style_reference="van_gogh_starry_night", # Could be a keyword or path to style image
-    parameters={"strength": 0.8, "color_palette": "vibrant_blues"}
-)
-
-# Generate procedural art based on terrain concept
-terrain_art = generative_map.create_from_elevation(
-    elevation_data=elevation_data, # Conceptual representation of elevation
-    algorithm="flow_lines_abstract",
-    parameters={"line_density": 0.7, "color_scheme": "earth_tones"}
-)
-
-# Save outputs
-styled_map.save("artistic_map_output.png")
-terrain_art.save("terrain_abstract_art.png")
+# See examples/ for runnable scripts; APIs may change
 ```
 *Note: The Quick Start is illustrative and actual implementation details may vary based on the final API design and integration with other GEO-INFER modules.*
 
@@ -267,4 +233,4 @@ Contributions are highly welcome! We are looking for collaborators in areas like
 
 ## License
 
-This project is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License - see the `LICENSE` file in the GEO-INFER root directory for details. *(Please confirm if this is the intended license for this specific module, or if it aligns with a broader project license like MIT often seen in other modules. Consistency is key.)* 
+This project is licensed under CC BY-ND-SA 4.0 – see `LICENSE` at the repo root.

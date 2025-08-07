@@ -149,12 +149,7 @@ GEO-INFER-AG is deeply interconnected with other modules:
 
 ### Installation
 ```bash
-# Ensure the main GEO-INFER repository is cloned
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER
-
 pip install -e ./GEO-INFER-AG
-# Or if managed by a broader project build system.
 ```
 
 ### Configuration

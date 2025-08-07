@@ -109,14 +109,10 @@ pip list | grep geo-infer
 
 ### 2. Installation
 ```bash
-# Install GEO-INFER-AGENT and dependencies
 pip install -e ./GEO-INFER-AGENT
-
-# Install agent-specific libraries
-pip install stable-baselines3 gym pymdp  # For RL and Active Inference agents
-
-# Verify installation
-python -c "import geo_infer_agent; print('✅ AGENT installation successful')"
+# Optional extras for RL/ActInf examples
+pip install stable-baselines3 gym pymdp
+python -c "import geo_infer_agent; print('import ok')"
 ```
 
 ### 3. Basic Configuration

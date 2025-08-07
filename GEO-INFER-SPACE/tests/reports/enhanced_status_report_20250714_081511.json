@@ -1,0 +1,41 @@
+{
+  "report_metadata": {
+    "timestamp": "2025-07-14T08:15:11.078752",
+    "reporter_version": "enhanced_v1.0",
+    "visualizations_enabled": true
+  },
+  "status_data": {
+    "timestamp": "2025-07-14T08:15:10.994331",
+    "repositories": {
+      "h3grid-srv": {
+        "key": "h3grid-srv",
+        "name": "osc-geo-h3grid-srv",
+        "path": "/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv",
+        "clone_url": "https://github.com/docxology/osc-geo-h3grid-srv.git",
+        "exists": true,
+        "is_git_repo": true,
+        "current_branch": "main",
+        "latest_commit": "ee0aea9f136c0eeaf2bc889e324bc4716ed3323f",
+        "has_venv": true
+      },
+      "h3loader-cli": {
+        "key": "h3loader-cli",
+        "name": "osc-geo-h3loader-cli",
+        "path": "/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3loader-cli",
+        "clone_url": "https://github.com/docxology/osc-geo-h3loader-cli.git",
+        "exists": true,
+        "is_git_repo": true,
+        "current_branch": "main",
+        "latest_commit": "9cdeab128d448991e34a8e66a87e34c1298f6d3a",
+        "has_venv": true
+      }
+    },
+    "all_repos_exist": true
+  },
+  "summary": "OSC Repository Status (as of 2025-07-14T08:15:10.994331)\nAll repositories exist: True\n\nRepository Status:\n  \u2705 osc-geo-h3grid-srv (h3grid-srv)\n     Path: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3grid-srv\n     Branch: main\n     Latest commit: ee0aea9f\n     Git repository: \u2705  Virtual environment: \u2705\n  \u2705 osc-geo-h3loader-cli (h3loader-cli)\n     Path: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/repo/osc-geo-h3loader-cli\n     Branch: main\n     Latest commit: 9cdeab12\n     Git repository: \u2705  Virtual environment: \u2705",
+  "visualizations": {
+    "repository_health": "visualizations/status/repository_health_20250714_081511.png",
+    "git_timeline": "visualizations/status/git_timeline_20250714_081511.png",
+    "environment_status": "visualizations/status/environment_status_20250714_081511.png"
+  }
+}

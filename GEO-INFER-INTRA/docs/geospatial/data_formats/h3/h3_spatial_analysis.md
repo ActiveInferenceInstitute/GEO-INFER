@@ -139,10 +139,10 @@ Optimizing representation of contiguous regions:
 ```python
 # Compact a set of H3 indices to their optimal representation
 h3_indices = {...}  # Set of indices at mixed resolutions
-compact_cellsed = h3.compact_cells_cells(h3_indices)
+compact_cellsed = h3.compact_cells(h3_indices)
 
 # Uncompact_cells back to a specific resolution
-uncompact_cells_cellsed = h3.uncompact_cells_cells_cells(compact_cellsed, 9)
+uncompact_cells_cellsed = h3.uncompact_cells(compact_cellsed, 9)
 ```
 
 Compaction reduces cell counts by:

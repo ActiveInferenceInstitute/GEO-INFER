@@ -34,58 +34,26 @@ Where:
 The module provides generative modeling capabilities:
 
 ```python
-from geo_infer_act import EnvironmentalModel
+# Illustrative structure (API subject to change)
+from geo_infer_act import ActiveInferenceModel
 
-# Create environmental monitoring model
-class EnvironmentalModel:
-    def __init__(self):
-        self.state_space = ['temperature', 'humidity', 'air_quality']
-        self.observation_space = ['sensor_reading']
-        self.precision = 1.0
-        self.free_energy_threshold = 0.01
-    
-    def predict_observation(self, state):
-        """Predict observations given current state"""
-        return self.observation_model(state)
-    
-    def update_beliefs(self, observation):
-        """Update beliefs based on new observation"""
-        self.beliefs = self.belief_update(observation, self.beliefs)
-        self.free_energy = self.calculate_free_energy(observation, self.beliefs)
-    
-    def calculate_free_energy(self, observation, beliefs):
-        """Calculate free energy for current observation and beliefs"""
-        return self.free_energy_function(observation, beliefs)
+model = ActiveInferenceModel(
+    state_space=['temperature', 'humidity', 'air_quality'],
+    observation_space=['sensor_reading'],
+    precision=1.0,
+)
 ```
 
 #### Belief Updating
 Implements variational Bayesian inference to update beliefs:
 
 ```python
-from geo_infer_act import ActiveInferenceModel
-
-# Create active inference model
+# Illustrative example
 model = ActiveInferenceModel(
     state_space=['temperature', 'humidity'],
     observation_space=['sensor_reading'],
-    precision=1.0,
-    learning_rate=0.1,
-    convergence_threshold=0.01
 )
-
-# Update beliefs with observation
-observation = {'sensor_reading': 25.5}
-model.update_beliefs(observation)
-
-# Get current beliefs and free energy
-beliefs = model.get_beliefs()
-free_energy = model.get_free_energy()
-print(f"Current beliefs: {beliefs}")
-print(f"Free energy: {free_energy:.4f}")
-
-# Check convergence
-if model.is_converged():
-    print("Model has converged to stable beliefs")
+model.update_beliefs({'sensor_reading': 25.5})
 ```
 
 ## Core Features

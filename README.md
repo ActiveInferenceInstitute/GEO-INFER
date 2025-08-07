@@ -41,8 +41,9 @@ GEO-INFER is a comprehensive geospatial inference framework implementing Active 
 git clone https://github.com/your-org/GEO-INFER.git
 cd GEO-INFER
 
-# Install dependencies
-pip install -r requirements.txt
+# Install one or more modules in editable mode (no root requirements.txt)
+pip install -e ./GEO-INFER-SPACE
+pip install -e ./GEO-INFER-PLACE
 
 # Run a basic example
 cd GEO-INFER-PLACE/locations/cascadia
@@ -731,6 +732,7 @@ python -m pytest GEO-INFER-TEST/tests/ -v
 - **Core API**: [SPACE Module API](./GEO-INFER-SPACE/docs/api_schema.yaml)
 - **H3 Utilities**: [H3 v4 Functions](./GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py)
 - **Place Analysis**: [PLACE Module API](./GEO-INFER-PLACE/docs/api_schema.yaml)
+- **Module Docs Index**: [INTRA Modules Overview](./GEO-INFER-INTRA/docs/modules/index.md)
 
 ### Tutorials & Examples
 

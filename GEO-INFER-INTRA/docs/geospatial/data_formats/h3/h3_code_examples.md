@@ -241,7 +241,7 @@ hexagons = h3.polygon_to_cells(polygon, 10, geo_json=True)
 print(f"Original hexagons at res 10: {len(hexagons)}")
 
 # Compact the set of hexagons (use mixed resolutions)
-compact_cellsed = h3.compact_cells_cells(hexagons)
+compact_cellsed = h3.compact_cells(hexagons)
 print(f"Compacted hexagons: {len(compact_cellsed)}")
 
 # Count cells by resolution
@@ -252,7 +252,7 @@ for h in compact_cellsed:
 print(f"Cells by resolution: {by_resolution}")
 
 # Uncompact_cells back to resolution 10
-uncompact_cells_cellsed = h3.uncompact_cells_cells_cells(compact_cellsed, 10)
+uncompact_cells_cellsed = h3.uncompact_cells(compact_cellsed, 10)
 print(f"Uncompact_cellsed cells: {len(uncompact_cells_cellsed)}")
 ```
 
@@ -277,7 +277,7 @@ const hexagons = h3.polygon_to_cells(polygon, 10, true);
 console.log(`Original hexagons at res 10: ${hexagons.length}`);
 
 // Compact the set of hexagons (use mixed resolutions)
-const compact_cellsed = h3.compact_cells_cells(hexagons);
+const compact_cellsed = h3.compact_cells(hexagons);
 console.log(`Compacted hexagons: ${compact_cellsed.length}`);
 
 // Count cells by resolution
@@ -289,7 +289,7 @@ for (const h of compact_cellsed) {
 console.log(`Cells by resolution:`, byResolution);
 
 // Uncompact_cells back to resolution 10
-const uncompact_cells_cellsed = h3.uncompact_cells_cells_cells(compact_cellsed, 10);
+const uncompact_cells_cellsed = h3.uncompact_cells(compact_cellsed, 10);
 console.log(`Uncompact_cellsed cells: ${uncompact_cells_cellsed.length}`);
 ```
 

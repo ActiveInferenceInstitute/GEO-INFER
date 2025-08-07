@@ -462,7 +462,7 @@ const highResHexagons = [
 ];
 
 // Compact to create a mixed-resolution set
-const compact_cellsedHexagons = h3.compact_cells_cells(highResHexagons);
+const compact_cellsedHexagons = h3.compact_cells(highResHexagons);
 
 // Render these instead - much more efficient
 // Note that different resolutions need different rendering approaches

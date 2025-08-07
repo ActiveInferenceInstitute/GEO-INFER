@@ -226,7 +226,7 @@ The `compact_cells_cells` operation optimizes representation by using the coarse
 ```python
 # Python example of compact_cellsion
 detailed_cells = [...]  # Many cells at resolution 9
-compact_cellsed_cells = h3.compact_cells_cells(detailed_cells)  # Converts to a mixed-resolution set
+compact_cellsed_cells = h3.compact_cells(detailed_cells)  # Converts to a mixed-resolution set
 ```
 
 This operation can significantly reduce the number of cells needed to represent an area:
@@ -240,7 +240,7 @@ The inverse operation, `uncompact_cells_cells`, expands a mixed-resolution set t
 ```python
 # Python example of uncompact_cells_cellsion
 mixed_resolution_cells = [...]  # Cells at various resolutions
-uniform_cells = h3.uncompact_cells_cells_cells(mixed_resolution_cells, 9)  # All at resolution 9
+uniform_cells = h3.uncompact_cells(mixed_resolution_cells, 9)  # All at resolution 9
 ```
 
 ### Resolution-appropriate Analysis
@@ -272,7 +272,7 @@ for lat, lng in ride_requests:
 high_demand_cells = [cell for cell, count in request_density.items() if count > threshold]
 
 # 3. Compact for analytical efficiency
-compact_cellsed_high_demand = h3.compact_cells_cells(high_demand_cells)
+compact_cellsed_high_demand = h3.compact_cells(high_demand_cells)
 
 # 4. Visualize at resolution 7 for dashboard
 visualization_cells = {}
@@ -294,7 +294,7 @@ landcover_r4 = classify_satellite_imagery(resolution=4)
 forest_cells_r4 = [cell for cell, class_type in landcover_r4.items() if class_type == 'forest']
 
 # 3. Uncompact_cells forest areas to higher resolution for detailed analysis
-forest_cells_r7 = h3.uncompact_cells_cells_cells(forest_cells_r4, 7)
+forest_cells_r7 = h3.uncompact_cells(forest_cells_r4, 7)
 
 # 4. Analyze forest fragmentation at higher resolution
 fragmentation_metrics = analyze_fragmentation(forest_cells_r7)

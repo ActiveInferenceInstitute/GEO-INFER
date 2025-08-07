@@ -252,17 +252,15 @@ nano config/local.yaml
 
 ### 4. Run First Example
 ```python
-# Minimal working example
-from geo_infer_space.core.processor import SpatialProcessor
+# Illustrative example (APIs may differ)
+# Prefer using provided utilities in src/geo_infer_space where available
 import geopandas as gpd
+from shapely.geometry import Point
 
-# Initialize with default settings
-processor = SpatialProcessor(config_path="config/local.yaml")
-
-# Create a simple buffer analysis
-point_data = gpd.read_file("path/to/points.geojson")
-buffered = processor.buffer_analysis(point_data, buffer_distance=1000)
-print(f"✅ Created buffers for {len(buffered)} points")
+gdf = gpd.GeoDataFrame(geometry=[Point(-122.4, 37.77)], crs="EPSG:4326")
+gdf = gdf.to_crs(3857)
+gdf["geometry"] = gdf.buffer(1000)
+print(len(gdf))
 ```
 
 ### 5. Next Steps
@@ -325,18 +323,12 @@ import rasterio
 #     print(f"DEM Resolution: {src.res}")
 ```
 
-**3. Using H3 Indexing**
+**3. Using H3 Indexing (v4)**
 ```python
-import h3
-# from geo_infer_space.indexing import points_to_h3 # Conceptual
+from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng_boundary
 
-# point_lat, point_lon = 40.7128, -74.0060 # New York City
-# h3_resolution = 9
-# h3_cell = h3.latlng_to_cell(point_lat, point_lon, h3_resolution)
-# print(f"H3 Cell for NYC (Res {h3_resolution}): {h3_cell}")
-
-# h3_cell_boundary = h3.cell_to_latlng_boundary(h3_cell, geo_json=True)
-# print(f"H3 Cell Boundary (GeoJSON): {h3_cell_boundary}")
+cell = latlng_to_cell(40.7128, -74.0060, 9)
+boundary = cell_to_latlng_boundary(cell)
 ```
 
 **4. OS Climate H3 Grid Service Usage (from existing README)**

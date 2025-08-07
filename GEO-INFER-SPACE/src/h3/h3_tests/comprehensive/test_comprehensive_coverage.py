@@ -80,7 +80,7 @@ class TestComprehensiveH3Coverage(unittest.TestCase):
         }
         
         try:
-            h3shape = h3.geo_to_h3shape(polygon)
+            h3shape = h3.geo_to_cells(polygon)
             self.assertIsInstance(h3shape, h3.H3Shape)
         except Exception as e:
             # geo_to_h3shape might not be available

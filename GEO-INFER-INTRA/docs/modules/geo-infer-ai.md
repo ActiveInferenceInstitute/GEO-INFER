@@ -97,7 +97,7 @@ predictions, uncertainty = spatial_model.predict_with_uncertainty(new_spatial_da
 Image processing for satellite and aerial imagery with deep learning:
 
 ```python
-from geo_infer_ai.vision import ComputerVisionEngine
+# See GEO-INFER-AI/examples for runnable scripts; APIs may differ by model
 ```
 
 ## Core Features
