@@ -6,21 +6,70 @@ lines within an H3 grid, using data from the HIFLD open data portal.
 """
 import logging
 from typing import Dict, List, Any
+from pathlib import Path
+import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Polygon
 
 from .data_sources import CascadianPowerSourceDataSources
 from geo_infer_space.utils.h3_utils import cell_to_latlng_boundary
 
+# For type checking only
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend
+
 logger = logging.getLogger(__name__)
 
 class GeoInferPowerSource:
     """Analyzes proximity to high-voltage power infrastructure."""
 
-    def __init__(self, resolution: int):
-        self.resolution = resolution
+    module_name: str = "power_source"
+
+    def __init__(self, backend: "CascadianAgriculturalH3Backend"):
+        self.backend = backend
+        self.resolution = getattr(backend, "h3_resolution", 8)
+        self.target_hexagons = list(getattr(backend, "target_hexagons", []))
         self.data_source = CascadianPowerSourceDataSources()
+        # Will be injected
+        self.data_manager = None  # type: ignore[attr-defined]
+        self.h3_fusion = None  # type: ignore[attr-defined]
         logger.info(f"Initialized GeoInferPowerSource with resolution {self.resolution}")
+
+    def acquire_raw_data(self) -> Path:
+        """Acquire and cache raw HIFLD infrastructure features for target hexagons."""
+        if not hasattr(self, "data_manager") or self.data_manager is None:
+            raw_out = Path("output/data/raw_power_source_data.geojson")
+        else:
+            paths = self.data_manager.get_data_structure(self.module_name)  # type: ignore[union-attr]
+            raw_out = paths['raw_data']
+
+        if raw_out.exists():
+            return raw_out
+
+        infra = self.data_source.fetch_power_infrastructure_features(self.target_hexagons)
+        trans = infra.get('transmission_lines') or gpd.GeoDataFrame(geometry=[], crs="EPSG:4326")
+        plants = infra.get('power_plants') or gpd.GeoDataFrame(geometry=[], crs="EPSG:4326")
+
+        frames = []
+        if not trans.empty:
+            # Buffer lines to small polygons for H3 polygon processing
+            try:
+                tproj = trans.to_crs('EPSG:3310')
+                tproj['geometry'] = tproj.buffer(30)  # ~30m
+                trans = tproj.to_crs('EPSG:4326')
+            except Exception:
+                pass
+            trans['layer'] = 'transmission_lines'
+            frames.append(trans)
+        if not plants.empty:
+            plants['layer'] = 'power_plants'
+            frames.append(plants)
+
+        gdf = gpd.GeoDataFrame(pd.concat(frames, ignore_index=True)) if frames else gpd.GeoDataFrame(geometry=[], crs="EPSG:4326")
+        raw_out.parent.mkdir(parents=True, exist_ok=True)
+        gdf.to_file(raw_out, driver='GeoJSON')
+        return raw_out
 
     def run_analysis(self, target_hexagons: List[str]) -> Dict[str, Dict[str, Any]]:
         """
@@ -101,3 +150,28 @@ class GeoInferPowerSource:
 
         logger.info(f"Completed power source analysis for {len(target_hexagons)} hexagons.")
         return h3_power 
+
+    def run_final_analysis(self, h3_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Summarize H3-indexed power infrastructure features into per-hex metrics.
+
+        Expects h3_data[hex] to be a list of feature dicts with optional 'layer' and
+        voltage fields. Returns counts and presence booleans.
+        """
+        results: Dict[str, Any] = {}
+        for hex_id, items in h3_data.items():
+            try:
+                df = pd.DataFrame(items) if isinstance(items, list) else pd.DataFrame()
+                trans_count = int((df.get('layer') == 'transmission_lines').sum()) if not df.empty else 0
+                plant_count = int((df.get('layer') == 'power_plants').sum()) if not df.empty else 0
+                results[hex_id] = {
+                    'has_transmission': trans_count > 0,
+                    'transmission_feature_count': trans_count,
+                    'power_plant_count': plant_count
+                }
+            except Exception:
+                results[hex_id] = {
+                    'has_transmission': False,
+                    'transmission_feature_count': 0,
+                    'power_plant_count': 0
+                }
+        return results

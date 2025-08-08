@@ -16,6 +16,7 @@ from shapely.ops import unary_union
 
 from .data_sources import CascadianZoningDataSources
 from geo_infer_space.core.base_module import BaseAnalysisModule
+from geo_infer_space.utils.h3_utils import cell_to_latlng_boundary
 
 # A forward declaration for type hinting the backend without circular imports
 from typing import TYPE_CHECKING
@@ -57,20 +58,40 @@ class GeoInferZoning(BaseAnalysisModule):
         logger.info(f"[{self.module_name}] 🔍 Acquiring raw zoning data...")
         
         # Check for empirical data first
-        empirical_data_path = Path("output/data/empirical_zoning_data.geojson")
+        try:
+            if hasattr(self, 'data_manager') and self.data_manager is not None:  # type: ignore[attr-defined]
+                paths = self.data_manager.get_data_structure(self.module_name)  # type: ignore[attr-defined]
+                empirical_data_path = paths['empirical_data']
+                synthetic_data_path = paths['synthetic_data']
+                raw_data_path = paths['raw_data']
+            else:
+                empirical_data_path = Path("output/data/empirical_zoning_data.geojson")
+                synthetic_data_path = Path("output/data/raw_zoning_data.geojson")
+                raw_data_path = synthetic_data_path
+        except Exception:
+            empirical_data_path = Path("output/data/empirical_zoning_data.geojson")
+            synthetic_data_path = Path("output/data/raw_zoning_data.geojson")
+            raw_data_path = synthetic_data_path
         if empirical_data_path.exists():
             logger.info(f"[{self.module_name}] ✅ Found empirical zoning data: {empirical_data_path}")
             return empirical_data_path
         
         # Fallback to synthetic data
-        synthetic_data_path = Path("output/data/raw_zoning_data.geojson")
         if synthetic_data_path.exists():
             logger.warning(f"[{self.module_name}] ⚠️ Using synthetic zoning data: {synthetic_data_path}")
             return synthetic_data_path
         
         # Create synthetic data if none exists
         logger.warning(f"[{self.module_name}] ⚠️ No zoning data found, creating synthetic data...")
-        return self._create_synthetic_zoning_data()
+        out = self._create_synthetic_zoning_data()
+        try:
+            if out and Path(out) != raw_data_path:
+                gdf = gpd.read_file(out)
+                gdf.to_file(raw_data_path, driver='GeoJSON')
+                return raw_data_path
+        except Exception:
+            pass
+        return out
 
     def run_final_analysis(self, h3_data: Dict[str, Any]) -> Dict[str, Any]:
         """
@@ -95,9 +116,8 @@ class GeoInferZoning(BaseAnalysisModule):
 
         for hex_id, properties in h3_data.items():
             try:
-                # Get hexagon boundary using real H3 v4 methods
-                hex_boundary = h3.cell_to_boundary(hex_id)
-                hex_polygon = Polygon(hex_boundary)
+                # Get hexagon boundary
+                hex_polygon = Polygon(cell_to_latlng_boundary(hex_id))
                 
                 # Find intersecting zoning features using real spatial analysis
                 intersecting_features = zoning_gdf[zoning_gdf.intersects(hex_polygon)]

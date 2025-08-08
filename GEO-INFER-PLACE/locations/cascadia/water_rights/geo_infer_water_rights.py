@@ -6,6 +6,7 @@ and integrating real data from multiple state-level sources.
 """
 import logging
 from typing import Dict, List, Any
+from pathlib import Path
 import numpy as np
 import geopandas as gpd
 from shapely.geometry import Polygon
@@ -13,16 +14,45 @@ import pandas as pd
 
 from .data_sources import CascadianWaterRightsDataSources
 from geo_infer_space.utils.h3_utils import cell_to_latlng_boundary
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend
 
 logger = logging.getLogger(__name__)
 
 class GeoInferWaterRights:
     """Processes and analyzes real water rights data within an H3 grid."""
 
-    def __init__(self, resolution: int):
-        self.resolution = resolution
+    module_name: str = "water_rights"
+
+    def __init__(self, backend: "CascadianAgriculturalH3Backend"):
+        self.backend = backend
+        self.resolution = getattr(backend, "h3_resolution", 8)
+        self.target_hexagons = list(getattr(backend, "target_hexagons", []))
         self.data_source = CascadianWaterRightsDataSources()
+        # Will be injected
+        self.data_manager = None  # type: ignore[attr-defined]
+        self.h3_fusion = None  # type: ignore[attr-defined]
         logger.info(f"Initialized GeoInferWaterRights with resolution {self.resolution}")
+
+    def acquire_raw_data(self) -> Path:
+        """Acquire and cache raw water rights points for the target area."""
+        if not hasattr(self, "data_manager") or self.data_manager is None:
+            raw_out = Path("output/data/raw_water_rights_data.geojson")
+        else:
+            paths = self.data_manager.get_data_structure(self.module_name)  # type: ignore[union-attr]
+            raw_out = paths['raw_data']
+
+        if raw_out.exists():
+            return raw_out
+
+        gdf = self.data_source.fetch_all_water_rights_data(self.target_hexagons)
+        raw_out.parent.mkdir(parents=True, exist_ok=True)
+        if gdf is None or gdf.empty:
+            gpd.GeoDataFrame(geometry=[], crs="EPSG:4326").to_file(raw_out, driver='GeoJSON')
+        else:
+            gdf.to_file(raw_out, driver='GeoJSON')
+        return raw_out
 
     def _find_col(self, df, potential_names):
         """Finds the first matching column name from a list of potential names."""

@@ -68,7 +68,7 @@ class EnhancedH3Fusion:
     - Real-time fusion capabilities
     """
     
-    def __init__(self, h3_resolution: int = 8, enable_spatial_analysis: bool = True, cache_dir: Optional[Path] = None):
+    def __init__(self, h3_resolution: int = 8, enable_spatial_analysis: bool = True, cache_dir: Optional[Path] = None, fusion_mode: str = "geom_intersect"):
         """
         Initialize the enhanced H3 fusion engine.
         
@@ -79,6 +79,8 @@ class EnhancedH3Fusion:
         self.h3_resolution = h3_resolution
         self.enable_spatial_analysis = enable_spatial_analysis
         self.cache_dir = Path(cache_dir) if cache_dir else None
+        # Fusion mode: 'geom_intersect' (default) or 'key_join' for direct hex-key joins
+        self.fusion_mode = fusion_mode if fusion_mode in {"geom_intersect", "key_join"} else "geom_intersect"
         
         # Validation settings
         self.validation_settings = {
@@ -92,6 +94,7 @@ class EnhancedH3Fusion:
         logger.info(f"Enhanced H3 Fusion initialized with resolution {h3_resolution}")
         logger.info(f"SPACE H3 utilities available: {SPACE_H3_AVAILABLE}")
         logger.info(f"Spatial analysis enabled: {enable_spatial_analysis}")
+        logger.info(f"Fusion mode: {self.fusion_mode}")
         if self.cache_dir:
             try:
                 self.cache_dir.mkdir(parents=True, exist_ok=True)
@@ -120,35 +123,61 @@ class EnhancedH3Fusion:
             return {}
         
         # Initialize fused data structure
-        fused_data = {}
-        
-        # Process each data source
-        for source_name, source_data in data_sources.items():
-            logger.info(f"Processing data source: {source_name}")
-            
-            try:
-                # Validate source data
-                source_validation = self._validate_source_data(source_data, source_name)
-                if not source_validation['is_valid']:
-                    logger.warning(f"Source {source_name} validation failed: {source_validation['errors']}")
+        fused_data: Dict[str, Any] = {}
+
+        if self.fusion_mode == "key_join":
+            target_set = set(target_hexagons)
+            for source_name, source_data in data_sources.items():
+                logger.info(f"[key_join] Processing data source: {source_name}")
+                try:
+                    if not isinstance(source_data, dict):
+                        logger.warning(f"Source {source_name} not a dict; skipping")
+                        continue
+                    for hex_id, hex_vals in source_data.items():
+                        if hex_id not in target_set:
+                            continue
+                        if hex_id not in fused_data:
+                            fused_data[hex_id] = {}
+                        # Normalize to list per-source
+                        if isinstance(hex_vals, list):
+                            fused_data[hex_id].setdefault(source_name, [])
+                            fused_data[hex_id][source_name].extend(hex_vals)
+                        else:
+                            fused_data[hex_id].setdefault(source_name, [])
+                            fused_data[hex_id][source_name].append(hex_vals)
+                    logger.info(f"✅ [key_join] Fused {source_name}: {len(source_data)} source hexagons")
+                except Exception as e:
+                    logger.error(f"❌ [key_join] Failed to fuse {source_name}: {e}")
                     continue
+        else:
+            # Geometric intersection mode
+            # Process each data source
+            for source_name, source_data in data_sources.items():
+                logger.info(f"Processing data source: {source_name}")
                 
-                # Fuse source data into target hexagons
-                fused_source_data = self._fuse_source_to_target_hexagons(
-                    source_data, target_hexagons, source_name
-                )
-                
-                # Add to fused data
-                for hex_id, hex_data in fused_source_data.items():
-                    if hex_id not in fused_data:
-                        fused_data[hex_id] = {}
-                    fused_data[hex_id][source_name] = hex_data
-                
-                logger.info(f"✅ Fused {source_name}: {len(fused_source_data)} hexagons")
-                
-            except Exception as e:
-                logger.error(f"❌ Failed to fuse {source_name}: {e}")
-                continue
+                try:
+                    # Validate source data
+                    source_validation = self._validate_source_data(source_data, source_name)
+                    if not source_validation['is_valid']:
+                        logger.warning(f"Source {source_name} validation failed: {source_validation['errors']}")
+                        continue
+                    
+                    # Fuse source data into target hexagons
+                    fused_source_data = self._fuse_source_to_target_hexagons(
+                        source_data, target_hexagons, source_name
+                    )
+                    
+                    # Add to fused data
+                    for hex_id, hex_data in fused_source_data.items():
+                        if hex_id not in fused_data:
+                            fused_data[hex_id] = {}
+                        fused_data[hex_id][source_name] = hex_data
+                    
+                    logger.info(f"✅ Fused {source_name}: {len(fused_source_data)} hexagons")
+                    
+                except Exception as e:
+                    logger.error(f"❌ Failed to fuse {source_name}: {e}")
+                    continue
         
         # Perform spatial analysis if enabled
         if self.enable_spatial_analysis and fused_data:
@@ -174,6 +203,7 @@ class EnhancedH3Fusion:
             signature_obj: Dict[str, Any] = {
                 'h3_resolution': int(self.h3_resolution),
                 'spatial': bool(self.enable_spatial_analysis),
+                'fusion_mode': str(self.fusion_mode),
                 'target_count': int(len(target_hexagons)),
                 'modules': {}
             }
@@ -236,6 +266,7 @@ class EnhancedH3Fusion:
                 'meta': {
                     'h3_resolution': int(self.h3_resolution),
                     'spatial_analysis': bool(self.enable_spatial_analysis),
+                    'fusion_mode': str(self.fusion_mode),
                     'modules': list(sorted(data_sources.keys())),
                     'target_hexagon_count': int(len(target_hexagons)),
                     'fused_hexagon_count': int(len(fused_data))
@@ -728,7 +759,7 @@ class EnhancedH3Fusion:
         
         return validation_result
 
-def create_enhanced_h3_fusion(h3_resolution: int = 8, enable_spatial_analysis: bool = True, cache_dir: Optional[Path] = None) -> EnhancedH3Fusion:
+def create_enhanced_h3_fusion(h3_resolution: int = 8, enable_spatial_analysis: bool = True, cache_dir: Optional[Path] = None, fusion_mode: str = "geom_intersect") -> EnhancedH3Fusion:
     """
     Factory function to create an enhanced H3 fusion engine.
     
@@ -739,4 +770,4 @@ def create_enhanced_h3_fusion(h3_resolution: int = 8, enable_spatial_analysis: b
     Returns:
         Configured EnhancedH3Fusion instance
     """
-    return EnhancedH3Fusion(h3_resolution, enable_spatial_analysis, cache_dir)
+    return EnhancedH3Fusion(h3_resolution, enable_spatial_analysis, cache_dir, fusion_mode)

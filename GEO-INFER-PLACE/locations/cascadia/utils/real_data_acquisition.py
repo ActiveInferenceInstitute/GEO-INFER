@@ -29,6 +29,8 @@ import zipfile
 import io
 from urllib.parse import urljoin, urlparse
 import re
+import subprocess
+import os
 
 # Web scraping libraries
 from bs4 import BeautifulSoup
@@ -64,6 +66,9 @@ class RealDataAcquisition:
         """
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+        # Allow optional insecure downloads to work around SSL issues on some hosts
+        # Set env CASCADIA_INSECURE_DOWNLOADS=1 to disable certificate verification for HTTP(S) requests
+        self.insecure_downloads = os.environ.get('CASCADIA_INSECURE_DOWNLOADS', '0') == '1'
         
         # Initialize loggers
         self.data_logger = DataSourceLogger("real_data_acquisition")
@@ -462,12 +467,21 @@ class RealDataAcquisition:
     def _download_usda_cropland_data(self) -> Optional[Path]:
         """Download USDA Cropland Data Layer for California."""
         try:
-            # Try a stable CDL COG for California. If unavailable, fall back to site zip.
+            # Try a stable remote ZIP vector via GDAL VSI first (no full download)
+            # Reference: /vsizip/vsicurl mounting
+            # If mounting fails or dataset is raster-only, fall back to direct download/extract.
             candidate_urls = [
-                # Known COG endpoints (examples; may change)
+                # Vector zip with predictable inner shapefile name (demonstration of VSI mount)
+                "https://www2.census.gov/geo/tiger/TIGER2023/PLACE/tl_2023_us_place.zip",
+                # USDA CDL archive (likely raster; may not be directly usable as vector)
                 "https://www.nass.usda.gov/Research_and_Science/Cropland/Release/datasets/2023_30m_cdls.zip",
-                "https://www2.census.gov/geo/tiger/TIGER2023/PLACE/tl_2023_us_place.zip"  # vector fallback demo
             ]
+            # Attempt VSI mount for the TIGER PLACE zip
+            tiger_url = candidate_urls[0]
+            mounted = self._mount_remote_zip_vector(tiger_url, save_prefix="current_use_tiger_place")
+            if mounted and mounted.exists():
+                return mounted
+            # Fall back to downloading
             for url in candidate_urls:
                 path = self._download_file(url, "usda_cropland_data")
                 if path is not None and path.exists():
@@ -549,6 +563,11 @@ class RealDataAcquisition:
         - Shows a progress bar during download when Content-Length is available.
         """
         try:
+            # Fast path: try mounting remote ZIP via GDAL VSI without downloading (vector data)
+            if url.lower().endswith('.zip'):
+                mounted_path = self._mount_remote_zip_vector(url, save_prefix=prefix)
+                if mounted_path is not None:
+                    return mounted_path
             # Prefer previously extracted geospatial artifacts
             for pattern in (f"{prefix}*.geojson", f"{prefix}*.shp"):
                 matches = sorted(self.output_dir.rglob(pattern))
@@ -562,7 +581,7 @@ class RealDataAcquisition:
             _urllib3_logger.setLevel(_logging.INFO)
 
             # HEAD request to get size/type for caching decision
-            head = requests.head(url, timeout=15, allow_redirects=True)
+            head = requests.head(url, timeout=15, allow_redirects=True, verify=not self.insecure_downloads)
             content_type = head.headers.get('content-type', '') if head.ok else ''
             total_bytes = int(head.headers.get('content-length', '0')) if head.ok else 0
 
@@ -587,7 +606,7 @@ class RealDataAcquisition:
                 pass
 
             # Stream download with progress bar
-            with requests.get(url, timeout=60, stream=True) as response:
+            with requests.get(url, timeout=60, stream=True, verify=not self.insecure_downloads) as response:
                 response.raise_for_status()
                 chunk_size = 1024 * 512  # 512 KB
                 from tqdm import tqdm as _tqdm  # type: ignore
@@ -643,6 +662,96 @@ class RealDataAcquisition:
         except Exception as e:
             logger.error(f"Failed to download file from {url}: {e}")
             return None
+
+    def _mount_remote_zip_vector(self, url: str, save_prefix: str, inner_name: Optional[str] = None) -> Optional[Path]:
+        """Attempt to mount and read a remote ZIP vector dataset via GDAL VSI without downloading.
+
+        Builds a path like '/vsizip/vsicurl/<url>/<inner_name>.shp' and reads it with GeoPandas.
+        If successful, saves a local GeoJSON with the given prefix and returns the path.
+
+        Returns None if mounting or reading fails.
+        """
+        try:
+            # Derive inner shapefile name if not provided
+            if inner_name is None:
+                stem = Path(urlparse(url).path).stem  # e.g., tl_2023_us_place
+                inner_name = f"{stem}.shp"
+            # Try VSIZIP/VSICURL first
+            vsi_path = f"/vsizip/vsicurl/{url}/{inner_name}"
+            gdf = None
+            try:
+                gdf = gpd.read_file(vsi_path)
+            except Exception:
+                # Attempt to probe the zip for actual inner names
+                shp_names = self._vsi_probe_zip_for_vectors(url)
+                for shp in shp_names:
+                    try:
+                        vsi_alt = f"/vsizip/vsicurl/{url}/{shp}"
+                        gdf = gpd.read_file(vsi_alt)
+                        if gdf is not None and not gdf.empty:
+                            inner_name = shp
+                            break
+                    except Exception:
+                        continue
+            # Fallback: try zip+https URI style if GDAL vsicurl is unavailable
+            if (gdf is None or gdf.empty) and inner_name:
+                try:
+                    zip_https_uri = f"zip+https://{urlparse(url).netloc}{urlparse(url).path}!{inner_name}"
+                    gdf = gpd.read_file(zip_https_uri)
+                except Exception:
+                    # Try probed names
+                    for shp in self._vsi_probe_zip_for_vectors(url):
+                        try:
+                            zip_https_uri = f"zip+https://{urlparse(url).netloc}{urlparse(url).path}!{shp}"
+                            gdf = gpd.read_file(zip_https_uri)
+                            if gdf is not None and not gdf.empty:
+                                inner_name = shp
+                                break
+                        except Exception:
+                            continue
+            if gdf is None or gdf.empty:
+                return None
+            # Save to local GeoJSON for caching
+            out = self.output_dir / f"{save_prefix}.geojson"
+            gdf.to_file(out, driver='GeoJSON')
+            self.data_logger.log_real_data_acquisition(
+                source_url=url,
+                file_path=out,
+                data_type="Mounted ZIP Vector",
+                row_count=len(gdf),
+                file_size_mb=out.stat().st_size / 1024 / 1024,
+                geometry_types=list(gdf.geometry.geom_type.unique()) if not gdf.empty else ["Unknown"],
+                crs=str(gdf.crs) if gdf.crs else "Unknown"
+            )
+            return out
+        except Exception as e:
+            # Soft fail; return None to proceed with other methods
+            logger.debug(f"VSI mount failed for {url}: {e}")
+            return None
+
+    def _vsi_probe_zip_for_vectors(self, url: str) -> List[str]:
+        """Use gdalinfo to list entries inside a remote ZIP and extract candidate vector filenames.
+
+        Returns a list of inner paths (e.g., 'tl_2023_us_place.shp') likely to be vectors.
+        """
+        try:
+            vsi = f"/vsizip/vsicurl/{url}"
+            # Run gdalinfo to list contents; suppress stdout on failure
+            proc = subprocess.run(["gdalinfo", vsi], capture_output=True, text=True, timeout=30)
+            text = proc.stdout or ""
+            # Extract .shp and .geojson entries
+            candidates: List[str] = []
+            for line in text.splitlines():
+                line = line.strip()
+                if line.lower().endswith('.shp') or line.lower().endswith('.geojson'):
+                    # Lines may include full paths within zip; take the last token
+                    token = line.split()[-1]
+                    name = token.split('/')[-1]
+                    if name not in candidates:
+                        candidates.append(name)
+            return candidates
+        except Exception:
+            return []
     
     def __del__(self):
         """Clean up web driver on destruction."""

@@ -15,6 +15,9 @@ import geopandas as gpd
 
 from .data_sources import CascadianCurrentUseDataSources
 from geo_infer_space.core.base_module import BaseAnalysisModule
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend
 
 logger = logging.getLogger(__name__)
 
@@ -36,20 +39,42 @@ class GeoInferCurrentUse(BaseAnalysisModule):
         logger.info(f"[{self.module_name}] 🔍 Acquiring raw current use data...")
         
         # Check for empirical data first
-        empirical_data_path = Path("output/data/empirical_current_use_data.geojson")
+        # Use standardized module data structure if available
+        try:
+            if hasattr(self, 'data_manager') and self.data_manager is not None:  # type: ignore[attr-defined]
+                paths = self.data_manager.get_data_structure(self.module_name)  # type: ignore[attr-defined]
+                empirical_data_path = paths['empirical_data']
+                synthetic_data_path = paths['synthetic_data']
+                raw_data_path = paths['raw_data']
+            else:
+                empirical_data_path = Path("output/data/empirical_current_use_data.geojson")
+                synthetic_data_path = Path("output/data/raw_current_use_data.geojson")
+                raw_data_path = synthetic_data_path
+        except Exception:
+            empirical_data_path = Path("output/data/empirical_current_use_data.geojson")
+            synthetic_data_path = Path("output/data/raw_current_use_data.geojson")
+            raw_data_path = synthetic_data_path
         if empirical_data_path.exists():
             logger.info(f"[{self.module_name}] ✅ Found empirical current use data: {empirical_data_path}")
             return empirical_data_path
         
         # Fallback to synthetic data
-        synthetic_data_path = Path("output/data/raw_current_use_data.geojson")
         if synthetic_data_path.exists():
             logger.warning(f"[{self.module_name}] ⚠️ Using synthetic current use data: {synthetic_data_path}")
             return synthetic_data_path
         
         # Create synthetic data if none exists
         logger.warning(f"[{self.module_name}] ⚠️ No current use data found, creating synthetic data...")
-        return self._create_synthetic_current_use_data()
+        out = self._create_synthetic_current_use_data()
+        # If using data_manager paths, move to standardized raw path
+        try:
+            if out != raw_data_path:
+                gdf = gpd.read_file(out)
+                gdf.to_file(raw_data_path, driver='GeoJSON')
+                return raw_data_path
+        except Exception:
+            pass
+        return out
 
     def _create_synthetic_current_use_data(self) -> Path:
         """

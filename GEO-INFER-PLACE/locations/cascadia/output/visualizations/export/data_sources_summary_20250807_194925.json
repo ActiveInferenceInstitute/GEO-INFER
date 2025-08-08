@@ -1,0 +1,28 @@
+{
+  "timestamp": "20250807_194925",
+  "data_sources": [
+    "improvements",
+    "ownership",
+    "zoning",
+    "current_use"
+  ],
+  "total_hexagons": 3298,
+  "modules": {
+    "improvements": {
+      "hexagon_count": 49,
+      "coverage_percentage": 1.4857489387507579
+    },
+    "ownership": {
+      "hexagon_count": 594,
+      "coverage_percentage": 18.01091570648878
+    },
+    "zoning": {
+      "hexagon_count": 2584,
+      "coverage_percentage": 78.35051546391753
+    },
+    "current_use": {
+      "hexagon_count": 1551,
+      "coverage_percentage": 47.02850212249848
+    }
+  }
+}

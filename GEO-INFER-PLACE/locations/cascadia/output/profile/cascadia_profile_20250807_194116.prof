@@ -1,0 +1,58 @@
+         32812939 function calls (26201515 primitive calls) in 13.976 seconds
+
+   Ordered by: cumulative time
+   List reduced from 3825 to 50 due to restriction <50>
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    748/2    0.008    0.000   11.628    5.814 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/matplotlib/text.py:926(get_window_extent)
+        5    0.000    0.000    7.251    1.450 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/concurrent/futures/_base.py:199(as_completed)
+        8    0.000    0.000    6.566    0.821 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/threading.py:637(wait)
+       12    0.000    0.000    6.566    0.547 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/threading.py:323(wait)
+        1    0.000    0.000    6.260    6.260 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/concurrent/futures/_base.py:646(__exit__)
+        1    0.000    0.000    6.260    6.260 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/concurrent/futures/thread.py:220(shutdown)
+        4    0.000    0.000    6.260    1.565 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/threading.py:1117(join)
+   208/52    0.000    0.000    6.260    0.120 {method 'acquire' of '_thread.lock' objects}
+        4    0.000    0.000    6.260    1.565 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/threading.py:1155(_wait_for_tstate_lock)
+      4/1    0.000    0.000    6.260    6.260 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/threading.py:1018(_bootstrap)
+      4/1    0.000    0.000    6.260    6.260 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/threading.py:1058(_bootstrap_inner)
+      4/1    0.000    0.000    6.260    6.260 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/threading.py:1001(run)
+      4/1    0.000    0.000    6.260    6.260 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/concurrent/futures/thread.py:70(_worker)
+      4/1    0.000    0.000    6.260    6.260 {method 'get' of '_queue.SimpleQueue' objects}
+      4/1    0.001    0.000    6.259    6.259 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/concurrent/futures/thread.py:54(run)
+      4/1    0.001    0.000    6.259    6.259 /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/cascadia_main.py:852(_process_single_module)
+        1    0.000    0.000    5.949    5.949 /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/utils/real_data_acquisition.py:404(acquire_current_use_data)
+        1    0.000    0.000    5.918    5.918 /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/utils/real_data_acquisition.py:464(_download_usda_cropland_data)
+        2    0.000    0.000    5.918    2.959 /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/utils/real_data_acquisition.py:555(_download_file)
+        6    0.000    0.000    5.443    0.907 /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/utils/real_data_acquisition.py:729(_vsi_probe_zip_for_vectors)
+        6    0.000    0.000    5.442    0.907 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/subprocess.py:506(run)
+        3    0.000    0.000    5.366    1.789 /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/utils/real_data_acquisition.py:663(_mount_remote_zip_vector)
+        1    0.000    0.000    4.910    4.910 /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/utils/comprehensive_visualization.py:121(create_interactive_h3_map)
+        6    0.000    0.000    4.614    0.769 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/subprocess.py:1165(communicate)
+        6    0.001    0.000    4.614    0.769 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/subprocess.py:2062(_communicate)
+        1    0.000    0.000    4.263    4.263 /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/utils/comprehensive_visualization.py:712(_generate_enhanced_html)
+        1    0.000    0.000    4.254    4.254 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/branca/element.py:402(render)
+      5/1    0.000    0.000    4.085    4.085 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/folium/elements.py:34(render)
+      7/1    0.000    0.000    4.085    4.085 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/folium/map.py:57(render)
+   7244/1    0.033    0.000    4.085    4.085 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/branca/element.py:716(render)
+        6    0.000    0.000    4.082    0.680 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/folium/map.py:128(render)
+        3    0.000    0.000    3.193    1.064 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/requests/api.py:14(request)
+        3    0.000    0.000    3.190    1.063 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/requests/sessions.py:500(request)
+       35    0.000    0.000    3.142    0.090 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/urllib3/connectionpool.py:535(urlopen)
+       35    0.001    0.000    3.135    0.090 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/urllib3/connectionpool.py:379(_make_request)
+    57890    0.040    0.000    2.898    0.000 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/branca/element.py:55(__init__)
+    14476    0.014    0.000    2.771    0.000 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/jinja2/environment.py:1167(__new__)
+    14476    0.012    0.000    2.758    0.000 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/jinja2/environment.py:1092(from_string)
+        2    0.000    0.000    2.688    1.344 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/requests/api.py:88(head)
+    14476    0.015    0.000    2.683    0.000 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/jinja2/environment.py:731(compile)
+       14    0.000    0.000    2.572    0.184 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/selectors.py:402(select)
+    46/15    2.572    0.056    2.572    0.171 {method 'poll' of 'select.poll' objects}
+     7229    0.015    0.000    2.199    0.000 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/folium/map.py:578(render)
+       32    0.000    0.000    2.035    0.064 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/selenium/webdriver/remote/webdriver.py:428(execute)
+       32    0.000    0.000    2.034    0.064 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/selenium/webdriver/remote/remote_connection.py:381(execute)
+       32    0.000    0.000    2.030    0.063 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/selenium/webdriver/remote/remote_connection.py:406(_request)
+       32    0.000    0.000    1.999    0.062 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/urllib3/request.py:61(request)
+       32    0.000    0.000    1.999    0.062 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/urllib3/poolmanager.py:353(urlopen)
+        2    0.000    0.000    1.905    0.953 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/urllib3/request.py:101(request_encode_body)
+        7    0.236    0.034    1.684    0.241 /Users/4d/.pyenv/versions/3.12.11/lib/python3.12/json/__init__.py:120(dump)
+
+

@@ -46,20 +46,41 @@ class GeoInferOwnership(BaseAnalysisModule):
         logger.info(f"[{self.module_name}] 🔍 Acquiring raw ownership data...")
         
         # Check for empirical data first
-        empirical_data_path = Path("output/data/empirical_ownership_data.geojson")
+        # Use standardized module data structure if enabled
+        try:
+            if hasattr(self, 'data_manager') and self.data_manager is not None:  # type: ignore[attr-defined]
+                paths = self.data_manager.get_data_structure(self.module_name)  # type: ignore[attr-defined]
+                empirical_data_path = paths['empirical_data']
+                synthetic_data_path = paths['synthetic_data']
+                raw_data_path = paths['raw_data']
+            else:
+                empirical_data_path = Path("output/data/empirical_ownership_data.geojson")
+                synthetic_data_path = Path("output/data/raw_ownership_data.geojson")
+                raw_data_path = synthetic_data_path
+        except Exception:
+            empirical_data_path = Path("output/data/empirical_ownership_data.geojson")
+            synthetic_data_path = Path("output/data/raw_ownership_data.geojson")
+            raw_data_path = synthetic_data_path
         if empirical_data_path.exists():
             logger.info(f"[{self.module_name}] ✅ Found empirical ownership data: {empirical_data_path}")
             return empirical_data_path
         
         # Fallback to synthetic data
-        synthetic_data_path = Path("output/data/raw_ownership_data.geojson")
         if synthetic_data_path.exists():
             logger.warning(f"[{self.module_name}] ⚠️ Using synthetic ownership data: {synthetic_data_path}")
             return synthetic_data_path
         
         # Create synthetic data if none exists
         logger.warning(f"[{self.module_name}] ⚠️ No ownership data found, creating synthetic data...")
-        return self._create_real_ownership_data()
+        out = self._create_real_ownership_data()
+        try:
+            if out and raw_data_path and Path(out) != raw_data_path:
+                gdf = gpd.read_file(out)
+                gdf.to_file(raw_data_path, driver='GeoJSON')
+                return raw_data_path
+        except Exception:
+            pass
+        return out
 
     def _create_real_ownership_data(self) -> Path:
         """

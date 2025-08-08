@@ -40,22 +40,73 @@ class GeoInferImprovements(BaseAnalysisModule):
         Returns path to the raw data file.
         """
         logger.info(f"[{self.module_name}] 🔍 Acquiring raw improvements data...")
-        
-        # Check for empirical data first
-        empirical_data_path = Path("output/data/empirical_improvements_data.geojson")
+
+        # Resolve standardized paths if data_manager is available
+        try:
+            if hasattr(self, 'data_manager') and self.data_manager is not None:  # type: ignore[attr-defined]
+                paths = self.data_manager.get_data_structure(self.module_name)  # type: ignore[attr-defined]
+                empirical_data_path = paths['empirical_data']
+                synthetic_data_path = paths['synthetic_data']
+                raw_data_path = paths['raw_data']
+            else:
+                empirical_data_path = Path("output/data/empirical_improvements_data.geojson")
+                synthetic_data_path = Path("output/data/synthetic_improvements_data.geojson")
+                raw_data_path = Path("output/data/raw_improvements_data.geojson")
+        except Exception:
+            empirical_data_path = Path("output/data/empirical_improvements_data.geojson")
+            synthetic_data_path = Path("output/data/synthetic_improvements_data.geojson")
+            raw_data_path = Path("output/data/raw_improvements_data.geojson")
+
+        # Cache-first: empirical, then raw, then synthetic
         if empirical_data_path.exists():
             logger.info(f"[{self.module_name}] ✅ Found empirical improvements data: {empirical_data_path}")
             return empirical_data_path
-        
-        # Fallback to synthetic data
-        synthetic_data_path = Path("output/data/raw_improvements_data.geojson")
+        if raw_data_path.exists():
+            logger.info(f"[{self.module_name}] ✅ Found cached raw improvements data: {raw_data_path}")
+            return raw_data_path
         if synthetic_data_path.exists():
-            logger.warning(f"[{self.module_name}] ⚠️ Using synthetic improvements data: {synthetic_data_path}")
+            logger.warning(f"[{self.module_name}] ⚠️ Using cached synthetic improvements data: {synthetic_data_path}")
             return synthetic_data_path
-        
-        # Create synthetic data if none exists
-        logger.warning(f"[{self.module_name}] ⚠️ No improvements data found, creating synthetic data...")
-        return self._create_synthetic_improvements_data()
+
+        # Attempt real acquisition via data source using target hexagon bbox
+        try:
+            if not self.target_hexagons:
+                logger.warning(f"[{self.module_name}] No target hexagons provided; generating synthetic data.")
+                out = self._create_synthetic_improvements_data()
+                if out != synthetic_data_path:
+                    try:
+                        gpd.read_file(out).to_file(synthetic_data_path, driver='GeoJSON')
+                        return synthetic_data_path
+                    except Exception:
+                        pass
+                return out
+
+            gdf = self.improvements_data_source.fetch_all_improvements_data(list(self.target_hexagons))
+            if gdf is None or gdf.empty:
+                logger.warning(f"[{self.module_name}] Improvements data source returned empty. Falling back to synthetic.")
+                out = self._create_synthetic_improvements_data()
+                if out != synthetic_data_path:
+                    try:
+                        gpd.read_file(out).to_file(synthetic_data_path, driver='GeoJSON')
+                        return synthetic_data_path
+                    except Exception:
+                        pass
+                return out
+
+            raw_data_path.parent.mkdir(parents=True, exist_ok=True)
+            gdf.to_file(raw_data_path, driver='GeoJSON')
+            logger.info(f"[{self.module_name}] 💾 Saved raw improvements data: {raw_data_path}")
+            return raw_data_path
+        except Exception as e:
+            logger.error(f"[{self.module_name}] Failed to acquire real improvements data: {e}")
+            out = self._create_synthetic_improvements_data()
+            if out != synthetic_data_path:
+                try:
+                    gpd.read_file(out).to_file(synthetic_data_path, driver='GeoJSON')
+                    return synthetic_data_path
+                except Exception:
+                    pass
+            return out
 
     def run_final_analysis(self, h3_data: Dict[str, Any]) -> Dict[str, Any]:
         """

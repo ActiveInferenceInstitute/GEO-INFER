@@ -12,9 +12,15 @@ analysis_settings:
     - current_use
     - ownership
     - improvements
+    - water_rights
+    - ground_water
+    - surface_water
+    - power_source
+    - mortgage_debt
   
   h3_resolution: 8
   enable_spatial_analysis: true
+  fusion_mode: geom_intersect  # options: geom_intersect, key_join
   enable_visualization: true
   enable_dashboard: true
   
@@ -35,6 +41,12 @@ visualization:
     - current_use_data
     - ownership_data
     - improvements_data
+  # Initial visibility of layers in the interactive map
+  initial_layer_visibility:
+    zoning: true
+    current_use: false
+    ownership: false
+    improvements: false
   
   # Enhanced visualization settings for empirical data
   empirical_data_visualization:

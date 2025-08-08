@@ -123,7 +123,11 @@ class ComprehensiveVisualizationEngine:
         h3_data: Dict[str, Any],
         data_sources: Dict[str, Any],
         target_hexagons: List[str],
-        output_filename: str = "cascadia_interactive_map.html"
+        output_filename: str = "cascadia_interactive_map.html",
+        initial_visible_layers: Optional[List[str]] = None,
+        include_layers: Optional[List[str]] = None,
+        module_status: Optional[Dict[str, Any]] = None,
+        redevelopment_scores: Optional[Dict[str, float]] = None,
     ) -> Path:
         """
         Create an interactive H3-based map with multiple layers.
@@ -166,13 +170,75 @@ class ComprehensiveVisualizationEngine:
             min_zoom=self.viz_settings['min_zoom']
         )
         
-        # Add layer control
-        folium.LayerControl().add_to(m)
+        # Add layer control (we will add layers first with visibility flags)
         
-        # Add data layers
+        # Determine layer inclusion and initial visibility from config and CLI
+        initial_visibility: Dict[str, bool] = {}
+        configured_layers: List[str] = []
+        cfg_path = Path(__file__).resolve().parents[1] / 'config' / 'analysis_config.yaml'
+        try:
+            if cfg_path.exists():
+                import yaml
+                with open(cfg_path, 'r') as cf:
+                    cfg = yaml.safe_load(cf) or {}
+                vis_cfg = (cfg.get('visualization') or {})
+                initial_layer_vis_cfg = vis_cfg.get('initial_layer_visibility') or {}
+                if isinstance(initial_layer_vis_cfg, dict):
+                    initial_visibility = {str(k): bool(v) for k, v in initial_layer_vis_cfg.items()}
+                configured_layers = vis_cfg.get('layers') or []
+                if not isinstance(configured_layers, list):
+                    configured_layers = []
+        except Exception:
+            initial_visibility = {}
+            configured_layers = []
+
+        # Map config layer names to module keys used internally
+        layer_to_module = {
+            'zoning_data': 'zoning',
+            'current_use_data': 'current_use',
+            'ownership_data': 'ownership',
+            'improvements_data': 'improvements',
+            'redevelopment_potential': 'redevelopment',
+        }
+        # Build include set: CLI overrides > config layers > all modules
+        if include_layers:
+            include_set = set([k for k in include_layers])
+        elif configured_layers:
+            include_set = set([layer_to_module.get(x, x) for x in configured_layers])
+        else:
+            include_set = set(list(data_sources.keys()) + (['redevelopment'] if redevelopment_scores else []))
+        visible_set = set([k for k in (initial_visible_layers or [])])
+
+        # Add redevelopment (score) layer if available
+        if redevelopment_scores:
+            redevelop_show = False
+            # Initial visibility for redevelopment from config key
+            if not visible_set:
+                redevelop_show = initial_visibility.get('redevelopment_potential', False)
+            else:
+                redevelop_show = ('redevelopment' in visible_set)
+            if 'redevelopment' in include_set:
+                self._add_redevelopment_layer(
+                    m,
+                    redevelopment_scores,
+                    target_hexagons,
+                    show=redevelop_show
+                )
+
+        # Add data layers (respect include list if provided and mapping)
         for module_name, module_data in data_sources.items():
+            if include_set and module_name not in include_set:
+                continue
             if module_data:
-                self._add_data_layer(m, module_name, module_data, h3_data)
+                # Determine visibility: CLI set overrides, otherwise config mapping
+                if visible_set:
+                    show_flag = (module_name in visible_set)
+                else:
+                    # Map internal module to config visibility name
+                    config_key = module_name
+                    # Backward compatibility: config uses same keys (zoning/current_use/...)
+                    show_flag = initial_visibility.get(config_key, False)
+                self._add_data_layer(m, module_name, module_data, h3_data, show=show_flag)
         
         # Add H3 hexagon grid layer (sampled for performance if very large)
         grid_hexes = target_hexagons
@@ -185,14 +251,28 @@ class ComprehensiveVisualizationEngine:
             pass
         self._add_h3_grid_layer(m, grid_hexes, h3_data)
         
-        # Add analysis layer
+        # Add analysis layer (kept hidden by default; redevelopment layer added above is preferred)
         self._add_analysis_layer(m, h3_data, data_sources)
         
         # Add interactive features
         self._add_interactive_features(m, h3_data, data_sources)
         
-        # Generate enhanced HTML
-        html_content = self._generate_enhanced_html(m, h3_data, data_sources)
+        # Add layer control after layers are added
+        folium.LayerControl(collapsed=False).add_to(m)
+
+        # Generate enhanced HTML with custom toggle panel
+        layer_names = []
+        try:
+            # Collect layer names from added overlays in the Leaflet layer control
+            layer_names = [
+                name.replace('_', ' ').title() for name in list(data_sources.keys())
+                if (not include_set) or (name in include_set)
+            ]
+            if redevelopment_scores and 'redevelopment' in include_set:
+                layer_names = ['Redevelopment Potential'] + layer_names
+        except Exception:
+            pass
+        html_content = self._generate_enhanced_html(m, h3_data, data_sources, layer_names, module_status)
         
         # Save the map
         output_path = self.interactive_dir / output_filename
@@ -420,7 +500,7 @@ class ComprehensiveVisualizationEngine:
             return obj
         return {}
 
-    def _add_data_layer(self, m: folium.Map, module_name: str, module_data: Dict[str, Any], h3_data: Dict[str, Any]):
+    def _add_data_layer(self, m: folium.Map, module_name: str, module_data: Dict[str, Any], h3_data: Dict[str, Any], show: bool = False):
         """Add a data layer to the map."""
         try:
             hexagons = self._get_hexagons_map(module_data)
@@ -430,8 +510,8 @@ class ComprehensiveVisualizationEngine:
             # Get color scheme for this module
             color_scheme = self.viz_settings['color_schemes'].get(module_name, {})
             
-            # Create feature group for this layer
-            fg = folium.FeatureGroup(name=f"{module_name.replace('_', ' ').title()}")
+            # Create feature group for this layer with initial visibility
+            fg = folium.FeatureGroup(name=f"{module_name.replace('_', ' ').title()}", show=show)
             
             fused_hex_map = self._get_hexagons_map(h3_data)
             for hex_id, hex_data in hexagons.items():
@@ -510,6 +590,41 @@ class ComprehensiveVisualizationEngine:
             
         except Exception as e:
             logger.error(f"Failed to add analysis layer: {e}")
+
+    def _add_redevelopment_layer(
+        self,
+        m: 'folium.Map',
+        scores: Dict[str, float],
+        target_hexagons: List[str],
+        show: bool = True,
+    ) -> None:
+        """Add a layer visualizing redevelopment scores across hexagons.
+
+        Uses a red-yellow-green color ramp by score.
+        """
+        try:
+            fg = folium.FeatureGroup(name="Redevelopment Potential", show=show)
+            for hex_id in target_hexagons:
+                score = float(scores.get(hex_id, 0.0))
+                boundary = self._get_hexagon_boundary(hex_id)
+                if not boundary:
+                    continue
+                color = self._get_score_color(score)
+                popup_content = f"""
+                <b>H3:</b> {hex_id}<br>
+                <b>Redevelopment Score:</b> {score:.3f}
+                """
+                folium.Polygon(
+                    locations=boundary,
+                    color=color,
+                    weight=1,
+                    fillColor=color,
+                    fillOpacity=0.75,
+                    popup=folium.Popup(popup_content, max_width=300)
+                ).add_to(fg)
+            fg.add_to(m)
+        except Exception as e:
+            logger.error(f"Failed to add redevelopment layer: {e}")
     
     def _add_interactive_features(self, m: folium.Map, h3_data: Dict[str, Any], data_sources: Dict[str, Any]):
         """Add interactive features to the map."""
@@ -685,7 +800,7 @@ class ComprehensiveVisualizationEngine:
         except Exception:
             return {}
     
-    def _generate_enhanced_html(self, m: folium.Map, h3_data: Dict[str, Any], data_sources: Dict[str, Any]) -> str:
+    def _generate_enhanced_html(self, m: folium.Map, h3_data: Dict[str, Any], data_sources: Dict[str, Any], layer_names: Optional[List[str]] = None, module_status: Optional[Dict[str, Any]] = None) -> str:
         """Generate enhanced HTML with custom CSS and JavaScript."""
         try:
             # Get the base HTML
@@ -720,6 +835,26 @@ class ComprehensiveVisualizationEngine:
                 z-index: 1000;
                 max-width: 300px;
             }
+            .info-panel table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 12px;
+            }
+            .info-panel th, .info-panel td {
+                border-bottom: 1px solid #eee;
+                padding: 4px 6px;
+                text-align: left;
+            }
+            .status-pill {
+                display: inline-block;
+                padding: 2px 6px;
+                border-radius: 10px;
+                color: #fff;
+                font-size: 11px;
+            }
+            .status-real { background: #2ca25f; }
+            .status-synth { background: #6c757d; }
+            .status-missing { background: #dc3545; }
             .data-summary {
                 margin: 10px 0;
                 padding: 10px;
@@ -730,9 +865,27 @@ class ComprehensiveVisualizationEngine:
             """
             
             # Add custom JavaScript
+            # Build module status HTML server-side for simplicity
+            module_rows = ""
+            try:
+                if module_status and isinstance(module_status, dict):
+                    for mname, stat in module_status.items():
+                        hex_cnt = stat.get('output_hexagons', 0)
+                        in_feat = stat.get('input_features', 0)
+                        cache = stat.get('h3_cache', '')
+                        emp = bool(stat.get('empirical_exists', False))
+                        syn = bool(stat.get('synthetic_exists', False))
+                        raw = bool(stat.get('raw_exists', False))
+                        status_lbl = 'Real' if emp else ('Synthetic' if syn else 'Missing')
+                        status_cls = 'status-real' if emp else ('status-synth' if syn else 'status-missing')
+                        safe_cache = cache if isinstance(cache, str) else ''
+                        module_rows += f"<tr><td>{mname}</td><td>{hex_cnt}</td><td>{in_feat}</td><td><span class='status-pill {status_cls}'>{status_lbl}</span></td><td title='{safe_cache}'>{safe_cache.split('/')[-1] if safe_cache else ''}</td></tr>"
+            except Exception:
+                pass
+
             custom_js = """
             <script>
-            // Add data summary panel
+            // Add data summary panel and layer toggle shortcuts
             function addDataSummary() {
                 const summary = document.createElement('div');
                 summary.className = 'info-panel';
@@ -743,8 +896,37 @@ class ComprehensiveVisualizationEngine:
                         <p><strong>Data Sources:</strong> """ + str(len(data_sources)) + """</p>
                         <p><strong>Generated:</strong> """ + datetime.now().strftime('%Y-%m-%d %H:%M:%S') + """</p>
                     </div>
+                    <div class="data-summary">
+                        <p><strong>Module Status</strong></p>
+                        <div style="max-height: 200px; overflow-y: auto;">
+                          <table>
+                            <thead>
+                              <tr><th>Module</th><th>Hex</th><th>Features</th><th>Source</th><th>Cache</th></tr>
+                            </thead>
+                            <tbody>""" + module_rows + """</tbody>
+                          </table>
+                        </div>
+                    </div>
+                    <div class="data-summary">
+                        <p><strong>Layer Toggles</strong></p>
+                        <div id="layer-toggles"></div>
+                    </div>
                 `;
                 document.body.appendChild(summary);
+                try {
+                    const controls = document.querySelectorAll('.leaflet-control-layers-overlays label');
+                    const container = document.getElementById('layer-toggles');
+                    if (controls && container) {
+                        controls.forEach((lbl, idx) => {
+                            const clone = lbl.cloneNode(true);
+                            clone.style.display = 'block';
+                            clone.style.marginBottom = '6px';
+                            container.appendChild(clone);
+                        });
+                    }
+                } catch (e) {
+                    // no-op
+                }
             }
             
             // Initialize when page loads

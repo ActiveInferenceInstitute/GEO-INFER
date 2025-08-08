@@ -1,7 +1,20 @@
 #!/usr/bin/env python3
 """
 Cascadia Agricultural Analysis Framework
-Main entry point for comprehensive agricultural land analysis.
+
+Thin orchestration of the Cascadia pipeline across real-data acquisition,
+H3 processing, fusion, scoring, and visualization. Designed for:
+- Reproducible, cache-first runs
+- Config/CLI driven toggles for modules and layers
+- Parallel module processing (I/O-heavy acquisition + native geospatial ops)
+- Optional profiling to guide further optimization
+
+References for pipeline optimization patterns:
+- Vectorization, generators, and multiprocessing guidance [1][2][3]
+
+[1] https://python.plainenglish.io/optimizing-data-processing-in-python-best-practices-for-data-scientists-0fd6bac3fa5a
+[2] https://medium.com/@huzaifazahoor654/how-to-optimize-python-code-for-faster-data-processing-1b7eeea0f379
+[3] https://medium.com/@yaswanth.thod/stop-writing-slow-python-14-mind-blowing-speed-hacks-you-need-right-now-aa495862ec00
 """
 
 import argparse
@@ -29,7 +42,14 @@ from utils.real_data_acquisition import create_real_data_acquisition
 from utils.comprehensive_visualization import create_comprehensive_visualization_engine
 
 def parse_counties(counties_str: str) -> dict:
-    """Parse counties string into dictionary format"""
+    """Parse counties string into a mapping of state -> list[county].
+
+    Args:
+        counties_str: Comma-separated string like "CA:Del Norte,OR:Josephine" or "all".
+
+    Returns:
+        Dict mapping state abbreviations to list of county names.
+    """
     counties_dict = {}
     if counties_str and counties_str != 'all':
         for county_pair in counties_str.split(','):
@@ -48,7 +68,11 @@ def parse_counties(counties_str: str) -> dict:
     return counties_dict
 
 def initialize_analysis(args):
-    """Initialize the analysis with backend and modules"""
+    """Initialize logging, config, backend, data manager, fusion, acquisition, and viz.
+
+    Returns:
+        (backend, modules, data_manager, h3_fusion, real_data_acquisition, viz_engine)
+    """
     logger = logging.getLogger(__name__)
     
     # Set up enhanced logging
@@ -69,7 +93,12 @@ def initialize_analysis(args):
     
     # Parse counties and modules
     counties_dict = parse_counties(args.counties)
-    active_modules = args.modules.split(',') if args.modules else []
+    # Resolve active modules from CLI or config. '--modules all' or missing -> config list
+    cfg_active = (config.get('analysis_settings') or {}).get('active_modules') or []
+    if (not args.modules) or (args.modules.strip().lower() == 'all'):
+        active_modules = list(cfg_active)
+    else:
+        active_modules = [m.strip() for m in args.modules.split(',') if m.strip()]
     
     logger.info(f"Target counties: {counties_dict}")
     logger.info(f"Active modules: {active_modules}")
@@ -95,10 +124,13 @@ def initialize_analysis(args):
     
     # Initialize enhanced H3 fusion engine with cache directory inside output
     fusion_cache_dir = Path(args.output_dir) / 'data' / 'cache' / 'fusion'
+    # Choose fusion mode from config/env/arg (geom_intersect | key_join)
+    fusion_mode = getattr(args, 'fusion_mode', None) or os.environ.get('CASCADIA_FUSION_MODE', 'geom_intersect')
     h3_fusion = create_enhanced_h3_fusion(
         h3_resolution=args.h3_resolution,
         enable_spatial_analysis=args.spatial_analysis,
-        cache_dir=fusion_cache_dir
+        cache_dir=fusion_cache_dir,
+        fusion_mode=fusion_mode
     )
     
     # Initialize real data acquisition system
@@ -163,6 +195,47 @@ def initialize_modules_with_enhanced_data_management(active_modules, shared_back
         logger.warning(f"Improvements module not available: {e}")
         IMPROVEMENTS_AVAILABLE = False
         GeoInferImprovements = None
+
+    # Additional modules
+    try:
+        from water_rights.geo_infer_water_rights import GeoInferWaterRights
+        WATER_RIGHTS_AVAILABLE = True
+    except ImportError as e:
+        logger.warning(f"Water rights module not available: {e}")
+        WATER_RIGHTS_AVAILABLE = False
+        GeoInferWaterRights = None
+
+    try:
+        from ground_water.geo_infer_ground_water import GeoInferGroundWater
+        GROUND_WATER_AVAILABLE = True
+    except ImportError as e:
+        logger.warning(f"Ground water module not available: {e}")
+        GROUND_WATER_AVAILABLE = False
+        GeoInferGroundWater = None
+
+    try:
+        from surface_water.geo_infer_surface_water import GeoInferSurfaceWater
+        SURFACE_WATER_AVAILABLE = True
+    except ImportError as e:
+        logger.warning(f"Surface water module not available: {e}")
+        SURFACE_WATER_AVAILABLE = False
+        GeoInferSurfaceWater = None
+
+    try:
+        from power_source.geo_infer_power_source import GeoInferPowerSource
+        POWER_SOURCE_AVAILABLE = True
+    except ImportError as e:
+        logger.warning(f"Power source module not available: {e}")
+        POWER_SOURCE_AVAILABLE = False
+        GeoInferPowerSource = None
+
+    try:
+        from mortgage_debt.geo_infer_mortgage_debt import GeoInferMortgageDebt
+        MORTGAGE_DEBT_AVAILABLE = True
+    except ImportError as e:
+        logger.warning(f"Mortgage debt module not available: {e}")
+        MORTGAGE_DEBT_AVAILABLE = False
+        GeoInferMortgageDebt = None
     
     # Initialize available modules using the shared backend with enhanced data management
     if 'zoning' in active_modules and ZONING_AVAILABLE:
@@ -204,6 +277,51 @@ def initialize_modules_with_enhanced_data_management(active_modules, shared_back
             logger.info("✅ Improvements module initialized with enhanced data management")
         except Exception as e:
             logger.error(f"❌ Failed to initialize improvements module: {e}")
+
+    if 'water_rights' in active_modules and WATER_RIGHTS_AVAILABLE:
+        try:
+            modules['water_rights'] = GeoInferWaterRights(shared_backend)
+            modules['water_rights'].data_manager = data_manager
+            modules['water_rights'].h3_fusion = h3_fusion
+            logger.info("✅ Water rights module initialized with enhanced data management")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize water rights module: {e}")
+
+    if 'ground_water' in active_modules and GROUND_WATER_AVAILABLE:
+        try:
+            modules['ground_water'] = GeoInferGroundWater(shared_backend)
+            modules['ground_water'].data_manager = data_manager
+            modules['ground_water'].h3_fusion = h3_fusion
+            logger.info("✅ Ground water module initialized with enhanced data management")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize ground water module: {e}")
+
+    if 'surface_water' in active_modules and SURFACE_WATER_AVAILABLE:
+        try:
+            modules['surface_water'] = GeoInferSurfaceWater(shared_backend)
+            modules['surface_water'].data_manager = data_manager
+            modules['surface_water'].h3_fusion = h3_fusion
+            logger.info("✅ Surface water module initialized with enhanced data management")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize surface water module: {e}")
+
+    if 'power_source' in active_modules and POWER_SOURCE_AVAILABLE:
+        try:
+            modules['power_source'] = GeoInferPowerSource(shared_backend)
+            modules['power_source'].data_manager = data_manager
+            modules['power_source'].h3_fusion = h3_fusion
+            logger.info("✅ Power source module initialized with enhanced data management")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize power source module: {e}")
+
+    if 'mortgage_debt' in active_modules and MORTGAGE_DEBT_AVAILABLE:
+        try:
+            modules['mortgage_debt'] = GeoInferMortgageDebt(shared_backend)
+            modules['mortgage_debt'].data_manager = data_manager
+            modules['mortgage_debt'].h3_fusion = h3_fusion
+            logger.info("✅ Mortgage debt module initialized with enhanced data management")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize mortgage debt module: {e}")
     
     if not modules:
         logger.error("❌ No modules could be initialized.")
@@ -592,7 +710,7 @@ Examples:
     parser.add_argument(
         '--modules',
         type=str,
-        default="zoning,current_use,ownership,improvements",
+        default="zoning,current_use,ownership,improvements,water_rights,ground_water,surface_water,power_source,mortgage_debt",
         help='Comma-separated list of modules to run (default: all modules)'
     )
     
@@ -636,6 +754,34 @@ Examples:
         action='store_true',
         help='Generate Deepscatter visualizations (web-based, lightweight)'
     )
+    parser.add_argument(
+        '--parallelism',
+        type=int,
+        default=0,
+        help='Number of parallel workers for module acquisition/processing (0=auto)'
+    )
+    parser.add_argument(
+        '--profile-run',
+        action='store_true',
+        help='Profile the run with cProfile and write results under output/profile/'
+    )
+    parser.add_argument(
+        '--skip-deepscatter',
+        action='store_true',
+        help='Skip Deepscatter even if enabled elsewhere'
+    )
+    parser.add_argument(
+        '--visible-layers',
+        type=str,
+        default=None,
+        help='Comma-separated list of layers (modules) initially visible on interactive map (e.g., zoning,ownership)'
+    )
+    parser.add_argument(
+        '--include-layers',
+        type=str,
+        default=None,
+        help='Comma-separated list of layers to include on interactive map; defaults to all executed modules'
+    )
     
     # Analysis options
     parser.add_argument(
@@ -660,6 +806,13 @@ Examples:
         '--validate-h3',
         action='store_true',
         help='Validate H3 operations and API usage'
+    )
+    parser.add_argument(
+        '--fusion-mode',
+        type=str,
+        choices=['geom_intersect', 'key_join'],
+        default=None,
+        help='Fusion mode: geometric intersection or direct key join'
     )
     
     # Logging and debugging
@@ -731,9 +884,26 @@ def main():
                 return
         
         # Run comprehensive analysis with enhanced data management
-        redevelopment_scores, summary = run_comprehensive_analysis_with_enhanced_data(
-            backend, modules, data_manager, h3_fusion, real_data_acquisition, viz_engine, args
-        )
+        if args.profile_run:
+            # Profile end-to-end analysis
+            import cProfile, pstats
+            prof_dir = Path(args.output_dir) / 'profile'
+            prof_dir.mkdir(parents=True, exist_ok=True)
+            prof_path = prof_dir / f"cascadia_profile_{datetime.now().strftime('%Y%m%d_%H%M%S')}.prof"
+            profiler = cProfile.Profile()
+            profiler.enable()
+            redevelopment_scores, summary = run_comprehensive_analysis_with_enhanced_data(
+                backend, modules, data_manager, h3_fusion, real_data_acquisition, viz_engine, args
+            )
+            profiler.disable()
+            with open(prof_path, 'w') as f:
+                ps = pstats.Stats(profiler, stream=f).sort_stats('cumtime')
+                ps.print_stats(50)
+            logger.info(f"📈 Profile written: {prof_path}")
+        else:
+            redevelopment_scores, summary = run_comprehensive_analysis_with_enhanced_data(
+                backend, modules, data_manager, h3_fusion, real_data_acquisition, viz_engine, args
+            )
         
         # Export results with visualization options
         export_paths = export_results_with_visualizations(
@@ -756,7 +926,11 @@ def main():
         sys.exit(1)
 
 def run_comprehensive_analysis_with_enhanced_data(backend, modules, data_manager, h3_fusion, real_data_acquisition, viz_engine, args):
-    """Run comprehensive analysis with enhanced data management, real data acquisition, and H3 fusion"""
+    """Run comprehensive analysis with enhanced data management, real acquisition, and H3 fusion.
+
+    Implements parallel module processing when --parallelism > 0, using threads for I/O-bound
+    acquisition and CPU-backed geospatial ops that release the GIL in vectorized libs.
+    """
     logger = logging.getLogger(__name__)
     
     logger.info("🚀 Starting enhanced comprehensive analysis with real data acquisition and H3 geospatial fusion...")
@@ -764,11 +938,11 @@ def run_comprehensive_analysis_with_enhanced_data(backend, modules, data_manager
     # Collect data from all modules with enhanced data management
     module_data = {}
 
-    for module_name, module in modules.items():
+    from concurrent.futures import ThreadPoolExecutor, as_completed
+
+    def _process_single_module(module_name: str, module) -> tuple[str, dict | None]:
         logger.info(f"📊 Processing module: {module_name}")
-        
         try:
-            # Try to acquire real data first
             real_data_path = None
             if module_name == 'zoning':
                 real_data_path = real_data_acquisition.acquire_zoning_data()
@@ -778,10 +952,8 @@ def run_comprehensive_analysis_with_enhanced_data(backend, modules, data_manager
                 real_data_path = real_data_acquisition.acquire_ownership_data()  # type: ignore[attr-defined]
             elif module_name == 'improvements' and hasattr(real_data_acquisition, 'acquire_improvements_data'):
                 real_data_path = real_data_acquisition.acquire_improvements_data()  # type: ignore[attr-defined]
-            
-            # Use enhanced data manager for data acquisition (with real data if available)
+
             use_real = bool(real_data_path and real_data_path.exists())
-            # Treat any file marked synthetic as not real
             if use_real and ('synthetic' in real_data_path.name or 'synthetic' in str(real_data_path)):
                 use_real = False
             if use_real:
@@ -794,23 +966,28 @@ def run_comprehensive_analysis_with_enhanced_data(backend, modules, data_manager
                     data_source_func=module.acquire_raw_data,
                     force_refresh=args.force_refresh
                 )
-            
-            # Process data to H3 format with enhanced fusion
+
             h3_data = data_manager.process_to_h3_with_caching(
                 data_path=data_path,
                 module_name=module_name,
                 target_hexagons=list(backend.target_hexagons)
             )
-            
-            module_data[module_name] = h3_data
-            
-            # Generate data quality report
             quality_report = data_manager.get_data_quality_report(module_name)
             logger.info(f"📋 {module_name} data quality: {quality_report.get('quality_metrics', {}).get('quality_score', 0):.2f}")
-            
+            return module_name, h3_data
         except Exception as e:
             logger.error(f"❌ Failed to process {module_name}: {e}")
-            continue
+            return module_name, None
+
+    workers = args.parallelism if args.parallelism and args.parallelism > 0 else min(8, max(1, os.cpu_count() or 2))
+    # Keep a small thread pool due to external I/O; geospatial ops often release GIL
+    with ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = {executor.submit(_process_single_module, name, mod): name for name, mod in modules.items()}
+        for future in as_completed(futures):
+            name = futures[future]
+            mn, res = future.result()
+            if res is not None:
+                module_data[mn] = res
     
         # Perform enhanced H3 geospatial fusion
     logger.info("🔗 Performing enhanced H3 geospatial fusion...")
@@ -823,6 +1000,8 @@ def run_comprehensive_analysis_with_enhanced_data(backend, modules, data_manager
             flat_sources[_mn] = _data
         else:
             flat_sources[_mn] = {}
+
+    # Ensure line-based modules have polygonized features upstream via acquire_raw_data
 
     # Try loading fusion result from cache unless skipping cache
     fused_data = None
@@ -955,11 +1134,49 @@ def run_comprehensive_analysis_with_enhanced_data(backend, modules, data_manager
         logger.info("🎨 Creating comprehensive visualizations...")
         try:
             # Create interactive H3 map
+            # Resolve layer visibility/include overrides from CLI/env
+            visible_layers_env = os.environ.get('CASCADIA_VISIBLE_LAYERS')
+            visible_layers: Optional[List[str]] = None
+            include_layers: Optional[List[str]] = None
+            if args.visible_layers:
+                visible_layers = [l.strip() for l in args.visible_layers.split(',') if l.strip()]
+            elif visible_layers_env:
+                visible_layers = [l.strip() for l in visible_layers_env.split(',') if l.strip()]
+            if args.include_layers:
+                include_layers = [l.strip() for l in args.include_layers.split(',') if l.strip()]
+            # Build per-module status for interactive HTML panel
+            module_status: Dict[str, Any] = {}
+            try:
+                for mod_name, _data in module_data.items():
+                    ds = data_manager.get_data_structure(mod_name)
+                    cache_file = ds.get('h3_cache')
+                    hex_count = 0
+                    input_features = 0
+                    if isinstance(_data, dict):
+                        hex_map = _data.get('hexagons', _data)
+                        if isinstance(hex_map, dict):
+                            hex_count = len(hex_map)
+                        input_features = int(_data.get('input_features', 0)) if 'input_features' in _data else 0
+                    module_status[mod_name] = {
+                        'h3_cache': str(cache_file),
+                        'output_hexagons': hex_count,
+                        'input_features': input_features,
+                        'empirical_exists': ds['empirical_data'].exists(),
+                        'synthetic_exists': ds['synthetic_data'].exists(),
+                        'raw_exists': ds['raw_data'].exists(),
+                    }
+            except Exception:
+                pass
+
             interactive_map = viz_engine.create_interactive_h3_map(
                 h3_data=fused_data,
                 data_sources=module_data,
                 target_hexagons=list(backend.target_hexagons)[:5000],
-                output_filename="cascadia_interactive_map.html"
+                output_filename="cascadia_interactive_map.html",
+                initial_visible_layers=visible_layers,
+                include_layers=include_layers,
+                module_status=module_status,
+                redevelopment_scores=redevelopment_scores
             )
             summary['interactive_map_path'] = str(interactive_map)
             
@@ -1207,7 +1424,7 @@ def export_results_with_visualizations(backend, redevelopment_scores, summary, a
         except Exception as e:
             logger.error(f"Failed to create Datashader visualizations: {e}")
     
-    if args.deepscatter_viz:
+    if args.deepscatter_viz and not getattr(args, 'skip_deepscatter', False):
         logger.info("📊 Generating Deepscatter visualizations...")
         try:
             from utils.deepscatter_visualization import create_deepscatter_visualization
