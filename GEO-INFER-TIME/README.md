@@ -1,4 +1,4 @@
-# GEO-INFER-TIME 🕒🌐
+# GEO-INFER-TIME
 
 **Temporal Methods for Dynamic Geospatial Data: Analysis, Fusion, and Forecasting**
 
@@ -7,6 +7,10 @@
 GEO-INFER-TIME is a pivotal module within the GEO-INFER framework, specifically engineered to provide robust **temporal methods for timeline expression, sophisticated analysis, fusion, and forecasting of dynamic geospatial data**. Time is an indispensable dimension for understanding the vast majority of ecological, socio-economic, civic, and environmental phenomena. These range from tracking climate change impacts, urban expansion, and resource depletion to monitoring species migration, agricultural cycles, and real-time incident response.
 
 This module equips the GEO-INFER ecosystem with a comprehensive suite of tools to ingest, manage, and process various forms of time-series data. It enables sophisticated temporal analysis, the modeling of complex dynamic processes, the integration of real-time data streams, and the generation of actionable forecasts, all crucial for informed and timely decision-making in a rapidly changing world.
+
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-time.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
 
 ## Core Objectives
 
@@ -213,14 +217,7 @@ GEO-INFER-TIME/
 
 ### Installation
 ```bash
-# Clone the GEO-INFER repository if you haven't already
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER/GEO-INFER-TIME
-
-# Install the package and its dependencies (preferably in a virtual environment)
-pip install -e .
-# Alternatively, if using Poetry and a pyproject.toml is set up:
-# poetry install
+pip install -e ./GEO-INFER-TIME
 ```
 
 ### Configuration

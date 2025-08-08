@@ -6,6 +6,10 @@
 
 GEO-INFER-MATH serves as the **core mathematical and statistical engine** for the entire GEO-INFER framework. It provides a comprehensive suite of specialized mathematical tools, algorithms, statistical methods, and geometric operations specifically designed and optimized for processing, analyzing, and making inferences from geospatial data. This module underpins the quantitative capabilities of all other GEO-INFER modules, ensuring rigorous, accurate, and efficient computation for a wide range of spatial and spatio-temporal applications. Its scope ranges from fundamental geometric calculations and coordinate transformations to advanced spatial statistics, machine learning model components, and numerical methods.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-math.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Core Objectives
 
 -   **Provide Robust Mathematical Foundations:** Offer a reliable and extensively tested set of mathematical and statistical functions tailored for geospatial data.
@@ -139,17 +143,8 @@ GEO-INFER-MATH is a fundamental dependency for nearly all other modules that per
 -   Optionally, libraries like `pyproj` for transformations if not vendored or wrapped.
 
 ### Installation
-The GEO-INFER-MATH module is typically installed as part of the main GEO-INFER framework. If it were a standalone package:
 ```bash
-pip install geo-infer-math
-```
-For development within the GEO-INFER project:
-```bash
-# Assuming you are in the root GEO-INFER directory
 pip install -e ./GEO-INFER-MATH
-# If it uses Poetry and has a pyproject.toml:
-# cd GEO-INFER-MATH
-# poetry install
 ```
 
 ### Configuration

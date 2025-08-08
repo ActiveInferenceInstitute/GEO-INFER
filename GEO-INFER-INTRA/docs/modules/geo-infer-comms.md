@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-COMMS?
 
+Note: Code examples are illustrative; see `GEO-INFER-COMMS/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-COMMS/README.md
+
 GEO-INFER-COMMS is the communication systems engine that provides communication and information sharing capabilities for geospatial information systems. It enables:
 
 - **Data Communication**: Secure and efficient data communication protocols

@@ -6,6 +6,10 @@
 
 GEO-INFER-GIT is a specialized module within the GEO-INFER ecosystem designed to streamline the management, cloning, and synchronization of Git repositories, with a particular emphasis on those containing geospatial data, models, and aA. It provides robust tools for developers and researchers to efficiently access and maintain version-controlled geospatial resources and related software projects.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-git.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 The module facilitates the integration of external codebases, datasets, and pre-trained models into the GEO-INFER framework, ensuring that all components are version-aware and consistently managed. This is crucial for reproducibility, collaboration, and the systematic evolution of complex geospatial analysis workflows.
 
 ## Core Objectives

@@ -4,7 +4,11 @@
 
 ## Overview
 
-GEO-INFER-AI is the **central hub for Artificial Intelligence (AI) and Machine Learning (ML) capabilities** within the GEO-INFER framework. It provides a comprehensive suite of tools, pre-trained models, and development frameworks to apply advanced analytics, automation, prediction, and insight generation to complex geospatial challenges. This module enables users to leverage techniques like deep learning for satellite imagery analysis, predictive modeling for environmental forecasting, computer vision for feature extraction, natural language processing for text-based geospatial data, and reinforcement learning for adaptive decision support. GEO-INFER-AI aims to transform raw geospatial data into actionable intelligence for ecological, civic, and scientific applications.
+GEO-INFER-AI provides AI/ML capabilities within the GEO-INFER framework, including computer vision for imagery, predictive modeling, NLP for spatial text, and reinforcement learning.
+
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-ai.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
 
 ## Core Objectives
 
@@ -158,13 +162,8 @@ GEO-INFER-AI/
 
 ### Installation
 ```bash
-# Clone the GEO-INFER repository if you haven't already
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER/GEO-INFER-AI
-
-pip install -e .
-# Potentially with extras for specific frameworks: pip install -e .[pytorch,tensorflow]
-# or poetry install
+pip install -e ./GEO-INFER-AI
+# Optional extras: pip install -e ./GEO-INFER-AI[pytorch,tensorflow]
 ```
 
 ### Configuration

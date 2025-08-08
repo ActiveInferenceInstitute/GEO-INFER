@@ -19,11 +19,14 @@ from utils.data_processor import (
     export_results
 )
 from utils.analysis_engine import run_comprehensive_analysis
-from utils.reporting_engine import generate_analysis_report
+from utils.reporting_engine import generate_analysis_report, export_data_provenance
 
 # Import enhanced modules for H3 geospatial data fusion
 from utils.enhanced_data_manager import create_enhanced_data_manager
 from utils.enhanced_h3_fusion import create_enhanced_h3_fusion
+from utils.enhanced_logging import EnhancedLoggingConfig
+from utils.real_data_acquisition import create_real_data_acquisition
+from utils.comprehensive_visualization import create_comprehensive_visualization_engine
 
 def parse_counties(counties_str: str) -> dict:
     """Parse counties string into dictionary format"""
@@ -48,6 +51,19 @@ def initialize_analysis(args):
     """Initialize the analysis with backend and modules"""
     logger = logging.getLogger(__name__)
     
+    # Set up enhanced logging
+    log_file = Path(args.output_dir) / "cascadia_analysis.log"
+    EnhancedLoggingConfig.setup_logging(
+        log_level="INFO" if not args.debug else "DEBUG",
+        log_file=log_file,
+        console_output=True,
+        include_timestamps=True,
+        include_module_names=True
+    )
+    
+    logger.info("🚀 Initializing Cascadia Agricultural Analysis Framework")
+    logger.info(f"Enhanced logging initialized: {log_file}")
+    
     # Load configuration
     config = load_analysis_config()
     
@@ -59,7 +75,16 @@ def initialize_analysis(args):
     logger.info(f"Active modules: {active_modules}")
     
     # Create shared backend
-    osc_repo_path = "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
+    # Resolve OSC repo path from environment or project structure for portability
+    import os as _os
+    env_repo = _os.environ.get('OSC_REPOS_DIR')
+    if env_repo and Path(env_repo).exists():
+        osc_repo_path = env_repo
+    else:
+        # Fallback: derive from project root
+        proj_root = Path(__file__).resolve().parents[3]
+        derived = proj_root / 'GEO-INFER-SPACE' / 'repo'
+        osc_repo_path = str(derived)
     shared_backend = create_shared_backend(args.h3_resolution, counties_dict, Path(args.output_dir), osc_repo_path)
     
     # Initialize enhanced data manager
@@ -68,10 +93,22 @@ def initialize_analysis(args):
         h3_resolution=args.h3_resolution
     )
     
-    # Initialize enhanced H3 fusion engine
+    # Initialize enhanced H3 fusion engine with cache directory inside output
+    fusion_cache_dir = Path(args.output_dir) / 'data' / 'cache' / 'fusion'
     h3_fusion = create_enhanced_h3_fusion(
         h3_resolution=args.h3_resolution,
-        enable_spatial_analysis=args.spatial_analysis
+        enable_spatial_analysis=args.spatial_analysis,
+        cache_dir=fusion_cache_dir
+    )
+    
+    # Initialize real data acquisition system
+    real_data_acquisition = create_real_data_acquisition(
+        output_dir=Path(args.output_dir) / "real_data"
+    )
+    
+    # Initialize comprehensive visualization engine
+    viz_engine = create_comprehensive_visualization_engine(
+        output_dir=Path(args.output_dir) / "visualizations"
     )
     
     # Validate H3 operations
@@ -87,7 +124,7 @@ def initialize_analysis(args):
         logger.error("❌ No modules could be initialized. Exiting.")
         sys.exit(1)
     
-    return shared_backend, modules, data_manager, h3_fusion
+    return shared_backend, modules, data_manager, h3_fusion, real_data_acquisition, viz_engine
 
 def initialize_modules_with_enhanced_data_management(active_modules, shared_backend, data_manager, h3_fusion, osc_repo_path):
     """Initialize modules with enhanced data management and H3 fusion"""
@@ -238,8 +275,8 @@ try:
     project_root = os.path.abspath(os.path.join(cascadian_dir, '..', '..', '..'))
 
     # --- FIX: Set OSC repository path environment variable early ---
-    # Use the correct absolute path to GEO-INFER-SPACE/repo as confirmed by user
-    osc_repo_path = "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
+    # Resolve path relative to project root to be portable across environments
+    osc_repo_path = os.path.join(project_root, 'GEO-INFER-SPACE', 'repo')
     os.environ['OSC_REPOS_DIR'] = osc_repo_path
     print(f"INFO: Set OSC_REPOS_DIR to {osc_repo_path}")
     # --- END FIX ---
@@ -681,7 +718,7 @@ def main():
     
     try:
         # Initialize analysis with enhanced modules
-        backend, modules, data_manager, h3_fusion = initialize_analysis(args)
+        backend, modules, data_manager, h3_fusion, real_data_acquisition, viz_engine = initialize_analysis(args)
         
         # Validate H3 operations if requested
         if args.validate_h3:
@@ -695,7 +732,7 @@ def main():
         
         # Run comprehensive analysis with enhanced data management
         redevelopment_scores, summary = run_comprehensive_analysis_with_enhanced_data(
-            backend, modules, data_manager, h3_fusion, args
+            backend, modules, data_manager, h3_fusion, real_data_acquisition, viz_engine, args
         )
         
         # Export results with visualization options
@@ -718,25 +755,45 @@ def main():
             traceback.print_exc()
         sys.exit(1)
 
-def run_comprehensive_analysis_with_enhanced_data(backend, modules, data_manager, h3_fusion, args):
-    """Run comprehensive analysis with enhanced data management and H3 fusion"""
+def run_comprehensive_analysis_with_enhanced_data(backend, modules, data_manager, h3_fusion, real_data_acquisition, viz_engine, args):
+    """Run comprehensive analysis with enhanced data management, real data acquisition, and H3 fusion"""
     logger = logging.getLogger(__name__)
     
-    logger.info("🚀 Starting enhanced comprehensive analysis with H3 geospatial fusion...")
+    logger.info("🚀 Starting enhanced comprehensive analysis with real data acquisition and H3 geospatial fusion...")
     
     # Collect data from all modules with enhanced data management
     module_data = {}
-    
+
     for module_name, module in modules.items():
         logger.info(f"📊 Processing module: {module_name}")
         
         try:
-            # Use enhanced data manager for data acquisition
-            data_path = data_manager.acquire_data_with_caching(
-                module_name=module_name,
-                data_source_func=module.acquire_raw_data,
-                force_refresh=args.force_refresh
-            )
+            # Try to acquire real data first
+            real_data_path = None
+            if module_name == 'zoning':
+                real_data_path = real_data_acquisition.acquire_zoning_data()
+            elif module_name == 'current_use':
+                real_data_path = real_data_acquisition.acquire_current_use_data()
+            elif module_name == 'ownership' and hasattr(real_data_acquisition, 'acquire_ownership_data'):
+                real_data_path = real_data_acquisition.acquire_ownership_data()  # type: ignore[attr-defined]
+            elif module_name == 'improvements' and hasattr(real_data_acquisition, 'acquire_improvements_data'):
+                real_data_path = real_data_acquisition.acquire_improvements_data()  # type: ignore[attr-defined]
+            
+            # Use enhanced data manager for data acquisition (with real data if available)
+            use_real = bool(real_data_path and real_data_path.exists())
+            # Treat any file marked synthetic as not real
+            if use_real and ('synthetic' in real_data_path.name or 'synthetic' in str(real_data_path)):
+                use_real = False
+            if use_real:
+                logger.info(f"✅ Using real data for {module_name}: {real_data_path}")
+                data_path = real_data_path
+            else:
+                logger.info(f"⚠️ Using synthetic data for {module_name}")
+                data_path = data_manager.acquire_data_with_caching(
+                    module_name=module_name,
+                    data_source_func=module.acquire_raw_data,
+                    force_refresh=args.force_refresh
+                )
             
             # Process data to H3 format with enhanced fusion
             h3_data = data_manager.process_to_h3_with_caching(
@@ -755,27 +812,121 @@ def run_comprehensive_analysis_with_enhanced_data(backend, modules, data_manager
             logger.error(f"❌ Failed to process {module_name}: {e}")
             continue
     
-    # Perform enhanced H3 geospatial fusion
+        # Perform enhanced H3 geospatial fusion
     logger.info("🔗 Performing enhanced H3 geospatial fusion...")
-    fused_data = h3_fusion.fuse_geospatial_data(
-        data_sources=module_data,
-        target_hexagons=list(backend.target_hexagons)
-    )
+    # Flatten module_data to hex maps for fusion
+    flat_sources = {}
+    for _mn, _data in module_data.items():
+        if isinstance(_data, dict) and 'hexagons' in _data and isinstance(_data['hexagons'], dict):
+            flat_sources[_mn] = _data['hexagons']
+        elif isinstance(_data, dict):
+            flat_sources[_mn] = _data
+        else:
+            flat_sources[_mn] = {}
+
+    # Try loading fusion result from cache unless skipping cache
+    fused_data = None
+    if not getattr(args, 'skip_cache', False):
+        try:
+            fused_data = h3_fusion.load_fusion_cache(flat_sources, list(backend.target_hexagons))
+        except Exception as e:
+            logger.warning(f"Fusion cache load attempt failed: {e}")
+
+    if not fused_data or getattr(args, 'force_refresh', False):
+        fused_data = h3_fusion.fuse_geospatial_data(
+            data_sources=flat_sources,
+            target_hexagons=list(backend.target_hexagons)
+        )
+        try:
+            # Save report alongside cache for observability
+            fusion_report = {
+                'modules': list(flat_sources.keys()),
+                'target_hex_count': len(backend.target_hexagons),
+                'fused_hex_count': len(fused_data)
+            }
+            h3_fusion.save_fusion_cache(flat_sources, list(backend.target_hexagons), fused_data, fusion_report)
+        except Exception as e:
+            logger.warning(f"Fusion cache save failed: {e}")
     
-    # Run final analysis on fused data
+    # Run final analysis on fused data with caching
     logger.info("🔬 Running final analysis on fused data...")
     redevelopment_scores = {}
     
-    for hex_id, hex_data in fused_data.items():
+    # Compute fusion signature to key score cache
+    scores_cache_dir = Path(args.output_dir) / 'data' / 'cache' / 'scores'
+    scores_cache_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        fusion_cache_key = h3_fusion._compute_fusion_signature(flat_sources, list(backend.target_hexagons))  # noqa: SLF001 (intentional use)
+    except Exception:
+        fusion_cache_key = f"res{args.h3_resolution}_default"
+    scores_cache_file = scores_cache_dir / f"scores_{fusion_cache_key}.json"
+
+    # Try load scores from cache
+    if scores_cache_file.exists() and not getattr(args, 'skip_cache', False) and not getattr(args, 'force_refresh', False):
         try:
-            # Calculate redevelopment score based on fused data
-            score = calculate_enhanced_redevelopment_score(hex_data)
-            redevelopment_scores[hex_id] = score
+            with open(scores_cache_file, 'r') as f:
+                payload = json.load(f)
+            cached = payload.get('scores', {})
+            # Validate count roughly matches fused set
+            if isinstance(cached, dict) and len(cached) >= int(0.6 * max(1, len(fused_data))):
+                redevelopment_scores = {k: float(v) for k, v in cached.items()}
+                logger.info(f"Loaded redevelopment scores from cache: {scores_cache_file} ({len(redevelopment_scores)} hexes)")
+            else:
+                logger.info("Scores cache present but insufficient coverage; recalculating.")
         except Exception as e:
-            logger.warning(f"Error calculating score for {hex_id}: {e}")
-            redevelopment_scores[hex_id] = 0.0
+            logger.warning(f"Failed to load scores cache: {e}; recalculating.")
+
+    # Compute scores if not loaded
+    if not redevelopment_scores or getattr(args, 'force_refresh', False):
+        for hex_id, hex_data in fused_data.items():
+            try:
+                score = calculate_enhanced_redevelopment_score(hex_data)
+                redevelopment_scores[hex_id] = score
+            except Exception as e:
+                logger.warning(f"Error calculating score for {hex_id}: {e}")
+                redevelopment_scores[hex_id] = 0.0
+        # Persist scores cache
+        try:
+            cache_payload = {
+                'meta': {
+                    'h3_resolution': int(args.h3_resolution),
+                    'fused_hex_count': int(len(fused_data)),
+                    'generated_at': datetime.now().isoformat(),
+                },
+                'scores': redevelopment_scores,
+            }
+            with open(scores_cache_file, 'w') as f:
+                json.dump(cache_payload, f)
+            logger.info(f"Saved redevelopment scores cache: {scores_cache_file}")
+        except Exception as e:
+            logger.warning(f"Failed to save scores cache: {e}")
     
-    # Generate summary
+    # Persist fused data into backend for export/reporting
+    try:
+        # Flatten fused data into backend.unified_data structure
+        # Each fused hex -> dict of module_name -> list[dict]
+        backend.unified_data = {}
+        for hex_id in backend.target_hexagons:
+            backend.unified_data[hex_id] = {
+                'hex_id': hex_id,
+                'boundary': cell_to_latlng_boundary(hex_id) if 'cell_to_latlng_boundary' in globals() else []
+            }
+        for module_name, module_hex_map in flat_sources.items():
+            for hex_id, items in module_hex_map.items():
+                if hex_id not in backend.unified_data:
+                    backend.unified_data[hex_id] = {'hex_id': hex_id}
+                # Summarize and score per-module data for this hex
+                rep = items[0] if isinstance(items, list) and items else (items if isinstance(items, dict) else {})
+                scored = _summarize_and_score_module(module_name, rep)
+                backend.unified_data[hex_id][module_name] = scored
+        # Calculate redevelopment scores using backend logic
+        _ = backend.calculate_agricultural_redevelopment_potential()
+    except Exception as e:
+        logger.error(f"Failed to persist fused data into backend: {e}")
+
+    # Generate summary using backend to include module coverage properly
+    backend_summary = backend.get_comprehensive_summary()
+
     summary = {
         'total_hexagons': len(backend.target_hexagons),
         'processed_hexagons': len(fused_data),
@@ -785,10 +936,168 @@ def run_comprehensive_analysis_with_enhanced_data(backend, modules, data_manager
         'spatial_analysis_enabled': args.spatial_analysis,
         'enhanced_data_management': True,
         'h3_fusion_enabled': True,
+        'real_data_acquisition': True,
+        'interactive_visualization': True,
         'analysis_timestamp': datetime.now().isoformat()
     }
+
+    # Merge in backend module coverage and redevelopment stats
+    try:
+        summary['modules_analyzed'] = backend_summary.get('modules_analyzed', [])
+        summary['module_summaries'] = backend_summary.get('module_summaries', {})
+        summary['redevelopment_potential'] = backend_summary.get('redevelopment_potential', {})
+        summary['bioregion'] = backend_summary.get('bioregion', 'Cascadia')
+    except Exception:
+        pass
     
+    # Create comprehensive visualizations
+    if args.generate_dashboard or args.lightweight_viz:
+        logger.info("🎨 Creating comprehensive visualizations...")
+        try:
+            # Create interactive H3 map
+            interactive_map = viz_engine.create_interactive_h3_map(
+                h3_data=fused_data,
+                data_sources=module_data,
+                target_hexagons=list(backend.target_hexagons)[:5000],
+                output_filename="cascadia_interactive_map.html"
+            )
+            summary['interactive_map_path'] = str(interactive_map)
+            
+            # Create static visualizations
+            static_viz = viz_engine.create_static_visualizations(
+                h3_data=fused_data,
+                data_sources=module_data,
+                redevelopment_scores=redevelopment_scores
+            )
+            summary['static_visualizations'] = {k: str(v) for k, v in static_viz.items()}
+            
+            # Create comprehensive dashboard
+            if args.generate_dashboard:
+                dashboard_path = viz_engine.create_dashboard(
+                    h3_data=fused_data,
+                    data_sources=module_data,
+                    redevelopment_scores=redevelopment_scores,
+                    summary=summary
+                )
+                summary['dashboard_path'] = str(dashboard_path)
+            
+            # Export visualization data
+            export_paths = viz_engine.export_visualization_data(
+                h3_data=fused_data,
+                data_sources=module_data,
+                redevelopment_scores=redevelopment_scores
+            )
+            summary['export_paths'] = {k: str(v) for k, v in export_paths.items()}
+            
+            logger.info(f"✅ Comprehensive visualizations created")
+            logger.info(f"   Interactive Map: {interactive_map}")
+            logger.info(f"   Static Visualizations: {len(static_viz)} files")
+            if args.generate_dashboard:
+                logger.info(f"   Dashboard: {dashboard_path}")
+            logger.info(f"   Export Files: {len(export_paths)} files")
+            
+        except Exception as e:
+            logger.error(f"❌ Failed to create visualizations: {e}")
+    
+    # Persist data provenance manifest
+    try:
+        provenance = {
+            'timestamp': datetime.now().isoformat(),
+            'h3_resolution': args.h3_resolution,
+            'modules': {},
+            'fusion_cache': str((Path(args.output_dir) / 'data' / 'cache' / 'fusion')),
+            'scores_cache': str(scores_cache_file),
+        }
+        for mod_name, _data in module_data.items():
+            # detect cache path and counts if available
+            ds = data_manager.get_data_structure(mod_name)
+            cache_file = ds.get('h3_cache')
+            output_hex = 0
+            input_features = 0
+            if isinstance(_data, dict):
+                hex_map = _data.get('hexagons', _data)
+                if isinstance(hex_map, dict):
+                    output_hex = len(hex_map)
+                input_features = int(_data.get('input_features', 0)) if 'input_features' in _data else 0
+            provenance['modules'][mod_name] = {
+                'h3_cache': str(cache_file),
+                'output_hexagons': output_hex,
+                'input_features': input_features,
+                'empirical_exists': ds['empirical_data'].exists(),
+                'synthetic_exists': ds['synthetic_data'].exists(),
+                'raw_exists': ds['raw_data'].exists(),
+            }
+        export_data_provenance(provenance, Path(args.output_dir))
+    except Exception as e:
+        logger.warning(f"Failed to write provenance manifest: {e}")
+
     return redevelopment_scores, summary
+
+def _summarize_and_score_module(module_name: str, rep: dict) -> dict:
+    """Create a compact, scored representation for a module's per-hex data.
+
+    Ensures a numeric 'score' is present so downstream summaries/plots are non-empty.
+    """
+    try:
+        rep = dict(rep) if isinstance(rep, dict) else {}
+        name = module_name.lower()
+        if name == 'zoning':
+            zone = str(rep.get('zone_type', rep.get('zone', ''))).lower()
+            is_ag = any(k in zone for k in ['ag', 'agricultural', 'agriculture'])
+            allows_redev = not any(k in zone for k in ['conservation', 'preserve'])
+            score = 0.6 if is_ag else 0.3
+            if allows_redev:
+                score += 0.2
+            return {
+                'zone_type': rep.get('zone_type', rep.get('zone', 'Unknown')),
+                'zone_code': rep.get('zone_code', rep.get('code', '')),
+                'is_ag_zone': bool(is_ag),
+                'allows_redevelopment': bool(allows_redev),
+                'score': float(max(0.0, min(1.0, score)))
+            }
+        if name == 'current_use':
+            crop = str(rep.get('crop_type', rep.get('land_use', '')))
+            intensity_str = str(rep.get('intensity', rep.get('agricultural_intensity', 'medium'))).lower()
+            intensity = 0.7 if intensity_str == 'high' else (0.4 if intensity_str == 'medium' else 0.2)
+            # Easier redevelopment when intensity is lower
+            score = 1.0 - intensity
+            return {
+                'primary_use': rep.get('land_use', crop),
+                'crop_type': crop,
+                'agricultural_intensity': float(intensity),
+                'score': float(max(0.0, min(1.0, score)))
+            }
+        if name == 'ownership':
+            owner_type = str(rep.get('owner_type', rep.get('owner_category', ''))).lower()
+            # Assume individual < trust < corporate concentration
+            concentration = 0.3 if 'individual' in owner_type else (0.6 if 'trust' in owner_type else 0.8 if owner_type else 0.5)
+            score = 1.0 - concentration
+            return {
+                'owner_type': rep.get('owner_type', rep.get('owner_category', 'Unknown')),
+                'ownership_concentration': float(concentration),
+                'score': float(max(0.0, min(1.0, score)))
+            }
+        if name == 'improvements':
+            bval = rep.get('building_value', 0) or 0
+            try:
+                bnorm = float(bval) / 200000.0
+            except Exception:
+                bnorm = 0.0
+            modernization = max(0.0, min(1.0, bnorm))
+            # Higher modernization can either hinder or help; here lower modernization => easier redevelopment
+            score = 1.0 - modernization
+            return {
+                'improvement_type': rep.get('improvement_type', 'Unknown'),
+                'modernization_score': float(modernization),
+                'score': float(max(0.0, min(1.0, score)))
+            }
+        # Default: create value score from any numeric field
+        numeric_vals = [v for v in rep.values() if isinstance(v, (int, float))]
+        score = float(max(0.0, min(1.0, (sum(numeric_vals) / len(numeric_vals) / 100.0) if numeric_vals else 0.0)))
+        rep['score'] = score
+        return rep
+    except Exception:
+        return {'score': 0.0}
 
 def calculate_enhanced_redevelopment_score(hex_data):
     """Calculate enhanced redevelopment score based on fused data"""

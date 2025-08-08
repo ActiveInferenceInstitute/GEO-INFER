@@ -186,7 +186,7 @@ cat assessment_results/latest_assessment_summary.md
 # Clone and install
 git clone https://github.com/activeinference/GEO-INFER
 cd GEO-INFER/GEO-INFER-EXAMPLES
-pip install -e .
+uv pip install -e .
 
 # Install optional domain modules
 pip install geo-infer-health geo-infer-ag geo-infer-ai

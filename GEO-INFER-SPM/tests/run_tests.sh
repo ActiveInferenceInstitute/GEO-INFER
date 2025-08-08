@@ -1,15 +1,12 @@
 #!/bin/bash
 set -e
 
-# Create and activate virtual environment
-python3 -m venv venv
-source venv/bin/activate
+# Run tests with uv-managed environment
+# - Ensures Python from .python-version is used
+# - Installs test requirements declared in pyproject (tool/uv extras) if any
 
-# Install test requirements
-pip install -r requirements-test.txt
+# Sync dependencies (uses pyproject.toml)
+uv sync
 
-# Run tests with coverage
-pytest --cov=src --cov-report=term-missing
-
-# Deactivate virtual environment
-deactivate
+# Run tests with coverage in the project environment
+uv run pytest --cov=src --cov-report=term-missing

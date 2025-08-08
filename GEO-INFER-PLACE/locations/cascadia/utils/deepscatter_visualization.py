@@ -92,14 +92,14 @@ class CascadiaDeepscatterVisualizer:
         """
         logger.info("Creating Deepscatter HTML visualization...")
         
-        # Create the HTML content
-        html_content = f"""
+        # Create the HTML content using placeholders to avoid f-string brace issues
+        html_template = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{title}</title>
+    <title>__TITLE__</title>
     <style>
         body {{
             margin: 0;
@@ -172,7 +172,7 @@ class CascadiaDeepscatterVisualizer:
 <body>
     <div class="container">
         <div class="header">
-            <h1>{title}</h1>
+            <h1>__TITLE__</h1>
             <p>Interactive visualization of agricultural redevelopment potential in Del Norte County</p>
         </div>
         
@@ -227,7 +227,7 @@ class CascadiaDeepscatterVisualizer:
         import * as d3 from 'https://cdn.skypack.dev/d3@7';
         
         // Data from the backend
-        const data = {json.dumps(data_points)};
+        const data = __DATA__;
         
         // Setup visualization
         const width = 1200;
@@ -240,7 +240,7 @@ class CascadiaDeepscatterVisualizer:
             .attr('height', height);
         
         const g = svg.append('g')
-            .attr('transform', `translate(${{margin.left}},${{margin.top}})`);
+            .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
         
         // Scales
         const xScale = d3.scaleLinear()
@@ -249,7 +249,7 @@ class CascadiaDeepscatterVisualizer:
         
         const yScale = d3.scaleLinear()
             .domain(d3.extent(data, d => d.y))
-            .range([height - ${{margin.top}} - ${{margin.bottom}}, 0]);
+            .range([height - margin.top - margin.bottom, 0]);
         
         const colorScale = d3.scaleSequential()
             .domain([0, d3.max(data, d => d.redevelopment_score)])
@@ -281,7 +281,7 @@ class CascadiaDeepscatterVisualizer:
         
         // Add axes
         g.append('g')
-            .attr('transform', f'translate(0,{height} - margin.top - margin.bottom)')
+            .attr('transform', 'translate(0,' + (height - margin.top - margin.bottom) + ')')
             .call(d3.axisBottom(xScale));
         
         g.append('g')
@@ -289,15 +289,15 @@ class CascadiaDeepscatterVisualizer:
         
         // Add labels
         g.append('text')
-            .attr('x', (width - ${{margin.left}} - ${{margin.right}}) / 2)
-            .attr('y', height - ${{margin.top}} - ${{margin.bottom}} + 25)
+            .attr('x', (width - margin.left - margin.right) / 2)
+            .attr('y', height - margin.top - margin.bottom + 25)
             .style('text-anchor', 'middle')
             .text('Longitude');
         
         g.append('text')
             .attr('transform', 'rotate(-90)')
-            .attr('y', -${{margin.left}} + 20)
-            .attr('x', -(height - ${{margin.top}} - ${{margin.bottom}}) / 2)
+            .attr('y', -margin.left + 20)
+            .attr('x', -(height - margin.top - margin.bottom) / 2)
             .style('text-anchor', 'middle')
             .text('Latitude');
         
@@ -325,6 +325,7 @@ class CascadiaDeepscatterVisualizer:
 </body>
 </html>
         """
+        html_content = html_template.replace("__TITLE__", title).replace("__DATA__", json.dumps(data_points))
         
         # Save to file
         output_path = self.output_dir / 'cascadia_deepscatter_visualization.html'

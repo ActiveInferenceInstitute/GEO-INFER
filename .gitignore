@@ -1,6 +1,8 @@
 *.pyc
 *.zip
 *.duckdb 
+*.tif
+*.ovr
 
 /venv
 

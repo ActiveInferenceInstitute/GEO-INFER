@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-RISK?
 
+Note: Code examples are illustrative; see `GEO-INFER-RISK/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-RISK/README.md
+
 GEO-INFER-RISK is the risk assessment engine that provides risk modeling and analysis capabilities for geospatial information systems. It enables:
 
 - **Risk Modeling**: Model and analyze various types of risks

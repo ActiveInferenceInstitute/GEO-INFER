@@ -6,6 +6,10 @@
 
 GEO-INFER-COG is dedicated to modeling and leveraging human cognitive processes in geospatial contexts. This module focuses on understanding how humans perceive, reason about, and interact with spatial information, enabling the development of more intuitive and effective geospatial tools and interfaces. By bridging cognitive science with geospatial technology, GEO-INFER-COG aims to enhance human-centered spatial decision-making, improve mental models of geographic phenomena, and develop cognitively informed approaches to spatial information visualization and interaction.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-cog.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Core Objectives
 
 - **Model Spatial Cognition:** Develop frameworks for understanding and representing human spatial cognition processes in computational systems.
@@ -119,10 +123,6 @@ GEO-INFER-COG is designed to enhance the human-centeredness of the entire GEO-IN
 
 ### Installation
 ```bash
-# Ensure the main GEO-INFER repository is cloned
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER
-
 pip install -e ./GEO-INFER-COG
 ```
 

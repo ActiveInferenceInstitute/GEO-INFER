@@ -6,6 +6,10 @@
 
 GEO-INFER-ECON is the specialized module within the GEO-INFER framework dedicated to **integrating economic principles with geospatial analysis**. It provides a comprehensive suite of tools for modeling economic activities, analyzing market dynamics, optimizing resource allocation, and evaluating policy impacts across diverse geographic regions and scales. By explicitly incorporating the "where" into economic models, this module enables a more nuanced, context-aware understanding of economic phenomena, moving beyond traditional aspatial approaches. It supports a range of economic theories and quantitative methods, from spatial econometrics and equilibrium models to agent-based simulations of economic behavior in a spatial context.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-econ.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Core Objectives
 
 -   **Spatialize Economic Analysis:** Embed geographic location, distance, accessibility, and spatial interactions as fundamental components of economic models and analyses.
@@ -245,14 +249,9 @@ python -c "import pandas, numpy, statsmodels, geopandas; print('✅ Libraries av
 
 ### 2. Installation
 ```bash
-# Install GEO-INFER-ECON and dependencies
 pip install -e ./GEO-INFER-ECON
-
-# Install spatial econometrics libraries
+# Optional econometrics extras
 pip install pysal libpysal esda spreg
-
-# Verify installation
-python -c "import geo_infer_econ; print('✅ ECON installation successful')"
 ```
 
 ### 3. Basic Configuration

@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-NORMS?
 
+Note: Code examples are illustrative; see `GEO-INFER-NORMS/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-NORMS/README.md
+
 GEO-INFER-NORMS is the norms and standards engine that provides governance and compliance capabilities for geospatial information systems. It enables:
 
 - **Compliance Management**: Manage regulatory compliance and standards adherence

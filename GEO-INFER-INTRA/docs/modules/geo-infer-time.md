@@ -34,31 +34,11 @@ Where:
 - `R(t)` is the residual/random component
 
 ```python
-from geo_infer_time import TemporalAnalyzer
-
-# Initialize temporal analyzer with advanced features
-analyzer = TemporalAnalyzer(
-    decomposition_method='stl',  # Seasonal and Trend decomposition using Loess
-    confidence_level=0.95,
-    parallel_processing=True
-)
-
-# Decompose time series into components with uncertainty
-decomposition = analyzer.decompose_timeseries(
-    data=temperature_data,
-    period=365,  # Annual seasonality
-    method='stl',
-    include_uncertainty=True,
-    robust=True
-)
-
-# Extract components with confidence intervals
-trend = decomposition['trend']
-seasonal = decomposition['seasonal']
-residual = decomposition['residual']
-trend_ci = decomposition['trend_confidence_intervals']
-seasonal_ci = decomposition['seasonal_confidence_intervals']
+# Illustrative; see GEO-INFER-TIME/examples for runnable scripts
 ```
+
+### Links
+- Module README: ../../GEO-INFER-TIME/README.md
 
 #### Temporal Patterns
 The module identifies various temporal patterns with advanced detection methods:

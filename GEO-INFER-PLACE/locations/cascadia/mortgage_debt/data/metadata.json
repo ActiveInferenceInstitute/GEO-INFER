@@ -1,0 +1,11 @@
+{
+  "module_name": "mortgage_debt",
+  "created": "2025-08-07T13:43:35.708255",
+  "data_structure": {
+    "empirical": "Real acquired data",
+    "synthetic": "Generated test data",
+    "cache": "H3-processed cached data",
+    "processed": "Final processed outputs",
+    "raw": "Unprocessed source data"
+  }
+}

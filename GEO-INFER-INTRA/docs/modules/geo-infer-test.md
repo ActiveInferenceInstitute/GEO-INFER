@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-TEST?
 
+Note: Code examples are illustrative; see `GEO-INFER-TEST/README.md` and `GEO-INFER-TEST/run_unified_tests.py` for runnable commands.
+
+### Links
+- Module README: ../../GEO-INFER-TEST/README.md
+
 GEO-INFER-TEST is the testing framework engine that provides testing and validation capabilities for GEO-INFER modules. It enables:
 
 - **Unit Testing**: Test individual components and functions

@@ -1,0 +1,2877 @@
+{
+  "analysis_type": "coastal_resilience",
+  "location": "del_norte_county",
+  "timestamp": "2025-08-07T18:24:32.465507",
+  "temporal_range": null,
+  "config": {
+    "enabled": true,
+    "update_frequency": "daily",
+    "sea_level_scenarios": {
+      "low": 0.3,
+      "medium": 0.6,
+      "high": 1.0,
+      "extreme": 1.5
+    },
+    "erosion_analysis": {
+      "baseline_year": 2010,
+      "annual_rate_threshold": 0.5,
+      "storm_surge_heights": [
+        1.0,
+        2.0,
+        3.0,
+        5.0
+      ]
+    },
+    "vulnerability_factors": [
+      "elevation",
+      "slope",
+      "soil_type",
+      "vegetation_cover",
+      "infrastructure_proximity"
+    ],
+    "monitoring_sites": {
+      "crescent_city_harbor": {
+        "lat": 41.745,
+        "lon": -124.184,
+        "type": "infrastructure"
+      },
+      "battery_point_lighthouse": {
+        "lat": 41.7612,
+        "lon": -124.2026,
+        "type": "historical"
+      },
+      "pelican_state_beach": {
+        "lat": 41.8751,
+        "lon": -124.262,
+        "type": "recreation"
+      }
+    },
+    "data_sources": {
+      "noaa_tide_gauges": {
+        "update_frequency": "hourly",
+        "station_id": "9419750"
+      },
+      "lidar_surveys": {
+        "update_frequency": "annually",
+        "resolution": 1.0
+      },
+      "coastal_erosion_monitoring": {
+        "update_frequency": "quarterly"
+      }
+    }
+  },
+  "data_acquisition": {
+    "bbox": [
+      -124.408,
+      41.458,
+      -123.536,
+      42.006
+    ],
+    "temporal_range": null,
+    "data_sources": {
+      "tide_gauges": {
+        "stations": [
+          "9419750"
+        ],
+        "series": {
+          "9419750": {
+            "error": {
+              "message": "No data was found. This product may not be offered at this station at the requested time."
+            }
+          }
+        }
+      },
+      "elevation": {
+        "data_source": "NOAA Digital Coast LiDAR (synthetic)",
+        "resolution": "1 meter",
+        "elevation_points": [
+          {
+            "lat": 41.99997830938463,
+            "lon": -124.1801821092621,
+            "elevation_m": 92.21709529325943,
+            "distance_from_shore_m": 24399.78587190693,
+            "h3_cell": "88281c3465fffff"
+          },
+          {
+            "lat": 41.50035468221139,
+            "lon": -124.22221220161128,
+            "elevation_m": 120.9211954633228,
+            "distance_from_shore_m": 19734.445621148014,
+            "h3_cell": "88281cb219fffff"
+          },
+          {
+            "lat": 41.48459005649673,
+            "lon": -124.3346702207167,
+            "elevation_m": 67.39260672469166,
+            "distance_from_shore_m": 7251.60550044663,
+            "h3_cell": "8828034c23fffff"
+          },
+          {
+            "lat": 41.80181064212203,
+            "lon": -124.05752718056175,
+            "elevation_m": 147.5153631631329,
+            "distance_from_shore_m": 38014.48295764649,
+            "h3_cell": "88281ca81bfffff"
+          },
+          {
+            "lat": 42.000915483247276,
+            "lon": -124.21185970063848,
+            "elevation_m": 142.74417253510373,
+            "distance_from_shore_m": 20883.573229128844,
+            "h3_cell": "88281c340dfffff"
+          },
+          {
+            "lat": 41.61290162917908,
+            "lon": -124.00959867367298,
+            "elevation_m": 150.96019986975128,
+            "distance_from_shore_m": 43334.547222299545,
+            "h3_cell": "88281cba23fffff"
+          },
+          {
+            "lat": 41.69941092704845,
+            "lon": -124.28412506389917,
+            "elevation_m": 126.45495260707119,
+            "distance_from_shore_m": 12862.117907192967,
+            "h3_cell": "88281ca295fffff"
+          },
+          {
+            "lat": 41.5196285708962,
+            "lon": -124.3092180842631,
+            "elevation_m": 121.7828456992542,
+            "distance_from_shore_m": 10076.792646797216,
+            "h3_cell": "8828034de3fffff"
+          },
+          {
+            "lat": 41.5910314699155,
+            "lon": -124.24480699295714,
+            "elevation_m": 172.83101413480648,
+            "distance_from_shore_m": 17226.42378175837,
+            "h3_cell": "88281cb08bfffff"
+          },
+          {
+            "lat": 41.498848350268524,
+            "lon": -124.03074018438893,
+            "elevation_m": 83.73441230141869,
+            "distance_from_shore_m": 40987.839532829144,
+            "h3_cell": "88281c8419fffff"
+          },
+          {
+            "lat": 41.845091573565185,
+            "lon": -124.355773817291,
+            "elevation_m": 140.15061852847796,
+            "distance_from_shore_m": 4909.106280700186,
+            "h3_cell": "88281ca5b1fffff"
+          },
+          {
+            "lat": 41.68092231087238,
+            "lon": -124.06526821982717,
+            "elevation_m": 87.50456417659387,
+            "distance_from_shore_m": 37155.22759918423,
+            "h3_cell": "88281cb889fffff"
+          },
+          {
+            "lat": 41.70884041932043,
+            "lon": -124.17702691892717,
+            "elevation_m": 87.79252996873328,
+            "distance_from_shore_m": 24750.011999084905,
+            "h3_cell": "88281ca005fffff"
+          },
+          {
+            "lat": 41.51841224460162,
+            "lon": -124.10934512147679,
+            "elevation_m": 96.51109062743336,
+            "distance_from_shore_m": 32262.691516076673,
+            "h3_cell": "88281cb363fffff"
+          },
+          {
+            "lat": 41.91051317309247,
+            "lon": -124.21933338934139,
+            "elevation_m": 64.12083936507388,
+            "distance_from_shore_m": 20053.993783106733,
+            "h3_cell": "88281caca5fffff"
+          },
+          {
+            "lat": 41.9441873742102,
+            "lon": -124.10329834881576,
+            "elevation_m": 68.28984131521985,
+            "distance_from_shore_m": 32933.883281451774,
+            "h3_cell": "88281c32bdfffff"
+          },
+          {
+            "lat": 41.92701625128263,
+            "lon": -124.37322469152467,
+            "elevation_m": 77.59279787862954,
+            "distance_from_shore_m": 2972.0592407623626,
+            "h3_cell": "88281dd82bfffff"
+          },
+          {
+            "lat": 41.55234741588392,
+            "lon": -124.0310888090169,
+            "elevation_m": 149.94987068352012,
+            "distance_from_shore_m": 40949.142199125505,
+            "h3_cell": "88281c84a3fffff"
+          },
+          {
+            "lat": 41.597771101924565,
+            "lon": -124.29947349886487,
+            "elevation_m": 197.60548475573376,
+            "distance_from_shore_m": 11158.441626000042,
+            "h3_cell": "88281cb735fffff"
+          },
+          {
+            "lat": 41.8299798651341,
+            "lon": -124.23905148641774,
+            "elevation_m": 59.62584439491386,
+            "distance_from_shore_m": 17865.285007631912,
+            "h3_cell": "88281caee5fffff"
+          },
+          {
+            "lat": 41.70124302109372,
+            "lon": -124.31716334869016,
+            "elevation_m": 98.38849305814321,
+            "distance_from_shore_m": 9194.86829539305,
+            "h3_cell": "88281ca741fffff"
+          },
+          {
+            "lat": 41.81391830077954,
+            "lon": -124.11039505165206,
+            "elevation_m": 120.24987460041304,
+            "distance_from_shore_m": 32146.149266621676,
+            "h3_cell": "88281caf65fffff"
+          },
+          {
+            "lat": 41.560884659026705,
+            "lon": -124.28144502372739,
+            "elevation_m": 71.02877231415914,
+            "distance_from_shore_m": 13159.602366260784,
+            "h3_cell": "88281cb769fffff"
+          },
+          {
+            "lat": 41.509933772668724,
+            "lon": -124.20329473718719,
+            "elevation_m": 198.61680548429734,
+            "distance_from_shore_m": 21834.28417222224,
+            "h3_cell": "88281cb203fffff"
+          },
+          {
+            "lat": 41.9401378125222,
+            "lon": -124.33548847171143,
+            "elevation_m": 95.73699435865454,
+            "distance_from_shore_m": 7160.779640032032,
+            "h3_cell": "88281dd911fffff"
+          },
+          {
+            "lat": 41.789427779072945,
+            "lon": -124.02387814662775,
+            "elevation_m": 159.96792508658942,
+            "distance_from_shore_m": 41749.52572432021,
+            "h3_cell": "88281ca809fffff"
+          },
+          {
+            "lat": 41.47960205198167,
+            "lon": -124.33601502761267,
+            "elevation_m": 59.634825715989116,
+            "distance_from_shore_m": 7102.3319349937565,
+            "h3_cell": "8828034c2bfffff"
+          },
+          {
+            "lat": 41.70161365588829,
+            "lon": -124.0640910042962,
+            "elevation_m": 133.63030607338226,
+            "distance_from_shore_m": 37285.89852312221,
+            "h3_cell": "88281cb8b9fffff"
+          },
+          {
+            "lat": 41.999377772266165,
+            "lon": -124.09472175886897,
+            "elevation_m": 191.13165938610925,
+            "distance_from_shore_m": 33885.88476554484,
+            "h3_cell": "88281c30b9fffff"
+          },
+          {
+            "lat": 41.85625812110195,
+            "lon": -124.29894710172768,
+            "elevation_m": 186.11808533502284,
+            "distance_from_shore_m": 11216.871708228482,
+            "h3_cell": "88281cae97fffff"
+          },
+          {
+            "lat": 41.833228033100255,
+            "lon": -124.35790603303711,
+            "elevation_m": 140.63573039709894,
+            "distance_from_shore_m": 4672.430332881348,
+            "h3_cell": "88281ca5b9fffff"
+          },
+          {
+            "lat": 41.86201899085656,
+            "lon": -124.30511136846178,
+            "elevation_m": 198.34788643884434,
+            "distance_from_shore_m": 10532.638100743014,
+            "h3_cell": "88281ddb69fffff"
+          },
+          {
+            "lat": 41.918754235241366,
+            "lon": -124.22675990419937,
+            "elevation_m": 158.4132810860056,
+            "distance_from_shore_m": 19229.65063387066,
+            "h3_cell": "88281caca7fffff"
+          },
+          {
+            "lat": 41.824412520047694,
+            "lon": -124.19050020132748,
+            "elevation_m": 94.68267154509414,
+            "distance_from_shore_m": 23254.47765265024,
+            "h3_cell": "88281caf1bfffff"
+          },
+          {
+            "lat": 41.77090016736761,
+            "lon": -124.17040484619801,
+            "elevation_m": 56.66323708731926,
+            "distance_from_shore_m": 25485.062072021436,
+            "h3_cell": "88281ca187fffff"
+          },
+          {
+            "lat": 41.70638935373515,
+            "lon": -124.00399716185163,
+            "elevation_m": 84.00739372458901,
+            "distance_from_shore_m": 43956.31503446981,
+            "h3_cell": "88281cb99dfffff"
+          },
+          {
+            "lat": 41.71733954721979,
+            "lon": -124.36845842192005,
+            "elevation_m": 195.1083311828815,
+            "distance_from_shore_m": 3501.11516687474,
+            "h3_cell": "88281ca621fffff"
+          },
+          {
+            "lat": 41.681352388021665,
+            "lon": -124.38781066339226,
+            "elevation_m": 61.213502843574894,
+            "distance_from_shore_m": 1353.0163634599432,
+            "h3_cell": "88281ca64dfffff"
+          },
+          {
+            "lat": 41.49880024769966,
+            "lon": -124.25067967497264,
+            "elevation_m": 77.67821049592524,
+            "distance_from_shore_m": 16574.55607803706,
+            "h3_cell": "8828034d21fffff"
+          },
+          {
+            "lat": 41.52862914244377,
+            "lon": -124.30547595797994,
+            "elevation_m": 111.0822228588859,
+            "distance_from_shore_m": 10492.168664227662,
+            "h3_cell": "8828034da9fffff"
+          },
+          {
+            "lat": 41.49656267981178,
+            "lon": -124.26178636755401,
+            "elevation_m": 72.14792948314015,
+            "distance_from_shore_m": 15341.713201505598,
+            "h3_cell": "8828034d2bfffff"
+          },
+          {
+            "lat": 41.66662902405939,
+            "lon": -124.10498049234506,
+            "elevation_m": 181.14144406849053,
+            "distance_from_shore_m": 32747.165349698564,
+            "h3_cell": "88281ca367fffff"
+          },
+          {
+            "lat": 41.96732428963798,
+            "lon": -124.35459505727518,
+            "elevation_m": 130.19185281534905,
+            "distance_from_shore_m": 5039.948642456054,
+            "h3_cell": "88281dd98dfffff"
+          },
+          {
+            "lat": 41.684636415321044,
+            "lon": -124.01407923976495,
+            "elevation_m": 140.69222497584286,
+            "distance_from_shore_m": 42837.2043860908,
+            "h3_cell": "88281cb9d9fffff"
+          },
+          {
+            "lat": 41.901768827565675,
+            "lon": -124.09861350246582,
+            "elevation_m": 148.29533278100564,
+            "distance_from_shore_m": 33453.901226294176,
+            "h3_cell": "88281c32cdfffff"
+          },
+          {
+            "lat": 41.66505063250029,
+            "lon": -124.27304466837349,
+            "elevation_m": 66.42429923468548,
+            "distance_from_shore_m": 14092.041810543591,
+            "h3_cell": "88281ca2cbfffff"
+          },
+          {
+            "lat": 41.62734980672819,
+            "lon": -124.16454108404557,
+            "elevation_m": 108.29958019622781,
+            "distance_from_shore_m": 26135.93967094272,
+            "h3_cell": "88281cb1b9fffff"
+          },
+          {
+            "lat": 41.8693562631991,
+            "lon": -124.05189712194921,
+            "elevation_m": 189.81788747886534,
+            "distance_from_shore_m": 38639.4194636383,
+            "h3_cell": "88281c3241fffff"
+          },
+          {
+            "lat": 41.78816436320532,
+            "lon": -124.2086495485454,
+            "elevation_m": 111.64764319155931,
+            "distance_from_shore_m": 21239.900111461764,
+            "h3_cell": "88281cae6bfffff"
+          },
+          {
+            "lat": 41.689255660630586,
+            "lon": -124.33931573986239,
+            "elevation_m": 144.29292319798753,
+            "distance_from_shore_m": 6735.952875275828,
+            "h3_cell": "88281cb5b1fffff"
+          },
+          {
+            "lat": 41.68770514997093,
+            "lon": -124.35404188747462,
+            "elevation_m": 80.38737276528181,
+            "distance_from_shore_m": 5101.350490317557,
+            "h3_cell": "88281cb5bbfffff"
+          },
+          {
+            "lat": 41.939634731226114,
+            "lon": -124.30653031667698,
+            "elevation_m": 141.21504956228407,
+            "distance_from_shore_m": 10375.134848855438,
+            "h3_cell": "88281dd907fffff"
+          },
+          {
+            "lat": 41.67184804018529,
+            "lon": -124.1668162239891,
+            "elevation_m": 159.32187467753857,
+            "distance_from_shore_m": 25883.399137210334,
+            "h3_cell": "88281ca319fffff"
+          },
+          {
+            "lat": 41.74138010510904,
+            "lon": -124.07086918782566,
+            "elevation_m": 98.80663116784385,
+            "distance_from_shore_m": 36533.52015135188,
+            "h3_cell": "88281caa19fffff"
+          },
+          {
+            "lat": 41.62964298913163,
+            "lon": -124.25796058030862,
+            "elevation_m": 64.26797428289827,
+            "distance_from_shore_m": 15766.37558574386,
+            "h3_cell": "88281cb567fffff"
+          },
+          {
+            "lat": 41.996867822353636,
+            "lon": -124.33449423755874,
+            "elevation_m": 190.52953392319748,
+            "distance_from_shore_m": 7271.1396309800875,
+            "h3_cell": "88281dcb4dfffff"
+          },
+          {
+            "lat": 41.70232847068913,
+            "lon": -124.27704686021738,
+            "elevation_m": 132.32644589515405,
+            "distance_from_shore_m": 13647.798515871216,
+            "h3_cell": "88281ca295fffff"
+          },
+          {
+            "lat": 41.86706382743199,
+            "lon": -124.18165495228838,
+            "elevation_m": 126.60524019647096,
+            "distance_from_shore_m": 24236.30029599009,
+            "h3_cell": "88281cac21fffff"
+          },
+          {
+            "lat": 41.99078461767585,
+            "lon": -124.27358503042284,
+            "elevation_m": 68.81512256111051,
+            "distance_from_shore_m": 14032.061623065787,
+            "h3_cell": "88281c3685fffff"
+          },
+          {
+            "lat": 41.899973363652194,
+            "lon": -124.04911954068722,
+            "elevation_m": 138.37614836264032,
+            "distance_from_shore_m": 38947.73098371975,
+            "h3_cell": "88281c3207fffff"
+          },
+          {
+            "lat": 41.99809985587504,
+            "lon": -124.18616223813687,
+            "elevation_m": 102.97113806606767,
+            "distance_from_shore_m": 23735.991566807697,
+            "h3_cell": "88281c3461fffff"
+          },
+          {
+            "lat": 41.47613204060674,
+            "lon": -124.0372401835368,
+            "elevation_m": 196.8403033350324,
+            "distance_from_shore_m": 40266.33962741636,
+            "h3_cell": "88281c86e5fffff"
+          },
+          {
+            "lat": 41.685930712115386,
+            "lon": -124.09513769008417,
+            "elevation_m": 91.5801325022921,
+            "distance_from_shore_m": 33839.71640065751,
+            "h3_cell": "88281cb899fffff"
+          },
+          {
+            "lat": 41.96808819419083,
+            "lon": -124.37798248159112,
+            "elevation_m": 55.689195448623884,
+            "distance_from_shore_m": 2443.944543386493,
+            "h3_cell": "88281dd98bfffff"
+          },
+          {
+            "lat": 41.51516613051438,
+            "lon": -124.16438610375359,
+            "elevation_m": 183.0879077147534,
+            "distance_from_shore_m": 26153.142483352625,
+            "h3_cell": "88281cb225fffff"
+          },
+          {
+            "lat": 41.543115329095095,
+            "lon": -124.22579509402321,
+            "elevation_m": 198.63909542556848,
+            "distance_from_shore_m": 19336.74456342409,
+            "h3_cell": "88281cb2a9fffff"
+          },
+          {
+            "lat": 41.66681944077564,
+            "lon": -124.04941447852006,
+            "elevation_m": 152.92222408888577,
+            "distance_from_shore_m": 38914.99288427362,
+            "h3_cell": "88281cb8c5fffff"
+          },
+          {
+            "lat": 41.80647570271001,
+            "lon": -124.1360748955821,
+            "elevation_m": 192.65805335117312,
+            "distance_from_shore_m": 29295.686590387744,
+            "h3_cell": "88281caf6bfffff"
+          },
+          {
+            "lat": 41.946259314923836,
+            "lon": -124.15131922311143,
+            "elevation_m": 176.54606961518036,
+            "distance_from_shore_m": 27603.566234632028,
+            "h3_cell": "88281c3745fffff"
+          },
+          {
+            "lat": 41.716258171837985,
+            "lon": -124.18238947299984,
+            "elevation_m": 179.93657862660973,
+            "distance_from_shore_m": 24154.76849701791,
+            "h3_cell": "88281ca007fffff"
+          },
+          {
+            "lat": 41.89600592198258,
+            "lon": -124.23673106724651,
+            "elevation_m": 95.60274223680581,
+            "distance_from_shore_m": 18122.851535638078,
+            "h3_cell": "88281caca9fffff"
+          },
+          {
+            "lat": 41.560115328177176,
+            "lon": -124.25643940644466,
+            "elevation_m": 79.00692396512176,
+            "distance_from_shore_m": 15935.225884643813,
+            "h3_cell": "88281cb2b1fffff"
+          },
+          {
+            "lat": 41.81192668902494,
+            "lon": -124.07736653223016,
+            "elevation_m": 189.69152202435345,
+            "distance_from_shore_m": 35812.31492245307,
+            "h3_cell": "88281ca8cbfffff"
+          },
+          {
+            "lat": 41.830585462040816,
+            "lon": -124.23857580927073,
+            "elevation_m": 169.6466746560936,
+            "distance_from_shore_m": 17918.085170949853,
+            "h3_cell": "88281caee5fffff"
+          },
+          {
+            "lat": 41.90959091027774,
+            "lon": -124.07959777931073,
+            "elevation_m": 102.12482205849649,
+            "distance_from_shore_m": 35564.64649650947,
+            "h3_cell": "88281c3217fffff"
+          },
+          {
+            "lat": 42.004628316200886,
+            "lon": -124.36494120499643,
+            "elevation_m": 110.81212536696601,
+            "distance_from_shore_m": 3891.5262453972446,
+            "h3_cell": "88281dcb5dfffff"
+          },
+          {
+            "lat": 41.66104063899345,
+            "lon": -124.25405015171043,
+            "elevation_m": 193.23441347652397,
+            "distance_from_shore_m": 16200.433160142864,
+            "h3_cell": "88281ca2cdfffff"
+          },
+          {
+            "lat": 41.86024000868863,
+            "lon": -124.06515668840245,
+            "elevation_m": 88.43455628775578,
+            "distance_from_shore_m": 37167.60758732832,
+            "h3_cell": "88281ca8b5fffff"
+          },
+          {
+            "lat": 41.963884224307975,
+            "lon": -124.39087634870299,
+            "elevation_m": 159.09070086995098,
+            "distance_from_shore_m": 1012.7252939688844,
+            "h3_cell": "88281dd9d7fffff"
+          },
+          {
+            "lat": 41.76509047362562,
+            "lon": -124.04889884495948,
+            "elevation_m": 104.46298361620691,
+            "distance_from_shore_m": 38972.2282094982,
+            "h3_cell": "88281caa31fffff"
+          },
+          {
+            "lat": 41.856254328783805,
+            "lon": -124.29485107534501,
+            "elevation_m": 196.46484153488404,
+            "distance_from_shore_m": 11671.530636704745,
+            "h3_cell": "88281caebbfffff"
+          },
+          {
+            "lat": 41.82564589748894,
+            "lon": -124.05990260552201,
+            "elevation_m": 128.8935257921442,
+            "distance_from_shore_m": 37750.81078705728,
+            "h3_cell": "88281ca8ebfffff"
+          },
+          {
+            "lat": 41.66923699416656,
+            "lon": -124.19890068730031,
+            "elevation_m": 160.46222141136502,
+            "distance_from_shore_m": 22322.02370966631,
+            "h3_cell": "88281ca223fffff"
+          },
+          {
+            "lat": 41.87549233705398,
+            "lon": -124.23939447427817,
+            "elevation_m": 99.80377629655047,
+            "distance_from_shore_m": 17827.21335512362,
+            "h3_cell": "88281cacc5fffff"
+          },
+          {
+            "lat": 41.88060520468297,
+            "lon": -124.0726413587545,
+            "elevation_m": 54.71538773265961,
+            "distance_from_shore_m": 36336.80917825164,
+            "h3_cell": "88281c3251fffff"
+          },
+          {
+            "lat": 41.60003267994298,
+            "lon": -124.1621684715624,
+            "elevation_m": 143.831628919083,
+            "distance_from_shore_m": 26399.299656574713,
+            "h3_cell": "88281cb1c3fffff"
+          },
+          {
+            "lat": 41.587242000610324,
+            "lon": -124.19982062717814,
+            "elevation_m": 92.7782488290214,
+            "distance_from_shore_m": 22219.910383226947,
+            "h3_cell": "88281cb0e5fffff"
+          },
+          {
+            "lat": 41.488418064335555,
+            "lon": -124.0884354055809,
+            "elevation_m": 126.34814759273607,
+            "distance_from_shore_m": 34583.66998052122,
+            "h3_cell": "88281c869dfffff"
+          },
+          {
+            "lat": 41.564952255326986,
+            "lon": -124.01853876372047,
+            "elevation_m": 159.46947183982056,
+            "distance_from_shore_m": 42342.19722702832,
+            "h3_cell": "88281cba4dfffff"
+          },
+          {
+            "lat": 41.605618072777965,
+            "lon": -124.21728181589818,
+            "elevation_m": 146.24817032319487,
+            "distance_from_shore_m": 20281.718435303148,
+            "h3_cell": "88281cb0abfffff"
+          },
+          {
+            "lat": 41.90417080325546,
+            "lon": -124.28584126903054,
+            "elevation_m": 114.22327864615742,
+            "distance_from_shore_m": 12671.619137610534,
+            "h3_cell": "88281cac91fffff"
+          },
+          {
+            "lat": 41.91873115304127,
+            "lon": -124.33115411156194,
+            "elevation_m": 130.1086425183114,
+            "distance_from_shore_m": 7641.893616624912,
+            "h3_cell": "88281dd951fffff"
+          },
+          {
+            "lat": 41.59800154849505,
+            "lon": -124.07530760813044,
+            "elevation_m": 53.19406386011189,
+            "distance_from_shore_m": 36040.85549752132,
+            "h3_cell": "88281cb127fffff"
+          },
+          {
+            "lat": 41.79073058292006,
+            "lon": -124.2771354087336,
+            "elevation_m": 176.36524622575968,
+            "distance_from_shore_m": 13637.969630571106,
+            "h3_cell": "88281ca529fffff"
+          },
+          {
+            "lat": 41.72091930660662,
+            "lon": -124.36116081019038,
+            "elevation_m": 116.13365644582603,
+            "distance_from_shore_m": 4311.150068868003,
+            "h3_cell": "88281ca625fffff"
+          },
+          {
+            "lat": 41.93085868670098,
+            "lon": -124.17321535650525,
+            "elevation_m": 152.59726715119564,
+            "distance_from_shore_m": 25173.095427917575,
+            "h3_cell": "88281cadbdfffff"
+          },
+          {
+            "lat": 41.50529040125698,
+            "lon": -124.33244014206393,
+            "elevation_m": 193.06477796973485,
+            "distance_from_shore_m": 7499.14423090435,
+            "h3_cell": "8828034dc3fffff"
+          },
+          {
+            "lat": 41.93094008240922,
+            "lon": -124.24107314198633,
+            "elevation_m": 53.24792008444968,
+            "distance_from_shore_m": 17640.88123951757,
+            "h3_cell": "88281c3643fffff"
+          },
+          {
+            "lat": 41.896495231322625,
+            "lon": -124.15197498016833,
+            "elevation_m": 132.75029681812558,
+            "distance_from_shore_m": 27530.777201315643,
+            "h3_cell": "88281cadedfffff"
+          },
+          {
+            "lat": 41.784291581555955,
+            "lon": -124.10770732648662,
+            "elevation_m": 164.22023095228266,
+            "distance_from_shore_m": 32444.486759985964,
+            "h3_cell": "88281caa83fffff"
+          },
+          {
+            "lat": 41.63871948340259,
+            "lon": -124.13750798085363,
+            "elevation_m": 122.35601245143843,
+            "distance_from_shore_m": 29136.61412524803,
+            "h3_cell": "88281ca349fffff"
+          },
+          {
+            "lat": 41.946402959663,
+            "lon": -124.36447749379225,
+            "elevation_m": 175.0187654419315,
+            "distance_from_shore_m": 3942.998189060816,
+            "h3_cell": "88281dd9c1fffff"
+          },
+          {
+            "lat": 41.48232954265955,
+            "lon": -124.32563132353586,
+            "elevation_m": 148.14590772794816,
+            "distance_from_shore_m": 8254.923087520283,
+            "h3_cell": "8828034c23fffff"
+          },
+          {
+            "lat": 41.79680172506681,
+            "lon": -124.32535387708245,
+            "elevation_m": 140.68229039848222,
+            "distance_from_shore_m": 8285.719643848779,
+            "h3_cell": "88281ca517fffff"
+          },
+          {
+            "lat": 41.60107666213326,
+            "lon": -124.26329549823663,
+            "elevation_m": 126.07401167879307,
+            "distance_from_shore_m": 15174.1996957347,
+            "h3_cell": "88281cb09bfffff"
+          },
+          {
+            "lat": 41.91448389739375,
+            "lon": -124.22219465838775,
+            "elevation_m": 96.26485086858659,
+            "distance_from_shore_m": 19736.39291896042,
+            "h3_cell": "88281cad9bfffff"
+          },
+          {
+            "lat": 41.7504112290831,
+            "lon": -124.30357912277269,
+            "elevation_m": 192.39998207180616,
+            "distance_from_shore_m": 10702.717372232159,
+            "h3_cell": "88281ca549fffff"
+          },
+          {
+            "lat": 41.473397605629465,
+            "lon": -124.1907564914537,
+            "elevation_m": 126.6776781344226,
+            "distance_from_shore_m": 23226.02944864019,
+            "h3_cell": "88281cb24dfffff"
+          },
+          {
+            "lat": 41.57838351990879,
+            "lon": -124.09253669774981,
+            "elevation_m": 198.2486143518403,
+            "distance_from_shore_m": 34128.42654977203,
+            "h3_cell": "88281cb105fffff"
+          },
+          {
+            "lat": 41.986880518239396,
+            "lon": -124.28025397598438,
+            "elevation_m": 99.03929008716396,
+            "distance_from_shore_m": 13291.808665734494,
+            "h3_cell": "88281c3685fffff"
+          },
+          {
+            "lat": 41.76747065580937,
+            "lon": -124.04926883245663,
+            "elevation_m": 60.00515321158498,
+            "distance_from_shore_m": 38931.15959731436,
+            "h3_cell": "88281caa33fffff"
+          },
+          {
+            "lat": 41.91880377502284,
+            "lon": -124.07512104185516,
+            "elevation_m": 188.1602366987191,
+            "distance_from_shore_m": 36061.564354078415,
+            "h3_cell": "88281c32edfffff"
+          },
+          {
+            "lat": 41.52954130638194,
+            "lon": -124.31538702681958,
+            "elevation_m": 92.24566879734705,
+            "distance_from_shore_m": 9392.040023027377,
+            "h3_cell": "8828034dabfffff"
+          },
+          {
+            "lat": 41.644361785558736,
+            "lon": -124.03904535130148,
+            "elevation_m": 85.25702248138016,
+            "distance_from_shore_m": 40065.96600553614,
+            "h3_cell": "88281cb853fffff"
+          },
+          {
+            "lat": 41.52603304914076,
+            "lon": -124.35749728215812,
+            "elevation_m": 96.85512815605121,
+            "distance_from_shore_m": 4717.801680449171,
+            "h3_cell": "8828034d9bfffff"
+          },
+          {
+            "lat": 41.5604338501158,
+            "lon": -124.27842032472893,
+            "elevation_m": 172.21780034766985,
+            "distance_from_shore_m": 13495.343955089736,
+            "h3_cell": "88281cb769fffff"
+          },
+          {
+            "lat": 41.66680640010428,
+            "lon": -124.19049932577751,
+            "elevation_m": 72.90883494260255,
+            "distance_from_shore_m": 23254.57483869714,
+            "h3_cell": "88281ca221fffff"
+          },
+          {
+            "lat": 41.48106743181852,
+            "lon": -124.22151267526259,
+            "elevation_m": 95.09263072423136,
+            "distance_from_shore_m": 19812.093045853388,
+            "h3_cell": "88281cb259fffff"
+          },
+          {
+            "lat": 41.68244487660316,
+            "lon": -124.058128630254,
+            "elevation_m": 51.60136754031703,
+            "distance_from_shore_m": 37947.72204180623,
+            "h3_cell": "88281cb88dfffff"
+          },
+          {
+            "lat": 41.65705579176665,
+            "lon": -124.13408430790142,
+            "elevation_m": 166.52653791981936,
+            "distance_from_shore_m": 29516.641822943257,
+            "h3_cell": "88281ca347fffff"
+          },
+          {
+            "lat": 41.77755382971671,
+            "lon": -124.18443562324985,
+            "elevation_m": 102.29363725949116,
+            "distance_from_shore_m": 23927.64581926683,
+            "h3_cell": "88281ca195fffff"
+          },
+          {
+            "lat": 41.93923336715801,
+            "lon": -124.02659329787312,
+            "elevation_m": 154.3940563800217,
+            "distance_from_shore_m": 41448.14393608431,
+            "h3_cell": "88281c300dfffff"
+          },
+          {
+            "lat": 41.94345696979292,
+            "lon": -124.16392463922172,
+            "elevation_m": 184.4473635381429,
+            "distance_from_shore_m": 26204.365046389838,
+            "h3_cell": "88281c374bfffff"
+          },
+          {
+            "lat": 41.80057488168432,
+            "lon": -124.031253240831,
+            "elevation_m": 107.40026111599342,
+            "distance_from_shore_m": 40930.89026775894,
+            "h3_cell": "88281ca80bfffff"
+          },
+          {
+            "lat": 41.46954082938294,
+            "lon": -124.07166385858469,
+            "elevation_m": 135.94566390612476,
+            "distance_from_shore_m": 36445.31169710058,
+            "h3_cell": "88281c86c7fffff"
+          },
+          {
+            "lat": 41.482091719608526,
+            "lon": -124.02923961812938,
+            "elevation_m": 115.70842339549594,
+            "distance_from_shore_m": 41154.40238763934,
+            "h3_cell": "88281c845bfffff"
+          },
+          {
+            "lat": 41.69874093401953,
+            "lon": -124.007346632862,
+            "elevation_m": 153.93325623257675,
+            "distance_from_shore_m": 43584.5237523191,
+            "h3_cell": "88281cb9d7fffff"
+          },
+          {
+            "lat": 41.879060754746575,
+            "lon": -124.23822302517146,
+            "elevation_m": 64.01973389869005,
+            "distance_from_shore_m": 17957.244205968065,
+            "h3_cell": "88281cace9fffff"
+          },
+          {
+            "lat": 41.82286901864504,
+            "lon": -124.18895240898621,
+            "elevation_m": 61.601429061772855,
+            "distance_from_shore_m": 23426.282602531246,
+            "h3_cell": "88281caf1bfffff"
+          },
+          {
+            "lat": 41.96151691299972,
+            "lon": -124.08161141634477,
+            "elevation_m": 191.25284156826078,
+            "distance_from_shore_m": 35341.132785731075,
+            "h3_cell": "88281c30c1fffff"
+          },
+          {
+            "lat": 41.67805791241491,
+            "lon": -124.07797193897746,
+            "elevation_m": 155.86776448609973,
+            "distance_from_shore_m": 35745.11477350306,
+            "h3_cell": "88281cb8d5fffff"
+          },
+          {
+            "lat": 41.654474420269764,
+            "lon": -124.34855180071656,
+            "elevation_m": 130.77574593494077,
+            "distance_from_shore_m": 5710.750120462052,
+            "h3_cell": "88281cb5c3fffff"
+          },
+          {
+            "lat": 41.96614269870454,
+            "lon": -124.02512914495172,
+            "elevation_m": 193.98491557076514,
+            "distance_from_shore_m": 41610.664910359745,
+            "h3_cell": "88281c303dfffff"
+          },
+          {
+            "lat": 41.890880910524324,
+            "lon": -124.08874409243562,
+            "elevation_m": 92.62801476612992,
+            "distance_from_shore_m": 34549.40573964699,
+            "h3_cell": "88281cad25fffff"
+          },
+          {
+            "lat": 41.69663673432229,
+            "lon": -124.03466330894481,
+            "elevation_m": 93.36648469289024,
+            "distance_from_shore_m": 40552.3727071262,
+            "h3_cell": "88281cb8adfffff"
+          },
+          {
+            "lat": 41.57255201212009,
+            "lon": -124.31632668799938,
+            "elevation_m": 111.77851381173409,
+            "distance_from_shore_m": 9287.737632069622,
+            "h3_cell": "88281cb70bfffff"
+          },
+          {
+            "lat": 41.515617337708655,
+            "lon": -124.24038166786892,
+            "elevation_m": 73.25073681269384,
+            "distance_from_shore_m": 17717.634866550867,
+            "h3_cell": "88281cb2cdfffff"
+          },
+          {
+            "lat": 41.70396192550072,
+            "lon": -124.29250937660917,
+            "elevation_m": 182.7989814725409,
+            "distance_from_shore_m": 11931.45919638222,
+            "h3_cell": "88281ca297fffff"
+          },
+          {
+            "lat": 41.5167237102626,
+            "lon": -124.03243221727446,
+            "elevation_m": 55.64334661988678,
+            "distance_from_shore_m": 40800.023882535395,
+            "h3_cell": "88281c8413fffff"
+          },
+          {
+            "lat": 41.88204991187218,
+            "lon": -124.39409615081306,
+            "elevation_m": 36.098734806344886,
+            "distance_from_shore_m": 655.3272597514592,
+            "h3_cell": "88281dda35fffff"
+          },
+          {
+            "lat": 41.82342592296035,
+            "lon": -124.05377226917474,
+            "elevation_m": 66.81289188808601,
+            "distance_from_shore_m": 38431.278121604126,
+            "h3_cell": "88281ca8e9fffff"
+          },
+          {
+            "lat": 41.725851467159465,
+            "lon": -124.33217660112513,
+            "elevation_m": 137.9050114223958,
+            "distance_from_shore_m": 7528.39727511153,
+            "h3_cell": "88281ca70bfffff"
+          },
+          {
+            "lat": 41.6823745354305,
+            "lon": -124.34839423548158,
+            "elevation_m": 130.601659777894,
+            "distance_from_shore_m": 5728.239861545461,
+            "h3_cell": "88281cb5b9fffff"
+          },
+          {
+            "lat": 41.71883003495221,
+            "lon": -124.26803855644793,
+            "elevation_m": 122.0400026718189,
+            "distance_from_shore_m": 14647.720234279986,
+            "h3_cell": "88281ca2b7fffff"
+          },
+          {
+            "lat": 41.793640023229536,
+            "lon": -124.09191517339005,
+            "elevation_m": 158.69153773805834,
+            "distance_from_shore_m": 34197.41575370517,
+            "h3_cell": "88281caabdfffff"
+          },
+          {
+            "lat": 41.951955191507835,
+            "lon": -124.14902584318313,
+            "elevation_m": 88.2255650852599,
+            "distance_from_shore_m": 27858.13140667375,
+            "h3_cell": "88281c3745fffff"
+          },
+          {
+            "lat": 41.56113963792126,
+            "lon": -124.26904669650686,
+            "elevation_m": 82.63115553256915,
+            "distance_from_shore_m": 14535.816687738916,
+            "h3_cell": "88281cb76dfffff"
+          },
+          {
+            "lat": 41.532165723523995,
+            "lon": -124.10544909418533,
+            "elevation_m": 135.22706021207324,
+            "distance_from_shore_m": 32695.150545428816,
+            "h3_cell": "88281cb321fffff"
+          },
+          {
+            "lat": 41.61790763772826,
+            "lon": -124.10122642996953,
+            "elevation_m": 191.52119854325394,
+            "distance_from_shore_m": 33163.86627338292,
+            "h3_cell": "88281cbad5fffff"
+          },
+          {
+            "lat": 41.79404865964404,
+            "lon": -124.21014891490489,
+            "elevation_m": 122.26282689778682,
+            "distance_from_shore_m": 21073.47044555766,
+            "h3_cell": "88281cae0dfffff"
+          },
+          {
+            "lat": 41.97630503247541,
+            "lon": -124.36936636240686,
+            "elevation_m": 123.09766099638416,
+            "distance_from_shore_m": 3400.3337728386355,
+            "h3_cell": "88281dd983fffff"
+          },
+          {
+            "lat": 41.64909073345629,
+            "lon": -124.23928726656888,
+            "elevation_m": 53.46699781230744,
+            "distance_from_shore_m": 17839.113410854963,
+            "h3_cell": "88281ca219fffff"
+          },
+          {
+            "lat": 41.93832096755731,
+            "lon": -124.0317181204163,
+            "elevation_m": 78.06854917715492,
+            "distance_from_shore_m": 40879.288633791264,
+            "h3_cell": "88281c3009fffff"
+          },
+          {
+            "lat": 41.8676483430449,
+            "lon": -124.33799047602169,
+            "elevation_m": 179.97597337298404,
+            "distance_from_shore_m": 6883.057161593328,
+            "h3_cell": "88281ddb09fffff"
+          },
+          {
+            "lat": 41.54940814950493,
+            "lon": -124.23088768847215,
+            "elevation_m": 127.44662695894755,
+            "distance_from_shore_m": 18771.46657959183,
+            "h3_cell": "88281cb2a1fffff"
+          },
+          {
+            "lat": 41.52255163933037,
+            "lon": -124.0173089522086,
+            "elevation_m": 115.84318682767068,
+            "distance_from_shore_m": 42478.70630484664,
+            "h3_cell": "88281c84edfffff"
+          },
+          {
+            "lat": 41.68869515892268,
+            "lon": -124.06318166790612,
+            "elevation_m": 63.01442973343062,
+            "distance_from_shore_m": 37386.83486242113,
+            "h3_cell": "88281cb881fffff"
+          },
+          {
+            "lat": 41.80716920112322,
+            "lon": -124.04190452871624,
+            "elevation_m": 194.91034736288088,
+            "distance_from_shore_m": 39748.59731249747,
+            "h3_cell": "88281ca811fffff"
+          },
+          {
+            "lat": 41.615969842411815,
+            "lon": -124.34453096065458,
+            "elevation_m": 105.26577485520339,
+            "distance_from_shore_m": 6157.06336734219,
+            "h3_cell": "88281cb405fffff"
+          },
+          {
+            "lat": 41.665478163129826,
+            "lon": -124.30117737203092,
+            "elevation_m": 89.76205859199915,
+            "distance_from_shore_m": 10969.311704568427,
+            "h3_cell": "88281cb5e5fffff"
+          },
+          {
+            "lat": 41.652313388095585,
+            "lon": -124.34178833898515,
+            "elevation_m": 55.783909111685766,
+            "distance_from_shore_m": 6461.494372648545,
+            "h3_cell": "88281cb5c3fffff"
+          },
+          {
+            "lat": 41.62881091104062,
+            "lon": -124.27511306570003,
+            "elevation_m": 183.20231201667815,
+            "distance_from_shore_m": 13862.449707297743,
+            "h3_cell": "88281cb50dfffff"
+          },
+          {
+            "lat": 41.96491830826884,
+            "lon": -124.31436067031726,
+            "elevation_m": 141.48492352403306,
+            "distance_from_shore_m": 9505.965594785153,
+            "h3_cell": "88281c36d9fffff"
+          },
+          {
+            "lat": 41.48143873642918,
+            "lon": -124.17013301925246,
+            "elevation_m": 146.01282138615946,
+            "distance_from_shore_m": 25515.23486297748,
+            "h3_cell": "8828034997fffff"
+          },
+          {
+            "lat": 41.498791663385816,
+            "lon": -124.1474652001567,
+            "elevation_m": 54.63957890670462,
+            "distance_from_shore_m": 28031.362782606677,
+            "h3_cell": "88281cb359fffff"
+          },
+          {
+            "lat": 41.77855798051336,
+            "lon": -124.32192716169425,
+            "elevation_m": 92.95746815537403,
+            "distance_from_shore_m": 8666.08505193912,
+            "h3_cell": "88281ca557fffff"
+          },
+          {
+            "lat": 41.995536913759494,
+            "lon": -124.0809591136101,
+            "elevation_m": 150.89766222294665,
+            "distance_from_shore_m": 35413.53838927884,
+            "h3_cell": "88281c3087fffff"
+          },
+          {
+            "lat": 41.761674326066874,
+            "lon": -124.32289269348516,
+            "elevation_m": 121.43987551528012,
+            "distance_from_shore_m": 8558.911023148028,
+            "h3_cell": "88281ca559fffff"
+          },
+          {
+            "lat": 41.847948912188556,
+            "lon": -124.08109039509863,
+            "elevation_m": 80.18340391784008,
+            "distance_from_shore_m": 35398.966144053,
+            "h3_cell": "88281ca8b9fffff"
+          },
+          {
+            "lat": 41.652290408862456,
+            "lon": -124.16211157999561,
+            "elevation_m": 56.13700155891963,
+            "distance_from_shore_m": 26405.61462048791,
+            "h3_cell": "88281ca351fffff"
+          },
+          {
+            "lat": 41.49278094591689,
+            "lon": -124.32076223705205,
+            "elevation_m": 169.528837863307,
+            "distance_from_shore_m": 8795.39168722296,
+            "h3_cell": "8828034dcdfffff"
+          },
+          {
+            "lat": 41.51635321161944,
+            "lon": -124.10001783528419,
+            "elevation_m": 187.4815233915527,
+            "distance_from_shore_m": 33298.020283455386,
+            "h3_cell": "88281cb367fffff"
+          },
+          {
+            "lat": 41.541452588516094,
+            "lon": -124.30477420196145,
+            "elevation_m": 70.17047734351335,
+            "distance_from_shore_m": 10570.063582279645,
+            "h3_cell": "8828034da7fffff"
+          },
+          {
+            "lat": 41.95121659428983,
+            "lon": -124.07882102224934,
+            "elevation_m": 69.25837069449688,
+            "distance_from_shore_m": 35650.866530323525,
+            "h3_cell": "88281c32a7fffff"
+          },
+          {
+            "lat": 41.97584425015406,
+            "lon": -124.21264880215895,
+            "elevation_m": 135.1641594680945,
+            "distance_from_shore_m": 20795.982960356923,
+            "h3_cell": "88281c3449fffff"
+          },
+          {
+            "lat": 41.86717829799121,
+            "lon": -124.1112379273044,
+            "elevation_m": 151.4166072042721,
+            "distance_from_shore_m": 32052.59006921209,
+            "h3_cell": "88281cad6bfffff"
+          },
+          {
+            "lat": 41.67666931686569,
+            "lon": -124.267423996854,
+            "elevation_m": 61.43490429178114,
+            "distance_from_shore_m": 14715.936349205918,
+            "h3_cell": "88281ca289fffff"
+          },
+          {
+            "lat": 41.51731024124937,
+            "lon": -124.12415524327447,
+            "elevation_m": 106.61191468233856,
+            "distance_from_shore_m": 30618.767996534174,
+            "h3_cell": "88281cb301fffff"
+          },
+          {
+            "lat": 41.821625529108225,
+            "lon": -124.39600106033261,
+            "elevation_m": 10.630577388233576,
+            "distance_from_shore_m": 443.88230308111076,
+            "h3_cell": "88281ca4a7fffff"
+          },
+          {
+            "lat": 41.817264055926934,
+            "lon": -124.24525058758044,
+            "elevation_m": 114.87881562867608,
+            "distance_from_shore_m": 17177.184778571416,
+            "h3_cell": "88281cae17fffff"
+          },
+          {
+            "lat": 41.766414269516375,
+            "lon": -124.22106427269071,
+            "elevation_m": 167.16289415160057,
+            "distance_from_shore_m": 19861.865731331705,
+            "h3_cell": "88281ca0a7fffff"
+          },
+          {
+            "lat": 41.77810703868407,
+            "lon": -124.15627143740222,
+            "elevation_m": 69.1612983579057,
+            "distance_from_shore_m": 27053.870448353664,
+            "h3_cell": "88281ca1a3fffff"
+          },
+          {
+            "lat": 41.65125019357356,
+            "lon": -124.38139802116225,
+            "elevation_m": 180.4835498277816,
+            "distance_from_shore_m": 2064.81965099033,
+            "h3_cell": "88281cb4e7fffff"
+          },
+          {
+            "lat": 41.97490557718005,
+            "lon": -124.21340224326525,
+            "elevation_m": 123.35848090611188,
+            "distance_from_shore_m": 20712.350997557878,
+            "h3_cell": "88281c3449fffff"
+          },
+          {
+            "lat": 41.92284475741864,
+            "lon": -124.34363317448187,
+            "elevation_m": 75.78542361585676,
+            "distance_from_shore_m": 6256.717632513513,
+            "h3_cell": "88281dd953fffff"
+          },
+          {
+            "lat": 41.76787665402788,
+            "lon": -124.22835059689977,
+            "elevation_m": 179.85826219014194,
+            "distance_from_shore_m": 19053.08374412583,
+            "h3_cell": "88281cae49fffff"
+          },
+          {
+            "lat": 41.644575435992344,
+            "lon": -124.31969480522459,
+            "elevation_m": 148.20451485844444,
+            "distance_from_shore_m": 8913.876620071605,
+            "h3_cell": "88281cb513fffff"
+          },
+          {
+            "lat": 41.92585775008337,
+            "lon": -124.17350425460289,
+            "elevation_m": 106.74767476392265,
+            "distance_from_shore_m": 25141.027739079917,
+            "h3_cell": "88281cadbdfffff"
+          },
+          {
+            "lat": 41.77559674575622,
+            "lon": -124.19968334608315,
+            "elevation_m": 164.70948140509793,
+            "distance_from_shore_m": 22235.14858477118,
+            "h3_cell": "88281ca193fffff"
+          },
+          {
+            "lat": 41.625066533347415,
+            "lon": -124.3433758971355,
+            "elevation_m": 123.14143983129098,
+            "distance_from_shore_m": 6285.275417959923,
+            "h3_cell": "88281cb42bfffff"
+          },
+          {
+            "lat": 41.45833815919937,
+            "lon": -124.23686624086761,
+            "elevation_m": 64.00067789672771,
+            "distance_from_shore_m": 18107.84726369559,
+            "h3_cell": "8828034895fffff"
+          },
+          {
+            "lat": 41.59847612680802,
+            "lon": -124.3013161679681,
+            "elevation_m": 128.32151983036144,
+            "distance_from_shore_m": 10953.905355541949,
+            "h3_cell": "88281cb735fffff"
+          },
+          {
+            "lat": 41.63698213249303,
+            "lon": -124.0769005840633,
+            "elevation_m": 93.53891800049607,
+            "distance_from_shore_m": 35864.035168974806,
+            "h3_cell": "88281cba87fffff"
+          },
+          {
+            "lat": 41.86509751207376,
+            "lon": -124.22192785056241,
+            "elevation_m": 145.06118980969265,
+            "distance_from_shore_m": 19766.00858757324,
+            "h3_cell": "88281cac15fffff"
+          },
+          {
+            "lat": 41.58214133684874,
+            "lon": -124.20210072191502,
+            "elevation_m": 191.41312046914769,
+            "distance_from_shore_m": 21966.819867433813,
+            "h3_cell": "88281cb0edfffff"
+          },
+          {
+            "lat": 41.47852094128022,
+            "lon": -124.13870816185307,
+            "elevation_m": 59.4920027324319,
+            "distance_from_shore_m": 29003.394034309382,
+            "h3_cell": "88280349bdfffff"
+          },
+          {
+            "lat": 41.88821381950724,
+            "lon": -124.11799943634027,
+            "elevation_m": 128.68265101294782,
+            "distance_from_shore_m": 31302.062566230674,
+            "h3_cell": "88281cad3dfffff"
+          },
+          {
+            "lat": 41.513822940935974,
+            "lon": -124.15438552121967,
+            "elevation_m": 199.03651292007524,
+            "distance_from_shore_m": 27263.207144617696,
+            "h3_cell": "88281cb353fffff"
+          },
+          {
+            "lat": 41.89105850101497,
+            "lon": -124.32517108133617,
+            "elevation_m": 76.46802677185245,
+            "distance_from_shore_m": 8306.009971686266,
+            "h3_cell": "88281ddb3dfffff"
+          },
+          {
+            "lat": 41.93460228476223,
+            "lon": -124.1598598029735,
+            "elevation_m": 153.61016494687283,
+            "distance_from_shore_m": 26655.561869942117,
+            "h3_cell": "88281cada7fffff"
+          }
+        ],
+        "spatial_coverage": [
+          -124.4,
+          41.458,
+          -124.0,
+          42.006
+        ]
+      },
+      "shoreline_change": {
+        "data_source": "USGS Shoreline Change Analysis (synthetic)",
+        "baseline_year": 2010,
+        "analysis_period": null,
+        "transects": [
+          {
+            "transect_id": "T_001",
+            "lat": 41.887540128241554,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 0.43483370605273014,
+            "erosion_confidence": "High",
+            "shoreline_type": "Bluff",
+            "vulnerability_score": 0.21741685302636507,
+            "h3_cell": "88281cac37fffff"
+          },
+          {
+            "transect_id": "T_002",
+            "lat": 41.62956616072616,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 1.374474714976795,
+            "erosion_confidence": "High",
+            "shoreline_type": "Rocky Shore",
+            "vulnerability_score": 0.6872373574883975,
+            "h3_cell": "88281ca245fffff"
+          },
+          {
+            "transect_id": "T_003",
+            "lat": 41.95817181488449,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 0.2550039189267788,
+            "erosion_confidence": "High",
+            "shoreline_type": "Sandy Beach",
+            "vulnerability_score": 0.1275019594633894,
+            "h3_cell": "88281c362dfffff"
+          },
+          {
+            "transect_id": "T_004",
+            "lat": 41.691639685503915,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 0.9914339193877442,
+            "erosion_confidence": "Medium",
+            "shoreline_type": "Rocky Shore",
+            "vulnerability_score": 0.4957169596938721,
+            "h3_cell": "88281ca043fffff"
+          },
+          {
+            "transect_id": "T_005",
+            "lat": 41.51503276972768,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 1.104216093706894,
+            "erosion_confidence": "High",
+            "shoreline_type": "Rocky Shore",
+            "vulnerability_score": 0.552108046853447,
+            "h3_cell": "88281cb239fffff"
+          },
+          {
+            "transect_id": "T_006",
+            "lat": 41.477721721892635,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 0.09981570004307083,
+            "erosion_confidence": "High",
+            "shoreline_type": "Rocky Shore",
+            "vulnerability_score": 0.049907850021535416,
+            "h3_cell": "88281cb241fffff"
+          },
+          {
+            "transect_id": "T_007",
+            "lat": 41.60180352764265,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 1.4810524128253721,
+            "erosion_confidence": "High",
+            "shoreline_type": "Rocky Shore",
+            "vulnerability_score": 0.7405262064126861,
+            "h3_cell": "88281cb0adfffff"
+          },
+          {
+            "transect_id": "T_008",
+            "lat": 41.579163422718544,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 0.4880500499727747,
+            "erosion_confidence": "High",
+            "shoreline_type": "Sandy Beach",
+            "vulnerability_score": 0.24402502498638734,
+            "h3_cell": "88281cb0edfffff"
+          },
+          {
+            "transect_id": "T_009",
+            "lat": 41.58675281406265,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 1.4268608299072576,
+            "erosion_confidence": "Medium",
+            "shoreline_type": "Bluff",
+            "vulnerability_score": 0.7134304149536288,
+            "h3_cell": "88281cb0e1fffff"
+          },
+          {
+            "transect_id": "T_010",
+            "lat": 41.50736672039762,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": -0.20202219684018985,
+            "erosion_confidence": "Medium",
+            "shoreline_type": "Developed",
+            "vulnerability_score": 0.10101109842009492,
+            "h3_cell": "88281cb207fffff"
+          },
+          {
+            "transect_id": "T_011",
+            "lat": 41.47072648080482,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 1.3154313823515373,
+            "erosion_confidence": "High",
+            "shoreline_type": "Bluff",
+            "vulnerability_score": 0.6577156911757687,
+            "h3_cell": "88281cb249fffff"
+          },
+          {
+            "transect_id": "T_012",
+            "lat": 41.49340237719322,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 0.0114668476167048,
+            "erosion_confidence": "High",
+            "shoreline_type": "Sandy Beach",
+            "vulnerability_score": 0.0057334238083524,
+            "h3_cell": "88281cb209fffff"
+          },
+          {
+            "transect_id": "T_013",
+            "lat": 41.516393154397484,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 0.5415792007777209,
+            "erosion_confidence": "High",
+            "shoreline_type": "Bluff",
+            "vulnerability_score": 0.27078960038886046,
+            "h3_cell": "88281cb239fffff"
+          },
+          {
+            "transect_id": "T_014",
+            "lat": 41.53401358635919,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": -0.28570960970300385,
+            "erosion_confidence": "High",
+            "shoreline_type": "Sandy Beach",
+            "vulnerability_score": 0.14285480485150193,
+            "h3_cell": "88281cb237fffff"
+          },
+          {
+            "transect_id": "T_015",
+            "lat": 41.91604674752655,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": -0.19412527994976064,
+            "erosion_confidence": "High",
+            "shoreline_type": "Rocky Shore",
+            "vulnerability_score": 0.09706263997488032,
+            "h3_cell": "88281cad9dfffff"
+          },
+          {
+            "transect_id": "T_016",
+            "lat": 41.53889022780129,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 1.2415690724133193,
+            "erosion_confidence": "High",
+            "shoreline_type": "Rocky Shore",
+            "vulnerability_score": 0.6207845362066596,
+            "h3_cell": "88281cb05dfffff"
+          },
+          {
+            "transect_id": "T_017",
+            "lat": 41.468394671294014,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 0.4886518522943619,
+            "erosion_confidence": "Low",
+            "shoreline_type": "Rocky Shore",
+            "vulnerability_score": 0.24432592614718096,
+            "h3_cell": "88281cb249fffff"
+          },
+          {
+            "transect_id": "T_018",
+            "lat": 41.681216233335505,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 1.1578528616097163,
+            "erosion_confidence": "Medium",
+            "shoreline_type": "Rocky Shore",
+            "vulnerability_score": 0.5789264308048582,
+            "h3_cell": "88281ca04bfffff"
+          },
+          {
+            "transect_id": "T_019",
+            "lat": 41.58554393186947,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 0.843992978010293,
+            "erosion_confidence": "High",
+            "shoreline_type": "Rocky Shore",
+            "vulnerability_score": 0.4219964890051465,
+            "h3_cell": "88281cb0edfffff"
+          },
+          {
+            "transect_id": "T_020",
+            "lat": 41.773929099113666,
+            "lon": -124.2,
+            "erosion_rate_m_per_year": 0.1221944234478971,
+            "erosion_confidence": "Medium",
+            "shoreline_type": "Sandy Beach",
+            "vulnerability_score": 0.06109721172394855,
+            "h3_cell": "88281ca193fffff"
+          }
+        ]
+      },
+      "infrastructure": {
+        "data_source": "Del Norte County Infrastructure Inventory (synthetic)",
+        "infrastructure_assets": [
+          {
+            "asset_id": "CC_HARBOR",
+            "name": "Crescent City Harbor",
+            "type": "harbor",
+            "lat": 41.745,
+            "lon": -124.184,
+            "elevation_m": 2.5,
+            "replacement_value_usd": 15000000,
+            "criticality": "High",
+            "current_condition": "Good",
+            "h3_cell": "88281ca1ddfffff"
+          },
+          {
+            "asset_id": "BATTERY_POINT",
+            "name": "Battery Point Lighthouse",
+            "type": "cultural_historic",
+            "lat": 41.7612,
+            "lon": -124.2026,
+            "elevation_m": 8.0,
+            "replacement_value_usd": 2000000,
+            "criticality": "Medium",
+            "current_condition": "Fair",
+            "h3_cell": "88281ca199fffff"
+          },
+          {
+            "asset_id": "HWY_101_COASTAL",
+            "name": "Highway 101 Coastal Segment",
+            "type": "transportation",
+            "lat": 41.72,
+            "lon": -124.195,
+            "elevation_m": 15.0,
+            "replacement_value_usd": 50000000,
+            "criticality": "Critical",
+            "current_condition": "Good",
+            "h3_cell": "88281ca039fffff"
+          },
+          {
+            "asset_id": "PELICAN_BEACH",
+            "name": "Pelican State Beach Facilities",
+            "type": "recreation",
+            "lat": 41.8751,
+            "lon": -124.262,
+            "elevation_m": 5.0,
+            "replacement_value_usd": 1000000,
+            "criticality": "Medium",
+            "current_condition": "Good",
+            "h3_cell": "88281cacc3fffff"
+          },
+          {
+            "asset_id": "KLAMATH_BRIDGE",
+            "name": "Klamath River Bridge",
+            "type": "transportation",
+            "lat": 41.5283,
+            "lon": -124.0378,
+            "elevation_m": 12.0,
+            "replacement_value_usd": 25000000,
+            "criticality": "High",
+            "current_condition": "Fair",
+            "h3_cell": "88281c84ebfffff"
+          }
+        ]
+      },
+      "waves_storms": {
+        "data_source": "NOAA Wave Watch III (synthetic)",
+        "buoy_locations": [
+          {
+            "buoy_id": "46027",
+            "name": "St. Georges Reef",
+            "lat": 41.85,
+            "lon": -124.38
+          },
+          {
+            "buoy_id": "46213",
+            "name": "Crescent City",
+            "lat": 41.74,
+            "lon": -124.18
+          }
+        ],
+        "storm_events": [
+          {
+            "event_id": "STORM_0001",
+            "date": "2023-10-11T18:24:32.971514",
+            "max_wave_height_m": 5.258787519279237,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 26.468623481909603,
+            "duration_hours": 21.626662952597552,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0002",
+            "date": "2020-10-18T18:24:32.971514",
+            "max_wave_height_m": 4.227809272541463,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 24.120620225460183,
+            "duration_hours": 16.35927403453496,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0003",
+            "date": "2023-03-14T18:24:32.971514",
+            "max_wave_height_m": 7.196749812288639,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 25.252219832071017,
+            "duration_hours": 8.167845424508554,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0004",
+            "date": "2023-03-26T18:24:32.971514",
+            "max_wave_height_m": 11.337548392300118,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 15.470957831949374,
+            "duration_hours": 46.08533266073879,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0005",
+            "date": "2025-05-24T18:24:32.971514",
+            "max_wave_height_m": 1.026189778494513,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 23.91912402643396,
+            "duration_hours": 29.227079577851043,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0006",
+            "date": "2023-03-18T18:24:32.971514",
+            "max_wave_height_m": 7.852154682732347,
+            "storm_intensity": "Severe",
+            "wind_speed_ms": 28.109966262200448,
+            "duration_hours": 7.199322137574001,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0007",
+            "date": "2023-08-27T18:24:32.971514",
+            "max_wave_height_m": 4.2820532406172305,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 24.898905955399208,
+            "duration_hours": 17.222838721940665,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0008",
+            "date": "2023-06-25T18:24:32.971514",
+            "max_wave_height_m": 3.734424855306758,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 13.492726945062849,
+            "duration_hours": 21.149830815058596,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0009",
+            "date": "2021-02-08T18:24:32.971514",
+            "max_wave_height_m": 4.862013964169522,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 18.672338149781144,
+            "duration_hours": 20.579579722871618,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0010",
+            "date": "2024-03-30T18:24:32.971514",
+            "max_wave_height_m": 6.441940128628908,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 21.938230518617708,
+            "duration_hours": 10.35661005019549,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0011",
+            "date": "2021-09-25T18:24:32.971514",
+            "max_wave_height_m": 4.705586496171431,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 23.790980525027464,
+            "duration_hours": 17.611358670899463,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0012",
+            "date": "2024-02-26T18:24:32.971514",
+            "max_wave_height_m": 11.632871563252788,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 27.604124719553752,
+            "duration_hours": 38.917842751552364,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0013",
+            "date": "2024-10-20T18:24:32.971514",
+            "max_wave_height_m": 3.927940876958914,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 12.589316799316329,
+            "duration_hours": 33.04792393498318,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0014",
+            "date": "2022-06-13T18:24:32.971514",
+            "max_wave_height_m": 5.776802378948119,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 12.60043940587757,
+            "duration_hours": 40.19849890605792,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0015",
+            "date": "2023-08-30T18:24:32.971514",
+            "max_wave_height_m": 4.49155593581379,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 17.134669994606963,
+            "duration_hours": 40.18931881774802,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0016",
+            "date": "2022-06-13T18:24:32.971514",
+            "max_wave_height_m": 5.5015650790155695,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 14.337670387307394,
+            "duration_hours": 22.82609227107118,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0017",
+            "date": "2022-11-08T18:24:32.971514",
+            "max_wave_height_m": 11.441765634633928,
+            "storm_intensity": "Strong",
+            "wind_speed_ms": 23.591102449489185,
+            "duration_hours": 14.40922366954915,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0018",
+            "date": "2023-09-22T18:24:32.971514",
+            "max_wave_height_m": 5.285832434959651,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 27.262742955285393,
+            "duration_hours": 33.758404424778064,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0019",
+            "date": "2021-03-20T18:24:32.971514",
+            "max_wave_height_m": 5.4272389003500825,
+            "storm_intensity": "Severe",
+            "wind_speed_ms": 25.405800761034435,
+            "duration_hours": 33.249029810982215,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0020",
+            "date": "2021-04-27T18:24:32.971514",
+            "max_wave_height_m": 3.277198069659585,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 29.068626672781598,
+            "duration_hours": 20.686633928642774,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0021",
+            "date": "2021-08-10T18:24:32.971514",
+            "max_wave_height_m": 4.058168603747595,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 19.575901259906786,
+            "duration_hours": 47.282157948868615,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0022",
+            "date": "2023-01-09T18:24:32.971514",
+            "max_wave_height_m": 4.007634697959411,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 24.81825720588581,
+            "duration_hours": 33.349397579937495,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0023",
+            "date": "2021-03-11T18:24:32.971514",
+            "max_wave_height_m": 5.3477932380468,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 23.965168207448517,
+            "duration_hours": 29.722400624041637,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0024",
+            "date": "2021-05-02T18:24:32.971514",
+            "max_wave_height_m": 4.250980880666054,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 23.879472784395226,
+            "duration_hours": 36.754441943724,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0025",
+            "date": "2025-02-10T18:24:32.971514",
+            "max_wave_height_m": 10.595422027343535,
+            "storm_intensity": "Strong",
+            "wind_speed_ms": 19.864300926823887,
+            "duration_hours": 26.655174824046732,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0026",
+            "date": "2023-12-09T18:24:32.971514",
+            "max_wave_height_m": 11.175404912090466,
+            "storm_intensity": "Severe",
+            "wind_speed_ms": 29.308290357883465,
+            "duration_hours": 24.156742916667216,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0027",
+            "date": "2020-10-24T18:24:32.971514",
+            "max_wave_height_m": 5.323024435422057,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 15.63958052799655,
+            "duration_hours": 40.81901935617279,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0028",
+            "date": "2021-06-11T18:24:32.971514",
+            "max_wave_height_m": 3.115626468833651,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 14.517812914067038,
+            "duration_hours": 30.362909587658923,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0029",
+            "date": "2024-01-18T18:24:32.971514",
+            "max_wave_height_m": 6.814937992392118,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 22.629964540234976,
+            "duration_hours": 6.92330643987705,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0030",
+            "date": "2022-06-07T18:24:32.971514",
+            "max_wave_height_m": 2.197200035722279,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 15.901922785275673,
+            "duration_hours": 39.80411436398551,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0031",
+            "date": "2025-07-14T18:24:32.971514",
+            "max_wave_height_m": 4.386237449957508,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 23.804813184417966,
+            "duration_hours": 8.477960372316456,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0032",
+            "date": "2020-08-11T18:24:32.971514",
+            "max_wave_height_m": 5.243591511741211,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 19.33982687791694,
+            "duration_hours": 23.60352174679362,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0033",
+            "date": "2023-06-06T18:24:32.971514",
+            "max_wave_height_m": 3.153698390215439,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 27.677688738843298,
+            "duration_hours": 36.58722288650931,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0034",
+            "date": "2021-04-28T18:24:32.971514",
+            "max_wave_height_m": 4.051961394688147,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 25.854626059004964,
+            "duration_hours": 30.12065410110129,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0035",
+            "date": "2024-09-06T18:24:32.971514",
+            "max_wave_height_m": 4.986110611517702,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 19.821028890453213,
+            "duration_hours": 38.44324717223823,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0036",
+            "date": "2022-05-31T18:24:32.971514",
+            "max_wave_height_m": 2.2250218572223117,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 15.182683049190228,
+            "duration_hours": 40.7855833393689,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0037",
+            "date": "2021-07-18T18:24:32.971514",
+            "max_wave_height_m": 5.791675046473224,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 25.674377665341094,
+            "duration_hours": 28.656912921111026,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0038",
+            "date": "2023-03-17T18:24:32.971514",
+            "max_wave_height_m": 8.100723810414165,
+            "storm_intensity": "Strong",
+            "wind_speed_ms": 24.72730255152806,
+            "duration_hours": 26.818186097128027,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0039",
+            "date": "2023-04-30T18:24:32.971514",
+            "max_wave_height_m": 3.828259545598307,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 28.722281744416613,
+            "duration_hours": 21.247634738528404,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0040",
+            "date": "2023-06-01T18:24:32.971514",
+            "max_wave_height_m": 4.797824810237054,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 13.29032339370298,
+            "duration_hours": 22.714750303423326,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0041",
+            "date": "2023-03-28T18:24:32.971514",
+            "max_wave_height_m": 7.594967223380539,
+            "storm_intensity": "Severe",
+            "wind_speed_ms": 23.781281282531424,
+            "duration_hours": 17.825811427699506,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0042",
+            "date": "2023-10-16T18:24:32.971514",
+            "max_wave_height_m": 5.0212463951368616,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 14.921011586794371,
+            "duration_hours": 35.23903759586113,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0043",
+            "date": "2024-07-22T18:24:32.971514",
+            "max_wave_height_m": 4.592957219700066,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 29.50417535628389,
+            "duration_hours": 7.3150951362106715,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0044",
+            "date": "2022-11-14T18:24:32.971514",
+            "max_wave_height_m": 5.5611675364522215,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 24.784769235346175,
+            "duration_hours": 10.634957255156635,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0045",
+            "date": "2024-01-03T18:24:32.971514",
+            "max_wave_height_m": 9.594665488582855,
+            "storm_intensity": "Severe",
+            "wind_speed_ms": 18.904488905599692,
+            "duration_hours": 12.612626972785845,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0046",
+            "date": "2023-04-30T18:24:32.971514",
+            "max_wave_height_m": 1.5465194682182473,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 14.749745747176643,
+            "duration_hours": 30.932308871677577,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0047",
+            "date": "2021-07-26T18:24:32.971514",
+            "max_wave_height_m": 1.5061059791553806,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 11.621381592033925,
+            "duration_hours": 17.92086435168553,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0048",
+            "date": "2021-09-19T18:24:32.971514",
+            "max_wave_height_m": 5.609174798073844,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 19.756783740399644,
+            "duration_hours": 46.386403644160005,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0049",
+            "date": "2023-10-16T18:24:32.971514",
+            "max_wave_height_m": 2.040229403834239,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 14.420954803657464,
+            "duration_hours": 34.77008092861189,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0050",
+            "date": "2022-12-25T18:24:32.971514",
+            "max_wave_height_m": 7.431130546446567,
+            "storm_intensity": "Strong",
+            "wind_speed_ms": 24.898709073929442,
+            "duration_hours": 13.833122669035594,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0051",
+            "date": "2024-08-18T18:24:32.971514",
+            "max_wave_height_m": 3.9954179596149166,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 17.106380829284355,
+            "duration_hours": 29.403124643936685,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0052",
+            "date": "2023-07-16T18:24:32.971514",
+            "max_wave_height_m": 1.2217314033353173,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 22.52695862858082,
+            "duration_hours": 30.396137574065644,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0053",
+            "date": "2025-01-03T18:24:32.971514",
+            "max_wave_height_m": 4.9608752062449195,
+            "storm_intensity": "Strong",
+            "wind_speed_ms": 18.203127719270192,
+            "duration_hours": 17.142760118718193,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0054",
+            "date": "2024-04-14T18:24:32.971514",
+            "max_wave_height_m": 5.982902329758179,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 15.070875745171975,
+            "duration_hours": 44.88310739386595,
+            "damage_reported": "True"
+          },
+          {
+            "event_id": "STORM_0055",
+            "date": "2024-07-12T18:24:32.971514",
+            "max_wave_height_m": 5.271477960838131,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 28.559357613532644,
+            "duration_hours": 39.14108279459131,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0056",
+            "date": "2025-02-26T18:24:32.971514",
+            "max_wave_height_m": 7.407239812775427,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 28.036474252438417,
+            "duration_hours": 7.697988072972487,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0057",
+            "date": "2020-12-30T18:24:32.971514",
+            "max_wave_height_m": 5.803777411287416,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 15.687769047068961,
+            "duration_hours": 36.81476523736361,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0058",
+            "date": "2022-11-15T18:24:32.971514",
+            "max_wave_height_m": 10.657082276340592,
+            "storm_intensity": "Severe",
+            "wind_speed_ms": 29.0214493597785,
+            "duration_hours": 18.493624710657098,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0059",
+            "date": "2024-03-29T18:24:32.971514",
+            "max_wave_height_m": 5.217518987498006,
+            "storm_intensity": "Moderate",
+            "wind_speed_ms": 16.529734816450322,
+            "duration_hours": 23.5626800478779,
+            "damage_reported": "False"
+          },
+          {
+            "event_id": "STORM_0060",
+            "date": "2024-06-26T18:24:32.971514",
+            "max_wave_height_m": 1.0019865069365677,
+            "storm_intensity": "Weak",
+            "wind_speed_ms": 22.698230389211172,
+            "duration_hours": 30.662512557064087,
+            "damage_reported": "False"
+          }
+        ]
+      }
+    }
+  },
+  "sea_level_analysis": {
+    "current_trends": {
+      "station_id": "9419750",
+      "station_name": "Crescent City, CA",
+      "trend_mm_per_year": 2.8,
+      "confidence_level": "High",
+      "data_period": "1974-2024"
+    },
+    "scenario_impacts": {
+      "low": {
+        "sea_level_rise_m": 0.3,
+        "inundated_area_points": 0,
+        "total_points": 200,
+        "inundation_percentage": 0.0,
+        "affected_h3_cells": []
+      },
+      "medium": {
+        "sea_level_rise_m": 0.6,
+        "inundated_area_points": 0,
+        "total_points": 200,
+        "inundation_percentage": 0.0,
+        "affected_h3_cells": []
+      },
+      "high": {
+        "sea_level_rise_m": 1.0,
+        "inundated_area_points": 0,
+        "total_points": 200,
+        "inundation_percentage": 0.0,
+        "affected_h3_cells": []
+      },
+      "extreme": {
+        "sea_level_rise_m": 1.5,
+        "inundated_area_points": 0,
+        "total_points": 200,
+        "inundation_percentage": 0.0,
+        "affected_h3_cells": []
+      }
+    },
+    "inundation_analysis": {}
+  },
+  "erosion_analysis": {
+    "summary_statistics": {
+      "mean_erosion_rate": 0.6348311438914008,
+      "max_erosion_rate": 1.4810524128253721,
+      "min_erosion_rate": -0.28570960970300385,
+      "std_erosion_rate": 0.5980228410680458,
+      "high_erosion_transects": "7",
+      "accretion_transects": "3"
+    },
+    "high_risk_areas": [
+      {
+        "transect_id": "T_002",
+        "lat": 41.62956616072616,
+        "lon": -124.2,
+        "erosion_rate": 1.374474714976795,
+        "shoreline_type": "Rocky Shore",
+        "vulnerability_score": 0.6872373574883975,
+        "h3_cell": "88281ca245fffff"
+      },
+      {
+        "transect_id": "T_004",
+        "lat": 41.691639685503915,
+        "lon": -124.2,
+        "erosion_rate": 0.9914339193877442,
+        "shoreline_type": "Rocky Shore",
+        "vulnerability_score": 0.4957169596938721,
+        "h3_cell": "88281ca043fffff"
+      },
+      {
+        "transect_id": "T_005",
+        "lat": 41.51503276972768,
+        "lon": -124.2,
+        "erosion_rate": 1.104216093706894,
+        "shoreline_type": "Rocky Shore",
+        "vulnerability_score": 0.552108046853447,
+        "h3_cell": "88281cb239fffff"
+      },
+      {
+        "transect_id": "T_007",
+        "lat": 41.60180352764265,
+        "lon": -124.2,
+        "erosion_rate": 1.4810524128253721,
+        "shoreline_type": "Rocky Shore",
+        "vulnerability_score": 0.7405262064126861,
+        "h3_cell": "88281cb0adfffff"
+      },
+      {
+        "transect_id": "T_009",
+        "lat": 41.58675281406265,
+        "lon": -124.2,
+        "erosion_rate": 1.4268608299072576,
+        "shoreline_type": "Bluff",
+        "vulnerability_score": 0.7134304149536288,
+        "h3_cell": "88281cb0e1fffff"
+      },
+      {
+        "transect_id": "T_011",
+        "lat": 41.47072648080482,
+        "lon": -124.2,
+        "erosion_rate": 1.3154313823515373,
+        "shoreline_type": "Bluff",
+        "vulnerability_score": 0.6577156911757687,
+        "h3_cell": "88281cb249fffff"
+      },
+      {
+        "transect_id": "T_013",
+        "lat": 41.516393154397484,
+        "lon": -124.2,
+        "erosion_rate": 0.5415792007777209,
+        "shoreline_type": "Bluff",
+        "vulnerability_score": 0.27078960038886046,
+        "h3_cell": "88281cb239fffff"
+      },
+      {
+        "transect_id": "T_016",
+        "lat": 41.53889022780129,
+        "lon": -124.2,
+        "erosion_rate": 1.2415690724133193,
+        "shoreline_type": "Rocky Shore",
+        "vulnerability_score": 0.6207845362066596,
+        "h3_cell": "88281cb05dfffff"
+      },
+      {
+        "transect_id": "T_018",
+        "lat": 41.681216233335505,
+        "lon": -124.2,
+        "erosion_rate": 1.1578528616097163,
+        "shoreline_type": "Rocky Shore",
+        "vulnerability_score": 0.5789264308048582,
+        "h3_cell": "88281ca04bfffff"
+      },
+      {
+        "transect_id": "T_019",
+        "lat": 41.58554393186947,
+        "lon": -124.2,
+        "erosion_rate": 0.843992978010293,
+        "shoreline_type": "Rocky Shore",
+        "vulnerability_score": 0.4219964890051465,
+        "h3_cell": "88281cb0edfffff"
+      }
+    ],
+    "erosion_hotspots": []
+  },
+  "storm_surge_analysis": {
+    "historical_storms": {
+      "total_events": 60,
+      "severe_storms": "6",
+      "max_wave_height": 11.632871563252788,
+      "avg_wave_height": 5.385958344167032,
+      "storms_with_damage": "19"
+    },
+    "surge_heights": {
+      "1.0m": {
+        "vulnerable_points": 0,
+        "vulnerable_percentage": 0.0,
+        "affected_h3_cells": []
+      },
+      "2.0m": {
+        "vulnerable_points": 0,
+        "vulnerable_percentage": 0.0,
+        "affected_h3_cells": []
+      },
+      "3.0m": {
+        "vulnerable_points": 0,
+        "vulnerable_percentage": 0.0,
+        "affected_h3_cells": []
+      },
+      "5.0m": {
+        "vulnerable_points": 0,
+        "vulnerable_percentage": 0.0,
+        "affected_h3_cells": []
+      }
+    },
+    "vulnerability_mapping": {}
+  },
+  "infrastructure_vulnerability": {
+    "asset_vulnerabilities": [
+      {
+        "asset_id": "CC_HARBOR",
+        "asset_name": "Crescent City Harbor",
+        "asset_type": "harbor",
+        "elevation_m": 2.5,
+        "criticality": "High",
+        "replacement_value": 15000000,
+        "vulnerability_by_scenario": {
+          "low": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "medium": {
+            "vulnerability_level": "Medium",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "high": {
+            "vulnerability_level": "Medium",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "extreme": {
+            "vulnerability_level": "High",
+            "inundation_depth": 0,
+            "at_risk": true
+          }
+        }
+      },
+      {
+        "asset_id": "BATTERY_POINT",
+        "asset_name": "Battery Point Lighthouse",
+        "asset_type": "cultural_historic",
+        "elevation_m": 8.0,
+        "criticality": "Medium",
+        "replacement_value": 2000000,
+        "vulnerability_by_scenario": {
+          "low": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "medium": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "high": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "extreme": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          }
+        }
+      },
+      {
+        "asset_id": "HWY_101_COASTAL",
+        "asset_name": "Highway 101 Coastal Segment",
+        "asset_type": "transportation",
+        "elevation_m": 15.0,
+        "criticality": "Critical",
+        "replacement_value": 50000000,
+        "vulnerability_by_scenario": {
+          "low": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "medium": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "high": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "extreme": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          }
+        }
+      },
+      {
+        "asset_id": "PELICAN_BEACH",
+        "asset_name": "Pelican State Beach Facilities",
+        "asset_type": "recreation",
+        "elevation_m": 5.0,
+        "criticality": "Medium",
+        "replacement_value": 1000000,
+        "vulnerability_by_scenario": {
+          "low": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "medium": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "high": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "extreme": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          }
+        }
+      },
+      {
+        "asset_id": "KLAMATH_BRIDGE",
+        "asset_name": "Klamath River Bridge",
+        "asset_type": "transportation",
+        "elevation_m": 12.0,
+        "criticality": "High",
+        "replacement_value": 25000000,
+        "vulnerability_by_scenario": {
+          "low": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "medium": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "high": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          },
+          "extreme": {
+            "vulnerability_level": "Low",
+            "inundation_depth": 0,
+            "at_risk": false
+          }
+        }
+      }
+    ],
+    "critical_assets_at_risk": [
+      {
+        "asset_id": "CC_HARBOR",
+        "asset_name": "Crescent City Harbor",
+        "scenario": "extreme",
+        "elevation_m": 2.5,
+        "rise_amount": 1.5
+      }
+    ],
+    "total_value_at_risk": 15000000
+  },
+  "habitat_analysis": {
+    "habitat_types": {
+      "rocky_intertidal": {
+        "area_ha": 150,
+        "conservation_status": "Protected",
+        "climate_vulnerability": "Medium",
+        "key_species": [
+          "Sea Stars",
+          "Anemones",
+          "Kelp"
+        ]
+      },
+      "sandy_beaches": {
+        "area_ha": 80,
+        "conservation_status": "Partially Protected",
+        "climate_vulnerability": "High",
+        "key_species": [
+          "Shorebirds",
+          "Marine Mammals"
+        ]
+      },
+      "coastal_wetlands": {
+        "area_ha": 45,
+        "conservation_status": "Protected",
+        "climate_vulnerability": "Very High",
+        "key_species": [
+          "Migratory Birds",
+          "Fish Nurseries"
+        ]
+      },
+      "dune_systems": {
+        "area_ha": 25,
+        "conservation_status": "Partially Protected",
+        "climate_vulnerability": "High",
+        "key_species": [
+          "Native Plants",
+          "Specialized Insects"
+        ]
+      }
+    },
+    "connectivity_corridors": [],
+    "migration_pathways": {},
+    "conservation_priorities": [
+      {
+        "habitat": "coastal_wetlands",
+        "priority_level": "Critical",
+        "rationale": "Highest climate vulnerability, critical for migratory species",
+        "recommended_actions": [
+          "Habitat migration corridors",
+          "Adaptive management"
+        ]
+      },
+      {
+        "habitat": "sandy_beaches",
+        "priority_level": "High",
+        "rationale": "Important for shorebirds, highly vulnerable to erosion",
+        "recommended_actions": [
+          "Erosion monitoring",
+          "Nesting area protection"
+        ]
+      }
+    ]
+  },
+  "tsunami_analysis": {
+    "risk_assessment": {
+      "risk_level": "High",
+      "primary_sources": [
+        "Cascadia Subduction Zone",
+        "Alaska-Aleutian",
+        "Far-field Pacific"
+      ],
+      "estimated_arrival_times": {
+        "cascadia_local": "15-30 minutes",
+        "alaska_aleutian": "4-5 hours",
+        "far_field_pacific": "10-15 hours"
+      },
+      "maximum_expected_wave_heights": {
+        "cascadia_m9": "8-12 meters",
+        "alaska_m8.5": "3-5 meters",
+        "far_field": "1-3 meters"
+      }
+    },
+    "evacuation_planning": {
+      "evacuation_zones": [
+        "Red Zone (<50 ft elevation)",
+        "Yellow Zone (50-100 ft)",
+        "Green Zone (>100 ft)"
+      ],
+      "evacuation_routes": 5,
+      "assembly_areas": 3,
+      "estimated_population_at_risk": 8500,
+      "evacuation_time_estimate": "20-30 minutes",
+      "sirens_operational": 12
+    },
+    "historical_events": [
+      {
+        "date": "1964-03-28",
+        "source": "Alaska Earthquake (M9.2)",
+        "max_wave_height_m": 4.2,
+        "damage": "Significant harbor and downtown damage",
+        "fatalities": 11
+      },
+      {
+        "date": "2011-03-11",
+        "source": "T\u014dhoku Earthquake (M9.1)",
+        "max_wave_height_m": 2.4,
+        "damage": "Harbor damage, boat losses",
+        "fatalities": 0
+      }
+    ]
+  },
+  "vulnerability_assessment": {
+    "overall_vulnerability_score": 0.17102055965309176,
+    "vulnerability_components": {
+      "sea_level_rise": 0.0,
+      "coastal_erosion": 0.3174155719457004,
+      "storm_surge": 0.1,
+      "infrastructure": 0.3333333333333333
+    },
+    "spatial_vulnerability_map": {},
+    "priority_actions": [
+      "Upgrade vulnerable critical infrastructure"
+    ],
+    "adaptation_urgency": "Low"
+  },
+  "spatial_data": {
+    "h3_resolution": 8,
+    "h3_cells": {
+      "88281ca245fffff": {
+        "coastal_vulnerability_score": 0.6872373574883975,
+        "erosion_rate": 1.374474714976795,
+        "data_quality": "high",
+        "last_updated": "2025-08-07T18:24:32.974708"
+      },
+      "88281ca043fffff": {
+        "coastal_vulnerability_score": 0.4957169596938721,
+        "erosion_rate": 0.9914339193877442,
+        "data_quality": "high",
+        "last_updated": "2025-08-07T18:24:32.974710"
+      },
+      "88281cb239fffff": {
+        "coastal_vulnerability_score": 0.27078960038886046,
+        "erosion_rate": 0.5415792007777209,
+        "data_quality": "high",
+        "last_updated": "2025-08-07T18:24:32.974716"
+      },
+      "88281cb0adfffff": {
+        "coastal_vulnerability_score": 0.7405262064126861,
+        "erosion_rate": 1.4810524128253721,
+        "data_quality": "high",
+        "last_updated": "2025-08-07T18:24:32.974713"
+      },
+      "88281cb0e1fffff": {
+        "coastal_vulnerability_score": 0.7134304149536288,
+        "erosion_rate": 1.4268608299072576,
+        "data_quality": "high",
+        "last_updated": "2025-08-07T18:24:32.974714"
+      },
+      "88281cb249fffff": {
+        "coastal_vulnerability_score": 0.6577156911757687,
+        "erosion_rate": 1.3154313823515373,
+        "data_quality": "high",
+        "last_updated": "2025-08-07T18:24:32.974715"
+      },
+      "88281cb05dfffff": {
+        "coastal_vulnerability_score": 0.6207845362066596,
+        "erosion_rate": 1.2415690724133193,
+        "data_quality": "high",
+        "last_updated": "2025-08-07T18:24:32.974717"
+      },
+      "88281ca04bfffff": {
+        "coastal_vulnerability_score": 0.5789264308048582,
+        "erosion_rate": 1.1578528616097163,
+        "data_quality": "high",
+        "last_updated": "2025-08-07T18:24:32.974718"
+      },
+      "88281cb0edfffff": {
+        "coastal_vulnerability_score": 0.4219964890051465,
+        "erosion_rate": 0.843992978010293,
+        "data_quality": "high",
+        "last_updated": "2025-08-07T18:24:32.974719"
+      }
+    },
+    "data_type": "coastal_resilience"
+  },
+  "adaptation_recommendations": {
+    "immediate_actions": [],
+    "short_term_strategies": [
+      "Implement living shoreline projects",
+      "Upgrade critical infrastructure flood protection",
+      "Develop managed retreat policies"
+    ],
+    "long_term_planning": [
+      "Plan for strategic infrastructure relocation",
+      "Establish coastal habitat migration corridors",
+      "Develop regional adaptation coordination"
+    ],
+    "nature_based_solutions": [
+      "Restore coastal wetlands and dunes",
+      "Enhance kelp forest restoration",
+      "Create wildlife corridors"
+    ],
+    "infrastructure_upgrades": [
+      "Upgrade flood protection for Crescent City Harbor"
+    ],
+    "policy_recommendations": []
+  },
+  "processing_time": "0:00:00.509235",
+  "status": "success"
+}

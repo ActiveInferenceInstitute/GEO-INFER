@@ -27,7 +27,7 @@ def latlng_to_cell(lat: float, lng: float, resolution: int) -> str:
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for latlng_to_cell")
     
     return h3.latlng_to_cell(lat, lng, resolution)
@@ -46,7 +46,7 @@ def cell_to_latlng(h3_index: str) -> Tuple[float, float]:
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for cell_to_latlng")
     
     return h3.cell_to_latlng(h3_index)
@@ -65,7 +65,7 @@ def cell_to_latlng_boundary(h3_index: str) -> List[Tuple[float, float]]:
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for cell_to_latlng_boundary")
     
     return h3.cell_to_boundary(h3_index)
@@ -85,7 +85,7 @@ def polygon_to_cells(polygon: Union[Dict[str, Any], List[List[float]]], resoluti
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for polygon_to_cells")
     
     # Handle different input formats
@@ -135,7 +135,7 @@ def cell_to_latlngjson(
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for cell_to_latlngjson")
 
     features = []
@@ -192,7 +192,7 @@ def geojson_to_h3(
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for geojson_to_h3")
     
     # Parse GeoJSON if it's a string
@@ -244,7 +244,7 @@ def geo_to_cells(geojson: Dict[str, Any], resolution: int) -> List[str]:
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for geo_to_cells")
     
     return list(h3.geo_to_cells(geojson, resolution))
@@ -254,7 +254,7 @@ def grid_disk(h3_index: str, k: int) -> List[str]:
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for grid_disk")
     
     return list(h3.grid_disk(h3_index, k))
@@ -264,7 +264,7 @@ def grid_distance(h3_index1: str, h3_index2: str) -> int:
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for grid_distance")
     
     return h3.grid_distance(h3_index1, h3_index2)

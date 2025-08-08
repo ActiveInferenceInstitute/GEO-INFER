@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-OPS?
 
+Note: Code examples are illustrative; see `GEO-INFER-OPS/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-OPS/README.md
+
 GEO-INFER-OPS is the operations engine that provides system operations and orchestration capabilities for GEO-INFER modules. It enables:
 
 - **System Operations**: Manage system operations and infrastructure

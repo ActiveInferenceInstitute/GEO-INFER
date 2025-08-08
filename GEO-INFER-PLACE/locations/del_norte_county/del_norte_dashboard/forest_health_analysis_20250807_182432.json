@@ -1,0 +1,7584 @@
+{
+  "analysis_type": "forest_health",
+  "location": "del_norte_county",
+  "timestamp": "2025-08-07T18:24:32.133145",
+  "temporal_range": null,
+  "config": {
+    "enabled": true,
+    "update_frequency": "monthly",
+    "vegetation_indices": {
+      "ndvi": {
+        "threshold_healthy": 0.7,
+        "threshold_stressed": 0.4,
+        "threshold_critical": 0.2
+      },
+      "evi": {
+        "threshold_healthy": 0.5,
+        "threshold_stressed": 0.3,
+        "threshold_critical": 0.1
+      },
+      "moisture_stress": {
+        "threshold_low": 0.3,
+        "threshold_moderate": 0.5,
+        "threshold_high": 0.7
+      }
+    },
+    "forest_types": [
+      "Redwood",
+      "Douglas Fir",
+      "Mixed Conifer",
+      "Oak Woodland",
+      "Riparian"
+    ],
+    "change_detection": {
+      "baseline_years": [
+        2010,
+        2015,
+        2020
+      ],
+      "minimum_change_threshold": 0.1,
+      "time_series_length": 10
+    },
+    "data_sources": {
+      "landsat": {
+        "update_frequency": "bi-weekly",
+        "cloud_threshold": 20
+      },
+      "sentinel2": {
+        "update_frequency": "weekly",
+        "cloud_threshold": 15
+      },
+      "calfire_inventory": {
+        "update_frequency": "annually"
+      },
+      "field_surveys": {
+        "update_frequency": "quarterly"
+      }
+    }
+  },
+  "data_acquisition": {
+    "bbox": [
+      -124.408,
+      41.458,
+      -123.536,
+      42.006
+    ],
+    "<circular>": "<circular>",
+    "data_sources": {
+      "vegetation_indices": {
+        "data_source": "Landsat/Sentinel-2 (synthetic)",
+        "acquisition_dates": [
+          "2024-08-07T18:24:32.133202",
+          "2024-09-06T18:24:32.133202",
+          "2024-10-06T18:24:32.133202",
+          "2024-11-05T18:24:32.133202",
+          "2024-12-05T18:24:32.133202",
+          "2025-01-04T18:24:32.133202",
+          "2025-02-03T18:24:32.133202",
+          "2025-03-05T18:24:32.133202",
+          "2025-04-04T18:24:32.133202",
+          "2025-05-04T18:24:32.133202",
+          "2025-06-03T18:24:32.133202",
+          "2025-07-03T18:24:32.133202",
+          "2025-08-02T18:24:32.133202"
+        ],
+        "ndvi_measurements": [
+          {
+            "date": "2024-08-07T18:24:32.133202",
+            "lat": 41.66324798512835,
+            "lon": -123.57897712481055,
+            "ndvi": 0.28842780053283545,
+            "evi": 0.30689373324666963,
+            "moisture_stress": 0.688156861994831,
+            "h3_cell": "88281c1327fffff"
+          },
+          {
+            "<circular>": "88281c8a2bfffff"
+          },
+          {
+            "<circular>": "88281cd697fffff"
+          },
+          {
+            "<circular>": "88281cbb3dfffff"
+          },
+          {
+            "<circular>": "88281ca52bfffff"
+          },
+          {
+            "<circular>": "88281c85abfffff"
+          },
+          {
+            "<circular>": "88281cae53fffff"
+          },
+          {
+            "<circular>": "88281c85c9fffff"
+          },
+          {
+            "<circular>": "88281cbb31fffff"
+          },
+          {
+            "<circular>": "88281cb21bfffff"
+          },
+          {
+            "<circular>": "88281ca31bfffff"
+          },
+          {
+            "<circular>": "88281c8ab5fffff"
+          },
+          {
+            "<circular>": "88281c8a5bfffff"
+          },
+          {
+            "<circular>": "88281c05dbfffff"
+          },
+          {
+            "<circular>": "88281cb1a5fffff"
+          },
+          {
+            "<circular>": "88281c81b5fffff"
+          },
+          {
+            "<circular>": "88281c3349fffff"
+          },
+          {
+            "<circular>": "88281cbb3bfffff"
+          },
+          {
+            "<circular>": "88281c1297fffff"
+          },
+          {
+            "<circular>": "88281cac85fffff"
+          },
+          {
+            "<circular>": "88281c01a1fffff"
+          },
+          {
+            "<circular>": "88281c01bbfffff"
+          },
+          {
+            "<circular>": "88281ca059fffff"
+          },
+          {
+            "<circular>": "88281c155bfffff"
+          },
+          {
+            "<circular>": "88281c3717fffff"
+          },
+          {
+            "<circular>": "88281cb26dfffff"
+          },
+          {
+            "<circular>": "88281c85c3fffff"
+          },
+          {
+            "<circular>": "88281c1649fffff"
+          },
+          {
+            "<circular>": "88281c8ae5fffff"
+          },
+          {
+            "<circular>": "88281dda4dfffff"
+          },
+          {
+            "<circular>": "88281cae13fffff"
+          },
+          {
+            "<circular>": "88281c0f3bfffff"
+          },
+          {
+            "<circular>": "88281c06b7fffff"
+          },
+          {
+            "<circular>": "88281cba95fffff"
+          },
+          {
+            "<circular>": "88281c0e17fffff"
+          },
+          {
+            "<circular>": "8828034d41fffff"
+          },
+          {
+            "<circular>": "88281cae3dfffff"
+          },
+          {
+            "<circular>": "88281c0041fffff"
+          },
+          {
+            "<circular>": "88281cb36dfffff"
+          },
+          {
+            "<circular>": "88281c0599fffff"
+          },
+          {
+            "<circular>": "88281cab15fffff"
+          },
+          {
+            "<circular>": "88281c0891fffff"
+          },
+          {
+            "<circular>": "88281c99b5fffff"
+          },
+          {
+            "<circular>": "88281c32d7fffff"
+          },
+          {
+            "<circular>": "88281c05a7fffff"
+          },
+          {
+            "<circular>": "88281c0ecbfffff"
+          },
+          {
+            "<circular>": "88281ca355fffff"
+          },
+          {
+            "<circular>": "88281c0405fffff"
+          },
+          {
+            "<circular>": "88281c32b9fffff"
+          },
+          {
+            "<circular>": "88281c16d1fffff"
+          },
+          {
+            "<circular>": "8828034c11fffff"
+          },
+          {
+            "<circular>": "88281cacedfffff"
+          },
+          {
+            "<circular>": "88281c8731fffff"
+          },
+          {
+            "<circular>": "88281cadc5fffff"
+          },
+          {
+            "<circular>": "88281cd693fffff"
+          },
+          {
+            "<circular>": "88281cb055fffff"
+          },
+          {
+            "<circular>": "88281caf1dfffff"
+          },
+          {
+            "<circular>": "88281c12d5fffff"
+          },
+          {
+            "<circular>": "88281ca709fffff"
+          },
+          {
+            "<circular>": "88281c1655fffff"
+          },
+          {
+            "<circular>": "88281c1641fffff"
+          },
+          {
+            "<circular>": "88281c80a3fffff"
+          },
+          {
+            "<circular>": "88281c3a51fffff"
+          },
+          {
+            "<circular>": "88281c30ebfffff"
+          },
+          {
+            "<circular>": "88281cb34bfffff"
+          },
+          {
+            "<circular>": "88281c0311fffff"
+          },
+          {
+            "<circular>": "88281cb097fffff"
+          },
+          {
+            "<circular>": "88281c1281fffff"
+          },
+          {
+            "<circular>": "88281c3041fffff"
+          },
+          {
+            "<circular>": "88281c1351fffff"
+          },
+          {
+            "<circular>": "88281c3a57fffff"
+          },
+          {
+            "<circular>": "88281c02b9fffff"
+          },
+          {
+            "<circular>": "88281c8429fffff"
+          },
+          {
+            "<circular>": "88281cb517fffff"
+          },
+          {
+            "<circular>": "88281ca517fffff"
+          },
+          {
+            "<circular>": "88281cd4d3fffff"
+          },
+          {
+            "<circular>": "88281c0a8bfffff"
+          },
+          {
+            "<circular>": "88281c1153fffff"
+          },
+          {
+            "<circular>": "88281c8623fffff"
+          },
+          {
+            "<circular>": "88281c3081fffff"
+          },
+          {
+            "<circular>": "88281c8937fffff"
+          },
+          {
+            "<circular>": "88281c3135fffff"
+          },
+          {
+            "<circular>": "88281c1631fffff"
+          },
+          {
+            "<circular>": "88281cb0bbfffff"
+          },
+          {
+            "<circular>": "88281ca425fffff"
+          },
+          {
+            "<circular>": "88281cae8dfffff"
+          },
+          {
+            "<circular>": "88281c0c69fffff"
+          },
+          {
+            "<circular>": "88281c0c07fffff"
+          },
+          {
+            "<circular>": "88281ca313fffff"
+          },
+          {
+            "<circular>": "88281ca293fffff"
+          },
+          {
+            "<circular>": "88281c8c0dfffff"
+          },
+          {
+            "<circular>": "88281c156dfffff"
+          },
+          {
+            "<circular>": "88281c14d9fffff"
+          },
+          {
+            "<circular>": "88281cac51fffff"
+          },
+          {
+            "<circular>": "88281cb8edfffff"
+          },
+          {
+            "<circular>": "88281c1609fffff"
+          },
+          {
+            "<circular>": "88281c112dfffff"
+          },
+          {
+            "<circular>": "8828034d17fffff"
+          },
+          {
+            "<circular>": "88281cb143fffff"
+          },
+          {
+            "<circular>": "88281cb605fffff"
+          },
+          {
+            "<circular>": "88281cb759fffff"
+          },
+          {
+            "<circular>": "88281c1465fffff"
+          },
+          {
+            "<circular>": "88281c0f6bfffff"
+          },
+          {
+            "<circular>": "88281cb2a7fffff"
+          },
+          {
+            "<circular>": "88281caabdfffff"
+          },
+          {
+            "<circular>": "88281c1693fffff"
+          },
+          {
+            "<circular>": "88281ca1d1fffff"
+          },
+          {
+            "<circular>": "88281c886bfffff"
+          },
+          {
+            "<circular>": "88281c3341fffff"
+          },
+          {
+            "<circular>": "88281ca29bfffff"
+          },
+          {
+            "<circular>": "88281ca965fffff"
+          },
+          {
+            "<circular>": "88281cb029fffff"
+          },
+          {
+            "<circular>": "88281cc497fffff"
+          },
+          {
+            "<circular>": "88281c8e21fffff"
+          },
+          {
+            "<circular>": "88281ca187fffff"
+          },
+          {
+            "<circular>": "88281ca033fffff"
+          },
+          {
+            "<circular>": "88281c8cd1fffff"
+          },
+          {
+            "<circular>": "88281cb539fffff"
+          },
+          {
+            "<circular>": "88281c8c05fffff"
+          },
+          {
+            "<circular>": "88281c1307fffff"
+          },
+          {
+            "<circular>": "88281c363bfffff"
+          },
+          {
+            "<circular>": "88281c8abdfffff"
+          },
+          {
+            "<circular>": "88281c88c1fffff"
+          },
+          {
+            "<circular>": "88281c12adfffff"
+          },
+          {
+            "<circular>": "88281ca151fffff"
+          },
+          {
+            "<circular>": "88281cb901fffff"
+          },
+          {
+            "<circular>": "88281c8b37fffff"
+          },
+          {
+            "<circular>": "88281ca941fffff"
+          },
+          {
+            "<circular>": "88281cb33bfffff"
+          },
+          {
+            "<circular>": "88281c01c7fffff"
+          },
+          {
+            "<circular>": "88281c8851fffff"
+          },
+          {
+            "<circular>": "88281c8f33fffff"
+          },
+          {
+            "<circular>": "88281ca935fffff"
+          },
+          {
+            "<circular>": "88281c1107fffff"
+          },
+          {
+            "<circular>": "88281c1453fffff"
+          },
+          {
+            "<circular>": "88281cae87fffff"
+          },
+          {
+            "<circular>": "88281c176bfffff"
+          },
+          {
+            "<circular>": "88281ca85bfffff"
+          },
+          {
+            "<circular>": "88281dd85dfffff"
+          },
+          {
+            "<circular>": "88281cba97fffff"
+          },
+          {
+            "<circular>": "88281cba6bfffff"
+          },
+          {
+            "<circular>": "88281c30cbfffff"
+          },
+          {
+            "<circular>": "88281c80edfffff"
+          },
+          {
+            "<circular>": "88281c81e5fffff"
+          },
+          {
+            "<circular>": "88281cb0cbfffff"
+          },
+          {
+            "<circular>": "88281ca9b3fffff"
+          },
+          {
+            "<circular>": "88281cb92bfffff"
+          },
+          {
+            "<circular>": "88281ca813fffff"
+          },
+          {
+            "<circular>": "88280348b7fffff"
+          },
+          {
+            "<circular>": "88281cae21fffff"
+          },
+          {
+            "<circular>": "88281c0035fffff"
+          },
+          {
+            "<circular>": "88281c89b7fffff"
+          },
+          {
+            "<circular>": "88281c1029fffff"
+          },
+          {
+            "<circular>": "88281ca1b1fffff"
+          },
+          {
+            "<circular>": "88281caa23fffff"
+          },
+          {
+            "<circular>": "88281c3331fffff"
+          },
+          {
+            "<circular>": "88281ca647fffff"
+          },
+          {
+            "<circular>": "88281c8aa5fffff"
+          },
+          {
+            "<circular>": "88281cb00dfffff"
+          },
+          {
+            "<circular>": "88281c005dfffff"
+          },
+          {
+            "<circular>": "88281c15d5fffff"
+          },
+          {
+            "<circular>": "88281c8f0dfffff"
+          },
+          {
+            "<circular>": "88281cb125fffff"
+          },
+          {
+            "<circular>": "88281cab11fffff"
+          },
+          {
+            "<circular>": "88281cac1dfffff"
+          },
+          {
+            "<circular>": "88281c12cbfffff"
+          },
+          {
+            "<circular>": "88281ca9d9fffff"
+          },
+          {
+            "<circular>": "88281c8ccbfffff"
+          },
+          {
+            "<circular>": "88281c36c9fffff"
+          },
+          {
+            "<circular>": "88281c0537fffff"
+          },
+          {
+            "<circular>": "88281c0007fffff"
+          },
+          {
+            "<circular>": "88281c8eddfffff"
+          },
+          {
+            "<circular>": "88281c0883fffff"
+          },
+          {
+            "<circular>": "88281c1203fffff"
+          },
+          {
+            "<circular>": "88281cb707fffff"
+          },
+          {
+            "<circular>": "88281cb34bfffff"
+          },
+          {
+            "<circular>": "88281c8ca9fffff"
+          },
+          {
+            "<circular>": "88281c0c53fffff"
+          },
+          {
+            "<circular>": "88281c1459fffff"
+          },
+          {
+            "<circular>": "88281cb739fffff"
+          },
+          {
+            "<circular>": "88281cb0a7fffff"
+          },
+          {
+            "<circular>": "88281c8933fffff"
+          },
+          {
+            "<circular>": "88281c31cdfffff"
+          },
+          {
+            "<circular>": "88281cab37fffff"
+          },
+          {
+            "<circular>": "88281cb0ddfffff"
+          },
+          {
+            "<circular>": "88281cae81fffff"
+          },
+          {
+            "<circular>": "88281c8e9bfffff"
+          },
+          {
+            "<circular>": "88281c08d9fffff"
+          },
+          {
+            "<circular>": "88281ca963fffff"
+          },
+          {
+            "<circular>": "88281ca9e7fffff"
+          },
+          {
+            "<circular>": "88281c333dfffff"
+          },
+          {
+            "<circular>": "88281ca925fffff"
+          },
+          {
+            "<circular>": "88281c0429fffff"
+          },
+          {
+            "<circular>": "88281c02c3fffff"
+          },
+          {
+            "<circular>": "88281c12d9fffff"
+          },
+          {
+            "<circular>": "882803498bfffff"
+          },
+          {
+            "<circular>": "88281caf5bfffff"
+          },
+          {
+            "<circular>": "88281c0683fffff"
+          },
+          {
+            "<circular>": "88281c032bfffff"
+          },
+          {
+            "<circular>": "88281c8093fffff"
+          },
+          {
+            "<circular>": "88281c8a29fffff"
+          },
+          {
+            "<circular>": "88281ca837fffff"
+          },
+          {
+            "<circular>": "88281c8ab7fffff"
+          },
+          {
+            "<circular>": "88281caf57fffff"
+          },
+          {
+            "<circular>": "88281c1605fffff"
+          },
+          {
+            "<circular>": "88281c3667fffff"
+          },
+          {
+            "<circular>": "88281c333bfffff"
+          },
+          {
+            "<circular>": "88281c045dfffff"
+          },
+          {
+            "<circular>": "88281c3343fffff"
+          },
+          {
+            "<circular>": "88281c8093fffff"
+          },
+          {
+            "<circular>": "88281cb841fffff"
+          },
+          {
+            "<circular>": "88281c0005fffff"
+          },
+          {
+            "<circular>": "88281cc6c7fffff"
+          },
+          {
+            "<circular>": "88281ca419fffff"
+          },
+          {
+            "<circular>": "88281cb369fffff"
+          },
+          {
+            "<circular>": "88281caca9fffff"
+          },
+          {
+            "<circular>": "88281c8b41fffff"
+          },
+          {
+            "<circular>": "88281c00c5fffff"
+          },
+          {
+            "<circular>": "88281c8b1bfffff"
+          },
+          {
+            "<circular>": "88281c1543fffff"
+          },
+          {
+            "<circular>": "88281c3669fffff"
+          },
+          {
+            "<circular>": "88281c151dfffff"
+          },
+          {
+            "<circular>": "88281c8c4dfffff"
+          },
+          {
+            "<circular>": "88281ca993fffff"
+          },
+          {
+            "<circular>": "88281dd9b3fffff"
+          },
+          {
+            "<circular>": "88281c11d5fffff"
+          },
+          {
+            "<circular>": "88281c8cddfffff"
+          },
+          {
+            "<circular>": "88281c011dfffff"
+          },
+          {
+            "<circular>": "88281c345bfffff"
+          },
+          {
+            "<circular>": "88281cb9e7fffff"
+          },
+          {
+            "<circular>": "88281c8495fffff"
+          },
+          {
+            "<circular>": "88281c31c3fffff"
+          },
+          {
+            "<circular>": "88281c1239fffff"
+          },
+          {
+            "<circular>": "88281cb295fffff"
+          },
+          {
+            "<circular>": "88281c0e09fffff"
+          },
+          {
+            "<circular>": "88281cb409fffff"
+          },
+          {
+            "<circular>": "8828034d19fffff"
+          },
+          {
+            "<circular>": "8828034d0bfffff"
+          },
+          {
+            "<circular>": "88281cb9e7fffff"
+          },
+          {
+            "<circular>": "88281c8c41fffff"
+          },
+          {
+            "<circular>": "88281c365dfffff"
+          },
+          {
+            "<circular>": "88281c1453fffff"
+          },
+          {
+            "<circular>": "88281c8b43fffff"
+          },
+          {
+            "<circular>": "88281c166bfffff"
+          },
+          {
+            "<circular>": "88281dcb59fffff"
+          },
+          {
+            "<circular>": "88281c1507fffff"
+          },
+          {
+            "<circular>": "88281c8dd1fffff"
+          },
+          {
+            "<circular>": "88281dd94dfffff"
+          },
+          {
+            "<circular>": "88281cba83fffff"
+          },
+          {
+            "<circular>": "88281cb121fffff"
+          },
+          {
+            "<circular>": "88281ca863fffff"
+          },
+          {
+            "<circular>": "88280349adfffff"
+          },
+          {
+            "<circular>": "88281cab21fffff"
+          },
+          {
+            "<circular>": "88281dd993fffff"
+          },
+          {
+            "<circular>": "88281c89a9fffff"
+          },
+          {
+            "<circular>": "88281cb1e3fffff"
+          },
+          {
+            "<circular>": "88281c8c81fffff"
+          },
+          {
+            "<circular>": "88281c8f1bfffff"
+          },
+          {
+            "<circular>": "88281cae9bfffff"
+          },
+          {
+            "<circular>": "88281c06b7fffff"
+          },
+          {
+            "<circular>": "88281c3a09fffff"
+          },
+          {
+            "<circular>": "88281ca853fffff"
+          },
+          {
+            "<circular>": "88281cadcdfffff"
+          },
+          {
+            "<circular>": "88281ca805fffff"
+          },
+          {
+            "<circular>": "88281c01cbfffff"
+          },
+          {
+            "<circular>": "88281ca94dfffff"
+          },
+          {
+            "<circular>": "88281cab33fffff"
+          },
+          {
+            "<circular>": "88281c18b3fffff"
+          },
+          {
+            "<circular>": "88281cb461fffff"
+          },
+          {
+            "<circular>": "88281c8465fffff"
+          },
+          {
+            "<circular>": "88281c058bfffff"
+          },
+          {
+            "<circular>": "88281c3b1dfffff"
+          },
+          {
+            "<circular>": "88281ca75bfffff"
+          },
+          {
+            "<circular>": "88281c85a5fffff"
+          },
+          {
+            "<circular>": "88281cad63fffff"
+          },
+          {
+            "<circular>": "88281c0d01fffff"
+          },
+          {
+            "<circular>": "88281c1419fffff"
+          },
+          {
+            "<circular>": "88281c055dfffff"
+          },
+          {
+            "<circular>": "88281c8b07fffff"
+          },
+          {
+            "<circular>": "88281cab35fffff"
+          },
+          {
+            "<circular>": "88281c0c23fffff"
+          },
+          {
+            "<circular>": "88281c0e03fffff"
+          },
+          {
+            "<circular>": "88281c86a3fffff"
+          },
+          {
+            "<circular>": "88281c0237fffff"
+          },
+          {
+            "<circular>": "88281c02c1fffff"
+          },
+          {
+            "<circular>": "88281cb5d5fffff"
+          },
+          {
+            "<circular>": "88281c31ddfffff"
+          },
+          {
+            "<circular>": "88281cae07fffff"
+          },
+          {
+            "<circular>": "88281cb669fffff"
+          },
+          {
+            "<circular>": "88281c346bfffff"
+          },
+          {
+            "<circular>": "88281ca5b1fffff"
+          },
+          {
+            "<circular>": "88281c8ce3fffff"
+          },
+          {
+            "<circular>": "88281c880dfffff"
+          },
+          {
+            "<circular>": "88281c0505fffff"
+          },
+          {
+            "<circular>": "882803499bfffff"
+          },
+          {
+            "<circular>": "88280348a3fffff"
+          },
+          {
+            "<circular>": "88281c850bfffff"
+          },
+          {
+            "<circular>": "88281cb331fffff"
+          },
+          {
+            "<circular>": "88281cb8c1fffff"
+          },
+          {
+            "<circular>": "88281ca9d9fffff"
+          },
+          {
+            "<circular>": "88281c8b5bfffff"
+          },
+          {
+            "<circular>": "88281c0649fffff"
+          },
+          {
+            "<circular>": "88281c8f47fffff"
+          },
+          {
+            "<circular>": "8828034c8dfffff"
+          },
+          {
+            "<circular>": "88281c12c3fffff"
+          },
+          {
+            "<circular>": "88281cb453fffff"
+          },
+          {
+            "<circular>": "88281caaa3fffff"
+          },
+          {
+            "<circular>": "88281ca909fffff"
+          },
+          {
+            "<circular>": "88281c3a07fffff"
+          },
+          {
+            "<circular>": "88281cb32bfffff"
+          },
+          {
+            "<circular>": "88281c1615fffff"
+          },
+          {
+            "<circular>": "88281c1251fffff"
+          },
+          {
+            "<circular>": "88281ca9b9fffff"
+          },
+          {
+            "<circular>": "88281c8edbfffff"
+          },
+          {
+            "<circular>": "88281caca5fffff"
+          },
+          {
+            "<circular>": "88281cab31fffff"
+          },
+          {
+            "<circular>": "88281c0029fffff"
+          },
+          {
+            "<circular>": "88280348a7fffff"
+          },
+          {
+            "<circular>": "88281cace7fffff"
+          },
+          {
+            "<circular>": "88281c12c7fffff"
+          },
+          {
+            "<circular>": "88281dda27fffff"
+          },
+          {
+            "<circular>": "88281cb505fffff"
+          },
+          {
+            "<circular>": "88281c30b1fffff"
+          },
+          {
+            "<circular>": "88281cb8ebfffff"
+          },
+          {
+            "<circular>": "88281ddb3dfffff"
+          },
+          {
+            "<circular>": "88281c14d7fffff"
+          },
+          {
+            "<circular>": "88281c02a5fffff"
+          },
+          {
+            "<circular>": "88281cb34dfffff"
+          },
+          {
+            "<circular>": "88281c0693fffff"
+          },
+          {
+            "<circular>": "88281cb21dfffff"
+          },
+          {
+            "<circular>": "88281c0d05fffff"
+          },
+          {
+            "<circular>": "88281c84c7fffff"
+          },
+          {
+            "<circular>": "88281c1489fffff"
+          },
+          {
+            "<circular>": "88281cc693fffff"
+          },
+          {
+            "<circular>": "88281c0e21fffff"
+          },
+          {
+            "<circular>": "8828034d95fffff"
+          },
+          {
+            "<circular>": "88281c170dfffff"
+          },
+          {
+            "<circular>": "88281c0445fffff"
+          },
+          {
+            "<circular>": "88281cb1dbfffff"
+          },
+          {
+            "<circular>": "88281c10ddfffff"
+          },
+          {
+            "<circular>": "8828034c39fffff"
+          },
+          {
+            "<circular>": "88281c8033fffff"
+          },
+          {
+            "<circular>": "88281dd981fffff"
+          },
+          {
+            "<circular>": "88281c8ed5fffff"
+          },
+          {
+            "<circular>": "88281caab9fffff"
+          },
+          {
+            "<circular>": "88281ca73dfffff"
+          },
+          {
+            "<circular>": "88281c8181fffff"
+          },
+          {
+            "<circular>": "88281c890bfffff"
+          },
+          {
+            "<circular>": "88281cb8b5fffff"
+          },
+          {
+            "<circular>": "88281c3353fffff"
+          },
+          {
+            "<circular>": "88281cb337fffff"
+          },
+          {
+            "<circular>": "88281c0f57fffff"
+          },
+          {
+            "<circular>": "88281c0cc1fffff"
+          },
+          {
+            "<circular>": "88281c8e45fffff"
+          },
+          {
+            "<circular>": "88281c0ac1fffff"
+          },
+          {
+            "<circular>": "88281c14e5fffff"
+          },
+          {
+            "<circular>": "88281c316bfffff"
+          },
+          {
+            "<circular>": "88281c0f47fffff"
+          },
+          {
+            "<circular>": "88281c89c9fffff"
+          },
+          {
+            "<circular>": "88281c884dfffff"
+          },
+          {
+            "<circular>": "88281c31dbfffff"
+          },
+          {
+            "<circular>": "88281cb655fffff"
+          },
+          {
+            "<circular>": "88281c0025fffff"
+          },
+          {
+            "<circular>": "88281c04d9fffff"
+          },
+          {
+            "<circular>": "88281c10e3fffff"
+          },
+          {
+            "<circular>": "88281cb52dfffff"
+          },
+          {
+            "<circular>": "88281cb239fffff"
+          },
+          {
+            "<circular>": "88281c0641fffff"
+          },
+          {
+            "<circular>": "88281c1121fffff"
+          },
+          {
+            "<circular>": "88281ca5bdfffff"
+          },
+          {
+            "<circular>": "88281c88a1fffff"
+          },
+          {
+            "<circular>": "88281ca24bfffff"
+          },
+          {
+            "<circular>": "88281c0e1bfffff"
+          },
+          {
+            "<circular>": "88281ca92dfffff"
+          },
+          {
+            "<circular>": "88281c1037fffff"
+          },
+          {
+            "<circular>": "88281c0115fffff"
+          },
+          {
+            "<circular>": "88281c134bfffff"
+          },
+          {
+            "<circular>": "88281cade3fffff"
+          },
+          {
+            "<circular>": "88281cb207fffff"
+          },
+          {
+            "<circular>": "88281cb1abfffff"
+          },
+          {
+            "<circular>": "88281c360bfffff"
+          },
+          {
+            "<circular>": "88281c8a17fffff"
+          },
+          {
+            "<circular>": "88281c8b17fffff"
+          },
+          {
+            "<circular>": "88281caa0dfffff"
+          },
+          {
+            "<circular>": "88281c0453fffff"
+          },
+          {
+            "<circular>": "88281c15e9fffff"
+          },
+          {
+            "<circular>": "88281c84d9fffff"
+          },
+          {
+            "<circular>": "88281ca9adfffff"
+          },
+          {
+            "<circular>": "88281cb135fffff"
+          },
+          {
+            "<circular>": "88281c309bfffff"
+          },
+          {
+            "<circular>": "88281ca1b7fffff"
+          },
+          {
+            "<circular>": "88281c04c9fffff"
+          },
+          {
+            "<circular>": "88281c30e9fffff"
+          },
+          {
+            "<circular>": "88281c118bfffff"
+          },
+          {
+            "<circular>": "88281c36b9fffff"
+          },
+          {
+            "<circular>": "88281c0ed3fffff"
+          },
+          {
+            "<circular>": "88281c0a83fffff"
+          },
+          {
+            "<circular>": "88281c84d1fffff"
+          },
+          {
+            "<circular>": "88281c84c7fffff"
+          },
+          {
+            "<circular>": "88281c05b7fffff"
+          },
+          {
+            "<circular>": "88281ca4e9fffff"
+          },
+          {
+            "<circular>": "88281cae97fffff"
+          },
+          {
+            "<circular>": "88281c86edfffff"
+          },
+          {
+            "<circular>": "88281c8507fffff"
+          },
+          {
+            "<circular>": "88281c0043fffff"
+          },
+          {
+            "<circular>": "88281c8d25fffff"
+          },
+          {
+            "<circular>": "88281c01bbfffff"
+          },
+          {
+            "<circular>": "88281c1659fffff"
+          },
+          {
+            "<circular>": "88281ca2c1fffff"
+          },
+          {
+            "<circular>": "88281cb643fffff"
+          },
+          {
+            "<circular>": "88281cb5cbfffff"
+          },
+          {
+            "<circular>": "88281ca203fffff"
+          },
+          {
+            "<circular>": "88281cae8bfffff"
+          },
+          {
+            "<circular>": "88281cb4a5fffff"
+          },
+          {
+            "<circular>": "88281cb643fffff"
+          },
+          {
+            "<circular>": "88281c8949fffff"
+          },
+          {
+            "<circular>": "88281c0207fffff"
+          },
+          {
+            "<circular>": "88281ca091fffff"
+          },
+          {
+            "<circular>": "88281c01dbfffff"
+          },
+          {
+            "<circular>": "88281c869bfffff"
+          },
+          {
+            "<circular>": "88281ca50dfffff"
+          },
+          {
+            "<circular>": "88281c0d1bfffff"
+          },
+          {
+            "<circular>": "88281cae0bfffff"
+          },
+          {
+            "<circular>": "88281c8937fffff"
+          },
+          {
+            "<circular>": "88281c1195fffff"
+          },
+          {
+            "<circular>": "88281c8997fffff"
+          },
+          {
+            "<circular>": "88281c11ddfffff"
+          },
+          {
+            "<circular>": "88281c325dfffff"
+          },
+          {
+            "<circular>": "88281c0265fffff"
+          },
+          {
+            "<circular>": "88281c1abbfffff"
+          },
+          {
+            "<circular>": "88281c3041fffff"
+          },
+          {
+            "<circular>": "88281c8627fffff"
+          },
+          {
+            "<circular>": "88281cae8bfffff"
+          },
+          {
+            "<circular>": "88281c8931fffff"
+          },
+          {
+            "<circular>": "88281cb41bfffff"
+          },
+          {
+            "<circular>": "88281c009dfffff"
+          },
+          {
+            "<circular>": "88281c04e1fffff"
+          },
+          {
+            "<circular>": "88281cb595fffff"
+          },
+          {
+            "<circular>": "88281c0a8bfffff"
+          },
+          {
+            "<circular>": "88281c055dfffff"
+          },
+          {
+            "<circular>": "88281cb1c9fffff"
+          },
+          {
+            "<circular>": "88281c8c51fffff"
+          },
+          {
+            "<circular>": "88281c8d9bfffff"
+          },
+          {
+            "<circular>": "88281c819dfffff"
+          },
+          {
+            "<circular>": "88281c0e43fffff"
+          },
+          {
+            "<circular>": "88281cbb57fffff"
+          },
+          {
+            "<circular>": "88281ca5c3fffff"
+          },
+          {
+            "<circular>": "8828034997fffff"
+          },
+          {
+            "<circular>": "88281dd81dfffff"
+          },
+          {
+            "<circular>": "88281ca35bfffff"
+          },
+          {
+            "<circular>": "88281c0185fffff"
+          },
+          {
+            "<circular>": "88281c8195fffff"
+          },
+          {
+            "<circular>": "88281c15a9fffff"
+          },
+          {
+            "<circular>": "88281cb553fffff"
+          },
+          {
+            "<circular>": "88281c869dfffff"
+          },
+          {
+            "<circular>": "88281cb163fffff"
+          },
+          {
+            "<circular>": "88281c3247fffff"
+          },
+          {
+            "<circular>": "88281c11cbfffff"
+          },
+          {
+            "<circular>": "88281caf49fffff"
+          },
+          {
+            "<circular>": "88281ca8cdfffff"
+          },
+          {
+            "<circular>": "88281c3741fffff"
+          },
+          {
+            "<circular>": "88281c1241fffff"
+          },
+          {
+            "<circular>": "88281caa5dfffff"
+          },
+          {
+            "<circular>": "88281c3131fffff"
+          },
+          {
+            "<circular>": "88281c0095fffff"
+          },
+          {
+            "<circular>": "88281cb227fffff"
+          },
+          {
+            "<circular>": "88281cbab1fffff"
+          },
+          {
+            "<circular>": "88281ca9b3fffff"
+          },
+          {
+            "<circular>": "88281cb255fffff"
+          },
+          {
+            "<circular>": "88281c8b63fffff"
+          },
+          {
+            "<circular>": "88281dd9a1fffff"
+          },
+          {
+            "<circular>": "88281c02c5fffff"
+          },
+          {
+            "<circular>": "88281c0439fffff"
+          },
+          {
+            "<circular>": "88281c370dfffff"
+          },
+          {
+            "<circular>": "88281ca5b7fffff"
+          },
+          {
+            "<circular>": "88281c1461fffff"
+          },
+          {
+            "<circular>": "88281c3353fffff"
+          },
+          {
+            "<circular>": "88281c8a03fffff"
+          },
+          {
+            "<circular>": "88281c345dfffff"
+          },
+          {
+            "<circular>": "88281c80bdfffff"
+          },
+          {
+            "<circular>": "88281caccbfffff"
+          },
+          {
+            "<circular>": "88281caec5fffff"
+          },
+          {
+            "<circular>": "88281ca631fffff"
+          },
+          {
+            "<circular>": "88281ddb41fffff"
+          },
+          {
+            "<circular>": "88281c1445fffff"
+          },
+          {
+            "<circular>": "88281dcb59fffff"
+          },
+          {
+            "<circular>": "88281c1295fffff"
+          },
+          {
+            "<circular>": "88281caac7fffff"
+          },
+          {
+            "<circular>": "88281c8913fffff"
+          },
+          {
+            "<circular>": "88281c3a57fffff"
+          },
+          {
+            "<circular>": "88281c1545fffff"
+          },
+          {
+            "<circular>": "88281c334bfffff"
+          },
+          {
+            "<circular>": "88281cae59fffff"
+          },
+          {
+            "<circular>": "88281c0193fffff"
+          },
+          {
+            "<circular>": "88281c046bfffff"
+          },
+          {
+            "<circular>": "88281c8a97fffff"
+          },
+          {
+            "<circular>": "88281c3447fffff"
+          },
+          {
+            "<circular>": "88281c0037fffff"
+          },
+          {
+            "<circular>": "88281c8debfffff"
+          },
+          {
+            "<circular>": "88281c0ae1fffff"
+          },
+          {
+            "<circular>": "88281c15ddfffff"
+          },
+          {
+            "<circular>": "88281c06a1fffff"
+          },
+          {
+            "<circular>": "88281c8d13fffff"
+          },
+          {
+            "<circular>": "88281c133dfffff"
+          },
+          {
+            "<circular>": "88281ca989fffff"
+          },
+          {
+            "<circular>": "88281c1259fffff"
+          },
+          {
+            "<circular>": "88281cc4d9fffff"
+          },
+          {
+            "<circular>": "88281c3115fffff"
+          },
+          {
+            "<circular>": "88281c0545fffff"
+          },
+          {
+            "<circular>": "88281c0011fffff"
+          },
+          {
+            "<circular>": "88281c846dfffff"
+          },
+          {
+            "<circular>": "88281caa17fffff"
+          },
+          {
+            "<circular>": "88281c1261fffff"
+          },
+          {
+            "<circular>": "88281c020dfffff"
+          },
+          {
+            "<circular>": "88281ca18dfffff"
+          },
+          {
+            "<circular>": "88281c3249fffff"
+          },
+          {
+            "<circular>": "88281caf25fffff"
+          },
+          {
+            "<circular>": "88281c066bfffff"
+          },
+          {
+            "<circular>": "88281ddb0dfffff"
+          },
+          {
+            "<circular>": "88281c8465fffff"
+          },
+          {
+            "<circular>": "88281c0707fffff"
+          },
+          {
+            "<circular>": "88281c85bbfffff"
+          },
+          {
+            "<circular>": "88281c1891fffff"
+          },
+          {
+            "<circular>": "88281c14adfffff"
+          },
+          {
+            "<circular>": "88281cd691fffff"
+          },
+          {
+            "<circular>": "88281cb1bbfffff"
+          },
+          {
+            "<circular>": "88281c36d1fffff"
+          },
+          {
+            "<circular>": "88281c0755fffff"
+          },
+          {
+            "<circular>": "88281ca195fffff"
+          },
+          {
+            "<circular>": "88281c8c4dfffff"
+          },
+          {
+            "<circular>": "88281c8ad3fffff"
+          },
+          {
+            "<circular>": "88281dda0dfffff"
+          },
+          {
+            "<circular>": "88281cae29fffff"
+          },
+          {
+            "<circular>": "88281dda05fffff"
+          },
+          {
+            "<circular>": "88281cb1d3fffff"
+          },
+          {
+            "<circular>": "88281ca5abfffff"
+          },
+          {
+            "<circular>": "88281c3129fffff"
+          },
+          {
+            "<circular>": "88281ca469fffff"
+          },
+          {
+            "<circular>": "88281cab27fffff"
+          },
+          {
+            "<circular>": "88281c3265fffff"
+          },
+          {
+            "<circular>": "88281ca9d3fffff"
+          },
+          {
+            "<circular>": "88281ca60dfffff"
+          },
+          {
+            "<circular>": "88281c846bfffff"
+          },
+          {
+            "<circular>": "88281cb29dfffff"
+          },
+          {
+            "<circular>": "88281c0553fffff"
+          },
+          {
+            "<circular>": "88281c1697fffff"
+          },
+          {
+            "<circular>": "88281c0e51fffff"
+          },
+          {
+            "<circular>": "88281cb95bfffff"
+          },
+          {
+            "<circular>": "88281cab01fffff"
+          },
+          {
+            "<circular>": "88281c0523fffff"
+          },
+          {
+            "<circular>": "88281c8e21fffff"
+          },
+          {
+            "<circular>": "88281cb651fffff"
+          },
+          {
+            "<circular>": "88281ca0d7fffff"
+          },
+          {
+            "<circular>": "88281c16a5fffff"
+          },
+          {
+            "<circular>": "88281c8937fffff"
+          },
+          {
+            "<circular>": "88281c1425fffff"
+          },
+          {
+            "<circular>": "88281caa09fffff"
+          },
+          {
+            "<circular>": "88281ca503fffff"
+          },
+          {
+            "<circular>": "88281cac59fffff"
+          },
+          {
+            "<circular>": "88281ca641fffff"
+          },
+          {
+            "<circular>": "88281c1585fffff"
+          },
+          {
+            "<circular>": "88281c3303fffff"
+          },
+          {
+            "<circular>": "88281ca2a3fffff"
+          },
+          {
+            "<circular>": "88281c3605fffff"
+          },
+          {
+            "<circular>": "88281dd9a3fffff"
+          },
+          {
+            "<circular>": "88281c1a59fffff"
+          },
+          {
+            "<circular>": "88281cb101fffff"
+          },
+          {
+            "<circular>": "88281c0625fffff"
+          },
+          {
+            "<circular>": "88281ca63bfffff"
+          },
+          {
+            "<circular>": "88281c06a9fffff"
+          },
+          {
+            "<circular>": "88281c3369fffff"
+          },
+          {
+            "<circular>": "88281cb2abfffff"
+          },
+          {
+            "<circular>": "88281c0e8dfffff"
+          },
+          {
+            "<circular>": "88281ca527fffff"
+          },
+          {
+            "<circular>": "88281cb087fffff"
+          },
+          {
+            "<circular>": "88281c3155fffff"
+          },
+          {
+            "<circular>": "88281c0423fffff"
+          },
+          {
+            "<circular>": "88281c3a6dfffff"
+          },
+          {
+            "<circular>": "88281c8f11fffff"
+          },
+          {
+            "<circular>": "88281c0e59fffff"
+          },
+          {
+            "<circular>": "88281c8183fffff"
+          },
+          {
+            "<circular>": "88281c81dbfffff"
+          },
+          {
+            "<circular>": "88281c3295fffff"
+          },
+          {
+            "<circular>": "8828034dc9fffff"
+          },
+          {
+            "<circular>": "88281c081bfffff"
+          },
+          {
+            "<circular>": "88281c06bdfffff"
+          },
+          {
+            "<circular>": "88281cb6edfffff"
+          },
+          {
+            "<circular>": "88281c14edfffff"
+          },
+          {
+            "<circular>": "88281c1aa3fffff"
+          },
+          {
+            "<circular>": "88281c8eabfffff"
+          },
+          {
+            "<circular>": "88281c8927fffff"
+          },
+          {
+            "<circular>": "88281c171bfffff"
+          },
+          {
+            "<circular>": "88281c36e9fffff"
+          },
+          {
+            "<circular>": "88281cb54dfffff"
+          },
+          {
+            "<circular>": "88281c8f1dfffff"
+          },
+          {
+            "<circular>": "88281c812bfffff"
+          },
+          {
+            "<circular>": "88281c0e09fffff"
+          },
+          {
+            "<circular>": "88281c8535fffff"
+          },
+          {
+            "<circular>": "88281c1481fffff"
+          },
+          {
+            "<circular>": "88281c80b3fffff"
+          },
+          {
+            "<circular>": "88281c0f43fffff"
+          },
+          {
+            "<circular>": "88281dca65fffff"
+          },
+          {
+            "<circular>": "88281c31c7fffff"
+          },
+          {
+            "<circular>": "88281cb257fffff"
+          },
+          {
+            "<circular>": "88281cb733fffff"
+          },
+          {
+            "<circular>": "88281c125bfffff"
+          },
+          {
+            "<circular>": "88281cb72bfffff"
+          },
+          {
+            "<circular>": "88281c8881fffff"
+          },
+          {
+            "<circular>": "88281c365bfffff"
+          },
+          {
+            "<circular>": "88281cac9bfffff"
+          },
+          {
+            "<circular>": "88281c8e1dfffff"
+          },
+          {
+            "<circular>": "88281c120bfffff"
+          },
+          {
+            "<circular>": "88281c1705fffff"
+          },
+          {
+            "<circular>": "88281cbb23fffff"
+          },
+          {
+            "<circular>": "88281c85b9fffff"
+          },
+          {
+            "<circular>": "88281c1049fffff"
+          },
+          {
+            "<circular>": "88281c10dbfffff"
+          },
+          {
+            "<circular>": "88281c1443fffff"
+          },
+          {
+            "<circular>": "88281c8d97fffff"
+          },
+          {
+            "<circular>": "88281cb0ddfffff"
+          },
+          {
+            "<circular>": "88281c0883fffff"
+          },
+          {
+            "<circular>": "88281cb5c7fffff"
+          },
+          {
+            "<circular>": "88281cac81fffff"
+          },
+          {
+            "<circular>": "88281cb1ddfffff"
+          },
+          {
+            "<circular>": "88281caeb7fffff"
+          },
+          {
+            "<circular>": "88281dd98bfffff"
+          },
+          {
+            "<circular>": "88281c8985fffff"
+          },
+          {
+            "<circular>": "88281caa45fffff"
+          },
+          {
+            "<circular>": "88281cacb1fffff"
+          },
+          {
+            "<circular>": "88281cab4bfffff"
+          },
+          {
+            "<circular>": "88281cacb3fffff"
+          },
+          {
+            "<circular>": "88281ca1b7fffff"
+          },
+          {
+            "<circular>": "88281c3203fffff"
+          },
+          {
+            "<circular>": "88281ca925fffff"
+          },
+          {
+            "<circular>": "8828034c8dfffff"
+          },
+          {
+            "<circular>": "88281cb4e5fffff"
+          },
+          {
+            "<circular>": "88281c371dfffff"
+          },
+          {
+            "<circular>": "88281c0c65fffff"
+          },
+          {
+            "<circular>": "88281cc69dfffff"
+          },
+          {
+            "<circular>": "88281ca00dfffff"
+          },
+          {
+            "<circular>": "88281c363bfffff"
+          },
+          {
+            "<circular>": "88281c8947fffff"
+          },
+          {
+            "<circular>": "88281cba67fffff"
+          },
+          {
+            "<circular>": "88281c0e37fffff"
+          },
+          {
+            "<circular>": "88281c1063fffff"
+          },
+          {
+            "<circular>": "88281cb143fffff"
+          },
+          {
+            "<circular>": "88281c8f4dfffff"
+          },
+          {
+            "<circular>": "88281ca843fffff"
+          },
+          {
+            "<circular>": "88281c12dbfffff"
+          },
+          {
+            "<circular>": "88281c0333fffff"
+          },
+          {
+            "<circular>": "88281c8a51fffff"
+          },
+          {
+            "<circular>": "88281cd493fffff"
+          },
+          {
+            "<circular>": "88281c80e5fffff"
+          },
+          {
+            "<circular>": "88281c134dfffff"
+          },
+          {
+            "<circular>": "8828034c3bfffff"
+          },
+          {
+            "<circular>": "88281c8eb1fffff"
+          },
+          {
+            "<circular>": "88281c330bfffff"
+          },
+          {
+            "<circular>": "88281cb753fffff"
+          },
+          {
+            "<circular>": "88281cad9bfffff"
+          },
+          {
+            "<circular>": "88281ca151fffff"
+          },
+          {
+            "<circular>": "88281ca443fffff"
+          },
+          {
+            "<circular>": "88281c3a1bfffff"
+          },
+          {
+            "<circular>": "88281cb5a5fffff"
+          },
+          {
+            "<circular>": "88281cb947fffff"
+          },
+          {
+            "<circular>": "88281c0417fffff"
+          },
+          {
+            "<circular>": "88281c175bfffff"
+          },
+          {
+            "<circular>": "88281ca2ebfffff"
+          },
+          {
+            "<circular>": "88281c883dfffff"
+          },
+          {
+            "<circular>": "88281c154bfffff"
+          },
+          {
+            "<circular>": "88281c06d7fffff"
+          },
+          {
+            "<circular>": "88281c00edfffff"
+          },
+          {
+            "<circular>": "88281cb895fffff"
+          },
+          {
+            "<circular>": "88281c3339fffff"
+          },
+          {
+            "<circular>": "8828034997fffff"
+          },
+          {
+            "<circular>": "88281cad69fffff"
+          },
+          {
+            "<circular>": "88281cadcdfffff"
+          },
+          {
+            "<circular>": "88281caed7fffff"
+          },
+          {
+            "<circular>": "88281ca281fffff"
+          },
+          {
+            "<circular>": "88281c01e9fffff"
+          },
+          {
+            "<circular>": "88281cb051fffff"
+          },
+          {
+            "<circular>": "88281c303bfffff"
+          },
+          {
+            "<circular>": "88281c8129fffff"
+          },
+          {
+            "<circular>": "88281caae7fffff"
+          },
+          {
+            "<circular>": "88281c89bdfffff"
+          },
+          {
+            "<circular>": "88281c86adfffff"
+          },
+          {
+            "<circular>": "88281c0a99fffff"
+          },
+          {
+            "<circular>": "88281c1221fffff"
+          },
+          {
+            "<circular>": "88281ca09dfffff"
+          },
+          {
+            "<circular>": "88281cacddfffff"
+          },
+          {
+            "<circular>": "88281ca5b9fffff"
+          },
+          {
+            "<circular>": "88281cac5bfffff"
+          },
+          {
+            "<circular>": "88281ca04bfffff"
+          },
+          {
+            "<circular>": "88281c0057fffff"
+          },
+          {
+            "<circular>": "88281caf11fffff"
+          },
+          {
+            "<circular>": "88281cada7fffff"
+          },
+          {
+            "<circular>": "88281c8c9bfffff"
+          },
+          {
+            "<circular>": "88281c3b49fffff"
+          },
+          {
+            "<circular>": "88281cac23fffff"
+          },
+          {
+            "<circular>": "88281c8dd5fffff"
+          },
+          {
+            "<circular>": "88281ca069fffff"
+          },
+          {
+            "<circular>": "88281cac41fffff"
+          },
+          {
+            "<circular>": "88281dd82bfffff"
+          },
+          {
+            "<circular>": "88281c113bfffff"
+          },
+          {
+            "<circular>": "88281ca095fffff"
+          },
+          {
+            "<circular>": "88281dd9b1fffff"
+          },
+          {
+            "<circular>": "8828034dcbfffff"
+          },
+          {
+            "<circular>": "88281c3017fffff"
+          },
+          {
+            "<circular>": "88281c0153fffff"
+          },
+          {
+            "<circular>": "88281c0145fffff"
+          },
+          {
+            "<circular>": "88281ca417fffff"
+          },
+          {
+            "<circular>": "88281ca929fffff"
+          },
+          {
+            "<circular>": "88281c84cbfffff"
+          },
+          {
+            "<circular>": "8828034cbbfffff"
+          },
+          {
+            "<circular>": "88281c3a19fffff"
+          },
+          {
+            "<circular>": "88281caa13fffff"
+          },
+          {
+            "<circular>": "88281cb425fffff"
+          },
+          {
+            "<circular>": "88281c08cdfffff"
+          },
+          {
+            "<circular>": "88281c1665fffff"
+          },
+          {
+            "<circular>": "88281c8e0bfffff"
+          },
+          {
+            "<circular>": "88281c01c1fffff"
+          },
+          {
+            "<circular>": "88281cae57fffff"
+          },
+          {
+            "<circular>": "88281c8941fffff"
+          },
+          {
+            "<circular>": "88281cab25fffff"
+          },
+          {
+            "<circular>": "88281c0237fffff"
+          },
+          {
+            "<circular>": "88281cac45fffff"
+          },
+          {
+            "<circular>": "88281c164dfffff"
+          },
+          {
+            "<circular>": "88281c06c9fffff"
+          },
+          {
+            "<circular>": "88281ca8ebfffff"
+          },
+          {
+            "<circular>": "88281c115dfffff"
+          },
+          {
+            "<circular>": "88281cb58bfffff"
+          },
+          {
+            "<circular>": "88281c8e2bfffff"
+          },
+          {
+            "<circular>": "88281ca831fffff"
+          },
+          {
+            "<circular>": "88281c0ad7fffff"
+          },
+          {
+            "<circular>": "88281c1483fffff"
+          },
+          {
+            "<circular>": "88281c84d5fffff"
+          },
+          {
+            "<circular>": "88281c0487fffff"
+          },
+          {
+            "<circular>": "88281ca46dfffff"
+          },
+          {
+            "<circular>": "88281cb2d7fffff"
+          },
+          {
+            "<circular>": "88281c8b07fffff"
+          },
+          {
+            "<circular>": "88281c0e51fffff"
+          },
+          {
+            "<circular>": "88281c8809fffff"
+          },
+          {
+            "<circular>": "88281ca9cdfffff"
+          },
+          {
+            "<circular>": "88281c162bfffff"
+          },
+          {
+            "<circular>": "88281ca23bfffff"
+          },
+          {
+            "<circular>": "88281c0e45fffff"
+          },
+          {
+            "<circular>": "88281c043bfffff"
+          },
+          {
+            "<circular>": "88281c1147fffff"
+          },
+          {
+            "<circular>": "88281ca0b7fffff"
+          },
+          {
+            "<circular>": "88281c0699fffff"
+          },
+          {
+            "<circular>": "88281cb287fffff"
+          },
+          {
+            "<circular>": "88281c8685fffff"
+          },
+          {
+            "<circular>": "88281c85c5fffff"
+          },
+          {
+            "<circular>": "88281c0495fffff"
+          },
+          {
+            "<circular>": "88281c0c0dfffff"
+          },
+          {
+            "<circular>": "88281cb74dfffff"
+          },
+          {
+            "<circular>": "88281c3b01fffff"
+          },
+          {
+            "<circular>": "8828034c81fffff"
+          },
+          {
+            "<circular>": "88281ca641fffff"
+          },
+          {
+            "<circular>": "88281c8b23fffff"
+          },
+          {
+            "<circular>": "88281cb715fffff"
+          },
+          {
+            "<circular>": "88281ca92bfffff"
+          },
+          {
+            "<circular>": "88281c12c7fffff"
+          },
+          {
+            "<circular>": "88281cba5bfffff"
+          },
+          {
+            "<circular>": "88281c8de5fffff"
+          },
+          {
+            "<circular>": "88281c0e43fffff"
+          },
+          {
+            "<circular>": "88281cb915fffff"
+          },
+          {
+            "<circular>": "88281cb2d5fffff"
+          },
+          {
+            "<circular>": "88281cb899fffff"
+          },
+          {
+            "<circular>": "88281c85d7fffff"
+          },
+          {
+            "<circular>": "88281c86d3fffff"
+          },
+          {
+            "<circular>": "88281c8c21fffff"
+          },
+          {
+            "<circular>": "88281ca767fffff"
+          },
+          {
+            "<circular>": "88281cab35fffff"
+          },
+          {
+            "<circular>": "88281c85d7fffff"
+          },
+          {
+            "<circular>": "88281caa3bfffff"
+          },
+          {
+            "<circular>": "88281c04a3fffff"
+          },
+          {
+            "<circular>": "88281c0117fffff"
+          },
+          {
+            "<circular>": "88281cb1c5fffff"
+          },
+          {
+            "<circular>": "88281c1603fffff"
+          },
+          {
+            "<circular>": "88281c12adfffff"
+          },
+          {
+            "<circular>": "88281dd999fffff"
+          },
+          {
+            "<circular>": "88281c0885fffff"
+          },
+          {
+            "<circular>": "88281dd9c9fffff"
+          },
+          {
+            "<circular>": "88281c881dfffff"
+          },
+          {
+            "<circular>": "88281c8d41fffff"
+          },
+          {
+            "<circular>": "88281c3b53fffff"
+          },
+          {
+            "<circular>": "88281c0097fffff"
+          },
+          {
+            "<circular>": "88281cae49fffff"
+          },
+          {
+            "<circular>": "88281c162bfffff"
+          },
+          {
+            "<circular>": "88281c88d7fffff"
+          },
+          {
+            "<circular>": "88281c01e9fffff"
+          },
+          {
+            "<circular>": "88281cb437fffff"
+          },
+          {
+            "<circular>": "88281cb1e9fffff"
+          },
+          {
+            "<circular>": "88281c0525fffff"
+          },
+          {
+            "<circular>": "88281c3b49fffff"
+          },
+          {
+            "<circular>": "88281cb303fffff"
+          },
+          {
+            "<circular>": "88281c8943fffff"
+          },
+          {
+            "<circular>": "88281c3729fffff"
+          },
+          {
+            "<circular>": "88281cac4dfffff"
+          },
+          {
+            "<circular>": "88281c11d9fffff"
+          },
+          {
+            "<circular>": "88281c04d1fffff"
+          },
+          {
+            "<circular>": "88281c10e1fffff"
+          },
+          {
+            "<circular>": "88281c885bfffff"
+          },
+          {
+            "<circular>": "88281cae93fffff"
+          },
+          {
+            "<circular>": "88281c8b61fffff"
+          },
+          {
+            "<circular>": "88281c3705fffff"
+          },
+          {
+            "<circular>": "8828034cb7fffff"
+          },
+          {
+            "<circular>": "88281cb95dfffff"
+          },
+          {
+            "<circular>": "88281cab49fffff"
+          },
+          {
+            "<circular>": "88281cb8e3fffff"
+          },
+          {
+            "<circular>": "88281c043dfffff"
+          },
+          {
+            "<circular>": "88281ca115fffff"
+          },
+          {
+            "<circular>": "88281cb437fffff"
+          },
+          {
+            "<circular>": "8828034d9dfffff"
+          },
+          {
+            "<circular>": "88281ca29bfffff"
+          },
+          {
+            "<circular>": "88281cae93fffff"
+          },
+          {
+            "<circular>": "88281cb80bfffff"
+          },
+          {
+            "<circular>": "88281c1a1bfffff"
+          },
+          {
+            "<circular>": "88281c1ae3fffff"
+          },
+          {
+            "<circular>": "88281c123bfffff"
+          },
+          {
+            "<circular>": "8828034d21fffff"
+          },
+          {
+            "<circular>": "88281c0f0dfffff"
+          },
+          {
+            "<circular>": "88281c8b23fffff"
+          },
+          {
+            "<circular>": "88281c88d9fffff"
+          },
+          {
+            "<circular>": "8828034d9dfffff"
+          },
+          {
+            "<circular>": "88281c8817fffff"
+          },
+          {
+            "<circular>": "88281c0137fffff"
+          },
+          {
+            "<circular>": "88281cb8c1fffff"
+          },
+          {
+            "<circular>": "88281caee3fffff"
+          },
+          {
+            "<circular>": "88281caecdfffff"
+          },
+          {
+            "<circular>": "88281cb8c5fffff"
+          },
+          {
+            "<circular>": "88281c36c7fffff"
+          },
+          {
+            "<circular>": "88281c30abfffff"
+          },
+          {
+            "<circular>": "88281c8951fffff"
+          },
+          {
+            "<circular>": "88281cb34dfffff"
+          },
+          {
+            "<circular>": "88281c0203fffff"
+          },
+          {
+            "<circular>": "88281cb011fffff"
+          },
+          {
+            "<circular>": "88281c1233fffff"
+          },
+          {
+            "<circular>": "88281cac85fffff"
+          },
+          {
+            "<circular>": "88281cae61fffff"
+          },
+          {
+            "<circular>": "88281cb317fffff"
+          },
+          {
+            "<circular>": "88281c3613fffff"
+          },
+          {
+            "<circular>": "88281c0497fffff"
+          },
+          {
+            "<circular>": "88281cad63fffff"
+          },
+          {
+            "<circular>": "88281cb245fffff"
+          },
+          {
+            "<circular>": "88281ca327fffff"
+          },
+          {
+            "<circular>": "88281ca105fffff"
+          },
+          {
+            "<circular>": "88281cb857fffff"
+          },
+          {
+            "<circular>": "88281c0ad5fffff"
+          },
+          {
+            "<circular>": "88281cb59dfffff"
+          },
+          {
+            "<circular>": "88281c1767fffff"
+          },
+          {
+            "<circular>": "88281ca0abfffff"
+          },
+          {
+            "<circular>": "88281ca013fffff"
+          },
+          {
+            "<circular>": "88281c1551fffff"
+          },
+          {
+            "<circular>": "88281cb2e9fffff"
+          },
+          {
+            "<circular>": "88281c063bfffff"
+          },
+          {
+            "<circular>": "88281c3a11fffff"
+          },
+          {
+            "<circular>": "88281c0413fffff"
+          },
+          {
+            "<circular>": "88281c3289fffff"
+          },
+          {
+            "<circular>": "88281c8f57fffff"
+          },
+          {
+            "<circular>": "88281cb0cdfffff"
+          },
+          {
+            "<circular>": "88281ca833fffff"
+          },
+          {
+            "<circular>": "88281cb443fffff"
+          },
+          {
+            "<circular>": "88281c14c7fffff"
+          },
+          {
+            "<circular>": "88281c18d1fffff"
+          },
+          {
+            "<circular>": "88281c8c49fffff"
+          },
+          {
+            "<circular>": "88281c169bfffff"
+          },
+          {
+            "<circular>": "88281cb759fffff"
+          },
+          {
+            "<circular>": "88281ca061fffff"
+          },
+          {
+            "<circular>": "88281dda2dfffff"
+          },
+          {
+            "<circular>": "88281dd9d3fffff"
+          },
+          {
+            "<circular>": "88281c3131fffff"
+          },
+          {
+            "<circular>": "88281caa45fffff"
+          },
+          {
+            "<circular>": "88281ddb1dfffff"
+          },
+          {
+            "<circular>": "8828034c15fffff"
+          },
+          {
+            "<circular>": "88281ca669fffff"
+          },
+          {
+            "<circular>": "88281caad1fffff"
+          },
+          {
+            "<circular>": "88281c0acdfffff"
+          },
+          {
+            "<circular>": "88281c8ce9fffff"
+          },
+          {
+            "<circular>": "88281c1347fffff"
+          },
+          {
+            "<circular>": "88281c3a4dfffff"
+          },
+          {
+            "<circular>": "88281cab05fffff"
+          },
+          {
+            "<circular>": "88281ca51bfffff"
+          },
+          {
+            "<circular>": "88281c1527fffff"
+          },
+          {
+            "<circular>": "88281c033bfffff"
+          },
+          {
+            "<circular>": "88281c0e8dfffff"
+          },
+          {
+            "<circular>": "88281c8f29fffff"
+          },
+          {
+            "<circular>": "88281cb847fffff"
+          },
+          {
+            "<circular>": "88281c8f25fffff"
+          },
+          {
+            "<circular>": "88281dd911fffff"
+          },
+          {
+            "<circular>": "88281c1051fffff"
+          },
+          {
+            "<circular>": "88281c8d8dfffff"
+          },
+          {
+            "<circular>": "88281ddb51fffff"
+          },
+          {
+            "<circular>": "88281c3087fffff"
+          },
+          {
+            "<circular>": "88281c365dfffff"
+          },
+          {
+            "<circular>": "88281c1767fffff"
+          },
+          {
+            "<circular>": "88281cb14dfffff"
+          },
+          {
+            "<circular>": "88281c8e1bfffff"
+          },
+          {
+            "<circular>": "88281ca8a9fffff"
+          },
+          {
+            "<circular>": "88281c868bfffff"
+          },
+          {
+            "<circular>": "88281c11e3fffff"
+          },
+          {
+            "<circular>": "88281cb983fffff"
+          },
+          {
+            "<circular>": "88281ca5a3fffff"
+          },
+          {
+            "<circular>": "88281c1005fffff"
+          },
+          {
+            "<circular>": "88281ca405fffff"
+          },
+          {
+            "<circular>": "88281cada5fffff"
+          },
+          {
+            "<circular>": "88281c8d21fffff"
+          },
+          {
+            "<circular>": "88281c30d1fffff"
+          },
+          {
+            "<circular>": "88281c8835fffff"
+          },
+          {
+            "<circular>": "88281cb0bbfffff"
+          },
+          {
+            "<circular>": "88281c16e5fffff"
+          },
+          {
+            "<circular>": "88281cb933fffff"
+          },
+          {
+            "<circular>": "88281c0f01fffff"
+          },
+          {
+            "<circular>": "88281cc69dfffff"
+          },
+          {
+            "<circular>": "88281cb18bfffff"
+          },
+          {
+            "<circular>": "88281cb1e9fffff"
+          },
+          {
+            "<circular>": "88281c0d6bfffff"
+          },
+          {
+            "<circular>": "882803499bfffff"
+          },
+          {
+            "<circular>": "88281c0a57fffff"
+          },
+          {
+            "<circular>": "88281c8905fffff"
+          },
+          {
+            "<circular>": "88281cae6bfffff"
+          },
+          {
+            "<circular>": "88281caaabfffff"
+          },
+          {
+            "<circular>": "88281ca367fffff"
+          },
+          {
+            "<circular>": "88281caad5fffff"
+          },
+          {
+            "<circular>": "88281c85b5fffff"
+          },
+          {
+            "<circular>": "88281c0265fffff"
+          },
+          {
+            "<circular>": "88281c0487fffff"
+          },
+          {
+            "<circular>": "88281c100dfffff"
+          },
+          {
+            "<circular>": "88281c31c3fffff"
+          },
+          {
+            "<circular>": "88281ddb5bfffff"
+          },
+          {
+            "<circular>": "88281ca341fffff"
+          },
+          {
+            "<circular>": "88281c30adfffff"
+          },
+          {
+            "<circular>": "88281c346bfffff"
+          },
+          {
+            "<circular>": "88281ca587fffff"
+          },
+          {
+            "<circular>": "88281c88a9fffff"
+          },
+          {
+            "<circular>": "88281ca549fffff"
+          },
+          {
+            "<circular>": "88281cba5dfffff"
+          },
+          {
+            "<circular>": "88281c0d61fffff"
+          },
+          {
+            "<circular>": "88281cb34bfffff"
+          },
+          {
+            "<circular>": "88281c32ebfffff"
+          },
+          {
+            "<circular>": "88281c8189fffff"
+          },
+          {
+            "<circular>": "88281cad1dfffff"
+          },
+          {
+            "<circular>": "88281c1705fffff"
+          },
+          {
+            "<circular>": "88281c8f6bfffff"
+          },
+          {
+            "<circular>": "88281ca109fffff"
+          },
+          {
+            "<circular>": "88281ca445fffff"
+          },
+          {
+            "<circular>": "88281cb565fffff"
+          },
+          {
+            "<circular>": "88281c8959fffff"
+          },
+          {
+            "<circular>": "88281c8a8bfffff"
+          },
+          {
+            "<circular>": "88281c04c7fffff"
+          },
+          {
+            "<circular>": "88281ca443fffff"
+          },
+          {
+            "<circular>": "88281ca54dfffff"
+          },
+          {
+            "<circular>": "8828034db5fffff"
+          },
+          {
+            "<circular>": "88281c0e2bfffff"
+          },
+          {
+            "<circular>": "8828034ca5fffff"
+          },
+          {
+            "<circular>": "88281c3a47fffff"
+          },
+          {
+            "<circular>": "88281c81a7fffff"
+          },
+          {
+            "<circular>": "88281dd9d7fffff"
+          },
+          {
+            "<circular>": "88281c0aabfffff"
+          },
+          {
+            "<circular>": "88281c188bfffff"
+          },
+          {
+            "<circular>": "88281c86d7fffff"
+          },
+          {
+            "<circular>": "88281cb9d5fffff"
+          },
+          {
+            "<circular>": "88281cbb3dfffff"
+          },
+          {
+            "<circular>": "88281c029bfffff"
+          },
+          {
+            "<circular>": "88281c8e6bfffff"
+          },
+          {
+            "<circular>": "88281c8199fffff"
+          },
+          {
+            "<circular>": "88281c101dfffff"
+          },
+          {
+            "<circular>": "88281c8b17fffff"
+          },
+          {
+            "<circular>": "88281c8a03fffff"
+          },
+          {
+            "<circular>": "88281c06e7fffff"
+          },
+          {
+            "<circular>": "88281cb663fffff"
+          },
+          {
+            "<circular>": "88281cba9dfffff"
+          },
+          {
+            "<circular>": "88281c8117fffff"
+          },
+          {
+            "<circular>": "88281cb10dfffff"
+          },
+          {
+            "<circular>": "88281c3a29fffff"
+          },
+          {
+            "<circular>": "88281c0015fffff"
+          },
+          {
+            "<circular>": "88281caf6bfffff"
+          },
+          {
+            "<circular>": "88281c85b7fffff"
+          },
+          {
+            "<circular>": "88281c11e1fffff"
+          },
+          {
+            "<circular>": "88281c0657fffff"
+          },
+          {
+            "<circular>": "88281cb8bdfffff"
+          },
+          {
+            "<circular>": "88281c3755fffff"
+          },
+          {
+            "<circular>": "88281c8905fffff"
+          },
+          {
+            "<circular>": "88281cb15bfffff"
+          },
+          {
+            "<circular>": "88281cac99fffff"
+          },
+          {
+            "<circular>": "88281ca905fffff"
+          },
+          {
+            "<circular>": "88281caf51fffff"
+          },
+          {
+            "<circular>": "88281c0aadfffff"
+          },
+          {
+            "<circular>": "88281c1895fffff"
+          },
+          {
+            "<circular>": "88281c30cdfffff"
+          },
+          {
+            "<circular>": "88281ca337fffff"
+          },
+          {
+            "<circular>": "88281c89bdfffff"
+          },
+          {
+            "<circular>": "88281c8d53fffff"
+          },
+          {
+            "<circular>": "88281cadd7fffff"
+          },
+          {
+            "<circular>": "88281ca51dfffff"
+          },
+          {
+            "<circular>": "88281c0d43fffff"
+          },
+          {
+            "<circular>": "88281c8945fffff"
+          },
+          {
+            "<circular>": "88281cb58dfffff"
+          },
+          {
+            "<circular>": "88281c8963fffff"
+          },
+          {
+            "<circular>": "88281c311dfffff"
+          },
+          {
+            "<circular>": "88281c0761fffff"
+          },
+          {
+            "<circular>": "88281cb955fffff"
+          },
+          {
+            "<circular>": "88281c3221fffff"
+          },
+          {
+            "<circular>": "88281c14adfffff"
+          },
+          {
+            "<circular>": "8828034c87fffff"
+          },
+          {
+            "<circular>": "88281cbb3bfffff"
+          },
+          {
+            "<circular>": "88281cb65dfffff"
+          },
+          {
+            "<circular>": "88281c8617fffff"
+          },
+          {
+            "<circular>": "88281cac01fffff"
+          },
+          {
+            "<circular>": "88281c0235fffff"
+          },
+          {
+            "<circular>": "88281c05c7fffff"
+          },
+          {
+            "<circular>": "88281cc4d5fffff"
+          },
+          {
+            "<circular>": "88281c034dfffff"
+          },
+          {
+            "<circular>": "88281ca0c7fffff"
+          },
+          {
+            "<circular>": "88281c32b3fffff"
+          },
+          {
+            "<circular>": "88281c84d3fffff"
+          },
+          {
+            "<circular>": "88281c10ddfffff"
+          },
+          {
+            "<circular>": "88281ca8adfffff"
+          },
+          {
+            "<circular>": "88281c3b57fffff"
+          },
+          {
+            "<circular>": "88281c8d5bfffff"
+          },
+          {
+            "<circular>": "88281c031dfffff"
+          },
+          {
+            "<circular>": "88281cae37fffff"
+          },
+          {
+            "<circular>": "88281ca04bfffff"
+          },
+          {
+            "<circular>": "88281cb29dfffff"
+          },
+          {
+            "<circular>": "88281c8081fffff"
+          },
+          {
+            "<circular>": "88281c1141fffff"
+          },
+          {
+            "<circular>": "88281c11c5fffff"
+          },
+          {
+            "<circular>": "88281cc691fffff"
+          },
+          {
+            "<circular>": "88281ca4adfffff"
+          },
+          {
+            "<circular>": "88281c8705fffff"
+          },
+          {
+            "<circular>": "88281c819dfffff"
+          },
+          {
+            "<circular>": "88281cae13fffff"
+          },
+          {
+            "<circular>": "88281c8909fffff"
+          },
+          {
+            "<circular>": "88281c0e4dfffff"
+          },
+          {
+            "<circular>": "88281c172dfffff"
+          },
+          {
+            "<circular>": "88281c1003fffff"
+          },
+          {
+            "<circular>": "88281dd905fffff"
+          },
+          {
+            "<circular>": "88281cadd9fffff"
+          },
+          {
+            "<circular>": "88281c0021fffff"
+          },
+          {
+            "<circular>": "88281c02b3fffff"
+          },
+          {
+            "<circular>": "88281c0ad7fffff"
+          },
+          {
+            "<circular>": "88281c3339fffff"
+          },
+          {
+            "<circular>": "88281c0e63fffff"
+          },
+          {
+            "<circular>": "88281c88bbfffff"
+          },
+          {
+            "<circular>": "88281cb239fffff"
+          },
+          {
+            "<circular>": "88281cb415fffff"
+          },
+          {
+            "<circular>": "88281caac1fffff"
+          },
+          {
+            "<circular>": "88281cba63fffff"
+          },
+          {
+            "<circular>": "88281dda6bfffff"
+          },
+          {
+            "<circular>": "88281c8f23fffff"
+          },
+          {
+            "<circular>": "88281c8de7fffff"
+          },
+          {
+            "<circular>": "88281ca71dfffff"
+          },
+          {
+            "<circular>": "88281c3167fffff"
+          },
+          {
+            "<circular>": "8828034d1bfffff"
+          },
+          {
+            "<circular>": "88281ca113fffff"
+          },
+          {
+            "<circular>": "88281ca46dfffff"
+          },
+          {
+            "<circular>": "88281c02e5fffff"
+          },
+          {
+            "<circular>": "88281cab5dfffff"
+          },
+          {
+            "<circular>": "88281cab25fffff"
+          },
+          {
+            "<circular>": "88281cb06dfffff"
+          },
+          {
+            "<circular>": "88281cbb51fffff"
+          },
+          {
+            "<circular>": "88281c8a15fffff"
+          },
+          {
+            "<circular>": "88281ca0bbfffff"
+          },
+          {
+            "<circular>": "88281c894dfffff"
+          },
+          {
+            "<circular>": "88281cb2d3fffff"
+          },
+          {
+            "<circular>": "88281c88a7fffff"
+          },
+          {
+            "<circular>": "88281c05bbfffff"
+          },
+          {
+            "<circular>": "88281ca729fffff"
+          },
+          {
+            "<circular>": "88281c00abfffff"
+          },
+          {
+            "<circular>": "88281c0555fffff"
+          },
+          {
+            "<circular>": "88281c8e5dfffff"
+          },
+          {
+            "<circular>": "88281ca0bbfffff"
+          },
+          {
+            "<circular>": "88281c1597fffff"
+          },
+          {
+            "<circular>": "88281c88ddfffff"
+          },
+          {
+            "<circular>": "88281ca2b5fffff"
+          },
+          {
+            "<circular>": "88281cad9bfffff"
+          },
+          {
+            "<circular>": "88281c369bfffff"
+          },
+          {
+            "<circular>": "88281c854bfffff"
+          },
+          {
+            "<circular>": "88281cb135fffff"
+          },
+          {
+            "<circular>": "88281c0735fffff"
+          },
+          {
+            "<circular>": "88281c3047fffff"
+          },
+          {
+            "<circular>": "88281c372dfffff"
+          },
+          {
+            "<circular>": "88281cad43fffff"
+          },
+          {
+            "<circular>": "88281cb83bfffff"
+          },
+          {
+            "<circular>": "88281c10b5fffff"
+          },
+          {
+            "<circular>": "88281c89a7fffff"
+          },
+          {
+            "<circular>": "88281ca5d3fffff"
+          },
+          {
+            "<circular>": "8828034d25fffff"
+          },
+          {
+            "<circular>": "88281ca62dfffff"
+          },
+          {
+            "<circular>": "88281cb2abfffff"
+          },
+          {
+            "<circular>": "88281c8c1dfffff"
+          },
+          {
+            "<circular>": "88281cc681fffff"
+          },
+          {
+            "<circular>": "88281c870bfffff"
+          },
+          {
+            "<circular>": "88281c3b4bfffff"
+          },
+          {
+            "<circular>": "88281cba67fffff"
+          },
+          {
+            "<circular>": "88281c10a1fffff"
+          },
+          {
+            "<circular>": "88281c0f35fffff"
+          },
+          {
+            "<circular>": "88281cb24dfffff"
+          },
+          {
+            "<circular>": "88281c1507fffff"
+          },
+          {
+            "<circular>": "88281c0739fffff"
+          },
+          {
+            "<circular>": "88281c1039fffff"
+          },
+          {
+            "<circular>": "88281c8a25fffff"
+          },
+          {
+            "<circular>": "88281c1ad9fffff"
+          },
+          {
+            "<circular>": "88281cba4bfffff"
+          },
+          {
+            "<circular>": "88281ca9a7fffff"
+          },
+          {
+            "<circular>": "88281c0eabfffff"
+          },
+          {
+            "<circular>": "88281c0105fffff"
+          },
+          {
+            "<circular>": "88281ca54bfffff"
+          },
+          {
+            "<circular>": "88281cb453fffff"
+          },
+          {
+            "<circular>": "88281c854bfffff"
+          },
+          {
+            "<circular>": "88281c3603fffff"
+          },
+          {
+            "<circular>": "88281c8c2bfffff"
+          },
+          {
+            "<circular>": "88281c0e85fffff"
+          },
+          {
+            "<circular>": "88281c010bfffff"
+          },
+          {
+            "<circular>": "88281ca723fffff"
+          },
+          {
+            "<circular>": "88281c30ebfffff"
+          },
+          {
+            "<circular>": "88281caf49fffff"
+          },
+          {
+            "<circular>": "88281c8891fffff"
+          },
+          {
+            "<circular>": "88281c8aebfffff"
+          },
+          {
+            "<circular>": "88281c8ac9fffff"
+          },
+          {
+            "<circular>": "88281ca0e5fffff"
+          },
+          {
+            "<circular>": "88281cac8dfffff"
+          },
+          {
+            "<circular>": "88281c11b5fffff"
+          },
+          {
+            "<circular>": "88281c16edfffff"
+          },
+          {
+            "<circular>": "88281c373bfffff"
+          },
+          {
+            "<circular>": "88281c84e7fffff"
+          },
+          {
+            "<circular>": "88281ca413fffff"
+          },
+          {
+            "<circular>": "88281c0123fffff"
+          },
+          {
+            "<circular>": "88281c8ec3fffff"
+          },
+          {
+            "<circular>": "88281cb8e9fffff"
+          },
+          {
+            "<circular>": "88281c8a27fffff"
+          },
+          {
+            "<circular>": "88281cb961fffff"
+          },
+          {
+            "<circular>": "88281ca8e9fffff"
+          },
+          {
+            "<circular>": "88281ca159fffff"
+          },
+          {
+            "<circular>": "88281cac25fffff"
+          },
+          {
+            "<circular>": "88281c14c9fffff"
+          },
+          {
+            "<circular>": "88281ca723fffff"
+          },
+          {
+            "<circular>": "88281c0ecdfffff"
+          },
+          {
+            "<circular>": "88281cb16bfffff"
+          },
+          {
+            "<circular>": "88281c1699fffff"
+          },
+          {
+            "<circular>": "88281c0553fffff"
+          },
+          {
+            "<circular>": "88281ca903fffff"
+          },
+          {
+            "<circular>": "88281c04b5fffff"
+          },
+          {
+            "<circular>": "88281c11c7fffff"
+          },
+          {
+            "<circular>": "88281c0f07fffff"
+          },
+          {
+            "<circular>": "88281cba0bfffff"
+          },
+          {
+            "<circular>": "88281cb317fffff"
+          },
+          {
+            "<circular>": "88281c0ec7fffff"
+          },
+          {
+            "<circular>": "8828034da7fffff"
+          },
+          {
+            "<circular>": "88281cab63fffff"
+          },
+          {
+            "<circular>": "88281c3299fffff"
+          },
+          {
+            "<circular>": "88281cace5fffff"
+          },
+          {
+            "<circular>": "88281c1507fffff"
+          },
+          {
+            "<circular>": "88281c1507fffff"
+          },
+          {
+            "<circular>": "88281c10ebfffff"
+          },
+          {
+            "<circular>": "88281cb239fffff"
+          },
+          {
+            "<circular>": "88281c305dfffff"
+          },
+          {
+            "<circular>": "88281ddb03fffff"
+          },
+          {
+            "<circular>": "88281ca519fffff"
+          },
+          {
+            "<circular>": "88281c30ddfffff"
+          },
+          {
+            "<circular>": "88281dd99bfffff"
+          },
+          {
+            "<circular>": "88281ca5abfffff"
+          },
+          {
+            "<circular>": "88281cb421fffff"
+          },
+          {
+            "<circular>": "88281cb06bfffff"
+          },
+          {
+            "<circular>": "88281c8843fffff"
+          },
+          {
+            "<circular>": "88281ca983fffff"
+          },
+          {
+            "<circular>": "88281ca115fffff"
+          },
+          {
+            "<circular>": "88281cade5fffff"
+          },
+          {
+            "<circular>": "88281ca02dfffff"
+          },
+          {
+            "<circular>": "8828034d1bfffff"
+          },
+          {
+            "<circular>": "88281c10c9fffff"
+          },
+          {
+            "<circular>": "88281ddb1bfffff"
+          },
+          {
+            "<circular>": "88281c89e7fffff"
+          },
+          {
+            "<circular>": "88281c0d65fffff"
+          },
+          {
+            "<circular>": "88281cb0cdfffff"
+          },
+          {
+            "<circular>": "88281c361bfffff"
+          },
+          {
+            "<circular>": "88281c890dfffff"
+          },
+          {
+            "<circular>": "88281c89e1fffff"
+          },
+          {
+            "<circular>": "88280349a9fffff"
+          },
+          {
+            "<circular>": "88281c8b19fffff"
+          },
+          {
+            "<circular>": "88281ca2c5fffff"
+          },
+          {
+            "<circular>": "88281caabbfffff"
+          },
+          {
+            "<circular>": "88281cb2b5fffff"
+          },
+          {
+            "<circular>": "88281cb847fffff"
+          },
+          {
+            "<circular>": "88281c85c5fffff"
+          },
+          {
+            "<circular>": "88281c11c7fffff"
+          },
+          {
+            "<circular>": "88281cb089fffff"
+          },
+          {
+            "<circular>": "88281c3339fffff"
+          },
+          {
+            "<circular>": "88281cb0cdfffff"
+          },
+          {
+            "<circular>": "88281ca819fffff"
+          },
+          {
+            "<circular>": "88281ca437fffff"
+          },
+          {
+            "<circular>": "88281cb425fffff"
+          },
+          {
+            "<circular>": "88281c3113fffff"
+          },
+          {
+            "<circular>": "88281c01b9fffff"
+          },
+          {
+            "<circular>": "88281c1529fffff"
+          },
+          {
+            "<circular>": "88281ca60bfffff"
+          },
+          {
+            "<circular>": "88281c1421fffff"
+          },
+          {
+            "<circular>": "88281c3a65fffff"
+          },
+          {
+            "<circular>": "88281c32ebfffff"
+          },
+          {
+            "<circular>": "88281c86a1fffff"
+          },
+          {
+            "<circular>": "88281c00e5fffff"
+          },
+          {
+            "<circular>": "88281cb9d5fffff"
+          },
+          {
+            "<circular>": "88281c3a5dfffff"
+          },
+          {
+            "<circular>": "8828034d67fffff"
+          },
+          {
+            "<circular>": "88281cbabdfffff"
+          },
+          {
+            "<circular>": "88281cb0bbfffff"
+          },
+          {
+            "<circular>": "88281cb713fffff"
+          },
+          {
+            "<circular>": "88281c0ea5fffff"
+          },
+          {
+            "<circular>": "88281cd6b3fffff"
+          },
+          {
+            "<circular>": "88281c1481fffff"
+          },
+          {
+            "<circular>": "88281cba2bfffff"
+          },
+          {
+            "<circular>": "88281caec9fffff"
+          },
+          {
+            "<circular>": "88281dda63fffff"
+          },
+          {
+            "<circular>": "88281c3119fffff"
+          },
+          {
+            "<circular>": "88281cadc3fffff"
+          },
+          {
+            "<circular>": "88281c8e53fffff"
+          },
+          {
+            "<circular>": "88281cb281fffff"
+          },
+          {
+            "<circular>": "88281ca089fffff"
+          },
+          {
+            "<circular>": "88281c1501fffff"
+          },
+          {
+            "<circular>": "88281ca4adfffff"
+          },
+          {
+            "<circular>": "88281cb421fffff"
+          },
+          {
+            "<circular>": "88281dd805fffff"
+          },
+          {
+            "<circular>": "88280348bbfffff"
+          },
+          {
+            "<circular>": "88281cb24dfffff"
+          },
+          {
+            "<circular>": "88281c011dfffff"
+          },
+          {
+            "<circular>": "88281dd86dfffff"
+          },
+          {
+            "<circular>": "88281dd935fffff"
+          },
+          {
+            "<circular>": "88281cb265fffff"
+          },
+          {
+            "<circular>": "88281cba27fffff"
+          },
+          {
+            "<circular>": "88281c05dbfffff"
+          },
+          {
+            "<circular>": "88281c3689fffff"
+          },
+          {
+            "<circular>": "88281cac15fffff"
+          },
+          {
+            "<circular>": "88281ddb05fffff"
+          },
+          {
+            "<circular>": "88281c8c9dfffff"
+          },
+          {
+            "<circular>": "88281c15a9fffff"
+          },
+          {
+            "<circular>": "88281cb0adfffff"
+          },
+          {
+            "<circular>": "88281c1299fffff"
+          },
+          {
+            "<circular>": "88281cba57fffff"
+          },
+          {
+            "<circular>": "88281c89e3fffff"
+          },
+          {
+            "<circular>": "88281cab1dfffff"
+          },
+          {
+            "<circular>": "88281c06b3fffff"
+          },
+          {
+            "<circular>": "88281ca73dfffff"
+          },
+          {
+            "<circular>": "88281c1285fffff"
+          },
+          {
+            "<circular>": "88281c8e19fffff"
+          },
+          {
+            "<circular>": "88281c0f35fffff"
+          },
+          {
+            "<circular>": "88281c8631fffff"
+          },
+          {
+            "<circular>": "88281cb80dfffff"
+          },
+          {
+            "<circular>": "88281c01a7fffff"
+          },
+          {
+            "<circular>": "88281cb40bfffff"
+          },
+          {
+            "<circular>": "88281c0f45fffff"
+          },
+          {
+            "<circular>": "88281cbb27fffff"
+          },
+          {
+            "<circular>": "88281dda49fffff"
+          },
+          {
+            "<circular>": "88281ca163fffff"
+          },
+          {
+            "<circular>": "88281c102bfffff"
+          },
+          {
+            "<circular>": "88281c0459fffff"
+          },
+          {
+            "<circular>": "88281c85bdfffff"
+          },
+          {
+            "<circular>": "88281c0c0dfffff"
+          },
+          {
+            "<circular>": "88281c8963fffff"
+          },
+          {
+            "<circular>": "88281c164dfffff"
+          },
+          {
+            "<circular>": "88281c8b51fffff"
+          },
+          {
+            "<circular>": "88281dd841fffff"
+          },
+          {
+            "<circular>": "88281cd4d9fffff"
+          },
+          {
+            "<circular>": "88281c1101fffff"
+          },
+          {
+            "<circular>": "8828034d25fffff"
+          },
+          {
+            "<circular>": "88281c8ec3fffff"
+          },
+          {
+            "<circular>": "88281ca205fffff"
+          },
+          {
+            "<circular>": "88281c30e1fffff"
+          },
+          {
+            "<circular>": "88281cb983fffff"
+          },
+          {
+            "<circular>": "88281cb433fffff"
+          },
+          {
+            "<circular>": "88281c0d63fffff"
+          },
+          {
+            "<circular>": "88281ca9d5fffff"
+          },
+          {
+            "<circular>": "88281c1685fffff"
+          },
+          {
+            "<circular>": "88281c8565fffff"
+          },
+          {
+            "<circular>": "88281ca285fffff"
+          },
+          {
+            "<circular>": "88281caf21fffff"
+          },
+          {
+            "<circular>": "88281c3365fffff"
+          },
+          {
+            "<circular>": "88281c882bfffff"
+          },
+          {
+            "<circular>": "88281caa33fffff"
+          },
+          {
+            "<circular>": "88281c1897fffff"
+          },
+          {
+            "<circular>": "88281c88b5fffff"
+          },
+          {
+            "<circular>": "88281cb565fffff"
+          },
+          {
+            "<circular>": "88281cb8c5fffff"
+          },
+          {
+            "<circular>": "88281cb355fffff"
+          },
+          {
+            "<circular>": "88281cb2a7fffff"
+          },
+          {
+            "<circular>": "88281cb54bfffff"
+          },
+          {
+            "<circular>": "88281c8de3fffff"
+          },
+          {
+            "<circular>": "88281caed9fffff"
+          },
+          {
+            "<circular>": "88281c08cdfffff"
+          },
+          {
+            "<circular>": "88281cb033fffff"
+          },
+          {
+            "<circular>": "88281cb8cbfffff"
+          },
+          {
+            "<circular>": "88281caa97fffff"
+          },
+          {
+            "<circular>": "88281ca4a7fffff"
+          },
+          {
+            "<circular>": "88281cb539fffff"
+          },
+          {
+            "<circular>": "88281c116bfffff"
+          },
+          {
+            "<circular>": "88281c84ddfffff"
+          },
+          {
+            "<circular>": "88281c0241fffff"
+          },
+          {
+            "<circular>": "88281ca323fffff"
+          },
+          {
+            "<circular>": "88281cb0a5fffff"
+          },
+          {
+            "<circular>": "88281c1503fffff"
+          },
+          {
+            "<circular>": "88281caf53fffff"
+          }
+        ],
+        "evi_measurements": [],
+        "moisture_stress_index": [],
+        "<circular>": "<circular>",
+        "spatial_coverage": "<circular>"
+      },
+      "forest_inventory": {
+        "<circular>": "USFS Forest Inventory Analysis (synthetic)",
+        "forest_plots": [
+          {
+            "plot_id": "DN_001",
+            "<circular>": "88281c8e51fffff",
+            "forest_type": "Redwood",
+            "basal_area_m2_ha": 108.87075439584186,
+            "tree_density_per_ha": 330.8556223244559,
+            "average_height_m": 94.36549963794391,
+            "age_class": "Mature",
+            "canopy_cover_percent": 78.94067742991913,
+            "understory_diversity": 1.5580276488487208,
+            "health_rating": "Fair"
+          },
+          {
+            "<circular>": "88281c12a9fffff"
+          },
+          {
+            "<circular>": "88281c0abdfffff"
+          },
+          {
+            "<circular>": "88281c8705fffff"
+          },
+          {
+            "<circular>": "88281c30e5fffff"
+          },
+          {
+            "<circular>": "88281ca99dfffff"
+          },
+          {
+            "<circular>": "88281cb0c1fffff"
+          },
+          {
+            "<circular>": "88281ca197fffff"
+          },
+          {
+            "<circular>": "88281c1ab3fffff"
+          },
+          {
+            "<circular>": "88281c0f55fffff"
+          },
+          {
+            "<circular>": "88281c8423fffff"
+          },
+          {
+            "<circular>": "88281c0245fffff"
+          },
+          {
+            "<circular>": "88281cae39fffff"
+          },
+          {
+            "<circular>": "88281c81e3fffff"
+          },
+          {
+            "<circular>": "88281cb589fffff"
+          },
+          {
+            "<circular>": "88281c32c7fffff"
+          },
+          {
+            "<circular>": "88281c36e1fffff"
+          },
+          {
+            "<circular>": "88281ca10bfffff"
+          },
+          {
+            "<circular>": "88281c3b51fffff"
+          },
+          {
+            "<circular>": "88281ca52dfffff"
+          },
+          {
+            "<circular>": "88281c0d01fffff"
+          },
+          {
+            "<circular>": "88281ca899fffff"
+          },
+          {
+            "<circular>": "88281c8c4bfffff"
+          },
+          {
+            "<circular>": "88281cab6dfffff"
+          },
+          {
+            "<circular>": "8828034c0bfffff"
+          },
+          {
+            "<circular>": "88281c076bfffff"
+          },
+          {
+            "<circular>": "88281c1639fffff"
+          },
+          {
+            "<circular>": "88281cba13fffff"
+          },
+          {
+            "<circular>": "88281c01bdfffff"
+          },
+          {
+            "<circular>": "88281cba09fffff"
+          },
+          {
+            "<circular>": "88281caac3fffff"
+          },
+          {
+            "<circular>": "88281c0085fffff"
+          },
+          {
+            "<circular>": "88281c1087fffff"
+          },
+          {
+            "<circular>": "88281caccbfffff"
+          },
+          {
+            "<circular>": "88281cae57fffff"
+          },
+          {
+            "<circular>": "88281ca11bfffff"
+          },
+          {
+            "<circular>": "88281dd981fffff"
+          },
+          {
+            "<circular>": "88281c8f19fffff"
+          },
+          {
+            "<circular>": "88281ca30bfffff"
+          },
+          {
+            "<circular>": "88281ca043fffff"
+          },
+          {
+            "<circular>": "88281c8813fffff"
+          },
+          {
+            "<circular>": "88281cb5a9fffff"
+          },
+          {
+            "<circular>": "88281ca22dfffff"
+          },
+          {
+            "<circular>": "88281caac7fffff"
+          },
+          {
+            "<circular>": "88281ca2a1fffff"
+          },
+          {
+            "<circular>": "8828034ca7fffff"
+          },
+          {
+            "<circular>": "88281c0553fffff"
+          },
+          {
+            "<circular>": "88281c8e97fffff"
+          },
+          {
+            "<circular>": "88281c0411fffff"
+          },
+          {
+            "<circular>": "88281c8401fffff"
+          }
+        ],
+        "species_composition": {},
+        "structure_metrics": {}
+      },
+      "climate": {
+        "<circular>": "Del Norte County Climate Stations (synthetic)",
+        "stations": [
+          {
+            "station_id": "KCEC",
+            "name": "Crescent City Airport",
+            "<circular>": -124.24,
+            "elevation": 61
+          },
+          {
+            "<circular>": 107
+          },
+          {
+            "<circular>": 18
+          }
+        ],
+        "measurements": [
+          {
+            "<circular>": "<circular>",
+            "temperature_c": 15.843281479196524,
+            "precipitation_mm": 0.9320351326114197,
+            "relative_humidity_percent": 72.55742567518526,
+            "wind_speed_ms": 5.264668664327062,
+            "solar_radiation_wm2": 65.71208014686445
+          },
+          {
+            "<circular>": 68.59722586507817
+          },
+          {
+            "<circular>": 141.57469819928792
+          },
+          {
+            "<circular>": 119.5416204183769
+          },
+          {
+            "<circular>": 101.31973610177258
+          },
+          {
+            "<circular>": 37.35179892783637
+          },
+          {
+            "<circular>": 121.29787390133563
+          },
+          {
+            "<circular>": 78.68028103298903
+          },
+          {
+            "<circular>": 128.2098255502385
+          },
+          {
+            "<circular>": 128.84706185531738
+          },
+          {
+            "<circular>": 163.95045862181337
+          },
+          {
+            "<circular>": 108.81153007116102
+          },
+          {
+            "<circular>": 101.70231846665361
+          },
+          {
+            "<circular>": 138.21462503470804
+          },
+          {
+            "<circular>": 140.97193154205607
+          },
+          {
+            "<circular>": 67.63204629536722
+          },
+          {
+            "<circular>": 69.46342906094571
+          },
+          {
+            "<circular>": 160.74530989245517
+          },
+          {
+            "<circular>": 81.87744363488954
+          },
+          {
+            "<circular>": 32.11425271884981
+          },
+          {
+            "<circular>": 98.09224771917292
+          },
+          {
+            "<circular>": 136.88107569491552
+          },
+          {
+            "<circular>": 19.937348182991215
+          },
+          {
+            "<circular>": 83.61358891626995
+          },
+          {
+            "<circular>": 91.80086784478871
+          },
+          {
+            "<circular>": 145.78423979430602
+          },
+          {
+            "<circular>": 72.63271834167978
+          },
+          {
+            "<circular>": 99.77732728944441
+          },
+          {
+            "<circular>": 92.838906901237
+          },
+          {
+            "<circular>": 67.87363348163794
+          },
+          {
+            "<circular>": 59.76478745853204
+          },
+          {
+            "<circular>": 66.67590084069096
+          },
+          {
+            "<circular>": 78.69696539892274
+          },
+          {
+            "<circular>": 96.16724628600637
+          },
+          {
+            "<circular>": 47.397896791677965
+          },
+          {
+            "<circular>": 59.223241922083744
+          },
+          {
+            "<circular>": 93.54133809424152
+          },
+          {
+            "<circular>": 50.16832959265007
+          },
+          {
+            "<circular>": 96.88908251898975
+          },
+          {
+            "<circular>": 118.08396073587195
+          },
+          {
+            "<circular>": 138.98833280535115
+          },
+          {
+            "<circular>": 56.82474478474409
+          },
+          {
+            "<circular>": 34.61873713419546
+          },
+          {
+            "<circular>": 118.25969240459338
+          },
+          {
+            "<circular>": 107.57584019450255
+          },
+          {
+            "<circular>": 45.59499018704927
+          },
+          {
+            "<circular>": 151.97738313797993
+          },
+          {
+            "<circular>": 61.89271923694855
+          },
+          {
+            "<circular>": 80.48633981702173
+          },
+          {
+            "<circular>": 47.38649428665142
+          },
+          {
+            "<circular>": 111.77745005611808
+          },
+          {
+            "<circular>": 102.74918757406809
+          },
+          {
+            "<circular>": 38.27633199737675
+          },
+          {
+            "<circular>": 85.01063762690652
+          },
+          {
+            "<circular>": 31.77339955220176
+          },
+          {
+            "<circular>": 105.04428712335871
+          },
+          {
+            "<circular>": 75.4273093544887
+          },
+          {
+            "<circular>": 152.7784923073961
+          },
+          {
+            "<circular>": 39.13463650508305
+          },
+          {
+            "<circular>": 114.29256313802462
+          },
+          {
+            "<circular>": 61.40858594933182
+          },
+          {
+            "<circular>": 89.30519122936641
+          },
+          {
+            "<circular>": 104.08226335770249
+          },
+          {
+            "<circular>": 127.4193558117903
+          },
+          {
+            "<circular>": 82.49546261215342
+          },
+          {
+            "<circular>": 90.17988812739665
+          },
+          {
+            "<circular>": 75.83677757558827
+          },
+          {
+            "<circular>": 82.205960654221
+          },
+          {
+            "<circular>": 98.86048624537628
+          },
+          {
+            "<circular>": 77.92672015355097
+          },
+          {
+            "<circular>": 103.78866336903474
+          },
+          {
+            "<circular>": 88.69020942513747
+          },
+          {
+            "<circular>": 89.39462047086087
+          },
+          {
+            "<circular>": 62.12720345339246
+          },
+          {
+            "<circular>": 68.74344187004633
+          },
+          {
+            "<circular>": 125.95171008370997
+          },
+          {
+            "<circular>": 91.2582421621212
+          },
+          {
+            "<circular>": 69.00986427524168
+          },
+          {
+            "<circular>": 94.90698654114696
+          },
+          {
+            "<circular>": 67.55729985518224
+          },
+          {
+            "<circular>": 46.13335011591525
+          },
+          {
+            "<circular>": 39.18546346054441
+          },
+          {
+            "<circular>": 96.71786772257556
+          },
+          {
+            "<circular>": 75.73317738863439
+          },
+          {
+            "<circular>": 86.7367363345399
+          },
+          {
+            "<circular>": 46.24158712329091
+          },
+          {
+            "<circular>": 68.65451893143089
+          },
+          {
+            "<circular>": 100.02426870543084
+          },
+          {
+            "<circular>": 55.238178153106276
+          },
+          {
+            "<circular>": 52.29736738142512
+          },
+          {
+            "<circular>": 86.72795026796695
+          },
+          {
+            "<circular>": 70.55010463807002
+          },
+          {
+            "<circular>": 91.72881294271825
+          },
+          {
+            "<circular>": 39.69425271991264
+          },
+          {
+            "<circular>": 90.90128581207306
+          },
+          {
+            "<circular>": 121.35502261407652
+          },
+          {
+            "<circular>": 84.8307573092874
+          },
+          {
+            "<circular>": 80.56767369446261
+          },
+          {
+            "<circular>": 92.51910302124877
+          },
+          {
+            "<circular>": -5.211607365172782
+          },
+          {
+            "<circular>": 77.32300155150719
+          },
+          {
+            "<circular>": 57.381817941050834
+          },
+          {
+            "<circular>": 98.3405438693361
+          },
+          {
+            "<circular>": 44.9564833118373
+          },
+          {
+            "<circular>": 51.37921679583415
+          },
+          {
+            "<circular>": 77.35222845401842
+          },
+          {
+            "<circular>": 27.987954621275858
+          },
+          {
+            "<circular>": 79.63341284075719
+          },
+          {
+            "<circular>": 63.255593992114534
+          },
+          {
+            "<circular>": 56.600863165523734
+          },
+          {
+            "<circular>": 107.85338991468603
+          },
+          {
+            "<circular>": 64.11090955193737
+          },
+          {
+            "<circular>": 28.983549325313632
+          },
+          {
+            "<circular>": 46.33124592421036
+          },
+          {
+            "<circular>": 12.858524177001016
+          },
+          {
+            "<circular>": -9.942842515184338
+          },
+          {
+            "<circular>": 61.71812456671468
+          },
+          {
+            "<circular>": 41.55624944741361
+          },
+          {
+            "<circular>": 56.0155403761898
+          },
+          {
+            "<circular>": 56.32286847618884
+          },
+          {
+            "<circular>": 35.65910772449545
+          },
+          {
+            "<circular>": 20.403862467401133
+          },
+          {
+            "<circular>": -0.10184297432896017
+          },
+          {
+            "<circular>": 75.2002163955835
+          },
+          {
+            "<circular>": 73.94127756846314
+          },
+          {
+            "<circular>": 92.24154045691492
+          },
+          {
+            "<circular>": 90.38775800951251
+          },
+          {
+            "<circular>": 53.73358923705988
+          },
+          {
+            "<circular>": 34.04808208430123
+          },
+          {
+            "<circular>": 20.57559541120351
+          },
+          {
+            "<circular>": 27.332817879241603
+          },
+          {
+            "<circular>": 26.67744861188583
+          },
+          {
+            "<circular>": 87.52309185661358
+          },
+          {
+            "<circular>": 87.41701015177601
+          },
+          {
+            "<circular>": 52.05543357667014
+          },
+          {
+            "<circular>": 86.16110695754998
+          },
+          {
+            "<circular>": 75.74806024837207
+          },
+          {
+            "<circular>": 50.72839717662751
+          },
+          {
+            "<circular>": 54.63627206414733
+          },
+          {
+            "<circular>": 54.53503774361089
+          },
+          {
+            "<circular>": 46.93455578851243
+          },
+          {
+            "<circular>": 98.89264425600865
+          },
+          {
+            "<circular>": 2.869901807801284
+          },
+          {
+            "<circular>": 38.229487235305456
+          },
+          {
+            "<circular>": 75.02969722894167
+          },
+          {
+            "<circular>": 87.6221189193005
+          },
+          {
+            "<circular>": 12.096942937776419
+          },
+          {
+            "<circular>": 48.526876277446775
+          },
+          {
+            "<circular>": 77.84675633492553
+          },
+          {
+            "<circular>": 96.3933696612182
+          },
+          {
+            "<circular>": 26.56841941053943
+          },
+          {
+            "<circular>": 23.2846289423308
+          },
+          {
+            "<circular>": 1.502713511146652
+          },
+          {
+            "<circular>": 90.75371529225207
+          },
+          {
+            "<circular>": 22.605202174671224
+          },
+          {
+            "<circular>": 13.05717894349096
+          },
+          {
+            "<circular>": 56.6107688728803
+          },
+          {
+            "<circular>": 71.13727679979604
+          },
+          {
+            "<circular>": 42.30482537347862
+          },
+          {
+            "<circular>": 76.20704832586512
+          },
+          {
+            "<circular>": 30.700676038931036
+          },
+          {
+            "<circular>": 38.99012746300256
+          },
+          {
+            "<circular>": 53.984301521882905
+          },
+          {
+            "<circular>": 19.147088336970434
+          },
+          {
+            "<circular>": 29.35620565516952
+          },
+          {
+            "<circular>": 9.707850385539032
+          },
+          {
+            "<circular>": 109.41047724180754
+          },
+          {
+            "<circular>": 18.683268023355506
+          },
+          {
+            "<circular>": 50.949344860702794
+          },
+          {
+            "<circular>": 42.82603377284525
+          },
+          {
+            "<circular>": 49.09785366673149
+          },
+          {
+            "<circular>": 23.551077555403023
+          },
+          {
+            "<circular>": 18.708954488488494
+          },
+          {
+            "<circular>": 39.23140285186523
+          },
+          {
+            "<circular>": 74.7678013011812
+          },
+          {
+            "<circular>": 31.22952019695011
+          },
+          {
+            "<circular>": 63.30656187277253
+          },
+          {
+            "<circular>": 35.87630330891261
+          },
+          {
+            "<circular>": 37.25702547734869
+          },
+          {
+            "<circular>": 68.15795250679449
+          },
+          {
+            "<circular>": 39.455787337336375
+          },
+          {
+            "<circular>": 79.17733244408171
+          },
+          {
+            "<circular>": 66.19312814323408
+          },
+          {
+            "<circular>": 0.7849664625401189
+          },
+          {
+            "<circular>": 100.8101629285845
+          },
+          {
+            "<circular>": 37.17943145721141
+          },
+          {
+            "<circular>": 66.32878607655404
+          },
+          {
+            "<circular>": 22.803586723758613
+          },
+          {
+            "<circular>": 39.38516515112864
+          },
+          {
+            "<circular>": 49.59239360809776
+          },
+          {
+            "<circular>": 69.72408409983166
+          },
+          {
+            "<circular>": 33.3738641650395
+          },
+          {
+            "<circular>": 30.779804271445045
+          },
+          {
+            "<circular>": 27.00172208672479
+          },
+          {
+            "<circular>": 52.79374400356254
+          },
+          {
+            "<circular>": 69.95358399852779
+          },
+          {
+            "<circular>": 8.582377011567552
+          },
+          {
+            "<circular>": 43.767372900219
+          },
+          {
+            "<circular>": 28.906424415959474
+          },
+          {
+            "<circular>": 41.36301781548073
+          },
+          {
+            "<circular>": 45.423787448407026
+          },
+          {
+            "<circular>": 4.34574082024492
+          },
+          {
+            "<circular>": 66.56582775787078
+          },
+          {
+            "<circular>": 42.48865648298735
+          },
+          {
+            "<circular>": 57.67173284040283
+          },
+          {
+            "<circular>": 24.989611549500324
+          },
+          {
+            "<circular>": 55.173215338641945
+          },
+          {
+            "<circular>": 66.56436867905572
+          },
+          {
+            "<circular>": 39.8310634815698
+          },
+          {
+            "<circular>": 20.972070553484365
+          },
+          {
+            "<circular>": 54.95883280062579
+          },
+          {
+            "<circular>": 27.191003725660472
+          },
+          {
+            "<circular>": 61.72043226279871
+          },
+          {
+            "<circular>": -1.6351857909110734
+          },
+          {
+            "<circular>": 37.84739272236043
+          },
+          {
+            "<circular>": 13.218439741485753
+          },
+          {
+            "<circular>": 27.65967335907301
+          },
+          {
+            "<circular>": 85.51507821743482
+          },
+          {
+            "<circular>": 39.673045737221436
+          },
+          {
+            "<circular>": 100.47968973367679
+          },
+          {
+            "<circular>": 77.89739087266165
+          },
+          {
+            "<circular>": 94.04415487422904
+          },
+          {
+            "<circular>": 43.57539171899022
+          },
+          {
+            "<circular>": 41.22074856997653
+          },
+          {
+            "<circular>": 28.80538199798806
+          },
+          {
+            "<circular>": -0.5582267429028391
+          },
+          {
+            "<circular>": 78.05949308793929
+          },
+          {
+            "<circular>": 61.32997247294049
+          },
+          {
+            "<circular>": 100.35602079196683
+          },
+          {
+            "<circular>": 8.163753776876597
+          },
+          {
+            "<circular>": -21.712812395491014
+          },
+          {
+            "<circular>": 34.558428749800285
+          },
+          {
+            "<circular>": 34.69611314372066
+          },
+          {
+            "<circular>": 105.33836666593456
+          },
+          {
+            "<circular>": 45.235779147389636
+          },
+          {
+            "<circular>": 19.741668114017216
+          },
+          {
+            "<circular>": 65.21559281511853
+          },
+          {
+            "<circular>": 56.38965162157409
+          },
+          {
+            "<circular>": 62.24376140785651
+          },
+          {
+            "<circular>": 87.64428688121555
+          },
+          {
+            "<circular>": 46.09747977455183
+          },
+          {
+            "<circular>": 97.48220878313776
+          },
+          {
+            "<circular>": 29.770025440856372
+          },
+          {
+            "<circular>": 74.06867228489467
+          },
+          {
+            "<circular>": 119.71519813749212
+          },
+          {
+            "<circular>": 58.42471805386988
+          },
+          {
+            "<circular>": 51.453028248412735
+          },
+          {
+            "<circular>": 70.24403035126686
+          },
+          {
+            "<circular>": 125.74321174239581
+          },
+          {
+            "<circular>": 65.67858064634294
+          },
+          {
+            "<circular>": 106.9625184969153
+          },
+          {
+            "<circular>": 83.52729833770488
+          },
+          {
+            "<circular>": 59.22710878375535
+          },
+          {
+            "<circular>": 29.818533382309624
+          },
+          {
+            "<circular>": 32.602789830579574
+          },
+          {
+            "<circular>": 80.20147434445065
+          },
+          {
+            "<circular>": 48.656340286803186
+          },
+          {
+            "<circular>": 110.47756875664962
+          },
+          {
+            "<circular>": 126.38109915289695
+          },
+          {
+            "<circular>": 101.13881173852548
+          },
+          {
+            "<circular>": 77.16953300635177
+          },
+          {
+            "<circular>": 34.023783110921244
+          },
+          {
+            "<circular>": 72.18689738306989
+          },
+          {
+            "<circular>": 33.17520144391822
+          },
+          {
+            "<circular>": 99.22047617772297
+          },
+          {
+            "<circular>": 131.4670051954856
+          },
+          {
+            "<circular>": 96.52745695400131
+          },
+          {
+            "<circular>": 92.37214763417569
+          },
+          {
+            "<circular>": 61.84809386151272
+          },
+          {
+            "<circular>": 96.71495624992079
+          },
+          {
+            "<circular>": 80.92797059863973
+          },
+          {
+            "<circular>": 58.94097294863478
+          },
+          {
+            "<circular>": 64.36760745940641
+          },
+          {
+            "<circular>": 70.62531165882626
+          },
+          {
+            "<circular>": 71.8568105521924
+          },
+          {
+            "<circular>": 34.68199247673816
+          },
+          {
+            "<circular>": 67.38566705398743
+          },
+          {
+            "<circular>": 116.26310486938482
+          },
+          {
+            "<circular>": 67.76061366878355
+          },
+          {
+            "<circular>": 98.0170021996803
+          },
+          {
+            "<circular>": 112.84736889900269
+          },
+          {
+            "<circular>": 84.11767959259376
+          },
+          {
+            "<circular>": 94.3055104011465
+          },
+          {
+            "<circular>": 123.73677698393564
+          },
+          {
+            "<circular>": 118.46399930886625
+          },
+          {
+            "<circular>": 104.49010686397224
+          },
+          {
+            "<circular>": 77.49369809562896
+          },
+          {
+            "<circular>": 67.96482934034003
+          },
+          {
+            "<circular>": 92.80677290629593
+          },
+          {
+            "<circular>": 100.51396990190369
+          },
+          {
+            "<circular>": 62.9041873063579
+          },
+          {
+            "<circular>": 81.19051596004446
+          },
+          {
+            "<circular>": 53.02497982464954
+          },
+          {
+            "<circular>": 121.69076732560093
+          },
+          {
+            "<circular>": 111.75103607756533
+          },
+          {
+            "<circular>": 117.81755192025041
+          },
+          {
+            "<circular>": 75.39141430573405
+          },
+          {
+            "<circular>": 99.37996540788023
+          },
+          {
+            "<circular>": 79.75757790156071
+          },
+          {
+            "<circular>": 95.35550520120655
+          },
+          {
+            "<circular>": 100.79638566214669
+          },
+          {
+            "<circular>": 77.52920704263121
+          },
+          {
+            "<circular>": 95.41086443489577
+          },
+          {
+            "<circular>": 136.51881250236084
+          },
+          {
+            "<circular>": 36.87363068708716
+          },
+          {
+            "<circular>": 113.66078447736635
+          },
+          {
+            "<circular>": 37.32399565575851
+          },
+          {
+            "<circular>": 101.80560016335566
+          },
+          {
+            "<circular>": 87.22424516023015
+          },
+          {
+            "<circular>": 95.71546699831168
+          },
+          {
+            "<circular>": 154.09554894629744
+          },
+          {
+            "<circular>": 80.06637746982979
+          },
+          {
+            "<circular>": 118.8957152583996
+          },
+          {
+            "<circular>": 79.4778972200569
+          },
+          {
+            "<circular>": 83.56602602834718
+          },
+          {
+            "<circular>": 98.70248153997241
+          },
+          {
+            "<circular>": 63.81104756202187
+          },
+          {
+            "<circular>": 149.4145859115895
+          },
+          {
+            "<circular>": 105.75756550735754
+          },
+          {
+            "<circular>": 117.12534474022246
+          },
+          {
+            "<circular>": 70.5249770787978
+          },
+          {
+            "<circular>": 129.5771087420159
+          },
+          {
+            "<circular>": 81.19943773577086
+          },
+          {
+            "<circular>": 86.27084644992499
+          },
+          {
+            "<circular>": 95.16915776211798
+          },
+          {
+            "<circular>": 143.85251589456112
+          },
+          {
+            "<circular>": 91.79261005021517
+          },
+          {
+            "<circular>": 60.77721806141843
+          },
+          {
+            "<circular>": 77.06938305188861
+          },
+          {
+            "<circular>": 98.2641090881188
+          },
+          {
+            "<circular>": 146.8104719503553
+          },
+          {
+            "<circular>": 151.88929089006575
+          },
+          {
+            "<circular>": 75.8634317878695
+          },
+          {
+            "<circular>": 119.05258461031823
+          },
+          {
+            "<circular>": 149.22582569909997
+          },
+          {
+            "<circular>": 143.65730986474625
+          },
+          {
+            "<circular>": 100.8362072909493
+          },
+          {
+            "<circular>": 154.34178147613036
+          },
+          {
+            "<circular>": 120.81316691854911
+          },
+          {
+            "<circular>": 109.73499037786094
+          },
+          {
+            "<circular>": 111.70356689099924
+          },
+          {
+            "<circular>": 107.08999020439632
+          },
+          {
+            "<circular>": 143.16029437953034
+          },
+          {
+            "<circular>": 109.45713871527235
+          },
+          {
+            "<circular>": 91.07802371874054
+          },
+          {
+            "<circular>": 147.497614486279
+          },
+          {
+            "<circular>": 54.45768449173657
+          },
+          {
+            "<circular>": 119.8051907409196
+          },
+          {
+            "<circular>": 86.73437599126888
+          },
+          {
+            "<circular>": 148.85197466869622
+          },
+          {
+            "<circular>": 99.62974413946186
+          },
+          {
+            "<circular>": 182.74322572056343
+          },
+          {
+            "<circular>": 79.09655435536928
+          },
+          {
+            "<circular>": 158.13567873562465
+          },
+          {
+            "<circular>": 195.02148856776085
+          },
+          {
+            "<circular>": 73.82597362566068
+          },
+          {
+            "<circular>": 83.08631237606659
+          },
+          {
+            "<circular>": 102.66278599995009
+          },
+          {
+            "<circular>": 156.8459353768139
+          },
+          {
+            "<circular>": 112.23674914567368
+          },
+          {
+            "<circular>": 191.20554305625956
+          },
+          {
+            "<circular>": 97.20489741611155
+          },
+          {
+            "<circular>": 125.35736379833658
+          },
+          {
+            "<circular>": 209.77947491378046
+          },
+          {
+            "<circular>": 120.64462846762427
+          },
+          {
+            "<circular>": 203.8200365040816
+          },
+          {
+            "<circular>": 121.41472243386146
+          },
+          {
+            "<circular>": 169.04706285665242
+          },
+          {
+            "<circular>": 141.21268518470455
+          },
+          {
+            "<circular>": 149.22617523851642
+          },
+          {
+            "<circular>": 151.7183729445179
+          },
+          {
+            "<circular>": 207.85921856820178
+          },
+          {
+            "<circular>": 165.1700792429964
+          },
+          {
+            "<circular>": 121.93320387553057
+          },
+          {
+            "<circular>": 184.3255421126196
+          },
+          {
+            "<circular>": 148.18230085100274
+          },
+          {
+            "<circular>": 162.59334451509153
+          },
+          {
+            "<circular>": 176.36570305790804
+          },
+          {
+            "<circular>": 106.13552150814039
+          },
+          {
+            "<circular>": 193.68578179424532
+          },
+          {
+            "<circular>": 125.89773346244313
+          },
+          {
+            "<circular>": 203.62971788405935
+          },
+          {
+            "<circular>": 155.23451156837714
+          },
+          {
+            "<circular>": 192.82022857376558
+          },
+          {
+            "<circular>": 136.02788836635295
+          },
+          {
+            "<circular>": 188.0844135808405
+          },
+          {
+            "<circular>": 184.7118037607898
+          },
+          {
+            "<circular>": 196.09037154894258
+          },
+          {
+            "<circular>": 167.84457680874155
+          },
+          {
+            "<circular>": 123.44459729273713
+          },
+          {
+            "<circular>": 152.99764601436942
+          },
+          {
+            "<circular>": 212.91983708206277
+          },
+          {
+            "<circular>": 119.73471855815193
+          },
+          {
+            "<circular>": 153.75292213148754
+          },
+          {
+            "<circular>": 143.41250698936355
+          },
+          {
+            "<circular>": 109.10918270850858
+          },
+          {
+            "<circular>": 160.02958359447402
+          },
+          {
+            "<circular>": 136.93841541665543
+          },
+          {
+            "<circular>": 187.97600690649088
+          },
+          {
+            "<circular>": 147.10588987877298
+          },
+          {
+            "<circular>": 168.11315906120595
+          },
+          {
+            "<circular>": 154.30629440298043
+          },
+          {
+            "<circular>": 159.35130536502226
+          },
+          {
+            "<circular>": 144.33041241650588
+          },
+          {
+            "<circular>": 159.2228240761681
+          },
+          {
+            "<circular>": 133.1374613698478
+          },
+          {
+            "<circular>": 166.5013987162289
+          },
+          {
+            "<circular>": 163.49770524796978
+          },
+          {
+            "<circular>": 155.80133311476482
+          },
+          {
+            "<circular>": 175.02337395630445
+          },
+          {
+            "<circular>": 119.26183745325386
+          },
+          {
+            "<circular>": 167.75248825566248
+          },
+          {
+            "<circular>": 206.76675288567617
+          },
+          {
+            "<circular>": 151.172122254092
+          },
+          {
+            "<circular>": 146.18923454815354
+          },
+          {
+            "<circular>": 181.6723256006232
+          },
+          {
+            "<circular>": 156.97367904409182
+          },
+          {
+            "<circular>": 201.87412574650034
+          },
+          {
+            "<circular>": 210.83001258891537
+          },
+          {
+            "<circular>": 222.5108382212968
+          },
+          {
+            "<circular>": 219.68417380934739
+          },
+          {
+            "<circular>": 124.62725049398637
+          },
+          {
+            "<circular>": 200.518991560567
+          },
+          {
+            "<circular>": 183.05239999892964
+          },
+          {
+            "<circular>": 225.87144794406768
+          },
+          {
+            "<circular>": 123.08511090693366
+          },
+          {
+            "<circular>": 172.64429684776624
+          },
+          {
+            "<circular>": 161.03269890336148
+          },
+          {
+            "<circular>": 224.25205212822488
+          },
+          {
+            "<circular>": 199.38892156361544
+          },
+          {
+            "<circular>": 219.70916261384573
+          },
+          {
+            "<circular>": 221.05524396310594
+          },
+          {
+            "<circular>": 166.46813031632604
+          },
+          {
+            "<circular>": 307.8029073475891
+          },
+          {
+            "<circular>": 202.22362930359867
+          },
+          {
+            "<circular>": 205.02160872981523
+          },
+          {
+            "<circular>": 187.12763857083746
+          },
+          {
+            "<circular>": 201.76204441048026
+          },
+          {
+            "<circular>": 142.09845540615206
+          },
+          {
+            "<circular>": 189.8814523938677
+          },
+          {
+            "<circular>": 224.68697547499636
+          },
+          {
+            "<circular>": 200.112260505866
+          },
+          {
+            "<circular>": 212.59340181476225
+          },
+          {
+            "<circular>": 198.0104318134972
+          },
+          {
+            "<circular>": 210.18278218533953
+          },
+          {
+            "<circular>": 174.21768545070182
+          },
+          {
+            "<circular>": 183.12826858881942
+          },
+          {
+            "<circular>": 242.976780995949
+          },
+          {
+            "<circular>": 152.99345874412066
+          },
+          {
+            "<circular>": 236.38165145026124
+          },
+          {
+            "<circular>": 168.3361266777677
+          },
+          {
+            "<circular>": 190.7606309348955
+          },
+          {
+            "<circular>": 199.1089180773552
+          },
+          {
+            "<circular>": 234.07834878695186
+          },
+          {
+            "<circular>": 214.21941448524504
+          },
+          {
+            "<circular>": 214.9367616155178
+          },
+          {
+            "<circular>": 175.23119904844373
+          },
+          {
+            "<circular>": 188.86704544207333
+          },
+          {
+            "<circular>": 219.93156498800255
+          },
+          {
+            "<circular>": 235.61619182298895
+          },
+          {
+            "<circular>": 207.4633028695947
+          },
+          {
+            "<circular>": 259.8399521412379
+          },
+          {
+            "<circular>": 216.40398622412576
+          },
+          {
+            "<circular>": 203.9277663800917
+          },
+          {
+            "<circular>": 267.62181736556346
+          },
+          {
+            "<circular>": 239.17277265992547
+          },
+          {
+            "<circular>": 176.530249852126
+          },
+          {
+            "<circular>": 208.9010117182333
+          },
+          {
+            "<circular>": 203.42053388110668
+          },
+          {
+            "<circular>": 232.46931247335527
+          },
+          {
+            "<circular>": 265.81079884323174
+          },
+          {
+            "<circular>": 272.4330784677809
+          },
+          {
+            "<circular>": 217.26252629518314
+          },
+          {
+            "<circular>": 247.5132123494719
+          },
+          {
+            "<circular>": 227.33797226703672
+          },
+          {
+            "<circular>": 242.56246821035919
+          },
+          {
+            "<circular>": 253.85925201451158
+          },
+          {
+            "<circular>": 256.3367628885902
+          },
+          {
+            "<circular>": 198.7682842173412
+          },
+          {
+            "<circular>": 261.65764681893586
+          },
+          {
+            "<circular>": 280.25984632383495
+          },
+          {
+            "<circular>": 272.19239841524643
+          },
+          {
+            "<circular>": 238.0978940671283
+          },
+          {
+            "<circular>": 232.58541984145685
+          },
+          {
+            "<circular>": 201.9425558266684
+          },
+          {
+            "<circular>": 257.7232027308689
+          },
+          {
+            "<circular>": 266.3478943241703
+          },
+          {
+            "<circular>": 211.964165520336
+          },
+          {
+            "<circular>": 258.57552364721937
+          },
+          {
+            "<circular>": 221.95059979155712
+          },
+          {
+            "<circular>": 242.11901696514315
+          },
+          {
+            "<circular>": 226.61343907490152
+          },
+          {
+            "<circular>": 273.2716943961721
+          },
+          {
+            "<circular>": 250.35381991559714
+          },
+          {
+            "<circular>": 206.52489469005684
+          },
+          {
+            "<circular>": 292.95003046659804
+          },
+          {
+            "<circular>": 280.14904968032863
+          },
+          {
+            "<circular>": 203.24014836456837
+          },
+          {
+            "<circular>": 182.14727999699153
+          },
+          {
+            "<circular>": 208.53574211253306
+          },
+          {
+            "<circular>": 252.60817573783277
+          },
+          {
+            "<circular>": 225.33298845511405
+          },
+          {
+            "<circular>": 274.50905873430537
+          },
+          {
+            "<circular>": 284.0281248999783
+          },
+          {
+            "<circular>": 230.53356351634162
+          },
+          {
+            "<circular>": 273.468676030372
+          },
+          {
+            "<circular>": 257.74881841694435
+          },
+          {
+            "<circular>": 289.59327801209696
+          },
+          {
+            "<circular>": 223.24735819783194
+          },
+          {
+            "<circular>": 214.0917909393228
+          },
+          {
+            "<circular>": 259.74784618769587
+          },
+          {
+            "<circular>": 248.80242781518595
+          },
+          {
+            "<circular>": 308.0177869702767
+          },
+          {
+            "<circular>": 296.25636767054397
+          },
+          {
+            "<circular>": 237.87109172115711
+          },
+          {
+            "<circular>": 311.5318387563359
+          },
+          {
+            "<circular>": 287.86582317005025
+          },
+          {
+            "<circular>": 286.3993461653854
+          },
+          {
+            "<circular>": 260.7829383677224
+          },
+          {
+            "<circular>": 260.29939990333287
+          },
+          {
+            "<circular>": 305.3081083405314
+          },
+          {
+            "<circular>": 204.4852581629911
+          },
+          {
+            "<circular>": 252.82826254206643
+          },
+          {
+            "<circular>": 249.06172693114146
+          },
+          {
+            "<circular>": 327.773636584425
+          },
+          {
+            "<circular>": 266.612794659337
+          },
+          {
+            "<circular>": 265.36504835108843
+          },
+          {
+            "<circular>": 270.11709660280644
+          },
+          {
+            "<circular>": 248.82004755648467
+          },
+          {
+            "<circular>": 205.14643958496868
+          },
+          {
+            "<circular>": 262.9534196247922
+          },
+          {
+            "<circular>": 300.9311406116697
+          },
+          {
+            "<circular>": 281.57190953909566
+          },
+          {
+            "<circular>": 270.66366719893364
+          },
+          {
+            "<circular>": 307.02518742248833
+          },
+          {
+            "<circular>": 224.15307779981526
+          },
+          {
+            "<circular>": 312.67103744241444
+          },
+          {
+            "<circular>": 293.74248660260935
+          },
+          {
+            "<circular>": 315.72429863780127
+          },
+          {
+            "<circular>": 314.9615584894179
+          },
+          {
+            "<circular>": 347.42420334697107
+          },
+          {
+            "<circular>": 239.34935982886697
+          },
+          {
+            "<circular>": 245.41444306704966
+          },
+          {
+            "<circular>": 327.25981071578104
+          },
+          {
+            "<circular>": 267.68231582855236
+          },
+          {
+            "<circular>": 306.4142950543498
+          },
+          {
+            "<circular>": 258.7295107258843
+          },
+          {
+            "<circular>": 307.4347357969539
+          },
+          {
+            "<circular>": 315.3138634433363
+          },
+          {
+            "<circular>": 248.53293096975304
+          },
+          {
+            "<circular>": 259.1803574698442
+          },
+          {
+            "<circular>": 259.1802548211685
+          },
+          {
+            "<circular>": 233.30498607710564
+          },
+          {
+            "<circular>": 254.71305765073177
+          },
+          {
+            "<circular>": 284.2046050153544
+          },
+          {
+            "<circular>": 318.24285826869266
+          },
+          {
+            "<circular>": 273.12269127625694
+          },
+          {
+            "<circular>": 300.82073143043755
+          },
+          {
+            "<circular>": 340.9027116105622
+          },
+          {
+            "<circular>": 286.24133951417656
+          },
+          {
+            "<circular>": 308.45806677282553
+          },
+          {
+            "<circular>": 302.56721169767826
+          },
+          {
+            "<circular>": 269.4904960086054
+          },
+          {
+            "<circular>": 320.7344257580694
+          },
+          {
+            "<circular>": 304.5420608714481
+          },
+          {
+            "<circular>": 295.266734059003
+          },
+          {
+            "<circular>": 285.27335399805725
+          },
+          {
+            "<circular>": 337.25936160147444
+          },
+          {
+            "<circular>": 333.619129647668
+          },
+          {
+            "<circular>": 271.9770020830406
+          },
+          {
+            "<circular>": 298.0964004463397
+          },
+          {
+            "<circular>": 323.4118170316318
+          },
+          {
+            "<circular>": 252.30489195798637
+          },
+          {
+            "<circular>": 295.6666111936186
+          },
+          {
+            "<circular>": 289.16205112481833
+          },
+          {
+            "<circular>": 292.31693338248215
+          },
+          {
+            "<circular>": 364.8232837779152
+          },
+          {
+            "<circular>": 300.40406398664254
+          },
+          {
+            "<circular>": 314.69459129317113
+          },
+          {
+            "<circular>": 277.97608896648126
+          },
+          {
+            "<circular>": 279.5391643320877
+          },
+          {
+            "<circular>": 343.93885430315896
+          },
+          {
+            "<circular>": 282.3481865243318
+          },
+          {
+            "<circular>": 322.1646472448036
+          },
+          {
+            "<circular>": 319.9024527908079
+          },
+          {
+            "<circular>": 276.2380265798511
+          },
+          {
+            "<circular>": 379.53749240781167
+          },
+          {
+            "<circular>": 254.0256436069452
+          },
+          {
+            "<circular>": 358.0437835326595
+          },
+          {
+            "<circular>": 327.2044529235698
+          },
+          {
+            "<circular>": 334.12179060736383
+          },
+          {
+            "<circular>": 266.07717610459883
+          },
+          {
+            "<circular>": 338.28646195220733
+          },
+          {
+            "<circular>": 351.0446147011345
+          },
+          {
+            "<circular>": 314.419599699029
+          },
+          {
+            "<circular>": 329.5883089995607
+          },
+          {
+            "<circular>": 308.26388414473905
+          },
+          {
+            "<circular>": 291.6415774010033
+          },
+          {
+            "<circular>": 360.51197263400843
+          },
+          {
+            "<circular>": 263.3993513875769
+          },
+          {
+            "<circular>": 338.55159445493695
+          },
+          {
+            "<circular>": 309.9431779923879
+          },
+          {
+            "<circular>": 335.6379404376354
+          },
+          {
+            "<circular>": 335.88007087143836
+          },
+          {
+            "<circular>": 316.3027561480746
+          },
+          {
+            "<circular>": 315.5068316279842
+          },
+          {
+            "<circular>": 336.96996515273383
+          },
+          {
+            "<circular>": 308.8284257996567
+          },
+          {
+            "<circular>": 317.6999046229526
+          },
+          {
+            "<circular>": 340.60158909066786
+          },
+          {
+            "<circular>": 297.1650087888489
+          },
+          {
+            "<circular>": 324.1630466274465
+          },
+          {
+            "<circular>": 279.13826195450764
+          },
+          {
+            "<circular>": 293.5629112429477
+          },
+          {
+            "<circular>": 299.39710102453154
+          },
+          {
+            "<circular>": 291.9920743633662
+          },
+          {
+            "<circular>": 293.316315364657
+          },
+          {
+            "<circular>": 382.26749346673296
+          },
+          {
+            "<circular>": 277.65375399763644
+          },
+          {
+            "<circular>": 365.03785916544456
+          },
+          {
+            "<circular>": 260.28456644461244
+          },
+          {
+            "<circular>": 302.1313457792866
+          },
+          {
+            "<circular>": 279.0861811770665
+          },
+          {
+            "<circular>": 325.46478666962423
+          },
+          {
+            "<circular>": 313.6619175959256
+          },
+          {
+            "<circular>": 328.1822054854981
+          },
+          {
+            "<circular>": 335.27555567818507
+          },
+          {
+            "<circular>": 334.98132210611163
+          },
+          {
+            "<circular>": 311.07455540373735
+          },
+          {
+            "<circular>": 322.8939391212353
+          },
+          {
+            "<circular>": 384.83185710133654
+          },
+          {
+            "<circular>": 371.94574502361166
+          },
+          {
+            "<circular>": 351.61481169655514
+          },
+          {
+            "<circular>": 326.8619996930371
+          },
+          {
+            "<circular>": 391.40966983242134
+          },
+          {
+            "<circular>": 391.85935777073774
+          },
+          {
+            "<circular>": 316.3315649703841
+          },
+          {
+            "<circular>": 321.3936170666559
+          },
+          {
+            "<circular>": 347.5308696906247
+          },
+          {
+            "<circular>": 334.4550726442352
+          },
+          {
+            "<circular>": 313.0437347271164
+          },
+          {
+            "<circular>": 328.9220004786026
+          },
+          {
+            "<circular>": 324.8293341049638
+          },
+          {
+            "<circular>": 349.3454932096773
+          },
+          {
+            "<circular>": 314.2098608768758
+          },
+          {
+            "<circular>": 320.866528368787
+          },
+          {
+            "<circular>": 352.17684205231075
+          },
+          {
+            "<circular>": 353.82583325979067
+          },
+          {
+            "<circular>": 322.57431182266396
+          },
+          {
+            "<circular>": 378.1378497100139
+          },
+          {
+            "<circular>": 318.0539443659729
+          },
+          {
+            "<circular>": 386.68281937093286
+          },
+          {
+            "<circular>": 384.6799799046285
+          },
+          {
+            "<circular>": 316.2028805209986
+          },
+          {
+            "<circular>": 342.22465461854785
+          },
+          {
+            "<circular>": 341.2786327799689
+          },
+          {
+            "<circular>": 349.4349331934371
+          },
+          {
+            "<circular>": 301.4864277402118
+          },
+          {
+            "<circular>": 370.8284372386233
+          },
+          {
+            "<circular>": 325.50305354690596
+          },
+          {
+            "<circular>": 322.54123968088095
+          },
+          {
+            "<circular>": 349.703996358965
+          },
+          {
+            "<circular>": 307.5631786492589
+          },
+          {
+            "<circular>": 271.39788221643227
+          },
+          {
+            "<circular>": 367.5244532246231
+          },
+          {
+            "<circular>": 315.61377695998743
+          },
+          {
+            "<circular>": 336.056418394757
+          },
+          {
+            "<circular>": 379.2905901720863
+          },
+          {
+            "<circular>": 372.4470152836066
+          },
+          {
+            "<circular>": 284.49530290972837
+          },
+          {
+            "<circular>": 324.030565098741
+          },
+          {
+            "<circular>": 323.355477253395
+          },
+          {
+            "<circular>": 368.35085984279453
+          },
+          {
+            "<circular>": 360.06023451373943
+          },
+          {
+            "<circular>": 314.6776930065708
+          },
+          {
+            "<circular>": 319.38413028497416
+          },
+          {
+            "<circular>": 328.5012533071765
+          },
+          {
+            "<circular>": 326.0678277212277
+          },
+          {
+            "<circular>": 361.5909773676862
+          },
+          {
+            "<circular>": 366.98870922446457
+          },
+          {
+            "<circular>": 362.7417186717363
+          },
+          {
+            "<circular>": 269.56094972042746
+          },
+          {
+            "<circular>": 352.49613098864137
+          },
+          {
+            "<circular>": 403.95167737545785
+          },
+          {
+            "<circular>": 325.52263762452606
+          },
+          {
+            "<circular>": 353.9238858423856
+          },
+          {
+            "<circular>": 382.18493275619124
+          },
+          {
+            "<circular>": 359.33524628977364
+          },
+          {
+            "<circular>": 317.6068716163351
+          },
+          {
+            "<circular>": 356.4083584605331
+          },
+          {
+            "<circular>": 304.08807881543896
+          },
+          {
+            "<circular>": 358.47505742371555
+          },
+          {
+            "<circular>": 324.1984154848964
+          },
+          {
+            "<circular>": 407.58104522861595
+          },
+          {
+            "<circular>": 370.27490367640485
+          },
+          {
+            "<circular>": 321.60890930755676
+          },
+          {
+            "<circular>": 398.80804772205283
+          },
+          {
+            "<circular>": 309.08844136905105
+          },
+          {
+            "<circular>": 340.2772119758433
+          },
+          {
+            "<circular>": 303.99431512255114
+          },
+          {
+            "<circular>": 399.48648414768786
+          },
+          {
+            "<circular>": 356.0502977539496
+          },
+          {
+            "<circular>": 348.86610249969766
+          },
+          {
+            "<circular>": 355.9142414873791
+          },
+          {
+            "<circular>": 277.05305103339356
+          },
+          {
+            "<circular>": 313.3993726397854
+          },
+          {
+            "<circular>": 341.3487921922006
+          },
+          {
+            "<circular>": 348.78803579038805
+          },
+          {
+            "<circular>": 348.25603684807135
+          },
+          {
+            "<circular>": 331.2962606027193
+          },
+          {
+            "<circular>": 416.11129690235583
+          },
+          {
+            "<circular>": 398.2213548840923
+          },
+          {
+            "<circular>": 327.5303299222604
+          },
+          {
+            "<circular>": 382.28911434414545
+          },
+          {
+            "<circular>": 334.72407886046983
+          },
+          {
+            "<circular>": 335.3441176356627
+          },
+          {
+            "<circular>": 383.4300320952594
+          },
+          {
+            "<circular>": 330.4036937798587
+          },
+          {
+            "<circular>": 361.9115014391286
+          },
+          {
+            "<circular>": 355.9400943892769
+          },
+          {
+            "<circular>": 359.4701182435611
+          },
+          {
+            "<circular>": 329.6581087227179
+          },
+          {
+            "<circular>": 314.5736525692051
+          },
+          {
+            "<circular>": 363.68525226082494
+          },
+          {
+            "<circular>": 317.25231408852164
+          },
+          {
+            "<circular>": 364.8035754308827
+          },
+          {
+            "<circular>": 360.84288760145427
+          },
+          {
+            "<circular>": 300.4919875866474
+          },
+          {
+            "<circular>": 302.09718555281296
+          },
+          {
+            "<circular>": 339.0290325867943
+          },
+          {
+            "<circular>": 340.5250851557691
+          },
+          {
+            "<circular>": 382.6212990215874
+          },
+          {
+            "<circular>": 274.2458825431391
+          },
+          {
+            "<circular>": 366.9324921952508
+          },
+          {
+            "<circular>": 371.47603588598423
+          },
+          {
+            "<circular>": 324.14870132757363
+          },
+          {
+            "<circular>": 318.82051426829076
+          },
+          {
+            "<circular>": 356.9750168933463
+          },
+          {
+            "<circular>": 366.4604542127841
+          },
+          {
+            "<circular>": 307.07122071348203
+          },
+          {
+            "<circular>": 346.97654096924623
+          },
+          {
+            "<circular>": 353.74805300450225
+          },
+          {
+            "<circular>": 314.2947401258468
+          },
+          {
+            "<circular>": 336.27752345767607
+          },
+          {
+            "<circular>": 330.09595414302703
+          },
+          {
+            "<circular>": 361.52494111420117
+          },
+          {
+            "<circular>": 353.83990069295777
+          },
+          {
+            "<circular>": 365.4218054501016
+          },
+          {
+            "<circular>": 370.1366571835714
+          },
+          {
+            "<circular>": 364.16981631581126
+          },
+          {
+            "<circular>": 342.15305508925803
+          },
+          {
+            "<circular>": 343.4868631528023
+          },
+          {
+            "<circular>": 359.52845587634715
+          },
+          {
+            "<circular>": 354.06463118945817
+          },
+          {
+            "<circular>": 331.6198250604277
+          },
+          {
+            "<circular>": 368.1838152909956
+          },
+          {
+            "<circular>": 320.8403256519588
+          },
+          {
+            "<circular>": 308.530740520512
+          },
+          {
+            "<circular>": 371.1865947373009
+          },
+          {
+            "<circular>": 339.44916281490555
+          },
+          {
+            "<circular>": 319.9953571265361
+          },
+          {
+            "<circular>": 288.2707767719454
+          },
+          {
+            "<circular>": 324.90437169695645
+          },
+          {
+            "<circular>": 384.00253692372803
+          },
+          {
+            "<circular>": 391.25687621588133
+          },
+          {
+            "<circular>": 383.9478219150565
+          },
+          {
+            "<circular>": 292.52933843059975
+          },
+          {
+            "<circular>": 342.38389732174187
+          },
+          {
+            "<circular>": 311.52606353463824
+          },
+          {
+            "<circular>": 327.01505851291193
+          },
+          {
+            "<circular>": 383.94777287846676
+          },
+          {
+            "<circular>": 357.9631235660444
+          },
+          {
+            "<circular>": 311.5113279126954
+          },
+          {
+            "<circular>": 377.05686000703497
+          },
+          {
+            "<circular>": 405.81021747696747
+          },
+          {
+            "<circular>": 368.94678696629234
+          },
+          {
+            "<circular>": 343.7897919896797
+          },
+          {
+            "<circular>": 350.59339313774404
+          },
+          {
+            "<circular>": 314.37963276342106
+          },
+          {
+            "<circular>": 305.7123562454654
+          },
+          {
+            "<circular>": 361.5761690015079
+          },
+          {
+            "<circular>": 331.13281094734197
+          },
+          {
+            "<circular>": 320.2167216265342
+          },
+          {
+            "<circular>": 296.1438077237028
+          },
+          {
+            "<circular>": 374.0992138633694
+          },
+          {
+            "<circular>": 317.8030550381639
+          },
+          {
+            "<circular>": 364.35612990146984
+          },
+          {
+            "<circular>": 315.044630162174
+          },
+          {
+            "<circular>": 353.1959221666223
+          },
+          {
+            "<circular>": 346.3698553135529
+          },
+          {
+            "<circular>": 326.73252698168386
+          },
+          {
+            "<circular>": 344.077703574808
+          },
+          {
+            "<circular>": 332.0479389127688
+          },
+          {
+            "<circular>": 321.7286634773287
+          },
+          {
+            "<circular>": 349.47272980041754
+          },
+          {
+            "<circular>": 313.9707805033898
+          },
+          {
+            "<circular>": 306.78902156978677
+          },
+          {
+            "<circular>": 336.633525441868
+          },
+          {
+            "<circular>": 390.91291975934814
+          },
+          {
+            "<circular>": 294.1236262553721
+          },
+          {
+            "<circular>": 296.42633677153697
+          },
+          {
+            "<circular>": 343.0509038486286
+          },
+          {
+            "<circular>": 348.78529539766686
+          },
+          {
+            "<circular>": 300.0902150046788
+          },
+          {
+            "<circular>": 334.3673116138343
+          },
+          {
+            "<circular>": 324.45368601249874
+          },
+          {
+            "<circular>": 326.08270429899585
+          },
+          {
+            "<circular>": 295.0707908542679
+          },
+          {
+            "<circular>": 366.2398661329408
+          },
+          {
+            "<circular>": 333.6503428145652
+          },
+          {
+            "<circular>": 302.37658796364906
+          },
+          {
+            "<circular>": 381.0478529443356
+          },
+          {
+            "<circular>": 373.04079408198544
+          },
+          {
+            "<circular>": 365.96696406463514
+          },
+          {
+            "<circular>": 301.980808039002
+          },
+          {
+            "<circular>": 350.3279179739707
+          },
+          {
+            "<circular>": 337.06418137403233
+          },
+          {
+            "<circular>": 353.5911961952394
+          },
+          {
+            "<circular>": 319.91874216756185
+          },
+          {
+            "<circular>": 346.46007003558725
+          },
+          {
+            "<circular>": 311.237289207379
+          },
+          {
+            "<circular>": 365.5341143258955
+          },
+          {
+            "<circular>": 339.3694839131975
+          },
+          {
+            "<circular>": 324.5908798816001
+          },
+          {
+            "<circular>": 277.54826461603744
+          },
+          {
+            "<circular>": 332.216348448986
+          },
+          {
+            "<circular>": 309.72671223816263
+          },
+          {
+            "<circular>": 342.60875997078233
+          },
+          {
+            "<circular>": 302.9790091118077
+          },
+          {
+            "<circular>": 308.96041310967667
+          },
+          {
+            "<circular>": 294.1737091175217
+          },
+          {
+            "<circular>": 336.6272758879667
+          },
+          {
+            "<circular>": 332.31813754298366
+          },
+          {
+            "<circular>": 275.77650942630123
+          },
+          {
+            "<circular>": 256.49332050204055
+          },
+          {
+            "<circular>": 320.0222707444772
+          },
+          {
+            "<circular>": 303.93109712821195
+          },
+          {
+            "<circular>": 282.1890619055443
+          },
+          {
+            "<circular>": 331.0250518589284
+          },
+          {
+            "<circular>": 286.6634931364896
+          },
+          {
+            "<circular>": 321.3379403961541
+          },
+          {
+            "<circular>": 322.0532317815508
+          },
+          {
+            "<circular>": 311.4618455494404
+          },
+          {
+            "<circular>": 357.401728709081
+          },
+          {
+            "<circular>": 323.8794320842054
+          },
+          {
+            "<circular>": 315.4356436688185
+          },
+          {
+            "<circular>": 336.8373121168216
+          },
+          {
+            "<circular>": 332.3603062249978
+          },
+          {
+            "<circular>": 326.3441226741852
+          },
+          {
+            "<circular>": 269.348999878457
+          },
+          {
+            "<circular>": 299.22702148016504
+          },
+          {
+            "<circular>": 344.896300765863
+          },
+          {
+            "<circular>": 274.59855830741503
+          },
+          {
+            "<circular>": 291.13434363770114
+          },
+          {
+            "<circular>": 281.96008868089336
+          },
+          {
+            "<circular>": 249.6240835262703
+          },
+          {
+            "<circular>": 273.36585494326965
+          },
+          {
+            "<circular>": 281.2060905993961
+          },
+          {
+            "<circular>": 303.7969347686014
+          },
+          {
+            "<circular>": 312.0836676602343
+          },
+          {
+            "<circular>": 298.96018884710725
+          },
+          {
+            "<circular>": 338.34114185110013
+          },
+          {
+            "<circular>": 332.66985289879165
+          },
+          {
+            "<circular>": 282.8713734669841
+          },
+          {
+            "<circular>": 350.630774382339
+          },
+          {
+            "<circular>": 298.91930076517275
+          },
+          {
+            "<circular>": 295.72253725534557
+          },
+          {
+            "<circular>": 313.8243857557289
+          },
+          {
+            "<circular>": 299.36821956249975
+          },
+          {
+            "<circular>": 261.39044428261263
+          },
+          {
+            "<circular>": 251.4925923767472
+          },
+          {
+            "<circular>": 251.69982735531005
+          },
+          {
+            "<circular>": 244.24125735515474
+          },
+          {
+            "<circular>": 292.1737241111537
+          },
+          {
+            "<circular>": 302.0154529526162
+          },
+          {
+            "<circular>": 282.62735486101667
+          },
+          {
+            "<circular>": 296.0816114019859
+          },
+          {
+            "<circular>": 270.6354264853634
+          },
+          {
+            "<circular>": 258.23071861770717
+          },
+          {
+            "<circular>": 305.9921758675896
+          },
+          {
+            "<circular>": 214.69058484620555
+          },
+          {
+            "<circular>": 316.36768517350896
+          },
+          {
+            "<circular>": 266.3522882079923
+          },
+          {
+            "<circular>": 315.8663578634866
+          },
+          {
+            "<circular>": 262.09677901782305
+          },
+          {
+            "<circular>": 286.1220995020925
+          },
+          {
+            "<circular>": 263.407008253201
+          },
+          {
+            "<circular>": 268.90429135970004
+          },
+          {
+            "<circular>": 300.64871951084206
+          },
+          {
+            "<circular>": 260.16641111472467
+          },
+          {
+            "<circular>": 272.81919329433276
+          },
+          {
+            "<circular>": 220.37019109053182
+          },
+          {
+            "<circular>": 259.4237031551429
+          },
+          {
+            "<circular>": 310.02174375480024
+          },
+          {
+            "<circular>": 292.06999070973893
+          },
+          {
+            "<circular>": 254.25450456470796
+          },
+          {
+            "<circular>": 240.8353911748684
+          },
+          {
+            "<circular>": 247.52506419590225
+          },
+          {
+            "<circular>": 290.30778871820513
+          },
+          {
+            "<circular>": 191.08914018486183
+          },
+          {
+            "<circular>": 249.92806461622936
+          },
+          {
+            "<circular>": 260.38069441164185
+          },
+          {
+            "<circular>": 254.39104392362813
+          },
+          {
+            "<circular>": 316.61668119930687
+          },
+          {
+            "<circular>": 292.4471315219073
+          },
+          {
+            "<circular>": 258.9669029813905
+          },
+          {
+            "<circular>": 269.40462763403355
+          },
+          {
+            "<circular>": 255.8630202787212
+          },
+          {
+            "<circular>": 254.9748353674898
+          },
+          {
+            "<circular>": 239.69366962349912
+          },
+          {
+            "<circular>": 296.8396311671263
+          },
+          {
+            "<circular>": 257.349852749043
+          },
+          {
+            "<circular>": 310.97884093729533
+          },
+          {
+            "<circular>": 268.0229581818456
+          },
+          {
+            "<circular>": 252.03788395766983
+          },
+          {
+            "<circular>": 259.2026220629384
+          },
+          {
+            "<circular>": 299.14720302318176
+          },
+          {
+            "<circular>": 295.23549567781896
+          },
+          {
+            "<circular>": 247.27085595966363
+          },
+          {
+            "<circular>": 275.5574989681429
+          },
+          {
+            "<circular>": 260.7668573179841
+          },
+          {
+            "<circular>": 214.3591446539434
+          },
+          {
+            "<circular>": 293.9662786520767
+          },
+          {
+            "<circular>": 245.8590528486895
+          },
+          {
+            "<circular>": 251.00218013264677
+          },
+          {
+            "<circular>": 220.54985726197714
+          },
+          {
+            "<circular>": 215.2874361232387
+          },
+          {
+            "<circular>": 209.69340364623858
+          },
+          {
+            "<circular>": 221.97737426968445
+          },
+          {
+            "<circular>": 234.58931060058583
+          },
+          {
+            "<circular>": 199.15989849888427
+          },
+          {
+            "<circular>": 244.47653515357376
+          },
+          {
+            "<circular>": 261.46320193530465
+          },
+          {
+            "<circular>": 232.51580088806986
+          },
+          {
+            "<circular>": 170.43088554286965
+          },
+          {
+            "<circular>": 242.1197332019116
+          },
+          {
+            "<circular>": 249.70968878125527
+          },
+          {
+            "<circular>": 306.55081057494067
+          },
+          {
+            "<circular>": 305.70711488217046
+          },
+          {
+            "<circular>": 266.8850093306125
+          },
+          {
+            "<circular>": 209.36865713881608
+          },
+          {
+            "<circular>": 245.34213073923368
+          },
+          {
+            "<circular>": 215.23908736789616
+          },
+          {
+            "<circular>": 206.81812130667132
+          },
+          {
+            "<circular>": 245.70451542886985
+          },
+          {
+            "<circular>": 235.8936867347075
+          },
+          {
+            "<circular>": 227.31945445219512
+          },
+          {
+            "<circular>": 276.7557277120157
+          },
+          {
+            "<circular>": 206.06538788191202
+          },
+          {
+            "<circular>": 221.81062955429826
+          },
+          {
+            "<circular>": 194.10760563742002
+          },
+          {
+            "<circular>": 202.0554998138448
+          },
+          {
+            "<circular>": 212.01306066821866
+          },
+          {
+            "<circular>": 214.7284860996045
+          },
+          {
+            "<circular>": 201.69727951900435
+          },
+          {
+            "<circular>": 217.61538364707832
+          },
+          {
+            "<circular>": 212.72021653887106
+          },
+          {
+            "<circular>": 203.02417030249703
+          },
+          {
+            "<circular>": 232.62887184654286
+          },
+          {
+            "<circular>": 212.6632855467167
+          },
+          {
+            "<circular>": 200.71886065274236
+          },
+          {
+            "<circular>": 176.05460456291897
+          },
+          {
+            "<circular>": 202.3440770562266
+          },
+          {
+            "<circular>": 200.24918855117915
+          },
+          {
+            "<circular>": 194.75644711964586
+          },
+          {
+            "<circular>": 242.05460325834596
+          },
+          {
+            "<circular>": 233.5241635676036
+          },
+          {
+            "<circular>": 252.66919231329058
+          },
+          {
+            "<circular>": 182.50613308166788
+          },
+          {
+            "<circular>": 218.07213215272608
+          },
+          {
+            "<circular>": 217.48861343665936
+          },
+          {
+            "<circular>": 259.39922888587705
+          },
+          {
+            "<circular>": 210.2269387810394
+          },
+          {
+            "<circular>": 183.82663595515476
+          },
+          {
+            "<circular>": 232.69750339679035
+          },
+          {
+            "<circular>": 194.7632322300999
+          },
+          {
+            "<circular>": 228.76806142144653
+          },
+          {
+            "<circular>": 231.53510113562322
+          },
+          {
+            "<circular>": 234.00230954999813
+          },
+          {
+            "<circular>": 189.9365081280512
+          },
+          {
+            "<circular>": 201.64845505451353
+          },
+          {
+            "<circular>": 203.5049549508592
+          },
+          {
+            "<circular>": 228.28693822478076
+          },
+          {
+            "<circular>": 174.63967857114199
+          },
+          {
+            "<circular>": 215.9544079664504
+          },
+          {
+            "<circular>": 168.51248348132088
+          },
+          {
+            "<circular>": 243.6619473698106
+          },
+          {
+            "<circular>": 226.49962901169624
+          },
+          {
+            "<circular>": 213.42484512444796
+          },
+          {
+            "<circular>": 210.6302822215677
+          },
+          {
+            "<circular>": 194.2233582983384
+          },
+          {
+            "<circular>": 185.74750433117774
+          },
+          {
+            "<circular>": 214.97331319253357
+          },
+          {
+            "<circular>": 169.82200057084185
+          },
+          {
+            "<circular>": 141.18041405587837
+          },
+          {
+            "<circular>": 216.0883394858895
+          },
+          {
+            "<circular>": 217.8217581892702
+          },
+          {
+            "<circular>": 192.38519647417962
+          },
+          {
+            "<circular>": 165.49839281064834
+          },
+          {
+            "<circular>": 175.65275463975462
+          },
+          {
+            "<circular>": 189.4422675382346
+          },
+          {
+            "<circular>": 199.82801434107688
+          },
+          {
+            "<circular>": 194.27698136220386
+          },
+          {
+            "<circular>": 165.98570396874396
+          },
+          {
+            "<circular>": 234.11963917760505
+          },
+          {
+            "<circular>": 153.40909950413788
+          },
+          {
+            "<circular>": 168.59658778756733
+          },
+          {
+            "<circular>": 185.90806760474945
+          },
+          {
+            "<circular>": 236.93227885412
+          },
+          {
+            "<circular>": 169.23306296396413
+          },
+          {
+            "<circular>": 160.9272652107805
+          },
+          {
+            "<circular>": 184.5370498265927
+          },
+          {
+            "<circular>": 205.5972161114392
+          },
+          {
+            "<circular>": 187.87121852557158
+          },
+          {
+            "<circular>": 151.47759386701057
+          },
+          {
+            "<circular>": 185.468663097247
+          },
+          {
+            "<circular>": 185.59309062545333
+          },
+          {
+            "<circular>": 210.1686007371053
+          },
+          {
+            "<circular>": 133.94186805153979
+          },
+          {
+            "<circular>": 171.03278813212745
+          },
+          {
+            "<circular>": 191.50499584979352
+          },
+          {
+            "<circular>": 190.6924468481383
+          },
+          {
+            "<circular>": 189.21667665154686
+          },
+          {
+            "<circular>": 173.92056587460192
+          },
+          {
+            "<circular>": 207.58805195141028
+          },
+          {
+            "<circular>": 213.8441270821871
+          },
+          {
+            "<circular>": 115.60698560375627
+          },
+          {
+            "<circular>": 158.5121118879544
+          },
+          {
+            "<circular>": 185.36941857929125
+          },
+          {
+            "<circular>": 134.7092465217051
+          },
+          {
+            "<circular>": 148.26029944602078
+          },
+          {
+            "<circular>": 164.32884843081763
+          },
+          {
+            "<circular>": 173.47500098235187
+          },
+          {
+            "<circular>": 214.59408652245136
+          },
+          {
+            "<circular>": 164.78002108465526
+          },
+          {
+            "<circular>": 170.95645941044432
+          },
+          {
+            "<circular>": 138.60967474048664
+          },
+          {
+            "<circular>": 183.69475513313884
+          },
+          {
+            "<circular>": 147.3254583772113
+          },
+          {
+            "<circular>": 125.4066517337079
+          },
+          {
+            "<circular>": 184.65291098283217
+          },
+          {
+            "<circular>": 129.85389004272022
+          },
+          {
+            "<circular>": 153.98502079752095
+          },
+          {
+            "<circular>": 143.06192057710814
+          },
+          {
+            "<circular>": 157.20105362687445
+          },
+          {
+            "<circular>": 128.83190097109414
+          },
+          {
+            "<circular>": 117.13072214903663
+          },
+          {
+            "<circular>": 188.46016787203985
+          },
+          {
+            "<circular>": 160.14570713108483
+          },
+          {
+            "<circular>": 169.22383235965748
+          },
+          {
+            "<circular>": 132.15469989476944
+          },
+          {
+            "<circular>": 175.59447504420086
+          },
+          {
+            "<circular>": 172.25580377816897
+          },
+          {
+            "<circular>": 119.24889630953821
+          },
+          {
+            "<circular>": 134.928345533388
+          },
+          {
+            "<circular>": 178.07898843039092
+          },
+          {
+            "<circular>": 144.81907458389
+          },
+          {
+            "<circular>": 193.39260266497536
+          },
+          {
+            "<circular>": 106.60069477028371
+          },
+          {
+            "<circular>": 95.91197660597254
+          },
+          {
+            "<circular>": 129.39290927802455
+          },
+          {
+            "<circular>": 158.26514255940867
+          },
+          {
+            "<circular>": 97.30236735822655
+          },
+          {
+            "<circular>": 139.26314444571574
+          },
+          {
+            "<circular>": 154.0375714073638
+          },
+          {
+            "<circular>": 65.43065298976022
+          },
+          {
+            "<circular>": 141.9789111085462
+          },
+          {
+            "<circular>": 157.43315751896225
+          },
+          {
+            "<circular>": 156.22455723170378
+          },
+          {
+            "<circular>": 136.79466572453944
+          },
+          {
+            "<circular>": 74.787040281285
+          },
+          {
+            "<circular>": 131.76224578113096
+          },
+          {
+            "<circular>": 137.95698484730474
+          },
+          {
+            "<circular>": 141.55518353191124
+          },
+          {
+            "<circular>": 140.039748945023
+          },
+          {
+            "<circular>": 159.78855881287927
+          },
+          {
+            "<circular>": 116.92745284912634
+          },
+          {
+            "<circular>": 136.6596677925533
+          },
+          {
+            "<circular>": 215.16134320119392
+          },
+          {
+            "<circular>": 70.49629548671572
+          },
+          {
+            "<circular>": 128.74804524076418
+          },
+          {
+            "<circular>": 147.2072109427929
+          },
+          {
+            "<circular>": 198.39015654494185
+          },
+          {
+            "<circular>": 185.49598100435566
+          },
+          {
+            "<circular>": 165.37363176209092
+          },
+          {
+            "<circular>": 88.85833364001441
+          },
+          {
+            "<circular>": 151.8540407488561
+          },
+          {
+            "<circular>": 86.21549551559787
+          },
+          {
+            "<circular>": 170.52983642850145
+          },
+          {
+            "<circular>": 99.11039648787192
+          },
+          {
+            "<circular>": 155.38709612534416
+          },
+          {
+            "<circular>": 83.46008855722908
+          },
+          {
+            "<circular>": 88.74546210254547
+          },
+          {
+            "<circular>": 109.95060080106822
+          },
+          {
+            "<circular>": 128.7400939803416
+          },
+          {
+            "<circular>": 127.29100619750686
+          },
+          {
+            "<circular>": 153.8544389988217
+          },
+          {
+            "<circular>": 79.42357854136179
+          }
+        ]
+      }
+    }
+  },
+  "vegetation_analysis": {
+    "total_measurements": 1300,
+    "temporal_coverage": {
+      "start_date": "2024-08-07T18:24:32.133202",
+      "end_date": "2025-08-02T18:24:32.133202"
+    },
+    "<circular>": {
+      "n_h3_cells": 1163,
+      "lat_range": [
+        41.46077374794773,
+        42.005678721722326
+      ],
+      "lon_range": [
+        -124.40797321316683,
+        -123.5369551018066
+      ]
+    },
+    "ndvi_analysis": {
+      "mean": 0.3372771755677678,
+      "std": 0.1770827842949866,
+      "min": 0.0,
+      "max": 0.824156388323182,
+      "healthy_percent": 1.153846153846154,
+      "stressed_percent": 37.30769230769231,
+      "critical_percent": 25.92307692307692
+    },
+    "evi_analysis": {
+      "<circular>": 0.14743738196362702,
+      "correlation_with_ndvi": 0.9422845057849787
+    },
+    "moisture_stress_analysis": {
+      "<circular>": 0.6594018387264177,
+      "high_stress_percent": 43.769230769230774
+    },
+    "h3_spatial_summary": {
+      "<circular>": {
+        "<circular>": NaN
+      }
+    },
+    "temporal_trends": {
+      "2024-08": {
+        "<circular>": 0.789
+      },
+      "2024-09": {
+        "<circular>": 0.842
+      },
+      "2024-10": {
+        "<circular>": 0.848
+      },
+      "2024-11": {
+        "<circular>": 0.815
+      },
+      "2024-12": {
+        "<circular>": 0.763
+      },
+      "2025-01": {
+        "<circular>": 0.619
+      },
+      "2025-02": {
+        "<circular>": 0.544
+      },
+      "2025-03": {
+        "<circular>": 0.462
+      },
+      "2025-04": {
+        "<circular>": 0.459
+      },
+      "2025-05": {
+        "<circular>": 0.492
+      },
+      "2025-06": {
+        "<circular>": 0.536
+      },
+      "2025-07": {
+        "<circular>": 0.624
+      },
+      "2025-08": {
+        "<circular>": 0.779
+      }
+    }
+  },
+  "forest_type_analysis": {
+    "<circular>": {
+      "<circular>": {
+        "<circular>": "<circular>"
+      }
+    }
+  },
+  "change_analysis": {
+    "baseline_years": "<circular>",
+    "minimum_change_threshold": "<circular>",
+    "time_series_length": "<circular>",
+    "h3_cell_changes": [
+      {
+        "<circular>": "<circular>",
+        "trend_slope": 1.3517291995488246e-08,
+        "max_change": 0.31533138767075525,
+        "recent_change": 0.31533138767075525,
+        "measurements_count": "<circular>",
+        "mean_ndvi": 0.3347516652011182,
+        "change_significant": 

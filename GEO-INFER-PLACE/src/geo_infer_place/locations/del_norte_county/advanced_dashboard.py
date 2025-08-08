@@ -37,6 +37,10 @@ import base64
 from io import BytesIO
 import matplotlib.pyplot as plt
 import seaborn as sns
+try:
+    import yaml  # For reading location config
+except Exception:  # pragma: no cover
+    yaml = None
 
 logger = logging.getLogger(__name__)
 
@@ -95,6 +99,21 @@ class CaliforniaDataIntegrator:
                 url='https://cdec.water.ca.gov/dynamicapp/req/JSONDataServlet',
                 api_key_required=False,
                 update_interval=3600
+            )
+            ,
+            'calfire_perimeters': DataSource(
+                name='CAL FIRE Perimeters (ArcGIS) ',
+                url='https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/ArcGIS/rest/services/California_Fire_Perimeters/FeatureServer/0/query',
+                api_key_required=False,
+                update_interval=6 * 3600,
+                data_type='geojson'
+            ),
+            'noaa_tides': DataSource(
+                name='NOAA Tides and Currents',
+                url='https://api.tidesandcurrents.noaa.gov/api/prod/datagetter',
+                api_key_required=False,
+                update_interval=3600,
+                data_type='json'
             )
         }
     
@@ -172,6 +191,64 @@ class CaliforniaDataIntegrator:
             logger.error(f"Error fetching earthquake data: {e}")
         return {'earthquakes': [], 'success': False, 'error': 'Earthquake data fetch failed'}
 
+    def fetch_calfire_perimeters(self, start_year: Optional[int] = None) -> Dict[str, Any]:
+        """Fetch CAL FIRE fire perimeters intersecting Del Norte County.
+        Saves a copy to memory for downstream rendering.
+        """
+        try:
+            params = {
+                'where': "1=1",
+                'outFields': '*',
+                'returnGeometry': 'true',
+                'f': 'geojson'
+            }
+            if start_year:
+                params['where'] += f" AND YEAR_ >= {start_year}"
+            params['where'] += " AND (POOCounty LIKE '%Del Norte%' OR OBJECTID >= 0)"
+
+            response = requests.get(self.data_sources['calfire_perimeters'].url, params=params, timeout=60)
+            if response.status_code == 200:
+                geojson = response.json()
+                features = []
+                for feat in geojson.get('features', []):
+                    props = feat.get('properties', {})
+                    county = (props.get('POOCounty') or props.get('COUNTY') or '').lower()
+                    if 'del norte' in county:
+                        features.append(feat)
+                if not features:
+                    features = geojson.get('features', [])
+                return {'success': True, 'geojson': {'type': 'FeatureCollection', 'features': features}}
+        except Exception as e:
+            logger.error(f"Error fetching CAL FIRE perimeters: {e}")
+        return {'success': False, 'geojson': {'type': 'FeatureCollection', 'features': []}, 'error': 'Perimeter fetch failed'}
+
+    def fetch_noaa_tide_levels(self, station_id: str = '9419750', hours: int = 24) -> Dict[str, Any]:
+        """Fetch recent NOAA tide gauge water level data for Crescent City station.
+        Returns time series and latest observation.
+        """
+        try:
+            end_dt = datetime.utcnow()
+            begin_dt = end_dt - timedelta(hours=hours)
+            params = {
+                'product': 'water_level',
+                'application': 'GEO-INFER-PLACE',
+                'begin_date': begin_dt.strftime('%Y%m%d'),
+                'end_date': end_dt.strftime('%Y%m%d'),
+                'station': station_id,
+                'time_zone': 'gmt',
+                'units': 'metric',
+                'format': 'json'
+            }
+            response = requests.get(self.data_sources['noaa_tides'].url, params=params, timeout=30)
+            if response.status_code == 200:
+                data = response.json()
+                observations = data.get('data', [])
+                latest = observations[-1] if observations else None
+                return {'success': True, 'observations': observations, 'latest': latest}
+        except Exception as e:
+            logger.error(f"Error fetching NOAA tide levels: {e}")
+        return {'success': False, 'observations': [], 'latest': None, 'error': 'Tide fetch failed'}
+
 class ClimateAnalyzer:
     """Climate analysis and visualization tools."""
     
@@ -188,7 +265,7 @@ class ClimateAnalyzer:
         # Simulate historical and projected temperature data
         years = list(range(1980, 2101))
         historical_temp = [12 + np.random.normal(0, 1) + 0.02 * (year - 1980) for year in years if year <= 2020]
-        
+
         # Projected temperatures under different scenarios
         projections = {}
         for scenario, params in self.climate_scenarios.items():
@@ -405,6 +482,8 @@ class AdvancedDashboard:
             'north': 42.006, 'south': 41.458,
             'east': -123.536, 'west': -124.408
         }
+        # Override with repository config if available
+        self._load_location_config_bounds()
         
         # Layer configurations
         self.layer_configs = self._initialize_layer_configs()
@@ -415,10 +494,12 @@ class AdvancedDashboard:
         # Initialize layer groups for organized layer management
         self.layer_groups = {
             'fire': folium.FeatureGroup(name='🔥 Fire Incidents', show=True),
+            'fire_perimeters': folium.FeatureGroup(name='🔥 Fire Perimeters', show=False),
             'weather': folium.FeatureGroup(name='🌤️ Weather Data', show=True),
             'earthquake': folium.FeatureGroup(name='🌍 Earthquakes', show=True),
             'forest': folium.FeatureGroup(name='🌲 Forest Health', show=True),
             'climate': folium.FeatureGroup(name='🌡️ Climate Risks', show=False),
+            'tides': folium.FeatureGroup(name='🌊 Tide Gauge', show=True),
             'zoning': folium.FeatureGroup(name='🏘️ Zoning', show=False),
             'conservation': folium.FeatureGroup(name='🌿 Conservation', show=True),
             'economic': folium.FeatureGroup(name='💼 Economics', show=False),
@@ -432,10 +513,12 @@ class AdvancedDashboard:
         """Initialize layer configurations for the dashboard."""
         return {
             'fire_incidents': LayerConfig('Fire Incidents', 'marker', True, 'red'),
+            'fire_perimeters': LayerConfig('Fire Perimeters', 'polygon', False, 'red'),
             'weather_stations': LayerConfig('Weather Stations', 'marker', True, 'blue'),
             'earthquake_activity': LayerConfig('Earthquake Activity', 'marker', False, 'orange'),
             'h3_forest_health': LayerConfig('Forest Health (H3)', 'polygon', True, 'green'),
             'climate_risk_zones': LayerConfig('Climate Risk Zones', 'choropleth', True, 'purple'),
+            'tide_levels': LayerConfig('Tide Gauge', 'marker', True, 'blue'),
             'zoning_overlay': LayerConfig('Zoning Overlay', 'polygon', False, 'gray'),
             'agricultural_areas': LayerConfig('Agricultural Areas', 'polygon', False, 'yellow'),
             'conservation_areas': LayerConfig('Conservation Areas', 'polygon', True, 'darkgreen'),
@@ -449,15 +532,34 @@ class AdvancedDashboard:
         
         data = {
             'fire_data': self.data_integrator.fetch_calfire_data(),
+            'fire_perimeters': self.data_integrator.fetch_calfire_perimeters(start_year=2015),
             'weather_data': self.data_integrator.fetch_weather_data(),
             'earthquake_data': self.data_integrator.fetch_earthquake_data(),
+            'tide_levels': self.data_integrator.fetch_noaa_tide_levels(station_id='9419750', hours=24),
             'fetch_timestamp': datetime.now().isoformat()
         }
         
         # Store in dashboard data
         self.dashboard_data.update(data)
+        # Persist successfully fetched datasets for reuse/debugging
+        try:
+            ts = datetime.now().strftime('%Y%m%d_%H%M%S')
+            if data.get('fire_perimeters', {}).get('success'):
+                self._persist_json(data['fire_perimeters'].get('geojson', {}), f"fire_perimeters_{ts}.geojson")
+            if data.get('tide_levels', {}).get('success'):
+                self._persist_json({k: data['tide_levels'].get(k) for k in ['observations', 'latest']}, f"tide_levels_{ts}.json")
+        except Exception as e:
+            logger.warning(f"Failed to persist fetched datasets: {e}")
         
         return data
+
+    def _persist_json(self, obj: Dict[str, Any], filename: str) -> None:
+        """Persist a JSON object into the dashboard output directory."""
+        import json
+        filepath = self.output_dir / filename
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(obj, f, indent=2)
+        logger.info(f"Saved dataset to {filepath}")
     
     def generate_analysis_panels(self) -> Dict[str, str]:
         """Generate HTML panels for different analysis components."""
@@ -603,8 +705,10 @@ class AdvancedDashboard:
         # Add real-time data layers
         if self.dashboard_data:
             self._add_fire_incidents_layer(m)
+            self._add_fire_perimeters_layer(m)
             self._add_weather_layer(m)
             self._add_earthquake_layer(m)
+            self._add_tide_gauge_layer(m)
         
         # Add analysis layers
         self._add_h3_forest_health_layer(m)
@@ -632,6 +736,23 @@ class AdvancedDashboard:
         self._add_custom_controls(m)
         
         return m
+
+    def _load_location_config_bounds(self) -> None:
+        """Load bounds/center from the Del Norte analysis_config.yaml if available."""
+        try:
+            config_path = Path(__file__).parent.parent.parent.parent / 'locations' / 'del_norte_county' / 'config' / 'analysis_config.yaml'
+            if yaml and config_path.exists():
+                with open(config_path, 'r') as f:
+                    cfg = yaml.safe_load(f)
+                bounds = cfg.get('location', {}).get('bounds', {})
+                if all(k in bounds for k in ['north', 'south', 'east', 'west']):
+                    self.county_bounds = bounds
+                    cy = (bounds['north'] + bounds['south']) / 2.0
+                    cx = (bounds['east'] + bounds['west']) / 2.0
+                    self.county_center = [cy, cx]
+                    logger.info("Loaded bounds from analysis_config.yaml")
+        except Exception as e:
+            logger.warning(f"Could not load location bounds from config: {e}")
     
     def _add_county_boundary(self, m: folium.Map):
         """Add Del Norte County boundary to map."""
@@ -674,6 +795,25 @@ class AdvancedDashboard:
                         icon=folium.Icon(color=icon_color, icon='fire'),
                         tooltip=f"{incident['name']} - {incident['contained']}% contained"
                     ).add_to(self.layer_groups['fire'])
+
+    def _add_fire_perimeters_layer(self, m: folium.Map):
+        """Add CAL FIRE fire perimeters layer for Del Norte County."""
+        if 'fire_perimeters' in self.dashboard_data and self.dashboard_data['fire_perimeters'].get('success'):
+            geojson = self.dashboard_data['fire_perimeters'].get('geojson', {})
+            if geojson.get('features'):
+                try:
+                    folium.GeoJson(
+                        data=geojson,
+                        name='Fire Perimeters',
+                        style_function=lambda feat: {
+                            'color': '#d73027',
+                            'weight': 2,
+                            'fillOpacity': 0.05
+                        },
+                        tooltip=folium.GeoJsonTooltip(fields=['YEAR_', 'FIRE_NAME', 'POOCounty'], aliases=['Year', 'Fire', 'County'], sticky=True)
+                    ).add_to(self.layer_groups['fire_perimeters'])
+                except Exception as e:
+                    logger.warning(f"Failed to render fire perimeters: {e}")
     
     def _add_weather_layer(self, m: folium.Map):
         """Add weather data layer."""
@@ -697,6 +837,30 @@ class AdvancedDashboard:
                 tooltip="Current Weather Data"
             ).add_to(self.layer_groups['weather'])
     
+    def _add_tide_gauge_layer(self, m: folium.Map):
+        """Add NOAA tide gauge latest water level marker."""
+        tide = self.dashboard_data.get('tide_levels', {})
+        latest = tide.get('latest')
+        if latest:
+            try:
+                level = latest.get('v')
+                ts = latest.get('t')
+                folium.Marker(
+                    location=[41.7450, -124.2370],
+                    popup=folium.Popup(f"""
+                    <div style="width: 220px;">
+                        <h4>🌊 Crescent City Tide Gauge</h4>
+                        <p><strong>Station:</strong> NOAA 9419750</p>
+                        <p><strong>Latest Water Level:</strong> {level} m (MLLW)</p>
+                        <p><strong>Timestamp (UTC):</strong> {ts}</p>
+                    </div>
+                    """, max_width=260),
+                    icon=folium.Icon(color='blue', icon='tint'),
+                    tooltip=f"Tide level: {level} m"
+                ).add_to(self.layer_groups['tides'])
+            except Exception as e:
+                logger.warning(f"Failed to add tide gauge marker: {e}")
+
     def _add_earthquake_layer(self, m: folium.Map):
         """Add earthquake activity layer."""
         if 'earthquake_data' in self.dashboard_data and self.dashboard_data['earthquake_data']['success']:
@@ -1211,10 +1375,39 @@ class AdvancedDashboard:
         minimap = folium.plugins.MiniMap(toggle_display=True)
         m.add_child(minimap)
     
-    def generate_dashboard_html(self) -> str:
-        """Generate complete dashboard HTML with panels and map."""
-        # Fetch real-time data
-        real_time_data = self.fetch_real_time_data()
+    def load_cached_data(self) -> None:
+        """Load most recent cached datasets from output_dir into dashboard_data.
+        Currently supports fire perimeters (*.geojson) and tide levels (*.json).
+        """
+        try:
+            # Find latest fire perimeters
+            perims = sorted(self.output_dir.glob('fire_perimeters_*.geojson'))
+            if perims:
+                import json as _json
+                with open(perims[-1], 'r', encoding='utf-8') as f:
+                    geojson = _json.load(f)
+                self.dashboard_data['fire_perimeters'] = {'success': True, 'geojson': geojson}
+            # Find latest tide levels
+            tides = sorted(self.output_dir.glob('tide_levels_*.json'))
+            if tides:
+                import json as _json
+                with open(tides[-1], 'r', encoding='utf-8') as f:
+                    tid = _json.load(f)
+                self.dashboard_data['tide_levels'] = {'success': True, **tid}
+        except Exception as e:
+            logger.warning(f"Failed loading cached datasets: {e}")
+
+    def generate_dashboard_html(self, fetch_data: bool = True) -> str:
+        """Generate complete dashboard HTML with panels and map.
+        Args:
+            fetch_data: If True, fetches data from sources; if False, uses cached/loaded data.
+        """
+        # Fetch real-time data (optional)
+        if fetch_data:
+            real_time_data = self.fetch_real_time_data()
+        else:
+            # Populate status display from existing data
+            real_time_data = self.dashboard_data
         
         # Generate analysis panels
         panels = self.generate_analysis_panels()
@@ -1394,6 +1587,39 @@ class AdvancedDashboard:
                     'infrastructure': false,
                     'equity': false
                 }};
+
+                // Exact label mapping to Leaflet LayerControl overlay entries
+                var layerLabelByKey = {{
+                    'fire': '🔥 Fire Incidents',
+                    'fire_perimeters': '🔥 Fire Perimeters',
+                    'weather': '🌤️ Weather Data',
+                    'earthquake': '🌍 Earthquakes',
+                    'forest': '🌲 Forest Health',
+                    'climate': '🌡️ Climate Risks',
+                    'tides': '🌊 Tide Gauge',
+                    'zoning': '🏘️ Zoning',
+                    'conservation': '🌿 Conservation',
+                    'economic': '💼 Economics',
+                    'emergency': '🚨 Emergency Services',
+                    'health': '🏥 Public Health',
+                    'infrastructure': '🏗️ Infrastructure',
+                    'equity': '⚖️ Environmental Justice'
+                }};
+
+                function findOverlayInputByLabel(targetLabel) {{
+                    var inputs = document.querySelectorAll('.leaflet-control-layers-overlays input[type="checkbox"]');
+                    for (var i = 0; i < inputs.length; i++) {{
+                        var span = inputs[i].parentElement && inputs[i].parentElement.querySelector('span');
+                        if (span && span.textContent.trim() === targetLabel) return inputs[i];
+                    }}
+                    return null;
+                }}
+
+                function setButtonVisual(button, enabled) {{
+                    if (!button) return;
+                    button.style.backgroundColor = enabled ? '#27ae60' : '#95a5a6';
+                    button.style.opacity = enabled ? '1' : '0.6';
+                }}
                 
                 // Emergency alert system
                 var emergencyAlerts = [
@@ -1491,41 +1717,16 @@ class AdvancedDashboard:
                             console.log('Hiding layer:', layerType);
                         }}
                         
-                        // Try to control actual map layers via Layer Control
+                        // Try to control actual map layers via Layer Control by exact label
                         setTimeout(function() {{
                             try {{
-                                var layerControlInputs = document.querySelectorAll('.leaflet-control-layers input[type="checkbox"]');
-                                layerControlInputs.forEach(function(input) {{
-                                    var label = input.parentElement.querySelector('span');
-                                    if (label) {{
-                                        var layerName = label.textContent.trim().toLowerCase();
-                                        var shouldMatch = false;
-                                        
-                                        // Enhanced layer name matching
-                                        switch(layerType) {{
-                                            case 'fire': shouldMatch = layerName.includes('fire') || layerName.includes('🔥'); break;
-                                            case 'weather': shouldMatch = layerName.includes('weather') || layerName.includes('🌤'); break;
-                                            case 'earthquake': shouldMatch = layerName.includes('earthquake') || layerName.includes('🌍'); break;
-                                            case 'forest': shouldMatch = layerName.includes('forest') || layerName.includes('🌲'); break;
-                                            case 'climate': shouldMatch = layerName.includes('climate') || layerName.includes('🌡'); break;
-                                            case 'zoning': shouldMatch = layerName.includes('zoning') || layerName.includes('🏘'); break;
-                                            case 'conservation': shouldMatch = layerName.includes('conservation') || layerName.includes('🌿'); break;
-                                            case 'economic': shouldMatch = layerName.includes('economic') || layerName.includes('💼'); break;
-                                            case 'emergency': shouldMatch = layerName.includes('emergency') || layerName.includes('🚨'); break;
-                                            case 'health': shouldMatch = layerName.includes('health') || layerName.includes('🏥'); break;
-                                            case 'infrastructure': shouldMatch = layerName.includes('infrastructure') || layerName.includes('🏗'); break;
-                                            case 'equity': shouldMatch = layerName.includes('justice') || layerName.includes('⚖'); break;
-                                        }}
-                                        
-                                        if (shouldMatch && input.checked !== newState) {{
-                                            input.checked = newState;
-                                            input.dispatchEvent(new Event('change'));
-                                            console.log(`Toggled layer control for ${{layerType}}: ${{newState}}`);
-                                        }}
-                                    }}
-                                }});
+                                var label = layerLabelByKey[layerType];
+                                var input = findOverlayInputByLabel(label);
+                                if (input && !!input.checked !== newState) {{
+                                    input.click();
+                                }}
                             }} catch (controlError) {{
-                                console.log('Layer control interaction not available:', controlError.message);
+                                console.log('Layer control interaction not available:', controlError && controlError.message);
                             }}
                         }}, 100);
                         
@@ -1811,32 +2012,18 @@ Last Updated: ${{new Date().toLocaleString()}}`;
                     }}
                 }}, 300000);
                 
-                // Initialize layer button states when page loads
+                // Initialize layer button states when page loads using LayerControl
                 window.addEventListener('load', function() {{
                     setTimeout(function() {{
-                        // Set initial button states based on layerStates
-                        var buttons = document.querySelectorAll('.toggle-button');
-                        buttons.forEach(function(button) {{
-                            var layerType = button.getAttribute('onclick');
-                            if (layerType && layerType.includes('toggleLayer')) {{
-                                var match = layerType.match(/toggleLayer\('(\w+)'\)/);
-                                if (match && match[1]) {{
-                                    var layer = match[1];
-                                    if (layerStates.hasOwnProperty(layer)) {{
-                                        if (layerStates[layer]) {{
-                                            button.style.backgroundColor = '#27ae60';
-                                            button.style.opacity = '1';
-                                        }} else {{
-                                            button.style.backgroundColor = '#95a5a6';
-                                            button.style.opacity = '0.6';
-                                        }}
-                                    }}
-                                }}
-                            }}
+                        Object.keys(layerLabelByKey).forEach(function(key) {{
+                            var btn = document.querySelector('.toggle-button[onclick="toggleLayer(\'' + key + '\')"]');
+                            var input = findOverlayInputByLabel(layerLabelByKey[key]);
+                            var enabled = input ? !!input.checked : !!layerStates[key];
+                            layerStates[key] = enabled;
+                            setButtonVisual(btn, enabled);
                         }});
-                        
-                        console.log('Layer button states initialized:', layerStates);
-                    }}, 100);
+                        console.log('Layer button states initialized (from LayerControl):', layerStates);
+                    }}, 300);
                 }});
             </script>
         </body>
@@ -1845,13 +2032,13 @@ Last Updated: ${{new Date().toLocaleString()}}`;
         
         return dashboard_html
     
-    def save_dashboard(self, filename: str = None) -> str:
+    def save_dashboard(self, filename: str = None, fetch_data: bool = True) -> str:
         """Save the complete dashboard to an HTML file."""
         if filename is None:
             timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
             filename = f"del_norte_intelligence_dashboard_{timestamp}.html"
         
-        dashboard_html = self.generate_dashboard_html()
+        dashboard_html = self.generate_dashboard_html(fetch_data=fetch_data)
         filepath = self.output_dir / filename
         
         with open(filepath, 'w', encoding='utf-8') as f:

@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-DATA?
 
+Note: Code examples are illustrative; see `GEO-INFER-DATA/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-DATA/README.md
+
 GEO-INFER-DATA is the data management engine that provides data handling capabilities for geospatial information. It enables:
 
 - **Multi-format Data Support**: Handle various geospatial data formats with validation

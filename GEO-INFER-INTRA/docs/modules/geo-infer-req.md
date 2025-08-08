@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-REQ?
 
+Note: Code examples are illustrative; see `GEO-INFER-REQ/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-REQ/README.md
+
 GEO-INFER-REQ is the requirements management engine that provides requirement analysis and specification capabilities for geospatial information systems. It enables:
 
 - **Requirement Analysis**: Analyze and model system requirements

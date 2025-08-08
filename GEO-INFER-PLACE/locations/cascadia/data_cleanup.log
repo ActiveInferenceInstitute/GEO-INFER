@@ -1,0 +1,53 @@
+2025-08-07 13:43:35,704 - INFO - 🚀 Starting Cascadia data cleanup and reorganization...
+2025-08-07 13:43:35,705 - INFO - 🚀 Starting full data cleanup and reorganization...
+2025-08-07 13:43:35,705 - INFO - 📁 Creating standardized module data structure...
+2025-08-07 13:43:35,705 - INFO - 📁 Created data structure for zoning
+2025-08-07 13:43:35,706 - INFO - 📁 Created data structure for current_use
+2025-08-07 13:43:35,706 - INFO - 📁 Created data structure for ownership
+2025-08-07 13:43:35,706 - INFO - 📁 Created data structure for improvements
+2025-08-07 13:43:35,706 - INFO - 📁 Created data structure for water_rights
+2025-08-07 13:43:35,707 - INFO - 📁 Created data structure for ground_water
+2025-08-07 13:43:35,707 - INFO - 📁 Created data structure for surface_water
+2025-08-07 13:43:35,708 - INFO - 📁 Created data structure for power_source
+2025-08-07 13:43:35,708 - INFO - 📁 Created data structure for mortgage_debt
+2025-08-07 13:43:35,708 - INFO - 📦 Moving module data to appropriate directories...
+2025-08-07 13:43:35,708 - INFO - 📁 Moved zoning_h3_res8.json to /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/zoning/data/zoning_h3_res8.json
+2025-08-07 13:43:35,709 - INFO - 📁 Moved raw_zoning_data.geojson to /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/zoning/data/raw_zoning_data.geojson
+2025-08-07 13:43:35,709 - INFO - 📁 Moved geospatial_data.duckdb to /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/zoning/data/geospatial_data.duckdb
+2025-08-07 13:43:35,709 - INFO - 🗑️ Removed empty directory: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/output/data/zoning
+2025-08-07 13:43:35,709 - INFO - 📁 Moved raw_current_use_data.geojson to /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/data/raw_current_use_data.geojson
+2025-08-07 13:43:35,709 - INFO - 📁 Moved current_use_h3_res8.json to /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/current_use/data/current_use_h3_res8.json
+2025-08-07 13:43:35,709 - INFO - 🗑️ Removed empty directory: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/output/data/current_use
+2025-08-07 13:43:35,709 - INFO - 📁 Moved ownership_h3_res8.json to /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/ownership/data/ownership_h3_res8.json
+2025-08-07 13:43:35,709 - INFO - 📁 Moved raw_ownership_data.geojson to /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/ownership/data/raw_ownership_data.geojson
+2025-08-07 13:43:35,709 - INFO - 🗑️ Removed empty directory: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/output/data/ownership
+2025-08-07 13:43:35,710 - INFO - 📁 Moved raw_improvements_data.geojson to /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/improvements/data/raw_improvements_data.geojson
+2025-08-07 13:43:35,710 - INFO - 📁 Moved improvements_h3_res8.json to /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/improvements/data/improvements_h3_res8.json
+2025-08-07 13:43:35,710 - INFO - 📁 Moved geospatial_data.duckdb to /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/improvements/data/geospatial_data.duckdb
+2025-08-07 13:43:35,710 - INFO - 🗑️ Removed empty directory: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/output/data/improvements
+2025-08-07 13:43:35,710 - INFO - 🧹 Cleaning up old run data...
+2025-08-07 13:43:35,710 - INFO - 🗑️ Deleted old run file: cascadia_analysis_report_20250729_161251.md
+2025-08-07 13:43:35,711 - INFO - 🗑️ Deleted old run file: cascadia_unified_data_20250729_161248.geojson
+2025-08-07 13:43:35,711 - INFO - 🗑️ Deleted old run file: cascadia_redevelopment_scores_20250729_161248.json
+2025-08-07 13:43:35,711 - INFO - 🗑️ Deleted old run file: cascadia_summary_20250729_161248.json
+2025-08-07 13:43:35,711 - INFO - 🗑️ Deleted old run file: cascadia_analysis_report_20250729_161156.md
+2025-08-07 13:43:35,712 - INFO - 🗑️ Deleted old run file: cascadia_unified_data_20250729_161151.geojson
+2025-08-07 13:43:35,712 - INFO - 🗑️ Deleted old run file: cascadia_redevelopment_scores_20250729_161151.json
+2025-08-07 13:43:35,712 - INFO - 🗑️ Deleted old run file: cascadia_summary_20250729_161151.json
+2025-08-07 13:43:35,712 - INFO - 🗑️ Deleted old run file: cascadia_analysis_report_20250729_160956.md
+2025-08-07 13:43:35,713 - INFO - 🗑️ Deleted old run file: cascadia_unified_data_20250729_160953.geojson
+2025-08-07 13:43:35,713 - INFO - 🗑️ Deleted old run file: cascadia_redevelopment_scores_20250729_160953.json
+2025-08-07 13:43:35,713 - INFO - 🗑️ Deleted old run file: cascadia_summary_20250729_160953.json
+2025-08-07 13:43:35,713 - INFO - 🗑️ Deleted old run file: cascadia_analysis_report_20250729_160831.md
+2025-08-07 13:43:35,713 - INFO - ✅ Cleaned up 13 old run files
+2025-08-07 13:43:35,713 - INFO - 📁 Kept 3 recent runs
+2025-08-07 13:43:35,713 - INFO - 📁 Output/data directory still contains files, keeping it
+2025-08-07 13:43:35,713 - INFO - 🔄 Updating data manager configuration...
+2025-08-07 13:43:35,713 - INFO - ✅ Updated data manager configuration: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/data_cleanup_config.json
+2025-08-07 13:43:35,713 - INFO - ✅ Full data cleanup and reorganization completed!
+2025-08-07 13:43:35,713 - INFO - ✅ Data cleanup and reorganization completed successfully!
+2025-08-07 13:43:35,713 - INFO - 📁 New data structure:
+2025-08-07 13:43:35,713 - INFO -    - Module data moved to module/data/ directories
+2025-08-07 13:43:35,713 - INFO -    - Old run files cleaned up (kept 3 most recent)
+2025-08-07 13:43:35,713 - INFO -    - Run-specific summaries remain in output/
+2025-08-07 13:43:35,714 - INFO -    - Standardized data structure created for each module

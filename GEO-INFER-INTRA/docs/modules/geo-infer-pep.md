@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-PEP?
 
+Note: Code examples are illustrative; see `GEO-INFER-PEP/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-PEP/README.md
+
 GEO-INFER-PEP is the people and communities engine that provides demographic and social modeling capabilities for geospatial information systems. It enables:
 
 - **Demographic Analysis**: Analyze population demographics and characteristics

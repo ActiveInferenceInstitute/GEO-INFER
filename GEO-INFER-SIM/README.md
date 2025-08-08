@@ -4,7 +4,11 @@
 
 ## Overview
 
-GEO-INFER-SIM is the **core simulation engine and experimentation workbench** within the GEO-INFER framework. It empowers users to create, run, and analyze simulations of complex geospatial systems to test hypotheses, explore future scenarios, and evaluate the potential impacts of different policies or interventions. By supporting various simulation paradigms, including agent-based modeling (ABM), system dynamics, cellular automata, and digital twin technology, this module provides a versatile platform for understanding and predicting the behavior of ecological, urban, social, and environmental systems across multiple spatial and temporal scales.
+GEO-INFER-SIM is the simulation engine and experimentation workbench within the GEO-INFER framework. It supports agent-based modeling (ABM), system dynamics, cellular automata, discrete event simulation, and digital twin workflows for ecological, urban, social, and environmental systems across spatial and temporal scales.
+
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-sim.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
 
 ## Core Objectives
 
@@ -103,12 +107,7 @@ GEO-INFER-SIM/
 
 ### Installation
 ```bash
-# Clone the GEO-INFER repository if you haven't already
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER/GEO-INFER-SIM
-
-pip install -e .
-# or poetry install if pyproject.toml is configured
+pip install -e ./GEO-INFER-SIM
 ```
 
 ### Configuration

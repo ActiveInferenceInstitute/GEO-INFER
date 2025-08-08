@@ -131,10 +131,9 @@ def create_summary_statistics(unified_data: Dict, redevelopment_scores: Dict) ->
                 
                 module_data = hex_data.get(module_name, {})
                 if isinstance(module_data, dict):
-                    score = module_data.get('score', 0.0)
                     stats['modules'][module_name]['total_cells'] += 1
-                    
-                    if score > 0:
+                    if module_data:  # treat presence as coverage; score may be zero legitimately
+                        score = float(module_data.get('score', 0.0))
                         stats['modules'][module_name]['cells_with_data'] += 1
                         stats['modules'][module_name]['min_score'] = min(stats['modules'][module_name]['min_score'], score)
                         stats['modules'][module_name]['max_score'] = max(stats['modules'][module_name]['max_score'], score)

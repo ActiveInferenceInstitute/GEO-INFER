@@ -4,6 +4,10 @@
 
 Statistical Parametric Mapping (SPM) is a powerful statistical methodology for analyzing spatially or temporally continuous data fields. Originally developed for neuroimaging, SPM has been adapted in GEO-INFER to address the challenges of geospatial analysis while preserving the integrity of spatiotemporal relationships. This module provides comprehensive tools for identifying statistically significant patterns in complex environmental, urban, and ecological datasets.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-spm.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Core Methodology
 
 ### General Linear Model (GLM)
@@ -117,11 +121,7 @@ GEO-INFER-SPM integrates closely with:
 
 ### Installation
 ```bash
-# Within the GEO-INFER environment
 pip install -e ./GEO-INFER-SPM
-
-# Or standalone
-pip install geo-infer-spm
 ```
 
 ### Basic Usage

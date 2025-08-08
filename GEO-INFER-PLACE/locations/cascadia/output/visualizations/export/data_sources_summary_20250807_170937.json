@@ -1,0 +1,18 @@
+{
+  "timestamp": "20250807_170937",
+  "data_sources": [
+    "zoning",
+    "current_use"
+  ],
+  "total_hexagons": 2818,
+  "modules": {
+    "zoning": {
+      "hexagon_count": 2584,
+      "coverage_percentage": 91.69623846699787
+    },
+    "current_use": {
+      "hexagon_count": 1551,
+      "coverage_percentage": 55.03903477643719
+    }
+  }
+}

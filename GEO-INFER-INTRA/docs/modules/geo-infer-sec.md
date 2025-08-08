@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-SEC?
 
+Note: Code examples are illustrative; see `GEO-INFER-SEC/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-SEC/README.md
+
 GEO-INFER-SEC is the security engine that provides cybersecurity and data protection capabilities for geospatial information systems. It enables:
 
 - **Data Protection**: Protect sensitive geospatial data and information

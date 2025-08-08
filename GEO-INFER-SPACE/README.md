@@ -235,7 +235,7 @@ pip list | grep geo-infer
 ### 2. Installation
 ```bash
 # Install this module
-pip install -e ./GEO-INFER-SPACE
+uv pip install -e ./GEO-INFER-SPACE
 
 # Verify installation
 python -c "import geo_infer_space; print('✅ Installation successful')"

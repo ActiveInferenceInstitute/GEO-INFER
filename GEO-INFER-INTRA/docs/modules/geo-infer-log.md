@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-LOG?
 
+Note: Code examples are illustrative; see `GEO-INFER-LOG/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-LOG/README.md
+
 GEO-INFER-LOG is the logistics engine that provides supply chain and logistics management capabilities for geospatial information systems. It enables:
 
 - **Route Optimization**: Optimize transportation routes and logistics paths

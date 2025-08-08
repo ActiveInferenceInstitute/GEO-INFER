@@ -27,71 +27,24 @@ H3 is a hierarchical hexagonal grid system that provides:
 - **Spatial Hierarchies**: Multi-resolution spatial analysis
 
 ```python
+# Illustrative snippet; see GEO-INFER-SPACE/examples for runnable scripts
 import h3
-from geo_infer_space import SpatialAnalyzer
 
-# Create H3 index for a location
 h3_index = h3.latlng_to_cell(37.7749, -122.4194, 9)
-print(f"H3 Index: {h3_index}")
-
-# Get neighboring cells with advanced options
 neighbors = h3.grid_disk(h3_index, 1)
-print(f"Neighbors: {len(neighbors)} cells")
-
-# Perform multi-resolution analysis
-multi_res_analysis = h3.multi_resolution_analysis(
-    location=(37.7749, -122.4194),
-    resolutions=[7, 8, 9, 10],
-    analysis_type='hierarchical'
-)
 ```
 
 #### Spatial Analysis Capabilities
 The module provides comprehensive spatial analysis tools with advanced features:
 
 ```python
-from geo_infer_space import SpatialAnalyzer
-
-# Initialize spatial analyzer with advanced features
-analyzer = SpatialAnalyzer(
-    coordinate_system='EPSG:4326',
-    h3_resolution=9,
-    parallel_processing=True,
-    gpu_acceleration=True
-)
-
-# Perform spatial clustering with multiple algorithms
-clusters = analyzer.cluster_points(
-    points=point_data,
-    method='hdbscan',  # Hierarchical density-based clustering
-    parameters={
-        'min_cluster_size': 5,
-        'min_samples': 3,
-        'cluster_selection_epsilon': 0.1
-    }
-)
-
-# Calculate spatial statistics with uncertainty
-stats = analyzer.calculate_spatial_statistics(
-    data=spatial_data,
-    statistics=['mean', 'std', 'min', 'max', 'skewness', 'kurtosis'],
-    include_uncertainty=True,
-    confidence_level=0.95
-)
-
-# Perform spatial interpolation with multiple methods
-interpolated = analyzer.interpolate(
-    points=known_points,
-    values=known_values,
-    method='kriging',  # Advanced geostatistical interpolation
-    parameters={
-        'variogram_model': 'spherical',
-        'nugget': 0.1,
-        'range': 1000,
-        'sill': 1.0
-    }
-)
+# Illustrative; see module code for available utilities
 ```
+
+### Links
+- Module README: ../../GEO-INFER-SPACE/README.md
+- API docs: ../../GEO-INFER-SPACE/docs/api_schema.yaml
+- H3 utilities: ../../GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
 
 ## 📚 Core Features
 

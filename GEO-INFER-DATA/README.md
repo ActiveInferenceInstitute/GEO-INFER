@@ -6,6 +6,10 @@
 
 GEO-INFER-DATA serves as the **foundational data backbone** for the entire GEO-INFER framework. It is responsible for the systematic management of diverse geospatial datasets, implementing robust Extract, Transform, Load (ETL) pipelines, and optimizing data storage and access. This module ensures that all other GEO-INFER components have reliable, timely, and efficient access to high-quality, analysis-ready geospatial data. It addresses challenges related to data heterogeneity, volume, velocity, and veracity, providing a cohesive data layer that supports complex geospatial inference, modeling, and application development.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-data.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Core Objectives
 
 -   **Data Accessibility:** Provide unified and efficient access to a wide variety of geospatial data sources.
@@ -123,12 +127,7 @@ GEO-INFER-DATA/
 
 ### Installation
 ```bash
-# Clone the GEO-INFER repository if you haven't already
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER/GEO-INFER-DATA
-
-pip install -e .
-# or poetry install if pyproject.toml is configured
+pip install -e ./GEO-INFER-DATA
 ```
 
 ### Configuration

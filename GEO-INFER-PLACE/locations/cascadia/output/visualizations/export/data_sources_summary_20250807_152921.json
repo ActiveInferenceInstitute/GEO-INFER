@@ -1,0 +1,13 @@
+{
+  "timestamp": "20250807_152921",
+  "data_sources": [
+    "current_use"
+  ],
+  "total_hexagons": 0,
+  "modules": {
+    "current_use": {
+      "hexagon_count": 1551,
+      "coverage_percentage": 0.0
+    }
+  }
+}

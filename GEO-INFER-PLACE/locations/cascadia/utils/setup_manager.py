@@ -103,7 +103,7 @@ def check_dependencies() -> bool:
     
     if missing_packages:
         logger.error(f"Missing packages: {', '.join(missing_packages)}")
-        logger.error("Please install missing packages: pip install " + " ".join(missing_packages))
+        logger.error("Please install missing packages: uv pip install " + " ".join(missing_packages))
         return False
     
     # Check SPACE integration

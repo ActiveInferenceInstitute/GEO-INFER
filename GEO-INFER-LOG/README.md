@@ -8,6 +8,10 @@ GEO-INFER-LOG is the specialized module within the GEO-INFER framework focused o
 
 By integrating advanced routing algorithms, network analysis, fleet management tools, and supply chain modeling capabilities with robust geospatial analytics, GEO-INFER-LOG enables users to optimize operations while accounting for real-world constraints including geography, infrastructure limitations, traffic patterns, and environmental considerations. The module is particularly valuable for tackling the increasingly complex challenges of modern logistics in an era of e-commerce growth, supply chain disruptions, urban congestion, and sustainability imperatives.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-log.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Core Objectives
 
 - **Optimize Movement Efficiency:** Provide sophisticated algorithms for route planning, vehicle routing problems (VRP), and traveling salesman problems (TSP) that minimize distance, time, cost, or environmental impact.
@@ -171,12 +175,7 @@ GEO-INFER-LOG leverages and complements several other modules in the framework:
 
 ### Installation
 ```bash
-# Ensure the main GEO-INFER repository is cloned
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER
-
 pip install -e ./GEO-INFER-LOG
-# Or if managed by a broader project build system
 ```
 
 ### Configuration

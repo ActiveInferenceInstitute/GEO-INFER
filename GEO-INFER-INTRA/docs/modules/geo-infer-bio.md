@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-BIO?
 
+Note: Code examples are illustrative; see `GEO-INFER-BIO/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-BIO/README.md
+
 GEO-INFER-BIO is the biological systems engine that provides comprehensive ecosystem modeling and biodiversity analysis capabilities for geospatial information systems. It enables:
 
 - **Ecosystem Modeling**: Mathematical modeling of ecological systems with machine learning and optimization algorithms

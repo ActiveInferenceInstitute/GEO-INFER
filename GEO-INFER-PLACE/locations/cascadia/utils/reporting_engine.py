@@ -230,3 +230,31 @@ def generate_analysis_report(summary: Dict[str, Any], output_path: Path) -> None
         f.write("*This report was generated using the GEO-INFER framework with enhanced SPACE integration for advanced geospatial analysis.*\n")
     
     logger.info(f"✅ Analysis report generated: {output_path}") 
+
+
+def export_data_provenance(provenance: Dict[str, Any], output_dir: Path) -> Path:
+    """Write a machine-readable data provenance manifest.
+
+    The manifest records, per module, whether real or synthetic data was used,
+    source URLs when available, input feature counts, output hexagon counts,
+    cache file locations, and fusion cache usage.
+
+    Args:
+        provenance: Provenance dictionary assembled by the main runner
+        output_dir: Directory to save the manifest
+
+    Returns:
+        Path to the saved JSON manifest
+    """
+    logger = logging.getLogger(__name__)
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+    manifest_path = output_dir / f"cascadia_data_provenance_{datetime.now().strftime('%Y%m%d_%H%M%S')}.json"
+
+    try:
+        with open(manifest_path, 'w') as f:
+            json.dump(provenance, f, indent=2)
+        logger.info(f"✅ Data provenance manifest written: {manifest_path}")
+    except Exception as e:
+        logger.error(f"❌ Failed to write data provenance manifest: {e}")
+    return manifest_path

@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-ORG?
 
+Note: Code examples are illustrative; see `GEO-INFER-ORG/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-ORG/README.md
+
 GEO-INFER-ORG is the organizational systems engine that provides organizational modeling and analysis capabilities for geospatial information systems. It enables:
 
 - **Organizational Modeling**: Model organizational structures and relationships

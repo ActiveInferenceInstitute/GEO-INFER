@@ -3,6 +3,10 @@
 ## Overview
 GEO-INFER-NORMS provides social-technical compliance modeling with deterministic and probabilistic aspects within the GEO-INFER framework. This module focuses on understanding, modeling, and analyzing social norms, regulatory frameworks, and compliance requirements in spatial contexts.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-norms.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Key Features
 - **Legal Framework Analysis**: Model jurisdictions, legal entities, and regulations with their spatial dimensions
 - **Zoning Analysis**: Evaluate land use regulations, zoning compatibility, and zoning change impacts

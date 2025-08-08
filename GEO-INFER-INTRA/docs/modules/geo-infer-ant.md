@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-ANT?
 
+Note: Code examples are illustrative; see `GEO-INFER-ANT/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-ANT/README.md
+
 GEO-INFER-ANT is the ant colony optimization engine that provides comprehensive swarm intelligence and optimization capabilities for geospatial information systems. It enables:
 
 - **Swarm Intelligence**: Collective behavior and emergent intelligence algorithms with mathematical foundations

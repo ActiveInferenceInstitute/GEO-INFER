@@ -4,8 +4,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289DA.svg)](https://discord.activeinference.institute/)
 [![H3 Version](https://img.shields.io/badge/H3-v4.0+-blue.svg)](https://h3geo.org/)
-[![Python](https://img.shields.io/badge/Python-3.8+-green.svg)](https://python.org/)
-[![Tests](https://img.shields.io/badge/Tests-Passing-brightgreen.svg)]()
+[![Python](https://img.shields.io/badge/Python-3.9+-green.svg)](https://python.org/)
 
 <div align="center">
   <a href="#getting-started-">🚀 Get Started</a> •
@@ -23,16 +22,15 @@
 
 GEO-INFER is a comprehensive geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. The framework consists of 30+ specialized modules organized into distinct categories with clear dependency relationships and data flow patterns.
 
-### 🎯 Key Features
+### Key Features
 
-- **🌍 Advanced Spatial Analysis**: H3 v4 spatial indexing with full geospatial processing capabilities
-- **🧠 Active Inference Integration**: Mathematical foundations for autonomous decision-making
-- **📊 Data Processing**: Comprehensive data pipelines with validation and quality control
-- **🔧 Modular Architecture**: 30+ specialized modules with clear dependencies
-- **⚡ Performance Optimized**: Efficient algorithms for large-scale geospatial analysis
-- **🛡️ Production Ready**: Comprehensive testing, error handling, and documentation
+- **Spatial Analysis**: H3 v4 spatial indexing and geospatial processing
+- **Active Inference**: Mathematical foundations for perception-action loops
+- **Data Processing**: Pipelines with validation and quality control
+- **Modular Architecture**: 30+ specialized modules with clear dependencies
+- **Testing & Docs**: Tests and documentation across modules
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Quick Start
 
@@ -41,9 +39,9 @@ GEO-INFER is a comprehensive geospatial inference framework implementing Active 
 git clone https://github.com/your-org/GEO-INFER.git
 cd GEO-INFER
 
-# Install one or more modules in editable mode (no root requirements.txt)
-pip install -e ./GEO-INFER-SPACE
-pip install -e ./GEO-INFER-PLACE
+# Install one or more modules in editable mode with uv (no root requirements.txt)
+uv pip install -e ./GEO-INFER-SPACE
+uv pip install -e ./GEO-INFER-PLACE
 
 # Run a basic example
 cd GEO-INFER-PLACE/locations/cascadia
@@ -207,7 +205,7 @@ mindmap
         Integration examples
 ```
 
-## 🧭 Quick Navigation
+## Quick Navigation
 
 | Category                     | Modules                                                                                                                                                      |
 | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -222,7 +220,7 @@ mindmap
 | **📍 Place-Based**           | [PLACE](./GEO-INFER-PLACE/)                                                                                                                                                                      |
 | **⚙️ Operations**            | [OPS](./GEO-INFER-OPS/), [INTRA](./GEO-INFER-INTRA/), [GIT](./GEO-INFER-GIT/), [TEST](./GEO-INFER-TEST/), [EXAMPLES](./GEO-INFER-EXAMPLES/)                                                    |
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ```mermaid
 graph TB
@@ -702,30 +700,30 @@ graph TD
 - **Supply Chain Optimization**: Logistics and transportation planning
 - **Risk Assessment**: Insurance and financial risk modeling
 
-## 🧪 Testing & Quality Assurance
+## Testing & Quality Assurance
 
 ### Comprehensive Testing Framework
 
 ```bash
 # Run unified test suite
-python GEO-INFER-TEST/run_unified_tests.py
+uv run python GEO-INFER-TEST/run_unified_tests.py
 
 # Run specific test categories
-python GEO-INFER-TEST/run_unified_tests.py --category unit
-python GEO-INFER-TEST/run_unified_tests.py --category integration
-python GEO-INFER-TEST/run_unified_tests.py --category performance
+uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
+uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
+uv run python GEO-INFER-TEST/run_unified_tests.py --category performance
 
 # Run tests for specific module
-python GEO-INFER-TEST/run_unified_tests.py --module SPACE
+uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
 
 # Run H3 v4 migration tests
-python GEO-INFER-TEST/run_unified_tests.py --h3-migration
+uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration
 
 # Run with pytest directly
-python -m pytest GEO-INFER-TEST/tests/ -v
+uv run python -m pytest GEO-INFER-TEST/tests/ -v
 ```
 
-## 📚 Documentation
+## Documentation
 
 ### API Documentation
 
@@ -766,8 +764,8 @@ python -m pytest GEO-INFER-TEST/tests/ -v
 git clone https://github.com/your-username/GEO-INFER.git
 cd GEO-INFER
 
-# Set up development environment
-pip install -r requirements-dev.txt
+# Set up development environment with uv
+uv pip install -r requirements-dev.txt
 
 # Run tests to ensure everything works
 python -m pytest tests/ -v
@@ -776,7 +774,7 @@ python -m pytest tests/ -v
 python -m pytest tests/ -v --tb=short
 ```
 
-## 🌐 Community
+## Community
 
 ### Join the Community
 
@@ -791,11 +789,11 @@ python -m pytest tests/ -v --tb=short
 - **Report Issues**: Contribute to framework improvement
 - **Follow Standards**: Maintain code quality and documentation
 
-## 📄 License
+## License
 
 This project is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License - see the [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## Acknowledgments
 
 - **H3 Development Team**: For the excellent H3 v4 spatial indexing library
 - **Active Inference Institute**: For foundational Active Inference principles
@@ -806,5 +804,4 @@ This project is licensed under the Creative Commons Attribution-NoDerivatives-Sh
 
 **Maintained by**: @docxology  
 **Last Updated**: 2025-07-27  
-**Version**: 4.0 (H3 v4 Migration Complete)  
-**Status**: Production Ready ✅
+**Version**: 4.0 (H3 v4 Migration)

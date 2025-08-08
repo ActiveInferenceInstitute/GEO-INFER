@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-HEALTH?
 
+Note: Code examples are illustrative; see `GEO-INFER-HEALTH/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-HEALTH/README.md
+
 GEO-INFER-HEALTH is the health systems engine that provides health modeling and analysis capabilities for geospatial information systems. It enables:
 
 - **Health Impact Assessment**: Health impact analysis for populations and regions

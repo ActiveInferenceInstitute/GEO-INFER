@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-ART?
 
+Note: Code examples are illustrative; see `GEO-INFER-ART/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-ART/README.md
+
 GEO-INFER-ART is the artificial intelligence art engine that provides comprehensive AI-generated art and creative visualization capabilities for geospatial information systems. It enables:
 
 - **Generative Art**: AI-generated artistic representations of geospatial data with mathematical foundations

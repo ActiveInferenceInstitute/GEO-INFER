@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-ECON?
 
+Note: Code examples are illustrative; see `GEO-INFER-ECON/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-ECON/README.md
+
 GEO-INFER-ECON is the economic analysis engine that provides economic modeling and forecasting capabilities for geospatial information systems. It enables:
 
 - **Economic Forecasting**: Economic trend prediction and scenario analysis

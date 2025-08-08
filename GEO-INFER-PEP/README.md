@@ -6,6 +6,10 @@
 
 The GEO-INFER-PEP module is a comprehensive solution for managing all aspects of people operations within the GEO-INFER framework and its associated ecosystem. It encompasses functionalities for Human Resources (HR), Customer/Community Relationship Management (CRM), talent acquisition and management, skills development, performance tracking, community engagement, and conflict resolution. This module aims to provide robust tools for data import, transformation, analysis, reporting, and visualization related to all people-centric data, fostering a productive, engaged, and well-supported community and workforce.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-pep.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Core Objectives
 
 - **Streamline People Operations:** Automate and simplify HR, recruitment, and CRM processes.

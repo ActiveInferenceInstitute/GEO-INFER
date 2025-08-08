@@ -29,7 +29,7 @@ def cell_to_latlngjson(
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for cell_to_latlngjson")
 
     features = []
@@ -86,7 +86,7 @@ def geojson_to_h3(
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for geojson_to_h3")
     
     # Parse GeoJSON if it's a string
@@ -146,7 +146,7 @@ def polygon_to_cells(polygon: Union[Dict[str, Any], List[List[float]]], resoluti
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for polygon_to_cells")
     
     # Handle different input formats

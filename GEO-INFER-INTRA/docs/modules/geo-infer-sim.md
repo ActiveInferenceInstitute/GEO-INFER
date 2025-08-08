@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-SIM?
 
+Note: Code examples are illustrative; see `GEO-INFER-SIM/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-SIM/README.md
+
 GEO-INFER-SIM is the simulation engine that provides modeling and simulation capabilities for geospatial information systems. It enables:
 
 - **Scenario Modeling**: Model different scenarios and outcomes

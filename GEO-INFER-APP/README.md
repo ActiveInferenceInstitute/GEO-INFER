@@ -4,7 +4,11 @@
 
 ## Overview
 
-GEO-INFER-APP is the **primary human-computer interaction (HCI) layer** for the GEO-INFER framework. It provides the tools, components, and design patterns necessary to build intuitive, accessible, and engaging user interfaces and full-fledged geospatial applications. This module focuses on translating the complex data and analytical power of the backend GEO-INFER modules into user-friendly experiences for diverse audiences, from expert analysts to community members. It emphasizes map-centric design, interactive visualizations, responsive layouts, and adherence to accessibility (a11y) and internationalization (i18n) best practices to ensure broad usability.
+GEO-INFER-APP is the primary human-computer interaction layer for the GEO-INFER framework. It provides tools, components, and design patterns to build accessible geospatial applications and dashboards.
+
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-app.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
 
 ## Core Objectives
 

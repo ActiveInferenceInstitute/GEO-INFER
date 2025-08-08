@@ -64,14 +64,14 @@ GEO-INFER-SPACE/
 # Clone the main repository
 cd GEO-INFER-SPACE
 
-# Install dependencies (including visualization libraries)
-pip install -e .
+# Install dependencies (including visualization libraries) with uv
+uv pip install -e .
 
 # Run the complete setup with enhanced reporting
-python3 bin/osc_setup_all.py --force-clone
+uv run python3 bin/osc_setup_all.py --force-clone
 
 # Check status with visualizations
-python3 bin/osc_status.py
+uv run python3 bin/osc_status.py
 
 # View interactive dashboard
 open reports/status_dashboard_*.html
@@ -123,26 +123,26 @@ uvicorn>=0.15.0
 
 ### **Installation Options**
 
-#### **Option 1: Standard Installation**
+#### **Option 1: Standard Installation (uv)**
 ```bash
 cd GEO-INFER-SPACE
-pip install -e .
-python3 bin/osc_setup_all.py
+uv pip install -e .
+uv run python3 bin/osc_setup_all.py
 ```
 
-#### **Option 2: Development Installation**
+#### **Option 2: Development Installation (uv)**
 ```bash
 cd GEO-INFER-SPACE
-pip install -e ".[dev]"
-python3 bin/osc_setup_all.py --force-clone
+uv pip install -e ".[dev]"
+uv run python3 bin/osc_setup_all.py --force-clone
 ```
 
-#### **Option 3: Minimal Installation (no visualizations)**
+#### **Option 3: Minimal Installation (no visualizations, uv)**
 ```bash
 cd GEO-INFER-SPACE
-pip install -e . --no-deps
-pip install numpy pandas geopandas h3
-python3 bin/osc_setup_all.py --skip-tests
+uv pip install -e . --no-deps
+uv pip install numpy pandas geopandas h3
+uv run python3 bin/osc_setup_all.py --skip-tests
 ```
 
 ---
@@ -421,7 +421,7 @@ conda install -c conda-forge geopandas rasterio
 ```bash
 # Issue: matplotlib/seaborn not available
 # Solution:
-pip install matplotlib seaborn plotly folium
+uv pip install matplotlib seaborn plotly folium
 
 # For headless servers:
 export MPLBACKEND=Agg
@@ -430,11 +430,8 @@ export MPLBACKEND=Agg
 #### **4. Virtual Environment Issues**
 ```bash
 # Issue: Virtual environment creation fails
-# Solution:
-python3 -m venv venv_name
-source venv_name/bin/activate  # Linux/macOS
-venv_name\Scripts\activate     # Windows
-pip install --upgrade pip setuptools wheel
+# Solution with uv project environment:
+uv sync
 ```
 
 ### **Debugging Tools**

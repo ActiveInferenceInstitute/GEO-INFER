@@ -1,0 +1,10 @@
+{
+  "timestamp": "20250807_144126",
+  "data_sources": [
+    "current_use",
+    "ownership",
+    "improvements"
+  ],
+  "total_hexagons": 0,
+  "modules": {}
+}

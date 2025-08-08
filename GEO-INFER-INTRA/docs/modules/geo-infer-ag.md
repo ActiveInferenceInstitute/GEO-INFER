@@ -6,6 +6,11 @@
 
 ## Overview
 
+Note: Code examples are illustrative; see `GEO-INFER-AG/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-AG/README.md
+
 GEO-INFER-AG provides agricultural analysis and precision farming capabilities for geospatial information systems. It enables:
 
 - **Crop Modeling**: Crop modeling and yield prediction with physiological models

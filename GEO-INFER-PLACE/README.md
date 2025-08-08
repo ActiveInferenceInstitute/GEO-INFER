@@ -1,10 +1,14 @@
 # GEO-INFER-PLACE
 
-**Deep Place-Based Geospatial Analysis Framework**
+**Place-Based Geospatial Analysis Framework**
 
 ## Overview
 
-GEO-INFER-PLACE provides comprehensive, location-specific geospatial analysis capabilities within the GEO-INFER framework. Unlike the general examples in GEO-INFER-EXAMPLES, this module enables deep, intensive analysis of specific geographic locations with rich contextual understanding, multi-temporal studies, and cross-domain integration tailored to unique regional characteristics and challenges.
+GEO-INFER-PLACE provides location-specific geospatial analysis capabilities within the GEO-INFER framework. It supports deep analysis of specific geographic locations with contextual understanding, multi-temporal studies, and cross-domain integration.
+
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-place.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
 
 This module serves as a dedicated space for developing place-based expertise, conducting longitudinal studies, and creating reusable analysis templates for specific geographic regions. Each location maintains its own data ecosystem, analytical workflows, and knowledge base while leveraging the full power of the GEO-INFER framework.
 
@@ -46,17 +50,11 @@ This module serves as a dedicated space for developing place-based expertise, co
 
 ## Current Study Locations
 
-### 🌾 Cascadian Agricultural Land Analysis Framework (PRODUCTION READY)
+### 🌾 Cascadian Agricultural Land Analysis Framework
 **Location**: Northern California + Oregon Bioregion  
-**Status**: Production Ready - 100% Test Coverage  
+**Status**: Implemented  
 **Focus Areas**: Agricultural land redevelopment analysis, cross-border geospatial integration, H3 spatial indexing  
-**Achievements**: 
-- 100% Test Coverage (9/9 tests passing)
-- 4 Production Modules with real data processing
-- Full SPACE Integration with OSC repository support
-- Interactive Dashboards with multi-layer visualization
-- Cross-Border Analysis integrating CA + OR data
-- Performance Optimized with caching and parallel processing
+**Notes**: Integrates GEO-INFER-SPACE for H3 and spatial operations; see location docs for details.
 
 **Documentation**: [`locations/cascadia/`](locations/cascadia/) - Technical framework  
 **Modules**: Zoning, Current Use, Ownership, Improvements + 4 framework-ready modules  
@@ -70,7 +68,7 @@ This module serves as a dedicated space for developing place-based expertise, co
 - **Research Themes**: Forest health, fire risk, coastal dynamics, economic sustainability
 - **Implementation Status**: ✅ **Fully Implemented** - Interactive dashboards, real-time data integration, policy reporting
 
-### 🦘 Australia
+### 🦘 Australia (Planned)
 **Focus Areas**: Continental-scale environmental monitoring, climate adaptation, biodiversity conservation
 - **Geographic Context**: Entire Australian continent with diverse ecosystems
 - **Key Challenges**: Climate change impacts, biodiversity loss, water management
@@ -78,7 +76,7 @@ This module serves as a dedicated space for developing place-based expertise, co
 - **Research Themes**: Drought monitoring, ecosystem health, urban heat islands, agricultural adaptation
 - **Implementation Status**: 📋 **Planned** - Framework designed, implementation pending
 
-### ❄️ Siberia, Russia
+### ❄️ Siberia, Russia (Planned)
 **Focus Areas**: Climate change impacts, permafrost monitoring, Arctic ecosystem dynamics
 - **Geographic Context**: Vast Arctic and sub-Arctic region experiencing rapid change
 - **Key Challenges**: Permafrost thaw, infrastructure impacts, ecosystem shifts
@@ -167,12 +165,9 @@ This separation ensures PLACE remains focused on unique geographic contexts whil
 
 ### Installation
 ```bash
-# Install the place-based analysis framework
-cd GEO-INFER-PLACE
-pip install -e .
-
-# Install location-specific dependencies (optional for enhanced features)
-pip install -r locations/del_norte_county/requirements.txt
+uv pip install -e ./GEO-INFER-PLACE
+# Optional location extras
+uv pip install -r GEO-INFER-PLACE/locations/del_norte_county/requirements.txt
 ```
 
 ### Quick Start - Del Norte County Demo

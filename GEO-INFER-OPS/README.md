@@ -4,7 +4,11 @@
 
 ## Overview
 
-GEO-INFER-OPS is the **mission-critical operational backbone** of the GEO-INFER framework, providing comprehensive infrastructure for system orchestration, monitoring, testing, logging, and configuration management. This module serves as the foundational layer that ensures reliable, scalable, secure, and maintainable operations across all GEO-INFER components. OPS enables the framework to function as a cohesive, production-ready system capable of handling enterprise-scale geospatial workloads with robust observability, automated testing, and intelligent resource management.
+GEO-INFER-OPS provides infrastructure for system orchestration, monitoring, testing, logging, and configuration management. It ensures reliable, scalable, and secure operations across GEO-INFER components with observability, automated testing, and resource management.
+
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-ops.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
 
 ## Core Objectives
 
@@ -166,13 +170,13 @@ docker system info | grep "Total Memory"
 ### 2. Installation & Setup
 ```bash
 # Install GEO-INFER-OPS
-pip install -e ./GEO-INFER-OPS
+uv pip install -e ./GEO-INFER-OPS
 
 # Initialize configuration
 ./scripts/init-ops.sh
 
-# Verify installation
-python -c "import geo_infer_ops; print('✅ OPS installation successful')"
+# Verify import
+python -c "import geo_infer_ops; print('import ok')"
 ```
 
 ### 3. Basic Configuration
@@ -227,7 +231,7 @@ print("✅ Monitoring active - visit http://localhost:3000 for dashboards")
 
 ### Installation
 ```bash
-pip install -e .
+uv pip install -e .
 ```
 
 ### Configuration

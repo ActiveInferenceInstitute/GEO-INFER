@@ -9,26 +9,26 @@ This guide will help you install GEO-INFER on your system. Choose the installati
 Before installing GEO-INFER, ensure you have:
 
 - **Python 3.8+** installed on your system
-- **pip** (Python package installer)
+- **uv** (Python package manager)
 - **Git** (for development installation)
 - **Docker** (for containerized installation)
 
-### Method 1: pip Installation (Recommended)
+### Method 1: uv Installation (Recommended)
 
 The simplest way to install GEO-INFER:
 
 ```bash
 # Install the main package
-pip install geo-infer
+uv pip install geo-infer
 
 # Install with all optional dependencies
-pip install geo-infer[all]
+uv pip install 'geo-infer[all]'
 
 # Install specific modules
-pip install geo-infer-space geo-infer-time geo-infer-act
+uv pip install geo-infer-space geo-infer-time geo-infer-act
 ```
 
-### Method 2: Development Installation
+### Method 2: Development Installation (uv)
 
 For developers who want to contribute or modify the code:
 
@@ -38,10 +38,10 @@ git clone https://github.com/geo-infer/geo-infer-intra.git
 cd geo-infer-intra
 
 # Install in development mode
-pip install -e .
+uv pip install -e .
 
 # Install development dependencies
-pip install -e ".[dev]"
+uv pip install -e ".[dev]"
 ```
 
 ### Method 3: Docker Installation
@@ -80,20 +80,17 @@ docker run -p 8080:8080 \
 
 ### Python Environment Setup
 
-#### Using venv (Recommended)
+#### Using uv project environments (Recommended)
 
 ```bash
-# Create a virtual environment
-python -m venv geo-infer-env
+# Initialize uv in the project (if needed)
+uv init --no-workspace .
 
-# Activate the environment
-# On Linux/macOS:
-source geo-infer-env/bin/activate
-# On Windows:
-geo-infer-env\Scripts\activate
+# Sync dependencies defined in pyproject.toml
+uv sync
 
-# Install GEO-INFER
-pip install geo-infer
+# Run Python inside the project environment
+uv run python -c "import sys; print(sys.executable)"
 ```
 
 #### Using conda
@@ -204,7 +201,7 @@ For Windows, most dependencies are included in the Python packages. If you encou
 # Follow NVIDIA's installation guide for your system
 
 # Install PyTorch with CUDA support
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 # Install other GPU-accelerated libraries
 pip install cupy-cuda11x  # For NumPy-like operations on GPU
@@ -214,29 +211,29 @@ pip install cupy-cuda11x  # For NumPy-like operations on GPU
 
 ```bash
 # PostgreSQL support
-pip install psycopg2-binary
+uv pip install psycopg2-binary
 
 # MongoDB support
-pip install pymongo
+uv pip install pymongo
 
 # Redis support
-pip install redis
+uv pip install redis
 
 # SQLite support (usually included)
-pip install sqlite3
+uv pip install sqlite3
 ```
 
 #### Cloud Storage Support
 
 ```bash
 # AWS S3 support
-pip install boto3
+uv pip install boto3
 
 # Google Cloud Storage support
-pip install google-cloud-storage
+uv pip install google-cloud-storage
 
 # Azure Blob Storage support
-pip install azure-storage-blob
+uv pip install azure-storage-blob
 ```
 
 ## 🔧 Configuration
@@ -470,15 +467,15 @@ If you encounter issues not covered here:
 
 ```bash
 # Update to latest version
-pip install --upgrade geo-infer
+uv pip install --upgrade geo-infer
 
 # Update specific modules
-pip install --upgrade geo-infer-space geo-infer-time
+uv pip install --upgrade geo-infer-space geo-infer-time
 
 # Update from development repository
 cd geo-infer-intra
 git pull origin main
-pip install -e .
+uv pip install -e .
 ```
 
 ### Check Version

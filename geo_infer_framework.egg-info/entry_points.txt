@@ -1,0 +1,4 @@
+[console_scripts]
+geo-infer-docs = geo_infer_framework.documentation:main
+geo-infer-setup = geo_infer_framework.setup:main
+geo-infer-test = geo_infer_framework.testing:main

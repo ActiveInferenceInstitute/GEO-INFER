@@ -1,0 +1,9 @@
+{
+"type": "FeatureCollection",
+"name": "synthetic_improvements_data",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "improvement_type": "Barn", "building_value": 50000, "land_value": 200000, "year_built": 1985, "source": "County Assessor 2022" }, "geometry": { "type": "Point", "coordinates": [ -124.0, 41.7 ] } },
+{ "type": "Feature", "properties": { "improvement_type": "Farm House", "building_value": 150000, "land_value": 300000, "year_built": 1990, "source": "County Assessor 2022" }, "geometry": { "type": "Point", "coordinates": [ -123.8, 41.6 ] } }
+]
+}

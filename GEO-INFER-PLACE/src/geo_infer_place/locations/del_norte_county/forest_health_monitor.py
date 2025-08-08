@@ -471,13 +471,22 @@ class ForestHealthMonitor:
         }
         
         # Spatial aggregation by H3 cells
-        h3_aggregation = df.groupby('h3_cell').agg({
-            'ndvi': ['mean', 'std', 'count'],
-            'evi': ['mean', 'std'],
-            'moisture_stress': ['mean', 'std']
-        }).round(3)
-        
-        analysis_results['h3_spatial_summary'] = h3_aggregation.to_dict()
+        h3_aggregation = (
+            df.groupby('h3_cell')
+            .agg({
+                'ndvi': ['mean', 'std', 'count'],
+                'evi': ['mean', 'std'],
+                'moisture_stress': ['mean', 'std'],
+            })
+            .round(3)
+        )
+
+        # Flatten MultiIndex columns to avoid tuple keys in JSON
+        h3_aggregation.columns = [
+            f"{col0}_{col1}" if isinstance(col0, str) else str(col0)
+            for col0, col1 in h3_aggregation.columns.to_flat_index()
+        ]
+        analysis_results['h3_spatial_summary'] = h3_aggregation.to_dict(orient='index')
         
         # Temporal trends
         monthly_trends = df.groupby(df['date'].dt.to_period('M')).agg({
@@ -485,8 +494,9 @@ class ForestHealthMonitor:
             'evi': 'mean',
             'moisture_stress': 'mean'
         }).round(3)
-        
-        analysis_results['temporal_trends'] = monthly_trends.to_dict()
+        # Convert Period index to string for JSON serialization
+        monthly_trends.index = monthly_trends.index.astype(str)
+        analysis_results['temporal_trends'] = monthly_trends.to_dict(orient='index')
         
         return analysis_results
         
@@ -704,13 +714,14 @@ class ForestHealthMonitor:
             'data_type': 'forest_health'
         }
         
-        # Convert H3 summary data to integration format
-        if 'ndvi' in h3_summary and 'mean' in h3_summary['ndvi']:
-            for h3_cell, ndvi_mean in h3_summary['ndvi']['mean'].items():
+        # Convert H3 summary data to integration format (flattened keys)
+        for h3_cell, metrics in h3_summary.items():
+            ndvi_mean = metrics.get('ndvi_mean')
+            if ndvi_mean is not None:
                 spatial_data['h3_cells'][h3_cell] = {
                     'forest_health_score': ndvi_mean,
                     'data_quality': 'high',
-                    'last_updated': datetime.now().isoformat()
+                    'last_updated': datetime.now().isoformat(),
                 }
                 
         return spatial_data
@@ -758,20 +769,51 @@ class ForestHealthMonitor:
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         results_file = self.output_dir / f"forest_health_analysis_{timestamp}.json"
         
-        # Convert numpy types to native Python types for JSON serialization
-        def convert_numpy(obj):
+        # Sanitize recursively for JSON (avoid cycles, handle numpy/pandas types)
+        def _sanitize(obj, _seen: set):
+            obj_id = id(obj)
+            if obj_id in _seen:
+                return "<circular>"
+            _seen.add(obj_id)
+            try:
+                import pandas as _pd
+            except Exception:
+                _pd = None
+            if isinstance(obj, dict):
+                return {str(_sanitize(k, _seen)): _sanitize(v, _seen) for k, v in obj.items()}
+            if isinstance(obj, (list, tuple, set)):
+                return [_sanitize(x, _seen) for x in obj]
             if isinstance(obj, np.integer):
                 return int(obj)
-            elif isinstance(obj, np.floating):
+            if isinstance(obj, np.floating):
                 return float(obj)
-            elif isinstance(obj, np.ndarray):
+            if isinstance(obj, np.ndarray):
                 return obj.tolist()
-            else:
-                return obj
-                
+            # numpy boolean
+            try:
+                import numpy as _np
+                if isinstance(obj, _np.bool_):
+                    return bool(obj)
+            except Exception:
+                pass
+            if _pd is not None:
+                if isinstance(obj, _pd.Timestamp):
+                    return obj.isoformat()
+                if hasattr(_pd, 'Period') and isinstance(obj, _pd.Period):
+                    return str(obj)
+                if isinstance(obj, _pd.DataFrame):
+                    return obj.to_dict(orient='records')
+                if isinstance(obj, _pd.Series):
+                    return obj.to_dict()
+            if isinstance(obj, (datetime)):
+                return obj.isoformat()
+            # Fallback: ensure JSON serializable by casting to string
+            return str(obj)
+
+        sanitized = _sanitize(results, set())
         import json
         with open(results_file, 'w') as f:
-            json.dump(results, f, indent=2, default=convert_numpy)
+            json.dump(sanitized, f, indent=2)
             
         logger.info(f"Forest health analysis results saved to: {results_file}")
         

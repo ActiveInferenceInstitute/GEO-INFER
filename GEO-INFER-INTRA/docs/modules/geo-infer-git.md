@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-GIT?
 
+Note: Code examples are illustrative; see `GEO-INFER-GIT/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-GIT/README.md
+
 GEO-INFER-GIT is the git and orchestration engine that provides version control and repository management capabilities for GEO-INFER modules. It enables:
 
 - **Repository Management**: Manage code repositories and submodules

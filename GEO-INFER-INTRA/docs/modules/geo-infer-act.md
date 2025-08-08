@@ -6,6 +6,11 @@
 
 ## Overview
 
+Note: Code examples are illustrative; see `GEO-INFER-ACT/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-ACT/README.md
+
 GEO-INFER-ACT implements Active Inference principles for geospatial analysis. It provides:
 
 - **Generative Models**: Internal models of spatial processes

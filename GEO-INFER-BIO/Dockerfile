@@ -9,11 +9,15 @@ RUN apt-get update && apt-get install -y \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-# Copy requirements first to leverage Docker cache
-COPY requirements.txt .
+# Install uv
+RUN curl -LsSf https://astral.sh/uv/install.sh | sh
+ENV PATH="/root/.local/bin:$PATH"
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+# Copy pyproject to leverage cache
+COPY pyproject.toml ./
+
+# Lock and sync dependencies
+RUN uv lock && uv sync --no-dev
 
 # Copy the rest of the application
 COPY . .
@@ -29,4 +33,4 @@ ENV PYTHONUNBUFFERED=1
 EXPOSE 8000
 
 # Run the application
-CMD ["uvicorn", "src.geo_infer_bio.api.rest_api:app", "--host", "0.0.0.0", "--port", "8000"] 
+CMD ["uv", "run", "uvicorn", "src.geo_infer_bio.api.rest_api:app", "--host", "0.0.0.0", "--port", "8000"]

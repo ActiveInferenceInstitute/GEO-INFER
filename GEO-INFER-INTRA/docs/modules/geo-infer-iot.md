@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-IOT?
 
+Note: Code examples are illustrative; see `GEO-INFER-IOT/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-IOT/README.md
+
 GEO-INFER-IOT is the Internet of Things integration engine that provides comprehensive capabilities for connecting, managing, and analyzing IoT devices and sensor networks in geospatial contexts. It enables:
 
 - **Sensor Network Management**: Comprehensive management of IoT sensor networks with device discovery and health monitoring

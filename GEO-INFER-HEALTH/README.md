@@ -6,6 +6,10 @@
 
 The GEO-INFER-HEALTH module provides a specialized suite of tools and methodologies for leveraging geospatial information in public health, epidemiology, and healthcare accessibility analysis. It enables users to analyze the spatial dimensions of health-related data, supporting informed decision-making in public health policy, resource allocation, epidemiological research, and emergency response. By integrating with the broader GEO-INFER framework, this module aims to provide a robust platform for understanding and addressing complex health challenges through a geographic lens.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-health.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Core Objectives
 
 -   **Enhance Disease Surveillance:** Provide advanced tools for real-time or near real-time tracking, mapping, and analysis of disease occurrences and outbreaks.
@@ -212,13 +216,7 @@ GEO-INFER-HEALTH functions as an integral part of the wider GEO-INFER ecosystem:
 
 ### Installation
 ```bash
-# Ensure the main GEO-INFER repository is cloned
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER
-
-# Install the HEALTH module (assuming it's part of the main setup or has its own setup.py)
 pip install -e ./GEO-INFER-HEALTH
-# Or if managed by a broader project build system.
 ```
 
 ### Configuration

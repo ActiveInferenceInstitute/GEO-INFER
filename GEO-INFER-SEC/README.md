@@ -8,6 +8,10 @@ GEO-INFER-SEC is the specialized security and privacy module within the GEO-INFE
 
 By integrating advanced privacy-preserving methodologies with geospatial-specific security controls, GEO-INFER-SEC enables organizations to derive value from location data while mitigating privacy risks and security vulnerabilities. The module is particularly valuable in contexts where sensitive information such as personal movement patterns, critical infrastructure locations, protected health information with spatial dimensions, or proprietary geographic assets must be secured without compromising analytical utility.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-sec.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Core Objectives
 
 - **Protect Individual Privacy:** Provide robust techniques for anonymizing and obfuscating location data to prevent re-identification of individuals or reveal of sensitive movement patterns.
@@ -190,12 +194,7 @@ GEO-INFER-SEC integrates with all other modules in the framework to ensure end-t
 
 ### Installation
 ```bash
-# Ensure the main GEO-INFER repository is cloned
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER
-
-pip install -e ./GEO-INFER-SEC
-# Or if managed by a broader project build system
+uv pip install -e ./GEO-INFER-SEC
 ```
 
 ### Configuration

@@ -6,7 +6,7 @@
 
 ## Framework Architecture
 
-GEO-INFER is a comprehensive geospatial inference framework consisting of 30+ specialized modules organized into distinct categories with clear dependency relationships and data flow patterns.
+GEO-INFER is a geospatial inference framework consisting of many modules organized into distinct categories with clear dependency relationships and data flow patterns.
 
 ### Core Module Categories
 
@@ -147,9 +147,8 @@ GEO-INFER-ACT → GEO-INFER-BAYES → GEO-INFER-AI → GEO-INFER-ACT (Continuous
   - Policy selection and action optimization
   - Uncertainty quantification
   - Free energy minimization
-- **Use Cases**: Environmental monitoring, urban planning, climate analysis
-- **Integration**: Works with SPACE, TIME, and BAYES modules
-- **Performance**: Real-time inference with sub-second response times
+ - **Use Cases**: Environmental monitoring, urban planning, climate analysis
+ - **Integration**: Works with SPACE, TIME, and BAYES modules
 
 #### GEO-INFER-BAYES: Bayesian Inference Engine
 - **Purpose**: Provides Bayesian statistical analysis for geospatial data
@@ -161,7 +160,7 @@ GEO-INFER-ACT → GEO-INFER-BAYES → GEO-INFER-AI → GEO-INFER-ACT (Continuous
   - MCMC sampling algorithms
 - **Use Cases**: Risk assessment, environmental modeling, economic forecasting
 - **Integration**: Enhances ACT and SPACE modules with statistical rigor
-- **Performance**: Parallel sampling with GPU acceleration
+ 
 
 #### GEO-INFER-AI: Artificial Intelligence Engine
 - **Purpose**: Provides machine learning and AI capabilities for geospatial analysis
@@ -173,7 +172,7 @@ GEO-INFER-ACT → GEO-INFER-BAYES → GEO-INFER-AI → GEO-INFER-ACT (Continuous
   - AutoML for spatial problems
 - **Use Cases**: Pattern recognition, prediction, classification
 - **Integration**: Powers analysis in ACT, SPACE, and TIME modules
-- **Performance**: Distributed training with model serving
+ 
 
 ### Spatial-Temporal Modules
 
@@ -187,7 +186,7 @@ GEO-INFER-ACT → GEO-INFER-BAYES → GEO-INFER-AI → GEO-INFER-ACT (Continuous
   - Spatial optimization algorithms
 - **Use Cases**: Environmental monitoring, urban planning, transportation analysis
 - **Integration**: Core spatial capabilities for all other modules
-- **Performance**: Sub-millisecond spatial queries with H3 indexing
+ 
 
 #### GEO-INFER-TIME: Temporal Analysis Engine
 - **Purpose**: Provides time series analysis and temporal pattern recognition
@@ -199,7 +198,7 @@ GEO-INFER-ACT → GEO-INFER-BAYES → GEO-INFER-AI → GEO-INFER-ACT (Continuous
   - Real-time streaming analysis
 - **Use Cases**: Climate analysis, environmental monitoring, urban mobility
 - **Integration**: Enhances ACT and SPACE with temporal capabilities
-- **Performance**: Streaming analysis with 100ms latency
+ 
 
 #### GEO-INFER-IOT: Internet of Things Integration
 - **Purpose**: Integrates IoT devices and sensor networks
@@ -211,7 +210,7 @@ GEO-INFER-ACT → GEO-INFER-BAYES → GEO-INFER-AI → GEO-INFER-ACT (Continuous
   - Data quality monitoring
 - **Use Cases**: Smart cities, environmental monitoring, industrial IoT
 - **Integration**: Provides real-time data to ACT, SPACE, and TIME modules
-- **Performance**: Handles 10,000+ concurrent device connections
+ 
 
 ### Data Management Modules
 

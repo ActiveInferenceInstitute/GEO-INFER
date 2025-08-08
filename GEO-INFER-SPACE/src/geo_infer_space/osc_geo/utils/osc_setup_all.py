@@ -5,7 +5,7 @@ OS Climate Setup Script
 This script handles all steps for the OS Climate repositories:
 1. Clone the repositories from GitHub
 2. List their file structures
-3. Set up virtual environments and install dependencies
+3. Install dependencies with uv and run tests
 4. Run tests
 """
 
@@ -200,49 +200,20 @@ def setup_and_test_repository(repo_path, parent_repo_src_dir, repo_info):
     logger.info(f"Repository path: {repo_path}")
     result_info["path"] = repo_path
     
-    # Check if requirements.txt exists
+    # Prefer pyproject.toml; fallback to requirements.txt
+    pyproject_file = os.path.join(repo_path, "pyproject.toml")
     req_file = os.path.join(repo_path, "requirements.txt")
-    if not os.path.exists(req_file):
-        error_msg = f"Requirements file not found: {req_file}"
+    if not os.path.exists(pyproject_file) and not os.path.exists(req_file):
+        error_msg = f"No dependency manifest found (pyproject.toml or requirements.txt) in {repo_path}"
         logger.error(error_msg)
         result_info["success"] = False
         result_info["error"] = error_msg
         return False, result_info
     
-    # Create/clean virtual environment
-    venv_step = {
-        "name": "virtual_environment",
-        "action": "create"
-    }
-    result_info["steps"].append(venv_step)
-    
-    venv_dir = os.path.join(repo_path, "venv")
-    if os.path.exists(venv_dir):
-        logger.info(f"Removing existing virtual environment: {venv_dir}")
-        try:
-            shutil.rmtree(venv_dir)
-            logger.info(f"Successfully removed virtual environment: {venv_dir}")
-            venv_step["existing_removed"] = True
-        except Exception as e:
-            error_msg = f"Failed to remove virtual environment {venv_dir}: {e}"
-            logger.error(error_msg)
-            venv_step["success"] = False
-            venv_step["error"] = error_msg
-            result_info["success"] = False
-            return False, result_info
-    
-    logger.info(f"Creating virtual environment: {venv_dir}")
-    success, stdout, stderr = run_command([sys.executable, "-m", "venv", venv_dir], cwd=repo_path)
-    venv_step["success"] = success
-    venv_step["stdout"] = stdout
-    venv_step["stderr"] = stderr
-    
-    if not success:
-        error_msg = "Failed to create virtual environment"
-        logger.error(error_msg)
-        venv_step["error"] = error_msg
-        result_info["success"] = False
-        return False, result_info
+    # Ensure uv is available
+    uv_check = shutil.which("uv")
+    if not uv_check:
+        logger.warning("uv command not found on host. Ensure uv is installed for consistent environments.")
     
     # Create a temporary setup script for installation and testing
     script_step = {
@@ -252,21 +223,22 @@ def setup_and_test_repository(repo_path, parent_repo_src_dir, repo_info):
     result_info["steps"].append(script_step)
     
     script_content = f"""#!/bin/bash
-set -ex # Add -x for debugging
-
-# Activate virtual environment
-source {venv_dir}/bin/activate
+set -ex
 
 # Add GEO-INFER-SPACE/src to PYTHONPATH for tests to find shared modules
 export PYTHONPATH="{parent_repo_src_dir}:$PYTHONPATH"
 
-# Install requirements
-echo "Installing requirements..."
-pip install -r requirements.txt
-
-# Install the current repository in editable mode
-echo "Installing current repository in editable mode..."
-pip install -e .
+if [ -f "pyproject.toml" ]; then
+  echo "Using uv to lock and sync dependencies..."
+  uv lock || true
+  uv sync
+  echo "Installing current repository in editable mode..."
+  uv pip install -e .
+else
+  echo "Falling back to requirements.txt with uv..."
+  uv pip install -r requirements.txt
+  uv pip install -e .
+fi
 
 # Determine test directory and run tests
 TEST_DIR=""
@@ -278,11 +250,10 @@ fi
 
 if [ -n "$TEST_DIR" ]; then
     echo "Running internal tests for {os.path.basename(repo_path)} in $TEST_DIR..."
-    # Use the venv's pytest
-    {venv_dir}/bin/pytest $TEST_DIR
+    uv run pytest $TEST_DIR
 else
     echo "No 'test/' or 'tests/' directory found, skipping internal tests for {os.path.basename(repo_path)}."
-    exit 0 # Exit successfully if no tests to run
+    exit 0
 fi
 """
 

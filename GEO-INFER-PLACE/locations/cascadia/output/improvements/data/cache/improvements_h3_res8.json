@@ -1,0 +1,544 @@
+{
+  "hexagons": {
+    "88281c023bfffff": [
+      {
+        "improvement_value": 438355.59,
+        "land_value": 168879.42,
+        "building_type": "residential",
+        "year_built": 1955,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 1
+      }
+    ],
+    "88281c01d1fffff": [
+      {
+        "improvement_value": 249845.7,
+        "land_value": 172528.85,
+        "building_type": "commercial",
+        "year_built": 1986,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 3
+      }
+    ],
+    "88281c8e41fffff": [
+      {
+        "improvement_value": 188114.72,
+        "land_value": 188355.37,
+        "building_type": "residential",
+        "year_built": 1956,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 5
+      }
+    ],
+    "88281ca9d9fffff": [
+      {
+        "improvement_value": 307308.48,
+        "land_value": 134574.56,
+        "building_type": "commercial",
+        "year_built": 2000,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 8
+      }
+    ],
+    "88281cb405fffff": [
+      {
+        "improvement_value": 403297.62,
+        "land_value": 104898.31,
+        "building_type": "residential",
+        "year_built": 1969,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 10
+      }
+    ],
+    "88281c1341fffff": [
+      {
+        "improvement_value": 384076.78,
+        "land_value": 156241.49,
+        "building_type": "residential",
+        "year_built": 2011,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 15
+      }
+    ],
+    "88281c8531fffff": [
+      {
+        "improvement_value": 233831.41,
+        "land_value": 141117.02,
+        "building_type": "agricultural",
+        "year_built": 1982,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 17
+      }
+    ],
+    "88281cb8c3fffff": [
+      {
+        "improvement_value": 102999.11,
+        "land_value": 197206.25,
+        "building_type": "agricultural",
+        "year_built": 2004,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 18
+      }
+    ],
+    "88281cb0ddfffff": [
+      {
+        "improvement_value": 144150.2,
+        "land_value": 36347.46,
+        "building_type": "agricultural",
+        "year_built": 2007,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 20
+      }
+    ],
+    "88281ca121fffff": [
+      {
+        "improvement_value": 276514.07,
+        "land_value": 148295.27,
+        "building_type": "commercial",
+        "year_built": 1967,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 25
+      }
+    ],
+    "88281cb30bfffff": [
+      {
+        "improvement_value": 191222.28,
+        "land_value": 181641.77,
+        "building_type": "agricultural",
+        "year_built": 2005,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 26
+      }
+    ],
+    "88281cb415fffff": [
+      {
+        "improvement_value": 373824.25,
+        "land_value": 51549.65,
+        "building_type": "residential",
+        "year_built": 1953,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 27
+      }
+    ],
+    "88281c125bfffff": [
+      {
+        "improvement_value": 364701.89,
+        "land_value": 175240.21,
+        "building_type": "agricultural",
+        "year_built": 1956,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 28
+      }
+    ],
+    "88281cb11bfffff": [
+      {
+        "improvement_value": 336261.6,
+        "land_value": 176059.4,
+        "building_type": "commercial",
+        "year_built": 1970,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 34
+      }
+    ],
+    "88281cb635fffff": [
+      {
+        "improvement_value": 324515.47,
+        "land_value": 196525.1,
+        "building_type": "commercial",
+        "year_built": 2003,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 37
+      }
+    ],
+    "88281cb821fffff": [
+      {
+        "improvement_value": 85342.06,
+        "land_value": 115170.45,
+        "building_type": "residential",
+        "year_built": 1963,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 38
+      }
+    ],
+    "88281cb82dfffff": [
+      {
+        "improvement_value": 85342.06,
+        "land_value": 115170.45,
+        "building_type": "residential",
+        "year_built": 1963,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 38
+      }
+    ],
+    "88281c8985fffff": [
+      {
+        "improvement_value": 271413.99,
+        "land_value": 64888.99,
+        "building_type": "residential",
+        "year_built": 1970,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 39
+      }
+    ],
+    "88281cb897fffff": [
+      {
+        "improvement_value": 222898.72,
+        "land_value": 82460.32,
+        "building_type": "agricultural",
+        "year_built": 1993,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 41
+      }
+    ],
+    "88281cb0abfffff": [
+      {
+        "improvement_value": 113239.92,
+        "land_value": 89494.01,
+        "building_type": "agricultural",
+        "year_built": 1970,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 42
+      }
+    ],
+    "88281dda2bfffff": [
+      {
+        "improvement_value": 251132.65,
+        "land_value": 106384.77,
+        "building_type": "commercial",
+        "year_built": 1965,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 43
+      }
+    ],
+    "88281ca167fffff": [
+      {
+        "improvement_value": 97578.08,
+        "land_value": 179069.96,
+        "building_type": "residential",
+        "year_built": 1981,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 46
+      }
+    ],
+    "88281c8f2bfffff": [
+      {
+        "improvement_value": 151001.44,
+        "land_value": 43499.82,
+        "building_type": "agricultural",
+        "year_built": 1981,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 50
+      }
+    ],
+    "88281cacc3fffff": [
+      {
+        "improvement_value": 220763.09,
+        "land_value": 109623.56,
+        "building_type": "agricultural",
+        "year_built": 1973,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 52
+      }
+    ],
+    "88281cad61fffff": [
+      {
+        "improvement_value": 281233.37,
+        "land_value": 55402.81,
+        "building_type": "agricultural",
+        "year_built": 2018,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 53
+      }
+    ],
+    "88281c124dfffff": [
+      {
+        "improvement_value": 433574.8,
+        "land_value": 42190.47,
+        "building_type": "commercial",
+        "year_built": 1988,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 55
+      }
+    ],
+    "88281c88a7fffff": [
+      {
+        "improvement_value": 433574.8,
+        "land_value": 42190.47,
+        "building_type": "commercial",
+        "year_built": 1988,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 55
+      }
+    ],
+    "88281c8835fffff": [
+      {
+        "improvement_value": 285156.59,
+        "land_value": 166895.86,
+        "building_type": "commercial",
+        "year_built": 1993,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 56
+      }
+    ],
+    "88281caa9bfffff": [
+      {
+        "improvement_value": 421344.68,
+        "land_value": 104694.7,
+        "building_type": "agricultural",
+        "year_built": 2004,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 57
+      }
+    ],
+    "88281c1011fffff": [
+      {
+        "improvement_value": 362237.47,
+        "land_value": 109881.78,
+        "building_type": "residential",
+        "year_built": 2012,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 59
+      }
+    ],
+    "88281cab37fffff": [
+      {
+        "improvement_value": 67711.6,
+        "land_value": 132429.39,
+        "building_type": "commercial",
+        "year_built": 2009,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 60
+      }
+    ],
+    "88281ca267fffff": [
+      {
+        "improvement_value": 50135.75,
+        "land_value": 179222.0,
+        "building_type": "residential",
+        "year_built": 1950,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 62
+      }
+    ],
+    "88281caf23fffff": [
+      {
+        "improvement_value": 438003.95,
+        "land_value": 171170.5,
+        "building_type": "commercial",
+        "year_built": 2009,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 63
+      }
+    ],
+    "88281c0229fffff": [
+      {
+        "improvement_value": 89124.71,
+        "land_value": 182489.86,
+        "building_type": "residential",
+        "year_built": 1950,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 68
+      }
+    ],
+    "88281cb18dfffff": [
+      {
+        "improvement_value": 329636.32,
+        "land_value": 96972.05,
+        "building_type": "agricultural",
+        "year_built": 2014,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 70
+      }
+    ],
+    "88281cb1c7fffff": [
+      {
+        "improvement_value": 329636.32,
+        "land_value": 96972.05,
+        "building_type": "agricultural",
+        "year_built": 2014,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 70
+      }
+    ],
+    "88281cb193fffff": [
+      {
+        "improvement_value": 340981.96,
+        "land_value": 75894.9,
+        "building_type": "agricultural",
+        "year_built": 1981,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 71
+      }
+    ],
+    "88281cb993fffff": [
+      {
+        "improvement_value": 222663.23,
+        "land_value": 143477.11,
+        "building_type": "agricultural",
+        "year_built": 1950,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 74
+      }
+    ],
+    "88281c15adfffff": [
+      {
+        "improvement_value": 229445.34,
+        "land_value": 162295.61,
+        "building_type": "residential",
+        "year_built": 1984,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 77
+      }
+    ],
+    "88281ddb1bfffff": [
+      {
+        "improvement_value": 308911.39,
+        "land_value": 176863.82,
+        "building_type": "residential",
+        "year_built": 1960,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 78
+      }
+    ],
+    "88281ca523fffff": [
+      {
+        "improvement_value": 477037.85,
+        "land_value": 192814.34,
+        "building_type": "residential",
+        "year_built": 2003,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 82
+      }
+    ],
+    "88281ca8cdfffff": [
+      {
+        "improvement_value": 247463.66,
+        "land_value": 169134.24,
+        "building_type": "residential",
+        "year_built": 1979,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 87
+      }
+    ],
+    "88281ca1c3fffff": [
+      {
+        "improvement_value": 86385.15,
+        "land_value": 91375.9,
+        "building_type": "agricultural",
+        "year_built": 2014,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 88
+      }
+    ],
+    "88281ca1d5fffff": [
+      {
+        "improvement_value": 86385.15,
+        "land_value": 91375.9,
+        "building_type": "agricultural",
+        "year_built": 2014,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 88
+      }
+    ],
+    "88281c1517fffff": [
+      {
+        "improvement_value": 402698.89,
+        "land_value": 48485.65,
+        "building_type": "residential",
+        "year_built": 2008,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 89
+      }
+    ],
+    "88281c1229fffff": [
+      {
+        "improvement_value": 256470.95,
+        "land_value": 106601.48,
+        "building_type": "commercial",
+        "year_built": 1992,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 95
+      }
+    ],
+    "88281c1263fffff": [
+      {
+        "improvement_value": 256470.95,
+        "land_value": 106601.48,
+        "building_type": "commercial",
+        "year_built": 1992,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 95
+      }
+    ],
+    "88281cb2a7fffff": [
+      {
+        "improvement_value": 487396.49,
+        "land_value": 197545.41,
+        "building_type": "commercial",
+        "year_built": 1961,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 96
+      }
+    ],
+    "88281cae47fffff": [
+      {
+        "improvement_value": 103515.16,
+        "land_value": 156080.23,
+        "building_type": "commercial",
+        "year_built": 2012,
+        "source": "Del_Norte_County_Assessor_2022",
+        "data_year": 2022,
+        "feature_id": 99
+      }
+    ]
+  },
+  "input_features": 100
+}

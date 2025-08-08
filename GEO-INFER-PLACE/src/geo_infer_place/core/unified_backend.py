@@ -1099,8 +1099,8 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         }
 
         for module_name in self.modules.keys():
-            valid_hex_count = sum(1 for hex_data in self.unified_data.values() 
-                                if hex_data.get(module_name) and len(hex_data.get(module_name, {})) > 0)
+            valid_hex_count = sum(1 for hex_data in self.unified_data.values()
+                                  if isinstance(hex_data.get(module_name), dict) and hex_data.get(module_name))
             summary['module_summaries'][module_name] = {
                 'processed_hexagons': valid_hex_count,
                 'coverage': round(valid_hex_count / len(self.target_hexagons) * 100, 2) if self.target_hexagons else 0,
@@ -1144,14 +1144,17 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             # Use SPACE H3 utilities for enhanced GeoJSON generation
             features = []
             for hex_id, properties in data_to_export.items():
-                # Get geometry for the hexagon using SPACE utilities
-                boundary = cell_to_latlng_boundary(hex_id)
-                
+                # Get geometry for the hexagon using SPACE utilities (lat, lng)
+                boundary_latlng = cell_to_latlng_boundary(hex_id)
+                # Convert to GeoJSON order [lng, lat] and ensure closed ring
+                coords = [[lng, lat] for (lat, lng) in boundary_latlng]
+                if coords and coords[0] != coords[-1]:
+                    coords.append(coords[0])
                 features.append({
                     'type': 'Feature',
                     'geometry': {
                         'type': 'Polygon',
-                        'coordinates': [boundary]
+                        'coordinates': [coords]
                     },
                     'properties': properties
                 })

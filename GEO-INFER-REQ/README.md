@@ -6,6 +6,10 @@
 
 GEO-INFER-REQ is a specialized module for managing the entire lifecycle of requirements for geospatial systems and applications. It provides tools, methodologies, and workflows for capturing, analyzing, specifying, validating, and tracking requirements with a focus on the unique challenges of geospatial contexts. This module bridges the gap between stakeholder needs and technical implementation, ensuring that geospatial systems are built according to well-defined, consistent, and traceable requirements. GEO-INFER-REQ emphasizes the importance of accurately capturing spatial elements in requirements specifications and supports systematic approaches to managing changing requirements throughout project lifecycles.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-req.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Core Objectives
 
 - **Capture Spatial Requirements:** Develop specialized techniques for eliciting and documenting requirements with explicit spatial components.

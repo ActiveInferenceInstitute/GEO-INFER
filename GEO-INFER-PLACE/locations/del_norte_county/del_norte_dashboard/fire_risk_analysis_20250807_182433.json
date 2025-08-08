@@ -1,0 +1,4527 @@
+{
+  "analysis_type": "fire_risk",
+  "location": "del_norte_county",
+  "timestamp": "2025-08-07T18:24:32.977275",
+  "temporal_range": null,
+  "config": {
+    "enabled": true,
+    "update_frequency": "hourly",
+    "fire_weather": {
+      "critical_temperature": 80,
+      "critical_humidity": 15,
+      "critical_wind_speed": 25,
+      "extreme_fire_weather_days": 3
+    },
+    "fuel_moisture": {
+      "critical_live": 60,
+      "critical_dead": 8,
+      "extreme_dead": 6
+    },
+    "fire_danger_classes": [
+      "Low",
+      "Moderate",
+      "High",
+      "Very High",
+      "Extreme"
+    ],
+    "wui_zones": {
+      "buffer_distances": [
+        100,
+        500,
+        1000
+      ],
+      "vegetation_types": [
+        "grass",
+        "shrub",
+        "forest"
+      ]
+    },
+    "historical_analysis": {
+      "start_year": 1950,
+      "fire_size_classes": {
+        "small": [
+          0,
+          10
+        ],
+        "medium": [
+          10,
+          100
+        ],
+        "large": [
+          100,
+          1000
+        ],
+        "very_large": [
+          1000,
+          5000
+        ],
+        "mega": [
+          5000,
+          null
+        ]
+      }
+    },
+    "data_sources": {
+      "calfire_stations": {
+        "update_frequency": "hourly",
+        "parameters": [
+          "temperature",
+          "humidity",
+          "wind_speed",
+          "wind_direction"
+        ]
+      },
+      "fuel_moisture": {
+        "update_frequency": "weekly",
+        "measurement_sites": 5
+      },
+      "fire_history": {
+        "update_frequency": "annually",
+        "source": "CAL FIRE FRAP"
+      }
+    }
+  },
+  "data_acquisition": {
+    "bbox": [
+      -124.408,
+      41.458,
+      -123.536,
+      42.006
+    ],
+    "temporal_range": null,
+    "data_sources": {
+      "fire_perimeters": {
+        "type": "FeatureCollection",
+        "features": []
+      },
+      "fire_weather": {
+        "data_source": "CAL FIRE RAWS Network (synthetic)",
+        "stations": [
+          {
+            "station_id": "GASQ_RAWS",
+            "name": "Gasquet RAWS",
+            "lat": 41.85,
+            "lon": -123.97
+          },
+          {
+            "station_id": "KLMT_RAWS",
+            "name": "Klamath RAWS",
+            "lat": 41.53,
+            "lon": -124.04
+          }
+        ],
+        "measurements": [
+          {
+            "date": "2025-05-09T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 76.23194073009086,
+            "relative_humidity": 27.9614279085152,
+            "wind_speed_mph": 12.296445388520581,
+            "fire_weather_index": 54.41873551583594
+          },
+          {
+            "date": "2025-05-09T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 86.0712500285788,
+            "relative_humidity": 34.60817319917676,
+            "wind_speed_mph": 7.817664218780364,
+            "fire_weather_index": 55.371908938792224
+          },
+          {
+            "date": "2025-05-10T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 70.1658251695543,
+            "relative_humidity": 45.380345076499374,
+            "wind_speed_mph": 3.4600563301052274,
+            "fire_weather_index": 26.515508258107534
+          },
+          {
+            "date": "2025-05-10T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 80.43885249285835,
+            "relative_humidity": 27.15476094206475,
+            "wind_speed_mph": 11.515742927429855,
+            "fire_weather_index": 59.04196301450852
+          },
+          {
+            "date": "2025-05-11T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 93.68599880239537,
+            "relative_humidity": 28.158440101832063,
+            "wind_speed_mph": 6.377280146578056,
+            "fire_weather_index": 68.71619877385233
+          },
+          {
+            "date": "2025-05-11T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 73.90234599236108,
+            "relative_humidity": 36.20386567556485,
+            "wind_speed_mph": 7.314857772597238,
+            "fire_weather_index": 41.355909203094846
+          },
+          {
+            "date": "2025-05-12T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 91.92095908247705,
+            "relative_humidity": 43.89268449592037,
+            "wind_speed_mph": 9.654242905557702,
+            "fire_weather_index": 52.85539603933553
+          },
+          {
+            "date": "2025-05-12T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 70.99970357277866,
+            "relative_humidity": 46.255689307168616,
+            "wind_speed_mph": 6.9474417030602345,
+            "fire_weather_index": 28.21773511714016
+          },
+          {
+            "date": "2025-05-13T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 89.61031670961624,
+            "relative_humidity": 28.63352251613975,
+            "wind_speed_mph": 3.900293467586203,
+            "fire_weather_index": 62.9269409272696
+          },
+          {
+            "date": "2025-05-13T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 74.92378989925847,
+            "relative_humidity": 41.19488995547851,
+            "wind_speed_mph": 12.034401651931924,
+            "fire_weather_index": 39.74610076974592
+          },
+          {
+            "date": "2025-05-14T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 85.06501262590444,
+            "relative_humidity": 30.009907499147396,
+            "wind_speed_mph": 5.7368805296437095,
+            "fire_weather_index": 57.923545391578905
+          },
+          {
+            "date": "2025-05-14T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 82.70786076399745,
+            "relative_humidity": 38.949690485341314,
+            "wind_speed_mph": 13.940166452061895,
+            "fire_weather_index": 50.728253504687075
+          },
+          {
+            "date": "2025-05-15T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 77.60497621368441,
+            "relative_humidity": 27.538733439439792,
+            "wind_speed_mph": 3.170870556393026,
+            "fire_weather_index": 51.65167805244113
+          },
+          {
+            "date": "2025-05-15T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 86.05094352045236,
+            "relative_humidity": 49.00684984047961,
+            "wind_speed_mph": 13.81915370681916,
+            "fire_weather_index": 43.953670533382336
+          },
+          {
+            "date": "2025-05-16T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 74.89660776486565,
+            "relative_humidity": 31.45330763815363,
+            "wind_speed_mph": 2.452111521685904,
+            "fire_weather_index": 44.66935588755497
+          },
+          {
+            "date": "2025-05-16T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 81.96480625732738,
+            "relative_humidity": 36.03624836510807,
+            "wind_speed_mph": 9.530189421954413,
+            "fire_weather_index": 50.69365260319652
+          },
+          {
+            "date": "2025-05-17T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 79.88499645703206,
+            "relative_humidity": 46.86834611853957,
+            "wind_speed_mph": 11.465311978101754,
+            "fire_weather_index": 38.749306327543366
+          },
+          {
+            "date": "2025-05-17T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 74.0445482963379,
+            "relative_humidity": 33.79382611577205,
+            "wind_speed_mph": 13.79126546767524,
+            "fire_weather_index": 47.14635491440347
+          },
+          {
+            "date": "2025-05-18T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 74.21649894216797,
+            "relative_humidity": 51.88526411728952,
+            "wind_speed_mph": 11.262955570169364,
+            "fire_weather_index": 27.962712609963134
+          },
+          {
+            "date": "2025-05-18T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 83.1343444824382,
+            "relative_humidity": 38.453697849422646,
+            "wind_speed_mph": 3.038736263916986,
+            "fire_weather_index": 46.20001476497404
+          },
+          {
+            "date": "2025-05-19T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 86.72836598267953,
+            "relative_humidity": 53.07123601345438,
+            "wind_speed_mph": 6.588211083418248,
+            "fire_weather_index": 36.951235510934275
+          },
+          {
+            "date": "2025-05-19T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 81.93743616559739,
+            "relative_humidity": 43.62227070193845,
+            "wind_speed_mph": 6.552216064029446,
+            "fire_weather_index": 41.59127349567367
+          },
+          {
+            "date": "2025-05-20T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 93.37055955115743,
+            "relative_humidity": 30.747420154176385,
+            "wind_speed_mph": 5.618748325739935,
+            "fire_weather_index": 65.43251355985102
+          },
+          {
+            "date": "2025-05-20T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 74.88315554198752,
+            "relative_humidity": 35.42767124589765,
+            "wind_speed_mph": 6.694239005286715,
+            "fire_weather_index": 42.80260379873323
+          },
+          {
+            "date": "2025-05-21T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 81.59349343829803,
+            "relative_humidity": 41.63787569059209,
+            "wind_speed_mph": 5.4936705920305,
+            "fire_weather_index": 42.702453043721185
+          },
+          {
+            "date": "2025-05-21T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 74.21426490953854,
+            "relative_humidity": 27.54803018277174,
+            "wind_speed_mph": 14.846553867465493,
+            "fire_weather_index": 54.08951166049955
+          },
+          {
+            "date": "2025-05-22T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 82.40724461584885,
+            "relative_humidity": 51.284594966198334,
+            "wind_speed_mph": 14.090398296435975,
+            "fire_weather_index": 38.16784879786851
+          },
+          {
+            "date": "2025-05-22T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 71.53632402402592,
+            "relative_humidity": 31.602364341493786,
+            "wind_speed_mph": 11.737407024928583,
+            "fire_weather_index": 45.80266319499643
+          },
+          {
+            "date": "2025-05-23T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 72.59274565495124,
+            "relative_humidity": 34.516848289913256,
+            "wind_speed_mph": 2.3739752317891174,
+            "fire_weather_index": 39.26288498093255
+          },
+          {
+            "date": "2025-05-23T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 82.37601068776058,
+            "relative_humidity": 30.22999167243359,
+            "wind_speed_mph": 5.312119121055897,
+            "fire_weather_index": 54.80207857585494
+          },
+          {
+            "date": "2025-05-24T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 69.38065941594546,
+            "relative_humidity": 31.87398436643125,
+            "wind_speed_mph": 7.387387731673581,
+            "fire_weather_index": 41.200368915351
+          },
+          {
+            "date": "2025-05-24T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 76.47052074715475,
+            "relative_humidity": 39.86848248965031,
+            "wind_speed_mph": 2.721399677686337,
+            "fire_weather_index": 37.96273809634761
+          },
+          {
+            "date": "2025-05-25T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 76.13199966904564,
+            "relative_humidity": 33.45949727038136,
+            "wind_speed_mph": 4.026415854136572,
+            "fire_weather_index": 44.685710325732565
+          },
+          {
+            "date": "2025-05-25T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 77.92314870578922,
+            "relative_humidity": 42.56922090855183,
+            "wind_speed_mph": 14.928276329169824,
+            "fire_weather_index": 42.8180659618223
+          },
+          {
+            "date": "2025-05-26T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 72.25713493150177,
+            "relative_humidity": 47.865324761253326,
+            "wind_speed_mph": 14.110871367004718,
+            "fire_weather_index": 31.4472458537508
+          },
+          {
+            "date": "2025-05-26T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 66.25768664781651,
+            "relative_humidity": 43.747288951986306,
+            "wind_speed_mph": 7.488433237879911,
+            "fire_weather_index": 26.254614314770162
+          },
+          {
+            "date": "2025-05-27T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 75.40405104951337,
+            "relative_humidity": 41.02223068940611,
+            "wind_speed_mph": 7.303226854477417,
+            "fire_weather_index": 38.03343378734597
+          },
+          {
+            "date": "2025-05-27T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 82.39741876863025,
+            "relative_humidity": 29.291221984192426,
+            "wind_speed_mph": 6.543183979908703,
+            "fire_weather_index": 56.37778877439217
+          },
+          {
+            "date": "2025-05-28T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 88.11722993389968,
+            "relative_humidity": 30.138294494346958,
+            "wind_speed_mph": 10.390918367590755,
+            "fire_weather_index": 63.1743946233481
+          },
+          {
+            "date": "2025-05-28T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 78.88747913906455,
+            "relative_humidity": 41.79656294194825,
+            "wind_speed_mph": 5.692924806078445,
+            "fire_weather_index": 39.937378600155526
+          },
+          {
+            "date": "2025-05-29T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 79.64203367625574,
+            "relative_humidity": 36.54052090400479,
+            "wind_speed_mph": 6.371480086217783,
+            "fire_weather_index": 46.28725281535984
+          },
+          {
+            "date": "2025-05-29T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 76.73962319377632,
+            "relative_humidity": 31.354052459764667,
+            "wind_speed_mph": 10.879406700799132,
+            "fire_weather_index": 50.82527408441123
+          },
+          {
+            "date": "2025-05-30T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 85.73926088790174,
+            "relative_humidity": 38.11054661520601,
+            "wind_speed_mph": 6.992915466954585,
+            "fire_weather_index": 51.12517200617302
+          },
+          {
+            "date": "2025-05-30T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 80.78488866566157,
+            "relative_humidity": 50.55352519723272,
+            "wind_speed_mph": 9.158847275016058,
+            "fire_weather_index": 34.810787105936875
+          },
+          {
+            "date": "2025-05-31T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 77.61996272565246,
+            "relative_humidity": 33.41958679618812,
+            "wind_speed_mph": 10.39567248778113,
+            "fire_weather_index": 49.3982121733549
+          },
+          {
+            "date": "2025-05-31T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 71.43957686192995,
+            "relative_humidity": 27.152553607892372,
+            "wind_speed_mph": 6.71953966928226,
+            "fire_weather_index": 47.646793088678706
+          },
+          {
+            "date": "2025-06-01T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 83.48286250399413,
+            "relative_humidity": 20.867863869499196,
+            "wind_speed_mph": 14.653387549041636,
+            "fire_weather_index": 69.94169240901574
+          },
+          {
+            "date": "2025-06-01T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 61.78229032281622,
+            "relative_humidity": 26.210392969183637,
+            "wind_speed_mph": 2.6294253044916314,
+            "fire_weather_index": 36.8866100058784
+          },
+          {
+            "date": "2025-06-02T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 69.90316038119694,
+            "relative_humidity": 38.22865196704365,
+            "wind_speed_mph": 13.639850615217803,
+            "fire_weather_index": 38.49443372176219
+          },
+          {
+            "date": "2025-06-02T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 87.68617201972623,
+            "relative_humidity": 32.13992051792954,
+            "wind_speed_mph": 3.3263493146117717,
+            "fire_weather_index": 57.20942615910258
+          },
+          {
+            "date": "2025-06-03T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 71.23797972316703,
+            "relative_humidity": 37.82127117806655,
+            "wind_speed_mph": 7.387179611176864,
+            "fire_weather_index": 37.11029835068891
+          },
+          {
+            "date": "2025-06-03T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 79.69081721180714,
+            "relative_humidity": 39.67096325084501,
+            "wind_speed_mph": 5.0180960093003195,
+            "fire_weather_index": 42.52890196561229
+          },
+          {
+            "date": "2025-06-04T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 68.32778824567913,
+            "relative_humidity": 18.184926417463878,
+            "wind_speed_mph": 8.460695156684366,
+            "fire_weather_index": 54.373209406557436
+          },
+          {
+            "date": "2025-06-04T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 74.00682882155068,
+            "relative_humidity": 37.75665316568463,
+            "wind_speed_mph": 13.348551300759762,
+            "fire_weather_index": 42.924451306245935
+          },
+          {
+            "date": "2025-06-05T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 74.21487967270824,
+            "relative_humidity": 25.063952066236684,
+            "wind_speed_mph": 2.0296944086294677,
+            "fire_weather_index": 50.16577481078629
+          },
+          {
+            "date": "2025-06-05T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 78.0078908704498,
+            "relative_humidity": 33.73181912515751,
+            "wind_speed_mph": 10.464195449294479,
+            "fire_weather_index": 49.50816946993953
+          },
+          {
+            "date": "2025-06-06T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 74.07957644561148,
+            "relative_humidity": 23.738634617617336,
+            "wind_speed_mph": 5.819130720912734,
+            "fire_weather_index": 53.25050718845051
+          },
+          {
+            "date": "2025-06-06T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 85.9021590897749,
+            "relative_humidity": 33.27378450947249,
+            "wind_speed_mph": 14.524420307441979,
+            "fire_weather_index": 59.89058473402339
+          },
+          {
+            "date": "2025-06-07T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 69.44778233437415,
+            "relative_humidity": 47.50104208790342,
+            "wind_speed_mph": 12.341899191465227,
+            "fire_weather_index": 28.117689842203347
+          },
+          {
+            "date": "2025-06-07T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 80.10858947191653,
+            "relative_humidity": 22.162097463760997,
+            "wind_speed_mph": 6.228387154614729,
+            "fire_weather_index": 61.06068558546289
+          },
+          {
+            "date": "2025-06-08T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 65.61687844993013,
+            "relative_humidity": 10.0,
+            "wind_speed_mph": 7.756657279461501,
+            "fire_weather_index": 59.49520708966088
+          },
+          {
+            "date": "2025-06-08T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 68.57527698511511,
+            "relative_humidity": 30.64648327571487,
+            "wind_speed_mph": 6.248392544610714,
+            "fire_weather_index": 41.05298998170559
+          },
+          {
+            "date": "2025-06-09T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 72.6918297986748,
+            "relative_humidity": 41.27808267066141,
+            "wind_speed_mph": 11.68250142981597,
+            "fire_weather_index": 37.25499784292138
+          },
+          {
+            "date": "2025-06-09T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 67.76380430864029,
+            "relative_humidity": 33.07315377895798,
+            "wind_speed_mph": 2.1568570663639046,
+            "fire_weather_index": 35.76907906286426
+          },
+          {
+            "date": "2025-06-10T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 70.93709452378165,
+            "relative_humidity": 41.38138811176407,
+            "wind_speed_mph": 12.259685121565733,
+            "fire_weather_index": 35.685548972800454
+          },
+          {
+            "date": "2025-06-10T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 71.1211135600831,
+            "relative_humidity": 24.06083787199917,
+            "wind_speed_mph": 2.479141270472933,
+            "fire_weather_index": 48.2998463233204
+          },
+          {
+            "date": "2025-06-11T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 69.84137512577831,
+            "relative_humidity": 43.4650394177787,
+            "wind_speed_mph": 4.060249487526572,
+            "fire_weather_index": 28.4064604517629
+          },
+          {
+            "date": "2025-06-11T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 70.37807015320914,
+            "relative_humidity": 16.79443223001216,
+            "wind_speed_mph": 6.523182232754335,
+            "fire_weather_index": 56.84522903957414
+          },
+          {
+            "date": "2025-06-12T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 73.10710685510841,
+            "relative_humidity": 30.631767777902258,
+            "wind_speed_mph": 7.354205130465454,
+            "fire_weather_index": 46.15244164243889
+          },
+          {
+            "date": "2025-06-12T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 75.00077783428053,
+            "relative_humidity": 32.92439749594084,
+            "wind_speed_mph": 2.0563128947548917,
+            "fire_weather_index": 43.10453678571714
+          },
+          {
+            "date": "2025-06-13T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 67.94334603485751,
+            "relative_humidity": 44.83094973127329,
+            "wind_speed_mph": 13.722166813191164,
+            "fire_weather_index": 29.973479710179802
+          },
+          {
+            "date": "2025-06-13T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 74.49129011718217,
+            "relative_humidity": 28.5934926950203,
+            "wind_speed_mph": 9.751275670135389,
+            "fire_weather_index": 50.773435257229565
+          },
+          {
+            "date": "2025-06-14T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 79.82703631509696,
+            "relative_humidity": 34.49291247058376,
+            "wind_speed_mph": 4.477300325813794,
+            "fire_weather_index": 47.5727740074201
+          },
+          {
+            "date": "2025-06-14T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 76.77408735954967,
+            "relative_humidity": 47.82879932291583,
+            "wind_speed_mph": 13.672976510465327,
+            "fire_weather_index": 35.78177629186651
+          },
+          {
+            "date": "2025-06-15T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 70.43084902812808,
+            "relative_humidity": 14.272356861305575,
+            "wind_speed_mph": 6.145867166961473,
+            "fire_weather_index": 59.231425750303245
+          },
+          {
+            "date": "2025-06-15T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 70.50797441710856,
+            "relative_humidity": 25.523312911897325,
+            "wind_speed_mph": 8.551205762755098,
+            "fire_weather_index": 49.26026438658879
+          },
+          {
+            "date": "2025-06-16T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 69.46328427455074,
+            "relative_humidity": 28.237659521783932,
+            "wind_speed_mph": 5.5307669843179985,
+            "fire_weather_index": 43.99100824492581
+          },
+          {
+            "date": "2025-06-16T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 70.12272646203286,
+            "relative_humidity": 37.77224686506259,
+            "wind_speed_mph": 2.427349634988185,
+            "fire_weather_index": 33.56415441446436
+          },
+          {
+            "date": "2025-06-17T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 66.69974610344305,
+            "relative_humidity": 55.28393296671851,
+            "wind_speed_mph": 2.8276282050007944,
+            "fire_weather_index": 12.829627239224935
+          },
+          {
+            "date": "2025-06-17T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 66.9900195369377,
+            "relative_humidity": 21.420860301352185,
+            "wind_speed_mph": 9.154530065597699,
+            "fire_weather_index": 50.14642426838436
+          },
+          {
+            "date": "2025-06-18T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 69.53718166648778,
+            "relative_humidity": 48.23935375125987,
+            "wind_speed_mph": 4.6991521685922555,
+            "fire_weather_index": 23.64740399952404
+          },
+          {
+            "date": "2025-06-18T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 76.62044859236337,
+            "relative_humidity": 14.723344381423612,
+            "wind_speed_mph": 2.4770045235048137,
+            "fire_weather_index": 63.13560647269217
+          },
+          {
+            "date": "2025-06-19T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 71.08586311127644,
+            "relative_humidity": 34.24904575075259,
+            "wind_speed_mph": 7.795094572896476,
+            "fire_weather_index": 40.73436464697208
+          },
+          {
+            "date": "2025-06-19T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 58.80232974219451,
+            "relative_humidity": 26.094216075518993,
+            "wind_speed_mph": 9.113357791618265,
+            "fire_weather_index": 37.26479256248465
+          },
+          {
+            "date": "2025-06-20T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 70.22607568915427,
+            "relative_humidity": 54.13784997261442,
+            "wind_speed_mph": 7.709014983080022,
+            "fire_weather_index": 19.942733208079865
+          },
+          {
+            "date": "2025-06-20T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 66.75074456518897,
+            "relative_humidity": 30.059543437758546,
+            "wind_speed_mph": 11.962043403662198,
+            "fire_weather_index": 42.672222829261514
+          },
+          {
+            "date": "2025-06-21T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 67.65846770554396,
+            "relative_humidity": 36.06564750474892,
+            "wind_speed_mph": 8.495072520728193,
+            "fire_weather_index": 35.84035646115913
+          },
+          {
+            "date": "2025-06-21T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 71.08333111212755,
+            "relative_humidity": 22.306033731852093,
+            "wind_speed_mph": 3.06692251559698,
+            "fire_weather_index": 50.31075863807395
+          },
+          {
+            "date": "2025-06-22T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 65.05624941758678,
+            "relative_humidity": 19.04890615702223,
+            "wind_speed_mph": 13.287716088125912,
+            "fire_weather_index": 52.651201304627506
+          },
+          {
+            "date": "2025-06-22T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 69.74523857314097,
+            "relative_humidity": 46.51818288905992,
+            "wind_speed_mph": 7.394681440997163,
+            "fire_weather_index": 26.924396404579625
+          },
+          {
+            "date": "2025-06-23T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 69.82222395996558,
+            "relative_humidity": 44.628289769208834,
+            "wind_speed_mph": 8.617397235907559,
+            "fire_weather_index": 29.50263280871053
+          },
+          {
+            "date": "2025-06-23T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 41.2676542560918,
+            "relative_humidity": 36.715473295186214,
+            "wind_speed_mph": 5.9894086845599945,
+            "fire_weather_index": 7.546885303185585
+          },
+          {
+            "date": "2025-06-24T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 70.54893122929683,
+            "relative_humidity": 43.77161527483338,
+            "wind_speed_mph": 9.883307689819642,
+            "fire_weather_index": 31.71896979937327
+          },
+          {
+            "date": "2025-06-24T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 56.442497093469356,
+            "relative_humidity": 42.796695845327214,
+            "wind_speed_mph": 8.134346974373626,
+            "fire_weather_index": 17.712974735328956
+          },
+          {
+            "date": "2025-06-25T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 72.7166425545833,
+            "relative_humidity": 61.73662955935473,
+            "wind_speed_mph": 9.211638379695634,
+            "fire_weather_index": 15.585832185076388
+          },
+          {
+            "date": "2025-06-25T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 72.10102198218149,
+            "relative_humidity": 21.56831797094631,
+            "wind_speed_mph": 12.161364215331439,
+            "fire_weather_index": 56.613386118900905
+          },
+          {
+            "date": "2025-06-26T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 70.10915517949906,
+            "relative_humidity": 19.761540790772887,
+            "wind_speed_mph": 12.62511667386595,
+            "fire_weather_index": 56.660172725659145
+          },
+          {
+            "date": "2025-06-26T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 70.10688021748089,
+            "relative_humidity": 34.09542880156958,
+            "wind_speed_mph": 11.379113147135762,
+            "fire_weather_index": 41.701007989479194
+          },
+          {
+            "date": "2025-06-27T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 68.01569498957974,
+            "relative_humidity": 28.6444161351175,
+            "wind_speed_mph": 7.271672104248802,
+            "fire_weather_index": 43.00711490658665
+          },
+          {
+            "date": "2025-06-27T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 68.52789583938866,
+            "relative_humidity": 23.233329759993772,
+            "wind_speed_mph": 4.3819170563114245,
+            "fire_weather_index": 47.4855246075506
+          },
+          {
+            "date": "2025-06-28T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 63.211646373984486,
+            "relative_humidity": 39.263228210434654,
+            "wind_speed_mph": 14.54703720276706,
+            "fire_weather_index": 31.22193676493336
+          },
+          {
+            "date": "2025-06-28T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 64.055742519462,
+            "relative_humidity": 37.897931444331704,
+            "wind_speed_mph": 2.7696401522347855,
+            "fire_weather_index": 27.54263115124769
+          },
+          {
+            "date": "2025-06-29T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 59.9969266795891,
+            "relative_humidity": 22.305080807905966,
+            "wind_speed_mph": 11.584205240986675,
+            "fire_weather_index": 43.483948492176474
+          },
+          {
+            "date": "2025-06-29T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 68.08839040748067,
+            "relative_humidity": 46.99587314283504,
+            "wind_speed_mph": 14.84626027795271,
+            "fire_weather_index": 28.51564740362199
+          },
+          {
+            "date": "2025-06-30T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 65.69288659381755,
+            "relative_humidity": 53.07517571248223,
+            "wind_speed_mph": 14.643050230504375,
+            "fire_weather_index": 19.939235996587506
+          },
+          {
+            "date": "2025-06-30T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 72.74901319135118,
+            "relative_humidity": 19.985591438582674,
+            "wind_speed_mph": 13.226480813627719,
+            "fire_weather_index": 59.37666215958237
+          },
+          {
+            "date": "2025-07-01T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 71.83064498011224,
+            "relative_humidity": 18.293608331343897,
+            "wind_speed_mph": 12.291546524391158,
+            "fire_weather_index": 59.682809910963925
+          },
+          {
+            "date": "2025-07-01T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 65.96491401102196,
+            "relative_humidity": 40.17392463423524,
+            "wind_speed_mph": 12.512626465802144,
+            "fire_weather_index": 32.04730260968779
+          },
+          {
+            "date": "2025-07-02T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 66.64077258372724,
+            "relative_humidity": 23.665057459127866,
+            "wind_speed_mph": 3.450137352410119,
+            "fire_weather_index": 44.70078380080444
+          },
+          {
+            "date": "2025-07-02T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 51.029957714472765,
+            "relative_humidity": 27.408923128410386,
+            "wind_speed_mph": 3.1041206939561277,
+            "fire_weather_index": 25.173094933040442
+          },
+          {
+            "date": "2025-07-03T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 57.694381902572125,
+            "relative_humidity": 34.81990693971284,
+            "wind_speed_mph": 11.971804146889017,
+            "fire_weather_index": 28.860377036303795
+          },
+          {
+            "date": "2025-07-03T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 58.647033834726365,
+            "relative_humidity": 17.3822031449362,
+            "wind_speed_mph": 3.986743127084622,
+            "fire_weather_index": 43.25820225333248
+          },
+          {
+            "date": "2025-07-04T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 62.80023814833831,
+            "relative_humidity": 33.862555960765405,
+            "wind_speed_mph": 13.829637239471646,
+            "fire_weather_index": 35.85250080730873
+          },
+          {
+            "date": "2025-07-04T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 62.356667419652894,
+            "relative_humidity": 31.573720370040895,
+            "wind_speed_mph": 6.97768093676965,
+            "fire_weather_index": 34.27178751799682
+          },
+          {
+            "date": "2025-07-05T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 62.955137922764,
+            "relative_humidity": 33.90974442836917,
+            "wind_speed_mph": 2.430464128677249,
+            "fire_weather_index": 30.260625558733455
+          },
+          {
+            "date": "2025-07-05T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 60.21589772841202,
+            "relative_humidity": 18.11520583350231,
+            "wind_speed_mph": 11.986042841072825,
+            "fire_weather_index": 48.093713315446124
+          },
+          {
+            "date": "2025-07-06T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 56.31762951219555,
+            "relative_humidity": 37.40698792639651,
+            "wind_speed_mph": 10.395614529250095,
+            "fire_weather_index": 24.10844885042409
+          },
+          {
+            "date": "2025-07-06T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 62.62928282255497,
+            "relative_humidity": 42.169572156600886,
+            "wind_speed_mph": 9.062866118062507,
+            "fire_weather_index": 24.99114372498534
+          },
+          {
+            "date": "2025-07-07T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 60.784860520274194,
+            "relative_humidity": 27.018355242528695,
+            "wind_speed_mph": 5.535171594091027,
+            "fire_weather_index": 36.53409107479101
+          },
+          {
+            "date": "2025-07-07T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 65.11431173575103,
+            "relative_humidity": 46.41576045267631,
+            "wind_speed_mph": 12.588842793682822,
+            "fire_weather_index": 24.992972679916132
+          },
+          {
+            "date": "2025-07-08T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 58.657845892992434,
+            "relative_humidity": 40.13980242195631,
+            "wind_speed_mph": 2.392089342283625,
+            "fire_weather_index": 19.714088142177935
+          },
+          {
+            "date": "2025-07-08T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 68.61377919943386,
+            "relative_humidity": 36.82743816014286,
+            "wind_speed_mph": 5.6741198331174205,
+            "fire_weather_index": 34.62340095584971
+          },
+          {
+            "date": "2025-07-09T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 67.2993635572054,
+            "relative_humidity": 30.27652860452378,
+            "wind_speed_mph": 5.7722587066743065,
+            "fire_weather_index": 39.908964306018774
+          },
+          {
+            "date": "2025-07-09T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 59.0420627647186,
+            "relative_humidity": 30.46859078589019,
+            "wind_speed_mph": 11.696310399135907,
+            "fire_weather_index": 34.42162717839636
+          },
+          {
+            "date": "2025-07-10T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 52.77091703132969,
+            "relative_humidity": 44.7131459724271,
+            "wind_speed_mph": 2.0318318297306717,
+            "fire_weather_index": 9.073686973767924
+          },
+          {
+            "date": "2025-07-10T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 59.52224756926451,
+            "relative_humidity": 29.012345612399514,
+            "wind_speed_mph": 9.015671522264707,
+            "fire_weather_index": 35.01773771799735
+          },
+          {
+            "date": "2025-07-11T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 64.94898054474234,
+            "relative_humidity": 34.44757130446237,
+            "wind_speed_mph": 7.287237392146341,
+            "fire_weather_index": 34.14502793635314
+          },
+          {
+            "date": "2025-07-11T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 63.680403242353364,
+            "relative_humidity": 28.35643559260188,
+            "wind_speed_mph": 4.02568198386393,
+            "fire_weather_index": 37.33680864168345
+          },
+          {
+            "date": "2025-07-12T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 67.3276862995709,
+            "relative_humidity": 44.9637409467322,
+            "wind_speed_mph": 3.760553043432379,
+            "fire_weather_index": 24.24422187455489
+          },
+          {
+            "date": "2025-07-12T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 61.80378747006221,
+            "relative_humidity": 42.179521189762504,
+            "wind_speed_mph": 6.8553101883809715,
+            "fire_weather_index": 23.051921374490192
+          },
+          {
+            "date": "2025-07-13T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 63.76567748229945,
+            "relative_humidity": 36.049825476062914,
+            "wind_speed_mph": 9.537342038336536,
+            "fire_weather_index": 32.484523025404805
+          },
+          {
+            "date": "2025-07-13T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 55.84180242451413,
+            "relative_humidity": 34.28714183073994,
+            "wind_speed_mph": 9.788345804458023,
+            "fire_weather_index": 26.4488334960032
+          },
+          {
+            "date": "2025-07-14T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 49.83929702265271,
+            "relative_humidity": 27.066200445175035,
+            "wind_speed_mph": 10.860885528406577,
+            "fire_weather_index": 28.203539341680962
+          },
+          {
+            "date": "2025-07-14T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 46.87100169669869,
+            "relative_humidity": 27.785758016576466,
+            "wind_speed_mph": 6.805418486362187,
+            "fire_weather_index": 22.487952923303318
+          },
+          {
+            "date": "2025-07-15T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 59.5126487134948,
+            "relative_humidity": 16.445860840805523,
+            "wind_speed_mph": 7.672670928867105,
+            "fire_weather_index": 46.90312333712283
+          },
+          {
+            "date": "2025-07-15T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 61.61965295879007,
+            "relative_humidity": 21.386524675812215,
+            "wind_speed_mph": 3.2876203585155066,
+            "fire_weather_index": 41.876938462235614
+          },
+          {
+            "date": "2025-07-16T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 57.293895973494585,
+            "relative_humidity": 13.86920105115886,
+            "wind_speed_mph": 11.935902803251777,
+            "fire_weather_index": 49.392646323961614
+          },
+          {
+            "date": "2025-07-16T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 65.171586016675,
+            "relative_humidity": 44.19382252856564,
+            "wind_speed_mph": 13.23654655157041,
+            "fire_weather_index": 27.59603676389456
+          },
+          {
+            "date": "2025-07-17T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 56.71082469355396,
+            "relative_humidity": 41.50249017729243,
+            "wind_speed_mph": 7.524867336392167,
+            "fire_weather_index": 18.970768184457615
+          },
+          {
+            "date": "2025-07-17T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 47.70844816127653,
+            "relative_humidity": 31.768656323182707,
+            "wind_speed_mph": 3.8589549541573653,
+            "fire_weather_index": 17.869269315172502
+          },
+          {
+            "date": "2025-07-18T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 64.75989036675834,
+            "relative_humidity": 53.02206103318696,
+            "wind_speed_mph": 14.985022996237252,
+            "fire_weather_index": 19.230340831690008
+          },
+          {
+            "date": "2025-07-18T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 60.98315661768571,
+            "relative_humidity": 37.76594350833035,
+            "wind_speed_mph": 14.487893867395615,
+            "fire_weather_index": 30.461160043053162
+          },
+          {
+            "date": "2025-07-19T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 59.4857364000883,
+            "relative_humidity": 27.432211067740674,
+            "wind_speed_mph": 2.745068748230131,
+            "fire_weather_index": 33.42605970646269
+          },
+          {
+            "date": "2025-07-19T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 59.0380840284223,
+            "relative_humidity": 42.521919668328074,
+            "wind_speed_mph": 2.518372818258666,
+            "fire_weather_index": 17.775350769223557
+          },
+          {
+            "date": "2025-07-20T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 54.376920693626786,
+            "relative_humidity": 36.24073471587904,
+            "wind_speed_mph": 6.5454177644412805,
+            "fire_weather_index": 21.408894859968385
+          },
+          {
+            "date": "2025-07-20T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 58.5569147448901,
+            "relative_humidity": 35.86631638468752,
+            "wind_speed_mph": 3.8063275737838387,
+            "fire_weather_index": 24.5937621470945
+          },
+          {
+            "date": "2025-07-21T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 51.91742751124001,
+            "relative_humidity": 29.978327500616018,
+            "wind_speed_mph": 10.44807589208357,
+            "fire_weather_index": 27.163137956665775
+          },
+          {
+            "date": "2025-07-21T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 49.78935735027024,
+            "relative_humidity": 24.182357161648564,
+            "wind_speed_mph": 7.743253108870488,
+            "fire_weather_index": 29.478626743056918
+          },
+          {
+            "date": "2025-07-22T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 54.747127767496174,
+            "relative_humidity": 41.76704786663184,
+            "wind_speed_mph": 2.877832460636188,
+            "fire_weather_index": 14.418996131182427
+          },
+          {
+            "date": "2025-07-22T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 57.4848121294488,
+            "relative_humidity": 15.973055060004278,
+            "wind_speed_mph": 7.792354283859426,
+            "fire_weather_index": 45.40793421137423
+          },
+          {
+            "date": "2025-07-23T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 64.00152535152031,
+            "relative_humidity": 25.14268114515362,
+            "wind_speed_mph": 11.044170121865156,
+            "fire_weather_index": 44.38092926729927
+          },
+          {
+            "date": "2025-07-23T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 59.60378041665182,
+            "relative_humidity": 26.270532043908187,
+            "wind_speed_mph": 12.274962845635674,
+            "fire_weather_index": 39.470729795561475
+          },
+          {
+            "date": "2025-07-24T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 57.95165508162302,
+            "relative_humidity": 34.48764932456183,
+            "wind_speed_mph": 3.480851225050585,
+            "fire_weather_index": 25.20443136958648
+          },
+          {
+            "date": "2025-07-24T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 54.19932738776987,
+            "relative_humidity": 30.334983381142717,
+            "wind_speed_mph": 7.768916594143898,
+            "fire_weather_index": 27.7488023036991
+          },
+          {
+            "date": "2025-07-25T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 59.597631520696304,
+            "relative_humidity": 14.112691326745086,
+            "wind_speed_mph": 13.161329505375797,
+            "fire_weather_index": 52.06560494663911
+          },
+          {
+            "date": "2025-07-25T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 65.17444729875798,
+            "relative_humidity": 19.729839263271845,
+            "wind_speed_mph": 4.816447541821824,
+            "fire_weather_index": 47.852831806397056
+          },
+          {
+            "date": "2025-07-26T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 56.995755494387645,
+            "relative_humidity": 27.873641055344535,
+            "wind_speed_mph": 13.974758262007047,
+            "fire_weather_index": 36.10949357004663
+          },
+          {
+            "date": "2025-07-26T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 51.468189293645636,
+            "relative_humidity": 59.1193705451748,
+            "wind_speed_mph": 13.471949136030625,
+            "fire_weather_index": 0
+          },
+          {
+            "date": "2025-07-27T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 60.95216909447744,
+            "relative_humidity": 34.635630317979434,
+            "wind_speed_mph": 3.3577456225803126,
+            "fire_weather_index": 27.995411587788162
+          },
+          {
+            "date": "2025-07-27T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 50.307399723609926,
+            "relative_humidity": 35.637244193657224,
+            "wind_speed_mph": 10.62718892708565,
+            "fire_weather_index": 19.983749993495525
+          },
+          {
+            "date": "2025-07-28T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 52.194294539647885,
+            "relative_humidity": 42.60486733041789,
+            "wind_speed_mph": 6.832701962601165,
+            "fire_weather_index": 13.005778190530577
+          },
+          {
+            "date": "2025-07-28T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 51.41819075510113,
+            "relative_humidity": 31.533025384029592,
+            "wind_speed_mph": 13.672838435981504,
+            "fire_weather_index": 26.72158458906229
+          },
+          {
+            "date": "2025-07-29T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 52.24969640119902,
+            "relative_humidity": 34.950912613491354,
+            "wind_speed_mph": 8.759757594140845,
+            "fire_weather_index": 21.678662584778085
+          },
+          {
+            "date": "2025-07-29T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 51.429472875802965,
+            "relative_humidity": 21.352857198628673,
+            "wind_speed_mph": 14.545106747544471,
+            "fire_weather_index": 37.34916905094653
+          },
+          {
+            "date": "2025-07-30T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 55.650289154440976,
+            "relative_humidity": 38.51223947970108,
+            "wind_speed_mph": 10.172973225097778,
+            "fire_weather_index": 22.224536287288785
+          },
+          {
+            "date": "2025-07-30T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 62.073592689950374,
+            "relative_humidity": 42.586730449710416,
+            "wind_speed_mph": 7.18540116659554,
+            "fire_weather_index": 23.079562823537728
+          },
+          {
+            "date": "2025-07-31T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 61.06145395758073,
+            "relative_humidity": 40.95279550862063,
+            "wind_speed_mph": 12.68613220302964,
+            "fire_weather_index": 26.45172455047492
+          },
+          {
+            "date": "2025-07-31T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 51.18748879765085,
+            "relative_humidity": 36.4094605837425,
+            "wind_speed_mph": 14.159979261808576,
+            "fire_weather_index": 21.858017844812636
+          },
+          {
+            "date": "2025-08-01T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 55.27900334188963,
+            "relative_humidity": 32.99460059776461,
+            "wind_speed_mph": 9.8276927238845,
+            "fire_weather_index": 27.198249106067266
+          },
+          {
+            "date": "2025-08-01T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 50.044871114795484,
+            "relative_humidity": 34.153800249022645,
+            "wind_speed_mph": 3.186812473613034,
+            "fire_weather_index": 17.484477102579355
+          },
+          {
+            "date": "2025-08-02T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 50.27563584344685,
+            "relative_humidity": 38.8996409938609,
+            "wind_speed_mph": 11.544351114578328,
+            "fire_weather_index": 17.148170406875114
+          },
+          {
+            "date": "2025-08-02T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 49.89135853411739,
+            "relative_humidity": 20.50427243996971,
+            "wind_speed_mph": 9.84689259402232,
+            "fire_weather_index": 34.31053239115884
+          },
+          {
+            "date": "2025-08-03T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 63.016401967813195,
+            "relative_humidity": 26.360753434959136,
+            "wind_speed_mph": 12.292922714160943,
+            "fire_weather_index": 42.80210988993453
+          },
+          {
+            "date": "2025-08-03T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 55.690486673178455,
+            "relative_humidity": 46.38401210509793,
+            "wind_speed_mph": 4.895369189987582,
+            "fire_weather_index": 11.754159163074316
+          },
+          {
+            "date": "2025-08-04T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 51.88076192791469,
+            "relative_humidity": 25.26247303035104,
+            "wind_speed_mph": 9.995579292784544,
+            "fire_weather_index": 31.616078543955922
+          },
+          {
+            "date": "2025-08-04T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 51.82516587964954,
+            "relative_humidity": 36.65594683399619,
+            "wind_speed_mph": 10.523227005450355,
+            "fire_weather_index": 20.430832548378525
+          },
+          {
+            "date": "2025-08-05T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 43.069149930188345,
+            "relative_humidity": 34.69117446043531,
+            "wind_speed_mph": 5.2409867573285736,
+            "fire_weather_index": 10.99846884841732
+          },
+          {
+            "date": "2025-08-05T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 55.73919869940811,
+            "relative_humidity": 32.293939379894326,
+            "wind_speed_mph": 3.949614527468139,
+            "fire_weather_index": 25.420066583247852
+          },
+          {
+            "date": "2025-08-06T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 53.28759876542132,
+            "relative_humidity": 20.124378785665204,
+            "wind_speed_mph": 10.158426344643699,
+            "fire_weather_index": 38.24243315207797
+          },
+          {
+            "date": "2025-08-06T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 50.655084396882216,
+            "relative_humidity": 47.47067152626181,
+            "wind_speed_mph": 4.479184822991234,
+            "fire_weather_index": 5.424005282116023
+          },
+          {
+            "date": "2025-08-07T18:24:33.492704",
+            "station_id": "GASQ_RAWS",
+            "temperature_f": 50.73629660265546,
+            "relative_humidity": 34.53041900530493,
+            "wind_speed_mph": 3.081658800846525,
+            "fire_weather_index": 17.746706997773792
+          },
+          {
+            "date": "2025-08-07T18:24:33.492704",
+            "station_id": "KLMT_RAWS",
+            "temperature_f": 49.95009323679402,
+            "relative_humidity": 17.96849671844119,
+            "wind_speed_mph": 13.429862847162942,
+            "fire_weather_index": 38.6965279419343
+          }
+        ]
+      },
+      "fuel_moisture": {
+        "data_source": "CAL FIRE Fuel Moisture Monitoring (synthetic)",
+        "monitoring_sites": [
+          {
+            "site_id": "FM_001",
+            "lat": 41.62292852180904,
+            "lon": -124.19256208252929,
+            "elevation_m": 466.85081077662903,
+            "vegetation_type": "Oak Woodland",
+            "h3_cell": "88281cb19bfffff"
+          },
+          {
+            "site_id": "FM_002",
+            "lat": 41.70071441467878,
+            "lon": -124.03593841224857,
+            "elevation_m": 87.14215839834816,
+            "vegetation_type": "Oak Woodland",
+            "h3_cell": "88281cb8a1fffff"
+          },
+          {
+            "site_id": "FM_003",
+            "lat": 41.650799829562835,
+            "lon": -124.19114883076402,
+            "elevation_m": 486.38146174296145,
+            "vegetation_type": "Oak Woodland",
+            "h3_cell": "88281ca263fffff"
+          },
+          {
+            "site_id": "FM_004",
+            "lat": 41.79882058727884,
+            "lon": -123.55757688582253,
+            "elevation_m": 416.06047545625233,
+            "vegetation_type": "Oak Woodland",
+            "h3_cell": "88281c18d1fffff"
+          },
+          {
+            "site_id": "FM_005",
+            "lat": 41.84663321894076,
+            "lon": -124.14636401349041,
+            "elevation_m": 419.8619288165863,
+            "vegetation_type": "Oak Woodland",
+            "h3_cell": "88281caf37fffff"
+          },
+          {
+            "site_id": "FM_006",
+            "lat": 41.472457891277486,
+            "lon": -124.0104837927066,
+            "elevation_m": 83.50146436407225,
+            "vegetation_type": "Oak Woodland",
+            "h3_cell": "88281c8637fffff"
+          },
+          {
+            "site_id": "FM_007",
+            "lat": 41.89183150964081,
+            "lon": -123.58076525326433,
+            "elevation_m": 475.7505105045211,
+            "vegetation_type": "Oak Woodland",
+            "h3_cell": "88281c0ac3fffff"
+          },
+          {
+            "site_id": "FM_008",
+            "lat": 41.61693473778277,
+            "lon": -123.574044934997,
+            "elevation_m": 359.485050223186,
+            "vegetation_type": "Mixed Conifer",
+            "h3_cell": "88281cc691fffff"
+          },
+          {
+            "site_id": "FM_009",
+            "lat": 41.739844971106045,
+            "lon": -123.83990306019099,
+            "elevation_m": 347.346902237622,
+            "vegetation_type": "Oak Woodland",
+            "h3_cell": "88281c1401fffff"
+          },
+          {
+            "site_id": "FM_010",
+            "lat": 41.601747463920695,
+            "lon": -124.36470954118082,
+            "elevation_m": 161.2184681543277,
+            "vegetation_type": "Oak Woodland",
+            "h3_cell": "88281cb443fffff"
+          }
+        ],
+        "measurements": [
+          {
+            "date": "2025-08-07T18:24:33.493929",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 128.40886699331588,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-06T18:24:33.493945",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 145.92792009400912,
+            "dead_fuel_moisture_percent": 28.070346339458474,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-05T18:24:33.493954",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 143.63990672123626,
+            "dead_fuel_moisture_percent": 32.69480347239751,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-04T18:24:33.493962",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 126.20601364688174,
+            "dead_fuel_moisture_percent": 21.761461269529793,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-03T18:24:33.493969",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 132.18194750291616,
+            "dead_fuel_moisture_percent": 24.22090211168546,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-02T18:24:33.493977",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 144.60580410355323,
+            "dead_fuel_moisture_percent": 25.067723750167264,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-01T18:24:33.493984",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 139.85719572448147,
+            "dead_fuel_moisture_percent": 34.25167163646551,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-31T18:24:33.493991",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 138.7696478461304,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-30T18:24:33.493997",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 131.14331968116,
+            "dead_fuel_moisture_percent": 27.92528077444095,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-29T18:24:33.494004",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 134.8559426539066,
+            "dead_fuel_moisture_percent": 29.367834760886147,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-28T18:24:33.494011",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 138.00807402344032,
+            "dead_fuel_moisture_percent": 30.880232240341623,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-27T18:24:33.494017",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 164.31680727661077,
+            "dead_fuel_moisture_percent": 34.67243469937911,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-26T18:24:33.494024",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 142.53763806107187,
+            "dead_fuel_moisture_percent": 30.50176938420863,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-25T18:24:33.494031",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 143.29943931885614,
+            "dead_fuel_moisture_percent": 31.623151145850773,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-24T18:24:33.494037",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 136.43518735315922,
+            "dead_fuel_moisture_percent": 24.816658849966274,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-23T18:24:33.494044",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 143.64922061282803,
+            "dead_fuel_moisture_percent": 32.987541981448295,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-22T18:24:33.494050",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 141.57278846091208,
+            "dead_fuel_moisture_percent": 25.237399753258185,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-21T18:24:33.494057",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 143.30250642223797,
+            "dead_fuel_moisture_percent": 28.982753482521293,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-20T18:24:33.494063",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 151.0435456446198,
+            "dead_fuel_moisture_percent": 31.064821819177517,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-19T18:24:33.494070",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 148.85715049560133,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-18T18:24:33.494076",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 109.26348056149784,
+            "dead_fuel_moisture_percent": 31.14160791538405,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-17T18:24:33.494083",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 150.92620050967503,
+            "dead_fuel_moisture_percent": 28.97557869801518,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-16T18:24:33.494089",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 152.93134765343456,
+            "dead_fuel_moisture_percent": 33.822865174901125,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-15T18:24:33.494095",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 127.76901378951719,
+            "dead_fuel_moisture_percent": 32.757232908103894,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-14T18:24:33.494102",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 130.20121897922672,
+            "dead_fuel_moisture_percent": 34.6552881184584,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-13T18:24:33.494108",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 145.67078804664402,
+            "dead_fuel_moisture_percent": 28.53129366778436,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-12T18:24:33.494114",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 154.28020505583896,
+            "dead_fuel_moisture_percent": 30.358940385434593,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-11T18:24:33.494121",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 136.86131747507144,
+            "dead_fuel_moisture_percent": 26.330157945187864,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-10T18:24:33.494128",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 139.20802596313447,
+            "dead_fuel_moisture_percent": 28.112909615641076,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-09T18:24:33.494134",
+            "site_id": "FM_001",
+            "live_fuel_moisture_percent": 139.93704145998873,
+            "dead_fuel_moisture_percent": 26.097475952756007,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-07T18:24:33.494157",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 136.4314604581348,
+            "dead_fuel_moisture_percent": 30.59408219740273,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-06T18:24:33.494206",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 121.90011949920903,
+            "dead_fuel_moisture_percent": 34.01047818977293,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-05T18:24:33.494214",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 148.91714359481924,
+            "dead_fuel_moisture_percent": 14.87870008969262,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-04T18:24:33.494221",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 141.18144541890035,
+            "dead_fuel_moisture_percent": 33.32445232806798,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-03T18:24:33.494227",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 144.43132891344794,
+            "dead_fuel_moisture_percent": 33.59420913056531,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-02T18:24:33.494234",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 177.05577158154517,
+            "dead_fuel_moisture_percent": 28.85222504973102,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-01T18:24:33.494240",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 160.79204638617216,
+            "dead_fuel_moisture_percent": 25.050398630483848,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-31T18:24:33.494247",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 133.21233788808885,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-30T18:24:33.494253",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 154.33138472680437,
+            "dead_fuel_moisture_percent": 28.4967735528638,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-29T18:24:33.494259",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 147.16729916057656,
+            "dead_fuel_moisture_percent": 32.93018816680201,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-28T18:24:33.494266",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 153.945115761106,
+            "dead_fuel_moisture_percent": 27.987035322965237,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-27T18:24:33.494272",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 151.16233134252542,
+            "dead_fuel_moisture_percent": 30.483146559355593,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-26T18:24:33.494279",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 112.69215134150637,
+            "dead_fuel_moisture_percent": 21.995846861054602,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-25T18:24:33.494285",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 154.36538205970803,
+            "dead_fuel_moisture_percent": 26.759832496595973,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-24T18:24:33.494292",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 141.3284088773059,
+            "dead_fuel_moisture_percent": 26.651538608129915,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-23T18:24:33.494298",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 120.4989483802849,
+            "dead_fuel_moisture_percent": 24.387623697922574,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-22T18:24:33.494304",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 101.87613645172158,
+            "dead_fuel_moisture_percent": 32.98923111335359,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-21T18:24:33.494311",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 132.63795472946688,
+            "dead_fuel_moisture_percent": 27.5167724148832,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-20T18:24:33.494317",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 141.4866904705501,
+            "dead_fuel_moisture_percent": 31.009739903929198,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-19T18:24:33.494323",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 155.88449991509748,
+            "dead_fuel_moisture_percent": 32.19765087493815,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-18T18:24:33.494330",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 146.79945032691785,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-17T18:24:33.494336",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 112.02890365056534,
+            "dead_fuel_moisture_percent": 33.854993922444294,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-16T18:24:33.494342",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 141.30653819255218,
+            "dead_fuel_moisture_percent": 29.30281339640952,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-15T18:24:33.494349",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 122.65699371167575,
+            "dead_fuel_moisture_percent": 28.985112530079945,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-14T18:24:33.494355",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 119.58817256355196,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-13T18:24:33.494361",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 108.87453463565724,
+            "dead_fuel_moisture_percent": 33.51916646150212,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-12T18:24:33.494368",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 139.74138772751485,
+            "dead_fuel_moisture_percent": 21.43289084684779,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-11T18:24:33.494374",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 125.1961158562836,
+            "dead_fuel_moisture_percent": 30.517683859462203,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-10T18:24:33.494381",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 163.37717031144888,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-09T18:24:33.494388",
+            "site_id": "FM_002",
+            "live_fuel_moisture_percent": 134.34275412231716,
+            "dead_fuel_moisture_percent": 22.352137518156415,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-07T18:24:33.494406",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 155.4277996858029,
+            "dead_fuel_moisture_percent": 27.12158538780864,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-06T18:24:33.494414",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 134.9781039697484,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-05T18:24:33.494421",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 144.5088903604299,
+            "dead_fuel_moisture_percent": 27.523661137936585,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-04T18:24:33.494427",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 137.3410965971341,
+            "dead_fuel_moisture_percent": 19.092011277562,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-03T18:24:33.494434",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 136.00957302715233,
+            "dead_fuel_moisture_percent": 32.32552870712227,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-02T18:24:33.494441",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 122.67544457090243,
+            "dead_fuel_moisture_percent": 29.208672520420443,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-01T18:24:33.494448",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 149.66057217596332,
+            "dead_fuel_moisture_percent": 31.838807196555713,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-31T18:24:33.494455",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 139.7714272308277,
+            "dead_fuel_moisture_percent": 26.96539433181135,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-30T18:24:33.494461",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 137.77691786742506,
+            "dead_fuel_moisture_percent": 20.55420932865781,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-29T18:24:33.494468",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 154.39779321395304,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-28T18:24:33.494474",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 148.77919867561204,
+            "dead_fuel_moisture_percent": 31.00447719033161,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-27T18:24:33.494481",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 145.75219711710216,
+            "dead_fuel_moisture_percent": 28.94074721098271,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-26T18:24:33.494487",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 117.74063832008872,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-25T18:24:33.494493",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 134.7039610596153,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-24T18:24:33.494500",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 121.10655907317258,
+            "dead_fuel_moisture_percent": 27.661691857751762,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-23T18:24:33.494506",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 106.75534470044164,
+            "dead_fuel_moisture_percent": 31.993141676783658,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-22T18:24:33.494512",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 130.8837119679566,
+            "dead_fuel_moisture_percent": 24.09750384967207,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-21T18:24:33.494519",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 145.9204611972671,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-20T18:24:33.494526",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 144.49940176192555,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-19T18:24:33.494532",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 113.1717988504314,
+            "dead_fuel_moisture_percent": 27.024174660159545,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-18T18:24:33.494539",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 146.42829373916626,
+            "dead_fuel_moisture_percent": 33.56384603500285,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-17T18:24:33.494545",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 132.7266179806996,
+            "dead_fuel_moisture_percent": 30.762883664551385,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-16T18:24:33.494551",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 143.8933576207874,
+            "dead_fuel_moisture_percent": 32.54797652814599,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-15T18:24:33.494558",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 141.48513594377843,
+            "dead_fuel_moisture_percent": 25.96694827345578,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-14T18:24:33.494564",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 154.3598012137457,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-13T18:24:33.494570",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 131.56871255745992,
+            "dead_fuel_moisture_percent": 21.74887476573278,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-12T18:24:33.494577",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 141.48885073518332,
+            "dead_fuel_moisture_percent": 33.59173924275387,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-11T18:24:33.494584",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 140.03584010535792,
+            "dead_fuel_moisture_percent": 26.213905592577284,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-10T18:24:33.494590",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 122.13810800608528,
+            "dead_fuel_moisture_percent": 21.61247054044926,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-09T18:24:33.494596",
+            "site_id": "FM_003",
+            "live_fuel_moisture_percent": 144.83075749446908,
+            "dead_fuel_moisture_percent": 33.238036891292786,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-07T18:24:33.494613",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 142.7761136389945,
+            "dead_fuel_moisture_percent": 26.26016904514688,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-06T18:24:33.494620",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 128.49475935009596,
+            "dead_fuel_moisture_percent": 32.15446645115575,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-05T18:24:33.494627",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 131.30693242076813,
+            "dead_fuel_moisture_percent": 32.76011481649187,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-04T18:24:33.494634",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 135.8734529297383,
+            "dead_fuel_moisture_percent": 27.133430945228127,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-03T18:24:33.494640",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 120.87837696042043,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-02T18:24:33.494647",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 140.34706718926242,
+            "dead_fuel_moisture_percent": 31.29055702608825,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-01T18:24:33.494653",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 105.47835357398603,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-31T18:24:33.494659",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 167.48261393662557,
+            "dead_fuel_moisture_percent": 34.91305513771442,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-30T18:24:33.494666",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 147.66731514295654,
+            "dead_fuel_moisture_percent": 27.514571283252167,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-29T18:24:33.494672",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 153.233088590875,
+            "dead_fuel_moisture_percent": 23.939558188086636,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-28T18:24:33.494678",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 139.9689501477802,
+            "dead_fuel_moisture_percent": 31.785661849069434,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-27T18:24:33.494685",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 134.640082658792,
+            "dead_fuel_moisture_percent": 30.297735368901716,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-26T18:24:33.494692",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 149.47444355441377,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-25T18:24:33.494698",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 151.80626166709544,
+            "dead_fuel_moisture_percent": 34.61203002396853,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-24T18:24:33.494705",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 157.05072211876035,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-23T18:24:33.494711",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 134.05986846188114,
+            "dead_fuel_moisture_percent": 28.135390071988528,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-22T18:24:33.494717",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 116.5712872075443,
+            "dead_fuel_moisture_percent": 29.72364018389578,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-21T18:24:33.494724",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 94.89034346315964,
+            "dead_fuel_moisture_percent": 23.697030818697762,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-20T18:24:33.494730",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 125.83780629337488,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-19T18:24:33.494737",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 152.70642215049162,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-18T18:24:33.494743",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 138.3728405072348,
+            "dead_fuel_moisture_percent": 23.932066521121914,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-17T18:24:33.494749",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 156.70350363847356,
+            "dead_fuel_moisture_percent": 31.776899236054504,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-16T18:24:33.494756",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 137.566503092336,
+            "dead_fuel_moisture_percent": 31.859992824144875,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-15T18:24:33.494762",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 164.09795486994994,
+            "dead_fuel_moisture_percent": 32.3591458881635,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-14T18:24:33.494769",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 136.33458125555686,
+            "dead_fuel_moisture_percent": 31.291480679558358,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-13T18:24:33.494775",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 175.9226922823133,
+            "dead_fuel_moisture_percent": 27.125826498214952,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-12T18:24:33.494781",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 118.41919032162106,
+            "dead_fuel_moisture_percent": 31.31916656100489,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-11T18:24:33.494788",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 131.68567793300483,
+            "dead_fuel_moisture_percent": 21.140108107780783,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-10T18:24:33.494794",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 138.7608232884608,
+            "dead_fuel_moisture_percent": 23.074130273489637,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-09T18:24:33.494800",
+            "site_id": "FM_004",
+            "live_fuel_moisture_percent": 121.24839635868298,
+            "dead_fuel_moisture_percent": 18.3629616252136,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-07T18:24:33.494816",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 140.8836381191148,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-06T18:24:33.494824",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 130.91960371783563,
+            "dead_fuel_moisture_percent": 29.847207251859583,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-05T18:24:33.494831",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 143.71157676812055,
+            "dead_fuel_moisture_percent": 23.26428837435183,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-04T18:24:33.494837",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 133.68878433654422,
+            "dead_fuel_moisture_percent": 26.294084918680543,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-03T18:24:33.494844",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 131.52611936018127,
+            "dead_fuel_moisture_percent": 23.781912349648383,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-02T18:24:33.494850",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 115.41085624341383,
+            "dead_fuel_moisture_percent": 33.998974564445795,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-01T18:24:33.494857",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 122.95710133629326,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-31T18:24:33.494863",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 140.01599894896174,
+            "dead_fuel_moisture_percent": 34.560331126121945,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-30T18:24:33.494870",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 144.13561879003296,
+            "dead_fuel_moisture_percent": 30.54495112492329,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-29T18:24:33.494876",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 159.0490029267364,
+            "dead_fuel_moisture_percent": 27.987676904777096,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-28T18:24:33.494883",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 140.35943364603983,
+            "dead_fuel_moisture_percent": 26.03533847686626,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-27T18:24:33.494889",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 149.03625037250185,
+            "dead_fuel_moisture_percent": 19.34217825434032,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-26T18:24:33.494896",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 107.63325119090675,
+            "dead_fuel_moisture_percent": 33.36486318224061,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-25T18:24:33.494903",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 154.94321975127104,
+            "dead_fuel_moisture_percent": 21.93617061659525,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-24T18:24:33.494909",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 133.14224608917158,
+            "dead_fuel_moisture_percent": 25.36011091259398,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-23T18:24:33.494915",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 146.52216474168765,
+            "dead_fuel_moisture_percent": 17.247459964746703,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-22T18:24:33.494922",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 144.36054085451985,
+            "dead_fuel_moisture_percent": 28.644319245505276,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-21T18:24:33.494928",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 138.14973878183716,
+            "dead_fuel_moisture_percent": 27.4953043248925,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-20T18:24:33.494934",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 128.73565751477892,
+            "dead_fuel_moisture_percent": 19.272383596651796,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-19T18:24:33.494941",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 152.0049626560441,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-18T18:24:33.494947",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 130.54956400008857,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-17T18:24:33.494954",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 135.96888944318118,
+            "dead_fuel_moisture_percent": 34.045030259148255,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-16T18:24:33.494960",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 122.16697253085104,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-15T18:24:33.494966",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 120.32296689685768,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-14T18:24:33.494973",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 143.43828831246756,
+            "dead_fuel_moisture_percent": 20.482017981173776,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-13T18:24:33.494979",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 124.8608551479551,
+            "dead_fuel_moisture_percent": 33.580992461862266,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-12T18:24:33.494985",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 139.10368476330257,
+            "dead_fuel_moisture_percent": 26.837025798301752,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-11T18:24:33.494992",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 149.85497844208285,
+            "dead_fuel_moisture_percent": 30.478543969488197,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-10T18:24:33.494998",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 137.68031221557618,
+            "dead_fuel_moisture_percent": 28.793267616833738,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-09T18:24:33.495005",
+            "site_id": "FM_005",
+            "live_fuel_moisture_percent": 131.50420968227675,
+            "dead_fuel_moisture_percent": 25.7750440808771,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-07T18:24:33.495020",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 123.3627362930722,
+            "dead_fuel_moisture_percent": 30.15658937971117,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-06T18:24:33.495027",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 147.2975587028213,
+            "dead_fuel_moisture_percent": 27.508177415535535,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-05T18:24:33.495034",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 146.20573277492466,
+            "dead_fuel_moisture_percent": 30.5846199051159,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-04T18:24:33.495040",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 155.68943510005275,
+            "dead_fuel_moisture_percent": 32.45038028599893,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-03T18:24:33.495047",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 143.9882115522312,
+            "dead_fuel_moisture_percent": 28.330012832569526,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-02T18:24:33.495053",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 155.151022108926,
+            "dead_fuel_moisture_percent": 33.7238216522432,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-01T18:24:33.495059",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 157.33045629674552,
+            "dead_fuel_moisture_percent": 25.992177566991252,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-31T18:24:33.495066",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 141.4712381623304,
+            "dead_fuel_moisture_percent": 28.68634771358401,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-30T18:24:33.495072",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 147.55290411072608,
+            "dead_fuel_moisture_percent": 26.558922104605944,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-29T18:24:33.495079",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 119.76991663279773,
+            "dead_fuel_moisture_percent": 24.624279673614467,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-28T18:24:33.495085",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 146.0903917049035,
+            "dead_fuel_moisture_percent": 26.837893153451258,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-27T18:24:33.495091",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 133.59377578184512,
+            "dead_fuel_moisture_percent": 32.11528577843047,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-26T18:24:33.495098",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 125.11741655529399,
+            "dead_fuel_moisture_percent": 22.77092679556456,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-25T18:24:33.495104",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 137.93066048663522,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-24T18:24:33.495110",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 155.006110635779,
+            "dead_fuel_moisture_percent": 30.170651992365443,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-23T18:24:33.495117",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 138.4366560292073,
+            "dead_fuel_moisture_percent": 24.50315933578251,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-22T18:24:33.495123",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 152.6715848449985,
+            "dead_fuel_moisture_percent": 29.679620260766175,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-21T18:24:33.495129",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 140.91246256142904,
+            "dead_fuel_moisture_percent": 31.815900897314343,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-20T18:24:33.495136",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 135.66519596161623,
+            "dead_fuel_moisture_percent": 33.111057538143,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-19T18:24:33.495142",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 113.99973378944242,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-18T18:24:33.495148",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 122.81707185007828,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-17T18:24:33.495154",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 126.64367614963226,
+            "dead_fuel_moisture_percent": 21.55412545439916,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-16T18:24:33.495161",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 140.1272702044305,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-15T18:24:33.495167",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 150.38721718433933,
+            "dead_fuel_moisture_percent": 34.1852177360372,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-14T18:24:33.495174",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 145.0543549522486,
+            "dead_fuel_moisture_percent": 19.496817367135748,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-13T18:24:33.495180",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 155.59958202131128,
+            "dead_fuel_moisture_percent": 28.523948557792405,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-12T18:24:33.495187",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 109.29734511508343,
+            "dead_fuel_moisture_percent": 30.48549269000313,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-11T18:24:33.495193",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 129.07780500456286,
+            "dead_fuel_moisture_percent": 25.272552496339515,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-10T18:24:33.495199",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 137.5342692565031,
+            "dead_fuel_moisture_percent": 31.001619632283493,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-09T18:24:33.495205",
+            "site_id": "FM_006",
+            "live_fuel_moisture_percent": 148.626002078117,
+            "dead_fuel_moisture_percent": 31.388358983761798,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-07T18:24:33.495221",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 182.50442493630896,
+            "dead_fuel_moisture_percent": 31.149122989105457,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-06T18:24:33.495228",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 135.61314289988172,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-05T18:24:33.495234",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 127.20314454860004,
+            "dead_fuel_moisture_percent": 34.8388918345004,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-04T18:24:33.495241",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 134.86482794458036,
+            "dead_fuel_moisture_percent": 27.584366002744062,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-03T18:24:33.495247",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 135.08818118694333,
+            "dead_fuel_moisture_percent": 26.485252802796275,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-02T18:24:33.495254",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 124.56907691575434,
+            "dead_fuel_moisture_percent": 26.14890911485157,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-01T18:24:33.495260",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 127.06862401325134,
+            "dead_fuel_moisture_percent": 28.6349645576738,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-31T18:24:33.495266",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 143.74322509558135,
+            "dead_fuel_moisture_percent": 32.714017861825965,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-30T18:24:33.495273",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 140.0444075307985,
+            "dead_fuel_moisture_percent": 22.513146058137874,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-29T18:24:33.495279",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 143.94345772463754,
+            "dead_fuel_moisture_percent": 19.704637725740323,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-28T18:24:33.495285",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 149.89342436478668,
+            "dead_fuel_moisture_percent": 27.591351792190448,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-27T18:24:33.495291",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 114.10563419599555,
+            "dead_fuel_moisture_percent": 32.83227892428715,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-26T18:24:33.495298",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 148.68541569359004,
+            "dead_fuel_moisture_percent": 28.077322276190998,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-25T18:24:33.495304",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 125.34191103764213,
+            "dead_fuel_moisture_percent": 32.65769819196843,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-24T18:24:33.495311",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 147.730219474112,
+            "dead_fuel_moisture_percent": 32.08159086112234,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-23T18:24:33.495317",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 143.98570413853707,
+            "dead_fuel_moisture_percent": 30.073646483841564,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-22T18:24:33.495323",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 164.94832373568076,
+            "dead_fuel_moisture_percent": 27.187712657557988,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-21T18:24:33.495329",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 118.61908125276842,
+            "dead_fuel_moisture_percent": 24.712915904014302,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-20T18:24:33.495336",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 145.0447850399411,
+            "dead_fuel_moisture_percent": 27.651778171144173,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-19T18:24:33.495342",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 112.02767835816763,
+            "dead_fuel_moisture_percent": 21.102418493632918,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-18T18:24:33.495348",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 157.1436863122398,
+            "dead_fuel_moisture_percent": 27.415729758271926,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-17T18:24:33.495355",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 137.4045516610756,
+            "dead_fuel_moisture_percent": 22.68738643482658,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-16T18:24:33.495361",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 149.64678981099013,
+            "dead_fuel_moisture_percent": 27.01690084532591,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-15T18:24:33.495368",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 158.47960680678236,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-14T18:24:33.495374",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 144.36178070510593,
+            "dead_fuel_moisture_percent": 27.39216881027403,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-13T18:24:33.495381",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 149.82241016404996,
+            "dead_fuel_moisture_percent": 29.464527847811222,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-12T18:24:33.495387",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 159.27734763528755,
+            "dead_fuel_moisture_percent": 23.48643254941311,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-11T18:24:33.495393",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 146.72027402211867,
+            "dead_fuel_moisture_percent": 27.933880390161693,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-10T18:24:33.495400",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 132.9891084899765,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-09T18:24:33.495406",
+            "site_id": "FM_007",
+            "live_fuel_moisture_percent": 138.79788194064804,
+            "dead_fuel_moisture_percent": 34.46572311475135,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-07T18:24:33.495421",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 121.84089232219715,
+            "dead_fuel_moisture_percent": 34.68944694952814,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-06T18:24:33.495428",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 130.93256745374316,
+            "dead_fuel_moisture_percent": 34.838662564683865,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-05T18:24:33.495435",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 132.76653513319633,
+            "dead_fuel_moisture_percent": 29.272517040816016,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-04T18:24:33.495442",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 128.14847748590756,
+            "dead_fuel_moisture_percent": 23.842529167272204,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-03T18:24:33.495448",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 152.9187673161336,
+            "dead_fuel_moisture_percent": 29.779952408616506,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-02T18:24:33.495454",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 122.9357914441289,
+            "dead_fuel_moisture_percent": 30.60973281741107,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-01T18:24:33.495461",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 154.26393777934544,
+            "dead_fuel_moisture_percent": 34.113832145868955,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-31T18:24:33.495467",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 130.25883889663243,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-30T18:24:33.495473",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 124.93556804521643,
+            "dead_fuel_moisture_percent": 27.87849202130806,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-29T18:24:33.495480",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 126.66573848900936,
+            "dead_fuel_moisture_percent": 23.984851333754957,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-28T18:24:33.495486",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 145.53762474778418,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-27T18:24:33.495493",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 149.51481989559736,
+            "dead_fuel_moisture_percent": 26.254187737996237,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-26T18:24:33.495499",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 152.74255521036977,
+            "dead_fuel_moisture_percent": 22.83519498190235,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-25T18:24:33.495506",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 139.74302030598585,
+            "dead_fuel_moisture_percent": 22.1806588345101,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-24T18:24:33.495512",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 146.50876240017982,
+            "dead_fuel_moisture_percent": 20.41572934057561,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-23T18:24:33.495519",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 133.90086219686813,
+            "dead_fuel_moisture_percent": 33.896677589851976,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-22T18:24:33.495525",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 130.59320869165953,
+            "dead_fuel_moisture_percent": 32.14536423216563,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-21T18:24:33.495531",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 146.90542524059381,
+            "dead_fuel_moisture_percent": 31.663432459359903,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-20T18:24:33.495538",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 153.9749393905205,
+            "dead_fuel_moisture_percent": 26.39927166305792,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-19T18:24:33.495544",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 150.00726206129886,
+            "dead_fuel_moisture_percent": 33.7293780667486,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-18T18:24:33.495550",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 130.0598390166823,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-17T18:24:33.495556",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 113.26181314092001,
+            "dead_fuel_moisture_percent": 34.95322957087944,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-16T18:24:33.495563",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 144.4826845335573,
+            "dead_fuel_moisture_percent": 28.072313809417246,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-15T18:24:33.495569",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 149.48082274399184,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-14T18:24:33.495576",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 137.86268655601447,
+            "dead_fuel_moisture_percent": 27.49457144315792,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-13T18:24:33.495582",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 123.8804518013489,
+            "dead_fuel_moisture_percent": 32.03901989447279,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-12T18:24:33.495589",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 143.07327610263548,
+            "dead_fuel_moisture_percent": 27.255968301778832,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-11T18:24:33.495595",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 157.22041849760964,
+            "dead_fuel_moisture_percent": 32.515022582803006,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-10T18:24:33.495601",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 156.16214061004408,
+            "dead_fuel_moisture_percent": 34.05811512058196,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-09T18:24:33.495607",
+            "site_id": "FM_008",
+            "live_fuel_moisture_percent": 160.8068481921086,
+            "dead_fuel_moisture_percent": 29.42060995428629,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-07T18:24:33.495622",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 117.00131249259464,
+            "dead_fuel_moisture_percent": 32.42738804587652,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-06T18:24:33.495629",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 132.22566044472975,
+            "dead_fuel_moisture_percent": 30.312672979536956,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-05T18:24:33.495636",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 119.9367449575776,
+            "dead_fuel_moisture_percent": 29.927495320870396,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-04T18:24:33.495642",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 129.14422479466708,
+            "dead_fuel_moisture_percent": 26.384987069322776,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-03T18:24:33.495649",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 154.1972614249212,
+            "dead_fuel_moisture_percent": 30.99802908636897,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-02T18:24:33.495655",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 141.60364604093,
+            "dead_fuel_moisture_percent": 27.839296223254284,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-01T18:24:33.495662",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 137.90002779426305,
+            "dead_fuel_moisture_percent": 33.251298325557904,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-31T18:24:33.495668",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 134.873453941715,
+            "dead_fuel_moisture_percent": 19.101069122034602,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-30T18:24:33.495675",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 115.60298213646291,
+            "dead_fuel_moisture_percent": 28.46412995169873,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-29T18:24:33.495681",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 154.41102941436498,
+            "dead_fuel_moisture_percent": 31.615900573403465,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-28T18:24:33.495688",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 150.92157751645732,
+            "dead_fuel_moisture_percent": 34.99704728118536,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-27T18:24:33.495694",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 146.3012081199957,
+            "dead_fuel_moisture_percent": 28.544055655314164,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-26T18:24:33.495701",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 112.64443713180313,
+            "dead_fuel_moisture_percent": 33.97560658423092,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-25T18:24:33.495707",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 136.47171237986188,
+            "dead_fuel_moisture_percent": 31.621904732463733,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-24T18:24:33.495713",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 122.585618725559,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-23T18:24:33.495719",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 121.56551004104897,
+            "dead_fuel_moisture_percent": 33.96128804668565,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-22T18:24:33.495726",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 131.5724255708625,
+            "dead_fuel_moisture_percent": 29.554016986694133,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-21T18:24:33.495732",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 139.83426613228104,
+            "dead_fuel_moisture_percent": 21.302046866115642,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-20T18:24:33.495738",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 162.96757194319207,
+            "dead_fuel_moisture_percent": 24.29329607672306,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-19T18:24:33.495745",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 153.34668082843257,
+            "dead_fuel_moisture_percent": 26.664867311550125,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-18T18:24:33.495752",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 123.10061655877124,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-17T18:24:33.495762",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 125.57420091714476,
+            "dead_fuel_moisture_percent": 30.58058348261398,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-16T18:24:33.495770",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 121.56637248816115,
+            "dead_fuel_moisture_percent": 29.798847108215416,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-15T18:24:33.495778",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 148.7474260929692,
+            "dead_fuel_moisture_percent": 27.177145393488566,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-14T18:24:33.495786",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 150.57299422508535,
+            "dead_fuel_moisture_percent": 28.492689830358064,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-13T18:24:33.495793",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 143.9878295751732,
+            "dead_fuel_moisture_percent": 26.51345768394231,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-12T18:24:33.495800",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 153.97771354144382,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-11T18:24:33.495807",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 121.34914950327591,
+            "dead_fuel_moisture_percent": 30.70523422952942,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-10T18:24:33.495814",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 141.94077717987247,
+            "dead_fuel_moisture_percent": 28.282576135319957,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-09T18:24:33.495823",
+            "site_id": "FM_009",
+            "live_fuel_moisture_percent": 109.19531292155872,
+            "dead_fuel_moisture_percent": 19.562789579978684,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-07T18:24:33.495844",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 135.7104987975624,
+            "dead_fuel_moisture_percent": 29.703195662404713,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-06T18:24:33.495853",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 126.63198599064455,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-05T18:24:33.495860",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 143.36072738779583,
+            "dead_fuel_moisture_percent": 31.13102752133416,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-04T18:24:33.495867",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 141.67117188488422,
+            "dead_fuel_moisture_percent": 30.30563919473022,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-03T18:24:33.495875",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 128.55129443925162,
+            "dead_fuel_moisture_percent": 22.909608371237987,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-02T18:24:33.495882",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 124.81115349054734,
+            "dead_fuel_moisture_percent": 29.137438608302688,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-08-01T18:24:33.495889",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 134.9953764513252,
+            "dead_fuel_moisture_percent": 30.214712688659876,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-31T18:24:33.495897",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 107.60766451680284,
+            "dead_fuel_moisture_percent": 21.00323000909895,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-30T18:24:33.495906",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 147.44581253346044,
+            "dead_fuel_moisture_percent": 23.83046192537698,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-29T18:24:33.495915",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 159.41864777003656,
+            "dead_fuel_moisture_percent": 22.88506039366567,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-28T18:24:33.495923",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 153.57421455243036,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-27T18:24:33.495930",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 158.62721015016052,
+            "dead_fuel_moisture_percent": 31.71036346001887,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-26T18:24:33.495937",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 148.24644677309556,
+            "dead_fuel_moisture_percent": 33.6975807523517,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-25T18:24:33.495945",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 152.71297148985713,
+            "dead_fuel_moisture_percent": 25.020454913447807,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-24T18:24:33.495952",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 165.62278644893613,
+            "dead_fuel_moisture_percent": 33.5926129460172,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-23T18:24:33.495958",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 130.93470852334033,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-22T18:24:33.495965",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 143.41736577357042,
+            "dead_fuel_moisture_percent": 30.0004089821323,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-21T18:24:33.495971",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 114.81222628256546,
+            "dead_fuel_moisture_percent": 28.736086646770435,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-20T18:24:33.495977",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 139.3344497984787,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-19T18:24:33.495983",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 126.30171185098575,
+            "dead_fuel_moisture_percent": 32.436841096219375,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-18T18:24:33.495990",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 127.93180243344027,
+            "dead_fuel_moisture_percent": 33.71802913360736,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-17T18:24:33.495996",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 124.4345926429783,
+            "dead_fuel_moisture_percent": 28.503865328166455,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-16T18:24:33.496002",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 132.0507161868289,
+            "dead_fuel_moisture_percent": 34.574107388717124,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-15T18:24:33.496009",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 129.70932952826976,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-14T18:24:33.496015",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 146.96690830717012,
+            "dead_fuel_moisture_percent": 31.073527861583788,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-13T18:24:33.496023",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 136.5347257620583,
+            "dead_fuel_moisture_percent": 35.0,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-12T18:24:33.496032",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 134.17811281054605,
+            "dead_fuel_moisture_percent": 21.982057573291165,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-11T18:24:33.496040",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 152.71240611297142,
+            "dead_fuel_moisture_percent": 22.792302933118634,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-10T18:24:33.496048",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 133.98092751581245,
+            "dead_fuel_moisture_percent": 31.328707710889425,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          },
+          {
+            "date": "2025-07-09T18:24:33.496055",
+            "site_id": "FM_010",
+            "live_fuel_moisture_percent": 128.79875940329848,
+            "dead_fuel_moisture_percent": 25.950724352990047,
+            "critical_threshold_live": 60,
+            "critical_threshold_dead": 8
+          }
+        ]
+      }
+    }
+  },
+  "fire_weather_analysis": {
+    "summary_statistics": {
+      "mean_temperature": 67.21712079618904,
+      "mean_humidity": 33.988568802626595,
+      "mean_wind_speed": 8.282771235644324,
+      "mean_fwi": 37.374966219535764
+    },
+    "critical_conditions": {
+      "high_temp_days": "24",
+      "low_humidity_days": "5",
+      "high_wind_days": "0",
+      "extreme_fire_weather_days": "0"
+    },
+    "fire_danger_distribution": {
+      "low": "22",
+      "moderate": "82",
+      "high": "71",
+      "very_high": "7",
+      "extreme": "0"
+    }
+  },
+  "historical_fire_analysis": {
+    "fire_statistics": {
+      "total_fires_1950_2024": 156,
+      "total_acres_burned": 45230,
+      "average_fire_size_acres": 290,
+      "largest_fire_acres": 8940,
+      "fires_by_decade": {
+        "1950s": 12,
+        "1960s": 18,
+        "1970s": 22,
+        "1980s": 19,
+        "1990s": 25,
+        "2000s": 28,
+        "2010s": 32
+      }
+    },
+    "fire_causes": {
+      "lightning": 0.35,
+      "human_caused": 0.45,
+      "equipment": 0.12,
+      "unknown": 0.08
+    },
+    "seasonal_patterns": {
+      "fire_season_start": "May 15",
+      "fire_season_peak": "August-September",
+      "fire_season_end": "October 31",
+      "fires_by_month": {
+        "May": 8,
+        "June": 15,
+        "July": 28,
+        "August": 42,
+        "September": 35,
+        "October": 18,
+        "November": 5,
+        "Other": 5
+      }
+    },
+    "return_intervals": {
+      "low_severity": "8-12 years",
+      "moderate_severity": "25-40 years",
+      "high_severity": "80-150 years"
+    }
+  },
+  "fuel_analysis": {
+    "current_conditions": {
+      "mean_live_moisture": 137.19822596529949,
+      "mean_dead_moisture": 29.793481067105915,
+      "sites_below_critical_live": "0",
+      "sites_below_critical_dead": "0"
+    },
+    "trend_analysis": {
+      "moisture_trend": "Decreasing",
+      "days_below_critical": "0"
+    },
+    "fuel_loading": {
+      "forest_types": {
+        "Douglas Fir": {
+          "fuel_load_tons_acre": 25,
+          "fire_risk": "High"
+        },
+        "Mixed Conifer": {
+          "fuel_load_tons_acre": 22,
+          "fire_risk": "High"
+        },
+        "Oak Woodland": {
+          "fuel_load_tons_acre": 12,
+          "fire_risk": "Moderate"
+        }
+      }
+    }
+  },
+  "wui_analysis": {
+    "wui_zones": {
+      "interface": {
+        "area_ha": 450,
+        "structures": 125,
+        "risk_level": "High"
+      },
+      "intermix": {
+        "area_ha": 280,
+        "structures": 85,
+        "risk_level": "Very High"
+      },
+      "non_wui": {
+        "area_ha": 1200,
+        "structures": 300,
+        "risk_level": "Low"
+      }
+    },
+    "structure_vulnerability": {
+      "total_structures_in_wui": 210,
+      "high_risk_structures": 95,
+      "defensible_space_compliance": 0.65,
+      "access_constraints": {
+        "narrow_roads": 15,
+        "bridge_limitations": 3,
+        "water_supply_issues": 8
+      }
+    },
+    "evacuation_planning": {
+      "evacuation_routes": 4,
+      "estimated_evacuation_time": "45-60 minutes",
+      "population_at_risk": 650,
+      "special_needs_population": 45
+    }
+  },
+  "risk_assessment": {
+    "overall_risk_score": 0.1357142857142857,
+    "risk_components": {
+      "weather_risk": 0.0,
+      "fuel_risk": 0,
+      "wui_risk": 0.4523809523809524
+    },
+    "risk_level": "Low",
+    "priority_areas": [],
+    "recommendations": []
+  },
+  "spatial_data": {
+    "h3_resolution": 8,
+    "h3_cells": {
+      "8828034eabfffff": {
+        "fire_risk_score": 0.0,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498331"
+      },
+      "8828034d4bfffff": {
+        "fire_risk_score": 0.13261652536691493,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498338"
+      },
+      "882803498bfffff": {
+        "fire_risk_score": 0.0736214433262389,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498342"
+      },
+      "88281c8615fffff": {
+        "fire_risk_score": 0.0,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498346"
+      },
+      "88281c8765fffff": {
+        "fire_risk_score": 0.2769088978929729,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498350"
+      },
+      "88281c8025fffff": {
+        "fire_risk_score": 0.08804107136649061,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498354"
+      },
+      "88281c8a41fffff": {
+        "fire_risk_score": 0.05766736432462077,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498358"
+      },
+      "88281cd681fffff": {
+        "fire_risk_score": 0.2427410592289212,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498362"
+      },
+      "88281cb659fffff": {
+        "fire_risk_score": 0.007485026125333999,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498366"
+      },
+      "88281cb299fffff": {
+        "fire_risk_score": 0.0029663956114662215,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498370"
+      },
+      "88281cb313fffff": {
+        "fire_risk_score": 0.14834804967303095,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498373"
+      },
+      "88281c84e3fffff": {
+        "fire_risk_score": 0.221933657259706,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498377"
+      },
+      "88281c8523fffff": {
+        "fire_risk_score": 0.20538798210526055,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498381"
+      },
+      "88281c8f5dfffff": {
+        "fire_risk_score": 0.10225776722474883,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498384"
+      },
+      "88281c881dfffff": {
+        "fire_risk_score": 0.03596167928573228,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498388"
+      },
+      "88281c896dfffff": {
+        "fire_risk_score": 0.29560511510375376,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498391"
+      },
+      "88281cb6a7fffff": {
+        "fire_risk_score": 0.46712182026549365,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498395"
+      },
+      "88281cb541fffff": {
+        "fire_risk_score": 0.2344913318178231,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498399"
+      },
+      "88281cb181fffff": {
+        "fire_risk_score": 0.14810091146367432,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498402"
+      },
+      "88281cba31fffff": {
+        "fire_risk_score": 0.20999282500987523,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498406"
+      },
+      "88281c8cdbfffff": {
+        "fire_risk_score": 0.09631870064216014,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498409"
+      },
+      "88281c8d1bfffff": {
+        "fire_risk_score": 0.15052586749119531,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498413"
+      },
+      "88281c126bfffff": {
+        "fire_risk_score": 0.0944908404345515,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498417"
+      },
+      "88281cc6abfffff": {
+        "fire_risk_score": 0.1196427796131976,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498420"
+      },
+      "88281ca65dfffff": {
+        "fire_risk_score": 0.14966743319083764,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498424"
+      },
+      "88281ca29dfffff": {
+        "fire_risk_score": 0.16426122258074294,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498427"
+      },
+      "88281ca06dfffff": {
+        "fire_risk_score": 0.10758808645353082,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498431"
+      },
+      "88281cb8adfffff": {
+        "fire_risk_score": 0.30680501732199605,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498435"
+      },
+      "88281c16c9fffff": {
+        "fire_risk_score": 0.1207376218166071,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498438"
+      },
+      "88281c1709fffff": {
+        "fire_risk_score": 0.2047449575260572,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498442"
+      },
+      "88281c1039fffff": {
+        "fire_risk_score": 0.24523523695026217,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498445"
+      },
+      "88281cc4b3fffff": {
+        "fire_risk_score": 0.2695551560359964,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498448"
+      },
+      "88281ca41bfffff": {
+        "fire_risk_score": 0.0,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498452"
+      },
+      "88281ca56bfffff": {
+        "fire_risk_score": 0.18435704846626869,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498456"
+      },
+      "88281ca1abfffff": {
+        "fire_risk_score": 0.21106645367217097,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498459"
+      },
+      "88281caa35fffff": {
+        "fire_risk_score": 0.17206074507100808,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498463"
+      },
+      "88281c14d5fffff": {
+        "fire_risk_score": 0.1042432376200943,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498466"
+      },
+      "88281c1517fffff": {
+        "fire_risk_score": 0.27304240261094714,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498469"
+      },
+      "88281c0261fffff": {
+        "fire_risk_score": 0.07327256932862711,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498473"
+      },
+      "88281c1aa1fffff": {
+        "fire_risk_score": 0.1732896854594979,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498476"
+      },
+      "88281dda09fffff": {
+        "fire_risk_score": 0.11567265419402065,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498480"
+      },
+      "88281caeb9fffff": {
+        "fire_risk_score": 0.21001809174017527,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498483"
+      },
+      "88281caf33fffff": {
+        "fire_risk_score": 0.22145048143776722,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498487"
+      },
+      "88281ca9d3fffff": {
+        "fire_risk_score": 0.0,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498491"
+      },
+      "88281c0613fffff": {
+        "fire_risk_score": 0.0,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498494"
+      },
+      "88281c070dfffff": {
+        "fire_risk_score": 0.11381480546278772,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498497"
+      },
+      "88281c003dfffff": {
+        "fire_risk_score": 0.09982844279840816,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498501"
+      },
+      "88281c0a5dfffff": {
+        "fire_risk_score": 0.17356705507850034,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498504"
+      },
+      "88281dd817fffff": {
+        "fire_risk_score": 0.20413582229690186,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498508"
+      },
+      "88281dd967fffff": {
+        "fire_risk_score": 0.01892867898061021,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498511"
+      },
+      "88281cada1fffff": {
+        "fire_risk_score": 0.056392623848603524,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498515"
+      },
+      "88281c3041fffff": {
+        "fire_risk_score": 0.1318307460869224,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498518"
+      },
+      "88281c048bfffff": {
+        "fire_risk_score": 0.4062397850055254,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498522"
+      },
+      "88281c053bfffff": {
+        "fire_risk_score": 0.0,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498525"
+      },
+      "88281c0f5bfffff": {
+        "fire_risk_score": 0.14531207891996922,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498528"
+      },
+      "88281c081bfffff": {
+        "fire_risk_score": 0.18818295650423444,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498532"
+      },
+      "88281dca05fffff": {
+        "fire_risk_score": 0.21728083585470598,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498535"
+      },
+      "88281c36bdfffff": {
+        "fire_risk_score": 0.14086486609915608,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498539"
+      },
+      "88281c355dfffff": {
+        "fire_risk_score": 0.11925874975612616,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498542"
+      },
+      "88281c319dfffff": {
+        "fire_risk_score": 0.16353422735510098,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498546"
+      },
+      "88281c3ae9fffff": {
+        "fire_risk_score": 0.14442575590026668,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498550"
+      },
+      "88281c3b29fffff": {
+        "fire_risk_score": 0.13914112263200887,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498553"
+      },
+      "88281c0dc9fffff": {
+        "fire_risk_score": 0.2103711773420934,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498556"
+      },
+      "88281c7243fffff": {
+        "fire_risk_score": 0.04135052733520138,
+        "data_quality": "medium",
+        "last_updated": "2025-08-07T18:24:33.498560"
+      }
+    },
+    "data_type": "fire_risk"
+  },
+  "processing_time": "0:00:00.521287",
+  "status": "success"
+}

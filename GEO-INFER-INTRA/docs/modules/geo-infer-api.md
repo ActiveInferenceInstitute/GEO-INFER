@@ -23,55 +23,12 @@ GEO-INFER-API is the API management system that provides external integration ca
 The module provides RESTful endpoints following OpenAPI standards with features:
 
 ```python
-from geo_infer_api import APIManager
-
-# Initialize API manager with features
-api_manager = APIManager(
-    api_version='v1',
-    security_enabled=True,
-    rate_limiting=True,
-    analytics_enabled=True
-)
-
-# Define REST endpoints
-endpoints = api_manager.define_endpoints([
-    {
-        'path': '/api/v1/spatial/analyze',
-        'method': 'POST',
-        'handler': spatial_analysis_handler,
-        'auth': 'required',
-        'rate_limit': 100,  # requests per hour
-        'validation': True,
-        'documentation': True
-    },
-    {
-        'path': '/api/v1/temporal/forecast',
-        'method': 'POST',
-        'handler': temporal_forecast_handler,
-        'auth': 'required',
-        'rate_limit': 50,
-        'validation': True,
-        'caching': True
-    },
-    {
-        'path': '/api/v1/real-time/stream',
-        'method': 'GET',
-        'handler': real_time_stream_handler,
-        'auth': 'required',
-        'streaming': True,
-        'websocket': True
-    }
-])
-
-# Start API server with configuration
-api_manager.start_server(
-    host='0.0.0.0',
-    port=8000,
-    ssl_enabled=True,
-    load_balancing=True,
-    monitoring_enabled=True
-)
+# Illustrative; see GEO-INFER-API/examples for runnable scripts
 ```
+
+### Links
+- Module README: ../../GEO-INFER-API/README.md
+- OpenAPI: ../../GEO-INFER-API/docs/openapi_spec.yaml
 
 #### GraphQL Schema
 Flexible GraphQL schema for complex queries with real-time capabilities:

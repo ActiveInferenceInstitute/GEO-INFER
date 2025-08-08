@@ -7,9 +7,8 @@ This guide provides detailed instructions for installing GEO-INFER-INTRA on vari
 Before installing GEO-INFER-INTRA, ensure that you have the following prerequisites:
 
 - Python 3.9 or higher
-- pip (Python package manager)
+- uv (Python package manager)
 - Git
-- Virtual environment tool (venv, conda, or similar)
 - Node.js 16 or higher (for UI components)
 - Docker (optional, for containerized deployment)
 
@@ -20,12 +19,11 @@ GEO-INFER-INTRA can be installed using one of the following methods:
 ### Method 1: Install from PyPI
 
 ```bash
-# Create and activate a virtual environment
-python -m venv geo-infer-env
-source geo-infer-env/bin/activate  # On Windows: geo-infer-env\Scripts\activate
+# Initialize a project environment (if not already)
+uv init --no-workspace .
 
 # Install the package
-pip install geo-infer-intra
+uv pip install geo-infer-intra
 ```
 
 ### Method 2: Install from Source
@@ -35,15 +33,11 @@ pip install geo-infer-intra
 git clone https://github.com/geo-infer/geo-infer-intra.git
 cd geo-infer-intra
 
-# Create and activate a virtual environment
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
 # Install in development mode
-pip install -e .
+uv pip install -e .
 
 # Install development dependencies (optional)
-pip install -e ".[dev]"
+uv pip install -e ".[dev]"
 ```
 
 ### Method 3: Install with Docker
@@ -72,12 +66,12 @@ After installing GEO-INFER-INTRA, complete the following setup steps:
 
 3. Initialize the knowledge base:
    ```bash
-   geo-infer-intra init
+   uv run geo-infer-intra init
    ```
 
 4. Start the documentation server:
    ```bash
-   geo-infer-intra docs serve
+   uv run geo-infer-intra docs serve
    ```
 
 ## Verifying the Installation
@@ -87,18 +81,18 @@ To verify that GEO-INFER-INTRA is installed correctly:
 1. Access the documentation web interface at `http://localhost:8000`
 2. Run the version check command:
    ```bash
-   geo-infer-intra --version
+   uv run geo-infer-intra --version
    ```
 3. Run the system check:
    ```bash
-   geo-infer-intra check
+   uv run geo-infer-intra check
    ```
 
 ## Troubleshooting
 
 If you encounter issues during installation:
 
-- Check that all prerequisites are installed
+- Check that all prerequisites are installed (including `uv`)
 - Ensure that you have sufficient permissions
 - Verify that your Python version is compatible
 - Check the logs in `logs/installation.log`

@@ -6,6 +6,10 @@
 
 GEO-INFER-CIV is dedicated to **empowering communities and fostering civic participation** in geospatial data creation, analysis, and decision-making processes. This module provides a suite of tools and methodologies to facilitate collaborative approaches to understanding and addressing complex ecological, urban, and social challenges. It bridges the gap between technical geospatial capabilities and community knowledge, values, and priorities. By enabling participatory mapping, citizen science, and collaborative planning, GEO-INFER-CIV aims to make geospatial information more accessible, relevant, and actionable for diverse public audiences, leading to more equitable, informed, and sustainable outcomes.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-civ.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Core Objectives
 
 -   **Democratize Geospatial Information:** Make geospatial tools and data accessible and usable by non-expert community members.
@@ -97,12 +101,7 @@ GEO-INFER-CIV/
 
 ### Installation
 ```bash
-# Clone the GEO-INFER repository if you haven't already
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER/GEO-INFER-CIV
-
-pip install -e .
-# or poetry install if pyproject.toml is configured
+pip install -e ./GEO-INFER-CIV
 ```
 
 ### Configuration

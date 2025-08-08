@@ -4,7 +4,11 @@
 
 ## Overview
 
-GEO-INFER-ANT is a specialized module within the GEO-INFER framework designed for the **modeling and simulation of complex adaptive systems (CAS)**, drawing inspiration from the emergent collective behaviors observed in social insect colonies (like ants, bees, termites) and other biological systems. While named "ANT" for its initial inspiration, its scope extends to any system exhibiting self-organization, distributed control, and adaptive learning through local interactions. It leverages **Active Inference (via GEO-INFER-ACT)** as a core principle for individual agent behavior, but focuses on how these individual adaptive capabilities lead to sophisticated collective intelligence and emergent phenomena in spatially and temporally explicit contexts. This module is particularly suited for studying ecological dynamics, social systems, distributed robotics, and other systems where macroscopic patterns arise from microscopic interactions.
+GEO-INFER-ANT is a specialized module for modeling and simulating complex adaptive systems (CAS) inspired by swarm intelligence and stigmergy. It uses Active Inference from GEO-INFER-ACT for agent behavior and studies emergent collective dynamics in spatial and temporal contexts.
+
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-ant.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
 
 ## Core Concepts
 
@@ -101,12 +105,7 @@ GEO-INFER-ANT/
 
 ### Installation
 ```bash
-# Clone the GEO-INFER repository if you haven't already
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER/GEO-INFER-ANT
-
-pip install -e .
-# or poetry install if pyproject.toml is configured
+pip install -e ./GEO-INFER-ANT
 ```
 
 ### Configuration

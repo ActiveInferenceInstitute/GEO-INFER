@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-COG?
 
+Note: Code examples are illustrative; see `GEO-INFER-COG/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-COG/README.md
+
 GEO-INFER-COG is the cognitive modeling engine that provides capabilities for understanding and modeling human cognitive processes in geospatial contexts. It enables:
 
 - **Spatial Cognition**: Modeling how humans perceive and understand spatial relationships

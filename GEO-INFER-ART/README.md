@@ -127,26 +127,19 @@ graph TD
 ## Installation
 
 ```bash
-# Assuming GEO-INFER-ART is part of the main GEO-INFER installation
-# or as a separately installable package:
-pip install geo-infer-art
+pip install -e ./GEO-INFER-ART
 ```
 
-Or install from source within the GEO-INFER monorepo:
+## Documentation
 
-```bash
-# git clone https://github.com/activeinference/GEO-INFER.git # if not already cloned
-cd GEO-INFER/GEO-INFER-ART
-pip install -e .
-# Ensure all dependencies, including those for graphics libraries, are met.
-```
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-art.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
 
 ## Quick Start
 
 ```python
 # See examples/ for runnable scripts; APIs may change
 ```
-*Note: The Quick Start is illustrative and actual implementation details may vary based on the final API design and integration with other GEO-INFER modules.*
 
 ## Core Components (Conceptual - to be refined)
 

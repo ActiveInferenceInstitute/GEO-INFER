@@ -191,16 +191,18 @@ python -c "import fastapi, uvicorn; print('✅ Web framework available')"
 pip list | grep geo-infer
 ```
 
-### 2. Installation
+### 2. Installation (uv)
 ```bash
-# Install GEO-INFER-API and dependencies
-pip install -e ./GEO-INFER-API
+# Ensure uv is installed (macOS: brew install uv; generic: curl -LsSf https://astral.sh/uv/install.sh | sh)
 
-# Optional: install extras for REST/GraphQL servers
-pip install fastapi uvicorn strawberry-graphql
+# Install GEO-INFER-API in editable mode via uv
+uv pip install -e ./GEO-INFER-API
+
+# Optional extras for REST/GraphQL servers
+uv pip install fastapi uvicorn strawberry-graphql
 
 # Verify import
-python -c "import geo_infer_api; print('import ok')"
+uv run python -c "import geo_infer_api; print('import ok')"
 ```
 
 ### 3. Initial Configuration
@@ -215,7 +217,7 @@ nano config/api_config.yaml
 ### 4. Launch the API Server
 ```bash
 # Development mode
-python -m geo_infer_api.app
+uv run python -m geo_infer_api.app
 
 # Production mode (requires gunicorn)
 gunicorn geo_infer_api.app:main_app --workers 4 --bind 0.0.0.0:8000
@@ -642,7 +644,7 @@ RUN apt-get update && apt-get install -y \
 
 # Install Python dependencies
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN uv pip install -r requirements.txt
 
 # Copy application code
 COPY src/ ./src/
@@ -652,7 +654,7 @@ COPY config/ ./config/
 EXPOSE 8000
 
 # Start the API server
-CMD ["uvicorn", "geo_infer_api.app:main_app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uv", "run", "uvicorn", "geo_infer_api.app:main_app", "--host", "0.0.0.0", "--port", "8000"]
 ```
 
 ### Kubernetes Deployment
@@ -766,16 +768,14 @@ async def enhanced_location_analysis(location: str):
 git clone https://github.com/geo-infer/GEO-INFER-API.git
 cd GEO-INFER-API
 
-# Set up development environment
-python -m venv venv
-source venv/bin/activate
-pip install -e ".[dev]"
+# Set up development environment using uv
+uv pip install -e ".[dev]"
 
 # Install pre-commit hooks
 pre-commit install
 
 # Start development server
-uvicorn geo_infer_api.app:main_app --reload --host 0.0.0.0 --port 8000
+uv run uvicorn geo_infer_api.app:main_app --reload --host 0.0.0.0 --port 8000
 ```
 
 ### API Development Guidelines

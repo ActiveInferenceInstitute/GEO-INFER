@@ -6,6 +6,10 @@
 
 GEO-INFER-ORG is dedicated to developing and implementing organizational structures, governance frameworks, and community processes for geospatial initiatives. This module focuses on the human and institutional aspects of geospatial systems, providing tools and methodologies for establishing effective leadership, decision-making processes, stakeholder engagement, and collaborative workflows. By addressing the organizational challenges inherent in complex geospatial projects, GEO-INFER-ORG aims to enhance the sustainability, inclusivity, and impact of geospatial endeavors across diverse contexts.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-org.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Core Objectives
 
 - **Establish Effective Governance Models:** Develop frameworks for transparent, accountable, and participatory decision-making in geospatial initiatives.

@@ -1,8 +1,0 @@
-[console_scripts]
-geo-place = geo_infer_place.cli:main
-geo-place-australia = geo_infer_place.locations.australia.cli:main
-geo-place-del-norte = geo_infer_place.locations.del_norte_county.cli:main
-geo-place-siberia = geo_infer_place.locations.siberia.cli:main
-
-[geo_infer.modules]
-place = geo_infer_place

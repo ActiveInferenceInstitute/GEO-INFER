@@ -8,6 +8,10 @@ GEO-INFER-RISK is the specialized module within the GEO-INFER framework dedicate
 
 By integrating probabilistic risk assessment methodologies with advanced geospatial techniques, GEO-INFER-RISK enables more accurate predictions of potential losses, facilitates effective risk communication, supports strategic planning for resilience, and informs risk transfer mechanisms. The module is particularly valuable in contexts of increasing uncertainty due to climate change, population growth, urbanization, and complex socio-economic dynamics.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-risk.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Core Objectives
 
 - **Enable Comprehensive Risk Assessment:** Provide tools to identify, analyze, and quantify risks from various hazards (natural and human-induced) across multiple spatial scales and timeframes.
@@ -151,12 +155,7 @@ GEO-INFER-RISK is highly interdependent with other modules in the framework:
 
 ### Installation
 ```bash
-# Ensure the main GEO-INFER repository is cloned
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER
-
 pip install -e ./GEO-INFER-RISK
-# Or if managed by a broader project build system
 ```
 
 ### Configuration

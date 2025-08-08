@@ -6,6 +6,11 @@
 
 ## Overview
 
+Note: Code examples are illustrative; see `GEO-INFER-AGENT/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-AGENT/README.md
+
 GEO-INFER-AGENT provides intelligent agent frameworks for autonomous geospatial decision-making. It enables:
 
 - **Intelligent Agents**: Autonomous decision-making entities with spatial awareness and active inference

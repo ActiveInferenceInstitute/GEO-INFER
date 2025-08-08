@@ -6,6 +6,10 @@
 
 GEO-INFER-COMMS provides a comprehensive communications infrastructure for geospatial systems, enabling seamless data exchange, messaging, networking, and outreach capabilities across distributed geospatial applications. This module serves as the backbone for real-time coordination, data sharing, notifications, and public engagement within the GEO-INFER ecosystem. It implements standardized protocols, robust messaging patterns, and resilient networking architectures specifically optimized for geospatial contexts, supporting everything from IoT sensor networks to public-facing geospatial information portals.
 
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-comms.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+
 ## Core Objectives
 
 - **Enable Reliable Geospatial Data Exchange:** Provide robust infrastructure for sharing geospatial data between systems, services, and users with guaranteed delivery and spatial context preservation.
@@ -126,10 +130,6 @@ GEO-INFER-COMMS serves as a communication backbone for the entire framework:
 
 ### Installation
 ```bash
-# Ensure the main GEO-INFER repository is cloned
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER
-
 pip install -e ./GEO-INFER-COMMS
 ```
 

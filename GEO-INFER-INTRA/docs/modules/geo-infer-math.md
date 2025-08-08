@@ -6,6 +6,11 @@
 
 ## 🎯 What is GEO-INFER-MATH?
 
+Note: Code examples are illustrative; see `GEO-INFER-MATH/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-MATH/README.md
+
 GEO-INFER-MATH is the mathematical foundations module that provides core mathematical capabilities for the GEO-INFER framework. It enables:
 
 - **Statistical Methods**: Advanced statistical analysis and inference

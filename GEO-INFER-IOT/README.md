@@ -1,10 +1,14 @@
-# GEO-INFER-IOT 🌐📡
+# GEO-INFER-IOT
 
 [![Status](https://img.shields.io/badge/Status-Beta-blue.svg)]()
 [![Python](https://img.shields.io/badge/Python-3.9+-green.svg)]()
 [![License](https://img.shields.io/badge/License-CC%20BY--ND--SA%204.0-lightgrey.svg)]()
 
-GEO-INFER-IOT is the **Internet of Things and spatial web integration module** within the GEO-INFER framework. It provides comprehensive capabilities for ingesting, processing, and analyzing IoT sensor data in spatial context, enabling real-time environmental monitoring and Bayesian spatial inference at global scale.
+GEO-INFER-IOT is the Internet of Things and spatial web integration module within the GEO-INFER framework. It provides capabilities for ingesting, processing, and analyzing IoT sensor data in spatial context for real-time monitoring and spatial inference.
+
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-iot.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
 
 ## Overview 📋
 
@@ -255,18 +259,9 @@ flowchart TD
 
 ### Installation
 ```bash
-# Ensure core dependencies are installed
-pip install -e ./GEO-INFER-SPACE
-pip install -e ./GEO-INFER-BAYES  
-pip install -e ./GEO-INFER-DATA
-
-# Install IoT module
 pip install -e ./GEO-INFER-IOT
-
-# Install optional dependencies for specific protocols
-pip install paho-mqtt confluent-kafka  # MQTT and Kafka
-pip install pyserial                   # Serial sensors
-pip install aiocoap                    # CoAP protocol
+# Optional protocol extras
+pip install paho-mqtt confluent-kafka pyserial aiocoap
 ```
 
 ### Quick Start Example
@@ -458,4 +453,3 @@ This project is licensed under the Creative Commons Attribution-NoDerivatives-Sh
 
 ---
 
-**GEO-INFER-IOT** • Connecting the physical and digital worlds through intelligent spatial sensor networks 🌐📡 
