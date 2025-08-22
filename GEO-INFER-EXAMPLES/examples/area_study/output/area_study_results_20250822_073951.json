@@ -1,0 +1,2073 @@
+{
+  "area_study_results": {
+    "study_design": {
+      "study_area": {
+        "name": "Downtown Neighborhood Study",
+        "area_type": "urban_neighborhood",
+        "total_area_hectares": 150,
+        "population_estimate": 8500,
+        "h3_resolution": 9,
+        "study_period": {
+          "start_date": "2024-01-01",
+          "end_date": "2024-12-31",
+          "data_collection_period": "3_months"
+        }
+      },
+      "research_questions": {
+        "technical": [
+          "What is the digital connectivity infrastructure coverage?",
+          "How does physical infrastructure condition vary spatially?",
+          "What IoT sensors and smart city infrastructure exist?"
+        ],
+        "social": [
+          "How do community networks function within the area?",
+          "What are resident priorities and concerns?",
+          "How do different demographic groups experience the area?"
+        ],
+        "environmental": [
+          "What is the environmental health burden distribution?",
+          "How does green space access vary across neighborhoods?",
+          "What are local climate adaptation needs?"
+        ]
+      },
+      "ethical_framework": {
+        "data_privacy": "community_controlled",
+        "community_consent": "required_workshops",
+        "information_rights": "community_access_priority",
+        "benefit_sharing": "direct_community_returns",
+        "cultural_competence": "local_language_support"
+      },
+      "methodology_version": "1.0"
+    },
+    "integrated_data": {
+      "spatial_data": [
+        {
+          "h3_index": "h3_cell_0",
+          "technical_metrics": {
+            "connectivity_score": 0.5436658766904076,
+            "infrastructure_quality": 0.5428560431409304,
+            "iot_sensor_density": 8
+          },
+          "social_metrics": {
+            "community_cohesion": 0.5698590849080465,
+            "social_vulnerability": 0.40543508212458923,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 30.72926848138898,
+            "green_space_coverage": 0.38945758934767366,
+            "noise_level": 46.72639647802305
+          }
+        },
+        {
+          "h3_index": "h3_cell_1",
+          "technical_metrics": {
+            "connectivity_score": 0.8792430239037461,
+            "infrastructure_quality": 0.6638505545431499,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.3770931175924688,
+            "social_vulnerability": 0.5867877861746533,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 61.38587065020893,
+            "green_space_coverage": 0.2702895233473419,
+            "noise_level": 72.82994755938469
+          }
+        },
+        {
+          "h3_index": "h3_cell_2",
+          "technical_metrics": {
+            "connectivity_score": 0.5954516920990525,
+            "infrastructure_quality": 0.7137790400420317,
+            "iot_sensor_density": 6
+          },
+          "social_metrics": {
+            "community_cohesion": 0.4689412819654539,
+            "social_vulnerability": 0.6159704940901135,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 46.85779137553382,
+            "green_space_coverage": 0.3826440194267956,
+            "noise_level": 80.61055135563666
+          }
+        },
+        {
+          "h3_index": "h3_cell_3",
+          "technical_metrics": {
+            "connectivity_score": 0.5961768893107133,
+            "infrastructure_quality": 0.7100662989007684,
+            "iot_sensor_density": 8
+          },
+          "social_metrics": {
+            "community_cohesion": 0.31877593272689586,
+            "social_vulnerability": 0.5527938531681067,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 43.76368474229698,
+            "green_space_coverage": 0.14307827373748366,
+            "noise_level": 59.41380380821073
+          }
+        },
+        {
+          "h3_index": "h3_cell_4",
+          "technical_metrics": {
+            "connectivity_score": 0.4689674108552707,
+            "infrastructure_quality": 0.6266204234144155,
+            "iot_sensor_density": 1
+          },
+          "social_metrics": {
+            "community_cohesion": 0.395834455018262,
+            "social_vulnerability": 0.38784470461053044,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 71.08387035323275,
+            "green_space_coverage": 0.10691592877071196,
+            "noise_level": 81.4370873797537
+          }
+        },
+        {
+          "h3_index": "h3_cell_5",
+          "technical_metrics": {
+            "connectivity_score": 0.8346492079000598,
+            "infrastructure_quality": 0.8748999566459621,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6293906371550528,
+            "social_vulnerability": 0.39277012540343326,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 63.0952723526442,
+            "green_space_coverage": 0.10769199139795034,
+            "noise_level": 61.450204663414766
+          }
+        },
+        {
+          "h3_index": "h3_cell_6",
+          "technical_metrics": {
+            "connectivity_score": 0.8054414844278965,
+            "infrastructure_quality": 0.6401850409331773,
+            "iot_sensor_density": 1
+          },
+          "social_metrics": {
+            "community_cohesion": 0.4637172789565585,
+            "social_vulnerability": 0.6247048099832505,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 88.19486386887618,
+            "green_space_coverage": 0.34474162309749806,
+            "noise_level": 78.53314818844552
+          }
+        },
+        {
+          "h3_index": "h3_cell_7",
+          "technical_metrics": {
+            "connectivity_score": 0.6046505538667306,
+            "infrastructure_quality": 0.6074097511688326,
+            "iot_sensor_density": 1
+          },
+          "social_metrics": {
+            "community_cohesion": 0.2095703753788981,
+            "social_vulnerability": 0.15275134224672363,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 78.77406054780465,
+            "green_space_coverage": 0.3999011856501457,
+            "noise_level": 84.86547348295622
+          }
+        },
+        {
+          "h3_index": "h3_cell_8",
+          "technical_metrics": {
+            "connectivity_score": 0.6610306086417077,
+            "infrastructure_quality": 0.7844937075902553,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.7299568414297191,
+            "social_vulnerability": 0.3644953844930505,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 57.03264811860561,
+            "green_space_coverage": 0.09520579530302326,
+            "noise_level": 83.1620410903489
+          }
+        },
+        {
+          "h3_index": "h3_cell_9",
+          "technical_metrics": {
+            "connectivity_score": 0.694013512393072,
+            "infrastructure_quality": 0.5143214027517313,
+            "iot_sensor_density": 1
+          },
+          "social_metrics": {
+            "community_cohesion": 0.7298993925205601,
+            "social_vulnerability": 0.13282752745385396,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 59.88991119875358,
+            "green_space_coverage": 0.21667374387615496,
+            "noise_level": 78.25485960250005
+          }
+        },
+        {
+          "h3_index": "h3_cell_10",
+          "technical_metrics": {
+            "connectivity_score": 0.5000552058511821,
+            "infrastructure_quality": 0.8081928676065312,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.2618857563559526,
+            "social_vulnerability": 0.654272487628743,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 38.04091370703844,
+            "green_space_coverage": 0.060073936709668645,
+            "noise_level": 75.20549022694476
+          }
+        },
+        {
+          "h3_index": "h3_cell_11",
+          "technical_metrics": {
+            "connectivity_score": 0.703201208379752,
+            "infrastructure_quality": 0.7520398840496119,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8322057410736383,
+            "social_vulnerability": 0.5320845984681045,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 51.03525352839582,
+            "green_space_coverage": 0.2564711903991216,
+            "noise_level": 60.68976180398929
+          }
+        },
+        {
+          "h3_index": "h3_cell_12",
+          "technical_metrics": {
+            "connectivity_score": 0.5843586993154238,
+            "infrastructure_quality": 0.8520793472468742,
+            "iot_sensor_density": 4
+          },
+          "social_metrics": {
+            "community_cohesion": 0.583212414829378,
+            "social_vulnerability": 0.41563731319127317,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 47.877567092517026,
+            "green_space_coverage": 0.23326079660525395,
+            "noise_level": 72.90567485973853
+          }
+        },
+        {
+          "h3_index": "h3_cell_13",
+          "technical_metrics": {
+            "connectivity_score": 0.8177066541880202,
+            "infrastructure_quality": 0.6296734039730862,
+            "iot_sensor_density": 1
+          },
+          "social_metrics": {
+            "community_cohesion": 0.5444814051556768,
+            "social_vulnerability": 0.28077107180927086,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 88.80195451712862,
+            "green_space_coverage": 0.2224163328975044,
+            "noise_level": 58.150064411500324
+          }
+        },
+        {
+          "h3_index": "h3_cell_14",
+          "technical_metrics": {
+            "connectivity_score": 0.7117105553058717,
+            "infrastructure_quality": 0.5200728093890965,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.576084391699849,
+            "social_vulnerability": 0.42208341128850047,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 38.32963035896461,
+            "green_space_coverage": 0.2743061606811251,
+            "noise_level": 52.275203375965795
+          }
+        },
+        {
+          "h3_index": "h3_cell_15",
+          "technical_metrics": {
+            "connectivity_score": 0.5246837341605111,
+            "infrastructure_quality": 0.848394204953006,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.5606652384049475,
+            "social_vulnerability": 0.7811772444890731,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 41.53734112852025,
+            "green_space_coverage": 0.0643040156932676,
+            "noise_level": 51.75740252288658
+          }
+        },
+        {
+          "h3_index": "h3_cell_16",
+          "technical_metrics": {
+            "connectivity_score": 0.48108372037077307,
+            "infrastructure_quality": 0.48850524213837343,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.584100716445186,
+            "social_vulnerability": 0.4740964526127661,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 42.38002310434755,
+            "green_space_coverage": 0.1774944513668264,
+            "noise_level": 65.13669083419427
+          }
+        },
+        {
+          "h3_index": "h3_cell_17",
+          "technical_metrics": {
+            "connectivity_score": 0.7487566386090874,
+            "infrastructure_quality": 0.4196560699205495,
+            "iot_sensor_density": 9
+          },
+          "social_metrics": {
+            "community_cohesion": 0.5368017758394052,
+            "social_vulnerability": 0.5814493019672582,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 85.25234403190879,
+            "green_space_coverage": 0.07137728594920231,
+            "noise_level": 56.07510592588815
+          }
+        },
+        {
+          "h3_index": "h3_cell_18",
+          "technical_metrics": {
+            "connectivity_score": 0.8240308318654899,
+            "infrastructure_quality": 0.7741298451918293,
+            "iot_sensor_density": 4
+          },
+          "social_metrics": {
+            "community_cohesion": 0.3465445263356972,
+            "social_vulnerability": 0.3593304719539674,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 75.59732453625514,
+            "green_space_coverage": 0.2359430138907369,
+            "noise_level": 73.8206424556586
+          }
+        },
+        {
+          "h3_index": "h3_cell_19",
+          "technical_metrics": {
+            "connectivity_score": 0.3405218856323069,
+            "infrastructure_quality": 0.47386954595311337,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6993447101191868,
+            "social_vulnerability": 0.7266447863810396,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 61.92680911591894,
+            "green_space_coverage": 0.08751020396892162,
+            "noise_level": 62.89649467293819
+          }
+        },
+        {
+          "h3_index": "h3_cell_20",
+          "technical_metrics": {
+            "connectivity_score": 0.646201223195765,
+            "infrastructure_quality": 0.5212352518173649,
+            "iot_sensor_density": 9
+          },
+          "social_metrics": {
+            "community_cohesion": 0.7161836442656733,
+            "social_vulnerability": 0.22759871493317066,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 80.44259915267587,
+            "green_space_coverage": 0.08122151504921968,
+            "noise_level": 66.41342256062094
+          }
+        },
+        {
+          "h3_index": "h3_cell_21",
+          "technical_metrics": {
+            "connectivity_score": 0.45159066750737076,
+            "infrastructure_quality": 0.5714634321391301,
+            "iot_sensor_density": 9
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6753716234011427,
+            "social_vulnerability": 0.6524198670251369,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 58.77492610525501,
+            "green_space_coverage": 0.2544698196499593,
+            "noise_level": 74.47289901579651
+          }
+        },
+        {
+          "h3_index": "h3_cell_22",
+          "technical_metrics": {
+            "connectivity_score": 0.6625324728677843,
+            "infrastructure_quality": 0.6932677173303796,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.4651408381659025,
+            "social_vulnerability": 0.3362127837103427,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 68.75503447989607,
+            "green_space_coverage": 0.2497724066341192,
+            "noise_level": 59.243869035913846
+          }
+        },
+        {
+          "h3_index": "h3_cell_23",
+          "technical_metrics": {
+            "connectivity_score": 0.9412349117154366,
+            "infrastructure_quality": 0.7028874096784437,
+            "iot_sensor_density": 1
+          },
+          "social_metrics": {
+            "community_cohesion": 0.20527405419385233,
+            "social_vulnerability": 0.25773295839876975,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 81.04905107016877,
+            "green_space_coverage": 0.08076066858905036,
+            "noise_level": 77.23459546964574
+          }
+        },
+        {
+          "h3_index": "h3_cell_24",
+          "technical_metrics": {
+            "connectivity_score": 0.33617476808203395,
+            "infrastructure_quality": 0.8211570176490908,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.5671579726991782,
+            "social_vulnerability": 0.38727777889276305,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 89.83533208610366,
+            "green_space_coverage": 0.3638135920409073,
+            "noise_level": 68.03993671222639
+          }
+        },
+        {
+          "h3_index": "h3_cell_25",
+          "technical_metrics": {
+            "connectivity_score": 0.8963071485055956,
+            "infrastructure_quality": 0.40265000319880273,
+            "iot_sensor_density": 6
+          },
+          "social_metrics": {
+            "community_cohesion": 0.38053197893145785,
+            "social_vulnerability": 0.2196213111730461,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 79.25168838920115,
+            "green_space_coverage": 0.3014600447927938,
+            "noise_level": 66.40146928179642
+          }
+        },
+        {
+          "h3_index": "h3_cell_26",
+          "technical_metrics": {
+            "connectivity_score": 0.6098026646821677,
+            "infrastructure_quality": 0.8192912793513124,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.3309306239902664,
+            "social_vulnerability": 0.32657546548297056,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 41.97041564029919,
+            "green_space_coverage": 0.30768651429447086,
+            "noise_level": 66.19360092724466
+          }
+        },
+        {
+          "h3_index": "h3_cell_27",
+          "technical_metrics": {
+            "connectivity_score": 0.7596995621688889,
+            "infrastructure_quality": 0.7838897507214194,
+            "iot_sensor_density": 6
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6068667549958287,
+            "social_vulnerability": 0.20805390069194163,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 49.23853152957086,
+            "green_space_coverage": 0.2578590841452646,
+            "noise_level": 59.76921926039584
+          }
+        },
+        {
+          "h3_index": "h3_cell_28",
+          "technical_metrics": {
+            "connectivity_score": 0.5952741819424148,
+            "infrastructure_quality": 0.6743015589690766,
+            "iot_sensor_density": 2
+          },
+          "social_metrics": {
+            "community_cohesion": 0.4256476914823061,
+            "social_vulnerability": 0.6669121120982444,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 38.32948640652123,
+            "green_space_coverage": 0.05094881479501539,
+            "noise_level": 49.66784256566725
+          }
+        },
+        {
+          "h3_index": "h3_cell_29",
+          "technical_metrics": {
+            "connectivity_score": 0.6075580306837298,
+            "infrastructure_quality": 0.7030509405279193,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.44420778658009674,
+            "social_vulnerability": 0.7506704009734781,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 87.90161463999075,
+            "green_space_coverage": 0.09350402821994067,
+            "noise_level": 74.23469900814577
+          }
+        },
+        {
+          "h3_index": "h3_cell_30",
+          "technical_metrics": {
+            "connectivity_score": 0.9099212969336745,
+            "infrastructure_quality": 0.4906165330828301,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8485145965127978,
+            "social_vulnerability": 0.605117585525894,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 80.50972660549633,
+            "green_space_coverage": 0.09892033181920133,
+            "noise_level": 76.81069247439561
+          }
+        },
+        {
+          "h3_index": "h3_cell_31",
+          "technical_metrics": {
+            "connectivity_score": 0.4310577580310339,
+            "infrastructure_quality": 0.4818279714328523,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.3304834907517009,
+            "social_vulnerability": 0.2649842222454999,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 84.47196782775096,
+            "green_space_coverage": 0.16066880380377313,
+            "noise_level": 68.53226703180226
+          }
+        },
+        {
+          "h3_index": "h3_cell_32",
+          "technical_metrics": {
+            "connectivity_score": 0.743938341221136,
+            "infrastructure_quality": 0.6259743006495196,
+            "iot_sensor_density": 8
+          },
+          "social_metrics": {
+            "community_cohesion": 0.4638611005974353,
+            "social_vulnerability": 0.4238758499687245,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 74.85656281057507,
+            "green_space_coverage": 0.22595213653236773,
+            "noise_level": 54.28850780587269
+          }
+        },
+        {
+          "h3_index": "h3_cell_33",
+          "technical_metrics": {
+            "connectivity_score": 0.8847234726284694,
+            "infrastructure_quality": 0.5919456106866057,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8345304776751827,
+            "social_vulnerability": 0.5369665971397946,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 55.891688588186554,
+            "green_space_coverage": 0.16648552506936953,
+            "noise_level": 74.22196547237206
+          }
+        },
+        {
+          "h3_index": "h3_cell_34",
+          "technical_metrics": {
+            "connectivity_score": 0.7509164448121699,
+            "infrastructure_quality": 0.4833653799966916,
+            "iot_sensor_density": 1
+          },
+          "social_metrics": {
+            "community_cohesion": 0.5734227643834251,
+            "social_vulnerability": 0.7257248081356704,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 89.8615569554306,
+            "green_space_coverage": 0.31334109201358795,
+            "noise_level": 73.27921844973837
+          }
+        },
+        {
+          "h3_index": "h3_cell_35",
+          "technical_metrics": {
+            "connectivity_score": 0.8060717603829881,
+            "infrastructure_quality": 0.47156399277423483,
+            "iot_sensor_density": 4
+          },
+          "social_metrics": {
+            "community_cohesion": 0.5989227794099216,
+            "social_vulnerability": 0.6337210800184834,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 75.278117511607,
+            "green_space_coverage": 0.08602061076045076,
+            "noise_level": 66.4592540593838
+          }
+        },
+        {
+          "h3_index": "h3_cell_36",
+          "technical_metrics": {
+            "connectivity_score": 0.5462340176119952,
+            "infrastructure_quality": 0.6285001096408391,
+            "iot_sensor_density": 4
+          },
+          "social_metrics": {
+            "community_cohesion": 0.4781011033922571,
+            "social_vulnerability": 0.6581067560456876,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 59.18144891973647,
+            "green_space_coverage": 0.19313431197992265,
+            "noise_level": 75.8752792239298
+          }
+        },
+        {
+          "h3_index": "h3_cell_37",
+          "technical_metrics": {
+            "connectivity_score": 0.3079319970067289,
+            "infrastructure_quality": 0.6992213506026135,
+            "iot_sensor_density": 4
+          },
+          "social_metrics": {
+            "community_cohesion": 0.5799071103433173,
+            "social_vulnerability": 0.27625934123486695,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 79.6079296685447,
+            "green_space_coverage": 0.3856761780974097,
+            "noise_level": 58.700970287141736
+          }
+        },
+        {
+          "h3_index": "h3_cell_38",
+          "technical_metrics": {
+            "connectivity_score": 0.44777813896949153,
+            "infrastructure_quality": 0.6117984312102415,
+            "iot_sensor_density": 8
+          },
+          "social_metrics": {
+            "community_cohesion": 0.5541220752191262,
+            "social_vulnerability": 0.5280179648042536,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 65.5777743155293,
+            "green_space_coverage": 0.08577443247881986,
+            "noise_level": 81.75002089042985
+          }
+        },
+        {
+          "h3_index": "h3_cell_39",
+          "technical_metrics": {
+            "connectivity_score": 0.8135550141306562,
+            "infrastructure_quality": 0.4115113023938188,
+            "iot_sensor_density": 1
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6034018521167692,
+            "social_vulnerability": 0.5247005324679992,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 74.18665413748337,
+            "green_space_coverage": 0.37702845516915523,
+            "noise_level": 82.02274051627106
+          }
+        },
+        {
+          "h3_index": "h3_cell_40",
+          "technical_metrics": {
+            "connectivity_score": 0.5930455914126858,
+            "infrastructure_quality": 0.45661902292037765,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.3158643572571028,
+            "social_vulnerability": 0.23042461564588448,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 49.928784759296335,
+            "green_space_coverage": 0.15900549241597445,
+            "noise_level": 54.09582483508451
+          }
+        },
+        {
+          "h3_index": "h3_cell_41",
+          "technical_metrics": {
+            "connectivity_score": 0.6951313559662681,
+            "infrastructure_quality": 0.5896528491927744,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.43463806915213066,
+            "social_vulnerability": 0.661997414018608,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 66.22329190380833,
+            "green_space_coverage": 0.08999355501949072,
+            "noise_level": 61.58018336814511
+          }
+        },
+        {
+          "h3_index": "h3_cell_42",
+          "technical_metrics": {
+            "connectivity_score": 0.8612867913984219,
+            "infrastructure_quality": 0.8614801158992424,
+            "iot_sensor_density": 7
+          },
+          "social_metrics": {
+            "community_cohesion": 0.4428672413273594,
+            "social_vulnerability": 0.6162508736768239,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 65.22409344819403,
+            "green_space_coverage": 0.06149633458520343,
+            "noise_level": 81.50997851516516
+          }
+        },
+        {
+          "h3_index": "h3_cell_43",
+          "technical_metrics": {
+            "connectivity_score": 0.46134718779214867,
+            "infrastructure_quality": 0.6888159770457736,
+            "iot_sensor_density": 4
+          },
+          "social_metrics": {
+            "community_cohesion": 0.4932478146531835,
+            "social_vulnerability": 0.7403921307476701,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 76.82974245276526,
+            "green_space_coverage": 0.14715551042029634,
+            "noise_level": 53.80388856324388
+          }
+        },
+        {
+          "h3_index": "h3_cell_44",
+          "technical_metrics": {
+            "connectivity_score": 0.438242509821797,
+            "infrastructure_quality": 0.6575868412034063,
+            "iot_sensor_density": 1
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8727492222286186,
+            "social_vulnerability": 0.20406390942717909,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 62.104183136019515,
+            "green_space_coverage": 0.11456200499659965,
+            "noise_level": 56.983836470659085
+          }
+        },
+        {
+          "h3_index": "h3_cell_45",
+          "technical_metrics": {
+            "connectivity_score": 0.501459002074597,
+            "infrastructure_quality": 0.5986590577287989,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.34693391516691,
+            "social_vulnerability": 0.7286380026084996,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 67.49855922306314,
+            "green_space_coverage": 0.18220408160405926,
+            "noise_level": 78.46259253169332
+          }
+        },
+        {
+          "h3_index": "h3_cell_46",
+          "technical_metrics": {
+            "connectivity_score": 0.6818448427521482,
+            "infrastructure_quality": 0.5470223396104859,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.5173021843236193,
+            "social_vulnerability": 0.467073188529306,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 58.86527690325516,
+            "green_space_coverage": 0.22395418208743717,
+            "noise_level": 75.61425124264963
+          }
+        },
+        {
+          "h3_index": "h3_cell_47",
+          "technical_metrics": {
+            "connectivity_score": 0.3669379615653551,
+            "infrastructure_quality": 0.5671814056552411,
+            "iot_sensor_density": 7
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8622808234935428,
+            "social_vulnerability": 0.36131652139582704,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 83.84582458913306,
+            "green_space_coverage": 0.23430246333075283,
+            "noise_level": 77.02999085944484
+          }
+        },
+        {
+          "h3_index": "h3_cell_48",
+          "technical_metrics": {
+            "connectivity_score": 0.9363054331503746,
+            "infrastructure_quality": 0.8198944297282853,
+            "iot_sensor_density": 7
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6612467593371059,
+            "social_vulnerability": 0.11896719475243844,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 43.86448779528428,
+            "green_space_coverage": 0.285162460259555,
+            "noise_level": 45.788421510174565
+          }
+        },
+        {
+          "h3_index": "h3_cell_49",
+          "technical_metrics": {
+            "connectivity_score": 0.36767057828997296,
+            "infrastructure_quality": 0.7999580426865947,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8212223377594521,
+            "social_vulnerability": 0.4897051093483563,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 78.31889804147431,
+            "green_space_coverage": 0.396055073684405,
+            "noise_level": 69.12789608707918
+          }
+        },
+        {
+          "h3_index": "h3_cell_50",
+          "technical_metrics": {
+            "connectivity_score": 0.8244525968256808,
+            "infrastructure_quality": 0.8813246592774373,
+            "iot_sensor_density": 4
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6676595955994523,
+            "social_vulnerability": 0.24348900679107469,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 30.78011541064416,
+            "green_space_coverage": 0.07992798579906384,
+            "noise_level": 53.31545020584109
+          }
+        },
+        {
+          "h3_index": "h3_cell_51",
+          "technical_metrics": {
+            "connectivity_score": 0.3172459325179828,
+            "infrastructure_quality": 0.4907177175448987,
+            "iot_sensor_density": 4
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6500478945299772,
+            "social_vulnerability": 0.5927622945969566,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 79.04661370430645,
+            "green_space_coverage": 0.1696360730942566,
+            "noise_level": 55.376937337251704
+          }
+        },
+        {
+          "h3_index": "h3_cell_52",
+          "technical_metrics": {
+            "connectivity_score": 0.5468000653087235,
+            "infrastructure_quality": 0.695147471257404,
+            "iot_sensor_density": 4
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6369042354943938,
+            "social_vulnerability": 0.38658815653386835,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 56.167591748119,
+            "green_space_coverage": 0.1530630158396712,
+            "noise_level": 82.93813227848626
+          }
+        },
+        {
+          "h3_index": "h3_cell_53",
+          "technical_metrics": {
+            "connectivity_score": 0.7963437662038444,
+            "infrastructure_quality": 0.4700565878832263,
+            "iot_sensor_density": 8
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8897571185692144,
+            "social_vulnerability": 0.42974581688567015,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 59.08670202902077,
+            "green_space_coverage": 0.2293601795586726,
+            "noise_level": 74.66747776914661
+          }
+        },
+        {
+          "h3_index": "h3_cell_54",
+          "technical_metrics": {
+            "connectivity_score": 0.7542498045545878,
+            "infrastructure_quality": 0.6012750217984904,
+            "iot_sensor_density": 9
+          },
+          "social_metrics": {
+            "community_cohesion": 0.2975492518509769,
+            "social_vulnerability": 0.6844511657595094,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 37.936572667519826,
+            "green_space_coverage": 0.365200305432735,
+            "noise_level": 72.64887430438617
+          }
+        },
+        {
+          "h3_index": "h3_cell_55",
+          "technical_metrics": {
+            "connectivity_score": 0.7440695066895628,
+            "infrastructure_quality": 0.811291937955837,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.77053809988172,
+            "social_vulnerability": 0.4486635274577041,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 63.2506801509476,
+            "green_space_coverage": 0.2779971359231525,
+            "noise_level": 78.18967214828807
+          }
+        },
+        {
+          "h3_index": "h3_cell_56",
+          "technical_metrics": {
+            "connectivity_score": 0.4341738266443921,
+            "infrastructure_quality": 0.40549791432924026,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.3845786618442315,
+            "social_vulnerability": 0.2865488753596176,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 65.8447861302185,
+            "green_space_coverage": 0.2601809011517787,
+            "noise_level": 71.60146698185022
+          }
+        },
+        {
+          "h3_index": "h3_cell_57",
+          "technical_metrics": {
+            "connectivity_score": 0.4139913311052422,
+            "infrastructure_quality": 0.8572059729624799,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.4681969697746482,
+            "social_vulnerability": 0.46324239369798637,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 39.97700212536476,
+            "green_space_coverage": 0.3083117657492297,
+            "noise_level": 48.31194671700506
+          }
+        },
+        {
+          "h3_index": "h3_cell_58",
+          "technical_metrics": {
+            "connectivity_score": 0.6920488711531523,
+            "infrastructure_quality": 0.5226745548406605,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.7859552934921206,
+            "social_vulnerability": 0.40603537745007046,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 73.14275431105473,
+            "green_space_coverage": 0.15399260046811125,
+            "noise_level": 67.65618561187588
+          }
+        },
+        {
+          "h3_index": "h3_cell_59",
+          "technical_metrics": {
+            "connectivity_score": 0.6094327614294147,
+            "infrastructure_quality": 0.7318355826813241,
+            "iot_sensor_density": 6
+          },
+          "social_metrics": {
+            "community_cohesion": 0.2945008941948449,
+            "social_vulnerability": 0.438628459352689,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 31.87098810367708,
+            "green_space_coverage": 0.1417924155049388,
+            "noise_level": 68.8031172280102
+          }
+        },
+        {
+          "h3_index": "h3_cell_60",
+          "technical_metrics": {
+            "connectivity_score": 0.33342677876476273,
+            "infrastructure_quality": 0.6481831236006181,
+            "iot_sensor_density": 2
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6363327856334935,
+            "social_vulnerability": 0.4319661160902588,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 34.50826690414853,
+            "green_space_coverage": 0.3048660646712612,
+            "noise_level": 64.81965264824794
+          }
+        },
+        {
+          "h3_index": "h3_cell_61",
+          "technical_metrics": {
+            "connectivity_score": 0.7474615576780284,
+            "infrastructure_quality": 0.6174136693018731,
+            "iot_sensor_density": 7
+          },
+          "social_metrics": {
+            "community_cohesion": 0.2531533872587355,
+            "social_vulnerability": 0.15443574085526995,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 71.6817882512656,
+            "green_space_coverage": 0.14525079803048696,
+            "noise_level": 68.60922667476348
+          }
+        },
+        {
+          "h3_index": "h3_cell_62",
+          "technical_metrics": {
+            "connectivity_score": 0.5346330330110174,
+            "infrastructure_quality": 0.4457910366633171,
+            "iot_sensor_density": 1
+          },
+          "social_metrics": {
+            "community_cohesion": 0.295773041643273,
+            "social_vulnerability": 0.7651661476745617,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 41.10797573031718,
+            "green_space_coverage": 0.23966533158242537,
+            "noise_level": 79.91783343505634
+          }
+        },
+        {
+          "h3_index": "h3_cell_63",
+          "technical_metrics": {
+            "connectivity_score": 0.7759461761662148,
+            "infrastructure_quality": 0.8032805739307249,
+            "iot_sensor_density": 7
+          },
+          "social_metrics": {
+            "community_cohesion": 0.706872330491197,
+            "social_vulnerability": 0.5460621058526408,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 84.2018287581615,
+            "green_space_coverage": 0.2763327216910072,
+            "noise_level": 72.727008458277
+          }
+        },
+        {
+          "h3_index": "h3_cell_64",
+          "technical_metrics": {
+            "connectivity_score": 0.3335372743281615,
+            "infrastructure_quality": 0.7349587322750196,
+            "iot_sensor_density": 7
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8995474496960845,
+            "social_vulnerability": 0.48906460700602583,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 48.77129139033525,
+            "green_space_coverage": 0.09218290257526257,
+            "noise_level": 74.24094685833126
+          }
+        },
+        {
+          "h3_index": "h3_cell_65",
+          "technical_metrics": {
+            "connectivity_score": 0.42518936806065977,
+            "infrastructure_quality": 0.4576410106236422,
+            "iot_sensor_density": 7
+          },
+          "social_metrics": {
+            "community_cohesion": 0.7567392865713682,
+            "social_vulnerability": 0.6215451836841543,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 80.67296391210422,
+            "green_space_coverage": 0.1616851656351395,
+            "noise_level": 78.1566189660271
+          }
+        },
+        {
+          "h3_index": "h3_cell_66",
+          "technical_metrics": {
+            "connectivity_score": 0.3240549625650702,
+            "infrastructure_quality": 0.6981349392410265,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.5924740358024598,
+            "social_vulnerability": 0.4367433186908606,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 71.77732655268838,
+            "green_space_coverage": 0.16895623731882314,
+            "noise_level": 73.99067086115046
+          }
+        },
+        {
+          "h3_index": "h3_cell_67",
+          "technical_metrics": {
+            "connectivity_score": 0.3424816215193125,
+            "infrastructure_quality": 0.5576451689153052,
+            "iot_sensor_density": 1
+          },
+          "social_metrics": {
+            "community_cohesion": 0.5768810432665512,
+            "social_vulnerability": 0.563158622556379,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 67.55348258622055,
+            "green_space_coverage": 0.3600922118826655,
+            "noise_level": 69.63452752729218
+          }
+        },
+        {
+          "h3_index": "h3_cell_68",
+          "technical_metrics": {
+            "connectivity_score": 0.4514236585898619,
+            "infrastructure_quality": 0.41220039077826903,
+            "iot_sensor_density": 2
+          },
+          "social_metrics": {
+            "community_cohesion": 0.21488858759527102,
+            "social_vulnerability": 0.7122911708789397,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 53.03783339518354,
+            "green_space_coverage": 0.3764064682988385,
+            "noise_level": 47.80118822989884
+          }
+        },
+        {
+          "h3_index": "h3_cell_69",
+          "technical_metrics": {
+            "connectivity_score": 0.30616553185852374,
+            "infrastructure_quality": 0.4263419179886143,
+            "iot_sensor_density": 1
+          },
+          "social_metrics": {
+            "community_cohesion": 0.4813516395264695,
+            "social_vulnerability": 0.43591293421273625,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 64.84543243363967,
+            "green_space_coverage": 0.14509043987415143,
+            "noise_level": 60.93149535902542
+          }
+        },
+        {
+          "h3_index": "h3_cell_70",
+          "technical_metrics": {
+            "connectivity_score": 0.35960456782242955,
+            "infrastructure_quality": 0.5681852319142111,
+            "iot_sensor_density": 4
+          },
+          "social_metrics": {
+            "community_cohesion": 0.716307611112224,
+            "social_vulnerability": 0.26714400203781163,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 58.038645992259156,
+            "green_space_coverage": 0.1539510067592088,
+            "noise_level": 79.11287286767606
+          }
+        },
+        {
+          "h3_index": "h3_cell_71",
+          "technical_metrics": {
+            "connectivity_score": 0.7651096549022571,
+            "infrastructure_quality": 0.6945542672354474,
+            "iot_sensor_density": 1
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8372373714402741,
+            "social_vulnerability": 0.13157047405422623,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 53.497808432421365,
+            "green_space_coverage": 0.09355314505389972,
+            "noise_level": 83.256627902377
+          }
+        },
+        {
+          "h3_index": "h3_cell_72",
+          "technical_metrics": {
+            "connectivity_score": 0.8186930593931991,
+            "infrastructure_quality": 0.5294913258009069,
+            "iot_sensor_density": 6
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8876313605560571,
+            "social_vulnerability": 0.7189392846920521,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 84.22343803051623,
+            "green_space_coverage": 0.39621471843467565,
+            "noise_level": 74.73411291574496
+          }
+        },
+        {
+          "h3_index": "h3_cell_73",
+          "technical_metrics": {
+            "connectivity_score": 0.3422411661638811,
+            "infrastructure_quality": 0.6007901182127438,
+            "iot_sensor_density": 6
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6254157564152014,
+            "social_vulnerability": 0.45888195771155604,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 32.81672142886878,
+            "green_space_coverage": 0.18443171402193737,
+            "noise_level": 46.469277497064546
+          }
+        },
+        {
+          "h3_index": "h3_cell_74",
+          "technical_metrics": {
+            "connectivity_score": 0.9222256709391616,
+            "infrastructure_quality": 0.813102847896983,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.24048987359437746,
+            "social_vulnerability": 0.7783718410985679,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 61.09562200058353,
+            "green_space_coverage": 0.2590459253506194,
+            "noise_level": 66.00126003441073
+          }
+        },
+        {
+          "h3_index": "h3_cell_75",
+          "technical_metrics": {
+            "connectivity_score": 0.4691516891684927,
+            "infrastructure_quality": 0.657623962157363,
+            "iot_sensor_density": 2
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6872144326376546,
+            "social_vulnerability": 0.20772713443789856,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 43.46643431019964,
+            "green_space_coverage": 0.12833616518791807,
+            "noise_level": 66.47897691573654
+          }
+        },
+        {
+          "h3_index": "h3_cell_76",
+          "technical_metrics": {
+            "connectivity_score": 0.685410957647107,
+            "infrastructure_quality": 0.6900431039189057,
+            "iot_sensor_density": 2
+          },
+          "social_metrics": {
+            "community_cohesion": 0.5202024684415951,
+            "social_vulnerability": 0.3738188362562659,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 37.77089527696825,
+            "green_space_coverage": 0.36106182795414205,
+            "noise_level": 83.22605992919014
+          }
+        },
+        {
+          "h3_index": "h3_cell_77",
+          "technical_metrics": {
+            "connectivity_score": 0.8603829512225427,
+            "infrastructure_quality": 0.804758037362439,
+            "iot_sensor_density": 8
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8521126418232929,
+            "social_vulnerability": 0.6146488581664169,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 54.50719278424192,
+            "green_space_coverage": 0.18044098095430988,
+            "noise_level": 55.39015135041305
+          }
+        },
+        {
+          "h3_index": "h3_cell_78",
+          "technical_metrics": {
+            "connectivity_score": 0.7702230738975802,
+            "infrastructure_quality": 0.6479378675393854,
+            "iot_sensor_density": 6
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8734853808144347,
+            "social_vulnerability": 0.17662820203811774,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 34.56785156941801,
+            "green_space_coverage": 0.34792241991706907,
+            "noise_level": 64.80586108055897
+          }
+        },
+        {
+          "h3_index": "h3_cell_79",
+          "technical_metrics": {
+            "connectivity_score": 0.6123812752623212,
+            "infrastructure_quality": 0.6962038923297589,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.44346644553153514,
+            "social_vulnerability": 0.5746113067913445,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 81.8695728184409,
+            "green_space_coverage": 0.3068684716337956,
+            "noise_level": 65.8504124872166
+          }
+        },
+        {
+          "h3_index": "h3_cell_80",
+          "technical_metrics": {
+            "connectivity_score": 0.8643045226335053,
+            "infrastructure_quality": 0.5226427661276674,
+            "iot_sensor_density": 9
+          },
+          "social_metrics": {
+            "community_cohesion": 0.4338062151216665,
+            "social_vulnerability": 0.2670830219107123,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 70.80844630561802,
+            "green_space_coverage": 0.26651398237531454,
+            "noise_level": 75.10866558230565
+          }
+        },
+        {
+          "h3_index": "h3_cell_81",
+          "technical_metrics": {
+            "connectivity_score": 0.4030933184404979,
+            "infrastructure_quality": 0.8404353795994642,
+            "iot_sensor_density": 9
+          },
+          "social_metrics": {
+            "community_cohesion": 0.2204730981241914,
+            "social_vulnerability": 0.6780717253953339,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 79.19681504448602,
+            "green_space_coverage": 0.13001880653372325,
+            "noise_level": 81.34805237077472
+          }
+        },
+        {
+          "h3_index": "h3_cell_82",
+          "technical_metrics": {
+            "connectivity_score": 0.30072807246207117,
+            "infrastructure_quality": 0.6780908675198785,
+            "iot_sensor_density": 7
+          },
+          "social_metrics": {
+            "community_cohesion": 0.3351930052111052,
+            "social_vulnerability": 0.15886875712758927,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 88.87117068164541,
+            "green_space_coverage": 0.27113473445583397,
+            "noise_level": 55.39214324256639
+          }
+        },
+        {
+          "h3_index": "h3_cell_83",
+          "technical_metrics": {
+            "connectivity_score": 0.7121037070147473,
+            "infrastructure_quality": 0.6699926898579278,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.289914102665234,
+            "social_vulnerability": 0.29834006378590716,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 55.93444703355074,
+            "green_space_coverage": 0.3440425259594266,
+            "noise_level": 60.686048457807864
+          }
+        },
+        {
+          "h3_index": "h3_cell_84",
+          "technical_metrics": {
+            "connectivity_score": 0.41667326022549167,
+            "infrastructure_quality": 0.7768494170252596,
+            "iot_sensor_density": 6
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8560599410655159,
+            "social_vulnerability": 0.5815200056105694,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 86.83787329538028,
+            "green_space_coverage": 0.10823215542629533,
+            "noise_level": 75.83937170128542
+          }
+        },
+        {
+          "h3_index": "h3_cell_85",
+          "technical_metrics": {
+            "connectivity_score": 0.760571802991709,
+            "infrastructure_quality": 0.6367869442175442,
+            "iot_sensor_density": 6
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6346408624372339,
+            "social_vulnerability": 0.13201942366875902,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 89.40890236503881,
+            "green_space_coverage": 0.2866182900153641,
+            "noise_level": 62.83833228041286
+          }
+        },
+        {
+          "h3_index": "h3_cell_86",
+          "technical_metrics": {
+            "connectivity_score": 0.7209228682112399,
+            "infrastructure_quality": 0.6971979296142727,
+            "iot_sensor_density": 7
+          },
+          "social_metrics": {
+            "community_cohesion": 0.24593830120180907,
+            "social_vulnerability": 0.6750590631852087,
+            "organizational_density": 2
+          },
+          "environmental_metrics": {
+            "air_quality_index": 45.15052498130294,
+            "green_space_coverage": 0.05036031794597169,
+            "noise_level": 51.35753133107026
+          }
+        },
+        {
+          "h3_index": "h3_cell_87",
+          "technical_metrics": {
+            "connectivity_score": 0.6045506208995798,
+            "infrastructure_quality": 0.8721518174789149,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.5159709170307728,
+            "social_vulnerability": 0.21453667483416844,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 71.62093354688932,
+            "green_space_coverage": 0.12726936447606615,
+            "noise_level": 48.295241824633706
+          }
+        },
+        {
+          "h3_index": "h3_cell_88",
+          "technical_metrics": {
+            "connectivity_score": 0.7423245463485635,
+            "infrastructure_quality": 0.7272556071405676,
+            "iot_sensor_density": 3
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8656044935752871,
+            "social_vulnerability": 0.2057405242466302,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 73.87620401842113,
+            "green_space_coverage": 0.36833357883173645,
+            "noise_level": 79.29440368369995
+          }
+        },
+        {
+          "h3_index": "h3_cell_89",
+          "technical_metrics": {
+            "connectivity_score": 0.9269383069756354,
+            "infrastructure_quality": 0.7800470392190486,
+            "iot_sensor_density": 5
+          },
+          "social_metrics": {
+            "community_cohesion": 0.8887843535718798,
+            "social_vulnerability": 0.3865338044205301,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 73.46536035684701,
+            "green_space_coverage": 0.3110429542108375,
+            "noise_level": 53.01436574194851
+          }
+        },
+        {
+          "h3_index": "h3_cell_90",
+          "technical_metrics": {
+            "connectivity_score": 0.8642798287688451,
+            "infrastructure_quality": 0.7574620201011238,
+            "iot_sensor_density": 2
+          },
+          "social_metrics": {
+            "community_cohesion": 0.805050774887746,
+            "social_vulnerability": 0.43124693468409003,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 41.13153094218727,
+            "green_space_coverage": 0.35401810878446377,
+            "noise_level": 76.06387411166966
+          }
+        },
+        {
+          "h3_index": "h3_cell_91",
+          "technical_metrics": {
+            "connectivity_score": 0.8010991990186338,
+            "infrastructure_quality": 0.8223916140584439,
+            "iot_sensor_density": 4
+          },
+          "social_metrics": {
+            "community_cohesion": 0.21250332473482358,
+            "social_vulnerability": 0.6577584795048192,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 31.951570769475115,
+            "green_space_coverage": 0.3722967467354904,
+            "noise_level": 69.66601258082952
+          }
+        },
+        {
+          "h3_index": "h3_cell_92",
+          "technical_metrics": {
+            "connectivity_score": 0.8177492391345145,
+            "infrastructure_quality": 0.640761175756275,
+            "iot_sensor_density": 7
+          },
+          "social_metrics": {
+            "community_cohesion": 0.2876300545417853,
+            "social_vulnerability": 0.57989570106028,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 63.50476035499187,
+            "green_space_coverage": 0.1289390498553074,
+            "noise_level": 51.433018763127606
+          }
+        },
+        {
+          "h3_index": "h3_cell_93",
+          "technical_metrics": {
+            "connectivity_score": 0.723487653421472,
+            "infrastructure_quality": 0.5629627319760375,
+            "iot_sensor_density": 2
+          },
+          "social_metrics": {
+            "community_cohesion": 0.7582913704460317,
+            "social_vulnerability": 0.31725337124650166,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 38.974838560053946,
+            "green_space_coverage": 0.2126095088225336,
+            "noise_level": 72.218265054373
+          }
+        },
+        {
+          "h3_index": "h3_cell_94",
+          "technical_metrics": {
+            "connectivity_score": 0.5571043045219796,
+            "infrastructure_quality": 0.887349925935345,
+            "iot_sensor_density": 6
+          },
+          "social_metrics": {
+            "community_cohesion": 0.4041638050965123,
+            "social_vulnerability": 0.5864873202885799,
+            "organizational_density": 0
+          },
+          "environmental_metrics": {
+            "air_quality_index": 87.15891828232301,
+            "green_space_coverage": 0.3677365285446241,
+            "noise_level": 73.97141232505648
+          }
+        },
+        {
+          "h3_index": "h3_cell_95",
+          "technical_metrics": {
+            "connectivity_score": 0.7869550654158339,
+            "infrastructure_quality": 0.47296103701757275,
+            "iot_sensor_density": 9
+          },
+          "social_metrics": {
+            "community_cohesion": 0.599633151290915,
+            "social_vulnerability": 0.112857345858378,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 72.14789823264624,
+            "green_space_coverage": 0.24587703922041998,
+            "noise_level": 45.39083389676735
+          }
+        },
+        {
+          "h3_index": "h3_cell_96",
+          "technical_metrics": {
+            "connectivity_score": 0.5121998503585947,
+            "infrastructure_quality": 0.6588558216923557,
+            "iot_sensor_density": 1
+          },
+          "social_metrics": {
+            "community_cohesion": 0.81777344007372,
+            "social_vulnerability": 0.1577559741082949,
+            "organizational_density": 4
+          },
+          "environmental_metrics": {
+            "air_quality_index": 34.71470982930124,
+            "green_space_coverage": 0.18892314667055865,
+            "noise_level": 50.30863016172241
+          }
+        },
+        {
+          "h3_index": "h3_cell_97",
+          "technical_metrics": {
+            "connectivity_score": 0.6689015513700127,
+            "infrastructure_quality": 0.744732484568633,
+            "iot_sensor_density": 2
+          },
+          "social_metrics": {
+            "community_cohesion": 0.7750085096069066,
+            "social_vulnerability": 0.12882844669549018,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 36.274070420064014,
+            "green_space_coverage": 0.27275058734027285,
+            "noise_level": 73.25902905947605
+          }
+        },
+        {
+          "h3_index": "h3_cell_98",
+          "technical_metrics": {
+            "connectivity_score": 0.3205309941366673,
+            "infrastructure_quality": 0.868106123121845,
+            "iot_sensor_density": 7
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6290609224059241,
+            "social_vulnerability": 0.3091851204361197,
+            "organizational_density": 3
+          },
+          "environmental_metrics": {
+            "air_quality_index": 82.25814742476513,
+            "green_space_coverage": 0.29993042624634975,
+            "noise_level": 77.06912332279168
+          }
+        },
+        {
+          "h3_index": "h3_cell_99",
+          "technical_metrics": {
+            "connectivity_score": 0.5206426251528239,
+            "infrastructure_quality": 0.8074125568732562,
+            "iot_sensor_density": 7
+          },
+          "social_metrics": {
+            "community_cohesion": 0.6625740828094755,
+            "social_vulnerability": 0.4871010168143709,
+            "organizational_density": 1
+          },
+          "environmental_metrics": {
+            "air_quality_index": 77.02995320513172,
+            "green_space_coverage": 0.2183163410071447,
+            "noise_level": 46.630164243698914
+          }
+        }
+      ],
+      "correlations": {
+        "connectivity_social_cohesion": 0.45,
+        "infrastructure_environmental_quality": 0.38,
+        "community_green_space": 0.52
+      },
+      "quality_metrics": {
+        "technical_completeness": 0.89,
+        "social_completeness": 0.76,
+        "environmental_completeness": 0.94,
+        "spatial_coverage": 0.91,
+        "temporal_consistency": 0.85
+      },
+      "integration_timestamp": "2025-08-22T07:39:51.279700"
+    },
+    "spatial_analysis": {
+      "multi_scale_analysis": {
+        "neighborhood": {
+          "scale": "neighborhood",
+          "analysis_complete": true
+        },
+        "district": {
+          "scale": "district",
+          "analysis_complete": true
+        },
+        "area": {
+          "scale": "area",
+          "analysis_complete": true
+        }
+      },
+      "hotspots": {
+        "technical_deficit_zones": [
+          "low_connectivity_zone_3",
+          "infrastructure_deficit_zone_7"
+        ],
+        "social_vulnerability_zones": [
+          "high_vulnerability_zone_2",
+          "low_engagement_zone_5"
+        ],
+        "environmental_concern_zones": [
+          "poor_air_quality_zone_1",
+          "heat_island_zone_4"
+        ]
+      },
+      "accessibility": {
+        "connectivity_access": {
+          "average_access_score": 0.68,
+          "coverage_percentage": 0.82
+        },
+        "green_space_access": {
+          "average_access_score": 0.54,
+          "coverage_percentage": 0.18
+        },
+        "service_accessibility": {
+          "healthcare_access": 0.73,
+          "education_access": 0.81
+        }
+      },
+      "equity_metrics": {
+        "equity_score": 0.62,
+        "disparity_index": 0.28
+      }
+    },
+    "impact_assessment": {
+      "tech_social_impacts": {
+        "digital_divide_impact": {
+          "divide_severity": 0.34,
+          "affected_population": 0.23
+        },
+        "infrastructure_social_equity": {
+          "equity_score": 0.58,
+          "improvement_potential": 0.25
+        },
+        "connectivity_community_engagement": {
+          "engagement_correlation": 0.41,
+          "participation_rate": 0.67
+        }
+      },
+      "social_env_impacts": {
+        "community_environmental_stewardship": {
+          "stewardship_score": 0.72,
+          "environmental_awareness": 0.68
+        },
+        "environmental_justice_indicators": {
+          "justice_score": 0.55,
+          "vulnerable_groups": 0.32
+        },
+        "green_space_social_cohesion": {
+          "cohesion_correlation": 0.38,
+          "social_benefits": 0.45
+        }
+      },
+      "tech_env_impacts": {
+        "smart_infrastructure_sustainability": {
+          "sustainability_score": 0.64,
+          "efficiency_gains": 0.28
+        },
+        "iot_environmental_monitoring_impact": {
+          "monitoring_effectiveness": 0.76,
+          "data_quality": 0.82
+        },
+        "infrastructure_resilience": {
+          "resilience_score": 0.58,
+          "vulnerability_reduction": 0.31
+        }
+      },
+      "overall_impact": {
+        "composite_resilience_score": 0.67,
+        "sustainability_index": 0.71,
+        "quality_of_life_score": 0.73
+      }
+    },
+    "community_engagement": {
+      "workshops": [
+        {
+          "type": "data_validation_workshop",
+          "participants": 45,
+          "key_feedback": "Confirmed connectivity gaps in low-income areas"
+        },
+        {
+          "type": "priority_setting_workshop",
+          "participants": 52,
+          "key_feedback": "Public safety and digital access ranked highest"
+        },
+        {
+          "type": "solution_design_workshop",
+          "participants": 38,
+          "key_feedback": "Community-led monitoring systems preferred"
+        }
+      ],
+      "community_validation": {
+        "findings_accuracy": 0.87,
+        "priority_alignment": 0.82,
+        "solution_acceptance": 0.79
+      },
+      "stakeholder_perspectives": {
+        "residents": {
+          "satisfaction": 0.76,
+          "engagement_level": 0.68
+        },
+        "business_owners": {
+          "satisfaction": 0.82,
+          "engagement_level": 0.74
+        },
+        "community_leaders": {
+          "satisfaction": 0.89,
+          "engagement_level": 0.91
+        },
+        "local_government": {
+          "satisfaction": 0.71,
+          "engagement_level": 0.85
+        }
+      },
+      "engagement_effectiveness": 0.83
+    },
+    "sustainability_plan": {
+      "recommendations": [
+        {
+          "priority": "high",
+          "domain": "technical",
+          "recommendation": "Deploy community Wi-Fi hotspots in connectivity deserts",
+          "implementation_cost": "medium",
+          "community_support": 0.91,
+          "expected_impact": "high"
+        },
+        {
+          "priority": "high",
+          "domain": "social",
+          "recommendation": "Establish community-led safety monitoring program",
+          "implementation_cost": "low",
+          "community_support": 0.88,
+          "expected_impact": "high"
+        },
+        {
+          "priority": "medium",
+          "domain": "environmental",
+          "recommendation": "Expand green infrastructure in heat-vulnerable zones",
+          "implementation_cost": "high",
+          "community_support": 0.76,
+          "expected_impact": "medium"
+        }
+      ],
+      "implementation_timeline": {
+        "short_term": [
+          "Community Wi-Fi deployment",
+          "Safety monitoring setup"
+        ],
+        "medium_term": [
+          "Green infrastructure expansion",
+          "Digital literacy programs"
+        ],
+        "long_term": [
+          "Comprehensive infrastructure upgrade",
+          "Climate adaptation master plan"
+        ]
+      },
+      "monitoring_framework": {
+        "indicators": [
+          "Digital connectivity coverage",
+          "Community safety perceptions",
+          "Environmental quality metrics",
+          "Social cohesion indicators"
+        ],
+        "frequency": "quarterly",
+        "responsibility": "community-governance partnership"
+      },
+      "resource_requirements": {
+        "estimated_cost": 1250000,
+        "timeline_months": 24
+      }
+    }
+  },
+  "execution_metadata": {
+    "execution_time": 0.006757497787475586,
+    "timestamp": "2025-08-22T07:39:51.280554",
+    "modules_used": [
+      "SPACE",
+      "DATA",
+      "PLACE",
+      "PEP",
+      "IOT",
+      "BIO",
+      "HEALTH",
+      "API"
+    ],
+    "integration_pattern": "multi_source_spatial_fusion",
+    "study_id": "demo_area_study_001",
+    "complexity_level": 5
+  }
+}

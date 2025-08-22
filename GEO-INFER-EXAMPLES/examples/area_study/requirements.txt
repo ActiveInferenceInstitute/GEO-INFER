@@ -1,0 +1,77 @@
+# Core GEO-INFER modules
+geo-infer-space>=1.0.0
+geo-infer-data>=1.0.0
+geo-infer-place>=1.0.0
+geo-infer-pep>=1.0.0
+geo-infer-iot>=1.0.0
+geo-infer-bio>=1.0.0
+geo-infer-health>=1.0.0
+geo-infer-api>=1.0.0
+geo-infer-time>=1.0.0
+geo-infer-ag>=1.0.0
+geo-infer-econ>=1.0.0
+geo-infer-risk>=1.0.0
+geo-infer-norms>=1.0.0
+geo-infer-sim>=1.0.0
+geo-infer-app>=1.0.0
+
+# Spatial analysis and H3
+h3>=3.7.0
+geopandas>=0.12.0
+shapely>=2.0.0
+pyproj>=3.4.0
+
+# Data processing and analysis
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.10.0
+scikit-learn>=1.3.0
+
+# Visualization
+matplotlib>=3.7.0
+plotly>=5.15.0
+folium>=0.14.0
+seaborn>=0.12.0
+
+# Data validation and quality
+jsonschema>=4.17.0
+cerberus>=1.3.4
+
+# Community engagement and surveys
+streamlit>=1.28.0
+questionary>=2.0.0
+
+# Environmental and climate data
+xarray>=2023.1.0
+netcdf4>=1.6.0
+
+# API and web services
+requests>=2.31.0
+fastapi>=0.100.0
+uvicorn>=0.23.0
+
+# Configuration and logging
+pyyaml>=6.0.0
+python-dotenv>=1.0.0
+
+# Development and testing
+pytest>=7.4.0
+pytest-cov>=4.0.0
+black>=23.0.0
+flake8>=6.0.0
+mypy>=1.5.0
+
+# Documentation
+mkdocs>=1.5.0
+mkdocs-material>=9.0.0
+
+# Optional: Advanced analysis features
+networkx>=3.1.0  # For social network analysis
+statsmodels>=0.14.0  # For statistical modeling
+lightgbm>=4.0.0  # For machine learning
+xgboost>=2.0.0  # For machine learning
+
+# Optional: Real-time data processing
+apache-kafka>=2.8.0  # For real-time data streaming
+redis>=4.5.0  # For caching and real-time data
+influxdb-client>=1.36.0  # For time-series data

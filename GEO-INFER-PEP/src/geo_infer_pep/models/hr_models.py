@@ -1,7 +1,7 @@
 """HR specific data models."""
 from typing import Optional, List, Dict, Any
 from datetime import datetime, date
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, Field
 from enum import Enum
 
 class EmploymentStatus(str, Enum):
@@ -47,8 +47,8 @@ class Employee(BaseModel):
     last_name: str
     middle_name: Optional[str] = None
     preferred_name: Optional[str] = None
-    email: EmailStr
-    personal_email: Optional[EmailStr] = None
+    email: str
+    personal_email: Optional[str] = None
     phone_number: Optional[str] = None
     date_of_birth: Optional[date] = None
     gender: Optional[Gender] = None

@@ -60,17 +60,97 @@ def generate_diversity_report(employees: List[Employee], diversity_fields: List[
     print("Generated diversity report.")
     return report
 
-def get_quarterly_metrics(quarter: str, year: int) -> Dict[str, Any]:
-    """Simulates fetching HR quarterly metrics."""
-    print(f"Fetching HR quarterly metrics for Q{quarter} {year} (simulated).")
-    return {
+def get_quarterly_metrics(quarter: str, year: int, employees: List[Employee] = None) -> Dict[str, Any]:
+    """
+    Calculates real HR quarterly metrics from employee data.
+
+    Args:
+        quarter: Quarter string (e.g., "Q1", "Q2")
+        year: Year integer
+        employees: List of Employee objects to analyze
+
+    Returns:
+        Dictionary containing calculated HR metrics
+    """
+    print(f"Calculating HR quarterly metrics for Q{quarter} {year}")
+
+    if not employees:
+        return {
+            "quarter": quarter,
+            "year": year,
+            "message": "No employee data available for metrics calculation",
+            "headcount_end_of_quarter": 0,
+            "attrition_rate_percent": 0.0,
+            "new_hires": 0,
+            "diversity_snapshot": {}
+        }
+
+    # Calculate headcount metrics
+    total_employees = len(employees)
+    active_employees = len([e for e in employees if e.employment_status.value == "ACTIVE"])
+
+    # Calculate basic diversity metrics
+    gender_counts = {}
+    department_counts = {}
+
+    for emp in employees:
+        if emp.employment_status.value == "ACTIVE":
+            # Gender diversity
+            gender = emp.gender.value if emp.gender else "not_specified"
+            gender_counts[gender] = gender_counts.get(gender, 0) + 1
+
+            # Department breakdown
+            department_counts[emp.department] = department_counts.get(emp.department, 0) + 1
+
+    # Calculate gender percentages
+    total_active = sum(gender_counts.values())
+    gender_percentages = {}
+    if total_active > 0:
+        gender_percentages = {
+            gender: (count / total_active) * 100
+            for gender, count in gender_counts.items()
+        }
+
+    # Calculate tenure statistics
+    tenure_stats = {"average_tenure_years": 0, "median_tenure_years": 0}
+    tenure_values = []
+
+    for emp in employees:
+        if emp.employment_status.value == "ACTIVE" and emp.hire_date and "tenure_years" in emp.custom_fields:
+            tenure_years = emp.custom_fields["tenure_years"]
+            tenure_values.append(tenure_years)
+
+    if tenure_values:
+        tenure_stats["average_tenure_years"] = sum(tenure_values) / len(tenure_values)
+        tenure_stats["median_tenure_years"] = sorted(tenure_values)[len(tenure_values) // 2]
+
+    # Estimate attrition and new hires (simplified calculation)
+    # In a real system, this would compare with previous quarter data
+    terminated_employees = len([e for e in employees if e.employment_status.value == "TERMINATED"])
+    pending_hires = len([e for e in employees if e.employment_status.value == "PENDING_HIRE"])
+
+    # Simplified attrition rate calculation
+    attrition_rate = (terminated_employees / total_employees * 100) if total_employees > 0 else 0
+
+    metrics = {
         "quarter": quarter,
         "year": year,
-        "headcount_end_of_quarter": 105, # Simulated
-        "attrition_rate_percent": 2.5, # Simulated
-        "new_hires": 10, # Simulated
-        "diversity_snapshot": {"gender_female_percent": 45.0} # Simulated
+        "headcount_end_of_quarter": active_employees,
+        "total_employees": total_employees,
+        "attrition_rate_percent": round(attrition_rate, 2),
+        "new_hires": pending_hires,
+        "terminated_employees": terminated_employees,
+        "diversity_snapshot": {
+            "gender_counts": gender_counts,
+            "gender_percentages": gender_percentages,
+            "department_breakdown": department_counts
+        },
+        "tenure_statistics": tenure_stats,
+        "data_source": f"Calculated from {len(employees)} employee records"
     }
+
+    print(f"Successfully calculated HR metrics for Q{quarter} {year}")
+    return metrics
 
 # Add more HR-specific reporting functions here, e.g.:
 # - Attrition rate report

@@ -1,7 +1,7 @@
 """Talent Acquisition and Management specific data models."""
 from typing import Optional, List, Dict, Any
 from datetime import datetime, date
-from pydantic import BaseModel, EmailStr, Field, HttpUrl
+from pydantic import BaseModel, Field
 from enum import Enum
 
 from .hr_models import Employee # For hiring manager, interviewers
@@ -67,11 +67,11 @@ class Candidate(BaseModel):
     candidate_id: str = Field(..., description="Unique identifier for the candidate")
     first_name: str
     last_name: str
-    email: EmailStr
+    email: str
     phone_number: Optional[str] = None
-    linkedin_profile: Optional[HttpUrl] = None
-    resume_url: Optional[HttpUrl] = None # Or store as blob/file path
-    portfolio_url: Optional[HttpUrl] = None
+    linkedin_profile: Optional[str] = None
+    resume_url: Optional[str] = None # Or store as blob/file path
+    portfolio_url: Optional[str] = None
     source: Optional[str] = None # e.g., "LinkedIn", "Referral", "Careers Page"
     applied_at: datetime = Field(default_factory=datetime.now)
     status: CandidateStatus = CandidateStatus.APPLIED

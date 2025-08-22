@@ -114,5 +114,156 @@ async def get_headcount_by_dept_plot():
     else:
         raise HTTPException(status_code=500, detail="Failed to generate headcount plot.")
 
-# TODO: Add more HR endpoints: GET /employee/{id}, POST, PUT, DELETE for employees
-# TODO: Endpoints for other HR reports and visualizations 
+@router.get("/employees/{employee_id}", response_model=Employee)
+async def get_employee_by_id(employee_id: str):
+    """Get a specific employee by ID."""
+    for emp in DB_EMPLOYEES:
+        if emp.employee_id == employee_id:
+            return emp
+    raise HTTPException(status_code=404, detail=f"Employee {employee_id} not found")
+
+@router.post("/employees", response_model=Employee)
+async def create_employee(employee: Employee):
+    """Create a new employee."""
+    # Check if employee already exists
+    for emp in DB_EMPLOYEES:
+        if emp.employee_id == employee.employee_id:
+            raise HTTPException(status_code=400, detail=f"Employee {employee.employee_id} already exists")
+
+    # Validate employee data
+    from ..core.validator import PEPValidator
+    validator = PEPValidator()
+    result = validator.validate_employee(employee)
+
+    if not result.is_valid:
+        raise HTTPException(status_code=400, detail=f"Validation failed: {result.errors}")
+
+    DB_EMPLOYEES.append(employee)
+    return employee
+
+@router.put("/employees/{employee_id}", response_model=Employee)
+async def update_employee(employee_id: str, employee_update: Dict[str, Any]):
+    """Update an existing employee."""
+    for i, emp in enumerate(DB_EMPLOYEES):
+        if emp.employee_id == employee_id:
+            # Update fields
+            for key, value in employee_update.items():
+                if hasattr(emp, key):
+                    setattr(emp, key, value)
+
+            # Re-validate
+            from ..core.validator import PEPValidator
+            validator = PEPValidator()
+            result = validator.validate_employee(emp)
+
+            if not result.is_valid:
+                raise HTTPException(status_code=400, detail=f"Validation failed: {result.errors}")
+
+            DB_EMPLOYEES[i] = emp
+            return emp
+
+    raise HTTPException(status_code=404, detail=f"Employee {employee_id} not found")
+
+@router.delete("/employees/{employee_id}")
+async def delete_employee(employee_id: str):
+    """Delete an employee."""
+    for i, emp in enumerate(DB_EMPLOYEES):
+        if emp.employee_id == employee_id:
+            del DB_EMPLOYEES[i]
+            return {"message": f"Employee {employee_id} deleted successfully"}
+
+    raise HTTPException(status_code=404, detail=f"Employee {employee_id} not found")
+
+@router.get("/employees/search", response_model=List[Employee])
+async def search_employees(
+    department: Optional[str] = None,
+    job_title: Optional[str] = None,
+    status: Optional[str] = None,
+    limit: int = Query(100, ge=1, le=1000)
+):
+    """Search employees with filters."""
+    filtered_employees = DB_EMPLOYEES
+
+    if department:
+        filtered_employees = [emp for emp in filtered_employees if emp.department == department]
+
+    if job_title:
+        filtered_employees = [emp for emp in filtered_employees if emp.job_title == job_title]
+
+    if status:
+        filtered_employees = [emp for emp in filtered_employees
+                            if emp.employment_status.value.lower() == status.lower()]
+
+    return filtered_employees[:limit]
+
+@router.get("/dashboard", response_model=Dict[str, Any])
+async def get_hr_dashboard():
+    """Get comprehensive HR dashboard data."""
+    if not DB_EMPLOYEES:
+        raise HTTPException(status_code=404, detail="No employee data available")
+
+    from ..methods import generate_comprehensive_hr_dashboard
+    dashboard = generate_comprehensive_hr_dashboard()
+
+    if "message" in dashboard and "No employee data" in dashboard["message"]:
+        raise HTTPException(status_code=404, detail="No employee data available for dashboard")
+
+    return dashboard
+
+@router.get("/analytics/tenure", response_model=Dict[str, Any])
+async def get_tenure_analytics():
+    """Get employee tenure analytics."""
+    if not DB_EMPLOYEES:
+        raise HTTPException(status_code=404, detail="No employee data available")
+
+    active_employees = [emp for emp in DB_EMPLOYEES if emp.employment_status.value == "ACTIVE"]
+    tenure_values = []
+
+    for emp in active_employees:
+        if "tenure_years" in emp.custom_fields:
+            tenure_values.append(emp.custom_fields["tenure_years"])
+
+    if not tenure_values:
+        return {"message": "No tenure data available"}
+
+    import statistics
+    return {
+        "total_employees": len(active_employees),
+        "employees_with_tenure_data": len(tenure_values),
+        "average_tenure_years": statistics.mean(tenure_values),
+        "median_tenure_years": statistics.median(tenure_values),
+        "min_tenure_years": min(tenure_values),
+        "max_tenure_years": max(tenure_values),
+        "tenure_distribution": {
+            "< 1 year": len([t for t in tenure_values if t < 1]),
+            "1-3 years": len([t for t in tenure_values if 1 <= t < 3]),
+            "3-5 years": len([t for t in tenure_values if 3 <= t < 5]),
+            "5+ years": len([t for t in tenure_values if t >= 5])
+        }
+    }
+
+@router.get("/analytics/turnover", response_model=Dict[str, Any])
+async def get_turnover_analytics():
+    """Get employee turnover analytics."""
+    if not DB_EMPLOYEES:
+        raise HTTPException(status_code=404, detail="No employee data available")
+
+    terminated_employees = [emp for emp in DB_EMPLOYEES if emp.employment_status.value == "TERMINATED"]
+    total_employees = len(DB_EMPLOYEES)
+
+    # Calculate turnover rate
+    turnover_rate = (len(terminated_employees) / total_employees * 100) if total_employees > 0 else 0
+
+    # Analyze termination reasons (would need additional data field)
+    termination_reasons = {}
+    for emp in terminated_employees:
+        reason = emp.custom_fields.get("termination_reason", "Unknown")
+        termination_reasons[reason] = termination_reasons.get(reason, 0) + 1
+
+    return {
+        "total_employees": total_employees,
+        "terminated_employees": len(terminated_employees),
+        "turnover_rate_percent": round(turnover_rate, 2),
+        "termination_reasons": termination_reasons,
+        "average_tenure_at_termination": "Data not available"  # Would calculate from termination dates
+    } 

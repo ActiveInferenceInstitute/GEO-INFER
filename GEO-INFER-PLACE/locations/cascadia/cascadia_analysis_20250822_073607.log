@@ -1,0 +1,386 @@
+2025-08-22 07:36:07,301 - utils.setup_manager - INFO - Enhanced Cascadia Analysis Framework initialized with SPACE integration
+2025-08-22 07:36:07,301 - utils.setup_manager - INFO - Log file: cascadia_analysis_20250822_073607.log
+2025-08-22 07:36:07,301 - __main__ - INFO - 🌲 Starting Cascadia Agricultural Analysis Framework
+2025-08-22 07:36:07,301 - __main__ - INFO - 📊 Analysis Parameters:
+2025-08-22 07:36:07,301 - __main__ - INFO -    H3 Resolution: 8
+2025-08-22 07:36:07,301 - __main__ - INFO -    Target Counties: CA:Del Norte
+2025-08-22 07:36:07,301 - __main__ - INFO -    Active Modules: zoning,current_use
+2025-08-22 07:36:07,301 - __main__ - INFO -    Export Format: geojson
+2025-08-22 07:36:07,301 - __main__ - INFO -    Output Directory: output_test
+2025-08-22 07:36:07,301 - __main__ - INFO -    Visualization Options: Lightweight Static Visualizations
+2025-08-22 07:36:07,301 - cascadia - INFO - Enhanced logging initialized with level: INFO
+2025-08-22 07:36:07,302 - __main__ - INFO - 🚀 Initializing Cascadia Agricultural Analysis Framework
+2025-08-22 07:36:07,302 - __main__ - INFO - Enhanced logging initialized: output_test/cascadia_analysis.log
+2025-08-22 07:36:07,326 - utils.setup_manager - INFO - Loaded analysis configuration from config/analysis_config.yaml
+2025-08-22 07:36:07,326 - __main__ - INFO - Target counties: {'CA': ['Del Norte']}
+2025-08-22 07:36:07,326 - __main__ - INFO - Active modules: ['zoning', 'current_use']
+2025-08-22 07:36:07,326 - utils.data_processor - INFO - 🔧 Creating shared backend for all modules...
+2025-08-22 07:36:09,596 - geo_infer_place.core.unified_backend - INFO - Successfully initialized H3DataLoader from GEO-INFER-SPACE.
+2025-08-22 07:36:09,596 - geo_infer_place.core.unified_backend - INFO - Generating new region data (not in cache)
+2025-08-22 07:36:09,596 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2025-08-22 07:36:09,623 - county_boundary_loader - INFO - Loaded county boundaries configuration from /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2025-08-22 07:36:09,623 - county_boundary_loader - INFO - Loaded GeoJSON geometry for ca_del_norte from /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_del_norte_boundary.geojson
+2025-08-22 07:36:09,623 - geo_infer_place.core.unified_backend - INFO - Successfully loaded county geometries using boundary loader
+2025-08-22 07:36:09,623 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Del_Norte, CA using SPACE utilities...
+2025-08-22 07:36:09,623 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'dict'>, Geometry: {'type': 'Polygon', 'coordinates': [[[-124.5, 41.4], [-124.5, 42.0], [-123.5, 42.0], [-123.5, 41.4], [-124.5, 41.4]]]}
+2025-08-22 07:36:09,638 - geo_infer_place.core.unified_backend - INFO - Generated 7749 hexagons for Del_Norte, CA
+2025-08-22 07:36:09,642 - geo_infer_place.core.unified_backend - INFO - ✅ Generated 7749 H3 hexagons using SPACE utilities
+2025-08-22 07:36:09,642 - geo_infer_place.core.unified_backend - WARNING - Unexpected counties structure for state CA: <class 'list'>
+2025-08-22 07:36:09,642 - geo_infer_place.core.unified_backend - INFO - Saving region data to cache: output_test/data/cache/region_cache_4e2b5626c8c4ca7a05c736003fae87ed.json
+2025-08-22 07:36:09,645 - geo_infer_place.core.unified_backend - INFO - ✅ Cached 7749 hexagons
+2025-08-22 07:36:09,645 - geo_infer_place.core.unified_backend - WARNING - Failed to initialize UnifiedH3Backend: 'list' object has no attribute 'keys'
+2025-08-22 07:36:09,645 - geo_infer_space.utils.config_loader - INFO - Config loader initialized with directory: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config
+2025-08-22 07:36:09,645 - geo_infer_space.utils.config_loader - WARNING - Location config not found: /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config/cascadia.yaml
+2025-08-22 07:36:09,645 - geo_infer_space.utils.config_loader - DEBUG - Configuration validation passed
+2025-08-22 07:36:09,646 - geo_infer_place.core.unified_backend - INFO - ✅ Cascadia configuration loaded successfully
+2025-08-22 07:36:09,646 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2025-08-22 07:36:09,670 - county_boundary_loader - INFO - Loaded county boundaries configuration from /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2025-08-22 07:36:09,670 - county_boundary_loader - INFO - Loaded GeoJSON geometry for ca_del_norte from /home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_del_norte_boundary.geojson
+2025-08-22 07:36:09,670 - geo_infer_place.core.unified_backend - INFO - Successfully loaded county geometries using boundary loader
+2025-08-22 07:36:09,670 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Del_Norte, CA using SPACE utilities...
+2025-08-22 07:36:09,671 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'dict'>, Geometry: {'type': 'Polygon', 'coordinates': [[[-124.5, 41.4], [-124.5, 42.0], [-123.5, 42.0], [-123.5, 41.4], [-124.5, 41.4]]]}
+2025-08-22 07:36:09,683 - geo_infer_place.core.unified_backend - INFO - Generated 7749 hexagons for Del_Norte, CA
+2025-08-22 07:36:09,687 - geo_infer_place.core.unified_backend - INFO - ✅ Generated 7749 H3 hexagons using SPACE utilities
+2025-08-22 07:36:09,687 - geo_infer_place.core.unified_backend - INFO - Enhanced CascadianAgriculturalH3Backend initialized for 'Cascadia' with 0 active modules at H3 resolution 8
+2025-08-22 07:36:09,687 - geo_infer_place.core.unified_backend - INFO - Active modules: []
+2025-08-22 07:36:09,687 - geo_infer_place.core.unified_backend - INFO - Defined 7749 total target hexagons across 1 states.
+2025-08-22 07:36:09,687 - geo_infer_place.core.unified_backend - INFO - SPACE integration: Spatial processor, data integrator, and visualization engine available
+2025-08-22 07:36:09,688 - utils.data_processor - INFO - ✅ Shared backend created with 7749 target hexagons
+2025-08-22 07:36:09,688 - utils.enhanced_data_manager - INFO - Enhanced Data Manager initialized with H3 resolution 8
+2025-08-22 07:36:09,688 - utils.enhanced_data_manager - INFO - SPACE H3 utilities available: True
+2025-08-22 07:36:09,688 - utils.enhanced_h3_fusion - INFO - Enhanced H3 Fusion initialized with resolution 8
+2025-08-22 07:36:09,688 - utils.enhanced_h3_fusion - INFO - SPACE H3 utilities available: True
+2025-08-22 07:36:09,688 - utils.enhanced_h3_fusion - INFO - Spatial analysis enabled: False
+2025-08-22 07:36:09,688 - utils.enhanced_h3_fusion - INFO - Fusion mode: geom_intersect
+2025-08-22 07:36:09,688 - utils.enhanced_h3_fusion - INFO - Fusion cache directory: output_test/data/cache/fusion
+2025-08-22 07:36:09,689 - selenium.webdriver.common.selenium_manager - DEBUG - Selenium Manager binary found at: /home/trim/.local/lib/python3.10/site-packages/selenium/webdriver/common/linux/selenium-manager
+2025-08-22 07:36:09,689 - selenium.webdriver.common.selenium_manager - DEBUG - Executing process: /home/trim/.local/lib/python3.10/site-packages/selenium/webdriver/common/linux/selenium-manager --browser chrome --debug --language-binding python --output json
+2025-08-22 07:36:24,976 - selenium.webdriver.common.selenium_manager - DEBUG - Sending stats to Plausible: Props { browser: "chrome", browser_version: "", os: "linux", arch: "x86_64", lang: "python", selenium_version: "4.29" }
+2025-08-22 07:36:24,977 - selenium.webdriver.common.selenium_manager - DEBUG - chromedriver not found in PATH
+2025-08-22 07:36:24,977 - selenium.webdriver.common.selenium_manager - DEBUG - chrome not found in PATH
+2025-08-22 07:36:24,977 - selenium.webdriver.common.selenium_manager - DEBUG - chrome not found in the system
+2025-08-22 07:36:24,977 - selenium.webdriver.common.selenium_manager - DEBUG - Discovering versions from https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions-with-downloads.json
+2025-08-22 07:36:24,977 - selenium.webdriver.common.selenium_manager - DEBUG - Required browser: chrome 139.0.7258.138
+2025-08-22 07:36:24,977 - selenium.webdriver.common.selenium_manager - DEBUG - Acquiring lock: /home/trim/.cache/selenium/chrome/linux64/139.0.7258.138/sm.lock
+2025-08-22 07:36:24,977 - selenium.webdriver.common.selenium_manager - DEBUG - Downloading chrome 139.0.7258.138 from https://storage.googleapis.com/chrome-for-testing-public/139.0.7258.138/linux64/chrome-linux64.zip
+2025-08-22 07:36:24,977 - selenium.webdriver.common.selenium_manager - DEBUG - chrome 139.0.7258.138 is available at /home/trim/.cache/selenium/chrome/linux64/139.0.7258.138/chrome
+2025-08-22 07:36:24,977 - selenium.webdriver.common.selenium_manager - DEBUG - Discovering versions from https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json
+2025-08-22 07:36:24,977 - selenium.webdriver.common.selenium_manager - DEBUG - Required driver: chromedriver 139.0.7258.138
+2025-08-22 07:36:24,977 - selenium.webdriver.common.selenium_manager - DEBUG - Acquiring lock: /home/trim/.cache/selenium/chromedriver/linux64/139.0.7258.138/sm.lock
+2025-08-22 07:36:24,977 - selenium.webdriver.common.selenium_manager - DEBUG - Downloading chromedriver 139.0.7258.138 from https://storage.googleapis.com/chrome-for-testing-public/139.0.7258.138/linux64/chromedriver-linux64.zip
+2025-08-22 07:36:24,977 - selenium.webdriver.common.selenium_manager - DEBUG - Driver path: /home/trim/.cache/selenium/chromedriver/linux64/139.0.7258.138/chromedriver
+2025-08-22 07:36:24,977 - selenium.webdriver.common.selenium_manager - DEBUG - Browser path: /home/trim/.cache/selenium/chrome/linux64/139.0.7258.138/chrome
+2025-08-22 07:36:24,981 - selenium.webdriver.common.service - DEBUG - Started executable: `/home/trim/.cache/selenium/chromedriver/linux64/139.0.7258.138/chromedriver` in a child process with pid: 1876526 using 0 to output -3
+2025-08-22 07:36:25,055 - selenium.webdriver.remote.remote_connection - DEBUG - POST http://localhost:57641/session {'capabilities': {'firstMatch': [{}], 'alwaysMatch': {'browserName': 'chrome', 'pageLoadStrategy': <PageLoadStrategy.normal: 'normal'>, 'browserVersion': None, 'goog:chromeOptions': {'extensions': [], 'binary': '/home/trim/.cache/selenium/chrome/linux64/139.0.7258.138/chrome', 'args': ['--headless', '--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--window-size=1920,1080']}}}}
+2025-08-22 07:36:25,056 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:57641
+2025-08-22 07:36:25,882 - urllib3.connectionpool - DEBUG - http://localhost:57641 "POST /session HTTP/1.1" 200 0
+2025-08-22 07:36:25,883 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":{"capabilities":{"acceptInsecureCerts":false,"browserName":"chrome","browserVersion":"139.0.7258.138","chrome":{"chromedriverVersion":"139.0.7258.138 (884e54ea8d42947ed636779015c5b4815e069838-refs/branch-heads/7258@{#2631})","userDataDir":"/tmp/.org.chromium.Chromium.ful5ou"},"fedcm:accounts":true,"goog:chromeOptions":{"debuggerAddress":"localhost:42859"},"networkConnectionEnabled":false,"pageLoadStrategy":"normal","platformName":"linux","proxy":{},"setWindowRect":true,"strictFileInteractability":false,"timeouts":{"implicit":0,"pageLoad":300000,"script":30000},"unhandledPromptBehavior":"dismiss and notify","webauthn:extension:credBlob":true,"webauthn:extension:largeBlob":true,"webauthn:extension:minPinLength":true,"webauthn:extension:prf":true,"webauthn:virtualAuthenticators":true},"sessionId":"c1e282153f1c4ee61513393888268b43"}} | headers=HTTPHeaderDict({'Content-Length': '850', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:25,883 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:25,884 - selenium.webdriver.remote.remote_connection - DEBUG - POST http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/timeouts {'implicit': 10000}
+2025-08-22 07:36:25,885 - urllib3.connectionpool - DEBUG - http://localhost:57641 "POST /session/c1e282153f1c4ee61513393888268b43/timeouts HTTP/1.1" 200 0
+2025-08-22 07:36:25,885 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":null} | headers=HTTPHeaderDict({'Content-Length': '14', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:25,885 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:25,885 - utils.real_data_acquisition - INFO - Web driver initialized successfully
+2025-08-22 07:36:25,885 - utils.real_data_acquisition - INFO - Real Data Acquisition system initialized
+2025-08-22 07:36:25,885 - utils.comprehensive_visualization - INFO - Comprehensive Visualization Engine initialized
+2025-08-22 07:36:25,887 - utils.enhanced_h3_fusion - INFO - ✅ H3 operations validation completed successfully
+2025-08-22 07:36:25,887 - __main__ - INFO - H3 validation result: {'h3_api_version': '4.x', 'space_integration': True, 'operations_tested': ['latlng_to_cell', 'cell_to_latlng', 'cell_to_latlng_boundary', 'geo_to_cells', 'grid_disk', 'cell_area', 'is_valid_cell'], 'errors': [], 'warnings': []}
+2025-08-22 07:36:25,946 - zoning.geo_infer_zoning - INFO - Initialized GeoInferZoning module with real OSC H3 v4 integration.
+2025-08-22 07:36:25,946 - __main__ - INFO - ✅ Zoning module initialized with enhanced data management
+2025-08-22 07:36:25,947 - current_use.data_sources - INFO - Initialized CascadianCurrentUseDataSources
+2025-08-22 07:36:25,947 - current_use.geo_infer_current_use - INFO - Initialized GeoInferCurrentUse module with real OSC H3 v4 integration.
+2025-08-22 07:36:25,947 - __main__ - INFO - ✅ Current use module initialized with enhanced data management
+2025-08-22 07:36:25,947 - __main__ - INFO - ✅ Updated shared backend with 2 active modules
+2025-08-22 07:36:25,948 - __main__ - INFO - 🚀 Starting enhanced comprehensive analysis with real data acquisition and H3 geospatial fusion...
+2025-08-22 07:36:25,948 - __main__ - INFO - 📊 Processing module: zoning
+2025-08-22 07:36:25,949 - __main__ - INFO - 📊 Processing module: current_use
+2025-08-22 07:36:25,951 - cascadia.processing.real_data_acquisition - INFO - 🚀 PROCESSING START - Zoning Data Acquisition
+2025-08-22 07:36:25,952 - cascadia.processing.real_data_acquisition - INFO - 🚀 PROCESSING START - Current Use Data Acquisition
+2025-08-22 07:36:25,952 - cascadia.processing.real_data_acquisition - INFO -    Module: real_data_acquisition
+2025-08-22 07:36:25,952 - cascadia.processing.real_data_acquisition - INFO -    Parameters: {'sources': ['Del Norte County', 'California State']}
+2025-08-22 07:36:25,952 - cascadia.processing.real_data_acquisition - INFO -    Module: real_data_acquisition
+2025-08-22 07:36:25,952 - selenium.webdriver.remote.remote_connection - DEBUG - POST http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/url {'url': 'https://www.co.del-norte.ca.us/departments/planning-building'}
+2025-08-22 07:36:25,952 - cascadia.processing.real_data_acquisition - INFO -    Parameters: {'sources': ['USDA Cropland Data Layer', 'California Department of Conservation']}
+2025-08-22 07:36:27,957 - urllib3.connectionpool - DEBUG - http://localhost:57641 "POST /session/c1e282153f1c4ee61513393888268b43/url HTTP/1.1" 200 0
+2025-08-22 07:36:27,957 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":null} | headers=HTTPHeaderDict({'Content-Length': '14', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:27,957 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:27,957 - selenium.webdriver.remote.remote_connection - DEBUG - POST http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/elements {'using': 'tag name', 'value': 'a'}
+2025-08-22 07:36:27,968 - urllib3.connectionpool - DEBUG - http://localhost:57641 "POST /session/c1e282153f1c4ee61513393888268b43/elements HTTP/1.1" 200 0
+2025-08-22 07:36:27,969 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":[{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.48"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.49"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.50"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.51"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.52"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.53"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.54"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.55"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.56"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.57"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.58"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.59"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.60"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.61"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.62"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.63"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.64"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.65"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.66"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.67"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.68"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.69"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.70"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.71"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.72"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.73"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.74"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.75"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.76"},{"element-6066-11e4-a52e-4f735466cecf":"f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.77"}]} | headers=HTTPHeaderDict({'Content-Length': '3521', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:27,969 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:27,969 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.48/text {}
+2025-08-22 07:36:27,983 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.48/text HTTP/1.1" 200 0
+2025-08-22 07:36:27,983 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":""} | headers=HTTPHeaderDict({'Content-Length': '12', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:27,984 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:27,984 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.49/text {}
+2025-08-22 07:36:27,994 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.49/text HTTP/1.1" 200 0
+2025-08-22 07:36:27,995 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":""} | headers=HTTPHeaderDict({'Content-Length': '12', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:27,995 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:27,995 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.50/text {}
+2025-08-22 07:36:28,006 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.50/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,006 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":""} | headers=HTTPHeaderDict({'Content-Length': '12', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,006 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,006 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.51/text {}
+2025-08-22 07:36:28,011 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.51/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,012 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":""} | headers=HTTPHeaderDict({'Content-Length': '12', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,012 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,012 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.52/text {}
+2025-08-22 07:36:28,025 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.52/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,026 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":""} | headers=HTTPHeaderDict({'Content-Length': '12', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,026 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,026 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.53/text {}
+2025-08-22 07:36:28,037 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.53/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,037 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":""} | headers=HTTPHeaderDict({'Content-Length': '12', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,037 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,038 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.54/text {}
+2025-08-22 07:36:28,044 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.54/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,044 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Planning Division"} | headers=HTTPHeaderDict({'Content-Length': '29', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,044 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,044 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.55/text {}
+2025-08-22 07:36:28,052 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.55/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,053 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Accessory Dwelling Units"} | headers=HTTPHeaderDict({'Content-Length': '36', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,053 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,053 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.56/text {}
+2025-08-22 07:36:28,062 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.56/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,062 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Bid/Proposal Documents"} | headers=HTTPHeaderDict({'Content-Length': '34', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,062 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,062 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.57/text {}
+2025-08-22 07:36:28,076 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.57/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,076 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Documents"} | headers=HTTPHeaderDict({'Content-Length': '21', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,076 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,076 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.58/text {}
+2025-08-22 07:36:28,085 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.58/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,085 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Forms and Handouts"} | headers=HTTPHeaderDict({'Content-Length': '30', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,085 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,085 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.59/text {}
+2025-08-22 07:36:28,093 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.59/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,093 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Housing Resources"} | headers=HTTPHeaderDict({'Content-Length': '29', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,093 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,093 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.60/text {}
+2025-08-22 07:36:28,111 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.60/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,111 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Planning Commission Agenda"} | headers=HTTPHeaderDict({'Content-Length': '38', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,112 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,112 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.61/text {}
+2025-08-22 07:36:28,122 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.61/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,122 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Planning Commission Meetings"} | headers=HTTPHeaderDict({'Content-Length': '40', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,122 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,122 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.62/text {}
+2025-08-22 07:36:28,130 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.62/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,131 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"2022 - 2030 Housing Element"} | headers=HTTPHeaderDict({'Content-Length': '39', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,131 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,131 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.63/text {}
+2025-08-22 07:36:28,145 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.63/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,146 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"2022 - 2030 Housing Element Information"} | headers=HTTPHeaderDict({'Content-Length': '51', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,146 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,146 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.64/text {}
+2025-08-22 07:36:28,156 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.64/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,156 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"SB 35 Streamlined Multifamily Review and SB 330 Preliminary Application"} | headers=HTTPHeaderDict({'Content-Length': '83', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,157 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,157 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.65/text {}
+2025-08-22 07:36:28,165 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.65/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,166 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Website Links"} | headers=HTTPHeaderDict({'Content-Length': '25', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,166 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,167 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.66/text {}
+2025-08-22 07:36:28,178 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.66/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,179 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":""} | headers=HTTPHeaderDict({'Content-Length': '12', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,179 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,179 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.67/text {}
+2025-08-22 07:36:28,195 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.67/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,196 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"planning@co.del-norte.ca.us"} | headers=HTTPHeaderDict({'Content-Length': '39', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,196 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,196 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.68/text {}
+2025-08-22 07:36:28,209 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.68/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,210 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Phone (707) 464-7254"} | headers=HTTPHeaderDict({'Content-Length': '32', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,211 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,211 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.69/text {}
+2025-08-22 07:36:28,221 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.69/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,222 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Get Directions"} | headers=HTTPHeaderDict({'Content-Length': '26', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,222 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,222 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.70/text {}
+2025-08-22 07:36:28,229 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.70/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,229 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Home"} | headers=HTTPHeaderDict({'Content-Length': '16', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,229 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,229 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.71/text {}
+2025-08-22 07:36:28,241 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.71/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,242 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Departments"} | headers=HTTPHeaderDict({'Content-Length': '23', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,242 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,242 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.72/text {}
+2025-08-22 07:36:28,255 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.72/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,255 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Planning Division"} | headers=HTTPHeaderDict({'Content-Length': '29', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,255 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,255 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.73/text {}
+2025-08-22 07:36:28,262 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.73/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,262 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Planning Commission Public Comment"} | headers=HTTPHeaderDict({'Content-Length': '46', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,262 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,262 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.74/text {}
+2025-08-22 07:36:28,289 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.74/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,290 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"981 H Street\nCrescent City, CA 95531"} | headers=HTTPHeaderDict({'Content-Length': '49', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,290 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,290 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.75/text {}
+2025-08-22 07:36:28,300 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.75/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,300 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Accessibility"} | headers=HTTPHeaderDict({'Content-Length': '25', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,300 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,300 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.76/text {}
+2025-08-22 07:36:28,323 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.76/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,323 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Contact Us"} | headers=HTTPHeaderDict({'Content-Length': '22', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,324 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,324 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:57641/session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.77/text {}
+2025-08-22 07:36:28,330 - urllib3.connectionpool - DEBUG - http://localhost:57641 "GET /session/c1e282153f1c4ee61513393888268b43/element/f.0A2212E40E6A81F082F985C5173CE344.d.2464BDC541F722C372F6554FE75C42B8.e.77/text HTTP/1.1" 200 0
+2025-08-22 07:36:28,330 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Website By EvoGov"} | headers=HTTPHeaderDict({'Content-Length': '29', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-08-22 07:36:28,330 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-08-22 07:36:28,334 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): data.ca.gov:443
+2025-08-22 07:36:28,908 - cascadia.data.real_data_acquisition - ERROR - ⚠️  FALLBACK DATA USED - Module: real_data_acquisition
+2025-08-22 07:36:28,916 - cascadia.data.real_data_acquisition - ERROR -    Original Source: zoning_data_acquisition
+2025-08-22 07:36:28,916 - cascadia.data.real_data_acquisition - ERROR -    Fallback Reason: No real zoning data available
+2025-08-22 07:36:28,916 - cascadia.data.real_data_acquisition - ERROR -    Fallback Type: synthetic_zoning
+2025-08-22 07:36:28,916 - cascadia.data.real_data_acquisition - ERROR -    Limitations: ['Using generated test data', 'No real zoning boundaries']
+2025-08-22 07:36:28,978 - utils.real_data_acquisition - ERROR - Failed to download file from https://www2.census.gov/geo/tiger/TIGER2023/PLACE/tl_2023_us_place.zip: 404 Client Error: Not Found for url: https://www2.census.gov/geo/tiger/TIGER2023/PLACE/tl_2023_us_place.zip
+2025-08-22 07:36:30,720 - pyogrio._io - INFO - Created 50 records
+2025-08-22 07:36:30,721 - __main__ - INFO - ⚠️ Using synthetic data for zoning
+2025-08-22 07:36:30,722 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2025-08-22 07:36:30,722 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-08-22 07:36:30,722 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'zoning', 'force_refresh': False}
+2025-08-22 07:36:30,722 - cascadia.processing.data_manager - INFO -    Step: Data Acquisition
+2025-08-22 07:36:30,722 - cascadia.processing.data_manager - INFO -      action: calling_data_source_func
+2025-08-22 07:36:30,722 - cascadia.processing.data_manager - INFO -      module: zoning
+2025-08-22 07:36:30,722 - zoning.geo_infer_zoning - INFO - [zoning] 🔍 Acquiring raw zoning data...
+2025-08-22 07:36:30,724 - zoning.geo_infer_zoning - WARNING - [zoning] ⚠️ No zoning data found, creating synthetic data...
+2025-08-22 07:36:30,724 - zoning.geo_infer_zoning - INFO - Creating synthetic Del Norte County zoning data for testing...
+2025-08-22 07:36:30,731 - pyogrio._io - INFO - Created 6 records
+2025-08-22 07:36:30,732 - zoning.geo_infer_zoning - INFO - Created synthetic Del Norte County zoning data with 6 features
+2025-08-22 07:36:30,751 - pyogrio._io - INFO - Created 6 records
+2025-08-22 07:36:30,751 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Validation and Storage
+2025-08-22 07:36:30,753 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-08-22 07:36:30,754 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'zoning', 'raw_path': 'output_test/zoning/data/raw/raw_zoning_data.geojson'}
+2025-08-22 07:36:30,763 - utils.enhanced_data_manager - INFO - 🗺️  GEODATAFRAME SUMMARY - zoning_raw_data
+2025-08-22 07:36:30,764 - utils.enhanced_data_manager - INFO -    Shape: (6, 4)
+2025-08-22 07:36:30,765 - utils.enhanced_data_manager - INFO -    CRS: EPSG:4326
+2025-08-22 07:36:30,766 - utils.enhanced_data_manager - INFO -    Geometry Type: ['Polygon']
+2025-08-22 07:36:30,767 - utils.enhanced_data_manager - INFO -    Bounds: [-124.3   41.4 -123.6   42. ]
+2025-08-22 07:36:30,943 - utils.enhanced_data_manager - INFO -    Total Area: 2587.41 km²
+2025-08-22 07:36:30,943 - utils.enhanced_data_manager - INFO - 📋 DATAFRAME SUMMARY - zoning_raw_data
+2025-08-22 07:36:30,943 - utils.enhanced_data_manager - INFO -    Shape: (6, 4)
+2025-08-22 07:36:30,945 - utils.enhanced_data_manager - INFO -    Memory Usage: 0.00 MB
+2025-08-22 07:36:30,946 - utils.enhanced_data_manager - INFO -    Columns: ['CI_CLASSNM', 'source', 'county', 'geometry']
+2025-08-22 07:36:30,946 - utils.enhanced_data_manager - INFO -    Data Types: {'CI_CLASSNM': dtype('O'), 'source': dtype('O'), 'county': dtype('O'), 'geometry': <geopandas.array.GeometryDtype object at 0x78a27cbb4760>}
+2025-08-22 07:36:30,948 - utils.enhanced_data_manager - INFO -    Null Values: {'CI_CLASSNM': 0, 'source': 0, 'county': 0, 'geometry': 0}
+2025-08-22 07:36:30,952 - utils.enhanced_data_manager - INFO -    Unique Values (first 5 cols): {'CI_CLASSNM': 6, 'source': 1, 'county': 1, 'geometry': 6}
+2025-08-22 07:36:30,954 - cascadia.data.data_manager - INFO - 🔍 DATA VALIDATION - Module: data_manager
+2025-08-22 07:36:30,954 - cascadia.data.data_manager - INFO -    Quality Score: 0.95
+2025-08-22 07:36:30,954 - cascadia.data.data_manager - INFO -    Validation Results: {'is_valid': True, 'errors': [], 'warnings': [], 'quality_score': 0.95, 'feature_count': 6, 'geometry_types': ['Polygon'], 'crs': 'EPSG:4326'}
+2025-08-22 07:36:30,955 - cascadia.data.data_manager - INFO - 📊 REAL DATA ACQUIRED - Module: data_manager
+2025-08-22 07:36:30,955 - cascadia.data.data_manager - INFO -    Source URL: output_test/zoning/data/raw/raw_zoning_data.geojson
+2025-08-22 07:36:30,955 - cascadia.data.data_manager - INFO -    File Path: output_test/zoning/data/empirical/empirical_zoning_data.geojson
+2025-08-22 07:36:30,955 - cascadia.data.data_manager - INFO -    Data Type: Empirical
+2025-08-22 07:36:30,955 - cascadia.data.data_manager - INFO -    Row Count: 6
+2025-08-22 07:36:30,955 - cascadia.data.data_manager - INFO -    File Size: 0.00 MB
+2025-08-22 07:36:30,955 - cascadia.data.data_manager - INFO -    Geometry Types: ['Polygon']
+2025-08-22 07:36:30,955 - cascadia.data.data_manager - INFO -    CRS: EPSG:4326
+2025-08-22 07:36:30,956 - utils.enhanced_data_manager - ERROR - [zoning] ❌ Data validation error: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+2025-08-22 07:36:30,956 - utils.enhanced_data_manager - INFO - [zoning] 🔧 Creating synthetic data...
+2025-08-22 07:36:30,962 - pyogrio._io - INFO - Created 2 records
+2025-08-22 07:36:30,963 - utils.enhanced_data_manager - INFO - [zoning] ✅ Created synthetic data: output_test/zoning/data/synthetic/synthetic_zoning_data.geojson
+2025-08-22 07:36:30,963 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - Data Acquisition
+2025-08-22 07:36:30,963 - cascadia.processing.data_manager - INFO -    Duration: 0.24s
+2025-08-22 07:36:30,963 - cascadia.processing.data_manager - INFO -    source: new_data
+2025-08-22 07:36:30,963 - cascadia.processing.data_manager - INFO -    module: zoning
+2025-08-22 07:36:30,963 - cascadia.processing.data_manager - INFO -    path: output_test/zoning/data/synthetic/synthetic_zoning_data.geojson
+2025-08-22 07:36:30,963 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2025-08-22 07:36:30,963 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-08-22 07:36:30,963 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'zoning', 'data_path': 'output_test/zoning/data/synthetic/synthetic_zoning_data.geojson', 'target_hexagons_count': 7749}
+2025-08-22 07:36:30,964 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-08-22 07:36:30,964 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2025-08-22 07:36:30,964 - cascadia.processing.data_manager - INFO -      module: zoning
+2025-08-22 07:36:32,046 - utils.enhanced_data_manager - INFO - [zoning] ✅ Processed 2 features to 2584 H3 hexagons
+2025-08-22 07:36:32,116 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2025-08-22 07:36:32,117 - cascadia.data.data_manager - INFO -    Input Features: 2
+2025-08-22 07:36:32,117 - cascadia.data.data_manager - INFO -    Output Hexagons: 2,584
+2025-08-22 07:36:32,118 - cascadia.data.data_manager - INFO -    Coverage: 33.3%
+2025-08-22 07:36:32,118 - cascadia.data.data_manager - INFO -    Processing Time: 1.15s
+2025-08-22 07:36:32,119 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2025-08-22 07:36:32,119 - cascadia.processing.data_manager - INFO -    Duration: 1.16s
+2025-08-22 07:36:32,119 - cascadia.processing.data_manager - INFO -    source: new_processing
+2025-08-22 07:36:32,119 - cascadia.processing.data_manager - INFO -    module: zoning
+2025-08-22 07:36:32,119 - cascadia.processing.data_manager - INFO -    input_features: 2
+2025-08-22 07:36:32,119 - cascadia.processing.data_manager - INFO -    output_hexagons: 2584
+2025-08-22 07:36:32,133 - __main__ - INFO - 📋 zoning data quality: 0.00
+2025-08-22 07:47:07,744 - cascadia.data.real_data_acquisition - INFO - 📊 REAL DATA ACQUIRED - Module: real_data_acquisition
+2025-08-22 07:47:07,745 - cascadia.data.real_data_acquisition - INFO -    Source URL: https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-08-22 07:47:07,745 - cascadia.data.real_data_acquisition - INFO -    File Path: output_test/real_data/synthetic_zoning_data.geojson
+2025-08-22 07:47:07,745 - cascadia.data.real_data_acquisition - INFO -    Data Type: Current Land Use
+2025-08-22 07:47:07,745 - cascadia.data.real_data_acquisition - INFO -    Row Count: 50
+2025-08-22 07:47:07,745 - cascadia.data.real_data_acquisition - INFO -    File Size: 0.03 MB
+2025-08-22 07:47:07,745 - cascadia.data.real_data_acquisition - INFO -    Geometry Types: ['Polygon']
+2025-08-22 07:47:07,745 - cascadia.data.real_data_acquisition - INFO -    CRS: EPSG:4326
+2025-08-22 07:47:07,745 - __main__ - INFO - ⚠️ Using synthetic data for current_use
+2025-08-22 07:47:07,745 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2025-08-22 07:47:07,745 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-08-22 07:47:07,745 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'current_use', 'force_refresh': False}
+2025-08-22 07:47:07,746 - cascadia.processing.data_manager - INFO -    Step: Data Acquisition
+2025-08-22 07:47:07,746 - cascadia.processing.data_manager - INFO -      action: calling_data_source_func
+2025-08-22 07:47:07,746 - cascadia.processing.data_manager - INFO -      module: current_use
+2025-08-22 07:47:07,746 - current_use.geo_infer_current_use - INFO - [current_use] 🔍 Acquiring raw current use data...
+2025-08-22 07:47:07,747 - current_use.geo_infer_current_use - WARNING - [current_use] ⚠️ No current use data found, creating synthetic data...
+2025-08-22 07:47:07,747 - current_use.geo_infer_current_use - INFO - Creating synthetic Del Norte County current use data for testing...
+2025-08-22 07:47:07,755 - pyogrio._io - INFO - Created 6 records
+2025-08-22 07:47:07,756 - current_use.geo_infer_current_use - INFO - Created synthetic Del Norte County current use data with 6 features
+2025-08-22 07:47:07,763 - pyogrio._io - INFO - Created 6 records
+2025-08-22 07:47:07,763 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Validation and Storage
+2025-08-22 07:47:07,764 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-08-22 07:47:07,764 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'current_use', 'raw_path': 'output_test/current_use/data/raw/raw_current_use_data.geojson'}
+2025-08-22 07:47:07,772 - utils.enhanced_data_manager - INFO - 🗺️  GEODATAFRAME SUMMARY - current_use_raw_data
+2025-08-22 07:47:07,773 - utils.enhanced_data_manager - INFO -    Shape: (6, 7)
+2025-08-22 07:47:07,773 - utils.enhanced_data_manager - INFO -    CRS: EPSG:4326
+2025-08-22 07:47:07,773 - utils.enhanced_data_manager - INFO -    Geometry Type: ['Polygon']
+2025-08-22 07:47:07,774 - utils.enhanced_data_manager - INFO -    Bounds: [-124.3   41.4 -123.6   42. ]
+2025-08-22 07:47:07,776 - utils.enhanced_data_manager - INFO -    Total Area: 2587.41 km²
+2025-08-22 07:47:07,776 - utils.enhanced_data_manager - INFO - 📋 DATAFRAME SUMMARY - current_use_raw_data
+2025-08-22 07:47:07,777 - utils.enhanced_data_manager - INFO -    Shape: (6, 7)
+2025-08-22 07:47:07,778 - utils.enhanced_data_manager - INFO -    Memory Usage: 0.00 MB
+2025-08-22 07:47:07,778 - utils.enhanced_data_manager - INFO -    Columns: ['crop_type', 'intensity', 'water_usage', 'acres', 'source', 'county', 'geometry']
+2025-08-22 07:47:07,778 - utils.enhanced_data_manager - INFO -    Data Types: {'crop_type': dtype('O'), 'intensity': dtype('O'), 'water_usage': dtype('O'), 'acres': dtype('int32'), 'source': dtype('O'), 'county': dtype('O'), 'geometry': <geopandas.array.GeometryDtype object at 0x78a27cbb4760>}
+2025-08-22 07:47:07,781 - utils.enhanced_data_manager - INFO -    Null Values: {'crop_type': 0, 'intensity': 0, 'water_usage': 0, 'acres': 0, 'source': 0, 'county': 0, 'geometry': 0}
+2025-08-22 07:47:07,784 - utils.enhanced_data_manager - INFO -    Unique Values (first 5 cols): {'crop_type': 6, 'intensity': 3, 'water_usage': 2, 'acres': 6, 'source': 1}
+2025-08-22 07:47:07,786 - cascadia.data.data_manager - INFO - 🔍 DATA VALIDATION - Module: data_manager
+2025-08-22 07:47:07,786 - cascadia.data.data_manager - INFO -    Quality Score: 0.95
+2025-08-22 07:47:07,786 - cascadia.data.data_manager - INFO -    Validation Results: {'is_valid': True, 'errors': [], 'warnings': [], 'quality_score': 0.95, 'feature_count': 6, 'geometry_types': ['Polygon'], 'crs': 'EPSG:4326'}
+2025-08-22 07:47:07,787 - cascadia.data.data_manager - INFO - 📊 REAL DATA ACQUIRED - Module: data_manager
+2025-08-22 07:47:07,787 - cascadia.data.data_manager - INFO -    Source URL: output_test/current_use/data/raw/raw_current_use_data.geojson
+2025-08-22 07:47:07,787 - cascadia.data.data_manager - INFO -    File Path: output_test/current_use/data/empirical/empirical_current_use_data.geojson
+2025-08-22 07:47:07,787 - cascadia.data.data_manager - INFO -    Data Type: Empirical
+2025-08-22 07:47:07,787 - cascadia.data.data_manager - INFO -    Row Count: 6
+2025-08-22 07:47:07,787 - cascadia.data.data_manager - INFO -    File Size: 0.00 MB
+2025-08-22 07:47:07,787 - cascadia.data.data_manager - INFO -    Geometry Types: ['Polygon']
+2025-08-22 07:47:07,787 - cascadia.data.data_manager - INFO -    CRS: EPSG:4326
+2025-08-22 07:47:07,787 - utils.enhanced_data_manager - ERROR - [current_use] ❌ Data validation error: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+2025-08-22 07:47:07,787 - utils.enhanced_data_manager - INFO - [current_use] 🔧 Creating synthetic data...
+2025-08-22 07:47:07,792 - pyogrio._io - INFO - Created 2 records
+2025-08-22 07:47:07,793 - utils.enhanced_data_manager - INFO - [current_use] ✅ Created synthetic data: output_test/current_use/data/synthetic/synthetic_current_use_data.geojson
+2025-08-22 07:47:07,793 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - Data Acquisition
+2025-08-22 07:47:07,793 - cascadia.processing.data_manager - INFO -    Duration: 0.05s
+2025-08-22 07:47:07,793 - cascadia.processing.data_manager - INFO -    source: new_data
+2025-08-22 07:47:07,793 - cascadia.processing.data_manager - INFO -    module: current_use
+2025-08-22 07:47:07,793 - cascadia.processing.data_manager - INFO -    path: output_test/current_use/data/synthetic/synthetic_current_use_data.geojson
+2025-08-22 07:47:07,793 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2025-08-22 07:47:07,793 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-08-22 07:47:07,793 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'current_use', 'data_path': 'output_test/current_use/data/synthetic/synthetic_current_use_data.geojson', 'target_hexagons_count': 7749}
+2025-08-22 07:47:07,793 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-08-22 07:47:07,793 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2025-08-22 07:47:07,793 - cascadia.processing.data_manager - INFO -      module: current_use
+2025-08-22 07:47:08,693 - utils.enhanced_data_manager - INFO - [current_use] ✅ Processed 2 features to 1551 H3 hexagons
+2025-08-22 07:47:09,331 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2025-08-22 07:47:09,331 - cascadia.data.data_manager - INFO -    Input Features: 2
+2025-08-22 07:47:09,331 - cascadia.data.data_manager - INFO -    Output Hexagons: 1,551
+2025-08-22 07:47:09,331 - cascadia.data.data_manager - INFO -    Coverage: 20.0%
+2025-08-22 07:47:09,331 - cascadia.data.data_manager - INFO -    Processing Time: 1.54s
+2025-08-22 07:47:09,331 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2025-08-22 07:47:09,331 - cascadia.processing.data_manager - INFO -    Duration: 1.54s
+2025-08-22 07:47:09,331 - cascadia.processing.data_manager - INFO -    source: new_processing
+2025-08-22 07:47:09,332 - cascadia.processing.data_manager - INFO -    module: current_use
+2025-08-22 07:47:09,332 - cascadia.processing.data_manager - INFO -    input_features: 2
+2025-08-22 07:47:09,332 - cascadia.processing.data_manager - INFO -    output_hexagons: 1551
+2025-08-22 07:47:09,337 - __main__ - INFO - 📋 current_use data quality: 0.00
+2025-08-22 07:47:09,339 - __main__ - INFO - 🔗 Performing enhanced H3 geospatial fusion...
+2025-08-22 07:47:09,344 - utils.enhanced_h3_fusion - INFO - Starting enhanced H3 geospatial fusion for 2 data sources
+2025-08-22 07:47:09,355 - utils.enhanced_h3_fusion - INFO - Processing data source: zoning
+2025-08-22 07:47:09,843 - utils.enhanced_h3_fusion - INFO - [zoning] fused 1/2584 source hexes; matched targets so far: 7

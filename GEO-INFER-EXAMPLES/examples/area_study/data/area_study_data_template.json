@@ -1,0 +1,452 @@
+{
+  "metadata": {
+    "study_id": "area_study_template_v1",
+    "study_name": "Comprehensive Area Study Template",
+    "created_date": "2024-01-01",
+    "last_modified": "2024-12-31",
+    "study_area": {
+      "name": "Downtown Neighborhood",
+      "type": "urban_neighborhood",
+      "total_area_hectares": 150,
+      "population_estimate": 8500,
+      "coordinates": {
+        "center": {"lat": 40.7128, "lon": -74.0060},
+        "bounding_box": {
+          "north": 40.7200,
+          "south": 40.7056,
+          "east": -73.9990,
+          "west": -74.0130
+        }
+      },
+      "h3_resolution": 9,
+      "h3_cells": []
+    },
+    "study_period": {
+      "start_date": "2024-01-01",
+      "end_date": "2024-12-31",
+      "data_collection_period": "6_months"
+    }
+  },
+  "technical_data": {
+    "iot_sensors": [
+      {
+        "sensor_id": "template_sensor_001",
+        "type": "environmental",
+        "location": {
+          "h3_index": "h3_cell_template",
+          "coordinates": {"lat": 40.7128, "lon": -74.0060},
+          "description": "Central park monitoring station"
+        },
+        "measurements": {
+          "air_quality": {
+            "pm2_5": 12.5,
+            "ozone": 45,
+            "air_quality_index": 68,
+            "timestamp": "2024-01-15T12:00:00Z"
+          },
+          "noise_level": {
+            "decibels": 62,
+            "timestamp": "2024-01-15T12:00:00Z"
+          },
+          "temperature": {
+            "celsius": 22.5,
+            "humidity_percent": 65,
+            "timestamp": "2024-01-15T12:00:00Z"
+          }
+        },
+        "status": "active",
+        "battery_level": 85,
+        "last_update": "2024-01-15T12:00:00Z"
+      }
+    ],
+    "connectivity_data": [
+      {
+        "location_id": "template_location_001",
+        "h3_index": "h3_cell_template",
+        "connectivity_metrics": {
+          "download_speed_mbps": 250.5,
+          "upload_speed_mbps": 45.2,
+          "latency_ms": 15,
+          "coverage_type": "5G",
+          "provider": "Verizon",
+          "signal_strength": -65,
+          "timestamp": "2024-01-15T12:00:00Z"
+        },
+        "infrastructure_type": "residential",
+        "service_quality_rating": 4.2
+      }
+    ],
+    "infrastructure_assessment": {
+      "roads": [
+        {
+          "segment_id": "road_segment_001",
+          "condition_score": 0.75,
+          "surface_type": "asphalt",
+          "length_meters": 250,
+          "traffic_volume": "medium",
+          "maintenance_date": "2023-06-15",
+          "accessibility_score": 0.85
+        }
+      ],
+      "buildings": [
+        {
+          "building_id": "building_001",
+          "type": "residential",
+          "condition_score": 0.68,
+          "year_built": 1985,
+          "floors": 4,
+          "units": 24,
+          "accessibility_features": ["elevator", "ramp_access"],
+          "energy_efficiency_rating": "C"
+        }
+      ],
+      "utilities": {
+        "electricity_coverage": 0.98,
+        "water_coverage": 0.96,
+        "gas_coverage": 0.89,
+        "internet_coverage": 0.82,
+        "sewer_coverage": 0.97
+      },
+      "public_spaces": [
+        {
+          "space_id": "park_001",
+          "type": "neighborhood_park",
+          "area_hectares": 2.5,
+          "condition_score": 0.82,
+          "facilities": ["playground", "picnic_area", "walking_paths"],
+          "accessibility_score": 0.91,
+          "maintenance_frequency": "weekly"
+        }
+      ]
+    }
+  },
+  "social_data": {
+    "demographics": {
+      "total_population": 8500,
+      "households": 3200,
+      "population_density": 56.7,
+      "age_distribution": {
+        "0-17": 0.22,
+        "18-34": 0.28,
+        "35-54": 0.25,
+        "55-74": 0.18,
+        "75+": 0.07
+      },
+      "gender_distribution": {
+        "female": 0.52,
+        "male": 0.46,
+        "other": 0.02
+      },
+      "ethnic_composition": {
+        "White": 0.45,
+        "Black": 0.28,
+        "Hispanic": 0.15,
+        "Asian": 0.08,
+        "Other": 0.04
+      },
+      "median_household_income": 65000,
+      "poverty_rate": 0.18,
+      "education_levels": {
+        "less_than_high_school": 0.18,
+        "high_school_diploma": 0.24,
+        "some_college": 0.28,
+        "bachelors_degree": 0.22,
+        "graduate_degree": 0.08
+      },
+      "housing_tenure": {
+        "owner_occupied": 0.58,
+        "renter_occupied": 0.42
+      }
+    },
+    "community_organizations": [
+      {
+        "org_id": "org_001",
+        "name": "Downtown Neighborhood Association",
+        "type": "civic",
+        "focus_area": "community_development",
+        "members": 450,
+        "founded_year": 1995,
+        "meeting_frequency": "monthly",
+        "primary_activities": ["neighborhood_watch", "community_events", "advocacy"],
+        "funding_sources": ["member_dues", "grants", "donations"],
+        "impact_score": 0.78
+      },
+      {
+        "org_id": "org_002",
+        "name": "Local Business Alliance",
+        "type": "economic",
+        "focus_area": "economic_development",
+        "members": 120,
+        "founded_year": 2010,
+        "meeting_frequency": "quarterly",
+        "primary_activities": ["business_networking", "marketing_support", "policy_advocacy"],
+        "funding_sources": ["member_dues", "sponsorships"],
+        "impact_score": 0.72
+      }
+    ],
+    "social_networks": {
+      "collaboration_ties": 156,
+      "resource_sharing_connections": 89,
+      "information_flow_channels": 234,
+      "conflict_points": 12,
+      "network_density": 0.67,
+      "central_actors": ["Neighborhood Association", "Business Alliance"],
+      "communication_patterns": {
+        "formal_channels": ["community_meetings", "newsletter"],
+        "informal_channels": ["social_media", "word_of_mouth"],
+        "digital_channels": ["community_app", "email_lists"]
+      }
+    },
+    "community_priorities": [
+      {
+        "issue": "Public Safety",
+        "priority_level": "high",
+        "community_support": 0.89,
+        "affected_population": 0.95,
+        "urgency_score": 0.85
+      },
+      {
+        "issue": "Digital Access",
+        "priority_level": "high",
+        "community_support": 0.76,
+        "affected_population": 0.82,
+        "urgency_score": 0.78
+      },
+      {
+        "issue": "Green Space",
+        "priority_level": "medium",
+        "community_support": 0.71,
+        "affected_population": 0.88,
+        "urgency_score": 0.65
+      }
+    ],
+    "participation_data": {
+      "survey_response_rate": 0.42,
+      "workshop_participation": {
+        "data_validation_workshop": 45,
+        "priority_setting_workshop": 52,
+        "solution_design_workshop": 38
+      },
+      "digital_engagement": {
+        "online_survey_responses": 285,
+        "social_media_interactions": 1240,
+        "community_app_users": 180
+      }
+    }
+  },
+  "environmental_data": {
+    "environmental_quality": {
+      "air_quality": {
+        "pm2_5_average": 12.5,
+        "ozone_level": 45,
+        "air_quality_index": 68,
+        "dominant_pollutants": ["traffic", "industrial"],
+        "monitoring_stations": 5,
+        "compliance_rate": 0.78
+      },
+      "water_quality": {
+        "potable_water_compliance": 0.97,
+        "surface_water_quality_index": 0.78,
+        "contamination_sources": ["urban_runoff", "aging_infrastructure"],
+        "testing_frequency": "quarterly"
+      },
+      "noise_levels": {
+        "average_daytime_db": 62,
+        "average_nighttime_db": 48,
+        "noise_complaints": 156,
+        "primary_sources": ["traffic", "construction", "entertainment"]
+      },
+      "light_pollution": {
+        "sky_glow_index": 0.65,
+        "light_trespass_incidents": 23,
+        "energy_waste_estimate": 0.15
+      }
+    },
+    "biodiversity": {
+      "species_richness": {
+        "plants": 156,
+        "birds": 43,
+        "insects": 89,
+        "mammals": 8
+      },
+      "habitat_types": [
+        {
+          "type": "urban_park",
+          "area_hectares": 12.5,
+          "condition_score": 0.78,
+          "biodiversity_index": 0.65
+        },
+        {
+          "type": "community_garden",
+          "area_hectares": 2.3,
+          "condition_score": 0.82,
+          "biodiversity_index": 0.71
+        },
+        {
+          "type": "street_greenspace",
+          "area_hectares": 8.7,
+          "condition_score": 0.69,
+          "biodiversity_index": 0.58
+        }
+      ],
+      "ecosystem_services": {
+        "air_filtration": "medium",
+        "carbon_sequestration": "low",
+        "temperature_regulation": "medium",
+        "pollination_services": "medium",
+        "recreational_value": "high"
+      }
+    },
+    "health_indicators": {
+      "environmental_health_index": 0.72,
+      "respiratory_illness_rate": 0.085,
+      "asthma_prevalence": 0.112,
+      "heat_related_illness": 0.032,
+      "mental_health_index": 0.68,
+      "access_to_healthcare": {
+        "primary_care_facilities": 3,
+        "emergency_services": 1,
+        "mental_health_services": 2,
+        "pharmacy_access": 8,
+        "average_distance_to_care": 1.2
+      },
+      "physical_activity_spaces": {
+        "parks": 12,
+        "recreational_facilities": 8,
+        "sports_fields": 3,
+        "walking_trails_km": 25,
+        "bike_lanes_km": 15
+      }
+    },
+    "climate_vulnerability": {
+      "flood_risk_zones": ["Zone_A", "Zone_B"],
+      "flood_risk_score": 0.45,
+      "heat_vulnerability_index": 0.65,
+      "extreme_weather_events": {
+        "heat_waves_per_year": 8,
+        "heavy_rainfall_events": 12,
+        "strong_wind_events": 6,
+        "winter_storms": 4
+      },
+      "urban_heat_island_effect": 3.2,
+      "adaptation_measures": [
+        {
+          "measure": "Tree planting program",
+          "status": "implemented",
+          "coverage": 0.35,
+          "effectiveness": 0.62
+        },
+        {
+          "measure": "Cool roof initiative",
+          "status": "planned",
+          "coverage": 0.0,
+          "effectiveness": 0.75
+        },
+        {
+          "measure": "Emergency response planning",
+          "status": "implemented",
+          "coverage": 1.0,
+          "effectiveness": 0.85
+        }
+      ]
+    }
+  },
+  "cross_domain_integrations": {
+    "technical_social_interactions": [
+      {
+        "interaction_id": "ts_001",
+        "technical_factor": "digital_connectivity",
+        "social_factor": "community_engagement",
+        "correlation_coefficient": 0.45,
+        "impact_direction": "positive",
+        "significance_level": 0.95
+      },
+      {
+        "interaction_id": "ts_002",
+        "technical_factor": "infrastructure_condition",
+        "social_factor": "social_cohesion",
+        "correlation_coefficient": 0.38,
+        "impact_direction": "positive",
+        "significance_level": 0.90
+      }
+    ],
+    "social_environmental_interactions": [
+      {
+        "interaction_id": "se_001",
+        "social_factor": "community_stewardship",
+        "environmental_factor": "green_space_quality",
+        "correlation_coefficient": 0.52,
+        "impact_direction": "positive",
+        "significance_level": 0.98
+      }
+    ],
+    "technical_environmental_interactions": [
+      {
+        "interaction_id": "te_001",
+        "technical_factor": "smart_monitoring",
+        "environmental_factor": "air_quality_improvement",
+        "correlation_coefficient": 0.41,
+        "impact_direction": "positive",
+        "significance_level": 0.92
+      }
+    ]
+  },
+  "data_quality_metrics": {
+    "technical_data": {
+      "completeness": 0.89,
+      "accuracy": 0.94,
+      "consistency": 0.91,
+      "timeliness": 0.87
+    },
+    "social_data": {
+      "completeness": 0.76,
+      "accuracy": 0.82,
+      "consistency": 0.79,
+      "timeliness": 0.84
+    },
+    "environmental_data": {
+      "completeness": 0.94,
+      "accuracy": 0.89,
+      "consistency": 0.92,
+      "timeliness": 0.88
+    },
+    "overall_assessment": {
+      "data_integration_quality": 0.85,
+      "cross_domain_consistency": 0.82,
+      "spatial_coverage": 0.91,
+      "temporal_coverage": 0.86
+    }
+  },
+  "community_validation": {
+    "workshops": [
+      {
+        "workshop_type": "data_validation_workshop",
+        "date": "2024-02-15",
+        "participants": 45,
+        "key_feedback": "Confirmed connectivity gaps in low-income areas",
+        "validation_score": 0.87,
+        "action_items": ["Conduct targeted connectivity surveys", "Develop Wi-Fi hotspot plan"]
+      },
+      {
+        "workshop_type": "priority_setting_workshop",
+        "date": "2024-03-10",
+        "participants": 52,
+        "key_feedback": "Public safety and digital access ranked highest",
+        "validation_score": 0.91,
+        "action_items": ["Prioritize safety initiatives", "Address digital divide"]
+      }
+    ],
+    "survey_results": {
+      "response_rate": 0.42,
+      "findings_accuracy": 0.87,
+      "priority_alignment": 0.82,
+      "solution_acceptance": 0.79
+    },
+    "stakeholder_feedback": {
+      "residents": {"satisfaction": 0.76, "engagement_level": 0.68},
+      "business_owners": {"satisfaction": 0.82, "engagement_level": 0.74},
+      "community_leaders": {"satisfaction": 0.89, "engagement_level": 0.91},
+      "local_government": {"satisfaction": 0.71, "engagement_level": 0.85}
+    }
+  }
+}
