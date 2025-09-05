@@ -75,3 +75,4 @@ xgboost>=2.0.0  # For machine learning
 apache-kafka>=2.8.0  # For real-time data streaming
 redis>=4.5.0  # For caching and real-time data
 influxdb-client>=1.36.0  # For time-series data
+

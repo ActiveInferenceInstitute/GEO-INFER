@@ -8,6 +8,12 @@
 
 GEO-INFER is a geospatial inference framework consisting of many modules organized into distinct categories with clear dependency relationships and data flow patterns.
 
+### Conventions
+- Language is concise and technical; avoid unverifiable claims.
+- Examples are illustrative; see each module's `examples/` for runnable code.
+- Use `GEO-INFER-SPACE` for spatial, `GEO-INFER-PLACE` for place-based, and `GEO-INFER-TIME` for temporal workflows.
+- H3 usage follows the H3 v4 API. See `GEO-INFER-SPACE` for details.
+
 ### Core Module Categories
 
 #### 🧠 Analytical Core
@@ -224,7 +230,7 @@ GEO-INFER-ACT → GEO-INFER-BAYES → GEO-INFER-AI → GEO-INFER-ACT (Continuous
   - Real-time data streaming
 - **Use Cases**: Data preprocessing, quality assurance, pipeline management
 - **Integration**: Provides data services to all analytical modules
-- **Performance**: Petabyte-scale data processing with distributed storage
+ 
 
 #### GEO-INFER-API: API Management System
 - **Purpose**: Provides RESTful and GraphQL APIs for external integration
@@ -236,7 +242,7 @@ GEO-INFER-ACT → GEO-INFER-BAYES → GEO-INFER-AI → GEO-INFER-ACT (Continuous
   - API versioning and documentation
 - **Use Cases**: External integrations, web applications, mobile apps
 - **Integration**: Exposes functionality from all modules
-- **Performance**: 99.9% uptime with auto-scaling
+ 
 
 ### Domain-Specific Modules
 
@@ -250,7 +256,7 @@ GEO-INFER-ACT → GEO-INFER-BAYES → GEO-INFER-AI → GEO-INFER-ACT (Continuous
   - Yield optimization algorithms
 - **Use Cases**: Precision agriculture, crop planning, climate adaptation
 - **Integration**: Uses ACT, SPACE, and TIME for agricultural analysis
-- **Performance**: Real-time crop monitoring with predictive analytics
+ 
 
 #### GEO-INFER-ECON: Economic Analysis
 - **Purpose**: Economic modeling and analysis for geospatial contexts
@@ -262,7 +268,7 @@ GEO-INFER-ACT → GEO-INFER-BAYES → GEO-INFER-AI → GEO-INFER-ACT (Continuous
   - Spatial economic modeling
 - **Use Cases**: Economic development, policy analysis, investment planning
 - **Integration**: Combines with ACT and BAYES for economic modeling
-- **Performance**: Complex economic simulations with parallel processing
+ 
 
 #### GEO-INFER-RISK: Risk Assessment
 - **Purpose**: Comprehensive risk assessment and management
@@ -274,7 +280,7 @@ GEO-INFER-ACT → GEO-INFER-BAYES → GEO-INFER-AI → GEO-INFER-ACT (Continuous
   - Real-time risk monitoring
 - **Use Cases**: Disaster preparedness, insurance, policy planning
 - **Integration**: Uses BAYES, ACT, and SPACE for risk modeling
-- **Performance**: Real-time risk assessment with predictive alerts
+ 
 
 ## Integration Patterns
 

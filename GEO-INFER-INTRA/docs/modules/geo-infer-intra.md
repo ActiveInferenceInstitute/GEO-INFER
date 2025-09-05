@@ -529,6 +529,7 @@ synthesis_engine.enable_synthesis_intelligence(
 - **[GEO-INFER-AI](../modules/geo-infer-ai.md)** - AI capabilities
 - **[GEO-INFER-ACT](../modules/geo-infer-act.md)** - Active inference capabilities
 - **[GEO-INFER-COG](../modules/geo-infer-cog.md)** - Cognitive modeling capabilities
+ - **[Modules Overview](../modules/index.md)** - All modules index
 
 ---
 

@@ -10,6 +10,7 @@ Note: Code examples are illustrative; see `GEO-INFER-BAYES/examples` for runnabl
 
 ### Links
 - Module README: ../../GEO-INFER-BAYES/README.md
+- Modules Overview: ../modules/index.md
 
 GEO-INFER-BAYES provides statistical analysis capabilities for geospatial data. It enables:
 

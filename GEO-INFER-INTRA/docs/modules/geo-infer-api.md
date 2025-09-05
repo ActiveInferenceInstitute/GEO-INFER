@@ -29,6 +29,7 @@ The module provides RESTful endpoints following OpenAPI standards with features:
 ### Links
 - Module README: ../../GEO-INFER-API/README.md
 - OpenAPI: ../../GEO-INFER-API/docs/openapi_spec.yaml
+- Modules Overview: ../modules/index.md
 
 #### GraphQL Schema
 Flexible GraphQL schema for complex queries with real-time capabilities:

@@ -10,6 +10,7 @@ Note: Code examples are illustrative; see `GEO-INFER-DATA/examples` for runnable
 
 ### Links
 - Module README: ../../GEO-INFER-DATA/README.md
+- Modules Overview: ../modules/index.md
 
 GEO-INFER-DATA is the data management engine that provides data handling capabilities for geospatial information. It enables:
 

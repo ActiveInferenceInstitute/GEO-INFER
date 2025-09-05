@@ -384,3 +384,4 @@
 2025-08-22 07:47:09,344 - utils.enhanced_h3_fusion - INFO - Starting enhanced H3 geospatial fusion for 2 data sources
 2025-08-22 07:47:09,355 - utils.enhanced_h3_fusion - INFO - Processing data source: zoning
 2025-08-22 07:47:09,843 - utils.enhanced_h3_fusion - INFO - [zoning] fused 1/2584 source hexes; matched targets so far: 7
+2025-08-22 07:52:45,661 - utils.enhanced_h3_fusion - INFO - [zoning] fused 1001/2584 source hexes; matched targets so far: 7007

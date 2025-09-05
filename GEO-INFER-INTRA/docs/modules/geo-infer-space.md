@@ -34,6 +34,8 @@ h3_index = h3.latlng_to_cell(37.7749, -122.4194, 9)
 neighbors = h3.grid_disk(h3_index, 1)
 ```
 
+Note: This module uses the H3 v4 API. For examples and migration notes, see `GEO-INFER-SPACE` README and utils.
+
 #### Spatial Analysis Capabilities
 The module provides comprehensive spatial analysis tools with advanced features:
 
@@ -45,6 +47,7 @@ The module provides comprehensive spatial analysis tools with advanced features:
 - Module README: ../../GEO-INFER-SPACE/README.md
 - API docs: ../../GEO-INFER-SPACE/docs/api_schema.yaml
 - H3 utilities: ../../GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py
+- Modules Overview: ../modules/index.md
 
 ## 📚 Core Features
 

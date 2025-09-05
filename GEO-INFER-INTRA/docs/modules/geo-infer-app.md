@@ -10,6 +10,7 @@ Note: Code examples are illustrative; see `GEO-INFER-APP/examples` for runnable 
 
 ### Links
 - Module README: ../../GEO-INFER-APP/README.md
+- Modules Overview: ../modules/index.md
 
 GEO-INFER-APP is the application framework that provides user interfaces, accessibility tools, and application development capabilities for the GEO-INFER framework. It enables:
 

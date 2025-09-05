@@ -611,3 +611,4 @@ feedback_integration = {
 ---
 
 This methodology guide provides a comprehensive framework for conducting integrated area studies. The approach emphasizes community engagement, ethical data practices, and practical outcomes for sustainable area planning. Success depends on maintaining strong community relationships, ensuring data quality, and adapting methods to local contexts and capacities.
+

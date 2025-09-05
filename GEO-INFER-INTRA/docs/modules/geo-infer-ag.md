@@ -10,6 +10,7 @@ Note: Code examples are illustrative; see `GEO-INFER-AG/examples` for runnable s
 
 ### Links
 - Module README: ../../GEO-INFER-AG/README.md
+- Modules Overview: ../modules/index.md
 
 GEO-INFER-AG provides agricultural analysis and precision farming capabilities for geospatial information systems. It enables:
 
@@ -1040,6 +1041,7 @@ ag_framework.enable_agricultural_security_monitoring(
 - **[GEO-INFER-DATA](../modules/geo-infer-data.md)** - Data management capabilities
 - **[GEO-INFER-ACT](../modules/geo-infer-act.md)** - Active inference capabilities
 - **[GEO-INFER-ECON](../modules/geo-infer-econ.md)** - Economic analysis capabilities
+ - **[GEO-INFER-PLACE](../modules/geo-infer-place.md)** - Place-based analysis
 
 ---
 

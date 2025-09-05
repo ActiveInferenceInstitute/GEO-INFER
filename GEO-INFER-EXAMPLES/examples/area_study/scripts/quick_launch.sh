@@ -27,3 +27,4 @@ streamlit run "$DASHBOARD_SCRIPT" \
     --theme.base light \
     --browser.serverAddress localhost \
     --browser.serverPort 8501
+

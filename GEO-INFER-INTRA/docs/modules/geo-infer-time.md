@@ -39,6 +39,7 @@ Where:
 
 ### Links
 - Module README: ../../GEO-INFER-TIME/README.md
+- Modules Overview: ../modules/index.md
 
 #### Temporal Patterns
 The module identifies various temporal patterns with advanced detection methods:

@@ -10,6 +10,7 @@ Note: Code examples are illustrative; see `GEO-INFER-AI/examples` for runnable s
 
 ### Links
 - Module README: ../../GEO-INFER-AI/README.md
+- Modules Overview: ../modules/index.md
 
 GEO-INFER-AI provides machine learning capabilities for geospatial analysis. It enables:
 

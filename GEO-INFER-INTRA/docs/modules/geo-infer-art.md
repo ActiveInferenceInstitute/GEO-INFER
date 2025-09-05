@@ -10,6 +10,7 @@ Note: Code examples are illustrative; see `GEO-INFER-ART/examples` for runnable 
 
 ### Links
 - Module README: ../../GEO-INFER-ART/README.md
+- Modules Overview: ../modules/index.md
 
 GEO-INFER-ART is the artificial intelligence art engine that provides comprehensive AI-generated art and creative visualization capabilities for geospatial information systems. It enables:
 

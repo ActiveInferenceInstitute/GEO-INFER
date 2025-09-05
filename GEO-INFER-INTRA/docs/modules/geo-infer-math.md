@@ -10,6 +10,7 @@ Note: Code examples are illustrative; see `GEO-INFER-MATH/examples` for runnable
 
 ### Links
 - Module README: ../../GEO-INFER-MATH/README.md
+- Modules Overview: ../modules/index.md
 
 GEO-INFER-MATH is the mathematical foundations module that provides core mathematical capabilities for the GEO-INFER framework. It enables:
 
