@@ -1,0 +1,8 @@
+[console_scripts]
+gis-fix-double-h3 = geo_infer_space.tools.fix_double_h3:main
+gis-fix-h3-calls = geo_infer_space.tools.fix_h3_calls:main
+gis-fix-h3-v4 = geo_infer_space.tools.fix_h3_v4_api:main
+gis-fix-imports = geo_infer_space.tools.fix_imports:main
+gis-fix-rel-imports = geo_infer_space.tools.fix_relative_imports:main
+gis-h3-tests = geo_infer_space.tools.run_h3_tests_simple:main
+gis-verify-h3-v4 = geo_infer_space.tools.verify_h3_v4_compliance:main

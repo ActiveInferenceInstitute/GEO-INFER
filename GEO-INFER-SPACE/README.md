@@ -234,8 +234,11 @@ pip list | grep geo-infer
 
 ### 2. Installation
 ```bash
-# Install this module
+# Install this module with core dependencies
 uv pip install -e ./GEO-INFER-SPACE
+
+# Or install with all optional features
+uv pip install -e "./GEO-INFER-SPACE[all]"
 
 # Verify installation
 python -c "import geo_infer_space; print('✅ Installation successful')"
@@ -252,21 +255,91 @@ nano config/local.yaml
 
 ### 4. Run First Example
 ```python
-# Illustrative example (APIs may differ)
-# Prefer using provided utilities in src/geo_infer_space where available
+# Vector operations example
 import geopandas as gpd
 from shapely.geometry import Point
+from geo_infer_space.analytics.vector import buffer_and_intersect, geometric_calculations
 
-gdf = gpd.GeoDataFrame(geometry=[Point(-122.4, 37.77)], crs="EPSG:4326")
-gdf = gdf.to_crs(3857)
-gdf["geometry"] = gdf.buffer(1000)
-print(len(gdf))
+# Create sample data
+points = gpd.GeoDataFrame(
+    geometry=[Point(-122.4, 37.77), Point(-122.3, 37.78)], 
+    crs="EPSG:4326"
+)
+polygons = gpd.GeoDataFrame(
+    geometry=[Point(-122.35, 37.775).buffer(0.01)], 
+    crs="EPSG:4326"
+)
+
+# Project to metric CRS and perform buffer analysis
+points_proj = points.to_crs("EPSG:3857")
+polygons_proj = polygons.to_crs("EPSG:3857")
+result = buffer_and_intersect(points_proj, polygons_proj, 1000)  # 1km buffer
+
+print(f"Buffer analysis result: {len(result)} features")
+
+# Calculate geometric properties
+props = geometric_calculations(polygons)
+print(f"Polygon area: {props['area'].iloc[0]:.6f} square degrees")
 ```
 
-### 5. Next Steps
+### 5. H3 Hexagonal Grid Example
+```python
+# H3 operations example
+from geo_infer_space.utils.h3_utils import latlng_to_cell, polygon_to_cells
+
+# Convert coordinates to H3 cell
+cell = latlng_to_cell(37.7749, -122.4194, resolution=9)
+print(f"H3 cell: {cell}")
+
+# Convert polygon to H3 cells
+polygon = {
+    "type": "Polygon",
+    "coordinates": [[
+        [-122.42, 37.77], [-122.41, 37.77],
+        [-122.41, 37.78], [-122.42, 37.78],
+        [-122.42, 37.77]
+    ]]
+}
+cells = polygon_to_cells(polygon, resolution=9)
+print(f"Polygon covers {len(cells)} H3 cells")
+```
+
+### 6. REST API Example
+```python
+# Start the API server
+from geo_infer_space.api import app
+import uvicorn
+
+# Run server (in production, use proper WSGI server)
+uvicorn.run(app, host="0.0.0.0", port=8000)
+
+# In another terminal, test the API
+import requests
+import json
+
+# Test buffer analysis endpoint
+data = {
+    "data": {
+        "type": "FeatureCollection",
+        "features": [{
+            "type": "Feature",
+            "geometry": {"type": "Point", "coordinates": [-122.4, 37.77]},
+            "properties": {}
+        }]
+    },
+    "buffer_distance": 1000,
+    "crs": "EPSG:3857"
+}
+
+response = requests.post("http://localhost:8000/api/v1/buffer", json=data)
+print(f"API response: {response.status_code}")
+```
+
+### 7. Next Steps
 - 📖 See [detailed examples](./examples/) for advanced usage
-- 🔗 Check [integration guide](./docs/integration.md) for connecting with other modules
+- 🔗 Check [API documentation](http://localhost:8000/docs) when server is running
 - 🛠️ Visit [configuration reference](./docs/configuration.md) for all options
+- 🧪 Run tests: `pytest tests/ -v`
 
 ## Getting Started (Detailed)
 
@@ -285,6 +358,29 @@ print(len(gdf))
 pip install -e ./GEO-INFER-SPACE
 # Or if managed by a broader project build system.
 ```
+### CLI Tools
+
+After installation, the following console commands are available to support H3 migration and checks:
+
+```bash
+# Verify H3 v4 compliance across the repo
+gis-verify-h3-v4
+
+# Migrate legacy H3 v3 calls to v4 API
+gis-fix-h3-v4
+
+# Quick fix helpers
+gis-fix-h3-calls
+gis-fix-double-h3
+gis-fix-imports
+gis-fix-rel-imports
+
+# Run simple H3 verification tests
+gis-h3-tests
+```
+
+These tools live under `src/geo_infer_space/tools/` and can be called from any working directory within the repo.
+
 
 ### Configuration
 Configuration for GEO-INFER-SPACE might include:
@@ -342,16 +438,76 @@ boundary = cell_to_latlng_boundary(cell)
 # )
 ```
 
-## Spatial Analytics Capabilities (Examples)
+## 🔧 Comprehensive Spatial Analytics Capabilities
 
--   **Proximity Analysis:** Buffering, nearest neighbor searches, distance matrices.
--   **Overlay Analysis:** Union, intersection, difference, symmetrical difference for vector layers; raster overlay operations.
--   **Network Analysis:** Shortest path, service area calculation, origin-destination cost matrices, traveling salesperson problems.
--   **Terrain Analysis:** Slope, aspect, hillshade, curvature, viewshed analysis, watershed delineation.
--   **Spatial Interpolation:** IDW, kriging, spline interpolation for creating continuous surfaces from point data.
--   **Clustering & Hotspot Detection:** DBSCAN, K-Means (spatial variants), Getis-Ord Gi*, Anselin Local Moran's I.
--   **Raster Processing:** Map algebra, resampling, reclassification, zonal statistics, image filtering.
--   **Geocoding & Reverse Geocoding:** Converting addresses to coordinates and vice-versa (often via external services integrated here).
+### Vector Operations
+- **Buffer Analysis**: Create buffers around geometries with distance-based analysis
+- **Overlay Operations**: Union, intersection, difference, symmetric difference
+- **Proximity Analysis**: Nearest neighbor searches, distance matrices, spatial relationships
+- **Spatial Joins**: Attribute-based spatial relationships (intersects, contains, within, etc.)
+- **Geometric Calculations**: Area, perimeter, centroid, compactness, convex hull properties
+- **Topology Operations**: Simplification, buffering, convex hull, envelope, dissolve
+
+### Raster Analysis
+- **Terrain Analysis**: Slope, aspect, hillshade, curvature, topographic position index (TPI)
+- **Map Algebra**: Mathematical operations on raster layers with custom expressions
+- **Focal Statistics**: Moving window operations (mean, sum, std, min, max, median)
+- **Zonal Statistics**: Statistical summaries within polygon zones
+- **Raster Overlay**: Multi-layer combination with various methods (sum, mean, weighted)
+- **Image Processing**: Gaussian filtering, median filtering, edge detection, histogram equalization
+
+### Network Analysis
+- **Shortest Path**: Optimal routing between points with customizable weights
+- **Service Areas**: Isochrone/isodistance analysis from center points
+- **Network Connectivity**: Graph metrics, component analysis, centrality measures
+- **Routing Analysis**: Origin-destination matrices for multiple points
+- **Accessibility Analysis**: Reachability and accessibility metrics
+
+### Geostatistics
+- **Spatial Interpolation**: IDW, Kriging, RBF, nearest neighbor methods
+- **Clustering Analysis**: DBSCAN, K-means, hierarchical clustering
+- **Hotspot Detection**: Getis-Ord Gi*, Local Moran's I, kernel density estimation
+- **Spatial Autocorrelation**: Global Moran's I, Geary's C statistics
+- **Variogram Analysis**: Experimental variogram calculation and modeling
+
+### H3 Hexagonal Grid Operations
+- **Coordinate Conversion**: Lat/lng to H3 cells and vice versa
+- **Polygon Coverage**: Convert polygons to H3 cell sets
+- **Grid Operations**: K-ring neighborhoods, grid distances, compaction
+- **Boundary Calculation**: H3 cell boundary extraction
+- **Multi-resolution**: Support for all H3 resolutions (0-15)
+
+### Point Cloud Processing
+- **Data Loading**: Support for LAS/LAZ, CSV, text formats
+- **Filtering**: Statistical outlier removal, radius filtering, voxel grid downsampling
+- **Feature Extraction**: Geometric features from point neighborhoods
+- **Classification**: Ground/vegetation/building detection, clustering-based classification
+- **Surface Generation**: Triangulation, grid interpolation, contour generation
+
+### Data I/O Capabilities
+- **Vector Formats**: GeoJSON, Shapefile, GeoPackage, KML, CSV, Excel, Parquet, Feather
+- **Raster Formats**: GeoTIFF, COG, NetCDF, various image formats
+- **Point Cloud Formats**: LAS/LAZ files, text-based formats
+- **Streaming**: Support for large datasets with chunked processing
+- **Format Detection**: Automatic format detection and validation
+
+### REST API Endpoints
+- **`/api/v1/buffer`**: Buffer analysis operations
+- **`/api/v1/proximity`**: Proximity and distance analysis
+- **`/api/v1/interpolation`**: Spatial interpolation services
+- **`/api/v1/clustering`**: Spatial clustering analysis
+- **`/api/v1/hotspots`**: Hotspot detection services
+- **`/api/v1/network`**: Network analysis operations
+- **`/api/v1/h3`**: H3 hexagonal grid operations
+- **`/api/v1/health`**: Service health monitoring
+- **`/api/v1/capabilities`**: Available analysis capabilities
+
+### Performance Features
+- **Parallel Processing**: Multi-core support for computationally intensive operations
+- **Spatial Indexing**: R-tree, QuadTree, H3, Geohash indexing for fast queries
+- **Caching**: Redis and in-memory caching for repeated operations
+- **Streaming**: Memory-efficient processing of large datasets
+- **Optimization**: NumPy/SciPy optimized algorithms, optional Numba JIT compilation
 
 ## Performance and Scaling Strategies
 

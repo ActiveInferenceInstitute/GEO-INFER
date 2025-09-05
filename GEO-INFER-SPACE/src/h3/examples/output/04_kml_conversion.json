@@ -1,8 +1,0 @@
-{
-  "input_cells": [
-    "89283082803ffff",
-    "892a1072893ffff"
-  ],
-  "kml_output": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<kml xmlns=\"http://www.opengis.net/kml/2.2\">\n<Document>\n<name>H3 Cells</name>\n<Placemark>\n<name>H3 Cell 1</name>\n<description>\nH3 Index: 89283082803ffff<br/>\nResolution: 9<br/>\nArea: 0.109402 km\u00b2\n</description>\n<Polygon>\n<outerBoundaryIs>\n<LinearRing>\n<coordinates>\n-122.41701147197294,37.772010477332394,0 -122.41594013984891,37.77369317299805,0 -122.41719971841658,37.775197782893386,0 -122.41953062807342,37.775019673792606,0 -122.42060189084884,37.7733369780061,0 -122.41934231331867,37.771832391440924,0\n</coordinates>\n</LinearRing>\n</outerBoundaryIs>\n</Polygon>\n</Placemark>\n<Placemark>\n<name>H3 Cell 2</name>\n<description>\nH3 Index: 892a1072893ffff<br/>\nResolution: 9<br/>\nArea: 0.105818 km\u00b2\n</description>\n<Polygon>\n<outerBoundaryIs>\n<LinearRing>\n<coordinates>\n-74.0057122762948,40.714138089736345,0 -74.00781372666268,40.71319995679591,0 -74.00774395008956,40.71144009204547,0 -74.00557288327344,40.71061835800672,0 -74.00347150729532,40.7115564212349,0 -74.0035411237431,40.713316288211296,0\n</coordinates>\n</LinearRing>\n</outerBoundaryIs>\n</Polygon>\n</Placemark>\n</Document>\n</kml>",
-  "kml_length": 1131
-}

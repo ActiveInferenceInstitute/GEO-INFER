@@ -1,21 +1,64 @@
 # GEO-INFER-SPACE requirements
 
-# Core dependencies
+# Core geospatial dependencies
 numpy>=1.20.0,<2.0
 pandas>=1.3.0
 geopandas>=0.10.0
 shapely>=1.8.0
 h3>=4.0.0
 pyproj>=3.3.0
+rasterio>=1.3.0
+fiona>=1.8.0
+
+# Spatial analysis dependencies
+scipy>=1.7.0
+scikit-learn>=1.0.0
+networkx>=2.6.0
 
 # API dependencies
 fastapi>=0.68.0
 uvicorn>=0.15.0
 python-multipart>=0.0.5
+pydantic>=1.8.0
+geojson-pydantic>=0.4.0
+
+# Data validation and serialization
+pydantic>=1.8.0
+geojson-pydantic>=0.4.0
+pyyaml>=6.0
+
+# Optional dependencies for enhanced functionality
+# Point cloud processing
+laspy>=2.0.0
+
+# Advanced interpolation and geostatistics
+# scikit-gstat>=1.0.0  # Optional for advanced variogram analysis
+
+# Network analysis enhancement
+osmnx>=1.2.0  # Optional for OpenStreetMap network analysis
+
+# Raster processing enhancements
+xarray>=0.20.0  # For NetCDF and multidimensional arrays
+rioxarray>=0.11.0  # For rasterio integration with xarray
+
+# Performance optimization
+numba>=0.56.0  # Optional for JIT compilation
+dask>=2021.10.0  # Optional for parallel processing
+dask[dataframe]>=2021.10.0
+
+# Caching
+redis>=4.0.0  # Optional for Redis caching
 
 # Testing dependencies
 pytest>=6.2.5
 pytest-cov>=2.12.1
+pytest-asyncio>=0.18.0
+
+# Development dependencies
+black>=23.3.0
+flake8>=6.0.0
+isort>=5.12.0
+mypy>=1.0.0
 
 # Visualization dependencies
 matplotlib>=3.5.0
@@ -23,5 +66,9 @@ seaborn>=0.11.0
 plotly>=5.0.0
 folium>=0.12.0
 
-# For integrating with GEO-INFER-GIT
-# Note: GEO-INFER-GIT should be installed separately 
+# Documentation
+sphinx>=4.0.0
+sphinx-rtd-theme>=1.0.0
+
+# For integrating with GEO-INFER modules
+# Note: Other GEO-INFER modules should be installed separately 

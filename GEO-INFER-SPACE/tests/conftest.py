@@ -1,10 +1,16 @@
 import pytest
 import sys
 from pathlib import Path
-from geo_infer_space.osc_geo import create_h3_data_loader
 import subprocess
 import shutil
 import os
+
+# Optional: OSC integration imports (skip if heavy deps missing)
+try:
+    from geo_infer_space.osc_geo import create_h3_data_loader  # type: ignore
+except Exception as _osc_exc:  # pragma: no cover
+    create_h3_data_loader = None  # type: ignore
+    print(f"[tests] Warning: OSC integration not available; some tests may be skipped: {_osc_exc}")
 
 # Add cloned repo paths to Python path for test discovery
 repo_dir = Path(__file__).parent.parent / "repo"
