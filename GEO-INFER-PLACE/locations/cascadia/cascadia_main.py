@@ -20,14 +20,41 @@ References for pipeline optimization patterns:
 import argparse
 import logging
 import sys
+import os
 from datetime import datetime
 from pathlib import Path
 
-# Import utility functions
+# --- EARLY PATH SETUP ---
+# This must happen before any imports that depend on geo_infer_place or geo_infer_space
+cascadian_dir = os.path.dirname(os.path.realpath(__file__))
+project_root = os.path.abspath(os.path.join(cascadian_dir, '..', '..', '..'))
+
+# Set OSC repository path environment variable early
+osc_repo_path = os.path.join(project_root, 'GEO-INFER-SPACE', 'repo')
+os.environ['OSC_REPOS_DIR'] = osc_repo_path
+print(f"INFO: Set OSC_REPOS_DIR to {osc_repo_path}")
+
+# Define the 'src' paths for the required modules
+place_src_path = os.path.join(project_root, 'GEO-INFER-PLACE', 'src')
+space_src_path = os.path.join(project_root, 'GEO-INFER-SPACE', 'src')
+
+# Add the local directory for specialized modules like 'zoning'
+if cascadian_dir not in sys.path:
+    sys.path.insert(0, cascadian_dir)
+
+# Add the src directories to the path
+for p in [place_src_path, space_src_path]:
+    if os.path.isdir(p) and p not in sys.path:
+        sys.path.insert(0, p)
+        print(f"INFO: Successfully added {p} to sys.path")
+    elif not os.path.isdir(p):
+        print(f"WARNING: Required src path not found: {p}")
+
+# Now we can safely import the utility functions
 from utils.setup_manager import setup_logging, load_analysis_config
 from utils.data_processor import (
-    create_shared_backend, 
-    initialize_modules, 
+    create_shared_backend,
+    initialize_modules,
     validate_data_acquisition,
     export_results
 )
@@ -381,55 +408,7 @@ Options:
     --validate-h3: Validate H3 operations and API usage
 """
 
-import sys
-import os
-from pathlib import Path
-
-# --- Robust Path Setup ---
-# This setup allows for imports from the geo_infer_place and geo_infer_space modules.
-try:
-    # Use os.path for more explicit path construction
-    cascadian_dir = os.path.dirname(os.path.realpath(__file__))
-    project_root = os.path.abspath(os.path.join(cascadian_dir, '..', '..', '..'))
-
-    # --- FIX: Set OSC repository path environment variable early ---
-    # Resolve path relative to project root to be portable across environments
-    osc_repo_path = os.path.join(project_root, 'GEO-INFER-SPACE', 'repo')
-    os.environ['OSC_REPOS_DIR'] = osc_repo_path
-    print(f"INFO: Set OSC_REPOS_DIR to {osc_repo_path}")
-    # --- END FIX ---
-
-    # Define the 'src' paths for the required modules
-    place_src_path = os.path.join(project_root, 'GEO-INFER-PLACE', 'src')
-    space_src_path = os.path.join(project_root, 'GEO-INFER-SPACE', 'src')
-
-    # Add the local directory for specialized modules like 'zoning'
-    if cascadian_dir not in sys.path:
-        sys.path.insert(0, cascadian_dir)
-
-    # Add the src directories to the path
-    for p in [place_src_path, space_src_path]:
-        if os.path.isdir(p) and p not in sys.path:
-            sys.path.insert(0, p)
-            print(f"INFO: Successfully added {p} to sys.path")
-        elif not os.path.isdir(p):
-            print(f"WARNING: Required src path not found: {p}")
-
-except Exception as e:
-    print(f"CRITICAL: Could not set up paths: {e}. Please ensure you are running from the 'GEO-INFER-PLACE/locations/cascadia' directory")
-    sys.exit(1)
-# --- End Path Setup ---
-
-import argparse
-import json
-import logging
-from typing import List, Dict, Any, Optional
-import yaml
-from datetime import datetime
-import traceback
-import time
-from tqdm import tqdm
-import numpy as np
+# Additional imports needed for main script functionality
 
 # Import utils modules
 from utils.setup_manager import (

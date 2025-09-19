@@ -268,9 +268,9 @@ GEO-INFER-TIME serves as a critical temporal engine for the GEO-INFER ecosystem:
 -   **GEO-INFER-SPACE**: Indispensable for spatio-temporal analysis. TIME provides the temporal dimension, models, and analytics for spatial data managed by SPACE. This enables tracking changes in spatial patterns over time, spatio-temporal kriging/interpolation, modeling object movement, and analyzing diffusion or spreading phenomena (e.g., wildfires, disease outbreaks).
 -   **GEO-INFER-DATA**: TIME relies on DATA for accessing, storing, and managing the persistence of raw and processed time-series datasets. DATA may handle versioning, archival, and metadata for temporal data assets, including STAC catalogs.
 -   **GEO-INFER-ACT & GEO-INFER-AGENT**: Dynamic active inference models (ACT) and agent-based models (AGENT) require robust temporal representations of the environment and agent states/histories. TIME provides tools to model these temporal dynamics, generate forecasts for agent planning, and analyze agent interaction patterns over time.
--   **GEO-INFER-AI & GEO-INFER-ML**: Many AI/ML techniques are inherently temporal (e.g., LSTMs, TCNs for forecasting, Reinforcement Learning with temporal state spaces). TIME provides preprocessed temporal data, feature engineering, and specialized temporal cross-validation strategies for these AI/ML models.
+-   **GEO-INFER-AI**: Many AI/ML techniques are inherently temporal (e.g., LSTMs, TCNs for forecasting, Reinforcement Learning with temporal state spaces). TIME provides preprocessed temporal data, feature engineering, and specialized temporal cross-validation strategies for these AI models.
 -   **GEO-INFER-SIM**: Simulations intrinsically evolve over time. TIME can be used to analyze simulation outputs (time series of model variables), compare simulated trajectories with real-world data for model validation, or provide dynamic temporal drivers (e.g., historical climate scenarios) for simulations.
--   **GEO-INFER-APP & GEO-INFER-VIS**: Applications frequently need to display time-varying data, interactive dashboards with temporal trends, real-time updates, and animations. TIME provides the backend services, query capabilities, and aggregated data to power these frontend components and visualizations.
+-   **GEO-INFER-APP**: Applications frequently need to display time-varying data, interactive dashboards with temporal trends, real-time updates, and animations. TIME provides the backend services, query capabilities, and aggregated data to power these frontend components and visualizations.
 -   **GEO-INFER-ECON**: Economic models often involve time-series analysis of indicators, asset prices, or policy impacts. TIME can provide econometric time-series tools for these analyses.
 -   **GEO-INFER-RISK**: Assessing risks often involves understanding temporal probabilities of events (e.g., flood recurrence intervals) and forecasting potential future hazards, for which TIME provides essential tools.
 
@@ -292,7 +292,7 @@ We welcome contributions from the community to enhance GEO-INFER-TIME! Areas of 
 -   Implementation of novel or cutting-edge time-series analysis, forecasting, or spatio-temporal algorithms.
 -   Performance optimizations for real-time data processing and large-scale temporal analytics.
 -   Integration with additional time-series databases (e.g., QuestDB, Druid) or data formats/protocols (e.g., Zarr with time dimensions).
--   Development of advanced temporal visualization techniques and their integration with GEO-INFER-VIS/APP.
+-   Development of advanced temporal visualization techniques and their integration with GEO-INFER-APP.
 -   Adding more sophisticated methods for causal inference from time series.
 -   Expanding the library of example use cases, tutorials, and benchmark datasets.
 -   Improving documentation and test coverage.

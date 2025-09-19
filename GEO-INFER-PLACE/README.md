@@ -268,6 +268,7 @@ Additional locations can be added using the standardized location framework:
 - Enhanced community engagement tools
 - Cross-location pattern recognition
 - Automated report generation and dissemination
+- **H3 v4 Integration**: Full hexagonal spatial indexing support for scalable geospatial analysis
 
 ## Contact and Support
 

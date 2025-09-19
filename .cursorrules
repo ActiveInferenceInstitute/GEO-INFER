@@ -1,6 +1,6 @@
 # GEO-INFER Framework Development Rules
 
-## 🌍 Framework Overview
+## Framework Overview
 
 GEO-INFER is a comprehensive geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. The framework consists of 30+ specialized modules organized into distinct categories with clear dependency relationships and data flow patterns.
 
@@ -55,6 +55,14 @@ GEO-INFER is a comprehensive geospatial inference framework implementing Active 
 - Eliminate redundant descriptors like "advanced", "sophisticated", "comprehensive" when not adding value
 - Focus on functionality and capabilities rather than marketing language
 - Use technical accuracy over promotional language
+
+### 6. Documentation Standards Compliance
+- Follow established documentation templates and standards
+- Use YAML front matter for machine-readable metadata
+- Maintain cross-linking between modules and documentation
+- Include working code examples and integration patterns
+- Update documentation simultaneously with code changes
+- Use consistent terminology and formatting across all docs
 
 ## 📁 Module Structure Standards
 
@@ -217,19 +225,20 @@ GEO-INFER-MODULE/
 - Include usage examples in docstrings
 - Document data requirements and formats
 
-### Module Documentation
-- Maintain comprehensive README files
-- Document API endpoints with OpenAPI specifications
-- Create architectural decision records (ADRs) for significant choices
-- Provide integration guides for other developers
-- Include data flow diagrams and dependency graphs
+### Module Documentation Standards
+- **Template Compliance**: All modules must follow the standardized YAML front matter template
+- **Comprehensive README**: Maintain detailed README files with module overview, API reference, and examples
+- **Integration Documentation**: Document cross-module integration patterns and dependencies
+- **Working Examples**: Provide runnable code examples that demonstrate real functionality
+- **API Documentation**: Document endpoints with OpenAPI specifications where applicable
+- **Troubleshooting Guides**: Include common issues and solutions
+- **Performance Guidelines**: Document optimization strategies and limitations
 
-### Example Documentation
-- Every module should have working examples
-- Examples should demonstrate real-world usage
-- Include step-by-step tutorials for complex workflows
-- Maintain example outputs and expected results
-- Provide sample data and configuration files
+### Documentation Structure
+- **YAML Front Matter**: Required metadata for machine readability
+- **Standard Sections**: Overview, Core Features, API Reference, Use Cases, Integration, Troubleshooting
+- **Cross-Linking**: Reference related modules and documentation
+- **Version Tracking**: Maintain current version information and last updated dates
 
 ### Language Guidelines
 - Use precise, technical language over marketing terms
@@ -238,6 +247,39 @@ GEO-INFER-MODULE/
 - Use "supports" rather than "supports extensive and robust"
 - Eliminate redundant adjectives that don't add technical value
 - Focus on capabilities and functionality rather than superlatives
+
+### Documentation Resources
+- **Standards Document**: `GEO-INFER-INTRA/docs/DOCUMENTATION_STANDARDS.md`
+- **Integration Guides**: `GEO-INFER-INTRA/docs/guides/`
+- **Module Templates**: `GEO-INFER-INTRA/docs/templates/`
+- **Module Index**: `GEO-INFER-INTRA/docs/modules/index.md`
+
+## 🚀 Current Development Priorities
+
+### High Priority Tasks
+1. **Complete Module Template Application**: Apply YAML front matter and standard structure to remaining 30+ modules
+2. **Integration Testing**: Develop comprehensive cross-module integration tests
+3. **Performance Optimization**: Implement performance benchmarks and optimization guidelines
+4. **API Standardization**: Ensure consistent API patterns across all modules
+
+### Medium Priority Tasks
+1. **Advanced Integration Guides**: Create domain-specific integration tutorials
+2. **Automated Documentation**: Implement documentation generation and validation scripts
+3. **Quality Assurance**: Expand test coverage and establish CI/CD pipelines
+4. **User Experience**: Improve getting started guides and examples
+
+### Framework Status Overview
+- **Documentation Quality**: ✅ **COMPREHENSIVE** (Standards established, templates applied to core modules)
+- **Integration Patterns**: ✅ **ESTABLISHED** (Cross-module tutorials created)
+- **Testing Framework**: ✅ **COMPREHENSIVE** (Unified test suite operational)
+- **H3 v4 Migration**: ✅ **FULLY MIGRATED** (SPACE, PLACE modules complete)
+- **Module Maturity**: **MIXED** (Core modules: Beta, Domain modules: Alpha-Planning)
+
+### Key Resources
+- **Main README**: `/README.md` - Comprehensive project overview
+- **Module Index**: `GEO-INFER-INTRA/docs/modules/index.md` - All modules overview
+- **Integration Guide**: `GEO-INFER-INTRA/docs/guides/MODULE_INTEGRATION_GUIDE.md` - Cross-module patterns
+- **Standards**: `GEO-INFER-INTRA/docs/DOCUMENTATION_STANDARDS.md` - Documentation guidelines
 
 ## 🔍 Code Review Checklist
 

@@ -1,0 +1,386 @@
+# GEO-INFER-SPM API Schema
+# OpenAPI 3.0 specification for SPM analysis endpoints
+
+openapi: 3.0.3
+info:
+  title: GEO-INFER-SPM API
+  description: |
+    REST API for Statistical Parametric Mapping analysis of geospatial data.
+    Provides endpoints for data upload, model fitting, statistical testing,
+    and result retrieval.
+  version: 1.0.0
+  contact:
+    name: GEO-INFER Framework
+    url: https://github.com/geo-infer/geo-infer-spm
+
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development server
+  - url: https://api.geo-infer.org/spm/v1
+    description: Production server
+
+paths:
+  /health:
+    get:
+      summary: Health check endpoint
+      responses:
+        '200':
+          description: API is healthy
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "healthy"
+                  timestamp:
+                    type: string
+                    format: date-time
+
+  /data/upload:
+    post:
+      summary: Upload geospatial data for analysis
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    type: number
+                  description: Response variable values
+                coordinates:
+                  type: array
+                  items:
+                    type: array
+                    items:
+                      type: number
+                    minItems: 2
+                    maxItems: 2
+                  description: Spatial coordinates (longitude, latitude)
+                time:
+                  type: array
+                  items:
+                    type: number
+                  description: Temporal coordinates (optional)
+                covariates:
+                  type: object
+                  additionalProperties:
+                    type: array
+                    items:
+                      type: number
+                  description: Additional predictor variables
+                metadata:
+                  type: object
+                  description: Data metadata
+                crs:
+                  type: string
+                  default: "EPSG:4326"
+                  description: Coordinate reference system
+              required:
+                - data
+                - coordinates
+      responses:
+        '200':
+          description: Data uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  dataset_id:
+                    type: string
+                    description: Unique identifier for uploaded dataset
+                  n_points:
+                    type: integer
+                    description: Number of data points
+                  has_temporal:
+                    type: boolean
+                    description: Whether data includes temporal dimension
+
+  /model/fit:
+    post:
+      summary: Fit GLM to uploaded dataset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                dataset_id:
+                  type: string
+                  description: ID of uploaded dataset
+                design_spec:
+                  type: object
+                  properties:
+                    covariates:
+                      type: array
+                      items:
+                        type: string
+                      description: Names of covariate columns
+                    factors:
+                      type: object
+                      additionalProperties:
+                        type: array
+                        items:
+                          type: string
+                      description: Categorical factors and their levels
+                    intercept:
+                      type: boolean
+                      default: true
+                      description: Include intercept term
+                  description: Design matrix specification
+                method:
+                  type: string
+                  enum: [OLS, robust, spatial]
+                  default: OLS
+                  description: GLM fitting method
+              required:
+                - dataset_id
+                - design_spec
+      responses:
+        '200':
+          description: Model fitted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  result_id:
+                    type: string
+                    description: Unique identifier for fitted model
+                  r_squared:
+                    type: number
+                    description: Model R-squared
+                  n_regressors:
+                    type: integer
+                    description: Number of regressors in model
+
+  /contrast/test:
+    post:
+      summary: Test statistical contrast
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                result_id:
+                  type: string
+                  description: ID of fitted model results
+                contrast_spec:
+                  oneOf:
+                    - type: object
+                      properties:
+                        vector:
+                          type: array
+                          items:
+                            type: number
+                          description: Contrast vector
+                    - type: object
+                      properties:
+                        string:
+                          type: string
+                          description: Contrast formula (e.g., "A > B")
+                  description: Contrast specification
+                correction:
+                  type: string
+                  enum: [uncorrected, FDR, Bonferroni, RFT]
+                  default: FDR
+                  description: Multiple comparison correction method
+              required:
+                - result_id
+                - contrast_spec
+      responses:
+        '200':
+          description: Contrast tested successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  result_id:
+                    type: string
+                  contrast_name:
+                    type: string
+                  correction_method:
+                    type: string
+                  n_significant:
+                    type: integer
+                    description: Number of significant points
+                  threshold:
+                    type: number
+                    description: Significance threshold used
+
+  /results/{result_id}:
+    get:
+      summary: Retrieve analysis results
+      parameters:
+        - name: result_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: format
+          in: query
+          schema:
+            type: string
+            enum: [summary, full, visualization]
+            default: summary
+      responses:
+        '200':
+          description: Results retrieved successfully
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ResultSummary'
+                  - $ref: '#/components/schemas/ResultFull'
+                  - $ref: '#/components/schemas/ResultVisualization'
+
+  /datasets:
+    get:
+      summary: List uploaded datasets
+      responses:
+        '200':
+          description: List of datasets
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  datasets:
+                    type: array
+                    items:
+                      type: string
+                  count:
+                    type: integer
+
+  /results:
+    get:
+      summary: List analysis results
+      responses:
+        '200':
+          description: List of results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: "success"
+                  results:
+                    type: array
+                    items:
+                      type: string
+                  count:
+                    type: integer
+
+components:
+  schemas:
+    ResultSummary:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        result_type:
+          type: string
+          example: "SPMResult"
+        n_points:
+          type: integer
+        n_regressors:
+          type: integer
+        r_squared:
+          type: number
+        log_likelihood:
+          type: number
+        n_contrasts:
+          type: integer
+        significant_contrasts:
+          type: integer
+
+    ResultFull:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        result:
+          type: object
+          properties:
+            beta_coefficients:
+              type: array
+              items:
+                type: number
+            residuals:
+              type: array
+              items:
+                type: number
+            model_diagnostics:
+              type: object
+            processing_metadata:
+              type: object
+            contrasts:
+              type: array
+              items:
+                type: object
+                properties:
+                  name:
+                    type: string
+                  n_significant:
+                    type: integer
+                  correction_method:
+                    type: string
+
+    ResultVisualization:
+      type: object
+      properties:
+        status:
+          type: string
+          example: "success"
+        visualization_data:
+          type: object
+          properties:
+            coordinates:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+            beta_map:
+              type: array
+              items:
+                type: number
+            residuals:
+              type: array
+              items:
+                  type: number
+
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: X-API-Key
+
+security:
+  - ApiKeyAuth: []

@@ -333,3 +333,6 @@ def generate_summary_report(results, modules):
     print(f"  Failed: {total_tests - passed_tests}")
     print(f"  Success Rate: {success_rate:.1f}%")
     print(f"  Total Duration: {total_duration:.2f}s")
+if __name__ == '__main__':
+    run_all_tests()
+

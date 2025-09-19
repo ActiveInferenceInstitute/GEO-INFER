@@ -15,21 +15,55 @@ Key components:
 - Tensor operations for multi-dimensional geospatial data
 """
 
-from geo_infer_math.core import (
-    spatial_statistics, interpolation, optimization, 
-    differential, tensors, geometry, transforms
-)
-from geo_infer_math.models import (
-    regression, clustering, dimension_reduction,
-    manifold_learning, spectral_analysis
-)
+# Import available core modules
+from geo_infer_math.core.spatial_statistics import *
+from geo_infer_math.core.interpolation import *
+from geo_infer_math.core.optimization import *
+from geo_infer_math.core.geometry import *
 
+# Try to import newly implemented modules
+_available_core = []
+_available_models = []
+
+try:
+    from geo_infer_math.core.numerical_methods import *
+    _available_core.append("numerical_methods")
+except ImportError:
+    pass
+
+try:
+    from geo_infer_math.core.linalg_tensor import *
+    _available_core.append("linalg_tensor")
+except ImportError:
+    pass
+
+try:
+    from geo_infer_math.core.transforms import *
+    _available_core.append("transforms")
+except ImportError:
+    pass
+
+try:
+    from geo_infer_math.core.graph_theory import *
+    _available_core.append("graph_theory")
+except ImportError:
+    pass
+
+# Try to import model modules
+try:
+    from geo_infer_math.models.regression import *
+    _available_models.append("regression")
+except ImportError:
+    pass
+
+try:
+    from geo_infer_math.models.clustering import *
+    _available_models.append("clustering")
+except ImportError:
+    pass
+
+# Build __all__ list
 __all__ = [
     # Core mathematical modules
-    "spatial_statistics", "interpolation", "optimization",
-    "differential", "tensors", "geometry", "transforms",
-    
-    # Statistical and machine learning models
-    "regression", "clustering", "dimension_reduction",
-    "manifold_learning", "spectral_analysis"
-]
+    "spatial_statistics", "interpolation", "optimization", "geometry"
+] + _available_core + _available_models

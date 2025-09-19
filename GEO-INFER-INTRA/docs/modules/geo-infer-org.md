@@ -1,8 +1,19 @@
+---
+title: "GEO-INFER-ORG: Organizational Systems"
+description: "Organizational modeling and analysis for geospatial applications"
+purpose: "Model organizational structures, governance systems, and institutional frameworks"
+module_type: "Domain-Specific"
+status: "Planning"
+last_updated: "2025-01-19"
+dependencies: ["AGENT", "PEP", "COMMS"]
+compatibility: ["GEO-INFER-AGENT", "GEO-INFER-PEP", "GEO-INFER-COMMS"]
+---
+
 # GEO-INFER-ORG: Organizational Systems
 
-> **Explanation**: Understanding Organizational Systems in GEO-INFER
-> 
-> This module provides organizational modeling and analysis capabilities for geospatial applications, including organizational structure analysis, governance modeling, and institutional frameworks.
+> **Purpose**: Organizational modeling and analysis for geospatial applications
+>
+> This module provides comprehensive organizational modeling and analysis capabilities for geospatial information systems, including organizational structure analysis, governance modeling, institutional frameworks, and organizational dynamics.
 
 ## 🎯 What is GEO-INFER-ORG?
 

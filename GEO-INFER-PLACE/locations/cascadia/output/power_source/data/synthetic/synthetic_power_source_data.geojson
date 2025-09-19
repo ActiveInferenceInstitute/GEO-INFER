@@ -1,0 +1,8 @@
+{
+"type": "FeatureCollection",
+"name": "synthetic_power_source_data",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "attribute1": "value1", "attribute2": "value2", "source": "Synthetic_power_source_2022" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -124.2, 41.5 ], [ -124.2, 41.8 ], [ -123.8, 41.8 ], [ -123.8, 41.5 ], [ -124.2, 41.5 ] ] ] } }
+]
+}

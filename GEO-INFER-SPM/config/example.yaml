@@ -1,0 +1,140 @@
+# GEO-INFER-SPM Configuration Example
+# This file demonstrates the configuration options for GEO-INFER-SPM
+
+# General settings
+general:
+  random_seed: 42
+  verbose: true
+  output_directory: "./output"
+  log_level: "INFO"
+
+# Data processing settings
+data_processing:
+  missing_data_strategy: "interpolate"  # Options: drop, interpolate, mean
+  normalization_method: "zscore"       # Options: zscore, minmax, robust
+  outlier_detection:
+    method: "iqr"                      # Options: iqr, zscore, isolation_forest
+    threshold: 1.5
+
+  # Spatial preprocessing
+  spatial_filtering:
+    enabled: true
+    method: "gaussian"                 # Options: gaussian, median, mean
+    sigma: 1.0                         # Filter radius in coordinate units
+
+  # Temporal preprocessing
+  temporal_filtering:
+    enabled: false
+    method: "moving_average"           # Options: moving_average, exponential
+    window_size: 5
+
+# GLM fitting settings
+glm:
+  method: "OLS"                        # Options: OLS, robust, spatial
+  spatial_regularization:
+    lambda: 0.1
+    regularization_matrix: null        # Custom regularization matrix
+  convergence_tolerance: 1e-8
+  max_iterations: 1000
+
+# Statistical inference settings
+inference:
+  multiple_comparison_correction: "FDR"  # Options: none, FDR, Bonferroni, RFT
+  alpha: 0.05                          # Significance level
+  rft:
+    estimate_smoothness: true
+    voxel_sizes: [1.0, 1.0]           # Spatial resolution in each dimension
+    cluster_forming_threshold: "auto"  # auto or numeric value
+
+# Visualization settings
+visualization:
+  backend: "matplotlib"                # Options: matplotlib, plotly
+  colormap: "RdBu_r"
+  figure_size: [10, 8]
+  dpi: 300
+  interactive: false
+
+  # Statistical map settings
+  statistical_maps:
+    threshold: 0.05
+    cluster_size_min: 1
+    show_colorbar: true
+    title_prefix: "SPM"
+
+# Performance settings
+performance:
+  parallel_processing: true
+  n_jobs: -1                          # -1 for all available cores
+  memory_efficient: true
+  chunk_size: 1000                    # Process data in chunks
+
+# Bayesian analysis settings (requires PyMC3)
+bayesian:
+  enabled: false
+  sampling:
+    n_samples: 1000
+    n_tune: 1000
+    n_chains: 4
+  priors:
+    beta_mu: 0.0
+    beta_sigma: 1.0
+    sigma_alpha: 1.0
+    sigma_beta: 1.0
+
+# Spatial analysis settings
+spatial_analysis:
+  variogram:
+    n_bins: 20
+    max_distance: null                 # Auto-determined if null
+    model: "exponential"               # Options: exponential, spherical, gaussian
+
+  clustering:
+    method: "connected_components"     # Options: connected_components, dbscan
+    min_cluster_size: 5
+    threshold: 2.0
+
+# Temporal analysis settings
+temporal_analysis:
+  trend_detection:
+    methods: ["linear", "mann_kendall"]  # Multiple methods can be specified
+    alpha: 0.05
+
+  seasonal_decomposition:
+    model: "additive"                  # Options: additive, multiplicative
+    period: null                       # Auto-detected if null
+
+  arima:
+    order: [1, 0, 1]                  # (p, d, q)
+    seasonal_order: null              # (P, D, Q, s) for SARIMA
+
+# Output settings
+output:
+  formats: ["json", "csv"]            # Available output formats
+  compression: "gzip"                 # Options: none, gzip, bz2
+  save_intermediates: false           # Save intermediate analysis steps
+
+  # File naming
+  naming_pattern: "{analysis_type}_{timestamp}_{contrast_name}"
+
+# Integration settings (for GEO-INFER framework)
+integration:
+  data_module: "GEO-INFER-DATA"
+  space_module: "GEO-INFER-SPACE"
+  time_module: "GEO-INFER-TIME"
+  api_endpoints:
+    base_url: "http://localhost:8000"
+    timeout: 30
+
+# Quality control
+quality_control:
+  validate_inputs: true
+  check_assumptions: true
+  warn_on_singular_matrix: true
+  performance_monitoring: false
+
+# Advanced settings (use with caution)
+advanced:
+  numerical_precision: "float64"      # Options: float32, float64
+  matrix_solver: "auto"               # Options: auto, cholesky, svd, qr
+  memory_limit_gb: null               # Memory limit for large datasets
+  debug_mode: false

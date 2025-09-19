@@ -1,0 +1,978 @@
+2025-09-19 07:11:54,101 - utils.setup_manager - INFO - Enhanced Cascadia Analysis Framework initialized with SPACE integration
+2025-09-19 07:11:54,101 - utils.setup_manager - INFO - Log file: cascadia_analysis_20250919_071154.log
+2025-09-19 07:11:54,101 - __main__ - INFO - 🌲 Starting Cascadia Agricultural Analysis Framework
+2025-09-19 07:11:54,101 - __main__ - INFO - 📊 Analysis Parameters:
+2025-09-19 07:11:54,101 - __main__ - INFO -    H3 Resolution: 8
+2025-09-19 07:11:54,101 - __main__ - INFO -    Target Counties: CA:Del Norte
+2025-09-19 07:11:54,101 - __main__ - INFO -    Active Modules: zoning,current_use,ownership,improvements,water_rights,ground_water,surface_water,power_source,mortgage_debt
+2025-09-19 07:11:54,101 - __main__ - INFO -    Export Format: geojson
+2025-09-19 07:11:54,101 - __main__ - INFO -    Output Directory: output
+2025-09-19 07:11:54,101 - __main__ - INFO -    Visualization Options: Lightweight Static Visualizations
+2025-09-19 07:11:54,101 - cascadia - INFO - Enhanced logging initialized with level: DEBUG
+2025-09-19 07:11:54,101 - __main__ - INFO - 🚀 Initializing Cascadia Agricultural Analysis Framework
+2025-09-19 07:11:54,101 - __main__ - INFO - Enhanced logging initialized: output/cascadia_analysis.log
+2025-09-19 07:11:54,108 - utils.setup_manager - INFO - Loaded analysis configuration from config/analysis_config.yaml
+2025-09-19 07:11:54,108 - __main__ - INFO - Target counties: {'CA': ['Del Norte']}
+2025-09-19 07:11:54,108 - __main__ - INFO - Active modules: ['zoning', 'current_use', 'ownership', 'improvements', 'water_rights', 'ground_water', 'surface_water', 'power_source', 'mortgage_debt']
+2025-09-19 07:11:54,108 - utils.data_processor - INFO - 🔧 Creating shared backend for all modules...
+2025-09-19 07:11:54,108 - geo_infer_space.osc_geo.core.repos - WARNING - Repository path not found: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli
+2025-09-19 07:11:54,108 - geo_infer_place.core.unified_backend - WARNING - Failed to initialize H3DataLoader: H3 loader CLI repository not found. Please clone it first.
+2025-09-19 07:11:54,108 - geo_infer_place.core.unified_backend - INFO - Loading region data from cache: output/data/cache/region_cache_4e2b5626c8c4ca7a05c736003fae87ed.json
+2025-09-19 07:11:54,109 - geo_infer_place.core.unified_backend - INFO - ✅ Loaded 7749 hexagons from cache
+2025-09-19 07:11:54,109 - geo_infer_place.core.unified_backend - INFO - Using cached region data
+2025-09-19 07:11:54,109 - geo_infer_space.osc_geo.core.repos - WARNING - Repository path not found: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli
+2025-09-19 07:11:54,109 - geo_infer_space.core.unified_backend - ERROR - Failed to initialize H3DataLoader from GEO-INFER-SPACE: H3 loader CLI repository not found. Please clone it first.
+2025-09-19 07:11:54,109 - geo_infer_place.core.unified_backend - WARNING - Failed to initialize UnifiedH3Backend: Failed to initialize H3DataLoader: H3 loader CLI repository not found. Please clone it first.
+2025-09-19 07:11:54,109 - geo_infer_space.utils.config_loader - INFO - Config loader initialized with directory: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config
+2025-09-19 07:11:54,109 - geo_infer_space.utils.config_loader - WARNING - Location config not found: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config/cascadia.yaml
+2025-09-19 07:11:54,109 - geo_infer_space.utils.config_loader - DEBUG - Configuration validation passed
+2025-09-19 07:11:54,109 - geo_infer_place.core.unified_backend - INFO - ✅ Cascadia configuration loaded successfully
+2025-09-19 07:11:54,109 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2025-09-19 07:11:54,118 - county_boundary_loader - INFO - Loaded county boundaries configuration from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2025-09-19 07:11:54,118 - county_boundary_loader - INFO - Loaded GeoJSON geometry for ca_del_norte from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_del_norte_boundary.geojson
+2025-09-19 07:11:54,118 - geo_infer_place.core.unified_backend - INFO - Successfully loaded county geometries using boundary loader
+2025-09-19 07:11:54,118 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Del_Norte, CA using SPACE utilities...
+2025-09-19 07:11:54,118 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'dict'>, Geometry: {'type': 'Polygon', 'coordinates': [[[-124.5, 41.4], [-124.5, 42.0], [-123.5, 42.0], [-123.5, 41.4], [-124.5, 41.4]]]}
+2025-09-19 07:11:54,122 - geo_infer_place.core.unified_backend - INFO - Generated 7749 hexagons for Del_Norte, CA
+2025-09-19 07:11:54,124 - geo_infer_place.core.unified_backend - INFO - ✅ Generated 7749 H3 hexagons using SPACE utilities
+2025-09-19 07:11:54,124 - geo_infer_place.core.unified_backend - INFO - Enhanced CascadianAgriculturalH3Backend initialized for 'Cascadia' with 0 active modules at H3 resolution 8
+2025-09-19 07:11:54,124 - geo_infer_place.core.unified_backend - INFO - Active modules: []
+2025-09-19 07:11:54,124 - geo_infer_place.core.unified_backend - INFO - Defined 7749 total target hexagons across 1 states.
+2025-09-19 07:11:54,124 - geo_infer_place.core.unified_backend - INFO - SPACE integration: Spatial processor, data integrator, and visualization engine available
+2025-09-19 07:11:54,124 - utils.data_processor - INFO - ✅ Shared backend created with 7749 target hexagons
+2025-09-19 07:11:54,125 - utils.enhanced_data_manager - INFO - Enhanced Data Manager initialized with H3 resolution 8
+2025-09-19 07:11:54,125 - utils.enhanced_data_manager - INFO - SPACE H3 utilities available: True
+2025-09-19 07:11:54,125 - utils.enhanced_h3_fusion - INFO - Enhanced H3 Fusion initialized with resolution 8
+2025-09-19 07:11:54,125 - utils.enhanced_h3_fusion - INFO - SPACE H3 utilities available: True
+2025-09-19 07:11:54,125 - utils.enhanced_h3_fusion - INFO - Spatial analysis enabled: False
+2025-09-19 07:11:54,125 - utils.enhanced_h3_fusion - INFO - Fusion mode: geom_intersect
+2025-09-19 07:11:54,125 - utils.enhanced_h3_fusion - INFO - Fusion cache directory: output/data/cache/fusion
+2025-09-19 07:11:54,125 - selenium.webdriver.common.selenium_manager - DEBUG - Selenium Manager binary found at: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/.venv/lib/python3.12/site-packages/selenium/webdriver/common/macos/selenium-manager
+2025-09-19 07:11:54,125 - selenium.webdriver.common.selenium_manager - DEBUG - Executing process: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/.venv/lib/python3.12/site-packages/selenium/webdriver/common/macos/selenium-manager --browser chrome --debug --language-binding python --output json
+2025-09-19 07:12:00,097 - selenium.webdriver.common.selenium_manager - DEBUG - Sending stats to Plausible: Props { browser: "chrome", browser_version: "", os: "macos", arch: "arm64", lang: "python", selenium_version: "4.35" }
+2025-09-19 07:12:00,098 - selenium.webdriver.common.selenium_manager - DEBUG - chromedriver not found in PATH
+2025-09-19 07:12:00,098 - selenium.webdriver.common.selenium_manager - DEBUG - chrome detected at /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+2025-09-19 07:12:00,098 - selenium.webdriver.common.selenium_manager - DEBUG - Running command: /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version
+2025-09-19 07:12:00,098 - selenium.webdriver.common.selenium_manager - DEBUG - Output: "Google Chrome 140.0.7339.134 "
+2025-09-19 07:12:00,098 - selenium.webdriver.common.selenium_manager - DEBUG - Detected browser: chrome 140.0.7339.134
+2025-09-19 07:12:00,098 - selenium.webdriver.common.selenium_manager - DEBUG - Discovering versions from https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json
+2025-09-19 07:12:00,098 - selenium.webdriver.common.selenium_manager - DEBUG - Required driver: chromedriver 140.0.7339.185
+2025-09-19 07:12:00,098 - selenium.webdriver.common.selenium_manager - DEBUG - Acquiring lock: /Users/4d/.cache/selenium/chromedriver/mac-arm64/140.0.7339.185/sm.lock
+2025-09-19 07:12:00,098 - selenium.webdriver.common.selenium_manager - DEBUG - Downloading chromedriver 140.0.7339.185 from https://storage.googleapis.com/chrome-for-testing-public/140.0.7339.185/mac-arm64/chromedriver-mac-arm64.zip
+2025-09-19 07:12:00,098 - selenium.webdriver.common.selenium_manager - DEBUG - Driver path: /Users/4d/.cache/selenium/chromedriver/mac-arm64/140.0.7339.185/chromedriver
+2025-09-19 07:12:00,098 - selenium.webdriver.common.selenium_manager - DEBUG - Browser path: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+2025-09-19 07:12:00,102 - selenium.webdriver.common.service - DEBUG - Started executable: `/Users/4d/.cache/selenium/chromedriver/mac-arm64/140.0.7339.185/chromedriver` in a child process with pid: 38497 using 0 to output -3
+2025-09-19 07:12:00,461 - selenium.webdriver.remote.remote_connection - DEBUG - POST http://localhost:56920/session {'capabilities': {'firstMatch': [{}], 'alwaysMatch': {'browserName': 'chrome', 'pageLoadStrategy': <PageLoadStrategy.normal: 'normal'>, 'browserVersion': None, 'goog:chromeOptions': {'extensions': [], 'binary': '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', 'args': ['--headless', '--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--window-size=1920,1080']}}}}
+2025-09-19 07:12:00,463 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:56920
+2025-09-19 07:12:01,290 - urllib3.connectionpool - DEBUG - http://localhost:56920 "POST /session HTTP/1.1" 200 0
+2025-09-19 07:12:01,291 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":{"capabilities":{"acceptInsecureCerts":false,"browserName":"chrome","browserVersion":"140.0.7339.134","chrome":{"chromedriverVersion":"140.0.7339.185 (eeea00e459e8b6cd69698eda5b236a0d4cb3234d-refs/branch-heads/7339_150@{#3})","userDataDir":"/var/folders/vc/rgmbpjpj0dbg61vr54xjskc80000gn/T/.org.chromium.Chromium.0YmHfz"},"fedcm:accounts":true,"goog:chromeOptions":{"debuggerAddress":"localhost:56944"},"networkConnectionEnabled":false,"pageLoadStrategy":"normal","platformName":"mac","proxy":{},"setWindowRect":true,"strictFileInteractability":false,"timeouts":{"implicit":0,"pageLoad":300000,"script":30000},"unhandledPromptBehavior":"dismiss and notify","webauthn:extension:credBlob":true,"webauthn:extension:largeBlob":true,"webauthn:extension:minPinLength":true,"webauthn:extension:prf":true,"webauthn:virtualAuthenticators":true},"sessionId":"34f44463f0e9293d5073f80e3ecef242"}} | headers=HTTPHeaderDict({'Content-Length': '893', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:12:01,291 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:12:01,291 - selenium.webdriver.remote.remote_connection - DEBUG - POST http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/timeouts {'implicit': 10000}
+2025-09-19 07:12:01,291 - urllib3.connectionpool - DEBUG - http://localhost:56920 "POST /session/34f44463f0e9293d5073f80e3ecef242/timeouts HTTP/1.1" 200 0
+2025-09-19 07:12:01,291 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":null} | headers=HTTPHeaderDict({'Content-Length': '14', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:12:01,292 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:12:01,292 - utils.real_data_acquisition - INFO - Web driver initialized successfully
+2025-09-19 07:12:01,292 - utils.real_data_acquisition - INFO - Real Data Acquisition system initialized
+2025-09-19 07:12:01,292 - utils.comprehensive_visualization - INFO - Comprehensive Visualization Engine initialized
+2025-09-19 07:12:01,292 - utils.enhanced_h3_fusion - INFO - ✅ H3 operations validation completed successfully
+2025-09-19 07:12:01,293 - __main__ - INFO - H3 validation result: {'h3_api_version': '4.x', 'space_integration': True, 'operations_tested': ['latlng_to_cell', 'cell_to_latlng', 'cell_to_latlng_boundary', 'geo_to_cells', 'grid_disk', 'cell_area', 'is_valid_cell'], 'errors': [], 'warnings': []}
+2025-09-19 07:12:01,303 - zoning.geo_infer_zoning - INFO - Initialized GeoInferZoning module with real OSC H3 v4 integration.
+2025-09-19 07:12:01,303 - __main__ - INFO - ✅ Zoning module initialized with enhanced data management
+2025-09-19 07:12:01,303 - current_use.data_sources - INFO - Initialized CascadianCurrentUseDataSources
+2025-09-19 07:12:01,303 - current_use.geo_infer_current_use - INFO - Initialized GeoInferCurrentUse module with real OSC H3 v4 integration.
+2025-09-19 07:12:01,303 - __main__ - INFO - ✅ Current use module initialized with enhanced data management
+2025-09-19 07:12:01,303 - ownership.geo_infer_ownership - INFO - Initialized GeoInferOwnership module with real OSC H3 v4 integration.
+2025-09-19 07:12:01,303 - __main__ - INFO - ✅ Ownership module initialized with enhanced data management
+2025-09-19 07:12:01,303 - improvements.data_sources - INFO - Initialized CascadianImprovementsDataSources.
+2025-09-19 07:12:01,303 - improvements.geo_infer_improvements - INFO - Initialized GeoInferImprovements module.
+2025-09-19 07:12:01,303 - __main__ - INFO - ✅ Improvements module initialized with enhanced data management
+2025-09-19 07:12:01,304 - water_rights.data_sources - INFO - Initialized CascadianWaterRightsDataSources.
+2025-09-19 07:12:01,304 - water_rights.geo_infer_water_rights - INFO - Initialized GeoInferWaterRights with resolution 8
+2025-09-19 07:12:01,304 - __main__ - INFO - ✅ Water rights module initialized with enhanced data management
+2025-09-19 07:12:01,304 - ground_water.data_sources - INFO - Initialized CascadianGroundWaterDataSources
+2025-09-19 07:12:01,304 - ground_water.geo_infer_ground_water - INFO - Initialized GeoInferGroundWater with resolution 8
+2025-09-19 07:12:01,304 - __main__ - INFO - ✅ Ground water module initialized with enhanced data management
+2025-09-19 07:12:01,304 - surface_water.geo_infer_surface_water - INFO - Initialized GeoInferSurfaceWater with resolution 8
+2025-09-19 07:12:01,304 - __main__ - INFO - ✅ Surface water module initialized with enhanced data management
+2025-09-19 07:12:01,304 - power_source.geo_infer_power_source - INFO - Initialized GeoInferPowerSource with resolution 8
+2025-09-19 07:12:01,304 - __main__ - INFO - ✅ Power source module initialized with enhanced data management
+2025-09-19 07:12:01,304 - mortgage_debt.geo_infer_mortgage_debt - INFO - Initialized GeoInferMortgageDebt with backend integration
+2025-09-19 07:12:01,304 - __main__ - INFO - ✅ Mortgage debt module initialized with enhanced data management
+2025-09-19 07:12:01,304 - __main__ - INFO - ✅ Updated shared backend with 9 active modules
+2025-09-19 07:12:01,304 - __main__ - INFO - 🚀 Starting enhanced comprehensive analysis with real data acquisition and H3 geospatial fusion...
+2025-09-19 07:12:01,305 - __main__ - INFO - 📊 Processing module: zoning
+2025-09-19 07:12:01,305 - __main__ - INFO - 📊 Processing module: current_use
+2025-09-19 07:12:01,305 - cascadia.processing.real_data_acquisition - INFO - 🚀 PROCESSING START - Zoning Data Acquisition
+2025-09-19 07:12:01,305 - __main__ - INFO - 📊 Processing module: ownership
+2025-09-19 07:12:01,305 - cascadia.processing.real_data_acquisition - INFO - 🚀 PROCESSING START - Current Use Data Acquisition
+2025-09-19 07:12:01,305 - __main__ - INFO - 📊 Processing module: improvements
+2025-09-19 07:12:01,305 - cascadia.processing.real_data_acquisition - INFO -    Module: real_data_acquisition
+2025-09-19 07:12:01,305 - __main__ - INFO - 📊 Processing module: water_rights
+2025-09-19 07:12:01,305 - __main__ - INFO - ✅ Using real data for ownership: ownership/data/empirical/empirical_ownership_data.geojson
+2025-09-19 07:12:01,305 - cascadia.processing.real_data_acquisition - INFO -    Module: real_data_acquisition
+2025-09-19 07:12:01,305 - __main__ - INFO - 📊 Processing module: ground_water
+2025-09-19 07:12:01,305 - __main__ - INFO - 📊 Processing module: surface_water
+2025-09-19 07:12:01,306 - cascadia.processing.real_data_acquisition - INFO -    Parameters: {'sources': ['Del Norte County', 'California State']}
+2025-09-19 07:12:01,306 - __main__ - INFO - ✅ Using real data for improvements: improvements/data/empirical/empirical_improvements_data.geojson
+2025-09-19 07:12:01,306 - __main__ - INFO - 📊 Processing module: power_source
+2025-09-19 07:12:01,306 - __main__ - INFO - ⚠️ Using synthetic data for water_rights
+2025-09-19 07:12:01,306 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2025-09-19 07:12:01,306 - cascadia.processing.real_data_acquisition - INFO -    Parameters: {'sources': ['USDA Cropland Data Layer', 'California Department of Conservation']}
+2025-09-19 07:12:01,306 - __main__ - INFO - ⚠️ Using synthetic data for ground_water
+2025-09-19 07:12:01,306 - __main__ - INFO - ⚠️ Using synthetic data for surface_water
+2025-09-19 07:12:01,306 - selenium.webdriver.remote.remote_connection - DEBUG - POST http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/url {'url': 'https://www.co.del-norte.ca.us/departments/planning-building'}
+2025-09-19 07:12:01,306 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2025-09-19 07:12:01,306 - __main__ - INFO - ⚠️ Using synthetic data for power_source
+2025-09-19 07:12:01,306 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2025-09-19 07:12:01,306 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:12:01,307 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2025-09-19 07:12:01,307 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2025-09-19 07:12:01,307 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:12:01,307 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2025-09-19 07:12:01,307 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:12:01,307 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'ownership', 'data_path': 'ownership/data/empirical/empirical_ownership_data.geojson', 'target_hexagons_count': 7749}
+2025-09-19 07:12:01,307 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:12:01,307 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:12:01,307 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'improvements', 'data_path': 'improvements/data/empirical/empirical_improvements_data.geojson', 'target_hexagons_count': 7749}
+2025-09-19 07:12:01,307 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:12:01,307 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'water_rights', 'force_refresh': False}
+2025-09-19 07:12:01,307 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'ground_water', 'force_refresh': False}
+2025-09-19 07:12:01,307 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'surface_water', 'force_refresh': False}
+2025-09-19 07:12:01,308 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'power_source', 'force_refresh': False}
+2025-09-19 07:12:01,309 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-09-19 07:12:01,310 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-09-19 07:12:01,310 - cascadia.processing.data_manager - INFO -      action: cache_invalid
+2025-09-19 07:12:01,310 - cascadia.processing.data_manager - INFO -      action: cache_invalid
+2025-09-19 07:12:01,310 - cascadia.processing.data_manager - INFO -    Step: Data Acquisition
+2025-09-19 07:12:01,310 - cascadia.processing.data_manager - INFO -      module: ownership
+2025-09-19 07:12:01,310 - cascadia.processing.data_manager - INFO -    Step: Data Acquisition
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -      module: improvements
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -    Step: Data Acquisition
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -    Step: Data Acquisition
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -      action: calling_data_source_func
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -      action: calling_data_source_func
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -      action: calling_data_source_func
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -      action: calling_data_source_func
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -      module: ground_water
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -      module: water_rights
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -      module: surface_water
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -      module: power_source
+2025-09-19 07:12:01,311 - cascadia.processing.data_manager - INFO -      module: ownership
+2025-09-19 07:12:01,312 - cascadia.processing.data_manager - INFO -      module: improvements
+2025-09-19 07:12:01,313 - power_source.data_sources - INFO - Fetching all power infrastructure features from HIFLD...
+2025-09-19 07:12:01,314 - power_source.data_sources - ERROR - HIFLD service URL for 'transmission lines' not configured.
+2025-09-19 07:12:01,325 - power_source.data_sources - ERROR - HIFLD service URL for 'power plants' not configured.
+2025-09-19 07:12:01,330 - cascadia.data.data_manager - ERROR - ⚠️  FALLBACK DATA USED - Module: data_manager
+2025-09-19 07:12:01,330 - cascadia.data.data_manager - ERROR -    Original Source: data_source_func
+2025-09-19 07:12:01,330 - cascadia.data.data_manager - ERROR -    Fallback Reason: Exception: The truth value of a GeoDataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-19 07:12:01,333 - cascadia.data.data_manager - ERROR -    Fallback Type: synthetic_data
+2025-09-19 07:12:01,333 - cascadia.data.data_manager - ERROR -    Limitations: ['Data acquisition failed', 'Using generated test data']
+2025-09-19 07:12:01,333 - utils.enhanced_data_manager - INFO - [power_source] 🔧 Creating synthetic data...
+2025-09-19 07:12:02,958 - urllib3.connectionpool - DEBUG - http://localhost:56920 "POST /session/34f44463f0e9293d5073f80e3ecef242/url HTTP/1.1" 200 0
+2025-09-19 07:12:02,958 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 1, 50 hexagons...
+2025-09-19 07:12:02,958 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":null} | headers=HTTPHeaderDict({'Content-Length': '14', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:12:02,959 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:12:02,959 - selenium.webdriver.remote.remote_connection - DEBUG - POST http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/elements {'using': 'tag name', 'value': 'a'}
+2025-09-19 07:12:03,363 - urllib3.connectionpool - DEBUG - http://localhost:56920 "POST /session/34f44463f0e9293d5073f80e3ecef242/elements HTTP/1.1" 200 0
+2025-09-19 07:12:03,364 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":[{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.63"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.64"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.65"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.66"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.67"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.68"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.69"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.70"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.71"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.72"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.73"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.2"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.74"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.75"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.76"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.77"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.78"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.79"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.80"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.81"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.82"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.83"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.84"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.85"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.86"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.87"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.88"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.89"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.90"},{"element-6066-11e4-a52e-4f735466cecf":"f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.91"}]} | headers=HTTPHeaderDict({'Content-Length': '3520', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:12:03,364 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:12:04,148 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): waterservices.usgs.gov:443
+2025-09-19 07:12:04,148 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.63/text {}
+2025-09-19 07:12:04,177 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.63/text HTTP/1.1" 200 0
+2025-09-19 07:12:04,177 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":""} | headers=HTTPHeaderDict({'Content-Length': '12', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:12:04,182 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:12:04,183 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.64/text {}
+2025-09-19 07:12:04,188 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.64/text HTTP/1.1" 200 0
+2025-09-19 07:12:04,192 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":""} | headers=HTTPHeaderDict({'Content-Length': '12', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:12:04,196 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:12:04,198 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.65/text {}
+2025-09-19 07:13:20,625 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.65/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,628 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":""} | headers=HTTPHeaderDict({'Content-Length': '12', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,637 - pyogrio._io - INFO - Created 1 records
+2025-09-19 07:13:20,640 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,652 - utils.enhanced_data_manager - INFO - [power_source] ✅ Created synthetic data: output/power_source/data/synthetic/synthetic_power_source_data.geojson
+2025-09-19 07:13:20,658 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.66/text {}
+2025-09-19 07:13:20,669 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2025-09-19 07:13:20,671 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:13:20,675 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'power_source', 'data_path': 'output/power_source/data/synthetic/synthetic_power_source_data.geojson', 'target_hexagons_count': 7749}
+2025-09-19 07:13:20,690 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.66/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,691 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":""} | headers=HTTPHeaderDict({'Content-Length': '12', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,692 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,694 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.67/text {}
+2025-09-19 07:13:20,695 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-09-19 07:13:20,695 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2025-09-19 07:13:20,695 - cascadia.processing.data_manager - INFO -      module: power_source
+2025-09-19 07:13:20,731 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.67/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,738 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":""} | headers=HTTPHeaderDict({'Content-Length': '12', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,746 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,770 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.68/text {}
+2025-09-19 07:13:20,780 - utils.enhanced_data_manager - INFO - [power_source] ✅ Processed 1 features to 1551 H3 hexagons
+2025-09-19 07:13:20,787 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.68/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,788 - utils.enhanced_data_manager - INFO - [ownership] ✅ Processed 50 features to 594 H3 hexagons
+2025-09-19 07:13:20,789 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":""} | headers=HTTPHeaderDict({'Content-Length': '12', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,789 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,789 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.69/text {}
+2025-09-19 07:13:20,795 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.69/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,796 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Planning Division"} | headers=HTTPHeaderDict({'Content-Length': '29', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,796 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,799 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.70/text {}
+2025-09-19 07:13:20,799 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2025-09-19 07:13:20,800 - cascadia.data.data_manager - INFO -    Input Features: 50
+2025-09-19 07:13:20,800 - cascadia.data.data_manager - INFO -    Output Hexagons: 594
+2025-09-19 07:13:20,800 - cascadia.data.data_manager - INFO -    Coverage: 7.7%
+2025-09-19 07:13:20,800 - cascadia.data.data_manager - INFO -    Processing Time: 79.49s
+2025-09-19 07:13:20,800 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2025-09-19 07:13:20,800 - cascadia.processing.data_manager - INFO -    Duration: 79.49s
+2025-09-19 07:13:20,800 - cascadia.processing.data_manager - INFO -    source: new_processing
+2025-09-19 07:13:20,800 - cascadia.processing.data_manager - INFO -    module: ownership
+2025-09-19 07:13:20,800 - cascadia.processing.data_manager - INFO -    input_features: 50
+2025-09-19 07:13:20,800 - cascadia.processing.data_manager - INFO -    output_hexagons: 594
+2025-09-19 07:13:20,802 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.70/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,803 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Accessory Dwelling Units"} | headers=HTTPHeaderDict({'Content-Length': '36', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,805 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,806 - urllib3.connectionpool - DEBUG - https://waterservices.usgs.gov:443 "GET /nwis/gwlevels/?format=json&bBox=-124.50450855305226%2C41.39617603166997%2C-124.14924010603583%2C41.462441794297334&siteStatus=all HTTP/1.1" 400 559
+2025-09-19 07:13:20,806 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.71/text {}
+2025-09-19 07:13:20,808 - utils.enhanced_data_manager - INFO - [improvements] ✅ Processed 100 features to 49 H3 hexagons
+2025-09-19 07:13:20,811 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 1: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.50450855305226%2C41.39617603166997%2C-124.14924010603583%2C41.462441794297334&siteStatus=all
+2025-09-19 07:13:20,816 - __main__ - INFO - 📋 ownership data quality: 0.00
+2025-09-19 07:13:20,816 - __main__ - INFO - 📊 Processing module: mortgage_debt
+2025-09-19 07:13:20,816 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.71/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,816 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2025-09-19 07:13:20,816 - __main__ - INFO - ⚠️ Using synthetic data for mortgage_debt
+2025-09-19 07:13:20,817 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Bid/Proposal Documents"} | headers=HTTPHeaderDict({'Content-Length': '34', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,817 - cascadia.data.data_manager - INFO -    Input Features: 100
+2025-09-19 07:13:20,818 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2025-09-19 07:13:20,821 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,823 - cascadia.data.data_manager - INFO -    Output Hexagons: 49
+2025-09-19 07:13:20,823 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:13:20,823 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2025-09-19 07:13:20,824 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.72/text {}
+2025-09-19 07:13:20,826 - cascadia.data.data_manager - INFO -    Coverage: 0.6%
+2025-09-19 07:13:20,830 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'mortgage_debt', 'force_refresh': False}
+2025-09-19 07:13:20,830 - cascadia.data.data_manager - INFO -    Input Features: 1
+2025-09-19 07:13:20,835 - cascadia.data.data_manager - INFO -    Processing Time: 79.51s
+2025-09-19 07:13:20,838 - cascadia.data.data_manager - INFO -    Output Hexagons: 1,551
+2025-09-19 07:13:20,839 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2025-09-19 07:13:20,840 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.72/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,840 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 2, 50 hexagons...
+2025-09-19 07:13:20,840 - cascadia.data.data_manager - INFO -    Coverage: 20.0%
+2025-09-19 07:13:20,840 - cascadia.processing.data_manager - INFO -    Duration: 79.53s
+2025-09-19 07:13:20,841 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Documents"} | headers=HTTPHeaderDict({'Content-Length': '21', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,842 - cascadia.data.data_manager - INFO -    Processing Time: 0.15s
+2025-09-19 07:13:20,843 - cascadia.processing.data_manager - INFO -    source: new_processing
+2025-09-19 07:13:20,844 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,844 - cascadia.processing.data_manager - INFO -    Step: Data Acquisition
+2025-09-19 07:13:20,844 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): waterservices.usgs.gov:443
+2025-09-19 07:13:20,846 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2025-09-19 07:13:20,849 - cascadia.processing.data_manager - INFO -    module: improvements
+2025-09-19 07:13:20,849 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.73/text {}
+2025-09-19 07:13:20,851 - cascadia.processing.data_manager - INFO -      action: calling_data_source_func
+2025-09-19 07:13:20,851 - cascadia.processing.data_manager - INFO -    Duration: 0.18s
+2025-09-19 07:13:20,852 - cascadia.processing.data_manager - INFO -    input_features: 100
+2025-09-19 07:13:20,853 - cascadia.processing.data_manager - INFO -      module: mortgage_debt
+2025-09-19 07:13:20,853 - cascadia.processing.data_manager - INFO -    source: new_processing
+2025-09-19 07:13:20,853 - cascadia.processing.data_manager - INFO -    output_hexagons: 49
+2025-09-19 07:13:20,854 - cascadia.processing.data_manager - INFO -    module: power_source
+2025-09-19 07:13:20,854 - mortgage_debt.geo_infer_mortgage_debt - INFO - [mortgage_debt] Fetching HMDA mortgage aggregates and census tracts...
+2025-09-19 07:13:20,854 - cascadia.processing.data_manager - INFO -    input_features: 1
+2025-09-19 07:13:20,855 - mortgage_debt.data_sources - INFO - Fetching mortgage data for CA and OR for year 2022.
+2025-09-19 07:13:20,855 - cascadia.processing.data_manager - INFO -    output_hexagons: 1551
+2025-09-19 07:13:20,856 - mortgage_debt.data_sources - INFO - Fetching HMDA data for CA, 2022...
+2025-09-19 07:13:20,856 - mortgage_debt.data_sources - ERROR - HMDA bulk URL template not configured. Cannot download data.
+2025-09-19 07:13:20,856 - mortgage_debt.data_sources - INFO - Fetching HMDA data for OR, 2022...
+2025-09-19 07:13:20,856 - mortgage_debt.data_sources - ERROR - HMDA bulk URL template not configured. Cannot download data.
+2025-09-19 07:13:20,857 - mortgage_debt.data_sources - WARNING - No mortgage data could be fetched.
+2025-09-19 07:13:20,857 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.73/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,859 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Forms and Handouts"} | headers=HTTPHeaderDict({'Content-Length': '30', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,859 - pyogrio._io - INFO - Created 0 records
+2025-09-19 07:13:20,859 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,859 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Validation and Storage
+2025-09-19 07:13:20,859 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.2/text {}
+2025-09-19 07:13:20,861 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:13:20,865 - __main__ - INFO - 📋 power_source data quality: 0.00
+2025-09-19 07:13:20,867 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'mortgage_debt', 'raw_path': 'output/mortgage_debt/data/raw/raw_mortgage_debt_data.geojson'}
+2025-09-19 07:13:20,868 - utils.enhanced_data_manager - INFO - 🗺️  GEODATAFRAME SUMMARY - mortgage_debt_raw_data
+2025-09-19 07:13:20,869 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.2/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,870 - utils.enhanced_data_manager - INFO -    Shape: (0, 1)
+2025-09-19 07:13:20,870 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Housing Resources"} | headers=HTTPHeaderDict({'Content-Length': '29', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,871 - utils.enhanced_data_manager - INFO -    CRS: EPSG:4326
+2025-09-19 07:13:20,871 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,871 - utils.enhanced_data_manager - INFO -    Geometry Type: []
+2025-09-19 07:13:20,872 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.74/text {}
+2025-09-19 07:13:20,872 - utils.enhanced_data_manager - INFO -    Bounds: [nan nan nan nan]
+2025-09-19 07:13:20,873 - utils.enhanced_data_manager - INFO - 📋 DATAFRAME SUMMARY - mortgage_debt_raw_data
+2025-09-19 07:13:20,873 - utils.enhanced_data_manager - INFO -    Shape: (0, 1)
+2025-09-19 07:13:20,873 - utils.enhanced_data_manager - INFO -    Memory Usage: 0.00 MB
+2025-09-19 07:13:20,873 - utils.enhanced_data_manager - INFO -    Columns: ['geometry']
+2025-09-19 07:13:20,873 - utils.enhanced_data_manager - INFO -    Data Types: {'geometry': <geopandas.array.GeometryDtype object at 0x105dbbbc0>}
+2025-09-19 07:13:20,874 - cascadia.data.data_manager - INFO - 🔍 DATA VALIDATION - Module: data_manager
+2025-09-19 07:13:20,875 - cascadia.data.data_manager - INFO -    Quality Score: 0.90
+2025-09-19 07:13:20,875 - cascadia.data.data_manager - INFO -    Validation Results: {'is_valid': False, 'errors': ['Empty dataset', 'Invalid geometry types: set()'], 'warnings': [], 'quality_score': 0.9, 'feature_count': 0, 'geometry_types': [], 'crs': 'EPSG:4326'}
+2025-09-19 07:13:20,875 - utils.enhanced_data_manager - WARNING - [mortgage_debt] ⚠️ Data validation failed: ['Empty dataset', 'Invalid geometry types: set()']
+2025-09-19 07:13:20,875 - utils.enhanced_data_manager - INFO - [mortgage_debt] 🔧 Creating synthetic data...
+2025-09-19 07:13:20,876 - pyogrio._io - INFO - Created 1 records
+2025-09-19 07:13:20,876 - utils.enhanced_data_manager - INFO - [mortgage_debt] ✅ Created synthetic data: output/mortgage_debt/data/synthetic/synthetic_mortgage_debt_data.geojson
+2025-09-19 07:13:20,877 - __main__ - INFO - 📋 improvements data quality: 0.00
+2025-09-19 07:13:20,877 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.74/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,877 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - Data Acquisition
+2025-09-19 07:13:20,883 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Planning Commission Agenda"} | headers=HTTPHeaderDict({'Content-Length': '38', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,884 - cascadia.processing.data_manager - INFO -    Duration: 0.06s
+2025-09-19 07:13:20,885 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,885 - cascadia.processing.data_manager - INFO -    source: new_data
+2025-09-19 07:13:20,886 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.75/text {}
+2025-09-19 07:13:20,886 - cascadia.processing.data_manager - INFO -    module: mortgage_debt
+2025-09-19 07:13:20,886 - cascadia.processing.data_manager - INFO -    path: output/mortgage_debt/data/synthetic/synthetic_mortgage_debt_data.geojson
+2025-09-19 07:13:20,886 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2025-09-19 07:13:20,887 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:13:20,887 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'mortgage_debt', 'data_path': 'output/mortgage_debt/data/synthetic/synthetic_mortgage_debt_data.geojson', 'target_hexagons_count': 7749}
+2025-09-19 07:13:20,890 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.75/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,890 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Planning Commission Meetings"} | headers=HTTPHeaderDict({'Content-Length': '40', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,890 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,890 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.76/text {}
+2025-09-19 07:13:20,892 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-09-19 07:13:20,892 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2025-09-19 07:13:20,892 - cascadia.processing.data_manager - INFO -      module: mortgage_debt
+2025-09-19 07:13:20,939 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.76/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,939 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"2022 - 2030 Housing Element"} | headers=HTTPHeaderDict({'Content-Length': '39', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,944 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,963 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.77/text {}
+2025-09-19 07:13:20,968 - utils.enhanced_data_manager - INFO - [mortgage_debt] ✅ Processed 1 features to 1551 H3 hexagons
+2025-09-19 07:13:20,973 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.77/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,975 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"2022 - 2030 Housing Element Information"} | headers=HTTPHeaderDict({'Content-Length': '51', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,975 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,975 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.78/text {}
+2025-09-19 07:13:20,978 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2025-09-19 07:13:20,978 - cascadia.data.data_manager - INFO -    Input Features: 1
+2025-09-19 07:13:20,978 - cascadia.data.data_manager - INFO -    Output Hexagons: 1,551
+2025-09-19 07:13:20,979 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.78/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,979 - cascadia.data.data_manager - INFO -    Coverage: 20.0%
+2025-09-19 07:13:20,979 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"SB 35 Streamlined Multifamily Review and SB 330 Preliminary Application"} | headers=HTTPHeaderDict({'Content-Length': '83', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,984 - cascadia.data.data_manager - INFO -    Processing Time: 0.09s
+2025-09-19 07:13:20,984 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,985 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2025-09-19 07:13:20,987 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.79/text {}
+2025-09-19 07:13:20,987 - cascadia.processing.data_manager - INFO -    Duration: 0.10s
+2025-09-19 07:13:20,988 - cascadia.processing.data_manager - INFO -    source: new_processing
+2025-09-19 07:13:20,988 - cascadia.processing.data_manager - INFO -    module: mortgage_debt
+2025-09-19 07:13:20,988 - cascadia.processing.data_manager - INFO -    input_features: 1
+2025-09-19 07:13:20,989 - cascadia.processing.data_manager - INFO -    output_hexagons: 1551
+2025-09-19 07:13:20,991 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.79/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,992 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Website Links"} | headers=HTTPHeaderDict({'Content-Length': '25', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,992 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,992 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.80/text {}
+2025-09-19 07:13:20,996 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.80/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,996 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":""} | headers=HTTPHeaderDict({'Content-Length': '12', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,996 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,996 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.81/text {}
+2025-09-19 07:13:20,999 - __main__ - INFO - 📋 mortgage_debt data quality: 0.00
+2025-09-19 07:13:20,999 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.81/text HTTP/1.1" 200 0
+2025-09-19 07:13:20,999 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"planning@co.del-norte.ca.us"} | headers=HTTPHeaderDict({'Content-Length': '39', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:20,999 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:20,999 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.82/text {}
+2025-09-19 07:13:21,003 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.82/text HTTP/1.1" 200 0
+2025-09-19 07:13:21,004 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Phone (707) 464-7254"} | headers=HTTPHeaderDict({'Content-Length': '32', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:21,004 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:21,004 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.83/text {}
+2025-09-19 07:13:21,009 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.83/text HTTP/1.1" 200 0
+2025-09-19 07:13:21,010 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Get Directions"} | headers=HTTPHeaderDict({'Content-Length': '26', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:21,010 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:21,011 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.84/text {}
+2025-09-19 07:13:21,015 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.84/text HTTP/1.1" 200 0
+2025-09-19 07:13:21,017 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Home"} | headers=HTTPHeaderDict({'Content-Length': '16', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:21,021 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:21,021 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.85/text {}
+2025-09-19 07:13:21,025 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.85/text HTTP/1.1" 200 0
+2025-09-19 07:13:21,025 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Departments"} | headers=HTTPHeaderDict({'Content-Length': '23', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:21,026 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:21,027 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.86/text {}
+2025-09-19 07:13:21,031 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.86/text HTTP/1.1" 200 0
+2025-09-19 07:13:21,032 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Planning Division"} | headers=HTTPHeaderDict({'Content-Length': '29', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:21,032 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:21,032 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.87/text {}
+2025-09-19 07:13:21,035 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.87/text HTTP/1.1" 200 0
+2025-09-19 07:13:21,036 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Planning Commission Public Comment"} | headers=HTTPHeaderDict({'Content-Length': '46', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:21,036 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:21,036 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.88/text {}
+2025-09-19 07:13:21,039 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.88/text HTTP/1.1" 200 0
+2025-09-19 07:13:21,039 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"981 H Street\nCrescent City, CA 95531"} | headers=HTTPHeaderDict({'Content-Length': '49', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:21,039 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:21,039 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.89/text {}
+2025-09-19 07:13:21,043 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.89/text HTTP/1.1" 200 0
+2025-09-19 07:13:21,043 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Accessibility"} | headers=HTTPHeaderDict({'Content-Length': '25', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:21,043 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:21,043 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.90/text {}
+2025-09-19 07:13:21,046 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.90/text HTTP/1.1" 200 0
+2025-09-19 07:13:21,046 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Contact Us"} | headers=HTTPHeaderDict({'Content-Length': '22', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:21,046 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:21,046 - selenium.webdriver.remote.remote_connection - DEBUG - GET http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.91/text {}
+2025-09-19 07:13:21,049 - urllib3.connectionpool - DEBUG - http://localhost:56920 "GET /session/34f44463f0e9293d5073f80e3ecef242/element/f.A316CF05BE6285C7F5C5979B220E3721.d.D403B7908B33B1F280510EF7B3DD915A.e.91/text HTTP/1.1" 200 0
+2025-09-19 07:13:21,049 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":"Website By EvoGov"} | headers=HTTPHeaderDict({'Content-Length': '29', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:13:21,049 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2025-09-19 07:13:21,051 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): data.ca.gov:443
+2025-09-19 07:13:21,085 - surface_water.data_sources - INFO - Fetching all surface water features from NHD...
+2025-09-19 07:13:21,085 - surface_water.data_sources - ERROR - No URL configured for NHD layer 'flowlines'.
+2025-09-19 07:13:21,086 - surface_water.data_sources - ERROR - No URL configured for NHD layer 'waterbodies'.
+2025-09-19 07:13:21,087 - cascadia.data.data_manager - ERROR - ⚠️  FALLBACK DATA USED - Module: data_manager
+2025-09-19 07:13:21,087 - cascadia.data.data_manager - ERROR -    Original Source: data_source_func
+2025-09-19 07:13:21,087 - urllib3.connectionpool - DEBUG - https://waterservices.usgs.gov:443 "GET /nwis/gwlevels/?format=json&bBox=-124.2621099232694%2C41.39734745850799%2C-124.1233276585563%2C41.47929869133251&siteStatus=all HTTP/1.1" 400 559
+2025-09-19 07:13:21,087 - cascadia.data.data_manager - ERROR -    Fallback Reason: Exception: The truth value of a GeoDataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2025-09-19 07:13:21,088 - cascadia.data.data_manager - ERROR -    Fallback Type: synthetic_data
+2025-09-19 07:13:21,088 - cascadia.data.data_manager - ERROR -    Limitations: ['Data acquisition failed', 'Using generated test data']
+2025-09-19 07:13:21,088 - utils.enhanced_data_manager - INFO - [surface_water] 🔧 Creating synthetic data...
+2025-09-19 07:13:21,088 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 2: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.2621099232694%2C41.39734745850799%2C-124.1233276585563%2C41.47929869133251&siteStatus=all
+2025-09-19 07:13:21,091 - pyogrio._io - INFO - Created 1 records
+2025-09-19 07:13:21,092 - utils.enhanced_data_manager - INFO - [surface_water] ✅ Created synthetic data: output/surface_water/data/synthetic/synthetic_surface_water_data.geojson
+2025-09-19 07:13:21,092 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2025-09-19 07:13:21,092 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:13:21,092 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'surface_water', 'data_path': 'output/surface_water/data/synthetic/synthetic_surface_water_data.geojson', 'target_hexagons_count': 7749}
+2025-09-19 07:13:21,094 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 3, 50 hexagons...
+2025-09-19 07:13:21,094 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-09-19 07:13:21,094 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2025-09-19 07:13:21,094 - cascadia.processing.data_manager - INFO -      module: surface_water
+2025-09-19 07:13:21,140 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): waterservices.usgs.gov:443
+2025-09-19 07:13:21,169 - utils.enhanced_data_manager - INFO - [surface_water] ✅ Processed 1 features to 1551 H3 hexagons
+2025-09-19 07:13:21,177 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2025-09-19 07:13:21,177 - cascadia.data.data_manager - INFO -    Input Features: 1
+2025-09-19 07:13:21,177 - cascadia.data.data_manager - INFO -    Output Hexagons: 1,551
+2025-09-19 07:13:21,177 - cascadia.data.data_manager - INFO -    Coverage: 20.0%
+2025-09-19 07:13:21,177 - cascadia.data.data_manager - INFO -    Processing Time: 0.09s
+2025-09-19 07:13:21,177 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2025-09-19 07:13:21,177 - cascadia.processing.data_manager - INFO -    Duration: 0.09s
+2025-09-19 07:13:21,178 - cascadia.processing.data_manager - INFO -    source: new_processing
+2025-09-19 07:13:21,178 - cascadia.processing.data_manager - INFO -    module: surface_water
+2025-09-19 07:13:21,178 - cascadia.processing.data_manager - INFO -    input_features: 1
+2025-09-19 07:13:21,178 - cascadia.processing.data_manager - INFO -    output_hexagons: 1551
+2025-09-19 07:13:21,180 - __main__ - INFO - 📋 surface_water data quality: 0.00
+2025-09-19 07:13:21,206 - water_rights.data_sources - ERROR - California water rights URL not configured.
+2025-09-19 07:13:21,206 - water_rights.data_sources - ERROR - CA water rights CSV not found after download attempt.
+2025-09-19 07:13:21,206 - water_rights.data_sources - WARNING - Oregon water rights URL not configured, skipping fetch.
+2025-09-19 07:13:21,206 - water_rights.data_sources - WARNING - Washington water rights data source has not been implemented. A public-facing ArcGIS REST service needs to be identified. Skipping WA data.
+2025-09-19 07:13:21,206 - water_rights.data_sources - WARNING - No water rights data could be loaded for any state in the target area.
+2025-09-19 07:13:21,210 - pyogrio._io - INFO - Created 0 records
+2025-09-19 07:13:21,210 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Validation and Storage
+2025-09-19 07:13:21,210 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:13:21,210 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'water_rights', 'raw_path': 'output/water_rights/data/raw/raw_water_rights_data.geojson'}
+2025-09-19 07:13:21,211 - utils.enhanced_data_manager - INFO - 🗺️  GEODATAFRAME SUMMARY - water_rights_raw_data
+2025-09-19 07:13:21,211 - utils.enhanced_data_manager - INFO -    Shape: (0, 1)
+2025-09-19 07:13:21,211 - utils.enhanced_data_manager - INFO -    CRS: EPSG:4326
+2025-09-19 07:13:21,211 - utils.enhanced_data_manager - INFO -    Geometry Type: []
+2025-09-19 07:13:21,212 - utils.enhanced_data_manager - INFO -    Bounds: [nan nan nan nan]
+2025-09-19 07:13:21,212 - utils.enhanced_data_manager - INFO - 📋 DATAFRAME SUMMARY - water_rights_raw_data
+2025-09-19 07:13:21,212 - utils.enhanced_data_manager - INFO -    Shape: (0, 1)
+2025-09-19 07:13:21,212 - utils.enhanced_data_manager - INFO -    Memory Usage: 0.00 MB
+2025-09-19 07:13:21,212 - utils.enhanced_data_manager - INFO -    Columns: ['geometry']
+2025-09-19 07:13:21,212 - utils.enhanced_data_manager - INFO -    Data Types: {'geometry': <geopandas.array.GeometryDtype object at 0x105dbbbc0>}
+2025-09-19 07:13:21,212 - cascadia.data.data_manager - INFO - 🔍 DATA VALIDATION - Module: data_manager
+2025-09-19 07:13:21,212 - cascadia.data.data_manager - INFO -    Quality Score: 0.90
+2025-09-19 07:13:21,212 - cascadia.data.data_manager - INFO -    Validation Results: {'is_valid': False, 'errors': ['Empty dataset', 'Invalid geometry types: set()'], 'warnings': [], 'quality_score': 0.9, 'feature_count': 0, 'geometry_types': [], 'crs': 'EPSG:4326'}
+2025-09-19 07:13:21,212 - utils.enhanced_data_manager - WARNING - [water_rights] ⚠️ Data validation failed: ['Empty dataset', 'Invalid geometry types: set()']
+2025-09-19 07:13:21,212 - utils.enhanced_data_manager - INFO - [water_rights] 🔧 Creating synthetic data...
+2025-09-19 07:13:21,213 - pyogrio._io - INFO - Created 1 records
+2025-09-19 07:13:21,214 - utils.enhanced_data_manager - INFO - [water_rights] ✅ Created synthetic data: output/water_rights/data/synthetic/synthetic_water_rights_data.geojson
+2025-09-19 07:13:21,214 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - Data Acquisition
+2025-09-19 07:13:21,214 - cascadia.processing.data_manager - INFO -    Duration: 79.91s
+2025-09-19 07:13:21,214 - cascadia.processing.data_manager - INFO -    source: new_data
+2025-09-19 07:13:21,214 - cascadia.processing.data_manager - INFO -    module: water_rights
+2025-09-19 07:13:21,214 - cascadia.processing.data_manager - INFO -    path: output/water_rights/data/synthetic/synthetic_water_rights_data.geojson
+2025-09-19 07:13:21,214 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2025-09-19 07:13:21,214 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:13:21,214 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'water_rights', 'data_path': 'output/water_rights/data/synthetic/synthetic_water_rights_data.geojson', 'target_hexagons_count': 7749}
+2025-09-19 07:13:21,214 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-09-19 07:13:21,214 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2025-09-19 07:13:21,214 - cascadia.processing.data_manager - INFO -      module: water_rights
+2025-09-19 07:13:21,283 - utils.enhanced_data_manager - INFO - [water_rights] ✅ Processed 1 features to 1551 H3 hexagons
+2025-09-19 07:13:21,289 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2025-09-19 07:13:21,289 - cascadia.data.data_manager - INFO -    Input Features: 1
+2025-09-19 07:13:21,289 - cascadia.data.data_manager - INFO -    Output Hexagons: 1,551
+2025-09-19 07:13:21,289 - cascadia.data.data_manager - INFO -    Coverage: 20.0%
+2025-09-19 07:13:21,289 - cascadia.data.data_manager - INFO -    Processing Time: 0.07s
+2025-09-19 07:13:21,289 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2025-09-19 07:13:21,289 - cascadia.processing.data_manager - INFO -    Duration: 0.08s
+2025-09-19 07:13:21,289 - cascadia.processing.data_manager - INFO -    source: new_processing
+2025-09-19 07:13:21,289 - cascadia.processing.data_manager - INFO -    module: water_rights
+2025-09-19 07:13:21,289 - cascadia.processing.data_manager - INFO -    input_features: 1
+2025-09-19 07:13:21,289 - cascadia.processing.data_manager - INFO -    output_hexagons: 1551
+2025-09-19 07:13:21,290 - __main__ - INFO - 📋 water_rights data quality: 0.00
+2025-09-19 07:13:21,332 - urllib3.connectionpool - DEBUG - https://waterservices.usgs.gov:443 "GET /nwis/gwlevels/?format=json&bBox=-124.26035239972825%2C41.41151435418049%2C-124.05072528519547%2C41.46870662477211&siteStatus=all HTTP/1.1" 400 559
+2025-09-19 07:13:21,333 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 3: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.26035239972825%2C41.41151435418049%2C-124.05072528519547%2C41.46870662477211&siteStatus=all
+2025-09-19 07:13:21,334 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 4, 50 hexagons...
+2025-09-19 07:13:21,335 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): waterservices.usgs.gov:443
+2025-09-19 07:13:21,495 - urllib3.connectionpool - DEBUG - https://waterservices.usgs.gov:443 "GET /nwis/gwlevels/?format=json&bBox=-124.18785372005465%2C41.397084431472884%2C-124.04901236215797%2C41.497413869922234&siteStatus=all HTTP/1.1" 400 559
+2025-09-19 07:13:21,496 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 4: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.18785372005465%2C41.397084431472884%2C-124.04901236215797%2C41.497413869922234&siteStatus=all
+2025-09-19 07:13:21,497 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 5, 50 hexagons...
+2025-09-19 07:13:21,498 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): waterservices.usgs.gov:443
+2025-09-19 07:13:21,627 - urllib3.connectionpool - DEBUG - https://data.ca.gov:443 "GET /api/3/action/package_show?id=zoning-data HTTP/1.1" 404 None
+2025-09-19 07:13:21,628 - cascadia.data.real_data_acquisition - ERROR - ⚠️  FALLBACK DATA USED - Module: real_data_acquisition
+2025-09-19 07:13:21,628 - cascadia.data.real_data_acquisition - ERROR -    Original Source: zoning_data_acquisition
+2025-09-19 07:13:21,628 - cascadia.data.real_data_acquisition - ERROR -    Fallback Reason: No real zoning data available
+2025-09-19 07:13:21,628 - cascadia.data.real_data_acquisition - ERROR -    Fallback Type: synthetic_zoning
+2025-09-19 07:13:21,628 - cascadia.data.real_data_acquisition - ERROR -    Limitations: ['Using generated test data', 'No real zoning boundaries']
+2025-09-19 07:13:21,634 - pyogrio._io - INFO - Created 50 records
+2025-09-19 07:13:21,634 - __main__ - INFO - ⚠️ Using synthetic data for zoning
+2025-09-19 07:13:21,634 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2025-09-19 07:13:21,634 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:13:21,634 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'zoning', 'force_refresh': False}
+2025-09-19 07:13:21,634 - cascadia.data.data_manager - WARNING - 🧪 SYNTHETIC DATA GENERATED - Module: data_manager
+2025-09-19 07:13:21,635 - cascadia.data.data_manager - WARNING -    Reason: Using cached synthetic data
+2025-09-19 07:13:21,635 - cascadia.data.data_manager - WARNING -    Parameters: {'module': 'zoning', 'file_size_mb': 0.000732421875}
+2025-09-19 07:13:21,635 - cascadia.data.data_manager - WARNING -    Row Count: 0
+2025-09-19 07:13:21,635 - cascadia.data.data_manager - WARNING -    Coverage Area: 0.00 km²
+2025-09-19 07:13:21,635 - cascadia.data.data_manager - WARNING -    Geometry Types: ['Unknown']
+2025-09-19 07:13:21,635 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - Data Acquisition
+2025-09-19 07:13:21,635 - cascadia.processing.data_manager - INFO -    Duration: 0.00s
+2025-09-19 07:13:21,635 - cascadia.processing.data_manager - INFO -    source: cached_synthetic
+2025-09-19 07:13:21,635 - cascadia.processing.data_manager - INFO -    module: zoning
+2025-09-19 07:13:21,635 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2025-09-19 07:13:21,635 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:13:21,635 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'zoning', 'data_path': 'output/zoning/data/synthetic/synthetic_zoning_data.geojson', 'target_hexagons_count': 7749}
+2025-09-19 07:13:21,635 - urllib3.connectionpool - DEBUG - https://waterservices.usgs.gov:443 "GET /nwis/gwlevels/?format=json&bBox=-124.38988444899483%2C41.39573460939438%2C-124.10258506163134%2C41.48815140115654&siteStatus=all HTTP/1.1" 400 559
+2025-09-19 07:13:21,671 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-09-19 07:13:21,672 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 5: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.38988444899483%2C41.39573460939438%2C-124.10258506163134%2C41.48815140115654&siteStatus=all
+2025-09-19 07:13:21,672 - cascadia.processing.data_manager - INFO -      action: cache_invalid
+2025-09-19 07:13:21,672 - cascadia.processing.data_manager - INFO -      module: zoning
+2025-09-19 07:13:21,673 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-09-19 07:13:21,673 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2025-09-19 07:13:21,673 - cascadia.processing.data_manager - INFO -      module: zoning
+2025-09-19 07:13:21,820 - utils.enhanced_data_manager - INFO - [zoning] ✅ Processed 2 features to 2584 H3 hexagons
+2025-09-19 07:13:21,820 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 6, 50 hexagons...
+2025-09-19 07:13:21,826 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): waterservices.usgs.gov:443
+2025-09-19 07:13:21,839 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2025-09-19 07:13:21,839 - cascadia.data.data_manager - INFO -    Input Features: 2
+2025-09-19 07:13:21,839 - cascadia.data.data_manager - INFO -    Output Hexagons: 2,584
+2025-09-19 07:13:21,839 - cascadia.data.data_manager - INFO -    Coverage: 33.3%
+2025-09-19 07:13:21,839 - cascadia.data.data_manager - INFO -    Processing Time: 0.20s
+2025-09-19 07:13:21,839 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2025-09-19 07:13:21,839 - cascadia.processing.data_manager - INFO -    Duration: 0.20s
+2025-09-19 07:13:21,839 - cascadia.processing.data_manager - INFO -    source: new_processing
+2025-09-19 07:13:21,839 - cascadia.processing.data_manager - INFO -    module: zoning
+2025-09-19 07:13:21,839 - cascadia.processing.data_manager - INFO -    input_features: 2
+2025-09-19 07:13:21,839 - cascadia.processing.data_manager - INFO -    output_hexagons: 2584
+2025-09-19 07:13:21,843 - __main__ - INFO - 📋 zoning data quality: 0.00
+2025-09-19 07:13:21,972 - urllib3.connectionpool - DEBUG - https://waterservices.usgs.gov:443 "GET /nwis/gwlevels/?format=json&bBox=-124.4434912894218%2C41.43120819218809%2C-124.30470852350996%2C41.52852335249678&siteStatus=all HTTP/1.1" 400 559
+2025-09-19 07:13:21,974 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 6: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.4434912894218%2C41.43120819218809%2C-124.30470852350996%2C41.52852335249678&siteStatus=all
+2025-09-19 07:13:21,975 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 7, 50 hexagons...
+2025-09-19 07:13:21,975 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): waterservices.usgs.gov:443
+2025-09-19 07:13:22,145 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 7: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.4416946894341%2C41.468999325371755%2C-124.23222973101008%2C41.53669943561875&siteStatus=all
+2025-09-19 07:13:22,146 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 8, 50 hexagons...
+2025-09-19 07:13:22,353 - utils.real_data_acquisition - ERROR - Failed to download file from https://www2.census.gov/geo/tiger/TIGER2023/PLACE/tl_2023_us_place.zip: HTTPSConnectionPool(host='www2.census.gov', port=443): Max retries exceeded with url: /geo/tiger/TIGER2023/PLACE/tl_2023_us_place.zip (Caused by SSLError(SSLCertVerificationError(1, '[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1010)')))
+2025-09-19 07:13:25,353 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 8: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.36932063689025%2C41.44939312583085%2C-124.23047763747192%2C41.546732516399906&siteStatus=all
+2025-09-19 07:13:25,355 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 9, 50 hexagons...
+2025-09-19 07:13:25,521 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 9: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.41042133989087%2C41.396588484129424%2C-124.28408546715153%2C41.55492424331411&siteStatus=all
+2025-09-19 07:13:25,522 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 10, 50 hexagons...
+2025-09-19 07:13:25,676 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 10: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.46399719008733%2C41.396385876966185%2C-124.32530459858481%2C41.48071530361224&siteStatus=all
+2025-09-19 07:13:25,677 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 11, 50 hexagons...
+2025-09-19 07:13:25,844 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 11: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.4621973433165%2C41.39595894391746%2C-124.25288698210116%2C41.46114191381671&siteStatus=all
+2025-09-19 07:13:25,846 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 12, 50 hexagons...
+2025-09-19 07:13:26,001 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 12: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.50505732019666%2C41.40158392321628%2C-124.25113157320283%2C41.723849372880416&siteStatus=all
+2025-09-19 07:13:26,002 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 13, 50 hexagons...
+2025-09-19 07:13:26,160 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 13: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.50575378406741%2C41.600371313427516%2C-124.42448234390758%2C41.753293986323506&siteStatus=all
+2025-09-19 07:13:26,161 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 14, 50 hexagons...
+2025-09-19 07:13:26,319 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 14: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.50589784623881%2C41.50428605644462%2C-124.41192751335574%2C41.574397598677706&siteStatus=all
+2025-09-19 07:13:26,321 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 15, 50 hexagons...
+2025-09-19 07:13:26,474 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 15: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.50547793441007%2C41.4587404186273%2C-124.41486261445709%2C41.606667501088694&siteStatus=all
+2025-09-19 07:13:26,476 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 16, 50 hexagons...
+2025-09-19 07:13:26,629 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 16: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.50520283486624%2C41.45073909756996%2C-123.62611314745834%2C41.86678773277067&siteStatus=all
+2025-09-19 07:13:26,630 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 17, 50 hexagons...
+2025-09-19 07:13:26,786 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 17: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.76409547948121%2C41.80744910808918%2C-123.62448282329031%2C41.90473428161442&siteStatus=all
+2025-09-19 07:13:26,787 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 18, 50 hexagons...
+2025-09-19 07:13:27,028 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 18: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.76243538245949%2C41.81695582152105%2C-123.55110307577736%2C41.88460788447867&siteStatus=all
+2025-09-19 07:13:27,029 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 19, 50 hexagons...
+2025-09-19 07:13:27,189 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 19: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.6891576526013%2C41.82528038452074%2C-123.54948837270148%2C41.922588782808965&siteStatus=all
+2025-09-19 07:13:27,190 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 20, 50 hexagons...
+2025-09-19 07:13:27,357 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 20: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.73140681484783%2C41.74327693134269%2C-123.60328503084058%2C41.89292057428722&siteStatus=all
+2025-09-19 07:13:27,358 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 21, 50 hexagons...
+2025-09-19 07:13:27,518 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 21: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.78517550226042%2C41.7541410900013%2C-123.6456528945411%2C41.848924587649144&siteStatus=all
+2025-09-19 07:13:27,519 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 22, 50 hexagons...
+2025-09-19 07:13:27,678 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 22: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.76514003747269%2C41.761100861092025%2C-123.57233504055023%2C41.8287872515874&siteStatus=all
+2025-09-19 07:13:27,679 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 23, 50 hexagons...
+2025-09-19 07:13:27,830 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 23: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.89278131630604%2C41.774166185763875%2C-123.57071677181834%2C41.924695071936284&siteStatus=all
+2025-09-19 07:13:27,831 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 24, 50 hexagons...
+2025-09-19 07:13:28,019 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 24: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.94661828205028%2C41.87023105774311%2C-123.80699738727013%2C41.96249931322174&siteStatus=all
+2025-09-19 07:13:28,022 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 25, 50 hexagons...
+2025-09-19 07:13:28,402 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 25: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.89446974978463%2C41.87505808911518%2C-123.73208425293159%2C41.94262685453197&siteStatus=all
+2025-09-19 07:13:28,406 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 26, 50 hexagons...
+2025-09-19 07:13:28,543 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 26: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.87176294307652%2C41.88814443895546%2C-123.73510147518562%2C41.98046540839939&siteStatus=all
+2025-09-19 07:13:28,545 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 27, 50 hexagons...
+2025-09-19 07:13:28,712 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 27: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.91377213525078%2C41.801298456644325%2C-123.78893229435444%2C41.9403537686791&siteStatus=all
+2025-09-19 07:13:28,714 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 28, 50 hexagons...
+2025-09-19 07:13:28,896 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 28: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.96757819892544%2C41.816967539433044%2C-123.83105262484108%2C41.90672049395761&siteStatus=all
+2025-09-19 07:13:28,898 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 29, 50 hexagons...
+2025-09-19 07:13:29,117 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 29: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.89709281517129%2C41.819233716589174%2C-123.75319295293878%2C41.8868368158018&siteStatus=all
+2025-09-19 07:13:29,119 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 30, 50 hexagons...
+2025-09-19 07:13:29,403 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 30: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.59292911325022%2C41.895982916078%2C-123.49460800611763%2C41.99616402995789&siteStatus=all
+2025-09-19 07:13:29,405 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 31, 50 hexagons...
+2025-09-19 07:13:29,617 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 31: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.59130376866115%2C41.85611784457121%2C-123.49444284718602%2C41.99835367622293&siteStatus=all
+2025-09-19 07:13:29,619 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 32, 50 hexagons...
+2025-09-19 07:13:29,760 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 32: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.61415371756355%2C41.834728116241884%2C-123.4958806889825%2C41.940400179780006&siteStatus=all
+2025-09-19 07:13:29,761 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 33, 50 hexagons...
+2025-09-19 07:13:29,930 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 33: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.72185245634164%2C41.88110277926763%2C-123.52823218441642%2C42.003201192186104&siteStatus=all
+2025-09-19 07:13:29,931 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 34, 50 hexagons...
+2025-09-19 07:13:30,120 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 34: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.7663738661648%2C41.914302795495544%2C-123.5608060875651%2C42.00379459861909&siteStatus=all
+2025-09-19 07:13:30,121 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 35, 50 hexagons...
+2025-09-19 07:13:30,346 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 35: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.7968409453462%2C41.89294207189162%2C-123.65710489025386%2C41.987573285142005&siteStatus=all
+2025-09-19 07:13:30,347 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 36, 50 hexagons...
+2025-09-19 07:13:30,574 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 36: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.79517227628193%2C41.93085427652062%2C-123.5836826800626%2C41.99838859747165&siteStatus=all
+2025-09-19 07:13:30,576 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 37, 50 hexagons...
+2025-09-19 07:13:30,763 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 37: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.69877482500546%2C41.67072644522859%2C-123.5820594685214%2C41.97836147329663&siteStatus=all
+2025-09-19 07:13:30,765 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 38, 50 hexagons...
+2025-09-19 07:13:30,933 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 38: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.7524899504156%2C41.64930669398263%2C-123.61309039702124%2C41.74678744789079&siteStatus=all
+2025-09-19 07:13:30,935 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 39, 50 hexagons...
+2025-09-19 07:13:31,105 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 39: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.7508348990603%2C41.6873853413531%2C-123.53981490598004%2C41.75510098468587&siteStatus=all
+2025-09-19 07:13:31,107 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 40, 50 hexagons...
+2025-09-19 07:13:31,320 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 40: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.67766104738638%2C41.667104855235124%2C-123.53820511589507%2C41.76495768180197&siteStatus=all
+2025-09-19 07:13:31,321 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 41, 50 hexagons...
+2025-09-19 07:13:31,506 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 41: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.71986101724664%2C41.6147981965794%2C-123.5919174304096%2C41.772938388925006&siteStatus=all
+2025-09-19 07:13:31,508 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 42, 50 hexagons...
+2025-09-19 07:13:31,705 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 42: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.77354552024272%2C41.59336770450686%2C-123.63423572010272%2C41.696662602335465&siteStatus=all
+2025-09-19 07:13:31,707 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 43, 50 hexagons...
+2025-09-19 07:13:31,917 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 43: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.77188697965093%2C41.631465827395054%2C-123.56102193337571%2C41.69921550267179&siteStatus=all
+2025-09-19 07:13:31,919 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 44, 50 hexagons...
+2025-09-19 07:13:32,095 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 44: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.88098281587672%2C41.611174316302275%2C-123.55940858503644%2C41.77517228091886&siteStatus=all
+2025-09-19 07:13:32,098 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 45, 50 hexagons...
+2025-09-19 07:13:32,266 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 45: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.9347354484354%2C41.70750084755401%2C-123.79532750134346%2C41.81306987574971&siteStatus=all
+2025-09-19 07:13:32,267 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 46, 50 hexagons...
+2025-09-19 07:13:32,441 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 46: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.9330408496666%2C41.74543765641919%2C-123.72217261917108%2C41.79968130907988&siteStatus=all
+2025-09-19 07:13:32,444 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 47, 50 hexagons...
+2025-09-19 07:13:32,678 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 47: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.85998868566587%2C41.72541021368577%2C-123.72052319393694%2C41.83101858869736&siteStatus=all
+2025-09-19 07:13:32,679 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 48, 50 hexagons...
+2025-09-19 07:13:32,866 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 48: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.90194946855812%2C41.65958116625875%2C-123.77427401956598%2C41.80137190986222&siteStatus=all
+2025-09-19 07:13:32,867 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 49, 50 hexagons...
+2025-09-19 07:13:33,074 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 49: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.95567130428714%2C41.65159256744104%2C-123.81635344670437%2C41.757215231251614&siteStatus=all
+2025-09-19 07:13:33,075 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 50, 50 hexagons...
+2025-09-19 07:13:33,231 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 50: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.95397327211819%2C41.67749764305756%2C-123.74326028241377%2C41.737220808682&siteStatus=all
+2025-09-19 07:13:33,232 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 51, 50 hexagons...
+2025-09-19 07:13:33,436 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 51: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.82558226016494%2C41.66951022322226%2C-123.49411305336261%2C41.83823196014958&siteStatus=all
+2025-09-19 07:13:33,437 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 52, 50 hexagons...
+2025-09-19 07:13:33,672 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 52: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.5799461676371%2C41.69284673708112%2C-123.49394841791688%2C41.84657305050222&siteStatus=all
+2025-09-19 07:13:33,674 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 53, 50 hexagons...
+2025-09-19 07:13:33,866 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 53: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.60276627206883%2C41.68486017227039%2C-123.49538413421475%2C41.790732882114426&siteStatus=all
+2025-09-19 07:13:33,868 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 54, 50 hexagons...
+2025-09-19 07:13:34,043 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 54: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.0752578455306%2C41.73389674107549%2C-123.51697393559834%2C41.98220635831145&siteStatus=all
+2025-09-19 07:13:34,045 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 55, 50 hexagons...
+2025-09-19 07:13:34,237 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 55: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.12913126638803%2C41.92550373470702%2C-123.94075834652244%2C42.004144951245&siteStatus=all
+2025-09-19 07:13:34,238 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 56, 50 hexagons...
+2025-09-19 07:13:34,388 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 56: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.02356741396014%2C41.932764458522016%2C-123.91467466463615%2C42.003293582314434&siteStatus=all
+2025-09-19 07:13:34,390 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 57, 50 hexagons...
+2025-09-19 07:13:34,594 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 57: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.09612831983858%2C41.85892475744545%2C-123.96854734635833%2C42.003517491713616&siteStatus=all
+2025-09-19 07:13:34,595 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 58, 50 hexagons...
+2025-09-19 07:13:34,812 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 58: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.14997066544124%2C41.86150540132206%2C-124.0104350841901%2C41.964120624542566&siteStatus=all
+2025-09-19 07:13:34,812 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 59, 50 hexagons...
+2025-09-19 07:13:35,017 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 59: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.14822789196374%2C41.8769710743014%2C-123.93736087303564%2C41.944490452343864&siteStatus=all
+2025-09-19 07:13:35,018 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 60, 50 hexagons...
+2025-09-19 07:13:35,197 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 60: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.27847167523055%2C41.885186984023385%2C-123.93566324450696%2C42.00433936267538&siteStatus=all
+2025-09-19 07:13:35,198 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 61, 50 hexagons...
+2025-09-19 07:13:35,361 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 61: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.33234920642911%2C41.9161558695113%2C-124.19281138136988%2C42.002597757690495&siteStatus=all
+2025-09-19 07:13:35,362 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 62, 50 hexagons...
+2025-09-19 07:13:35,549 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 62: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.33056690370215%2C41.942280678110386%2C-124.11986119740645%2C42.00174819402909&siteStatus=all
+2025-09-19 07:13:35,550 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 63, 50 hexagons...
+2025-09-19 07:13:35,718 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 63: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.20208040254848%2C41.93431296213648%2C-123.84446511584426%2C42.00257752491713&siteStatus=all
+2025-09-19 07:13:35,718 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 64, 50 hexagons...
+2025-09-19 07:13:35,877 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 64: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.95172200967977%2C41.42897063943381%2C-123.51016393620638%2C42.00435831880785&siteStatus=all
+2025-09-19 07:13:35,878 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 65, 50 hexagons...
+2025-09-19 07:13:36,073 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 65: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.90809163952122%2C41.40751071203685%2C-123.77209389023093%2C41.49778924368608&siteStatus=all
+2025-09-19 07:13:36,074 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 66, 50 hexagons...
+2025-09-19 07:13:36,208 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 66: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.91107784974707%2C41.445632969742285%2C-123.72347243369164%2C41.51347871850611&siteStatus=all
+2025-09-19 07:13:36,210 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 67, 50 hexagons...
+2025-09-19 07:13:36,359 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 67: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.83355282927532%2C41.42538442154907%2C-123.69750631121755%2C41.51828003082717&siteStatus=all
+2025-09-19 07:13:36,360 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 68, 50 hexagons...
+2025-09-19 07:13:36,530 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 68: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.9030422717835%2C41.3966088037715%2C-123.7510891295071%2C41.53139192688026&siteStatus=all
+2025-09-19 07:13:36,531 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 69, 50 hexagons...
+2025-09-19 07:13:36,708 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 69: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.93196572629454%2C41.39626310873766%2C-123.74449069778902%2C41.45747413667738&siteStatus=all
+2025-09-19 07:13:36,709 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 70, 50 hexagons...
+2025-09-19 07:13:36,866 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 70: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.03914111950088%2C41.39591009107956%2C-123.72018446094003%2C41.53351886802295&siteStatus=all
+2025-09-19 07:13:36,867 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 71, 50 hexagons...
+2025-09-19 07:13:37,037 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 71: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.09276219895192%2C41.46571757385229%2C-123.95377233585798%2C41.57146073315552&siteStatus=all
+2025-09-19 07:13:37,038 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 72, 50 hexagons...
+2025-09-19 07:13:37,196 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 72: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.09103858334818%2C41.49170207493664%2C-123.88094534103793%2C41.55150840695677&siteStatus=all
+2025-09-19 07:13:37,197 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 73, 50 hexagons...
+2025-09-19 07:13:37,360 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 73: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.01831461065564%2C41.48370164900952%2C-123.87926654716517%2C41.58948440941848&siteStatus=all
+2025-09-19 07:13:37,361 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 74, 50 hexagons...
+2025-09-19 07:13:37,536 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 74: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.05994041169087%2C41.409691103714174%2C-123.93288669772636%2C41.55979542336231&siteStatus=all
+2025-09-19 07:13:37,537 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 75, 50 hexagons...
+2025-09-19 07:13:37,705 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 75: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.11353073202449%2C41.412263939990616%2C-123.97463069835482%2C41.515487308953816&siteStatus=all
+2025-09-19 07:13:37,706 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 76, 50 hexagons...
+2025-09-19 07:13:37,867 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 76: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.1118037520968%2C41.4276830141053%2C-123.90186505610298%2C41.49552332118915&siteStatus=all
+2025-09-19 07:13:37,868 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 77, 50 hexagons...
+2025-09-19 07:13:38,019 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 77: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.98384256311039%2C41.43598640038236%2C-123.60335301504196%2C41.56709121932718&siteStatus=all
+2025-09-19 07:13:38,019 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 78, 50 hexagons...
+2025-09-19 07:13:38,238 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 78: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.74091967243484%2C41.50759626743563%2C-123.60173258344355%2C41.60522350476241&siteStatus=all
+2025-09-19 07:13:38,239 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 79, 50 hexagons...
+2025-09-19 07:13:38,408 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 79: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.73926964391207%2C41.517010457605345%2C-123.52856106024791%2C41.58487702527657&siteStatus=all
+2025-09-19 07:13:38,409 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 80, 50 hexagons...
+2025-09-19 07:13:38,609 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 80: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.66619938380452%2C41.52539287259336%2C-123.52695616088904%2C41.62304356617775&siteStatus=all
+2025-09-19 07:13:38,610 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 81, 50 hexagons...
+2025-09-19 07:13:38,764 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 81: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.70835026160941%2C41.44321586932459%2C-123.58058439144409%2C41.59324761389453&siteStatus=all
+2025-09-19 07:13:38,765 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 82, 50 hexagons...
+2025-09-19 07:13:38,918 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 82: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.76195083879857%2C41.45413293156287%2C-123.62285320926448%2C41.5492628068824&siteStatus=all
+2025-09-19 07:13:38,919 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 83, 50 hexagons...
+2025-09-19 07:13:39,054 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 83: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.7419804538208%2C41.46100491658052%2C-123.549743202027%2C41.52890528205856&siteStatus=all
+2025-09-19 07:13:39,055 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 84, 50 hexagons...
+2025-09-19 07:13:39,221 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 84: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.86922013363892%2C41.47408184003727%2C-123.54813475179837%2C41.62540522927454&siteStatus=all
+2025-09-19 07:13:39,222 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 85, 50 hexagons...
+2025-09-19 07:13:39,389 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 85: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.92288869201514%2C41.57073807601178%2C-123.7836930557449%2C41.663395855554505&siteStatus=all
+2025-09-19 07:13:39,390 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 86, 50 hexagons...
+2025-09-19 07:13:39,553 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 86: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.87089833001086%2C41.575518498265644%2C-123.70899726635325%2C41.64330209317038&siteStatus=all
+2025-09-19 07:13:39,554 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 87, 50 hexagons...
+2025-09-19 07:13:39,723 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 87: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.84825019800091%2C41.58861644689603%2C-123.7120074750452%2C41.681326939821396&siteStatus=all
+2025-09-19 07:13:39,724 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 88, 50 hexagons...
+2025-09-19 07:13:39,913 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 88: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.89016266819203%2C41.50164365859601%2C-123.76566979880766%2C41.64107052730408&siteStatus=all
+2025-09-19 07:13:39,914 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 89, 50 hexagons...
+2025-09-19 07:13:40,072 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 89: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.94380053445592%2C41.517318968873965%2C-123.80769268777115%2C41.607465954781055&siteStatus=all
+2025-09-19 07:13:40,073 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 90, 50 hexagons...
+2025-09-19 07:13:40,240 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 90: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.87352805576778%2C41.51954346304339%2C-123.73005693757837%2C41.58736086490497&siteStatus=all
+2025-09-19 07:13:40,242 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 91, 50 hexagons...
+2025-09-19 07:13:40,412 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 91: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.0777467504595%2C41.3956600946396%2C-123.59967320241938%2C41.439510806864824&siteStatus=all
+2025-09-19 07:13:40,413 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 92, 50 hexagons...
+2025-09-19 07:13:40,583 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 92: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.72938448611237%2C41.3955497466556%2C-123.54170792555898%2C41.45510331798067&siteStatus=all
+2025-09-19 07:13:40,585 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 93, 50 hexagons...
+2025-09-19 07:13:40,744 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 93: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.65477250371349%2C41.39576633268149%2C-123.5173413831287%2C41.4729057899444&siteStatus=all
+2025-09-19 07:13:40,745 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 94, 50 hexagons...
+2025-09-19 07:13:40,922 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 94: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.23305499771567%2C41.404971740194675%2C-123.56928575744774%2C41.74085068927257&siteStatus=all
+2025-09-19 07:13:40,923 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 95, 50 hexagons...
+2025-09-19 07:13:41,085 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 95: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.2867952216906%2C41.67323982205951%2C-124.1475909163801%2C41.77855761325545&siteStatus=all
+2025-09-19 07:13:41,086 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 96, 50 hexagons...
+2025-09-19 07:13:41,266 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 96: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.28502702072488%2C41.699337800816544%2C-124.07478423637936%2C41.75896885496513&siteStatus=all
+2025-09-19 07:13:41,268 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 97, 50 hexagons...
+2025-09-19 07:13:41,427 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 97: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.21232480758847%2C41.69135250875701%2C-124.07306089494875%2C41.79670992115503&siteStatus=all
+2025-09-19 07:13:41,428 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 98, 50 hexagons...
+2025-09-19 07:13:41,577 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 98: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.25375800617792%2C41.61731918709344%2C-124.12680125195958%2C41.76717039309494&siteStatus=all
+2025-09-19 07:13:41,579 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 99, 50 hexagons...
+2025-09-19 07:13:41,742 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 99: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.30746719622077%2C41.61991039404559%2C-124.1683533391233%2C41.722690512395815&siteStatus=all
+2025-09-19 07:13:41,745 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 100, 50 hexagons...
+2025-09-19 07:13:41,909 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 100: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.30569568037635%2C41.635439695546005%2C-124.0956082051275%2C41.70308986466255&siteStatus=all
+2025-09-19 07:13:41,911 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 101, 50 hexagons...
+2025-09-19 07:13:42,113 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 101: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.41495097186252%2C41.64365775165907%2C-124.09388147971703%2C41.79798220117325&siteStatus=all
+2025-09-19 07:13:42,114 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 102, 50 hexagons...
+2025-09-19 07:13:42,258 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 102: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.46872539472841%2C41.73859730300547%2C-124.32952096711199%2C41.83554710055928&siteStatus=all
+2025-09-19 07:13:42,260 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 103, 50 hexagons...
+2025-09-19 07:13:42,414 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 103: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.46691788545361%2C41.748678514927256%2C-124.25683881499772%2C41.816210595067645&siteStatus=all
+2025-09-19 07:13:42,416 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 104, 50 hexagons...
+2025-09-19 07:13:42,579 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 104: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.3943412551455%2C41.75683578505396%2C-124.25507606997955%2C41.85380959362583&siteStatus=all
+2025-09-19 07:13:42,580 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 105, 50 hexagons...
+2025-09-19 07:13:42,743 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 105: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.43553361905491%2C41.67456697533202%2C-124.30885162489662%2C41.82435579268343&siteStatus=all
+2025-09-19 07:13:42,745 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 106, 50 hexagons...
+2025-09-19 07:13:42,923 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 106: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.48927683995134%2C41.68532226502774%2C-124.3501631790816%2C41.77971199954861&siteStatus=all
+2025-09-19 07:13:42,925 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 107, 50 hexagons...
+2025-09-19 07:13:43,082 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 107: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.43733317668708%2C41.692797414990494%2C-124.27754257553791%2C41.76036332485408&siteStatus=all
+2025-09-19 07:13:43,084 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 108, 50 hexagons...
+2025-09-19 07:13:43,296 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 108: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.30923947932712%2C41.705982835670184%2C-123.97926238177811%2C41.832888030480724&siteStatus=all
+2025-09-19 07:13:43,298 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 109, 50 hexagons...
+2025-09-19 07:13:43,464 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 109: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.1169713984706%2C41.77843313852698%2C-123.97755787906792%2C41.8706435136139&siteStatus=all
+2025-09-19 07:13:43,466 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 110, 50 hexagons...
+2025-09-19 07:13:43,628 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 110: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.06490517341248%2C41.78332060630966%2C-123.90283605419225%2C41.85091355000459&siteStatus=all
+2025-09-19 07:13:43,631 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 111, 50 hexagons...
+2025-09-19 07:13:43,793 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 111: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.0423082811358%2C41.79644015195006%2C-123.90583265546275%2C41.888703260975625&siteStatus=all
+2025-09-19 07:13:43,795 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 112, 50 hexagons...
+2025-09-19 07:13:43,951 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 112: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.08402905057967%2C41.709423137124006%2C-123.95961649221383%2C41.84859326743389&siteStatus=all
+2025-09-19 07:13:43,953 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 113, 50 hexagons...
+2025-09-19 07:13:44,129 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 113: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.13778712982705%2C41.725138440626594%2C-124.00144838759158%2C41.81482010725298&siteStatus=all
+2025-09-19 07:13:44,130 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 114, 50 hexagons...
+2025-09-19 07:13:44,292 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 114: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.20869094401799%2C41.72745156648977%2C-123.92380048684151%2C41.860913866464934&siteStatus=all
+2025-09-19 07:13:44,293 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 115, 50 hexagons...
+2025-09-19 07:13:44,444 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 115: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.27020210344405%2C41.82270509377025%2C-124.15977784406708%2C41.903914590841204&siteStatus=all
+2025-09-19 07:13:44,445 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 116, 50 hexagons...
+2025-09-19 07:13:44,591 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 116: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.29919411451897%2C41.86035784990685%2C-124.11118248445568%2C41.927821937512604&siteStatus=all
+2025-09-19 07:13:44,593 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 117, 50 hexagons...
+2025-09-19 07:13:44,749 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 117: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.19560352924512%2C41.84083605026827%2C-124.08514000533106%2C41.92468136698943&siteStatus=all
+2025-09-19 07:13:44,750 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 118, 50 hexagons...
+2025-09-19 07:13:44,915 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 118: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.23712571944296%2C41.78820246045084%2C-124.13896457768881%2C41.94599243714369&siteStatus=all
+2025-09-19 07:13:44,916 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 119, 50 hexagons...
+2025-09-19 07:13:45,073 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 119: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.2938756941911%2C41.76685943712163%2C-124.18056379322059%2C41.850710885670246&siteStatus=all
+2025-09-19 07:13:45,074 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 120, 50 hexagons...
+2025-09-19 07:13:45,216 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 120: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.31988931822505%2C41.804532029185665%2C-124.13200958070011%2C41.872030168455694&siteStatus=all
+2025-09-19 07:13:45,218 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 121, 50 hexagons...
+2025-09-19 07:13:45,380 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 121: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.21015705661348%2C41.54493332709853%2C-124.10598429769729%2C41.8525413927362&siteStatus=all
+2025-09-19 07:13:45,382 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 122, 50 hexagons...
+2025-09-19 07:13:45,551 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 122: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.27148184402716%2C41.52353162450365%2C-124.13544091002414%2C41.61327443017964&siteStatus=all
+2025-09-19 07:13:45,553 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 123, 50 hexagons...
+2025-09-19 07:13:45,735 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 123: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.27443388100606%2C41.5613711201053%2C-124.08698205562723%2C41.6290493767365&siteStatus=all
+2025-09-19 07:13:45,737 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 124, 50 hexagons...
+2025-09-19 07:13:45,907 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 124: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.19711038943237%2C41.54162579272851%2C-124.0610184022905%2C41.63401718444866&siteStatus=all
+2025-09-19 07:13:45,909 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 125, 50 hexagons...
+2025-09-19 07:13:46,118 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 125: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.23850467705353%2C41.488948881128884%2C-124.11467480206062%2C41.6471832445374&siteStatus=all
+2025-09-19 07:13:46,120 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 126, 50 hexagons...
+2025-09-19 07:13:46,293 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 126: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.29508267013335%2C41.467536584597596%2C-124.15617985155504%2C41.559922301367244&siteStatus=all
+2025-09-19 07:13:46,295 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 127, 50 hexagons...
+2025-09-19 07:13:46,466 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 127: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.29331651129286%2C41.50539572996789%2C-124.10776189455044%2C41.57310751284667&siteStatus=all
+2025-09-19 07:13:46,468 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 128, 50 hexagons...
+2025-09-19 07:13:46,644 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 128: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.40239874113227%2C41.48563842772967%2C-124.08181532548552%2C41.63538710416697&siteStatus=all
+2025-09-19 07:13:46,646 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 129, 50 hexagons...
+2025-09-19 07:13:46,811 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 129: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.45608924471681%2C41.58095289090962%2C-124.31709596111978%2C41.67549059679867&siteStatus=all
+2025-09-19 07:13:46,813 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 130, 50 hexagons...
+2025-09-19 07:13:46,987 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 130: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.45428720238127%2C41.61865082215136%2C-124.24451562694328%2C41.68624469037645&siteStatus=all
+2025-09-19 07:13:46,989 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 131, 50 hexagons...
+2025-09-19 07:13:47,156 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 131: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.38181199804804%2C41.59915687184963%2C-124.24275821968854%2C41.69632610229233&siteStatus=all
+2025-09-19 07:13:47,158 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 132, 50 hexagons...
+2025-09-19 07:13:47,316 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 132: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.42295848899727%2C41.5463726749497%2C-124.2964497836081%2C41.70448846560004&siteStatus=all
+2025-09-19 07:13:47,318 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 133, 50 hexagons...
+2025-09-19 07:13:47,494 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 133: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.47661789674432%2C41.524989683873095%2C-124.3377150830152%2C41.62218351761293&siteStatus=all
+2025-09-19 07:13:47,495 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 134, 50 hexagons...
+2025-09-19 07:13:47,664 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 134: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.47481260165435%2C41.56270738559167%2C-124.26519611071654%2C41.63033478797963&siteStatus=all
+2025-09-19 07:13:47,666 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 135, 50 hexagons...
+2025-09-19 07:13:47,836 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 135: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.34695174229806%2C41.543201179537%2C-123.96734638847612%2C41.675338401822934&siteStatus=all
+2025-09-19 07:13:47,837 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 136, 50 hexagons...
+2025-09-19 07:13:48,000 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 136: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.10484843153773%2C41.61563020178769%2C-123.96564705652857%2C41.71859303086914&siteStatus=all
+2025-09-19 07:13:48,002 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 137, 50 hexagons...
+2025-09-19 07:13:48,185 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 137: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.10311958171512%2C41.653518256339034%2C-123.89271730026665%2C41.721173882707106&siteStatus=all
+2025-09-19 07:13:48,187 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 138, 50 hexagons...
+2025-09-19 07:13:48,378 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 138: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.03029323079917%2C41.63363251366379%2C-123.8910334025644%2C41.73921571841532&siteStatus=all
+2025-09-19 07:13:48,379 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 139, 50 hexagons...
+2025-09-19 07:13:48,552 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 139: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.07196646971617%2C41.581085090787695%2C-123.94473747152391%2C41.72865805356559&siteStatus=all
+2025-09-19 07:13:48,554 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 140, 50 hexagons...
+2025-09-19 07:13:48,713 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 140: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.12564054092839%2C41.559678094072986%2C-123.98652929004757%2C41.66527518142961&siteStatus=all
+2025-09-19 07:13:48,714 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 141, 50 hexagons...
+2025-09-19 07:13:48,879 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 141: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.12390832026745%2C41.59758577194914%2C-123.9136610735%2C41.65188050329893&siteStatus=all
+2025-09-19 07:13:48,880 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 142, 50 hexagons...
+2025-09-19 07:13:49,046 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 142: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.99575597088312%2C41.577688388198005%2C-123.49505397134497%2C41.69673682766635&siteStatus=all
+2025-09-19 07:13:49,047 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 143, 50 hexagons...
+2025-09-19 07:13:49,213 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 143: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.58839016908573%2C41.54021464815888%2C-123.49488915117314%2C41.68621460765571&siteStatus=all
+2025-09-19 07:13:49,214 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 144, 50 hexagons...
+2025-09-19 07:13:49,391 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 144: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.59141345753845%2C41.50022150493084%2C-123.49935154042666%2C41.64082091018847&siteStatus=all
+2025-09-19 07:13:49,393 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 145, 50 hexagons...
+2025-09-19 07:13:49,545 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 145: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-123.58009511712247%2C41.39829820985673%2C-123.49472450480927%2C41.54665682976811&siteStatus=all
+2025-09-19 07:13:49,546 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 146, 50 hexagons...
+2025-09-19 07:13:49,704 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 146: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.50448879388684%2C41.42272657691%2C-123.49456003197864%2C42.00337507582233&siteStatus=all
+2025-09-19 07:13:49,705 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 147, 50 hexagons...
+2025-09-19 07:13:49,978 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 147: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.50560908658508%2C41.82692151715582%2C-124.32781095735733%2C42.00326383121689&siteStatus=all
+2025-09-19 07:13:49,980 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 148, 50 hexagons...
+2025-09-19 07:13:50,158 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 148: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.50603038691048%2C41.75237822634611%2C-124.4370752556215%2C41.89708764299648&siteStatus=all
+2025-09-19 07:13:50,160 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 149, 50 hexagons...
+2025-09-19 07:13:50,318 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 149: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.49108839182273%2C41.76297380329553%2C-124.3437671941716%2C41.94713429546259&siteStatus=all
+2025-09-19 07:13:50,319 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 150, 50 hexagons...
+2025-09-19 07:13:50,480 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 150: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.48139991218459%2C41.89290216384688%2C-124.34198371147724%2C41.98460521300862&siteStatus=all
+2025-09-19 07:13:50,481 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 151, 50 hexagons...
+2025-09-19 07:13:50,751 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 151: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.42934305397408%2C41.897956589153324%2C-124.26743135710586%2C41.96538111485928&siteStatus=all
+2025-09-19 07:13:50,753 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 152, 50 hexagons...
+2025-09-19 07:13:50,916 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 152: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.40690857969241%2C41.911130364645985%2C-124.27039356118563%2C42.002886174979956&siteStatus=all
+2025-09-19 07:13:50,918 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 153, 50 hexagons...
+2025-09-19 07:13:51,096 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 153: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.44814690170205%2C41.823901517341426%2C-124.32424890704%2C41.962925289902714&siteStatus=all
+2025-09-19 07:13:51,099 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 154, 50 hexagons...
+2025-09-19 07:13:51,282 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 154: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.50197419249662%2C41.839702313136925%2C-124.36559903102295%2C41.9288454789449&siteStatus=all
+2025-09-19 07:13:51,283 - ground_water.data_sources - INFO - Fetching groundwater level data for batch 155, 49 hexagons...
+2025-09-19 07:13:51,463 - ground_water.data_sources - ERROR - Error fetching data from USGS NWIS for batch 155: 400 Client Error:  for url: https://waterservices.usgs.gov/nwis/gwlevels/?format=json&bBox=-124.37370442081136%2C41.84215065135012%2C-124.28815510430434%2C41.9096092672801&siteStatus=all
+2025-09-19 07:13:51,463 - ground_water.data_sources - WARNING - No groundwater data found across all batches.
+2025-09-19 07:13:51,471 - pyogrio._io - INFO - Created 0 records
+2025-09-19 07:13:51,471 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Validation and Storage
+2025-09-19 07:13:51,471 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:13:51,471 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'ground_water', 'raw_path': 'output/ground_water/data/raw/raw_ground_water_data.geojson'}
+2025-09-19 07:13:51,472 - utils.enhanced_data_manager - INFO - 🗺️  GEODATAFRAME SUMMARY - ground_water_raw_data
+2025-09-19 07:13:51,472 - utils.enhanced_data_manager - INFO -    Shape: (0, 1)
+2025-09-19 07:13:51,472 - utils.enhanced_data_manager - INFO -    CRS: EPSG:4326
+2025-09-19 07:13:51,473 - utils.enhanced_data_manager - INFO -    Geometry Type: []
+2025-09-19 07:13:51,473 - utils.enhanced_data_manager - INFO -    Bounds: [nan nan nan nan]
+2025-09-19 07:13:51,473 - utils.enhanced_data_manager - INFO - 📋 DATAFRAME SUMMARY - ground_water_raw_data
+2025-09-19 07:13:51,473 - utils.enhanced_data_manager - INFO -    Shape: (0, 1)
+2025-09-19 07:13:51,473 - utils.enhanced_data_manager - INFO -    Memory Usage: 0.00 MB
+2025-09-19 07:13:51,473 - utils.enhanced_data_manager - INFO -    Columns: ['geometry']
+2025-09-19 07:13:51,473 - utils.enhanced_data_manager - INFO -    Data Types: {'geometry': <geopandas.array.GeometryDtype object at 0x105dbbbc0>}
+2025-09-19 07:13:51,474 - cascadia.data.data_manager - INFO - 🔍 DATA VALIDATION - Module: data_manager
+2025-09-19 07:13:51,474 - cascadia.data.data_manager - INFO -    Quality Score: 0.90
+2025-09-19 07:13:51,474 - cascadia.data.data_manager - INFO -    Validation Results: {'is_valid': False, 'errors': ['Empty dataset', 'Invalid geometry types: set()'], 'warnings': [], 'quality_score': 0.9, 'feature_count': 0, 'geometry_types': [], 'crs': 'EPSG:4326'}
+2025-09-19 07:13:51,474 - utils.enhanced_data_manager - WARNING - [ground_water] ⚠️ Data validation failed: ['Empty dataset', 'Invalid geometry types: set()']
+2025-09-19 07:13:51,474 - utils.enhanced_data_manager - INFO - [ground_water] 🔧 Creating synthetic data...
+2025-09-19 07:13:51,476 - pyogrio._io - INFO - Created 1 records
+2025-09-19 07:13:51,476 - utils.enhanced_data_manager - INFO - [ground_water] ✅ Created synthetic data: output/ground_water/data/synthetic/synthetic_ground_water_data.geojson
+2025-09-19 07:13:51,476 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - Data Acquisition
+2025-09-19 07:13:51,476 - cascadia.processing.data_manager - INFO -    Duration: 110.17s
+2025-09-19 07:13:51,476 - cascadia.processing.data_manager - INFO -    source: new_data
+2025-09-19 07:13:51,476 - cascadia.processing.data_manager - INFO -    module: ground_water
+2025-09-19 07:13:51,476 - cascadia.processing.data_manager - INFO -    path: output/ground_water/data/synthetic/synthetic_ground_water_data.geojson
+2025-09-19 07:13:51,476 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2025-09-19 07:13:51,476 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:13:51,476 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'ground_water', 'data_path': 'output/ground_water/data/synthetic/synthetic_ground_water_data.geojson', 'target_hexagons_count': 7749}
+2025-09-19 07:13:51,476 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-09-19 07:13:51,476 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2025-09-19 07:13:51,477 - cascadia.processing.data_manager - INFO -      module: ground_water
+2025-09-19 07:13:51,555 - utils.enhanced_data_manager - INFO - [ground_water] ✅ Processed 1 features to 1551 H3 hexagons
+2025-09-19 07:13:51,561 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2025-09-19 07:13:51,561 - cascadia.data.data_manager - INFO -    Input Features: 1
+2025-09-19 07:13:51,561 - cascadia.data.data_manager - INFO -    Output Hexagons: 1,551
+2025-09-19 07:13:51,561 - cascadia.data.data_manager - INFO -    Coverage: 20.0%
+2025-09-19 07:13:51,561 - cascadia.data.data_manager - INFO -    Processing Time: 0.08s
+2025-09-19 07:13:51,561 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2025-09-19 07:13:51,561 - cascadia.processing.data_manager - INFO -    Duration: 0.08s
+2025-09-19 07:13:51,561 - cascadia.processing.data_manager - INFO -    source: new_processing
+2025-09-19 07:13:51,561 - cascadia.processing.data_manager - INFO -    module: ground_water
+2025-09-19 07:13:51,561 - cascadia.processing.data_manager - INFO -    input_features: 1
+2025-09-19 07:13:51,561 - cascadia.processing.data_manager - INFO -    output_hexagons: 1551
+2025-09-19 07:13:51,562 - __main__ - INFO - 📋 ground_water data quality: 0.00
+2025-09-19 07:24:18,165 - cascadia.data.real_data_acquisition - INFO - 📊 REAL DATA ACQUIRED - Module: real_data_acquisition
+2025-09-19 07:24:18,165 - cascadia.data.real_data_acquisition - INFO -    Source URL: https://www.nass.usda.gov/Research_and_Science/Cropland/Release/index.php
+2025-09-19 07:24:18,165 - cascadia.data.real_data_acquisition - INFO -    File Path: output/real_data/synthetic_zoning_data.geojson
+2025-09-19 07:24:18,165 - cascadia.data.real_data_acquisition - INFO -    Data Type: Current Land Use
+2025-09-19 07:24:18,165 - cascadia.data.real_data_acquisition - INFO -    Row Count: 50
+2025-09-19 07:24:18,165 - cascadia.data.real_data_acquisition - INFO -    File Size: 0.03 MB
+2025-09-19 07:24:18,165 - cascadia.data.real_data_acquisition - INFO -    Geometry Types: ['Polygon']
+2025-09-19 07:24:18,165 - cascadia.data.real_data_acquisition - INFO -    CRS: EPSG:4326
+2025-09-19 07:24:18,165 - __main__ - INFO - ⚠️ Using synthetic data for current_use
+2025-09-19 07:24:18,165 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2025-09-19 07:24:18,165 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:24:18,165 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'current_use', 'force_refresh': False}
+2025-09-19 07:24:18,166 - cascadia.data.data_manager - WARNING - 🧪 SYNTHETIC DATA GENERATED - Module: data_manager
+2025-09-19 07:24:18,166 - cascadia.data.data_manager - WARNING -    Reason: Using cached synthetic data
+2025-09-19 07:24:18,166 - cascadia.data.data_manager - WARNING -    Parameters: {'module': 'current_use', 'file_size_mb': 0.0008020401000976562}
+2025-09-19 07:24:18,166 - cascadia.data.data_manager - WARNING -    Row Count: 0
+2025-09-19 07:24:18,166 - cascadia.data.data_manager - WARNING -    Coverage Area: 0.00 km²
+2025-09-19 07:24:18,166 - cascadia.data.data_manager - WARNING -    Geometry Types: ['Unknown']
+2025-09-19 07:24:18,166 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - Data Acquisition
+2025-09-19 07:24:18,166 - cascadia.processing.data_manager - INFO -    Duration: 0.00s
+2025-09-19 07:24:18,166 - cascadia.processing.data_manager - INFO -    source: cached_synthetic
+2025-09-19 07:24:18,166 - cascadia.processing.data_manager - INFO -    module: current_use
+2025-09-19 07:24:18,166 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2025-09-19 07:24:18,166 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2025-09-19 07:24:18,166 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'current_use', 'data_path': 'output/current_use/data/synthetic/synthetic_current_use_data.geojson', 'target_hexagons_count': 7749}
+2025-09-19 07:24:18,169 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-09-19 07:24:18,169 - cascadia.processing.data_manager - INFO -      action: cache_invalid
+2025-09-19 07:24:18,169 - cascadia.processing.data_manager - INFO -      module: current_use
+2025-09-19 07:24:18,169 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2025-09-19 07:24:18,169 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2025-09-19 07:24:18,169 - cascadia.processing.data_manager - INFO -      module: current_use
+2025-09-19 07:24:18,270 - utils.enhanced_data_manager - INFO - [current_use] ✅ Processed 2 features to 1551 H3 hexagons
+2025-09-19 07:24:18,279 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2025-09-19 07:24:18,279 - cascadia.data.data_manager - INFO -    Input Features: 2
+2025-09-19 07:24:18,279 - cascadia.data.data_manager - INFO -    Output Hexagons: 1,551
+2025-09-19 07:24:18,279 - cascadia.data.data_manager - INFO -    Coverage: 20.0%
+2025-09-19 07:24:18,279 - cascadia.data.data_manager - INFO -    Processing Time: 0.11s
+2025-09-19 07:24:18,279 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2025-09-19 07:24:18,279 - cascadia.processing.data_manager - INFO -    Duration: 0.11s
+2025-09-19 07:24:18,279 - cascadia.processing.data_manager - INFO -    source: new_processing
+2025-09-19 07:24:18,279 - cascadia.processing.data_manager - INFO -    module: current_use
+2025-09-19 07:24:18,279 - cascadia.processing.data_manager - INFO -    input_features: 2
+2025-09-19 07:24:18,279 - cascadia.processing.data_manager - INFO -    output_hexagons: 1551
+2025-09-19 07:24:18,282 - __main__ - INFO - 📋 current_use data quality: 0.00
+2025-09-19 07:24:18,283 - __main__ - INFO - 🔗 Performing enhanced H3 geospatial fusion...
+2025-09-19 07:24:18,285 - utils.enhanced_h3_fusion - INFO - Starting enhanced H3 geospatial fusion for 9 data sources
+2025-09-19 07:24:18,286 - utils.enhanced_h3_fusion - INFO - Processing data source: ownership
+2025-09-19 07:24:18,423 - utils.enhanced_h3_fusion - INFO - [ownership] fused 1/594 source hexes; matched targets so far: 7
+2025-09-19 07:25:09,134 - utils.enhanced_h3_fusion - INFO - [ownership] fusion complete: processed=594, targets_matched=4158
+2025-09-19 07:25:09,134 - utils.enhanced_h3_fusion - INFO - ✅ Fused ownership: 1228 hexagons
+2025-09-19 07:25:09,134 - utils.enhanced_h3_fusion - INFO - Processing data source: power_source
+2025-09-19 07:25:09,219 - utils.enhanced_h3_fusion - INFO - [power_source] fused 1/1551 source hexes; matched targets so far: 7
+2025-09-19 07:26:34,635 - utils.enhanced_h3_fusion - INFO - [power_source] fused 1001/1551 source hexes; matched targets so far: 7007
+2025-09-19 07:27:21,498 - utils.enhanced_h3_fusion - INFO - [power_source] fusion complete: processed=1551, targets_matched=10857
+2025-09-19 07:27:21,498 - utils.enhanced_h3_fusion - INFO - ✅ Fused power_source: 1719 hexagons
+2025-09-19 07:27:21,498 - utils.enhanced_h3_fusion - INFO - Processing data source: improvements
+2025-09-19 07:27:21,583 - utils.enhanced_h3_fusion - INFO - [improvements] fused 1/49 source hexes; matched targets so far: 7
+2025-09-19 07:27:25,919 - utils.enhanced_h3_fusion - INFO - [improvements] fusion complete: processed=49, targets_matched=343
+2025-09-19 07:27:25,920 - utils.enhanced_h3_fusion - INFO - ✅ Fused improvements: 321 hexagons
+2025-09-19 07:27:25,920 - utils.enhanced_h3_fusion - INFO - Processing data source: mortgage_debt
+2025-09-19 07:27:26,003 - utils.enhanced_h3_fusion - INFO - [mortgage_debt] fused 1/1551 source hexes; matched targets so far: 7
+2025-09-19 07:28:50,628 - utils.enhanced_h3_fusion - INFO - [mortgage_debt] fused 1001/1551 source hexes; matched targets so far: 7007
+2025-09-19 07:29:36,056 - utils.enhanced_h3_fusion - INFO - [mortgage_debt] fusion complete: processed=1551, targets_matched=10857
+2025-09-19 07:29:36,056 - utils.enhanced_h3_fusion - INFO - ✅ Fused mortgage_debt: 1719 hexagons
+2025-09-19 07:29:36,056 - utils.enhanced_h3_fusion - INFO - Processing data source: surface_water
+2025-09-19 07:29:36,140 - utils.enhanced_h3_fusion - INFO - [surface_water] fused 1/1551 source hexes; matched targets so far: 7
+2025-09-19 07:30:57,757 - utils.enhanced_h3_fusion - INFO - [surface_water] fused 1001/1551 source hexes; matched targets so far: 7007
+2025-09-19 07:31:45,451 - utils.enhanced_h3_fusion - INFO - [surface_water] fusion complete: processed=1551, targets_matched=10857
+2025-09-19 07:31:45,452 - utils.enhanced_h3_fusion - INFO - ✅ Fused surface_water: 1719 hexagons
+2025-09-19 07:31:45,452 - utils.enhanced_h3_fusion - INFO - Processing data source: water_rights
+2025-09-19 07:31:45,537 - utils.enhanced_h3_fusion - INFO - [water_rights] fused 1/1551 source hexes; matched targets so far: 7
+2025-09-19 07:33:11,556 - utils.enhanced_h3_fusion - INFO - [water_rights] fused 1001/1551 source hexes; matched targets so far: 7007
+2025-09-19 07:33:59,132 - utils.enhanced_h3_fusion - INFO - [water_rights] fusion complete: processed=1551, targets_matched=10857
+2025-09-19 07:33:59,133 - utils.enhanced_h3_fusion - INFO - ✅ Fused water_rights: 1719 hexagons
+2025-09-19 07:33:59,133 - utils.enhanced_h3_fusion - INFO - Processing data source: zoning
+2025-09-19 07:33:59,256 - utils.enhanced_h3_fusion - INFO - [zoning] fused 1/2584 source hexes; matched targets so far: 7

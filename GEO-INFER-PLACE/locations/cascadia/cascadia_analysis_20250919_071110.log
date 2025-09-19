@@ -1,0 +1,19 @@
+2025-09-19 07:11:10,567 - utils.setup_manager - INFO - Enhanced Cascadia Analysis Framework initialized with SPACE integration
+2025-09-19 07:11:10,567 - utils.setup_manager - INFO - Log file: cascadia_analysis_20250919_071110.log
+2025-09-19 07:11:10,567 - __main__ - INFO - 🌲 Starting Cascadia Agricultural Analysis Framework
+2025-09-19 07:11:10,567 - __main__ - INFO - 📊 Analysis Parameters:
+2025-09-19 07:11:10,567 - __main__ - INFO -    H3 Resolution: 8
+2025-09-19 07:11:10,567 - __main__ - INFO -    Target Counties: CA:Del Norte
+2025-09-19 07:11:10,567 - __main__ - INFO -    Active Modules: zoning,current_use,ownership,improvements,water_rights,ground_water,surface_water,power_source,mortgage_debt
+2025-09-19 07:11:10,567 - __main__ - INFO -    Export Format: geojson
+2025-09-19 07:11:10,567 - __main__ - INFO -    Output Directory: output
+2025-09-19 07:11:10,567 - __main__ - INFO -    Visualization Options: Lightweight Static Visualizations
+2025-09-19 07:11:10,567 - cascadia - INFO - Enhanced logging initialized with level: DEBUG
+2025-09-19 07:11:10,567 - __main__ - INFO - 🚀 Initializing Cascadia Agricultural Analysis Framework
+2025-09-19 07:11:10,567 - __main__ - INFO - Enhanced logging initialized: output/cascadia_analysis.log
+2025-09-19 07:11:10,575 - utils.setup_manager - INFO - Loaded analysis configuration from config/analysis_config.yaml
+2025-09-19 07:11:10,575 - __main__ - INFO - Target counties: {'CA': ['Del Norte']}
+2025-09-19 07:11:10,575 - __main__ - INFO - Active modules: ['zoning', 'current_use', 'ownership', 'improvements', 'water_rights', 'ground_water', 'surface_water', 'power_source', 'mortgage_debt']
+2025-09-19 07:11:10,575 - utils.data_processor - INFO - 🔧 Creating shared backend for all modules...
+2025-09-19 07:11:10,575 - utils.data_processor - ERROR - ❌ Failed to create shared backend: 'NoneType' object is not callable
+2025-09-19 07:11:10,575 - __main__ - ERROR - ❌ Analysis failed: 'NoneType' object is not callable
