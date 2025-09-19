@@ -292,7 +292,7 @@ class TensorOperations:
 
         if mode == 0:
             folded = unfolded_matrix.T.reshape(original_shape)
-        el        if mode == 1:
+        elif mode == 1:
             temp = unfolded_matrix.reshape((n1, n0, n2))
             folded = temp.transpose(1, 0, 2)
         elif mode == 2:

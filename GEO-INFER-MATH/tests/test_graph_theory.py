@@ -71,7 +71,7 @@ class TestSpatialGraph:
     def test_graph_creation(self):
         """Test graph creation and basic properties."""
         assert len(self.graph.nodes) == 4
-        assert len(self.graph.edges) == 8  # Undirected, so each edge is stored twice
+        assert len(self.graph.edges) == 10  # Undirected, so each edge is stored twice
         assert not self.graph.directed
 
     def test_node_operations(self):

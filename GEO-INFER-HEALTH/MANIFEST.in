@@ -1,0 +1,19 @@
+include README.md
+include LICENSE
+include requirements.txt
+include pyproject.toml
+include config/*.yaml
+include config/*.json
+include docs/*.md
+include docs/*.yaml
+include examples/*.py
+recursive-include tests *.py
+global-exclude *.pyc
+global-exclude __pycache__
+global-exclude .pytest_cache
+global-exclude .coverage
+global-exclude htmlcov
+global-exclude *.egg-info
+prune .git
+prune .github
+prune docs/_build

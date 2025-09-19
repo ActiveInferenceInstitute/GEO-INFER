@@ -26,7 +26,7 @@ import numpy as np
 import networkx as nx
 from shapely.geometry import Point, Polygon, LineString, MultiPolygon
 from shapely.ops import unary_union
-from shapely.geometry.mapping import mapping
+from shapely.geometry import mapping
 import textwrap
 from datetime import datetime, timedelta
 from typing import Dict, List, Tuple, Union, Optional, Any
@@ -71,6 +71,11 @@ except ImportError:
 # Suppress specific warnings
 warnings.filterwarnings("ignore", category=UserWarning, message=".*The input coordinates to Voronoi.*")
 warnings.filterwarnings("ignore", category=UserWarning, message=".*Geometry is in a geographic CRS.*")
+
+# Import GEO-INFER-NORMS classes
+from geo_infer_norms.core.zoning_analysis import ZoningAnalyzer, LandUseClassifier
+from geo_infer_norms.models.zoning import ZoningCode, ZoningDistrict, LandUseType
+from geo_infer_norms.models.legal_entity import LegalEntity
 
 # Create output directory if it doesn't exist
 output_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "output")

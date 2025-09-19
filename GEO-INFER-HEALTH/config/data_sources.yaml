@@ -1,0 +1,306 @@
+# GEO-INFER-HEALTH Data Sources Configuration
+# Configuration for various health data sources and their connections
+
+# Health Data Sources
+health_data_sources:
+  # Disease surveillance data
+  disease_surveillance:
+    - name: "CDC_NNDSS"
+      description: "National Notifiable Diseases Surveillance System"
+      type: "api"
+      url: "https://data.cdc.gov/resource/9mfq-cb36.json"
+      format: "json"
+      update_frequency: "daily"
+      authentication:
+        type: "none"
+      schema:
+        disease_code: "disease_code"
+        location: "location"
+        case_count: "case_count"
+        report_date: "report_date"
+
+    - name: "WHO_Disease_Outbreaks"
+      description: "World Health Organization Disease Outbreak News"
+      type: "api"
+      url: "https://www.who.int/rss-feeds/news-english.xml"
+      format: "rss"
+      update_frequency: "hourly"
+      authentication:
+        type: "none"
+
+    - name: "Local_Health_Department"
+      description: "Local health department surveillance data"
+      type: "database"
+      connection:
+        type: "postgresql"
+        host: "localhost"
+        port: 5432
+        database: "health_surveillance"
+        username: "${POSTGRES_USER}"
+        password: "${POSTGRES_PASSWORD}"
+      tables:
+        disease_reports: "disease_reports"
+        case_details: "case_details"
+
+  # Healthcare facility data
+  healthcare_facilities:
+    - name: "HIFLD_Healthcare_Facilities"
+      description: "Homeland Infrastructure Foundation-Level Data Healthcare Facilities"
+      type: "api"
+      url: "https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Healthcare_Facilities/FeatureServer/0/query"
+      format: "geojson"
+      update_frequency: "weekly"
+      authentication:
+        type: "none"
+      schema:
+        facility_id: "ID"
+        name: "NAME"
+        facility_type: "TYPE"
+        location: "geometry"
+        capacity: "BEDS"
+        services: "SERVICES"
+
+    - name: "Open_Street_Map_Health"
+      description: "Healthcare facilities from OpenStreetMap"
+      type: "api"
+      url: "https://overpass-api.de/api/interpreter"
+      format: "osm"
+      update_frequency: "daily"
+      authentication:
+        type: "none"
+      query_params:
+        amenity: "hospital,clinic,pharmacy,dentist,doctors"
+
+  # Population and demographic data
+  population_demographics:
+    - name: "US_Census_Bureau"
+      description: "US Census Bureau Population Data"
+      type: "api"
+      url: "https://api.census.gov/data/2020/acs/acs5"
+      format: "json"
+      update_frequency: "yearly"
+      authentication:
+        type: "api_key"
+        key_name: "CENSUS_API_KEY"
+      geography_levels: ["county", "tract", "block_group"]
+
+    - name: "WorldPop"
+      description: "WorldPop Global Population Data"
+      type: "api"
+      url: "https://www.worldpop.org/rest/data"
+      format: "geotiff"
+      update_frequency: "yearly"
+      authentication:
+        type: "none"
+      resolutions: ["100m", "1km"]
+
+  # Environmental health data
+  environmental_data:
+    # Air quality
+    air_quality:
+      - name: "EPA_Air_Quality"
+        description: "US EPA Air Quality System (AQS)"
+        type: "api"
+        url: "https://aqs.epa.gov/data/api"
+        format: "json"
+        update_frequency: "hourly"
+        authentication:
+          type: "api_key"
+          key_name: "EPA_API_KEY"
+        parameters: ["PM2.5", "PM10", "NO2", "SO2", "O3", "CO"]
+
+      - name: "OpenAQ"
+        description: "Open Air Quality Data"
+        type: "api"
+        url: "https://api.openaq.org/v2"
+        format: "json"
+        update_frequency: "hourly"
+        authentication:
+          type: "none"
+
+    # Water quality
+    water_quality:
+      - name: "EPA_Safe_Drinking_Water"
+        description: "EPA Safe Drinking Water Information System"
+        type: "api"
+        url: "https://data.epa.gov/efservice"
+        format: "xml"
+        update_frequency: "quarterly"
+        authentication:
+          type: "none"
+
+    # Climate and weather
+    climate_weather:
+      - name: "NOAA_Climate_Data"
+        description: "NOAA Climate Data Online"
+        type: "api"
+        url: "https://www.ncdc.noaa.gov/cdo-web/api/v2"
+        format: "json"
+        update_frequency: "daily"
+        authentication:
+          type: "token"
+          token_name: "NOAA_TOKEN"
+
+      - name: "OpenWeatherMap"
+        description: "OpenWeatherMap API"
+        type: "api"
+        url: "https://api.openweathermap.org/data/2.5"
+        format: "json"
+        update_frequency: "hourly"
+        authentication:
+          type: "api_key"
+          key_name: "OPENWEATHER_API_KEY"
+
+# Data Processing Configuration
+data_processing:
+  # ETL pipelines
+  etl_pipelines:
+    disease_surveillance:
+      source: "CDC_NNDSS"
+      transformations:
+        - type: "geocoding"
+          address_field: "location_description"
+          output_fields: ["latitude", "longitude", "crs"]
+        - type: "date_parsing"
+          input_field: "report_date"
+          output_format: "%Y-%m-%d"
+        - type: "data_validation"
+          rules:
+            case_count: "positive_integer"
+            latitude: "latitude_range"
+            longitude: "longitude_range"
+      destination: "local_database"
+
+    healthcare_accessibility:
+      source: "HIFLD_Healthcare_Facilities"
+      transformations:
+        - type: "geometry_validation"
+          repair_geometry: true
+        - type: "crs_transform"
+          source_crs: "EPSG:4326"
+          target_crs: "EPSG:3857"
+        - type: "data_enrichment"
+          join_data: "population_demographics"
+          join_key: "geoid"
+      destination: "spatial_index"
+
+  # Data quality rules
+  quality_rules:
+    completeness:
+      threshold: 0.95
+      critical_fields: ["location", "report_date", "case_count"]
+
+    accuracy:
+      coordinate_precision: 6  # decimal places
+      date_format_check: true
+
+    consistency:
+      cross_field_validation: true
+      temporal_consistency: true
+
+    timeliness:
+      max_age_days: 30
+      alert_threshold_days: 7
+
+# Spatial Data Configuration
+spatial:
+  # Coordinate reference systems
+  crs:
+    default: "EPSG:4326"
+    supported: ["EPSG:4326", "EPSG:3857", "EPSG:32633", "EPSG:32733"]
+    transformations:
+      enable: true
+      cache_transforms: true
+
+  # Spatial indexing
+  indexing:
+    method: "rtree"  # rtree, quadtree, geohash
+    max_items: 10000
+    node_capacity: 10
+
+  # Spatial operations
+  operations:
+    buffer_distance_m: 1000
+    intersection_tolerance_m: 1.0
+    simplification_tolerance_m: 10.0
+
+# Temporal Data Configuration
+temporal:
+  # Time zones
+  timezones:
+    default: "UTC"
+    supported: ["UTC", "US/Eastern", "US/Pacific", "Europe/London"]
+
+  # Temporal aggregation
+  aggregation:
+    default_interval: "daily"
+    supported_intervals: ["hourly", "daily", "weekly", "monthly", "yearly"]
+
+  # Time series analysis
+  time_series:
+    methods: ["arima", "exponential_smoothing", "prophet"]
+    seasonality_detection: true
+    outlier_detection: true
+
+# External Service Configuration
+external_services:
+  # Geocoding services
+  geocoding:
+    primary: "nominatim"
+    fallback: "google"
+    cache_enabled: true
+    cache_ttl_hours: 24
+
+  # Routing services
+  routing:
+    primary: "osrm"
+    fallback: "google_directions"
+    transport_modes: ["driving", "walking", "cycling", "transit"]
+
+  # Elevation services
+  elevation:
+    primary: "open_elevation"
+    fallback: "google_elevation"
+    cache_enabled: true
+
+# Data Export Configuration
+export:
+  # Supported formats
+  formats:
+    geojson: true
+    shapefile: true
+    geopackage: true
+    csv: true
+    parquet: true
+    geojson_seq: true
+
+  # Compression
+  compression:
+    enabled: true
+    method: "gzip"  # gzip, bz2, xz
+    level: 6
+
+  # Chunking for large datasets
+  chunking:
+    enabled: true
+    max_rows: 100000
+    max_size_mb: 100
+
+# Monitoring and Logging
+monitoring:
+  # Data source health checks
+  health_checks:
+    enabled: true
+    interval_minutes: 60
+    failure_threshold: 3
+
+  # Usage tracking
+  usage_tracking:
+    enabled: true
+    metrics: ["requests", "data_volume", "processing_time"]
+
+  # Error reporting
+  error_reporting:
+    enabled: true
+    levels: ["ERROR", "CRITICAL"]
+    destinations: ["log", "email"]

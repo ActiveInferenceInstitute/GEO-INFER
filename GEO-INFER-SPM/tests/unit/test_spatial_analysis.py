@@ -18,15 +18,18 @@ class TestSpatialAnalyzer:
         np.random.seed(42)
         n_points = 100
 
-        # Create test coordinates and data
-        self.coordinates = np.random.rand(n_points, 2) * 100
+        # Create test coordinates and data with proper lat/lon ranges
+        self.coordinates = np.column_stack([
+            np.random.uniform(-180, 180, n_points),  # longitude
+            np.random.uniform(-90, 90, n_points)     # latitude
+        ])
         self.data = np.random.randn(n_points)
 
         # Create SPMData
         self.spm_data = SPMData(
             data=self.data,
             coordinates=self.coordinates,
-            crs='EPSG:4326'  # Use generic CRS to avoid lat/lon validation
+            crs='EPSG:4326'
         )
 
         self.analyzer = SpatialAnalyzer(self.coordinates)

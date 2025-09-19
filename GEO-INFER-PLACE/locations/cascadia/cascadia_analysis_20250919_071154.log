@@ -976,3 +976,91 @@
 2025-09-19 07:33:59,133 - utils.enhanced_h3_fusion - INFO - ✅ Fused water_rights: 1719 hexagons
 2025-09-19 07:33:59,133 - utils.enhanced_h3_fusion - INFO - Processing data source: zoning
 2025-09-19 07:33:59,256 - utils.enhanced_h3_fusion - INFO - [zoning] fused 1/2584 source hexes; matched targets so far: 7
+2025-09-19 07:35:27,622 - utils.enhanced_h3_fusion - INFO - [zoning] fused 1001/2584 source hexes; matched targets so far: 7007
+2025-09-19 07:36:56,912 - utils.enhanced_h3_fusion - INFO - [zoning] fused 2001/2584 source hexes; matched targets so far: 14007
+2025-09-19 07:37:46,918 - utils.enhanced_h3_fusion - INFO - [zoning] fusion complete: processed=2584, targets_matched=18088
+2025-09-19 07:37:46,919 - utils.enhanced_h3_fusion - INFO - ✅ Fused zoning: 2818 hexagons
+2025-09-19 07:37:46,919 - utils.enhanced_h3_fusion - INFO - Processing data source: ground_water
+2025-09-19 07:37:47,006 - utils.enhanced_h3_fusion - INFO - [ground_water] fused 1/1551 source hexes; matched targets so far: 7
+2025-09-19 07:39:11,499 - utils.enhanced_h3_fusion - INFO - [ground_water] fused 1001/1551 source hexes; matched targets so far: 7007
+2025-09-19 07:39:57,536 - utils.enhanced_h3_fusion - INFO - [ground_water] fusion complete: processed=1551, targets_matched=10857
+2025-09-19 07:39:57,537 - utils.enhanced_h3_fusion - INFO - ✅ Fused ground_water: 1719 hexagons
+2025-09-19 07:39:57,537 - utils.enhanced_h3_fusion - INFO - Processing data source: current_use
+2025-09-19 07:39:57,621 - utils.enhanced_h3_fusion - INFO - [current_use] fused 1/1551 source hexes; matched targets so far: 7
+2025-09-19 07:41:21,348 - utils.enhanced_h3_fusion - INFO - [current_use] fused 1001/1551 source hexes; matched targets so far: 7007
+2025-09-19 07:42:08,097 - utils.enhanced_h3_fusion - INFO - [current_use] fusion complete: processed=1551, targets_matched=10857
+2025-09-19 07:42:08,097 - utils.enhanced_h3_fusion - INFO - ✅ Fused current_use: 1719 hexagons
+2025-09-19 07:42:08,098 - utils.enhanced_h3_fusion - INFO - ✅ Enhanced H3 fusion completed: 3298 hexagons
+2025-09-19 07:42:08,098 - utils.enhanced_h3_fusion - INFO - 📊 Fusion coverage: 42.6%
+2025-09-19 07:42:08,485 - utils.enhanced_h3_fusion - INFO - Saved fusion cache: output/data/cache/fusion/fused_res8_ba5d317de52e0946.json
+2025-09-19 07:42:08,486 - __main__ - INFO - 🔬 Running final analysis on fused data...
+2025-09-19 07:42:08,493 - __main__ - WARNING - Failed to save scores cache: name 'json' is not defined
+2025-09-19 07:42:08,514 - geo_infer_place.core.unified_backend - INFO - Calculating enhanced agricultural redevelopment potential scores with SPACE integration...
+2025-09-19 07:42:08,617 - geo_infer_place.core.unified_backend - INFO - ✅ Calculated enhanced redevelopment scores for 7749 hexagons with SPACE integration.
+2025-09-19 07:42:08,623 - __main__ - INFO - 🎨 Creating comprehensive visualizations...
+2025-09-19 07:42:08,625 - cascadia.visualization.comprehensive_viz - INFO - 🎨 VISUALIZATION CREATED - Interactive H3 Map
+2025-09-19 07:42:08,625 - cascadia.visualization.comprehensive_viz - INFO -    Module: comprehensive_viz
+2025-09-19 07:42:08,625 - cascadia.visualization.comprehensive_viz - INFO -    Data Sources: ['ownership', 'power_source', 'improvements', 'mortgage_debt', 'surface_water', 'water_rights', 'zoning', 'ground_water', 'current_use']
+2025-09-19 07:42:08,625 - cascadia.visualization.comprehensive_viz - INFO -    Hexagon Count: 5,000
+2025-09-19 07:42:08,625 - cascadia.visualization.comprehensive_viz - INFO -    Layers: ['ownership', 'power_source', 'improvements', 'mortgage_debt', 'surface_water', 'water_rights', 'zoning', 'ground_water', 'current_use']
+2025-09-19 07:42:08,625 - cascadia.visualization.comprehensive_viz - INFO -    Interactive Features: ['Layer Toggles', 'Data Filtering', 'Hexagon Selection', 'Export Capabilities', 'Real-time Analysis']
+2025-09-19 07:42:13,221 - cascadia.visualization.comprehensive_viz - INFO - 🎨 VISUALIZATION CREATED - Interactive H3 Map
+2025-09-19 07:42:13,221 - cascadia.visualization.comprehensive_viz - INFO -    Module: comprehensive_viz
+2025-09-19 07:42:13,221 - cascadia.visualization.comprehensive_viz - INFO -    Data Sources: ['ownership', 'power_source', 'improvements', 'mortgage_debt', 'surface_water', 'water_rights', 'zoning', 'ground_water', 'current_use']
+2025-09-19 07:42:13,221 - cascadia.visualization.comprehensive_viz - INFO -    Hexagon Count: 5,000
+2025-09-19 07:42:13,221 - cascadia.visualization.comprehensive_viz - INFO -    Layers: ['ownership', 'power_source', 'improvements', 'mortgage_debt', 'surface_water', 'water_rights', 'zoning', 'ground_water', 'current_use']
+2025-09-19 07:42:13,221 - cascadia.visualization.comprehensive_viz - INFO -    Interactive Features: ['Layer Toggles', 'Data Filtering', 'Hexagon Selection', 'Export Capabilities', 'Real-time Analysis']
+2025-09-19 07:42:13,221 - utils.comprehensive_visualization - INFO - Interactive H3 map created: output/visualizations/interactive/cascadia_interactive_map.html
+2025-09-19 07:42:14,361 - utils.comprehensive_visualization - INFO - Static visualizations created: 4 files
+2025-09-19 07:42:14,815 - utils.comprehensive_visualization - INFO - Visualization data exported: 4 files
+2025-09-19 07:42:14,816 - __main__ - INFO - ✅ Comprehensive visualizations created
+2025-09-19 07:42:14,816 - __main__ - INFO -    Interactive Map: output/visualizations/interactive/cascadia_interactive_map.html
+2025-09-19 07:42:14,816 - __main__ - INFO -    Static Visualizations: 4 files
+2025-09-19 07:42:14,816 - __main__ - INFO -    Export Files: 4 files
+2025-09-19 07:42:14,818 - utils.reporting_engine - INFO - ✅ Data provenance manifest written: output/cascadia_data_provenance_20250919_074214.json
+2025-09-19 07:42:14,820 - utils.data_processor - INFO - Step 4: Exporting analysis results...
+2025-09-19 07:42:15,367 - geo_infer_place.core.unified_backend - INFO - ✅ Enhanced GeoJSON export completed with 7749 features
+2025-09-19 07:42:15,369 - geo_infer_place.core.unified_backend - INFO - ✅ Successfully exported enhanced unified data to output/cascadia_unified_data_20250919_074214.geojson
+2025-09-19 07:42:15,370 - utils.data_processor - INFO - ✅ Successfully exported enhanced unified data to output/cascadia_unified_data_20250919_074214.geojson
+2025-09-19 07:42:15,372 - utils.data_processor - INFO - Exported redevelopment scores to output/cascadia_redevelopment_scores_20250919_074214.json
+2025-09-19 07:42:15,372 - utils.data_processor - INFO - Exported summary to output/cascadia_summary_20250919_074214.json
+2025-09-19 07:42:15,372 - utils.data_processor - INFO - Creating efficient visualization alternatives...
+2025-09-19 07:42:15,373 - utils.data_processor - WARNING - Datashader not available: No module named 'datashader'
+2025-09-19 07:42:15,374 - utils.deepscatter_visualization - INFO - Creating Deepscatter visualizations...
+2025-09-19 07:42:15,374 - geo_infer_place.core.unified_backend - INFO - Calculating enhanced agricultural redevelopment potential scores with SPACE integration...
+2025-09-19 07:42:15,493 - geo_infer_place.core.unified_backend - INFO - ✅ Calculated enhanced redevelopment scores for 7749 hexagons with SPACE integration.
+2025-09-19 07:42:15,494 - utils.deepscatter_visualization - INFO - Preparing H3 data for Deepscatter visualization...
+2025-09-19 07:42:15,503 - utils.deepscatter_visualization - INFO - Prepared 7749 data points for Deepscatter
+2025-09-19 07:42:15,503 - utils.deepscatter_visualization - INFO - Creating Deepscatter HTML visualization...
+2025-09-19 07:42:15,518 - utils.deepscatter_visualization - INFO - Deepscatter HTML visualization saved to: output/cascadia_deepscatter_visualization.html
+2025-09-19 07:42:15,518 - utils.deepscatter_visualization - INFO - Creating lightweight CSV export...
+2025-09-19 07:42:15,547 - utils.deepscatter_visualization - INFO - Lightweight CSV export saved to: output/cascadia_lightweight_data.csv
+2025-09-19 07:42:15,547 - utils.deepscatter_visualization - INFO - Deepscatter visualizations created successfully
+2025-09-19 07:42:15,548 - utils.data_processor - INFO - ✅ Deepscatter visualizations created successfully
+2025-09-19 07:42:15,549 - utils.static_visualization - INFO - Creating static visualization plots...
+2025-09-19 07:42:15,549 - geo_infer_place.core.unified_backend - INFO - Calculating enhanced agricultural redevelopment potential scores with SPACE integration...
+2025-09-19 07:42:15,667 - geo_infer_place.core.unified_backend - INFO - ✅ Calculated enhanced redevelopment scores for 7749 hexagons with SPACE integration.
+2025-09-19 07:42:15,667 - utils.static_visualization - INFO - Creating summary statistics...
+2025-09-19 07:42:15,681 - utils.static_visualization - INFO - Summary statistics created for 7749 hexagons
+2025-09-19 07:42:15,681 - utils.static_visualization - INFO - Creating data export for external visualization...
+2025-09-19 07:42:15,684 - utils.static_visualization - INFO - Data export created with 1550 sampled points
+2025-09-19 07:42:15,703 - utils.static_visualization - INFO - Static visualizations created successfully
+2025-09-19 07:42:15,703 - utils.data_processor - INFO - ✅ Static plots created successfully
+2025-09-19 07:42:15,703 - utils.data_processor - INFO - 📊 Data export completed in 0.9 seconds
+2025-09-19 07:42:15,703 - __main__ - INFO - 📊 Generating lightweight static visualizations...
+2025-09-19 07:42:15,703 - utils.static_visualization - INFO - Creating static visualization plots...
+2025-09-19 07:42:15,703 - geo_infer_place.core.unified_backend - INFO - Calculating enhanced agricultural redevelopment potential scores with SPACE integration...
+2025-09-19 07:42:15,818 - geo_infer_place.core.unified_backend - INFO - ✅ Calculated enhanced redevelopment scores for 7749 hexagons with SPACE integration.
+2025-09-19 07:42:15,818 - utils.static_visualization - INFO - Creating summary statistics...
+2025-09-19 07:42:15,833 - utils.static_visualization - INFO - Summary statistics created for 7749 hexagons
+2025-09-19 07:42:15,833 - utils.static_visualization - INFO - Creating data export for external visualization...
+2025-09-19 07:42:15,836 - utils.static_visualization - INFO - Data export created with 1550 sampled points
+2025-09-19 07:42:15,856 - utils.static_visualization - INFO - Static visualizations created successfully
+2025-09-19 07:42:15,856 - __main__ - INFO - ✅ Lightweight visualizations created
+2025-09-19 07:42:15,856 - utils.reporting_engine - INFO - Generating enhanced analysis report to output/cascadia_analysis_report_20250919_074215.md...
+2025-09-19 07:42:15,857 - utils.reporting_engine - INFO - ✅ Analysis report generated: output/cascadia_analysis_report_20250919_074215.md
+2025-09-19 07:42:15,857 - __main__ - INFO - 📋 Analysis report: output/cascadia_analysis_report_20250919_074215.md
+2025-09-19 07:42:15,857 - __main__ - INFO - ✅ Cascadia analysis completed successfully!
+2025-09-19 07:42:15,857 - selenium.webdriver.remote.remote_connection - DEBUG - DELETE http://localhost:56920/session/34f44463f0e9293d5073f80e3ecef242 {}
+2025-09-19 07:42:15,908 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":null} | headers=HTTPHeaderDict({'Content-Length': '14', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2025-09-19 07:42:15,908 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request

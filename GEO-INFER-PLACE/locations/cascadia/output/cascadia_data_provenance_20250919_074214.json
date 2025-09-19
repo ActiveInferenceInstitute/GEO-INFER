@@ -1,0 +1,80 @@
+{
+  "timestamp": "2025-09-19T07:42:14.816883",
+  "h3_resolution": 8,
+  "modules": {
+    "ownership": {
+      "h3_cache": "output/ownership/data/cache/ownership_h3_res8.json",
+      "output_hexagons": 594,
+      "input_features": 50,
+      "empirical_exists": false,
+      "synthetic_exists": true,
+      "raw_exists": false
+    },
+    "power_source": {
+      "h3_cache": "output/power_source/data/cache/power_source_h3_res8.json",
+      "output_hexagons": 1551,
+      "input_features": 1,
+      "empirical_exists": false,
+      "synthetic_exists": true,
+      "raw_exists": false
+    },
+    "improvements": {
+      "h3_cache": "output/improvements/data/cache/improvements_h3_res8.json",
+      "output_hexagons": 49,
+      "input_features": 100,
+      "empirical_exists": false,
+      "synthetic_exists": true,
+      "raw_exists": false
+    },
+    "mortgage_debt": {
+      "h3_cache": "output/mortgage_debt/data/cache/mortgage_debt_h3_res8.json",
+      "output_hexagons": 1551,
+      "input_features": 1,
+      "empirical_exists": false,
+      "synthetic_exists": true,
+      "raw_exists": true
+    },
+    "surface_water": {
+      "h3_cache": "output/surface_water/data/cache/surface_water_h3_res8.json",
+      "output_hexagons": 1551,
+      "input_features": 1,
+      "empirical_exists": false,
+      "synthetic_exists": true,
+      "raw_exists": false
+    },
+    "water_rights": {
+      "h3_cache": "output/water_rights/data/cache/water_rights_h3_res8.json",
+      "output_hexagons": 1551,
+      "input_features": 1,
+      "empirical_exists": false,
+      "synthetic_exists": true,
+      "raw_exists": true
+    },
+    "zoning": {
+      "h3_cache": "output/zoning/data/cache/zoning_h3_res8.json",
+      "output_hexagons": 2584,
+      "input_features": 2,
+      "empirical_exists": false,
+      "synthetic_exists": true,
+      "raw_exists": false
+    },
+    "ground_water": {
+      "h3_cache": "output/ground_water/data/cache/ground_water_h3_res8.json",
+      "output_hexagons": 1551,
+      "input_features": 1,
+      "empirical_exists": false,
+      "synthetic_exists": true,
+      "raw_exists": true
+    },
+    "current_use": {
+      "h3_cache": "output/current_use/data/cache/current_use_h3_res8.json",
+      "output_hexagons": 1551,
+      "input_features": 2,
+      "empirical_exists": false,
+      "synthetic_exists": true,
+      "raw_exists": false
+    }
+  },
+  "fusion_cache": "output/data/cache/fusion",
+  "scores_cache": "output/data/cache/scores/scores_ba5d317de52e0946.json"
+}

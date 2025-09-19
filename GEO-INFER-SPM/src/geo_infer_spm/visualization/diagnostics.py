@@ -6,7 +6,7 @@ visual assessments of SPM model fit and statistical assumptions.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Any
+from typing import Dict, List, Optional, Any, Tuple
 import warnings
 
 try:

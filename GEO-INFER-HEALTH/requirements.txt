@@ -1,0 +1,78 @@
+# Core dependencies for GEO-INFER-HEALTH
+fastapi>=0.104.0
+uvicorn>=0.24.0
+pydantic>=2.5.0
+pydantic-settings>=2.1.0
+
+# Geospatial dependencies
+geopandas>=0.14.0
+shapely>=2.0.0
+pyproj>=3.6.0
+rasterio>=1.3.0
+fiona>=1.9.0
+
+# Scientific computing
+numpy>=1.24.0
+scipy>=1.11.0
+pandas>=2.1.0
+statsmodels>=0.14.0
+scikit-learn>=1.3.0
+
+# Visualization and analysis
+matplotlib>=3.8.0
+seaborn>=0.13.0
+plotly>=5.17.0
+folium>=0.15.0
+
+# Machine learning and AI
+tensorflow>=2.15.0
+torch>=2.1.0
+xgboost>=2.0.0
+
+# Spatial statistics and epidemiology
+pysal>=23.0
+libpysal>=4.9.0
+spglm>=1.0.8
+spint>=1.0.7
+esda>=2.5.0
+
+# Network analysis
+networkx>=3.2.0
+osmnx>=1.8.0
+
+# Data processing
+dask>=2023.12.0
+xarray>=2023.12.0
+
+# API and web
+requests>=2.31.0
+httpx>=0.25.0
+websockets>=12.0
+
+# Configuration and logging
+pyyaml>=6.0.0
+loguru>=0.7.0
+python-multipart>=0.0.6
+
+# Testing
+pytest>=7.4.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.1.0
+hypothesis>=6.88.0
+
+# Development
+black>=23.12.0
+isort>=5.13.0
+flake8>=6.1.0
+mypy>=1.7.0
+
+# Optional: H3 integration (if available)
+# h3>=4.0.0
+
+# Optional: GPU acceleration
+# cupy>=13.0.0
+
+# Optional: Database integrations
+# sqlalchemy>=2.0.0
+# psycopg2-binary>=2.9.0
+# redis>=5.0.0

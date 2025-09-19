@@ -1,0 +1,304 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GEO-INFER-HEALTH Configuration Schema",
+  "description": "JSON Schema for validating GEO-INFER-HEALTH configuration files",
+  "type": "object",
+  "properties": {
+    "module": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string"},
+        "version": {"type": "string", "pattern": "^\\d+\\.\\d+\\.\\d+$"},
+        "description": {"type": "string"},
+        "author": {"type": "string"},
+        "contact": {"type": "string", "format": "email"}
+      },
+      "required": ["name", "version", "description"]
+    },
+    "api": {
+      "type": "object",
+      "properties": {
+        "host": {"type": "string", "format": "hostname"},
+        "port": {"type": "integer", "minimum": 1, "maximum": 65535},
+        "workers": {"type": "integer", "minimum": 1},
+        "reload": {"type": "boolean"},
+        "cors_origins": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "api_prefix": {"type": "string", "pattern": "^/"},
+        "docs_url": {"type": "string"},
+        "redoc_url": {"type": "string"}
+      }
+    },
+    "database": {
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["memory", "sqlite", "postgresql", "mongodb"]
+        },
+        "connection_string": {"type": "string"},
+        "pool_size": {"type": "integer", "minimum": 1},
+        "max_overflow": {"type": "integer", "minimum": 0}
+      }
+    },
+    "logging": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "type": "string",
+          "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
+        },
+        "format": {"type": "string"},
+        "file": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "path": {"type": "string"},
+            "max_bytes": {"type": "integer", "minimum": 1},
+            "backup_count": {"type": "integer", "minimum": 1}
+          }
+        }
+      }
+    },
+    "analysis": {
+      "type": "object",
+      "properties": {
+        "disease_surveillance": {
+          "type": "object",
+          "properties": {
+            "default_scan_radius_km": {"type": "number", "minimum": 0},
+            "hotspot_threshold_cases": {"type": "integer", "minimum": 1},
+            "temporal_window_days": {"type": "integer", "minimum": 1},
+            "clustering_method": {
+              "type": "string",
+              "enum": ["kulldorff", "dbscan", "optics"]
+            },
+            "significance_level": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        },
+        "healthcare_accessibility": {
+          "type": "object",
+          "properties": {
+            "default_method": {
+              "type": "string",
+              "enum": ["distance", "gravity", "2sfca", "enhanced_2sfca"]
+            },
+            "max_travel_time_minutes": {"type": "integer", "minimum": 1},
+            "transport_modes": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        },
+        "environmental_health": {
+          "type": "object",
+          "properties": {
+            "exposure_models": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "risk_assessment_method": {"type": "string"},
+            "default_buffer_distance_m": {"type": "integer", "minimum": 1}
+          }
+        },
+        "spatial_epidemiology": {
+          "type": "object",
+          "properties": {
+            "regression_methods": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "spatial_weights": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "default_bandwidth": {"type": "string"},
+            "kernel_function": {"type": "string"}
+          }
+        }
+      }
+    },
+    "data": {
+      "type": "object",
+      "properties": {
+        "supported_formats": {
+          "type": "object",
+          "properties": {
+            "vector": {"type": "array", "items": {"type": "string"}},
+            "raster": {"type": "array", "items": {"type": "string"}},
+            "tabular": {"type": "array", "items": {"type": "string"}}
+          }
+        },
+        "default_crs": {"type": "string"},
+        "supported_crs": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "quality_checks": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "null_threshold": {"type": "number", "minimum": 0, "maximum": 1},
+            "duplicate_check": {"type": "boolean"},
+            "geometry_validation": {"type": "boolean"},
+            "spatial_index": {"type": "boolean"}
+          }
+        }
+      }
+    },
+    "performance": {
+      "type": "object",
+      "properties": {
+        "parallel_processing": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "max_workers": {"type": "integer", "minimum": 1},
+            "chunk_size": {"type": "integer", "minimum": 1}
+          }
+        },
+        "memory": {
+          "type": "object",
+          "properties": {
+            "max_memory_gb": {"type": "number", "minimum": 0.1},
+            "gc_threshold": {"type": "integer", "minimum": 1}
+          }
+        },
+        "gpu": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "device": {"type": "string"},
+            "memory_fraction": {"type": "number", "minimum": 0, "maximum": 1}
+          }
+        }
+      }
+    },
+    "privacy": {
+      "type": "object",
+      "properties": {
+        "anonymization": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "methods": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "k_value": {"type": "integer", "minimum": 1},
+            "epsilon": {"type": "number", "minimum": 0}
+          }
+        },
+        "spatial_privacy": {
+          "type": "object",
+          "properties": {
+            "minimum_resolution_m": {"type": "integer", "minimum": 1},
+            "jitter_enabled": {"type": "boolean"},
+            "jitter_std_m": {"type": "number", "minimum": 0}
+          }
+        }
+      }
+    },
+    "integration": {
+      "type": "object",
+      "properties": {
+        "geo_infer_modules": {
+          "type": "object",
+          "properties": {
+            "data": {"type": "string"},
+            "space": {"type": "string"},
+            "time": {"type": "string"},
+            "ai": {"type": "string"},
+            "risk": {"type": "string"},
+            "sec": {"type": "string"}
+          }
+        },
+        "external_apis": {
+          "type": "object",
+          "properties": {
+            "osm": {
+              "type": "object",
+              "properties": {
+                "enabled": {"type": "boolean"},
+                "api_key": {"type": "string"}
+              }
+            },
+            "google_maps": {
+              "type": "object",
+              "properties": {
+                "enabled": {"type": "boolean"},
+                "api_key": {"type": "string"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "monitoring": {
+      "type": "object",
+      "properties": {
+        "health_checks": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "interval_seconds": {"type": "integer", "minimum": 1},
+            "endpoints": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        },
+        "metrics": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "prometheus_enabled": {"type": "boolean"},
+            "custom_metrics": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "development": {
+      "type": "object",
+      "properties": {
+        "debug_mode": {"type": "boolean"},
+        "auto_reload": {"type": "boolean"},
+        "mock_data": {"type": "boolean"},
+        "test_database": {"type": "boolean"}
+      }
+    },
+    "advanced": {
+      "type": "object",
+      "properties": {
+        "active_inference": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "free_energy_threshold": {"type": "number", "minimum": 0},
+            "learning_rate": {"type": "number", "minimum": 0},
+            "precision_parameter": {"type": "number", "minimum": 0}
+          }
+        },
+        "machine_learning": {
+          "type": "object",
+          "properties": {
+            "default_model": {"type": "string"},
+            "hyperparameter_tuning": {"type": "boolean"},
+            "cross_validation_folds": {"type": "integer", "minimum": 2}
+          }
+        }
+      }
+    },
+    "custom": {
+      "type": "object",
+      "description": "Custom user configurations",
+      "additionalProperties": true
+    }
+  },
+  "additionalProperties": false
+}

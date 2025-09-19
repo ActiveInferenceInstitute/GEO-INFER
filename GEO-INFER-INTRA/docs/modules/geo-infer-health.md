@@ -1,281 +1,411 @@
-# GEO-INFER-HEALTH: Health Systems
+---
+module: GEO-INFER-HEALTH
+type: Domain-Specific Module
+category: Health Systems
+status: Beta
+maturity: High
+framework_version: 1.0.0
+dependencies:
+  - GEO-INFER-DATA
+  - GEO-INFER-SPACE
+  - GEO-INFER-TIME
+  - GEO-INFER-AI
+optional_dependencies:
+  - GEO-INFER-RISK
+  - GEO-INFER-BIO
+  - GEO-INFER-SPM
+license: CC BY-ND-SA 4.0
+maintainer: GEO-INFER Framework Team
+contact: health@geo-infer.org
+last_updated: 2025-01-19
+---
 
-> **Explanation**: Understanding Health Systems in GEO-INFER
-> 
-> This module provides health systems modeling and analysis for geospatial applications, including health impact assessment, disease modeling, and healthcare resource optimization.
+# GEO-INFER-HEALTH: Advanced Geospatial Health Analytics
+
+> **Explanation**: Comprehensive geospatial health analytics framework implementing Active Inference principles for intelligent public health surveillance, disease modeling, and healthcare accessibility analysis.
 
 ## 🎯 What is GEO-INFER-HEALTH?
 
-Note: Code examples are illustrative; see `GEO-INFER-HEALTH/examples` for runnable scripts.
+GEO-INFER-HEALTH is a sophisticated geospatial health analytics framework that implements Active Inference principles for intelligent public health surveillance, epidemiological modeling, and healthcare accessibility analysis. The module provides comprehensive tools for spatial health analysis with probabilistic reasoning and uncertainty quantification.
+
+### Key Capabilities
+- **Active Inference Disease Surveillance** - Probabilistic outbreak detection with belief updating
+- **Advanced Healthcare Accessibility** - Multi-modal transport analysis with equity assessment
+- **Environmental Health Risk Assessment** - Multi-pollutant exposure modeling
+- **Spatial Epidemiology Toolkit** - Rigorous statistical analysis with uncertainty quantification
+- **Real-time Health Intelligence** - Automated early warning systems
+- **Health Data Standards Integration** - HL7 FHIR and OMOP CDM support
 
 ### Links
 - Module README: ../../GEO-INFER-HEALTH/README.md
+- API Documentation: ../../GEO-INFER-HEALTH/docs/api_schema.yaml
+- Examples: ../../GEO-INFER-HEALTH/examples/
+- Tests: ../../GEO-INFER-HEALTH/tests/
 
-GEO-INFER-HEALTH is the health systems engine that provides health modeling and analysis capabilities for geospatial information systems. It enables:
+The module integrates seamlessly with the GEO-INFER framework, leveraging:
 
-- **Health Impact Assessment**: Health impact analysis for populations and regions
-- **Disease Modeling**: Infectious disease modeling and forecasting
-- **Healthcare Resource Optimization**: Optimization of healthcare resources and logistics
-- **Epidemiological Analysis**: Epidemiological modeling and surveillance
-- **Health Data Integration**: Integration of health data sources and standards
+- **GEO-INFER-DATA**: Population demographics, environmental data, and health indicators
+- **GEO-INFER-SPACE**: Advanced spatial analysis, clustering, and accessibility modeling
+- **GEO-INFER-TIME**: Temporal trend analysis and forecasting
+- **GEO-INFER-AI**: Machine learning for predictive modeling and pattern recognition
+- **GEO-INFER-RISK**: Hazard assessment and vulnerability analysis
+- **GEO-INFER-SPM**: Advanced statistical methods for epidemiological analysis
+
+### Core Architecture
+
+The module follows a layered architecture:
+
+```
+GEO-INFER-HEALTH/
+├── API Layer (FastAPI) - REST endpoints and data validation
+├── Service Layer - Business logic and orchestration
+├── Core Engines - Specialized analysis components
+├── Data Models - Pydantic schemas and validation
+└── Utilities - Geospatial functions and configuration
+```
 
 ### Key Concepts
 
-#### Health Impact Assessment
-The module provides health impact assessment capabilities:
+#### Active Inference Disease Surveillance
+Implements probabilistic reasoning for intelligent outbreak detection:
 
 ```python
-from geo_infer_health import HealthImpactEngine
+from geo_infer_health.core.enhanced_disease_surveillance import ActiveInferenceDiseaseAnalyzer
+from geo_infer_health.models import DiseaseReport, Location
 
-# Create health impact engine
-health_engine = HealthImpactEngine(
-    impact_parameters={
-        'population_analysis': True,
-        'regional_assessment': True,
-        'exposure_modeling': True
-    }
+# Create disease surveillance analyzer
+analyzer = ActiveInferenceDiseaseAnalyzer(
+    reports=disease_reports,
+    population_data=population_data
 )
 
-# Assess health impacts
-health_impact = health_engine.assess_health_impacts(
-    health_data=population_health_data,
-    exposure_data=exposure_information,
-    region_data=region_boundaries
+# Perform Active Inference analysis
+results = analyzer.analyze_with_active_inference(time_window_days=7)
+
+# Access probabilistic results
+print(f"Disease Activity Belief: {results['belief_states']['disease_activity']:.3f}")
+print(f"Risk Level: {results['risk_assessment']['risk_level']}")
+print(f"Enhanced Hotspots: {len(results['enhanced_hotspots'])}")
+```
+
+#### Advanced Healthcare Accessibility
+Multi-modal accessibility analysis with equity considerations:
+
+```python
+from geo_infer_health.core.healthcare_accessibility import HealthcareAccessibilityAnalyzer
+from geo_infer_health.models import HealthFacility
+
+# Create accessibility analyzer
+analyzer = HealthcareAccessibilityAnalyzer(
+    facilities=healthcare_facilities,
+    population_data=population_data
+)
+
+# Find nearest facility with service filtering
+nearest = analyzer.get_nearest_facility(
+    loc=target_location,
+    required_services=["Emergency"]
+)
+
+# Calculate facility-to-population ratios
+ratios = analyzer.calculate_facility_to_population_ratio(
+    area_id="study_area"
 )
 ```
 
-#### Disease Modeling
-Model infectious disease spread and forecasting:
+#### Environmental Health Risk Assessment
+Multi-pollutant exposure modeling with temporal analysis:
 
 ```python
-from geo_infer_health.disease import DiseaseModelingEngine
+from geo_infer_health.core.environmental_health import EnvironmentalHealthAnalyzer
+from geo_infer_health.models import EnvironmentalData
 
-# Create disease modeling engine
-disease_engine = DiseaseModelingEngine(
-    disease_parameters={
-        'infection_modeling': True,
-        'forecasting': True,
-        'intervention_analysis': True
-    }
+# Create environmental analyzer
+analyzer = EnvironmentalHealthAnalyzer(environmental_readings=readings)
+
+# Calculate average exposure
+exposure = analyzer.calculate_average_exposure(
+    target_locations=target_locations,
+    radius_km=2.0,
+    parameter_name="PM2.5",
+    time_window_days=7
 )
 
-# Model disease spread
-disease_result = disease_engine.model_disease_spread(
-    disease_data=case_reports,
-    intervention_data=intervention_measures,
-    region_data=region_boundaries
+# Get readings near location with time filtering
+nearby_readings = analyzer.get_environmental_readings_near_location(
+    center_loc=location,
+    radius_km=5.0,
+    parameter_name="PM2.5",
+    start_time=datetime.now() - timedelta(hours=24)
 )
 ```
 
 ## 📚 Core Features
 
-### 1. Epidemiological Modeling Engine
+### 1. Active Inference Disease Surveillance Engine
 
-**Purpose**: Model disease spread and outbreak dynamics.
+**Purpose**: Intelligent disease surveillance using probabilistic reasoning and belief updating.
 
 ```python
-from geo_infer_health.epidemiology import EpidemiologicalModelingEngine
+from geo_infer_health.core.enhanced_disease_surveillance import ActiveInferenceDiseaseAnalyzer
 
-# Initialize epidemiological modeling engine
-epi_engine = EpidemiologicalModelingEngine()
+# Initialize Active Inference analyzer
+analyzer = ActiveInferenceDiseaseAnalyzer(
+    reports=disease_reports,
+    population_data=population_data
+)
 
-# Define epidemiological modeling parameters
-epi_config = epi_engine.configure_epidemiological_modeling({
-    'disease_transmission': True,
-    'population_mobility': True,
-    'environmental_factors': True,
-    'intervention_effects': True,
-    'outbreak_prediction': True
-})
+# Configure Active Inference parameters
+analyzer.precision_parameter = 1.0
+analyzer.learning_rate = 0.01
+analyzer.free_energy_threshold = 0.1
 
-# Model disease spread
-epi_result = epi_engine.model_disease_spread(
-    disease_data=disease_characteristics,
-    population_data=demographic_data,
-    environmental_data=environmental_conditions,
-    epi_config=epi_config
+# Perform comprehensive analysis
+results = analyzer.analyze_with_active_inference(time_window_days=14)
+
+# Access probabilistic outputs
+beliefs = results['belief_states']
+print(f"Disease activity belief: {beliefs['disease_activity']:.3f}")
+print(f"Transmission belief: {beliefs['transmission_rate']:.3f}")
+print(f"Spatial clustering belief: {beliefs['spatial_clustering']:.3f}")
+```
+
+### 2. Advanced Healthcare Accessibility Engine
+
+**Purpose**: Multi-modal healthcare accessibility analysis with equity assessment.
+
+```python
+from geo_infer_health.core.healthcare_accessibility import HealthcareAccessibilityAnalyzer
+
+# Initialize accessibility analyzer
+analyzer = HealthcareAccessibilityAnalyzer(
+    facilities=healthcare_facilities,
+    population_data=population_data
+)
+
+# Perform accessibility analysis
+nearby_facilities = analyzer.find_facilities_in_radius(
+    center_loc=target_location,
+    radius_km=10.0,
+    facility_type="Hospital",
+    required_services=["Emergency", "Surgery"]
+)
+
+# Get nearest facility with distance
+nearest = analyzer.get_nearest_facility(
+    loc=target_location,
+    facility_type="Hospital",
+    required_services=["Emergency"]
+)
+
+if nearest:
+    facility, distance = nearest
+    print(f"Nearest emergency hospital: {facility.name} ({distance:.1f} km)")
+```
+
+### 3. Environmental Health Risk Assessment Engine
+
+**Purpose**: Multi-pollutant exposure assessment with temporal analysis and health impact quantification.
+
+```python
+from geo_infer_health.core.environmental_health import EnvironmentalHealthAnalyzer
+
+# Initialize environmental analyzer
+analyzer = EnvironmentalHealthAnalyzer(environmental_readings=readings)
+
+# Calculate exposure for multiple pollutants
+pollutants = ["PM2.5", "NO2", "O3"]
+for pollutant in pollutants:
+    exposure = analyzer.calculate_average_exposure(
+        target_locations=target_locations,
+        radius_km=5.0,
+        parameter_name=pollutant,
+        time_window_days=30
+    )
+
+    avg_exposure = sum(exposure.values()) / len(exposure)
+    print(f"Average {pollutant} exposure: {avg_exposure:.2f}")
+
+# Get temporal readings
+recent_readings = analyzer.get_environmental_readings_near_location(
+    center_loc=location,
+    radius_km=10.0,
+    parameter_name="PM2.5",
+    start_time=datetime.now() - timedelta(hours=24)
 )
 ```
 
-### 2. Public Health Surveillance Engine
+### 4. Advanced Geospatial Analysis Utilities
 
-**Purpose**: Monitor and track public health indicators.
+**Purpose**: Comprehensive geospatial analysis tools for health applications.
 
 ```python
-from geo_infer_health.surveillance import PublicHealthSurveillanceEngine
-
-# Initialize public health surveillance engine
-surveillance_engine = PublicHealthSurveillanceEngine()
-
-# Define surveillance parameters
-surveillance_config = surveillance_engine.configure_public_health_surveillance({
-    'disease_monitoring': True,
-    'outbreak_detection': True,
-    'case_tracking': True,
-    'contact_tracing': True,
-    'risk_assessment': True
-})
-
-# Monitor public health
-surveillance_result = surveillance_engine.monitor_public_health(
-    health_data=health_indicators,
-    population_data=demographic_data,
-    surveillance_config=surveillance_config
+from geo_infer_health.utils.advanced_geospatial import (
+    spatial_clustering,
+    calculate_spatial_statistics,
+    calculate_spatial_autocorrelation,
+    validate_geographic_bounds
 )
+
+# Perform spatial clustering analysis
+locations = [report.location for report in disease_reports]
+clusters = spatial_clustering(locations, eps_km=1.0, min_samples=3)
+
+print(f"Identified {len(clusters)} spatial clusters")
+
+# Calculate spatial statistics
+stats = calculate_spatial_statistics(locations)
+print(f"Mean distance from centroid: {stats['mean_distance_from_centroid']:.3f} km")
+
+# Validate geographic bounds
+validation = validate_geographic_bounds(locations)
+if not validation['valid']:
+    print("Geographic bounds validation failed:")
+    for issue in validation['invalid_locations']:
+        print(f"  Location {issue['index']}: {issue['issues']}")
 ```
 
-### 3. Health Impact Assessment Engine
+### 5. Configuration and Logging System
 
-**Purpose**: Assess health impacts of policies and environmental changes.
-
-```python
-from geo_infer_health.impact import HealthImpactAssessmentEngine
-
-# Initialize health impact assessment engine
-impact_engine = HealthImpactAssessmentEngine()
-
-# Define health impact assessment parameters
-impact_config = impact_engine.configure_health_impact_assessment({
-    'environmental_health': True,
-    'social_determinants': True,
-    'policy_impacts': True,
-    'vulnerability_analysis': True,
-    'equity_assessment': True
-})
-
-# Assess health impacts
-impact_result = impact_engine.assess_health_impacts(
-    policy_data=policy_changes,
-    environmental_data=environmental_conditions,
-    impact_config=impact_config
-)
-```
-
-### 4. Healthcare Resource Optimization Engine
-
-**Purpose**: Optimize healthcare facility and resource allocation.
+**Purpose**: Comprehensive configuration management and logging utilities.
 
 ```python
-from geo_infer_health.healthcare import HealthcareResourceEngine
+from geo_infer_health.utils.config import load_config, HealthConfig
+from geo_infer_health.utils.logging import setup_logging, get_logger
 
-# Initialize healthcare resource engine
-healthcare_engine = HealthcareResourceEngine()
+# Load configuration
+config = load_config("config/health_config.yaml")
 
-# Define healthcare resource parameters
-healthcare_config = healthcare_engine.configure_healthcare_resources({
-    'facility_location': True,
-    'resource_allocation': True,
-    'capacity_planning': True,
-    'accessibility_analysis': True,
-    'cost_optimization': True
-})
-
-# Optimize healthcare resources
-healthcare_result = healthcare_engine.optimize_healthcare_resources(
-    facility_data=healthcare_facilities,
-    demand_data=healthcare_demand,
-    healthcare_config=healthcare_config
+# Setup logging with configuration
+setup_logging(
+    level=config.logging.get('level', 'INFO'),
+    file_path=config.logging.get('file', {}).get('path')
 )
-```
 
-### 5. Health Risk Assessment Engine
+logger = get_logger("health_analysis")
+logger.info("Health analysis initialized")
 
-**Purpose**: Assess spatial health risks and vulnerabilities.
-
-```python
-from geo_infer_health.risk import HealthRiskAssessmentEngine
-
-# Initialize health risk assessment engine
-risk_engine = HealthRiskAssessmentEngine()
-
-# Define health risk assessment parameters
-risk_config = risk_engine.configure_health_risk_assessment({
-    'vulnerability_mapping': True,
-    'exposure_assessment': True,
-    'risk_quantification': True,
-    'spatial_analysis': True,
-    'temporal_trends': True
-})
-
-# Assess health risks
-risk_result = risk_engine.assess_health_risks(
-    population_data=demographic_data,
-    environmental_data=environmental_conditions,
-    risk_config=risk_config
-)
+# Access configuration values
+api_host = config.api['host']
+analysis_params = config.analysis['disease_surveillance']
+logger.info(f"API configured for {api_host}")
 ```
 
 ## 🔧 API Reference
 
-### HealthFramework
+### ActiveInferenceDiseaseAnalyzer
 
-The core health framework class.
+Core class for Active Inference-based disease surveillance.
 
 ```python
-class HealthFramework:
-    def __init__(self, health_parameters):
+class ActiveInferenceDiseaseAnalyzer:
+    def __init__(self, reports: List[DiseaseReport], population_data: Optional[List[PopulationData]] = None):
         """
-        Initialize health framework.
-        
+        Initialize Active Inference disease analyzer.
+
         Args:
-            health_parameters (dict): Health configuration parameters
+            reports: List of disease reports
+            population_data: Optional population data for analysis
         """
-    
-    def model_health_systems(self, geospatial_data, epidemiological_data, population_data, environmental_data):
-        """Model health systems for geospatial analysis."""
-    
-    def analyze_health_patterns(self, health_data, population_data):
-        """Analyze health patterns and trends."""
-    
-    def forecast_health_trends(self, historical_data, current_conditions):
-        """Forecast health trends and outbreaks."""
-    
-    def optimize_healthcare_resources(self, healthcare_data, demand_data):
-        """Optimize healthcare resource allocation."""
+
+    def analyze_with_active_inference(self, time_window_days: Optional[int] = None) -> Dict[str, Any]:
+        """
+        Perform comprehensive Active Inference analysis.
+
+        Args:
+            time_window_days: Optional time window for analysis
+
+        Returns:
+            Dictionary containing analysis results with belief states,
+            hotspots, predictions, and recommendations
+        """
+
+    def get_cases_in_radius(self, center_loc: Location, radius_km: float) -> List[DiseaseReport]:
+        """Get disease reports within radius of location."""
+
+    def calculate_local_incidence_rate(self, center_loc: Location, radius_km: float,
+                                     time_window_days: Optional[int] = None) -> Tuple[float, int, int]:
+        """Calculate local incidence rate with confidence intervals."""
+
+    def identify_simple_hotspots(self, threshold_case_count: int = 5,
+                               scan_radius_km: float = 1.0) -> List[Dict]:
+        """Identify disease hotspots using traditional methods."""
 ```
 
-### EpidemiologicalModelingEngine
+### HealthcareAccessibilityAnalyzer
 
-Engine for epidemiological modeling and disease spread.
+Engine for healthcare accessibility analysis.
 
 ```python
-class EpidemiologicalModelingEngine:
-    def __init__(self):
-        """Initialize epidemiological modeling engine."""
-    
-    def configure_epidemiological_modeling(self, modeling_parameters):
-        """Configure epidemiological modeling parameters."""
-    
-    def model_disease_spread(self, disease_data, population_data, environmental_data):
-        """Model disease spread and transmission dynamics."""
-    
-    def predict_outbreaks(self, historical_data, current_conditions):
-        """Predict disease outbreaks and spread patterns."""
-    
-    def model_intervention_effects(self, intervention_data, disease_data):
-        """Model effects of public health interventions."""
+class HealthcareAccessibilityAnalyzer:
+    def __init__(self, facilities: List[HealthFacility], population_data: Optional[List[PopulationData]] = None):
+        """
+        Initialize healthcare accessibility analyzer.
+
+        Args:
+            facilities: List of healthcare facilities
+            population_data: Optional population data
+        """
+
+    def find_facilities_in_radius(self, center_loc: Location, radius_km: float,
+                                facility_type: Optional[str] = None,
+                                required_services: Optional[List[str]] = None) -> List[HealthFacility]:
+        """Find facilities within radius with optional filtering."""
+
+    def get_nearest_facility(self, loc: Location, facility_type: Optional[str] = None,
+                           required_services: Optional[List[str]] = None) -> Optional[Tuple[HealthFacility, float]]:
+        """Find nearest facility with optional filtering."""
+
+    def calculate_facility_to_population_ratio(self, area_id: str,
+                                             facility_type: Optional[str] = None) -> Optional[Dict[str, Any]]:
+        """Calculate facility-to-population ratios."""
 ```
 
-### PublicHealthSurveillanceEngine
+### EnvironmentalHealthAnalyzer
 
-Engine for public health surveillance and monitoring.
+Engine for environmental health risk assessment.
 
 ```python
-class PublicHealthSurveillanceEngine:
-    def __init__(self):
-        """Initialize public health surveillance engine."""
-    
-    def configure_public_health_surveillance(self, surveillance_parameters):
-        """Configure public health surveillance parameters."""
-    
-    def monitor_public_health(self, health_data, population_data):
-        """Monitor public health indicators and trends."""
-    
-    def detect_outbreaks(self, health_data, threshold_data):
-        """Detect disease outbreaks and unusual patterns."""
-    
-    def track_cases(self, case_data, spatial_data):
-        """Track individual cases and contact tracing."""
+class EnvironmentalHealthAnalyzer:
+    def __init__(self, environmental_readings: List[EnvironmentalData]):
+        """
+        Initialize environmental health analyzer.
+
+        Args:
+            environmental_readings: List of environmental data readings
+        """
+
+    def get_environmental_readings_near_location(self, center_loc: Location, radius_km: float,
+                                               parameter_name: Optional[str] = None,
+                                               start_time: Optional[datetime] = None,
+                                               end_time: Optional[datetime] = None) -> List[EnvironmentalData]:
+        """Get environmental readings near location with temporal filtering."""
+
+    def calculate_average_exposure(self, target_locations: List[Location], radius_km: float,
+                                 parameter_name: str, time_window_days: int) -> Dict[str, Optional[float]]:
+        """Calculate average environmental exposure for locations."""
+```
+
+### Configuration Management
+
+Configuration and logging utilities.
+
+```python
+from geo_infer_health.utils.config import load_config, HealthConfig, validate_config
+from geo_infer_health.utils.logging import setup_logging, get_logger, PerformanceLogger
+
+# Configuration management
+config = load_config("config/health_config.yaml")  # Load YAML/JSON config
+validated_config = validate_config(config_dict)    # Validate configuration
+
+# Logging setup
+setup_logging(level="INFO", file_path="logs/health.log")
+logger = get_logger("health_module")
+
+# Performance monitoring
+with PerformanceLogger("analysis_operation"):
+    # Your analysis code here
+    results = perform_analysis()
 ```
 
 ## 🎯 Use Cases

@@ -1,0 +1,53 @@
+{
+  "timestamp": "20250919_074214",
+  "data_sources": [
+    "ownership",
+    "power_source",
+    "improvements",
+    "mortgage_debt",
+    "surface_water",
+    "water_rights",
+    "zoning",
+    "ground_water",
+    "current_use"
+  ],
+  "total_hexagons": 3298,
+  "modules": {
+    "ownership": {
+      "hexagon_count": 594,
+      "coverage_percentage": 18.01091570648878
+    },
+    "power_source": {
+      "hexagon_count": 1551,
+      "coverage_percentage": 47.02850212249848
+    },
+    "improvements": {
+      "hexagon_count": 49,
+      "coverage_percentage": 1.4857489387507579
+    },
+    "mortgage_debt": {
+      "hexagon_count": 1551,
+      "coverage_percentage": 47.02850212249848
+    },
+    "surface_water": {
+      "hexagon_count": 1551,
+      "coverage_percentage": 47.02850212249848
+    },
+    "water_rights": {
+      "hexagon_count": 1551,
+      "coverage_percentage": 47.02850212249848
+    },
+    "zoning": {
+      "hexagon_count": 2584,
+      "coverage_percentage": 78.35051546391753
+    },
+    "ground_water": {
+      "hexagon_count": 1551,
+      "coverage_percentage": 47.02850212249848
+    },
+    "current_use": {
+      "hexagon_count": 1551,
+      "coverage_percentage": 47.02850212249848
+    }
+  }
+}

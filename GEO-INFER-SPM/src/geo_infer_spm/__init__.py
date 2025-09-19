@@ -62,6 +62,18 @@ try:
 except ImportError:
     visualize_spm = create_statistical_map = None
 
+# Advanced modeling methods
+from .core.advanced import (
+    MixedEffectsSPM,
+    NonparametricSPM,
+    ModelValidator,
+    SpatialRegression
+)
+from .core.advanced.mixed_effects import fit_mixed_effects
+from .core.advanced.nonparametric import fit_nonparametric
+from .core.advanced.model_validation import validate_spm_model
+from .core.advanced.spatial_regression import fit_spatial_model
+
 # API
 from .api.endpoints import SPMAPI
 
@@ -85,6 +97,16 @@ __all__ = [
     "SpatialAnalyzer",
     "TemporalAnalyzer",
     "BayesianSPM",
+
+    # Advanced modeling methods
+    "MixedEffectsSPM",
+    "NonparametricSPM",
+    "ModelValidator",
+    "SpatialRegression",
+    "fit_mixed_effects",
+    "fit_nonparametric",
+    "validate_spm_model",
+    "fit_spatial_model",
 
     # Data models
     "SPMData",

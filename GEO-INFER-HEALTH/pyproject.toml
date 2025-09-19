@@ -1,0 +1,247 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geo-infer-health"
+version = "1.0.0"
+description = "Geospatial Applications for Public Health, Epidemiology, and Healthcare Accessibility"
+readme = "README.md"
+license = {text = "CC BY-ND-SA 4.0"}
+requires-python = ">=3.9"
+authors = [
+    {name = "GEO-INFER Framework Team", email = "health@geo-infer.org"},
+]
+maintainers = [
+    {name = "GEO-INFER Framework Team", email = "health@geo-infer.org"},
+]
+keywords = [
+    "geospatial", "health", "epidemiology", "public-health",
+    "healthcare-accessibility", "disease-surveillance", "spatial-epidemiology",
+    "environmental-health", "active-inference", "gis", "spatial-analysis"
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Healthcare Industry",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Topic :: Scientific/Engineering :: Medical Science Apps.",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "fastapi>=0.104.0",
+    "uvicorn>=0.24.0",
+    "pydantic>=2.5.0",
+    "pydantic-settings>=2.1.0",
+    "geopandas>=0.14.0",
+    "shapely>=2.0.0",
+    "pyproj>=3.6.0",
+    "rasterio>=1.3.0",
+    "fiona>=1.9.0",
+    "numpy>=1.24.0",
+    "scipy>=1.11.0",
+    "pandas>=2.1.0",
+    "statsmodels>=0.14.0",
+    "scikit-learn>=1.3.0",
+    "matplotlib>=3.8.0",
+    "seaborn>=0.13.0",
+    "plotly>=5.17.0",
+    "folium>=0.15.0",
+    "tensorflow>=2.15.0",
+    "torch>=2.1.0",
+    "xgboost>=2.0.0",
+    "pysal>=23.0",
+    "libpysal>=4.9.0",
+    "spglm>=1.0.8",
+    "spint>=1.0.7",
+    "esda>=2.5.0",
+    "networkx>=3.2.0",
+    "osmnx>=1.8.0",
+    "dask>=2023.12.0",
+    "xarray>=2023.12.0",
+    "requests>=2.31.0",
+    "httpx>=0.25.0",
+    "websockets>=12.0",
+    "pyyaml>=6.0.0",
+    "loguru>=0.7.0",
+    "python-multipart>=0.0.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "pytest-cov>=4.1.0",
+    "black>=23.12.0",
+    "isort>=5.13.0",
+    "flake8>=6.1.0",
+    "mypy>=1.7.0",
+    "pre-commit>=3.6.0",
+]
+gpu = [
+    "cupy>=13.0.0",
+    "tensorflow-gpu>=2.15.0",
+]
+database = [
+    "sqlalchemy>=2.0.0",
+    "psycopg2-binary>=2.9.0",
+    "redis>=5.0.0",
+]
+docs = [
+    "sphinx>=7.2.0",
+    "sphinx-rtd-theme>=1.3.0",
+    "myst-parser>=2.0.0",
+]
+h3 = [
+    "h3>=4.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/geo-infer/geo-infer-health"
+Documentation = "https://geo-infer.readthedocs.io/"
+Repository = "https://github.com/geo-infer/geo-infer-health"
+"Bug Reports" = "https://github.com/geo-infer/geo-infer-health/issues"
+"Source" = "https://github.com/geo-infer/geo-infer-health"
+
+[project.scripts]
+geo-infer-health = "geo_infer_health.cli:main"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests*"]
+
+[tool.setuptools.package-data]
+"geo_infer_health" = [
+    "config/*.yaml",
+    "config/*.json",
+    "docs/*.md",
+    "examples/*.py",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+line_length = 88
+known_first_party = ["geo_infer_health"]
+known_third_party = [
+    "fastapi",
+    "uvicorn",
+    "pydantic",
+    "geopandas",
+    "shapely",
+    "numpy",
+    "scipy",
+    "pandas",
+    "matplotlib",
+    "seaborn",
+    "plotly",
+    "folium",
+    "tensorflow",
+    "torch",
+    "scikit-learn",
+    "networkx",
+    "osmnx",
+    "requests",
+    "pyyaml",
+    "loguru",
+]
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true
+disallow_incomplete_defs = true
+check_untyped_defs = true
+disallow_untyped_decorators = true
+no_implicit_optional = true
+warn_redundant_casts = true
+warn_unused_ignores = true
+warn_no_return = true
+warn_unreachable = true
+strict_equality = true
+
+[[tool.mypy.overrides]]
+module = [
+    "geopandas.*",
+    "shapely.*",
+    "rasterio.*",
+    "fiona.*",
+    "pysal.*",
+    "libpysal.*",
+    "esda.*",
+    "osmnx.*",
+]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = [
+    "--strict-markers",
+    "--strict-config",
+    "--disable-warnings",
+    "-v",
+    "--cov=geo_infer_health",
+    "--cov-report=term-missing",
+    "--cov-report=html:htmlcov",
+    "--cov-report=xml",
+]
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow running tests",
+    "gpu: Tests requiring GPU",
+    "spatial: Tests involving spatial operations",
+    "api: API endpoint tests",
+]
+
+[tool.coverage.run]
+source = ["geo_infer_health"]
+omit = [
+    "*/tests/*",
+    "*/test_*.py",
+    "setup.py",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+    "pragma: no cover",
+    "def __repr__",
+    "raise AssertionError",
+    "raise NotImplementedError",
+    "if __name__ == .__main__.:",
+    "class .*\bProtocol\):",
+    "@(abc\.)?abstractmethod",
+]

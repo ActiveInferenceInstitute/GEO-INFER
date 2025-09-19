@@ -18,6 +18,7 @@ References for pipeline optimization patterns:
 """
 
 import argparse
+import json
 import logging
 import sys
 import os

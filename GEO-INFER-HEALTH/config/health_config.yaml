@@ -1,0 +1,296 @@
+# GEO-INFER-HEALTH Configuration File
+# Main configuration for health analytics module
+
+# Module metadata
+module:
+  name: "GEO-INFER-HEALTH"
+  version: "1.0.0"
+  description: "Geospatial Applications for Public Health, Epidemiology, and Healthcare Accessibility"
+  author: "GEO-INFER Framework Team"
+  contact: "health@geo-infer.org"
+
+# API Configuration
+api:
+  host: "127.0.0.1"
+  port: 8000
+  workers: 1
+  reload: false
+  cors_origins: ["*"]
+  api_prefix: "/api/v1"
+  docs_url: "/docs"
+  redoc_url: "/redoc"
+
+  # Rate limiting
+  rate_limit:
+    requests_per_minute: 100
+    burst_limit: 20
+
+  # Authentication
+  auth:
+    enabled: false
+    jwt_secret: "change-this-in-production"
+    jwt_algorithm: "HS256"
+    token_expire_minutes: 30
+
+# Database Configuration
+database:
+  type: "memory"  # memory, sqlite, postgresql, mongodb
+  connection_string: "sqlite:///health_data.db"
+  pool_size: 10
+  max_overflow: 20
+
+  # Redis for caching (optional)
+  redis:
+    enabled: false
+    host: "localhost"
+    port: 6379
+    db: 0
+    password: ""
+
+# Logging Configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file:
+    enabled: true
+    path: "logs/health.log"
+    max_bytes: 10485760  # 10MB
+    backup_count: 5
+
+  # Performance logging
+  performance:
+    enabled: true
+    slow_query_threshold: 1.0  # seconds
+
+# Analysis Configuration
+analysis:
+  # Disease Surveillance
+  disease_surveillance:
+    default_scan_radius_km: 1.0
+    hotspot_threshold_cases: 5
+    temporal_window_days: 14
+    clustering_method: "kulldorff"  # kulldorff, dbscan, optics
+    significance_level: 0.05
+
+    # Outbreak detection
+    outbreak_detection:
+      case_threshold: 10
+      time_window_days: 7
+      spatial_radius_km: 5.0
+      alert_threshold: 0.95
+
+  # Healthcare Accessibility
+  healthcare_accessibility:
+    default_method: "2sfca"  # distance, gravity, 2sfca, enhanced_2sfca
+    max_travel_time_minutes: 60
+    transport_modes: ["driving", "walking", "transit"]
+
+    # 2SFCA parameters
+    sfca:
+      search_radius_km: 10.0
+      distance_decay_function: "gaussian"  # gaussian, exponential, linear
+      distance_decay_parameter: 0.01
+
+    # Gravity model parameters
+    gravity:
+      impedance_function: "power"  # power, exponential
+      impedance_parameter: 2.0
+      attraction_function: "population"  # population, capacity, services
+
+  # Environmental Health
+  environmental_health:
+    exposure_models: ["proximity", "interpolation", "dispersion"]
+    risk_assessment_method: "hazard_index"  # hazard_index, cancer_risk
+    default_buffer_distance_m: 1000
+
+    # Air quality analysis
+    air_quality:
+      pollutants: ["PM2.5", "PM10", "NO2", "SO2", "O3", "CO"]
+      standards:
+        PM2.5: 12.0  # µg/m³ annual average
+        PM10: 20.0   # µg/m³ 24-hour average
+        NO2: 40.0    # µg/m³ annual average
+
+    # Water quality analysis
+    water_quality:
+      contaminants: ["lead", "arsenic", "nitrates", "pesticides"]
+      risk_levels:
+        low: 0.1
+        medium: 0.5
+        high: 0.8
+
+  # Spatial Epidemiology
+  spatial_epidemiology:
+    regression_methods: ["ols", "spatial_lag", "spatial_error", "geographically_weighted"]
+    spatial_weights: ["queen", "rook", "knn", "distance_band"]
+    default_bandwidth: "adaptive"  # adaptive, fixed
+    kernel_function: "gaussian"  # gaussian, exponential, bisquare, tricube
+
+    # Disease mapping
+    disease_mapping:
+      standardization_method: "indirect"  # direct, indirect, empirical_bayes
+      smoothing_method: "local_em"  # local_em, global_em, head_banging
+
+# Data Configuration
+data:
+  # Input data formats
+  supported_formats:
+    vector: ["geojson", "shapefile", "geopackage", "csv"]
+    raster: ["tif", "tiff", "asc", "bil"]
+    tabular: ["csv", "json", "parquet", "feather"]
+
+  # Coordinate reference systems
+  default_crs: "EPSG:4326"
+  supported_crs: ["EPSG:4326", "EPSG:3857", "EPSG:32633", "EPSG:32733"]
+
+  # Data quality checks
+  quality_checks:
+    enabled: true
+    null_threshold: 0.1  # Maximum allowed null values (10%)
+    duplicate_check: true
+    geometry_validation: true
+    spatial_index: true
+
+  # Caching
+  cache:
+    enabled: true
+    max_size_gb: 10
+    ttl_hours: 24
+    compression: "gzip"
+
+# Performance Configuration
+performance:
+  # Parallel processing
+  parallel_processing:
+    enabled: true
+    max_workers: 4
+    chunk_size: 1000
+
+  # Memory management
+  memory:
+    max_memory_gb: 8
+    gc_threshold: 1000000
+
+  # GPU acceleration
+  gpu:
+    enabled: false
+    device: "cuda:0"
+    memory_fraction: 0.8
+
+# Privacy and Security
+privacy:
+  # Data anonymization
+  anonymization:
+    enabled: true
+    methods: ["k_anonymity", "differential_privacy", "spatial_masking"]
+    k_value: 5
+    epsilon: 0.1
+
+  # Spatial privacy
+  spatial_privacy:
+    minimum_resolution_m: 100
+    jitter_enabled: true
+    jitter_std_m: 50
+
+  # Access control
+  access_control:
+    enabled: false
+    roles: ["admin", "analyst", "viewer"]
+    default_role: "viewer"
+
+# Integration Configuration
+integration:
+  # GEO-INFER modules
+  geo_infer_modules:
+    data: "GEO-INFER-DATA"
+    space: "GEO-INFER-SPACE"
+    time: "GEO-INFER-TIME"
+    ai: "GEO-INFER-AI"
+    risk: "GEO-INFER-RISK"
+    sec: "GEO-INFER-SEC"
+
+  # External APIs
+  external_apis:
+    osm:
+      enabled: false
+      api_key: ""
+    google_maps:
+      enabled: false
+      api_key: ""
+    openweather:
+      enabled: false
+      api_key: ""
+
+  # Webhooks
+  webhooks:
+    enabled: false
+    endpoints: []
+    retry_attempts: 3
+    timeout_seconds: 30
+
+# Monitoring and Metrics
+monitoring:
+  # Health checks
+  health_checks:
+    enabled: true
+    interval_seconds: 60
+    endpoints:
+      - "/health"
+      - "/api/v1/surveillance/status"
+
+  # Metrics collection
+  metrics:
+    enabled: true
+    prometheus_enabled: false
+    custom_metrics: ["request_count", "response_time", "error_rate"]
+
+  # Alerting
+  alerts:
+    enabled: false
+    channels: ["email", "slack", "webhook"]
+    thresholds:
+      error_rate: 0.05
+      response_time_seconds: 5.0
+
+# Development Configuration
+development:
+  debug_mode: false
+  auto_reload: false
+  mock_data: false
+  test_database: true
+
+  # Testing
+  testing:
+    test_data_path: "tests/data"
+    benchmark_enabled: true
+    coverage_target: 85
+
+# Advanced Configuration
+advanced:
+  # Active Inference parameters
+  active_inference:
+    enabled: true
+    free_energy_threshold: 0.01
+    learning_rate: 0.001
+    precision_parameter: 1.0
+
+  # Machine learning
+  machine_learning:
+    default_model: "xgboost"
+    hyperparameter_tuning: true
+    cross_validation_folds: 5
+
+  # Network analysis
+  network_analysis:
+    centrality_measures: ["degree", "betweenness", "closeness"]
+    community_detection: "louvain"
+    temporal_networks: true
+
+  # Temporal analysis
+  temporal_analysis:
+    time_series_methods: ["arima", "prophet", "lstm"]
+    seasonality_detection: true
+    trend_analysis: true
+
+# Custom user configurations (override defaults)
+custom: {}
