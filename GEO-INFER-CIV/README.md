@@ -1,14 +1,32 @@
-# GEO-INFER-CIV
+---
+title: "GEO-INFER-CIV: Civic Engagement & Participatory Geospatial Technologies"
+description: "Empowering communities with participatory mapping, citizen science, and collaborative geospatial decision-making tools"
+purpose: "Democratize geospatial information and foster civic participation in spatial decision-making"
+module_type: "People & Community"
+status: "Alpha"
+last_updated: "2025-01-19"
+dependencies: ["SPACE", "APP", "DATA", "COMMS"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-APP", "GEO-INFER-DATA", "GEO-INFER-COMMS"]
+tags: ["civic", "participatory", "community", "mapping", "citizen-science"]
+difficulty: "Intermediate"
+estimated_time: "45"
+---
 
-**Civic Engagement & Participatory Geospatial Technologies**
+# GEO-INFER-CIV: Civic Engagement & Participatory Geospatial Technologies
+
+> **Purpose**: Empower communities and foster civic participation in geospatial data creation, analysis, and decision-making
+>
+> This module provides tools for participatory mapping, citizen science, and collaborative planning to make geospatial information more accessible, relevant, and actionable for diverse public audiences.
 
 ## Overview
 
-GEO-INFER-CIV is dedicated to **empowering communities and fostering civic participation** in geospatial data creation, analysis, and decision-making processes. This module provides a suite of tools and methodologies to facilitate collaborative approaches to understanding and addressing complex ecological, urban, and social challenges. It bridges the gap between technical geospatial capabilities and community knowledge, values, and priorities. By enabling participatory mapping, citizen science, and collaborative planning, GEO-INFER-CIV aims to make geospatial information more accessible, relevant, and actionable for diverse public audiences, leading to more equitable, informed, and sustainable outcomes.
+Note: Code examples are illustrative; see `GEO-INFER-CIV/examples` for runnable scripts.
 
-### Documentation
-- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-civ.md
-- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+### Links
+- Module README: ../../GEO-INFER-CIV/README.md
+- Modules Overview: ../modules/index.md
+
+GEO-INFER-CIV is dedicated to empowering communities and fostering civic participation in geospatial data creation, analysis, and decision-making processes. It bridges the gap between technical geospatial capabilities and community knowledge, values, and priorities.
 
 ## Core Objectives
 
@@ -159,6 +177,274 @@ Tools to aid collaborative and informed decision-making include:
 -   **Conflict Resolution Frameworks:** Methodologies and facilitation guides for addressing disagreements that arise during participatory processes.
 -   **Equity & Justice Considerations:** Tools to analyze the distributional impacts of proposed plans or policies on different demographic groups or vulnerable communities (integrates with GEO-INFER-NORMS).
 -   **Collaborative Goal Setting & Indicator Tracking:** Platforms where communities can define shared goals and track progress using relevant geospatial and non-geospatial indicators.
+
+## Core Features
+
+### 1. Participatory Mapping Platforms
+
+**Purpose**: Enable community members to create and contribute geospatial data through intuitive mapping interfaces.
+
+```python
+from geo_infer_civ.mapping import ParticipatoryMappingPlatform
+
+# Create participatory mapping platform
+platform = ParticipatoryMappingPlatform(
+    spatial_bounds=community_region,
+    allowed_geometry_types=['Point', 'LineString', 'Polygon'],
+    multimedia_support=True,
+    real_time_collaboration=True
+)
+
+# Launch mapping campaign
+campaign = platform.create_campaign(
+    title="Community Asset Mapping",
+    description="Map local resources and concerns",
+    target_participants=50,
+    duration_days=30
+)
+
+# Collect community contributions
+contributions = platform.get_contributions(campaign_id=campaign.id)
+print(f"Collected {len(contributions)} community mappings")
+```
+
+### 2. STEW-MAP Toolkit
+
+**Purpose**: Comprehensive tools for mapping and analyzing civic stewardship networks.
+
+```python
+from geo_infer_civ.stewmap import STEWMAPToolkit
+
+# Initialize STEW-MAP toolkit
+stewmap = STEWMAPToolkit(
+    study_area=environmental_region,
+    survey_config=custom_survey_template,
+    network_analysis=True,
+    spatial_visualization=True
+)
+
+# Deploy stewardship survey
+survey_results = stewmap.deploy_survey(
+    target_organizations=local_groups,
+    survey_template=stewardship_questions,
+    response_deadline=30
+)
+
+# Analyze stewardship network
+network_analysis = stewmap.analyze_stewardship_network(
+    survey_responses=survey_results,
+    spatial_resolution='neighborhood',
+    relationship_types=['collaboration', 'resource_sharing', 'communication']
+)
+
+# Generate stewardship map
+stewardship_map = stewmap.generate_stewardship_map(
+    analysis_results=network_analysis,
+    visualization_type='interactive_network',
+    include_recommendations=True
+)
+```
+
+### 3. Decision Support Systems
+
+**Purpose**: Collaborative frameworks for informed spatial decision-making with community input.
+
+```python
+from geo_infer_civ.decision import CollaborativeDecisionSupport
+
+# Create decision support system
+decision_support = CollaborativeDecisionSupport(
+    decision_context=urban_planning_scenario,
+    stakeholder_groups=['residents', 'businesses', 'government'],
+    criteria=['environmental_impact', 'economic_benefit', 'social_equity'],
+    spatial_analysis=True
+)
+
+# Facilitate collaborative decision process
+process = decision_support.initiate_process(
+    proposal=development_proposal,
+    timeline='60_days',
+    participation_methods=['online_surveys', 'public_meetings', 'digital_mapping']
+)
+
+# Analyze stakeholder preferences
+preference_analysis = decision_support.analyze_preferences(
+    stakeholder_responses=community_feedback,
+    spatial_distribution=True,
+    consensus_metrics=True
+)
+
+# Generate decision recommendations
+recommendations = decision_support.generate_recommendations(
+    preference_analysis=preference_analysis,
+    equity_weights={'environmental': 0.4, 'economic': 0.3, 'social': 0.3},
+    implementation_phases=True
+)
+```
+
+## API Reference
+
+### ParticipatoryMappingPlatform
+
+The core class for creating and managing participatory mapping platforms.
+
+```python
+class ParticipatoryMappingPlatform:
+    def __init__(self, spatial_bounds, allowed_geometry_types, multimedia_support, real_time_collaboration):
+        """Initialize participatory mapping platform."""
+
+    def create_campaign(self, title, description, target_participants, duration_days):
+        """Create a new mapping campaign."""
+
+    def get_contributions(self, campaign_id, filters=None):
+        """Retrieve contributions for a campaign."""
+
+    def validate_contributions(self, contributions, validation_rules):
+        """Validate community contributions."""
+
+    def export_data(self, campaign_id, format='geojson'):
+        """Export campaign data in specified format."""
+```
+
+### STEWMAPToolkit
+
+Comprehensive toolkit for stewardship mapping and analysis.
+
+```python
+class STEWMAPToolkit:
+    def __init__(self, study_area, survey_config, network_analysis, spatial_visualization):
+        """Initialize STEW-MAP toolkit."""
+
+    def deploy_survey(self, target_organizations, survey_template, response_deadline):
+        """Deploy stewardship survey to organizations."""
+
+    def analyze_stewardship_network(self, survey_responses, spatial_resolution, relationship_types):
+        """Analyze stewardship network relationships."""
+
+    def generate_stewardship_map(self, analysis_results, visualization_type, include_recommendations):
+        """Generate interactive stewardship map."""
+```
+
+## Use Cases
+
+### 1. Community Environmental Monitoring
+
+**Problem**: Enable communities to monitor local environmental conditions and contribute to scientific research.
+
+**Solution**: Use participatory mapping platforms to collect community environmental observations.
+
+```python
+from geo_infer_civ.monitoring import CommunityEnvironmentalMonitoring
+
+# Set up community environmental monitoring
+monitoring = CommunityEnvironmentalMonitoring(
+    monitoring_focus=['air_quality', 'water_quality', 'wildlife_sightings'],
+    spatial_coverage=community_watershed,
+    training_provided=True,
+    data_validation=True
+)
+
+# Launch monitoring program
+program = monitoring.launch_program(
+    duration_months=12,
+    participant_training=environmental_training,
+    data_quality_standards=monitoring_protocols
+)
+
+# Collect and validate community observations
+observations = monitoring.collect_observations(
+    time_period='last_month',
+    validation_required=True,
+    spatial_accuracy_check=True
+)
+
+# Generate community environmental report
+report = monitoring.generate_report(
+    observations=observations,
+    scientific_context=True,
+    policy_recommendations=True,
+    community_engagement_metrics=True
+)
+```
+
+### 2. Urban Planning with Community Input
+
+**Problem**: Develop urban plans that incorporate diverse community perspectives and priorities.
+
+**Solution**: Use collaborative decision support systems for inclusive urban planning.
+
+```python
+from geo_infer_civ.planning import CommunityUrbanPlanning
+
+# Initialize community urban planning system
+planning = CommunityUrbanPlanning(
+    planning_area=city_district,
+    planning_horizon='2030',
+    stakeholder_diversity=True,
+    equity_focus=True
+)
+
+# Design participatory planning process
+process = planning.design_process(
+    planning_goals=['sustainable_development', 'equity', 'resilience'],
+    engagement_methods=['digital_platforms', 'community_meetings', 'youth_workshops'],
+    timeline_months=18
+)
+
+# Facilitate scenario development
+scenarios = planning.develop_scenarios(
+    base_conditions=current_city_state,
+    development_options=['compact_growth', 'sprawl', 'mixed_use'],
+    community_values=stakeholder_preferences
+)
+
+# Generate community-informed plan
+final_plan = planning.generate_plan(
+    scenario_analysis=scenarios,
+    community_feedback=public_input,
+    implementation_priorities=True,
+    monitoring_framework=True
+)
+```
+
+### 3. Disaster Resilience Planning
+
+**Problem**: Build community resilience to natural disasters through collaborative planning.
+
+**Solution**: Use STEW-MAP and decision support tools for disaster preparedness.
+
+```python
+from geo_infer_civ.resilience import DisasterResiliencePlanning
+
+# Create disaster resilience planning framework
+resilience = DisasterResiliencePlanning(
+    hazard_types=['flooding', 'wildfires', 'earthquakes'],
+    community_assets=local_resources,
+    vulnerability_assessment=True
+)
+
+# Map community stewardship network
+stewardship_network = resilience.map_stewardship_network(
+    community_organizations=local_groups,
+    resource_types=['emergency_response', 'evacuation_support', 'recovery_assistance'],
+    collaboration_patterns=True
+)
+
+# Develop resilience strategies
+strategies = resilience.develop_strategies(
+    stewardship_network=stewardship_network,
+    hazard_scenarios=disaster_models,
+    community_priorities=resilience_goals
+)
+
+# Create implementation plan
+implementation = resilience.create_implementation_plan(
+    strategies=strategies,
+    timeline_years=5,
+    capacity_building=True,
+    monitoring_evaluation=True
+)
+```
 
 ## Integration with Other Modules
 

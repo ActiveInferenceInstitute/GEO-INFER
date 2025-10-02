@@ -1,8 +1,32 @@
+---
+title: "GEO-INFER-SPM: Statistical Parametric Mapping"
+description: "Statistical parametric mapping methodology adapted for geospatial analysis to identify significant patterns in spatial-temporal data"
+purpose: "Provide statistical tools for analyzing spatially continuous data fields while preserving spatiotemporal relationships"
+module_type: "Analytical Core"
+status: "Alpha"
+last_updated: "2025-01-19"
+dependencies: ["MATH", "SPACE"]
+compatibility: ["GEO-INFER-MATH", "GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-HEALTH"]
+tags: ["statistics", "parametric-mapping", "spatial-statistics", "significance-testing", "pattern-analysis"]
+difficulty: "Expert"
+estimated_time: "80"
+---
+
 # GEO-INFER-SPM: Statistical Parametric Mapping for Geospatial Analysis
+
+> **Purpose**: Provide statistical tools for analyzing spatially continuous data fields while preserving spatiotemporal relationships
+>
+> This module adapts Statistical Parametric Mapping methodology for geospatial analysis to identify statistically significant patterns in complex environmental, urban, and ecological datasets.
 
 ## Overview
 
-Statistical Parametric Mapping (SPM) is a powerful statistical methodology for analyzing spatially or temporally continuous data fields. Originally developed for neuroimaging, SPM has been adapted in GEO-INFER to address the challenges of geospatial analysis while preserving the integrity of spatiotemporal relationships. This module provides comprehensive tools for identifying statistically significant patterns in complex environmental, urban, and ecological datasets.
+Note: Code examples are illustrative; see `GEO-INFER-SPM/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-SPM/README.md
+- Modules Overview: ../modules/index.md
+
+Statistical Parametric Mapping (SPM) is a powerful statistical methodology for analyzing spatially or temporally continuous data fields. Originally developed for neuroimaging, SPM has been adapted in GEO-INFER to address the challenges of geospatial analysis while preserving the integrity of spatiotemporal relationships.
 
 ### Documentation
 - Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-spm.md
@@ -116,6 +140,233 @@ GEO-INFER-SPM integrates closely with:
 - **GEO-INFER-BAYES**: For Bayesian statistical extensions
 - **GEO-INFER-APP**: For visualization and interactive mapping
 - **GEO-INFER-AI**: For machine learning integration and enhanced pattern detection
+
+## Core Features
+
+### 1. Statistical Parametric Mapping Engine
+**Purpose**: Core SPM algorithms for detecting statistically significant spatial patterns.
+
+```python
+from geo_infer_spm.core import StatisticalParametricMapper
+
+spm = StatisticalParametricMapper(
+    statistical_model='glm',
+    multiple_comparison_correction='fdr',
+    spatial_regularization=True,
+    temporal_modeling='ar1'
+)
+
+# Analyze spatial field data
+results = spm.fit_and_test(
+    data_matrix=X,  # n_voxels x n_timepoints
+    design_matrix=Z,  # n_timepoints x n_regressors
+    spatial_mask=brain_mask
+)
+
+significant_regions = spm.extract_clusters(results, threshold=0.05)
+```
+
+### 2. Random Field Theory Implementation
+**Purpose**: Theoretical framework for correcting for multiple comparisons in spatial data.
+
+```python
+from geo_infer_spm.rft import RandomFieldTheory
+
+rft = RandomFieldTheory(
+    field_type='gaussian',
+    spatial_smoothness=estimated_fwhm,
+    search_volume=brain_volume_mm3
+)
+
+# Correct for multiple comparisons
+corrected_p_values = rft.family_wise_error_correction(
+    uncorrected_p_values,
+    cluster_defining_threshold=0.001
+)
+
+# Calculate expected number of clusters
+expected_clusters = rft.expected_clusters_under_null(
+    cluster_size_threshold=100,
+    statistical_field=spm_t_statistics
+)
+```
+
+### 3. Bayesian SPM Extensions
+**Purpose**: Probabilistic approaches to spatial statistical inference.
+
+```python
+from geo_infer_spm.bayesian import BayesianSPM
+
+bspm = BayesianSPM(
+    prior_type='spatial_shrinkage',
+    inference_method='variational_bayes',
+    spatial_correlation_model='exponential'
+)
+
+# Bayesian spatial analysis
+posterior_samples = bspm.sample_posterior(
+    observed_data=y,
+    spatial_coordinates=coords,
+    prior_parameters={'tau': 1.0, 'rho': 0.5}
+)
+
+bayesian_clusters = bspm.extract_posterior_clusters(
+    posterior_samples,
+    probability_threshold=0.95
+)
+```
+
+## API Reference
+
+### Core Classes
+
+#### `StatisticalParametricMapper`
+- `fit_and_test(data, design, mask)`: Fit GLM and perform statistical tests
+- `extract_clusters(results, threshold)`: Extract statistically significant clusters
+- `apply_multiple_comparison_correction(p_values)`: Correct for multiple comparisons
+
+#### `RandomFieldTheory`
+- `family_wise_error_correction(p_values, threshold)`: FWE correction
+- `expected_clusters_under_null(size_threshold, field)`: Expected cluster count
+- `resels_per_voxel()`: Calculate resels for spatial regularization
+
+#### `BayesianSPM`
+- `sample_posterior(data, coords, priors)`: Sample from posterior distribution
+- `extract_posterior_clusters(samples, threshold)`: Extract posterior clusters
+- `compute_bayes_factors(alternative, null)`: Compute Bayes factors
+
+### Key Functions
+
+```python
+# Core SPM analysis pipeline
+geo_infer_spm.analyze_spatial_field(
+    data, design_matrix, spatial_mask,
+    statistical_model='glm',
+    correction_method='fdr'
+)
+
+# Random field theory utilities
+geo_infer_spm.rft.expected_euler_characteristic(
+    statistical_field, threshold, resels
+)
+
+# Bayesian spatial inference
+geo_infer_spm.bayesian.spatial_posterior_probability(
+    data, coordinates, prior_model
+)
+```
+
+## Use Cases
+
+### Climate Change Impact Analysis
+**Scenario**: Detect statistically significant changes in temperature patterns across spatial regions.
+
+```python
+from geo_infer_spm.applications import ClimateChangeAnalyzer
+
+climate_analyzer = ClimateChangeAnalyzer(
+    temporal_resolution='monthly',
+    spatial_resolution='1km',
+    statistical_model='trend_analysis'
+)
+
+# Analyze climate data
+climate_data = load_global_temperature_dataset()
+trend_results = climate_analyzer.detect_temperature_trends(
+    temperature_data=climate_data,
+    time_period='1950-2023',
+    significance_level=0.05
+)
+
+# Identify regions with significant warming
+warming_regions = climate_analyzer.extract_significant_regions(
+    trend_results,
+    trend_threshold=0.1  # °C/decade
+)
+```
+
+### Neuroimaging Research
+**Scenario**: Identify brain regions activated during spatial cognition tasks.
+
+```python
+from geo_infer_spm.applications import NeuroimagingAnalyzer
+
+brain_analyzer = NeuroimagingAnalyzer(
+    imaging_modality='fMRI',
+    statistical_model='mixed_effects',
+    spatial_regularization='gaussian'
+)
+
+# Analyze fMRI data during spatial navigation task
+fmri_data = load_brain_imaging_dataset()
+activation_map = brain_analyzer.compute_activation_map(
+    bold_signals=fmri_data,
+    task_design_matrix=spatial_task_design,
+    subject_ids=participant_list
+)
+
+# Find brain regions involved in spatial processing
+spatial_regions = brain_analyzer.extract_activated_regions(
+    activation_map,
+    statistical_threshold='p<0.05_fwe'
+)
+```
+
+### Environmental Monitoring
+**Scenario**: Detect pollution hotspots and environmental degradation patterns.
+
+```python
+from geo_infer_spm.applications import EnvironmentalMonitor
+
+env_monitor = EnvironmentalMonitor(
+    pollutant_types=['NO2', 'PM2.5', 'O3'],
+    temporal_aggregation='daily',
+    spatial_interpolation='kriging'
+)
+
+# Monitor air quality patterns
+air_quality_data = load_sensor_network_data()
+pollution_analysis = env_monitor.analyze_pollution_patterns(
+    measurements=air_quality_data,
+    spatial_extent=city_bounds,
+    time_window='2023-01-01_to_2023-12-31'
+)
+
+# Identify pollution hotspots
+hotspots = env_monitor.detect_pollution_hotspots(
+    analysis_results=pollution_analysis,
+    significance_threshold=0.01,
+    cluster_size_threshold=5  # km²
+)
+```
+
+### Disease Surveillance
+**Scenario**: Identify spatial patterns in disease incidence and transmission.
+
+```python
+from geo_infer_spm.applications import DiseaseSurveillance
+
+disease_monitor = DiseaseSurveillance(
+    disease_types=['COVID-19', 'influenza', 'malaria'],
+    spatial_scale='county_level',
+    temporal_resolution='weekly'
+)
+
+# Analyze disease spread patterns
+epidemiological_data = load_disease_incidence_data()
+transmission_analysis = disease_monitor.analyze_transmission_patterns(
+    incidence_data=epidemiological_data,
+    population_density=population_data,
+    mobility_patterns=mobility_data
+)
+
+# Detect disease clusters
+clusters = disease_monitor.detect_disease_clusters(
+    analysis_results=transmission_analysis,
+    statistical_method='spatial_scan',
+    significance_level=0.05
+)
+```
 
 ## Getting Started
 

@@ -1,4 +1,18 @@
-# GEO-INFER-INTRA
+---
+title: "GEO-INFER-INTRA: Project Documentation and Ontology Management"
+description: "Comprehensive project documentation, workflow management, and ontology systems for the GEO-INFER ecosystem"
+purpose: "Provide centralized documentation, workflow templates, and standardized ontologies for the entire GEO-INFER framework"
+module_type: "Operations"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: []
+compatibility: ["All GEO-INFER modules"]
+tags: ["documentation", "ontology", "workflows", "project-management", "standards", "governance"]
+difficulty: "Intermediate"
+estimated_time: "40"
+---
+
+# GEO-INFER-INTRA: Project Documentation and Ontology Management
 
 **Internal Knowledge Management: Documentation, Ontology, Workflows, and Processes**
 

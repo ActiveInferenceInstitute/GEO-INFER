@@ -1,3 +1,17 @@
+---
+title: "GEO-INFER-EXAMPLES: Cross-Module Integration Demonstrations"
+description: "Comprehensive collection of working examples and tutorials demonstrating cross-module integration patterns and real-world applications"
+purpose: "Provide runnable examples and tutorials that demonstrate how to integrate multiple GEO-INFER modules for real-world applications"
+module_type: "Operations"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["All modules"]
+compatibility: ["All GEO-INFER modules"]
+tags: ["examples", "tutorials", "integration", "demonstrations", "cross-module", "real-world-applications"]
+difficulty: "Beginner"
+estimated_time: "30"
+---
+
 # GEO-INFER-EXAMPLES 🌟
 
 [![License: CC BY-ND-SA 4.0](https://img.shields.io/badge/License-CC%20BY--ND--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nd-sa/4.0/)

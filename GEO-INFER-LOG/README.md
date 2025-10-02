@@ -1,8 +1,30 @@
-# GEO-INFER-LOG
+---
+title: "GEO-INFER-LOG: Logistics and Supply Chain Optimization"
+description: "Geospatial intelligence for logistics optimization, supply chain management, route optimization, and transportation planning"
+purpose: "Optimize logistics and supply chain operations using geospatial intelligence and advanced optimization algorithms"
+module_type: "Domain-Specific"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["SPACE", "TIME", "DATA"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-ECON", "GEO-INFER-ANT"]
+tags: ["logistics", "supply-chain", "optimization", "routing", "transportation", "distribution"]
+difficulty: "Intermediate"
+estimated_time: "55"
+---
 
-**Logistics and Supply Chain Optimization with Geospatial Intelligence**
+# GEO-INFER-LOG: Logistics and Supply Chain Optimization
+
+> **Purpose**: Optimize logistics and supply chain operations using geospatial intelligence and advanced optimization algorithms
+>
+> This module provides geospatial intelligence for logistics optimization, supply chain management, route optimization, and transportation planning.
 
 ## Overview
+
+Note: Code examples are illustrative; see `GEO-INFER-LOG/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-LOG/README.md
+- Modules Overview: ../modules/index.md
 
 GEO-INFER-LOG is the specialized module within the GEO-INFER framework focused on logistics, transportation, and supply chain optimization through geospatial intelligence. It provides a comprehensive suite of tools for solving complex movement, distribution, and network optimization problems with explicit spatial dimensions. This module empowers logistics planners, supply chain managers, transportation analysts, urban planners, and humanitarian organizations to design efficient, resilient, and sustainable systems for moving goods and resources across space.
 
@@ -164,6 +186,263 @@ GEO-INFER-LOG leverages and complements several other modules in the framework:
 - **GEO-INFER-MATH:** Supplies optimization algorithms, mathematical programming solvers, and computational methods for solving complex logistics problems.
 - **GEO-INFER-CIV:** Interacts for urban logistics planning, city delivery constraints, and municipal regulations affecting transportation.
 - **GEO-INFER-ECON:** Connects economic models with logistics operations to understand cost structures, market access, and economic impacts of distribution networks.
+
+## Core Features
+
+### 1. Multi-Objective Route Optimization
+**Purpose**: Advanced algorithms for optimizing delivery routes considering multiple constraints and objectives.
+
+```python
+from geo_infer_log.routing import MultiObjectiveRouteOptimizer
+
+optimizer = MultiObjectiveRouteOptimizer(
+    objectives=['minimize_distance', 'minimize_time', 'maximize_service_level'],
+    constraints=['vehicle_capacity', 'time_windows', 'driver_hours'],
+    algorithm='hybrid_ga_sa'  # Genetic Algorithm + Simulated Annealing
+)
+
+# Optimize delivery routes
+optimal_routes = optimizer.optimize_routes(
+    orders=customer_orders,
+    vehicle_fleet=delivery_trucks,
+    depot_location=warehouse_location,
+    spatial_network=road_network,
+    time_constraints=delivery_windows
+)
+
+# Evaluate route performance
+performance_metrics = optimizer.evaluate_routes(
+    routes=optimal_routes,
+    metrics=['total_distance', 'total_time', 'service_level', 'fuel_consumption']
+)
+```
+
+### 2. Supply Chain Network Design
+**Purpose**: Strategic design and optimization of supply chain networks including facility location and flow optimization.
+
+```python
+from geo_infer_log.network import SupplyChainNetworkDesigner
+
+designer = SupplyChainNetworkDesigner(
+    facility_types=['warehouses', 'distribution_centers', 'retail_stores'],
+    cost_factors=['transportation', 'inventory', 'facility_operation'],
+    spatial_constraints=['market_access', 'infrastructure', 'regulations']
+)
+
+# Design optimal supply chain network
+network_design = designer.design_network(
+    demand_points=customer_locations,
+    supply_points=supplier_locations,
+    candidate_facilities=potential_sites,
+    transportation_costs=distance_matrix,
+    service_requirements=demand_forecasts
+)
+
+# Optimize facility locations
+facility_locations = designer.optimize_facility_locations(
+    network_design=network_design,
+    capacity_constraints=facility_capacities,
+    budget_limit=total_budget,
+    spatial_coverage=target_market_area
+)
+```
+
+### 3. Real-Time Fleet Management
+**Purpose**: Dynamic fleet management and optimization for operational logistics.
+
+```python
+from geo_infer_log.fleet import RealTimeFleetManager
+
+fleet_manager = RealTimeFleetManager(
+    fleet_size=50,
+    vehicle_types=['truck', 'van', 'bike'],
+    optimization_frequency='real_time',
+    disruption_handling=True
+)
+
+# Manage fleet operations
+fleet_operations = fleet_manager.manage_fleet(
+    current_orders=pending_deliveries,
+    vehicle_locations=gps_positions,
+    traffic_conditions=real_time_traffic,
+    weather_impacts=weather_data
+)
+
+# Handle disruptions
+disruption_response = fleet_manager.handle_disruptions(
+    disruption_type='traffic_accident',
+    affected_routes=impacted_routes,
+    alternative_options=re_routing_options,
+    customer_communication=notification_system
+)
+```
+
+## API Reference
+
+### Core Classes
+
+#### `MultiObjectiveRouteOptimizer`
+- `optimize_routes(orders, fleet, depot, network, constraints)`: Optimize delivery routes
+- `evaluate_routes(routes, metrics)`: Evaluate route performance
+- `reoptimize_routes(updated_orders, current_routes)`: Re-optimize with new data
+
+#### `SupplyChainNetworkDesigner`
+- `design_network(demand, supply, facilities, costs, service)`: Design supply chain network
+- `optimize_facility_locations(network, constraints, budget, coverage)`: Optimize facility placement
+- `simulate_network_performance(network, scenarios)`: Simulate network performance
+
+#### `RealTimeFleetManager`
+- `manage_fleet(orders, locations, traffic, weather)`: Manage fleet operations
+- `handle_disruptions(type, routes, alternatives, communication)`: Handle operational disruptions
+- `optimize_fleet_utilization(fleet, demand, costs)`: Optimize fleet utilization
+
+### REST API Endpoints
+
+```
+POST /api/v1/logistics/routes/optimize
+GET  /api/v1/logistics/routes/{route_id}/status
+POST /api/v1/logistics/network/design
+PUT  /api/v1/logistics/fleet/{vehicle_id}/assign
+POST /api/v1/logistics/disruptions/handle
+```
+
+### Key Functions
+
+```python
+# Route optimization
+geo_infer_log.routing.vehicle_routing_problem(
+    orders, vehicles, depot, constraints,
+    algorithm='christofides', spatial_network=roads
+)
+
+# Network flow optimization
+geo_infer_log.network.min_cost_flow(
+    supply_nodes, demand_nodes, capacities, costs,
+    spatial_constraints=geographic_limits
+)
+
+# Fleet optimization
+geo_infer_log.fleet.dynamic_vehicle_routing(
+    real_time_orders, current_fleet_status,
+    traffic_conditions, optimization_window=30  # minutes
+)
+```
+
+## Use Cases
+
+### E-commerce Last-Mile Delivery
+**Scenario**: Optimize same-day delivery operations for large metropolitan areas with real-time demand.
+
+```python
+from geo_infer_log.delivery import LastMileDeliveryOptimizer
+
+last_mile_optimizer = LastMileDeliveryOptimizer(
+    service_area=city_bounds,
+    delivery_windows='same_day',
+    vehicle_types=['cargo_bike', 'electric_van', 'truck'],
+    real_time_optimization=True
+)
+
+# Optimize last-mile delivery
+delivery_plan = last_mile_optimizer.optimize_delivery(
+    orders=same_day_orders,
+    warehouse_location=fulfillment_center,
+    traffic_conditions=current_traffic,
+    weather_impact=precipitation_forecast
+)
+
+# Monitor delivery performance
+performance_monitor = last_mile_optimizer.monitor_performance(
+    delivery_plan=delivery_plan,
+    metrics=['on_time_delivery', 'customer_satisfaction', 'cost_per_delivery']
+)
+```
+
+### Global Supply Chain Resilience
+**Scenario**: Design resilient supply chains that can withstand disruptions like natural disasters or geopolitical events.
+
+```python
+from geo_infer_log.resilience import SupplyChainResilienceAnalyzer
+
+resilience_analyzer = SupplyChainResilienceAnalyzer(
+    risk_factors=['natural_disasters', 'geopolitical', 'pandemic', 'cyber'],
+    resilience_metrics=['recovery_time', 'cost_impact', 'service_continuity'],
+    scenario_planning=True
+)
+
+# Analyze supply chain vulnerabilities
+vulnerability_assessment = resilience_analyzer.assess_vulnerabilities(
+    supply_chain_network=current_network,
+    risk_scenarios=threat_scenarios,
+    impact_assessment=quantitative_impacts
+)
+
+# Design resilient network
+resilient_design = resilience_analyzer.design_resilient_network(
+    current_network=current_network,
+    vulnerabilities=vulnerability_assessment,
+    redundancy_budget=backup_budget,
+    diversification_strategy=supplier_diversification
+)
+```
+
+### Urban Freight Consolidation
+**Scenario**: Optimize urban freight movement to reduce congestion and environmental impact.
+
+```python
+from geo_infer_log.urban import UrbanFreightOptimizer
+
+urban_optimizer = UrbanFreightOptimizer(
+    city_boundaries=metropolitan_area,
+    congestion_zones=traffic_restrictions,
+    environmental_zones=emission_limits,
+    stakeholder_priorities=['efficiency', 'sustainability', 'equity']
+)
+
+# Optimize urban freight flows
+freight_plan = urban_optimizer.optimize_urban_freight(
+    freight_demand=commercial_deliveries,
+    urban_constraints=city_regulations,
+    consolidation_centers=micro_hubs,
+    time_windows=delivery_restrictions
+)
+
+# Evaluate environmental impact
+environmental_assessment = urban_optimizer.assess_environmental_impact(
+    freight_plan=freight_plan,
+    emissions_model=vehicle_emissions,
+    air_quality_zones=city_pollution_zones
+)
+```
+
+### Cold Chain Logistics
+**Scenario**: Manage temperature-controlled supply chains for pharmaceuticals and food products.
+
+```python
+from geo_infer_log.coldchain import ColdChainLogisticsManager
+
+cold_chain_manager = ColdChainLogisticsManager(
+    temperature_ranges={'pharma': [2, 8], 'frozen_food': [-18, -10]},
+    monitoring_frequency='continuous',
+    compliance_standards=['GDP', 'HACCP'],
+    risk_assessment='real_time'
+)
+
+# Manage cold chain operations
+cold_chain_plan = cold_chain_manager.plan_cold_chain(
+    products=temperature_sensitive_goods,
+    route_requirements=temperature_constraints,
+    monitoring_systems=sensor_networks,
+    contingency_plans=backup_routes
+)
+
+# Monitor temperature compliance
+compliance_monitor = cold_chain_manager.monitor_compliance(
+    shipments=cold_chain_plan,
+    temperature_data=sensor_readings,
+    alert_thresholds=temperature_limits
+)
+```
 
 ## Getting Started
 

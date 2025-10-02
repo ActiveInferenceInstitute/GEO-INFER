@@ -1,14 +1,32 @@
-# GEO-INFER-APP
+---
+title: "GEO-INFER-APP: User Interfaces, Application Development, and Accessibility"
+description: "Human-computer interaction layer providing accessible geospatial applications, dashboards, and UI components"
+purpose: "Create intuitive, accessible geospatial applications with rich visualizations and user-centric design"
+module_type: "Applications"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["API", "SPACE"]
+compatibility: ["GEO-INFER-API", "GEO-INFER-SPACE", "GEO-INFER-ART", "GEO-INFER-CIV"]
+tags: ["ui", "accessibility", "dashboard", "visualization", "interface", "responsive"]
+difficulty: "Intermediate"
+estimated_time: "55"
+---
 
-**User Interfaces, Application Development, and Accessibility**
+# GEO-INFER-APP: User Interfaces, Application Development, and Accessibility
+
+> **Purpose**: Create intuitive, accessible geospatial applications with rich visualizations and user-centric design
+>
+> This module provides the human-computer interaction layer for GEO-INFER, offering tools and components to build accessible geospatial applications and dashboards.
 
 ## Overview
 
-GEO-INFER-APP is the primary human-computer interaction layer for the GEO-INFER framework. It provides tools, components, and design patterns to build accessible geospatial applications and dashboards.
+Note: Code examples are illustrative; see `GEO-INFER-APP/examples` for runnable scripts.
 
-### Documentation
-- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-app.md
-- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+### Links
+- Module README: ../../GEO-INFER-APP/README.md
+- Modules Overview: ../modules/index.md
+
+GEO-INFER-APP is the primary human-computer interaction layer for the GEO-INFER framework, providing tools, components, and design patterns to build accessible geospatial applications and dashboards.
 
 ## Core Objectives
 

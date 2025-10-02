@@ -1,8 +1,30 @@
-# GEO-INFER-HEALTH
+---
+title: "GEO-INFER-HEALTH: Geospatial Public Health Applications"
+description: "Epidemiology, healthcare accessibility analysis, disease surveillance, and spatial health risk assessment"
+purpose: "Apply geospatial analysis to public health challenges including epidemiology, accessibility, and disease surveillance"
+module_type: "Domain-Specific"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["SPACE", "TIME", "DATA"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-AI", "GEO-INFER-BIO"]
+tags: ["health", "epidemiology", "accessibility", "surveillance", "risk-assessment", "healthcare"]
+difficulty: "Intermediate"
+estimated_time: "60"
+---
 
-**Geospatial Applications for Public Health, Epidemiology, and Healthcare Accessibility**
+# GEO-INFER-HEALTH: Geospatial Applications for Public Health, Epidemiology, and Healthcare Accessibility
+
+> **Purpose**: Apply geospatial analysis to public health challenges including epidemiology, accessibility, and disease surveillance
+>
+> This module provides epidemiology, healthcare accessibility analysis, disease surveillance, and spatial health risk assessment capabilities.
 
 ## Overview
+
+Note: Code examples are illustrative; see `GEO-INFER-HEALTH/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-HEALTH/README.md
+- Modules Overview: ../modules/index.md
 
 The GEO-INFER-HEALTH module provides a specialized suite of tools and methodologies for leveraging geospatial information in public health, epidemiology, and healthcare accessibility analysis. It enables users to analyze the spatial dimensions of health-related data, supporting informed decision-making in public health policy, resource allocation, epidemiological research, and emergency response. By integrating with the broader GEO-INFER framework, this module aims to provide a robust platform for understanding and addressing complex health challenges through a geographic lens.
 
@@ -611,6 +633,212 @@ The `GEO-INFER-HEALTH` module would utilize Pydantic models for structuring its 
 -   `RiskAssessmentZone`: A geographic area with associated health risk scores based on various factors.
 
 (Detailed schemas would be defined in `src/geo_infer_health/models/data_models.py`)
+
+## Core Features
+
+### 1. Active Inference Disease Surveillance
+**Purpose**: Real-time disease monitoring and outbreak prediction using probabilistic modeling.
+
+```python
+from geo_infer_health.surveillance import ActiveInferenceSurveillance
+
+surveillance = ActiveInferenceSurveillance(
+    disease_model='covid19',
+    spatial_resolution='county',
+    temporal_resolution='daily',
+    free_energy_threshold=0.8
+)
+
+# Monitor disease spread patterns
+surveillance_data = surveillance.monitor_disease_patterns(
+    case_data=confirmed_cases,
+    mobility_data=population_movement,
+    environmental_data=weather_conditions
+)
+
+# Predict outbreak risks
+risk_predictions = surveillance.predict_outbreak_risks(
+    current_patterns=surveillance_data,
+    forecast_horizon=14,  # days
+    uncertainty_quantification=True
+)
+```
+
+### 2. Healthcare Accessibility Analysis
+**Purpose**: Evaluate spatial access to healthcare services and identify underserved areas.
+
+```python
+from geo_infer_health.accessibility import HealthcareAccessibilityAnalyzer
+
+accessibility = HealthcareAccessibilityAnalyzer(
+    method='2sfca',  # Two-Step Floating Catchment Area
+    travel_modes=['driving', 'public_transport'],
+    service_types=['emergency', 'primary_care', 'specialty']
+)
+
+# Analyze healthcare accessibility
+accessibility_scores = accessibility.analyze_accessibility(
+    population_locations=population_grid,
+    healthcare_facilities=hospital_locations,
+    travel_time_matrix=commute_times,
+    capacity_weights=facility_capacity
+)
+
+# Identify underserved areas
+underserved_regions = accessibility.identify_underserved_areas(
+    accessibility_scores=accessibility_scores,
+    threshold_percentile=25,  # bottom quartile
+    minimum_population=1000
+)
+```
+
+### 3. Environmental Health Risk Assessment
+**Purpose**: Assess health risks from environmental exposures and pollutants.
+
+```python
+from geo_infer_health.environmental import EnvironmentalHealthRiskAssessor
+
+risk_assessor = EnvironmentalHealthRiskAssessor(
+    exposure_models=['air_pollution', 'water_contamination', 'noise'],
+    health_endpoints=['respiratory', 'cardiovascular', 'cancer'],
+    vulnerability_factors=['age', 'socioeconomic_status', 'preexisting_conditions']
+)
+
+# Assess environmental health risks
+risk_assessment = risk_assessor.assess_environmental_risks(
+    exposure_data=pollutant_concentrations,
+    population_data=demographic_data,
+    health_outcomes=disease_incidence,
+    spatial_resolution='census_tract'
+)
+
+# Calculate attributable disease burden
+burden_analysis = risk_assessor.calculate_attributable_burden(
+    risk_assessment=risk_assessment,
+    baseline_incidence=population_rates,
+    exposure_response_functions=dose_response_models
+)
+```
+
+## Use Cases
+
+### Pandemic Response and Management
+**Scenario**: Coordinate public health response to infectious disease outbreaks with real-time spatial intelligence.
+
+```python
+from geo_infer_health.pandemic import PandemicResponseCoordinator
+
+pandemic_coordinator = PandemicResponseCoordinator(
+    disease_type='COVID-19',
+    spatial_scale='regional',
+    response_capabilities=['testing', 'vaccination', 'hospitalization']
+)
+
+# Coordinate pandemic response
+response_plan = pandemic_coordinator.develop_response_plan(
+    outbreak_data=current_cases,
+    healthcare_capacity=hospital_beds,
+    population_vulnerability=risk_factors,
+    intervention_options=[lockdown, testing, vaccination]
+)
+
+# Optimize resource allocation
+resource_allocation = pandemic_coordinator.optimize_resource_allocation(
+    available_resources=[test_kits, vaccines, ventilators],
+    demand_forecasts=predicted_needs,
+    equity_constraints=prioritize_vulnerable,
+    logistical_constraints=distribution_capacity
+)
+```
+
+### Healthcare System Planning
+**Scenario**: Plan healthcare infrastructure development to optimize access and equity.
+
+```python
+from geo_infer_health.planning import HealthcareSystemPlanner
+
+healthcare_planner = HealthcareSystemPlanner(
+    planning_horizon=10,  # years
+    population_projections=future_demographics,
+    healthcare_standards=international_guidelines,
+    budget_constraints=available_funding
+)
+
+# Plan healthcare infrastructure
+infrastructure_plan = healthcare_planner.develop_infrastructure_plan(
+    current_facilities=existing_hospitals,
+    population_distribution=current_demographics,
+    projected_needs=future_healthcare_demand,
+    geographical_constraints=topography_and_accessibility
+)
+
+# Evaluate plan effectiveness
+plan_evaluation = healthcare_planner.evaluate_plan_effectiveness(
+    infrastructure_plan=infrastructure_plan,
+    performance_metrics=['accessibility', 'equity', 'cost_effectiveness'],
+    sensitivity_analysis=uncertainty_scenarios
+)
+```
+
+### Environmental Health Policy Evaluation
+**Scenario**: Evaluate health impacts and cost-effectiveness of environmental health policies.
+
+```python
+from geo_infer_health.policy import EnvironmentalHealthPolicyEvaluator
+
+policy_evaluator = EnvironmentalHealthPolicyEvaluator(
+    policy_types=['air_quality', 'water_quality', 'climate_adaptation'],
+    health_outcomes=['mortality', 'morbidity', 'healthcare_costs'],
+    economic_evaluation_methods=['cost_benefit', 'cost_effectiveness']
+)
+
+# Evaluate environmental policies
+policy_evaluation = policy_evaluator.evaluate_policies(
+    policy_scenarios=[clean_air_act, water_quality_standards],
+    baseline_health=current_health_burden,
+    exposure_reductions=projected_improvements,
+    implementation_costs=policy_costs
+)
+
+# Conduct cost-benefit analysis
+cba_results = policy_evaluator.cost_benefit_analysis(
+    policy_evaluation=policy_evaluation,
+    health_benefits=averted_diseases,
+    economic_benefits=increased_productivity,
+    discount_rate=0.03,
+    time_horizon=20
+)
+```
+
+### Community Health Assessment
+**Scenario**: Comprehensive assessment of community health needs and disparities.
+
+```python
+from geo_infer_health.community import CommunityHealthAssessor
+
+community_assessor = CommunityHealthAssessor(
+    assessment_framework='healthy_people_2030',
+    health_domains=['physical', 'mental', 'social', 'environmental'],
+    equity_analysis=True,
+    participatory_methods=True
+)
+
+# Assess community health
+health_assessment = community_assessor.assess_community_health(
+    health_indicators=local_health_data,
+    environmental_factors=community_environment,
+    social_determinants=socioeconomic_factors,
+    healthcare_access=service_availability
+)
+
+# Identify health disparities
+disparity_analysis = community_assessor.analyze_health_disparities(
+    health_assessment=health_assessment,
+    demographic_groups=population_segments,
+    geographical_units=neighborhoods,
+    statistical_methods=['standardized_mortality_ratio', 'concentration_index']
+)
+```
 
 ## API Reference
 

@@ -1,8 +1,30 @@
-# GEO-INFER-REQ
+---
+title: "GEO-INFER-REQ: Geospatial Requirements Engineering"
+description: "Requirements engineering using P3IF framework for geospatial systems, user stories, and specification management"
+purpose: "Provide structured requirements engineering and specification management for geospatial information systems"
+module_type: "Security & Governance"
+status: "Alpha"
+last_updated: "2025-01-19"
+dependencies: ["NORMS", "SEC"]
+compatibility: ["GEO-INFER-NORMS", "GEO-INFER-SEC", "GEO-INFER-OPS"]
+tags: ["requirements", "engineering", "specifications", "user-stories", "p3if", "governance"]
+difficulty: "Advanced"
+estimated_time: "55"
+---
 
-**Geospatial Requirements Engineering, User Stories, and Specification Management**
+# GEO-INFER-REQ: Geospatial Requirements Engineering, User Stories, and Specification Management
+
+> **Purpose**: Provide structured requirements engineering and specification management for geospatial information systems
+>
+> This module delivers requirements engineering using P3IF framework for geospatial systems, user stories, and specification management.
 
 ## Overview
+
+Note: Code examples are illustrative; see `GEO-INFER-REQ/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-REQ/README.md
+- Modules Overview: ../modules/index.md
 
 GEO-INFER-REQ is a specialized module for managing the entire lifecycle of requirements for geospatial systems and applications. It provides tools, methodologies, and workflows for capturing, analyzing, specifying, validating, and tracking requirements with a focus on the unique challenges of geospatial contexts. This module bridges the gap between stakeholder needs and technical implementation, ensuring that geospatial systems are built according to well-defined, consistent, and traceable requirements. GEO-INFER-REQ emphasizes the importance of accurately capturing spatial elements in requirements specifications and supports systematic approaches to managing changing requirements throughout project lifecycles.
 

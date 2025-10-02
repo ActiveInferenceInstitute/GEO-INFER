@@ -1,0 +1,751 @@
+# GEO-INFER-MATH Source Code
+
+This directory contains the core implementation of the GEO-INFER-MATH module, providing foundational mathematical and statistical capabilities for the GEO-INFER framework.
+
+## Directory Structure
+
+```
+src/
+├── geo_infer_math/
+│   ├── __init__.py                    # Package initialization
+│   ├── core/                         # Core mathematical functions
+│   │   ├── __init__.py
+│   │   ├── algebra.py                # Linear algebra operations
+│   │   ├── calculus.py               # Differential and integral calculus
+│   │   ├── geometry.py               # Geometric computations
+│   │   └── optimization.py           # Optimization algorithms
+│   ├── statistics/                   # Statistical methods
+│   │   ├── __init__.py
+│   │   ├── descriptive.py            # Descriptive statistics
+│   │   ├── inferential.py            # Inferential statistics
+│   │   ├── distributions.py          # Probability distributions
+│   │   └── time_series.py            # Time series analysis
+│   ├── spatial/                      # Spatial mathematics
+│   │   ├── __init__.py
+│   │   ├── coordinates.py            # Coordinate system operations
+│   │   ├── projections.py            # Map projections
+│   │   ├── topology.py               # Spatial topology
+│   │   └── interpolation.py          # Spatial interpolation
+│   ├── optimization/                 # Advanced optimization
+│   │   ├── __init__.py
+│   │   ├── convex.py                 # Convex optimization
+│   │   ├── stochastic.py             # Stochastic optimization
+│   │   ├── global.py                 # Global optimization
+│   │   └── constrained.py            # Constrained optimization
+│   ├── numerical/                    # Numerical methods
+│   │   ├── __init__.py
+│   │   ├── integration.py            # Numerical integration
+│   │   ├── differentiation.py        # Numerical differentiation
+│   │   ├── roots.py                  # Root finding algorithms
+│   │   └── ode.py                    # Ordinary differential equations
+│   ├── symbolic/                     # Symbolic mathematics
+│   │   ├── __init__.py
+│   │   ├── algebra.py                # Symbolic algebra
+│   │   ├── calculus.py               # Symbolic calculus
+│   │   └── solvers.py                # Symbolic equation solvers
+│   └── utils/                        # Mathematical utilities
+│       ├── __init__.py
+│       ├── constants.py              # Mathematical constants
+│       ├── units.py                  # Unit conversions
+│       ├── validation.py             # Input validation
+│       └── performance.py            # Performance monitoring
+```
+
+## Core Mathematical Operations
+
+### Linear Algebra
+
+**Location**: `core/algebra.py`
+
+Fundamental linear algebra operations optimized for geospatial applications:
+
+```python
+import numpy as np
+from geo_infer_math.core.algebra import MatrixOperations, EigenAnalysis
+
+# Matrix operations for spatial transformations
+matrix_ops = MatrixOperations()
+
+# Affine transformation matrix for coordinate transformation
+transformation_matrix = np.array([
+    [scale_x, rotation_y, translation_x],
+    [rotation_x, scale_y, translation_y],
+    [0, 0, 1]
+])
+
+# Apply transformation to coordinate array
+transformed_coords = matrix_ops.apply_affine_transformation(
+    coordinates=spatial_points,
+    transformation_matrix=transformation_matrix
+)
+
+# Eigen analysis for principal component analysis of spatial data
+eigen_analysis = EigenAnalysis()
+
+eigenvalues, eigenvectors = eigen_analysis.compute_eigensystem(
+    covariance_matrix=spatial_covariance
+)
+
+# Principal component rotation
+principal_components = eigen_analysis.principal_component_rotation(
+    data_matrix=spatial_features,
+    n_components=3
+)
+```
+
+### Geometric Computations
+
+**Location**: `core/geometry.py`
+
+Geometric operations for spatial analysis:
+
+```python
+from geo_infer_math.core.geometry import SpatialGeometry, DistanceMetrics
+
+geometry = SpatialGeometry()
+distances = DistanceMetrics()
+
+# Compute geometric properties
+area = geometry.polygon_area(coordinates=region_boundary)
+centroid = geometry.polygon_centroid(coordinates=region_boundary)
+convex_hull = geometry.convex_hull(points=spatial_points)
+
+# Distance calculations
+euclidean_distance = distances.euclidean(point1, point2)
+haversine_distance = distances.haversine(
+    lat1=point1[0], lon1=point1[1],
+    lat2=point2[0], lon2=point2[1]
+)
+manhattan_distance = distances.manhattan(point1, point2)
+
+# Spatial relationships
+intersection = geometry.line_segment_intersection(segment1, segment2)
+containment = geometry.point_in_polygon(point=query_point, polygon=region)
+```
+
+### Optimization Algorithms
+
+**Location**: `core/optimization.py`
+
+General-purpose optimization methods:
+
+```python
+from geo_infer_math.core.optimization import GradientDescent, NewtonMethod
+
+# Gradient descent for spatial parameter estimation
+gd_optimizer = GradientDescent(
+    learning_rate=0.01,
+    tolerance=1e-6,
+    max_iterations=1000
+)
+
+optimal_parameters = gd_optimizer.minimize(
+    objective_function=spatial_error_function,
+    initial_guess=initial_parameters,
+    gradient_function=error_gradient
+)
+
+# Newton's method for precise optimization
+newton_optimizer = NewtonMethod(
+    tolerance=1e-8,
+    max_iterations=100
+)
+
+optimal_solution = newton_optimizer.minimize(
+    objective_function=objective_function,
+    initial_guess=initial_guess,
+    hessian_function=hessian_matrix
+)
+```
+
+## Statistical Methods
+
+### Descriptive Statistics
+
+**Location**: `statistics/descriptive.py`
+
+Comprehensive descriptive statistics for spatial data:
+
+```python
+from geo_infer_math.statistics.descriptive import SpatialStatistics
+
+spatial_stats = SpatialStatistics()
+
+# Spatial descriptive statistics
+spatial_summary = spatial_stats.spatial_summary(
+    point_data=geospatial_points,
+    attributes=value_attributes
+)
+
+print(f"Mean center: {spatial_summary['mean_center']}")
+print(f"Standard distance: {spatial_summary['standard_distance']}")
+print(f"Moran'I: {spatial_summary['morans_i']}")
+
+# Spatial autocorrelation analysis
+autocorrelation = spatial_stats.spatial_autocorrelation(
+    values=value_array,
+    spatial_weights=weights_matrix,
+    method='moran'
+)
+
+# Directional statistics for spatial patterns
+directional_stats = spatial_stats.directional_statistics(
+    point_data=spatial_points,
+    directions=bearing_angles,
+    bandwidth=45  # degrees
+)
+```
+
+### Inferential Statistics
+
+**Location**: `statistics/inferential.py`
+
+Statistical inference methods for geospatial hypothesis testing:
+
+```python
+from geo_infer_math.statistics.inferential import SpatialInference
+
+spatial_inference = SpatialInference()
+
+# Spatial hypothesis testing
+test_result = spatial_inference.spatial_t_test(
+    sample1=region_a_values,
+    sample2=region_b_values,
+    spatial_weights=weights_matrix,
+    alternative='two_sided'
+)
+
+print(f"t-statistic: {test_result['statistic']}")
+print(f"p-value: {test_result['p_value']}")
+
+# Geographically weighted regression
+gwr_model = spatial_inference.geographically_weighted_regression(
+    dependent_variable=target_values,
+    independent_variables=feature_matrix,
+    coordinates=spatial_coordinates,
+    bandwidth='adaptive',
+    kernel='gaussian'
+)
+
+# Spatial regression diagnostics
+diagnostics = spatial_inference.spatial_regression_diagnostics(
+    model_results=gwr_model,
+    spatial_weights=weights_matrix
+)
+```
+
+### Probability Distributions
+
+**Location**: `statistics/distributions.py`
+
+Statistical distributions for spatial modeling:
+
+```python
+from geo_infer_math.statistics.distributions import SpatialDistributions
+
+spatial_distributions = SpatialDistributions()
+
+# Spatial point process distributions
+poisson_distribution = spatial_distributions.homogeneous_poisson(
+    intensity=lambda_value,
+    region_bounds=study_area
+)
+
+# Generate spatial point pattern
+point_pattern = poisson_distribution.sample(n_points=100)
+
+# Spatial autocorrelation distributions
+moran_distribution = spatial_distributions.moran_distribution(
+    sample_size=n_observations,
+    spatial_weights=weights_matrix,
+    permutations=999
+)
+
+# Test spatial randomness
+randomness_test = moran_distribution.test_randomness(
+    observed_values=spatial_data,
+    alternative='two_sided'
+)
+```
+
+## Spatial Mathematics
+
+### Coordinate Systems
+
+**Location**: `spatial/coordinates.py`
+
+Coordinate system transformations and operations:
+
+```python
+from geo_infer_math.spatial.coordinates import CoordinateTransformer
+
+transformer = CoordinateTransformer()
+
+# Coordinate system transformation
+wgs84_coords = transformer.transform_coordinates(
+    coordinates=local_coords,
+    from_crs='EPSG:32633',  # UTM Zone 33N
+    to_crs='EPSG:4326'      # WGS84
+)
+
+# Datum transformation
+transformed_coords = transformer.datum_transformation(
+    coordinates=wgs84_coords,
+    from_datum='WGS84',
+    to_datum='NAD83'
+)
+
+# Coordinate validation
+is_valid = transformer.validate_coordinates(
+    coordinates=spatial_points,
+    coordinate_system='geographic',
+    bounds=validity_region
+)
+```
+
+### Map Projections
+
+**Location**: `spatial/projections.py`
+
+Map projection implementations:
+
+```python
+from geo_infer_math.spatial.projections import MapProjection
+
+projection = MapProjection()
+
+# Project geographic coordinates to projected system
+projected_coords = projection.project_coordinates(
+    geographic_coords=wgs84_points,
+    projection='mercator',
+    central_meridian=-120,
+    latitude_of_origin=0
+)
+
+# Inverse projection
+geographic_coords = projection.inverse_projection(
+    projected_coords=utm_coords,
+    projection='utm',
+    zone=10,
+    northern_hemisphere=True
+)
+
+# Projection distortion analysis
+distortion = projection.analyze_distortion(
+    coordinates=projected_points,
+    projection_type='conic',
+    analysis_type='tissot'
+)
+```
+
+### Spatial Interpolation
+
+**Location**: `spatial/interpolation.py`
+
+Spatial interpolation methods for geospatial data:
+
+```python
+from geo_infer_math.spatial.interpolation import SpatialInterpolation
+
+interpolation = SpatialInterpolation()
+
+# Inverse distance weighting interpolation
+idw_interpolated = interpolation.inverse_distance_weighting(
+    known_points=sample_locations,
+    known_values=sample_values,
+    unknown_points=target_locations,
+    power_parameter=2,
+    search_radius=1000
+)
+
+# Kriging interpolation
+kriging_model = interpolation.universal_kriging(
+    coordinates=sample_locations,
+    values=sample_values,
+    variogram_model='spherical',
+    nugget=0.1,
+    sill=1.0,
+    range_parameter=500
+)
+
+kriging_interpolated = kriging_model.predict(target_locations)
+
+# Spline interpolation
+spline_interpolated = interpolation.thin_plate_spline(
+    source_points=sample_locations,
+    source_values=sample_values,
+    target_points=target_locations,
+    smoothing_parameter=0.1
+)
+```
+
+## Advanced Optimization
+
+### Convex Optimization
+
+**Location**: `optimization/convex.py`
+
+Convex optimization methods for constrained problems:
+
+```python
+from geo_infer_math.optimization.convex import ConvexOptimizer
+
+convex_optimizer = ConvexOptimizer(
+    solver='interior_point',
+    tolerance=1e-8,
+    max_iterations=1000
+)
+
+# Linear programming for resource allocation
+lp_solution = convex_optimizer.linear_programming(
+    objective_coefficients=cost_vector,
+    constraint_matrix=A_matrix,
+    constraint_bounds=b_vector,
+    variable_bounds=[(0, None)] * n_variables
+)
+
+# Quadratic programming for spatial optimization
+qp_solution = convex_optimizer.quadratic_programming(
+    quadratic_matrix=Q_matrix,
+    linear_coefficients=c_vector,
+    constraint_matrix=A_matrix,
+    constraint_bounds=b_vector
+)
+
+# Semidefinite programming for covariance estimation
+sdp_solution = convex_optimizer.semidefinite_programming(
+    objective_matrix=C_matrix,
+    constraint_matrices=[A1, A2],
+    constraint_bounds=[b1, b2]
+)
+```
+
+### Stochastic Optimization
+
+**Location**: `optimization/stochastic.py`
+
+Stochastic optimization methods for noisy objectives:
+
+```python
+from geo_infer_math.optimization.stochastic import StochasticOptimizer
+
+stochastic_optimizer = StochasticOptimizer(
+    population_size=50,
+    mutation_rate=0.1,
+    crossover_rate=0.8,
+    selection_pressure=2.0
+)
+
+# Evolutionary algorithm for spatial optimization
+ea_solution = stochastic_optimizer.evolutionary_algorithm(
+    objective_function=spatial_fitness,
+    search_space=parameter_bounds,
+    generations=100,
+    elitism=True
+)
+
+# Simulated annealing for combinatorial optimization
+sa_solution = stochastic_optimizer.simulated_annealing(
+    objective_function=routing_cost,
+    initial_solution=initial_route,
+    temperature_schedule='exponential',
+    cooling_rate=0.95,
+    final_temperature=0.01
+)
+
+# Particle swarm optimization
+pso_solution = stochastic_optimizer.particle_swarm(
+    objective_function=objective_function,
+    search_space=bounds,
+    swarm_size=30,
+    inertia_weight=0.7,
+    cognitive_acceleration=1.5,
+    social_acceleration=1.5
+)
+```
+
+## Numerical Methods
+
+### Numerical Integration
+
+**Location**: `numerical/integration.py`
+
+Numerical integration techniques:
+
+```python
+from geo_infer_math.numerical.integration import NumericalIntegration
+
+numerical_int = NumericalIntegration()
+
+# Adaptive quadrature for area calculation
+area = numerical_int.adaptive_quadrature(
+    integrand=spatial_density_function,
+    lower_limit=region_bounds[0],
+    upper_limit=region_bounds[1],
+    tolerance=1e-6
+)
+
+# Monte Carlo integration for complex regions
+monte_carlo_area = numerical_int.monte_carlo_integration(
+    integrand=density_function,
+    region_bounds=integration_domain,
+    sample_size=10000,
+    confidence_level=0.95
+)
+
+# Gaussian quadrature for smooth functions
+gaussian_result = numerical_int.gaussian_quadrature(
+    integrand=smooth_function,
+    lower_limit=a,
+    upper_limit=b,
+    n_points=10
+)
+```
+
+### Ordinary Differential Equations
+
+**Location**: `numerical/ode.py`
+
+ODE solvers for dynamic spatial models:
+
+```python
+from geo_infer_math.numerical.ode import ODESolver
+
+ode_solver = ODESolver()
+
+# Solve predator-prey dynamics
+def predator_prey_equations(t, state, parameters):
+    prey, predator = state
+    alpha, beta, gamma, delta = parameters
+
+    dprey_dt = alpha * prey - beta * prey * predator
+    dpredator_dt = gamma * prey * predator - delta * predator
+
+    return [dprey_dt, dpredator_dt]
+
+# Runge-Kutta integration
+solution = ode_solver.runge_kutta(
+    derivative_function=predator_prey_equations,
+    initial_conditions=[10, 5],  # initial prey and predator populations
+    time_span=[0, 50],
+    parameters=[1.0, 0.1, 0.075, 1.5],
+    step_size=0.1
+)
+
+# Adaptive step size control
+adaptive_solution = ode_solver.adaptive_runge_kutta(
+    derivative_function=system_equations,
+    initial_conditions=initial_state,
+    time_span=[0, 100],
+    tolerance=1e-8,
+    min_step=1e-6,
+    max_step=1.0
+)
+```
+
+## Symbolic Mathematics
+
+### Symbolic Algebra
+
+**Location**: `symbolic/algebra.py`
+
+Symbolic algebraic manipulations:
+
+```python
+from geo_infer_math.symbolic.algebra import SymbolicAlgebra
+
+symbolic_algebra = SymbolicAlgebra()
+
+# Symbolic expression manipulation
+x, y = symbolic_algebra.symbols('x y')
+expression = x**2 + 2*x*y + y**2
+
+# Expand and simplify
+expanded = symbolic_algebra.expand(expression)
+simplified = symbolic_algebra.simplify(expression)
+
+# Factorization
+factored = symbolic_algebra.factor(expression)
+
+# Substitution
+substituted = symbolic_algebra.substitute(
+    expression=expression,
+    substitution_dict={x: 2, y: 3}
+)
+```
+
+## Utility Functions
+
+### Mathematical Constants
+
+**Location**: `utils/constants.py`
+
+Mathematical and physical constants:
+
+```python
+from geo_infer_math.utils.constants import MathematicalConstants, PhysicalConstants
+
+math_constants = MathematicalConstants()
+phys_constants = PhysicalConstants()
+
+# Mathematical constants
+pi_value = math_constants.PI
+e_value = math_constants.E
+golden_ratio = math_constants.GOLDEN_RATIO
+
+# Physical constants for geospatial calculations
+earth_radius_equatorial = phys_constants.EARTH_RADIUS_EQUATORIAL
+earth_radius_polar = phys_constants.EARTH_RADIUS_POLAR
+gravitational_constant = phys_constants.GRAVITATIONAL_CONSTANT
+```
+
+### Unit Conversions
+
+**Location**: `utils/units.py`
+
+Unit conversion utilities for geospatial data:
+
+```python
+from geo_infer_math.utils.units import UnitConverter
+
+unit_converter = UnitConverter()
+
+# Distance conversions
+meters_to_feet = unit_converter.convert_distance(
+    value=1000,
+    from_unit='meters',
+    to_unit='feet'
+)
+
+# Area conversions
+square_km_to_acres = unit_converter.convert_area(
+    value=10,
+    from_unit='square_kilometers',
+    to_unit='acres'
+)
+
+# Angle conversions
+degrees_to_radians = unit_converter.convert_angle(
+    value=180,
+    from_unit='degrees',
+    to_unit='radians'
+)
+
+# Coordinate system unit conversions
+utm_to_latlon = unit_converter.coordinate_conversion(
+    coordinates=utm_coords,
+    from_system='UTM',
+    to_system='latlon',
+    zone=10,
+    northern=True
+)
+```
+
+### Performance Monitoring
+
+**Location**: `utils/performance.py`
+
+Performance monitoring for mathematical computations:
+
+```python
+from geo_infer_math.utils.performance import PerformanceMonitor
+
+performance_monitor = PerformanceMonitor()
+
+# Monitor computation performance
+with performance_monitor.timer('matrix_multiplication'):
+    result = large_matrix_multiplication(a, b)
+
+# Memory usage tracking
+memory_usage = performance_monitor.memory_usage()
+
+# Numerical stability checking
+stability_metrics = performance_monitor.numerical_stability(
+    computation_result=result,
+    expected_precision=1e-10
+)
+
+# Performance profiling
+profile_report = performance_monitor.profile_function(
+    function=expensive_computation,
+    arguments=function_args,
+    iterations=10
+)
+```
+
+## Development Guidelines
+
+### Adding New Mathematical Functions
+
+1. Implement core algorithm in appropriate module
+2. Add comprehensive input validation
+3. Include numerical stability checks
+4. Provide performance optimizations
+5. Add extensive unit tests
+6. Update documentation with mathematical foundations
+
+### Code Style and Performance
+
+- Use NumPy vectorized operations for performance
+- Implement memory-efficient algorithms for large datasets
+- Include numerical precision validation
+- Follow PEP 8 conventions
+- Add type hints for all functions
+
+### Testing Mathematical Correctness
+
+```python
+def test_matrix_inverse_accuracy():
+    """Test accuracy of matrix inversion"""
+    # Create well-conditioned test matrix
+    A = create_test_matrix(condition_number=10)
+
+    # Compute inverse
+    A_inv = matrix_inverse(A)
+
+    # Verify mathematical correctness
+    identity_computed = A @ A_inv
+    identity_reference = np.eye(A.shape[0])
+
+    assert np.allclose(identity_computed, identity_reference, rtol=1e-10)
+
+def test_convergence_rates():
+    """Test convergence rates of optimization algorithms"""
+    problem = create_test_optimization_problem()
+
+    # Test multiple algorithms
+    algorithms = [gradient_descent, newton_method, bfgs]
+
+    for algorithm in algorithms:
+        convergence_history = algorithm.solve(problem)
+
+        # Verify convergence rate meets theoretical bounds
+        convergence_rate = compute_convergence_rate(convergence_history)
+        expected_rate = get_theoretical_rate(algorithm.name)
+
+        assert convergence_rate >= expected_rate * 0.9  # Allow 10% tolerance
+```
+
+## Integration with Other Modules
+
+The MATH module provides foundational capabilities for:
+
+- **GEO-INFER-SPACE**: Coordinate transformations, geometric operations
+- **GEO-INFER-DATA**: Statistical analysis of geospatial datasets
+- **GEO-INFER-AI**: Optimization algorithms, numerical methods
+- **GEO-INFER-BAYES**: Probability distributions, statistical inference
+- **GEO-INFER-ACT**: Variational inference, free energy calculations
+
+## Dependencies
+
+Core dependencies:
+- `numpy`: Fundamental numerical operations
+- `scipy`: Advanced mathematical functions
+- `sympy`: Symbolic mathematics (optional)
+- `numba`: Performance optimization (optional)
+- `matplotlib`: Visualization utilities
+
+Optional dependencies:
+- `cvxpy`: Convex optimization
+- `gpyopt`: Bayesian optimization
+- `pymc`: Probabilistic programming

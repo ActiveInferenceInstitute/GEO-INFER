@@ -1,11 +1,32 @@
-# GEO-INFER-NORMS
+---
+title: "GEO-INFER-NORMS: Social-Technical Compliance Modeling"
+description: "Social-technical compliance modeling with deterministic and probabilistic analysis of norms, regulations, and spatial governance"
+purpose: "Model and analyze social norms, regulatory frameworks, and compliance requirements in spatial contexts"
+module_type: "Security & Governance"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["SPACE", "DATA"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-REQ", "GEO-INFER-SEC", "GEO-INFER-CIV"]
+tags: ["compliance", "regulatory", "norms", "governance", "zoning", "policy"]
+difficulty: "Advanced"
+estimated_time: "45"
+---
+
+# GEO-INFER-NORMS: Social-Technical Compliance Modeling
+
+> **Purpose**: Model and analyze social norms, regulatory frameworks, and compliance requirements in spatial contexts
+>
+> This module provides social-technical compliance modeling with deterministic and probabilistic analysis of norms, regulations, and spatial governance.
 
 ## Overview
-GEO-INFER-NORMS provides social-technical compliance modeling with deterministic and probabilistic aspects within the GEO-INFER framework. This module focuses on understanding, modeling, and analyzing social norms, regulatory frameworks, and compliance requirements in spatial contexts.
 
-### Documentation
-- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-norms.md
-- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+Note: Code examples are illustrative; see `GEO-INFER-NORMS/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-NORMS/README.md
+- Modules Overview: ../modules/index.md
+
+GEO-INFER-NORMS provides social-technical compliance modeling with deterministic and probabilistic aspects within the GEO-INFER framework, focusing on understanding, modeling, and analyzing social norms, regulatory frameworks, and compliance requirements in spatial contexts.
 
 ## Key Features
 - **Legal Framework Analysis**: Model jurisdictions, legal entities, and regulations with their spatial dimensions

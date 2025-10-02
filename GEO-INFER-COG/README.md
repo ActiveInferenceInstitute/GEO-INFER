@@ -1,14 +1,32 @@
-# GEO-INFER-COG
+---
+title: "GEO-INFER-COG: Cognitive Geospatial Processing"
+description: "Human-centered geospatial tools that model perception, reasoning, and spatial cognition for intuitive interfaces"
+purpose: "Enhance human-centered spatial decision-making through cognitive modeling and intuitive geospatial interfaces"
+module_type: "Analytical Core"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["SPACE", "AI"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-AI", "GEO-INFER-APP", "GEO-INFER-AGENT"]
+tags: ["cognitive", "human-centered", "perception", "reasoning", "spatial-cognition"]
+difficulty: "Advanced"
+estimated_time: "45"
+---
 
-**Cognitive Geospatial Processing: Human Perception, Reasoning, and Spatial Cognition**
+# GEO-INFER-COG: Cognitive Geospatial Processing
+
+> **Purpose**: Enhance human-centered spatial decision-making through cognitive modeling and intuitive geospatial interfaces
+>
+> This module models human perception, reasoning, and spatial cognition to develop more intuitive and effective geospatial tools and interfaces.
 
 ## Overview
 
-GEO-INFER-COG is dedicated to modeling and leveraging human cognitive processes in geospatial contexts. This module focuses on understanding how humans perceive, reason about, and interact with spatial information, enabling the development of more intuitive and effective geospatial tools and interfaces. By bridging cognitive science with geospatial technology, GEO-INFER-COG aims to enhance human-centered spatial decision-making, improve mental models of geographic phenomena, and develop cognitively informed approaches to spatial information visualization and interaction.
+Note: Code examples are illustrative; see `GEO-INFER-COG/examples` for runnable scripts.
 
-### Documentation
-- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-cog.md
-- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+### Links
+- Module README: ../../GEO-INFER-COG/README.md
+- Modules Overview: ../modules/index.md
+
+GEO-INFER-COG bridges cognitive science with geospatial technology, understanding how humans perceive, reason about, and interact with spatial information to develop more intuitive geospatial tools and interfaces.
 
 ## Core Objectives
 
@@ -219,6 +237,208 @@ GEO-INFER-COG/
 ## Contributing
 
 Contributions to GEO-INFER-COG are welcome! We especially encourage interdisciplinary contributions from cognitive scientists, geographers, human-computer interaction researchers, and developers interested in human-centered geospatial applications.
+
+## Core Features
+
+### 1. Cognitive Spatial Modeling Framework
+**Purpose**: Model human spatial cognition processes including attention, memory, and decision-making in geographic contexts.
+
+```python
+from geo_infer_cog.spatial import CognitiveSpatialModeler
+
+modeler = CognitiveSpatialModeler(
+    cognitive_framework='bayesian_attention',
+    spatial_resolution='adaptive',
+    temporal_modeling='working_memory',
+    uncertainty_handling='probabilistic'
+)
+
+# Model human spatial attention patterns
+attention_model = modeler.create_attention_model(
+    spatial_context=urban_environment,
+    task_type='navigation',
+    cognitive_load='moderate'
+)
+
+# Simulate spatial memory formation
+memory_formation = modeler.simulate_memory_formation(
+    spatial_experience=navigation_trajectory,
+    memory_consolidation_time=30,  # seconds
+    interference_factors=environmental_distractors
+)
+```
+
+### 2. Human-Centered Spatial Visualization
+**Purpose**: Create visualizations that align with human perceptual and cognitive capabilities for spatial data presentation.
+
+```python
+from geo_infer_cog.visualization import HumanCenteredVisualizer
+
+visualizer = HumanCenteredVisualizer(
+    cognitive_load_optimization=True,
+    perceptual_grouping='gestalt_principles',
+    uncertainty_communication='confidence_intervals',
+    accessibility_features='wcag_compliant'
+)
+
+# Create cognitively optimized map
+cognitive_map = visualizer.create_optimized_map(
+    spatial_data=urban_infrastructure,
+    user_cognitive_profile=expert_urban_planner,
+    task_context='infrastructure_planning',
+    display_constraints={'screen_size': 'mobile', 'color_blind_friendly': True}
+)
+
+# Generate uncertainty-aware visualization
+uncertainty_viz = visualizer.communicate_uncertainty(
+    spatial_predictions=climate_risk_model,
+    uncertainty_quantification=bayesian_posterior,
+    user_risk_tolerance='moderate'
+)
+```
+
+### 3. Spatial Decision Support Systems
+**Purpose**: Develop decision support tools that align with human cognitive processes for spatial decision-making.
+
+```python
+from geo_infer_cog.decision import SpatialDecisionSupport
+
+decision_support = SpatialDecisionSupport(
+    decision_framework='prospect_theory',
+    cognitive_bias_mitigation=True,
+    spatial_reasoning_model='mental_maps',
+    uncertainty_incorporation='bayesian'
+)
+
+# Analyze spatial decision-making
+decision_analysis = decision_support.analyze_decision(
+    decision_problem=site_selection_task,
+    spatial_alternatives=candidate_locations,
+    decision_criteria=['accessibility', 'environmental_impact', 'economic_viability'],
+    stakeholder_cognitive_profiles=decision_makers
+)
+
+# Optimize spatial choice architecture
+optimized_choices = decision_support.optimize_choice_architecture(
+    spatial_options=infrastructure_locations,
+    cognitive_load_reduction=True,
+    bias_mitigation='debiasing_techniques'
+)
+```
+
+## API Reference
+
+### Core Classes
+
+#### `CognitiveSpatialModeler`
+- `create_attention_model(context, task, load)`: Create spatial attention model
+- `simulate_memory_formation(experience, time, factors)`: Simulate spatial memory formation
+- `analyze_cognitive_load(spatial_task, user_profile)`: Analyze cognitive load
+
+#### `HumanCenteredVisualizer`
+- `create_optimized_map(data, profile, context, constraints)`: Create optimized map
+- `communicate_uncertainty(predictions, quant, tolerance)`: Communicate uncertainty
+- `apply_perceptual_grouping(spatial_data, principles)`: Apply perceptual grouping
+
+#### `SpatialDecisionSupport`
+- `analyze_decision(problem, alternatives, criteria, profiles)`: Analyze spatial decisions
+- `optimize_choice_architecture(options, load_reduction, mitigation)`: Optimize choice architecture
+- `mitigate_cognitive_biases(decision_process, bias_types)`: Mitigate cognitive biases
+
+### REST API Endpoints
+
+```
+POST /api/v1/cog/attention-model
+GET  /api/v1/cog/spatial-memory/{model_id}
+POST /api/v1/cog/decision-analysis
+GET  /api/v1/cog/visualization/{viz_id}
+```
+
+## Use Cases
+
+### Urban Planning with Cognitive Support
+**Scenario**: Urban planners making decisions about infrastructure development with cognitive load optimization.
+
+```python
+from geo_infer_cog.urban import CognitiveUrbanPlanner
+
+urban_planner = CognitiveUrbanPlanner(
+    planning_area=city_district,
+    stakeholder_profiles=community_members,
+    cognitive_framework='distributed_cognition',
+    decision_complexity='high'
+)
+
+# Analyze cognitive load of planning scenarios
+cognitive_load_analysis = urban_planner.analyze_cognitive_load(
+    planning_scenarios=infrastructure_options,
+    stakeholder_cognitive_profiles=planner_profiles,
+    decision_time_pressure='moderate'
+)
+
+# Optimize information presentation
+optimized_presentation = urban_planner.optimize_information_presentation(
+    complex_spatial_data=infrastructure_networks,
+    stakeholder_attention_capacities=limited_attention,
+    decision_making_timeframe=planning_meeting_duration
+)
+```
+
+### Emergency Response with Cognitive Enhancement
+**Scenario**: Emergency responders making rapid spatial decisions under stress with cognitive support.
+
+```python
+from geo_infer_cog.emergency import CognitiveEmergencyResponse
+
+emergency_system = CognitiveEmergencyResponse(
+    emergency_type='flood_response',
+    responder_cognitive_profiles=first_responder_profiles,
+    stress_factors=['time_pressure', 'information_overload'],
+    decision_criticality='life_safety'
+)
+
+# Enhance spatial situation awareness
+enhanced_awareness = emergency_system.enhance_situational_awareness(
+    real_time_spatial_data=sensor_feeds,
+    responder_attention_allocation=optimal_attention,
+    cognitive_load_management='adaptive_filtering'
+)
+
+# Support rapid decision-making
+rapid_decisions = emergency_system.support_rapid_decisions(
+    emergency_scenarios=disaster_scenarios,
+    responder_decision_capacities=current_capacities,
+    spatial_uncertainty_handling=bayesian_reasoning
+)
+```
+
+### Environmental Monitoring with Human Factors
+**Scenario**: Environmental scientists monitoring ecosystem changes with cognitive workload optimization.
+
+```python
+from geo_infer_cog.environmental import CognitiveEnvironmentalMonitor
+
+env_monitor = CognitiveEnvironmentalMonitor(
+    monitoring_scope='ecosystem_health',
+    scientist_cognitive_profiles=expert_profiles,
+    monitoring_complexity='spatio_temporal',
+    uncertainty_tolerance='research_grade'
+)
+
+# Optimize monitoring interface
+optimized_interface = env_monitor.optimize_monitoring_interface(
+    complex_ecological_data=ecosystem_indicators,
+    scientist_attention_spans=limited_duration,
+    spatial_reasoning_requirements='expert_level'
+)
+
+# Support environmental decision-making
+supported_decisions = env_monitor.support_environmental_decisions(
+    ecological_observations=monitoring_data,
+    scientist_mental_models=expert_understanding,
+    uncertainty_communication='confidence_intervals'
+)
+```
 
 Please refer to the main `CONTRIBUTING.md` in the GEO-INFER root directory for contribution guidelines.
 

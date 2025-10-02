@@ -1,8 +1,30 @@
-# GEO-INFER-IOT
+---
+title: "GEO-INFER-IOT: Internet of Things Integration"
+description: "IoT sensor networks, real-time geospatial data streams, and sensor data fusion for environmental monitoring"
+purpose: "Integrate IoT sensors and real-time data streams into geospatial analysis and environmental monitoring"
+module_type: "Spatial-Temporal"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["SPACE", "DATA", "TIME"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-DATA", "GEO-INFER-TIME", "GEO-INFER-ACT"]
+tags: ["iot", "sensors", "real-time", "streaming", "monitoring", "environmental"]
+difficulty: "Intermediate"
+estimated_time: "50"
+---
 
-[![Status](https://img.shields.io/badge/Status-Beta-blue.svg)]()
-[![Python](https://img.shields.io/badge/Python-3.9+-green.svg)]()
-[![License](https://img.shields.io/badge/License-CC%20BY--ND--SA%204.0-lightgrey.svg)]()
+# GEO-INFER-IOT: Internet of Things Integration
+
+> **Purpose**: Integrate IoT sensors and real-time data streams into geospatial analysis and environmental monitoring
+>
+> This module provides IoT sensor networks, real-time geospatial data streams, and sensor data fusion capabilities for environmental monitoring.
+
+## Overview
+
+Note: Code examples are illustrative; see `GEO-INFER-IOT/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-IOT/README.md
+- Modules Overview: ../modules/index.md
 
 GEO-INFER-IOT is the Internet of Things and spatial web integration module within the GEO-INFER framework. It provides capabilities for ingesting, processing, and analyzing IoT sensor data in spatial context for real-time monitoring and spatial inference.
 
@@ -162,6 +184,136 @@ graph TB
     %% Bidirectional flows
     IOT <--> SPACE
     IOT <--> BAYES
+```
+
+## Core Features
+
+### 1. Real-Time Sensor Data Streaming
+**Purpose**: High-throughput ingestion and processing of geospatial sensor data streams.
+
+```python
+from geo_infer_iot.streaming import SensorDataStreamer
+
+streamer = SensorDataStreamer(
+    protocol='mqtt',
+    spatial_indexing='h3',
+    compression='lz4',
+    buffer_size=10000
+)
+
+# Create sensor data stream
+stream = streamer.create_stream(
+    stream_id='air_quality_network',
+    sensor_types=['PM2.5', 'NO2', 'O3'],
+    spatial_bounds=city_bounds,
+    sampling_rate='1Hz'
+)
+
+# Process real-time data
+async def process_sensor_data(data):
+    # Apply spatial interpolation
+    interpolated = streamer.spatial_interpolate(data)
+    # Update Bayesian models
+    streamer.update_beliefs(interpolated)
+
+streamer.process_stream(stream, process_sensor_data)
+```
+
+### 2. Bayesian Spatial Inference for IoT
+**Purpose**: Probabilistic reasoning about spatial-temporal sensor data under uncertainty.
+
+```python
+from geo_infer_iot.bayesian import BayesianSpatialIoT
+
+bayesian_iot = BayesianSpatialIoT(
+    spatial_model='gaussian_process',
+    temporal_model='arima',
+    uncertainty_propagation=True,
+    sensor_reliability_model='beta_binomial'
+)
+
+# Perform Bayesian spatial inference
+inference_results = bayesian_iot.spatial_inference(
+    sensor_observations=sensor_data,
+    spatial_locations=sensor_coords,
+    temporal_sequence=time_stamps,
+    prior_beliefs=environmental_priors
+)
+
+# Predict missing sensor values
+predictions = bayesian_iot.predict_missing_values(
+    observed_data=sparse_sensor_readings,
+    prediction_locations=target_grid,
+    confidence_intervals=True
+)
+```
+
+### 3. Adaptive Sensor Network Optimization
+**Purpose**: Dynamic optimization of sensor placement and sampling strategies.
+
+```python
+from geo_infer_iot.optimization import AdaptiveSensorNetwork
+
+optimizer = AdaptiveSensorNetwork(
+    optimization_criteria=['coverage', 'accuracy', 'efficiency'],
+    spatial_resolution='h3_r8',
+    temporal_constraints='real_time',
+    energy_budget=sensor_power_limits
+)
+
+# Optimize sensor network
+optimized_network = optimizer.optimize_network(
+    existing_sensors=current_sensor_locations,
+    target_coverage=region_of_interest,
+    environmental_variables=terrain_elevation,
+    accessibility_constraints=road_network
+)
+
+# Implement adaptive sampling
+adaptive_strategy = optimizer.adaptive_sampling(
+    network_configuration=optimized_network,
+    uncertainty_thresholds=decision_criteria,
+    resource_constraints=power_budget
+)
+```
+
+## API Reference
+
+### Core Classes
+
+#### `SensorDataStreamer`
+- `create_stream(config)`: Create new sensor data stream
+- `process_stream(stream, handler)`: Process streaming sensor data
+- `spatial_interpolate(data)`: Perform spatial interpolation
+- `update_beliefs(data)`: Update Bayesian beliefs with new data
+
+#### `BayesianSpatialIoT`
+- `spatial_inference(observations, locations, time, priors)`: Perform spatial inference
+- `predict_missing_values(data, locations, confidence)`: Predict missing values
+- `update_priors(new_data, old_priors)`: Update prior beliefs
+
+#### `AdaptiveSensorNetwork`
+- `optimize_network(sensors, coverage, constraints)`: Optimize network layout
+- `adaptive_sampling(network, thresholds, resources)`: Implement adaptive sampling
+- `evaluate_network_performance(network)`: Evaluate network effectiveness
+
+### REST API Endpoints
+
+```
+POST /api/v1/iot/streams
+GET  /api/v1/iot/streams/{stream_id}/data
+POST /api/v1/iot/networks/optimize
+GET  /api/v1/iot/inference/spatial
+POST /api/v1/iot/sensors/adaptive-sampling
+```
+
+### MQTT Topics
+
+```
+iot/sensors/{sensor_id}/data
+iot/networks/{network_id}/status
+iot/inference/{model_id}/results
+iot/optimization/{network_id}/updates
 ```
 
 ## 🌍 Use Cases
