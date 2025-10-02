@@ -1,8 +1,30 @@
-# GEO-INFER-RISK
+---
+title: "GEO-INFER-RISK: Comprehensive Geospatial Risk Analysis"
+description: "Advanced risk analysis and catastrophe modeling framework for geospatial applications including insurance, hazard assessment, and resilience planning"
+purpose: "Provide comprehensive geospatial risk analysis and catastrophe modeling capabilities for decision support"
+module_type: "Domain-Specific"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["SPACE", "TIME", "DATA"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-AI", "GEO-INFER-ECON"]
+tags: ["risk", "insurance", "hazard", "catastrophe", "resilience", "modeling"]
+difficulty: "Advanced"
+estimated_time: "60"
+---
 
-**Comprehensive Geospatial Risk Analysis and Catastrophe Modeling Framework**
+# GEO-INFER-RISK: Comprehensive Geospatial Risk Analysis
+
+> **Purpose**: Provide comprehensive geospatial risk analysis and catastrophe modeling capabilities for decision support
+>
+> This module delivers advanced risk analysis and catastrophe modeling for geospatial applications including insurance, hazard assessment, and resilience planning.
 
 ## Overview
+
+Note: Code examples are illustrative; see `GEO-INFER-RISK/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-RISK/README.md
+- Modules Overview: ../modules/index.md
 
 GEO-INFER-RISK is the specialized module within the GEO-INFER framework dedicated to geospatial risk analysis, catastrophe modeling, and risk management. It provides a robust suite of tools for identifying, quantifying, visualizing, and managing risks across multiple hazards, vulnerabilities, and exposure types with strong geospatial foundations. This module empowers decision-makers, risk managers, insurers, urban planners, and disaster response professionals to better understand, model, and mitigate various risks—natural, technological, and anthropogenic—across different spatial and temporal scales.
 
@@ -144,6 +166,270 @@ GEO-INFER-RISK is highly interdependent with other modules in the framework:
 - **GEO-INFER-CIV:** Integrates risk assessment into civic planning processes, urban resilience initiatives, and infrastructure development.
 - **GEO-INFER-ECON:** Links risk models to economic analysis, enabling assessment of economic impacts, cost-benefit analysis of mitigation measures, and financial planning.
 - **GEO-INFER-HEALTH:** Interfaces with health risk assessment, particularly for environmental health hazards, disease spread modeling, and health infrastructure resilience.
+
+## Core Features
+
+### 1. Multi-Hazard Risk Assessment
+**Purpose**: Comprehensive evaluation of multiple risk types including natural disasters, climate change, and human-induced hazards.
+
+```python
+from geo_infer_risk.assessment import MultiHazardRiskAssessor
+
+risk_assessor = MultiHazardRiskAssessor(
+    hazard_types=['flood', 'earthquake', 'wildfire', 'storm_surge'],
+    assessment_methodology='probabilistic',
+    temporal_horizon='50_years',
+    spatial_resolution='parcel_level'
+)
+
+# Assess multi-hazard risks
+risk_assessment = risk_assessor.assess_multi_hazard_risk(
+    assets=property_portfolio,
+    hazards=hazard_scenarios,
+    vulnerability_models=building_vulnerability,
+    exposure_data=population_density
+)
+
+# Generate risk profiles
+risk_profiles = risk_assessor.generate_risk_profiles(
+    assessment=risk_assessment,
+    risk_metrics=['annual_loss', 'return_period_loss', 'residual_risk'],
+    reporting_format='regulatory_compliant'
+)
+```
+
+### 2. Climate Change Risk Integration
+**Purpose**: Incorporate climate change projections and adaptation strategies into risk assessments.
+
+```python
+from geo_infer_risk.climate import ClimateRiskIntegrator
+
+climate_integrator = ClimateRiskIntegrator(
+    climate_scenarios=['rcp_4_5', 'rcp_8_5', 'ssp_1_2_6'],
+    time_horizons=['2030', '2050', '2100'],
+    adaptation_measures=['retreat', 'accommodate', 'protect'],
+    uncertainty_quantification=True
+)
+
+# Integrate climate change risks
+climate_risks = climate_integrator.integrate_climate_risks(
+    baseline_risks=current_assessment,
+    climate_projections=future_scenarios,
+    adaptation_options=mitigation_strategies,
+    socioeconomic_factors=population_growth
+)
+
+# Develop adaptation strategies
+adaptation_plan = climate_integrator.develop_adaptation_strategy(
+    climate_risks=climate_risks,
+    adaptation_budget=available_funding,
+    stakeholder_priorities=community_values,
+    implementation_timeline=planning_horizon
+)
+```
+
+### 3. Real-Time Risk Monitoring
+**Purpose**: Continuous monitoring and early warning systems for dynamic risk conditions.
+
+```python
+from geo_infer_risk.monitoring import RealTimeRiskMonitor
+
+risk_monitor = RealTimeRiskMonitor(
+    monitoring_sources=['satellite', 'iot_sensors', 'weather_stations', 'social_media'],
+    alert_thresholds='dynamic',
+    prediction_horizon='72_hours',
+    communication_channels=['email', 'sms', 'dashboard', 'api']
+)
+
+# Monitor real-time risks
+monitoring_system = risk_monitor.setup_monitoring(
+    risk_zones=areas_of_interest,
+    hazard_indicators=early_warning_signals,
+    response_thresholds=action_triggers,
+    stakeholder_contacts=notification_list
+)
+
+# Process real-time alerts
+alert_response = risk_monitor.process_alerts(
+    incoming_data=real_time_feeds,
+    risk_models=active_scenarios,
+    decision_support=automated_recommendations,
+    escalation_procedures=emergency_protocols
+)
+```
+
+## API Reference
+
+### Core Classes
+
+#### `MultiHazardRiskAssessor`
+- `assess_multi_hazard_risk(assets, hazards, vulnerability, exposure)`: Assess multiple hazard risks
+- `generate_risk_profiles(assessment, metrics, format)`: Generate risk profiles
+- `aggregate_portfolio_risks(individual_risks, correlation_matrix)`: Aggregate portfolio risks
+
+#### `ClimateRiskIntegrator`
+- `integrate_climate_risks(baseline, projections, adaptation, factors)`: Integrate climate risks
+- `develop_adaptation_strategy(risks, budget, priorities, timeline)`: Develop adaptation strategies
+- `assess_adaptation_effectiveness(strategy, scenarios, metrics)`: Assess adaptation effectiveness
+
+#### `RealTimeRiskMonitor`
+- `setup_monitoring(zones, indicators, thresholds, contacts)`: Setup monitoring system
+- `process_alerts(data, models, support, procedures)`: Process real-time alerts
+- `update_risk_models(new_data, model_performance, adaptation)`: Update risk models
+
+### REST API Endpoints
+
+```
+POST /api/v1/risk/assessment/multi-hazard
+GET  /api/v1/risk/profiles/{asset_id}
+POST /api/v1/risk/climate/integrate
+PUT  /api/v1/risk/monitoring/setup
+POST /api/v1/risk/alerts/process
+```
+
+### Key Functions
+
+```python
+# Risk assessment pipeline
+geo_infer_risk.assessment.probabilistic_risk_assessment(
+    hazard_scenarios, vulnerability_models, exposure_data,
+    confidence_level=0.95, return_periods=[100, 500, 1000]
+)
+
+# Climate risk integration
+geo_infer_risk.climate.transition_risk_analysis(
+    assets, climate_scenarios, discount_rate=0.03,
+    adaptation_costs=mitigation_investments
+)
+
+# Real-time monitoring
+geo_infer_risk.monitoring.early_warning_system(
+    sensor_data, prediction_models, alert_thresholds,
+    communication_channels=['dashboard', 'mobile_app']
+)
+```
+
+## Use Cases
+
+### Insurance Portfolio Risk Management
+**Scenario**: Manage insurance portfolios with comprehensive risk assessment and pricing optimization.
+
+```python
+from geo_infer_risk.insurance import InsuranceRiskManager
+
+insurance_manager = InsuranceRiskManager(
+    peril_types=['flood', 'windstorm', 'earthquake', 'wildfire'],
+    portfolio_optimization='efficient_frontier',
+    regulatory_compliance=['solvency_ii', 'cat_bond_markets'],
+    reinsurance_strategy='optimal_layering'
+)
+
+# Assess insurance portfolio risks
+portfolio_risks = insurance_manager.assess_portfolio_risks(
+    policies=insurance_portfolio,
+    hazard_models=catastrophe_models,
+    vulnerability_data=property_characteristics,
+    correlation_structure=dependency_matrix
+)
+
+# Optimize pricing and capital allocation
+pricing_strategy = insurance_manager.optimize_pricing(
+    portfolio_risks=portfolio_risks,
+    market_conditions=competition_analysis,
+    capital_requirements=regulatory_minimums,
+    risk_appetite=company_tolerance
+)
+```
+
+### Urban Resilience Planning
+**Scenario**: Develop comprehensive urban resilience strategies against multiple hazards.
+
+```python
+from geo_infer_risk.urban import UrbanResiliencePlanner
+
+resilience_planner = UrbanResiliencePlanner(
+    urban_systems=['infrastructure', 'housing', 'transportation', 'utilities'],
+    hazard_scenarios=['flood', 'heat_wave', 'cyber_attack', 'pandemic'],
+    resilience_metrics=['absorptive', 'adaptive', 'transformative'],
+    stakeholder_engagement='participatory'
+)
+
+# Assess urban vulnerabilities
+vulnerability_assessment = resilience_planner.assess_urban_vulnerabilities(
+    urban_assets=city_infrastructure,
+    hazard_exposure=current_risks,
+    social_vulnerability=demographic_data,
+    critical_infrastructure=essential_services
+)
+
+# Develop resilience strategies
+resilience_strategy = resilience_planner.develop_resilience_strategy(
+    vulnerabilities=vulnerability_assessment,
+    adaptation_options=available_measures,
+    implementation_budget=available_funding,
+    timeline=planning_horizon
+)
+```
+
+### Infrastructure Risk Assessment
+**Scenario**: Evaluate and mitigate risks to critical infrastructure systems.
+
+```python
+from geo_infer_risk.infrastructure import InfrastructureRiskAssessor
+
+infra_assessor = InfrastructureRiskAssessor(
+    infrastructure_types=['power_grid', 'water_supply', 'transportation', 'communications'],
+    risk_categories=['physical', 'cyber', 'climate', 'operational'],
+    cascading_effects='network_analysis',
+    recovery_modeling='stochastic'
+)
+
+# Assess infrastructure risks
+infrastructure_risks = infra_assessor.assess_infrastructure_risks(
+    infrastructure_network=critical_systems,
+    threat_scenarios=attack_vectors,
+    interdependencies=system_connections,
+    recovery_capabilities=response_plans
+)
+
+# Develop risk mitigation strategies
+mitigation_strategy = infra_assessor.develop_mitigation_strategy(
+    infrastructure_risks=infrastructure_risks,
+    mitigation_options=available_measures,
+    cost_benefit_analysis=True,
+    regulatory_requirements=compliance_standards
+)
+```
+
+### Financial Risk Stress Testing
+**Scenario**: Conduct comprehensive stress testing of financial portfolios under extreme scenarios.
+
+```python
+from geo_infer_risk.financial import FinancialRiskStressTester
+
+stress_tester = FinancialRiskStressTester(
+    portfolio_types=['equity', 'fixed_income', 'real_estate', 'derivatives'],
+    stress_scenarios=['market_crash', 'interest_rate_shock', 'climate_transition'],
+    risk_measures=['var', 'expected_shortfall', 'tail_risk'],
+    regulatory_frameworks=['basel_iii', 'dodd_frank']
+)
+
+# Conduct stress testing
+stress_test_results = stress_tester.conduct_stress_testing(
+    portfolios=investment_portfolios,
+    stress_scenarios=extreme_events,
+    risk_factors=market_variables,
+    time_horizons=['1_month', '1_year', '5_years']
+)
+
+# Generate risk reports
+risk_reports = stress_tester.generate_risk_reports(
+    stress_results=stress_test_results,
+    regulatory_requirements=compliance_standards,
+    management_summary='executive_level',
+    technical_appendix='detailed_methodology'
+)
+```
 
 ## Getting Started
 

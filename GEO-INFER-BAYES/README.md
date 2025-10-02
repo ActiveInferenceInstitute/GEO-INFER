@@ -1,18 +1,32 @@
-# GEO-INFER-BAYES
+---
+title: "GEO-INFER-BAYES: Bayesian Inference for Geospatial Applications"
+description: "Comprehensive Bayesian inference framework with probabilistic modeling, uncertainty quantification, and computational methods for geospatial data"
+purpose: "Enable robust inference and decision-making under uncertainty for geospatial applications"
+module_type: "Analytical Core"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["MATH"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-ACT", "GEO-INFER-AI"]
+tags: ["bayesian", "inference", "uncertainty", "probabilistic", "mcmc", "hierarchical"]
+difficulty: "Advanced"
+estimated_time: "60"
+---
 
-Bayesian inference for geospatial applications within the GEO-INFER ecosystem.
+# GEO-INFER-BAYES: Bayesian Inference for Geospatial Applications
+
+> **Purpose**: Enable robust inference and decision-making under uncertainty for geospatial applications
+>
+> This module provides comprehensive Bayesian inference capabilities with probabilistic modeling, uncertainty quantification, and computational methods specifically tailored for geospatial data analysis.
 
 ## Overview
 
-GEO-INFER-BAYES provides a comprehensive framework for Bayesian inference processes within the GEO-INFER ecosystem. This module implements probabilistic modeling, uncertainty quantification, and Bayesian computational methods specifically tailored for geospatial applications, enabling robust inference and decision-making under uncertainty.
+Note: Code examples are illustrative; see `GEO-INFER-BAYES/examples` for runnable scripts.
 
-## Key Features
+### Links
+- Module README: ../../GEO-INFER-BAYES/README.md
+- Modules Overview: ../modules/index.md
 
-- **Hierarchical Bayesian models** for spatial and spatio-temporal data
-- **Bayesian computational methods** (MCMC, HMC, VI, SMC)
-- **Probabilistic programming interfaces** to PyMC, Stan, and TensorFlow Probability
-- **Bayesian model comparison and selection**
-- **Spatial priors and likelihood functions** for geospatial applications
+GEO-INFER-BAYES provides a comprehensive framework for Bayesian inference processes within the GEO-INFER ecosystem, implementing probabilistic modeling, uncertainty quantification, and Bayesian computational methods specifically tailored for geospatial applications.
 
 ## Installation
 

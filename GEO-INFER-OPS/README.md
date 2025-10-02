@@ -1,8 +1,30 @@
-# GEO-INFER-OPS
+---
+title: "GEO-INFER-OPS: Operational Kernel"
+description: "System orchestration, monitoring, infrastructure management, and deployment automation for the GEO-INFER ecosystem"
+purpose: "Provide operational kernel for system orchestration, monitoring, and infrastructure management across all GEO-INFER modules"
+module_type: "Operations"
+status: "Alpha"
+last_updated: "2025-01-19"
+dependencies: ["SEC"]
+compatibility: ["GEO-INFER-SEC", "GEO-INFER-DATA", "GEO-INFER-API", "GEO-INFER-TEST"]
+tags: ["operations", "orchestration", "monitoring", "infrastructure", "deployment", "automation"]
+difficulty: "Advanced"
+estimated_time: "70"
+---
 
-**Operational Kernel for System Orchestration, Monitoring, and Infrastructure Management**
+# GEO-INFER-OPS: Operational Kernel for System Orchestration, Monitoring, and Infrastructure Management
+
+> **Purpose**: Provide operational kernel for system orchestration, monitoring, and infrastructure management across all GEO-INFER modules
+>
+> This module delivers system orchestration, monitoring, infrastructure management, and deployment automation for the GEO-INFER ecosystem.
 
 ## Overview
+
+Note: Code examples are illustrative; see `GEO-INFER-OPS/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-OPS/README.md
+- Modules Overview: ../modules/index.md
 
 GEO-INFER-OPS provides infrastructure for system orchestration, monitoring, testing, logging, and configuration management. It ensures reliable, scalable, and secure operations across GEO-INFER components with observability, automated testing, and resource management.
 

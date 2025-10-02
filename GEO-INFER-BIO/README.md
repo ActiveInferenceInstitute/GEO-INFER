@@ -1,11 +1,20 @@
+---
+title: "GEO-INFER-BIO: Bioinformatics and Biological Data Analysis"
+description: "Bioinformatics and biological data analysis with geospatial context for spatial omics, landscape genetics, phylogeography, and microbial ecology"
+purpose: "Bridge bioinformatics, biological data science, and geospatial analysis to understand biological systems from molecular to ecosystem scales"
+module_type: "Domain-Specific"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["SPACE", "DATA", "TIME"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-DATA", "GEO-INFER-TIME", "GEO-INFER-AI", "GEO-INFER-HEALTH"]
+tags: ["bioinformatics", "omics", "spatial-omics", "genetics", "phylogeography", "microbial-ecology", "epidemiology"]
+difficulty: "Advanced"
+estimated_time: "70"
+---
+
 # GEO-INFER-BIO 🧬
 
 **Bioinformatics and Biological Data Analysis with Geospatial Context**
-
-[![License: CC BY-ND-SA 4.0](https://img.shields.io/badge/License-CC%20BY--ND--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nd-sa/4.0/)
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![Documentation Status](https://img.shields.io/badge/docs-in%20progress-orange.svg)]()
-[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)]()
 
 ## Overview 📋
 
@@ -267,6 +276,228 @@ We welcome contributions! This includes adding new bioinformatics tools or analy
 ## License 📄
 
 This module, as part of the GEO-INFER framework, is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details.
+
+## Advanced Features
+
+### 1. Spatio-Temporal Population Genomics
+**Purpose**: Analyze genetic variation across space and time to understand evolutionary processes and population dynamics.
+
+```python
+from geo_infer_bio.genomics import SpatioTemporalGenomicsAnalyzer
+
+genomics_analyzer = SpatioTemporalGenomicsAnalyzer(
+    genetic_markers=['snps', 'strs', 'indels'],
+    spatial_resolution='h3_r8',
+    temporal_resolution='generation',
+    evolutionary_models=['coalescent', 'forward_time']
+)
+
+# Analyze genetic diversity across space
+diversity_analysis = genomics_analyzer.analyze_spatial_diversity(
+    genetic_data=population_genotypes,
+    spatial_coordinates=sampling_locations,
+    diversity_metrics=['pi', 'theta', 'fst']
+)
+
+# Model evolutionary dynamics
+evolutionary_model = genomics_analyzer.model_evolutionary_dynamics(
+    genetic_data=longitudinal_samples,
+    environmental_covariates=climate_data,
+    model_type='spatio_temporal_coalescent'
+)
+```
+
+### 2. Ecological Niche Modeling with Machine Learning
+**Purpose**: Advanced species distribution modeling using ensemble machine learning techniques.
+
+```python
+from geo_infer_bio.ecology import AdvancedNicheModeler
+
+niche_modeler = AdvancedNicheModeler(
+    algorithms=['maxent', 'rf', 'gbm', 'ann'],
+    ensemble_strategy='stacking',
+    uncertainty_quantification=True,
+    transfer_learning=True
+)
+
+# Ensemble species distribution modeling
+ensemble_model = niche_modeler.create_ensemble_model(
+    species_occurrences=observation_data,
+    environmental_variables=climate_topo_soil,
+    background_points=pseudo_absence_data,
+    cross_validation='spatial_block'
+)
+
+# Project distributions under climate change
+future_distributions = niche_modeler.project_future_distributions(
+    model=ensemble_model,
+    climate_scenarios=['rcp45', 'rcp85'],
+    time_horizons=[2050, 2100],
+    uncertainty_intervals=[0.05, 0.95]
+)
+```
+
+### 3. Microbiome Geospatial Analysis
+**Purpose**: Analyze microbial community composition and function across spatial gradients.
+
+```python
+from geo_infer_bio.microbiome import MicrobiomeGeospatialAnalyzer
+
+microbiome_analyzer = MicrobiomeGeospatialAnalyzer(
+    sequencing_data=['16s', 'metagenomics', 'metatranscriptomics'],
+    taxonomic_resolution='species',
+    functional_annotation=True,
+    spatial_statistics=True
+)
+
+# Analyze microbial biogeography
+biogeography = microbiome_analyzer.analyze_microbial_biogeography(
+    microbiome_data=otu_tables,
+    spatial_data=sampling_coordinates,
+    environmental_variables=soil_chemistry,
+    distance_metrics=['bray_curtis', 'unifrac']
+)
+
+# Identify microbial keystone species
+keystone_species = microbiome_analyzer.identify_keystone_taxa(
+    community_data=microbiome_networks,
+    environmental_correlations=env_microbe_links,
+    importance_metrics=['betweenness', 'closeness', 'degree']
+)
+```
+
+## Performance Considerations
+
+### Computational Efficiency
+**Large Genomic Datasets**: Optimized algorithms for processing millions of genetic variants across thousands of samples
+**High-Resolution Spatial Analysis**: Efficient spatial statistics for fine-grained ecological analysis
+**Parallel Processing**: Multi-threaded and distributed computing for computationally intensive biological analyses
+
+### Memory and Storage Optimization
+**Compressed Data Formats**: Efficient storage of large biological datasets using specialized formats
+**Streaming Algorithms**: Memory-efficient processing of large genomic and microbiome datasets
+**Database Optimization**: Optimized queries for biological databases with spatial indexing
+
+### Scalability and High-Performance Computing
+**HPC Integration**: Support for cluster computing and cloud-based high-performance infrastructure
+**GPU Acceleration**: CUDA/ROCm support for computationally intensive biological algorithms
+**Distributed Computing**: Support for distributed processing across multiple nodes
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+#### Genomic Data Quality Issues
+**Issue**: Poor quality sequencing data affecting downstream analyses
+**Solution**: Implement rigorous quality control, filtering, and imputation strategies
+
+```python
+from geo_infer_bio.quality_control import GenomicQC
+
+qc = GenomicQC(
+    quality_metrics=['phred_score', 'gc_content', 'contamination'],
+    filtering_thresholds={'min_quality': 30, 'min_depth': 10},
+    imputation_method='beagle'
+)
+
+# Quality control pipeline
+cleaned_data = qc.process_genomic_data(
+    raw_variants=sequencing_data,
+    sample_metadata=metadata,
+    quality_report=True
+)
+```
+
+#### Spatial Autocorrelation Problems
+**Issue**: Spatial autocorrelation violating statistical assumptions in ecological models
+**Solution**: Use spatial statistical methods and validate model assumptions
+
+```python
+from geo_infer_bio.spatial_stats import SpatialStatisticsValidator
+
+validator = SpatialStatisticsValidator()
+autocorr_report = validator.assess_spatial_autocorrelation(
+    response_variable=species_richness,
+    spatial_coordinates=location_data,
+    distance_thresholds=[100, 1000, 10000]
+)
+
+# Apply spatial corrections if needed
+corrected_model = validator.correct_spatial_autocorrelation(
+    model=ecological_model,
+    autocorr_type=autocorr_report['type'],
+    correction_method='eigenvector_mapping'
+)
+```
+
+#### Model Convergence Issues
+**Issue**: Statistical models failing to converge or producing unstable results
+**Solution**: Check model assumptions, adjust parameters, and use robust estimation methods
+
+```python
+from geo_infer_bio.model_diagnostics import ConvergenceDiagnostics
+
+diagnostics = ConvergenceDiagnostics(
+    convergence_metrics=['gelman_rubin', 'effective_sample_size', 'mcse'],
+    stability_checks=['parameter_recovery', 'posterior_predictive'],
+    robustness_tests=['cross_validation', 'sensitivity_analysis']
+)
+
+# Diagnose model convergence
+convergence_report = diagnostics.diagnose_convergence(
+    model_fit=mcmc_results,
+    burn_in=1000,
+    thinning=10
+)
+```
+
+### Debugging Biological Analyses
+
+#### Enable Detailed Logging
+```python
+import logging
+logging.getLogger('geo_infer_bio').setLevel(logging.DEBUG)
+
+# Enable specific module logging
+logging.getLogger('geo_infer_bio.genomics').setLevel(logging.INFO)
+```
+
+#### Validate Biological Data
+```python
+from geo_infer_bio.validation import BiologicalDataValidator
+
+validator = BiologicalDataValidator()
+validation_results = validator.validate_data_integrity(
+    datasets=[genomic_data, ecological_data, microbiome_data],
+    cross_validation=True,
+    outlier_detection=True
+)
+```
+
+#### Profile Computational Performance
+```python
+from geo_infer_bio.profiling import BiologicalProfiler
+
+profiler = BiologicalProfiler()
+with profiler.profile():
+    result = expensive_biological_analysis(large_dataset)
+    
+performance_report = profiler.get_report()
+```
+
+### Common Error Messages
+
+#### "Genetic data format not recognized"
+**Cause**: Unsupported or malformed genetic data file format
+**Fix**: Convert to supported formats (VCF, PLINK, etc.) or use format detection
+
+#### "Spatial coordinates outside valid range"
+**Cause**: Geographic coordinates outside expected bounds for the analysis
+**Fix**: Validate coordinate system and check for data entry errors
+
+#### "Model convergence failed"
+**Cause**: Statistical model unable to converge within iteration limits
+**Fix**: Increase iterations, adjust starting values, or use different algorithm
 
 ## Citation 📚
 

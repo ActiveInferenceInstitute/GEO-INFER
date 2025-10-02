@@ -1,15 +1,32 @@
-# GEO-INFER-ART
+---
+title: "GEO-INFER-ART: Geospatial Art, Aesthetics, and Generative Systems"
+description: "Transform geospatial data into compelling artistic expressions through aesthetic visualizations and generative art systems"
+purpose: "Bridge analytical geospatial science with creative artistic practice for enhanced understanding and communication"
+module_type: "Applications"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["SPACE", "APP"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-APP", "GEO-INFER-AI", "GEO-INFER-TIME"]
+tags: ["art", "aesthetics", "generative", "visualization", "creative", "narrative"]
+difficulty: "Intermediate"
+estimated_time: "50"
+---
 
-**Geospatial Art, Aesthetics, and Generative Systems**
+# GEO-INFER-ART: Geospatial Art, Aesthetics, and Generative Systems
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![License: CC BY-ND-SA 4.0](https://img.shields.io/badge/License-CC%20BY--ND--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nd-sa/4.0/) <!-- Consider aligning with main project license if different -->
+> **Purpose**: Bridge analytical geospatial science with creative artistic practice for enhanced understanding and communication
+>
+> This module transforms geospatial information into compelling artistic expressions, aesthetically refined visualizations, and dynamic generative art systems.
 
 ## Overview
 
-GEO-INFER-ART is a specialized module within the GEO-INFER framework dedicated to exploring and exploiting the intersection of art, aesthetics, and geospatial data. This module provides tools, algorithms, and frameworks to transform geospatial information into compelling artistic expressions, aesthetically refined visualizations, and dynamic generative art systems. It aims to bridge the gap between analytical geospatial science and creative artistic practice, enabling new forms of understanding, communication, and engagement with our world.
+Note: Code examples are illustrative; see `GEO-INFER-ART/examples` for runnable scripts.
 
-By leveraging techniques from computer graphics, computational aesthetics, generative art, and cartographic design, GEO-INFER-ART empowers users to create visually rich and emotionally resonant representations of geographic phenomena, cultural narratives, and environmental data.
+### Links
+- Module README: ../../GEO-INFER-ART/README.md
+- Modules Overview: ../modules/index.md
+
+GEO-INFER-ART explores the intersection of art, aesthetics, and geospatial data, providing tools to transform geospatial information into compelling artistic expressions and aesthetically refined visualizations.
 
 ## Core Objectives
 

@@ -1,6 +1,18 @@
-# GEO-INFER-ACT
+---
+title: "GEO-INFER-ACT: Active Inference Modeling for Geospatial Systems"
+description: "Advanced Active Inference framework implementing Free Energy Principle for geospatial decision-making, perception, and learning"
+purpose: "Provide principled mathematical framework for intelligent agents that minimize variational free energy in complex geospatial environments"
+module_type: "Analytical Core"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["MATH", "BAYES"]
+compatibility: ["GEO-INFER-MATH", "GEO-INFER-BAYES", "GEO-INFER-AI", "GEO-INFER-AGENT", "GEO-INFER-SIM"]
+tags: ["active-inference", "free-energy-principle", "variational-inference", "bayesian", "perception-action-loops", "intelligent-agents"]
+difficulty: "Advanced"
+estimated_time: "60"
+---
 
-**Active Inference Modeling for Geospatial Systems**
+# GEO-INFER-ACT: Active Inference Modeling for Geospatial Systems
 
 ## Overview
 
@@ -204,6 +216,202 @@ GEO-INFER-ACT is designed to deeply integrate with other GEO-INFER modules:
 -   **Climate Adaptation Policy Optimization:** Modeling how communities or organizations perceive climate risks and adapt their policies (e.g., water usage, agricultural practices) to minimize expected future adverse outcomes.
 -   **Decentralized Resource Allocation under Uncertainty:** A network of agents coordinating the use of shared resources (e.g., energy, water) by inferring collective needs and resource availability, and acting to maintain system stability.
 -   **Resilient Infrastructure Management:** Active inference agents monitoring critical infrastructure (e.g., power grids, water networks) and making proactive maintenance or rerouting decisions in response to predicted failures or demand surges.
+
+## Advanced Features
+
+### 1. Hierarchical Active Inference
+**Purpose**: Multi-level active inference with nested temporal scales for complex spatial decision making.
+
+```python
+from geo_infer_act.hierarchical import HierarchicalActiveInference
+
+hierarchical_ai = HierarchicalActiveInference(
+    levels=['strategic', 'tactical', 'operational'],
+    temporal_scales=[3600, 300, 10],  # seconds
+    state_abstraction='adaptive',
+    goal_decomposition=True
+)
+
+# Configure hierarchical active inference
+agent = hierarchical_ai.create_agent(
+    high_level_goals=['maximize_sustainability', 'minimize_cost'],
+    mid_level_policies=['route_optimization', 'resource_allocation'],
+    low_level_actions=['sensor_reading', 'actuator_control']
+)
+
+# Run hierarchical inference
+actions = hierarchical_ai.infer_actions(
+    observations=sensor_data,
+    beliefs=current_beliefs,
+    preferences=policy_preferences
+)
+```
+
+### 2. Multi-Agent Active Inference with Communication
+**Purpose**: Coordinated active inference across multiple agents with message passing and belief synchronization.
+
+```python
+from geo_infer_act.multi_agent import MultiAgentActiveInference
+
+mas = MultiAgentActiveInference(
+    num_agents=10,
+    communication_protocol='belief_sharing',
+    coordination_mechanism='expected_free_energy_minimization',
+    consensus_building=True
+)
+
+# Configure multi-agent system
+mas.setup_agents(
+    agent_types=['monitoring', 'decision', 'action'],
+    spatial_positions=agent_locations,
+    communication_graph=network_topology
+)
+
+# Distributed active inference
+collective_actions = mas.distributed_inference(
+    local_observations=all_observations,
+    shared_beliefs=common_knowledge,
+    communication_enabled=True
+)
+```
+
+### 3. Continuous-Time Active Inference
+**Purpose**: Active inference in continuous time for smooth control and real-time adaptation.
+
+```python
+from geo_infer_act.continuous import ContinuousTimeActiveInference
+
+continuous_ai = ContinuousTimeActiveInference(
+    state_space_dim=10,
+    action_space_dim=4,
+    integration_method='runge_kutta',
+    time_resolution=0.01
+)
+
+# Define continuous dynamics
+dynamics_model = continuous_ai.define_dynamics(
+    flow_equations=spatial_flow_model,
+    precision_matrices=uncertainty_specification,
+    boundary_conditions=spatial_constraints
+)
+
+# Real-time active inference
+control_signal = continuous_ai.continuous_control(
+    current_state=system_state,
+    target_trajectory=desired_path,
+    precision_control=True
+)
+```
+
+## Performance Considerations
+
+### Computational Efficiency
+**Variational Inference**: Optimized variational message passing algorithms for scalable active inference
+**Approximate Methods**: Fast approximate inference using Laplace approximations and moment matching
+**Sparse Representations**: Efficient sparse matrix operations for large-scale spatial models
+
+### Real-Time Performance
+**Online Inference**: Incremental belief updates for real-time active inference
+**Parallel Processing**: Multi-threaded belief propagation for distributed systems
+**GPU Acceleration**: Optional GPU support for large-scale belief networks
+
+### Memory Management
+**Belief Pruning**: Automatic pruning of low-probability beliefs to reduce memory usage
+**Hierarchical Compression**: Compressed representations for multi-scale active inference
+**Streaming Inference**: Memory-efficient streaming algorithms for continuous data
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+#### Belief Update Convergence Problems
+**Issue**: Beliefs not converging or oscillating during variational inference
+**Solution**: Adjust precision parameters, increase convergence iterations, or use damping
+
+```python
+from geo_infer_act.inference import VariationalInferenceOptimizer
+
+optimizer = VariationalInferenceOptimizer(
+    max_iterations=100,
+    convergence_threshold=1e-6,
+    damping_factor=0.5,
+    precision_adaptation=True
+)
+```
+
+#### Free Energy Calculation Issues
+**Issue**: Numerical instability in expected free energy calculations
+**Solution**: Use log-space calculations and numerical stabilization techniques
+
+```python
+from geo_infer_act.utils.numerical import stabilize_free_energy
+
+stabilized_efe = stabilize_free_energy(
+    expected_free_energy=raw_efe,
+    numerical_precision='float64',
+    log_space=True
+)
+```
+
+#### Agent Behavior Anomalies
+**Issue**: Agents exhibiting unrealistic or unstable behaviors
+**Solution**: Verify generative model specification, check priors, and validate precision matrices
+
+```python
+from geo_infer_act.validation import ActiveInferenceValidator
+
+validator = ActiveInferenceValidator()
+validation_report = validator.validate_agent(
+    generative_model=agent_model,
+    priors=belief_priors,
+    precision_matrices=precision_specs
+)
+```
+
+### Debugging Active Inference
+
+#### Enable Detailed Logging
+```python
+import logging
+logging.getLogger('geo_infer_act').setLevel(logging.DEBUG)
+```
+
+#### Visualize Belief Evolution
+```python
+from geo_infer_act.visualization import BeliefVisualizer
+
+visualizer = BeliefVisualizer()
+visualizer.plot_belief_evolution(
+    belief_history=agent_beliefs,
+    time_steps=inference_timeline,
+    output_path='belief_evolution.png'
+)
+```
+
+#### Monitor Free Energy
+```python
+from geo_infer_act.monitoring import FreeEnergyMonitor
+
+monitor = FreeEnergyMonitor()
+with monitor.track_free_energy():
+    agent.run_active_inference(observations)
+    
+energy_report = monitor.get_report()
+```
+
+### Common Error Messages
+
+#### "Generative model not properly specified"
+**Cause**: Missing or invalid components in generative model definition
+**Fix**: Verify all required model components (likelihood, priors, transitions) are defined
+
+#### "Precision matrix is not positive definite"
+**Cause**: Invalid precision (inverse covariance) matrix
+**Fix**: Add regularization or check for numerical errors in covariance estimation
+
+#### "Action selection diverged"
+**Cause**: Expected free energy calculation failed or produced invalid values
+**Fix**: Adjust action space resolution or use alternative action selection methods
 
 ## Contributing
 

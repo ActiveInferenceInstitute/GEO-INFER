@@ -1,8 +1,30 @@
-# GEO-INFER-ECON
+---
+title: "GEO-INFER-ECON: Spatial Economic Modeling"
+description: "Spatial economic modeling, market analysis, policy evaluation, and economic impact assessment with geospatial dimensions"
+purpose: "Model economic phenomena with spatial dimensions, analyze market dynamics, and evaluate policy impacts"
+module_type: "Domain-Specific"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["SPACE", "TIME", "DATA"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-AI", "GEO-INFER-SIM"]
+tags: ["economics", "spatial-economics", "market-analysis", "policy", "modeling", "impact-assessment"]
+difficulty: "Advanced"
+estimated_time: "65"
+---
 
-**Spatial Economic Modeling, Analysis, and Policy Evaluation**
+# GEO-INFER-ECON: Spatial Economic Modeling, Analysis, and Policy Evaluation
+
+> **Purpose**: Model economic phenomena with spatial dimensions, analyze market dynamics, and evaluate policy impacts
+>
+> This module provides spatial economic modeling, market analysis, policy evaluation, and economic impact assessment with geospatial dimensions.
 
 ## Overview
+
+Note: Code examples are illustrative; see `GEO-INFER-ECON/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-ECON/README.md
+- Modules Overview: ../modules/index.md
 
 GEO-INFER-ECON is the specialized module within the GEO-INFER framework dedicated to **integrating economic principles with geospatial analysis**. It provides a comprehensive suite of tools for modeling economic activities, analyzing market dynamics, optimizing resource allocation, and evaluating policy impacts across diverse geographic regions and scales. By explicitly incorporating the "where" into economic models, this module enables a more nuanced, context-aware understanding of economic phenomena, moving beyond traditional aspatial approaches. It supports a range of economic theories and quantitative methods, from spatial econometrics and equilibrium models to agent-based simulations of economic behavior in a spatial context.
 
@@ -232,6 +254,237 @@ GEO-INFER-ECON relies on and complements several other modules:
 -   **GEO-INFER-APP:** Visualizes the outputs of economic analyses, such as maps of regional economic indicators, charts of policy impacts, or interactive dashboards for exploring economic scenarios.
 -   **GEO-INFER-RISK:** Economic impacts are a key component of overall risk assessment. ECON can model the economic consequences of natural disasters or other risks analyzed by RISK.
 -   **Domain-Specific Modules (e.g., GEO-INFER-AG, GEO-INFER-HEALTH, GEO-INFER-LOG):** ECON can provide the economic modeling framework for these domains (e.g., agricultural economics, health economics, logistics cost-benefit analysis).
+
+## Core Features
+
+### 1. Spatial Econometric Analysis
+**Purpose**: Advanced statistical methods for analyzing spatial economic relationships and dependencies.
+
+```python
+from geo_infer_econ.spatial import SpatialEconometricAnalyzer
+
+spatial_econ = SpatialEconometricAnalyzer(
+    model_type='sar',  # Spatial Autoregressive
+    spatial_weights='queen_contiguity',
+    estimation_method='ml'  # Maximum Likelihood
+)
+
+# Analyze spatial economic relationships
+results = spatial_econ.fit(
+    dependent_variable=gdp_per_capita,
+    independent_variables=[education, infrastructure, innovation],
+    spatial_weights_matrix=W
+)
+
+# Test for spatial autocorrelation
+moran_test = spatial_econ.moran_test(
+    variable=unemployment_rate,
+    spatial_weights=W
+)
+```
+
+### 2. Economic Impact Assessment
+**Purpose**: Quantify economic effects of policies, shocks, and interventions across spatial regions.
+
+```python
+from geo_infer_econ.impact import EconomicImpactAssessor
+
+impact_assessor = EconomicImpactAssessor(
+    model_type='input_output',
+    spatial_resolution='regional',
+    temporal_horizon='5_years'
+)
+
+# Assess policy impacts
+policy_impacts = impact_assessor.assess_policy_impact(
+    policy_scenario=new_infrastructure,
+    baseline_economy=current_economy,
+    affected_regions=project_area
+)
+
+# Calculate multiplier effects
+multipliers = impact_assessor.compute_multipliers(
+    direct_effects=construction_spending,
+    indirect_effects=supply_chain_impacts,
+    induced_effects=household_income_changes
+)
+```
+
+### 3. Regional Economic Forecasting
+**Purpose**: Predict future economic conditions and trends at regional and local scales.
+
+```python
+from geo_infer_econ.forecast import RegionalEconomicForecaster
+
+forecaster = RegionalEconomicForecaster(
+    forecasting_model='var',  # Vector Autoregression
+    spatial_integration=True,
+    uncertainty_quantification=True
+)
+
+# Generate economic forecasts
+forecasts = forecaster.forecast(
+    historical_data=economic_indicators,
+    forecast_horizon=10,  # years
+    confidence_level=0.95
+)
+
+# Scenario analysis
+scenarios = forecaster.scenario_analysis(
+    baseline_forecast=forecasts,
+    shock_scenarios=[recession, technological_change, policy_change]
+)
+```
+
+## API Reference
+
+### Core Classes
+
+#### `SpatialEconometricAnalyzer`
+- `fit(y, X, W)`: Fit spatial econometric models
+- `moran_test(variable, weights)`: Test for spatial autocorrelation
+- `spatial_durbin_model(y, X, W)`: Estimate spatial Durbin models
+
+#### `EconomicImpactAssessor`
+- `assess_policy_impact(policy, baseline, regions)`: Assess economic impacts
+- `compute_multipliers(direct, indirect, induced)`: Calculate economic multipliers
+- `regional_impact_analysis(impacts, regions)`: Analyze regional impacts
+
+#### `RegionalEconomicForecaster`
+- `forecast(data, horizon, confidence)`: Generate economic forecasts
+- `scenario_analysis(baseline, scenarios)`: Perform scenario analysis
+- `uncertainty_analysis(forecasts)`: Quantify forecast uncertainty
+
+### Key Functions
+
+```python
+# Spatial econometric modeling
+geo_infer_econ.spatial.sar_model(
+    dependent_var, independent_vars, spatial_weights,
+    estimation='ml', diagnostics=True
+)
+
+# Economic impact assessment
+geo_infer_econ.impact.input_output_multipliers(
+    transaction_matrix, final_demand_change
+)
+
+# Regional economic analysis
+geo_infer_econ.regional.gini_coefficient(
+    income_distribution, spatial_weights=None
+)
+```
+
+## Use Cases
+
+### Urban Economic Development Planning
+**Scenario**: Optimize economic development strategies for metropolitan areas considering spatial spillovers.
+
+```python
+from geo_infer_econ.urban import UrbanEconomicPlanner
+
+urban_planner = UrbanEconomicPlanner(
+    city_boundaries=metro_area,
+    economic_indicators=['gdp', 'employment', 'wages'],
+    spatial_resolution='neighborhood'
+)
+
+# Analyze urban economic patterns
+economic_patterns = urban_planner.analyze_urban_economy(
+    economic_data=city_economic_data,
+    spatial_units=neighborhoods,
+    time_period='2020-2023'
+)
+
+# Optimize development investments
+optimal_investments = urban_planner.optimize_investments(
+    available_budget=100e6,  # $100 million
+    economic_objectives=['job_creation', 'income_growth', 'equity'],
+    spatial_constraints=infrastructure_capacity
+)
+```
+
+### Regional Trade and Economic Integration
+**Scenario**: Model economic effects of trade agreements and regional economic integration.
+
+```python
+from geo_infer_econ.trade import RegionalTradeAnalyzer
+
+trade_analyzer = RegionalTradeAnalyzer(
+    regions=['north_america', 'europe', 'asia'],
+    trade_data=international_trade_flows,
+    gravity_model_parameters={'distance_decay': -1.2, 'border_effect': -0.5}
+)
+
+# Analyze trade patterns
+trade_patterns = trade_analyzer.analyze_trade_flows(
+    exporter_regions=source_countries,
+    importer_regions=destination_countries,
+    time_period='2018-2023'
+)
+
+# Simulate trade agreement impacts
+fta_impacts = trade_analyzer.simulate_trade_agreement(
+    agreement_partners=['country_A', 'country_B'],
+    tariff_reductions={'goods': 0.5, 'services': 0.3},
+    baseline_trade=pre_agreement_flows
+)
+```
+
+### Environmental-Economic Policy Analysis
+**Scenario**: Evaluate economic costs and benefits of environmental policies across regions.
+
+```python
+from geo_infer_econ.environmental import EnvironmentalEconomicAnalyzer
+
+env_econ_analyzer = EnvironmentalEconomicAnalyzer(
+    environmental_indicators=['carbon_emissions', 'air_quality', 'biodiversity'],
+    economic_indicators=['gdp', 'employment', 'health_costs'],
+    valuation_methods=['revealed_preferences', 'stated_preferences']
+)
+
+# Assess environmental policy costs
+policy_costs = env_econ_analyzer.assess_policy_costs(
+    policy_scenarios=[carbon_tax, emissions_trading, subsidies],
+    economic_baseline=current_economy,
+    environmental_baseline=current_environment
+)
+
+# Calculate benefit-cost ratios
+bcr_analysis = env_econ_analyzer.benefit_cost_analysis(
+    policy_impacts=policy_costs,
+    discount_rate=0.03,
+    time_horizon=20
+)
+```
+
+### Infrastructure Investment Optimization
+**Scenario**: Optimize infrastructure investments considering economic returns and spatial equity.
+
+```python
+from geo_infer_econ.infrastructure import InfrastructureOptimizer
+
+infra_optimizer = InfrastructureOptimizer(
+    infrastructure_types=['transportation', 'utilities', 'digital'],
+    economic_objectives=['productivity', 'accessibility', 'equity'],
+    spatial_constraints=['budget', 'capacity', 'environmental']
+)
+
+# Optimize infrastructure portfolio
+optimal_portfolio = infra_optimizer.optimize_portfolio(
+    available_budget=50e9,  # $50 billion
+    candidate_projects=infrastructure_projects,
+    economic_benefits=project_benefits,
+    spatial_distribution=regional_needs
+)
+
+# Analyze equity impacts
+equity_analysis = infra_optimizer.analyze_spatial_equity(
+    infrastructure_investments=optimal_portfolio,
+    population_distribution=demographics,
+    economic_indicators=socioeconomic_data
+)
+```
 
 ## 🚀 Quick Start (5 minutes)
 

@@ -1,4 +1,18 @@
-# GEO-INFER-ANT
+---
+title: "GEO-INFER-ANT: Complex Adaptive Systems and Swarm Intelligence"
+description: "Swarm intelligence and complex adaptive systems modeling using Active Inference principles for emergent collective behavior in geospatial contexts"
+purpose: "Model and simulate complex adaptive systems inspired by swarm intelligence and stigmergy using Active Inference principles"
+module_type: "Simulation & Modeling"
+status: "Alpha"
+last_updated: "2025-01-19"
+dependencies: ["ACT", "SIM"]
+compatibility: ["GEO-INFER-ACT", "GEO-INFER-SIM", "GEO-INFER-AGENT", "GEO-INFER-SPACE"]
+tags: ["complex-adaptive-systems", "swarm-intelligence", "emergent-behavior", "stigmergy", "ant-colony-optimization", "particle-swarm"]
+difficulty: "Advanced"
+estimated_time: "75"
+---
+
+# GEO-INFER-ANT: Active Inference in Networked Topologies
 
 **Active Inference in Networked Topologies: Complex Adaptive Systems Modeling**
 
@@ -185,6 +199,229 @@ Contributions are welcome and can include:
 -   Integrating with empirical data on animal or human collective movement.
 
 Follow the contribution guidelines in the main GEO-INFER documentation (`CONTRIBUTING.md`) and any specific guidelines in `GEO-INFER-ANT/docs/CONTRIBUTING_ANT.md` (to be created).
+
+## Advanced Features
+
+### 1. Adaptive Stigmergy Systems
+**Purpose**: Advanced stigmergic coordination mechanisms that adapt to environmental changes and task requirements.
+
+```python
+from geo_infer_ant.stigmergy import AdaptiveStigmergySystem
+
+stigmergy_system = AdaptiveStigmergySystem(
+    pheromone_types=['attraction', 'repulsion', 'information'],
+    decay_functions=['exponential', 'power_law', 'adaptive'],
+    environmental_adaptation=True,
+    multi_modal_communication=True
+)
+
+# Create adaptive pheromone trails
+trail_network = stigmergy_system.create_trail_network(
+    environment=spatial_environment,
+    agent_types=['foragers', 'builders', 'scouts'],
+    adaptation_rate=0.1
+)
+
+# Environment-responsive pheromone decay
+dynamic_decay = stigmergy_system.compute_adaptive_decay(
+    environmental_factors=['humidity', 'temperature', 'wind'],
+    pheromone_type='information',
+    base_decay_rate=0.05
+)
+```
+
+### 2. Multi-Agent Reinforcement Learning for Collective Behavior
+**Purpose**: Train groups of agents to learn optimal collective behaviors using multi-agent reinforcement learning.
+
+```python
+from geo_infer_ant.multi_agent_rl import CollectiveRLTrainer
+
+rl_trainer = CollectiveRLTrainer(
+    agent_count=100,
+    state_space=['position', 'pheromone_levels', 'neighbor_states'],
+    action_space=['move', 'deposit_pheromone', 'interact'],
+    reward_function='collective_efficiency',
+    algorithm='multi_agent_ppo'
+)
+
+# Train collective behavior
+trained_agents = rl_trainer.train_collective_policy(
+    training_episodes=10000,
+    batch_size=1024,
+    exploration_strategy='entropy_regularized',
+    curriculum_learning=True
+)
+
+# Emergent behavior analysis
+emergent_patterns = rl_trainer.analyze_emergent_behavior(
+    trained_agents=trained_agents,
+    analysis_metrics=['coordination', 'efficiency', 'adaptability']
+)
+```
+
+### 3. Hierarchical Agent Organizations
+**Purpose**: Multi-level agent hierarchies for complex task decomposition and coordination.
+
+```python
+from geo_infer_ant.hierarchy import HierarchicalAgentOrganization
+
+hierarchy = HierarchicalAgentOrganization(
+    levels=['strategic', 'tactical', 'operational'],
+    communication_topology='hierarchical',
+    decision_making='distributed_consensus',
+    adaptation_mechanisms=['reorganization', 'level_migration']
+)
+
+# Create hierarchical structure
+org_structure = hierarchy.create_organization(
+    total_agents=1000,
+    level_distribution=[0.1, 0.3, 0.6],  # strategic, tactical, operational
+    communication_links=hierarchy_links
+)
+
+# Hierarchical task allocation
+task_allocation = hierarchy.allocate_tasks_hierarchically(
+    global_objectives=['optimize_resource_usage', 'maximize_coverage'],
+    local_constraints=['energy_limits', 'communication_range'],
+    optimization_strategy='multi_objective'
+)
+```
+
+## Performance Considerations
+
+### Computational Efficiency
+**Large-Scale Simulations**: Optimized algorithms for simulating thousands of agents with minimal computational overhead
+**Memory Management**: Efficient memory usage for agent states, pheromone fields, and interaction networks
+**Parallel Processing**: Distributed computation across multiple cores and nodes for large simulations
+
+### Real-Time Performance
+**Simulation Speed**: Real-time or faster-than-real-time execution for interactive applications
+**Adaptive Resolution**: Dynamic adjustment of simulation parameters based on available computational resources
+**Incremental Updates**: Efficient incremental state updates for continuous-time simulations
+
+### Scalability and Distribution
+**Horizontal Scaling**: Distribute agent populations across multiple compute nodes
+**Load Balancing**: Dynamic load balancing for heterogeneous agent workloads
+**Fault Tolerance**: Agent replication and failover mechanisms for robust simulations
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+#### Agent Coordination Failures
+**Issue**: Agents not coordinating effectively or forming suboptimal patterns
+**Solution**: Adjust pheromone parameters, verify communication protocols, and check environmental constraints
+
+```python
+from geo_infer_ant.diagnostics import CoordinationDiagnostics
+
+diagnostics = CoordinationDiagnostics()
+coord_analysis = diagnostics.analyze_coordination(
+    agent_population=agents,
+    pheromone_network=pheromone_trails,
+    interaction_patterns=interaction_history
+)
+
+# Optimize pheromone parameters
+optimized_params = diagnostics.optimize_pheromone_parameters(
+    current_params=pheromone_config,
+    coordination_metrics=coord_analysis['metrics']
+)
+```
+
+#### Simulation Performance Degradation
+**Issue**: Simulation slowing down as agent count or complexity increases
+**Solution**: Enable parallel processing, optimize agent update algorithms, and implement spatial partitioning
+
+```python
+from geo_infer_ant.performance import SimulationOptimizer
+
+optimizer = SimulationOptimizer(
+    parallel_processing=True,
+    spatial_partitioning=True,
+    adaptive_timestep=True
+)
+
+# Optimize simulation performance
+optimized_config = optimizer.optimize_simulation(
+    current_config=simulation_params,
+    performance_targets={'fps': 60, 'memory_mb': 4096},
+    resource_constraints=available_resources
+)
+```
+
+#### Emergent Behavior Instabilities
+**Issue**: System exhibiting unstable or chaotic emergent behaviors
+**Solution**: Adjust agent parameters, implement stabilization mechanisms, and validate model assumptions
+
+```python
+from geo_infer_ant.stability import BehaviorStabilizer
+
+stabilizer = BehaviorStabilizer(
+    stability_metrics=['convergence', 'oscillation', 'divergence'],
+    control_mechanisms=['damping', 'feedback', 'restructuring']
+)
+
+# Stabilize emergent behaviors
+stabilized_system = stabilizer.stabilize_behavior(
+    agent_system=unstable_agents,
+    target_stability=0.85,
+    adaptation_strategy='gradual'
+)
+```
+
+### Debugging Agent Systems
+
+#### Enable Detailed Logging
+```python
+import logging
+logging.getLogger('geo_infer_ant').setLevel(logging.DEBUG)
+
+# Enable agent state logging
+logging.getLogger('geo_infer_ant.agents').setLevel(logging.INFO)
+```
+
+#### Visualize Agent Behaviors
+```python
+from geo_infer_ant.visualization import AgentVisualizer
+
+visualizer = AgentVisualizer()
+visualizer.plot_agent_trajectories(
+    agents=agent_population,
+    trails=pheromone_network,
+    time_steps=simulation_history,
+    output_path='agent_behaviors.png'
+)
+```
+
+#### Monitor System Metrics
+```python
+from geo_infer_ant.monitoring import SystemMonitor
+
+monitor = SystemMonitor(
+    metrics=['coordination_efficiency', 'emergent_patterns', 'resource_usage'],
+    sampling_interval=1.0
+)
+
+with monitor.monitor_system():
+    simulation.run(steps=1000)
+    
+metrics_report = monitor.get_report()
+```
+
+### Common Error Messages
+
+#### "Pheromone evaporation rate too high"
+**Cause**: Pheromone trails disappearing before agents can follow them
+**Fix**: Reduce evaporation rate or increase pheromone deposit amounts
+
+#### "Agent population divergence"
+**Cause**: Agent behaviors becoming too dissimilar, losing collective coordination
+**Fix**: Increase communication frequency or implement coordination protocols
+
+#### "Simulation timestep instability"
+**Cause**: Time steps too large for system dynamics
+**Fix**: Reduce time step size or implement adaptive timestepping
 
 ## License
 
