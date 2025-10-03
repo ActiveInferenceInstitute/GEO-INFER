@@ -36,11 +36,13 @@ The module facilitates the integration of external codebases, datasets, and pre-
 
 ## Core Objectives
 
-*   **Automated Repository Acquisition**: Simplify and automate the process of cloning and updating multiple Git repositories relevant to geospatial analysis and AI.
-*   **Version Consistency**: Ensure that specific versions or branches of repositories are used, promoting stable and reproducible research and development environments.
-*   **Selective Integration**: Allow fine-grained control over which repositories, users, or specific repository contents are cloned and integrated.
-*   **Dependency Management**: Facilitate the tracking of external software dependencies that are managed via Git.
-*   **Workflow Integration**: Provide a seamless bridge for other GEO-INFER modules to access and utilize code and data from version-controlled sources.
+*   **Automated Repository Acquisition**: Simplify and automate the process of cloning and updating multiple Git repositories relevant to geospatial analysis and AI with intelligent platform support for GitHub, GitLab, Bitbucket, and local repositories.
+*   **Version Consistency**: Ensure that specific versions or branches of repositories are used, promoting stable and reproducible research and development environments with comprehensive version tracking and dependency management.
+*   **Selective Integration**: Allow fine-grained control over which repositories, users, or specific repository contents are cloned and integrated with advanced filtering and validation capabilities.
+*   **Dependency Management**: Facilitate the tracking of external software dependencies that are managed via Git with automated dependency resolution and conflict detection.
+*   **Workflow Integration**: Provide a seamless bridge for other GEO-INFER modules to access and utilize code and data from version-controlled sources with comprehensive API and integration examples.
+*   **Performance Optimization**: Implement intelligent performance monitoring, memory management, and adaptive batch processing for large-scale repository operations.
+*   **Error Recovery**: Provide robust error handling, retry mechanisms, and graceful failure recovery with detailed error classification and recovery strategies.
 
 ## Key Features
 
@@ -377,29 +379,165 @@ conflicts = sync.get_conflict_report()
 
 ### Core Classes
 
-#### `MultiPlatformRepoManager`
-- `clone_repositories(github, gitlab, bitbucket)`: Clone repositories from multiple platforms
-- `sync_all_repositories()`: Synchronize all managed repositories
-- `get_repository_status(repo_id)`: Get status of specific repository
+#### `MultiPlatformAPI`
+- `get_user_repositories(platform, username, **kwargs)`: Get repositories for a user across platforms
+- `get_repository(platform, owner, repo)`: Get repository information across platforms
+- `check_credentials(platform)`: Check if credentials are valid for a platform
+- `get_supported_platforms()`: Get list of supported platforms
 
-#### `IntelligentRepoDiscovery`
-- `discover_repositories(platform, max_results, threshold)`: Discover repositories
-- `analyze_geospatial_relevance(repos)`: Analyze geospatial content
-- `filter_by_criteria(repos, criteria)`: Filter repositories by criteria
+#### `RepoCloner`
+- `clone_repository(owner, repo, branch)`: Clone a single repository
+- `clone_repositories_for_user(username, repositories)`: Clone repositories for a specific user
+- `clone_multiple_repositories(repositories)`: Clone multiple repositories in parallel
+- `get_clone_stats()`: Get cloning statistics and progress
+- `cleanup_failed_clones()`: Clean up partially cloned repositories
 
-#### `AutomatedRepoSync`
-- `setup_automation(repositories, schedule, backup)`: Setup automated sync
-- `get_sync_status()`: Get synchronization status
-- `get_conflict_report()`: Get conflict resolution report
+#### `GitHubAPI`
+- `get_user_repositories(username, **kwargs)`: Get GitHub repositories for a user
+- `search_repositories(query, **kwargs)`: Search GitHub repositories
+- `filter_repositories(repositories, **criteria)`: Filter repositories by criteria
+- `get_rate_limit()`: Get current GitHub API rate limit status
+
+#### `GitLabAPI`
+- `get_user_repositories(username, **kwargs)`: Get GitLab repositories for a user
+- `get_repository(owner, repo)`: Get GitLab repository information
+- `check_credentials()`: Check GitLab credentials validity
+
+#### `BitbucketAPI`
+- `get_user_repositories(username, **kwargs)`: Get Bitbucket repositories for a user
+- `get_repository(owner, repo)`: Get Bitbucket repository information
+- `check_credentials()`: Check Bitbucket credentials validity
+
+#### `LocalGitAPI`
+- `discover_repositories(max_depth)`: Discover local Git repositories
+- `get_repository(path)`: Get information about a local repository
+- `check_repository(path)`: Check if path contains a valid Git repository
+
+### Configuration Classes
+
+#### `CloneConfig`
+- Configuration dataclass for repository cloning operations
+- Supports GitHub, GitLab, Bitbucket, and local repository settings
+- Configurable concurrency, authentication, and performance settings
+
+#### `ConfigLoader`
+- Load and validate configuration files with JSON schema validation
+- Support for YAML and JSON configuration formats
+- Configuration caching and validation
+
+#### `TargetRepository` / `TargetUser`
+- Data structures for configuring target repositories and users
+- Support for filtering, branching, and tagging
+
+### Utility Classes
+
+#### `PerformanceOptimizer`
+- Comprehensive performance monitoring and optimization
+- Memory management, caching, and adaptive batch processing
+- System resource monitoring and optimization recommendations
+
+#### `GeoInferGitLogger`
+- Advanced logging with structured output (JSON/text)
+- Performance metrics logging and context-aware logging
+- Log rotation and management
+
+#### `ErrorRecoveryManager`
+- Intelligent error classification and recovery strategies
+- Retry mechanisms with exponential backoff
+- Platform-specific error handling
 
 ### REST API Endpoints
 
+#### Repository Management
+- `GET /repositories`: List managed repositories with filtering
+- `POST /repositories`: Add new repository to management system
+- `GET /repositories/{repo_id}`: Get repository details
+- `POST /repositories/{repo_id}/clone`: Clone repository
+- `POST /repositories/{repo_id}/sync`: Synchronize repository
+
+#### Branch Operations
+- `GET /repositories/{repo_id}/branches`: List repository branches
+- `POST /repositories/{repo_id}/branches`: Create new branch
+- `POST /repositories/{repo_id}/branches/{branch_name}/merge`: Merge branch
+
+#### System Monitoring
+- `GET /health`: Health check endpoint
+- `GET /system/status`: Comprehensive system status
+
+#### Integration
+- `GET /integrations`: List platform integrations
+- `POST /integrations`: Create new platform integration
+- `POST /integrations/{integration_id}/test`: Test integration connectivity
+
+### Configuration Files
+
+#### `example.yaml` (Primary Configuration)
+```yaml
+# General settings
+general:
+  output_dir: "./cloned_repositories"
+  base_dir: "./repos"
+
+# GitHub API settings
+github:
+  token: "${GITHUB_TOKEN}"  # Environment variable
+  api_url: "https://api.github.com"
+  wait_on_rate_limit: true
+  max_retries: 3
+  retry_delay: 1.0
+
+# Concurrency settings
+concurrency:
+  enabled: true
+  max_workers: 4
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "json"
+  file: "./logs/git_operations.log"
 ```
-POST /api/v1/git/clone
-GET  /api/v1/git/repositories
-POST /api/v1/git/sync
-GET  /api/v1/git/status/{repo_id}
+
+#### `target_repos.yaml` (Repository Targets)
+```yaml
+repositories:
+  - owner: "USGS"
+    repo: "earthquake-data"
+    branch: "main"
+    tags: ["geospatial", "earthquake", "data"]
+    enabled: true
+
+  - owner: "NASA"
+    repo: "landsat-data"
+    branch: "develop"
+    clone_depth: 1
+    tags: ["satellite", "remote-sensing"]
+    enabled: true
 ```
+
+#### `target_users.yaml` (User Targets)
+```yaml
+users:
+  - username: "geospatial-libraries"
+    include_repos: ["geopandas", "rasterio"]
+    exclude_repos: ["*-docs"]
+    max_repos: 10
+    tags: ["geospatial", "python"]
+    enabled: true
+
+  - username: "ai-research"
+    max_repos: 5
+    tags: ["ai", "machine-learning", "research"]
+    enabled: true
+```
+
+### Environment Variables
+
+- `GITHUB_TOKEN`: GitHub personal access token
+- `GITLAB_TOKEN`: GitLab access token
+- `BITBUCKET_USERNAME`: Bitbucket username
+- `BITBUCKET_APP_PASSWORD`: Bitbucket app password
+
 
 ## Use Cases
 

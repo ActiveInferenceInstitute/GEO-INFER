@@ -288,3 +288,4 @@ python -m pytest -s tests/test_geojson_router.py::test_list_collections
 3. **Include integration tests** for new features
 4. **Test error conditions** comprehensively
 5. **Update this README** for new test categories
+

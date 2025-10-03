@@ -257,3 +257,4 @@ The agent framework integrates with other GEO-INFER modules:
 - **GEO-INFER-ANT**: Swarm intelligence coordination
 - **GEO-INFER-API**: RESTful interfaces
 - **GEO-INFER-COMMS**: Inter-agent communication
+

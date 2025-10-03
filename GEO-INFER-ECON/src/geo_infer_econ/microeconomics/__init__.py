@@ -20,26 +20,11 @@ from .consumer_theory import (
     ConsumerSurplus
 )
 
-# Placeholder classes for modules not yet implemented
-class ConsumerTheoryModels:
-    """Main consumer theory modeling class."""
-    pass
-
-class ProducerTheoryModels:
-    """Main producer theory modeling class.""" 
-    pass
-
-class MarketStructureAnalysis:
-    """Main market structure analysis class."""
-    pass
-
-class GameTheoryModels:
-    """Main game theory modeling class."""
-    pass
-
-class BehavioralEconomicsEngine:
-    """Main behavioral economics engine class."""
-    pass
+# Import implemented classes
+from .producer_theory import ProducerTheoryModels
+from .market_structure import MarketStructureAnalysis
+from .game_theory import GameTheoryModels
+from .behavioral_economics import BehavioralEconomicsEngine
 
 __all__ = [
     # Available consumer theory classes

@@ -5,16 +5,38 @@ This package provides specialized mathematical models designed specifically
 for analyzing geographical and spatial patterns and relationships.
 """
 
-from geo_infer_math.models.regression import *
-from geo_infer_math.models.clustering import *
-from geo_infer_math.models.dimension_reduction import *
-from geo_infer_math.models.manifold_learning import *
-from geo_infer_math.models.spectral_analysis import *
+# Try to import available model modules
+_available_models = []
 
-__all__ = [
-    "regression",
-    "clustering",
-    "dimension_reduction",
-    "manifold_learning",
-    "spectral_analysis"
-]
+try:
+    from geo_infer_math.models import regression
+    _available_models.append("regression")
+except ImportError:
+    pass
+
+try:
+    from geo_infer_math.models import clustering
+    _available_models.append("clustering")
+except ImportError:
+    pass
+
+# Future modules (when implemented)
+# try:
+#     from geo_infer_math.models import dimension_reduction
+#     _available_models.append("dimension_reduction")
+# except ImportError:
+#     pass
+
+# try:
+#     from geo_infer_math.models import manifold_learning
+#     _available_models.append("manifold_learning")
+# except ImportError:
+#     pass
+
+# try:
+#     from geo_infer_math.models import spectral_analysis
+#     _available_models.append("spectral_analysis")
+# except ImportError:
+#     pass
+
+__all__ = _available_models

@@ -498,3 +498,4 @@ scalability_assessment = performance_evaluator.assess_scalability(
 ---
 
 This AGENTS.md file documents the swarm intelligence and complex adaptive systems agent implementations within the GEO-INFER-ANT module. The framework provides sophisticated models for understanding emergent collective behavior in geospatial contexts through stigmergic communication, bio-inspired algorithms, and multi-agent coordination.
+

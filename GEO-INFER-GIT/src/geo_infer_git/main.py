@@ -13,14 +13,14 @@ import logging
 from typing import Dict, Any, List, Optional
 import yaml
 
-# No need to modify path for relative imports
-from utils.config_loader import (
-    load_clone_config, 
-    load_target_repos_config, 
+# Import the required modules
+from .utils.config_loader import (
+    load_clone_config,
+    load_target_repos_config,
     load_target_users_config
 )
-from core.github_api import GitHubAPI
-from core.repo_cloner import RepoCloner
+from .core.github_api import GitHubAPI
+from .core.repo_cloner import RepoCloner
 
 logger = logging.getLogger(__name__)
 

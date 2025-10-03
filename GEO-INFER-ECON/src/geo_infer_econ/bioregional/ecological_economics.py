@@ -225,52 +225,72 @@ class BiophysicalEquilibriumModels:
             'parameters': parameters
         }
     
-    def _ecosystem_services_model(self, 
+    def _ecosystem_services_model(self,
                                 parameters: Dict[str, Any],
                                 time_steps: int) -> Dict[str, Any]:
-        """Ecosystem services valuation model."""
+        """Advanced ecosystem services valuation model with spatial dynamics."""
         # Extract parameters
         service_types = parameters.get('service_types', ['provisioning', 'regulating', 'cultural'])
         initial_values = parameters.get('initial_values', [100, 80, 60])
         growth_rates = parameters.get('growth_rates', [0.1, 0.05, 0.08])
         interaction_matrix = parameters.get('interaction_matrix', [[1.0, 0.2, 0.1], [0.1, 1.0, 0.3], [0.2, 0.1, 1.0]])
-        
+
+        # Spatial parameters
+        spatial_scale = parameters.get('spatial_scale', 1.0)
+        diffusion_rate = parameters.get('diffusion_rate', 0.1)
+
         # Initial service values
         service_values = initial_values.copy()
-        
+
         # Time series
         value_history = [service_values.copy()]
-        
+        spatial_distribution = [service_values.copy()]  # Track spatial distribution
+
         dt = 0.1  # Time step
-        
+
         for t in range(time_steps):
             new_values = []
-            
+
             for i in range(len(service_types)):
                 # Base growth
                 d_value = growth_rates[i] * service_values[i]
-                
+
                 # Interaction effects
                 for j in range(len(service_types)):
                     if i != j:
                         d_value += interaction_matrix[i][j] * service_values[j] * 0.01
-                
+
+                # Spatial diffusion (simplified)
+                if t > 0:
+                    # Simple diffusion between service types
+                    diffusion_effect = diffusion_rate * (np.mean(service_values) - service_values[i])
+                    d_value += diffusion_effect
+
                 new_value = service_values[i] + d_value * dt
                 new_value = max(0, new_value)  # Ensure non-negative
                 new_values.append(new_value)
-            
+
             service_values = new_values
             value_history.append(service_values.copy())
-        
+
+            # Update spatial distribution (simplified)
+            spatial_dist = [v * (1 + np.random.normal(0, 0.1)) for v in service_values]
+            spatial_distribution.append(spatial_dist)
+
         # Calculate total economic value
         total_value = sum(service_values)
-        
+
+        # Calculate spatial heterogeneity
+        spatial_heterogeneity = np.std(spatial_distribution[-1]) / np.mean(spatial_distribution[-1])
+
         return {
             'model_type': 'ecosystem_services',
             'equilibrium_reached': self._check_equilibrium_multi(value_history),
             'final_values': service_values,
             'total_economic_value': total_value,
             'value_history': value_history,
+            'spatial_distribution': spatial_distribution,
+            'spatial_heterogeneity': spatial_heterogeneity,
             'parameters': parameters
         }
     

@@ -1,0 +1,611 @@
+"""
+REST API implementation for GEO-INFER-COMMS.
+
+This module provides comprehensive REST API endpoints for the geospatial
+communication system, supporting all core functionality with proper
+authentication, validation, and geospatial context handling.
+"""
+
+from __future__ import annotations
+import asyncio
+import json
+import logging
+from typing import Dict, List, Optional, Any
+from datetime import datetime, timezone
+from contextlib import asynccontextmanager
+
+from fastapi import FastAPI, HTTPException, Depends, status, BackgroundTasks
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+import uvicorn
+
+from geo_infer_comms import (
+    GeospatialCommunicationSystem, MessageRequest, MessageResponse,
+    ChannelRequest, ChannelResponse, NotificationRequest, NotificationResponse,
+    EventPublishRequest, EventPublishResponse, BroadcastRequest, BroadcastResponse,
+    GeospatialPoint, GeospatialBounds, GeospatialMetadata,
+    MessageType, MessagePriority, NotificationType, ChannelType,
+    validate_coordinates, validate_user_id, validate_message_content
+)
+
+
+class CommunicationAPI:
+    """
+    REST API server for geospatial communication system.
+
+    Provides comprehensive HTTP endpoints for messaging, notifications,
+    channels, events, and geospatial operations with proper authentication
+    and validation.
+    """
+
+    def __init__(
+        self,
+        system: GeospatialCommunicationSystem,
+        host: str = "0.0.0.0",
+        port: int = 8000,
+        enable_auth: bool = True,
+        enable_cors: bool = True,
+        cors_origins: List[str] = ["*"]
+    ):
+        self.system = system
+        self.host = host
+        self.port = port
+        self.enable_auth = enable_auth
+
+        # Create FastAPI application
+        self.app = FastAPI(
+            title="GEO-INFER-COMMS API",
+            description="Geospatial Communications Infrastructure API",
+            version="1.0.0",
+            docs_url="/docs",
+            redoc_url="/redoc"
+        )
+
+        # Add CORS middleware if enabled
+        if enable_cors:
+            self.app.add_middleware(
+                CORSMiddleware,
+                allow_origins=cors_origins,
+                allow_credentials=True,
+                allow_methods=["*"],
+                allow_headers=["*"],
+            )
+
+        # Set up authentication
+        self.security = HTTPBearer() if enable_auth else None
+
+        # Set up logging
+        self.logger = logging.getLogger(__name__)
+
+        # Register API routes
+        self._register_routes()
+
+        # Health check endpoint
+        @self.app.get("/health")
+        async def health_check():
+            """System health check endpoint."""
+            health = self.system.get_system_health()
+            return JSONResponse(
+                status_code=status.HTTP_200_OK,
+                content=health
+            )
+
+        @self.app.get("/")
+        async def root():
+            """API root endpoint."""
+            return {
+                "name": "GEO-INFER-COMMS API",
+                "version": "1.0.0",
+                "status": "running",
+                "timestamp": datetime.now(timezone.utc).isoformat()
+            }
+
+    def _register_routes(self) -> None:
+        """Register all API routes."""
+
+        # Message endpoints
+        @self.app.post("/messages", response_model=MessageResponse)
+        async def send_message(
+            request: MessageRequest,
+            background_tasks: BackgroundTasks,
+            credentials: HTTPAuthorizationCredentials = Depends(self._get_credentials) if self.enable_auth else None
+        ):
+            """Send a new message."""
+            try:
+                user_id = self._validate_credentials(credentials) if self.enable_auth else "system"
+
+                # Validate message content
+                if not validate_message_content(request.content):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Invalid message content"
+                    )
+
+                message = self.system.send_message(
+                    content=request.content,
+                    recipients=request.recipients,
+                    channel_id=request.channel_id,
+                    message_type=request.message_type,
+                    priority=request.priority,
+                    geospatial_data=request.geospatial_data
+                )
+
+                return message
+
+            except Exception as e:
+                self.logger.error(f"Error sending message: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=str(e)
+                )
+
+        @self.app.get("/messages", response_model=List[MessageResponse])
+        async def get_messages(
+            sender_id: Optional[str] = None,
+            channel_id: Optional[str] = None,
+            limit: int = 100,
+            credentials: HTTPAuthorizationCredentials = Depends(self._get_credentials) if self.enable_auth else None
+        ):
+            """Get messages with optional filtering."""
+            try:
+                user_id = self._validate_credentials(credentials) if self.enable_auth else None
+
+                messages = self.system.message_broker.get_messages(
+                    sender_id=sender_id,
+                    channel_id=channel_id,
+                    limit=limit
+                )
+
+                return messages
+
+            except Exception as e:
+                self.logger.error(f"Error getting messages: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=str(e)
+                )
+
+        @self.app.get("/messages/{message_id}", response_model=MessageResponse)
+        async def get_message(
+            message_id: str,
+            credentials: HTTPAuthorizationCredentials = Depends(self._get_credentials) if self.enable_auth else None
+        ):
+            """Get a specific message by ID."""
+            try:
+                user_id = self._validate_credentials(credentials) if self.enable_auth else None
+
+                message = self.system.message_broker.get_message(message_id)
+                if not message:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="Message not found"
+                    )
+
+                return message
+
+            except HTTPException:
+                raise
+            except Exception as e:
+                self.logger.error(f"Error getting message: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=str(e)
+                )
+
+        # Channel endpoints
+        @self.app.post("/channels", response_model=ChannelResponse)
+        async def create_channel(
+            request: ChannelRequest,
+            credentials: HTTPAuthorizationCredentials = Depends(self._get_credentials) if self.enable_auth else None
+        ):
+            """Create a new communication channel."""
+            try:
+                user_id = self._validate_credentials(credentials) if self.enable_auth else "system"
+
+                channel = self.system.create_channel(
+                    name=request.name,
+                    channel_type=request.type,
+                    description=request.description,
+                    permissions=request.permissions,
+                    settings=request.settings,
+                    geospatial_bounds=request.geospatial_bounds
+                )
+
+                return channel
+
+            except Exception as e:
+                self.logger.error(f"Error creating channel: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=str(e)
+                )
+
+        @self.app.get("/channels", response_model=List[ChannelResponse])
+        async def get_channels(
+            channel_type: Optional[ChannelType] = None,
+            limit: int = 100,
+            credentials: HTTPAuthorizationCredentials = Depends(self._get_credentials) if self.enable_auth else None
+        ):
+            """Get channels with optional filtering."""
+            try:
+                user_id = self._validate_credentials(credentials) if self.enable_auth else None
+
+                channels = self.system.channel_manager.get_channels(
+                    channel_type=channel_type,
+                    limit=limit
+                )
+
+                return channels
+
+            except Exception as e:
+                self.logger.error(f"Error getting channels: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=str(e)
+                )
+
+        @self.app.get("/channels/{channel_id}", response_model=ChannelResponse)
+        async def get_channel(
+            channel_id: str,
+            credentials: HTTPAuthorizationCredentials = Depends(self._get_credentials) if self.enable_auth else None
+        ):
+            """Get a specific channel by ID."""
+            try:
+                user_id = self._validate_credentials(credentials) if self.enable_auth else None
+
+                channel = self.system.channel_manager.get_channel(channel_id)
+                if not channel:
+                    raise HTTPException(
+                        status_code=status.HTTP_404_NOT_FOUND,
+                        detail="Channel not found"
+                    )
+
+                return channel
+
+            except HTTPException:
+                raise
+            except Exception as e:
+                self.logger.error(f"Error getting channel: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=str(e)
+                )
+
+        # Notification endpoints
+        @self.app.post("/notifications", response_model=NotificationResponse)
+        async def create_notification(
+            request: NotificationRequest,
+            background_tasks: BackgroundTasks,
+            credentials: HTTPAuthorizationCredentials = Depends(self._get_credentials) if self.enable_auth else None
+        ):
+            """Create a new notification."""
+            try:
+                user_id = self._validate_credentials(credentials) if self.enable_auth else "system"
+
+                notification = self.system.create_notification(
+                    title=request.title,
+                    content=request.content,
+                    recipients=request.recipients,
+                    notification_type=request.notification_type,
+                    priority=request.priority,
+                    delivery_method=request.delivery_method,
+                    schedule_time=request.schedule_time,
+                    expiry_time=request.expiry_time,
+                    geospatial_context=request.geospatial_context
+                )
+
+                return notification
+
+            except Exception as e:
+                self.logger.error(f"Error creating notification: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=str(e)
+                )
+
+        @self.app.get("/notifications", response_model=List[NotificationResponse])
+        async def get_notifications(
+            status: Optional[str] = None,
+            limit: int = 100,
+            credentials: HTTPAuthorizationCredentials = Depends(self._get_credentials) if self.enable_auth else None
+        ):
+            """Get notifications with optional filtering."""
+            try:
+                user_id = self._validate_credentials(credentials) if self.enable_auth else None
+
+                # Convert status string to enum if provided
+                notification_status = None
+                if status:
+                    try:
+                        from geo_infer_comms.models.message import NotificationStatus
+                        notification_status = NotificationStatus(status)
+                    except ValueError:
+                        raise HTTPException(
+                            status_code=status.HTTP_400_BAD_REQUEST,
+                            detail=f"Invalid notification status: {status}"
+                        )
+
+                notifications = self.system.notification_manager.get_notifications(
+                    status=notification_status,
+                    limit=limit
+                )
+
+                return notifications
+
+            except HTTPException:
+                raise
+            except Exception as e:
+                self.logger.error(f"Error getting notifications: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=str(e)
+                )
+
+        # Event endpoints
+        @self.app.post("/events", response_model=EventPublishResponse)
+        async def publish_event(
+            request: EventPublishRequest,
+            background_tasks: BackgroundTasks,
+            credentials: HTTPAuthorizationCredentials = Depends(self._get_credentials) if self.enable_auth else None
+        ):
+            """Publish a new event."""
+            try:
+                user_id = self._validate_credentials(credentials) if self.enable_auth else "system"
+
+                event = self.system.publish_event(
+                    event_type=request.event_type,
+                    payload=request.payload,
+                    source=request.source,
+                    target_channels=request.target_channels,
+                    priority=request.priority,
+                    persistence=request.persistence,
+                    geospatial_context=request.geospatial_context
+                )
+
+                return event
+
+            except Exception as e:
+                self.logger.error(f"Error publishing event: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=str(e)
+                )
+
+        @self.app.get("/events", response_model=List[EventPublishResponse])
+        async def get_events(
+            event_type: Optional[str] = None,
+            source: Optional[str] = None,
+            limit: int = 100,
+            credentials: HTTPAuthorizationCredentials = Depends(self._get_credentials) if self.enable_auth else None
+        ):
+            """Get events with optional filtering."""
+            try:
+                user_id = self._validate_credentials(credentials) if self.enable_auth else None
+
+                events = self.system.event_manager.get_events(
+                    event_type=event_type,
+                    source=source,
+                    limit=limit
+                )
+
+                return events
+
+            except Exception as e:
+                self.logger.error(f"Error getting events: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=str(e)
+                )
+
+        # Broadcast endpoints
+        @self.app.post("/messages/broadcast", response_model=BroadcastResponse)
+        async def broadcast_message(
+            request: BroadcastRequest,
+            background_tasks: BackgroundTasks,
+            credentials: HTTPAuthorizationCredentials = Depends(self._get_credentials) if self.enable_auth else None
+        ):
+            """Broadcast a message to multiple recipients."""
+            try:
+                user_id = self._validate_credentials(credentials) if self.enable_auth else "system"
+
+                broadcast = self.system.message_broker.broadcast_message(
+                    request=request,
+                    sender_id=user_id
+                )
+
+                return broadcast
+
+            except Exception as e:
+                self.logger.error(f"Error broadcasting message: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=str(e)
+                )
+
+        # Geospatial endpoints
+        @self.app.post("/geospatial/distance")
+        async def calculate_distance(
+            point1: Dict[str, float],
+            point2: Dict[str, float],
+            method: str = "haversine"
+        ):
+            """Calculate distance between two geospatial points."""
+            try:
+                # Validate input points
+                if not all(key in point1 for key in ["longitude", "latitude"]):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Invalid point1 format"
+                    )
+
+                if not all(key in point2 for key in ["longitude", "latitude"]):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Invalid point2 format"
+                    )
+
+                # Create geospatial points
+                p1 = GeospatialPoint(
+                    longitude=point1["longitude"],
+                    latitude=point1["latitude"]
+                )
+                p2 = GeospatialPoint(
+                    longitude=point2["longitude"],
+                    latitude=point2["latitude"]
+                )
+
+                # Calculate distance
+                distance = p1.distance_to(p2, method=method)
+
+                return {
+                    "distance_meters": distance,
+                    "method": method,
+                    "point1": {"longitude": p1.longitude, "latitude": p1.latitude},
+                    "point2": {"longitude": p2.longitude, "latitude": p2.latitude}
+                }
+
+            except HTTPException:
+                raise
+            except Exception as e:
+                self.logger.error(f"Error calculating distance: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=str(e)
+                )
+
+        @self.app.get("/geospatial/channels/nearby")
+        async def get_nearby_channels(
+            longitude: float,
+            latitude: float,
+            radius_km: float = 1.0,
+            limit: int = 50
+        ):
+            """Find channels near a specific location."""
+            try:
+                # Validate coordinates
+                if not validate_coordinates(longitude, latitude):
+                    raise HTTPException(
+                        status_code=status.HTTP_400_BAD_REQUEST,
+                        detail="Invalid coordinates"
+                    )
+
+                # Create reference point
+                location = GeospatialPoint(longitude=longitude, latitude=latitude)
+
+                # Find nearby channels
+                channels = self.system.channel_manager.get_channels_by_location(
+                    location=location,
+                    radius_km=radius_km
+                )
+
+                return {
+                    "location": {"longitude": longitude, "latitude": latitude},
+                    "radius_km": radius_km,
+                    "channels_found": len(channels),
+                    "channels": channels[:limit]
+                }
+
+            except HTTPException:
+                raise
+            except Exception as e:
+                self.logger.error(f"Error finding nearby channels: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=str(e)
+                )
+
+        # System metrics endpoint
+        @self.app.get("/metrics")
+        async def get_metrics(
+            credentials: HTTPAuthorizationCredentials = Depends(self._get_credentials) if self.enable_auth else None
+        ):
+            """Get comprehensive system metrics."""
+            try:
+                user_id = self._validate_credentials(credentials) if self.enable_auth else None
+
+                metrics = self.system.get_comprehensive_metrics()
+
+                return metrics
+
+            except Exception as e:
+                self.logger.error(f"Error getting metrics: {e}")
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                    detail=str(e)
+                )
+
+    def _get_credentials(self):
+        """Get authentication credentials dependency."""
+        return self.security
+
+    def _validate_credentials(self, credentials: HTTPAuthorizationCredentials) -> str:
+        """Validate authentication credentials."""
+        if not credentials:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication required"
+            )
+
+        # In a real implementation, would validate JWT token or API key
+        # For now, extract user ID from token (simplified)
+        try:
+            # This is a placeholder - in production would properly validate
+            token = credentials.credentials
+            # Basic validation - in production would decode JWT
+            if not token or len(token) < 10:
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED,
+                    detail="Invalid authentication token"
+                )
+
+            # Extract user ID (simplified - would decode JWT properly)
+            user_id = f"user_{hash(token) % 10000}"
+            return user_id
+
+        except Exception:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Authentication failed"
+            )
+
+    def start_server(self) -> None:
+        """Start the API server."""
+        self.logger.info(f"Starting API server on {self.host}:{self.port}")
+        uvicorn.run(
+            self.app,
+            host=self.host,
+            port=self.port,
+            log_level="info",
+            access_log=True
+        )
+
+    def get_app(self) -> FastAPI:
+        """Get the FastAPI application instance."""
+        return self.app
+
+
+def create_api_server(
+    system: GeospatialCommunicationSystem,
+    config: Optional[Dict[str, Any]] = None
+) -> CommunicationAPI:
+    """
+    Create and configure a communication API server.
+
+    Args:
+        system: Geospatial communication system instance
+        config: API configuration options
+
+    Returns:
+        Configured API server instance
+    """
+    api_config = config or {}
+
+    return CommunicationAPI(
+        system=system,
+        host=api_config.get("host", "0.0.0.0"),
+        port=api_config.get("port", 8000),
+        enable_auth=api_config.get("enable_auth", True),
+        enable_cors=api_config.get("enable_cors", True),
+        cors_origins=api_config.get("cors_origins", ["*"])
+    )

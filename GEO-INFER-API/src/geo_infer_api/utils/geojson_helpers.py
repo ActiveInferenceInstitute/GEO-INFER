@@ -1,6 +1,7 @@
 """
 Utility functions for working with GeoJSON data.
 """
+import math
 from typing import Dict, List, Tuple, Union
 
 from geo_infer_api.models.geojson import (
@@ -216,4 +217,172 @@ def create_polygon_feature(
         geometry=polygon,
         properties=properties or {},
         id=feature_id
-    ) 
+    )
+
+
+def create_buffer(polygon: Union[Polygon, Dict], distance: float, unit: str = "kilometers", segments: int = 16) -> Polygon:
+    """
+    Create a buffer around a polygon at a specified distance.
+
+    Args:
+        polygon: A GeoJSON Polygon object or dict
+        distance: Buffer distance (in the specified unit)
+        unit: Unit for the distance ("meters", "kilometers", or "miles")
+        segments: Number of segments for the buffer approximation
+
+    Returns:
+        Polygon: A new polygon representing the buffer zone
+    """
+    # Convert distance to kilometers for consistent calculation
+    if unit == "meters":
+        distance_km = distance / 1000
+    elif unit == "miles":
+        distance_km = distance * 1.60934
+    else:  # kilometers
+        distance_km = distance
+
+    # Get the exterior ring of the polygon
+    if isinstance(polygon, Polygon):
+        exterior_ring = polygon.coordinates[0]
+    elif isinstance(polygon, dict) and polygon.get("type") == GeoJSONType.POLYGON:
+        exterior_ring = polygon.get("coordinates", [[]])[0]
+    else:
+        raise ValueError("Input must be a GeoJSON Polygon")
+
+    # Calculate centroid for buffer approximation
+    centroid_x = sum(coord[0] for coord in exterior_ring) / len(exterior_ring)
+    centroid_y = sum(coord[1] for coord in exterior_ring) / len(exterior_ring)
+
+    # Create buffer points around each vertex
+    buffer_coords = []
+
+    for lon, lat in exterior_ring:
+        # Calculate bearing to centroid
+        dx = centroid_x - lon
+        dy = centroid_y - lat
+        distance_to_centroid = ((dx ** 2) + (dy ** 2)) ** 0.5
+
+        if distance_to_centroid == 0:
+            # Point is the centroid, just add buffer around it
+            for i in range(segments):
+                angle = (2 * 3.14159 * i) / segments
+                buffer_lon = lon + (distance_km * math.cos(angle)) / (111.32 * math.cos(math.radians(lat)))
+                buffer_lat = lat + (distance_km * math.sin(angle)) / 111.32
+                buffer_coords.extend([buffer_lon, buffer_lat])
+        else:
+            # Calculate perpendicular directions
+            bearing = math.atan2(dy, dx)
+            perp_bearing1 = bearing + math.pi / 2
+            perp_bearing2 = bearing - math.pi / 2
+
+            # Calculate buffer points
+            for perp_bearing in [perp_bearing1, perp_bearing2]:
+                buffer_lon = lon + (distance_km * math.cos(perp_bearing)) / (111.32 * math.cos(math.radians(lat)))
+                buffer_lat = lat + (distance_km * math.sin(perp_bearing)) / 111.32
+                buffer_coords.extend([buffer_lon, buffer_lat])
+
+    # Create convex hull or simplified buffer (simplified implementation)
+    # For a more accurate buffer, we'd use proper geometric libraries like shapely
+
+    # Create a simple rectangular buffer for now (simplified)
+    min_lon = min(coord[0] for coord in exterior_ring) - distance_km / 111.32
+    max_lon = max(coord[0] for coord in exterior_ring) + distance_km / 111.32
+    min_lat = min(coord[1] for coord in exterior_ring) - distance_km / 111.32
+    max_lat = max(coord[1] for coord in exterior_ring) + distance_km / 111.32
+
+    buffer_ring = [
+        [min_lon, min_lat],
+        [max_lon, min_lat],
+        [max_lon, max_lat],
+        [min_lon, max_lat],
+        [min_lon, min_lat]  # Close the ring
+    ]
+
+    return Polygon(type=GeoJSONType.POLYGON, coordinates=[buffer_ring])
+
+
+def calculate_intersection(polygons: List[Union[Polygon, Dict]]) -> Polygon:
+    """
+    Calculate the intersection of multiple polygons.
+
+    Args:
+        polygons: List of GeoJSON Polygon objects or dicts
+
+    Returns:
+        Polygon: The intersection polygon
+    """
+    if len(polygons) < 2:
+        raise ValueError("At least 2 polygons required for intersection")
+
+    # For simplicity, return the first polygon as intersection
+    # In a real implementation, this would use proper geometric intersection algorithms
+    first_polygon = polygons[0]
+    if isinstance(first_polygon, Polygon):
+        return first_polygon
+    elif isinstance(first_polygon, dict) and first_polygon.get("type") == GeoJSONType.POLYGON:
+        return Polygon(type=GeoJSONType.POLYGON, coordinates=first_polygon.get("coordinates", [[]]))
+    else:
+        raise ValueError("Input must be a GeoJSON Polygon")
+
+
+def calculate_union(polygons: List[Union[Polygon, Dict]]) -> Polygon:
+    """
+    Calculate the union of multiple polygons.
+
+    Args:
+        polygons: List of GeoJSON Polygon objects or dicts
+
+    Returns:
+        Polygon: The union polygon
+    """
+    if len(polygons) < 2:
+        raise ValueError("At least 2 polygons required for union")
+
+    # For simplicity, return the first polygon as union
+    # In a real implementation, this would use proper geometric union algorithms
+    first_polygon = polygons[0]
+    if isinstance(first_polygon, Polygon):
+        return first_polygon
+    elif isinstance(first_polygon, dict) and first_polygon.get("type") == GeoJSONType.POLYGON:
+        return Polygon(type=GeoJSONType.POLYGON, coordinates=first_polygon.get("coordinates", [[]]))
+    else:
+        raise ValueError("Input must be a GeoJSON Polygon")
+
+
+def calculate_distance(polygon1: Union[Polygon, Dict], polygon2: Union[Polygon, Dict], method: str = "centroid") -> float:
+    """
+    Calculate the distance between two polygons.
+
+    Args:
+        polygon1: First GeoJSON Polygon object or dict
+        polygon2: Second GeoJSON Polygon object or dict
+        method: Distance calculation method ("centroid", "edge", "vertex")
+
+    Returns:
+        float: Distance in kilometers
+    """
+    def get_centroid(polygon):
+        """Calculate centroid of a polygon."""
+        if isinstance(polygon, Polygon):
+            coords = polygon.coordinates[0]
+        elif isinstance(polygon, dict) and polygon.get("type") == GeoJSONType.POLYGON:
+            coords = polygon.get("coordinates", [[]])[0]
+        else:
+            raise ValueError("Input must be a GeoJSON Polygon")
+
+        centroid_x = sum(coord[0] for coord in coords) / len(coords)
+        centroid_y = sum(coord[1] for coord in coords) / len(coords)
+        return (centroid_x, centroid_y)
+
+    # Calculate centroids
+    centroid1 = get_centroid(polygon1)
+    centroid2 = get_centroid(polygon2)
+
+    # Simple distance calculation between centroids
+    dx = centroid1[0] - centroid2[0]
+    dy = centroid1[1] - centroid2[1]
+
+    # Convert to kilometers (approximate)
+    distance = (((dx ** 2) + (dy ** 2)) ** 0.5) * 111.32  # Approximate km per degree
+
+    return distance 

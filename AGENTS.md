@@ -677,29 +677,59 @@ agent.enable_predictive_modeling()
 
 ### GEO-INFER-SPACE Integration
 
-**Pattern**: Spatial data and analysis for agent operations.
+**Pattern**: Backend-agnostic spatial data and analysis for agent operations with multiple dispatch support.
 
 ```python
 from geo_infer_agent import MultiAgentSystem
-from geo_infer_space import SpatialAnalyzer
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+from geo_infer_space.core.analytics import SpatialAnalyticsInterface
+from geo_infer_space.core.dispatcher import configure_backends
 
-# Create spatially aware MAS
+# Configure backend preferences for agent operations
+configure_backends({
+    'default_backends': {
+        'indexing': 'h3',      # Use H3 for spatial indexing (hexagonal grids)
+        'analytics': 'srai',   # Use SRAI for spatial analytics (AI-enhanced)
+    }
+})
+
+# Create spatially aware MAS with multiple backend support
 mas = MultiAgentSystem(
     environment='urban_environment',
     coordination_strategy='spatial_proximity',
     communication_protocol='secure_broadcast'
 )
 
-# Integrate with SPACE module
-spatial_analyzer = SpatialAnalyzer(
-    analysis_types=['proximity_analysis', 'network_analysis', 'terrain_analysis'],
-    h3_resolution='adaptive',
-    real_time_processing=True
-)
+# Create backend-agnostic spatial interfaces
+spatial_indexer = SpatialIndexingInterface()     # Uses H3 by default for indexing
+spatial_analytics = SpatialAnalyticsInterface()  # Uses SRAI by default for analytics
 
-mas.set_spatial_analyzer(spatial_analyzer)
+# Use H3 backend explicitly for high-precision spatial operations
+h3_indexer = SpatialIndexingInterface(backend='h3')
+cell_h3 = h3_indexer.latlng_to_cell(37.7749, -122.4194, 9)  # San Francisco coordinates
+
+# Use SRAI backend explicitly for AI-enhanced analytics
+srai_analytics = SpatialAnalyticsInterface(backend='srai')
+hotspots = srai_analytics.analyze_hotspots(spatial_data)
+
+# Operations automatically dispatch to appropriate backends
+mas.set_spatial_analyzer(spatial_analytics)
 mas.enable_spatial_coordination()
 mas.enable_real_time_spatial_analysis()
+
+# Agents can switch backends dynamically based on context
+def adaptive_spatial_analysis(agent, context):
+    """Example: Agent adapts spatial backend based on analysis requirements."""
+
+    if context['requires_high_precision']:
+        # Use H3 for precise spatial indexing
+        indexer = SpatialIndexingInterface(backend='h3')
+        return indexer.latlng_to_cell(context['lat'], context['lng'], 12)
+
+    else:
+        # Use SRAI for AI-enhanced spatial analysis
+        analytics = SpatialAnalyticsInterface(backend='srai')
+        return analytics.analyze_hotspots(context['data'])
 ```
 
 ### GEO-INFER-SEC Integration
@@ -925,3 +955,4 @@ validator.assess_emergent_behavior()
 ---
 
 **This document provides a comprehensive framework for understanding and implementing multi-agent systems within the GEO-INFER ecosystem. The architecture emphasizes spatial intelligence, secure coordination, and scalable performance while maintaining integration with core GEO-INFER modules.**
+

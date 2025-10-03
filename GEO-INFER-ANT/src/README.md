@@ -458,3 +458,4 @@ The ANT module integrates with:
 - **GEO-INFER-AGENT**: Agent lifecycle management
 - **GEO-INFER-SIM**: Simulation environments
 - **GEO-INFER-OPT**: Optimization problem formulations
+

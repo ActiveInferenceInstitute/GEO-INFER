@@ -1,0 +1,212 @@
+version: '3.8'
+
+services:
+  # Main IoT API service
+  geo-infer-iot-api:
+    build:
+      context: ..
+      dockerfile: deployment/Dockerfile
+    container_name: geo-infer-iot-api
+    ports:
+      - "8000:8000"  # REST API
+      - "8001:8001"  # WebSocket API
+    environment:
+      - CONFIG_PATH=/app/config/iot_config.yaml
+      - LOG_LEVEL=INFO
+      - MQTT_BROKER_HOST=mqtt-broker
+      - INFLUXDB_HOST=influxdb
+      - POSTGRES_HOST=postgres
+      - REDIS_HOST=redis
+    volumes:
+      - ./config:/app/config:ro
+      - ./logs:/app/logs
+      - ./data:/app/data
+    depends_on:
+      - mqtt-broker
+      - influxdb
+      - postgres
+      - redis
+    networks:
+      - geo-infer-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # MQTT Broker for sensor communication
+  mqtt-broker:
+    image: eclipse-mosquitto:2.0
+    container_name: geo-infer-mqtt-broker
+    ports:
+      - "1883:1883"
+      - "9001:9001"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config:ro
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+    networks:
+      - geo-infer-network
+    restart: unless-stopped
+
+  # Time series database for sensor data
+  influxdb:
+    image: influxdb:2.7
+    container_name: geo-infer-influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=geo_infer
+      - DOCKER_INFLUXDB_INIT_PASSWORD=geo_infer_password
+      - DOCKER_INFLUXDB_INIT_ORG=geo-infer
+      - DOCKER_INFLUXDB_INIT_BUCKET=iot_sensors
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+      - ./influxdb/config:/etc/influxdb2
+    networks:
+      - geo-infer-network
+    restart: unless-stopped
+
+  # Spatial database for geographic data
+  postgres:
+    image: postgis/postgis:15-master
+    container_name: geo-infer-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=spatial_iot
+      - POSTGRES_USER=geo_infer
+      - POSTGRES_PASSWORD=geo_infer_password
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/pgdata
+      - ./postgres/init:/docker-entrypoint-initdb.d
+    networks:
+      - geo-infer-network
+    restart: unless-stopped
+
+  # Redis for caching and performance
+  redis:
+    image: redis:7-alpine
+    container_name: geo-infer-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - geo-infer-network
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+
+  # Monitoring and visualization dashboard
+  grafana:
+    image: grafana/grafana:latest
+    container_name: geo-infer-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - influxdb
+    networks:
+      - geo-infer-network
+    restart: unless-stopped
+
+  # Prometheus for metrics collection
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: geo-infer-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--storage.tsdb.retention.time=200h'
+      - '--web.enable-lifecycle'
+    networks:
+      - geo-infer-network
+    restart: unless-stopped
+
+  # Nginx reverse proxy and load balancer
+  nginx:
+    image: nginx:alpine
+    container_name: geo-infer-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/ssl:/etc/nginx/ssl:ro
+      - ./nginx/logs:/var/log/nginx
+    depends_on:
+      - geo-infer-iot-api
+      - grafana
+    networks:
+      - geo-infer-network
+    restart: unless-stopped
+
+  # Optional: Elasticsearch for advanced search and analytics
+  elasticsearch:
+    image: elasticsearch:8.11.0
+    container_name: geo-infer-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    ports:
+      - "9200:9200"
+    networks:
+      - geo-infer-network
+    restart: unless-stopped
+    profiles:
+      - advanced
+
+  # Optional: Kibana for Elasticsearch visualization
+  kibana:
+    image: kibana:8.11.0
+    container_name: geo-infer-kibana
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    depends_on:
+      - elasticsearch
+    networks:
+      - geo-infer-network
+    restart: unless-stopped
+    profiles:
+      - advanced
+
+networks:
+  geo-infer-network:
+    driver: bridge
+    name: geo-infer-iot-network
+
+volumes:
+  influxdb_data:
+    name: geo-infer-influxdb-data
+  postgres_data:
+    name: geo-infer-postgres-data
+  redis_data:
+    name: geo-infer-redis-data
+  grafana_data:
+    name: geo-infer-grafana-data
+  prometheus_data:
+    name: geo-infer-prometheus-data
+  elasticsearch_data:
+    name: geo-infer-elasticsearch-data

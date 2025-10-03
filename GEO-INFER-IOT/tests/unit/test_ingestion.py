@@ -1,0 +1,416 @@
+"""
+Unit tests for IoT data ingestion functionality.
+
+Tests the IoTDataIngestion class and related components for correct
+behavior with various input data and configurations.
+"""
+
+import unittest
+import asyncio
+from datetime import datetime, timezone
+from unittest.mock import Mock, patch, MagicMock
+import numpy as np
+import h3
+
+# Import the module to test
+import sys
+import os
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'src'))
+
+from geo_infer_iot.core.ingestion import (
+    SensorMeasurement, IoTDataIngestion, RadiationMonitoringSystem,
+    SpatialInferenceConfig
+)
+
+
+class TestSensorMeasurement(unittest.TestCase):
+    """Test the SensorMeasurement data class."""
+
+    def test_measurement_creation_with_coordinates(self):
+        """Test creating a measurement with latitude/longitude."""
+        measurement = SensorMeasurement(
+            sensor_id="test_sensor_001",
+            timestamp=datetime.now(timezone.utc),
+            variable="temperature",
+            value=25.5,
+            unit="celsius",
+            latitude=40.7128,
+            longitude=-74.0060,
+            h3_resolution=8
+        )
+
+        self.assertEqual(measurement.sensor_id, "test_sensor_001")
+        self.assertEqual(measurement.variable, "temperature")
+        self.assertEqual(measurement.value, 25.5)
+        self.assertIsNotNone(measurement.h3_index)
+        self.assertTrue(h3.h3_is_valid(measurement.h3_index))
+
+    def test_measurement_creation_without_coordinates(self):
+        """Test creating a measurement without coordinates."""
+        measurement = SensorMeasurement(
+            sensor_id="test_sensor_002",
+            timestamp=datetime.now(timezone.utc),
+            variable="humidity",
+            value=65.0,
+            unit="percent"
+        )
+
+        self.assertEqual(measurement.sensor_id, "test_sensor_002")
+        self.assertIsNone(measurement.h3_index)
+        self.assertEqual(measurement.latitude, None)
+        self.assertEqual(measurement.longitude, None)
+
+    def test_measurement_validation(self):
+        """Test measurement validation."""
+        # Valid measurement
+        valid_measurement = SensorMeasurement(
+            sensor_id="valid_sensor",
+            timestamp=datetime.now(timezone.utc),
+            variable="temperature",
+            value=25.5,
+            unit="celsius",
+            latitude=40.7128,
+            longitude=-74.0060
+        )
+
+        # Test coordinate validation
+        self.assertTrue(-90 <= valid_measurement.latitude <= 90)
+        self.assertTrue(-180 <= valid_measurement.longitude <= 180)
+
+        # Test value validation
+        self.assertIsInstance(valid_measurement.value, (int, float))
+        self.assertFalse(np.isnan(valid_measurement.value))
+
+
+class TestIoTDataIngestion(unittest.TestCase):
+    """Test the IoTDataIngestion class."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.config = {
+            'spatial': {'h3_resolution': 8},
+            'inference': {
+                'mean_function': 'constant',
+                'covariance': 'matern_52',
+                'length_scale': 1000,
+                'noise_variance': 0.01
+            }
+        }
+
+        # Mock registry for testing
+        self.mock_registry = Mock()
+        self.ingestion = IoTDataIngestion(self.mock_registry, self.config)
+
+    def test_ingestion_initialization(self):
+        """Test IoTDataIngestion initialization."""
+        self.assertIsNotNone(self.ingestion.registry)
+        self.assertIsNotNone(self.ingestion.config)
+        self.assertIsInstance(self.ingestion.measurements, list)
+        self.assertIsInstance(self.ingestion.spatial_index, dict)
+
+    def test_dict_to_measurement_conversion(self):
+        """Test conversion from dictionary to SensorMeasurement."""
+        measurement_dict = {
+            'sensor_id': 'test_sensor',
+            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'variable': 'temperature',
+            'value': 25.5,
+            'unit': 'celsius',
+            'latitude': 40.7128,
+            'longitude': -74.0060,
+            'h3_resolution': 8,
+            'quality_flags': ['validated'],
+            'metadata': {'test': 'data'}
+        }
+
+        measurement = self.ingestion._dict_to_measurement(measurement_dict)
+
+        self.assertIsInstance(measurement, SensorMeasurement)
+        self.assertEqual(measurement.sensor_id, 'test_sensor')
+        self.assertEqual(measurement.value, 25.5)
+        self.assertEqual(measurement.latitude, 40.7128)
+        self.assertEqual(measurement.longitude, -74.0060)
+        self.assertIn('validated', measurement.quality_flags)
+        self.assertEqual(measurement.metadata['test'], 'data')
+
+    def test_measurement_validation(self):
+        """Test measurement validation."""
+        # Valid measurement
+        valid_measurement = SensorMeasurement(
+            sensor_id="valid_sensor",
+            timestamp=datetime.now(timezone.utc),
+            variable="temperature",
+            value=25.5,
+            unit="celsius",
+            latitude=40.7128,
+            longitude=-74.0060
+        )
+
+        self.assertTrue(self.ingestion._validate_measurement(valid_measurement))
+
+        # Invalid coordinate
+        invalid_measurement = SensorMeasurement(
+            sensor_id="invalid_sensor",
+            timestamp=datetime.now(timezone.utc),
+            variable="temperature",
+            value=25.5,
+            unit="celsius",
+            latitude=100.0,  # Invalid latitude
+            longitude=-74.0060
+        )
+
+        self.assertFalse(self.ingestion._validate_measurement(invalid_measurement))
+
+    @asyncio.coroutine
+    def test_measurement_ingestion(self):
+        """Test asynchronous measurement ingestion."""
+        measurement = SensorMeasurement(
+            sensor_id="test_sensor",
+            timestamp=datetime.now(timezone.utc),
+            variable="temperature",
+            value=25.5,
+            unit="celsius",
+            latitude=40.7128,
+            longitude=-74.0060
+        )
+
+        # Mock the spatial inference update
+        self.ingestion._update_spatial_inference = Mock(return_value=asyncio.coroutine(lambda x: None)())
+
+        result = yield from self.ingestion.ingest_measurement(measurement)
+
+        self.assertTrue(result)
+        self.assertEqual(len(self.ingestion.measurements), 1)
+        self.assertIn(measurement.h3_index, self.ingestion.spatial_index)
+
+    def test_spatial_indexing(self):
+        """Test H3 spatial indexing."""
+        measurement = SensorMeasurement(
+            sensor_id="test_sensor",
+            timestamp=datetime.now(timezone.utc),
+            variable="temperature",
+            value=25.5,
+            unit="celsius",
+            latitude=40.7128,
+            longitude=-74.0060,
+            h3_resolution=8
+        )
+
+        self.ingestion._add_spatial_index(measurement)
+
+        self.assertIsNotNone(measurement.h3_index)
+        self.assertTrue(h3.h3_is_valid(measurement.h3_index))
+        self.assertIn('h3_neighbors', measurement.metadata)
+        self.assertIn('h3_stats', measurement.metadata)
+
+    def test_measurement_statistics(self):
+        """Test measurement statistics calculation."""
+        # Add some test measurements
+        for i in range(5):
+            measurement = SensorMeasurement(
+                sensor_id=f"sensor_{i}",
+                timestamp=datetime.now(timezone.utc),
+                variable="temperature",
+                value=20.0 + i,
+                unit="celsius",
+                latitude=40.7128 + i * 0.01,
+                longitude=-74.0060 + i * 0.01
+            )
+            self.ingestion.measurements.append(measurement)
+
+        stats = self.ingestion.get_measurement_statistics()
+
+        self.assertEqual(stats['total_measurements'], 5)
+        self.assertEqual(stats['unique_sensors'], 5)
+        self.assertEqual(stats['unique_variables'], 1)
+        self.assertIn('time_range', stats)
+        self.assertTrue(stats['spatial_inference_enabled'])
+
+    def test_recent_measurements_filtering(self):
+        """Test filtering of recent measurements."""
+        # Add measurements with different timestamps
+        base_time = datetime.now(timezone.utc)
+
+        for i in range(3):
+            measurement = SensorMeasurement(
+                sensor_id="test_sensor",
+                timestamp=base_time.replace(hour=i),
+                variable="temperature",
+                value=20.0 + i,
+                unit="celsius",
+                latitude=40.7128,
+                longitude=-74.0060
+            )
+            self.ingestion.measurements.append(measurement)
+
+        # Test getting recent measurements (last 2 hours)
+        recent = self.ingestion._get_recent_measurements("temperature", hours=2)
+
+        # Should get measurements from last 2 hours
+        self.assertGreater(len(recent), 0)
+        for measurement in recent:
+            time_diff = (base_time - measurement.timestamp.replace(tzinfo=timezone.utc)).total_seconds()
+            self.assertLess(time_diff, 7200)  # 2 hours in seconds
+
+
+class TestRadiationMonitoringSystem(unittest.TestCase):
+    """Test the RadiationMonitoringSystem class."""
+
+    def setUp(self):
+        """Set up test fixtures."""
+        self.config = {
+            'simulation': {
+                'background_radiation': 0.1,
+                'noise_level': 0.02
+            },
+            'quality_control': {
+                'sensor_validation': {
+                    'min_radiation': 0.0,
+                    'max_radiation': 100.0
+                }
+            }
+        }
+
+        self.monitoring_system = RadiationMonitoringSystem(self.config)
+
+    def test_system_initialization(self):
+        """Test RadiationMonitoringSystem initialization."""
+        self.assertIsNotNone(self.monitoring_system.config)
+        self.assertIsNotNone(self.monitoring_system.registry)
+        self.assertIsNotNone(self.monitoring_system.ingestion)
+        self.assertEqual(self.monitoring_system.metrics['measurements_processed'], 0)
+
+    def test_simulated_data_generation(self):
+        """Test generation of simulated radiation data."""
+        measurements = self.monitoring_system.generate_simulated_data(sensor_count=10)
+
+        self.assertEqual(len(measurements), 10)
+
+        for measurement in measurements:
+            self.assertIn('sensor_id', measurement)
+            self.assertIn('latitude', measurement)
+            self.assertIn('longitude', measurement)
+            self.assertIn('value', measurement)
+            self.assertIn('variable', measurement)
+            self.assertEqual(measurement['variable'], 'gamma_radiation')
+            self.assertTrue(0 <= measurement['value'] <= 100)  # Reasonable range
+
+    @asyncio.coroutine
+    def test_measurement_processing(self):
+        """Test processing of measurements."""
+        measurements = self.monitoring_system.generate_simulated_data(sensor_count=5)
+
+        # Setup spatial inference
+        self.monitoring_system.setup_spatial_inference()
+
+        # Process measurements
+        results = yield from self.monitoring_system.process_measurements(measurements)
+
+        self.assertIn('processed', results)
+        self.assertIn('failed', results)
+        self.assertIn('anomalies', results)
+        self.assertIn('spatial_cells', results)
+        self.assertGreater(results['processed'], 0)
+
+    def test_quality_control(self):
+        """Test quality control functionality."""
+        measurement = {
+            'sensor_id': 'test_sensor',
+            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'variable': 'gamma_radiation',
+            'value': 0.15,  # Normal value
+            'unit': 'μSv/h',
+            'latitude': 40.7128,
+            'longitude': -74.0060
+        }
+
+        # Convert to SensorMeasurement
+        sensor_measurement = self.monitoring_system.ingestion._dict_to_measurement(measurement)
+
+        # Test quality control
+        qc_result = self.monitoring_system._quality_control(sensor_measurement)
+
+        self.assertIn('passed', qc_result)
+        self.assertIn('issues', qc_result)
+        self.assertIn('quality_score', qc_result)
+        self.assertIsInstance(qc_result['quality_score'], float)
+
+    def test_anomaly_detection(self):
+        """Test anomaly detection."""
+        # Normal measurement
+        normal_measurement = {
+            'sensor_id': 'test_sensor',
+            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'variable': 'gamma_radiation',
+            'value': 0.1,  # Normal background level
+            'unit': 'μSv/h',
+            'latitude': 40.7128,
+            'longitude': -74.0060
+        }
+
+        sensor_measurement = self.monitoring_system.ingestion._dict_to_measurement(normal_measurement)
+
+        # Should not be anomaly
+        self.assertFalse(self.monitoring_system._is_anomaly(sensor_measurement))
+
+        # High radiation measurement (anomaly)
+        anomaly_measurement = {
+            'sensor_id': 'test_sensor',
+            'timestamp': datetime.now(timezone.utc).isoformat(),
+            'variable': 'gamma_radiation',
+            'value': 5.0,  # Very high level
+            'unit': 'μSv/h',
+            'latitude': 40.7128,
+            'longitude': -74.0060
+        }
+
+        anomaly_sensor_measurement = self.monitoring_system.ingestion._dict_to_measurement(anomaly_measurement)
+
+        # Should be anomaly
+        self.assertTrue(self.monitoring_system._is_anomaly(anomaly_sensor_measurement))
+
+    def test_system_health_validation(self):
+        """Test system health validation."""
+        # Generate some data first
+        measurements = self.monitoring_system.generate_simulated_data(sensor_count=10)
+
+        # Process some measurements
+        self.monitoring_system.metrics['measurements_processed'] = 10
+        self.monitoring_system.metrics['spatial_inferences'] = 1
+        self.monitoring_system.metrics['errors_encountered'] = 0
+
+        health = self.monitoring_system.validate_system_health()
+
+        self.assertIn('overall_healthy', health)
+        self.assertIn('checks', health)
+        self.assertIn('metrics', health)
+        self.assertIn('timestamp', health)
+
+        # With good metrics, system should be healthy
+        self.assertTrue(health['overall_healthy'])
+
+
+class TestSpatialInferenceConfig(unittest.TestCase):
+    """Test the SpatialInferenceConfig data class."""
+
+    def test_config_creation(self):
+        """Test creating spatial inference configuration."""
+        config = SpatialInferenceConfig(
+            variable="temperature",
+            h3_resolution=8,
+            temporal_window_hours=1.0,
+            spatial_range_km=10.0,
+            covariance_function="matern_52",
+            length_scale=1000.0,
+            noise_variance=0.01,
+            confidence_levels=[0.68, 0.95]
+        )
+
+        self.assertEqual(config.variable, "temperature")
+        self.assertEqual(config.h3_resolution, 8)
+        self.assertEqual(config.temporal_window_hours, 1.0)
+        self.assertEqual(config.confidence_levels, [0.68, 0.95])
+
+
+if __name__ == '__main__':
+    unittest.main()

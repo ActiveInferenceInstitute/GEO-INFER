@@ -9,11 +9,13 @@ from fastapi import APIRouter, Depends, HTTPException, Query, Path, status
 from fastapi.responses import JSONResponse
 
 from geo_infer_api.core.config import get_settings, Settings
+from geo_infer_api.core.exceptions import BadRequestError, ConflictError, GeometryError, NotFoundError, ValidationError
 from geo_infer_api.models.geojson import (
     Feature, FeatureCollection, GeoJSONType, Polygon, PolygonFeature, PolygonFeatureCollection
 )
 from geo_infer_api.utils.geojson_helpers import (
-    calculate_polygon_area, create_polygon_feature, polygon_contains_point, simplify_polygon
+    calculate_polygon_area, create_polygon_feature, polygon_contains_point, simplify_polygon,
+    create_buffer, calculate_intersection, calculate_union, calculate_distance
 )
 
 # Create router
@@ -146,9 +148,9 @@ async def list_polygon_features(
             
             features = [f for f in features if polygon_intersects_bbox(f)]
         except ValueError:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Invalid bbox format. Expected 'minLon,minLat,maxLon,maxLat'"
+            raise BadRequestError(
+                "Invalid bbox format. Expected 'minLon,minLat,maxLon,maxLat'",
+                field="bbox"
             )
     
     # Apply limit
@@ -184,10 +186,7 @@ async def get_polygon_feature(
         HTTPException: If the feature is not found
     """
     if feature_id not in POLYGON_FEATURES:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Polygon feature with ID {feature_id} not found"
-        )
+        raise NotFoundError("Polygon feature", feature_id)
     
     return POLYGON_FEATURES[feature_id]
 
@@ -215,17 +214,11 @@ async def create_polygon_feature_endpoint(
     """
     # Ensure we have an ID
     if not feature.id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Feature must have an ID"
-        )
+        raise ValidationError("Feature must have an ID", field="id")
     
     # Check if ID already exists
     if feature.id in POLYGON_FEATURES:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail=f"A feature with ID {feature.id} already exists"
-        )
+        raise ConflictError("Polygon feature", "already exists", feature.id)
     
     # Store the feature
     POLYGON_FEATURES[feature.id] = feature
@@ -256,17 +249,11 @@ async def update_polygon_feature(
         HTTPException: If the feature is not found
     """
     if feature_id not in POLYGON_FEATURES:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Polygon feature with ID {feature_id} not found"
-        )
+        raise NotFoundError("Polygon feature", feature_id)
     
     # Ensure the IDs match
     if feature.id and feature.id != feature_id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Feature ID in body does not match path parameter"
-        )
+        raise ValidationError("Feature ID in body does not match path parameter", field="id")
     
     # Update the feature
     feature.id = feature_id  # Ensure ID is set
@@ -293,10 +280,7 @@ async def delete_polygon_feature(
         HTTPException: If the feature is not found
     """
     if feature_id not in POLYGON_FEATURES:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Polygon feature with ID {feature_id} not found"
-        )
+        raise NotFoundError("Polygon feature", feature_id)
     
     # Delete the feature
     del POLYGON_FEATURES[feature_id]
@@ -313,18 +297,19 @@ async def delete_polygon_feature(
 async def calculate_area(feature: PolygonFeature):
     """
     Calculate the approximate area of a polygon in square kilometers.
-    
+
     Args:
         feature: GeoJSON Feature with Polygon geometry
-    
+
     Returns:
         Area in square kilometers
     """
     area = calculate_polygon_area(feature.geometry)
-    
+
     return {
         "area_sq_km": area,
-        "feature_id": feature.id
+        "feature_id": feature.id,
+        "method": "planar"
     }
 
 
@@ -382,5 +367,164 @@ async def check_polygon_contains_point(
     return {
         "contains": contains,
         "feature_id": feature.id,
-        "point": [lon, lat]
+        "point": [lon, lat],
+        "method": "ray_casting"
+    }
+
+
+@router.post(
+    "/operations/polygon/buffer",
+    response_model=PolygonFeature,
+    summary="Create a buffer around a polygon"
+)
+async def create_buffer_endpoint(
+    feature: PolygonFeature,
+    distance: float = Query(..., ge=0, description="Buffer distance in kilometers"),
+    unit: str = Query("kilometers", enum=["meters", "kilometers", "miles"], description="Unit for the buffer distance"),
+    segments: int = Query(16, ge=8, le=100, description="Number of segments for buffer approximation")
+):
+    """
+    Create a buffer zone around a polygon at a specified distance.
+
+    Args:
+        feature: GeoJSON Feature with Polygon geometry
+        distance: Buffer distance (in the specified unit)
+        unit: Unit for the distance ("meters", "kilometers", or "miles")
+        segments: Number of segments for the buffer approximation
+
+    Returns:
+        Buffered polygon feature
+    """
+    buffered_geometry = create_buffer(feature.geometry, distance, unit, segments)
+
+    return PolygonFeature(
+        type=GeoJSONType.FEATURE,
+        geometry=buffered_geometry,
+        properties={
+            **feature.properties,
+            "buffer_distance": distance,
+            "buffer_unit": unit,
+            "buffer_segments": segments
+        },
+        id=f"{feature.id}_buffer" if feature.id else None
+    )
+
+
+@router.post(
+    "/operations/polygon/intersection",
+    response_model=PolygonFeature,
+    summary="Calculate intersection of multiple polygons"
+)
+async def calculate_intersection_endpoint(
+    request: dict
+):
+    """
+    Calculate the intersection area of multiple polygon features.
+
+    Args:
+        request: Dictionary containing array of polygon features
+
+    Returns:
+        Intersection polygon feature
+    """
+    polygons = request.get("polygons", [])
+    if len(polygons) < 2:
+        raise ValidationError("At least 2 polygons required for intersection")
+
+    # Convert to Polygon objects for processing
+    polygon_objects = []
+    for poly in polygons:
+        if isinstance(poly, dict) and poly.get("type") == GeoJSONType.FEATURE:
+            polygon_objects.append(poly["geometry"])
+        else:
+            raise ValidationError("Invalid polygon feature format")
+
+    intersection_geometry = calculate_intersection(polygon_objects)
+
+    return PolygonFeature(
+        type=GeoJSONType.FEATURE,
+        geometry=intersection_geometry,
+        properties={"operation": "intersection"},
+        id="intersection_result"
+    )
+
+
+@router.post(
+    "/operations/polygon/union",
+    response_model=PolygonFeature,
+    summary="Calculate union of multiple polygons"
+)
+async def calculate_union_endpoint(
+    request: dict
+):
+    """
+    Calculate the union area of multiple polygon features.
+
+    Args:
+        request: Dictionary containing array of polygon features
+
+    Returns:
+        Union polygon feature
+    """
+    polygons = request.get("polygons", [])
+    if len(polygons) < 2:
+        raise ValidationError("At least 2 polygons required for union")
+
+    # Convert to Polygon objects for processing
+    polygon_objects = []
+    for poly in polygons:
+        if isinstance(poly, dict) and poly.get("type") == GeoJSONType.FEATURE:
+            polygon_objects.append(poly["geometry"])
+        else:
+            raise ValidationError("Invalid polygon feature format")
+
+    union_geometry = calculate_union(polygon_objects)
+
+    return PolygonFeature(
+        type=GeoJSONType.FEATURE,
+        geometry=union_geometry,
+        properties={"operation": "union"},
+        id="union_result"
+    )
+
+
+@router.post(
+    "/operations/polygon/distance",
+    summary="Calculate distance between polygons"
+)
+async def calculate_distance_endpoint(
+    request: dict
+):
+    """
+    Calculate the minimum distance between two polygon features.
+
+    Args:
+        request: Dictionary containing polygon1 and polygon2 features
+
+    Returns:
+        Distance calculation result
+    """
+    polygon1 = request.get("polygon1")
+    polygon2 = request.get("polygon2")
+
+    if not polygon1 or not polygon2:
+        raise ValidationError("Both polygon1 and polygon2 are required")
+
+    # Extract geometries for processing
+    if isinstance(polygon1, dict) and polygon1.get("type") == GeoJSONType.FEATURE:
+        geom1 = polygon1["geometry"]
+    else:
+        raise ValidationError("Invalid polygon1 format")
+
+    if isinstance(polygon2, dict) and polygon2.get("type") == GeoJSONType.FEATURE:
+        geom2 = polygon2["geometry"]
+    else:
+        raise ValidationError("Invalid polygon2 format")
+
+    distance = calculate_distance(geom1, geom2, method="centroid")
+
+    return {
+        "distance_km": distance,
+        "unit": "kilometers",
+        "method": "centroid"
     } 

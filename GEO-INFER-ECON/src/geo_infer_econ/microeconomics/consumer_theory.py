@@ -217,8 +217,44 @@ class DemandFunctions:
     
     def _estimate_sls_system(self, data: pd.DataFrame) -> Dict[str, Any]:
         """Seemingly Unrelated Regression (SUR) estimation"""
-        # Placeholder for SUR implementation
-        return {"method": "SLS", "status": "not_implemented"}
+        # Simplified SUR implementation for demand system
+        # In practice, would use proper SUR estimation
+
+        # Extract data for multiple goods
+        goods = []
+        for col in data.columns:
+            if col.startswith('quantity_good_'):
+                goods.append(col.replace('quantity_', ''))
+
+        if len(goods) < 2:
+            return {"method": "SLS", "status": "insufficient_goods"}
+
+        # Create system of equations
+        system_results = {}
+
+        for i, good in enumerate(goods):
+            # Dependent variable
+            y = data[f'quantity_{good}'].values
+
+            # Independent variables (prices of all goods + income)
+            X_cols = [f'price_{g}' for g in goods] + ['income']
+            X = data[X_cols].values
+
+            # Simple OLS for each equation
+            beta = np.linalg.lstsq(X, y, rcond=None)[0]
+            residuals = y - X @ beta
+
+            system_results[good] = {
+                'coefficients': beta,
+                'residuals': residuals,
+                'r_squared': 1 - np.sum(residuals**2) / np.sum((y - np.mean(y))**2)
+            }
+
+        return {
+            "method": "SLS",
+            "system_results": system_results,
+            "goods_analyzed": goods
+        }
 
 
 class ConsumerChoiceModels:

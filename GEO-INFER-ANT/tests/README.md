@@ -533,3 +533,4 @@ python -m pytest --profile-svg tests/test_population.py::test_large_simulation
 3. Maintain comprehensive test coverage (>85%)
 4. Add integration tests for new applications
 5. Update this README for new test categories
+

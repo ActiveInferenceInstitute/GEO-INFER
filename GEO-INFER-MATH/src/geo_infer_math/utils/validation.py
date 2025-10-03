@@ -8,15 +8,89 @@ used throughout the GEO-INFER-MATH library.
 import numpy as np
 from typing import Union, List, Tuple, Optional, Any, Callable
 import logging
+import warnings
+from functools import wraps
+import traceback
 
 logger = logging.getLogger(__name__)
 
+class GeoInferMathError(Exception):
+    """Base exception class for GEO-INFER-MATH errors."""
+    pass
+
+class ValidationError(GeoInferMathError):
+    """Exception raised for input validation errors."""
+    pass
+
+class NumericalError(GeoInferMathError):
+    """Exception raised for numerical computation errors."""
+    pass
+
+class ConvergenceError(GeoInferMathError):
+    """Exception raised for algorithm convergence failures."""
+    pass
+
+class MemoryError(GeoInferMathError):
+    """Exception raised for memory-related errors."""
+    pass
+
+def handle_validation_errors(func: Callable) -> Callable:
+    """
+    Decorator to handle validation errors gracefully.
+
+    Args:
+        func: Function to wrap
+
+    Returns:
+        Wrapped function that handles validation errors
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except ValidationError as e:
+            logger.error(f"Validation error in {func.__name__}: {e}")
+            raise
+        except Exception as e:
+            logger.error(f"Unexpected error in {func.__name__}: {e}")
+            logger.debug(f"Traceback: {traceback.format_exc()}")
+            raise ValidationError(f"Error in {func.__name__}: {e}") from e
+
+    return wrapper
+
+def handle_numerical_errors(func: Callable) -> Callable:
+    """
+    Decorator to handle numerical computation errors.
+
+    Args:
+        func: Function to wrap
+
+    Returns:
+        Wrapped function that handles numerical errors
+    """
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except np.linalg.LinAlgError as e:
+            logger.error(f"Linear algebra error in {func.__name__}: {e}")
+            raise NumericalError(f"Matrix operation failed in {func.__name__}: {e}") from e
+        except (ZeroDivisionError, FloatingPointError) as e:
+            logger.error(f"Numerical error in {func.__name__}: {e}")
+            raise NumericalError(f"Numerical computation failed in {func.__name__}: {e}") from e
+        except Exception as e:
+            logger.error(f"Unexpected error in {func.__name__}: {e}")
+            raise NumericalError(f"Error in {func.__name__}: {e}") from e
+
+    return wrapper
+
+@handle_validation_errors
 def validate_coordinates(coordinates: np.ndarray,
                         min_dims: int = 2,
                         max_dims: int = 3,
                         allow_none: bool = False) -> bool:
     """
-    Validate coordinate array.
+    Validate coordinate array with comprehensive error handling.
 
     Args:
         coordinates: Array of coordinates
@@ -25,40 +99,43 @@ def validate_coordinates(coordinates: np.ndarray,
         allow_none: Whether to allow None values
 
     Returns:
-        True if valid, raises ValueError otherwise
+        True if valid
 
     Raises:
-        ValueError: If coordinates are invalid
+        ValidationError: If coordinates are invalid
     """
     if coordinates is None:
         if allow_none:
             return True
         else:
-            raise ValueError("Coordinates cannot be None")
+            raise ValidationError("Coordinates cannot be None")
 
     if not isinstance(coordinates, np.ndarray):
-        raise ValueError(f"Coordinates must be a numpy array, got {type(coordinates)}")
+        raise ValidationError(f"Coordinates must be a numpy array, got {type(coordinates)}")
 
     if coordinates.ndim != 2:
-        raise ValueError(f"Coordinates must be a 2D array, got {coordinates.ndim}D")
+        raise ValidationError(f"Coordinates must be a 2D array, got {coordinates.ndim}D")
 
     n_samples, n_dims = coordinates.shape
 
     if n_samples == 0:
-        raise ValueError("Coordinates array is empty")
+        raise ValidationError("Coordinates array is empty")
+
+    if n_samples > 1e7:  # Reasonable limit for most applications
+        warnings.warn(f"Large coordinate array ({n_samples} points) - performance may be impacted")
 
     if n_dims < min_dims:
-        raise ValueError(f"Coordinates must have at least {min_dims} dimensions, got {n_dims}")
+        raise ValidationError(f"Coordinates must have at least {min_dims} dimensions, got {n_dims}")
 
     if n_dims > max_dims:
-        raise ValueError(f"Coordinates cannot have more than {max_dims} dimensions, got {n_dims}")
+        raise ValidationError(f"Coordinates cannot have more than {max_dims} dimensions, got {n_dims}")
 
     # Check for NaN and infinite values
     if np.any(np.isnan(coordinates)):
-        raise ValueError("Coordinates contain NaN values")
+        raise ValidationError("Coordinates contain NaN values")
 
     if np.any(np.isinf(coordinates)):
-        raise ValueError("Coordinates contain infinite values")
+        raise ValidationError("Coordinates contain infinite values")
 
     # Check for reasonable coordinate ranges (for geographic coordinates)
     if n_dims >= 2:
@@ -67,9 +144,20 @@ def validate_coordinates(coordinates: np.ndarray,
 
         # Warn if ranges seem unreasonable for geographic coordinates
         if lon_range > 360:
-            logger.warning(f"Longitude range ({lon_range}) seems unusually large")
+            warnings.warn(f"Longitude range ({lon_range}) seems unusually large")
         if lat_range > 180:
-            logger.warning(f"Latitude range ({lat_range}) seems unusually large")
+            warnings.warn(f"Latitude range ({lat_range}) seems unusually large")
+
+        # Check for coordinates outside valid ranges
+        if n_dims >= 2:
+            lons = coordinates[:, 0]
+            lats = coordinates[:, 1]
+
+            if np.any((lons < -180) | (lons > 180)):
+                raise ValidationError("Longitude values must be between -180 and 180 degrees")
+
+            if np.any((lats < -90) | (lats > 90)):
+                raise ValidationError("Latitude values must be between -90 and 90 degrees")
 
     return True
 

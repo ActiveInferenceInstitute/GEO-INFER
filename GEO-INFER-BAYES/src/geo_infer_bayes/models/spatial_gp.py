@@ -48,7 +48,6 @@ class SpatialGP(BayesianModel):
         jitter: float = 1e-6,
         **kwargs
     ):
-        super().__init__(name="SpatialGP", **kwargs)
         self.kernel_type = kernel.lower()
         self.lengthscale = lengthscale
         self.variance = variance
@@ -59,6 +58,8 @@ class SpatialGP(BayesianModel):
         self.X_train = None
         self.y_train = None
         self.L = None  # Cholesky factor of the covariance matrix
+
+        super().__init__(name="SpatialGP", **kwargs)
         
     def _setup_model(self, **kwargs) -> None:
         """Set up the Gaussian Process model."""
@@ -188,25 +189,47 @@ class SpatialGP(BayesianModel):
                 if self.kernel_type == 'matern':
                     param_sample['degree'] = posterior.samples['degree'][i]
                     
-                # Create a GP with these parameters and predict
-                temp_gp = SpatialGP(
-                    kernel=self.kernel_type,
-                    lengthscale=param_sample['lengthscale'],
-                    variance=param_sample['variance'],
-                    noise=param_sample['noise'],
-                    degree=param_sample.get('degree', self.degree),
-                    mean_function=self.mean_function,
-                    jitter=self.jitter
-                )
-                
-                # Fit to the same data
-                temp_gp.fit(self.X_train, self.y_train)
-                
-                # Get prediction
-                if return_std:
-                    mean, _ = temp_gp._predict(X_new, return_std=True)
+                # Update current model parameters and predict
+                # (This is more efficient than creating new models)
+                old_params = {
+                    'lengthscale': self.lengthscale,
+                    'variance': self.variance,
+                    'noise': self.noise,
+                    'degree': self.degree
+                }
+
+                # Set new parameters
+                self.lengthscale = param_sample['lengthscale']
+                self.variance = param_sample['variance']
+                self.noise = param_sample['noise']
+                if self.kernel_type == 'matern':
+                    self.degree = param_sample.get('degree', self.degree)
+
+                # Update kernel function
+                self.kernel_fn = self._get_kernel_function()
+
+                # Get prediction with current parameters (need to ensure model is "fitted" with current params)
+                # For prediction, we need a covariance matrix, so let's compute it temporarily
+                old_L = self.L
+                if self.X_train is not None and self.y_train is not None:
+                    # Use the stored training data but with current parameters
+                    K = self.kernel_fn(self.X_train, self.X_train)
+                    K += np.eye(len(self.X_train)) * (self.noise + self.jitter)
+                    self.L = cholesky(K, lower=True)
+
+                    if return_std:
+                        mean, _ = self._predict(X_new, return_std=True)
+                    else:
+                        mean = self._predict(X_new, return_std=False)
                 else:
-                    mean = temp_gp._predict(X_new, return_std=False)
+                    # Fallback: return zeros if no training data
+                    mean = np.zeros(len(X_new))
+
+                # Restore old parameters and Cholesky factor
+                for param, value in old_params.items():
+                    setattr(self, param, value)
+                self.L = old_L
+                self.kernel_fn = self._get_kernel_function()
                     
                 all_preds.append(mean)
                 
@@ -294,25 +317,46 @@ class SpatialGP(BayesianModel):
             if self.kernel_type == 'matern':
                 param_sample['degree'] = posterior.samples['degree'][i]
                 
-            # Create a GP with these parameters
-            temp_gp = SpatialGP(
-                kernel=self.kernel_type,
-                lengthscale=param_sample['lengthscale'],
-                variance=param_sample['variance'],
-                noise=param_sample['noise'],
-                degree=param_sample.get('degree', self.degree),
-                mean_function=self.mean_function,
-                jitter=self.jitter
-            )
-            
-            # Fit to the training data
-            temp_gp.fit(self.X_train, self.y_train)
-            
-            # Predict mean and std
-            mean, std = temp_gp._predict(X, return_std=True)
-            
+            # Update current model parameters for this sample
+            old_params = {
+                'lengthscale': self.lengthscale,
+                'variance': self.variance,
+                'noise': self.noise,
+                'degree': self.degree
+            }
+            old_L = self.L
+
+            # Set new parameters
+            self.lengthscale = param_sample['lengthscale']
+            self.variance = param_sample['variance']
+            self.noise = param_sample['noise']
+            if self.kernel_type == 'matern':
+                self.degree = param_sample.get('degree', self.degree)
+
+            # Update kernel function
+            self.kernel_fn = self._get_kernel_function()
+
+            # Predict mean and std with current parameters (need to ensure model is "fitted")
+            if self.X_train is not None and self.y_train is not None:
+                # Use the stored training data but with current parameters
+                K = self.kernel_fn(self.X_train, self.X_train)
+                K += np.eye(len(self.X_train)) * (self.noise + self.jitter)
+                self.L = cholesky(K, lower=True)
+
+                mean, std = self._predict(X, return_std=True)
+            else:
+                # Fallback: use simple prediction
+                mean = np.zeros(len(X))
+                std = np.ones(len(X))
+
             # Generate random sample
             sample = np.random.normal(mean, np.sqrt(std**2 + param_sample['noise']))
+
+            # Restore old parameters and Cholesky factor
+            for param, value in old_params.items():
+                setattr(self, param, value)
+            self.L = old_L
+            self.kernel_fn = self._get_kernel_function()
             all_samples.append(sample)
             
         return np.stack(all_samples)

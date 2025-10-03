@@ -519,3 +519,4 @@ comparison_analysis = benchmarking.compare_architectures(
 ---
 
 This AGENTS.md file provides comprehensive documentation of the agent architectures, communication systems, lifecycle management, and applications within the GEO-INFER-AGENT module. The framework supports multiple agent types and enables sophisticated geospatial intelligence through coordinated agent systems.
+

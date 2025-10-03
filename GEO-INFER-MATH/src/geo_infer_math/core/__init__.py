@@ -36,6 +36,24 @@ try:
 except ImportError:
     _graph_theory_available = False
 
+try:
+    from geo_infer_math.core.integration import *
+    _integration_available = True
+except ImportError:
+    _integration_available = False
+
+try:
+    from geo_infer_math.core.gpu_acceleration import *
+    _gpu_acceleration_available = True
+except ImportError:
+    _gpu_acceleration_available = False
+
+try:
+    from geo_infer_math.core.symbolic_math import *
+    _symbolic_math_available = True
+except ImportError:
+    _symbolic_math_available = False
+
 # Build __all__ list based on available modules
 __all__ = [
     "spatial_statistics",
@@ -55,3 +73,12 @@ if _transforms_available:
 
 if _graph_theory_available:
     __all__.append("graph_theory")
+
+if _integration_available:
+    __all__.append("integration")
+
+if _gpu_acceleration_available:
+    __all__.append("gpu_acceleration")
+
+if _symbolic_math_available:
+    __all__.append("symbolic_math")
