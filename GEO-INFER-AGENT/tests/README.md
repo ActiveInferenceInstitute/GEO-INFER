@@ -361,3 +361,4 @@ When adding new functionality:
 3. Add integration tests for component interactions
 4. Update this README with new test categories
 5. Run full test suite before submitting PR
+

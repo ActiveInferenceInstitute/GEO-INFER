@@ -467,3 +467,4 @@ interpretability_report = analyzer.generate_report(
 ---
 
 This AGENTS.md file documents the Active Inference agent architectures, perception-action cycles, learning mechanisms, and specialized applications within the GEO-INFER-ACT module. The framework provides principled, mathematically grounded approaches to intelligent agent design for complex geospatial decision-making.
+

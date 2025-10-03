@@ -4,11 +4,18 @@ Spatial Analysis API
 Provides a clean, consistent interface for spatial analysis operations.
 This module serves as a facade over the more complex spatial statistics
 and geometric operations provided by the core modules.
+
+This API provides both programmatic interfaces and REST API endpoints that
+match the specifications in the API schema.
 """
 
 import numpy as np
 from typing import Union, List, Tuple, Dict, Optional, Any, Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
+import json
+import logging
+from flask import Flask, request, jsonify
+from werkzeug.exceptions import BadRequest
 
 from geo_infer_math.core.spatial_statistics import (
     MoranI, getis_ord_g, local_indicators_spatial_association,
@@ -18,6 +25,93 @@ from geo_infer_math.core.geometry import (
     haversine_distance, vincenty_distance, Point, LineString, Polygon,
     point_in_polygon, buffer_point
 )
+from geo_infer_math.core.interpolation import SpatialInterpolator
+from geo_infer_math.models.regression import spatial_regression_analysis
+from geo_infer_math.models.clustering import spatial_clustering_analysis
+
+logger = logging.getLogger(__name__)
+
+# Request/Response Models
+@dataclass
+class DescriptiveStatsRequest:
+    """Request model for descriptive statistics."""
+    data: Dict[str, Any]
+    variables: Optional[List[str]] = None
+    statistics: Optional[List[str]] = None
+
+@dataclass
+class DescriptiveStatsResponse:
+    """Response model for descriptive statistics."""
+    statistics: Dict[str, Dict[str, float]]
+
+@dataclass
+class AutocorrelationRequest:
+    """Request model for autocorrelation analysis."""
+    data: Dict[str, Any]
+    weights_matrix: str
+    variable: str
+    method: str = 'morans_i'
+
+@dataclass
+class AutocorrelationResponse:
+    """Response model for autocorrelation analysis."""
+    statistic: float
+    p_value: float
+    z_score: float
+    expected_value: float
+    variance: float
+    interpretation: str
+
+@dataclass
+class HotspotAnalysisRequest:
+    """Request model for hot spot analysis."""
+    data: Dict[str, Any]
+    weights_matrix: str
+    variable: str
+    method: str = 'getis_ord_gi_star'
+    significance_level: float = 0.05
+
+@dataclass
+class HotspotAnalysisResponse:
+    """Response model for hot spot analysis."""
+    features: Dict[str, Any]
+    summary: Dict[str, int]
+
+@dataclass
+class ClusteringRequest:
+    """Request model for clustering analysis."""
+    data: Dict[str, Any]
+    algorithm: str
+    parameters: Optional[Dict[str, Any]] = None
+    variables: Optional[List[str]] = None
+
+@dataclass
+class ClusteringResponse:
+    """Response model for clustering analysis."""
+    features: Dict[str, Any]
+    cluster_info: Dict[str, Any]
+
+@dataclass
+class InterpolationRequest:
+    """Request model for spatial interpolation."""
+    data_points: Dict[str, Any]
+    prediction_grid: Dict[str, Any]
+    variable: str
+    method: str = 'idw'
+    parameters: Optional[Dict[str, Any]] = None
+
+@dataclass
+class InterpolationResponse:
+    """Response model for spatial interpolation."""
+    predictions: Dict[str, Any]
+    validation_metrics: Optional[Dict[str, float]] = None
+    uncertainty: Optional[Dict[str, Any]] = None
+
+@dataclass
+class SpatialDataset:
+    """Model for spatial dataset."""
+    features: Dict[str, Any]
+    metadata: Optional[Dict[str, Any]] = None
 
 class SpatialAnalysisAPI:
     """
@@ -387,21 +481,21 @@ class SpatialAnalysisAPI:
     ) -> Dict[str, Any]:
         """
         Calculate descriptive statistics for spatial data.
-        
+
         Args:
             values: Array of values
             coordinates: Optional array of coordinates (n x 2)
-            
+
         Returns:
             Dictionary of descriptive statistics
         """
         if self.verbose:
             print("Calculating descriptive statistics...")
-        
+
         if coordinates is not None:
             # Calculate spatial descriptive statistics
             stats = spatial_descriptive_statistics(coordinates, values)
-            
+
             return {
                 'mean': stats.mean,
                 'median': stats.median,
@@ -427,10 +521,319 @@ class SpatialAnalysisAPI:
                 'kurtosis': None   # Requires scipy.stats
             }
 
+    def calculate_descriptive_stats(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Calculate descriptive spatial statistics (API endpoint)."""
+        try:
+            req = DescriptiveStatsRequest(**request_data)
+            # Convert GeoJSON-like data to numpy arrays
+            features = req.data.get('features', [])
+            coordinates = []
+            values = []
+
+            for feature in features:
+                coords = feature.get('geometry', {}).get('coordinates', [])
+                if coords:
+                    coordinates.append(coords)
+                    values.append(feature.get('properties', {}).get('value', 0))
+
+            coordinates = np.array(coordinates)
+            values = np.array(values)
+
+            if len(coordinates) == 0 or len(values) == 0:
+                raise ValueError("No valid data points found")
+
+            stats = self.descriptive_statistics(values, coordinates)
+            response = DescriptiveStatsResponse(statistics=stats)
+
+            return asdict(response)
+
+        except Exception as e:
+            logger.error(f"Error calculating descriptive statistics: {e}")
+            raise BadRequest(f"Invalid request: {str(e)}")
+
+    def calculate_autocorrelation(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Calculate spatial autocorrelation (API endpoint)."""
+        try:
+            req = AutocorrelationRequest(**request_data)
+
+            # Convert data to numpy arrays
+            features = req.data.get('features', [])
+            coordinates = []
+            values = []
+
+            for feature in features:
+                coords = feature.get('geometry', {}).get('coordinates', [])
+                if coords:
+                    coordinates.append(coords)
+                    values.append(feature.get('properties', {}).get(req.variable, 0))
+
+            coordinates = np.array(coordinates)
+            values = np.array(values)
+
+            if len(coordinates) == 0 or len(values) == 0:
+                raise ValueError("No valid data points found")
+
+            # Create weights matrix based on method
+            if req.weights_matrix == 'queen':
+                from ..core.linalg_tensor import MatrixOperations
+                weights = MatrixOperations.spatial_weights_matrix(coordinates, method='binary')
+            elif req.weights_matrix == 'rook':
+                from ..core.linalg_tensor import MatrixOperations
+                # Simplified rook contiguity
+                weights = MatrixOperations.spatial_weights_matrix(coordinates, method='binary')
+            elif req.weights_matrix == 'distance':
+                from ..core.linalg_tensor import MatrixOperations
+                weights = MatrixOperations.spatial_weights_matrix(coordinates, method='inverse_distance')
+            elif req.weights_matrix == 'k_nearest':
+                from ..core.linalg_tensor import MatrixOperations
+                weights = MatrixOperations.spatial_weights_matrix(coordinates, method='knn', k=5)
+            else:
+                raise ValueError(f"Unknown weights matrix type: {req.weights_matrix}")
+
+            # Perform autocorrelation analysis
+            if req.method == 'morans_i':
+                moran = MoranI(weights)
+                result = moran.compute(values, coordinates)
+
+                response = AutocorrelationResponse(
+                    statistic=result['I'],
+                    p_value=result['p_value'],
+                    z_score=result['z_score'],
+                    expected_value=result['expected_I'],
+                    variance=result['var_I'],
+                    interpretation="Positive autocorrelation" if result['I'] > 0 else "Negative autocorrelation"
+                )
+
+            elif req.method == 'gearys_c':
+                # Simplified Geary's C calculation
+                z = (values - np.mean(values)) / np.std(values)
+                numerator = np.sum(weights * (z[:, np.newaxis] - z[np.newaxis, :])**2)
+                denominator = 2 * np.sum(weights) * np.sum(z**2) / len(z)
+
+                geary_c = numerator / denominator
+                expected_c = 1.0
+                variance_c = 2 / (len(z) * (len(z) - 1))
+
+                response = AutocorrelationResponse(
+                    statistic=geary_c,
+                    p_value=0.0,  # Simplified
+                    z_score=0.0,  # Simplified
+                    expected_value=expected_c,
+                    variance=variance_c,
+                    interpretation="Geary's C calculated"
+                )
+
+            else:
+                raise ValueError(f"Unknown autocorrelation method: {req.method}")
+
+            return asdict(response)
+
+        except Exception as e:
+            logger.error(f"Error calculating autocorrelation: {e}")
+            raise BadRequest(f"Invalid request: {str(e)}")
+
+    def analyze_hotspots(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Analyze hot spots (API endpoint)."""
+        try:
+            req = HotspotAnalysisRequest(**request_data)
+
+            # Convert data to numpy arrays
+            features = req.data.get('features', [])
+            coordinates = []
+            values = []
+
+            for feature in features:
+                coords = feature.get('geometry', {}).get('coordinates', [])
+                if coords:
+                    coordinates.append(coords)
+                    values.append(feature.get('properties', {}).get(req.variable, 0))
+
+            coordinates = np.array(coordinates)
+            values = np.array(values)
+
+            if len(coordinates) == 0 or len(values) == 0:
+                raise ValueError("No valid data points found")
+
+            # Create weights matrix
+            from ..core.linalg_tensor import MatrixOperations
+            if req.weights_matrix == 'queen':
+                weights = MatrixOperations.spatial_weights_matrix(coordinates, method='binary')
+            elif req.weights_matrix == 'rook':
+                weights = MatrixOperations.spatial_weights_matrix(coordinates, method='binary')
+            elif req.weights_matrix == 'distance':
+                weights = MatrixOperations.spatial_weights_matrix(coordinates, method='inverse_distance')
+            elif req.weights_matrix == 'k_nearest':
+                weights = MatrixOperations.spatial_weights_matrix(coordinates, method='knn', k=5)
+            else:
+                raise ValueError(f"Unknown weights matrix type: {req.weights_matrix}")
+
+            # Perform hot spot analysis
+            if req.method == 'getis_ord_gi_star':
+                g_result = getis_ord_g(values, weights)
+
+                # Count hot and cold spots
+                hot_spots = np.sum(g_result['z_scores'] > 1.96)
+                cold_spots = np.sum(g_result['z_scores'] < -1.96)
+                not_significant = len(values) - hot_spots - cold_spots
+
+                # Create response features
+                response_features = []
+                for i, feature in enumerate(features):
+                    response_features.append({
+                        'type': 'Feature',
+                        'geometry': feature.get('geometry', {}),
+                        'properties': {
+                            'value': values[i],
+                            'z_score': g_result['z_scores'][i],
+                            'is_hotspot': g_result['z_scores'][i] > 1.96,
+                            'is_coldspot': g_result['z_scores'][i] < -1.96,
+                            'significance': 'significant' if abs(g_result['z_scores'][i]) > 1.96 else 'not_significant'
+                        }
+                    })
+
+                response = HotspotAnalysisResponse(
+                    features={'type': 'FeatureCollection', 'features': response_features},
+                    summary={
+                        'hot_spots': int(hot_spots),
+                        'cold_spots': int(cold_spots),
+                        'not_significant': int(not_significant)
+                    }
+                )
+
+            else:
+                raise ValueError(f"Unknown hot spot method: {req.method}")
+
+            return asdict(response)
+
+        except Exception as e:
+            logger.error(f"Error analyzing hotspots: {e}")
+            raise BadRequest(f"Invalid request: {str(e)}")
+
+    def perform_clustering(self, request_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Perform spatial clustering (API endpoint)."""
+        try:
+            req = ClusteringRequest(**request_data)
+
+            # Convert data to numpy arrays
+            features = req.data.get('features', [])
+            coordinates = []
+            values = []
+
+            for feature in features:
+                coords = feature.get('geometry', {}).get('coordinates', [])
+                if coords:
+                    coordinates.append(coords)
+                    values.append(feature.get('properties', {}).get('value', 0))
+
+            coordinates = np.array(coordinates)
+            values = np.array(values)
+
+            if len(coordinates) == 0 or len(values) == 0:
+                raise ValueError("No valid data points found")
+
+            # Prepare feature matrix
+            X = np.column_stack([coordinates, values.reshape(-1, 1)])
+
+            # Perform clustering
+            clustering_result = spatial_clustering_analysis(
+                X, coordinates, method=req.algorithm, **(req.parameters or {})
+            )
+
+            # Create response features
+            response_features = []
+            for i, feature in enumerate(features):
+                response_features.append({
+                    'type': 'Feature',
+                    'geometry': feature.get('geometry', {}),
+                    'properties': {
+                        'value': values[i],
+                        'cluster': int(clustering_result.labels[i]),
+                        'cluster_size': int(np.sum(clustering_result.labels == clustering_result.labels[i]))
+                    }
+                })
+
+            response = ClusteringResponse(
+                features={'type': 'FeatureCollection', 'features': response_features},
+                cluster_info={
+                    'number_of_clusters': clustering_result.n_clusters,
+                    'silhouette_score': clustering_result.silhouette_score or 0.0,
+                    'cluster_sizes': clustering_result.cluster_sizes.tolist() if clustering_result.cluster_sizes is not None else []
+                }
+            )
+
+            return asdict(response)
+
+        except Exception as e:
+            logger.error(f"Error performing clustering: {e}")
+            raise BadRequest(f"Invalid request: {str(e)}")
+
+    def create_flask_app(self) -> Flask:
+        """Create Flask application with API endpoints."""
+        app = Flask(__name__)
+
+        @app.route('/health')
+        def health_check():
+            """Health check endpoint."""
+            return jsonify({'status': 'healthy', 'service': 'geo-infer-math-api'})
+
+        @app.route('/statistics/descriptive', methods=['POST'])
+        def descriptive_stats_endpoint():
+            """Descriptive spatial statistics endpoint."""
+            try:
+                data = request.get_json()
+                result = self.calculate_descriptive_stats(data)
+                return jsonify(result)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 400
+
+        @app.route('/statistics/autocorrelation', methods=['POST'])
+        def autocorrelation_endpoint():
+            """Spatial autocorrelation analysis endpoint."""
+            try:
+                data = request.get_json()
+                result = self.calculate_autocorrelation(data)
+                return jsonify(result)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 400
+
+        @app.route('/statistics/hotspots', methods=['POST'])
+        def hotspots_endpoint():
+            """Hot spot analysis endpoint."""
+            try:
+                data = request.get_json()
+                result = self.analyze_hotspots(data)
+                return jsonify(result)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 400
+
+        @app.route('/statistics/clustering', methods=['POST'])
+        def clustering_endpoint():
+            """Spatial clustering analysis endpoint."""
+            try:
+                data = request.get_json()
+                result = self.perform_clustering(data)
+                return jsonify(result)
+            except Exception as e:
+                return jsonify({'error': str(e)}), 400
+
+        return app
+
 # Create a singleton instance for easy access
 spatial_analysis = SpatialAnalysisAPI()
 
 __all__ = [
     "SpatialAnalysisAPI",
-    "spatial_analysis"
+    "spatial_analysis",
+    # Request/Response models
+    "DescriptiveStatsRequest",
+    "DescriptiveStatsResponse",
+    "AutocorrelationRequest",
+    "AutocorrelationResponse",
+    "HotspotAnalysisRequest",
+    "HotspotAnalysisResponse",
+    "ClusteringRequest",
+    "ClusteringResponse",
+    "InterpolationRequest",
+    "InterpolationResponse",
+    "SpatialDataset"
 ] 

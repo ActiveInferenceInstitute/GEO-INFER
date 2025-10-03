@@ -1,0 +1,201 @@
+# GEO-INFER-COMMS Configuration
+# Comprehensive configuration for the geospatial communication system
+
+# System-wide settings
+system:
+  name: "GEO-INFER-COMMS"
+  version: "1.0.0"
+  environment: "production"  # development, staging, production
+  enable_debug: false
+  timezone: "UTC"
+
+# Message broker configuration
+message_broker:
+  max_queue_size: 10000
+  enable_persistence: true
+  persistence_path: "./data/messages"
+  batch_size: 100
+  flush_interval_seconds: 30
+
+# Notification system configuration
+notifications:
+  max_notifications: 10000
+  enable_persistence: true
+  persistence_path: "./data/notifications"
+  default_delivery_methods: ["in_app", "email"]
+  retry_attempts: 3
+  retry_delay_seconds: 60
+
+# Channel management configuration
+channels:
+  max_channels: 1000
+  max_members_per_channel: 1000
+  enable_persistence: true
+  persistence_path: "./data/channels"
+  default_permissions:
+    read: true
+    write: true
+    manage_members: false
+    manage_permissions: false
+    delete: false
+
+# Event system configuration
+events:
+  max_events: 10000
+  enable_persistence: true
+  persistence_path: "./data/events"
+  default_processors:
+    - data_update
+    - system_alert
+    - user_action
+    - sensor_trigger
+    - geospatial_change
+
+# Spatial configuration
+spatial:
+  default_crs: "EPSG:4326"
+  enable_spatial_indexing: true
+  spatial_index_type: "quadtree"
+  max_spatial_queries: 1000
+
+# Security configuration
+security:
+  enable_encryption: true
+  encryption_algorithm: "AES256"
+  enable_authentication: true
+  auth_method: "JWT"
+  token_expiry_minutes: 60
+  enable_rate_limiting: true
+  rate_limit_per_minute: 1000
+
+# API configuration
+api:
+  host: "0.0.0.0"
+  port: 8000
+  enable_cors: true
+  cors_origins: ["*"]
+  enable_docs: true
+  docs_url: "/docs"
+  redoc_url: "/redoc"
+
+# WebSocket configuration
+websocket:
+  host: "0.0.0.0"
+  port: 8001
+  heartbeat_interval_seconds: 30
+  max_connections: 10000
+  compression: true
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file_path: "./logs/comms.log"
+  max_file_size_mb: 100
+  backup_count: 5
+
+# Database configuration
+database:
+  type: "sqlite"  # sqlite, postgresql, mongodb
+  connection_string: "sqlite:///./data/comms.db"
+  pool_size: 10
+  max_overflow: 20
+  echo_sql: false
+
+# Cache configuration
+cache:
+  type: "redis"  # redis, memcached, memory
+  host: "localhost"
+  port: 6379
+  db: 0
+  password: null
+  default_ttl_seconds: 3600
+
+# Monitoring configuration
+monitoring:
+  enable_metrics: true
+  metrics_port: 9090
+  enable_health_checks: true
+  health_check_interval_seconds: 30
+
+# Integration configuration
+integrations:
+  # GEO-INFER modules to integrate with
+  geo_infer_modules:
+    - SPACE
+    - AGENT
+    - DATA
+    - IOT
+    - SEC
+
+  # External services
+  external_services:
+    email_provider: "sendgrid"
+    sms_provider: "twilio"
+    push_provider: "firebase"
+
+# Performance configuration
+performance:
+  max_workers: 10
+  queue_timeout_seconds: 30
+  connection_timeout_seconds: 10
+  request_timeout_seconds: 30
+
+# Development configuration
+development:
+  enable_hot_reload: false
+  auto_migrate: false
+  seed_data: false
+  debug_endpoints: false
+
+# Emergency system configuration
+emergency:
+  enable_emergency_mode: true
+  emergency_contacts:
+    - name: "Emergency Coordinator"
+      email: "emergency@geo-infer.org"
+      phone: "+1-555-0123"
+      priority: 1
+
+  emergency_zones:
+    - name: "Downtown Area"
+      bounds:
+        min_longitude: -122.42
+        min_latitude: 37.77
+        max_longitude: -122.40
+        max_latitude: 37.79
+
+    - name: "Industrial District"
+      bounds:
+        min_longitude: -122.45
+        min_latitude: 37.75
+        max_longitude: -122.43
+        max_latitude: 37.77
+
+# Backup and recovery configuration
+backup:
+  enable_auto_backup: true
+  backup_interval_hours: 24
+  backup_path: "./backups"
+  retention_days: 30
+  compression: true
+
+# Compliance configuration
+compliance:
+  enable_audit_logging: true
+  audit_log_retention_days: 90
+  enable_data_retention: true
+  data_retention_days: 365
+  enable_privacy_mode: false
+  gdpr_compliant: true
+
+# Feature flags
+features:
+  enable_advanced_routing: true
+  enable_spatial_filtering: true
+  enable_real_time_collaboration: true
+  enable_iot_integration: true
+  enable_webhook_support: true
+  enable_api_rate_limiting: true
+  enable_message_encryption: true
+  enable_geospatial_analytics: true

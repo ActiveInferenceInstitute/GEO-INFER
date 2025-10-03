@@ -3,13 +3,21 @@ info:
   title: GEO-INFER-API
   description: |
     Standardized Interfaces for Geospatial Interoperability
-    
+
     The central nervous system for communication and interoperability within the GEO-INFER framework.
     Provides unified gateway, OGC-compliant APIs, and standardized access to all framework functionalities.
+
+    **Core Capabilities:**
+    - OGC API Features compliant endpoints for geospatial data
+    - Advanced polygon operations (area, simplification, intersection, buffer)
+    - Real-time geospatial data processing
+    - Integration with all GEO-INFER modules
+    - Comprehensive geospatial analysis tools
   version: 1.0.0
   contact:
     name: GEO-INFER Development Team
     url: https://github.com/geo-infer/geo-infer-api
+    email: api-support@geo-infer.org
   license:
     name: CC BY-NC-SA 4.0
     url: https://creativecommons.org/licenses/by-nc-sa/4.0/
@@ -424,6 +432,302 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/SearchResults'
+
+  /operations/polygon/area:
+    post:
+      summary: Calculate polygon area
+      description: Calculates the approximate area of a polygon in square kilometers.
+      operationId: calculatePolygonArea
+      tags:
+        - Polygon Operations
+      requestBody:
+        required: true
+        content:
+          application/geo+json:
+            schema:
+              $ref: '#/components/schemas/PolygonFeature'
+      responses:
+        '200':
+          description: Area calculation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  area_sq_km:
+                    type: number
+                    description: Area in square kilometers
+                  feature_id:
+                    type: string
+                  method:
+                    type: string
+                    enum: [planar, spherical]
+                    default: planar
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /operations/polygon/simplify:
+    post:
+      summary: Simplify a polygon
+      description: Simplifies a polygon using the Ramer-Douglas-Peucker algorithm.
+      operationId: simplifyPolygon
+      tags:
+        - Polygon Operations
+      parameters:
+        - name: tolerance
+          in: query
+          required: false
+          schema:
+            type: number
+            minimum: 0.001
+            maximum: 1.0
+            default: 0.01
+          description: Simplification tolerance (higher values produce simpler polygons)
+      requestBody:
+        required: true
+        content:
+          application/geo+json:
+            schema:
+              $ref: '#/components/schemas/PolygonFeature'
+      responses:
+        '200':
+          description: Simplified polygon feature
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/PolygonFeature'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /operations/polygon/contains:
+    post:
+      summary: Check if a point is inside a polygon
+      description: Checks if a point is inside a polygon using the ray casting algorithm.
+      operationId: checkPointInPolygon
+      tags:
+        - Polygon Operations
+      parameters:
+        - name: lon
+          in: query
+          required: true
+          schema:
+            type: number
+            minimum: -180
+            maximum: 180
+          description: Longitude of the point (required)
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+            minimum: -90
+            maximum: 90
+          description: Latitude of the point (required)
+      requestBody:
+        required: true
+        content:
+          application/geo+json:
+            schema:
+              $ref: '#/components/schemas/PolygonFeature'
+      responses:
+        '200':
+          description: Result indicating if the point is inside
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  contains:
+                    type: boolean
+                  feature_id:
+                    type: string
+                  point:
+                    type: array
+                    items:
+                      type: number
+                  method:
+                    type: string
+                    enum: [ray_casting, winding_number]
+                    default: ray_casting
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /operations/polygon/buffer:
+    post:
+      summary: Create a buffer around a polygon
+      description: Creates a buffer zone around a polygon at a specified distance.
+      operationId: createBuffer
+      tags:
+        - Polygon Operations
+      parameters:
+        - name: distance
+          in: query
+          required: true
+          schema:
+            type: number
+            minimum: 0
+          description: Buffer distance in kilometers
+        - name: unit
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [meters, kilometers, miles]
+            default: kilometers
+          description: Unit for the buffer distance
+        - name: segments
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 8
+            maximum: 100
+            default: 16
+          description: Number of segments for buffer approximation
+      requestBody:
+        required: true
+        content:
+          application/geo+json:
+            schema:
+              $ref: '#/components/schemas/PolygonFeature'
+      responses:
+        '200':
+          description: Buffered polygon feature
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/PolygonFeature'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /operations/polygon/intersection:
+    post:
+      summary: Calculate intersection of multiple polygons
+      description: Calculates the intersection area of multiple polygon features.
+      operationId: calculateIntersection
+      tags:
+        - Polygon Operations
+      requestBody:
+        required: true
+        content:
+          application/geo+json:
+            schema:
+              type: object
+              properties:
+                polygons:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/PolygonFeature'
+                  minItems: 2
+                  description: Array of polygon features to intersect
+      responses:
+        '200':
+          description: Intersection result
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/PolygonFeature'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /operations/polygon/union:
+    post:
+      summary: Calculate union of multiple polygons
+      description: Calculates the union area of multiple polygon features.
+      operationId: calculateUnion
+      tags:
+        - Polygon Operations
+      requestBody:
+        required: true
+        content:
+          application/geo+json:
+            schema:
+              type: object
+              properties:
+                polygons:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/PolygonFeature'
+                  minItems: 2
+                  description: Array of polygon features to union
+      responses:
+        '200':
+          description: Union result
+          content:
+            application/geo+json:
+              schema:
+                $ref: '#/components/schemas/PolygonFeature'
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /operations/polygon/distance:
+    post:
+      summary: Calculate distance between polygons
+      description: Calculates the minimum distance between two polygon features.
+      operationId: calculateDistance
+      tags:
+        - Polygon Operations
+      requestBody:
+        required: true
+        content:
+          application/geo+json:
+            schema:
+              type: object
+              properties:
+                polygon1:
+                  $ref: '#/components/schemas/PolygonFeature'
+                polygon2:
+                  $ref: '#/components/schemas/PolygonFeature'
+              required:
+                - polygon1
+                - polygon2
+      responses:
+        '200':
+          description: Distance calculation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  distance_km:
+                    type: number
+                    description: Distance in kilometers
+                  unit:
+                    type: string
+                    enum: [kilometers, meters, miles]
+                  method:
+                    type: string
+                    enum: [centroid, edge, vertex]
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 
 components:
   securitySchemes:

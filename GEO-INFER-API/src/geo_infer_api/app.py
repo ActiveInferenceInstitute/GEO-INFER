@@ -8,6 +8,7 @@ from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.staticfiles import StaticFiles
 
 from geo_infer_api.core.config import get_settings
+from geo_infer_api.core.middleware import ErrorHandlerMiddleware, RequestLoggingMiddleware, CORSHeadersMiddleware
 from geo_infer_api.endpoints import geojson_router, health_router
 
 # Create FastAPI app
@@ -19,6 +20,11 @@ main_app = FastAPI(
     docs_url=None,
     redoc_url=None,
 )
+
+# Add custom middleware
+main_app.add_middleware(ErrorHandlerMiddleware)
+main_app.add_middleware(RequestLoggingMiddleware)
+main_app.add_middleware(CORSHeadersMiddleware)
 
 # Configure CORS
 main_app.add_middleware(

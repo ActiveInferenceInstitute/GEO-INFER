@@ -1,3 +1,0 @@
-This directory stores generated H3 migration and test reports.
-
-

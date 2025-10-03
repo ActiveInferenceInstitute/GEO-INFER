@@ -286,28 +286,29 @@ class SpatialGrowthModels:
 
 class EndogenousGrowthModels:
     """
-    Implementation of endogenous growth models
+    Implementation of endogenous growth models with sophisticated algorithms
     """
-    
+
     def __init__(self, model_type: str = "ak"):
         self.model_type = model_type
         self.parameters = {}
-    
+        self.solution_cache = {}
+
     def ak_model(self, A: float, s: float, delta: float) -> Dict[str, float]:
         """
         AK model: Y = AK, where A is constant returns to capital
         Growth rate = sA - δ
-        
+
         Args:
             A: Productivity of capital
             s: Savings rate
             delta: Depreciation rate
-            
+
         Returns:
             Dictionary with growth rate and other metrics
         """
         growth_rate = s * A - delta
-        
+
         return {
             'growth_rate': growth_rate,
             'productivity': A,
@@ -315,41 +316,109 @@ class EndogenousGrowthModels:
             'depreciation_rate': delta,
             'model_type': 'AK'
         }
-    
+
     def romer_model(self, parameters: Dict[str, float]) -> Dict[str, Any]:
         """
-        Romer (1990) R&D-based growth model
-        
+        Romer (1990) R&D-based growth model with sophisticated implementation
+
         Args:
             parameters: Model parameters including:
                 - alpha: Capital share
-                - beta: R&D share  
+                - beta: R&D share
                 - gamma: Innovation parameter
                 - L: Total labor force
                 - s_r: Share of labor in R&D
-                
+
         Returns:
-            Dictionary with growth dynamics
+            Dictionary with growth dynamics and analysis
         """
         alpha = parameters.get('alpha', 0.33)
         beta = parameters.get('beta', 0.3)
         gamma = parameters.get('gamma', 0.1)
         L = parameters.get('L', 1000)
         s_r = parameters.get('s_r', 0.05)
-        
+
         # Growth rate of technology
         g_A = gamma * s_r * L
-        
+
         # Balanced growth rate
         g = g_A / (1 - alpha)
-        
+
+        # Knowledge stock dynamics
+        A0 = parameters.get('A0', 1.0)
+        time_steps = parameters.get('time_steps', 100)
+        A_path = [A0]
+
+        for t in range(1, time_steps):
+            A_t = A_path[-1] + gamma * s_r * L * A_path[-1]**beta
+            A_path.append(A_t)
+
+        # Economic variables along balanced growth path
+        bgp_analysis = self._analyze_balanced_growth_path(g, alpha, s_r, L, parameters)
+
         return {
             'technology_growth': g_A,
             'balanced_growth_rate': g,
             'rd_labor_share': s_r,
             'innovation_parameter': gamma,
-            'model_type': 'Romer_1990'
+            'model_type': 'Romer_1990',
+            'technology_path': A_path,
+            'balanced_growth_analysis': bgp_analysis
         }
+
+    def _analyze_balanced_growth_path(self, g: float, alpha: float, s_r: float,
+                                    L: float, parameters: Dict[str, float]) -> Dict[str, Any]:
+        """Analyze properties of balanced growth path"""
+        # Capital-output ratio
+        k_y_ratio = (g + parameters.get('delta', 0.05)) / (parameters.get('s', 0.2) * (1 - alpha))
+
+        # R&D intensity
+        rd_intensity = s_r * L / (L * (1 - s_r))  # R&D workers / production workers
+
+        # Innovation rate per worker
+        innovation_rate = parameters.get('gamma', 0.1) * s_r * L
+
+        return {
+            'capital_output_ratio': k_y_ratio,
+            'rd_intensity': rd_intensity,
+            'innovation_rate_per_worker': innovation_rate,
+            'growth_sustainability': self._assess_growth_sustainability(g, parameters)
+        }
+
+    def _assess_growth_sustainability(self, g: float, parameters: Dict[str, float]) -> Dict[str, Any]:
+        """Assess long-term sustainability of growth"""
+        # Simple sustainability analysis
+        # In practice, would include environmental constraints, resource limits, etc.
+
+        sustainability_score = 1.0
+
+        # Reduce score for very high growth rates (resource constraints)
+        if g > 0.05:
+            sustainability_score *= 0.8
+
+        # Reduce score for low R&D investment (technological stagnation)
+        if parameters.get('s_r', 0.05) < 0.02:
+            sustainability_score *= 0.7
+
+        return {
+            'sustainability_score': sustainability_score,
+            'sustainability_level': 'high' if sustainability_score > 0.8 else 'medium' if sustainability_score > 0.5 else 'low',
+            'limiting_factors': self._identify_limiting_factors(g, parameters)
+        }
+
+    def _identify_limiting_factors(self, g: float, parameters: Dict[str, float]) -> List[str]:
+        """Identify potential limiting factors for sustained growth"""
+        factors = []
+
+        if g > 0.05:
+            factors.append('resource_constraints')
+        if parameters.get('s_r', 0.05) < 0.02:
+            factors.append('insufficient_rd_investment')
+        if parameters.get('alpha', 0.33) > 0.5:
+            factors.append('capital_dominated_growth')
+
+        return factors
+    
     
     def schumpeterian_model(self, parameters: Dict[str, float]) -> Dict[str, Any]:
         """

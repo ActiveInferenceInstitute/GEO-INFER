@@ -1,0 +1,331 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GEO-INFER-GIT Configuration Schema",
+  "description": "JSON Schema for validating GEO-INFER-GIT configuration files",
+  "type": "object",
+  "properties": {
+    "general": {
+      "type": "object",
+      "description": "General configuration settings",
+      "properties": {
+        "output_dir": {
+          "type": "string",
+          "description": "Directory to store cloned repositories",
+          "minLength": 1,
+          "default": "./cloned_repositories"
+        },
+        "base_dir": {
+          "type": "string",
+          "description": "Base directory for repository operations",
+          "minLength": 1,
+          "default": "./repos"
+        }
+      },
+      "additionalProperties": false
+    },
+    "github": {
+      "type": "object",
+      "description": "GitHub API configuration",
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "GitHub personal access token",
+          "minLength": 1
+        },
+        "api_url": {
+          "type": "string",
+          "description": "GitHub API base URL",
+          "format": "uri",
+          "default": "https://api.github.com"
+        },
+        "wait_on_rate_limit": {
+          "type": "boolean",
+          "description": "Whether to wait when rate limit is exceeded",
+          "default": true
+        },
+        "max_retries": {
+          "type": "integer",
+          "description": "Maximum number of API request retries",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 3
+        },
+        "retry_delay": {
+          "type": "number",
+          "description": "Delay between retry attempts in seconds",
+          "minimum": 0.1,
+          "maximum": 60.0,
+          "default": 1.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "gitlab": {
+      "type": "object",
+      "description": "GitLab API configuration",
+      "properties": {
+        "token": {
+          "type": "string",
+          "description": "GitLab access token",
+          "minLength": 1
+        },
+        "api_url": {
+          "type": "string",
+          "description": "GitLab API base URL",
+          "format": "uri",
+          "default": "https://gitlab.com/api/v4"
+        },
+        "wait_on_rate_limit": {
+          "type": "boolean",
+          "description": "Whether to wait when rate limit is exceeded",
+          "default": true
+        },
+        "max_retries": {
+          "type": "integer",
+          "description": "Maximum number of API request retries",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 3
+        },
+        "retry_delay": {
+          "type": "number",
+          "description": "Delay between retry attempts in seconds",
+          "minimum": 0.1,
+          "maximum": 60.0,
+          "default": 1.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "bitbucket": {
+      "type": "object",
+      "description": "Bitbucket API configuration",
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "Bitbucket username",
+          "minLength": 1
+        },
+        "app_password": {
+          "type": "string",
+          "description": "Bitbucket app password",
+          "minLength": 1
+        },
+        "api_url": {
+          "type": "string",
+          "description": "Bitbucket API base URL",
+          "format": "uri",
+          "default": "https://api.bitbucket.org/2.0"
+        },
+        "wait_on_rate_limit": {
+          "type": "boolean",
+          "description": "Whether to wait when rate limit is exceeded",
+          "default": true
+        },
+        "max_retries": {
+          "type": "integer",
+          "description": "Maximum number of API request retries",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 3
+        },
+        "retry_delay": {
+          "type": "number",
+          "description": "Delay between retry attempts in seconds",
+          "minimum": 0.1,
+          "maximum": 60.0,
+          "default": 1.0
+        }
+      },
+      "additionalProperties": false
+    },
+    "local": {
+      "type": "object",
+      "description": "Local Git repository configuration",
+      "properties": {
+        "base_paths": {
+          "type": "array",
+          "description": "Base directories to search for local repositories",
+          "items": {
+            "type": "string",
+            "minLength": 1
+          },
+          "default": ["."]
+        },
+        "max_depth": {
+          "type": "integer",
+          "description": "Maximum directory depth to search",
+          "minimum": 1,
+          "maximum": 10,
+          "default": 3
+        }
+      },
+      "additionalProperties": false
+    },
+    "concurrency": {
+      "type": "object",
+      "description": "Concurrency and performance configuration",
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "description": "Enable parallel operations",
+          "default": true
+        },
+        "max_workers": {
+          "type": "integer",
+          "description": "Maximum number of parallel workers",
+          "minimum": 1,
+          "maximum": 20,
+          "default": 4
+        }
+      },
+      "additionalProperties": false
+    },
+    "logging": {
+      "type": "object",
+      "description": "Logging configuration",
+      "properties": {
+        "level": {
+          "type": "string",
+          "description": "Log level",
+          "enum": ["DEBUG", "INFO", "WARNING", "ERROR"],
+          "default": "INFO"
+        },
+        "format": {
+          "type": "string",
+          "description": "Log output format",
+          "enum": ["json", "text"],
+          "default": "text"
+        },
+        "file": {
+          "type": "string",
+          "description": "Log file path",
+          "format": "uri"
+        }
+      },
+      "additionalProperties": false
+    },
+    "repositories": {
+      "type": "object",
+      "description": "Target repositories configuration",
+      "properties": {
+        "repositories": {
+          "type": "array",
+          "description": "List of repositories to clone",
+          "items": {
+            "$ref": "#/definitions/repository"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "users": {
+      "type": "object",
+      "description": "Target users configuration",
+      "properties": {
+        "users": {
+          "type": "array",
+          "description": "List of users whose repositories to clone",
+          "items": {
+            "$ref": "#/definitions/user"
+          }
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "definitions": {
+    "repository": {
+      "type": "object",
+      "description": "Repository configuration",
+      "properties": {
+        "owner": {
+          "type": "string",
+          "description": "Repository owner username",
+          "pattern": "^[a-zA-Z0-9]([a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$",
+          "minLength": 1
+        },
+        "repo": {
+          "type": "string",
+          "description": "Repository name",
+          "pattern": "^[a-zA-Z0-9._-]+$",
+          "minLength": 1
+        },
+        "branch": {
+          "type": "string",
+          "description": "Branch to clone",
+          "minLength": 1,
+          "default": "main"
+        },
+        "tags": {
+          "type": "array",
+          "description": "Repository tags for categorization",
+          "items": {
+            "type": "string"
+          }
+        },
+        "clone_depth": {
+          "type": "integer",
+          "description": "Git clone depth",
+          "minimum": 0,
+          "default": 1
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether to include this repository",
+          "default": true
+        }
+      },
+      "required": ["owner", "repo"],
+      "additionalProperties": false
+    },
+    "user": {
+      "type": "object",
+      "description": "User configuration",
+      "properties": {
+        "username": {
+          "type": "string",
+          "description": "GitHub/GitLab username",
+          "pattern": "^[a-zA-Z0-9]([a-zA-Z0-9]|-(?=[a-zA-Z0-9])){0,38}$",
+          "minLength": 1
+        },
+        "include_repos": {
+          "type": "array",
+          "description": "Specific repositories to include",
+          "items": {
+            "type": "string"
+          }
+        },
+        "exclude_repos": {
+          "type": "array",
+          "description": "Repositories to exclude",
+          "items": {
+            "type": "string"
+          }
+        },
+        "max_repos": {
+          "type": "integer",
+          "description": "Maximum repositories to clone",
+          "minimum": 1,
+          "maximum": 100,
+          "default": 10
+        },
+        "tags": {
+          "type": "array",
+          "description": "User tags for categorization",
+          "items": {
+            "type": "string"
+          }
+        },
+        "enabled": {
+          "type": "boolean",
+          "description": "Whether to include this user",
+          "default": true
+        }
+      },
+      "required": ["username"],
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

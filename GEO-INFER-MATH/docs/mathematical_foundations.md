@@ -1,0 +1,363 @@
+# Mathematical Foundations of GEO-INFER-MATH
+
+This document provides detailed mathematical foundations for the algorithms and methods implemented in GEO-INFER-MATH.
+
+## Table of Contents
+
+1. [Spatial Statistics](#spatial-statistics)
+2. [Geographic Coordinate Systems](#geographic-coordinate-systems)
+3. [Spatial Interpolation](#spatial-interpolation)
+4. [Graph Theory for Spatial Networks](#graph-theory-for-spatial-networks)
+5. [Linear Algebra and Tensor Operations](#linear-algebra-and-tensor-operations)
+6. [Optimization Methods](#optimization-methods)
+7. [Numerical Methods](#numerical-methods)
+
+## Spatial Statistics
+
+### Moran's I Statistic
+
+**Definition**: Moran's I measures spatial autocorrelation in a dataset. It quantifies the degree to which similar values tend to cluster together in space.
+
+**Mathematical Formulation**:
+
+For a set of observations $z_i$ at locations $i = 1, \dots, n$ with spatial weights matrix $W$:
+
+$$I = \frac{n}{S_0} \frac{\sum_{i=1}^n \sum_{j=1}^n w_{ij} (z_i - \bar{z})(z_j - \bar{z})}{\sum_{i=1}^n (z_i - \bar{z})^2}$$
+
+Where:
+- $n$ is the number of observations
+- $S_0 = \sum_{i=1}^n \sum_{j=1}^n w_{ij}$ is the sum of all weights
+- $\bar{z}$ is the mean of all observations
+- $w_{ij}$ is the spatial weight between locations $i$ and $j$
+
+**Expected Value**: $E[I] = -\frac{1}{n-1}$
+
+**Variance**: $Var(I) = \frac{n^2 S_1 - n S_2 + 3 S_0^2}{S_0^2 (n^2 - 1)} - E[I]^2$
+
+Where:
+- $S_1 = \frac{1}{2} \sum_{i=1}^n \sum_{j=1}^n (w_{ij} + w_{ji})^2$
+- $S_2 = \sum_{i=1}^n \left( \sum_{j=1}^n w_{ij} + \sum_{j=1}^n w_{ji} \right)^2$
+
+### Getis-Ord G* Statistic
+
+**Definition**: The Getis-Ord G* statistic identifies spatial concentrations of high or low values (hot spots and cold spots).
+
+**Mathematical Formulation**:
+
+For location $i$:
+
+$$G_i^*(d) = \frac{\sum_{j=1}^n w_{ij}(d) x_j - \bar{W}_i \bar{x}}{s \sqrt{\frac{n S_{1i} - W_i^2}{n-1}}} \cdot \frac{1}{\sqrt{1 - \frac{W_i^2}{S_{1i}}}}$$
+
+Where:
+- $x_j$ are the values at location $j$
+- $w_{ij}(d)$ is the spatial weight (1 if within distance $d$, 0 otherwise)
+- $\bar{x}$ is the global mean
+- $W_i = \sum_{j=1}^n w_{ij}(d)$
+- $S_{1i} = \sum_{j=1}^n w_{ij}^2(d)$
+- $s$ is the sample standard deviation
+
+### Local Indicators of Spatial Association (LISA)
+
+**Definition**: LISA statistics measure local spatial autocorrelation and identify local clusters and outliers.
+
+**Mathematical Formulation**:
+
+For location $i$:
+
+$$I_i = z_i \sum_{j=1}^n w_{ij} z_j$$
+
+Where $z_i$ and $z_j$ are standardized values.
+
+**Interpretation**:
+- $I_i > 0$: Similar values cluster together (High-High or Low-Low)
+- $I_i < 0$: Dissimilar values cluster together (High-Low or Low-High)
+
+## Geographic Coordinate Systems
+
+### WGS84 Ellipsoid
+
+The WGS84 ellipsoid parameters:
+- Semi-major axis $a = 6378137.0$ m
+- Semi-minor axis $b = 6356752.314245$ m
+- Flattening $f = \frac{a-b}{a} = \frac{1}{298.257223563}$
+- Eccentricity $e = \sqrt{2f - f^2} = \sqrt{\frac{a^2 - b^2}{a^2}} = 0.0818191908426215$
+
+### UTM Projection
+
+**Universal Transverse Mercator (UTM)** projection uses a transverse Mercator projection with specific parameters:
+
+**Projection Parameters**:
+- Central meridian: $\lambda_0 = 6^\circ \times (zone - 1) - 180^\circ + 3^\circ$
+- Scale factor at central meridian: $k_0 = 0.9996$
+- False easting: 500,000 m
+- False northing: 10,000,000 m (southern hemisphere)
+
+**Forward Transformation** (Geographic to UTM):
+
+The transformation involves complex series expansions for accuracy. The basic form:
+
+$$x = k_0 \nu (\lambda - \lambda_0) \cos\phi \left(1 + \frac{(\lambda - \lambda_0)^2}{6} \cos^2\phi (1 - \tan^2\phi) + \cdots\right)$$
+
+$$y = k_0 \left( M + \nu \tan\phi \frac{(\lambda - \lambda_0)^2}{2} \cos^2\phi + \cdots \right)$$
+
+Where $\nu$ is the radius of curvature in the prime vertical and $M$ is the meridional arc length.
+
+### Haversine Distance
+
+**Definition**: The great circle distance between two points on a sphere.
+
+**Mathematical Formulation**:
+
+For two points with coordinates $(\phi_1, \lambda_1)$ and $(\phi_2, \lambda_2)$:
+
+$$d = 2r \arcsin\left(\sqrt{\sin^2\left(\frac{\Delta\phi}{2}\right) + \cos\phi_1\cos\phi_2\sin^2\left(\frac{\Delta\lambda}{2}\right)}\right)$$
+
+Where:
+- $\Delta\phi = \phi_2 - \phi_1$ (latitude difference)
+- $\Delta\lambda = \lambda_2 - \lambda_1$ (longitude difference)
+- $r$ is the Earth's radius
+
+### Vincenty Distance
+
+**Definition**: More accurate geodesic distance calculation that accounts for the Earth's ellipsoidal shape.
+
+**Mathematical Formulation**:
+
+The Vincenty algorithm solves the inverse geodesic problem iteratively. The basic approach:
+
+1. Calculate reduced latitudes: $U_i = \arctan((1-f)\tan\phi_i)$
+2. Calculate initial azimuth and angular distance
+3. Iterate to find the geodesic distance
+
+The algorithm converges typically within 3-4 iterations for most cases.
+
+## Spatial Interpolation
+
+### Inverse Distance Weighting (IDW)
+
+**Definition**: Interpolates values based on weighted average of nearby observations, where weights decrease with distance.
+
+**Mathematical Formulation**:
+
+For a prediction point $x_0$:
+
+$$\hat{z}(x_0) = \frac{\sum_{i=1}^n z_i / d(x_i, x_0)^p}{\sum_{i=1}^n 1 / d(x_i, x_0)^p}$$
+
+Where:
+- $z_i$ are observed values at locations $x_i$
+- $d(x_i, x_0)$ is the distance between $x_i$ and $x_0$
+- $p$ is the power parameter (typically $p = 2$)
+
+### Kriging
+
+**Definition**: Best linear unbiased predictor that minimizes variance while honoring spatial correlation structure.
+
+**Mathematical Formulation**:
+
+The ordinary kriging predictor:
+
+$$\hat{z}(x_0) = \sum_{i=1}^n \lambda_i z(x_i)$$
+
+Subject to $\sum_{i=1}^n \lambda_i = 1$, where $\lambda_i$ are weights found by solving:
+
+$$\begin{bmatrix}
+\gamma(x_1, x_1) & \cdots & \gamma(x_1, x_n) & 1 \\
+\vdots & \ddots & \vdots & 1 \\
+\gamma(x_n, x_1) & \cdots & \gamma(x_n, x_n) & 1 \\
+1 & \cdots & 1 & 0
+\end{bmatrix}
+\begin{bmatrix}
+\lambda_1 \\
+\vdots \\
+\lambda_n \\
+\mu
+\end{bmatrix} =
+\begin{bmatrix}
+\gamma(x_1, x_0) \\
+\vdots \\
+\gamma(x_n, x_0) \\
+1
+\end{bmatrix}$$
+
+Where $\gamma(x_i, x_j)$ is the semivariogram value between points $x_i$ and $x_j$.
+
+### Radial Basis Functions (RBF)
+
+**Definition**: Interpolates using radial basis functions centered at data points.
+
+**Mathematical Formulation**:
+
+$$\hat{z}(x) = \sum_{i=1}^n \lambda_i \phi(\|x - x_i\|) + p(x)$$
+
+Where $\phi(r)$ is a radial basis function (e.g., Gaussian: $\phi(r) = e^{-r^2/(2\sigma^2)}$).
+
+## Graph Theory for Spatial Networks
+
+### Spatial Weights Matrix
+
+**Definition**: Matrix $W$ where $w_{ij}$ represents the spatial relationship between locations $i$ and $j$.
+
+**Common Weighting Schemes**:
+
+1. **Binary Contiguity**: $w_{ij} = 1$ if locations $i$ and $j$ are adjacent, 0 otherwise
+2. **Inverse Distance**: $w_{ij} = 1 / d_{ij}^\alpha$ for some power $\alpha$
+3. **K-Nearest Neighbors**: $w_{ij} = 1$ if $j$ is among the $k$ nearest neighbors of $i$
+4. **Gaussian Kernel**: $w_{ij} = \exp(-d_{ij}^2 / (2\sigma^2))$
+
+### Network Centrality Measures
+
+**Degree Centrality**:
+
+$$C_D(i) = \frac{\deg(i)}{n-1}$$
+
+Where $\deg(i)$ is the degree of node $i$.
+
+**Betweenness Centrality**:
+
+$$C_B(i) = \sum_{s \neq t \neq i} \frac{\sigma_{st}(i)}{\sigma_{st}}$$
+
+Where $\sigma_{st}$ is the number of shortest paths from $s$ to $t$, and $\sigma_{st}(i)$ is the number passing through $i$.
+
+**Closeness Centrality**:
+
+$$C_C(i) = \frac{n-1}{\sum_{j \neq i} d_{ij}}$$
+
+Where $d_{ij}$ is the shortest path distance between $i$ and $j$.
+
+## Linear Algebra and Tensor Operations
+
+### Matrix Condition Number
+
+**Definition**: Ratio of the largest to smallest singular value:
+
+$$\kappa(A) = \frac{\sigma_1}{\sigma_n} = \|A\|_2 \|A^{-1}\|_2$$
+
+Where $\sigma_1 \geq \sigma_2 \geq \cdots \geq \sigma_n$ are the singular values of $A$.
+
+### Tensor Decomposition
+
+**CP Decomposition** (CANDECOMP/PARAFAC):
+
+For a 3rd-order tensor $\mathcal{X} \in \mathbb{R}^{I \times J \times K}$:
+
+$$\mathcal{X} \approx \sum_{r=1}^R \lambda_r \mathbf{a}_r \circ \mathbf{b}_r \circ \mathbf{c}_r$$
+
+Where $\circ$ denotes the outer product and $R$ is the rank.
+
+**Tucker Decomposition**:
+
+$$\mathcal{X} \approx \mathcal{G} \times_1 A \times_2 B \times_3 C$$
+
+Where $\mathcal{G}$ is the core tensor and $A, B, C$ are factor matrices.
+
+## Optimization Methods
+
+### Gradient Descent
+
+**Update Rule**:
+
+$$x_{k+1} = x_k - \alpha \nabla f(x_k)$$
+
+Where $\alpha$ is the learning rate and $\nabla f(x_k)$ is the gradient.
+
+**Convergence**: For strongly convex functions, gradient descent converges linearly with rate $1 - \mu/L$, where $\mu$ and $L$ are the strong convexity and smoothness constants.
+
+### Newton's Method
+
+**Update Rule**:
+
+$$x_{k+1} = x_k - H_f(x_k)^{-1} \nabla f(x_k)$$
+
+Where $H_f(x_k)$ is the Hessian matrix.
+
+**Convergence**: Newton's method converges quadratically for functions with Lipschitz-continuous Hessians.
+
+### Simulated Annealing
+
+**Acceptance Probability**:
+
+$$P(\Delta E) = \exp(-\Delta E / T)$$
+
+Where $T$ is the temperature parameter that decreases over time.
+
+## Numerical Methods
+
+### Runge-Kutta Methods
+
+**RK4 Method**:
+
+For ODE $\dot{y} = f(t, y)$:
+
+$$k_1 = f(t_n, y_n)$$
+$$k_2 = f(t_n + h/2, y_n + (h/2)k_1)$$
+$$k_3 = f(t_n + h/2, y_n + (h/2)k_2)$$
+$$k_4 = f(t_n + h, y_n + h k_3)$$
+
+$$y_{n+1} = y_n + (h/6)(k_1 + 2k_2 + 2k_3 + k_4)$$
+
+### Finite Difference Methods for PDEs
+
+**Heat Equation** ($\frac{\partial u}{\partial t} = \alpha \frac{\partial^2 u}{\partial x^2}$):
+
+**Explicit Scheme**:
+
+$$\frac{u_i^{n+1} - u_i^n}{\Delta t} = \alpha \frac{u_{i+1}^n - 2u_i^n + u_{i-1}^n}{\Delta x^2}$$
+
+**Stability Condition**: $\alpha \frac{\Delta t}{\Delta x^2} \leq \frac{1}{2}$
+
+**Wave Equation** ($\frac{\partial^2 u}{\partial t^2} = c^2 \frac{\partial^2 u}{\partial x^2}$):
+
+**Explicit Scheme**:
+
+$$\frac{u_i^{n+1} - 2u_i^n + u_i^{n-1}}{\Delta t^2} = c^2 \frac{u_{i+1}^n - 2u_i^n + u_{i-1}^n}{\Delta x^2}$$
+
+**Stability Condition**: $c \frac{\Delta t}{\Delta x} \leq 1$
+
+## Implementation Notes
+
+### Numerical Precision
+
+All floating-point calculations use 64-bit precision (float64) to ensure numerical stability. Critical operations include:
+
+- Distance calculations using high-precision trigonometric functions
+- Matrix operations with condition number monitoring
+- Iterative algorithms with convergence criteria based on relative tolerances
+
+### Algorithm Selection
+
+The library automatically selects appropriate algorithms based on:
+
+- Data size (small datasets use direct methods, large datasets use iterative approaches)
+- Computational complexity (O(n) vs O(n²) vs O(n³) trade-offs)
+- Numerical stability requirements
+- Available computational resources
+
+### Error Propagation
+
+Spatial analysis involves multiple sources of error:
+
+1. **Measurement Error**: Uncertainty in observed values
+2. **Positional Error**: Uncertainty in coordinate locations
+3. **Interpolation Error**: Uncertainty introduced by spatial prediction
+4. **Model Error**: Bias and variance from statistical models
+
+The library provides uncertainty quantification where appropriate, particularly in kriging and spatial regression methods.
+
+## References
+
+1. **Spatial Statistics**: Cressie, N. (1993). Statistics for Spatial Data. Wiley.
+2. **Geodesy**: Hofmann-Wellenhof, B., et al. (2008). GNSS - Global Navigation Satellite Systems. Springer.
+3. **Coordinate Systems**: Snyder, J. P. (1987). Map Projections - A Working Manual. USGS.
+4. **Optimization**: Boyd, S., & Vandenberghe, L. (2004). Convex Optimization. Cambridge University Press.
+5. **Numerical Methods**: Press, W. H., et al. (2007). Numerical Recipes. Cambridge University Press.
+
+## Mathematical Notation Conventions
+
+- **Bold lowercase**: Vectors (e.g., $\mathbf{x}$)
+- **Bold uppercase**: Matrices (e.g., $\mathbf{W}$)
+- **Calligraphic**: Tensors (e.g., $\mathcal{X}$)
+- **Greek letters**: Parameters and derived quantities (e.g., $\lambda, \sigma, \mu$)
+- **Subscripts**: Indices and specific instances (e.g., $x_i, w_{ij}$)
+- **Superscripts**: Iteration numbers or transformations (e.g., $x^{(k)}, x'$)
+
+This mathematical foundation ensures that GEO-INFER-MATH provides accurate, reliable, and theoretically sound geospatial analysis capabilities.

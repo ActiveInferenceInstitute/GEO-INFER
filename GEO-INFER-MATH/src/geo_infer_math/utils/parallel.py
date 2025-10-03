@@ -8,69 +8,93 @@ of geospatial data and mathematical operations.
 import multiprocessing as mp
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 import numpy as np
-from typing import Any, Callable, List, Optional, Union, Iterable, Dict
+from typing import Any, Callable, List, Optional, Union, Iterable, Dict, Tuple
 import logging
 import os
-from functools import partial
+import time
+import psutil
+from functools import partial, wraps
+import threading
 
 logger = logging.getLogger(__name__)
 
 # Global settings
 DEFAULT_NUM_WORKERS = min(mp.cpu_count(), 8)  # Limit to 8 workers by default
 MAX_CHUNK_SIZE = 10000  # Maximum chunk size for memory efficiency
+MEMORY_THRESHOLD_MB = 1000  # Memory threshold for adaptive chunk sizing
 
 def parallel_compute(func: Callable,
                     data: Union[List, np.ndarray],
                     num_workers: Optional[int] = None,
                     chunk_size: Optional[int] = None,
                     use_processes: bool = True,
+                    max_memory_mb: Optional[float] = None,
                     **kwargs) -> List[Any]:
     """
-    Apply a function to data in parallel.
+    Apply a function to data in parallel with adaptive chunk sizing and memory monitoring.
 
     Args:
         func: Function to apply
         data: Input data (list or array)
         num_workers: Number of worker processes/threads
-        chunk_size: Size of data chunks for each worker
+        chunk_size: Size of data chunks for each worker (auto-calculated if None)
         use_processes: Whether to use processes (True) or threads (False)
+        max_memory_mb: Maximum memory per chunk in MB
         **kwargs: Additional arguments to pass to func
 
     Returns:
         List of results
     """
     if num_workers is None:
-        num_workers = DEFAULT_NUM_WORKERS
+        num_workers = get_optimal_worker_count(len(data))
 
+    # Estimate memory usage and calculate optimal chunk size
     if chunk_size is None:
-        chunk_size = max(1, len(data) // num_workers)
+        chunk_size = _calculate_optimal_chunk_size(data, num_workers, max_memory_mb)
 
     # Convert to list if necessary
     if isinstance(data, np.ndarray):
         data = data.tolist()
 
-    # Split data into chunks
-    chunks = [data[i:i + chunk_size] for i in range(0, len(data), chunk_size)]
+    # Split data into chunks with memory-aware sizing
+    chunks = _create_memory_aware_chunks(data, chunk_size, max_memory_mb)
+
+    logger.info(f"Processing {len(data)} items in {len(chunks)} chunks with {num_workers} workers")
 
     # Create partial function with additional arguments
     partial_func = partial(func, **kwargs)
 
-    # Choose executor type
+    # Choose executor type and submit tasks
     executor_class = ProcessPoolExecutor if use_processes else ThreadPoolExecutor
 
     results = []
+    start_time = time.time()
+
     with executor_class(max_workers=num_workers) as executor:
         # Submit tasks
-        future_to_chunk = {executor.submit(partial_func, chunk): chunk for chunk in chunks}
+        future_to_chunk = {executor.submit(partial_func, chunk): i for i, chunk in enumerate(chunks)}
 
-        # Collect results in order
+        # Collect results as they complete
         for future in as_completed(future_to_chunk):
             try:
                 result = future.result()
-                results.append(result)
+                chunk_idx = future_to_chunk[future]
+                results.append((chunk_idx, result))
+
+                # Log progress
+                completed = len(results)
+                if completed % max(1, len(chunks) // 10) == 0:
+                    elapsed = time.time() - start_time
+                    rate = completed / elapsed if elapsed > 0 else 0
+                    logger.info(".1f")
+
             except Exception as e:
                 logger.error(f"Error processing chunk: {e}")
                 raise
+
+    # Sort results by chunk index to maintain order
+    results.sort(key=lambda x: x[0])
+    results = [result for _, result in results]
 
     # Flatten results if function returns multiple values per chunk
     if results and isinstance(results[0], list) and len(results[0]) == len(chunks[0]):
@@ -82,6 +106,46 @@ def parallel_compute(func: Callable,
     else:
         # Function returns one result per chunk
         return results
+
+def _calculate_optimal_chunk_size(data: Union[List, np.ndarray],
+                                num_workers: int,
+                                max_memory_mb: Optional[float] = None) -> int:
+    """Calculate optimal chunk size based on data size and memory constraints."""
+    data_size = len(data)
+
+    if max_memory_mb is None:
+        max_memory_mb = MEMORY_THRESHOLD_MB
+
+    # Estimate memory per item (rough heuristic)
+    if isinstance(data, np.ndarray):
+        bytes_per_item = data.itemsize * data.shape[1] if data.ndim > 1 else data.itemsize
+    else:
+        bytes_per_item = 100  # Assume 100 bytes per item for lists
+
+    # Calculate chunk size to stay within memory limits
+    max_items_per_worker = int((max_memory_mb * 1024 * 1024) / (bytes_per_item * num_workers))
+
+    # Balance between memory efficiency and parallelization efficiency
+    chunk_size = min(max_items_per_worker, max(1, data_size // num_workers))
+
+    return chunk_size
+
+def _create_memory_aware_chunks(data: List, chunk_size: int, max_memory_mb: Optional[float] = None) -> List[List]:
+    """Create chunks that respect memory constraints."""
+    if not data:
+        return []
+
+    # For very small datasets, don't chunk
+    if len(data) <= chunk_size * 2:
+        return [data]
+
+    # Create chunks
+    chunks = []
+    for i in range(0, len(data), chunk_size):
+        chunk = data[i:i + chunk_size]
+        chunks.append(chunk)
+
+    return chunks
 
 def parallel_map(func: Callable,
                 iterable: Iterable,
