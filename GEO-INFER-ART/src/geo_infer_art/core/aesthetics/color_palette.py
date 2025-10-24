@@ -285,6 +285,264 @@ class ColorPalette:
             colors=inverted_colors,
         )
     
+    def blend_with(self, other_palette: 'ColorPalette', ratio: float = 0.5) -> 'ColorPalette':
+        """
+        Blend this palette with another palette.
+
+        Args:
+            other_palette: Another ColorPalette to blend with
+            ratio: Blending ratio (0.0 = all this palette, 1.0 = all other palette)
+
+        Returns:
+            A new ColorPalette with blended colors
+
+        Raises:
+            ValueError: If ratio is outside [0, 1] range
+        """
+        if not 0.0 <= ratio <= 1.0:
+            raise ValueError("Ratio must be between 0.0 and 1.0")
+
+        from matplotlib.colors import to_rgba
+
+        if len(self.colors) != len(other_palette.colors):
+            # Interpolate to match lengths
+            min_length = min(len(self.colors), len(other_palette.colors))
+            self_colors = self.colors[:min_length]
+            other_colors = other_palette.colors[:min_length]
+        else:
+            self_colors = self.colors
+            other_colors = other_palette.colors
+
+        blended_colors = []
+        for color1, color2 in zip(self_colors, other_colors):
+            rgba1 = to_rgba(color1)
+            rgba2 = to_rgba(color2)
+
+            # Linear interpolation
+            blended_rgba = [
+                (1 - ratio) * c1 + ratio * c2
+                for c1, c2 in zip(rgba1, rgba2)
+            ]
+
+            # Convert back to hex
+            hex_color = f"#{int(blended_rgba[0]*255):02x}{int(blended_rgba[1]*255):02x}{int(blended_rgba[2]*255):02x}"
+            blended_colors.append(hex_color)
+
+        return ColorPalette(
+            name=f"{self.name}_blend_{other_palette.name}",
+            colors=blended_colors,
+            n_colors=len(blended_colors)
+        )
+
+    def create_gradient(self, n_colors: int = 256) -> 'ColorPalette':
+        """
+        Create a smooth gradient palette from the existing colors.
+
+        Args:
+            n_colors: Number of colors in the gradient
+
+        Returns:
+            A new ColorPalette with gradient colors
+        """
+        from matplotlib.colors import to_rgba
+
+        if len(self.colors) < 2:
+            # Duplicate the single color
+            gradient_colors = [self.colors[0]] * n_colors
+        else:
+            # Create gradient between colors
+            colors_rgba = [to_rgba(color) for color in self.colors]
+
+            gradient_colors = []
+            for i in range(n_colors):
+                # Determine which segment of the gradient we're in
+                segment_size = n_colors / (len(self.colors) - 1)
+                segment_index = i / segment_size
+                segment_start = int(segment_index)
+                segment_end = min(segment_start + 1, len(self.colors) - 1)
+                segment_ratio = segment_index - segment_start
+
+                # Interpolate between the two colors
+                color1 = colors_rgba[segment_start]
+                color2 = colors_rgba[segment_end]
+
+                blended_color = [
+                    (1 - segment_ratio) * c1 + segment_ratio * c2
+                    for c1, c2 in zip(color1, color2)
+                ]
+
+                hex_color = f"#{int(blended_color[0]*255):02x}{int(blended_color[1]*255):02x}{int(blended_color[2]*255):02x}"
+                gradient_colors.append(hex_color)
+
+        return ColorPalette(
+            name=f"{self.name}_gradient",
+            colors=gradient_colors,
+            n_colors=n_colors
+        )
+
+    def to_css(self) -> str:
+        """
+        Export the color palette as CSS variables.
+
+        Returns:
+            CSS string with color variables
+        """
+        css_lines = [f"/* Color Palette: {self.name} */"]
+        css_lines.append(f".palette-{self.name.replace('_', '-')} {{")
+
+        for i, color in enumerate(self.colors):
+            css_lines.append(f"  --color-{i}: {color};")
+
+        css_lines.append("}")
+
+        return "\n".join(css_lines)
+
+    def analyze_harmony(self) -> Dict:
+        """
+        Analyze the color harmony of the palette.
+
+        Returns:
+            Dictionary with harmony analysis results
+        """
+        from matplotlib.colors import to_hsv
+
+        if len(self.colors) < 2:
+            return {"harmony_type": "monochromatic", "score": 1.0}
+
+        # Convert colors to HSV
+        hsv_colors = [to_hsv(color) for color in self.colors]
+
+        # Analyze hue relationships
+        hues = [hsv[0] for hsv in hsv_colors]
+
+        # Check for complementary colors (180° apart)
+        complementary_score = 0
+        for i, h1 in enumerate(hues):
+            for h2 in hues[i+1:]:
+                hue_diff = abs(h1 - h2)
+                if hue_diff > 0.5:  # Wrap around
+                    hue_diff = 1.0 - hue_diff
+                if 0.4 < hue_diff < 0.6:  # Around 180°
+                    complementary_score += 1
+
+        # Check for analogous colors (adjacent hues)
+        analogous_score = 0
+        for i, h1 in enumerate(hues):
+            for h2 in hues[i+1:]:
+                hue_diff = abs(h1 - h2)
+                if hue_diff > 0.5:
+                    hue_diff = 1.0 - hue_diff
+                if hue_diff < 0.15:  # Within 60°
+                    analogous_score += 1
+
+        # Determine harmony type
+        if complementary_score > analogous_score:
+            harmony_type = "complementary"
+            score = complementary_score / len(self.colors)
+        elif analogous_score > 0:
+            harmony_type = "analogous"
+            score = analogous_score / len(self.colors)
+        else:
+            harmony_type = "mixed"
+            score = 0.5
+
+        return {
+            "harmony_type": harmony_type,
+            "score": score,
+            "complementary_pairs": complementary_score,
+            "analogous_pairs": analogous_score
+        }
+
+    def adjust_brightness(self, factor: float) -> 'ColorPalette':
+        """
+        Adjust the brightness of all colors in the palette.
+
+        Args:
+            factor: Brightness adjustment factor (>1.0 brighter, <1.0 darker)
+
+        Returns:
+            A new ColorPalette with adjusted brightness
+        """
+        from matplotlib.colors import to_rgba
+
+        adjusted_colors = []
+        for color in self.colors:
+            r, g, b, a = to_rgba(color)
+
+            # Adjust brightness
+            r = min(1.0, r * factor)
+            g = min(1.0, g * factor)
+            b = min(1.0, b * factor)
+
+            hex_color = f"#{int(r*255):02x}{int(g*255):02x}{int(b*255):02x}"
+            adjusted_colors.append(hex_color)
+
+        return ColorPalette(
+            name=f"{self.name}_bright_{factor}",
+            colors=adjusted_colors,
+            n_colors=len(adjusted_colors)
+        )
+
+    def adjust_saturation(self, factor: float) -> 'ColorPalette':
+        """
+        Adjust the saturation of all colors in the palette.
+
+        Args:
+            factor: Saturation adjustment factor (>1.0 more saturated, <1.0 less saturated)
+
+        Returns:
+            A new ColorPalette with adjusted saturation
+        """
+        from matplotlib.colors import to_hsv, hsv_to_rgb
+
+        adjusted_colors = []
+        for color in self.colors:
+            h, s, v = to_hsv(color)
+
+            # Adjust saturation
+            s = min(1.0, max(0.0, s * factor))
+
+            # Convert back to RGB
+            r, g, b = hsv_to_rgb(h, s, v)
+            hex_color = f"#{int(r*255):02x}{int(g*255):02x}{int(b*255):02x}"
+            adjusted_colors.append(hex_color)
+
+        return ColorPalette(
+            name=f"{self.name}_sat_{factor}",
+            colors=adjusted_colors,
+            n_colors=len(adjusted_colors)
+        )
+
+    def get_contrast_ratio(self, other_color: str) -> float:
+        """
+        Calculate contrast ratio between this palette's colors and another color.
+
+        Args:
+            other_color: Color to compare against
+
+        Returns:
+            Average contrast ratio across all palette colors
+        """
+        from matplotlib.colors import to_rgb
+
+        def luminance(color):
+            r, g, b = to_rgb(color)
+            # Convert to linear RGB
+            r = r if r <= 0.03928 else ((r + 0.055) / 1.055) ** 2.4
+            g = g if g <= 0.03928 else ((g + 0.055) / 1.055) ** 2.4
+            b = b if b <= 0.03928 else ((b + 0.055) / 1.055) ** 2.4
+            return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+        other_lum = luminance(other_color)
+        ratios = []
+
+        for color in self.colors:
+            color_lum = luminance(color)
+            ratio = (max(other_lum, color_lum) + 0.05) / (min(other_lum, color_lum) + 0.05)
+            ratios.append(ratio)
+
+        return sum(ratios) / len(ratios)
+
     def __repr__(self) -> str:
         """Return a string representation of the ColorPalette object."""
         return f"ColorPalette(name='{self.name}', colors={len(self.colors)})" 

@@ -65,6 +65,7 @@ GEO-INFER is a geospatial inference framework consisting of many modules organiz
 | **[GEO-INFER-SEC](../modules/geo-infer-sec.md)** | Security Framework | 🔄 In Development | None |
 | **[GEO-INFER-NORMS](../modules/geo-infer-norms.md)** | Normative Systems | 🔄 In Development | ACT |
 | **[GEO-INFER-REQ](../modules/geo-infer-req.md)** | Requirements Management | 📝 Planning | None |
+| **[GEO-INFER-METAGOV](../modules/geo-infer-metagov.md)** | Meta-Governance & Organizational Governance | 📝 Planning | ORG, SEC, NORMS |
 
 ### 🧪 Simulation & Modeling
 | Module | Description | Status | Dependencies |
@@ -457,6 +458,33 @@ agent_system.enable_real_time_decisions(
 )
 ```
 
+#### Governance & Organizational Systems
+```python
+# Governance and organizational coordination
+from geo_infer_metagov import MultiLevelGovernanceFramework, InstitutionalDesigner
+from geo_infer_org import OrganizationalDesigner
+from geo_infer_norms import NormativeSystemManager
+from geo_infer_sec import SecurityManager
+
+# Design multi-level governance
+governance = MultiLevelGovernanceFramework(
+    governance_levels=['local', 'regional', 'national'],
+    coordination_mechanisms=['vertical_alignment', 'horizontal_integration']
+)
+
+# Apply institutional design principles
+institutional_design = InstitutionalDesigner(framework='iad')
+
+# Coordinate with organizational structure
+org_designer = OrganizationalDesigner()
+
+# Implement governance norms and compliance
+norms_manager = NormativeSystemManager()
+
+# Secure governance systems
+security_manager = SecurityManager()
+```
+
 ### Cross-Module Communication
 
 #### Data Flow Standards
@@ -620,6 +648,8 @@ from geo_infer_test import TestFramework
 | GEO-INFER-AGENT | ✅ Complete | 🔄 In Progress | 📝 Planning | 🔄 In Progress |
 | GEO-INFER-API | ✅ Complete | 🔄 In Progress | 📝 Planning | 🔄 In Progress |
 | GEO-INFER-ANT | ✅ Complete | 🔄 In Progress | 📝 Planning | 📝 Planning |
+| GEO-INFER-NORMS | 🔄 In Progress | 📝 Planning | 📝 Planning | 📝 Planning |
+| GEO-INFER-METAGOV | 📝 Planning | 📝 Planning | 📝 Planning | 📝 Planning |
 
 ### 🔧 Performance & Scalability Guidelines
 
@@ -744,56 +774,8 @@ quadrantChart
     GEO-INFER-ACT: [0.9, 0.85]
     GEO-INFER-API: [0.85, 0.8]
     GEO-INFER-SEC: [0.8, 0.75]
+    GEO-INFER-METAGOV: [0.75, 0.8]
     GEO-INFER-OPS: [0.8, 0.7]
     GEO-INFER-SIM: [0.6, 0.9]
     GEO-INFER-CIV: [0.3, 0.4]
 ```
-
-### 📈 Development Roadmap
-- **Phase 1 (Current)**: Core modules (MATH, SPACE, ACT, API)
-- **Phase 2 (Next 6 months)**: AI, AGENT, TIME, BAYES
-- **Phase 3 (6-12 months)**: Domain modules (AG, ECON, RISK, HEALTH)
-- **Phase 4 (12+ months)**: Advanced modules (SIM, CIV, ART)
-
-## 🚀 Getting Started Summary
-
-### For Different User Types
-
-#### 👨‍💻 Developers
-```bash
-# Quick setup for development
-pip install geo-infer-math geo-infer-space geo-infer-act geo-infer-api
-```
-
-#### 🧪 Data Scientists
-```bash
-# Data science focused installation
-pip install geo-infer-math geo-infer-space geo-infer-time geo-infer-ai
-```
-
-#### 🏢 Enterprise Users
-```bash
-# Production-ready installation
-pip install geo-infer-ops geo-infer-sec geo-infer-api geo-infer-test
-```
-
-### 📞 Support & Community
-- **Documentation**: [GEO-INFER Docs](../README.md)
-- **Issues**: [GitHub Issues](../../issues)
-- **Discussions**: [GitHub Discussions](../../discussions)
-- **Contributing**: [CONTRIBUTING.md](../../CONTRIBUTING.md)
-
----
-
-## 🎯 Next Steps
-
-1. **Choose Your Learning Path** above based on your experience level
-2. **Start with Core Modules**: MATH → SPACE → ACT
-3. **Explore Use Cases** that match your domain
-4. **Join the Community** for questions and contributions
-
-**Ready to begin?** Visit **[Module Basics Tutorial](../getting_started/module_basics.md)** to get started!
-
----
-
-*Last updated: 2025-01-19 | Framework Version: 1.0.0 | Documentation Version: 2.0.0* 

@@ -244,11 +244,11 @@ except ImportError as e:
 try:
     from geo_infer_space.utils.config_loader import LocationConfigLoader
     from geo_infer_place.utils.data_sources import CaliforniaDataSources
-    from geo_infer_space.core.api_clients import BaseAPIManager  # Or appropriate general class
+    from geo_infer_place.core.api_clients import CaliforniaAPIManager
 except ImportError as e:
     print(f"Warning: Could not import some components: {e}")
     print("Running with simplified functionality only.")
-    LocationConfigLoader = CaliforniaDataSources = BaseAPIManager = None
+    LocationConfigLoader = CaliforniaDataSources = CaliforniaAPIManager = None
 
 # Logging already configured earlier in the file
 
@@ -312,8 +312,8 @@ def demonstrate_data_sources():
 def demonstrate_api_connections(api_keys: dict):
     """Demonstrate API connections and validation."""
     logger.info("=== Demonstrating API Connections ===")
-    
-    if BaseAPIManager is None:
+
+    if CaliforniaAPIManager is None:
         logger.warning("CaliforniaAPIManager not available - using mock demonstration")
         logger.info("Mock API connections would test:")
         logger.info("  ✓ CAL FIRE API: Fire perimeter data (Mock: 150ms)")
@@ -321,20 +321,44 @@ def demonstrate_api_connections(api_keys: dict):
         logger.info("  ✓ USGS API: Water/seismic data (Mock: 180ms)")
         logger.info("  ✓ CDEC API: Environmental monitoring (Mock: 300ms)")
         return {'mock': True, 'connections': 4}
-    
-    api_manager = BaseAPIManager(api_keys)
-    
-    # Validate all connections
-    validation_results = api_manager.validate_all_connections()
-    
-    for service, result in validation_results.items():
-        status = "✓ Connected" if result.get('accessible', False) else "✗ Failed"
-        response_time = result.get('response_time_ms', 'N/A')
-        logger.info(f"{service}: {status} (Response: {response_time}ms)")
-        
-        if not result.get('accessible', False) and 'error' in result:
-            logger.warning(f"  Error: {result['error']}")
-    
+
+    api_manager = CaliforniaAPIManager()
+
+    # Test individual API connections
+    logger.info("Testing individual API endpoints...")
+
+    # Test CAL FIRE
+    try:
+        calfire_data = api_manager.calfire.fetch_perimeters(year=2023)
+        status = "✓ Connected" if calfire_data else "✗ Failed"
+        logger.info(f"CAL FIRE: {status}")
+    except Exception as e:
+        logger.warning(f"CAL FIRE: ✗ Failed - {e}")
+
+    # Test NOAA
+    try:
+        noaa_data = api_manager.noaa.fetch_tide_data("9419750", "20240101", "20240102")
+        status = "✓ Connected" if noaa_data else "✗ Failed"
+        logger.info(f"NOAA: {status}")
+    except Exception as e:
+        logger.warning(f"NOAA: ✗ Failed - {e}")
+
+    # Test USGS (if available)
+    try:
+        usgs_data = api_manager.usgs.fetch_water_data("20240101", "20240102")
+        status = "✓ Connected" if usgs_data else "✗ Failed"
+        logger.info(f"USGS: {status}")
+    except Exception as e:
+        logger.warning(f"USGS: ✗ Failed - {e}")
+
+    # Test CDEC (if available)
+    try:
+        cdec_data = api_manager.cdec.fetch_sensor_data("DNP", "1", "20240101", "20240102")
+        status = "✓ Connected" if cdec_data else "✗ Failed"
+        logger.info(f"CDEC: {status}")
+    except Exception as e:
+        logger.warning(f"CDEC: ✗ Failed - {e}")
+
     return api_manager
 
 def run_comprehensive_demo(config_path: str = None, 

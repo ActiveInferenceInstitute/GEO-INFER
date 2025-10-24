@@ -3,7 +3,7 @@ Validation functions for file paths, geospatial data, and other inputs.
 """
 
 import os
-from typing import List, Union
+from typing import List, Union, Tuple
 
 import geopandas as gpd
 import numpy as np
@@ -130,25 +130,134 @@ def validate_bbox(bbox: tuple) -> None:
 def validate_color(color: str) -> None:
     """
     Validate a color string.
-    
+
     Args:
         color: Color string (hex, RGB, or named color)
-        
+
     Raises:
         ValueError: If color is invalid
     """
     import re
     from matplotlib.colors import is_color_like
-    
+
     if not isinstance(color, str):
         raise ValueError(f"Color must be a string, got {type(color)}")
-        
+
     # Check if it's a valid hex color
     hex_pattern = r'^#(?:[0-9a-fA-F]{3}){1,2}$'
     is_hex = bool(re.match(hex_pattern, color))
-    
+
     # Check if it's a valid color using matplotlib
     is_valid = is_color_like(color)
-    
+
     if not (is_hex or is_valid):
-        raise ValueError(f"Invalid color: {color}") 
+        raise ValueError(f"Invalid color: {color}")
+
+
+def validate_style_name(style_name: str, valid_styles: List[str]) -> None:
+    """
+    Validate a style name against a list of valid styles.
+
+    Args:
+        style_name: Style name to validate
+        valid_styles: List of valid style names
+
+    Raises:
+        ValueError: If style name is not in the valid list
+    """
+    if style_name not in valid_styles:
+        raise ValueError(
+            f"Invalid style name: {style_name}. Valid styles: {', '.join(valid_styles)}"
+        )
+
+
+def validate_numeric_range(value: float, min_val: float, max_val: float, name: str = "value") -> None:
+    """
+    Validate that a numeric value is within a specified range.
+
+    Args:
+        value: Value to validate
+        min_val: Minimum allowed value
+        max_val: Maximum allowed value
+        name: Name of the value for error messages
+
+    Raises:
+        ValueError: If value is outside the valid range
+        TypeError: If value is not numeric
+    """
+    if not isinstance(value, (int, float)):
+        raise TypeError(f"{name} must be numeric, got {type(value)}")
+
+    if not min_val <= value <= max_val:
+        raise ValueError(f"{name} must be between {min_val} and {max_val}, got {value}")
+
+
+def validate_image_array(image_array: np.ndarray) -> None:
+    """
+    Validate a numpy array representing an image.
+
+    Args:
+        image_array: Image array to validate
+
+    Raises:
+        ValueError: If array is not a valid image format
+    """
+    if not isinstance(image_array, np.ndarray):
+        raise ValueError(f"Image must be a numpy array, got {type(image_array)}")
+
+    if image_array.ndim not in [2, 3]:
+        raise ValueError(f"Image must be 2D or 3D array, got {image_array.ndim}D")
+
+    if image_array.ndim == 3 and image_array.shape[2] not in [1, 3, 4]:
+        raise ValueError(
+            f"3D image must have 1, 3, or 4 channels, got {image_array.shape[2]}"
+        )
+
+    # Check for reasonable size limits
+    total_pixels = image_array.size
+    if total_pixels > 100_000_000:  # 100 megapixels
+        raise ValueError(f"Image too large: {total_pixels} pixels (max 100M)")
+
+
+def validate_resolution(resolution: Tuple[int, int]) -> None:
+    """
+    Validate image resolution.
+
+    Args:
+        resolution: Resolution as (width, height)
+
+    Raises:
+        ValueError: If resolution is invalid
+    """
+    if not isinstance(resolution, (tuple, list)) or len(resolution) != 2:
+        raise ValueError("Resolution must be a tuple or list of (width, height)")
+
+    width, height = resolution
+
+    if not isinstance(width, int) or not isinstance(height, int):
+        raise ValueError("Resolution width and height must be integers")
+
+    if width <= 0 or height <= 0:
+        raise ValueError("Resolution width and height must be positive")
+
+    if width > 10000 or height > 10000:
+        raise ValueError("Resolution too high (max 10000x10000)")
+
+
+def validate_file_format(file_path: str, valid_formats: List[str]) -> None:
+    """
+    Validate file format against a list of valid formats.
+
+    Args:
+        file_path: Path to the file
+        valid_formats: List of valid file extensions (e.g., ['.png', '.jpg'])
+
+    Raises:
+        ValueError: If file format is not supported
+    """
+    _, ext = os.path.splitext(file_path)
+
+    if ext.lower() not in valid_formats:
+        raise ValueError(
+            f"Unsupported file format: {ext}. Valid formats: {', '.join(valid_formats)}"
+        ) 

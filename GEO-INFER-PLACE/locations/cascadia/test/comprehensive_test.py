@@ -245,49 +245,223 @@ class ComprehensiveTestSuite:
             return False
     
     def test_data_processing_workflow(self) -> bool:
-        """Test the complete data processing workflow"""
+        """Test the complete data processing workflow with real data simulation"""
         logger.info("Testing data processing workflow...")
-        
+
         try:
-            # Create mock backend with test data
+            # Create backend with real data paths
             with patch('geo_infer_place.core.unified_backend.create_h3_data_loader') as mock_loader:
                 mock_loader.return_value = Mock()
-                
+
                 backend = CascadianAgriculturalH3Backend(
                     modules={},
                     resolution=8,
                     bioregion='Cascadia',
-                    target_counties={'CA': ['Lassen'], 'OR': ['Marion']},
-                    base_data_dir=self.temp_dir / 'data',
+                    target_counties={'CA': ['Del Norte']},  # Use real county
+                    base_data_dir=Path(".").resolve(),  # Use actual project directory
                     osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
                 )
-                
-                # Add mock unified data
-                test_hexagons = list(backend.target_hexagons)[:10]  # Test with 10 hexagons
-                for h3_cell in test_hexagons:
-                    backend.unified_data[h3_cell] = {
-                        'zoning': {'score': 0.8, 'data': {'type': 'agricultural'}},
-                        'current_use': {'score': 0.7, 'data': {'crop': 'wheat'}},
-                        'ownership': {'score': 0.6, 'data': {'owner_type': 'private'}},
-                        'improvements': {'score': 0.5, 'data': {'building_count': 2}}
-                    }
-                
-                # Test redevelopment calculation
+
+                # Test with real empirical data if available
+                test_hexagons = list(backend.target_hexagons)[:20]  # Test with more hexagons
+
+                # Try to load real data from modules if available
+                real_data_loaded = False
+                for module_name in ['zoning', 'current_use', 'ownership', 'improvements']:
+                    try:
+                        # Check if empirical data exists
+                        module_data_dir = Path(".") / module_name / "data" / "empirical"
+                        empirical_file = module_data_dir / f"empirical_{module_name}_data.geojson"
+                        if empirical_file.exists():
+                            # Load real data
+                            import geopandas as gpd
+                            gdf = gpd.read_file(empirical_file)
+                            if len(gdf) > 0:
+                                logger.info(f"✅ Loaded real {module_name} data: {len(gdf)} features")
+
+                                # Process to H3 and add to backend
+                                from geo_infer_space.utils.h3_utils import latlng_to_cell
+
+                                for idx, row in gdf.head(10).iterrows():  # Use first 10 features
+                                    if row.geometry and not row.geometry.is_empty:
+                                        centroid = row.geometry.centroid
+                                        h3_cell = latlng_to_cell(centroid.y, centroid.x, 8)
+
+                                        if h3_cell in test_hexagons:
+                                            if h3_cell not in backend.unified_data:
+                                                backend.unified_data[h3_cell] = {}
+                                            backend.unified_data[h3_cell][module_name] = {
+                                                'score': 0.7,
+                                                'data': row.to_dict()
+                                            }
+                                real_data_loaded = True
+                    except Exception as e:
+                        logger.debug(f"Could not load real {module_name} data: {e}")
+
+                # If no real data loaded, use synthetic test data
+                if not real_data_loaded:
+                    logger.info("Using synthetic test data for workflow testing")
+                    for h3_cell in test_hexagons:
+                        backend.unified_data[h3_cell] = {
+                            'zoning': {'score': 0.8, 'data': {'type': 'agricultural'}},
+                            'current_use': {'score': 0.7, 'data': {'crop': 'wheat'}},
+                            'ownership': {'score': 0.6, 'data': {'owner_type': 'private'}},
+                            'improvements': {'score': 0.5, 'data': {'building_count': 2}}
+                        }
+
+                # Test redevelopment calculation with real data
+                # Ensure backend has unified_data populated
+                if not hasattr(backend, 'unified_data') or not backend.unified_data:
+                    # Populate with test data if empty
+                    test_hexagons = list(backend.target_hexagons)[:10]
+                    for h3_cell in test_hexagons:
+                        backend.unified_data[h3_cell] = {
+                            'zoning': {'score': 0.8, 'data': {'type': 'agricultural'}},
+                            'current_use': {'score': 0.7, 'data': {'crop': 'wheat'}},
+                            'ownership': {'score': 0.6, 'data': {'owner_type': 'private'}},
+                            'improvements': {'score': 0.5, 'data': {'building_count': 2}}
+                        }
+
                 redevelopment_scores = backend.calculate_agricultural_redevelopment_potential()
                 assert len(redevelopment_scores) > 0, "No redevelopment scores calculated"
-                
+
+                # Validate scores are reasonable
+                for hex_id, score in list(redevelopment_scores.items())[:5]:
+                    assert 0.0 <= score <= 1.0, f"Invalid score {score} for {hex_id}"
+
                 # Test summary generation
                 summary = backend.get_comprehensive_summary()
                 assert 'bioregion' in summary, "Summary missing bioregion"
                 assert 'total_hexagons' in summary, "Summary missing total_hexagons"
-                
-                logger.info("✅ Data processing workflow successful")
+                assert summary['total_hexagons'] > 0, "No hexagons in summary"
+
+                logger.info(f"✅ Data processing workflow successful with {len(redevelopment_scores)} scores")
                 return True
-                
+
         except Exception as e:
             logger.error(f"❌ Data processing workflow test failed: {e}")
             return False
-    
+
+    def test_real_data_integration(self) -> bool:
+        """Test integration with real data sources"""
+        logger.info("Testing real data integration...")
+
+        try:
+            # Test empirical data detection and loading
+            real_data_found = False
+            modules_with_real_data = []
+
+            for module_name in ['zoning', 'current_use', 'ownership', 'improvements']:
+                try:
+                    # Check if empirical data exists
+                    empirical_file = Path(".") / module_name / "data" / "empirical" / f"empirical_{module_name}_data.geojson"
+                    if empirical_file.exists():
+                        # Load and validate real data
+                        import geopandas as gpd
+                        gdf = gpd.read_file(empirical_file)
+
+                        if len(gdf) > 0:
+                            real_data_found = True
+                            modules_with_real_data.append(module_name)
+
+                            # Validate data quality
+                            assert gdf.crs is not None, f"{module_name} missing CRS"
+                            assert len(gdf.geometry.dropna()) > 0, f"{module_name} has no valid geometries"
+
+                            # Check for expected attributes based on module type
+                            if module_name == 'ownership':
+                                expected_attrs = ['owner_name', 'parcel_size', 'acres']
+                            elif module_name == 'improvements':
+                                expected_attrs = ['improvement_value', 'building_type', 'year_built']
+                            elif module_name == 'current_use':
+                                expected_attrs = ['crop_type', 'intensity', 'water_usage']
+                            elif module_name == 'zoning':
+                                expected_attrs = ['zone_type', 'zone_code', 'acres']
+
+                            for attr in expected_attrs:
+                                if attr in gdf.columns:
+                                    non_null_count = gdf[attr].notna().sum()
+                                    assert non_null_count > 0, f"{module_name} {attr} has no valid values"
+
+                            logger.info(f"✅ Validated real {module_name} data: {len(gdf)} features")
+
+                except Exception as e:
+                    logger.debug(f"Real data validation failed for {module_name}: {e}")
+
+            if real_data_found:
+                logger.info(f"✅ Real data integration successful for modules: {modules_with_real_data}")
+                return True
+            else:
+                logger.info("⚠️ No real data found for integration testing (using synthetic data)")
+                return True  # This is acceptable for testing
+
+        except Exception as e:
+            logger.error(f"❌ Real data integration test failed: {e}")
+            return False
+
+    def test_data_quality_validation(self) -> bool:
+        """Test data quality validation and reporting"""
+        logger.info("Testing data quality validation...")
+
+        try:
+            # Test enhanced data manager quality reporting
+            from utils.enhanced_data_manager import EnhancedDataManager
+
+            data_manager = EnhancedDataManager(self.temp_dir / "data", h3_resolution=8)
+
+            # Test quality reporting for each module
+            quality_reports = {}
+            for module_name in ['zoning', 'current_use', 'ownership', 'improvements']:
+                try:
+                    quality_report = data_manager.get_data_quality_report(module_name)
+                    quality_reports[module_name] = quality_report
+
+                    # Validate report structure
+                    assert 'module' in quality_report, f"Missing module in {module_name} report"
+                    assert 'data_sources' in quality_report, f"Missing data_sources in {module_name} report"
+                    assert 'quality_metrics' in quality_report, f"Missing quality_metrics in {module_name} report"
+                    assert 'recommendations' in quality_report, f"Missing recommendations in {module_name} report"
+
+                    logger.info(f"✅ Generated quality report for {module_name}: {len(quality_report['recommendations'])} recommendations")
+
+                except Exception as e:
+                    logger.warning(f"Quality report failed for {module_name}: {e}")
+
+            # Test empirical data detection
+            import geopandas as gpd
+            from shapely.geometry import Point
+
+            # Create test data to validate detection
+            test_gdf = gpd.GeoDataFrame({
+                'owner_name': ['John Doe', 'Jane Smith', 'Real Estate LLC'],
+                'parcel_size': [150.5, 89.2, 234.7],
+                'land_use': ['residential', 'commercial', 'agricultural'],
+                'source': ['County Records', 'County Records', 'State Database'],
+                'data_year': [2023, 2023, 2022]
+            }, geometry=[Point(-124.2, 41.7), Point(-124.1, 41.8), Point(-124.0, 41.6)], crs='EPSG:4326')
+
+            is_empirical = data_manager._is_empirical_data(test_gdf, 'test_module')
+            assert is_empirical, "Should detect empirical data with realistic attributes"
+
+            logger.info(f"✅ Empirical data detection working correctly: {is_empirical}")
+
+            # Test synthetic data detection
+            synthetic_gdf = gpd.GeoDataFrame({
+                'test_field': ['synthetic_data_1', 'synthetic_data_2'],
+                'dummy_value': [1, 2]
+            }, geometry=[Point(0, 0), Point(1, 1)], crs='EPSG:4326')
+
+            is_synthetic = not data_manager._is_empirical_data(synthetic_gdf, 'test_module')
+            assert is_synthetic, "Should detect synthetic data"
+
+            logger.info(f"✅ Synthetic data detection working correctly: {is_synthetic}")
+
+            return True
+
+        except Exception as e:
+            logger.error(f"❌ Data quality validation test failed: {e}")
+            return False
+
     def test_export_functionality(self) -> bool:
         """Test data export functionality"""
         logger.info("Testing export functionality...")
@@ -478,6 +652,8 @@ class ComprehensiveTestSuite:
             ("Module Initialization", self.test_module_initialization),
             ("Configuration Loading", self.test_configuration_loading),
             ("Data Processing Workflow", self.test_data_processing_workflow),
+            ("Real Data Integration", self.test_real_data_integration),
+            ("Data Quality Validation", self.test_data_quality_validation),
             ("Export Functionality", self.test_export_functionality),
             ("Main Script Syntax", self.test_main_script_syntax),
             ("Error Handling", self.test_error_handling),

@@ -1,0 +1,2 @@
+[console_scripts]
+geo-infer-ant-demo = geo_infer_ant.examples.swarm_intelligence_demo:main

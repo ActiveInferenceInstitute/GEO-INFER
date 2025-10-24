@@ -1,0 +1,437 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "GEO-INFER-ANT Configuration Schema",
+  "description": "JSON schema for validating GEO-INFER-ANT swarm intelligence simulation configurations",
+  "type": "object",
+  "required": ["simulation", "agents", "environment"],
+  "properties": {
+    "simulation": {
+      "type": "object",
+      "properties": {
+        "name": {"type": "string"},
+        "description": {"type": "string"},
+        "version": {"type": "string"},
+        "author": {"type": "string"}
+      },
+      "required": ["name", "description"]
+    },
+
+    "agents": {
+      "type": "object",
+      "properties": {
+        "population_size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 100000
+        },
+        "agent_types": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "count": {"type": "integer", "minimum": 0},
+              "capabilities": {
+                "type": "array",
+                "items": {"type": "string"}
+              }
+            },
+            "required": ["name", "count", "capabilities"]
+          }
+        },
+        "individual": {
+          "type": "object",
+          "properties": {
+            "sensory_range": {
+              "type": "number",
+              "minimum": 0.1,
+              "maximum": 10000
+            },
+            "movement_speed": {
+              "type": "number",
+              "minimum": 0.01,
+              "maximum": 100
+            },
+            "energy_capacity": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 10000
+            },
+            "energy_consumption_rate": {
+              "type": "number",
+              "minimum": 0.001,
+              "maximum": 10
+            },
+            "memory_capacity": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 1000
+            },
+            "active_inference": {
+              "type": "object",
+              "properties": {
+                "enabled": {"type": "boolean"},
+                "belief_precision": {"type": "number", "minimum": 0.1},
+                "preference_strength": {"type": "number", "minimum": 0.1},
+                "learning_rate": {"type": "number", "minimum": 0.001, "maximum": 1},
+                "planning_horizon": {"type": "integer", "minimum": 1, "maximum": 100}
+              }
+            }
+          }
+        }
+      },
+      "required": ["population_size", "agent_types", "individual"]
+    },
+
+    "environment": {
+      "type": "object",
+      "properties": {
+        "spatial": {
+          "type": "object",
+          "properties": {
+            "bounds": {
+              "type": "object",
+              "properties": {
+                "min_lat": {"type": "number", "minimum": -90, "maximum": 90},
+                "max_lat": {"type": "number", "minimum": -90, "maximum": 90},
+                "min_lng": {"type": "number", "minimum": -180, "maximum": 180},
+                "max_lng": {"type": "number", "minimum": -180, "maximum": 180}
+              },
+              "required": ["min_lat", "max_lat", "min_lng", "max_lng"]
+            },
+            "resolution": {"type": "string", "enum": ["h3_r3", "h3_r4", "h3_r5", "h3_r6", "h3_r7", "h3_r8", "h3_r9", "h3_r10"]},
+            "coordinate_system": {"type": "string", "enum": ["WGS84", "UTM", "local"]}
+          },
+          "required": ["bounds", "resolution"]
+        },
+        "resources": {
+          "type": "object",
+          "properties": {
+            "food_sources": {
+              "type": "object",
+              "properties": {
+                "count": {"type": "integer", "minimum": 0},
+                "distribution": {"type": "string", "enum": ["random", "clustered", "uniform"]},
+                "quality_range": {
+                  "type": "array",
+                  "items": {"type": "number"},
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "regeneration_rate": {"type": "number", "minimum": 0, "maximum": 1}
+              }
+            },
+            "obstacles": {
+              "type": "object",
+              "properties": {
+                "count": {"type": "integer", "minimum": 0},
+                "distribution": {"type": "string", "enum": ["random", "clustered", "uniform"]},
+                "types": {
+                  "type": "array",
+                  "items": {"type": "string", "enum": ["physical", "chemical", "biological"]}
+                }
+              }
+            }
+          }
+        },
+        "dynamics": {
+          "type": "object",
+          "properties": {
+            "time_step": {"type": "number", "minimum": 0.01, "maximum": 3600},
+            "weather_effects": {"type": "boolean"},
+            "seasonal_changes": {"type": "boolean"},
+            "resource_depletion": {"type": "boolean"}
+          }
+        }
+      },
+      "required": ["spatial", "resources", "dynamics"]
+    },
+
+    "stigmergy": {
+      "type": "object",
+      "properties": {
+        "enabled": {"type": "boolean"},
+        "pheromone_types": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": {"type": "string"},
+              "evaporation_rate": {"type": "number", "minimum": 0, "maximum": 1},
+              "diffusion_rate": {"type": "number", "minimum": 0, "maximum": 1},
+              "deposition_amount": {"type": "number", "minimum": 0.01},
+              "persistence_time": {"type": "number", "minimum": 1}
+            },
+            "required": ["name", "evaporation_rate", "diffusion_rate", "deposition_amount"]
+          }
+        },
+        "digital": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "platforms": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "persistence_model": {"type": "string", "enum": ["temporal_decay", "permanent", "adaptive"]},
+            "access_control": {"type": "string", "enum": ["public", "private", "restricted"]}
+          }
+        }
+      }
+    },
+
+    "algorithms": {
+      "type": "object",
+      "properties": {
+        "ant_colony_optimization": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "alpha": {"type": "number", "minimum": 0.1, "maximum": 10},
+                "beta": {"type": "number", "minimum": 0.1, "maximum": 10},
+                "evaporation_rate": {"type": "number", "minimum": 0, "maximum": 1},
+                "initial_pheromone": {"type": "number", "minimum": 0.01},
+                "number_of_ants": {"type": "integer", "minimum": 1, "maximum": 1000}
+              }
+            }
+          }
+        },
+        "particle_swarm_optimization": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "swarm_size": {"type": "integer", "minimum": 10, "maximum": 1000},
+                "inertia_weight": {"type": "number", "minimum": 0.1, "maximum": 2},
+                "cognitive_acceleration": {"type": "number", "minimum": 0.1, "maximum": 5},
+                "social_acceleration": {"type": "number", "minimum": 0.1, "maximum": 5},
+                "max_velocity": {"type": "number", "minimum": 0.1, "maximum": 10}
+              }
+            }
+          }
+        },
+        "artificial_bee_colony": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "parameters": {
+              "type": "object",
+              "properties": {
+                "colony_size": {"type": "integer", "minimum": 20, "maximum": 1000},
+                "employed_bees_ratio": {"type": "number", "minimum": 0.1, "maximum": 0.9},
+                "scout_bees_ratio": {"type": "number", "minimum": 0.01, "maximum": 0.5},
+                "max_trials": {"type": "integer", "minimum": 10, "maximum": 1000},
+                "limit": {"type": "integer", "minimum": 50, "maximum": 2000}
+              }
+            }
+          }
+        }
+      }
+    },
+
+    "applications": {
+      "type": "object",
+      "properties": {
+        "environmental_monitoring": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "objectives": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "adaptive_sampling": {"type": "boolean"},
+            "temporal_coverage": {"type": "string", "enum": ["continuous", "periodic", "event_driven"]}
+          }
+        },
+        "disaster_response": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "response_types": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "coordination_protocol": {"type": "string", "enum": ["stigmergic", "hierarchical", "auction"]},
+            "real_time_adaptation": {"type": "boolean"}
+          }
+        },
+        "urban_optimization": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "targets": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "temporal_resolution": {"type": "string", "enum": ["real_time", "hourly", "daily"]},
+            "stakeholder_objectives": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+
+    "analysis": {
+      "type": "object",
+      "properties": {
+        "pattern_recognition": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "pattern_types": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "statistical_methods": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        },
+        "performance_metrics": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "criteria": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "statistical_analysis": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        },
+        "emergent_behavior": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "detection_methods": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+
+    "integrations": {
+      "type": "object",
+      "properties": {
+        "geo_infer_act": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "belief_models": {
+              "type": "array",
+              "items": {"type": "string"}
+            },
+            "precision_model": {"type": "string", "enum": ["fixed", "adaptive", "hierarchical"]}
+          }
+        },
+        "geo_infer_space": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "backends": {
+              "type": "array",
+              "items": {"type": "string", "enum": ["h3", "srai", "geopandas"]}
+            },
+            "spatial_operations": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        },
+        "geo_infer_agent": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "lifecycle_management": {"type": "boolean"},
+            "registry_integration": {"type": "boolean"}
+          }
+        },
+        "geo_infer_math": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "optimization_algorithms": {
+              "type": "array",
+              "items": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+
+    "performance": {
+      "type": "object",
+      "properties": {
+        "parallel_processing": {"type": "boolean"},
+        "max_workers": {"type": "integer", "minimum": 1, "maximum": 64},
+        "memory_management": {"type": "string", "enum": ["conservative", "adaptive", "aggressive"]},
+        "spatial_partitioning": {"type": "boolean"},
+        "real_time": {
+          "type": "object",
+          "properties": {
+            "target_fps": {"type": "number", "minimum": 1, "maximum": 120},
+            "latency_threshold_ms": {"type": "number", "minimum": 1, "maximum": 1000},
+            "adaptive_resolution": {"type": "boolean"}
+          }
+        }
+      }
+    },
+
+    "output": {
+      "type": "object",
+      "properties": {
+        "data_collection": {
+          "type": "object",
+          "properties": {
+            "trajectories": {"type": "boolean"},
+            "interactions": {"type": "boolean"},
+            "emergent_patterns": {"type": "boolean"},
+            "performance_metrics": {"type": "boolean"}
+          }
+        },
+        "logging": {
+          "type": "object",
+          "properties": {
+            "level": {"type": "string", "enum": ["DEBUG", "INFO", "WARNING", "ERROR"]},
+            "file_path": {"type": "string"},
+            "console_output": {"type": "boolean"}
+          }
+        },
+        "visualization": {
+          "type": "object",
+          "properties": {
+            "enabled": {"type": "boolean"},
+            "formats": {
+              "type": "array",
+              "items": {"type": "string", "enum": ["png", "html", "interactive", "video"]}
+            },
+            "update_interval": {"type": "number", "minimum": 0.1}
+          }
+        }
+      }
+    },
+
+    "validation": {
+      "type": "object",
+      "properties": {
+        "parameter_validation": {"type": "boolean"},
+        "bounds_checking": {"type": "boolean"},
+        "convergence_monitoring": {"type": "boolean"},
+        "statistical_tests": {"type": "boolean"}
+      }
+    }
+  }
+}

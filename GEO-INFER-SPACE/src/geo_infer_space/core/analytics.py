@@ -7,6 +7,7 @@ that can be implemented by different backends (H3, SRAI, etc.).
 
 from typing import Dict, Any, List, Optional, Tuple, Union
 import logging
+import numpy as np
 
 logger = logging.getLogger(__name__)
 
@@ -37,6 +38,51 @@ class SpatialAnalyticsInterface:
         """
         return self.dispatcher.dispatch_analytics_operation(
             'analyze_hotspots', data, backend=self.backend, **kwargs
+        )
+
+    def analyze_context(self, context: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Analyze spatial context for a given location or area.
+
+        Args:
+            context: Spatial context information
+
+        Returns:
+            Analysis results for the spatial context
+        """
+        return self.dispatcher.dispatch_analytics_operation(
+            'analyze_context', context, backend=self.backend
+        )
+
+    def analyze_clusters(self, data: np.ndarray, method: str = 'kmeans', **kwargs) -> Dict[str, Any]:
+        """
+        Analyze spatial clustering patterns in data.
+
+        Args:
+            data: Spatial data points
+            method: Clustering method to use
+            **kwargs: Additional clustering parameters
+
+        Returns:
+            Clustering analysis results
+        """
+        return self.dispatcher.dispatch_analytics_operation(
+            'analyze_clusters', data, method=method, backend=self.backend, **kwargs
+        )
+
+    def find_hotspots(self, data: Dict[str, Any], **kwargs) -> Dict[str, Any]:
+        """
+        Find spatial hotspots in data.
+
+        Args:
+            data: Spatial data with intensity values
+            **kwargs: Additional hotspot detection parameters
+
+        Returns:
+            Hotspot detection results
+        """
+        return self.dispatcher.dispatch_analytics_operation(
+            'find_hotspots', data, backend=self.backend, **kwargs
         )
 
     def compute_proximity(self, points: List[Tuple[float, float]], **kwargs) -> Dict[str, Any]:

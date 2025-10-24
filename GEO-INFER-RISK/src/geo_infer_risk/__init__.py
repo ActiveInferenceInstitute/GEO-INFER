@@ -43,6 +43,46 @@ from geo_infer_risk.api import (
     ResultsFormatter
 )
 
+# Import underwriting module
+try:
+    from geo_infer_risk.underwriting import (
+        UnderwritingEngine,
+        UnderwritingConfig,
+        RiskAssessmentEngine,
+        PolicyManager,
+        ClaimsProcessor,
+        PortfolioManager,
+        UnderwritingRulesEngine,
+        PricingEngine,
+        UnderwritingDecisionEngine,
+        Policy,
+        Claim,
+        UnderwritingCase,
+        Decision,
+        create_underwriting_engine,
+        underwrite_policy,
+        process_claim,
+        assess_risk,
+        calculate_premium
+    )
+    UNDERWRITING_AVAILABLE = True
+except ImportError:
+    UNDERWRITING_AVAILABLE = False
+
+# Import enhanced core components
+try:
+    from geo_infer_risk.core import (
+        EnhancedRiskEngine,
+        EnhancedHazardModel,
+        EnhancedVulnerabilityModel,
+        EnhancedExposureModel,
+        EnhancedCatastropheModel,
+        CatastropheConfig
+    )
+    ENHANCED_CORE_AVAILABLE = True
+except ImportError:
+    ENHANCED_CORE_AVAILABLE = False
+
 # Define module level constants
 DEFAULT_CONFIDENCE_LEVEL = 0.95
 DEFAULT_RETURN_PERIODS = [10, 25, 50, 100, 250, 500, 1000]
@@ -51,26 +91,74 @@ DEFAULT_RETURN_PERIODS = [10, 25, 50, 100, 250, 500, 1000]
 def create_risk_analysis(config_path=None, **kwargs):
     """
     Create a new risk analysis engine with the specified configuration.
-    
+
     Args:
         config_path (str, optional): Path to configuration file. If not provided,
                                      default configuration will be used.
         **kwargs: Additional configuration parameters that override file settings.
-        
+
     Returns:
         RiskEngine: Configured risk analysis engine instance.
     """
     from geo_infer_risk.utils.config_loader import load_config
-    
+
     # Load configuration (from file if provided, otherwise use defaults)
     if config_path:
         config = load_config(config_path)
     else:
         config = {}
-    
+
     # Override with any kwargs provided
     for key, value in kwargs.items():
         config[key] = value
-        
+
     # Initialize and return the risk engine
-    return RiskEngine(config) 
+    return RiskEngine(config)
+
+# Underwriting convenience functions
+def create_underwriting_system(config=None):
+    """
+    Create a comprehensive underwriting system.
+
+    Args:
+        config: Underwriting configuration. If None, uses defaults.
+
+    Returns:
+        UnderwritingEngine: Configured underwriting engine.
+    """
+    if not UNDERWRITING_AVAILABLE:
+        raise ImportError("Underwriting module not available")
+
+    return create_underwriting_engine(config)
+
+def underwrite_insurance_policy(application_data, config=None):
+    """
+    Underwrite an insurance policy application.
+
+    Args:
+        application_data: Policy application data
+        config: Underwriting configuration
+
+    Returns:
+        UnderwritingCase: Completed underwriting case
+    """
+    if not UNDERWRITING_AVAILABLE:
+        raise ImportError("Underwriting module not available")
+
+    return underwrite_policy(application_data, config)
+
+def process_insurance_claim(claim_data, config=None):
+    """
+    Process an insurance claim.
+
+    Args:
+        claim_data: Claim information
+        config: Claims processing configuration
+
+    Returns:
+        Claim: Processed claim
+    """
+    if not UNDERWRITING_AVAILABLE:
+        raise ImportError("Underwriting module not available")
+
+    return process_claim(claim_data, config) 

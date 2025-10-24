@@ -1,0 +1,404 @@
+---
+openapi: "3.0.0"
+info:
+  title: GEO-INFER-METAGOV API
+  description: Meta-governance and organizational governance REST API
+  version: "4.0.0"
+  contact:
+    name: GEO-INFER Development Team
+  license:
+    name: CC BY-ND-SA 4.0
+
+servers:
+  - url: https://api.geo-infer.org/metagov/v1
+    description: Production API
+  - url: http://localhost:8000/metagov/v1
+    description: Development API
+
+paths:
+  /governance-structures:
+    post:
+      summary: Create multi-level governance structure
+      operationId: createGovernanceStructure
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GovernanceStructureRequest'
+      responses:
+        '201':
+          description: Governance structure created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GovernanceStructure'
+        '400':
+          description: Invalid input
+        '500':
+          description: Server error
+      tags:
+        - Governance
+
+  /governance-structures/{id}:
+    get:
+      summary: Get governance structure by ID
+      operationId: getGovernanceStructure
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Governance structure retrieved
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GovernanceStructure'
+        '404':
+          description: Not found
+      tags:
+        - Governance
+
+  /stakeholder-analysis:
+    post:
+      summary: Analyze stakeholders
+      operationId: analyzeStakeholders
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StakeholderAnalysisRequest'
+      responses:
+        '201':
+          description: Stakeholder analysis complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StakeholderAnalysis'
+      tags:
+        - Stakeholders
+
+  /governance-platforms:
+    post:
+      summary: Establish governance platform
+      operationId: createGovernancePlatform
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GovernancePlatformRequest'
+      responses:
+        '201':
+          description: Platform created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GovernancePlatform'
+      tags:
+        - Platforms
+
+  /institutional-analysis:
+    post:
+      summary: Analyze institutions
+      operationId: analyzeInstitutions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InstitutionalAnalysisRequest'
+      responses:
+        '201':
+          description: Institutional analysis complete
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InstitutionalAnalysis'
+      tags:
+        - Institutions
+
+  /vertical-coordination:
+    post:
+      summary: Coordinate across governance levels
+      operationId: coordinateVerticalLevels
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/VerticalCoordinationRequest'
+      responses:
+        '200':
+          description: Coordination results
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CoordinationResult'
+      tags:
+        - Coordination
+
+components:
+  schemas:
+    GovernanceStructureRequest:
+      type: object
+      required:
+        - spatial_scope
+        - stakeholder_groups
+        - decision_domains
+      properties:
+        spatial_scope:
+          type: object
+          properties:
+            name:
+              type: string
+            area_km2:
+              type: number
+            jurisdictions:
+              type: integer
+        stakeholder_groups:
+          type: array
+          items:
+            type: object
+            properties:
+              name:
+                type: string
+              category:
+                type: string
+        decision_domains:
+          type: array
+          items:
+            type: string
+        time_horizons:
+          type: array
+          items:
+            type: integer
+
+    GovernanceStructure:
+      type: object
+      properties:
+        governance_id:
+          type: string
+        spatial_scope:
+          type: object
+        governance_levels:
+          type: array
+          items:
+            type: string
+        entities:
+          type: array
+          items:
+            $ref: '#/components/schemas/GovernanceEntity'
+        decision_domains:
+          type: array
+          items:
+            type: string
+
+    GovernanceEntity:
+      type: object
+      properties:
+        entity_id:
+          type: string
+        name:
+          type: string
+        governance_level:
+          type: string
+        jurisdiction:
+          type: object
+        responsibilities:
+          type: array
+          items:
+            type: string
+        authority_domain:
+          type: string
+
+    StakeholderAnalysisRequest:
+      type: object
+      required:
+        - governance_domain
+        - stakeholder_categories
+      properties:
+        governance_domain:
+          type: string
+        spatial_extent:
+          type: object
+        stakeholder_categories:
+          type: array
+          items:
+            type: string
+
+    StakeholderAnalysis:
+      type: object
+      properties:
+        governance_domain:
+          type: string
+        stakeholder_groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stakeholder'
+        power_dynamics:
+          type: object
+          properties:
+            total_influence:
+              type: number
+            total_power:
+              type: number
+            power_balance_assessment:
+              type: string
+        collaboration_potential:
+          type: number
+
+    Stakeholder:
+      type: object
+      properties:
+        stakeholder_id:
+          type: string
+        name:
+          type: string
+        category:
+          type: string
+        interests:
+          type: array
+          items:
+            type: string
+        influence_level:
+          type: number
+        decision_power:
+          type: number
+
+    GovernancePlatformRequest:
+      type: object
+      required:
+        - participants
+        - governance_mechanisms
+        - decision_domains
+      properties:
+        participants:
+          type: array
+          items:
+            type: object
+        governance_mechanisms:
+          type: array
+          items:
+            type: string
+        decision_domains:
+          type: array
+          items:
+            type: string
+        conflict_resolution_capacity:
+          type: boolean
+
+    GovernancePlatform:
+      type: object
+      properties:
+        platform_id:
+          type: string
+        stakeholders:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stakeholder'
+        governance_mechanisms:
+          type: array
+          items:
+            type: string
+        participation_level:
+          type: string
+
+    InstitutionalAnalysisRequest:
+      type: object
+      required:
+        - current_institutions
+        - stakeholder_groups
+        - resource_system
+      properties:
+        current_institutions:
+          type: array
+          items:
+            type: object
+        stakeholder_groups:
+          type: array
+          items:
+            type: object
+        resource_system:
+          type: object
+        decision_outcomes:
+          type: array
+          items:
+            type: object
+
+    InstitutionalAnalysis:
+      type: object
+      properties:
+        governance_domain:
+          type: string
+        existing_institutions:
+          type: array
+          items:
+            type: object
+        institutional_effectiveness:
+          type: object
+        design_principles_assessment:
+          type: object
+        recommendations:
+          type: array
+          items:
+            type: string
+
+    VerticalCoordinationRequest:
+      type: object
+      required:
+        - governance_structure_id
+        - policy_proposal
+      properties:
+        governance_structure_id:
+          type: string
+        policy_proposal:
+          type: object
+          properties:
+            id:
+              type: string
+            name:
+              type: string
+            objectives:
+              type: array
+              items:
+                type: string
+
+    CoordinationResult:
+      type: object
+      properties:
+        proposal_id:
+          type: string
+        level_approvals:
+          type: object
+        cross_level_conflicts:
+          type: array
+          items:
+            type: object
+        coordinated_implementation:
+          type: object
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Governance
+    description: Multi-level governance operations
+  - name: Stakeholders
+    description: Stakeholder engagement and analysis
+  - name: Platforms
+    description: Governance platform management
+  - name: Institutions
+    description: Institutional design and analysis
+  - name: Coordination
+    description: Governance coordination operations

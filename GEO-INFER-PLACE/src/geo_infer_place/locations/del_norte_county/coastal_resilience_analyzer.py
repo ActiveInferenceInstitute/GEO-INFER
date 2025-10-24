@@ -69,6 +69,11 @@ class CoastalResilienceAnalyzer:
         self.spatial_processor = spatial_processor
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Set up caching for the data integrator
+        cache_dir = self.output_dir / 'cache'
+        if not hasattr(self.data_integrator, 'cache_dir') or self.data_integrator.cache_dir is None:
+            self.data_integrator.cache_dir = cache_dir
         
         # Get coastal resilience configuration
         self.coastal_config = config.get('analyses', {}).get('coastal_resilience', {})
@@ -167,10 +172,18 @@ class CoastalResilienceAnalyzer:
             logger.info(f"✅ Coastal resilience analysis completed in {processing_time}")
             
         except Exception as e:
-            logger.error(f"❌ Coastal resilience analysis failed: {e}")
+            logger.error(f"❌ Coastal resilience analysis failed: {e}", exc_info=True)
             results['status'] = 'error'
             results['error_message'] = str(e)
+            results['error_type'] = type(e).__name__
             results['processing_time'] = str(datetime.now() - start_time)
+            # Ensure partial results are still useful
+            if not results.get('data_acquisition'):
+                results['data_acquisition'] = {'status': 'failed', 'error': str(e)}
+            if not results.get('sea_level_analysis'):
+                results['sea_level_analysis'] = {'status': 'failed', 'error': str(e)}
+            if not results.get('erosion_analysis'):
+                results['erosion_analysis'] = {'status': 'failed', 'error': str(e)}
             
         return results
         
@@ -191,15 +204,24 @@ class CoastalResilienceAnalyzer:
         
         # NOAA tide gauge data
         try:
+            logger.info("Fetching NOAA tide gauge data for Crescent City...")
             tide_data = self.data_integrator.noaa_client.get_tide_gauge_data(
-                bbox=bbox, 
+                bbox=bbox,
                 stations=['9419750'],  # Crescent City station
                 time_range=temporal_range
             )
             coastal_data['data_sources']['tide_gauges'] = tide_data
-            
+            logger.info(f"Retrieved tide data for {len(tide_data.get('stations', []))} stations")
+
         except Exception as e:
-            logger.warning(f"Error acquiring NOAA tide data: {e}")
+            logger.error(f"Failed to acquire NOAA tide gauge data: {e}")
+            coastal_data['data_sources']['tide_gauges'] = {
+                'status': 'error',
+                'error_message': str(e),
+                'error_type': type(e).__name__,
+                'stations': ['9419750'],
+                'note': 'Tide data temporarily unavailable'
+            }
             
         # Coastal elevation models
         elevation_data = self._acquire_coastal_elevation_data(bbox)

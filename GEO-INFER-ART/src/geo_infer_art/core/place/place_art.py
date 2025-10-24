@@ -439,7 +439,13 @@ class PlaceArt:
         metadata_text = f"{location_name}\nLat: {lat:.4f}, Lon: {lon:.4f}"
         
         # Calculate text size
-        text_size = draw.textsize(metadata_text, font=font)
+        try:
+            # Try newer PIL method
+            text_bbox = draw.textbbox((0, 0), metadata_text, font=font)
+            text_size = (text_bbox[2] - text_bbox[0], text_bbox[3] - text_bbox[1])
+        except AttributeError:
+            # Fallback for older PIL versions
+            text_size = draw.textsize(metadata_text, font=font)
         
         # Determine position
         if position == "bottom":
@@ -516,9 +522,301 @@ class PlaceArt:
         plt.tight_layout()
         plt.show()
         
+    def create_series(self, styles: List[str], output_dir: str = "output") -> List[str]:
+        """
+        Create a series of artworks for the same location with different styles.
+
+        Args:
+            styles: List of artistic styles to apply
+            output_dir: Directory to save the artwork series
+
+        Returns:
+            List of file paths for the created artworks
+
+        Raises:
+            ValueError: If no location is set
+        """
+        if not self.location:
+            raise ValueError("No location set for art generation.")
+
+        output_paths = []
+
+        for style in styles:
+            # Create a new PlaceArt with the same location but different style
+            self.location["style"] = style
+
+            # Regenerate the art
+            self._generate_art()
+
+            # Add metadata overlay
+            self.add_metadata_overlay()
+
+            # Save the artwork
+            filename = f"place_art_{self.location['name'].lower().replace(' ', '_')}_{style}.png"
+            output_path = os.path.join(output_dir, filename)
+            self.save(output_path)
+            output_paths.append(output_path)
+
+        return output_paths
+
+    def blend_with_style(self, style: str, blend_ratio: float = 0.5) -> 'PlaceArt':
+        """
+        Blend the current artwork with another style.
+
+        Args:
+            style: Style to blend with
+            blend_ratio: Ratio of blending (0.0 = all original, 1.0 = all new style)
+
+        Returns:
+            A new PlaceArt object with blended styles
+
+        Raises:
+            ValueError: If no image has been generated
+        """
+        if self.image is None:
+            raise ValueError("No image generated. Generate art first.")
+
+        # Create a new PlaceArt with the blended style
+        original_style = self.location.get("style", "abstract")
+        blended_location = self.location.copy()
+        blended_location["style"] = f"{original_style}_blend_{style}"
+
+        # Generate art with the new style
+        blended_art = PlaceArt(location=blended_location)
+        blended_art._generate_art()
+
+        if blended_art.image is not None:
+            # Blend the images
+            blended_image = (blend_ratio * blended_art.image +
+                           (1 - blend_ratio) * self.image).astype(np.uint8)
+
+            # Create new PlaceArt with blended result
+            result_art = PlaceArt(location=blended_location)
+            result_art.image = blended_image
+
+            return result_art
+
+        return self
+
+    def add_artistic_elements(self, elements: List[str], **kwargs) -> 'PlaceArt':
+        """
+        Add artistic elements to the place art.
+
+        Args:
+            elements: List of artistic elements ("frame", "signature", "texture", "overlay")
+            **kwargs: Parameters for the artistic elements
+
+        Returns:
+            Self for method chaining
+
+        Raises:
+            ValueError: If no image has been generated or element is unsupported
+        """
+        if self.image is None:
+            raise ValueError("No image generated. Generate art first.")
+
+        from PIL import ImageDraw, ImageFont
+
+        # Convert numpy array to PIL Image for processing
+        img = Image.fromarray(self.image)
+
+        for element in elements:
+            if element == "frame":
+                self._add_frame(img, **kwargs)
+            elif element == "signature":
+                self._add_signature(img, **kwargs)
+            elif element == "texture":
+                self._add_texture_overlay(img, **kwargs)
+            elif element == "overlay":
+                self._add_overlay_pattern(img, **kwargs)
+            else:
+                raise ValueError(f"Unsupported artistic element: {element}")
+
+        # Convert back to numpy array
+        self.image = np.array(img)
+
+        return self
+
+    def _add_frame(self, img: Image.Image, **kwargs) -> None:
+        """Add a decorative frame to the image."""
+        frame_style = kwargs.get("frame_style", "simple")
+        frame_color = kwargs.get("frame_color", "#8B4513")
+        frame_width = kwargs.get("frame_width", 20)
+
+        draw = ImageDraw.Draw(img)
+        width, height = img.size
+
+        if frame_style == "simple":
+            # Simple border
+            draw.rectangle(
+                [0, 0, width-1, height-1],
+                outline=frame_color,
+                width=frame_width
+            )
+        elif frame_style == "ornate":
+            # More decorative frame
+            # Draw multiple borders
+            for i in range(3):
+                border_width = frame_width - i * 5
+                if border_width <= 0:
+                    break
+
+                offset = i * 3
+                draw.rectangle(
+                    [offset, offset, width-1-offset, height-1-offset],
+                    outline=frame_color,
+                    width=border_width - 6
+                )
+
+    def _add_signature(self, img: Image.Image, **kwargs) -> None:
+        """Add an artistic signature to the image."""
+        signature_text = kwargs.get("signature_text", "Place Art")
+        signature_color = kwargs.get("signature_color", "#666666")
+        signature_position = kwargs.get("signature_position", "bottom_right")
+
+        try:
+            font = ImageFont.truetype("Arial", 20)
+        except IOError:
+            font = ImageFont.load_default()
+
+        draw = ImageDraw.Draw(img)
+        width, height = img.size
+
+        # Position the signature
+        try:
+            # Try newer PIL method
+            text_bbox = draw.textbbox((0, 0), signature_text, font=font)
+            text_width = text_bbox[2] - text_bbox[0]
+            text_height = text_bbox[3] - text_bbox[1]
+        except AttributeError:
+            # Fallback for older PIL versions
+            text_width, text_height = draw.textsize(signature_text, font=font)
+
+        if signature_position == "bottom_right":
+            x = width - text_width - 20
+            y = height - text_height - 20
+        elif signature_position == "bottom_left":
+            x = 20
+            y = height - text_height - 20
+        elif signature_position == "top_right":
+            x = width - text_width - 20
+            y = 20
+        elif signature_position == "top_left":
+            x = 20
+            y = 20
+        else:
+            x = width - text_width - 20
+            y = height - text_height - 20
+
+        # Add signature with background
+        draw.rectangle(
+            [x-5, y-5, x+text_width+5, y+text_height+5],
+            fill=(255, 255, 255, 128)
+        )
+        draw.text((x, y), signature_text, fill=signature_color, font=font)
+
+    def _add_texture_overlay(self, img: Image.Image, **kwargs) -> None:
+        """Add a texture overlay to the image."""
+        texture_type = kwargs.get("texture_type", "paper")
+        texture_opacity = kwargs.get("texture_opacity", 0.1)
+
+        width, height = img.size
+
+        if texture_type == "paper":
+            # Create paper-like texture
+            texture = np.random.randint(240, 255, (height, width, 3), dtype=np.uint8)
+            texture_img = Image.fromarray(texture)
+
+            # Blend with original
+            img = Image.blend(img, texture_img, texture_opacity)
+
+        elif texture_type == "canvas":
+            # Create canvas-like texture
+            texture = np.random.randint(245, 255, (height, width, 3), dtype=np.uint8)
+            # Add some subtle variations
+            texture[::10, ::10] = [240, 240, 240]
+            texture_img = Image.fromarray(texture)
+
+            img = Image.blend(img, texture_img, texture_opacity)
+
+    def _add_overlay_pattern(self, img: Image.Image, **kwargs) -> None:
+        """Add a decorative pattern overlay."""
+        pattern_type = kwargs.get("pattern_type", "diagonal")
+        pattern_color = kwargs.get("pattern_color", "#000000")
+        pattern_opacity = kwargs.get("pattern_opacity", 0.05)
+
+        draw = ImageDraw.Draw(img)
+        width, height = img.size
+
+        if pattern_type == "diagonal":
+            # Diagonal lines pattern
+            for i in range(-height, width, 20):
+                draw.line(
+                    [(i, 0), (i + height, height)],
+                    fill=pattern_color,
+                    width=1
+                )
+
+        elif pattern_type == "dots":
+            # Dot pattern
+            for x in range(0, width, 30):
+                for y in range(0, height, 30):
+                    draw.ellipse(
+                        [x-1, y-1, x+1, y+1],
+                        fill=pattern_color
+                    )
+
+        elif pattern_type == "grid":
+            # Grid pattern
+            for x in range(0, width, 50):
+                draw.line([(x, 0), (x, height)], fill=pattern_color, width=1)
+            for y in range(0, height, 50):
+                draw.line([(0, y), (width, y)], fill=pattern_color, width=1)
+
+    def get_location_info(self) -> Dict:
+        """
+        Get detailed information about the location.
+
+        Returns:
+            Dictionary with location information including coordinates,
+            style, and any additional metadata
+        """
+        return self.location.copy()
+
+    def export_metadata(self, output_path: str) -> str:
+        """
+        Export location and generation metadata to a JSON file.
+
+        Args:
+            output_path: Path for the metadata file
+
+        Returns:
+            Path to the exported metadata file
+        """
+        import json
+
+        metadata = {
+            "location": self.location,
+            "generation_info": {
+                "module": "PlaceArt",
+                "timestamp": self.metadata.get("timestamp", ""),
+                "parameters": self.metadata.get("parameters", {})
+            }
+        }
+
+        directory = os.path.dirname(output_path)
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory)
+
+        with open(output_path, 'w') as f:
+            json.dump(metadata, f, indent=2)
+
+        return output_path
+
     def __repr__(self) -> str:
         """Return a string representation of the PlaceArt object."""
         location_name = self.location.get("name", "Unknown Location")
         style = self.location.get("style", "unknown")
-        
-        return f"PlaceArt(location='{location_name}', style='{style}')" 
+        coordinates = self.location.get("coordinates", "Unknown")
+
+        return f"PlaceArt(location='{location_name}', style='{style}', coordinates={coordinates})" 

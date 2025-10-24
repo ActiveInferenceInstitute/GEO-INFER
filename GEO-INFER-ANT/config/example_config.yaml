@@ -1,0 +1,224 @@
+---
+# Example configuration for GEO-INFER-ANT swarm intelligence simulations
+# This configuration demonstrates all available parameters and their default values
+
+# Simulation metadata
+simulation:
+  name: "example_swarm_simulation"
+  description: "Example configuration for ant colony optimization and swarm behavior"
+  version: "1.0.0"
+  author: "GEO-INFER Development Team"
+
+# Agent configuration
+agents:
+  # Population parameters
+  population_size: 100
+  agent_types:
+    - name: "worker"
+      count: 70
+      capabilities: ["foraging", "trail_following", "communication"]
+    - name: "scout"
+      count: 20
+      capabilities: ["exploration", "resource_discovery", "reconnaissance"]
+    - name: "soldier"
+      count: 10
+      capabilities: ["defense", "territory_protection", "alarm_signaling"]
+
+  # Individual agent parameters
+  individual:
+    sensory_range: 100.0  # meters
+    movement_speed: 1.5   # m/s
+    energy_capacity: 100.0
+    energy_consumption_rate: 0.1
+    memory_capacity: 50   # number of experiences
+
+    # Active Inference parameters (integration with GEO-INFER-ACT)
+    active_inference:
+      enabled: true
+      belief_precision: 1.0
+      preference_strength: 2.0
+      learning_rate: 0.01
+      planning_horizon: 10
+
+# Environment configuration
+environment:
+  # Spatial bounds (integration with GEO-INFER-SPACE)
+  spatial:
+    bounds:
+      min_lat: 37.7
+      max_lat: 37.8
+      min_lng: -122.5
+      max_lng: -122.3
+    resolution: "h3_r8"  # H3 resolution for spatial indexing
+    coordinate_system: "WGS84"
+
+  # Resource distribution
+  resources:
+    food_sources:
+      count: 20
+      distribution: "clustered"
+      quality_range: [0.1, 1.0]
+      regeneration_rate: 0.05
+
+    obstacles:
+      count: 15
+      distribution: "random"
+      types: ["physical", "chemical", "biological"]
+
+  # Environmental dynamics
+  dynamics:
+    time_step: 1.0  # seconds
+    weather_effects: true
+    seasonal_changes: true
+    resource_depletion: true
+
+# Stigmergic communication (integration with spatial indexing)
+stigmergy:
+  enabled: true
+  pheromone_types:
+    - name: "trail"
+      evaporation_rate: 0.1
+      diffusion_rate: 0.05
+      deposition_amount: 1.0
+      persistence_time: 300  # seconds
+    - name: "food"
+      evaporation_rate: 0.05
+      diffusion_rate: 0.1
+      deposition_amount: 2.0
+      persistence_time: 600
+    - name: "alarm"
+      evaporation_rate: 0.2
+      diffusion_rate: 0.2
+      deposition_amount: 3.0
+      persistence_time: 120
+
+  # Digital stigmergy (IoT integration)
+  digital:
+    enabled: false
+    platforms: ["iot_network", "social_media", "public_displays"]
+    persistence_model: "temporal_decay"
+    access_control: "public"
+
+# Algorithms configuration
+algorithms:
+  ant_colony_optimization:
+    enabled: true
+    parameters:
+      alpha: 1.0          # pheromone influence
+      beta: 2.0           # heuristic influence
+      evaporation_rate: 0.1
+      initial_pheromone: 1.0
+      number_of_ants: 50
+
+  particle_swarm_optimization:
+    enabled: false
+    parameters:
+      swarm_size: 100
+      inertia_weight: 0.7
+      cognitive_acceleration: 1.5
+      social_acceleration: 1.5
+      max_velocity: 3.0
+
+  artificial_bee_colony:
+    enabled: false
+    parameters:
+      colony_size: 100
+      employed_bees_ratio: 0.5
+      scout_bees_ratio: 0.1
+      max_trials: 50
+      limit: 100
+
+# Applications configuration
+applications:
+  environmental_monitoring:
+    enabled: false
+    objectives: ["air_quality", "water_quality", "biodiversity"]
+    adaptive_sampling: true
+    temporal_coverage: "continuous"
+
+  disaster_response:
+    enabled: false
+    response_types: ["search_rescue", "damage_assessment", "resource_distribution"]
+    coordination_protocol: "stigmergic"
+    real_time_adaptation: true
+
+  urban_optimization:
+    enabled: false
+    targets: ["traffic_flow", "energy_distribution", "waste_collection"]
+    temporal_resolution: "real_time"
+    stakeholder_objectives: ["efficiency", "sustainability", "equity"]
+
+# Analysis and metrics configuration
+analysis:
+  pattern_recognition:
+    enabled: true
+    pattern_types: ["spatial_clustering", "temporal_synchronization", "phase_transitions"]
+    statistical_methods: ["cluster_analysis", "network_analysis", "fractal_analysis"]
+
+  performance_metrics:
+    enabled: true
+    criteria: ["convergence_speed", "solution_quality", "robustness", "scalability"]
+    statistical_analysis: ["hypothesis_testing", "confidence_intervals"]
+
+  emergent_behavior:
+    enabled: true
+    detection_methods: ["mutual_information", "transfer_entropy", "complexity_measures"]
+
+# Integration configuration
+integrations:
+  geo_infer_act:
+    enabled: true
+    belief_models: ["spatial_position", "environmental_state", "agent_goals"]
+    precision_model: "adaptive"
+
+  geo_infer_space:
+    enabled: true
+    backends: ["h3", "srai"]
+    spatial_operations: ["indexing", "analytics", "visualization"]
+
+  geo_infer_agent:
+    enabled: true
+    lifecycle_management: true
+    registry_integration: true
+
+  geo_infer_math:
+    enabled: true
+    optimization_algorithms: ["gradient_descent", "evolutionary", "swarm_based"]
+
+# Performance and scalability
+performance:
+  parallel_processing: true
+  max_workers: 4
+  memory_management: "adaptive"
+  spatial_partitioning: true
+
+  # Real-time performance targets
+  real_time:
+    target_fps: 30
+    latency_threshold_ms: 100
+    adaptive_resolution: true
+
+# Output and logging configuration
+output:
+  data_collection:
+    trajectories: true
+    interactions: true
+    emergent_patterns: true
+    performance_metrics: true
+
+  logging:
+    level: "INFO"
+    file_path: "logs/simulation.log"
+    console_output: true
+
+  visualization:
+    enabled: true
+    formats: ["png", "html", "interactive"]
+    update_interval: 1.0
+
+# Validation and testing
+validation:
+  parameter_validation: true
+  bounds_checking: true
+  convergence_monitoring: true
+  statistical_tests: true

@@ -565,12 +565,307 @@ class GenerativeMap:
         plt.figure(self._figure.number)
         plt.show()
         
+    def create_animation(
+        self,
+        output_path: str,
+        parameter_sweep: str,
+        values: List[float],
+        duration: float = 5.0,
+        fps: int = 24
+    ) -> str:
+        """
+        Create an animated generative map by varying a parameter.
+
+        Args:
+            output_path: Path for the output animation file
+            parameter_sweep: Parameter to vary ("abstraction_level", "style", "resolution")
+            values: List of values to sweep through
+            duration: Duration of the animation in seconds
+            fps: Frames per second
+
+        Returns:
+            Path to the created animation file
+
+        Raises:
+            ValueError: If the parameter is not supported for animation
+        """
+        import matplotlib.animation as animation
+
+        if self.data is None:
+            raise ValueError("No data loaded. Load data first.")
+
+        if parameter_sweep not in ["abstraction_level", "style"]:
+            raise ValueError(f"Unsupported parameter for animation: {parameter_sweep}")
+
+        # Create frames for each parameter value
+        frames = []
+        for value in values:
+            if parameter_sweep == "abstraction_level":
+                self._generate_contour_art(abstraction_level=value)
+            elif parameter_sweep == "style":
+                # For style animation, we'd need to regenerate with different styles
+                # This is a simplified version
+                self._generate_contour_art(abstraction_level=0.5)
+
+            frames.append(self._figure)
+
+        # Create animation
+        def animate(frame_num):
+            return frames[frame_num % len(frames)]
+
+        # Calculate number of frames
+        num_frames = int(duration * fps)
+
+        # Create the animation
+        anim = animation.FuncAnimation(
+            frames[0], animate, frames=num_frames,
+            interval=1000/fps, blit=False
+        )
+
+        # Save animation
+        directory = os.path.dirname(output_path)
+        if directory and not os.path.exists(directory):
+            os.makedirs(directory)
+
+        if output_path.lower().endswith('.gif'):
+            anim.save(output_path, writer='pillow', fps=fps)
+        else:
+            try:
+                anim.save(output_path, writer='ffmpeg', fps=fps)
+            except Exception:
+                gif_path = output_path.rsplit('.', 1)[0] + '.gif'
+                anim.save(gif_path, writer='pillow', fps=fps)
+                output_path = gif_path
+
+        return output_path
+
+    def apply_texture(self, texture_type: str = "noise", **kwargs) -> 'GenerativeMap':
+        """
+        Apply a texture overlay to the generated map.
+
+        Args:
+            texture_type: Type of texture ("noise", "pattern", "gradient")
+            **kwargs: Texture parameters
+
+        Returns:
+            Self for method chaining
+
+        Raises:
+            ValueError: If the texture type is not supported
+        """
+        if self.image is None:
+            raise ValueError("No image generated. Generate art first.")
+
+        import cv2
+
+        # Convert PIL image to numpy array for processing
+        img_array = np.array(self.image)
+
+        if texture_type == "noise":
+            # Add noise texture
+            intensity = kwargs.get("intensity", 0.1)
+            noise = np.random.normal(0, intensity, img_array.shape[:2])
+            noise = np.stack([noise] * 3, axis=2) if img_array.ndim == 3 else noise
+
+            # Blend noise with image
+            textured = img_array.astype(float) + (noise * 255)
+            textured = np.clip(textured, 0, 255).astype(np.uint8)
+
+        elif texture_type == "pattern":
+            # Add pattern overlay
+            pattern_size = kwargs.get("pattern_size", 20)
+            pattern_type = kwargs.get("pattern_type", "dots")
+
+            # Create pattern mask
+            if pattern_type == "dots":
+                x = np.arange(0, img_array.shape[1], pattern_size)
+                y = np.arange(0, img_array.shape[0], pattern_size)
+                xx, yy = np.meshgrid(x, y)
+                pattern = np.zeros_like(img_array[:, :, 0], dtype=np.uint8)
+                for i in range(len(y)):
+                    for j in range(len(x)):
+                        pattern[i*pattern_size:(i+1)*pattern_size,
+                               j*pattern_size:(j+1)*pattern_size] = 255 * (i + j) % 2
+
+                # Apply pattern
+                textured = img_array.copy()
+                mask = pattern[:, :, np.newaxis] if img_array.ndim == 3 else pattern
+                textured = textured * 0.7 + mask * 0.3
+
+        elif texture_type == "gradient":
+            # Add gradient overlay
+            gradient_type = kwargs.get("gradient_type", "radial")
+            intensity = kwargs.get("intensity", 0.3)
+
+            if gradient_type == "radial":
+                # Create radial gradient
+                center_x, center_y = img_array.shape[1]//2, img_array.shape[0]//2
+                y, x = np.ogrid[:img_array.shape[0], :img_array.shape[1]]
+                gradient = np.sqrt((x - center_x)**2 + (y - center_y)**2)
+                gradient = 1 - (gradient / np.max(gradient))
+
+                # Apply gradient
+                textured = img_array.astype(float) * (1 - intensity) + gradient[:, :, np.newaxis] * intensity * 255
+                textured = np.clip(textured, 0, 255).astype(np.uint8)
+
+            else:
+                raise ValueError(f"Unsupported gradient type: {gradient_type}")
+
+        else:
+            raise ValueError(f"Unsupported texture type: {texture_type}")
+
+        # Update the image
+        self.image = textured
+
+        return self
+
+    def blend_with(self, other_map: 'GenerativeMap', alpha: float = 0.5) -> 'GenerativeMap':
+        """
+        Blend this map with another GenerativeMap.
+
+        Args:
+            other_map: Another GenerativeMap to blend with
+            alpha: Blending ratio (0.0 = all this map, 1.0 = all other map)
+
+        Returns:
+            A new GenerativeMap with blended images
+
+        Raises:
+            ValueError: If either map has no generated image or images have different sizes
+        """
+        if self.image is None:
+            raise ValueError("This map has no generated image.")
+
+        if other_map.image is None:
+            raise ValueError("Other map has no generated image.")
+
+        if self.image.shape != other_map.image.shape:
+            raise ValueError("Images must have the same dimensions for blending.")
+
+        # Blend the images
+        blended_image = (alpha * other_map.image + (1 - alpha) * self.image).astype(np.uint8)
+
+        # Create new map with blended result
+        blended_map = GenerativeMap()
+        blended_map.image = blended_image
+        blended_map.metadata = {
+            **self.metadata,
+            "blended_with": other_map.metadata,
+            "blend_alpha": alpha
+        }
+
+        return blended_map
+
+    def add_effects(self, effects: List[str], **kwargs) -> 'GenerativeMap':
+        """
+        Apply visual effects to the generated map.
+
+        Args:
+            effects: List of effects to apply ("blur", "sharpen", "edge_enhance", "emboss")
+            **kwargs: Effect parameters
+
+        Returns:
+            Self for method chaining
+
+        Raises:
+            ValueError: If an effect is not supported
+        """
+        if self.image is None:
+            raise ValueError("No image generated. Generate art first.")
+
+        from PIL import Image, ImageFilter, ImageEnhance
+
+        # Convert numpy array to PIL Image for processing
+        img = Image.fromarray(self.image)
+
+        for effect in effects:
+            if effect == "blur":
+                radius = kwargs.get("blur_radius", 1)
+                img = img.filter(ImageFilter.GaussianBlur(radius=radius))
+
+            elif effect == "sharpen":
+                img = img.filter(ImageFilter.SHARPEN)
+
+            elif effect == "edge_enhance":
+                img = img.filter(ImageFilter.EDGE_ENHANCE)
+
+            elif effect == "emboss":
+                img = img.filter(ImageFilter.EMBOSS)
+
+            elif effect == "smooth":
+                img = img.filter(ImageFilter.SMOOTH)
+
+            elif effect == "brightness":
+                factor = kwargs.get("brightness_factor", 1.0)
+                enhancer = ImageEnhance.Brightness(img)
+                img = enhancer.enhance(factor)
+
+            elif effect == "contrast":
+                factor = kwargs.get("contrast_factor", 1.0)
+                enhancer = ImageEnhance.Contrast(img)
+                img = enhancer.enhance(factor)
+
+            elif effect == "saturation":
+                factor = kwargs.get("saturation_factor", 1.0)
+                enhancer = ImageEnhance.Color(img)
+                img = enhancer.enhance(factor)
+
+            else:
+                raise ValueError(f"Unsupported effect: {effect}")
+
+        # Convert back to numpy array
+        self.image = np.array(img)
+
+        return self
+
+    def export_multi_format(self, base_path: str, formats: List[str] = None) -> List[str]:
+        """
+        Export the map in multiple formats.
+
+        Args:
+            base_path: Base path for exported files (without extension)
+            formats: List of formats to export ("png", "jpg", "svg", "pdf")
+
+        Returns:
+            List of exported file paths
+        """
+        if formats is None:
+            formats = ["png", "jpg", "svg"]
+
+        exported_paths = []
+
+        for fmt in formats:
+            if fmt.lower() == "svg":
+                # Export as SVG (requires matplotlib)
+                output_path = f"{base_path}.svg"
+                if self._figure is not None:
+                    self._figure.savefig(output_path, format='svg', bbox_inches='tight')
+                else:
+                    # Convert image to SVG-like format
+                    output_path = f"{base_path}.png"  # Fallback
+            else:
+                # Export as image
+                output_path = f"{base_path}.{fmt.lower()}"
+
+            # Save the current image
+            if self.image is not None:
+                directory = os.path.dirname(output_path)
+                if directory and not os.path.exists(directory):
+                    os.makedirs(directory)
+
+                img = Image.fromarray(self.image)
+                img.save(output_path)
+                exported_paths.append(output_path)
+
+        return exported_paths
+
     def __repr__(self) -> str:
         """Return a string representation of the GenerativeMap object."""
         if self.data is None:
             return "GenerativeMap(No data loaded)"
-            
+
         style = self.metadata.get("style", "unknown")
         region = self.metadata.get("region", "unknown")
-        
-        return f"GenerativeMap(style='{style}', region='{region}')" 
+        data_type = self.metadata.get("data_type", "unknown")
+
+        return f"GenerativeMap(style='{style}', region='{region}', data_type='{data_type}')" 

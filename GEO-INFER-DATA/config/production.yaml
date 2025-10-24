@@ -1,0 +1,311 @@
+# GEO-INFER-DATA Production Configuration
+# Production-ready configuration with security, performance, and reliability settings
+
+# API Configuration
+api:
+  host: 0.0.0.0
+  port: 8001
+  workers: 8
+  timeout: 60
+  max_requests_per_worker: 1000
+  enable_cors: false
+  cors_origins: []
+  rate_limiting: true
+  requests_per_minute: 1000
+
+# Database Configuration
+database:
+  # PostgreSQL/PostGIS Configuration
+  postgres:
+    host: ${GEO_INFER_DB_HOST}
+    port: ${GEO_INFER_DB_PORT:-5432}
+    user: ${GEO_INFER_DB_USER}
+    password: ${GEO_INFER_DB_PASSWORD}
+    database: ${GEO_INFER_DB_NAME:-geo_infer_data}
+    schema: public
+    ssl_mode: require
+    max_connections: 50
+    connection_timeout: 30
+    statement_timeout: 300
+
+    # Connection pooling
+    pool:
+      min_size: 5
+      max_size: 20
+      max_overflow: 10
+      pool_timeout: 30
+      pool_recycle: 3600
+
+    # Performance tuning
+    performance:
+      work_mem: 256MB
+      maintenance_work_mem: 1GB
+      effective_cache_size: 8GB
+      shared_buffers: 2GB
+
+  # TimescaleDB Configuration (for time series)
+  timescale:
+    enabled: true
+    host: ${GEO_INFER_TIMESCALE_HOST:-localhost}
+    port: ${GEO_INFER_TIMESCALE_PORT:-5432}
+    user: ${GEO_INFER_TIMESCALE_USER}
+    password: ${GEO_INFER_TIMESCALE_PASSWORD}
+    database: ${GEO_INFER_TIMESCALE_DB:-geo_infer_timeseries}
+    schema: public
+    ssl_mode: require
+    max_connections: 20
+
+  # Redis Configuration (for caching and pub/sub)
+  redis:
+    enabled: true
+    host: ${REDIS_HOST:-localhost}
+    port: ${REDIS_PORT:-6379}
+    password: ${REDIS_PASSWORD}
+    db: 0
+    ssl: true
+    decode_responses: true
+
+    # Connection pooling
+    pool:
+      max_connections: 20
+      retry_on_timeout: true
+      socket_timeout: 5
+      socket_connect_timeout: 5
+
+# Object Storage Configuration
+storage:
+  # MinIO/S3 Configuration
+  s3:
+    endpoint: ${S3_ENDPOINT}
+    access_key: ${S3_ACCESS_KEY}
+    secret_key: ${S3_SECRET_KEY}
+    secure: true
+    region: ${S3_REGION:-us-east-1}
+    default_bucket: ${S3_BUCKET:-geo-infer-data}
+    create_bucket_if_not_exists: false
+
+    # Performance and reliability
+    max_pool_connections: 50
+    read_timeout: 60
+    connect_timeout: 30
+
+  # Backup storage
+  backup:
+    enabled: true
+    provider: s3
+    bucket: ${BACKUP_BUCKET:-geo-infer-backups}
+    retention_days: 90
+    encryption: true
+
+# ETL Pipeline Configuration
+etl:
+  # Apache Airflow Configuration
+  airflow:
+    enabled: true
+    host: ${AIRFLOW_HOST:-localhost}
+    port: ${AIRFLOW_PORT:-8080}
+    user: ${AIRFLOW_USER:-admin}
+    password: ${AIRFLOW_PASSWORD}
+    workers: 8
+    scheduler_interval: 60
+
+  # Batch Processing
+  batch:
+    max_file_size: 10GB
+    threads: 8
+    temp_dir: ${TEMP_DIR:-/tmp/geo-infer-etl}
+    cleanup_temp_files: true
+    compression: gzip
+
+  # Stream Processing
+  stream:
+    enabled: true
+    kafka_bootstrap_servers: ${KAFKA_SERVERS:-localhost:9092}
+    consumer_group: geo-infer-data
+    auto_offset_reset: earliest
+    enable_auto_commit: false
+    max_poll_records: 1000
+
+    # Real-time processing
+    real_time:
+      enabled: true
+      processing_interval: 1  # seconds
+      batch_size: 100
+      timeout: 30
+
+# Data Validation Configuration
+validation:
+  enabled: true
+  schema_validation: true
+  spatial_validation: true
+  temporal_validation: true
+  error_handling: fail  # Options: fail, log_and_skip, repair
+
+  # Quality thresholds
+  quality_thresholds:
+    completeness: 0.9
+    accuracy: 0.85
+    consistency: 0.9
+    validity: 0.95
+
+  # Validation rules
+  rules:
+    strict_geometry_validation: true
+    coordinate_precision_check: true
+    temporal_consistency_check: true
+    spatial_reference_validation: true
+
+# Security Configuration
+security:
+  encryption:
+    enabled: true
+    key_management: vault  # Options: environment, vault, aws_kms
+    algorithm: AES256
+    key_rotation_days: 90
+
+  data_masking:
+    enabled: true
+    pii_detection: true
+    geospatial_privacy: true
+    anonymization_level: high
+
+  access_control:
+    enabled: true
+    authentication: oauth2
+    authorization: rbac
+    audit_logging: true
+    audit_retention_days: 2555  # 7 years
+
+  # API Security
+  api_security:
+    api_key_required: true
+    jwt_secret: ${JWT_SECRET}
+    token_expiration: 3600  # 1 hour
+    rate_limiting: true
+
+# Monitoring and Observability
+monitoring:
+  enabled: true
+  prometheus_port: 9091
+  metrics_path: /metrics
+  collection_interval: 15
+
+  # Health checks
+  health_checks:
+    enabled: true
+    interval: 30
+    timeout: 10
+    endpoints:
+      - database
+      - storage
+      - cache
+      - api
+
+  # Alerting
+  alerting:
+    enabled: true
+    webhook_url: ${ALERT_WEBHOOK_URL}
+    alert_rules:
+      high_error_rate: 0.05
+      high_latency: 5000  # ms
+      low_storage_space: 0.1  # 10% remaining
+
+# Logging Configuration
+logging:
+  level: INFO
+  format: json
+  file: ${LOG_FILE:-/var/log/geo_infer_data/data_service.log}
+  max_file_size: 100MB
+  backup_count: 10
+
+  # Structured logging
+  structured:
+    enabled: true
+    fields:
+      - timestamp
+      - level
+      - service
+      - operation
+      - duration
+      - status
+      - error
+
+# Performance Configuration
+performance:
+  # Caching
+  caching:
+    enabled: true
+    max_memory_usage: 1GB
+    default_ttl: 3600
+    cache_invalidation: true
+
+  # Parallel processing
+  parallel:
+    enabled: true
+    max_workers: 8
+    chunk_size: 10000
+    memory_limit: 4GB
+
+  # Query optimization
+  query:
+    enable_query_cache: true
+    query_timeout: 300
+    max_result_size: 1000000
+
+# Integration Configuration
+integrations:
+  # GEO-INFER module integrations
+  geo_infer_modules:
+    space:
+      enabled: true
+      api_url: ${GEO_INFER_SPACE_URL:-http://localhost:8002}
+      shared_datasets: true
+
+    ai:
+      enabled: true
+      api_url: ${GEO_INFER_AI_URL:-http://localhost:8003}
+      model_training_data: true
+
+    ops:
+      enabled: true
+      orchestration_url: ${GEO_INFER_OPS_URL:-http://localhost:8004}
+      monitoring_integration: true
+
+    sec:
+      enabled: true
+      security_service_url: ${GEO_INFER_SEC_URL:-http://localhost:8005}
+      compliance_monitoring: true
+
+# Backup and Recovery
+backup:
+  enabled: true
+  schedule: "0 2 * * *"  # Daily at 2 AM
+  retention:
+    daily: 30
+    weekly: 12
+    monthly: 12
+    yearly: 7
+
+  # Recovery configuration
+  recovery:
+    point_in_time_recovery: true
+    recovery_window: 7  # days
+    automated_failover: true
+
+# Development and Testing
+development:
+  debug_mode: false
+  auto_reload: false
+  test_data_generation: false
+
+  # Feature flags
+  features:
+    experimental_storage_backends: false
+    advanced_validation_rules: true
+    real_time_processing: true
+    machine_learning_integration: false
+
+# Environment-specific settings
+environment: production
+version: 1.0.0
+last_updated: 2025-01-19
