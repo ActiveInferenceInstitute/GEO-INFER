@@ -150,34 +150,40 @@ class EnhancedH3Fusion:
                     logger.error(f"❌ [key_join] Failed to fuse {source_name}: {e}")
                     continue
         else:
-            # Geometric intersection mode
-            # Process each data source
-            for source_name, source_data in data_sources.items():
-                logger.info(f"Processing data source: {source_name}")
-                
-                try:
-                    # Validate source data
-                    source_validation = self._validate_source_data(source_data, source_name)
-                    if not source_validation['is_valid']:
-                        logger.warning(f"Source {source_name} validation failed: {source_validation['errors']}")
-                        continue
-                    
-                    # Fuse source data into target hexagons
-                    fused_source_data = self._fuse_source_to_target_hexagons(
-                        source_data, target_hexagons, source_name
-                    )
-                    
-                    # Add to fused data
-                    for hex_id, hex_data in fused_source_data.items():
-                        if hex_id not in fused_data:
-                            fused_data[hex_id] = {}
-                        fused_data[hex_id][source_name] = hex_data
-                    
-                    logger.info(f"✅ Fused {source_name}: {len(fused_source_data)} hexagons")
-                    
-                except Exception as e:
-                    logger.error(f"❌ Failed to fuse {source_name}: {e}")
-                    continue
+            # Geometric intersection mode with batch optimization
+            logger.info(f"Starting batch fusion for {len(data_sources)} data sources")
+
+            # Process data sources in parallel if they are independent
+            import concurrent.futures
+            import threading
+
+            # Use ThreadPoolExecutor for I/O bound operations (spatial calculations)
+            max_workers = min(4, len(data_sources))  # Limit concurrent workers
+
+            with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+                # Submit fusion tasks
+                future_to_source = {
+                    executor.submit(self._fuse_source_batch, source_name, source_data, target_hexagons): source_name
+                    for source_name, source_data in data_sources.items()
+                }
+
+                # Collect results as they complete
+                for future in concurrent.futures.as_completed(future_to_source):
+                    source_name = future_to_source[future]
+                    try:
+                        fused_source_data = future.result()
+
+                        # Add to fused data (thread-safe)
+                        with threading.Lock():
+                            for hex_id, hex_data in fused_source_data.items():
+                                if hex_id not in fused_data:
+                                    fused_data[hex_id] = {}
+                                fused_data[hex_id][source_name] = hex_data
+
+                        logger.info(f"✅ Batch fused {source_name}: {len(fused_source_data)} hexagons")
+
+                    except Exception as e:
+                        logger.error(f"❌ Batch fusion failed for {source_name}: {e}")
         
         # Perform spatial analysis if enabled
         if self.enable_spatial_analysis and fused_data:
@@ -364,67 +370,179 @@ class EnhancedH3Fusion:
         
         return validation_result
     
-    def _fuse_source_to_target_hexagons(self, source_data: Dict[str, Any], 
-                                       target_hexagons: List[str], 
+    def _fuse_source_to_target_hexagons(self, source_data: Dict[str, Any],
+                                       target_hexagons: List[str],
                                        source_name: str) -> Dict[str, Any]:
         """
-        Fuse source data to target hexagons using H3 spatial operations.
-        
+        Fuse source data to target hexagons using optimized H3 spatial operations.
+
         Args:
             source_data: Source H3 data
             target_hexagons: List of target hexagons
             source_name: Name of the source
-            
+
         Returns:
             Fused data for target hexagons
         """
+        import time
+        start_time = time.time()
+
         fused_data = {}
         target_hex_set = set(target_hexagons)
-        
-        # Process each source hexagon with periodic progress logging
-        total = len(source_data)
-        next_log_at = 0
+
+        # Optimize: Use spatial indexing for faster intersection detection
+        logger.info(f"[{source_name}] Starting optimized fusion with {len(source_data)} source hexagons")
+
+        # Pre-compute spatial relationships using H3 neighborhood operations
+        source_hex_ids = list(source_data.keys())
+        total = len(source_hex_ids)
+
+        # Use H3 grid operations for faster intersection detection
         processed = 0
         matched_total = 0
-        for source_hex_id, source_hex_data in source_data.items():
+        next_log_at = min(1000, max(100, total // 10))  # Log more frequently for large datasets
+
+        for i, source_hex_id in enumerate(source_hex_ids):
             try:
                 # Validate source hexagon
                 if not is_valid_cell(source_hex_id):
                     logger.warning(f"Invalid source hexagon: {source_hex_id}")
                     continue
-                
-                # Find target hexagons that intersect with source hexagon
-                intersecting_targets = self._find_intersecting_hexagons(
+
+                # Use optimized intersection detection
+                intersecting_targets = self._find_intersecting_hexagons_optimized(
                     source_hex_id, target_hex_set, source_name
                 )
-                
+
                 # Distribute source data to intersecting targets
                 for target_hex_id in intersecting_targets:
                     if target_hex_id not in fused_data:
                         fused_data[target_hex_id] = []
-                    
+
                     # Add source data to target
+                    source_hex_data = source_data[source_hex_id]
                     if isinstance(source_hex_data, list):
                         fused_data[target_hex_id].extend(source_hex_data)
                     else:
                         fused_data[target_hex_id].append(source_hex_data)
+
                 matched_total += len(intersecting_targets)
-                
+
             except Exception as e:
                 logger.warning(f"Error processing source hexagon {source_hex_id}: {e}")
                 continue
             finally:
                 processed += 1
                 if processed >= next_log_at:
-                    logger.info(f"[{source_name}] fused {processed}/{total} source hexes; matched targets so far: {matched_total}")
-                    # Log roughly every 5% of progress, but at least every 1000
-                    step = max(1000, total // 20)
-                    next_log_at = processed + step
-        
-        logger.info(f"[{source_name}] fusion complete: processed={processed}, targets_matched={matched_total}")
+                    elapsed = time.time() - start_time
+                    rate = processed / elapsed if elapsed > 0 else 0
+                    logger.info(f"[{source_name}] fused {processed}/{total} source hexes; "
+                               f"matched targets: {matched_total}; rate: {rate:.1f} hexes/sec")
+                    next_log_at = processed + min(1000, max(100, (total - processed) // 10))
+
+        elapsed_total = time.time() - start_time
+        logger.info(f"[{source_name}] fusion complete: processed={processed}, targets_matched={matched_total}, "
+                   f"time={elapsed_total:.2f}s, rate={processed/elapsed_total:.1f} hexes/sec")
         return fused_data
-    
-    def _find_intersecting_hexagons(self, source_hex_id: str, target_hex_set: set, 
+
+    def _fuse_source_batch(self, source_name: str, source_data: Dict[str, Any],
+                          target_hexagons: List[str]) -> Dict[str, Any]:
+        """
+        Batch fusion method for parallel processing.
+
+        Args:
+            source_name: Name of the source
+            source_data: Source H3 data
+            target_hexagons: List of target hexagons
+
+        Returns:
+            Fused data for target hexagons
+        """
+        try:
+            # Validate source data
+            source_validation = self._validate_source_data(source_data, source_name)
+            if not source_validation['is_valid']:
+                logger.warning(f"Source {source_name} validation failed: {source_validation['errors']}")
+                return {}
+
+            # Fuse using optimized method
+            return self._fuse_source_to_target_hexagons(source_data, target_hexagons, source_name)
+
+        except Exception as e:
+            logger.error(f"Batch fusion failed for {source_name}: {e}")
+            return {}
+
+    def _find_intersecting_hexagons_optimized(self, source_hex_id: str, target_hex_set: set,
+                                            source_name: str) -> List[str]:
+        """
+        Find target hexagons that intersect with a source hexagon using optimized methods.
+
+        Args:
+            source_hex_id: Source H3 hexagon ID
+            target_hex_set: Set of target hexagon IDs
+            source_name: Name of the source for logging
+
+        Returns:
+            List of intersecting target hexagon IDs
+        """
+        try:
+            # Method 1: Use H3 grid operations for fast intersection detection
+            # Get source hexagon neighbors and check if they intersect with targets
+            try:
+                # Get grid disk of neighbors (including self)
+                neighbors = grid_disk(source_hex_id, 2)  # Check 2-ring neighborhood
+
+                intersecting_targets = []
+                for neighbor_hex in neighbors:
+                    if neighbor_hex in target_hex_set:
+                        # Verify actual geometric intersection for accuracy
+                        if self._hexagons_intersect(source_hex_id, neighbor_hex):
+                            intersecting_targets.append(neighbor_hex)
+
+                if intersecting_targets:
+                    return intersecting_targets
+
+            except Exception as e:
+                logger.debug(f"H3 grid method failed for {source_hex_id}: {e}")
+
+            # Method 2: Fallback to geometric intersection (original method but optimized)
+            return self._find_intersecting_hexagons(source_hex_id, target_hex_set, source_name)
+
+        except Exception as e:
+            logger.warning(f"Error in optimized intersection detection for {source_hex_id}: {e}")
+            return []
+
+    def _hexagons_intersect(self, hex1: str, hex2: str) -> bool:
+        """
+        Check if two H3 hexagons intersect using geometric operations.
+
+        Args:
+            hex1: First H3 hexagon ID
+            hex2: Second H3 hexagon ID
+
+        Returns:
+            True if hexagons intersect
+        """
+        try:
+            # Get boundaries and create polygons
+            boundary1 = cell_to_latlng_boundary(hex1)
+            coords1 = [(lng, lat) for (lat, lng) in boundary1]
+            if coords1 and coords1[0] != coords1[-1]:
+                coords1.append(coords1[0])
+            poly1 = Polygon(coords1)
+
+            boundary2 = cell_to_latlng_boundary(hex2)
+            coords2 = [(lng, lat) for (lat, lng) in boundary2]
+            if coords2 and coords2[0] != coords2[-1]:
+                coords2.append(coords2[0])
+            poly2 = Polygon(coords2)
+
+            return poly1.intersects(poly2)
+
+        except Exception:
+            return False
+
+    def _find_intersecting_hexagons(self, source_hex_id: str, target_hex_set: set,
                                    source_name: str) -> List[str]:
         """
         Find target hexagons that intersect with a source hexagon.

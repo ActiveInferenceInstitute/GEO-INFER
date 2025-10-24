@@ -24,6 +24,7 @@ import yaml
 import time
 import psutil
 import os
+import sys
 
 # Import enhanced logging
 from .enhanced_logging import (
@@ -114,7 +115,290 @@ class EnhancedDataManager:
         
         logger.info(f"Enhanced Data Manager initialized with H3 resolution {h3_resolution}")
         logger.info(f"SPACE H3 utilities available: {SPACE_H3_AVAILABLE}")
-    
+
+    def get_data_quality_report(self, module_name: str) -> Dict[str, Any]:
+        """
+        Generate comprehensive data quality report for a module.
+
+        Args:
+            module_name: Name of the module to analyze
+
+        Returns:
+            Comprehensive quality report
+        """
+        report = {
+            'module': module_name,
+            'timestamp': datetime.now().isoformat(),
+            'h3_resolution': self.h3_resolution,
+            'data_sources': {},
+            'quality_metrics': {},
+            'recommendations': []
+        }
+
+        try:
+            data_paths = self.get_data_structure(module_name)
+
+            # Check each data source
+            for source_type, path_key in [('empirical', 'empirical_data'), ('synthetic', 'synthetic_data'), ('raw', 'raw_data')]:
+                path = data_paths[path_key]
+                if path.exists():
+                    try:
+                        gdf = gpd.read_file(path)
+                        validation = self._validate_geodataframe(gdf, module_name)
+                        is_empirical = self._is_empirical_data(gdf, module_name)
+
+                        report['data_sources'][source_type] = {
+                            'exists': True,
+                            'file_path': str(path),
+                            'file_size_mb': path.stat().st_size / 1024 / 1024,
+                            'feature_count': len(gdf),
+                            'is_empirical': is_empirical,
+                            'validation': validation
+                        }
+
+                        # Add quality metrics
+                        report['quality_metrics'][source_type] = {
+                            'quality_score': validation['quality_score'],
+                            'completeness': validation['data_quality_metrics'].get('completeness_score', 0),
+                            'validity': validation['data_quality_metrics'].get('validity_score', 0),
+                            'consistency': validation['data_quality_metrics'].get('consistency_score', 0)
+                        }
+
+                    except Exception as e:
+                        report['data_sources'][source_type] = {
+                            'exists': True,
+                            'file_path': str(path),
+                            'error': str(e),
+                            'is_empirical': False
+                        }
+
+                else:
+                    report['data_sources'][source_type] = {
+                        'exists': False,
+                        'file_path': str(path),
+                        'is_empirical': False
+                    }
+
+            # Check cache
+            cache_path = data_paths['h3_cache']
+            if cache_path.exists():
+                try:
+                    with open(cache_path, 'r') as f:
+                        cache_data = json.load(f)
+                    report['data_sources']['h3_cache'] = {
+                        'exists': True,
+                        'file_path': str(cache_path),
+                        'hexagon_count': len(cache_data.get('hexagons', {})),
+                        'file_size_mb': cache_path.stat().st_size / 1024 / 1024
+                    }
+                except Exception as e:
+                    report['data_sources']['h3_cache'] = {
+                        'exists': True,
+                        'file_path': str(cache_path),
+                        'error': str(e)
+                    }
+            else:
+                report['data_sources']['h3_cache'] = {
+                    'exists': False,
+                    'file_path': str(cache_path)
+                }
+
+            # Generate recommendations
+            empirical_sources = [k for k, v in report['data_sources'].items() if v.get('is_empirical', False)]
+            if len(empirical_sources) == 0:
+                report['recommendations'].append("No empirical data sources found - consider acquiring real data")
+            elif len(empirical_sources) > 1:
+                report['recommendations'].append(f"Multiple empirical sources available: {empirical_sources}")
+
+            # Check cache status
+            if not report['data_sources'].get('h3_cache', {}).get('exists', False):
+                report['recommendations'].append("No H3 cache found - data processing may be slower")
+
+            # Quality score analysis
+            quality_scores = [v['quality_score'] for v in report['quality_metrics'].values() if 'quality_score' in v]
+            if quality_scores:
+                avg_quality = sum(quality_scores) / len(quality_scores)
+                if avg_quality < 0.7:
+                    report['recommendations'].append(f"Low average data quality ({avg_quality:.2f}) - review data sources")
+                elif avg_quality > 0.9:
+                    report['recommendations'].append(f"High data quality ({avg_quality:.2f}) - excellent data sources")
+
+        except Exception as e:
+            logger.error(f"Error generating data quality report for {module_name}: {e}")
+            report['error'] = str(e)
+
+        return report
+
+    def benchmark_performance(self, module_name: str) -> Dict[str, Any]:
+        """
+        Benchmark performance for a module's data processing operations.
+
+        Args:
+            module_name: Name of the module to benchmark
+
+        Returns:
+            Performance benchmark results
+        """
+        import time
+        import psutil
+        import gc
+
+        benchmark_results = {
+            'module': module_name,
+            'timestamp': datetime.now().isoformat(),
+            'system_info': self._get_system_info(),
+            'benchmarks': {},
+            'recommendations': []
+        }
+
+        try:
+            # Benchmark data loading
+            data_paths = self.get_data_structure(module_name)
+
+            for data_type, path_key in [('empirical', 'empirical_data'), ('synthetic', 'synthetic_data'), ('raw', 'raw_data')]:
+                path = data_paths[path_key]
+                if path.exists():
+                    try:
+                        start_time = time.time()
+                        start_memory = psutil.Process().memory_info().rss / 1024 / 1024
+
+                        # Load data
+                        gdf = gpd.read_file(path)
+
+                        end_time = time.time()
+                        end_memory = psutil.Process().memory_info().rss / 1024 / 1024
+
+                        load_time = end_time - start_time
+                        memory_increase = end_memory - start_memory
+
+                        benchmark_results['benchmarks'][f'{data_type}_loading'] = {
+                            'load_time_seconds': load_time,
+                            'memory_increase_mb': memory_increase,
+                            'file_size_mb': path.stat().st_size / 1024 / 1024,
+                            'feature_count': len(gdf),
+                            'performance_score': self._calculate_performance_score(load_time, memory_increase, len(gdf))
+                        }
+
+                        # Clean up memory
+                        del gdf
+                        gc.collect()
+
+                    except Exception as e:
+                        benchmark_results['benchmarks'][f'{data_type}_loading'] = {
+                            'error': str(e),
+                            'performance_score': 0
+                        }
+
+            # Benchmark H3 processing if cache exists
+            cache_path = data_paths['h3_cache']
+            if cache_path.exists():
+                try:
+                    start_time = time.time()
+                    start_memory = psutil.Process().memory_info().rss / 1024 / 1024
+
+                    with open(cache_path, 'r') as f:
+                        cache_data = json.load(f)
+
+                    end_time = time.time()
+                    end_memory = psutil.Process().memory_info().rss / 1024 / 1024
+
+                    load_time = end_time - start_time
+                    memory_increase = end_memory - start_memory
+                    hexagon_count = len(cache_data.get('hexagons', {}))
+
+                    benchmark_results['benchmarks']['h3_cache_loading'] = {
+                        'load_time_seconds': load_time,
+                        'memory_increase_mb': memory_increase,
+                        'file_size_mb': cache_path.stat().st_size / 1024 / 1024,
+                        'hexagon_count': hexagon_count,
+                        'performance_score': self._calculate_performance_score(load_time, memory_increase, hexagon_count)
+                    }
+
+                except Exception as e:
+                    benchmark_results['benchmarks']['h3_cache_loading'] = {
+                        'error': str(e),
+                        'performance_score': 0
+                    }
+
+            # Generate recommendations based on benchmarks
+            self._generate_performance_recommendations(benchmark_results)
+
+        except Exception as e:
+            logger.error(f"Error during performance benchmarking for {module_name}: {e}")
+            benchmark_results['error'] = str(e)
+
+        return benchmark_results
+
+    def _get_system_info(self) -> Dict[str, Any]:
+        """Get system information for benchmarking context."""
+        try:
+            return {
+                'cpu_count': psutil.cpu_count(),
+                'memory_total_gb': psutil.virtual_memory().total / 1024 / 1024 / 1024,
+                'memory_available_gb': psutil.virtual_memory().available / 1024 / 1024 / 1024,
+                'python_version': f"{sys.version_info.major}.{sys.version_info.minor}.{sys.version_info.micro}"
+            }
+        except Exception:
+            return {'error': 'Could not retrieve system info'}
+
+    def _calculate_performance_score(self, load_time: float, memory_mb: float, data_size: int) -> float:
+        """
+        Calculate a performance score based on time, memory, and data size.
+
+        Args:
+            load_time: Time to load data in seconds
+            memory_mb: Memory increase in MB
+            data_size: Size of data (features or hexagons)
+
+        Returns:
+            Performance score (0-1, higher is better)
+        """
+        # Score based on time (faster is better)
+        time_score = max(0, 1.0 - (load_time / 10.0))  # Assume 10 seconds is poor performance
+
+        # Score based on memory efficiency (lower memory increase is better)
+        memory_score = max(0, 1.0 - (memory_mb / 1000.0))  # Assume 1GB increase is poor
+
+        # Score based on data throughput (more data per second is better)
+        throughput_score = min(1.0, data_size / load_time / 1000.0) if load_time > 0 else 1.0
+
+        # Weighted average
+        return (time_score * 0.4 + memory_score * 0.3 + throughput_score * 0.3)
+
+    def _generate_performance_recommendations(self, benchmark_results: Dict[str, Any]):
+        """Generate performance optimization recommendations."""
+        recommendations = []
+
+        system_info = benchmark_results['system_info']
+        benchmarks = benchmark_results['benchmarks']
+
+        # Memory recommendations
+        memory_available_gb = system_info.get('memory_available_gb', 0)
+        if memory_available_gb < 2:
+            recommendations.append("Low available memory detected - consider increasing system RAM or reducing batch sizes")
+        elif memory_available_gb > 16:
+            recommendations.append("High memory available - consider increasing parallel workers for better performance")
+
+        # Performance score analysis
+        for benchmark_name, results in benchmarks.items():
+            if 'performance_score' in results:
+                score = results['performance_score']
+                if score < 0.3:
+                    recommendations.append(f"Poor performance in {benchmark_name} (score: {score:.2f}) - consider optimization")
+                elif score > 0.8:
+                    recommendations.append(f"Excellent performance in {benchmark_name} (score: {score:.2f})")
+
+        # Data size recommendations
+        for benchmark_name, results in benchmarks.items():
+            if 'file_size_mb' in results:
+                size_mb = results['file_size_mb']
+                if size_mb > 100:
+                    recommendations.append(f"Large {benchmark_name} file ({size_mb:.1f} MB) - consider data compression or chunked processing")
+                elif size_mb < 1:
+                    recommendations.append(f"Small {benchmark_name} file ({size_mb:.1f} MB) - consider batching multiple operations")
+
+        benchmark_results['recommendations'] = recommendations
+
     def get_data_structure(self, module_name: str) -> Dict[str, Path]:
         """
         Get the standardized data structure for a module.
@@ -386,11 +670,11 @@ class EnhancedDataManager:
     def _validate_geodataframe(self, gdf: gpd.GeoDataFrame, module_name: str) -> Dict[str, Any]:
         """
         Validate a GeoDataFrame for quality and consistency.
-        
+
         Args:
             gdf: GeoDataFrame to validate
             module_name: Name of the module for context
-            
+
         Returns:
             Validation result dictionary
         """
@@ -400,86 +684,239 @@ class EnhancedDataManager:
             'warnings': [],
             'quality_score': 0.0,
             'feature_count': len(gdf),
-            'geometry_types': gdf.geometry.geom_type.unique().tolist(),
-            'crs': str(gdf.crs) if gdf.crs else 'None'
+            'geometry_types': gdf.geometry.geom_type.unique().tolist() if not gdf.empty else [],
+            'crs': str(gdf.crs) if gdf.crs else 'None',
+            'attribute_summary': {},
+            'spatial_summary': {},
+            'data_quality_metrics': {}
         }
-        
-        # Check file size
+
+        # Basic validation checks
         if len(gdf) == 0:
             validation_result['is_valid'] = False
             validation_result['errors'].append("Empty dataset")
-        
-        # Check geometry types
+            return validation_result
+
+        # Geometry validation
         valid_geometry_types = set(self.validation_settings['required_geometry_types'])
         actual_geometry_types = set(gdf.geometry.geom_type.unique())
         if not actual_geometry_types.intersection(valid_geometry_types):
             validation_result['is_valid'] = False
             validation_result['errors'].append(f"Invalid geometry types: {actual_geometry_types}")
-        
-        # Check CRS
-        if gdf.crs and 'EPSG:4326' not in str(gdf.crs):
+
+        # CRS validation
+        if not gdf.crs:
+            validation_result['errors'].append("Missing coordinate reference system")
+            validation_result['is_valid'] = False
+        elif 'EPSG:4326' not in str(gdf.crs):
             validation_result['warnings'].append(f"Non-standard CRS: {gdf.crs}")
-        
-        # Check for null geometries
+
+        # Geometry quality checks
         null_geometries = gdf.geometry.isna().sum()
+        invalid_geometries = 0
+
+        try:
+            # Check for invalid geometries
+            invalid_mask = ~gdf.geometry.is_valid
+            invalid_geometries = invalid_mask.sum()
+        except Exception:
+            pass
+
         if null_geometries > 0:
             validation_result['warnings'].append(f"{null_geometries} null geometries found")
-        
-        # Calculate quality score
-        quality_factors = []
+        if invalid_geometries > 0:
+            validation_result['warnings'].append(f"{invalid_geometries} invalid geometries found")
+
+        # Attribute quality analysis
+        attribute_quality = {}
+        for col in gdf.columns:
+            if col != 'geometry':
+                null_count = gdf[col].isna().sum()
+                unique_count = gdf[col].nunique()
+                null_percentage = null_count / len(gdf)
+
+                attribute_quality[col] = {
+                    'null_count': int(null_count),
+                    'null_percentage': float(null_percentage),
+                    'unique_count': int(unique_count),
+                    'data_type': str(gdf[col].dtype)
+                }
+
+                # Flag quality issues
+                if null_percentage > 0.8:
+                    validation_result['warnings'].append(f"Column '{col}' has {null_percentage:.1%} missing values")
+                if unique_count == 1:
+                    validation_result['warnings'].append(f"Column '{col}' has only one unique value")
+
+        validation_result['attribute_summary'] = attribute_quality
+
+        # Spatial quality analysis
+        if not gdf.empty:
+            bounds = gdf.total_bounds
+            spatial_summary = {
+                'bounds': bounds.tolist() if bounds is not None else None,
+                'total_area': float(gdf.geometry.area.sum()) if gdf.geometry.area.sum() > 0 else 0,
+                'mean_area': float(gdf.geometry.area.mean()) if gdf.geometry.area.mean() > 0 else 0,
+                'null_geometries': int(null_geometries),
+                'invalid_geometries': int(invalid_geometries),
+                'geometry_type_distribution': gdf.geometry.geom_type.value_counts().to_dict()
+            }
+            validation_result['spatial_summary'] = spatial_summary
+
+            # Check for unrealistic coordinates (outside reasonable bounds)
+            if bounds is not None:
+                if not (-180 <= bounds[0] <= 180) or not (-180 <= bounds[2] <= 180):
+                    validation_result['warnings'].append("Longitude values outside valid range")
+                if not (-90 <= bounds[1] <= 90) or not (-90 <= bounds[3] <= 90):
+                    validation_result['warnings'].append("Latitude values outside valid range")
+
+        # Data quality metrics
+        quality_metrics = {
+            'completeness_score': 1.0 - (null_geometries / len(gdf)) if len(gdf) > 0 else 0,
+            'validity_score': 1.0 - (invalid_geometries / len(gdf)) if len(gdf) > 0 else 0,
+            'consistency_score': 1.0,
+            'accuracy_score': 0.9  # Default assumption, could be improved with ground truth
+        }
+
+        # Check for duplicate geometries
+        try:
+            duplicate_geoms = gdf.geometry.duplicated().sum()
+            if duplicate_geoms > 0:
+                validation_result['warnings'].append(f"{duplicate_geoms} duplicate geometries found")
+                quality_metrics['consistency_score'] = 1.0 - (duplicate_geoms / len(gdf))
+        except Exception:
+            pass
+
+        validation_result['data_quality_metrics'] = quality_metrics
+
+        # Calculate comprehensive quality score
+        quality_factors = [
+            quality_metrics['completeness_score'],
+            quality_metrics['validity_score'],
+            quality_metrics['consistency_score'],
+            quality_metrics['accuracy_score']
+        ]
+
+        # Additional quality factors
         if len(gdf) > 0:
             quality_factors.append(1.0)  # Has data
         if actual_geometry_types.intersection(valid_geometry_types):
             quality_factors.append(1.0)  # Valid geometry types
         if gdf.crs:
-            quality_factors.append(0.8)  # Has CRS
-        if null_geometries == 0:
-            quality_factors.append(1.0)  # No null geometries
-        
+            quality_factors.append(0.9)  # Has CRS
+
         validation_result['quality_score'] = sum(quality_factors) / len(quality_factors) if quality_factors else 0.0
-        
+
+        # Overall validity determination
+        validation_result['is_valid'] = (
+            len(validation_result['errors']) == 0 and
+            validation_result['quality_score'] >= self.validation_settings['data_quality_threshold']
+        )
+
         return validation_result
     
     def _is_empirical_data(self, gdf: gpd.GeoDataFrame, module_name: str) -> bool:
         """
         Determine if data is empirical or synthetic based on content analysis.
-        
+
         Args:
             gdf: GeoDataFrame to analyze
             module_name: Name of the module for context
-            
+
         Returns:
             True if data appears to be empirical
         """
+        if gdf.empty:
+            return False
+
         # Check for empirical indicators
         empirical_indicators = 0
         total_checks = 0
-        
-        # Check for realistic coordinate ranges (Del Norte County area)
-        if len(gdf) > 0:
-            total_checks += 1
-            bounds = gdf.total_bounds
-            if bounds is not None:
-                # Del Norte County bounds: ~[-124.5, 41.4, -123.5, 42.0]
-                if (-125 < bounds[0] < -123 and -125 < bounds[2] < -123 and
-                    41 < bounds[1] < 43 and 41 < bounds[3] < 43):
-                    empirical_indicators += 1
-        
-        # Check for realistic attribute values
-        if len(gdf) > 0:
-            total_checks += 1
-            # Check for common agricultural attributes
-            common_ag_attributes = ['acres', 'crop_type', 'zone_type', 'owner_name', 'parcel_id']
-            found_attributes = [col for col in gdf.columns if any(attr in col.lower() for attr in common_ag_attributes)]
-            if len(found_attributes) > 0:
-                empirical_indicators += 1
-        
-        # Check for realistic feature count
+
+        # 1. Check for realistic coordinate ranges (Del Norte County area)
         total_checks += 1
-        if 1 <= len(gdf) <= 10000:  # Reasonable range for agricultural data
+        bounds = gdf.total_bounds
+        if bounds is not None:
+            # Del Norte County bounds: ~[-124.5, 41.4, -123.5, 42.0]
+            # Check if data falls within broader California/Oregon area
+            if (-130 < bounds[0] < -115 and -130 < bounds[2] < -115 and
+                35 < bounds[1] < 50 and 35 < bounds[3] < 50):
+                empirical_indicators += 1
+
+        # 2. Check for realistic attribute values and patterns
+        total_checks += 1
+        empirical_score = 0
+
+        # Check for common agricultural attributes with realistic values
+        common_attributes = {
+            'acres': lambda x: 0.1 <= float(x) <= 10000,
+            'area': lambda x: 0.0001 <= float(x) <= 1000,
+            'value': lambda x: 1000 <= float(x) <= 10000000,
+            'year': lambda x: 1900 <= int(x) <= 2030,
+            'parcel_id': lambda x: len(str(x)) >= 5,
+            'owner_name': lambda x: len(str(x)) >= 3 and not str(x).lower().startswith(('test', 'synthetic', 'dummy'))
+        }
+
+        for col in gdf.columns:
+            col_lower = col.lower()
+            for attr, validator in common_attributes.items():
+                if attr in col_lower or col_lower in attr:
+                    try:
+                        # Sample first few non-null values
+                        sample_values = gdf[col].dropna().head(5)
+                        valid_count = 0
+                        for val in sample_values:
+                            if validator(val):
+                                valid_count += 1
+                        if valid_count >= 3:  # At least 3 out of 5 values should be realistic
+                            empirical_score += 0.5
+                            break
+                    except (ValueError, TypeError):
+                        continue
+
+        if empirical_score >= 0.5:
             empirical_indicators += 1
-        
-        return empirical_indicators / total_checks >= 0.5 if total_checks > 0 else False
+
+        # 3. Check for source attribution (real data usually has source info)
+        total_checks += 1
+        source_indicators = ['source', 'data_year', 'agency', 'county', 'state', 'fips']
+        source_cols = [col for col in gdf.columns if any(indicator in col.lower() for indicator in source_indicators)]
+        if len(source_cols) > 0:
+            empirical_indicators += 1
+
+        # 4. Check for realistic feature count
+        total_checks += 1
+        if 5 <= len(gdf) <= 50000:  # Reasonable range for agricultural data
+            empirical_indicators += 1
+
+        # 5. Check for data quality indicators (real data often has some missing values but not too many)
+        total_checks += 1
+        null_percentages = gdf.isnull().sum() / len(gdf)
+        if (null_percentages < 0.8).all():  # Less than 80% missing data
+            empirical_indicators += 1
+
+        # 6. Check for synthetic indicators (negative scoring)
+        synthetic_indicators = ['synthetic', 'test', 'dummy', 'fake', 'generated', 'sample']
+        synthetic_score = 0
+        for col in gdf.columns:
+            if any(indicator in col.lower() for indicator in synthetic_indicators):
+                synthetic_score += 1
+        for indicator in synthetic_indicators:
+            if any(indicator in str(val).lower() for val in gdf.values.flatten() if val is not None):
+                synthetic_score += 0.5
+
+        if synthetic_score == 0:
+            empirical_indicators += 1
+            total_checks += 1
+
+        # Calculate final score
+        final_score = empirical_indicators / total_checks if total_checks > 0 else 0
+
+        # Log the analysis for debugging
+        logger.debug(f"[{module_name}] Empirical data analysis: {empirical_indicators}/{total_checks} indicators "
+                    f"(score: {final_score:.2f})")
+
+        return final_score >= 0.6  # Require 60% of indicators to be positive
     
     def _create_synthetic_data(self, module_name: str, data_paths: Dict[str, Path]) -> Path:
         """

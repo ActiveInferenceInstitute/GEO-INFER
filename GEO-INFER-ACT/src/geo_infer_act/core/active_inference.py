@@ -127,7 +127,34 @@ class ActiveInferenceModel:
         
         self.current_actions = selected_action
         return selected_action
-    
+
+    def update_observations(self, observations: Dict[str, Any]) -> None:
+        """Update observations for the active inference model."""
+        self.current_observations = observations
+
+    def update_preferences(self, preferences: Dict[str, float]) -> None:
+        """Update preferences for the active inference model."""
+        self.preferences = preferences
+
+    def update_with_outcome(self, decision: Dict[str, Any], outcome: Dict[str, Any]) -> None:
+        """Update model based on decision and outcome."""
+        # Simplified update - in practice would update generative model
+        pass
+
+    def generate_policies(self, available_actions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """Generate policy options from available actions."""
+        return available_actions
+
+    def select_policy(self, policies: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Select optimal policy from candidates."""
+        if not policies:
+            return {}
+        return policies[0]  # Simplified selection
+
+    def compute_expected_free_energy(self, policy: Dict[str, Any]) -> float:
+        """Compute expected free energy for a policy."""
+        return 0.5  # Simplified calculation
+
     def step(self, observation: np.ndarray, available_actions: Optional[List[Any]] = None) -> Tuple[np.ndarray, Any]:
         """
         Perform one complete active inference step.

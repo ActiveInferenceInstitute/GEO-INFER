@@ -9,6 +9,42 @@
       "update_frequency": "Quarterly",
       "fields_of_interest": ["OWNER_NAME", "PARCEL_SIZE", "LAND_USE", "ASSESSED_VALUE"]
     },
+    "del_norte_parcels": {
+      "name": "Del Norte County Parcel Data",
+      "url": "https://services.countyofdelnorte.us/arcgis/rest/services/Parcels/MapServer/0",
+      "type": "arcgis",
+      "description": "Del Norte County official parcel data",
+      "coverage": "Del Norte County, CA",
+      "update_frequency": "Monthly",
+      "fields_of_interest": ["OWNER_NAME", "ACRES", "LAND_USE", "IMPROVEMENT_VALUE", "LAND_VALUE"]
+    },
+    "del_norte_zoning": {
+      "name": "Del Norte County Zoning Data",
+      "url": "https://services.countyofdelnorte.us/arcgis/rest/services/Zoning/MapServer/0",
+      "type": "arcgis",
+      "description": "Del Norte County official zoning designations",
+      "coverage": "Del Norte County, CA",
+      "update_frequency": "Monthly",
+      "fields_of_interest": ["ZONE_CODE", "ZONE_DESC", "ACRES", "GENERAL_PLAN"]
+    },
+    "ca_fmmp": {
+      "name": "California Farmland Mapping and Monitoring Program",
+      "url": "https://gis.conservation.ca.gov/server/rest/services/DLRP/Farmland_Mapping_and_Monitoring_Program/FeatureServer/0",
+      "type": "arcgis",
+      "description": "Official California farmland classification data",
+      "coverage": "California",
+      "update_frequency": "Annual",
+      "fields_of_interest": ["CI_CLASSNM", "ACRES", "COUNTY"]
+    },
+    "usda_cdl": {
+      "name": "USDA Cropland Data Layer",
+      "url": "https://nassgeodata.gmu.edu/axis2/services/CDLService/GetCDLFile",
+      "type": "wms",
+      "description": "30-meter cropland classification data",
+      "coverage": "United States",
+      "update_frequency": "Annual",
+      "fields_of_interest": ["CLASS_NAME", "ACRES", "VALUE"]
+    },
     "or_parcels": {
       "name": "Oregon Parcel Data (ORMAP)",
       "url": "https://gis.oregon.gov/arcgis/rest/services/ORMAP/ORMAP_Parcels/MapServer/0",

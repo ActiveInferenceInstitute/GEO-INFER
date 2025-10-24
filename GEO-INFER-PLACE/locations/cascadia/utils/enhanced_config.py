@@ -305,42 +305,214 @@ class EnhancedConfigManager:
     
     def validate_configuration(self) -> Dict[str, Any]:
         """
-        Validate configuration and return validation results.
-        
+        Validate configuration and return comprehensive validation results.
+
         Returns:
-            Dictionary with validation results
+            Dictionary with validation results including detailed error analysis
         """
         validation_results = {
             'valid': True,
             'errors': [],
-            'warnings': []
+            'warnings': [],
+            'validation_details': {},
+            'recommendations': []
         }
-        
+
         # Validate H3 resolution
-        if not (0 <= self.config.analysis.h3_resolution <= 15):
-            validation_results['errors'].append("H3 resolution must be between 0 and 15")
+        h3_res = self.config.analysis.h3_resolution
+        if not isinstance(h3_res, int) or not (0 <= h3_res <= 15):
+            validation_results['errors'].append(f"H3 resolution must be an integer between 0 and 15, got {h3_res}")
             validation_results['valid'] = False
-        
-        # Validate target counties
-        if not self.config.analysis.target_counties:
-            validation_results['warnings'].append("No target counties specified")
-        
+        else:
+            # Provide resolution guidance
+            if h3_res < 6:
+                validation_results['recommendations'].append(f"Low H3 resolution ({h3_res}) may result in very large hexagons")
+            elif h3_res > 12:
+                validation_results['recommendations'].append(f"High H3 resolution ({h3_res}) may result in very small hexagons and slow processing")
+
+        validation_results['validation_details']['h3_resolution'] = {
+            'value': h3_res,
+            'valid': 0 <= h3_res <= 15,
+            'area_km2': self._get_h3_resolution_area(h3_res)
+        }
+
+        # Validate target counties format
+        target_counties = self.config.analysis.target_counties
+        if not target_counties:
+            validation_results['warnings'].append("No target counties specified - will use default Del Norte County")
+            validation_results['recommendations'].append("Specify target counties in format 'STATE:County' (e.g., 'CA:Del Norte')")
+        else:
+            # Validate county format
+            valid_counties = []
+            invalid_counties = []
+            for county in target_counties:
+                if ':' in county:
+                    parts = county.split(':', 1)
+                    if len(parts) == 2 and len(parts[0]) == 2 and len(parts[1].strip()) > 0:
+                        valid_counties.append(county)
+                    else:
+                        invalid_counties.append(county)
+                else:
+                    invalid_counties.append(county)
+
+            if invalid_counties:
+                validation_results['errors'].append(f"Invalid county format: {invalid_counties}. Use 'STATE:County' format")
+                validation_results['valid'] = False
+
+            validation_results['validation_details']['target_counties'] = {
+                'specified': len(target_counties),
+                'valid': len(valid_counties),
+                'invalid': invalid_counties
+            }
+
         # Validate active modules
-        if not self.config.analysis.active_modules:
+        active_modules = self.config.analysis.active_modules
+        if not active_modules:
             validation_results['errors'].append("No active modules specified")
             validation_results['valid'] = False
-        
+        else:
+            # Validate module names
+            valid_modules = ['zoning', 'current_use', 'ownership', 'improvements',
+                           'water_rights', 'ground_water', 'surface_water', 'power_source', 'mortgage_debt']
+            invalid_modules = [m for m in active_modules if m not in valid_modules]
+
+            if invalid_modules:
+                validation_results['errors'].append(f"Invalid modules: {invalid_modules}. Valid modules: {valid_modules}")
+                validation_results['valid'] = False
+
+            validation_results['validation_details']['active_modules'] = {
+                'specified': len(active_modules),
+                'valid': len(active_modules) - len(invalid_modules),
+                'invalid': invalid_modules,
+                'available_modules': valid_modules
+            }
+
         # Validate output directory
         output_dir = Path(self.config.data.output_dir)
-        if not output_dir.parent.exists():
-            validation_results['warnings'].append(f"Output directory parent does not exist: {output_dir.parent}")
-        
-        # Validate data quality threshold
-        if not (0.0 <= self.config.data.data_quality_threshold <= 1.0):
-            validation_results['errors'].append("Data quality threshold must be between 0.0 and 1.0")
+        parent_exists = output_dir.parent.exists()
+        can_create = True
+
+        try:
+            # Test if we can create the directory
+            output_dir.mkdir(parents=True, exist_ok=True)
+            # Clean up test directory if created
+            if not output_dir.exists():
+                output_dir.rmdir()
+        except PermissionError:
+            validation_results['errors'].append(f"Cannot create output directory: {output_dir} (permission denied)")
             validation_results['valid'] = False
-        
+            can_create = False
+        except Exception as e:
+            validation_results['warnings'].append(f"Cannot create output directory: {output_dir} ({e})")
+            can_create = False
+
+        validation_results['validation_details']['output_directory'] = {
+            'path': str(output_dir),
+            'parent_exists': parent_exists,
+            'can_create': can_create,
+            'writable': can_create and output_dir.parent.is_dir() if output_dir.parent.exists() else False
+        }
+
+        # Validate data quality threshold
+        quality_threshold = self.config.data.data_quality_threshold
+        if not isinstance(quality_threshold, (int, float)) or not (0.0 <= quality_threshold <= 1.0):
+            validation_results['errors'].append(f"Data quality threshold must be between 0.0 and 1.0, got {quality_threshold}")
+            validation_results['valid'] = False
+        else:
+            if quality_threshold > 0.9:
+                validation_results['recommendations'].append(f"High quality threshold ({quality_threshold}) may reject valid data sources")
+            elif quality_threshold < 0.5:
+                validation_results['recommendations'].append(f"Low quality threshold ({quality_threshold}) may accept low-quality data")
+
+        validation_results['validation_details']['data_quality_threshold'] = {
+            'value': quality_threshold,
+            'valid': 0.0 <= quality_threshold <= 1.0
+        }
+
+        # Validate export format
+        export_format = self.config.data.export_format
+        valid_formats = ['geojson', 'csv', 'json', 'shp', 'gpkg']
+        if export_format not in valid_formats:
+            validation_results['errors'].append(f"Invalid export format: {export_format}. Valid formats: {valid_formats}")
+            validation_results['valid'] = False
+
+        validation_results['validation_details']['export_format'] = {
+            'value': export_format,
+            'valid': export_format in valid_formats,
+            'available_formats': valid_formats
+        }
+
+        # Validate module configurations
+        module_validation = self._validate_module_configurations()
+        validation_results['validation_details']['modules'] = module_validation
+        if not module_validation['all_valid']:
+            validation_results['warnings'].extend(module_validation['warnings'])
+
+        # Check for conflicting settings
+        if self.config.analysis.force_refresh and self.config.analysis.skip_cache:
+            validation_results['warnings'].append("Both force_refresh and skip_cache are enabled - force_refresh takes precedence")
+
+        if self.config.data.cache_enabled and self.config.analysis.skip_cache:
+            validation_results['warnings'].append("Cache is enabled but skip_cache is set - cache will be ignored")
+
+        # Generate final recommendations
+        if validation_results['valid']:
+            validation_results['recommendations'].append("Configuration validation passed - framework ready to run")
+        else:
+            validation_results['recommendations'].append("Configuration has errors that must be fixed before running")
+
         return validation_results
+
+    def _get_h3_resolution_area(self, resolution: int) -> float:
+        """Get approximate area of H3 hexagon at given resolution in km²."""
+        # Approximate areas for H3 resolutions (km²)
+        areas = {
+            0: 4357449, 1: 609298, 2: 85302, 3: 11942, 4: 1672,
+            5: 234, 6: 33, 7: 5, 8: 0.7, 9: 0.1, 10: 0.015,
+            11: 0.002, 12: 0.0003, 13: 0.00005, 14: 0.000007, 15: 0.000001
+        }
+        return areas.get(resolution, 0)
+
+    def _validate_module_configurations(self) -> Dict[str, Any]:
+        """Validate module-specific configurations."""
+        validation = {
+            'all_valid': True,
+            'warnings': [],
+            'details': {}
+        }
+
+        for module_name in ['zoning', 'current_use', 'ownership', 'improvements',
+                           'water_rights', 'ground_water', 'surface_water', 'power_source', 'mortgage_debt']:
+            module_config = getattr(self.config.modules, module_name, None)
+            if module_config is None:
+                continue
+
+            module_valid = True
+            module_warnings = []
+
+            # Check if module is in active modules but not enabled
+            if module_name in self.config.analysis.active_modules:
+                if isinstance(module_config, dict) and not module_config.get('enabled', True):
+                    module_warnings.append(f"Module {module_name} is active but disabled in configuration")
+                    module_valid = False
+
+            # Validate data sources if specified
+            if isinstance(module_config, dict) and 'data_sources' in module_config:
+                data_sources = module_config['data_sources']
+                if not isinstance(data_sources, list):
+                    module_warnings.append(f"Module {module_name} data_sources must be a list")
+                    module_valid = False
+
+            validation['details'][module_name] = {
+                'valid': module_valid,
+                'warnings': module_warnings
+            }
+
+            if not module_valid:
+                validation['all_valid'] = False
+                validation['warnings'].extend(module_warnings)
+
+        return validation
     
     def _merge_configs(self, default_config: CascadiaConfig, updates: Dict[str, Any]) -> CascadiaConfig:
         """Merge default configuration with updates."""

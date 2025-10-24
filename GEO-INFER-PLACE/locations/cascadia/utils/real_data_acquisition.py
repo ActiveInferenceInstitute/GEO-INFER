@@ -342,12 +342,43 @@ class RealDataAcquisition:
             return None
     
     def _download_california_zoning(self) -> Optional[Path]:
-        """Download California state zoning data."""
+        """Download California state zoning data from FMMP."""
         try:
-            # Try to download from California open data portal
+            # Try FMMP data first
+            fmmp_url = "https://gis.conservation.ca.gov/server/rest/services/DLRP/Farmland_Mapping_and_Monitoring_Program/FeatureServer/0/query"
+            params = {
+                'where': 'COUNTY=15',  # Del Norte County FIPS code
+                'outFields': '*',
+                'returnGeometry': 'true',
+                'f': 'geojson',
+                'geometryPrecision': 6
+            }
+
+            response = requests.get(fmmp_url, params=params, timeout=60)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('features'):
+                    # Save the FMMP data
+                    output_path = self.output_dir / "fmmp_zoning_data.geojson"
+                    with open(output_path, 'w') as f:
+                        json.dump(data, f)
+
+                    # Log the acquisition
+                    self.data_logger.log_real_data_acquisition(
+                        source_url=fmmp_url,
+                        file_path=output_path,
+                        data_type="Zoning (FMMP)",
+                        row_count=len(data['features']),
+                        file_size_mb=output_path.stat().st_size / 1024 / 1024,
+                        geometry_types=["Polygon"],
+                        crs="EPSG:4326"
+                    )
+                    return output_path
+
+            # Fallback to state data portal
             url = "https://data.ca.gov/api/3/action/package_show?id=zoning-data"
             response = requests.get(url, timeout=30)
-            
+
             if response.status_code == 200:
                 data = response.json()
                 if 'result' in data and 'resources' in data['result']:
@@ -355,9 +386,9 @@ class RealDataAcquisition:
                         if resource.get('format', '').lower() in ['geojson', 'shp', 'zip']:
                             download_url = resource['url']
                             return self._download_file(download_url, "california_zoning")
-            
+
             return None
-            
+
         except Exception as e:
             logger.error(f"Failed to download California zoning data: {e}")
             return None
@@ -467,25 +498,46 @@ class RealDataAcquisition:
     def _download_usda_cropland_data(self) -> Optional[Path]:
         """Download USDA Cropland Data Layer for California."""
         try:
-            # Try a stable remote ZIP vector via GDAL VSI first (no full download)
-            # Reference: /vsizip/vsicurl mounting
-            # If mounting fails or dataset is raster-only, fall back to direct download/extract.
+            # Try CDL Web Service API first
+            cdl_api_url = "https://nassgeodata.gmu.edu/axis2/services/CDLService/GetCDLFile"
+            params = {
+                'year': '2023',
+                'state': 'CA',  # California
+                'format': 'geotiff'
+            }
+
+            response = requests.get(cdl_api_url, params=params, timeout=60)
+            if response.status_code == 200:
+                # Save the CDL data
+                output_path = self.output_dir / "usda_cdl_2023_ca.tif"
+                with open(output_path, 'wb') as f:
+                    f.write(response.content)
+
+                # Log the acquisition
+                self.data_logger.log_real_data_acquisition(
+                    source_url=cdl_api_url,
+                    file_path=output_path,
+                    data_type="Cropland Data Layer (CDL)",
+                    row_count=0,  # Raster data
+                    file_size_mb=output_path.stat().st_size / 1024 / 1024,
+                    geometry_types=["Raster"],
+                    crs="EPSG:4326"
+                )
+                return output_path
+
+            # Fallback to direct download
             candidate_urls = [
-                # Vector zip with predictable inner shapefile name (demonstration of VSI mount)
-                "https://www2.census.gov/geo/tiger/TIGER2023/PLACE/tl_2023_us_place.zip",
-                # USDA CDL archive (likely raster; may not be directly usable as vector)
+                # California CDL direct download
                 "https://www.nass.usda.gov/Research_and_Science/Cropland/Release/datasets/2023_30m_cdls.zip",
+                # National CDL data
+                "https://www.nass.usda.gov/Research_and_Science/Cropland/SARS1a.php",
             ]
-            # Attempt VSI mount for the TIGER PLACE zip
-            tiger_url = candidate_urls[0]
-            mounted = self._mount_remote_zip_vector(tiger_url, save_prefix="current_use_tiger_place")
-            if mounted and mounted.exists():
-                return mounted
-            # Fall back to downloading
+
             for url in candidate_urls:
                 path = self._download_file(url, "usda_cropland_data")
                 if path is not None and path.exists():
                     return path
+
             return None
         except Exception as e:
             logger.error(f"Failed to download USDA cropland data: {e}")
@@ -762,19 +814,88 @@ class RealDataAcquisition:
     def acquire_ownership_data(self) -> Optional[Path]:
         """Attempt to acquire ownership data via configured sources; return path or None."""
         try:
-            # Example: prefer any existing empirical file already downloaded
+            # Try to download Del Norte County parcel data
+            parcel_url = "https://services.countyofdelnorte.us/arcgis/rest/services/Parcels/MapServer/0/query"
+            params = {
+                'where': '1=1',
+                'outFields': 'OWNER_NAME,ACRES,LAND_USE,IMPROVEMENT_VALUE,LAND_VALUE,APN',
+                'returnGeometry': 'true',
+                'f': 'geojson',
+                'geometryPrecision': 6,
+                'maxRecordCount': 10000
+            }
+
+            response = requests.get(parcel_url, params=params, timeout=60)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('features'):
+                    output_path = self.output_dir / "del_norte_parcels.geojson"
+                    with open(output_path, 'w') as f:
+                        json.dump(data, f)
+
+                    # Log the acquisition
+                    self.data_logger.log_real_data_acquisition(
+                        source_url=parcel_url,
+                        file_path=output_path,
+                        data_type="Parcel Ownership",
+                        row_count=len(data['features']),
+                        file_size_mb=output_path.stat().st_size / 1024 / 1024,
+                        geometry_types=["Polygon"],
+                        crs="EPSG:4326"
+                    )
+                    return output_path
+
+            # Fallback to existing empirical file
             existing = self.output_dir.parent.parent / 'ownership' / 'data' / 'empirical' / 'empirical_ownership_data.geojson'
             return existing if existing.exists() else None
-        except Exception:
-            return None
+        except Exception as e:
+            logger.error(f"Failed to acquire ownership data: {e}")
+            # Fallback to existing empirical file
+            existing = self.output_dir.parent.parent / 'ownership' / 'data' / 'empirical' / 'empirical_ownership_data.geojson'
+            return existing if existing.exists() else None
 
     def acquire_improvements_data(self) -> Optional[Path]:
         """Attempt to acquire improvements data via configured sources; return path or None."""
         try:
+            # Try to download Del Norte County building/improvement data
+            improvements_url = "https://services.countyofdelnorte.us/arcgis/rest/services/BuildingPermits/MapServer/0/query"
+            params = {
+                'where': '1=1',
+                'outFields': 'IMPROVEMENT_VALUE,LAND_VALUE,BUILDING_TYPE,YEAR_BUILT,APN',
+                'returnGeometry': 'true',
+                'f': 'geojson',
+                'geometryPrecision': 6,
+                'maxRecordCount': 10000
+            }
+
+            response = requests.get(improvements_url, params=params, timeout=60)
+            if response.status_code == 200:
+                data = response.json()
+                if data.get('features'):
+                    output_path = self.output_dir / "del_norte_improvements.geojson"
+                    with open(output_path, 'w') as f:
+                        json.dump(data, f)
+
+                    # Log the acquisition
+                    self.data_logger.log_real_data_acquisition(
+                        source_url=improvements_url,
+                        file_path=output_path,
+                        data_type="Building Improvements",
+                        row_count=len(data['features']),
+                        file_size_mb=output_path.stat().st_size / 1024 / 1024,
+                        geometry_types=["Polygon"],
+                        crs="EPSG:4326"
+                    )
+                    return output_path
+
+            # Fallback to existing empirical file
             existing = self.output_dir.parent.parent / 'improvements' / 'data' / 'empirical' / 'empirical_improvements_data.geojson'
             return existing if existing.exists() else None
-        except Exception:
-            return None
+        except Exception as e:
+            logger.error(f"Failed to acquire improvements data: {e}")
+            # Fallback to existing empirical file
+            existing = self.output_dir.parent.parent / 'improvements' / 'data' / 'empirical' / 'empirical_improvements_data.geojson'
+            return existing if existing.exists() else None
 
 def create_real_data_acquisition(output_dir: Path) -> RealDataAcquisition:
     """

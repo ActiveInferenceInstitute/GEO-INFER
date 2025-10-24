@@ -9,6 +9,7 @@ satellite remote sensing data.
 """
 
 import logging
+import warnings
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -22,12 +23,12 @@ logger = logging.getLogger(__name__)
 class ForestHealthMonitor:
     """
     Forest health monitoring system for Del Norte County.
-    
+
     This class provides comprehensive forest health analysis capabilities
     tailored to Del Norte County's unique forest ecosystems, including
     old-growth redwood conservation, timber management transitions,
     and climate change adaptation strategies.
-    
+
     Key Features:
     - Real-time forest health monitoring using satellite imagery
     - Integration with CAL FIRE forest inventory data
@@ -36,19 +37,59 @@ class ForestHealthMonitor:
     - Fire risk assessment for forest areas
     - Timber harvest impact analysis
     - Climate change vulnerability assessment
-    
+
     Data Sources:
     - CAL FIRE forest inventory and timber harvest plans
     - Landsat/Sentinel-2 satellite imagery
     - USFS Forest Health Monitoring data
     - Local forestry department records
     - Climate station data
-    
+
+    Attributes:
+        config (Dict[str, Any]): Configuration dictionary containing analysis parameters
+        data_integrator (Any): Data integration engine for external API access
+        spatial_processor (Any): Spatial processing engine for geospatial operations
+        output_dir (Path): Directory for saving analysis results
+        forest_config (Dict): Forest-specific configuration subset
+        h3_resolution (int): H3 spatial resolution level (default: 8)
+        vegetation_indices (Dict): Vegetation index thresholds and parameters
+        forest_types (List[str]): List of forest types to analyze
+        change_detection (Dict): Change detection analysis parameters
+
     Example Usage:
-        >>> monitor = ForestHealthMonitor(config, data_integrator, spatial_processor)
+        >>> # Initialize with configuration and dependencies
+        >>> config = {
+        ...     'analyses': {
+        ...         'forest_health': {
+        ...             'vegetation_indices': {
+        ...                 'ndvi': {'threshold_healthy': 0.7, 'threshold_stressed': 0.4}
+        ...             },
+        ...             'forest_types': ['Redwood', 'Douglas Fir', 'Mixed Conifer']
+        ...         }
+        ...     },
+        ...     'spatial': {'h3_resolution': 8}
+        ... }
+        >>> monitor = ForestHealthMonitor(config, data_integrator, spatial_processor, output_dir)
+        >>>
+        >>> # Run comprehensive analysis
         >>> results = monitor.run_analysis()
-        >>> health_map = monitor.generate_health_visualization()
-        >>> alerts = monitor.check_health_alerts()
+        >>> print(f"Analysis status: {results['status']}")
+        >>>
+        >>> # Check system status
+        >>> status = monitor.get_monitoring_status()
+        >>> print(f"Last analysis: {status['last_analysis']}")
+        >>>
+        >>> # Generate health alerts
+        >>> alerts = monitor.check_health_alerts(results)
+        >>> for alert in alerts['critical_alerts']:
+        ...     print(f"CRITICAL: {alert['message']}")
+
+    Notes:
+        - The system integrates real CAL FIRE data when available
+        - Synthetic data is used for demonstration when real data is unavailable
+        - All spatial analysis uses H3 hexagonal grid system for consistent indexing
+        - Results are automatically saved as JSON files with timestamps
+        - The system supports both real-time and historical analysis modes
     """
     
     def __init__(self, 
@@ -70,6 +111,11 @@ class ForestHealthMonitor:
         self.spatial_processor = spatial_processor
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Set up caching for the data integrator
+        cache_dir = self.output_dir / 'cache'
+        if not hasattr(self.data_integrator, 'cache_dir') or self.data_integrator.cache_dir is None:
+            self.data_integrator.cache_dir = cache_dir
         
         # Get forest health configuration
         self.forest_config = config.get('analyses', {}).get('forest_health', {})
@@ -86,13 +132,55 @@ class ForestHealthMonitor:
         
     def run_analysis(self, temporal_range: Optional[Tuple[str, str]] = None) -> Dict[str, Any]:
         """
-        Run comprehensive forest health analysis.
-        
+        Run comprehensive forest health analysis for Del Norte County.
+
+        This method orchestrates a complete forest health assessment including:
+        - Data acquisition from multiple sources (CAL FIRE, satellite, climate)
+        - Vegetation index analysis (NDVI, EVI, moisture stress)
+        - Forest type-specific health assessment
+        - Temporal change detection
+        - Tree mortality analysis
+        - Climate vulnerability assessment
+        - Risk assessment and alert generation
+
         Args:
-            temporal_range: Optional (start_date, end_date) for analysis period
-            
+            temporal_range: Optional tuple of (start_date, end_date) strings in 'YYYY-MM-DD' format.
+                           If None, defaults to last 12 months from current date.
+
         Returns:
-            Dictionary containing forest health analysis results
+            Dictionary containing comprehensive forest health analysis results with the following structure:
+            - analysis_type: Always 'forest_health'
+            - location: Always 'del_norte_county'
+            - timestamp: ISO format timestamp of analysis start
+            - temporal_range: The requested or default temporal range
+            - config: Forest health configuration used
+            - data_acquisition: Raw data from all sources
+            - vegetation_analysis: NDVI/EVI analysis results
+            - forest_type_analysis: Health metrics by forest type
+            - change_analysis: Temporal change detection results
+            - mortality_analysis: Tree mortality assessment
+            - climate_vulnerability: Climate change vulnerability analysis
+            - risk_assessment: Overall risk scores and recommendations
+            - spatial_data: H3-indexed spatial results for integration
+            - health_alerts: Critical alerts and warnings
+            - processing_time: Analysis duration
+            - status: 'success' or 'error'
+
+        Raises:
+            Exception: If analysis fails completely, partial results are still returned
+
+        Example:
+            >>> # Run analysis for specific time period
+            >>> results = monitor.run_analysis(('2024-01-01', '2024-12-31'))
+            >>> print(f"Analysis completed: {results['status']}")
+            >>>
+            >>> # Access specific results
+            >>> if results['status'] == 'success':
+            ...     vegetation = results['vegetation_analysis']
+            ...     risk_score = results['risk_assessment']['overall_risk_score']
+            ...     alerts = results['health_alerts']['critical_alerts']
+            ...     print(f"Overall risk: {risk_score:.2f}")
+            ...     print(f"Critical alerts: {len(alerts)}")
         """
         logger.info("🌲 Starting forest health analysis for Del Norte County...")
         
@@ -162,10 +250,18 @@ class ForestHealthMonitor:
             logger.info(f"✅ Forest health analysis completed in {processing_time}")
             
         except Exception as e:
-            logger.error(f"❌ Forest health analysis failed: {e}")
+            logger.error(f"❌ Forest health analysis failed: {e}", exc_info=True)
             results['status'] = 'error'
             results['error_message'] = str(e)
+            results['error_type'] = type(e).__name__
             results['processing_time'] = str(datetime.now() - start_time)
+            # Ensure partial results are still useful
+            if not results.get('data_acquisition'):
+                results['data_acquisition'] = {'status': 'failed', 'error': str(e)}
+            if not results.get('vegetation_analysis'):
+                results['vegetation_analysis'] = {'status': 'failed', 'error': str(e)}
+            if not results.get('forest_type_analysis'):
+                results['forest_type_analysis'] = {'status': 'failed', 'error': str(e)}
             
         return results
         
@@ -186,19 +282,37 @@ class ForestHealthMonitor:
         
         # CAL FIRE timber operations and forest inventory
         try:
+            logger.info("Fetching CAL FIRE timber operations data...")
             calfire_data = self.data_integrator.calfire_client.get_timber_operations(
                 bbox=bbox, time_range=temporal_range
             )
             forest_data['data_sources']['calfire_timber'] = calfire_data
-            
-            # Tree mortality data
+            logger.info(f"Retrieved {calfire_data.get('total_operations', 0)} timber operations")
+
+        except Exception as e:
+            logger.error(f"Failed to acquire CAL FIRE timber operations data: {e}")
+            forest_data['data_sources']['calfire_timber'] = {
+                'status': 'error',
+                'error_message': str(e),
+                'error_type': type(e).__name__
+            }
+
+        # Tree mortality data
+        try:
+            logger.info("Fetching CAL FIRE tree mortality data...")
             mortality_data = self.data_integrator.calfire_client.get_tree_mortality_data(
                 bbox=bbox, time_range=temporal_range
             )
             forest_data['data_sources']['tree_mortality'] = mortality_data
-            
+            logger.info(f"Retrieved {mortality_data.get('total_events', 0)} mortality events")
+
         except Exception as e:
-            logger.warning(f"Error acquiring CAL FIRE data: {e}")
+            logger.error(f"Failed to acquire CAL FIRE tree mortality data: {e}")
+            forest_data['data_sources']['tree_mortality'] = {
+                'status': 'error',
+                'error_message': str(e),
+                'error_type': type(e).__name__
+            }
             
         # Satellite vegetation indices (placeholder for real implementation)
         vegetation_data = self._acquire_satellite_vegetation_data(bbox, temporal_range)
@@ -568,15 +682,29 @@ class ForestHealthMonitor:
                 continue
                 
             # Calculate trend
-            ndvi_values = cell_data['ndvi'].values
+            ndvi_values = cell_data['ndvi']
             dates_numeric = pd.to_datetime(cell_data['date']).astype(int) / 10**9  # Convert to seconds
             
             if len(ndvi_values) > 1:
-                trend_slope = np.polyfit(dates_numeric, ndvi_values, 1)[0]
-                
+                # Check for sufficient variation in time to avoid poorly conditioned fit
+                time_span = dates_numeric.iloc[-1] - dates_numeric.iloc[0]
+                if time_span < 86400:  # Less than 1 day difference
+                    trend_slope = 0  # No meaningful trend possible
+                else:
+                    try:
+                        # Use numpy polyfit with proper conditioning check
+                        with warnings.catch_warnings():
+                            warnings.filterwarnings("ignore", category=RuntimeWarning)
+                            trend_slope = np.polyfit(dates_numeric, ndvi_values, 1)[0]
+                        # Check for numerical stability - if condition number is too high, use simple difference
+                        if np.isinf(trend_slope) or np.isnan(trend_slope) or abs(trend_slope) > 1e10:
+                            trend_slope = (ndvi_values.iloc[-1] - ndvi_values.iloc[0]) / time_span
+                    except np.linalg.LinAlgError:
+                        # Fallback to simple linear approximation for singular matrices
+                        trend_slope = (ndvi_values.iloc[-1] - ndvi_values.iloc[0]) / time_span
                 # Detect significant changes
                 max_change = ndvi_values.max() - ndvi_values.min()
-                recent_change = ndvi_values[-1] - ndvi_values[0] if len(ndvi_values) > 1 else 0
+                recent_change = ndvi_values.iloc[-1] - ndvi_values.iloc[0] if len(ndvi_values) > 1 else 0
                 
                 h3_changes.append({
                     'h3_cell': h3_cell,

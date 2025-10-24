@@ -118,8 +118,28 @@ def initialize_analysis(args):
     
     # Load configuration
     config = load_analysis_config()
-    
-    # Parse counties and modules
+
+    # Validate configuration
+    logger.info("🔍 Validating configuration...")
+    from utils.enhanced_config import create_enhanced_config_manager
+    config_manager = create_enhanced_config_manager()
+    validation_result = config_manager.validate_configuration()
+
+    if not validation_result['valid']:
+        logger.error("❌ Configuration validation failed:")
+        for error in validation_result['errors']:
+            logger.error(f"   • {error}")
+        logger.info("💡 Recommendations:")
+        for recommendation in validation_result['recommendations']:
+            logger.info(f"   • {recommendation}")
+        sys.exit(1)
+
+    if validation_result['warnings']:
+        logger.warning("⚠️ Configuration warnings:")
+        for warning in validation_result['warnings']:
+            logger.warning(f"   • {warning}")
+
+    # Parse counties and modules with validation
     counties_dict = parse_counties(args.counties)
     # Resolve active modules from CLI or config. '--modules all' or missing -> config list
     cfg_active = (config.get('analysis_settings') or {}).get('active_modules') or []
@@ -127,9 +147,19 @@ def initialize_analysis(args):
         active_modules = list(cfg_active)
     else:
         active_modules = [m.strip() for m in args.modules.split(',') if m.strip()]
-    
+
+    # Validate parsed modules against available modules
+    valid_modules = ['zoning', 'current_use', 'ownership', 'improvements',
+                    'water_rights', 'ground_water', 'surface_water', 'power_source', 'mortgage_debt']
+    invalid_modules = [m for m in active_modules if m not in valid_modules]
+    if invalid_modules:
+        logger.error(f"❌ Invalid modules specified: {invalid_modules}")
+        logger.info(f"💡 Available modules: {valid_modules}")
+        sys.exit(1)
+
     logger.info(f"Target counties: {counties_dict}")
     logger.info(f"Active modules: {active_modules}")
+    logger.info(f"📊 Configuration validation: {'✅ PASSED' if validation_result['valid'] else '❌ FAILED'}")
     
     # Create shared backend
     # Resolve OSC repo path from environment or project structure for portability
@@ -648,27 +678,33 @@ def parse_arguments():
 Examples:
   # Basic analysis with default settings
   python3 cascadia_main.py
-  
+
   # Analysis with custom H3 resolution and specific counties
   python3 cascadia_main.py --h3-resolution 8 --counties "CA:Del Norte,CA:Humboldt"
-  
+
   # Analysis with spatial analysis and lightweight visualization
   python3 cascadia_main.py --spatial-analysis --lightweight-viz
-  
+
   # Analysis with Datashader visualization (recommended for large datasets)
   python3 cascadia_main.py --datashader-viz
-  
+
   # Analysis with Deepscatter visualization (web-based, lightweight)
   python3 cascadia_main.py --deepscatter-viz
-  
+
   # Export in different formats
   python3 cascadia_main.py --export-format csv --verbose
-  
+
   # Force refresh of cached data
   python3 cascadia_main.py --force-refresh --verbose
-  
+
   # Validate H3 operations
   python3 cascadia_main.py --validate-h3
+
+  # Validate configuration only
+  python3 cascadia_main.py --validate-config
+
+  # Run performance benchmarks only
+  python3 cascadia_main.py --benchmark
         """
     )
     
@@ -807,13 +843,151 @@ Examples:
         action='store_true',
         help='Enable debug mode with detailed error reporting'
     )
-    
+
+    parser.add_argument(
+        '--validate-config',
+        action='store_true',
+        help='Validate configuration and exit without running analysis'
+    )
+
+    parser.add_argument(
+        '--benchmark',
+        action='store_true',
+        help='Run performance benchmarks and exit without running analysis'
+    )
+
     return parser.parse_args()
 
 def main():
     """Main execution function for Cascadia analysis"""
     args = parse_arguments()
-    
+
+    # Handle configuration validation
+    if args.validate_config:
+        logger = logging.getLogger(__name__)
+        logger.info("🔍 Validating configuration only...")
+
+        # Load and validate configuration
+        config = load_analysis_config()
+        from utils.enhanced_config import create_enhanced_config_manager
+        config_manager = create_enhanced_config_manager()
+        validation_result = config_manager.validate_configuration()
+
+        # Print detailed validation results
+        print("\n" + "="*60)
+        print("CONFIGURATION VALIDATION REPORT")
+        print("="*60)
+
+        print(f"\n📊 Overall Status: {'✅ VALID' if validation_result['valid'] else '❌ INVALID'}")
+
+        if validation_result['errors']:
+            print(f"\n❌ Errors ({len(validation_result['errors'])}):")
+            for error in validation_result['errors']:
+                print(f"   • {error}")
+
+        if validation_result['warnings']:
+            print(f"\n⚠️ Warnings ({len(validation_result['warnings'])}):")
+            for warning in validation_result['warnings']:
+                print(f"   • {warning}")
+
+        print(f"\n💡 Recommendations ({len(validation_result['recommendations'])}):")
+        for recommendation in validation_result['recommendations']:
+            print(f"   • {recommendation}")
+
+        print(f"\n📋 Validation Details:")
+        for key, details in validation_result['validation_details'].items():
+            if isinstance(details, dict):
+                print(f"   {key}:")
+                for sub_key, value in details.items():
+                    if isinstance(value, list):
+                        print(f"     {sub_key}: {', '.join(value) if value else 'None'}")
+                    else:
+                        print(f"     {sub_key}: {value}")
+            else:
+                print(f"   {key}: {details}")
+
+        print("\n" + "="*60)
+        sys.exit(0 if validation_result['valid'] else 1)
+
+    # Handle performance benchmarking
+    if args.benchmark:
+        logger = logging.getLogger(__name__)
+        logger.info("📊 Running performance benchmarks...")
+
+        # Load configuration
+        config = load_analysis_config()
+        from utils.enhanced_config import create_enhanced_config_manager
+        config_manager = create_enhanced_config_manager()
+
+        # Get active modules
+        cfg_active = (config.get('analysis_settings') or {}).get('active_modules') or []
+        if (not args.modules) or (args.modules.strip().lower() == 'all'):
+            active_modules = list(cfg_active)
+        else:
+            active_modules = [m.strip() for m in args.modules.split(',') if m.strip()]
+
+        # Create enhanced data manager for benchmarking
+        from utils.enhanced_data_manager import EnhancedDataManager
+        benchmark_data_manager = EnhancedDataManager(Path(args.output_dir) / "data", args.h3_resolution)
+
+        # Run benchmarks for each module
+        all_benchmarks = {}
+        for module_name in active_modules:
+            logger.info(f"Benchmarking {module_name} module...")
+            try:
+                benchmark_result = benchmark_data_manager.benchmark_performance(module_name)
+                all_benchmarks[module_name] = benchmark_result
+            except Exception as e:
+                logger.error(f"Benchmark failed for {module_name}: {e}")
+                all_benchmarks[module_name] = {'error': str(e)}
+
+        # Print comprehensive benchmark report
+        print("\n" + "="*80)
+        print("PERFORMANCE BENCHMARK REPORT")
+        print("="*80)
+
+        print(f"\n🖥️ System Information:")
+        system_info = all_benchmarks.get(list(all_benchmarks.keys())[0], {}).get('system_info', {})
+        for key, value in system_info.items():
+            print(f"   {key}: {value}")
+
+        print(f"\n📊 Module Benchmarks:")
+        for module_name, benchmark in all_benchmarks.items():
+            if 'error' in benchmark:
+                print(f"   {module_name}: ❌ ERROR - {benchmark['error']}")
+                continue
+
+            print(f"   {module_name}:")
+            for benchmark_type, results in benchmark.get('benchmarks', {}).items():
+                if 'performance_score' in results:
+                    score = results['performance_score']
+                    status = "🟢 Excellent" if score > 0.8 else "🟡 Good" if score > 0.5 else "🔴 Needs Optimization"
+                    print(f"     {benchmark_type}: {status} (score: {score:.2f})")
+
+                    # Show key metrics
+                    if 'load_time_seconds' in results:
+                        print(f"       Load time: {results['load_time_seconds']:.2f}s")
+                    if 'memory_increase_mb' in results:
+                        print(f"       Memory increase: {results['memory_increase_mb']:.1f} MB")
+                    if 'file_size_mb' in results:
+                        print(f"       File size: {results['file_size_mb']:.1f} MB")
+
+        # Print recommendations
+        all_recommendations = []
+        for benchmark in all_benchmarks.values():
+            if 'recommendations' in benchmark:
+                all_recommendations.extend(benchmark['recommendations'])
+
+        if all_recommendations:
+            print(f"\n💡 Performance Recommendations ({len(all_recommendations)}):")
+            for recommendation in all_recommendations:
+                print(f"   • {recommendation}")
+        else:
+            print(f"\n💡 Performance Recommendations: No specific recommendations - performance appears optimal")
+
+        print("\n" + "="*80)
+        sys.exit(0)
+
     # Setup logging
     log_level = logging.DEBUG if args.debug else (logging.INFO if args.verbose else logging.WARNING)
     setup_logging(log_level)
@@ -953,7 +1127,11 @@ def run_comprehensive_analysis_with_enhanced_data(backend, modules, data_manager
                 target_hexagons=list(backend.target_hexagons)
             )
             quality_report = data_manager.get_data_quality_report(module_name)
-            logger.info(f"📋 {module_name} data quality: {quality_report.get('quality_metrics', {}).get('quality_score', 0):.2f}")
+            empirical_sources = [k for k, v in quality_report.get('data_sources', {}).items() if v.get('is_empirical', False)]
+            if empirical_sources:
+                logger.info(f"📋 {module_name} data quality: {quality_report.get('quality_metrics', {}).get('empirical', {}).get('quality_score', 0):.2f} (empirical: {empirical_sources})")
+            else:
+                logger.info(f"📋 {module_name} data quality: synthetic data only, recommendations: {quality_report.get('recommendations', [])}")
             return module_name, h3_data
         except Exception as e:
             logger.error(f"❌ Failed to process {module_name}: {e}")

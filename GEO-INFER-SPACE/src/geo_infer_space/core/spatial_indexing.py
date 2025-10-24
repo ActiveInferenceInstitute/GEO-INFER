@@ -55,6 +55,35 @@ class SpatialIndexingInterface:
             'cell_to_latlng', cell, backend=self.backend
         )
 
+    def get_neighbors(self, position: tuple[float, float], radius: float) -> List[str]:
+        """
+        Get neighboring spatial cells within a radius.
+
+        Args:
+            position: Center position (lat, lng)
+            radius: Search radius in meters
+
+        Returns:
+            List of neighboring cell identifiers
+        """
+        return self.dispatcher.dispatch_indexing_operation(
+            'get_neighbors', position, radius, backend=self.backend
+        )
+
+    def get_cell_neighbors(self, cell: str) -> List[str]:
+        """
+        Get neighboring cells for a given cell.
+
+        Args:
+            cell: Spatial index cell identifier
+
+        Returns:
+            List of neighboring cell identifiers
+        """
+        return self.dispatcher.dispatch_indexing_operation(
+            'get_cell_neighbors', cell, backend=self.backend
+        )
+
     def polygon_to_cells(self, polygon: Dict[str, Any], resolution: int) -> List[str]:
         """
         Convert a polygon geometry to a list of spatial index cells.

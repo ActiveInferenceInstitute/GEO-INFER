@@ -1,0 +1,74 @@
+---
+name: "GEO-INFER-METAGOV"
+version: "4.0.0"
+
+meta_governance:
+  governance_model: "polycentric"
+  coordination_mechanism: "network_based"
+  stakeholder_engagement: "co-production"
+  transparency_level: "full_disclosure"
+  accountability_model: "multi_directional"
+  adaptation_frequency: "annual"
+  
+  learning_mechanisms:
+    - "monitoring"
+    - "evaluation"
+    - "adjustment"
+    - "stakeholder_feedback"
+  
+  institutional_framework: "iad"
+  
+  multi_level_governance:
+    governance_levels:
+      - "local"
+      - "regional"
+      - "national"
+    coordination_mechanisms:
+      - "vertical_alignment"
+      - "horizontal_integration"
+      - "subsidiarity"
+    domain_coverage:
+      - "environmental"
+      - "civic"
+      - "commercial"
+      - "social"
+  
+  stakeholder_engagement:
+    engagement_level: "co-production"
+    approach: "collaborative"
+    equity_focus: true
+    categories:
+      - "government"
+      - "community"
+      - "business"
+      - "ngo"
+      - "indigenous"
+  
+  accountability:
+    mechanisms:
+      - "internal_audit"
+      - "external_audit"
+      - "participatory_audit"
+    enforcement_capacity: "strong"
+    public_participation: true
+  
+  transparency:
+    information_types:
+      - "decisions"
+      - "processes"
+      - "budgets"
+      - "outcomes"
+      - "conflicts_of_interest"
+    disclosure_frequency: "real_time"
+    accessibility:
+      - "multiple_languages"
+      - "digital_and_traditional"
+      - "participatory_translation"
+
+integration:
+  modules:
+    - "GEO-INFER-ORG"
+    - "GEO-INFER-SEC"
+    - "GEO-INFER-NORMS"
+    - "GEO-INFER-COMMS"
+    - "GEO-INFER-REQ"

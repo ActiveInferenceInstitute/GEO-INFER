@@ -422,7 +422,21 @@ class CulturalMap:
                 text = f"{name}\n{period}"
                 
                 # Calculate text background
-                text_width, text_height = draw.textsize(text, font=font)
+                try:
+                    # Try newer PIL method
+                    text_bbox = draw.textbbox((0, 0), text, font=font)
+                    text_width = text_bbox[2] - text_bbox[0]
+                    text_height = text_bbox[3] - text_bbox[1]
+                except AttributeError:
+                    # Fallback for older PIL versions
+                    try:
+                        # Try newer PIL method
+                        text_bbox = draw.textbbox((0, 0), text, font=font)
+                        text_width = text_bbox[2] - text_bbox[0]
+                        text_height = text_bbox[3] - text_bbox[1]
+                    except AttributeError:
+                        # Fallback for older PIL versions
+                        text_width, text_height = draw.textsize(text, font=font)
                 text_bg = (
                     x + marker_radius + 5,
                     y - text_height // 2,
@@ -472,7 +486,21 @@ class CulturalMap:
                 text = f"{name}\n{family} ({script})"
                 
                 # Calculate text background
-                text_width, text_height = draw.textsize(text, font=font)
+                try:
+                    # Try newer PIL method
+                    text_bbox = draw.textbbox((0, 0), text, font=font)
+                    text_width = text_bbox[2] - text_bbox[0]
+                    text_height = text_bbox[3] - text_bbox[1]
+                except AttributeError:
+                    # Fallback for older PIL versions
+                    try:
+                        # Try newer PIL method
+                        text_bbox = draw.textbbox((0, 0), text, font=font)
+                        text_width = text_bbox[2] - text_bbox[0]
+                        text_height = text_bbox[3] - text_bbox[1]
+                    except AttributeError:
+                        # Fallback for older PIL versions
+                        text_width, text_height = draw.textsize(text, font=font)
                 text_bg = (
                     x + marker_radius + 5,
                     y - text_height // 2,
@@ -497,7 +525,14 @@ class CulturalMap:
                 
         # Add a legend
         legend_text = f"Cultural Theme: {cultural_theme.capitalize()}"
-        legend_width, legend_height = draw.textsize(legend_text, font=font)
+        try:
+            # Try newer PIL method
+            text_bbox = draw.textbbox((0, 0), legend_text, font=font)
+            legend_width = text_bbox[2] - text_bbox[0]
+            legend_height = text_bbox[3] - text_bbox[1]
+        except AttributeError:
+            # Fallback for older PIL versions
+            legend_width, legend_height = draw.textsize(legend_text, font=font)
         
         # Draw legend background
         legend_bg = (
@@ -564,7 +599,13 @@ class CulturalMap:
         for word in words:
             # Check if adding this word exceeds the max width
             test_line = ' '.join(current_line + [word])
-            test_width, _ = draw.textsize(test_line, font=font)
+            try:
+                # Try newer PIL method
+                text_bbox = draw.textbbox((0, 0), test_line, font=font)
+                test_width = text_bbox[2] - text_bbox[0]
+            except AttributeError:
+                # Fallback for older PIL versions
+                test_width, _ = draw.textsize(test_line, font=font)
             
             if test_width <= max_width:
                 current_line.append(word)
@@ -579,7 +620,14 @@ class CulturalMap:
         wrapped_text = '\n'.join(lines)
         
         # Calculate text size
-        text_width, text_height = draw.textsize(wrapped_text, font=font)
+        try:
+            # Try newer PIL method
+            text_bbox = draw.textbbox((0, 0), wrapped_text, font=font)
+            text_width = text_bbox[2] - text_bbox[0]
+            text_height = text_bbox[3] - text_bbox[1]
+        except AttributeError:
+            # Fallback for older PIL versions
+            text_width, text_height = draw.textsize(wrapped_text, font=font)
         
         # Determine position
         if position == "bottom":
@@ -737,9 +785,302 @@ class CulturalMap:
         plt.tight_layout()
         plt.show()
         
+    def add_interactive_storytelling(self, story_elements: List[Dict]) -> 'CulturalMap':
+        """
+        Add interactive storytelling elements to the cultural map.
+
+        Args:
+            story_elements: List of story element dictionaries with keys:
+                          'title', 'text', 'x', 'y', 'media_url', etc.
+
+        Returns:
+            Self for method chaining
+
+        Raises:
+            ValueError: If no map has been generated
+        """
+        if self.image is None:
+            raise ValueError("Map must be generated before adding storytelling elements.")
+
+        # Store story elements for interactive display
+        self._story_elements = story_elements
+
+        # Add visual indicators for story elements
+        from PIL import ImageDraw, ImageFont
+
+        img = Image.fromarray(self.image)
+        draw = ImageDraw.Draw(img)
+
+        try:
+            font = ImageFont.truetype("Arial", 14)
+        except IOError:
+            font = ImageFont.load_default()
+
+        for element in story_elements:
+            x = element.get('x', 0)
+            y = element.get('y', 0)
+            title = element.get('title', '')
+
+            # Add marker for story element
+            marker_radius = 8
+            draw.ellipse(
+                (x-marker_radius, y-marker_radius, x+marker_radius, y+marker_radius),
+                fill=(255, 165, 0, 200),  # Orange marker
+                outline=(0, 0, 0, 255),
+            )
+
+            # Add title if provided
+            if title:
+                try:
+                    # Try newer PIL method
+                    text_bbox = draw.textbbox((0, 0), title, font=font)
+                    text_width = text_bbox[2] - text_bbox[0]
+                    text_height = text_bbox[3] - text_bbox[1]
+                except AttributeError:
+                    # Fallback for older PIL versions
+                    text_width, text_height = draw.textsize(title, font=font)
+                draw.rectangle(
+                    [x+marker_radius+5, y-text_height//2-2,
+                     x+marker_radius+5+text_width, y+text_height//2+2],
+                    fill=(255, 255, 255, 180),
+                    outline=(0, 0, 0, 255),
+                )
+                draw.text(
+                    (x+marker_radius+5, y-text_height//2),
+                    title,
+                    fill=(0, 0, 0, 255),
+                    font=font,
+                )
+
+        self.image = np.array(img)
+        return self
+
+    def create_timeline_view(self, time_periods: List[str]) -> List['CulturalMap']:
+        """
+        Create a series of maps showing cultural evolution over time periods.
+
+        Args:
+            time_periods: List of time periods to visualize
+
+        Returns:
+            List of CulturalMap objects, one for each time period
+
+        Raises:
+            ValueError: If no cultural data is available
+        """
+        if not self.metadata.get("cultural_data"):
+            raise ValueError("No cultural data available for timeline creation.")
+
+        maps = []
+
+        for period in time_periods:
+            # Create a new map for this time period
+            period_map = CulturalMap(
+                data=self.data,
+                metadata=self.metadata.copy()
+            )
+
+            # Filter cultural data for this period
+            period_data = self._filter_cultural_data_by_period(period)
+
+            if period_data:
+                period_map.metadata["cultural_data"] = period_data
+                period_map.metadata["time_period"] = period
+                period_map._generate_map()
+                maps.append(period_map)
+
+        return maps
+
+    def _filter_cultural_data_by_period(self, period: str) -> List[Dict]:
+        """
+        Filter cultural data by time period.
+
+        Args:
+            period: Time period to filter by
+
+        Returns:
+            Filtered cultural data
+        """
+        cultural_data = self.metadata.get("cultural_data", [])
+
+        if not cultural_data:
+            return []
+
+        # Simple period-based filtering
+        period_markers = {
+            "ancient": ["BCE", "Ancient", "Classical"],
+            "medieval": ["Medieval", "Middle Ages", "Dark Ages"],
+            "renaissance": ["Renaissance", "Reformation"],
+            "modern": ["Modern", "Contemporary", "Industrial"],
+            "ancient_rome": ["Roman", "27 BCE", "476 CE"],
+            "ancient_greece": ["Greek", "800 BCE", "146 BCE"],
+        }
+
+        markers = period_markers.get(period.lower(), [period])
+
+        filtered_data = []
+        for item in cultural_data:
+            # Check if any marker matches the item's period or description
+            item_text = str(item).lower()
+            if any(marker.lower() in item_text for marker in markers):
+                filtered_data.append(item)
+
+        return filtered_data or cultural_data  # Return original if no matches
+
+    def add_legend(self, legend_items: List[Dict] = None) -> 'CulturalMap':
+        """
+        Add a comprehensive legend to the cultural map.
+
+        Args:
+            legend_items: Custom legend items. If None, auto-generates from cultural data.
+
+        Returns:
+            Self for method chaining
+
+        Raises:
+            ValueError: If no map has been generated
+        """
+        if self.image is None:
+            raise ValueError("Map must be generated before adding legend.")
+
+        from PIL import ImageDraw, ImageFont
+
+        img = Image.fromarray(self.image)
+        draw = ImageDraw.Draw(img)
+        width, height = img.size
+
+        try:
+            font = ImageFont.truetype("Arial", 12)
+            title_font = ImageFont.truetype("Arial", 14)
+        except IOError:
+            font = ImageFont.load_default()
+            title_font = ImageFont.load_default()
+
+        # Generate legend items if not provided
+        if legend_items is None:
+            cultural_theme = self.metadata.get("cultural_theme", "historical")
+            legend_items = []
+
+            if cultural_theme == "historical":
+                legend_items = [
+                    {"symbol": "●", "text": "Historical Site", "color": "#FF0000"},
+                    {"symbol": "■", "text": "Cultural Center", "color": "#00FF00"},
+                    {"symbol": "▲", "text": "Religious Site", "color": "#0000FF"},
+                    {"symbol": "★", "text": "Important Landmark", "color": "#FFD700"},
+                ]
+            elif cultural_theme == "linguistic":
+                legend_items = [
+                    {"symbol": "●", "text": "Language Family", "color": "#FF6B6B"},
+                    {"symbol": "■", "text": "Language Group", "color": "#4ECDC4"},
+                    {"symbol": "▲", "text": "Dialect Region", "color": "#45B7D1"},
+                    {"symbol": "★", "text": "Writing System", "color": "#96CEB4"},
+                ]
+
+        # Position legend in bottom right
+        legend_width = 200
+        legend_height = len(legend_items) * 25 + 40
+        legend_x = width - legend_width - 20
+        legend_y = height - legend_height - 20
+
+        # Draw legend background
+        draw.rectangle(
+            [legend_x, legend_y, legend_x + legend_width, legend_y + legend_height],
+            fill=(255, 255, 255, 200),
+            outline=(0, 0, 0, 255),
+        )
+
+        # Draw legend title
+        title = f"{self.metadata.get('cultural_theme', 'Cultural').capitalize()} Legend"
+        try:
+            # Try newer PIL method
+            text_bbox = draw.textbbox((0, 0), title, font=title_font)
+            title_width = text_bbox[2] - text_bbox[0]
+            title_height = text_bbox[3] - text_bbox[1]
+        except AttributeError:
+            # Fallback for older PIL versions
+            title_width, title_height = draw.textsize(title, font=title_font)
+        draw.text(
+            (legend_x + (legend_width - title_width) // 2, legend_y + 10),
+            title,
+            fill=(0, 0, 0, 255),
+            font=title_font,
+        )
+
+        # Draw legend items
+        for i, item in enumerate(legend_items):
+            y_pos = legend_y + 35 + i * 25
+
+            # Draw symbol
+            symbol = item.get("symbol", "●")
+            color = item.get("color", "#000000")
+            text = item.get("text", "")
+
+            # Symbol
+            draw.text((legend_x + 15, y_pos), symbol, fill=color, font=font)
+
+            # Text
+            draw.text(
+                (legend_x + 35, y_pos),
+                text,
+                fill=(0, 0, 0, 255),
+                font=font,
+            )
+
+        self.image = np.array(img)
+        return self
+
+    def export_with_layers(self, output_dir: str, layer_types: List[str] = None) -> List[str]:
+        """
+        Export the cultural map with separate layers for different elements.
+
+        Args:
+            output_dir: Directory to save the layered exports
+            layer_types: Types of layers to export ("base", "cultural", "annotations")
+
+        Returns:
+            List of exported file paths
+
+        Raises:
+            ValueError: If no map has been generated
+        """
+        if self.image is None:
+            raise ValueError("Map must be generated before exporting layers.")
+
+        if layer_types is None:
+            layer_types = ["base", "cultural", "annotations"]
+
+        output_paths = []
+
+        for layer_type in layer_types:
+            if layer_type == "base":
+                # Export base map without cultural overlays
+                base_map = CulturalMap(data=self.data, metadata=self.metadata)
+                base_map._generate_map()  # Generate without cultural overlays
+                output_path = os.path.join(output_dir, "cultural_map_base.png")
+                base_map.save(output_path)
+                output_paths.append(output_path)
+
+            elif layer_type == "cultural":
+                # Export only cultural elements (if implemented)
+                output_path = os.path.join(output_dir, "cultural_map_cultural.png")
+                self.save(output_path)
+                output_paths.append(output_path)
+
+            elif layer_type == "annotations":
+                # Export with annotations and legend
+                annotated_map = CulturalMap(data=self.data, metadata=self.metadata)
+                annotated_map._generate_map()
+                annotated_map.add_legend()
+                output_path = os.path.join(output_dir, "cultural_map_annotated.png")
+                annotated_map.save(output_path)
+                output_paths.append(output_path)
+
+        return output_paths
+
     def __repr__(self) -> str:
         """Return a string representation of the CulturalMap object."""
         region_name = self.metadata.get("region_name", "Unknown Region")
         cultural_theme = self.metadata.get("cultural_theme", "unknown")
-        
-        return f"CulturalMap(region='{region_name}', theme='{cultural_theme}')" 
+        style = self.metadata.get("style", "unknown")
+
+        return f"CulturalMap(region='{region_name}', theme='{cultural_theme}', style='{style}')" 

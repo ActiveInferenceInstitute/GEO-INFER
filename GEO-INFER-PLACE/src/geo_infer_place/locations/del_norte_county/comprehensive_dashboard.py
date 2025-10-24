@@ -81,7 +81,7 @@ class DelNorteComprehensiveDashboard:
         # Initialize core components
         self.config_loader = LocationConfigLoader()
         self.data_sources = CaliforniaDataSources()
-        self.api_manager = CaliforniaAPIManager(api_keys)
+        self.api_manager = CaliforniaAPIManager()
         
         # Configuration and data storage
         self.config = None
