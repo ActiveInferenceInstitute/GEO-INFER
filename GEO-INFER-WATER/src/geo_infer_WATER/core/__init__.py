@@ -1,4 +1,6 @@
-"""Core water resources modules."""
+"""
+Core water resources management modules.
+"""
 
 from .hydrology import HydrologicalModeler
 from .watershed import WatershedAnalyzer
@@ -13,4 +15,3 @@ __all__ = [
     "WaterInfrastructurePlanner",
     "FloodDroughtAnalyzer",
 ]
-

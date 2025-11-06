@@ -3,7 +3,7 @@ title: "GEO-INFER-ECON: Spatial Economic Modeling"
 description: "Spatial economic modeling, market analysis, policy evaluation, and economic impact assessment with geospatial dimensions"
 purpose: "Model economic phenomena with spatial dimensions, analyze market dynamics, and evaluate policy impacts"
 module_type: "Domain-Specific"
-status: "Beta"
+status: "Alpha"
 last_updated: "2025-01-19"
 dependencies: ["SPACE", "TIME", "DATA"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-AI", "GEO-INFER-SIM"]
@@ -243,7 +243,39 @@ graph TD
 
 ## Integration with other GEO-INFER Modules
 
-GEO-INFER-ECON relies on and complements several other modules:
+GEO-INFER-ECON relies on and complements several other modules. Integration adapters are provided for seamless interaction:
+
+### Core Integration Adapters
+
+The module includes integration adapters in `geo_infer_econ.integrations`:
+
+-   **SpaceIntegration:** Wrapper for GEO-INFER-SPACE providing spatial operations (indexing, hotspots, interpolation, distances)
+-   **TimeIntegration:** Wrapper for GEO-INFER-TIME providing temporal analysis (trends, seasonality, forecasting, decomposition)
+-   **DataIntegration:** Wrapper for GEO-INFER-DATA providing data loading and management
+
+**Example Usage:**
+
+```python
+from geo_infer_econ.integrations import SpaceIntegration, TimeIntegration, DataIntegration
+
+# Spatial operations
+space = SpaceIntegration(backend='h3')
+cell = space.latlng_to_cell(37.7749, -122.4194, resolution=9)
+distance = space.calculate_distance((37.7, -122.4), (37.8, -122.5))
+
+# Temporal analysis
+time = TimeIntegration()
+trend = time.detect_trend(economic_time_series, method='linear')
+forecast = time.forecast(economic_time_series, horizon=12)
+
+# Data loading
+data = DataIntegration()
+dataset = data.load_dataset('economic_indicators', spatial_bounds=[...])
+```
+
+See `examples/integration_example.py` for comprehensive integration examples.
+
+### Module Dependencies
 
 -   **GEO-INFER-DATA:** Provides access to fundamental geospatial data (administrative boundaries, infrastructure networks, environmental layers) and socio-economic datasets (population, employment, industry statistics) required as inputs for economic models.
 -   **GEO-INFER-SPACE:** Critical for all spatial operations, including calculating distances, defining neighborhoods (for spatial weights), performing network analysis (for transport costs), and managing spatial geometries of economic regions or agents.

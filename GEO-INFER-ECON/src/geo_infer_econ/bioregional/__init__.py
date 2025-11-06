@@ -10,20 +10,13 @@ This module provides comprehensive bioregional economic modeling capabilities in
 - Bioregional resilience and sustainability analysis
 """
 
+# Existing modules
 from .ecological_economics import (
     EcologicalEconomicsEngine,
     BiophysicalEquilibriumModels,
     ThermoeconomicModels,
     EcologicalFootprintAnalysis,
     CarryingCapacityModels
-)
-
-from .natural_capital import (
-    NaturalCapitalAccounting,
-    EcosystemAssetsValuation,
-    BiodiversityCredits,
-    CarbonAccounting,
-    WaterResourceAccounting
 )
 
 from .bioregional_markets import (
@@ -33,6 +26,15 @@ from .bioregional_markets import (
     CarbonMarkets,
     WaterMarkets,
     LocalFoodSystems
+)
+
+# Stub modules (basic implementations - full implementation pending)
+from .natural_capital import (
+    NaturalCapitalAccounting,
+    EcosystemAssetsValuation,
+    BiodiversityCredits,
+    CarbonAccounting,
+    WaterResourceAccounting
 )
 
 from .ecosystem_services import (

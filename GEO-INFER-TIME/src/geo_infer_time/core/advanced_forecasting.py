@@ -5,12 +5,19 @@ Includes ARIMA, exponential smoothing, and state space models.
 """
 
 import logging
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 import numpy as np
 import pandas as pd
-from statsmodels.tsa.arima.model import ARIMA
-from statsmodels.tsa.holtwinters import ExponentialSmoothing
-from statsmodels.tsa.statespace.sarimax import SARIMAX
+
+try:
+    from statsmodels.tsa.arima.model import ARIMA
+    from statsmodels.tsa.holtwinters import ExponentialSmoothing
+    from statsmodels.tsa.statespace.sarimax import SARIMAX
+    STATSMODELS_AVAILABLE = True
+except ImportError:
+    STATSMODELS_AVAILABLE = False
+    logger = logging.getLogger(__name__)
+    logger.warning("statsmodels not available. Advanced forecasting features will be limited.")
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +37,7 @@ class AdvancedForecastingEngine:
         order: Tuple[int, int, int] = (1, 1, 1),
         forecast_steps: int = 10,
         seasonal: Optional[Tuple[int, int, int, int]] = None
-    ) -> Dict[str, pd.Series]:
+    ) -> Dict[str, Any]:
         """
         Forecast using ARIMA model.
         
@@ -43,6 +50,9 @@ class AdvancedForecastingEngine:
         Returns:
             Forecast results with confidence intervals
         """
+        if not STATSMODELS_AVAILABLE:
+            raise ImportError("statsmodels is required for ARIMA forecasting")
+        
         try:
             if seasonal:
                 model = SARIMAX(time_series, order=order, seasonal_order=seasonal)
@@ -69,7 +79,7 @@ class AdvancedForecastingEngine:
         trend: Optional[str] = 'add',
         seasonal: Optional[str] = None,
         forecast_steps: int = 10
-    ) -> Dict[str, pd.Series]:
+    ) -> Dict[str, Any]:
         """
         Forecast using exponential smoothing.
         
@@ -82,6 +92,9 @@ class AdvancedForecastingEngine:
         Returns:
             Forecast results
         """
+        if not STATSMODELS_AVAILABLE:
+            raise ImportError("statsmodels is required for exponential smoothing")
+        
         try:
             model = ExponentialSmoothing(
                 time_series,
@@ -113,6 +126,9 @@ class AdvancedForecastingEngine:
         Returns:
             Trend and seasonality analysis
         """
+        if not STATSMODELS_AVAILABLE:
+            raise ImportError("statsmodels is required for trend/seasonality detection")
+        
         # Decompose time series
         from statsmodels.tsa.seasonal import seasonal_decompose
         
