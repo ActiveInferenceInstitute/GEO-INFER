@@ -55,7 +55,7 @@ This module equips the GEO-INFER ecosystem with a comprehensive suite of tools t
 -   **Forecasting Horizons**: The future time period for which predictions are made (short-term, medium-term, long-term).
 -   **Event Modeling**: Representing discrete occurrences in time and their relationships, often with associated spatial footprints.
 
-## Key Features
+## Core Features
 
 ### 1. 📊 Comprehensive Time-Series Geospatial Data Integration
 -   **Description**: Tools for ingesting, validating, cleaning, aligning, and managing diverse time-series datasets associated with geospatial features. This includes data from satellite image archives, IoT sensor networks, historical records, climate models, and socio-economic databases.
@@ -239,7 +239,7 @@ GEO-INFER-TIME/
 
 ### Installation
 ```bash
-pip install -e ./GEO-INFER-TIME
+uv pip install -e ./GEO-INFER-TIME
 ```
 
 ### Configuration
@@ -282,6 +282,141 @@ The module is architected to handle the diverse and often challenging characteri
 -   **Multi-Resolution & Multi-Scale Temporal Data**: Integrating and analyzing data collected or aggregated at different time scales, potentially using wavelet-based approaches.
 -   **Time-Stamped Geospatial Features**: Efficiently linking temporal attributes to vector geometries (points, lines, polygons) or raster pixel time series.
 -   **Handling of Censored & Truncated Data**: Methods to deal with time series where observations are incomplete due to censoring or truncation.
+
+## API Reference
+
+### Core Classes
+
+#### TemporalAnalyzer
+
+Comprehensive temporal analysis including trend detection, seasonality analysis, and decomposition.
+
+```python
+from geo_infer_time import TemporalAnalyzer, TimeSeries
+
+# Initialize analyzer
+analyzer = TemporalAnalyzer()
+
+# Create time series
+dates = pd.date_range(start='2020-01-01', periods=365, freq='D')
+values = np.random.randn(365).cumsum()
+ts = TimeSeries(dates, values)
+
+# Detect trends
+trend_result = analyzer.detect_trend(ts, method='linear')
+
+# Analyze seasonality
+seasonality = analyzer.analyze_seasonality(ts, period=365)
+
+# Decompose time series
+decomposition = analyzer.decompose(ts, model='additive')
+```
+
+#### ForecastingEngine
+
+Advanced forecasting models for temporal prediction.
+
+```python
+from geo_infer_time import ForecastingEngine
+
+# Initialize forecasting engine
+forecaster = ForecastingEngine(
+    model_type='arima',
+    forecast_horizon=30
+)
+
+# Train model
+forecaster.fit(training_data=historical_series)
+
+# Generate forecasts
+forecasts = forecaster.predict(
+    steps=30,
+    return_confidence_intervals=True
+)
+```
+
+#### StreamProcessor
+
+Real-time stream processing for temporal data.
+
+```python
+from geo_infer_time import StreamProcessor
+
+# Initialize stream processor
+processor = StreamProcessor(
+    window_size=timedelta(minutes=5),
+    aggregation='mean'
+)
+
+# Process streaming data
+processor.process_stream(
+    data_stream=sensor_stream,
+    callback=handle_aggregated_data
+)
+```
+
+#### TemporalInterpolator
+
+Temporal interpolation and gap-filling.
+
+```python
+from geo_infer_time import TemporalInterpolator
+
+# Initialize interpolator
+interpolator = TemporalInterpolator(method='spline')
+
+# Interpolate missing values
+complete_series = interpolator.interpolate(
+    time_series=incomplete_series,
+    target_frequency='1H'
+)
+```
+
+#### EventDetector
+
+Automatic event detection and timeline construction.
+
+```python
+from geo_infer_time import EventDetector
+
+# Initialize event detector
+detector = EventDetector(
+    method='change_point',
+    sensitivity=0.05
+)
+
+# Detect events
+events = detector.detect_events(
+    time_series=monitoring_data,
+    min_event_duration=timedelta(hours=1)
+)
+
+# Build timeline
+timeline = detector.build_timeline(events)
+```
+
+#### TimeSeries
+
+Core time series data structure.
+
+```python
+from geo_infer_time import TimeSeries
+
+# Create time series
+ts = TimeSeries(
+    timestamps=pd.date_range('2020-01-01', periods=100, freq='D'),
+    values=np.random.randn(100),
+    metadata={'source': 'sensor_001', 'location': 'field_1'}
+)
+
+# Access data
+dataframe = ts.to_dataframe()
+values = ts.values
+timestamps = ts.timestamps
+
+# Resample
+resampled = ts.resample('W', aggregation='mean')
+```
 
 ## Integration with Other Modules
 

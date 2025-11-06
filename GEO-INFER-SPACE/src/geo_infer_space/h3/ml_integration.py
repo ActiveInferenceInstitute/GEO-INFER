@@ -33,7 +33,7 @@ try:
     H3_AVAILABLE = True
 except ImportError:
     H3_AVAILABLE = False
-    logger.warning("h3-py package not available. Install with 'pip install h3'")
+    logger.warning("h3-py package not available. Install with 'uv pip install h3'")
 
 from .core import H3Grid, H3Cell
 

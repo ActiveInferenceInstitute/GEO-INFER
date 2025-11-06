@@ -19,7 +19,7 @@ project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.insert(0, project_root)
 
 # Absolute import
-from GEO_INFER_ACT.examples.h3_active_inference import (
+from geo_infer_act.examples.h3_active_inference import (
     generate_realistic_environmental_observations,
     setup_san_francisco_boundary,
     run_basic_h3_active_inference

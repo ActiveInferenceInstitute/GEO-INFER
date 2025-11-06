@@ -29,7 +29,7 @@ GEO-INFER-BIO is a specialized module within the GEO-INFER framework that unique
 -   **Enhance Epidemiological Analysis:** Support the spatial tracking of pathogens, analysis of disease outbreaks by linking pathogen genomics with host locations and environmental factors (complementing GEO-INFER-HEALTH).
 -   **Advance Microbial Ecology Research:** Enable the study of microbial community composition and function in relation to their geographic distribution and environmental niches.
 
-## Key Features 🌟
+## Core Features
 
 ### 1. Multi-Omics Integration with Spatial Dimensions
 -   **Description:** Tools for processing, analyzing, and integrating various types of omics data (genomics, transcriptomics, epigenomics, proteomics, metabolomics) with their associated spatial information.
@@ -124,6 +124,116 @@ graph TD
 -   **Processing Units:** Specialized components for omics data, network construction, and spatial bio-analytics.
 -   **Data Adapters:** Handles connections to biological databases and integrates with `GEO-INFER-DATA` for environmental/geospatial context.
 
+## API Reference
+
+### Core Classes
+
+#### SequenceAnalyzer
+
+Biological sequence analysis with spatial context.
+
+```python
+from geo_infer_bio import SequenceAnalyzer
+
+# Initialize analyzer
+analyzer = SequenceAnalyzer()
+
+# Load sequence data
+sequences = analyzer.load_sequence('data/sequences.fasta')
+
+# Analyze spatial distribution
+results = analyzer.analyze_spatial_distribution(
+    sequences=sequences,
+    spatial_data=location_data
+)
+
+# Calculate GC content
+gc_content = analyzer.calculate_gc_content(sequence)
+```
+
+#### NetworkAnalyzer
+
+Biological network analysis in spatial context.
+
+```python
+from geo_infer_bio import NetworkAnalyzer, BiologicalNetwork
+
+# Create network analyzer
+network_analyzer = NetworkAnalyzer()
+
+# Build biological network
+network = BiologicalNetwork.from_interactions(
+    interactions=protein_interactions,
+    spatial_locations=cell_locations
+)
+
+# Analyze network topology
+topology = network_analyzer.analyze_topology(network)
+
+# Identify spatial modules
+modules = network_analyzer.identify_spatial_modules(network)
+```
+
+#### SpatialMapper
+
+Spatial mapping of biological data.
+
+```python
+from geo_infer_bio import SpatialMapper
+
+# Create spatial mapper
+mapper = SpatialMapper()
+
+# Map sequences to spatial locations
+spatial_map = mapper.map_sequences_to_locations(
+    sequences=genetic_sequences,
+    locations=sample_locations
+)
+
+# Analyze spatial patterns
+patterns = mapper.analyze_spatial_patterns(
+    data=spatial_map,
+    method='moran_i'
+)
+```
+
+#### PopulationDynamics
+
+Population dynamics modeling.
+
+```python
+from geo_infer_bio import PopulationDynamics
+
+# Create population dynamics model
+pop_dynamics = PopulationDynamics(
+    initial_population=1000,
+    spatial_structure='grid'
+)
+
+# Simulate population growth
+results = pop_dynamics.simulate(
+    time_steps=100,
+    growth_rate=0.02
+)
+
+# Analyze spatial distribution
+distribution = pop_dynamics.analyze_distribution()
+```
+
+#### BioAPI
+
+RESTful API for bioinformatics operations.
+
+```python
+from geo_infer_bio import BioAPI
+
+# Initialize API
+api = BioAPI(config='config/bio_api.yaml')
+
+# Start API server
+api.start(host='0.0.0.0', port=8000)
+```
+
 ## Integration with other GEO-INFER Modules 🔄
 
 -   **GEO-INFER-SPACE:** Essential for all spatial calculations, such as distances between samples, defining geographic regions, overlaying biological data with environmental layers, and creating spatial grids for analysis.
@@ -172,7 +282,7 @@ graph TD
 # git clone https://github.com/activeinference/GEO-INFER.git
 # cd GEO-INFER
 
-pip install -e ./GEO-INFER-BIO
+uv pip install -e ./GEO-INFER-BIO
 # Or if managed by a broader project build system.
 # Consider using Conda for managing complex bioinformatics dependencies.
 ```

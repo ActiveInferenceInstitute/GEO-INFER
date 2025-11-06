@@ -19,13 +19,13 @@ import os
 # Add the src directory to the path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-from h3.core import (
+import h3
+from h3 import (
     latlng_to_cell,
     cell_to_latlng,
     cell_to_boundary,
     cell_to_polygon,
     polygon_to_cells,
-    polyfill,
     cell_area,
     cell_perimeter,
     edge_length,

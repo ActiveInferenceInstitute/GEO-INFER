@@ -318,10 +318,10 @@ print(f"Rate: {len(data) / (end_time - start_time):.0f} features/second")
 pip show geo-infer
 
 # Update to latest version
-pip install --upgrade geo-infer
+uv pip install --upgrade geo-infer
 
 # Update specific modules
-pip install --upgrade geo-infer-space geo-infer-time
+uv pip install --upgrade geo-infer-space geo-infer-time
 ```
 
 ### Version Compatibility

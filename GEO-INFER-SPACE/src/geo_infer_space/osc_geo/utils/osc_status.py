@@ -88,7 +88,7 @@ def import_modules():
         logger.info("Attempting to install the package...")
         import subprocess
         result = subprocess.run(
-            [sys.executable, "-m", "pip", "install", "-e", "."],
+            ["uv", "pip", "install", "-e", "."],
             cwd=str(script_dir),
             capture_output=True,
             text=True

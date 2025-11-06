@@ -33,7 +33,7 @@ GEO-INFER-ANT is a specialized module for modeling and simulating complex adapti
 -   **Self-Organization:** A process where some form of overall order or coordination arises out of the local interactions between smaller, initially disordered components of a system, without external control.
 -   **Active Inference for Agents:** Individual agents within the ANT module are often modeled as active inference agents, making decisions to minimize their free energy (see GEO-INFER-ACT).
 
-## Key Features
+## Core Features
 
 -   **Multi-Scale "Ant" Entity Modeling:** Design and simulation of individual agents ("ants" or other entities) with specific sensory capabilities, internal states (beliefs, preferences modeled via active inference), and action repertoires operating within a geospatial environment.
 -   **Movement Data Integration & Analysis:** Tools for integrating empirical movement data (e.g., GPS tracks of animals, pedestrian flows) to calibrate and validate agent-based models or to serve as input for collective behavior analysis.
@@ -196,13 +196,13 @@ GEO-INFER-ANT/
 # Clone and install
 git clone <repository>
 cd GEO-INFER-ANT
-pip install -e .
+uv pip install -e .
 
 # Run complete demonstration
-python examples/swarm_intelligence_demo.py
+uv run python examples/swarm_intelligence_demo.py
 
 # Run tests
-python -m pytest tests/ -v
+uv run python -m pytest tests/ -v
 
 # View documentation
 open docs/README.md
@@ -210,7 +210,7 @@ open docs/README.md
 
 ### Installation
 ```bash
-pip install -e ./GEO-INFER-ANT
+uv pip install -e ./GEO-INFER-ANT
 ```
 
 ### Configuration
@@ -259,6 +259,177 @@ Key algorithms implemented or supported by the module include:
 -   **Stigmergic Pattern Formation Algorithms:** E.g., digital pheromone evaporation and diffusion models.
 -   **Distributed Task Allocation Algorithms:** E.g., threshold-based models, market-based approaches.
 -   **Self-Organizing Maps (SOMs) / Growing Neural Gas (GNG):** For adaptive geospatial clustering and topology learning, sometimes inspired by neural self-organization.
+
+## API Reference
+
+### Core Classes
+
+#### SwarmAgent
+
+Base class for individual swarm agents with Active Inference integration.
+
+```python
+from geo_infer_ant import SwarmAgent
+
+# Create a swarm agent
+agent = SwarmAgent(
+    agent_id="ant_001",
+    position=np.array([37.7749, -122.4194]),
+    sensory_range=100.0,
+    movement_speed=1.5,
+    active_inference_enabled=True
+)
+
+# Perceive environment
+sensory_input = agent.perceive_environment(
+    spatial_context=current_location,
+    environmental_signals=pheromone_trails
+)
+
+# Make decision
+action = agent.make_decision(sensory_input)
+
+# Execute action
+agent.execute_action(action)
+```
+
+#### AgentPopulation
+
+Manages populations of swarm agents with collective behavior.
+
+```python
+from geo_infer_ant import AgentPopulation
+
+# Create agent population
+population = AgentPopulation(
+    population_size=1000,
+    agent_types=['worker', 'scout', 'soldier'],
+    spatial_distribution='clustered'
+)
+
+# Configure population behavior
+population.set_behavioral_rules(
+    foraging_rules=foraging_strategy,
+    defense_rules=defense_protocol
+)
+
+# Run simulation
+results = population.simulate(
+    time_steps=1000,
+    environment=spatial_environment
+)
+```
+
+#### PheromoneSystem
+
+Stigmergic communication system using pheromone trails.
+
+```python
+from geo_infer_ant import PheromoneSystem
+
+# Initialize pheromone system
+pheromones = PheromoneSystem(
+    evaporation_rate=0.1,
+    deposition_amount=1.0,
+    spatial_resolution=10.0
+)
+
+# Deposit pheromone
+pheromones.deposit(
+    location=agent_position,
+    pheromone_type='food_trail',
+    intensity=1.0
+)
+
+# Sense pheromones
+concentration = pheromones.sense(
+    location=agent_position,
+    radius=50.0
+)
+```
+
+#### AntColonyOptimization
+
+Ant Colony Optimization algorithm for combinatorial problems.
+
+```python
+from geo_infer_ant import AntColonyOptimization
+
+# Initialize ACO
+aco = AntColonyOptimization(
+    number_of_ants=50,
+    max_iterations=100,
+    variant='ACS'
+)
+
+# Solve optimization problem
+result = aco.solve(
+    problem_graph=spatial_graph,
+    objective_function=route_cost_function
+)
+
+# Get optimal solution
+optimal_route = result.best_solution
+```
+
+#### ParticleSwarmOptimization
+
+Particle Swarm Optimization for continuous optimization.
+
+```python
+from geo_infer_ant import ParticleSwarmOptimization
+
+# Initialize PSO
+pso = ParticleSwarmOptimization(
+    swarm_size=100,
+    dimensions=2,
+    max_iterations=200
+)
+
+# Optimize function
+optimal_point = pso.optimize(
+    objective_function=spatial_cost_function,
+    bounds=[(0, 100), (0, 100)]
+)
+```
+
+#### EnvironmentalMonitoringSwarm
+
+Application-specific swarm for environmental monitoring.
+
+```python
+from geo_infer_ant import EnvironmentalMonitoringSwarm
+
+# Create monitoring swarm
+swarm = EnvironmentalMonitoringSwarm(
+    monitoring_region=region_bounds,
+    sensor_types=['temperature', 'humidity', 'air_quality'],
+    agent_density=10  # agents per km²
+)
+
+# Deploy swarm
+swarm.deploy()
+
+# Collect data
+monitoring_data = swarm.collect_data(
+    time_window=timedelta(hours=24)
+)
+```
+
+### Utility Functions
+
+```python
+from geo_infer_ant import load_config, validate_config, setup_ant_module
+
+# Load configuration
+config = load_config("config/example_config.yaml")
+
+# Validate configuration
+is_valid = validate_config(config)
+
+# Setup module
+module_config = setup_ant_module(config_path="config.yaml")
+```
 
 ## Integration with Other Modules
 

@@ -116,7 +116,7 @@ def main():
         print("   - JSON reports for programmatic access")
     else:
         print("\n⚠️  Enhanced reporting not available")
-        print("💡 Install visualization dependencies: pip install matplotlib seaborn folium plotly")
+        print("💡 Install visualization dependencies: uv pip install matplotlib seaborn folium plotly")
     
     return basic_success and enhanced_success
 

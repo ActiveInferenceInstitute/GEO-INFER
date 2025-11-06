@@ -32,7 +32,7 @@ All contributors are expected to adhere to our [Code of Conduct](../code_of_cond
 
 5. **Install Development Dependencies**:
    ```bash
-   pip install -e ".[dev]"
+   uv pip install -e ".[dev]"
    ```
 
 6. **Install Pre-commit Hooks**:

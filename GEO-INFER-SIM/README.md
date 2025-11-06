@@ -31,7 +31,7 @@ GEO-INFER-SIM is the simulation engine and experimentation workbench within the 
 -   **Decision Support:** Furnish policymakers and stakeholders with quantitative and qualitative evidence to inform decision-making under uncertainty.
 -   **Digital Twin Creation:** Facilitate the development of dynamic, data-driven virtual replicas of real-world geospatial assets or systems.
 
-## Key Features
+## Core Features
 
 -   **Multi-Paradigm Simulation Support:** Implements and integrates various simulation approaches:
     -   **Agent-Based Models (ABM):** Simulating systems as collections of autonomous, interacting agents (e.g., individuals, households, animals, organizations).
@@ -119,7 +119,7 @@ GEO-INFER-SIM/
 
 ### Installation
 ```bash
-pip install -e ./GEO-INFER-SIM
+uv pip install -e ./GEO-INFER-SIM
 ```
 
 ### Configuration
@@ -169,6 +169,147 @@ A library of pre-built or easily adaptable models for common simulation scenario
 -   **Water Resource Management:** Models for river basin dynamics, irrigation demand, groundwater depletion under different climate and policy scenarios.
 -   **Emergency Response & Disaster Scenarios:** Evacuation models, resource allocation during disasters, wildfire spread simulations.
 -   **Agricultural Systems:** Crop growth models, farmer decision-making ABMs.
+
+## API Reference
+
+### Core Classes
+
+#### SimulationEngine
+
+Main simulation engine for running simulations.
+
+```python
+from geo_infer_sim import SimulationEngine, SimulationConfig
+
+# Configure simulation
+config = SimulationConfig(
+    time_step=1.0,
+    max_time=100.0,
+    output_interval=1.0,
+    random_seed=42
+)
+
+# Initialize engine
+engine = SimulationEngine(config)
+
+# Initialize simulation state
+initial_state = {"population": 100, "resources": 50}
+engine.initialize(initial_state)
+
+# Define step function
+def step_function(time, state):
+    return {
+        "population": state["population"] * 1.01,
+        "resources": state["resources"] - 1
+    }
+
+# Run simulation
+results = engine.run(step_function)
+```
+
+#### AgentBasedModel
+
+Agent-based modeling framework.
+
+```python
+from geo_infer_sim import AgentBasedModel, Agent
+import numpy as np
+
+# Create ABM
+abm = AgentBasedModel(
+    spatial_bounds=region_bounds,
+    time_step=1.0
+)
+
+# Add agents
+for i in range(100):
+    agent = Agent(
+        agent_id=f"agent_{i}",
+        position=np.random.rand(2) * 100,
+        properties={"type": "mobile"}
+    )
+    abm.add_agent(agent)
+
+# Run simulation
+abm.simulate(time_steps=1000)
+```
+
+#### SystemDynamicsModel
+
+System dynamics modeling with stocks and flows.
+
+```python
+from geo_infer_sim import SystemDynamicsModel
+
+# Create system dynamics model
+sd_model = SystemDynamicsModel()
+
+# Define stocks
+sd_model.add_stock("population", initial_value=1000)
+sd_model.add_stock("resources", initial_value=5000)
+
+# Define flows
+sd_model.add_flow(
+    "birth_rate",
+    source=None,
+    target="population",
+    rate=lambda t, s: s["population"] * 0.02
+)
+
+# Run simulation
+results = sd_model.simulate(time_horizon=100)
+```
+
+#### CellularAutomata
+
+Cellular automata for spatial pattern simulation.
+
+```python
+from geo_infer_sim import CellularAutomata
+
+# Create CA model
+ca = CellularAutomata(
+    grid_size=(100, 100),
+    neighborhood_type='moore',
+    transition_rules=game_of_life_rules
+)
+
+# Initialize grid
+ca.initialize_grid(initial_pattern)
+
+# Run simulation
+for step in range(100):
+    ca.step()
+    pattern = ca.get_grid_state()
+```
+
+#### ScenarioManager
+
+Scenario management and comparison.
+
+```python
+from geo_infer_sim import ScenarioManager
+
+# Create scenario manager
+manager = ScenarioManager()
+
+# Define scenarios
+scenario1 = manager.create_scenario(
+    name="baseline",
+    parameters={"growth_rate": 0.01}
+)
+
+scenario2 = manager.create_scenario(
+    name="high_growth",
+    parameters={"growth_rate": 0.02}
+)
+
+# Run scenarios
+results = manager.run_scenarios([scenario1, scenario2])
+
+# Compare results
+comparison = manager.compare_scenarios(results)
+```
 
 ## Integration with Other Modules
 

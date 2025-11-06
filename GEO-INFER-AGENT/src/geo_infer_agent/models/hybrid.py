@@ -17,7 +17,9 @@ from datetime import datetime
 import json
 
 from geo_infer_agent.core.agent_base import BaseAgent, AgentState
-from geo_infer_agent.models.bdi import BDIAgent, BDIState
+# BDIState and BDIAgent are in bdi.py file, not bdi/ package
+# Import from models package which handles the import correctly
+from geo_infer_agent.models import BDIAgent, BDIState
 from geo_infer_agent.models.active_inference import ActiveInferenceAgent, ActiveInferenceState
 from geo_infer_agent.models.rl import RLAgent, RLState
 from geo_infer_agent.models.rule_based import RuleBasedAgent, RuleBasedState

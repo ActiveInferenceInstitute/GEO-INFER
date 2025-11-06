@@ -87,11 +87,11 @@ class TestLargeScalePerformance:
 
             # Log performance metrics
             print(f"Population size {size}:")
-            print(f"  Creation time: {performance_metrics['creation_time']".2f"}s")
-            print(f"  Simulation time: {performance_metrics['simulation_time']".2f"}s")
-            print(f"  Memory increase: {performance_metrics['memory_increase']".1f"}MB")
-            print(f"  Agents per second: {performance_metrics['agents_per_second']".1f"}")
-            print(f"  Simulation efficiency: {performance_metrics['simulation_efficiency']".1f"} trajectories/s")
+            print(f"  Creation time: {performance_metrics['creation_time']:.2f}s")
+            print(f"  Simulation time: {performance_metrics['simulation_time']:.2f}s")
+            print(f"  Memory increase: {performance_metrics['memory_increase']:.1f}MB")
+            print(f"  Agents per second: {performance_metrics['agents_per_second']:.1f}")
+            print(f"  Simulation efficiency: {performance_metrics['simulation_efficiency']:.1f} trajectories/s")
 
     def test_pheromone_system_performance(self):
         """Test pheromone system performance with many deposits."""
@@ -147,11 +147,11 @@ class TestLargeScalePerformance:
 
         print(f"Pheromone system performance:")
         print(f"  Deposits: {metrics['deposits']}")
-        print(f"  Deposit time: {metrics['deposit_time']".2f"}s")
-        print(f"  Sensing time: {metrics['sensing_time']".2f"}s")
-        print(f"  Diffusion time: {metrics['diffusion_time']".2f"}s")
-        print(f"  Memory increase: {metrics['memory_increase']".1f"}MB")
-        print(f"  Deposits per second: {metrics['deposits_per_second']".1f"}")
+        print(f"  Deposit time: {metrics['deposit_time']:.2f}s")
+        print(f"  Sensing time: {metrics['sensing_time']:.2f}s")
+        print(f"  Diffusion time: {metrics['diffusion_time']:.2f}s")
+        print(f"  Memory increase: {metrics['memory_increase']:.1f}MB")
+        print(f"  Deposits per second: {metrics['deposits_per_second']:.1f}")
 
     def test_algorithm_performance_benchmarking(self):
         """Benchmark performance of optimization algorithms."""
@@ -199,10 +199,10 @@ class TestLargeScalePerformance:
 
                 # Performance metrics
                 print(f"  Problem size {size}:")
-                print(f"    Execution time: {execution_time".2f"}s")
-                print(f"    Best fitness: {result.best_fitness".4f"}")
+                print(f"    Execution time: {execution_time:.2f}s")
+                print(f"    Best fitness: {result.best_fitness:.4f}")
                 print(f"    Iterations: {result.iterations_completed}")
-                print(f"    Time per iteration: {execution_time / result.iterations_completed".4f"}s")
+                print(f"    Time per iteration: {execution_time / result.iterations_completed:.4f}s")
 
 
 class TestMemoryEfficiency:
@@ -249,10 +249,10 @@ class TestMemoryEfficiency:
             memory_metrics = asyncio.run(memory_test())
 
             print(f"Memory usage for {config['population_size']} agents, {config['simulation_steps']} steps:")
-            print(f"  Creation memory: {memory_metrics['creation_memory']".1f"}MB")
-            print(f"  Simulation memory: {memory_metrics['simulation_memory']".1f"}MB")
-            print(f"  Total memory: {memory_metrics['total_memory']".1f"}MB")
-            print(f"  Memory per agent: {memory_metrics['memory_per_agent']".2f"}MB")
+            print(f"  Creation memory: {memory_metrics['creation_memory']:.1f}MB")
+            print(f"  Simulation memory: {memory_metrics['simulation_memory']:.1f}MB")
+            print(f"  Total memory: {memory_metrics['total_memory']:.1f}MB")
+            print(f"  Memory per agent: {memory_metrics['memory_per_agent']:.2f}MB")
 
             # Memory efficiency assertions
             assert memory_metrics['memory_per_agent'] < 2.0  # Less than 2MB per agent
@@ -287,7 +287,7 @@ class TestMemoryEfficiency:
 
         memory_increase = asyncio.run(cleanup_test())
 
-        print(f"Memory increase after cleanup: {memory_increase".1f"}MB")
+        print(f"Memory increase after cleanup: {memory_increase:.1f}MB")
         assert memory_increase < 300  # Should clean up most memory
 
 
@@ -331,8 +331,8 @@ class TestScalabilityLimits:
 
                 print(f"Swarm size {size}:")
                 print(f"  Feasible: {feasibility['feasible']}")
-                print(f"  Creation time: {feasibility['creation_time']".2f"}s")
-                print(f"  Memory usage: {feasibility['memory_usage']".1f"}MB")
+                print(f"  Creation time: {feasibility['creation_time']:.2f}s")
+                print(f"  Memory usage: {feasibility['memory_usage']:.1f}MB")
 
                 if not feasibility['feasible']:
                     print(f"  Maximum feasible size appears to be < {size}")
@@ -376,19 +376,18 @@ class TestScalabilityLimits:
             aco_memory.append(execution_memory)
 
             print(f"ACO problem size {size}:")
-            print(f"  Time: {execution_time".2f"}s")
-            print(f"  Memory: {execution_memory".1f"}MB")
-            print(f"  Best fitness: {result.best_fitness".4f"}")
+            print(f"  Time: {execution_time:.2f}s")
+            print(f"  Memory: {execution_memory:.1f}MB")
+            print(f"  Best fitness: {result.best_fitness:.4f}")
 
         # Analyze scaling
         if len(aco_times) > 1:
             time_scaling = np.polyfit(problem_sizes, aco_times, 1)[0]  # Linear coefficient
             memory_scaling = np.polyfit(problem_sizes, aco_memory, 1)[0]  # Linear coefficient
 
-            print("
-ACO Scaling Analysis:")
-            print(f"  Time scaling rate: {time_scaling".4f"}s per city")
-            print(f"  Memory scaling rate: {memory_scaling".4f"}MB per city")
+            print("ACO Scaling Analysis:")
+            print(f"  Time scaling rate: {time_scaling:.4f}s per city")
+            print(f"  Memory scaling rate: {memory_scaling:.4f}MB per city")
 
             # Check if scaling is reasonable (should be polynomial, not exponential)
             assert time_scaling < 1.0  # Less than 1 second per additional city
@@ -434,9 +433,9 @@ class TestRealTimePerformance:
             performance = asyncio.run(real_time_test())
 
             print(f"Real-time test {config['steps']} steps in {config['max_time']}s:")
-            print(f"  Execution time: {performance['execution_time']".2f"}s")
-            print(f"  Target time: {performance['target_time']".2f"}s")
-            print(f"  Efficiency: {performance['efficiency']".2f"}x")
+            print(f"  Execution time: {performance['execution_time']:.2f}s")
+            print(f"  Target time: {performance['target_time']:.2f}s")
+            print(f"  Efficiency: {performance['efficiency']:.2f}x")
             print(f"  Meets constraint: {performance['meets_constraint']}")
 
             # Should meet real-time constraints for small simulations
@@ -490,8 +489,8 @@ class TestStressTesting:
 
         print("Concurrent operations test:")
         print(f"  Populations: {metrics['concurrent_populations']}")
-        print(f"  Total time: {metrics['total_time']".2f"}s")
-        print(f"  Avg time per population: {metrics['avg_time_per_population']".2f"}s")
+        print(f"  Total time: {metrics['total_time']:.2f}s")
+        print(f"  Avg time per population: {metrics['avg_time_per_population']:.2f}s")
 
         # Concurrent operations should complete successfully
         assert metrics['concurrent_populations'] == 3

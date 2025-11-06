@@ -19,7 +19,9 @@ import requests
 import shapely.geometry
 import pandas as pd
 
-from geo_infer_agent.models.bdi import BDIAgent, Belief, Desire, Plan
+# BDIState and BDIAgent are in bdi.py file, import from models package
+from geo_infer_agent.models import BDIAgent
+from geo_infer_agent.models.bdi import Belief, Desire, Plan
 
 logger = logging.getLogger("geo_infer_agent.agents.data_collector")
 

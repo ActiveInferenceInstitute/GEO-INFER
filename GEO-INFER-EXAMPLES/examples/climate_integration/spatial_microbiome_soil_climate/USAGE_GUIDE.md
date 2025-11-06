@@ -31,7 +31,7 @@ This example successfully demonstrates the integration of multiple biological da
 ### Prerequisites
 ```bash
 # Required Python packages (automatically handled)
-pip install --break-system-packages --user pandas numpy folium h3 geopandas
+uv pip install --user pandas numpy folium h3 geopandas
 ```
 
 ### Running the Integration

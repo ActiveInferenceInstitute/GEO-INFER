@@ -586,7 +586,7 @@ class GeoArt:
         if not MAYAVI_AVAILABLE and not PLOTLY_AVAILABLE:
             raise ValueError(
                 "3D visualization requires either mayavi or plotly. "
-                "Install with: pip install mayavi or pip install plotly"
+                "Install with: uv pip install mayavi or pip install plotly"
             )
 
         return GeoArt3D(
@@ -618,7 +618,7 @@ class GeoArt:
         """
         if not FOLIUM_AVAILABLE:
             raise ValueError(
-                "Interactive web maps require folium. Install with: pip install folium"
+                "Interactive web maps require folium. Install with: uv pip install folium"
             )
 
         if self.data is None:
@@ -706,7 +706,7 @@ class GeoArt:
         """
         if not PLOTLY_AVAILABLE:
             raise ValueError(
-                "Plotly visualizations require plotly. Install with: pip install plotly"
+                "Plotly visualizations require plotly. Install with: uv pip install plotly"
             )
 
         if self.data is None:

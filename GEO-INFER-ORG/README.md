@@ -38,7 +38,7 @@ GEO-INFER-ORG is dedicated to developing and implementing organizational structu
 - **Facilitate Knowledge Transfer:** Build systems for effective knowledge sharing, documentation, and organizational learning.
 - **Enhance Stakeholder Engagement:** Develop methodologies for meaningful involvement of all relevant stakeholders in geospatial projects.
 
-## Key Features
+## Core Features
 
 ### 1. Geospatial Governance Framework
 - **Description:** Comprehensive models and tools for establishing effective governance structures for geospatial initiatives, from small projects to large institutions.
@@ -117,6 +117,139 @@ graph TD
     class ORG_Core orgcore;
     classDef tools fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px;
     class Implementation_Tools tools;
+```
+
+## API Reference
+
+### Core Classes
+
+#### GovernanceFramework
+
+Governance framework implementation.
+
+```python
+from geo_infer_org.core.governance import GovernanceFramework
+
+# Create governance framework
+governance = GovernanceFramework(
+    structure='democratic',
+    decision_process='consensus'
+)
+
+# Add governance rule
+governance.add_rule(
+    rule_id='decision_making',
+    description='Major decisions require 2/3 majority',
+    scope='project_wide'
+)
+
+# Make decision
+decision = governance.make_decision(
+    proposal=proposal,
+    stakeholders=stakeholder_list
+)
+```
+
+#### CommunityManager
+
+Community structure and engagement management.
+
+```python
+from geo_infer_org.core.community import CommunityManager
+
+# Create community manager
+community = CommunityManager(
+    community_name='GEO-INFER Contributors',
+    structure='open_source'
+)
+
+# Add member
+community.add_member(
+    member_id='user_001',
+    role='contributor',
+    expertise=['spatial_analysis', 'python']
+)
+
+# Track engagement
+engagement = community.track_engagement(
+    member_id='user_001',
+    activities=['code_contributions', 'documentation']
+)
+```
+
+#### StakeholderMapper
+
+Spatial stakeholder mapping and analysis.
+
+```python
+from geo_infer_org.core.stakeholders import StakeholderMapper
+
+# Create stakeholder mapper
+mapper = StakeholderMapper()
+
+# Map stakeholders
+stakeholder_map = mapper.map_stakeholders(
+    region=project_region,
+    interests=['environmental', 'economic', 'social']
+)
+
+# Analyze stakeholder influence
+influence = mapper.analyze_influence(
+    stakeholder_id='stakeholder_001',
+    decision_domain='land_use'
+)
+```
+
+#### ProjectManager
+
+Geospatial project management.
+
+```python
+from geo_infer_org.core.projects import ProjectManager
+
+# Create project manager
+pm = ProjectManager(
+    project_name='Urban Planning Initiative',
+    spatial_scope=city_boundaries
+)
+
+# Add task
+pm.add_task(
+    task_id='task_001',
+    description='Spatial analysis of zoning',
+    dependencies=[],
+    spatial_requirements={'bbox': [-122.5, 37.7, -122.3, 37.9]}
+)
+
+# Track progress
+progress = pm.track_progress(project_id='project_001')
+```
+
+#### KnowledgeManager
+
+Organizational knowledge management.
+
+```python
+from geo_infer_org.core.knowledge import KnowledgeManager
+
+# Create knowledge manager
+km = KnowledgeManager(
+    knowledge_base_path='knowledge/',
+    structure='hierarchical'
+)
+
+# Add knowledge item
+km.add_knowledge(
+    title='Spatial Analysis Best Practices',
+    content=best_practices_doc,
+    tags=['spatial', 'analysis', 'guidelines']
+)
+
+# Search knowledge
+results = km.search_knowledge(
+    query='H3 indexing',
+    tags=['spatial', 'indexing']
+)
 ```
 
 ## Integration with other GEO-INFER Modules
@@ -313,6 +446,129 @@ GEO-INFER-ORG/
 - Develop engagement strategies appropriate to stakeholder characteristics
 - Create multiple channels for feedback and participation
 - Regularly reassess stakeholder landscape as projects evolve
+
+## API Reference
+
+### Core Classes
+
+#### GovernanceFramework
+
+Comprehensive governance framework for geospatial initiatives.
+
+```python
+from geo_infer_org.governance import GovernanceFramework
+
+# Create governance framework
+governance = GovernanceFramework(
+    name="River Basin Monitoring Initiative",
+    scale="regional",
+    stakeholders=["government", "research", "community", "industry"]
+)
+
+# Configure decision-making
+governance.set_decision_model(
+    model_type="consent-based",
+    quorum=0.6
+)
+
+# Add roles
+governance.add_role(
+    name="Technical Coordination",
+    responsibilities=["data standards", "technology selection"]
+)
+```
+
+#### SpatialStakeholderMap
+
+Spatial stakeholder mapping and analysis.
+
+```python
+from geo_infer_org.stakeholders import SpatialStakeholderMap
+
+# Create stakeholder map
+stakeholder_map = SpatialStakeholderMap(study_area=study_area)
+
+# Add stakeholder groups
+stakeholder_map.add_stakeholder_group(
+    name="Riverside Communities",
+    geography="communities.geojson",
+    interests=["flood protection", "water quality"],
+    influence_level=3
+)
+
+# Analyze stakeholder landscape
+analysis = stakeholder_map.analyze_stakeholder_landscape()
+```
+
+#### CommunityManager
+
+Community development and management.
+
+```python
+from geo_infer_org.community import CommunityManager
+
+# Create community manager
+community = CommunityManager(
+    project_name="Geospatial Initiative",
+    onboarding_enabled=True
+)
+
+# Add contributor pathway
+community.add_contributor_pathway(
+    name="New Contributor",
+    steps=["onboarding", "first_contribution", "mentorship"]
+)
+
+# Track community health
+health_metrics = community.assess_community_health()
+```
+
+#### ProjectManager
+
+Geospatial project management system.
+
+```python
+from geo_infer_org.projects import ProjectManager
+
+# Create project manager
+project = ProjectManager(
+    project_name="Spatial Analysis Project",
+    workflow_template="geospatial_analysis"
+)
+
+# Define project phases
+project.add_phase(
+    name="Data Collection",
+    tasks=["data_ingestion", "validation", "storage"]
+)
+
+# Track progress
+progress = project.get_progress_report()
+```
+
+#### KnowledgeManager
+
+Organizational knowledge management.
+
+```python
+from geo_infer_org.knowledge import KnowledgeManager
+
+# Create knowledge manager
+knowledge = KnowledgeManager(
+    knowledge_base_path="knowledge/",
+    search_enabled=True
+)
+
+# Add knowledge asset
+knowledge.add_asset(
+    title="Spatial Analysis Best Practices",
+    content=best_practices_doc,
+    tags=["spatial", "analysis", "best_practices"]
+)
+
+# Search knowledge base
+results = knowledge.search("spatial indexing")
+```
 
 ## Future Development
 

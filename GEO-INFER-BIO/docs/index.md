@@ -30,7 +30,7 @@ GEO-INFER-BIO provides comprehensive tools for analyzing biological sequences an
 ## Installation
 
 ```bash
-pip install geo-infer-bio
+uv pip install geo-infer-bio
 ```
 
 ## Quick Start

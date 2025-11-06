@@ -34,7 +34,7 @@ GEO-INFER-COMMS provides a comprehensive communications infrastructure for geosp
 - **Optimize for Geospatial Contexts:** Tailor communication protocols to efficiently handle the unique characteristics of geospatial data (high volume, variable resolution, etc.).
 - **Secure Sensitive Location Information:** Implement security measures specifically designed for protecting location-based data and communications.
 
-## Key Features
+## Core Features
 
 ### 1. Geospatial Messaging Middleware
 - **Description:** A resilient, high-performance messaging system optimized for geospatial data exchange across distributed applications and services.
@@ -310,7 +310,7 @@ GEO-INFER-COMMS serves as a communication backbone for the entire framework:
 
 ### Installation
 ```bash
-pip install -e ./GEO-INFER-COMMS
+uv pip install -e ./GEO-INFER-COMMS
 ```
 
 ### Configuration

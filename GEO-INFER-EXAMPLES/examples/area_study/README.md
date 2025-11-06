@@ -358,11 +358,11 @@ graph TB
 ### Prerequisites
 ```bash
 # Install core modules
-pip install geo-infer-space geo-infer-data geo-infer-place geo-infer-pep
-pip install geo-infer-iot geo-infer-bio geo-infer-health geo-infer-api
+uv pip install geo-infer-space geo-infer-data geo-infer-place geo-infer-pep
+uv pip install geo-infer-iot geo-infer-bio geo-infer-health geo-infer-api
 
 # Install area study specific dependencies
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 ```
 
 ### System Requirements
@@ -961,11 +961,11 @@ git clone https://github.com/your-org/geo-infer.git
 cd geo-infer/GEO-INFER-EXAMPLES/examples/area_study
 
 # 2. Install dependencies
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 
 # 3. Install core modules (if available)
-pip install geo-infer-space geo-infer-data geo-infer-place geo-infer-pep
-pip install geo-infer-iot geo-infer-bio geo-infer-health
+uv pip install geo-infer-space geo-infer-data geo-infer-place geo-infer-pep
+uv pip install geo-infer-iot geo-infer-bio geo-infer-health
 
 # 4. Launch the dashboard
 cd scripts
@@ -1010,7 +1010,7 @@ conda activate area-study
 
 # Install core dependencies
 conda install -c conda-forge pandas numpy scipy
-pip install streamlit plotly folium
+uv pip install streamlit plotly folium
 ```
 
 **Using Docker:**
@@ -1161,7 +1161,7 @@ benchmarks.generate_report(results, output_format='html')
 2. **Set Up Development Environment**
    ```bash
    # Install development dependencies
-   pip install -r requirements-dev.txt
+   uv pip install -r requirements-dev.txt
 
    # Install pre-commit hooks
    pre-commit install

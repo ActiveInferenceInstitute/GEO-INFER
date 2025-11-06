@@ -21,7 +21,7 @@ def check_dependencies():
         return True
     except ImportError as e:
         print(f"❌ Missing dependency: {e}")
-        print("💡 Install with: pip install streamlit pandas plotly")
+        print("💡 Install with: uv pip install streamlit pandas plotly")
         return False
 
 def launch_dashboard():

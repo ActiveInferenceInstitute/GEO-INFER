@@ -1,0 +1,2 @@
+"""Core civic engagement functionality."""
+

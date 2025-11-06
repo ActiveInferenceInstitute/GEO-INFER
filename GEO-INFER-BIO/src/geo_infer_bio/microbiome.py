@@ -31,7 +31,7 @@ try:
     HAS_BIO_DEPS = True
 except ImportError:
     HAS_BIO_DEPS = False
-    logging.warning("Optional biological dependencies not available. Install with: pip install scipy")
+    logging.warning("Optional biological dependencies not available. Install with: uv pip install scipy")
 
 # Geospatial dependencies
 try:
@@ -40,7 +40,7 @@ try:
     HAS_GEO_DEPS = True
 except ImportError:
     HAS_GEO_DEPS = False
-    logging.warning("Geospatial dependencies not available. Install with: pip install geopandas shapely")
+    logging.warning("Geospatial dependencies not available. Install with: uv pip install geopandas shapely")
 
 logger = logging.getLogger(__name__)
 

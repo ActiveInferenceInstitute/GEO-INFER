@@ -10,7 +10,9 @@ import asyncio
 from datetime import datetime, timedelta
 import json
 
-from geo_infer_agent.models.bdi import Belief, Desire, Plan, BDIState, BDIAgent
+# BDIState and BDIAgent are in bdi.py file, import from models package
+from geo_infer_agent.models import BDIState, BDIAgent
+from geo_infer_agent.models.bdi import Belief, Desire, Plan
 
 
 class TestBelief:

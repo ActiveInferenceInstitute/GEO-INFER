@@ -7,7 +7,7 @@ This tutorial will guide you through the basics of using the GEO-INFER-MATH libr
 First, install the library using pip:
 
 ```bash
-pip install geo-infer-math
+uv pip install geo-infer-math
 ```
 
 Or for development installation:
@@ -15,7 +15,7 @@ Or for development installation:
 ```bash
 git clone https://github.com/geo-infer/geo-infer-math.git
 cd geo-infer-math
-pip install -e ".[dev]"
+uv pip install -e ".[dev]"
 ```
 
 ## Basic Usage

@@ -227,7 +227,7 @@ class H3V4FrameworkUpgrader:
         report.append("")
         report.append("### Next Steps:")
         report.append("1. Run comprehensive tests to verify migration")
-        report.append("2. Update virtual environments with H3 v4: `pip install h3>=4.0.0`")
+        report.append("2. Update virtual environments with H3 v4: `uv pip install h3>=4.0.0`")
         report.append("3. Review any remaining manual issues listed above")
         report.append("4. Update CI/CD pipelines to use H3 v4")
         report.append("5. Update project documentation")

@@ -8,7 +8,7 @@ For local development, you can run the module directly:
 
 ```bash
 # Install dependencies
-pip install -e .
+uv pip install -e .
 
 # Run the module
 python -m geo_infer_ops.app

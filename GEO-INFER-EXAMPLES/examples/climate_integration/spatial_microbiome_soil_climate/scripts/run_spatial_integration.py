@@ -73,7 +73,7 @@ try:
     HAS_DEPS = True
 except ImportError as e:
     logger.error(f"❌ Missing required dependencies: {e}")
-    logger.info("📦 Install with: pip install pandas numpy folium h3-py")
+    logger.info("📦 Install with: uv pip install pandas numpy folium h3-py")
     HAS_DEPS = False
 
 
@@ -1240,7 +1240,7 @@ def main():
         logger.error(f"Integration failed: {e}")
         print(f"\n❌ Integration failed: {e}")
         print("📦 Make sure required dependencies are installed:")
-        print("   pip install pandas numpy folium h3-py geopandas")
+        print("   uv pip install pandas numpy folium h3-py geopandas")
         sys.exit(1)
 
 

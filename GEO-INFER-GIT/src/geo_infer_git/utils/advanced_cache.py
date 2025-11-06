@@ -691,7 +691,7 @@ class RedisCache:
             self.redis_client.ping()
 
         except ImportError:
-            logger.error("Redis package not installed. Install with: pip install redis")
+            logger.error("Redis package not installed. Install with: uv pip install redis")
             raise
         except Exception as e:
             logger.error(f"Failed to connect to Redis: {e}")

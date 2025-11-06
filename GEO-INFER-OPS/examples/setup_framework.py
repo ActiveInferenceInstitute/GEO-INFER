@@ -52,9 +52,9 @@ class GEOINFERInstaller:
             original_cwd = os.getcwd()
             os.chdir(module_path)
             
-            # Install in development mode
+            # Install in development mode using uv
             result = subprocess.run(
-                [sys.executable, '-m', 'pip', 'install', '-e', '.'],
+                ['uv', 'pip', 'install', '-e', '.'],
                 capture_output=True,
                 text=True,
                 check=True
@@ -99,7 +99,7 @@ class GEOINFERInstaller:
             for dep in core_deps:
                 logger.info(f"Installing {dep}...")
                 subprocess.run(
-                    [sys.executable, '-m', 'pip', 'install', dep],
+                    ['uv', 'pip', 'install', dep],
                     check=True,
                     capture_output=True
                 )

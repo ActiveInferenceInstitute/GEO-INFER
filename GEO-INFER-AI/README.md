@@ -33,7 +33,7 @@ GEO-INFER-AI provides AI/ML capabilities within the GEO-INFER framework, includi
 -   **Enable Adaptive Systems:** Integrate ML models into agents (GEO-INFER-AGENT) and simulations (GEO-INFER-SIM) to create adaptive and learning-capable systems.
 -   **Promote Ethical AI:** Ensure that AI/ML applications are developed and deployed responsibly, addressing issues of fairness, transparency, and bias.
 
-## Key Features
+## Core Features
 
 -   **Automated Feature Extraction from Satellite & Aerial Imagery:** Leveraging deep learning (CNNs, Transformers) for tasks like building footprint detection, road network extraction, land cover mapping, and object identification.
 -   **Predictive Analytics for Environmental & Climate Modeling:** Developing ML models to forecast climate change impacts, predict species suitability, model hydrological processes, or estimate agricultural yields.
@@ -176,8 +176,8 @@ GEO-INFER-AI/
 
 ### Installation
 ```bash
-pip install -e ./GEO-INFER-AI
-# Optional extras: pip install -e ./GEO-INFER-AI[pytorch,tensorflow]
+uv pip install -e ./GEO-INFER-AI
+# Optional extras: uv pip install -e ./GEO-INFER-AI[pytorch,tensorflow]
 ```
 
 ### Configuration
@@ -240,6 +240,144 @@ The module aims to provide:
 -   **Model Training Frameworks:** Standardized scripts and pipelines for training new models or fine-tuning existing ones on custom datasets.
 -   **Integration with MLOps Tools (e.g., MLflow, Kubeflow, DVC):** For experiment tracking, model versioning, data versioning, reproducible training pipelines, and model deployment.
 -   **Benchmarking Datasets:** Access to or links to standard geospatial datasets for benchmarking model performance.
+
+## API Reference
+
+### Core Classes
+
+#### ModelTrainer
+
+Training and evaluation functionality for geospatial AI models.
+
+```python
+from geo_infer_ai import ModelTrainer, TrainingConfig
+
+# Configure training
+config = TrainingConfig(
+    batch_size=32,
+    epochs=100,
+    learning_rate=0.001,
+    validation_split=0.2
+)
+
+# Initialize trainer
+trainer = ModelTrainer(config)
+
+# Train model
+history = trainer.train(
+    model=model,
+    X_train=X_train,
+    y_train=y_train,
+    X_val=X_val,
+    y_val=y_val
+)
+
+# Evaluate model
+metrics = trainer.evaluate(model, X_test, y_test)
+```
+
+#### ImageClassifier
+
+Computer vision models for geospatial imagery.
+
+```python
+from geo_infer_ai import ImageClassifier
+
+# Initialize image classifier
+classifier = ImageClassifier(
+    model_type='resnet50',
+    num_classes=10,
+    input_shape=(256, 256, 3)
+)
+
+# Train on satellite imagery
+classifier.train(
+    images=satellite_images,
+    labels=land_cover_labels,
+    epochs=50
+)
+
+# Classify new imagery
+predictions = classifier.predict(new_images)
+```
+
+#### SpatialPredictor
+
+Predictive models for geospatial forecasting.
+
+```python
+from geo_infer_ai import SpatialPredictor
+
+# Initialize spatial predictor
+predictor = SpatialPredictor(
+    model_type='random_forest',
+    spatial_features=['elevation', 'ndvi', 'precipitation']
+)
+
+# Train on spatial data
+predictor.train(
+    features=spatial_features,
+    targets=yield_data,
+    spatial_context=coordinates
+)
+
+# Predict for new locations
+forecasts = predictor.predict(
+    features=new_features,
+    locations=new_coordinates
+)
+```
+
+#### GeospatialFeatureEngineer
+
+Preprocessing and feature engineering for geospatial data.
+
+```python
+from geo_infer_ai import GeospatialFeatureEngineer
+
+# Initialize feature engineer
+engineer = GeospatialFeatureEngineer()
+
+# Extract spatial features
+features = engineer.extract_features(
+    data=raw_geospatial_data,
+    feature_types=['spatial_autocorr', 'neighborhood_stats']
+)
+
+# Create training dataset
+dataset = engineer.create_dataset(
+    features=features,
+    labels=target_labels,
+    validation_split=0.2
+)
+```
+
+#### MLflowPipeline
+
+MLOps integration with MLflow for model management.
+
+```python
+from geo_infer_ai import MLflowPipeline
+
+# Initialize MLflow pipeline
+pipeline = MLflowPipeline(
+    experiment_name="geospatial_ml",
+    tracking_uri="http://localhost:5000"
+)
+
+# Log model
+pipeline.log_model(
+    model=trained_model,
+    model_name="spatial_predictor",
+    metrics=validation_metrics
+)
+
+# Load model for inference
+loaded_model = pipeline.load_model(
+    model_name="spatial_predictor",
+    version="latest"
+)
+```
 
 ## Integration with Other Modules
 

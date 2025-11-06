@@ -113,7 +113,7 @@ def check_and_install_dependencies():
     if missing_packages:
         logger.info(f"\nInstalling {len(missing_packages)} missing required packages: {', '.join(missing_packages)}")
         try:
-            install_cmd = [sys.executable, '-m', 'pip', 'install', '--user'] + missing_packages
+            install_cmd = ['uv', 'pip', 'install', '--user'] + missing_packages
             logger.info(f"Running: {' '.join(install_cmd)}")
             
             result = subprocess.run(install_cmd, capture_output=True, text=True)
@@ -123,7 +123,7 @@ def check_and_install_dependencies():
             else:
                 logger.error(f"✗ Failed to install packages: {result.stderr}")
                 logger.error("Please install manually:")
-                logger.error(f"pip install {' '.join(missing_packages)}")
+                logger.error(f"uv pip install {' '.join(missing_packages)}")
                 return False
         except Exception as e:
             logger.error(f"✗ Installation failed with exception: {e}")
@@ -137,7 +137,7 @@ def check_and_install_dependencies():
         
         if safe_to_install:
             try:
-                install_cmd = [sys.executable, '-m', 'pip', 'install', '--user'] + safe_to_install
+                install_cmd = ['uv', 'pip', 'install', '--user'] + safe_to_install
                 logger.info(f"Installing optional packages: {' '.join(safe_to_install)}")
                 result = subprocess.run(install_cmd, capture_output=True, text=True)
                 if result.returncode == 0:

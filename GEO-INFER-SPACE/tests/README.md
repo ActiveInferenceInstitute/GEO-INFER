@@ -84,7 +84,7 @@ These are from cloned OSC repositories and are expected to fail due to:
 
 ### Missing Dependencies
 - **Issue**: Some cloned repo tests require additional packages
-- **Solution**: Install missing packages: `pip install PyYAML scipy`
+- **Solution**: Install missing packages: `uv pip install PyYAML scipy`
 
 ## 📈 Test Performance
 

@@ -57,7 +57,7 @@ SPM employs Random Field Theory to account for spatial dependencies between data
 ### Statistical Inference
 The module generates statistical maps (SPM{t}, SPM{F}) where each point's value represents a test statistic. These maps are thresholded using RFT-based expectations regarding smoothness and cluster size to determine statistical significance while controlling for family-wise error.
 
-## Key Features
+## Core Features
 
 ### Spatial Analysis Tools
 - Multi-resolution spatial indexing and analysis
@@ -372,7 +372,7 @@ clusters = disease_monitor.detect_disease_clusters(
 
 ### Installation
 ```bash
-pip install -e ./GEO-INFER-SPM
+uv pip install -e ./GEO-INFER-SPM
 ```
 
 ### Basic Usage

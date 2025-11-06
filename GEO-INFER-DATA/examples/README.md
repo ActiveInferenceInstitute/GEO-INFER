@@ -231,13 +231,13 @@ For development and testing:
 
 ```bash
 # Install in development mode
-pip install -e ../
+uv pip install -e ../
 
 # Run with debug logging
-PYTHONPATH=../ python examples/basic_ingestion_example.py
+PYTHONPATH=../ uv run python examples/basic_ingestion_example.py
 
 # Run with profiling
-python -m cProfile -s time examples/storage_example.py
+uv run python -m cProfile -s time examples/storage_example.py
 ```
 
 ## Understanding Results
@@ -278,10 +278,10 @@ ls -la output/
 #### Import Errors
 ```bash
 # Ensure GEO-INFER-DATA is installed
-pip install -e ../
+uv pip install -e ../
 
 # Check Python path
-python -c "import geo_infer_data; print(geo_infer_data.__file__)"
+uv run python -c "import geo_infer_data; print(geo_infer_data.__file__)"
 ```
 
 #### Database Connection Issues

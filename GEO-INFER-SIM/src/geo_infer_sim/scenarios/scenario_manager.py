@@ -1,0 +1,382 @@
+"""
+Scenario management for GEO-INFER-SIM.
+
+This module provides scenario definition, management, and comparison
+capabilities for simulation experiments.
+"""
+
+import logging
+from typing import Dict, List, Optional, Any
+from dataclasses import dataclass, field
+from datetime import datetime
+import uuid
+import numpy as np
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class Scenario:
+    """Represents a simulation scenario."""
+
+    scenario_id: str
+    name: str
+    description: str = ""
+    parameters: Dict[str, Any] = field(default_factory=dict)
+    initial_conditions: Dict[str, Any] = field(default_factory=dict)
+    interventions: List[Dict[str, Any]] = field(default_factory=list)
+    created_at: datetime = field(default_factory=datetime.utcnow)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+
+
+class ScenarioManager:
+    """
+    Manager for simulation scenarios.
+
+    Provides scenario definition, storage, comparison, and batch execution
+    capabilities for simulation experiments.
+    """
+
+    def __init__(self) -> None:
+        """Initialize the scenario manager."""
+        self.scenarios: Dict[str, Scenario] = {}
+        self.scenario_results: Dict[str, Dict[str, Any]] = {}
+
+    def create_scenario(
+        self,
+        name: str,
+        description: str = "",
+        parameters: Optional[Dict[str, Any]] = None,
+        initial_conditions: Optional[Dict[str, Any]] = None,
+        interventions: Optional[List[Dict[str, Any]]] = None,
+        scenario_id: Optional[str] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+    ) -> Scenario:
+        """
+        Create a new simulation scenario.
+
+        Args:
+            name: Scenario name
+            description: Scenario description
+            parameters: Simulation parameters
+            initial_conditions: Initial conditions
+            interventions: List of interventions to apply
+            scenario_id: Optional scenario ID (if None, generates one)
+            metadata: Optional scenario metadata
+
+        Returns:
+            Created Scenario object
+        """
+        scenario_id = scenario_id or str(uuid.uuid4())
+
+        scenario = Scenario(
+            scenario_id=scenario_id,
+            name=name,
+            description=description,
+            parameters=parameters or {},
+            initial_conditions=initial_conditions or {},
+            interventions=interventions or [],
+            metadata=metadata or {},
+        )
+
+        self.scenarios[scenario_id] = scenario
+        logger.info(f"Created scenario: {name} (ID: {scenario_id})")
+
+        return scenario
+
+    def get_scenario(self, scenario_id: str) -> Optional[Scenario]:
+        """
+        Get a scenario by ID.
+
+        Args:
+            scenario_id: Scenario identifier
+
+        Returns:
+            Scenario object or None if not found
+        """
+        return self.scenarios.get(scenario_id)
+
+    def list_scenarios(self) -> List[Scenario]:
+        """
+        List all scenarios.
+
+        Returns:
+            List of all scenarios
+        """
+        return list(self.scenarios.values())
+
+    def update_scenario(
+        self,
+        scenario_id: str,
+        name: Optional[str] = None,
+        description: Optional[str] = None,
+        parameters: Optional[Dict[str, Any]] = None,
+        initial_conditions: Optional[Dict[str, Any]] = None,
+        interventions: Optional[List[Dict[str, Any]]] = None,
+    ) -> bool:
+        """
+        Update an existing scenario.
+
+        Args:
+            scenario_id: Scenario identifier
+            name: Optional new name
+            description: Optional new description
+            parameters: Optional updated parameters
+            initial_conditions: Optional updated initial conditions
+            interventions: Optional updated interventions
+
+        Returns:
+            True if scenario was updated, False if not found
+        """
+        if scenario_id not in self.scenarios:
+            return False
+
+        scenario = self.scenarios[scenario_id]
+
+        if name:
+            scenario.name = name
+        if description:
+            scenario.description = description
+        if parameters:
+            scenario.parameters.update(parameters)
+        if initial_conditions:
+            scenario.initial_conditions.update(initial_conditions)
+        if interventions:
+            scenario.interventions = interventions
+
+        logger.info(f"Updated scenario: {scenario_id}")
+        return True
+
+    def delete_scenario(self, scenario_id: str) -> bool:
+        """
+        Delete a scenario.
+
+        Args:
+            scenario_id: Scenario identifier
+
+        Returns:
+            True if scenario was deleted, False if not found
+        """
+        if scenario_id not in self.scenarios:
+            return False
+
+        del self.scenarios[scenario_id]
+
+        if scenario_id in self.scenario_results:
+            del self.scenario_results[scenario_id]
+
+        logger.info(f"Deleted scenario: {scenario_id}")
+        return True
+
+    def save_scenario_result(
+        self, scenario_id: str, result: Dict[str, Any]
+    ) -> None:
+        """
+        Save results for a scenario.
+
+        Args:
+            scenario_id: Scenario identifier
+            result: Simulation results
+        """
+        self.scenario_results[scenario_id] = result
+        logger.info(f"Saved results for scenario: {scenario_id}")
+
+    def get_scenario_result(self, scenario_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get results for a scenario.
+
+        Args:
+            scenario_id: Scenario identifier
+
+        Returns:
+            Results dictionary or None if not found
+        """
+        return self.scenario_results.get(scenario_id)
+
+    def compare_scenarios(
+        self, scenario_ids: List[str], metrics: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """
+        Compare multiple scenarios.
+
+        Args:
+            scenario_ids: List of scenario IDs to compare
+            metrics: Optional list of metrics to compare
+
+        Returns:
+            Comparison results dictionary
+        """
+        comparison = {
+            "scenarios": [],
+            "metrics": {},
+            "summary": {},
+        }
+
+        for scenario_id in scenario_ids:
+            if scenario_id not in self.scenarios:
+                continue
+
+            scenario = self.scenarios[scenario_id]
+            result = self.scenario_results.get(scenario_id, {})
+
+            comparison["scenarios"].append(
+                {
+                    "scenario_id": scenario_id,
+                    "name": scenario.name,
+                    "parameters": scenario.parameters,
+                    "result_available": scenario_id in self.scenario_results,
+                }
+            )
+
+            # Extract metrics if results available
+            if result and metrics:
+                for metric in metrics:
+                    if metric not in comparison["metrics"]:
+                        comparison["metrics"][metric] = []
+
+                    metric_value = result.get("metrics", {}).get(metric)
+                    comparison["metrics"][metric].append(
+                        {
+                            "scenario_id": scenario_id,
+                            "value": metric_value,
+                        }
+                    )
+
+        # Calculate summary statistics
+        if comparison["metrics"]:
+            for metric_name, metric_values in comparison["metrics"].items():
+                values = [m["value"] for m in metric_values if m["value"] is not None]
+                if values:
+                    comparison["summary"][metric_name] = {
+                        "mean": float(np.mean(values)),
+                        "std": float(np.std(values)),
+                        "min": float(np.min(values)),
+                        "max": float(np.max(values)),
+                        "count": len(values),
+                    }
+
+        return comparison
+
+    def run_scenarios(
+        self,
+        scenario_ids: List[str],
+        simulation_func: Any,
+        parallel: bool = False,
+    ) -> Dict[str, Dict[str, Any]]:
+        """
+        Run multiple scenarios using a simulation function.
+
+        Args:
+            scenario_ids: List of scenario IDs to run
+            simulation_func: Function that takes a Scenario and returns results
+            parallel: Whether to run scenarios in parallel
+
+        Returns:
+            Dictionary mapping scenario IDs to results
+        """
+        results = {}
+
+        if parallel:
+            # Parallel execution (simplified - would use multiprocessing in production)
+            import concurrent.futures
+
+            with concurrent.futures.ThreadPoolExecutor() as executor:
+                future_to_scenario = {
+                    executor.submit(
+                        simulation_func, self.scenarios[scenario_id]
+                    ): scenario_id
+                    for scenario_id in scenario_ids
+                    if scenario_id in self.scenarios
+                }
+
+                for future in concurrent.futures.as_completed(future_to_scenario):
+                    scenario_id = future_to_scenario[future]
+                    try:
+                        result = future.result()
+                        results[scenario_id] = result
+                        self.save_scenario_result(scenario_id, result)
+                    except Exception as e:
+                        logger.error(f"Scenario {scenario_id} failed: {e}")
+                        results[scenario_id] = {"error": str(e)}
+        else:
+            # Sequential execution
+            for scenario_id in scenario_ids:
+                if scenario_id not in self.scenarios:
+                    continue
+
+                try:
+                    scenario = self.scenarios[scenario_id]
+                    result = simulation_func(scenario)
+                    results[scenario_id] = result
+                    self.save_scenario_result(scenario_id, result)
+                except Exception as e:
+                    logger.error(f"Scenario {scenario_id} failed: {e}")
+                    results[scenario_id] = {"error": str(e)}
+
+        return results
+
+    def analyze_results(
+        self, scenario_ids: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """
+        Analyze results across scenarios.
+
+        Args:
+            scenario_ids: Optional list of scenario IDs to analyze (all if None)
+
+        Returns:
+            Analysis results dictionary
+        """
+        if scenario_ids is None:
+            scenario_ids = list(self.scenario_results.keys())
+
+        analysis = {
+            "scenarios_analyzed": len(scenario_ids),
+            "successful_runs": 0,
+            "failed_runs": 0,
+            "metrics_summary": {},
+            "best_scenarios": {},
+        }
+
+        all_metrics = set()
+        for scenario_id in scenario_ids:
+            result = self.scenario_results.get(scenario_id)
+            if result and "error" not in result:
+                analysis["successful_runs"] += 1
+                if "metrics" in result:
+                    all_metrics.update(result["metrics"].keys())
+            else:
+                analysis["failed_runs"] += 1
+
+        # Aggregate metrics
+        for metric_name in all_metrics:
+            metric_values = []
+            for scenario_id in scenario_ids:
+                result = self.scenario_results.get(scenario_id, {})
+                if "metrics" in result and metric_name in result["metrics"]:
+                    metric_values.append(result["metrics"][metric_name])
+
+            if metric_values:
+                analysis["metrics_summary"][metric_name] = {
+                    "mean": float(np.mean(metric_values)),
+                    "std": float(np.std(metric_values)),
+                    "min": float(np.min(metric_values)),
+                    "max": float(np.max(metric_values)),
+                    "count": len(metric_values),
+                }
+
+                # Find best scenario for each metric
+                best_idx = np.argmax(metric_values) if metric_values else None
+                if best_idx is not None:
+                    best_scenario_id = scenario_ids[best_idx]
+                    analysis["best_scenarios"][metric_name] = {
+                        "scenario_id": best_scenario_id,
+                        "value": float(metric_values[best_idx]),
+                        "scenario_name": self.scenarios.get(best_scenario_id, {}).name
+                        if best_scenario_id in self.scenarios
+                        else "Unknown",
+                    }
+
+        return analysis
+
+

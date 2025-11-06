@@ -30,7 +30,7 @@ GEO-INFER-AGENT is the module dedicated to the **design, implementation, and orc
 -   **Goal-Orientation:** Enable agents to pursue predefined or dynamically generated goals effectively.
 -   **Ethical Operation:** Promote the development of agents that operate transparently, accountably, and in alignment with human values (see Ethical Considerations).
 
-## Key Features
+## Core Features
 
 -   **Diverse Agent Architectures:** Support for multiple agent control architectures including:
     -   **Active Inference Agents (integrating GEO-INFER-ACT):** Agents that act to minimize free energy, enabling perception, learning, and planning under uncertainty.
@@ -123,10 +123,10 @@ pip list | grep geo-infer
 
 ### 2. Installation
 ```bash
-pip install -e ./GEO-INFER-AGENT
+uv pip install -e ./GEO-INFER-AGENT
 # Optional extras for RL/ActInf examples
-pip install stable-baselines3 gym pymdp
-python -c "import geo_infer_agent; print('import ok')"
+uv pip install stable-baselines3 gym pymdp
+uv run python -c "import geo_infer_agent; print('import ok')"
 ```
 
 ### 3. Basic Configuration
@@ -230,7 +230,7 @@ python -m geo_infer_agent.cli test-communication
 # git clone https://github.com/activeinference/GEO-INFER.git
 # cd GEO-INFER/GEO-INFER-AGENT
 
-pip install -e .
+uv pip install -e .
 # or poetry install if pyproject.toml is configured
 ```
 
@@ -283,6 +283,139 @@ The module facilitates the implementation of various established agent architect
 -   **Reinforcement Learning (RL):** Agents learn optimal policies by interacting with an environment and receiving rewards or punishments. Often involves training deep neural networks (ties to GEO-INFER-AI).
 -   **Rule-Based / Expert Systems:** Agents operate based on a predefined set of IF-THEN rules or a knowledge base curated by domain experts.
 -   **Hybrid Architectures:** Combining elements from different architectures to leverage their respective strengths (e.g., an RL agent might use a BDI-style planner for high-level goal setting).
+
+## API Reference
+
+### Core Classes
+
+#### BaseAgent
+
+Foundation class for all intelligent agents.
+
+```python
+from geo_infer_agent.core.agent_base import BaseAgent, AgentState
+
+# Create base agent
+agent = BaseAgent(
+    agent_id="agent_001",
+    config={'spatial_bounds': region_bounds}
+)
+
+# Get agent state
+state = agent.get_state()
+
+# Execute action
+result = agent.act(observation)
+```
+
+#### BDIAgent
+
+Belief-Desire-Intention agent implementation.
+
+```python
+from geo_infer_agent.models.bdi import BDIAgent, Belief, Desire, Plan
+
+# Create BDI agent
+bdi_agent = BDIAgent(
+    agent_id="bdi_001",
+    initial_beliefs={'location': [37.7749, -122.4194]},
+    goals=['collect_data', 'monitor_environment']
+)
+
+# Update beliefs
+bdi_agent.update_belief('location', new_location)
+
+# Add desire
+bdi_agent.add_desire(Desire('optimize_route', priority=0.8))
+
+# Execute plan
+result = bdi_agent.execute_plan()
+```
+
+#### ActiveInferenceAgent
+
+Active Inference-based agent.
+
+```python
+from geo_infer_agent.models.active_inference import ActiveInferenceAgent
+
+# Create active inference agent
+act_agent = ActiveInferenceAgent(
+    state_dim=10,
+    obs_dim=5,
+    action_dim=3,
+    config={'planning_horizon': 5}
+)
+
+# Perceive environment
+observation = act_agent.perceive(obs_array)
+
+# Act to minimize free energy
+action = act_agent.act(observation)
+```
+
+#### RLAgent
+
+Reinforcement Learning agent.
+
+```python
+from geo_infer_agent.models.rl import RLAgent
+
+# Create RL agent
+rl_agent = RLAgent(
+    state_dim=10,
+    action_dim=3,
+    learning_rate=0.001
+)
+
+# Train agent
+rl_agent.train(episodes=1000)
+
+# Get action
+action = rl_agent.select_action(state)
+```
+
+#### AgentRegistry
+
+Agent registration and discovery.
+
+```python
+from geo_infer_agent.core.agent_registry import AgentRegistry
+
+# Create registry
+registry = AgentRegistry()
+
+# Register agent
+registry.register(agent_id="agent_001", agent=my_agent)
+
+# Get agent
+agent = registry.get_agent("agent_001")
+
+# List all agents
+all_agents = registry.list_agents()
+```
+
+#### MessagingService
+
+Inter-agent communication.
+
+```python
+from geo_infer_agent.api.messaging import MessagingService
+
+# Create messaging service
+messaging = MessagingService()
+
+# Send message
+messaging.send_message(
+    from_agent="agent_001",
+    to_agent="agent_002",
+    message_type="coordination",
+    payload={'task': 'data_collection'}
+)
+
+# Receive messages
+messages = messaging.get_messages(agent_id="agent_002")
+```
 
 ## Integration with Other Modules
 

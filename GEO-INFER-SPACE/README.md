@@ -73,7 +73,7 @@ The module empowers all other GEO-INFER components with robust capabilities for 
 -   **Ensure Accurate Coordinate Reference System (CRS) Management:** Handle CRS transformations rigorously to maintain geospatial accuracy and interoperability.
 -   **Promote Scalability and Performance:** Design for efficiency and scalability to handle demanding geospatial computations, from local processing to distributed environments.
 
-## Key Features
+## Core Features
 
 ### 1. Multi-Resolution Spatial Indexing Systems
 -   **Description:** A suite of powerful spatial indexing techniques to accelerate spatial queries, neighborhood searches, and data retrieval from large vector and raster datasets.
@@ -344,6 +344,135 @@ cell_h3 = latlng_to_cell(37.7749, -122.4194, 9, backend='h3')
 cell_srai = latlng_to_cell(37.7749, -122.4194, 9, backend='srai')
 ```
 
+## API Reference
+
+### Core Interfaces
+
+#### SpatialIndexingInterface
+
+Backend-agnostic spatial indexing with H3 and SRAI support.
+
+```python
+from geo_infer_space import SpatialIndexingInterface, configure_backends
+
+# Configure default backends
+configure_backends({
+    'default_backends': {
+        'indexing': 'h3',
+        'analytics': 'srai'
+    }
+})
+
+# Use H3 backend
+h3_indexer = SpatialIndexingInterface(backend='h3')
+cell = h3_indexer.latlng_to_cell(37.7749, -122.4194, resolution=9)
+lat, lng = h3_indexer.cell_to_latlng(cell)
+
+# Use SRAI backend
+srai_indexer = SpatialIndexingInterface(backend='srai')
+cells = srai_indexer.polygon_to_cells(polygon, resolution=9)
+```
+
+#### SpatialAnalyticsInterface
+
+Advanced spatial analytics with multiple backend support.
+
+```python
+from geo_infer_space import SpatialAnalyticsInterface
+
+# Initialize analytics interface
+analytics = SpatialAnalyticsInterface(backend='srai')
+
+# Hotspot detection
+hotspots = analytics.analyze_hotspots(
+    point_data=crime_locations,
+    method='getis_ord'
+)
+
+# Spatial clustering
+clusters = analytics.clustering_analysis(
+    points=locations,
+    method='dbscan',
+    eps=1000
+)
+
+# Spatial interpolation
+interpolated = analytics.spatial_interpolation(
+    sample_points=measurements,
+    method='kriging',
+    target_grid=grid
+)
+```
+
+#### GeometricOperationsInterface
+
+Geometric operations on spatial data.
+
+```python
+from geo_infer_space import GeometricOperationsInterface
+
+# Initialize geometric operations
+geom_ops = GeometricOperationsInterface()
+
+# Buffer operation
+buffered = geom_ops.buffer(geometry, distance=1000)
+
+# Intersection
+intersection = geom_ops.intersection(geom1, geom2)
+
+# Union
+union = geom_ops.union([geom1, geom2, geom3])
+
+# Distance calculation
+distance = geom_ops.distance(point1, point2)
+```
+
+### Convenience Functions
+
+```python
+from geo_infer_space import latlng_to_cell, cell_to_latlng, polygon_to_cells
+
+# Convert lat/lng to H3 cell
+cell = latlng_to_cell(37.7749, -122.4194, resolution=9)
+
+# Convert cell to lat/lng
+lat, lng = cell_to_latlng(cell)
+
+# Convert polygon to cells
+cells = polygon_to_cells(polygon_geometry, resolution=9)
+```
+
+### Analytics Functions
+
+```python
+from geo_infer_space.analytics import (
+    hotspot_detection,
+    spatial_interpolation,
+    clustering_analysis,
+    shortest_path
+)
+
+# Detect hotspots
+hotspots = hotspot_detection(
+    points=incident_locations,
+    method='getis_ord',
+    significance_level=0.05
+)
+
+# Spatial interpolation
+interpolated = spatial_interpolation(
+    sample_points=measurements,
+    method='kriging'
+)
+
+# Network analysis
+route = shortest_path(
+    network=road_network,
+    origin=start_point,
+    destination=end_point
+)
+```
+
 ## Integration with other GEO-INFER Modules
 
 GEO-INFER-SPACE is a critical enabling module for most other parts of the framework:
@@ -490,7 +619,7 @@ print(f"API response: {response.status_code}")
 # git clone https://github.com/activeinference/GEO-INFER.git
 # cd GEO-INFER
 
-pip install -e ./GEO-INFER-SPACE
+uv pip install -e ./GEO-INFER-SPACE
 # Or if managed by a broader project build system.
 ```
 ### CLI Tools

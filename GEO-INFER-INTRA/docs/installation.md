@@ -42,12 +42,12 @@ python -m venv geo-infer-env
 source geo-infer-env/bin/activate  # On Windows: geo-infer-env\Scripts\activate
 
 # Install the core framework
-pip install geo-infer
+uv pip install geo-infer
 
 # Install optional components
-pip install geo-infer[visualization]  # Adds visualization capabilities
-pip install geo-infer[ml]             # Adds machine learning capabilities
-pip install geo-infer[dev]            # Adds development tools
+uv pip install geo-infer[visualization]  # Adds visualization capabilities
+uv pip install geo-infer[ml]             # Adds machine learning capabilities
+uv pip install geo-infer[dev]            # Adds development tools
 ```
 
 ### Method 2: From Source (Recommended for Developers)
@@ -62,7 +62,7 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install in development mode
-pip install -e .
+uv pip install -e .
 ```
 
 ### Method 3: Using Docker (Recommended for Production)
@@ -81,7 +81,7 @@ You can install individual GEO-INFER modules based on your specific needs:
 
 ```bash
 # Install only specific modules
-pip install geo-infer-space geo-infer-time geo-infer-data
+uv pip install geo-infer-space geo-infer-time geo-infer-data
 ```
 
 ## System-Specific Instructions
@@ -182,7 +182,7 @@ If you encounter issues installing GDAL:
 
 ```bash
 # Try installing with specific version
-pip install GDAL==$(gdal-config --version)
+uv pip install GDAL==$(gdal-config --version)
 ```
 
 ### Memory Errors During Installation
@@ -191,7 +191,7 @@ If you encounter memory errors during installation:
 
 ```bash
 # Install with reduced parallel compilation
-pip install --no-cache-dir --no-binary :all: geo-infer
+uv pip install --no-cache-dir --no-binary :all: geo-infer
 ```
 
 ### Import Errors After Installation
@@ -203,7 +203,7 @@ If you see import errors after installation:
 python -c "import sys; print(sys.path)"
 
 # Reinstall with verbose output
-pip install -v --force-reinstall geo-infer
+uv pip install -v --force-reinstall geo-infer
 ```
 
 ## Development Environment Setup
@@ -222,7 +222,7 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install development dependencies
-pip install -e ".[dev]"
+uv pip install -e ".[dev]"
 
 # Install pre-commit hooks
 pre-commit install
@@ -265,10 +265,10 @@ If you encounter issues not covered in this guide:
 To update to the latest version:
 
 ```bash
-# For pip installation
-pip install --upgrade geo-infer
+# For uv pip installation
+uv pip install --upgrade geo-infer
 
 # For development installation
 git pull
-pip install -e .
+uv pip install -e .
 ``` 

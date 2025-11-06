@@ -8,7 +8,7 @@ The `test_realms_api.py` script provides comprehensive testing for all documente
 
 ```bash
 # Install dependencies
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 
 # Ensure you have the schema file in the same directory
 ls realm_schema.json

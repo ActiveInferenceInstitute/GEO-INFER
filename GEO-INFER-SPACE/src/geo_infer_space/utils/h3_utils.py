@@ -274,7 +274,7 @@ def compact_cells(h3_indices: List[str]) -> List[str]:
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for compact_cells")
     
     return list(h3.compact_cells(h3_indices))
@@ -284,7 +284,7 @@ def uncompact_cells(h3_indices: List[str], resolution: int) -> List[str]:
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for uncompact_cells")
     
     return list(h3.uncompact_cells(h3_indices, resolution))
@@ -294,7 +294,7 @@ def cell_area(h3_index: str, unit: str = 'km^2') -> float:
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for cell_area")
     
     return h3.cell_area(h3_index, unit)
@@ -304,7 +304,7 @@ def get_resolution(h3_index: str) -> int:
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for get_resolution")
     
     return h3.get_resolution(h3_index)
@@ -314,7 +314,7 @@ def is_valid_cell(h3_index: str) -> bool:
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for is_valid_cell")
     
     return h3.is_valid_cell(h3_index)
@@ -324,7 +324,7 @@ def are_neighbor_cells(h3_index1: str, h3_index2: str) -> bool:
     try:
         import h3
     except ImportError:
-        logger.error("h3-py package not found. Please install it with 'pip install h3'")
+        logger.error("h3-py package not found. Please install it with 'uv pip install h3'")
         raise ImportError("h3-py package required for are_neighbor_cells")
     
     return h3.are_neighbor_cells(h3_index1, h3_index2) 

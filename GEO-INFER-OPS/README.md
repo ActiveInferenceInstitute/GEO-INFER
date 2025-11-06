@@ -107,7 +107,7 @@ graph TB
 - **Test Reports**: Automated testing results and coverage reports
 - **System Health Status**: Overall framework health and performance metrics
 
-## Key Features
+## Core Features
 
 ### 1. Advanced Configuration Management
 - **Multi-Environment Support**: Development, staging, production configurations
@@ -265,6 +265,145 @@ cp config/example.yaml config/local.yaml
 ### Running Tests
 ```bash
 pytest tests/
+```
+
+## API Reference
+
+### Core Classes
+
+#### Orchestrator
+
+System orchestration and task management.
+
+```python
+from geo_infer_ops import Orchestrator, Task, TaskStatus
+
+# Create orchestrator
+orchestrator = Orchestrator()
+
+# Define task
+task = Task(
+    task_id="data_processing",
+    module="GEO-INFER-DATA",
+    action="process_dataset",
+    params={'dataset_id': 'dataset_123'}
+)
+
+# Execute task
+result = orchestrator.execute_task(task)
+
+# Monitor task status
+status = orchestrator.get_task_status("data_processing")
+```
+
+#### DeploymentManager
+
+Infrastructure deployment and management.
+
+```python
+from geo_infer_ops import DeploymentManager
+
+# Create deployment manager
+deployment = DeploymentManager(
+    config_path='config/deployment.yaml'
+)
+
+# Deploy module
+deployment.deploy_module(
+    module_name='GEO-INFER-API',
+    version='1.0.0',
+    replicas=3
+)
+
+# Scale module
+deployment.scale_module(
+    module_name='GEO-INFER-API',
+    replicas=5
+)
+```
+
+#### HealthChecker
+
+System health monitoring.
+
+```python
+from geo_infer_ops import HealthChecker, HealthStatus, HealthCheck
+
+# Create health checker
+health = HealthChecker()
+
+# Add health check
+health.add_check(
+    HealthCheck(
+        name="api_health",
+        module="GEO-INFER-API",
+        endpoint="/health"
+    )
+)
+
+# Run health checks
+status = health.check_all()
+
+# Get module health
+module_health = health.get_module_health("GEO-INFER-API")
+```
+
+### Utility Functions
+
+#### Configuration Management
+
+```python
+from geo_infer_ops import load_config, get_config
+
+# Load configuration
+config = load_config('config/ops.yaml')
+
+# Get current config
+current_config = get_config()
+```
+
+#### Logging Setup
+
+```python
+from geo_infer_ops import setup_logging, get_logger
+
+# Setup logging
+setup_logging(
+    log_level='INFO',
+    json_format=True,
+    log_file='logs/ops.log'
+)
+
+# Get logger
+logger = get_logger('geo_infer_ops')
+```
+
+#### Monitoring Setup
+
+```python
+from geo_infer_ops import setup_monitoring
+
+# Setup monitoring
+setup_monitoring(
+    metrics_enabled=True,
+    metrics_path='/metrics',
+    prometheus_enabled=True
+)
+```
+
+#### Testing Setup
+
+```python
+from geo_infer_ops import setup_testing, create_test_client
+
+# Setup testing framework
+setup_testing(
+    test_discovery_path='tests/',
+    coverage_enabled=True
+)
+
+# Create test client
+client = create_test_client()
 ```
 
 ## Integration with Other Modules

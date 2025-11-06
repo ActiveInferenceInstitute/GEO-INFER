@@ -950,7 +950,7 @@ cp docs/h3_config_template.yaml config/h3_config.yaml
 # Edit config/h3_config.yaml with your module's specific settings
 
 # 3. Install dependencies
-pip install h3 pyyaml jsonschema
+uv pip install h3 pyyaml jsonschema
 
 # 4. Run integration setup
 python setup_h3_integration.py YOUR-MODULE-NAME

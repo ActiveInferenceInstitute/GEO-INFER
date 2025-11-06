@@ -35,7 +35,7 @@ try:
     H3_AVAILABLE = True
 except ImportError:
     H3_AVAILABLE = False
-    logger.warning("h3-py package not available. Install with 'pip install h3'")
+    logger.warning("h3-py package not available. Install with 'uv pip install h3'")
 
 
 @dataclass
@@ -861,7 +861,7 @@ class H3Visualizer:
         try:
             import folium
         except ImportError:
-            raise ImportError("folium package required for interactive maps. Install with 'pip install folium'")
+            raise ImportError("folium package required for interactive maps. Install with 'uv pip install folium'")
         
         if not self.grid.cells:
             # Create empty map

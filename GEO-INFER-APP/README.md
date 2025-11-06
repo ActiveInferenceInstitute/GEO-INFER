@@ -38,7 +38,7 @@ GEO-INFER-APP is the primary human-computer interaction layer for the GEO-INFER 
 -   **Responsiveness:** Ensure applications work seamlessly across various devices (desktops, tablets, mobiles).
 -   **Seamless Integration:** Provide a cohesive frontend experience that seamlessly integrates functionalities from various backend GEO-INFER modules via GEO-INFER-API.
 
-## Key Features
+## Core Features
 
 -   **Map-Centric GIS Interfaces:** Core focus on interactive maps as the primary way to display, query, and interact with geospatial data, supporting multiple base layers, thematic overlays, and drawing tools.
 -   **Configurable Dashboards & Visualization Components:** A rich library of reusable UI components (charts, graphs, tables, indicators, spatial editors) that can be assembled into custom dashboards for monitoring, analysis, and reporting.
@@ -134,7 +134,7 @@ GEO-INFER-APP/
 ### Installation
 ```bash
 # If GEO-INFER-APP includes a Python backend (e.g., for serving the app or BFF)
-# pip install -e .
+# uv pip install -e .
 
 # For the frontend application (assuming a common structure)
 # cd src/geo_infer_app/frontend  # Or wherever the frontend source lives
@@ -228,6 +228,145 @@ Built-in support for creating applications that can serve a global audience:
 -   **Locale-Specific Formatting:** Correctly formatting dates, numbers, currencies, and other locale-sensitive data.
 -   **Cultural Considerations in Design:** Awareness of how colors, icons, and layouts might be perceived in different cultures.
 -   **Pluralization Rules:** Handling language-specific rules for pluralizing nouns in dynamic messages.
+
+## API Reference
+
+### Core Classes
+
+#### AgentInterface
+
+Abstract interface for geospatial agent integration.
+
+```python
+from geo_infer_app.models import AgentInterface, AgentType
+
+# Create agent interface
+interface = AgentInterface.create(
+    agent_type=AgentType.BDI,
+    config={'spatial_bounds': region_bounds}
+)
+
+# Get agent state
+state = interface.get_agent_state(agent_id='agent_001')
+
+# Send command to agent
+result = interface.send_command(
+    agent_id='agent_001',
+    command='navigate_to',
+    params={'destination': [37.7749, -122.4194]}
+)
+```
+
+#### AgentFactory
+
+Factory for creating and managing agent interfaces.
+
+```python
+from geo_infer_app.models import AgentFactory
+
+# Create factory
+factory = AgentFactory()
+
+# Create agent interface
+interface = factory.create_interface(
+    agent_type=AgentType.ACTIVE_INFERENCE,
+    config={'model_type': 'categorical'}
+)
+
+# List available agent types
+available_types = factory.get_available_agent_types()
+```
+
+#### AgentVisualization
+
+Utilities for visualizing agents in UI components.
+
+```python
+from geo_infer_app.models import AgentVisualization
+
+# Initialize visualization
+viz = AgentVisualization()
+
+# Convert agent state to map feature
+map_feature = viz.state_to_map_feature(agent_state)
+
+# Convert to dashboard data
+dashboard_data = viz.state_to_dashboard_data(agent_state)
+```
+
+#### MapComponent
+
+Interactive map component for geospatial visualization.
+
+```python
+from geo_infer_app.components import MapComponent
+
+# Create map component
+map_component = MapComponent(
+    center=[37.7749, -122.4194],
+    zoom=10,
+    base_layer='satellite'
+)
+
+# Add layer
+map_component.add_layer(
+    data=geospatial_features,
+    style={'color': 'blue', 'opacity': 0.7}
+)
+
+# Add agent visualization
+map_component.add_agent_layer(agents=agent_states)
+```
+
+#### DashboardComponent
+
+Configurable dashboard for data visualization.
+
+```python
+from geo_infer_app.components import DashboardComponent
+
+# Create dashboard
+dashboard = DashboardComponent(
+    layout='grid',
+    widgets=['map', 'chart', 'table', 'metrics']
+)
+
+# Add widget
+dashboard.add_widget(
+    widget_type='chart',
+    data=temporal_data,
+    config={'type': 'line', 'x': 'time', 'y': 'value'}
+)
+```
+
+### UI Component Library
+
+```python
+from geo_infer_app.components import (
+    MapComponent,
+    ChartComponent,
+    TableComponent,
+    FormComponent
+)
+
+# Create interactive map
+map_view = MapComponent(
+    center=[37.7749, -122.4194],
+    layers=[satellite_layer, feature_layer]
+)
+
+# Create data chart
+chart = ChartComponent(
+    data=time_series_data,
+    chart_type='line'
+)
+
+# Create data table
+table = TableComponent(
+    data=tabular_data,
+    columns=['id', 'name', 'location', 'value']
+)
+```
 
 ## Integration with Other Modules
 

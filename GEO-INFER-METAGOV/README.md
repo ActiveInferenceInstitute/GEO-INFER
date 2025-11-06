@@ -617,7 +617,7 @@ The METAGOV module includes comprehensive tests for:
 ### Installation
 
 ```bash
-pip install -e ./GEO-INFER-METAGOV
+uv pip install -e ./GEO-INFER-METAGOV
 ```
 
 ### Quick Start Example

@@ -1,0 +1,264 @@
+"""
+Core simulation engine for GEO-INFER-SIM.
+
+This module provides the foundational simulation engine that supports
+multiple simulation paradigms including ABM, system dynamics, and CA.
+"""
+
+import logging
+from typing import Dict, List, Optional, Any, Callable
+from dataclasses import dataclass, field
+from datetime import datetime, timedelta
+from enum import Enum
+
+import numpy as np
+import pandas as pd
+
+logger = logging.getLogger(__name__)
+
+
+class SimulationState(str, Enum):
+    """Simulation execution states."""
+
+    INITIALIZED = "initialized"
+    RUNNING = "running"
+    PAUSED = "paused"
+    COMPLETED = "completed"
+    FAILED = "failed"
+    CANCELLED = "cancelled"
+
+
+@dataclass
+class SimulationConfig:
+    """Configuration for simulation execution."""
+
+    time_step: float = 1.0
+    max_time: float = 100.0
+    output_interval: float = 1.0
+    random_seed: Optional[int] = None
+    parallel_execution: bool = False
+    save_state_history: bool = True
+    checkpoint_interval: Optional[float] = None
+
+    def __post_init__(self) -> None:
+        """Validate configuration."""
+        if self.time_step <= 0:
+            raise ValueError("time_step must be positive")
+        if self.max_time <= 0:
+            raise ValueError("max_time must be positive")
+        if self.output_interval <= 0:
+            raise ValueError("output_interval must be positive")
+
+
+class SimulationEngine:
+    """
+    Core simulation engine for geospatial simulations.
+
+    Provides a unified interface for running simulations across different
+    paradigms with state management, event scheduling, and result collection.
+    """
+
+    def __init__(self, config: Optional[SimulationConfig] = None) -> None:
+        """
+        Initialize the simulation engine.
+
+        Args:
+            config: Simulation configuration
+        """
+        self.config = config or SimulationConfig()
+        self.state = SimulationState.INITIALIZED
+        self.current_time = 0.0
+        self.state_history: List[Dict[str, Any]] = []
+        self.metrics: Dict[str, List[float]] = {}
+        self.events: List[Dict[str, Any]] = []
+
+        # Set random seed if provided
+        if self.config.random_seed is not None:
+            np.random.seed(self.config.random_seed)
+
+    def initialize(self, initial_state: Dict[str, Any]) -> None:
+        """
+        Initialize the simulation with initial state.
+
+        Args:
+            initial_state: Dictionary containing initial simulation state
+        """
+        logger.info("Initializing simulation")
+
+        self.current_time = 0.0
+        self.state = SimulationState.INITIALIZED
+        self.state_history = []
+        self.metrics = {}
+        self.events = []
+
+        # Store initial state
+        if self.config.save_state_history:
+            self.state_history.append(
+                {
+                    "time": self.current_time,
+                    "state": initial_state.copy(),
+                }
+            )
+
+        logger.info("Simulation initialized")
+
+    def step(self, step_func: Callable[[float, Dict[str, Any]], Dict[str, Any]]) -> None:
+        """
+        Execute a single simulation step.
+
+        Args:
+            step_func: Function that takes (time, current_state) and returns new_state
+        """
+        if self.state != SimulationState.RUNNING and self.state != SimulationState.INITIALIZED:
+            raise ValueError(f"Cannot step simulation in state: {self.state}")
+
+        if self.state == SimulationState.INITIALIZED:
+            self.state = SimulationState.RUNNING
+
+        # Get current state
+        current_state = (
+            self.state_history[-1]["state"] if self.state_history else {}
+        )
+
+        # Execute step function
+        try:
+            new_state = step_func(self.current_time, current_state)
+
+            # Update time
+            self.current_time += self.config.time_step
+
+            # Save state if needed
+            if self.config.save_state_history:
+                if (
+                    len(self.state_history) == 0
+                    or self.current_time
+                    >= self.state_history[-1]["time"] + self.config.output_interval
+                ):
+                    self.state_history.append(
+                        {
+                            "time": self.current_time,
+                            "state": new_state.copy(),
+                        }
+                    )
+
+        except Exception as e:
+            logger.error(f"Simulation step failed at time {self.current_time}: {e}")
+            self.state = SimulationState.FAILED
+            raise
+
+    def run(
+        self, step_func: Callable[[float, Dict[str, Any]], Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        Run the complete simulation.
+
+        Args:
+            step_func: Function that takes (time, current_state) and returns new_state
+
+        Returns:
+            Simulation results dictionary
+        """
+        logger.info(f"Starting simulation (max_time={self.config.max_time})")
+
+        self.state = SimulationState.RUNNING
+        start_time = datetime.utcnow()
+
+        try:
+            while self.current_time < self.config.max_time:
+                if self.state == SimulationState.CANCELLED:
+                    break
+
+                self.step(step_func)
+
+            self.state = SimulationState.COMPLETED
+            end_time = datetime.utcnow()
+            duration = (end_time - start_time).total_seconds()
+
+            results = {
+                "status": self.state.value,
+                "final_time": self.current_time,
+                "duration_seconds": duration,
+                "state_history": self.state_history,
+                "metrics": self.metrics,
+                "events": self.events,
+            }
+
+            logger.info(
+                f"Simulation completed in {duration:.2f}s "
+                f"(final_time={self.current_time})"
+            )
+
+            return results
+
+        except Exception as e:
+            self.state = SimulationState.FAILED
+            logger.error(f"Simulation failed: {e}")
+            raise
+
+    def pause(self) -> None:
+        """Pause the simulation."""
+        if self.state == SimulationState.RUNNING:
+            self.state = SimulationState.PAUSED
+            logger.info("Simulation paused")
+
+    def resume(self) -> None:
+        """Resume a paused simulation."""
+        if self.state == SimulationState.PAUSED:
+            self.state = SimulationState.RUNNING
+            logger.info("Simulation resumed")
+
+    def cancel(self) -> None:
+        """Cancel the simulation."""
+        self.state = SimulationState.CANCELLED
+        logger.info("Simulation cancelled")
+
+    def get_state(self) -> Dict[str, Any]:
+        """
+        Get current simulation state.
+
+        Returns:
+            Current state dictionary
+        """
+        return {
+            "state": self.state.value,
+            "current_time": self.current_time,
+            "config": {
+                "time_step": self.config.time_step,
+                "max_time": self.config.max_time,
+                "output_interval": self.config.output_interval,
+            },
+        }
+
+    def record_metric(self, name: str, value: float) -> None:
+        """
+        Record a metric value.
+
+        Args:
+            name: Metric name
+            value: Metric value
+        """
+        if name not in self.metrics:
+            self.metrics[name] = []
+
+        self.metrics[name].append(value)
+
+    def record_event(
+        self, event_type: str, time: float, data: Optional[Dict[str, Any]] = None
+    ) -> None:
+        """
+        Record a simulation event.
+
+        Args:
+            event_type: Type of event
+            time: Event time
+            data: Optional event data
+        """
+        self.events.append(
+            {
+                "type": event_type,
+                "time": time,
+                "data": data or {},
+            }
+        )
+
+

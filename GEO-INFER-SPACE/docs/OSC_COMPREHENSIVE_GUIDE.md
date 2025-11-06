@@ -65,7 +65,7 @@ GEO-INFER-SPACE/
 cd GEO-INFER-SPACE
 
 # Install dependencies (including visualization libraries) with uv
-uv pip install -e .
+uv uv pip install -e .
 
 # Run the complete setup with enhanced reporting
 uv run python3 bin/osc_setup_all.py --force-clone
@@ -126,21 +126,21 @@ uvicorn>=0.15.0
 #### **Option 1: Standard Installation (uv)**
 ```bash
 cd GEO-INFER-SPACE
-uv pip install -e .
+uv uv pip install -e .
 uv run python3 bin/osc_setup_all.py
 ```
 
 #### **Option 2: Development Installation (uv)**
 ```bash
 cd GEO-INFER-SPACE
-uv pip install -e ".[dev]"
+uv uv pip install -e ".[dev]"
 uv run python3 bin/osc_setup_all.py --force-clone
 ```
 
 #### **Option 3: Minimal Installation (no visualizations, uv)**
 ```bash
 cd GEO-INFER-SPACE
-uv pip install -e . --no-deps
+uv uv pip install -e . --no-deps
 uv pip install numpy pandas geopandas h3
 uv run python3 bin/osc_setup_all.py --skip-tests
 ```
@@ -462,13 +462,13 @@ python3 bin/osc_setup_all.py --force-clone
 cd repo/osc-geo-h3grid-srv
 python3 -m venv venv
 source venv/bin/activate
-pip install -e .
+uv pip install -e .
 python3 -m pytest tests/ -v
 
 cd ../osc-geo-h3loader-cli
 python3 -m venv venv
 source venv/bin/activate
-pip install -e .
+uv pip install -e .
 python3 -m pytest tests/ -v
 ```
 
@@ -705,7 +705,7 @@ if __name__ == "__main__":
            run: |
              sudo apt-get update
              sudo apt-get install gfortran libgdal-dev
-             pip install -e .
+             uv pip install -e .
          - name: Run OSC setup
            run: python3 bin/osc_setup_all.py --skip-tests
          - name: Check status
@@ -920,7 +920,7 @@ git clone https://github.com/your-fork/GEO-INFER.git
 cd GEO-INFER/GEO-INFER-SPACE
 
 # Install in development mode
-pip install -e ".[dev]"
+uv pip install -e ".[dev]"
 
 # Run tests
 python -m pytest tests/ -v

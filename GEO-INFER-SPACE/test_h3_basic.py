@@ -182,8 +182,8 @@ def main():
         print("✅ Operations are available")
         print("✅ Documentation is present")
         print("\n📝 Next Steps:")
-        print("1. Install h3-py: pip install h3")
-        print("2. Install visualization deps: pip install folium plotly matplotlib")
+        print("1. Install h3-py: uv pip install h3")
+        print("2. Install visualization deps: uv pip install folium plotly matplotlib")
         print("3. Run full examples: python examples/h3_comprehensive_examples.py")
         return 0
     else:

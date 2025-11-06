@@ -508,7 +508,7 @@ security_manager = SecurityManager()
 #### For Beginners (15-30 minutes)
 ```bash
 # 1. Install core framework
-pip install geo-infer-math geo-infer-space geo-infer-act
+uv pip install geo-infer-math geo-infer-space geo-infer-act
 
 # 2. Basic spatial analysis
 from geo_infer_space import SpatialAnalyzer

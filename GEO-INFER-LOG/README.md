@@ -44,7 +44,7 @@ By integrating advanced routing algorithms, network analysis, fleet management t
 - **Support Strategic Network Design:** Facilitate optimal facility location, hub placement, and distribution network configuration with explicit spatial considerations.
 - **Enable Real-Time Logistics Intelligence:** Incorporate real-time data streams for dynamic routing, fleet management, and responsive supply chain operations.
 
-## Key Features
+## Core Features
 
 ### 1. Advanced Route Optimization & Vehicle Routing
 - **Description:** Comprehensive algorithms for solving complex routing problems with multiple constraints such as vehicle capacity, time windows, driver rules, and traffic conditions.
@@ -454,7 +454,7 @@ compliance_monitor = cold_chain_manager.monitor_compliance(
 
 ### Installation
 ```bash
-pip install -e ./GEO-INFER-LOG
+uv pip install -e ./GEO-INFER-LOG
 ```
 
 ### Configuration

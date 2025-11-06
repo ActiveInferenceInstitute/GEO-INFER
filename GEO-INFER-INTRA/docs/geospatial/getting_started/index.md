@@ -78,7 +78,7 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install GEO-INFER-INTRA
-pip install geo-infer-intra
+uv pip install geo-infer-intra
 
 # Initialize the application
 geo-infer-intra init
@@ -434,10 +434,10 @@ If you encounter issues during installation:
 python --version  # Should be 3.8+
 
 # Check pip is updated
-pip install --upgrade pip
+uv pip install --upgrade pip
 
 # Install with verbose output
-pip install -v geo-infer-intra
+uv pip install -v geo-infer-intra
 ```
 
 #### Database Connection Issues

@@ -309,10 +309,10 @@ python3 -m venv venv
 source venv/bin/activate
 
 # Install dependencies
-pip install -r requirements.txt
+uv pip install -r requirements.txt
 
 # Install the package
-pip install -e .
+uv pip install -e .
 
 # Initialize the database
 geo-infer-intra db init

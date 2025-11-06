@@ -37,7 +37,7 @@ GEO-INFER-MATH serves as the core mathematical and statistical engine for the en
 -   **Facilitate Quantitative Modeling:** Supply the building blocks for constructing and evaluating complex geospatial models, including statistical, physics-based, and machine learning models.
 -   **Support Diverse Data Types:** Handle various forms of geospatial data representations, including vector, raster, point clouds, and networks, from a mathematical perspective.
 
-## Key Features
+## Core Features
 
 ### 1. Advanced Spatial Statistics
 -   **Description:** A comprehensive toolkit for analyzing spatial patterns, distributions, autocorrelation, and relationships within geospatial datasets.
@@ -162,7 +162,7 @@ GEO-INFER-MATH is a fundamental dependency for nearly all other modules that per
 
 ### Installation
 ```bash
-pip install -e ./GEO-INFER-MATH
+uv pip install -e ./GEO-INFER-MATH
 ```
 
 ### Configuration
@@ -462,6 +462,108 @@ precision_report = monitor.get_precision_report()
 #### "Convergence not achieved in iterative method"
 **Cause**: Iterative algorithm failed to converge within maximum iterations
 **Fix**: Increase iteration limit, adjust convergence criteria, or use different initial conditions
+
+## API Reference
+
+### Core Classes
+
+#### SpatialStatistics
+
+Comprehensive spatial statistics analysis toolkit.
+
+```python
+from geo_infer_math.core.spatial_statistics import SpatialStatistics
+
+# Initialize spatial statistics analyzer
+stats = SpatialStatistics()
+
+# Calculate Moran's I for spatial autocorrelation
+morans_i = stats.morans_i(
+    values=spatial_values,
+    coordinates=coordinates,
+    weight_matrix=spatial_weights
+)
+
+# Perform geostatistical analysis
+geostats = stats.geostatistical_analysis(
+    data=spatial_data,
+    variogram_model='spherical',
+    kriging_type='ordinary'
+)
+```
+
+#### GeometricOperations
+
+Advanced geometric calculations and operations.
+
+```python
+from geo_infer_math.core.geometry import GeometricOperations
+
+# Initialize geometric operations
+geom = GeometricOperations()
+
+# Calculate distances
+distance = geom.haversine_distance(
+    lat1=40.7128, lon1=-74.0060,
+    lat2=34.0522, lon2=-118.2437
+)
+
+# Perform geometric calculations
+properties = geom.calculate_properties(
+    geometries=geometries,
+    properties=['area', 'perimeter', 'centroid']
+)
+```
+
+#### CoordinateTransformations
+
+Coordinate reference system transformations.
+
+```python
+from geo_infer_math.core.transforms import CoordinateTransformations
+
+# Initialize coordinate transformer
+transformer = CoordinateTransformations()
+
+# Transform coordinates
+transformed = transformer.transform(
+    coordinates=coordinates,
+    source_crs='EPSG:4326',
+    target_crs='EPSG:3857'
+)
+
+# Project geometries
+projected = transformer.project_geometries(
+    geometries=geometries,
+    target_crs='EPSG:3857'
+)
+```
+
+#### NumericalMethods
+
+Numerical algorithms for optimization and interpolation.
+
+```python
+from geo_infer_math.core.numerical_methods import NumericalMethods
+
+# Initialize numerical methods
+numerical = NumericalMethods()
+
+# Spatial interpolation
+interpolated = numerical.spatial_interpolation(
+    points=known_points,
+    values=known_values,
+    target_points=target_locations,
+    method='idw'
+)
+
+# Optimization
+optimal = numerical.optimize(
+    objective_function=cost_function,
+    constraints=constraints,
+    method='genetic_algorithm'
+)
+```
 
 ## Contributing
 

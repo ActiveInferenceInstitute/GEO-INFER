@@ -520,7 +520,7 @@ def create_visualization_demo():
         plt.show()
 
     except ImportError:
-        print("   ⚠ Visualization requires matplotlib (pip install matplotlib)")
+        print("   ⚠ Visualization requires matplotlib (uv pip install matplotlib)")
     except Exception as e:
         print(f"   ✗ Visualization failed: {str(e)}")
 

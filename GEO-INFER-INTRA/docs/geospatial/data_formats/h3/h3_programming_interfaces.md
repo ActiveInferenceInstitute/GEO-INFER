@@ -100,7 +100,7 @@ The [h3-py](https://github.com/uber/h3-py) package provides Python bindings for 
 ### Installation
 
 ```bash
-pip install h3
+uv pip install h3
 ```
 
 ### Basic Usage

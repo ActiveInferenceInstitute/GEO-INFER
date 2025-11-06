@@ -44,7 +44,7 @@ By integrating probabilistic risk assessment methodologies with advanced geospat
 - **Integrate Climate Change Perspectives:** Incorporate climate change projections and scenarios into risk models to account for evolving hazard patterns and intensities.
 - **Bridge Multiple Disciplines:** Connect geospatial science, probabilistic modeling, actuarial science, disaster risk reduction, and climate adaptation within a coherent analytical framework.
 
-## Key Features
+## Core Features
 
 ### 1. Multi-Hazard Risk Modeling & Assessment
 - **Description:** Comprehensive modeling capabilities for diverse natural hazards (floods, earthquakes, hurricanes, wildfires, droughts, landslides) and technological/anthropogenic hazards (industrial accidents, pollution, infrastructure failures).
@@ -441,7 +441,7 @@ risk_reports = stress_tester.generate_risk_reports(
 
 ### Installation
 ```bash
-pip install -e ./GEO-INFER-RISK
+uv pip install -e ./GEO-INFER-RISK
 ```
 
 ### Configuration

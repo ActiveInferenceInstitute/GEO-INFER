@@ -11,7 +11,7 @@
 
 A comprehensive 2-3 paragraph description of what this module does, its role in the GEO-INFER ecosystem, and what problems it solves. Include how this module relates to the broader goals of geospatial inference and active inference principles.
 
-## Key Features
+## Core Features
 
 - **Feature Group 1**: Description of the first major feature group
   - Feature 1.1: Specific capability
@@ -37,10 +37,10 @@ python -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 # Install this module
-pip install -e .
+uv pip install -e .
 
 # Install development dependencies
-pip install -e ".[dev]"
+uv pip install -e ".[dev]"
 ```
 
 ## Usage Examples

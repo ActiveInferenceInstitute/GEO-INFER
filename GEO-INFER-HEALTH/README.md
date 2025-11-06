@@ -41,7 +41,7 @@ The GEO-INFER-HEALTH module provides a specialized suite of tools and methodolog
 -   **Reduce Health Disparities:** Enable the identification and analysis of geographic and demographic health inequalities to inform targeted interventions.
 -   **Facilitate Public Health Planning & Response:** Provide decision-support tools for optimizing resource allocation, planning interventions, and responding effectively to public health emergencies.
 
-## Key Features
+## Core Features
 
 ### 1. Active Inference Disease Surveillance & Outbreak Modeling
 -   **Description:** Advanced disease surveillance using Active Inference principles for probabilistic reasoning, uncertainty quantification, and adaptive belief updating. Includes real-time hotspot detection, outbreak prediction, and intelligent resource allocation.
@@ -338,22 +338,22 @@ GEO-INFER-HEALTH functions as an integral part of the wider GEO-INFER ecosystem:
 
 #### Basic Installation
 ```bash
-pip install -e ./GEO-INFER-HEALTH
+uv pip install -e ./GEO-INFER-HEALTH
 ```
 
 #### Development Installation with All Dependencies
 ```bash
-pip install -e ./GEO-INFER-HEALTH[dev,gpu,database,docs]
+uv pip install -e ./GEO-INFER-HEALTH[dev,gpu,database,docs]
 ```
 
 #### GPU-Accelerated Installation
 ```bash
-pip install -e ./GEO-INFER-HEALTH[gpu]
+uv pip install -e ./GEO-INFER-HEALTH[gpu]
 ```
 
 #### Database Integration Installation
 ```bash
-pip install -e ./GEO-INFER-HEALTH[database]
+uv pip install -e ./GEO-INFER-HEALTH[database]
 ```
 
 ### Configuration

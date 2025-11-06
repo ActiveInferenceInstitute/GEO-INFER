@@ -28,7 +28,7 @@ Note: Code examples are illustrative; see `GEO-INFER-NORMS/examples` for runnabl
 
 GEO-INFER-NORMS provides social-technical compliance modeling with deterministic and probabilistic aspects within the GEO-INFER framework, focusing on understanding, modeling, and analyzing social norms, regulatory frameworks, and compliance requirements in spatial contexts.
 
-## Key Features
+## Core Features
 - **Legal Framework Analysis**: Model jurisdictions, legal entities, and regulations with their spatial dimensions
 - **Zoning Analysis**: Evaluate land use regulations, zoning compatibility, and zoning change impacts
 - **Compliance Tracking**: Monitor and report regulatory compliance across entities and jurisdictions
@@ -72,7 +72,7 @@ GEO-INFER-NORMS/
 ## Getting Started
 1. Installation
    ```bash
-   pip install -e .
+   uv pip install -e .
    ```
 
 2. Configuration
@@ -214,6 +214,132 @@ GEO-INFER-NORMS implements several normative frameworks:
 - Social norm diffusion patterns
 - Policy impact assessment frameworks
 - Spatial equity and justice metrics
+
+## API Reference
+
+### Core Classes
+
+#### LegalFramework
+
+Legal framework and jurisdiction management.
+
+```python
+from geo_infer_norms.core import LegalFramework, JurisdictionHandler
+
+# Create legal framework
+framework = LegalFramework()
+
+# Add jurisdiction
+framework.add_jurisdiction(
+    name='San Francisco County',
+    level='county',
+    geometry=county_boundary,
+    parent='California'
+)
+
+# Find applicable regulations
+regulations = framework.find_applicable_regulations(
+    location=[37.7749, -122.4194],
+    date='2023-01-01'
+)
+```
+
+#### ZoningAnalyzer
+
+Zoning and land use analysis.
+
+```python
+from geo_infer_norms.core import ZoningAnalyzer, LandUseClassifier
+
+# Create zoning analyzer
+zoning = ZoningAnalyzer(
+    zoning_data=zoning_shapefile,
+    regulations=zoning_regulations
+)
+
+# Analyze land use compatibility
+compatibility = zoning.analyze_compatibility(
+    proposed_use='residential',
+    location=parcel_location
+)
+
+# Classify land use
+classifier = LandUseClassifier()
+land_use = classifier.classify(parcel_data)
+```
+
+#### ComplianceTracker
+
+Compliance tracking and reporting.
+
+```python
+from geo_infer_norms.core import ComplianceTracker, ComplianceReport
+
+# Create compliance tracker
+tracker = ComplianceTracker()
+
+# Track compliance
+tracker.track_compliance(
+    entity_id='property_001',
+    regulation_id='zoning_001',
+    status='compliant',
+    location=property_location
+)
+
+# Generate compliance report
+report = tracker.generate_report(
+    entity_id='property_001',
+    date_range=['2023-01-01', '2023-12-31']
+)
+```
+
+#### PolicyImpactAnalyzer
+
+Policy impact assessment.
+
+```python
+from geo_infer_norms.core import PolicyImpactAnalyzer, RegulatoryImpactAssessment
+
+# Create policy impact analyzer
+analyzer = PolicyImpactAnalyzer()
+
+# Assess policy impact
+impact = analyzer.assess_impact(
+    policy=proposed_policy,
+    spatial_scope=affected_region,
+    time_horizon=5
+)
+
+# Generate impact assessment
+assessment = RegulatoryImpactAssessment(
+    policy=proposed_policy,
+    impacts=impact_results
+)
+```
+
+#### NormativeInference
+
+Probabilistic normative inference.
+
+```python
+from geo_infer_norms.core import NormativeInference
+
+# Create normative inference engine
+inference = NormativeInference()
+
+# Add norm
+inference.add_norm(
+    name='environmental_protection',
+    condition=lambda x: x['pollution_level'] < 50,
+    probability=0.9
+)
+
+# Infer compliance
+compliance_prob = inference.infer_compliance(
+    entity_id='facility_001',
+    observations=current_observations
+)
+```
 
 ## Modeling Capabilities
 The module provides tools for modeling:

@@ -85,7 +85,7 @@ def process_style_transfer(args):
         import tensorflow as tf
     except ImportError:
         print("Error: TensorFlow is required for style transfer")
-        print("Install it with 'pip install tensorflow'")
+        print("Install it with 'uv pip install tensorflow'")
         return 1
     
     # Apply style transfer

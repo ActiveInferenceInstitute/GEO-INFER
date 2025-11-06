@@ -44,16 +44,16 @@ By completing this example, users will learn how to:
 ### Required Modules
 ```bash
 # Core dependencies
-pip install -e ./GEO-INFER-SPACE
-pip install -e ./GEO-INFER-BAYES
-pip install -e ./GEO-INFER-IOT
-pip install -e ./GEO-INFER-LOG
-pip install -e ./GEO-INFER-TEST
+uv uv pip install -e ./GEO-INFER-SPACE
+uv pip install -e ./GEO-INFER-BAYES
+uv pip install -e ./GEO-INFER-IOT
+uv pip install -e ./GEO-INFER-LOG
+uv pip install -e ./GEO-INFER-TEST
 
 # Supporting modules
-pip install -e ./GEO-INFER-DATA
-pip install -e ./GEO-INFER-TIME
-pip install -e ./GEO-INFER-API
+uv pip install -e ./GEO-INFER-DATA
+uv pip install -e ./GEO-INFER-TIME
+uv pip install -e ./GEO-INFER-API
 ```
 
 ### System Requirements

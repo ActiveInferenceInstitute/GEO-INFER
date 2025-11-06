@@ -203,7 +203,7 @@ cd GEO-INFER/GEO-INFER-EXAMPLES
 uv pip install -e .
 
 # Install optional domain modules
-pip install geo-infer-health geo-infer-ag geo-infer-ai
+uv pip install geo-infer-health geo-infer-ag geo-infer-ai
 ```
 
 ### **3. Run Your First Integration (5 minutes)**
@@ -273,6 +273,103 @@ results = await orchestrator.execute_workflow(
 | **Intermediate** | 3-5 | Parallel, Hub-Spoke | Health surveillance | 1-2 weeks |
 | **Advanced** | 5-7 | Event-driven, Feedback | Precision agriculture | 2-4 weeks |
 | **Expert** | 7+ | Custom, Distributed | Autonomous systems | 1-3 months |
+
+## API Reference
+
+### Core Utilities
+
+#### ModuleOrchestrator
+
+Advanced multi-module workflow execution.
+
+```python
+from geo_infer_examples.core import ModuleOrchestrator
+
+# Create orchestrator
+orchestrator = ModuleOrchestrator()
+
+# Define workflow
+workflow = orchestrator.create_workflow(
+    name='spatio_temporal_analysis',
+    modules=['SPACE', 'TIME', 'DATA'],
+    dependencies={'TIME': ['DATA'], 'SPACE': ['DATA']}
+)
+
+# Execute workflow
+results = orchestrator.execute_workflow(
+    workflow=workflow,
+    inputs={'data_source': 'sensor_network'}
+)
+```
+
+#### ConfigManager
+
+Cross-module configuration consistency.
+
+```python
+from geo_infer_examples.core import ConfigManager
+
+# Create config manager
+config_mgr = ConfigManager()
+
+# Load configuration
+config = config_mgr.load_config(
+    config_path='config/integration.yaml',
+    modules=['SPACE', 'TIME', 'AI']
+)
+
+# Validate configuration
+is_valid = config_mgr.validate_config(config)
+```
+
+#### DataValidator
+
+Integration data validation.
+
+```python
+from geo_infer_examples.core import DataValidator
+
+# Create validator
+validator = DataValidator()
+
+# Validate data flow
+validation = validator.validate_data_flow(
+    source_module='DATA',
+    target_module='SPACE',
+    data_format='geojson'
+)
+
+# Check compatibility
+compatible = validator.check_compatibility(
+    module_a='SPACE',
+    module_b='TIME',
+    operation='spatio_temporal_join'
+)
+```
+
+#### ModuleConnector
+
+Seamless module communication.
+
+```python
+from geo_infer_examples.core import ModuleConnector
+
+# Create connector
+connector = ModuleConnector()
+
+# Connect modules
+connection = connector.connect_modules(
+    source='DATA',
+    target='SPACE',
+    protocol='api'
+)
+
+# Transfer data
+result = connector.transfer_data(
+    connection=connection,
+    data=geospatial_data
+)
+```
 
 ## 🛠️ Core Utilities (Minimal)
 

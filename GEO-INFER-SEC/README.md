@@ -44,7 +44,7 @@ By integrating advanced privacy-preserving methodologies with geospatial-specifi
 - **Enable Privacy-Preserving Analytics:** Facilitate methods for extracting insights from geospatial data while minimizing privacy risks, such as differential privacy and secure multi-party computation.
 - **Support Ethical Data Governance:** Provide frameworks and tools for implementing ethical principles in geospatial data management, including transparency, consent management, and data minimization.
 
-## Key Features
+## Core Features
 
 ### 1. Comprehensive Geospatial Data Anonymization
 - **Description:** Advanced techniques to transform sensitive location data in ways that protect individual privacy while maintaining analytical utility.

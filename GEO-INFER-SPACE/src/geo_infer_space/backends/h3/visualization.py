@@ -45,7 +45,7 @@ try:
     FOLIUM_AVAILABLE = True
 except ImportError:
     FOLIUM_AVAILABLE = False
-    logger.warning("folium not available. Install with 'pip install folium'")
+    logger.warning("folium not available. Install with 'uv pip install folium'")
 
 try:
     import plotly.graph_objects as go
@@ -54,7 +54,7 @@ try:
     PLOTLY_AVAILABLE = True
 except ImportError:
     PLOTLY_AVAILABLE = False
-    logger.warning("plotly not available. Install with 'pip install plotly'")
+    logger.warning("plotly not available. Install with 'uv pip install plotly'")
 
 from .core import H3Grid, H3Cell, H3Analytics
 from .operations import cell_to_boundary, cells_to_geojson
@@ -100,7 +100,7 @@ class H3MapVisualizer:
             >>> m.save('h3_map.html')
         """
         if not FOLIUM_AVAILABLE:
-            raise ImportError("folium package required. Install with 'pip install folium'")
+            raise ImportError("folium package required. Install with 'uv pip install folium'")
         
         if not self.grid.cells:
             return folium.Map(location=[0, 0], zoom_start=2)
@@ -279,7 +279,7 @@ class H3MapVisualizer:
             Folium map with heatmap layer
         """
         if not FOLIUM_AVAILABLE:
-            raise ImportError("folium package required. Install with 'pip install folium'")
+            raise ImportError("folium package required. Install with 'uv pip install folium'")
         
         # Prepare heat data
         heat_data = []
@@ -649,7 +649,7 @@ class H3InteractiveVisualizer:
             Plotly figure object
         """
         if not PLOTLY_AVAILABLE:
-            raise ImportError("plotly package required. Install with 'pip install plotly'")
+            raise ImportError("plotly package required. Install with 'uv pip install plotly'")
         
         if not self.grid.cells:
             fig = go.Figure()
@@ -731,7 +731,7 @@ class H3InteractiveVisualizer:
             Plotly figure with subplots
         """
         if not PLOTLY_AVAILABLE:
-            raise ImportError("plotly package required. Install with 'pip install plotly'")
+            raise ImportError("plotly package required. Install with 'uv pip install plotly'")
         
         # Create subplots
         fig = make_subplots(
@@ -845,7 +845,7 @@ class H3AnimationVisualizer:
             Plotly animated figure
         """
         if not PLOTLY_AVAILABLE:
-            raise ImportError("plotly package required. Install with 'pip install plotly'")
+            raise ImportError("plotly package required. Install with 'uv pip install plotly'")
         
         if not self.grids:
             fig = go.Figure()
