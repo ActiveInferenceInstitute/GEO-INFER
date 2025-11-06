@@ -1,10 +1,10 @@
 README.md
+pyproject.toml
 setup.py
 src/geo_infer_ant/__init__.py
 src/geo_infer_ant.egg-info/PKG-INFO
 src/geo_infer_ant.egg-info/SOURCES.txt
 src/geo_infer_ant.egg-info/dependency_links.txt
-src/geo_infer_ant.egg-info/entry_points.txt
 src/geo_infer_ant.egg-info/not-zip-safe
 src/geo_infer_ant.egg-info/requires.txt
 src/geo_infer_ant.egg-info/top_level.txt

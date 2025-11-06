@@ -1,59 +1,109 @@
 Metadata-Version: 2.4
 Name: geo-infer-git
 Version: 0.1.0
-Summary: Git operations and repository management for geospatial projects
+Summary: Version control and repository management tools specifically designed for geospatial data and code collaboration
 Home-page: https://github.com/geo-infer/geo-infer-git
 Author: GEO-INFER Team
-Author-email: contact@geo-infer.org
+Author-email: GEO-INFER Development Team <geo-infer@activeinference.institute>
+License: CC BY-ND-SA 4.0
+Project-URL: Homepage, https://github.com/geo-infer/geo-infer
+Project-URL: Documentation, https://geo-infer.readthedocs.io/
+Project-URL: Repository, https://github.com/geo-infer/geo-infer
+Project-URL: Bug Tracker, https://github.com/geo-infer/geo-infer/issues
+Keywords: geospatial,active inference,geoinformatics,version-control, git, repository, collaboration, geospatial-data, data-versioning
 Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
 Classifier: Intended Audience :: Science/Research
-Classifier: License :: OSI Approved :: MIT License
+Classifier: License :: OSI Approved :: Creative Commons License
 Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.9
 Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
 Classifier: Topic :: Scientific/Engineering :: GIS
-Classifier: Topic :: Software Development :: Version Control :: Git
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
 Requires-Python: >=3.9
 Description-Content-Type: text/markdown
-Requires-Dist: requests>=2.28.1
-Requires-Dist: pyyaml>=6.0
-Requires-Dist: psutil>=5.9.0
-Requires-Dist: pytest>=7.3.1
 Requires-Dist: black>=23.3.0
-Requires-Dist: flake8>=6.0.0
-Requires-Dist: mypy>=1.3.0
-Requires-Dist: tqdm>=4.65.0
 Requires-Dist: colorlog>=6.7.0
-Requires-Dist: pytest-cov>=4.1.0
+Requires-Dist: fastapi>=0.104.0
+Requires-Dist: flake8>=6.0.0
+Requires-Dist: GitPython>=3.1.0
 Requires-Dist: isort>=5.12.0
+Requires-Dist: jsonschema>=4.17.0
+Requires-Dist: mypy>=1.3.0
+Requires-Dist: psutil>=5.9.0
+Requires-Dist: pydantic>=2.5.0
+Requires-Dist: pytest>=7.3.1
+Requires-Dist: pytest-cov>=4.1.0
+Requires-Dist: pyyaml>=6.0
+Requires-Dist: radon>=5.1.0
+Requires-Dist: redis>=4.5.0
+Requires-Dist: requests>=2.28.1
+Requires-Dist: tqdm>=4.65.0
+Requires-Dist: uvicorn[standard]>=0.24.0
+Provides-Extra: dev
+Requires-Dist: pytest>=6.2.0; extra == "dev"
+Requires-Dist: pytest-cov>=2.12.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.20.0; extra == "dev"
+Requires-Dist: black>=21.9.0; extra == "dev"
+Requires-Dist: flake8>=3.9.0; extra == "dev"
+Requires-Dist: mypy>=0.910; extra == "dev"
+Requires-Dist: isort>=5.9.0; extra == "dev"
+Provides-Extra: docs
+Requires-Dist: sphinx>=4.2.0; extra == "docs"
+Requires-Dist: sphinx-rtd-theme>=1.0.0; extra == "docs"
+Requires-Dist: nbsphinx>=0.8.0; extra == "docs"
+Requires-Dist: myst-parser>=0.15.0; extra == "docs"
 Dynamic: author
-Dynamic: author-email
-Dynamic: classifier
-Dynamic: description
-Dynamic: description-content-type
 Dynamic: home-page
-Dynamic: requires-dist
 Dynamic: requires-python
-Dynamic: summary
 
-# GEO-INFER-GIT
+---
+title: "GEO-INFER-GIT: Geospatial Version Control"
+description: "Version control and repository management tools specifically designed for geospatial data and code collaboration"
+purpose: "Provide geospatial-aware version control and repository management for collaborative development of spatial data and analysis"
+module_type: "Operations"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["OPS"]
+compatibility: ["GEO-INFER-OPS", "GEO-INFER-DATA", "GEO-INFER-SPACE"]
+tags: ["version-control", "git", "repository", "collaboration", "geospatial-data", "data-versioning"]
+difficulty: "Intermediate"
+estimated_time: "45"
+---
 
-**Geospatial Version Control & Repository Management**
+# GEO-INFER-GIT: Geospatial Version Control & Repository Management
+
+> **Purpose**: Provide geospatial-aware version control and repository management for collaborative development of spatial data and analysis
+>
+> This module offers version control and repository management tools specifically designed for geospatial data and code collaboration.
 
 ## Overview
 
+Note: Code examples are illustrative; see `GEO-INFER-GIT/examples` for runnable scripts.
+
+### Links
+- Module README: ../../GEO-INFER-GIT/README.md
+- Modules Overview: ../modules/index.md
+
 GEO-INFER-GIT is a specialized module within the GEO-INFER ecosystem designed to streamline the management, cloning, and synchronization of Git repositories, with a particular emphasis on those containing geospatial data, models, and aA. It provides robust tools for developers and researchers to efficiently access and maintain version-controlled geospatial resources and related software projects.
+
+### Documentation
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-git.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
 
 The module facilitates the integration of external codebases, datasets, and pre-trained models into the GEO-INFER framework, ensuring that all components are version-aware and consistently managed. This is crucial for reproducibility, collaboration, and the systematic evolution of complex geospatial analysis workflows.
 
 ## Core Objectives
 
-*   **Automated Repository Acquisition**: Simplify and automate the process of cloning and updating multiple Git repositories relevant to geospatial analysis and AI.
-*   **Version Consistency**: Ensure that specific versions or branches of repositories are used, promoting stable and reproducible research and development environments.
-*   **Selective Integration**: Allow fine-grained control over which repositories, users, or specific repository contents are cloned and integrated.
-*   **Dependency Management**: Facilitate the tracking of external software dependencies that are managed via Git.
-*   **Workflow Integration**: Provide a seamless bridge for other GEO-INFER modules to access and utilize code and data from version-controlled sources.
+*   **Automated Repository Acquisition**: Simplify and automate the process of cloning and updating multiple Git repositories relevant to geospatial analysis and AI with intelligent platform support for GitHub, GitLab, Bitbucket, and local repositories.
+*   **Version Consistency**: Ensure that specific versions or branches of repositories are used, promoting stable and reproducible research and development environments with comprehensive version tracking and dependency management.
+*   **Selective Integration**: Allow fine-grained control over which repositories, users, or specific repository contents are cloned and integrated with advanced filtering and validation capabilities.
+*   **Dependency Management**: Facilitate the tracking of external software dependencies that are managed via Git with automated dependency resolution and conflict detection.
+*   **Workflow Integration**: Provide a seamless bridge for other GEO-INFER modules to access and utilize code and data from version-controlled sources with comprehensive API and integration examples.
+*   **Performance Optimization**: Implement intelligent performance monitoring, memory management, and adaptive batch processing for large-scale repository operations.
+*   **Error Recovery**: Provide robust error handling, retry mechanisms, and graceful failure recovery with detailed error classification and recovery strategies.
 
 ## Key Features
 
@@ -309,6 +359,329 @@ GEO-INFER-GIT/
 *   **GUI / Web Interface**: A simple interface for managing configurations and viewing cloning status (potentially integrated with GEO-INFER-APP).
 *   **Direct Integration with GEO-INFER-DATA's ETL pipelines**: Trigger cloning as a preliminary step in data ingestion workflows.
 *   **Security Enhancements**: More robust handling of secrets and credentials.
+
+## Core Features
+
+### 1. Multi-Platform Repository Management
+**Purpose**: Clone, sync, and manage repositories from multiple Git platforms with unified interface.
+
+```python
+from geo_infer_git.manager import MultiPlatformRepoManager
+
+manager = MultiPlatformRepoManager(
+    platforms=['github', 'gitlab', 'bitbucket'],
+    authentication={'github': 'token', 'gitlab': 'token'},
+    sync_strategy='incremental'
+)
+
+# Clone repositories from multiple platforms
+cloned_repos = manager.clone_repositories(
+    github_repos=['user1/repo1', 'user2/repo2'],
+    gitlab_repos=['group/project1'],
+    bitbucket_repos=['team/project1']
+)
+
+# Sync all repositories
+sync_results = manager.sync_all_repositories()
+```
+
+### 2. Intelligent Repository Discovery
+**Purpose**: Automatically discover and catalog geospatial repositories based on content analysis and metadata.
+
+```python
+from geo_infer_git.discovery import IntelligentRepoDiscovery
+
+discovery = IntelligentRepoDiscovery(
+    search_criteria={
+        'keywords': ['geospatial', 'gis', 'spatial', 'mapping'],
+        'file_patterns': ['*.geojson', '*.shp', '*.tif'],
+        'languages': ['python', 'javascript'],
+        'topics': ['geography', 'cartography']
+    }
+)
+
+# Discover geospatial repositories
+discovered_repos = discovery.discover_repositories(
+    platform='github',
+    max_results=100,
+    relevance_threshold=0.7
+)
+
+# Analyze repository content for geospatial relevance
+analysis_results = discovery.analyze_geospatial_relevance(discovered_repos)
+```
+
+### 3. Automated Repository Synchronization
+**Purpose**: Keep cloned repositories synchronized with automatic conflict resolution and change tracking.
+
+```python
+from geo_infer_git.sync import AutomatedRepoSync
+
+sync = AutomatedRepoSync(
+    sync_frequency='daily',
+    conflict_resolution='merge_prefer_upstream',
+    change_tracking=True,
+    notification_system='email_webhook'
+)
+
+# Set up automated synchronization
+sync.setup_automation(
+    repositories=cloned_repos,
+    sync_schedule='0 9 * * *',  # Daily at 9 AM
+    backup_strategy='incremental'
+)
+
+# Monitor synchronization status
+sync_status = sync.get_sync_status()
+conflicts = sync.get_conflict_report()
+```
+
+## API Reference
+
+### Core Classes
+
+#### `MultiPlatformAPI`
+- `get_user_repositories(platform, username, **kwargs)`: Get repositories for a user across platforms
+- `get_repository(platform, owner, repo)`: Get repository information across platforms
+- `check_credentials(platform)`: Check if credentials are valid for a platform
+- `get_supported_platforms()`: Get list of supported platforms
+
+#### `RepoCloner`
+- `clone_repository(owner, repo, branch)`: Clone a single repository
+- `clone_repositories_for_user(username, repositories)`: Clone repositories for a specific user
+- `clone_multiple_repositories(repositories)`: Clone multiple repositories in parallel
+- `get_clone_stats()`: Get cloning statistics and progress
+- `cleanup_failed_clones()`: Clean up partially cloned repositories
+
+#### `GitHubAPI`
+- `get_user_repositories(username, **kwargs)`: Get GitHub repositories for a user
+- `search_repositories(query, **kwargs)`: Search GitHub repositories
+- `filter_repositories(repositories, **criteria)`: Filter repositories by criteria
+- `get_rate_limit()`: Get current GitHub API rate limit status
+
+#### `GitLabAPI`
+- `get_user_repositories(username, **kwargs)`: Get GitLab repositories for a user
+- `get_repository(owner, repo)`: Get GitLab repository information
+- `check_credentials()`: Check GitLab credentials validity
+
+#### `BitbucketAPI`
+- `get_user_repositories(username, **kwargs)`: Get Bitbucket repositories for a user
+- `get_repository(owner, repo)`: Get Bitbucket repository information
+- `check_credentials()`: Check Bitbucket credentials validity
+
+#### `LocalGitAPI`
+- `discover_repositories(max_depth)`: Discover local Git repositories
+- `get_repository(path)`: Get information about a local repository
+- `check_repository(path)`: Check if path contains a valid Git repository
+
+### Configuration Classes
+
+#### `CloneConfig`
+- Configuration dataclass for repository cloning operations
+- Supports GitHub, GitLab, Bitbucket, and local repository settings
+- Configurable concurrency, authentication, and performance settings
+
+#### `ConfigLoader`
+- Load and validate configuration files with JSON schema validation
+- Support for YAML and JSON configuration formats
+- Configuration caching and validation
+
+#### `TargetRepository` / `TargetUser`
+- Data structures for configuring target repositories and users
+- Support for filtering, branching, and tagging
+
+### Utility Classes
+
+#### `PerformanceOptimizer`
+- Comprehensive performance monitoring and optimization
+- Memory management, caching, and adaptive batch processing
+- System resource monitoring and optimization recommendations
+
+#### `GeoInferGitLogger`
+- Advanced logging with structured output (JSON/text)
+- Performance metrics logging and context-aware logging
+- Log rotation and management
+
+#### `ErrorRecoveryManager`
+- Intelligent error classification and recovery strategies
+- Retry mechanisms with exponential backoff
+- Platform-specific error handling
+
+### REST API Endpoints
+
+#### Repository Management
+- `GET /repositories`: List managed repositories with filtering
+- `POST /repositories`: Add new repository to management system
+- `GET /repositories/{repo_id}`: Get repository details
+- `POST /repositories/{repo_id}/clone`: Clone repository
+- `POST /repositories/{repo_id}/sync`: Synchronize repository
+
+#### Branch Operations
+- `GET /repositories/{repo_id}/branches`: List repository branches
+- `POST /repositories/{repo_id}/branches`: Create new branch
+- `POST /repositories/{repo_id}/branches/{branch_name}/merge`: Merge branch
+
+#### System Monitoring
+- `GET /health`: Health check endpoint
+- `GET /system/status`: Comprehensive system status
+
+#### Integration
+- `GET /integrations`: List platform integrations
+- `POST /integrations`: Create new platform integration
+- `POST /integrations/{integration_id}/test`: Test integration connectivity
+
+### Configuration Files
+
+#### `example.yaml` (Primary Configuration)
+```yaml
+# General settings
+general:
+  output_dir: "./cloned_repositories"
+  base_dir: "./repos"
+
+# GitHub API settings
+github:
+  token: "${GITHUB_TOKEN}"  # Environment variable
+  api_url: "https://api.github.com"
+  wait_on_rate_limit: true
+  max_retries: 3
+  retry_delay: 1.0
+
+# Concurrency settings
+concurrency:
+  enabled: true
+  max_workers: 4
+
+# Logging configuration
+logging:
+  level: "INFO"
+  format: "json"
+  file: "./logs/git_operations.log"
+```
+
+#### `target_repos.yaml` (Repository Targets)
+```yaml
+repositories:
+  - owner: "USGS"
+    repo: "earthquake-data"
+    branch: "main"
+    tags: ["geospatial", "earthquake", "data"]
+    enabled: true
+
+  - owner: "NASA"
+    repo: "landsat-data"
+    branch: "develop"
+    clone_depth: 1
+    tags: ["satellite", "remote-sensing"]
+    enabled: true
+```
+
+#### `target_users.yaml` (User Targets)
+```yaml
+users:
+  - username: "geospatial-libraries"
+    include_repos: ["geopandas", "rasterio"]
+    exclude_repos: ["*-docs"]
+    max_repos: 10
+    tags: ["geospatial", "python"]
+    enabled: true
+
+  - username: "ai-research"
+    max_repos: 5
+    tags: ["ai", "machine-learning", "research"]
+    enabled: true
+```
+
+### Environment Variables
+
+- `GITHUB_TOKEN`: GitHub personal access token
+- `GITLAB_TOKEN`: GitLab access token
+- `BITBUCKET_USERNAME`: Bitbucket username
+- `BITBUCKET_APP_PASSWORD`: Bitbucket app password
+
+
+## Use Cases
+
+### Geospatial Data Repository Aggregation
+**Scenario**: Aggregate and maintain repositories containing geospatial datasets from multiple sources.
+
+```python
+from geo_infer_git.aggregation import GeospatialDataAggregator
+
+aggregator = GeospatialDataAggregator(
+    data_sources=['usgs', 'noaa', 'esa', 'nasa'],
+    data_types=['satellite', 'climate', 'topographic', 'vector'],
+    update_frequency='weekly'
+)
+
+# Aggregate geospatial data repositories
+aggregated_repos = aggregator.aggregate_data_repositories(
+    search_terms=['landsat', 'sentinel', 'climate', 'elevation'],
+    quality_filters={'license': 'open', 'format': 'standard'},
+    metadata_enrichment=True
+)
+
+# Set up automated updates
+aggregator.setup_automated_updates(
+    update_schedule='weekly',
+    notification_channels=['email', 'slack'],
+    backup_strategy='versioned'
+)
+```
+
+### Open Source Geospatial Project Management
+**Scenario**: Manage contributions to open source geospatial projects with automated synchronization.
+
+```python
+from geo_infer_git.oss import OpenSourceGeospatialManager
+
+oss_manager = OpenSourceGeospatialManager(
+    project_ecosystem=['qgis', 'gdal', 'geopandas', 'folium'],
+    contribution_strategy='automated_mirroring',
+    quality_assurance='automated_testing'
+)
+
+# Set up project ecosystem management
+oss_manager.setup_ecosystem_management(
+    primary_projects=['qgis', 'gdal'],
+    dependent_projects=['geopandas', 'rasterio'],
+    synchronization_strategy='bidirectional'
+)
+
+# Manage contributions and updates
+contributions = oss_manager.manage_contributions(
+    contributor_repositories=contributor_repos,
+    review_process='automated',
+    merge_strategy='quality_based'
+)
+```
+
+### Research Repository Management
+**Scenario**: Manage academic and research repositories with version control and collaboration features.
+
+```python
+from geo_infer_git.research import ResearchRepositoryManager
+
+research_manager = ResearchRepositoryManager(
+    research_domains=['remote_sensing', 'gis', 'spatial_analysis'],
+    collaboration_platforms=['github', 'gitlab'],
+    data_management='versioned_datasets'
+)
+
+# Set up research collaboration
+research_manager.setup_collaboration(
+    research_team=collaborative_team,
+    data_sharing_policy=research_data_policy,
+    publication_workflow=academic_publication_process
+)
+
+# Manage research data and code
+research_artifacts = research_manager.manage_research_artifacts(
+    datasets=research_datasets,
+    code_repositories=analysis_code,
+    documentation=research_documentation
+)
+```
 
 ## Contributing
 

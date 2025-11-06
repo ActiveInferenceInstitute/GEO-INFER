@@ -1,103 +1,68 @@
 Metadata-Version: 2.4
 Name: geo-infer-examples
 Version: 0.1.0
-Summary: Comprehensive demonstration framework showcasing cross-module integration for the GEO-INFER ecosystem
+Summary: Comprehensive collection of working examples and tutorials demonstrating cross-module integration patterns and real-world applications
 Home-page: https://github.com/activeinference/GEO-INFER
 Author: GEO-INFER Team
-Author-email: info@geo-infer.org
-License: MIT
-Project-URL: Bug Reports, https://github.com/activeinference/GEO-INFER/issues
-Project-URL: Source, https://github.com/activeinference/GEO-INFER/tree/main/GEO-INFER-EXAMPLES
-Project-URL: Documentation, https://github.com/activeinference/GEO-INFER/tree/main/GEO-INFER-EXAMPLES/docs
-Project-URL: Examples, https://github.com/activeinference/GEO-INFER/tree/main/GEO-INFER-EXAMPLES/examples
-Keywords: geospatial,examples,demonstrations,tutorials,integration,gis,spatial analysis,active inference,machine learning,agriculture,health,urban planning,climate,education
+Author-email: GEO-INFER Development Team <geo-infer@activeinference.institute>
+License: CC BY-ND-SA 4.0
+Project-URL: Homepage, https://github.com/geo-infer/geo-infer
+Project-URL: Documentation, https://geo-infer.readthedocs.io/
+Project-URL: Repository, https://github.com/geo-infer/geo-infer
+Project-URL: Bug Tracker, https://github.com/geo-infer/geo-infer/issues
+Keywords: geospatial,active inference,geoinformatics,examples, tutorials, integration, demonstrations, cross-module, real-world-applications
 Platform: any
 Classifier: Development Status :: 3 - Alpha
-Classifier: Intended Audience :: Science/Research
-Classifier: Intended Audience :: Education
 Classifier: Intended Audience :: Developers
-Classifier: License :: OSI Approved :: MIT License
-Classifier: Operating System :: OS Independent
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: Creative Commons License
 Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.9
 Classifier: Programming Language :: Python :: 3.10
 Classifier: Programming Language :: Python :: 3.11
 Classifier: Programming Language :: Python :: 3.12
 Classifier: Topic :: Scientific/Engineering :: GIS
-Classifier: Topic :: Scientific/Engineering :: Artificial Intelligence
-Classifier: Topic :: Education
-Classifier: Topic :: Documentation
-Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
 Requires-Python: >=3.9
 Description-Content-Type: text/markdown
+Requires-Dist: jupyterlab>=3.4.0
+Requires-Dist: matplotlib>=3.5.0
+Requires-Dist: pandas>=1.4.0
 Requires-Dist: pyyaml>=6.0
 Requires-Dist: requests>=2.28.0
 Requires-Dist: rich>=12.0.0
 Requires-Dist: typer>=0.7.0
-Requires-Dist: jupyterlab>=3.4.0
-Requires-Dist: matplotlib>=3.5.0
-Requires-Dist: pandas>=1.4.0
 Provides-Extra: dev
-Requires-Dist: pytest>=7.0.0; extra == "dev"
-Requires-Dist: pytest-cov>=4.0.0; extra == "dev"
-Requires-Dist: black>=22.0.0; extra == "dev"
-Requires-Dist: flake8>=5.0.0; extra == "dev"
-Requires-Dist: mypy>=0.991; extra == "dev"
-Requires-Dist: pre-commit>=2.20.0; extra == "dev"
+Requires-Dist: pytest>=6.2.0; extra == "dev"
+Requires-Dist: pytest-cov>=2.12.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.20.0; extra == "dev"
+Requires-Dist: black>=21.9.0; extra == "dev"
+Requires-Dist: flake8>=3.9.0; extra == "dev"
+Requires-Dist: mypy>=0.910; extra == "dev"
+Requires-Dist: isort>=5.9.0; extra == "dev"
 Provides-Extra: docs
-Requires-Dist: sphinx>=5.0.0; extra == "docs"
+Requires-Dist: sphinx>=4.2.0; extra == "docs"
 Requires-Dist: sphinx-rtd-theme>=1.0.0; extra == "docs"
-Requires-Dist: myst-parser>=0.18.0; extra == "docs"
-Requires-Dist: sphinx-autodoc-typehints>=1.19.0; extra == "docs"
-Provides-Extra: health
-Requires-Dist: scikit-learn>=1.1.0; extra == "health"
-Requires-Dist: scipy>=1.9.0; extra == "health"
-Requires-Dist: networkx>=2.8; extra == "health"
-Provides-Extra: agriculture
-Requires-Dist: rasterio>=1.3.0; extra == "agriculture"
-Requires-Dist: shapely>=1.8.0; extra == "agriculture"
-Requires-Dist: folium>=0.12.0; extra == "agriculture"
-Provides-Extra: urban
-Requires-Dist: geopandas>=0.11.0; extra == "urban"
-Requires-Dist: contextily>=1.2.0; extra == "urban"
-Requires-Dist: plotly>=5.10.0; extra == "urban"
-Provides-Extra: climate
-Requires-Dist: xarray>=2022.6.0; extra == "climate"
-Requires-Dist: netcdf4>=1.6.0; extra == "climate"
-Requires-Dist: cartopy>=0.21.0; extra == "climate"
-Provides-Extra: research
-Requires-Dist: sympy>=1.11.0; extra == "research"
-Requires-Dist: networkx>=2.8; extra == "research"
-Requires-Dist: seaborn>=0.11.0; extra == "research"
-Provides-Extra: all
-Requires-Dist: scikit-learn>=1.1.0; extra == "all"
-Requires-Dist: scipy>=1.9.0; extra == "all"
-Requires-Dist: networkx>=2.8; extra == "all"
-Requires-Dist: rasterio>=1.3.0; extra == "all"
-Requires-Dist: shapely>=1.8.0; extra == "all"
-Requires-Dist: folium>=0.12.0; extra == "all"
-Requires-Dist: geopandas>=0.11.0; extra == "all"
-Requires-Dist: contextily>=1.2.0; extra == "all"
-Requires-Dist: plotly>=5.10.0; extra == "all"
-Requires-Dist: xarray>=2022.6.0; extra == "all"
-Requires-Dist: netcdf4>=1.6.0; extra == "all"
-Requires-Dist: cartopy>=0.21.0; extra == "all"
-Requires-Dist: sympy>=1.11.0; extra == "all"
-Requires-Dist: seaborn>=0.11.0; extra == "all"
+Requires-Dist: nbsphinx>=0.8.0; extra == "docs"
+Requires-Dist: myst-parser>=0.15.0; extra == "docs"
 Dynamic: author
-Dynamic: author-email
-Dynamic: classifier
-Dynamic: description
-Dynamic: description-content-type
 Dynamic: home-page
-Dynamic: keywords
-Dynamic: license
 Dynamic: platform
-Dynamic: project-url
-Dynamic: provides-extra
-Dynamic: requires-dist
 Dynamic: requires-python
-Dynamic: summary
+
+---
+title: "GEO-INFER-EXAMPLES: Cross-Module Integration Demonstrations"
+description: "Comprehensive collection of working examples and tutorials demonstrating cross-module integration patterns and real-world applications"
+purpose: "Provide runnable examples and tutorials that demonstrate how to integrate multiple GEO-INFER modules for real-world applications"
+module_type: "Operations"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["All modules"]
+compatibility: ["All GEO-INFER modules"]
+tags: ["examples", "tutorials", "integration", "demonstrations", "cross-module", "real-world-applications"]
+difficulty: "Beginner"
+estimated_time: "30"
+---
 
 # GEO-INFER-EXAMPLES 🌟
 
@@ -107,7 +72,7 @@ Dynamic: summary
 [![Integration Patterns](https://img.shields.io/badge/patterns-15+-success.svg)]()
 [![Cross-Module Coverage](https://img.shields.io/badge/modules-28%2F28-blue.svg)]()
 
-**The Definitive Cross-Module Integration Hub for the GEO-INFER Ecosystem** 🚀
+Integration hub for multi-module examples across the GEO-INFER ecosystem.
 
 ## 🎯 Overview
 
@@ -128,29 +93,22 @@ Dynamic: summary
 
 ## 🔥 **What's New: Complete System Assessment & Documentation Overhaul**
 
-### **✅ COMPREHENSIVE INTEGRATION FRAMEWORK COMPLETED**
+### Assessment and Documentation
 
 We've successfully completed a comprehensive assessment and improvement of the entire GEO-INFER integration ecosystem:
 
-#### **🎯 Integration Examples Assessment - 100% SUCCESS RATE**
-- **✅ All 4 Integration Examples**: Successfully executed with excellent performance
-- **⚡ Outstanding Performance**: 0.23s average execution time (sub-second)
-- **🏆 Success Rate**: 100% (4/4 examples passed)
-- **📊 Module Coverage**: 13 unique modules across 4 integration patterns
+#### Integration Examples Assessment
+- Examples provided are runnable where dependencies exist; performance varies by environment.
 
-#### **📚 Technical Documentation Suite - 3,360+ Lines Created**
+#### Technical Documentation Suite
 - **📋 Integration Execution Report**: [`docs/INTEGRATION_EXECUTION_REPORT.md`](docs/INTEGRATION_EXECUTION_REPORT.md)
 - **🏗️ Technical Architecture Guide**: [`docs/TECHNICAL_ARCHITECTURE_GUIDE.md`](docs/TECHNICAL_ARCHITECTURE_GUIDE.md)
 - **🔌 API Integration Guide**: [`docs/API_INTEGRATION_GUIDE.md`](docs/API_INTEGRATION_GUIDE.md)
 - **⚡ Performance Benchmarking Guide**: [`docs/PERFORMANCE_BENCHMARKING_GUIDE.md`](docs/PERFORMANCE_BENCHMARKING_GUIDE.md)
 - **📊 Comprehensive Technical Summary**: [`docs/COMPREHENSIVE_TECHNICAL_SUMMARY.md`](docs/COMPREHENSIVE_TECHNICAL_SUMMARY.md)
 
-#### **🚀 Production-Ready System**
-- **🟢 Overall Status**: **EXCELLENT** (Production Ready)
-- **📈 Performance Rating**: Excellent (0.07s for 8-module pipeline)
-- **🔒 Security**: Enterprise-grade authentication and authorization
-- **📊 Monitoring**: Comprehensive performance monitoring and alerting
-- **🎯 API Coverage**: 82.1% (23/28 modules with OpenAPI schemas)
+#### Status
+- Status reflects example code maturity; see each example README for specifics.
 
 #### **📈 Documentation Quality Improvements**
 - **Overall Technical Documentation**: 25% → 88% (+63% improvement)
@@ -260,15 +218,8 @@ IOT --[event]--> RISK --[alert]--> API --[notification]--> APP
 
 ## 🎯 **Comprehensive Assessment Results**
 
-### **Integration Examples Performance** ✅
-All integration examples have been successfully executed and assessed:
-
-| Example | Complexity | Modules | Time (s) | Status | Rating |
-|---------|------------|---------|----------|--------|---------|
-| **Basic Integration Demo** | ⭐⭐ | 4 | 0.09 | ✅ Success | Excellent |
-| **Disease Surveillance** | ⭐⭐⭐⭐⭐ | 8 | 0.07 | ✅ Success | Outstanding |
-| **Precision Farming** | ⭐⭐⭐⭐ | 7 | 0.33 | ✅ Success | Very Good |
-| **Climate Analysis** | ⭐⭐⭐⭐ | 7 | 0.44 | ✅ Success | Good |
+### Integration Examples Performance
+Performance depends on dataset size and hardware. Benchmark locally if needed.
 
 ### **System Health Dashboard** 🟢
 - **Overall Status**: **EXCELLENT** (Production Ready)
@@ -301,7 +252,7 @@ cat assessment_results/latest_assessment_summary.md
 # Clone and install
 git clone https://github.com/activeinference/GEO-INFER
 cd GEO-INFER/GEO-INFER-EXAMPLES
-pip install -e .
+uv pip install -e .
 
 # Install optional domain modules
 pip install geo-infer-health geo-infer-ag geo-infer-ai

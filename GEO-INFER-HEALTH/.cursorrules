@@ -1,0 +1,54 @@
+# GEO-INFER-HEALTH Module Development Rules
+
+## Module Overview
+
+GEO-INFER-HEALTH provides geospatial applications for public health and epidemiology with healthcare access analysis.
+
+## Module-Specific Context
+
+**Purpose**: Provide health applications with spatial dimensions  
+**Module Type**: Domain-Specific  
+**Status**: Beta  
+**Dependencies**: SPACE, TIME, DATA  
+**Key Integrations**: GEO-INFER-AI, GEO-INFER-RISK, GEO-INFER-BIO
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Health Implementation Requirements
+
+1. **Epidemiology**: Implement real epidemiological models
+2. **Healthcare Access**: Use real healthcare accessibility analysis
+3. **Disease Surveillance**: Implement real disease surveillance systems
+4. **Health Risk Assessment**: Provide real health risk analysis
+5. **Public Health**: Use real public health methods
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder health models
+- NEVER skip privacy protection
+- NEVER omit data validation
+- ALWAYS implement real health algorithms
+- ALWAYS use proper health data protection
+
+### Real Implementation Requirements
+
+- **Epidemiology**: Implement real epidemiological models (SIR, SEIR, etc.)
+- **Healthcare Access**: Use real accessibility analysis methods
+- **Disease Surveillance**: Implement real surveillance systems
+- **Health Risk**: Use real health risk assessment methods
+- **Privacy**: Implement real privacy protection for health data
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-SPACE**: Spatial operations for health geography
+- **GEO-INFER-TIME**: Temporal analysis for disease trends
+- **GEO-INFER-DATA**: Data management for health data
+
+---
+
+**Remember**: This module implements health applications with spatial dimensions. Every implementation must use real health data (with proper privacy), proper spatial analysis, and comprehensive health methods. No placeholders, no dummy data - only real, working health implementations with proper privacy protection.
+

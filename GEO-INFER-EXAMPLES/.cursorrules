@@ -1,0 +1,52 @@
+# GEO-INFER-EXAMPLES Module Development Rules
+
+## Module Overview
+
+GEO-INFER-EXAMPLES provides cross-module integration demonstrations and tutorials for GEO-INFER framework.
+
+## Module-Specific Context
+
+**Purpose**: Provide working examples and integration demonstrations  
+**Module Type**: Operations  
+**Status**: Beta  
+**Dependencies**: All modules  
+**Key Integrations**: All modules
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Examples Implementation Requirements
+
+1. **Working Examples**: Implement real, runnable code examples
+2. **Integration Demonstrations**: Use real cross-module integration examples
+3. **Tutorials**: Provide real step-by-step tutorials
+4. **Best Practices**: Document real best practices
+5. **Documentation**: Ensure real example documentation
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder examples
+- NEVER skip example validation
+- NEVER omit integration patterns
+- ALWAYS implement real, working examples
+- ALWAYS use proper documentation
+
+### Real Implementation Requirements
+
+- **Examples**: Implement real, runnable code examples
+- **Integration**: Use real cross-module integration patterns
+- **Tutorials**: Provide real step-by-step tutorials
+- **Best Practices**: Document real development best practices
+- **Documentation**: Ensure comprehensive example documentation
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **All modules**: For demonstrating all module functionality
+
+---
+
+**Remember**: This module provides examples for the entire framework. Every implementation must use real, working examples, proper integration patterns, and comprehensive tutorials. No placeholders, no dummy examples - only real, working example implementations.
+

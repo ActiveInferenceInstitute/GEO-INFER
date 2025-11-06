@@ -1,2 +1,0 @@
-[console_scripts]
-geo-infer-git = geo_infer_git.cli:main

@@ -1,0 +1,65 @@
+# GEO-INFER-ART Module Development Rules
+
+## Module Overview
+
+GEO-INFER-ART provides artistic expression and aesthetics with geospatial dimensions for creative geospatial visualization.
+
+## Module-Specific Context
+
+**Purpose**: Provide artistic expression and geospatial art capabilities  
+**Module Type**: Applications  
+**Status**: Beta  
+**Dependencies**: SPACE, APP  
+**Key Integrations**: GEO-INFER-AI, GEO-INFER-TIME
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Artistic Implementation Requirements
+
+1. **Artistic Visualization**: Implement real artistic visualization tools
+2. **Generative Art**: Use real generative art algorithms
+3. **Aesthetic Frameworks**: Implement real aesthetic frameworks
+4. **Geospatial Art**: Create real geospatial art with spatial data
+5. **Visualization**: Provide real visualization capabilities
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder art tools
+- NEVER skip visualization validation
+- NEVER omit aesthetic considerations
+- ALWAYS implement real art generation
+- ALWAYS use proper visualization methods
+
+### Real Implementation Requirements
+
+- **Art Generation**: Implement real generative art algorithms
+- **Visualization**: Use real visualization libraries and tools
+- **Aesthetic Frameworks**: Implement real aesthetic evaluation
+- **Geospatial Art**: Create real art from spatial data
+- **Artistic Tools**: Provide real artistic creation tools
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-SPACE**: Spatial operations for geospatial art
+- **GEO-INFER-APP**: Application interfaces for art display
+
+### Integration Patterns
+
+```python
+# Artistic visualization with spatial data
+from geo_infer_art.core.artistic import ArtisticVisualization
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+
+# AI for generative art
+from geo_infer_art.core.generative import GenerativeArt
+from geo_infer_ai.models import GenerativeModel
+```
+
+---
+
+**Remember**: This module implements artistic expression for geospatial applications. Every implementation must use real art generation, proper visualization, and comprehensive aesthetic frameworks. No placeholders, no dummy art - only real, working artistic implementations.
+

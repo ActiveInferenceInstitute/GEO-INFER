@@ -1,0 +1,70 @@
+# GEO-INFER-METAGOV Module Development Rules
+
+## Module Overview
+
+GEO-INFER-METAGOV provides meta-governance and organizational governance methods for complex governance systems.
+
+## Module-Specific Context
+
+**Purpose**: Provide meta-governance and organizational governance capabilities  
+**Module Type**: Security & Governance  
+**Status**: Planning  
+**Dependencies**: ORG, SEC, NORMS  
+**Key Integrations**: GEO-INFER-COMMS, GEO-INFER-REQ
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Governance Implementation Requirements
+
+1. **Meta-Governance**: Implement real meta-governance frameworks
+2. **Organizational Governance**: Use real organizational governance models
+3. **Stakeholder Platforms**: Implement real stakeholder engagement platforms
+4. **Institutional Design**: Provide real institutional design tools
+5. **Accountability**: Implement real accountability mechanisms
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder governance mechanisms
+- NEVER skip stakeholder engagement
+- NEVER omit accountability
+- ALWAYS implement real governance frameworks
+- ALWAYS use proper organizational models
+
+### Real Implementation Requirements
+
+- **Governance Models**: Implement real meta-governance frameworks
+- **Organizational Design**: Use real organizational structure models
+- **Stakeholder Engagement**: Implement real engagement platforms
+- **Institutional Design**: Provide real institutional design tools
+- **Accountability**: Implement real accountability tracking
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-ORG**: Organizational systems
+- **GEO-INFER-SEC**: Security for governance
+- **GEO-INFER-NORMS**: Normative systems
+
+### Integration Patterns
+
+```python
+# Meta-governance with organizations
+from geo_infer_metagov.core.meta_governance import MetaGovernanceFramework
+from geo_infer_org.core.organizations import OrganizationModel
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Governance Structures**: Real organizational governance data
+- **Stakeholder Data**: Real stakeholder engagement data
+- **Institutional Data**: Real institutional design data
+
+---
+
+**Remember**: This module implements meta-governance for complex systems. Every implementation must use real governance frameworks, proper organizational models, and comprehensive accountability. No placeholders, no dummy governance - only real, working governance implementations.
+

@@ -1,0 +1,52 @@
+# GEO-INFER-GIT Module Development Rules
+
+## Module Overview
+
+GEO-INFER-GIT provides Git integration and version control workflows for GEO-INFER development.
+
+## Module-Specific Context
+
+**Purpose**: Provide version control and Git integration capabilities  
+**Module Type**: Operations  
+**Status**: Beta  
+**Dependencies**: OPS  
+**Key Integrations**: All development workflows
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Git Implementation Requirements
+
+1. **Version Control**: Implement real Git workflows and automation
+2. **Repository Management**: Use real repository management tools
+3. **CI/CD Integration**: Implement real CI/CD integration
+4. **Automated Versioning**: Provide real automated versioning
+5. **Workflow Automation**: Implement real workflow automation
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder Git workflows
+- NEVER skip version validation
+- NEVER omit repository management
+- ALWAYS implement real Git automation
+- ALWAYS use proper version control practices
+
+### Real Implementation Requirements
+
+- **Git Workflows**: Implement real Git workflows (branching, merging, etc.)
+- **Repository Management**: Use real repository management tools
+- **CI/CD**: Implement real CI/CD pipeline integration
+- **Versioning**: Use real semantic versioning
+- **Automation**: Implement real workflow automation
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-OPS**: Operations for CI/CD integration
+
+---
+
+**Remember**: This module provides version control for the framework. Every implementation must use real Git workflows, proper version control, and comprehensive automation. No placeholders, no dummy workflows - only real, working Git implementations.
+

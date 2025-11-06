@@ -1,0 +1,64 @@
+# GEO-INFER-APP Module Development Rules
+
+## Module Overview
+
+GEO-INFER-APP provides user interfaces, accessibility tools, and application development frameworks for geospatial applications.
+
+## Module-Specific Context
+
+**Purpose**: Provide user interfaces and application development capabilities  
+**Module Type**: Applications  
+**Status**: Beta  
+**Dependencies**: API, SPACE  
+**Key Integrations**: All modules
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Application Implementation Requirements
+
+1. **User Interfaces**: Implement real, accessible user interfaces
+2. **Interactive Maps**: Use real interactive mapping components
+3. **Dashboards**: Implement real dashboard interfaces with real data
+4. **Accessibility**: Ensure real accessibility compliance (WCAG)
+5. **Mobile Support**: Provide real mobile application support
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder UI components
+- NEVER skip accessibility validation
+- NEVER omit user testing
+- ALWAYS implement real interfaces
+- ALWAYS use proper accessibility standards
+
+### Real Implementation Requirements
+
+- **UI Components**: Implement real, functional UI components
+- **Interactive Maps**: Use real map libraries (Leaflet, Mapbox, etc.)
+- **Dashboards**: Implement real dashboards with real data visualization
+- **Accessibility**: Ensure real WCAG compliance
+- **Mobile Apps**: Support real mobile platforms (iOS, Android)
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-API**: API services for backend integration
+- **GEO-INFER-SPACE**: Spatial operations for mapping
+
+### Integration Patterns
+
+```python
+# Application with spatial data
+from geo_infer_app.core.interface import UserInterface
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+
+# API integration
+from geo_infer_api.api.rest_api import RESTAPIService
+```
+
+---
+
+**Remember**: This module implements user interfaces for geospatial applications. Every implementation must use real UI components, proper accessibility, and comprehensive user experience. No placeholders, no dummy interfaces - only real, working application implementations.
+

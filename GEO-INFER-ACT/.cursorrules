@@ -1,0 +1,150 @@
+# GEO-INFER-ACT Module Development Rules
+
+## Module Overview
+
+GEO-INFER-ACT implements Active Inference modeling for geospatial systems, providing principled mathematical frameworks for intelligent agents that minimize variational free energy in complex geospatial environments.
+
+## Module-Specific Context
+
+**Purpose**: Provide principled mathematical framework for intelligent agents that minimize variational free energy  
+**Module Type**: Analytical Core  
+**Status**: Beta  
+**Dependencies**: MATH, BAYES  
+**Key Integrations**: GEO-INFER-AI, GEO-INFER-AGENT, GEO-INFER-SIM
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Active Inference Implementation Requirements
+
+1. **Free Energy Minimization**: All agent implementations must properly minimize variational free energy
+2. **Generative Models**: Implement complete generative models with proper probability distributions
+3. **Belief Updating**: Use real variational inference algorithms (mean-field, message passing)
+4. **Policy Selection**: Implement expected free energy minimization for action selection
+5. **Mathematical Rigor**: Ground all implementations in published Active Inference literature
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder generative models
+- NEVER use simplified probability distributions without justification
+- NEVER skip variational inference steps
+- ALWAYS implement real belief propagation algorithms
+- ALWAYS use proper mathematical foundations from Active Inference theory
+
+### Real Implementation Requirements
+
+- **Generative Models**: Implement complete observation likelihoods and transition dynamics
+- **Inference Algorithms**: Use real variational inference (mean-field, structured, message passing)
+- **Free Energy Calculations**: Implement real free energy computations with proper numerical stability
+- **Policy Selection**: Implement real expected free energy calculations for action selection
+- **Hierarchical Models**: Support real hierarchical belief propagation when applicable
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-MATH**: Mathematical foundations, optimization, statistics
+- **GEO-INFER-BAYES**: Bayesian inference for belief updating
+
+### Integration Patterns
+
+```python
+# Active Inference with Bayesian foundations
+from geo_infer_act.core.active_inference import ActiveInferenceModel
+from geo_infer_bayes.core.bayesian import BayesianInference
+
+# Integration with agent framework
+from geo_infer_agent.models.active_inference import ActiveInferenceAgent
+
+# Spatial extensions
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Observational Data**: Real sensor data, satellite imagery, environmental measurements
+- **State Representations**: Real geospatial states (coordinates, environmental conditions)
+- **Action Spaces**: Real agent actions (movement, sampling, communication)
+
+### API Standards
+
+- Use consistent Active Inference API patterns across all components
+- Implement proper error handling for numerical stability issues
+- Support both discrete and continuous state spaces
+- Provide proper type hints for all Active Inference components
+
+## Module-Specific Implementation Guidelines
+
+### Mathematical Foundations
+
+- Document all free energy formulations with mathematical notation
+- Include proper citations to Active Inference literature
+- Implement numerical stability checks for all computations
+- Use appropriate precision for probability distributions
+
+### Code Structure
+
+- Core Active Inference: `src/geo_infer_act/core/active_inference.py`
+- Generative Models: `src/geo_infer_act/core/generative_model.py`
+- Variational Inference: `src/geo_infer_act/core/variational_inference.py`
+- Policy Selection: `src/geo_infer_act/core/policy_selector.py`
+
+### Testing Requirements
+
+- Test free energy minimization with real data
+- Validate belief updates with known probability distributions
+- Test numerical stability with edge cases
+- Verify policy selection produces expected actions
+
+## Integration with Other Modules
+
+### GEO-INFER-AGENT Integration
+
+```python
+# Active Inference agents use ACT models
+from geo_infer_act.core.active_inference import ActiveInferenceModel
+from geo_infer_agent.models.active_inference import ActiveInferenceAgent
+
+agent = ActiveInferenceAgent(
+    model=ActiveInferenceModel(...),
+    ...
+)
+```
+
+### GEO-INFER-SPACE Integration
+
+```python
+# Spatial extensions for Active Inference
+from geo_infer_act.core.spatial_active_inference import SpatialActiveInference
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+
+# Use H3 v4 for spatial indexing in Active Inference models
+spatial_model = SpatialActiveInference(
+    spatial_indexer=SpatialIndexingInterface(backend='h3'),
+    ...
+)
+```
+
+## Module-Specific Excellence Standards
+
+### Demonstrate Deep Understanding
+
+- Show mastery of Free Energy Principle and variational inference
+- Apply Active Inference to geospatial problems correctly
+- Use appropriate mathematical methods for belief representation
+- Consider numerical stability and computational efficiency
+
+### Professional Craftsmanship
+
+- Implement clean, well-documented Active Inference algorithms
+- Create elegant solutions to complex inference problems
+- Optimize for both accuracy and computational efficiency
+- Build robust systems that handle real-world uncertainty
+
+---
+
+**Remember**: This module implements Active Inference principles with mathematical rigor. Every implementation must properly minimize free energy, use real variational inference, and maintain numerical stability. No placeholders, no simplifications without justification - only real, working Active Inference implementations.
+

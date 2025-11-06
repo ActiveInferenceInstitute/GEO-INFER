@@ -1,0 +1,103 @@
+# GEO-INFER-BAYES Module Development Rules
+
+## Module Overview
+
+GEO-INFER-BAYES provides comprehensive Bayesian inference framework with probabilistic modeling, uncertainty quantification, and computational methods for geospatial data.
+
+## Module-Specific Context
+
+**Purpose**: Enable robust inference and decision-making under uncertainty  
+**Module Type**: Analytical Core  
+**Status**: Beta  
+**Dependencies**: MATH  
+**Key Integrations**: GEO-INFER-SPACE, GEO-INFER-TIME, GEO-INFER-ACT, GEO-INFER-AI
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Bayesian Inference Implementation Requirements
+
+1. **Probabilistic Models**: Implement complete probability distributions with proper parameterization
+2. **MCMC Methods**: Use real MCMC algorithms (NUTS, HMC, Metropolis-Hastings) with proper convergence diagnostics
+3. **Variational Inference**: Implement real variational inference when applicable
+4. **Uncertainty Quantification**: Always provide uncertainty estimates with predictions
+5. **Prior Selection**: Use principled prior distributions with proper justification
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder probability distributions
+- NEVER skip MCMC convergence diagnostics
+- NEVER omit uncertainty quantification
+- ALWAYS implement real Bayesian inference algorithms
+- ALWAYS use proper statistical methods for model comparison
+
+### Real Implementation Requirements
+
+- **Probabilistic Models**: Implement complete likelihood functions and prior distributions
+- **MCMC Sampling**: Use real MCMC algorithms with proper tuning and diagnostics
+- **Posterior Inference**: Implement real posterior analysis (summaries, credible intervals)
+- **Model Comparison**: Use real model comparison methods (WAIC, LOO, Bayes factors)
+- **Spatial Models**: Support real spatial Bayesian models (Gaussian processes, spatial random effects)
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-MATH**: Mathematical foundations, optimization, numerical methods
+
+### Integration Patterns
+
+```python
+# Bayesian inference with spatial extensions
+from geo_infer_bayes.models import SpatialGP, HierarchicalModel
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+
+# Integration with Active Inference
+from geo_infer_act.core.active_inference import ActiveInferenceModel
+
+# Temporal Bayesian models
+from geo_infer_time.core.temporal import TemporalModel
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Geospatial Data**: Real vector/raster data with spatial coordinates
+- **Observational Data**: Real sensor data, survey data, measurements
+- **Prior Information**: Real domain knowledge encoded as priors
+
+### API Standards
+
+- Use consistent Bayesian API patterns (PyMC, Stan, Pyro interfaces)
+- Implement proper error handling for numerical issues
+- Support both Bayesian and empirical Bayesian approaches
+- Provide comprehensive posterior summaries
+
+## Module-Specific Implementation Guidelines
+
+### Mathematical Foundations
+
+- Document all probability distributions with mathematical notation
+- Include proper citations to Bayesian statistics literature
+- Implement numerical stability checks for all computations
+- Use appropriate MCMC diagnostics (R-hat, effective sample size)
+
+### Code Structure
+
+- Core Inference: `src/geo_infer_bayes/core/inference.py`
+- Models: `src/geo_infer_bayes/models/`
+- Utilities: `src/geo_infer_bayes/utils/`
+
+### Testing Requirements
+
+- Test MCMC sampling with known distributions
+- Validate posterior inference with simulated data
+- Test numerical stability with edge cases
+- Verify model comparison produces expected results
+
+---
+
+**Remember**: This module implements Bayesian inference with mathematical rigor. Every implementation must use real probability distributions, proper MCMC algorithms, and comprehensive uncertainty quantification. No placeholders, no simplifications - only real, working Bayesian inference.
+

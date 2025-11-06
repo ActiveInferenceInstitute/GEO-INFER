@@ -1,0 +1,69 @@
+# GEO-INFER-REQ Module Development Rules
+
+## Module Overview
+
+GEO-INFER-REQ provides requirements engineering using P3IF framework for system specifications and requirements management.
+
+## Module-Specific Context
+
+**Purpose**: Provide requirements engineering and system specifications  
+**Module Type**: Security & Governance  
+**Status**: Alpha  
+**Dependencies**: NORMS, SEC  
+**Key Integrations**: All modules
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Requirements Implementation Requirements
+
+1. **Requirements Engineering**: Implement real P3IF framework for requirements
+2. **Specification Management**: Use real requirements specification management
+3. **Validation**: Implement real requirements validation mechanisms
+4. **Traceability**: Provide real requirements traceability
+5. **Compliance**: Link requirements to compliance frameworks
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder requirements
+- NEVER skip requirements validation
+- NEVER omit traceability
+- ALWAYS implement real requirements engineering
+- ALWAYS use proper specification frameworks
+
+### Real Implementation Requirements
+
+- **Requirements Models**: Implement real P3IF requirements models
+- **Specification Management**: Use real requirements databases
+- **Validation**: Implement real validation workflows
+- **Traceability**: Provide real traceability links
+- **Compliance**: Link to real compliance frameworks
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-NORMS**: Normative systems for compliance
+- **GEO-INFER-SEC**: Security requirements
+
+### Integration Patterns
+
+```python
+# Requirements with compliance
+from geo_infer_req.core.requirements import RequirementsEngine
+from geo_infer_norms.core.compliance import ComplianceTracker
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Requirements Specifications**: Real requirements documents
+- **System Specifications**: Real system specification data
+- **Compliance Requirements**: Real compliance requirement mappings
+
+---
+
+**Remember**: This module implements requirements engineering for the framework. Every implementation must use real requirements models, proper specification management, and comprehensive traceability. No placeholders, no dummy requirements - only real, working requirements implementations.
+

@@ -1,0 +1,100 @@
+# GEO-INFER-AGENT Module Development Rules
+
+## Module Overview
+
+GEO-INFER-AGENT provides intelligent agent frameworks for autonomous geospatial decision-making with multiple agent architectures.
+
+## Module-Specific Context
+
+**Purpose**: Provide autonomous intelligent agents for geospatial decision-making  
+**Module Type**: Analytical Core  
+**Status**: Beta  
+**Dependencies**: ACT, AI  
+**Key Integrations**: GEO-INFER-SPACE, GEO-INFER-TIME, GEO-INFER-SIM
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Agent Implementation Requirements
+
+1. **Agent Architectures**: Implement real agent architectures (BDI, Active Inference, RL, Hybrid)
+2. **Perception-Action Loops**: Implement complete perception-action cycles
+3. **Decision Making**: Use real decision-making algorithms (planning, policy selection)
+4. **Agent Communication**: Implement real messaging and coordination protocols
+5. **Learning**: Support real agent learning from experience
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder agent behaviors
+- NEVER skip agent decision-making logic
+- NEVER omit perception-action loops
+- ALWAYS implement real agent architectures
+- ALWAYS use proper agent coordination mechanisms
+
+### Real Implementation Requirements
+
+- **BDI Agents**: Implement real belief-desire-intention architectures
+- **Active Inference Agents**: Use real Active Inference models (integrate with ACT)
+- **RL Agents**: Implement real reinforcement learning algorithms
+- **Agent Communication**: Use real messaging protocols (FIPA-ACL-like)
+- **Multi-Agent Coordination**: Implement real coordination mechanisms (auctions, contracts, etc.)
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-ACT**: Active Inference for agent decision-making
+- **GEO-INFER-AI**: Machine learning for agent learning
+
+### Integration Patterns
+
+```python
+# Agent with Active Inference
+from geo_infer_agent.models.active_inference import ActiveInferenceAgent
+from geo_infer_act.core.active_inference import ActiveInferenceModel
+
+# Agent with spatial awareness
+from geo_infer_agent.core.agent_base import BaseAgent
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+
+# Multi-agent coordination
+from geo_infer_agent.core.agent_registry import AgentRegistry
+from geo_infer_agent.api.messaging import MessagingService
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Agent Configurations**: Real agent specifications and behavior rules
+- **Spatial Environments**: Real geospatial environments for agent operation
+- **Sensor Data**: Real sensor data for agent perception
+
+### API Standards
+
+- Use consistent agent API patterns
+- Implement proper error handling for agent failures
+- Support both single-agent and multi-agent systems
+- Provide comprehensive agent lifecycle management
+
+## Module-Specific Implementation Guidelines
+
+### Code Structure
+
+- Base Agent: `src/geo_infer_agent/core/agent_base.py`
+- Agent Models: `src/geo_infer_agent/models/`
+- Agent Registry: `src/geo_infer_agent/core/agent_registry.py`
+- Messaging: `src/geo_infer_agent/api/messaging.py`
+
+### Testing Requirements
+
+- Test agent decision-making with real scenarios
+- Validate agent coordination with multi-agent systems
+- Test agent learning with real experience data
+- Verify agent communication protocols
+
+---
+
+**Remember**: This module implements intelligent agents for geospatial applications. Every implementation must use real agent architectures, proper decision-making, and complete perception-action loops. No placeholders, no simplified behaviors - only real, working agent implementations.
+

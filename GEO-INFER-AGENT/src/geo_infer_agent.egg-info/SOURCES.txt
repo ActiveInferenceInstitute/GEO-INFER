@@ -1,11 +1,11 @@
 README.md
+pyproject.toml
 setup.py
 src/geo_infer_agent/__init__.py
 src/geo_infer_agent/cli.py
 src/geo_infer_agent.egg-info/PKG-INFO
 src/geo_infer_agent.egg-info/SOURCES.txt
 src/geo_infer_agent.egg-info/dependency_links.txt
-src/geo_infer_agent.egg-info/entry_points.txt
 src/geo_infer_agent.egg-info/requires.txt
 src/geo_infer_agent.egg-info/top_level.txt
 src/geo_infer_agent/agents/__init__.py
@@ -15,6 +15,10 @@ src/geo_infer_agent/api/agent_endpoints.py
 src/geo_infer_agent/api/interface.py
 src/geo_infer_agent/api/messaging.py
 src/geo_infer_agent/api/telemetry.py
+src/geo_infer_agent/core/active_inference.py
+src/geo_infer_agent/core/agent_base.py
+src/geo_infer_agent/core/agent_registry.py
+src/geo_infer_agent/models/README.md
 src/geo_infer_agent/models/__init__.py
 src/geo_infer_agent/models/active_inference.py
 src/geo_infer_agent/models/bdi.py
@@ -28,3 +32,4 @@ src/geo_infer_agent/models/bdi/intention.py
 src/geo_infer_agent/models/bdi/plan.py
 src/geo_infer_agent/models/schemas/__init__.py
 src/geo_infer_agent/models/schemas/active_inference_schema.py
+src/geo_infer_agent/models/schemas/agent_schema.json

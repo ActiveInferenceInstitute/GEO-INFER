@@ -1,0 +1,101 @@
+# GEO-INFER-MATH Module Development Rules
+
+## Module Overview
+
+GEO-INFER-MATH serves as the foundational mathematical library providing geometric operations, spatial statistics, and numerical methods for all GEO-INFER modules.
+
+## Module-Specific Context
+
+**Purpose**: Deliver robust mathematical foundations and computational efficiency  
+**Module Type**: Analytical Core  
+**Status**: Beta  
+**Dependencies**: None (foundational module)  
+**Key Integrations**: All analytical modules
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Mathematical Implementation Requirements
+
+1. **Numerical Accuracy**: Implement algorithms with proper numerical stability
+2. **Algorithm Efficiency**: Optimize for performance with large datasets
+3. **Geometric Operations**: Use real geometric algorithms (not approximations)
+4. **Statistical Methods**: Implement proper statistical tests and methods
+5. **Coordinate Transformations**: Use real CRS transformations with proper accuracy
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder mathematical functions
+- NEVER skip numerical stability checks
+- NEVER use approximate algorithms without justification
+- ALWAYS implement real mathematical algorithms
+- ALWAYS validate numerical accuracy
+
+### Real Implementation Requirements
+
+- **Spatial Statistics**: Implement real statistical tests (Moran's I, Geary's C, etc.)
+- **Geometric Operations**: Use real geometric algorithms (shapely, computational geometry)
+- **Optimization**: Implement real optimization algorithms (L-BFGS, conjugate gradient, etc.)
+- **Numerical Methods**: Use real numerical integration and differentiation
+- **Coordinate Systems**: Implement real CRS transformations (pyproj integration)
+
+## Dependencies and Integration
+
+### Required Modules
+
+- None (this is a foundational module)
+
+### Integration Patterns
+
+```python
+# Mathematical foundations used by all modules
+from geo_infer_math.core.statistics import SpatialStatistics
+from geo_infer_math.core.geometry import GeometricOperations
+from geo_infer_math.core.optimization import Optimizer
+
+# Used by ACT, BAYES, AI, etc.
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Geometric Data**: Real coordinates, polygons, lines, points
+- **Statistical Data**: Real datasets for spatial statistics
+- **Optimization Problems**: Real objective functions and constraints
+
+### API Standards
+
+- Use consistent mathematical API patterns
+- Implement proper error handling for numerical issues
+- Support both 2D and 3D operations
+- Provide comprehensive documentation with mathematical notation
+
+## Module-Specific Implementation Guidelines
+
+### Mathematical Foundations
+
+- Document all algorithms with mathematical notation
+- Include proper citations to mathematical literature
+- Implement numerical stability checks
+- Use appropriate precision for floating-point operations
+
+### Code Structure
+
+- Statistics: `src/geo_infer_math/core/statistics.py`
+- Geometry: `src/geo_infer_math/core/geometry.py`
+- Optimization: `src/geo_infer_math/core/optimization.py`
+- Numerical Methods: `src/geo_infer_math/core/numerical.py`
+
+### Testing Requirements
+
+- Test mathematical correctness with known results
+- Validate numerical accuracy with reference implementations
+- Test edge cases and numerical stability
+- Verify geometric operations with known geometries
+
+---
+
+**Remember**: This module provides foundational mathematical capabilities for the entire framework. Every implementation must be mathematically correct, numerically stable, and properly documented. No approximations without justification, no placeholders - only real, working mathematical implementations.
+
