@@ -1,0 +1,319 @@
+---
+title: "GEO-INFER Module Development Guidelines"
+description: "Comprehensive guidelines for developing new GEO-INFER modules"
+purpose: "Ensure consistency, quality, and proper integration of new modules"
+framework_version: "1.0.0"
+last_updated: "2025-01-24"
+---
+
+# GEO-INFER Module Development Guidelines
+
+## Overview
+
+This document provides comprehensive guidelines for developing new modules within the GEO-INFER framework. Following these guidelines ensures consistency, quality, and proper integration with the existing ecosystem.
+
+## Development Phases
+
+### Phase 1: Planning (1-2 weeks)
+
+#### 1.1 Module Proposal
+- Create module proposal document using [MODULE_PROPOSAL_TEMPLATE.md](./MODULE_PROPOSAL_TEMPLATE.md)
+- Define module scope and boundaries
+- Identify dependencies and integration points
+- Estimate development time and resources
+
+#### 1.2 Requirements Analysis
+- Document functional requirements
+- Identify data sources and formats
+- Define API interfaces
+- Plan integration with dependent modules
+
+#### 1.3 Design Review
+- Review proposal with framework maintainers
+- Validate dependencies and integration approach
+- Confirm module fits within framework architecture
+- Get approval to proceed
+
+### Phase 2: Infrastructure Setup (1 week)
+
+#### 2.1 Directory Structure
+Create the following standard structure:
+
+```
+GEO-INFER-{MODULE}/
+├── README.md              # Module documentation (required)
+├── requirements.txt       # Python dependencies (required)
+├── setup.py               # Setuptools configuration (required)
+├── pyproject.toml         # Modern Python project config (required)
+├── config/                # Configuration files
+│   └── example.yaml
+├── src/                   # Source code (required)
+│   └── geo_infer_{module}/
+│       ├── __init__.py
+│       ├── core/          # Core functionality
+│       │   ├── __init__.py
+│       │   └── {main_classes}.py
+│       ├── api/           # API interfaces
+│       │   ├── __init__.py
+│       │   └── {api_classes}.py
+│       └── utils/         # Utility functions
+│           ├── __init__.py
+│           └── {utilities}.py
+├── tests/                 # Test suite (required)
+│   ├── __init__.py
+│   ├── conftest.py        # Pytest configuration
+│   ├── unit/              # Unit tests
+│   │   ├── __init__.py
+│   │   └── test_{module}.py
+│   └── integration/       # Integration tests
+│       ├── __init__.py
+│       └── test_{module}_integration.py
+├── examples/              # Working examples (required)
+│   ├── README.md
+│   └── basic_usage/
+│       └── example.py
+└── docs/                  # Additional documentation
+    └── api_schema.yaml
+```
+
+#### 2.2 Configuration Files
+
+**requirements.txt**:
+```txt
+# GEO-INFER-{MODULE} Requirements
+# Core dependencies
+numpy>=1.20.0
+pandas>=1.3.0
+
+# Module-specific dependencies
+{dependency1}>=1.0.0
+{dependency2}>=2.0.0
+```
+
+**setup.py**:
+```python
+from setuptools import setup, find_packages
+
+setup(
+    name="geo_infer_{module}",
+    version="0.1.0",
+    description="{Module description}",
+    author="GEO-INFER Development Team",
+    author_email="geo-infer@activeinference.institute",
+    packages=find_packages(where="src"),
+    package_dir={"": "src"},
+    python_requires=">=3.9",
+    install_requires=[
+        # List from requirements.txt
+    ],
+    extras_require={
+        "dev": [
+            "pytest>=6.2.0",
+            "pytest-cov>=2.12.0",
+            "black>=21.9.0",
+            "flake8>=3.9.0",
+            "mypy>=0.910",
+            "isort>=5.9.0",
+        ],
+    },
+    include_package_data=True,
+    package_data={
+        "": ["*.yaml", "*.yml", "*.json", "*.md", "*.txt"],
+    },
+)
+```
+
+**pyproject.toml**:
+```toml
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "geo-infer-{module}"
+version = "0.1.0"
+description = "{Module description}"
+readme = "README.md"
+license = {text = "CC BY-ND-SA 4.0"}
+requires-python = ">=3.9"
+authors = [
+    {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
+]
+dependencies = [
+    # List dependencies
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]
+exclude = ["tests*"]
+```
+
+#### 2.3 README.md Structure
+
+The README.md must include:
+
+1. **YAML Front Matter** (required)
+2. **Overview Section** - Module purpose and core concepts
+3. **Core Objectives** - List of main objectives
+4. **Key Features** - Detailed feature descriptions with examples
+5. **Integration Examples** - How to integrate with other modules
+6. **Use Cases** - Practical application examples
+7. **API Reference** - Complete API documentation with code examples
+8. **Configuration** - Configuration options and examples
+9. **Testing** - Testing approach and validation
+10. **Getting Started** - Installation and quick start guide
+
+See [MODULE_PROPOSAL_TEMPLATE.md](./MODULE_PROPOSAL_TEMPLATE.md) for the complete template.
+
+### Phase 3: Core Implementation (4-8 weeks)
+
+#### 3.1 Code Standards
+
+- **Type Hints**: All functions must have type hints
+- **Docstrings**: All classes and functions must have comprehensive docstrings
+- **Error Handling**: Proper exception handling, no bare `except` clauses
+- **No Placeholders**: All code must be functional, no `pass` or `NotImplementedError`
+- **Real Data**: Use real data analysis, no mock methods
+
+#### 3.2 Testing Requirements
+
+- **Unit Tests**: Test all core functionality
+- **Integration Tests**: Test integration with dependent modules
+- **Test Coverage**: Aim for >60% coverage
+- **Test Structure**: Use pytest with proper fixtures
+
+**Example test structure**:
+```python
+# tests/unit/test_{module}.py
+import pytest
+from geo_infer_{module} import {MainClass}
+
+class Test{MainClass}:
+    def test_initialization(self):
+        """Test class initialization."""
+        instance = {MainClass}()
+        assert instance is not None
+    
+    def test_{method}(self):
+        """Test {method} functionality."""
+        instance = {MainClass}()
+        result = instance.{method}(test_data)
+        assert result is not None
+```
+
+#### 3.3 Examples
+
+- Create working examples in `examples/` directory
+- Include README.md in examples explaining how to run
+- Examples should be runnable and demonstrate key features
+- Include integration examples with other modules
+
+### Phase 4: Documentation (1-2 weeks)
+
+#### 4.1 API Reference
+
+- Document all public classes and functions
+- Include code examples for each major component
+- Show integration patterns
+- Document configuration options
+
+#### 4.2 Integration Documentation
+
+- Document how module integrates with dependencies
+- Provide cross-module usage examples
+- Update dependency matrix in main README.md
+- Add module to GEO-INFER-INTRA/docs/modules/index.md
+
+### Phase 5: Integration & Validation (1-2 weeks)
+
+#### 5.1 Integration Testing
+
+- Test integration with all declared dependencies
+- Create cross-module examples
+- Verify data flow between modules
+- Test error handling in integration scenarios
+
+#### 5.2 Framework Integration
+
+- Update main README.md dependency matrix
+- Add module to module index
+- Update architecture diagrams if needed
+- Create integration examples in GEO-INFER-EXAMPLES
+
+#### 5.3 Quality Assurance
+
+- Run verification script: `python3 scripts/verify_module_completeness.py`
+- Ensure all checks pass
+- Review code quality
+- Validate documentation completeness
+
+## Code Quality Standards
+
+### Python Style
+
+- Follow PEP 8
+- Use Black for formatting (line length: 88)
+- Use isort for import sorting
+- Type hints required for all functions
+
+### Documentation
+
+- Comprehensive docstrings for all public APIs
+- Include examples in docstrings
+- Document parameters and return values
+- Explain complex algorithms
+
+### Testing
+
+- Unit tests for all core functionality
+- Integration tests for module interactions
+- Test edge cases and error conditions
+- Maintain >60% test coverage
+
+## Integration Checklist
+
+Before marking a module as complete:
+
+- [ ] All infrastructure files present (requirements.txt, setup.py, pyproject.toml)
+- [ ] README.md with YAML front matter and all required sections
+- [ ] Complete API Reference with code examples
+- [ ] Test suite with >60% coverage
+- [ ] Working examples in examples/ directory
+- [ ] Integration examples with dependent modules
+- [ ] Updated dependency matrix in main README.md
+- [ ] Added to module index in GEO-INFER-INTRA/docs/modules/index.md
+- [ ] All verification checks pass
+- [ ] Code review completed
+- [ ] Documentation reviewed
+
+## Common Pitfalls to Avoid
+
+1. **Placeholder Code**: Never use `pass` or `NotImplementedError` in production code
+2. **Mock Methods**: Always implement real functionality, no mocks
+3. **Missing Tests**: Every module must have comprehensive tests
+4. **Incomplete Documentation**: API Reference is required, not optional
+5. **Poor Integration**: Modules must properly integrate with dependencies
+6. **Hardcoded Values**: Use configuration files, not hardcoded values
+7. **Missing Examples**: Examples are required to demonstrate usage
+
+## Getting Help
+
+- Review existing modules for patterns and examples
+- Consult [Documentation Standards](../docs/DOCUMENTATION_STANDARDS.md)
+- Check [Module Integration Guide](../docs/guides/MODULE_INTEGRATION_GUIDE.md)
+- Ask questions in GEO-INFER community channels
+
+## Resources
+
+- [Module Proposal Template](./MODULE_PROPOSAL_TEMPLATE.md)
+- [New Module Proposals](../docs/modules/NEW_MODULE_PROPOSALS.md)
+- [Documentation Standards](../docs/DOCUMENTATION_STANDARDS.md)
+- [GEO-INFER Framework README](../../README.md)
+
+---
+
+**Last Updated**: 2025-01-24 | **Framework Version**: 1.0.0
+

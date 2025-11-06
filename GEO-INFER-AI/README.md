@@ -3,7 +3,7 @@ title: "GEO-INFER-AI: Artificial Intelligence for Geospatial Applications"
 description: "Advanced machine learning and artificial intelligence capabilities specifically designed for geospatial analysis and decision-making"
 purpose: "Provide comprehensive AI and machine learning capabilities for geospatial data processing, pattern recognition, and predictive modeling"
 module_type: "Analytical Core"
-status: "Alpha"
+status: "Beta"
 last_updated: "2025-01-19"
 dependencies: ["DATA", "SPACE"]
 compatibility: ["GEO-INFER-DATA", "GEO-INFER-SPACE", "GEO-INFER-TIME", "All domain modules"]

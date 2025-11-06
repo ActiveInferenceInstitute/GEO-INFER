@@ -445,6 +445,71 @@ def environmental_monitoring_workflow(coordinates: np.ndarray,
 
     return create_integrated_workflow(analysis_steps, data)
 
+
+def verify_with_theorem_proving(
+    theorem: str,
+    assumptions: Optional[List[str]] = None,
+    backend: str = 'z3'
+) -> Dict[str, Any]:
+    """
+    Verify mathematical operation using theorem proving.
+
+    Args:
+        theorem: Theorem statement
+        assumptions: List of assumptions
+        backend: Theorem prover backend
+
+    Returns:
+        Verification results
+    """
+    try:
+        from geo_infer_math.core.theorem_proving import TheoremProver
+        
+        prover = TheoremProver(backend=backend)
+        result = prover.prove(theorem, assumptions)
+        
+        return {
+            'verified': result.status.value == 'proven',
+            'status': result.status.value,
+            'proof': result.proof,
+            'backend': result.backend
+        }
+    except ImportError:
+        logger.warning("Theorem proving not available")
+        return {'verified': False, 'error': 'Theorem proving not available'}
+
+
+def information_theory_analysis(
+    coordinates: np.ndarray,
+    values: np.ndarray,
+    analysis_type: str = 'entropy'
+) -> Dict[str, Any]:
+    """
+    Perform information theory analysis on spatial data.
+
+    Args:
+        coordinates: Spatial coordinates
+        values: Values at locations
+        analysis_type: Type of analysis ('entropy', 'mutual_information', 'kl_divergence')
+
+    Returns:
+        Analysis results
+    """
+    try:
+        from geo_infer_math.core.information_theory import (
+            spatial_entropy,
+            EntropyCalculator
+        )
+        
+        if analysis_type == 'entropy':
+            entropy = spatial_entropy(coordinates, values)
+            return {'entropy': entropy, 'type': 'spatial_entropy'}
+        else:
+            return {'error': f'Analysis type {analysis_type} not yet implemented'}
+    except ImportError:
+        logger.warning("Information theory not available")
+        return {'error': 'Information theory not available'}
+
 def urban_planning_workflow(intersections: np.ndarray,
                           connections: List[Tuple[int, int]],
                           land_use: np.ndarray,
@@ -484,6 +549,71 @@ def urban_planning_workflow(intersections: np.ndarray,
     ]
 
     return create_integrated_workflow(analysis_steps, data)
+
+
+def verify_with_theorem_proving(
+    theorem: str,
+    assumptions: Optional[List[str]] = None,
+    backend: str = 'z3'
+) -> Dict[str, Any]:
+    """
+    Verify mathematical operation using theorem proving.
+
+    Args:
+        theorem: Theorem statement
+        assumptions: List of assumptions
+        backend: Theorem prover backend
+
+    Returns:
+        Verification results
+    """
+    try:
+        from geo_infer_math.core.theorem_proving import TheoremProver
+        
+        prover = TheoremProver(backend=backend)
+        result = prover.prove(theorem, assumptions)
+        
+        return {
+            'verified': result.status.value == 'proven',
+            'status': result.status.value,
+            'proof': result.proof,
+            'backend': result.backend
+        }
+    except ImportError:
+        logger.warning("Theorem proving not available")
+        return {'verified': False, 'error': 'Theorem proving not available'}
+
+
+def information_theory_analysis(
+    coordinates: np.ndarray,
+    values: np.ndarray,
+    analysis_type: str = 'entropy'
+) -> Dict[str, Any]:
+    """
+    Perform information theory analysis on spatial data.
+
+    Args:
+        coordinates: Spatial coordinates
+        values: Values at locations
+        analysis_type: Type of analysis ('entropy', 'mutual_information', 'kl_divergence')
+
+    Returns:
+        Analysis results
+    """
+    try:
+        from geo_infer_math.core.information_theory import (
+            spatial_entropy,
+            EntropyCalculator
+        )
+        
+        if analysis_type == 'entropy':
+            entropy = spatial_entropy(coordinates, values)
+            return {'entropy': entropy, 'type': 'spatial_entropy'}
+        else:
+            return {'error': f'Analysis type {analysis_type} not yet implemented'}
+    except ImportError:
+        logger.warning("Information theory not available")
+        return {'error': 'Information theory not available'}
 
 def public_health_workflow(neighborhood_coords: np.ndarray,
                          health_metrics: np.ndarray,

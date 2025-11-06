@@ -1,0 +1,23 @@
+# SPM Module Orchestrator Configuration
+
+# Module-specific configuration
+module:
+  name: "SPM"
+  description: "Statistical mapping"
+
+# Operations configuration
+operations:
+  sample_size: 10
+  enable_validation: true
+  log_level: "INFO"
+
+# Output configuration
+output:
+  format: "json"
+  include_metadata: true
+  save_intermediate_results: false
+
+# Performance configuration
+performance:
+  enable_profiling: false
+  timeout_seconds: 300

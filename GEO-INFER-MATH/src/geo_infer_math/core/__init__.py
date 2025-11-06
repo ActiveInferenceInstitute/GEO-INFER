@@ -54,6 +54,18 @@ try:
 except ImportError:
     _symbolic_math_available = False
 
+try:
+    from geo_infer_math.core.information_theory import *
+    _information_theory_available = True
+except ImportError:
+    _information_theory_available = False
+
+try:
+    from geo_infer_math.core.theorem_proving import *
+    _theorem_proving_available = True
+except ImportError:
+    _theorem_proving_available = False
+
 # Build __all__ list based on available modules
 __all__ = [
     "spatial_statistics",
@@ -82,3 +94,9 @@ if _gpu_acceleration_available:
 
 if _symbolic_math_available:
     __all__.append("symbolic_math")
+
+if _information_theory_available:
+    __all__.append("information_theory")
+
+if _theorem_proving_available:
+    __all__.append("theorem_proving")

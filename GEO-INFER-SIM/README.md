@@ -170,6 +170,119 @@ A library of pre-built or easily adaptable models for common simulation scenario
 -   **Emergency Response & Disaster Scenarios:** Evacuation models, resource allocation during disasters, wildfire spread simulations.
 -   **Agricultural Systems:** Crop growth models, farmer decision-making ABMs.
 
+## Module Simulation Methods
+
+GEO-INFER-SIM provides comprehensive simulation methods that are **exactly named after each GEO-INFER module**, enabling direct simulation of module-specific behaviors and workflows.
+
+### ModuleSimulations Class
+
+The `ModuleSimulations` class provides simulation methods for all GEO-INFER modules:
+
+```python
+from geo_infer_sim import ModuleSimulations, ModuleSimulationConfig
+
+# Initialize module simulations
+config = ModuleSimulationConfig(
+    time_horizon=100.0,
+    time_step=1.0,
+    random_seed=42,
+)
+sims = ModuleSimulations(config)
+
+# Simulate any GEO-INFER module
+act_results = sims.simulate_act()          # Active Inference
+space_results = sims.simulate_space()      # Spatial Analysis
+ag_results = sims.simulate_ag()            # Agriculture
+health_results = sims.simulate_health()     # Health Applications
+ai_results = sims.simulate_ai()            # Artificial Intelligence
+# ... and 30+ more module simulation methods
+```
+
+### Available Module Simulation Methods
+
+All GEO-INFER modules have corresponding simulation methods:
+
+#### Core Analytical Modules
+- `simulate_act()` - Active Inference processes
+- `simulate_bayes()` - Bayesian inference
+- `simulate_ai()` - Machine learning and AI
+- `simulate_math()` - Mathematical computations
+- `simulate_cog()` - Cognitive modeling
+- `simulate_agent()` - Multi-agent systems
+- `simulate_spm()` - Statistical parametric mapping
+
+#### Spatial-Temporal Modules
+- `simulate_space()` - Spatial analysis and H3 indexing
+- `simulate_time()` - Temporal analysis and forecasting
+- `simulate_iot()` - IoT sensor networks
+
+#### Infrastructure Modules
+- `simulate_data()` - Data management and ETL
+- `simulate_api()` - API services
+- `simulate_sec()` - Security and privacy
+- `simulate_ops()` - System operations
+
+#### Domain Application Modules
+- `simulate_ag()` - Agricultural processes
+- `simulate_health()` - Health applications
+- `simulate_econ()` - Economic modeling
+- `simulate_risk()` - Risk management
+- `simulate_log()` - Logistics optimization
+- `simulate_bio()` - Bioinformatics
+
+#### Community & Application Modules
+- `simulate_civ()` - Civic engagement
+- `simulate_app()` - Application interfaces
+- `simulate_art()` - Artistic generation
+- `simulate_place()` - Place-based analysis
+
+#### Simulation & Complex Systems
+- `simulate_ant()` - Swarm intelligence
+- `simulate_sim()` - Meta-simulation processes
+
+#### People & Governance Modules
+- `simulate_pep()` - People management
+- `simulate_org()` - Organizational dynamics
+- `simulate_comms()` - Communications
+- `simulate_norms()` - Normative systems
+- `simulate_req()` - Requirements engineering
+
+#### Operations Modules
+- `simulate_intra()` - Internal documentation
+- `simulate_git()` - Version control
+- `simulate_test()` - Testing framework
+- `simulate_examples()` - Example generation
+
+### Example: Simulating Multiple Modules
+
+```python
+from geo_infer_sim import ModuleSimulations, ModuleSimulationConfig
+
+# Initialize
+sims = ModuleSimulations(ModuleSimulationConfig(time_horizon=50.0))
+
+# Simulate multiple modules
+results = {
+    "act": sims.simulate_act(),
+    "space": sims.simulate_space(),
+    "health": sims.simulate_health(),
+    "econ": sims.simulate_econ(),
+}
+
+# Access results
+for module, result in results.items():
+    print(f"{module.upper()}: {result['module']}")
+    print(f"  Status: {result['simulation_results']['status']}")
+```
+
+Each simulation method returns module-specific results including:
+- Module-specific metrics and histories
+- Simulation execution results
+- Time-series data for analysis
+- Module-specific state information
+
+See `examples/module_simulations_example.py` for comprehensive usage examples.
+
 ## API Reference
 
 ### Core Classes

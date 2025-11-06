@@ -3,7 +3,13 @@
 ## Table of Contents
 
 - [Overview](#overview)
+- [Agent Module Index](#agent-module-index)
+  - [Core Agent Modules](#core-agent-modules)
+  - [Agent-Enabled Domain Modules](#agent-enabled-domain-modules)
+  - [Agent Architectures & Capabilities](#agent-architectures--capabilities)
 - [Implementation Status](#implementation-status)
+  - [Currently Implemented](#currently-implemented)
+  - [Aspirational/Planned Features](#aspirationalplanned-features)
 - [Architecture Overview](#architecture-overview)
 - [Core Agent Framework](#core-agent-framework)
   - [Agent Types](#agent-types)
@@ -15,6 +21,7 @@
 - [Spatial Intelligence](#spatial-intelligence)
 - [Security and Privacy](#security-and-privacy)
 - [Integration Patterns](#integration-patterns)
+  - [Module Integration Matrix](#module-integration-matrix)
 - [Performance Optimization](#performance-optimization)
 - [Use Cases](#use-cases)
 - [Testing and Validation](#testing-and-validation)
@@ -24,37 +31,98 @@
 
 This document comprehensively describes the multi-agent systems architecture within the GEO-INFER framework. It covers the design principles, agent types, coordination mechanisms, security protocols, and integration patterns that enable intelligent, autonomous geospatial decision-making.
 
+### 🧭 Quick Navigation
+
+- **[Agent Module Index](#-agent-module-index)** - Complete index of agent-related modules
+- **[Implementation Status](#implementation-status)** - What's implemented vs. planned
+- **[Core Agent Framework](#core-agent-framework)** - Base agent types and lifecycle
+- **[Multi-Agent Coordination](#multi-agent-coordination)** - Coordination strategies and protocols
+- **[Integration Patterns](#integration-patterns)** - How agents integrate with other modules
+- **[Agent Architectures](#agent-architectures--capabilities)** - BDI, Active Inference, RL, Swarm
+- **[Use Cases](#use-cases)** - Real-world agent applications
+- **[Related Documentation](#related-documentation)** - Links to module-specific agent docs
+
 ### Related Documentation
 
 - **[GEO-INFER-ACT/AGENTS.md](./GEO-INFER-ACT/AGENTS.md)**: Active Inference agent implementations
 - **[GEO-INFER-AGENT/AGENTS.md](./GEO-INFER-AGENT/AGENTS.md)**: Core intelligent agent framework
 - **[GEO-INFER-ANT/AGENTS.md](./GEO-INFER-ANT/AGENTS.md)**: Swarm intelligence and complex adaptive systems agents
 
+## 📋 Agent Module Index
+
+### Core Agent Modules
+
+| Module | Agent Type | Status | Implementation | Links |
+|--------|------------|--------|----------------|-------|
+| **[AGENT](./GEO-INFER-AGENT/)** | Multi-Agent Systems | ✅ Beta | `BaseAgent`, `BDIAgent`, `RLAgent`, `ActiveInferenceAgent`, `HybridAgent` | [README](./GEO-INFER-AGENT/README.md) \| [AGENTS.md](./GEO-INFER-AGENT/AGENTS.md) \| [Examples](./GEO-INFER-AGENT/examples/) |
+| **[ACT](./GEO-INFER-ACT/)** | Active Inference Agents | ✅ Beta | `ActiveInferenceModel`, `GenerativeModel`, `FreeEnergyCalculator` | [README](./GEO-INFER-ACT/README.md) \| [AGENTS.md](./GEO-INFER-ACT/AGENTS.md) \| [Examples](./GEO-INFER-ACT/examples/) |
+| **[ANT](./GEO-INFER-ANT/)** | Swarm Intelligence Agents | 🟡 Alpha | `SwarmAgent`, `AgentPopulation`, `PheromoneSystem`, `ABC`, `PSO`, `ACO` | [README](./GEO-INFER-ANT/README.md) \| [AGENTS.md](./GEO-INFER-ANT/AGENTS.md) \| [Examples](./GEO-INFER-ANT/examples/) |
+| **[SIM](./GEO-INFER-SIM/)** | Simulation Agents | 🟡 Alpha | Agent-based simulation environments | [README](./GEO-INFER-SIM/README.md) \| [Examples](./GEO-INFER-SIM/examples/) |
+| **[COG](./GEO-INFER-COG/)** | Cognitive Agents | 🟡 Alpha | Cognitive modeling for agent behavior | [README](./GEO-INFER-COG/README.md) \| [Examples](./GEO-INFER-COG/examples/) |
+
+### Agent-Enabled Domain Modules
+
+| Module | Agent Applications | Status | Links |
+|--------|-------------------|--------|-------|
+| **[AG](./GEO-INFER-AG/)** | Agricultural monitoring agents, precision farming agents | ✅ Beta | [README](./GEO-INFER-AG/README.md) |
+| **[HEALTH](./GEO-INFER-HEALTH/)** | Disease surveillance agents, healthcare coordination agents | ✅ Beta | [README](./GEO-INFER-HEALTH/README.md) |
+| **[LOG](./GEO-INFER-LOG/)** | Logistics optimization agents, supply chain agents | ✅ Beta | [README](./GEO-INFER-LOG/README.md) |
+| **[RISK](./GEO-INFER-RISK/)** | Risk assessment agents, hazard monitoring agents | 🟡 Alpha | [README](./GEO-INFER-RISK/README.md) |
+| **[IOT](./GEO-INFER-IOT/)** | Sensor network agents, real-time monitoring agents | ✅ Beta | [README](./GEO-INFER-IOT/README.md) |
+
+### Agent Architectures & Capabilities
+
+| Architecture | Module | Implementation | Status | Links |
+|--------------|--------|----------------|--------|-------|
+| **Belief-Desire-Intention (BDI)** | [AGENT](./GEO-INFER-AGENT/) | `BDIAgent` | ✅ Implemented | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/models/bdi.py) |
+| **Active Inference** | [ACT](./GEO-INFER-ACT/), [AGENT](./GEO-INFER-AGENT/) | `ActiveInferenceAgent`, `ActiveInferenceModel` | ✅ Implemented | [ACT Source](./GEO-INFER-ACT/src/) \| [AGENT Source](./GEO-INFER-AGENT/src/) |
+| **Reinforcement Learning** | [AGENT](./GEO-INFER-AGENT/) | `RLAgent` | ✅ Implemented | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/models/rl.py) |
+| **Rule-Based** | [AGENT](./GEO-INFER-AGENT/) | `RuleBasedAgent` | ✅ Implemented | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/models/rule_based.py) |
+| **Hybrid** | [AGENT](./GEO-INFER-AGENT/) | `HybridAgent` | ✅ Implemented | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/models/hybrid.py) |
+| **Swarm Intelligence** | [ANT](./GEO-INFER-ANT/) | `SwarmAgent`, `AgentPopulation` | ✅ Implemented | [Source](./GEO-INFER-ANT/src/geo_infer_ant/core/) |
+| **Stigmergic Communication** | [ANT](./GEO-INFER-ANT/) | `PheromoneSystem`, `DigitalStigmergy` | ✅ Implemented | [Source](./GEO-INFER-ANT/src/geo_infer_ant/communication/) |
+| **Swarm Optimization** | [ANT](./GEO-INFER-ANT/) | `ABC`, `PSO`, `ACO` algorithms | ✅ Implemented | [Source](./GEO-INFER-ANT/src/geo_infer_ant/algorithms/) |
+| **Cognitive Modeling** | [COG](./GEO-INFER-COG/) | Cognitive agents with attention, memory | 🟡 In Development | [Source](./GEO-INFER-COG/src/) |
+| **Multi-Agent Coordination** | [AGENT](./GEO-INFER-AGENT/) | `AgentRegistry`, `MessagingService` | ✅ Implemented | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/core/) |
+| **Agent Telemetry** | [AGENT](./GEO-INFER-AGENT/) | `TelemetryService` | ✅ Implemented | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/api/telemetry.py) |
+
 ## Implementation Status
 
 **⚠️ Important Note**: This document describes both **implemented** and **aspirational** features. Features marked with 🔮 are planned/aspirational and not yet implemented. Features without this marker are currently implemented and available.
 
-### Currently Implemented
+### ✅ Currently Implemented
 
-- ✅ **Core Agent Framework**: `BaseAgent`, `AgentRegistry`, `ActiveInferenceAgent` (in `GEO-INFER-AGENT`)
-- ✅ **Agent Models**: `BDIAgent`, `RLAgent`, `RuleBasedAgent`, `HybridAgent` (in `GEO-INFER-AGENT`)
-- ✅ **Agent Communication**: `MessagingService` (in `geo_infer_agent.api.messaging`)
-- ✅ **Telemetry**: `TelemetryService` (in `geo_infer_agent.api.telemetry`)
-- ✅ **Active Inference Models**: `ActiveInferenceModel`, `GenerativeModel` (in `GEO-INFER-ACT`)
-- ✅ **Swarm Intelligence**: Complete swarm agent implementations (in `GEO-INFER-ANT`)
-- ✅ **Integration Patterns**: ACT, SPACE, SEC integration examples
+| Feature | Module | Implementation | Links |
+|---------|--------|----------------|-------|
+| **Core Agent Framework** | AGENT | `BaseAgent`, `AgentRegistry` | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/core/) |
+| **Active Inference Agents** | ACT, AGENT | `ActiveInferenceAgent`, `ActiveInferenceModel`, `GenerativeModel` | [ACT Source](./GEO-INFER-ACT/src/) \| [AGENT Source](./GEO-INFER-AGENT/src/) |
+| **BDI Agents** | AGENT | `BDIAgent` | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/models/bdi.py) |
+| **RL Agents** | AGENT | `RLAgent` | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/models/rl.py) |
+| **Hybrid Agents** | AGENT | `HybridAgent` | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/models/hybrid.py) |
+| **Swarm Agents** | ANT | `SwarmAgent`, `AgentPopulation` | [Source](./GEO-INFER-ANT/src/geo_infer_ant/core/) |
+| **Stigmergic Communication** | ANT | `PheromoneSystem`, `DigitalStigmergy` | [Source](./GEO-INFER-ANT/src/geo_infer_ant/communication/) |
+| **Agent Communication** | AGENT | `MessagingService` | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/api/messaging.py) |
+| **Agent Telemetry** | AGENT | `TelemetryService` | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/api/telemetry.py) |
+| **Swarm Optimization** | ANT | `ABC`, `PSO`, `ACO` algorithms | [Source](./GEO-INFER-ANT/src/geo_infer_ant/algorithms/) |
 
-### Aspirational/Planned Features
+### 🔮 Aspirational/Planned Features
 
-- 🔮 **Application-Specific Agents**: Environmental, Infrastructure, Urban, Emergency agents
-- 🔮 **Coordination Modules**: Hierarchical, Emergent, Auction-based coordinators
-- 🔮 **Communication Protocols**: Spatial broadcasting, P2P, hierarchical protocols
-- 🔮 **Negotiation Mechanisms**: Bilateral and multi-party negotiation
-- 🔮 **Spatial Intelligence Modules**: Spatial perception, memory, reasoning, learning
-- 🔮 **Security Modules**: Agent security manager, secure communication, privacy protection
-- 🔮 **Performance Optimization**: Performance optimizers for agents, coordination, spatial intelligence
-- 🔮 **Application Frameworks**: Smart city, environmental monitoring networks, emergency response coordinators
-- 🔮 **Testing Frameworks**: Agent testing framework and MAS validator
+| Feature | Priority | Target Module | Dependencies |
+|---------|----------|---------------|--------------|
+| **Environmental Monitoring Agents** | High | AGENT, CLIMATE | SPACE, TIME, IOT |
+| **Infrastructure Management Agents** | High | AGENT | SPACE, TIME, OPS |
+| **Urban Planning Agents** | Medium | AGENT, CIV | SPACE, ACT, CIV |
+| **Emergency Response Agents** | High | AGENT, EMERGENCY | SPACE, TIME, RISK, IOT |
+| **Hierarchical Coordination** | Medium | AGENT | ACT, SPACE |
+| **Emergent Coordination** | Medium | ANT | ACT, SIM |
+| **Auction-Based Coordination** | Low | AGENT | ECON, ACT |
+| **Spatial Broadcasting Protocols** | Medium | AGENT | SPACE, SEC |
+| **P2P Mesh Networks** | Low | AGENT | SPACE, COMMS |
+| **Bilateral Negotiation** | Low | AGENT | ACT, ECON |
+| **Multi-Party Negotiation** | Low | AGENT | ACT, ORG |
+| **Spatial Intelligence Modules** | High | AGENT | SPACE, COG |
+| **Agent Security Manager** | High | AGENT, SEC | SEC, ACT |
+| **Performance Optimizers** | Medium | AGENT, OPS | OPS, ACT |
 
 ## Architecture Overview
 
@@ -761,9 +829,27 @@ privacy.manage_consent_and_policies()
 
 ## Integration Patterns
 
+### Module Integration Matrix
+
+| Agent Module | Integrates With | Integration Type | Use Case |
+|--------------|----------------|------------------|----------|
+| **AGENT** | ACT | Core | Active Inference decision-making |
+| **AGENT** | AI | Core | Machine learning for agent behavior |
+| **AGENT** | SPACE | Essential | Spatial perception and navigation |
+| **AGENT** | TIME | Essential | Temporal reasoning and planning |
+| **AGENT** | SIM | Core | Agent-based simulation environments |
+| **ACT** | BAYES | Core | Bayesian belief updating |
+| **ACT** | MATH | Foundation | Mathematical foundations |
+| **ANT** | ACT | Core | Active Inference in swarm systems |
+| **ANT** | SIM | Core | Swarm simulation environments |
+| **COG** | AGENT | Core | Cognitive modeling for agents |
+| **COG** | SPACE | Essential | Spatial cognition |
+
 ### GEO-INFER-ACT Integration
 
 **Pattern**: Active Inference for agent decision making.
+
+**Module**: [GEO-INFER-ACT](./GEO-INFER-ACT/) | [Documentation](./GEO-INFER-ACT/AGENTS.md)
 
 ```python
 from geo_infer_agent.models.active_inference import ActiveInferenceAgent
@@ -822,6 +908,8 @@ hybrid_agent = HybridAgent(
 ### GEO-INFER-SPACE Integration
 
 **Pattern**: Backend-agnostic spatial data and analysis for agent operations with multiple dispatch support.
+
+**Module**: [GEO-INFER-SPACE](./GEO-INFER-SPACE/) | [Documentation](./GEO-INFER-SPACE/README.md)
 
 ```python
 from geo_infer_agent.core.agent_registry import AgentRegistry

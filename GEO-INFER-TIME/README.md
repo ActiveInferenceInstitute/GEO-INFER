@@ -3,7 +3,7 @@ title: "GEO-INFER-TIME: Temporal Methods for Geospatial Data"
 description: "Temporal analysis, time series processing, forecasting, and spatio-temporal data fusion for dynamic geospatial applications"
 purpose: "Provide comprehensive temporal methods for analyzing dynamic geospatial data, time series, and spatio-temporal relationships"
 module_type: "Spatial-Temporal"
-status: "Alpha"
+status: "Beta"
 last_updated: "2025-01-19"
 dependencies: ["DATA", "MATH"]
 compatibility: ["GEO-INFER-DATA", "GEO-INFER-MATH", "GEO-INFER-SPACE", "GEO-INFER-AI"]

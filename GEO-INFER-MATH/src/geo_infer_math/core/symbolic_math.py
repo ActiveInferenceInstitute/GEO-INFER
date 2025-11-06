@@ -545,6 +545,170 @@ class SymbolicMath:
                 'Simplified differentiation and integration'
             ]
         }
+    
+    def generate_proof(
+        self,
+        expression: Any,
+        operation: str,
+        result: Optional[Any] = None
+    ) -> Optional[Dict[str, Any]]:
+        """
+        Generate proof for a symbolic operation.
+
+        Args:
+            expression: Symbolic expression
+            operation: Operation performed
+            result: Optional result of operation
+
+        Returns:
+            Proof dictionary if available
+        """
+        try:
+            from geo_infer_math.core.theorem_proving.integration import (
+                generate_proof_from_symbolic
+            )
+            
+            proof_result = generate_proof_from_symbolic(expression, operation)
+            
+            if proof_result:
+                return {
+                    'status': proof_result.status.value,
+                    'theorem': proof_result.theorem,
+                    'proof': proof_result.proof,
+                    'backend': proof_result.backend
+                }
+        except ImportError:
+            logger.debug("Theorem proving not available for proof generation")
+        
+        return None
+    
+    def verify_operation(
+        self,
+        original: Any,
+        result: Any,
+        operation: str
+    ) -> bool:
+        """
+        Verify a symbolic operation using theorem proving.
+
+        Args:
+            original: Original expression
+            result: Result of operation
+            operation: Operation name
+
+        Returns:
+            True if verified
+        """
+        try:
+            from geo_infer_math.core.theorem_proving.integration import (
+                verify_symbolic_operation
+            )
+            
+            return verify_symbolic_operation(original, result, operation)
+        except ImportError:
+            logger.debug("Theorem proving not available for verification")
+            return False
+    
+    def improved_differentiate(
+        self,
+        expression: Any,
+        variable: Any,
+        order: int = 1,
+        verify: bool = False
+    ) -> Tuple[Any, Optional[Dict[str, Any]]]:
+        """
+        Improved automatic differentiation with optional proof generation.
+
+        Args:
+            expression: Symbolic expression
+            variable: Variable to differentiate
+            order: Order of derivative
+            verify: Whether to verify the result
+
+        Returns:
+            Tuple of (derivative, proof_info)
+        """
+        # Perform differentiation
+        if self.backend in ['sympy', 'symengine']:
+            derivative = self.diff(expression, variable, order)
+        else:
+            derivative = self._numpy_diff(expression, variable)
+        
+        proof_info = None
+        
+        # Generate proof if requested
+        if verify:
+            proof_info = self.generate_proof(expression, 'differentiate', derivative)
+        
+        return derivative, proof_info
+    
+    def verify_spatial_model(
+        self,
+        model: Dict[str, Any],
+        constraints: Optional[List[str]] = None
+    ) -> Dict[str, Any]:
+        """
+        Verify a spatial model using theorem proving.
+
+        Args:
+            model: Spatial model definition
+            constraints: Optional constraints to verify
+
+        Returns:
+            Verification results
+        """
+        try:
+            from geo_infer_math.core.theorem_proving.prover import TheoremProver
+            
+            prover = TheoremProver()
+            results = {}
+            
+            # Verify each equation in the model
+            for eq in model.get('equations', []):
+                if 'parsed' in eq:
+                    theorem = str(eq['parsed'])
+                    proof_result = prover.prove(theorem, constraints)
+                    results[eq.get('original', theorem)] = {
+                        'status': proof_result.status.value,
+                        'verified': proof_result.status.value == 'proven'
+                    }
+            
+            return results
+        except ImportError:
+            logger.debug("Theorem proving not available for model verification")
+            return {'error': 'Theorem proving not available'}
+    
+    def symbolic_to_numeric_with_proof(
+        self,
+        expression: Any,
+        variable_values: Dict[str, float],
+        preserve_proof: bool = True
+    ) -> Tuple[float, Optional[Dict[str, Any]]]:
+        """
+        Convert symbolic expression to numeric with proof preservation.
+
+        Args:
+            expression: Symbolic expression
+            variable_values: Variable values
+            preserve_proof: Whether to preserve proof information
+
+        Returns:
+            Tuple of (numeric_value, proof_info)
+        """
+        # Evaluate expression
+        numeric_value = self.evaluate_symbolic_expression(expression, variable_values)
+        
+        proof_info = None
+        if preserve_proof:
+            # Generate proof for evaluation
+            proof_info = {
+                'expression': str(expression),
+                'variable_values': variable_values,
+                'result': numeric_value,
+                'evaluation_proof': 'Direct substitution and evaluation'
+            }
+        
+        return numeric_value, proof_info
 
 # Convenience functions
 def create_symbolic_math_engine(backend: str = 'sympy') -> SymbolicMath:

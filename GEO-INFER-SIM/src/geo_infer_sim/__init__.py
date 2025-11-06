@@ -14,6 +14,7 @@ from geo_infer_sim.paradigms.abm import AgentBasedModel, Agent
 from geo_infer_sim.paradigms.system_dynamics import SystemDynamicsModel
 from geo_infer_sim.paradigms.cellular_automata import CellularAutomata
 from geo_infer_sim.scenarios.scenario_manager import ScenarioManager
+from geo_infer_sim.module_simulations import ModuleSimulations, ModuleSimulationConfig
 
 __all__ = [
     "SimulationEngine",
@@ -23,6 +24,8 @@ __all__ = [
     "SystemDynamicsModel",
     "CellularAutomata",
     "ScenarioManager",
+    "ModuleSimulations",
+    "ModuleSimulationConfig",
 ]
 
 

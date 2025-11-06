@@ -11,6 +11,13 @@ from geo_infer_math.api.statistical_modeling import StatisticalModelingAPI
 from geo_infer_math.api.optimization import OptimizationAPI
 from geo_infer_math.api.coordinate_management import CoordinateManagementAPI
 
+# Import convenience modules
+try:
+    from geo_infer_math.api.convenience import *
+    _convenience_available = True
+except ImportError:
+    _convenience_available = False
+
 __all__ = [
     "SpatialAnalysisAPI",
     "GeometricOperationsAPI",
@@ -18,3 +25,13 @@ __all__ = [
     "OptimizationAPI",
     "CoordinateManagementAPI"
 ]
+
+if _convenience_available:
+    __all__.extend([
+        "ActiveInferenceConvenience",
+        "BayesianConvenience",
+        "AIConvenience",
+        "InformationTheoryConvenience",
+        "SpatialConvenience",
+        "IntegrationConvenience",
+    ])
