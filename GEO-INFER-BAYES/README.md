@@ -33,7 +33,7 @@ GEO-INFER-BAYES provides a comprehensive framework for Bayesian inference proces
 ### Install (monorepo)
 
 ```bash
-pip install -e ./GEO-INFER-BAYES
+uv pip install -e ./GEO-INFER-BAYES
 ```
 
 ### Development Installation
@@ -41,7 +41,7 @@ pip install -e ./GEO-INFER-BAYES
 ```bash
 git clone https://github.com/your-organization/GEO-INFER.git
 cd GEO-INFER/GEO-INFER-BAYES
-pip install -e .
+uv pip install -e .
 ```
 
 ## Quick Start
@@ -192,6 +192,131 @@ model = stan_interface.create_spatial_gp_model(X, y)
 
 # Sample using Stan
 samples = stan_interface.sample(n_samples=1000, n_warmup=500)
+```
+
+## API Reference
+
+### Core Classes
+
+#### BayesianInference
+
+Main Bayesian inference engine.
+
+```python
+from geo_infer_bayes import BayesianInference
+
+# Initialize inference engine
+inference = BayesianInference(
+    method='mcmc',
+    sampler='nuts',
+    draws=2000
+)
+
+# Define model
+model = inference.define_model(
+    likelihood=normal_likelihood,
+    priors=prior_distributions
+)
+
+# Run inference
+posterior = inference.sample(
+    model=model,
+    data=observed_data
+)
+```
+
+#### SpatialGP
+
+Spatial Gaussian Process models.
+
+```python
+from geo_infer_bayes import SpatialGP
+
+# Create spatial GP with RBF kernel
+gp = SpatialGP(
+    kernel='rbf',
+    lengthscale=1.0,
+    variance=1.0
+)
+
+# Fit model
+gp.fit(
+    X=spatial_coordinates,
+    y=observations
+)
+
+# Predict with uncertainty
+predictions, std = gp.predict(
+    X_new=new_locations,
+    return_std=True
+)
+```
+
+#### PosteriorAnalysis
+
+Posterior distribution analysis and visualization.
+
+```python
+from geo_infer_bayes import PosteriorAnalysis
+
+# Initialize posterior analysis
+analysis = PosteriorAnalysis(posterior_samples)
+
+# Summary statistics
+summary = analysis.summary()
+
+# Trace plots
+analysis.plot_trace()
+
+# Posterior predictive checks
+ppc = analysis.posterior_predictive_check(observed_data)
+```
+
+#### HierarchicalBayesianModel
+
+Multi-level hierarchical Bayesian models.
+
+```python
+from geo_infer_bayes.models import HierarchicalBayesianModel
+
+# Create hierarchical model
+hierarchical = HierarchicalBayesianModel(
+    n_levels=3,
+    spatial_structure='hierarchical'
+)
+
+# Define model structure
+hierarchical.define_levels(
+    level_1='individual',
+    level_2='region',
+    level_3='country'
+)
+
+# Fit model
+results = hierarchical.fit(data=multi_level_data)
+```
+
+### Inference Methods
+
+```python
+from geo_infer_bayes.core.inference import (
+    run_mcmc,
+    run_variational_inference,
+    run_laplace_approximation
+)
+
+# MCMC sampling
+posterior = run_mcmc(
+    model=model,
+    draws=2000,
+    chains=4
+)
+
+# Variational inference
+vi_posterior = run_variational_inference(
+    model=model,
+    n_samples=1000
+)
 ```
 
 ## Integration with Other Modules

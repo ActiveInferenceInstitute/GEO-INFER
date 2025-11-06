@@ -21,7 +21,7 @@ python -m venv geo-infer-env
 source geo-infer-env/bin/activate  # On Windows: geo-infer-env\Scripts\activate
 
 # Install from PyPI
-pip install geo-infer-intra
+uv pip install geo-infer-intra
 ```
 
 Alternatively, you can install from source:
@@ -32,7 +32,7 @@ git clone https://github.com/geo-infer/geo-infer-intra.git
 cd geo-infer-intra
 
 # Install in development mode
-pip install -e .
+uv pip install -e .
 ```
 
 ## Step 2: Create a Configuration File

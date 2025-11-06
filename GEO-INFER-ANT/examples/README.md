@@ -210,10 +210,10 @@ Research-focused examples:
 ### Prerequisites
 ```bash
 # Install dependencies
-pip install numpy scipy matplotlib networkx geopandas h3
+uv pip install numpy scipy matplotlib networkx geopandas h3
 
 # Optional: Install integration modules
-pip install geo-infer-act geo-infer-space geo-infer-agent geo-infer-math
+uv pip install geo-infer-act geo-infer-space geo-infer-agent geo-infer-math
 ```
 
 ### Basic Execution
@@ -279,7 +279,7 @@ ModuleNotFoundError: No module named 'geo_infer_ant'
 **Solution**: Ensure you're in the correct directory and modules are installed:
 ```bash
 cd /path/to/GEO-INFER/GEO-INFER-ANT
-pip install -e .
+uv pip install -e .
 ```
 
 #### Integration Module Errors
@@ -288,7 +288,7 @@ Warning: Integration modules not available
 ```
 **Solution**: Install optional integration modules:
 ```bash
-pip install geo-infer-act geo-infer-space geo-infer-agent geo-infer-math
+uv pip install geo-infer-act geo-infer-space geo-infer-agent geo-infer-math
 ```
 
 #### Performance Issues

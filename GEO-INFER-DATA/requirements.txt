@@ -1,5 +1,5 @@
 # Core dependencies for GEO-INFER-DATA
-# Install with: pip install -r requirements.txt
+# Install with: uv pip install -r requirements.txt
 
 # Data processing and analysis
 geopandas>=0.13.0

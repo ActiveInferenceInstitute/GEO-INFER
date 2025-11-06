@@ -16,7 +16,7 @@ Features:
 - Modular, professional, and fully documented code
 
 Requirements:
-    pip install folium h3 geopandas shapely numpy pandas
+    uv pip install folium h3 geopandas shapely numpy pandas
 
 Usage:
     python california_multilayer_demo.py

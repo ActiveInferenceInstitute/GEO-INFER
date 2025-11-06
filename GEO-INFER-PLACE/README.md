@@ -35,7 +35,7 @@ This module serves as a dedicated space for developing place-based expertise, co
 - **Reusable Methodologies**: Create analytical templates and workflows for similar geographic contexts
 - **Community Engagement**: Enable local stakeholder participation in place-based research
 
-## Key Features
+## Core Features
 
 ### 1. Location-Specific Analysis Frameworks
 - Tailored analytical approaches for each geographic context
@@ -136,6 +136,152 @@ GEO-INFER-PLACE/
 ```
 
 **Legend**: ✅ Implemented | 📋 Planned | �� In Development
+
+## API Reference
+
+### Core Classes
+
+#### PlaceAnalyzer
+
+Main place-based analysis orchestrator.
+
+```python
+from geo_infer_place import PlaceAnalyzer
+
+# Create place analyzer
+analyzer = PlaceAnalyzer(
+    location_code='del_norte_county',
+    config_path='config/del_norte.yaml'
+)
+
+# Run comprehensive analysis
+results = analyzer.run_comprehensive_analysis()
+
+# Generate interactive dashboard
+dashboard = analyzer.generate_interactive_dashboard()
+```
+
+#### ForestHealthMonitor
+
+Forest health monitoring and analysis.
+
+```python
+from geo_infer_place import ForestHealthMonitor
+
+# Create forest health monitor
+monitor = ForestHealthMonitor(
+    location='del_norte_county',
+    data_sources=['calfire', 'usgs']
+)
+
+# Analyze forest health
+health_report = monitor.analyze_forest_health(
+    time_range='2023-01-01/2023-12-31'
+)
+
+# Assess fire risk
+fire_risk = monitor.assess_fire_risk(region_bounds)
+```
+
+#### CoastalResilienceAnalyzer
+
+Coastal resilience and erosion analysis.
+
+```python
+from geo_infer_place import CoastalResilienceAnalyzer
+
+# Create coastal analyzer
+analyzer = CoastalResilienceAnalyzer(
+    location='del_norte_county',
+    elevation_data=elevation_raster
+)
+
+# Analyze coastal erosion
+erosion_analysis = analyzer.analyze_erosion(
+    time_range='2020-01-01/2023-12-31'
+)
+
+# Assess resilience
+resilience_score = analyzer.assess_resilience(
+    sea_level_rise_scenario='moderate'
+)
+```
+
+#### FireRiskAssessor
+
+Fire risk assessment and modeling.
+
+```python
+from geo_infer_place import FireRiskAssessor
+
+# Create fire risk assessor
+assessor = FireRiskAssessor(
+    location='del_norte_county',
+    fuel_data=fuel_model_data
+)
+
+# Assess fire risk
+risk_map = assessor.assess_fire_risk(
+    weather_conditions=current_weather,
+    fuel_moisture=fuel_moisture_data
+)
+
+# Model fire spread
+spread_simulation = assessor.model_fire_spread(
+    ignition_point=fire_location,
+    wind_conditions=wind_data
+)
+```
+
+#### InteractiveVisualizationEngine
+
+Interactive dashboard and visualization generation.
+
+```python
+from geo_infer_place import InteractiveVisualizationEngine
+
+# Create visualization engine
+viz = InteractiveVisualizationEngine(
+    location='del_norte_county'
+)
+
+# Generate dashboard
+dashboard = viz.generate_dashboard(
+    analysis_results=comprehensive_results,
+    interactive=True
+)
+
+# Create map visualization
+map_viz = viz.create_map_visualization(
+    layers=[forest_health, fire_risk, coastal_erosion]
+)
+```
+
+### Utility Functions
+
+```python
+from geo_infer_place import (
+    get_supported_locations,
+    create_analyzer,
+    CaliforniaDataSources
+)
+
+# Get supported locations
+locations = get_supported_locations()
+
+# Create analyzer for location
+analyzer = create_analyzer(
+    location_code='del_norte_county',
+    config_path='config/del_norte.yaml'
+)
+
+# Access California data sources
+data_sources = CaliforniaDataSources()
+weather_data = data_sources.get_weather_data(
+    location='del_norte_county',
+    time_range='2023-01-01/2023-12-31'
+)
+```
 
 ## Integration with GEO-INFER Modules
 

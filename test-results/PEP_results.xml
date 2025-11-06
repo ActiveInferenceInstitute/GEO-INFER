@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="4" failures="0" skipped="0" tests="4" time="0.435" timestamp="2025-11-06T09:18:57.483791-08:00" hostname="timelock.local"><testcase classname="" name="tests.test_crm" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PEP/tests/test_crm.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../.pyenv/versions/3.12.11/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-PEP/tests/test_crm.py:8: in &lt;module&gt;
+    from geo_infer_pep.models.crm_models import Customer, Address, InteractionLog
+E   ModuleNotFoundError: No module named 'geo_infer_pep'</error></testcase><testcase classname="" name="tests.test_hr" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PEP/tests/test_hr.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../.pyenv/versions/3.12.11/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-PEP/tests/test_hr.py:8: in &lt;module&gt;
+    from geo_infer_pep.models.hr_models import Employee, EmploymentStatus, Gender, Compensation, JobHistoryEntry
+E   ModuleNotFoundError: No module named 'geo_infer_pep'</error></testcase><testcase classname="" name="tests.test_methods" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PEP/tests/test_methods.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../.pyenv/versions/3.12.11/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-PEP/tests/test_methods.py:4: in &lt;module&gt;
+    from geo_infer_pep.methods import (
+E   ModuleNotFoundError: No module named 'geo_infer_pep'</error></testcase><testcase classname="" name="tests.test_talent" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PEP/tests/test_talent.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../.pyenv/versions/3.12.11/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-PEP/tests/test_talent.py:8: in &lt;module&gt;
+    from geo_infer_pep.models.talent_models import (
+E   ModuleNotFoundError: No module named 'geo_infer_pep'</error></testcase></testsuite></testsuites>

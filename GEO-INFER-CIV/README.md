@@ -37,7 +37,7 @@ GEO-INFER-CIV is dedicated to empowering communities and fostering civic partici
 -   **Empower Communities:** Equip communities with the tools and information needed to advocate for their interests and participate meaningfully in planning and governance.
 -   **Support Citizen Science:** Facilitate community involvement in scientific research and environmental monitoring through geospatial data collection and analysis.
 
-## Key Features
+## Core Features
 
 -   **Participatory Mapping & Data Collection Platforms:** User-friendly web and mobile interfaces that allow community members to contribute geospatial data, map local assets and concerns, and share their perspectives on places.
     -   Customizable forms, offline data collection, multimedia uploads (photos, audio, video).
@@ -119,7 +119,7 @@ GEO-INFER-CIV/
 
 ### Installation
 ```bash
-pip install -e ./GEO-INFER-CIV
+uv pip install -e ./GEO-INFER-CIV
 ```
 
 ### Configuration

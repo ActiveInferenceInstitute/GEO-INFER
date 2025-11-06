@@ -38,7 +38,7 @@ GEO-INFER-COG bridges cognitive science with geospatial technology, understandin
 - **Enable Cognitive Map Formation:** Provide tools for analyzing and enhancing how humans form and use cognitive maps.
 - **Incorporate Geographic Expertise:** Formalize and operationalize expert geographic knowledge in computational systems.
 
-## Key Features
+## Core Features
 
 ### 1. Cognitive Spatial Modeling Framework
 - **Description:** Tools and methodologies for modeling human spatial cognition, including attention, memory, and decision-making in geographic contexts.
@@ -141,7 +141,7 @@ GEO-INFER-COG is designed to enhance the human-centeredness of the entire GEO-IN
 
 ### Installation
 ```bash
-pip install -e ./GEO-INFER-COG
+uv pip install -e ./GEO-INFER-COG
 ```
 
 ### Basic Usage Examples

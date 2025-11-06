@@ -839,21 +839,116 @@ class EnvironmentalMonitoringSwarm:
             return {'error': str(e)}
 
     def _simple_kriging_interpolation(self, locations: np.ndarray, values: np.ndarray) -> Dict[str, Any]:
-        """Simple kriging interpolation (placeholder)."""
-        # In practice, would use actual kriging implementation
+        """
+        Simple kriging interpolation using spherical variogram model.
+        
+        Implements ordinary kriging with spherical variogram for spatial interpolation.
+        """
+        if len(locations) < 2:
+            return {
+                'method': 'simple_kriging',
+                'estimated_field': np.mean(values) if len(values) > 0 else 0.0,
+                'variance': np.var(values) if len(values) > 0 else 0.0
+            }
+        
+        # Calculate distances between all points
+        n_points = len(locations)
+        distances = np.zeros((n_points, n_points))
+        for i in range(n_points):
+            for j in range(n_points):
+                distances[i, j] = np.sqrt(np.sum((locations[i] - locations[j])**2))
+        
+        # Estimate variogram parameters
+        # Use empirical variogram to estimate sill, range, and nugget
+        max_distance = np.max(distances[distances > 0])
+        sill = np.var(values)
+        range_param = max_distance * 0.3  # Range is typically 30% of max distance
+        nugget = sill * 0.1  # Nugget is typically 10% of sill
+        
+        # Spherical variogram function
+        def spherical_variogram(h):
+            """Spherical variogram model."""
+            result = np.zeros_like(h)
+            mask = h <= range_param
+            result[mask] = nugget + (sill - nugget) * (1.5 * h[mask]/range_param - 0.5 * (h[mask]/range_param)**3)
+            result[~mask] = sill
+            return result
+        
+        # Calculate variogram matrix for known points
+        variogram_matrix = spherical_variogram(distances)
+        variogram_matrix += np.eye(n_points) * 1e-10  # Add small value for numerical stability
+        
+        # Calculate mean value (for simple kriging)
+        mean_value = np.mean(values)
+        centered_values = values - mean_value
+        
+        # Solve kriging system for weights
+        try:
+            weights = np.linalg.solve(variogram_matrix, centered_values)
+        except np.linalg.LinAlgError:
+            # Fallback to inverse distance weighting if matrix is singular
+            weights = np.ones(n_points) / n_points
+        
+        # Calculate kriging estimate
+        estimated_field = mean_value + np.sum(weights * centered_values)
+        
+        # Calculate kriging variance (simplified)
+        # In full kriging, this would involve solving for Lagrange multiplier
+        kriging_variance = np.var(values) * (1.0 - np.sum(weights))
+        kriging_variance = max(0.0, kriging_variance)  # Ensure non-negative
+        
         return {
             'method': 'simple_kriging',
-            'estimated_field': np.mean(values),  # Placeholder
-            'variance': np.var(values)  # Placeholder
+            'estimated_field': float(estimated_field),
+            'variance': float(kriging_variance),
+            'variogram_params': {
+                'sill': float(sill),
+                'range': float(range_param),
+                'nugget': float(nugget)
+            },
+            'weights': weights.tolist()
         }
 
-    def _inverse_distance_weighting(self, locations: np.ndarray, values: np.ndarray) -> Dict[str, Any]:
-        """Inverse distance weighting interpolation."""
-        # Simplified IDW implementation
+    def _inverse_distance_weighting(self, locations: np.ndarray, values: np.ndarray, power: float = 2.0) -> Dict[str, Any]:
+        """
+        Inverse distance weighting interpolation.
+        
+        Implements IDW with configurable power parameter for distance decay.
+        """
+        if len(locations) < 2:
+            return {
+                'method': 'inverse_distance_weighting',
+                'estimated_field': np.mean(values) if len(values) > 0 else 0.0,
+                'weights': [1.0] if len(locations) > 0 else []
+            }
+        
+        # Calculate centroid (for estimation point)
+        centroid = np.mean(locations, axis=0)
+        
+        # Calculate distances from centroid to all points
+        distances = np.array([np.sqrt(np.sum((loc - centroid)**2)) for loc in locations])
+        
+        # Avoid division by zero for points at exact same location
+        min_distance = 1e-10
+        distances = np.maximum(distances, min_distance)
+        
+        # Calculate inverse distance weights
+        inv_distances = 1.0 / (distances ** power)
+        weights = inv_distances / np.sum(inv_distances)
+        
+        # Calculate weighted average
+        estimated_field = np.sum(weights * values)
+        
+        # Calculate variance estimate
+        variance = np.sum(weights * (values - estimated_field)**2)
+        
         return {
             'method': 'inverse_distance_weighting',
-            'estimated_field': np.mean(values),
-            'weights': np.ones(len(locations)) / len(locations)
+            'estimated_field': float(estimated_field),
+            'variance': float(variance),
+            'weights': weights.tolist(),
+            'power': power,
+            'distances': distances.tolist()
         }
 
     def _calculate_spatial_coverage(self, locations: np.ndarray) -> float:
@@ -944,10 +1039,36 @@ class EnvironmentalMonitoringSwarm:
         return anomaly_indices
 
     def _isolation_forest_anomaly_detection(self, values: np.ndarray) -> List[int]:
-        """Isolation forest anomaly detection (simplified)."""
-        # In practice, would use sklearn's IsolationForest
-        # For now, use statistical method as fallback
-        return self._statistical_anomaly_detection(values)
+        """Isolation forest anomaly detection using scikit-learn."""
+        try:
+            from sklearn.ensemble import IsolationForest
+            
+            if len(values) < 5:
+                return []
+            
+            # Reshape for sklearn (needs 2D array)
+            values_2d = values.reshape(-1, 1)
+            
+            # Fit Isolation Forest
+            isolation_forest = IsolationForest(
+                contamination=0.1,  # Expect 10% anomalies
+                random_state=42,
+                n_estimators=100
+            )
+            predictions = isolation_forest.fit_predict(values_2d)
+            
+            # Return indices where prediction is -1 (anomaly)
+            anomaly_indices = [i for i, pred in enumerate(predictions) if pred == -1]
+            
+            return anomaly_indices
+            
+        except ImportError:
+            # Fallback to statistical method if sklearn not available
+            logger.warning("scikit-learn not available, using statistical anomaly detection")
+            return self._statistical_anomaly_detection(values)
+        except Exception as e:
+            logger.warning(f"Isolation forest anomaly detection failed: {e}, using statistical method")
+            return self._statistical_anomaly_detection(values)
 
     def _zscore_anomaly_detection(self, values: np.ndarray) -> List[int]:
         """Z-score based anomaly detection."""

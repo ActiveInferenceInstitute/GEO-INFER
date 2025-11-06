@@ -62,7 +62,7 @@ setup(
         'matplotlib>=3.5.0',
         'networkx>=2.8',
         'geopandas>=0.10.0',
-        'h3>=3.7.0',
+        'h3>=4.0.0',
         'scikit-learn>=1.1.0',
         'pyyaml>=6.0',
         'jsonschema>=4.0.0',

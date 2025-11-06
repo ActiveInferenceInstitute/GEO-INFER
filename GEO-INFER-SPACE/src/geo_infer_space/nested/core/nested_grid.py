@@ -27,7 +27,7 @@ try:
     H3_AVAILABLE = True
 except ImportError:
     H3_AVAILABLE = False
-    logger.warning("h3-py package not available. Install with 'pip install h3'")
+    logger.warning("h3-py package not available. Install with 'uv pip install h3'")
 
 # Import H3 components from the main h3 module
 try:

@@ -197,7 +197,7 @@ class ModernToolsIntegration:
             Optimization results
         """
         if not self.available_tools.get('bayeux', False):
-            raise RuntimeError("Bayeux not available. Please install: pip install bayeux-ml")
+            raise RuntimeError("Bayeux not available. Please install: uv pip install bayeux-ml")
         
         try:
             import bayeux as bx
@@ -277,7 +277,7 @@ class ModernToolsIntegration:
             Agent and initial results
         """
         if not self.available_tools.get('pymdp', False):
-            raise RuntimeError("pymdp not available. Please install: pip install pymdp")
+            raise RuntimeError("pymdp not available. Please install: uv pip install pymdp")
         
         try:
             from pymdp import Agent
@@ -330,7 +330,7 @@ class ModernToolsIntegration:
             Inference results
         """
         if not self.available_tools.get('pymc', False):
-            raise RuntimeError("PyMC not available. Please install: pip install pymc")
+            raise RuntimeError("PyMC not available. Please install: uv pip install pymc")
         
         try:
             import pymc as pm
@@ -381,7 +381,7 @@ class ModernToolsIntegration:
             Inference results
         """
         if not self.available_tools.get('pyro', False):
-            raise RuntimeError("Pyro not available. Please install: pip install pyro-ppl")
+            raise RuntimeError("Pyro not available. Please install: uv pip install pyro-ppl")
         
         try:
             import pyro

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.199" timestamp="2025-11-06T09:18:56.576025-08:00" hostname="timelock.local"><testcase classname="" name="tests.unit.models.test_bdi_interface" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-APP/tests/unit/models/test_bdi_interface.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../.pyenv/versions/3.12.11/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-APP/tests/unit/models/test_bdi_interface.py:9: in &lt;module&gt;
+    from geo_infer_app.models.agent_interface import AgentType, AgentState
+E   ModuleNotFoundError: No module named 'geo_infer_app'</error></testcase></testsuite></testsuites>

@@ -68,14 +68,14 @@ After completing this example, you will:
 ### Required Modules
 ```bash
 # Core GEO-INFER modules
-pip install -e ../../../GEO-INFER-BIO
-pip install -e ../../../GEO-INFER-SPACE  
-pip install -e ../../../GEO-INFER-DATA
-pip install -e ../../../GEO-INFER-TIME
-pip install -e ../../../GEO-INFER-API
+uv pip install -e ../../../GEO-INFER-BIO
+uv pip install -e ../../../GEO-INFER-SPACE  
+uv pip install -e ../../../GEO-INFER-DATA
+uv pip install -e ../../../GEO-INFER-TIME
+uv pip install -e ../../../GEO-INFER-API
 
 # Additional dependencies for biological data
-pip install -e .[microbiome,climate,soil]  # Install with optional bio dependencies
+uv pip install -e .[microbiome,climate,soil]  # Install with optional bio dependencies
 ```
 
 ### System Requirements

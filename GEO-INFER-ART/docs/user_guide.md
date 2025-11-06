@@ -28,7 +28,7 @@ For neural style transfer functionality, TensorFlow is required:
 ### Install from PyPI
 
 ```bash
-pip install geo-infer-art
+uv pip install geo-infer-art
 ```
 
 ### Install from Source
@@ -36,7 +36,7 @@ pip install geo-infer-art
 ```bash
 git clone https://github.com/activeinference/GEO-INFER.git
 cd GEO-INFER/GEO-INFER-ART
-pip install -e .
+uv pip install -e .
 ```
 
 ## Core Components
@@ -429,7 +429,7 @@ styled_image = StyleTransfer.apply(
 
    Solution: Install TensorFlow for style transfer functionality:
    ```bash
-   pip install tensorflow
+   uv pip install tensorflow
    ```
 
 2. **Memory issues with large datasets**

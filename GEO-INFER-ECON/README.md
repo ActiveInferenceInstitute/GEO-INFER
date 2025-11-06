@@ -41,7 +41,7 @@ GEO-INFER-ECON is the specialized module within the GEO-INFER framework dedicate
 -   **Understand Regional Economic Development:** Analyze factors driving regional growth, disparities, and structural change, incorporating spatial dependencies and spillover effects.
 -   **Integrate Economic and Environmental Modeling:** Facilitate the analysis of trade-offs and synergies between economic activities and environmental outcomes in a spatially explicit manner.
 
-## Key Features
+## Core Features
 
 ### 1. Comprehensive Microeconomic Analysis
 -   **Consumer Theory:** Utility functions (Cobb-Douglas, CES, spatial), demand analysis, welfare calculations
@@ -502,9 +502,9 @@ python -c "import pandas, numpy, statsmodels, geopandas; print('✅ Libraries av
 
 ### 2. Installation
 ```bash
-pip install -e ./GEO-INFER-ECON
+uv pip install -e ./GEO-INFER-ECON
 # Optional econometrics extras
-pip install pysal libpysal esda spreg
+uv pip install pysal libpysal esda spreg
 ```
 
 ### 3. Basic Configuration
@@ -580,7 +580,7 @@ print("✅ Economic map saved to output/gdp_map.html")
 # git clone https://github.com/activeinference/GEO-INFER.git
 # cd GEO-INFER
 
-pip install -e ./GEO-INFER-ECON
+uv pip install -e ./GEO-INFER-ECON
 # Or if managed by a broader project build system.
 ```
 

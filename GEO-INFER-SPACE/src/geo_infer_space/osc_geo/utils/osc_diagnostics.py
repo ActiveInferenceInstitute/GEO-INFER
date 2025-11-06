@@ -29,7 +29,7 @@ def install_dependencies():
         logger.info("GitPython is already installed.")
     except ImportError:
         logger.info("Installing GitPython...")
-        subprocess.run([sys.executable, "-m", "pip", "install", "gitpython"], check=True)
+        subprocess.run(["uv", "pip", "install", "gitpython"], check=True)
         logger.info("GitPython installed successfully.")
 
 def import_status_module():

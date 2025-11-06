@@ -44,7 +44,7 @@ The module facilitates the integration of external codebases, datasets, and pre-
 *   **Performance Optimization**: Implement intelligent performance monitoring, memory management, and adaptive batch processing for large-scale repository operations.
 *   **Error Recovery**: Provide robust error handling, retry mechanisms, and graceful failure recovery with detailed error classification and recovery strategies.
 
-## Key Features
+## Core Features
 
 *   **Bulk Repository Cloning**:
     *   **Description**: Efficiently clone multiple repositories from platforms like GitHub, GitLab, or Bitbucket based on a configuration list.
@@ -177,7 +177,7 @@ Other modules can interact with GEO-INFER-GIT programmatically via its API or by
     ```
     Install the required Python packages:
     ```bash
-    pip install -r requirements.txt
+    uv pip install -r requirements.txt
     ```
 
 ## Usage

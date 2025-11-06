@@ -19,14 +19,14 @@ try:
     HAS_STREAMLIT = True
 except ImportError:
     HAS_STREAMLIT = False
-    print("⚠️  Streamlit not found. Install with: pip install streamlit")
+    print("⚠️  Streamlit not found. Install with: uv pip install streamlit")
 
 try:
     import pandas as pd
     HAS_PANDAS = True
 except ImportError:
     HAS_PANDAS = False
-    print("⚠️  Pandas not found. Install with: pip install pandas")
+    print("⚠️  Pandas not found. Install with: uv pip install pandas")
 
 try:
     import plotly.express as px
@@ -35,14 +35,14 @@ try:
     HAS_PLOTLY = True
 except ImportError:
     HAS_PLOTLY = False
-    print("⚠️  Plotly not found. Install with: pip install plotly")
+    print("⚠️  Plotly not found. Install with: uv pip install plotly")
 
 try:
     import requests
     HAS_REQUESTS = True
 except ImportError:
     HAS_REQUESTS = False
-    print("⚠️  Requests not found. Install with: pip install requests")
+    print("⚠️  Requests not found. Install with: uv pip install requests")
 
 def setup_logging():
     logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -262,7 +262,7 @@ def check_dependencies():
     if missing_deps:
         print(f"\n📦 Missing dependencies: {', '.join(missing_deps)}")
         print("\n💡 Install with:")
-        print("   pip install streamlit pandas plotly requests")
+        print("   uv pip install streamlit pandas plotly requests")
         return False
 
     print("✅ All dependencies found!")

@@ -30,7 +30,7 @@ GEO-INFER-AG is the specialized module within the GEO-INFER framework designed t
 -   **Foster Sustainable Farming Practices:** Analyze and promote farming systems that are economically viable, environmentally sound, and socially equitable.
 -   **Facilitate Data-Driven Agricultural Decision-Making:** Provide a platform for integrating diverse agricultural data sources to support informed decisions at farm, regional, and national levels.
 
-## Key Features
+## Core Features
 
 ### 1. Advanced Precision Agriculture Toolkit
 -   **Description:** Tools for variable-rate application, management zone delineation, and site-specific crop management based on in-field variability.
@@ -137,6 +137,100 @@ graph TD
 -   **Analytical Components:** Houses tools for remote sensing analysis, field-level spatial statistics, sustainability metrics, etc.
 -   **Data Integrator:** Facilitates access to diverse agricultural data sources via `GEO-INFER-DATA`.
 
+## API Reference
+
+### Core Classes
+
+#### AgriculturalAnalysis
+
+Main class for performing agricultural analysis and modeling.
+
+```python
+from geo_infer_ag import AgriculturalAnalysis, CropYieldModel
+
+# Initialize with a model
+model = CropYieldModel()
+analysis = AgriculturalAnalysis(model=model)
+
+# Run analysis
+results = analysis.run(
+    field_data=field_geometry,
+    weather_data=weather_history,
+    soil_data=soil_samples
+)
+```
+
+#### FieldBoundaryManager
+
+Manages field boundaries and spatial operations.
+
+```python
+from geo_infer_ag import FieldBoundaryManager
+
+# Initialize field manager
+manager = FieldBoundaryManager()
+
+# Create field boundaries
+fields = manager.create_fields(
+    boundaries=field_polygons,
+    metadata=field_info
+)
+
+# Analyze field characteristics
+characteristics = manager.analyze_fields(fields)
+```
+
+#### CropYieldModel
+
+Predictive model for crop yield forecasting.
+
+```python
+from geo_infer_ag import CropYieldModel
+
+# Initialize yield model
+yield_model = CropYieldModel(
+    model_type='random_forest',
+    training_data=historical_yields
+)
+
+# Predict yield
+forecast = yield_model.predict(
+    weather_forecast=weather_data,
+    current_conditions=field_status
+)
+```
+
+#### SoilHealthModel
+
+Model for assessing and monitoring soil health.
+
+```python
+from geo_infer_ag import SoilHealthModel
+
+# Initialize soil model
+soil_model = SoilHealthModel()
+
+# Assess soil health
+health_metrics = soil_model.assess(
+    soil_data=soil_samples,
+    indicators=['organic_carbon', 'ph', 'nutrients']
+)
+```
+
+#### AgricultureAPI
+
+RESTful API for agricultural applications.
+
+```python
+from geo_infer_ag import AgricultureAPI, create_agricultural_api
+
+# Create API instance
+api = create_agricultural_api(config_path="config.yaml")
+
+# Start API server
+api.run(host="0.0.0.0", port=8000)
+```
+
 ## Integration with other GEO-INFER Modules
 
 GEO-INFER-AG is deeply interconnected with other modules:
@@ -163,7 +257,7 @@ GEO-INFER-AG is deeply interconnected with other modules:
 
 ### Installation
 ```bash
-pip install -e ./GEO-INFER-AG
+uv pip install -e ./GEO-INFER-AG
 ```
 
 ### Configuration

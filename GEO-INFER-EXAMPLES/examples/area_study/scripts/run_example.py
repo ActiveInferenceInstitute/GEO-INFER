@@ -751,7 +751,7 @@ def main():
         print("\n📊 View Results Options:")
         print("1. Console Results: python scripts/show_results.py")
         print("2. Interactive Dashboard: python scripts/launch_dashboard.py")
-        print("   (requires: pip install streamlit pandas plotly)")
+        print("   (requires: uv pip install streamlit pandas plotly)")
         return 0
 
     except Exception as e:

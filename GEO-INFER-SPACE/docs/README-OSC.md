@@ -7,7 +7,7 @@ This module provides integration with OS Climate geospatial tools within the GEO
 ```bash
 # Install the package
 cd GEO-INFER-SPACE
-pip install -e .
+uv pip install -e .
 
 # Check the status of repositories
 osc_status

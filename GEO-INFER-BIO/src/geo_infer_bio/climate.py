@@ -35,7 +35,7 @@ try:
     HAS_RASTER_DEPS = True
 except ImportError:
     HAS_RASTER_DEPS = False
-    logging.warning("Raster processing dependencies not available. Install with: pip install rasterio xarray geopandas")
+    logging.warning("Raster processing dependencies not available. Install with: uv pip install rasterio xarray geopandas")
 
 logger = logging.getLogger(__name__)
 

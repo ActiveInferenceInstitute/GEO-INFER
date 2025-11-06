@@ -27,7 +27,7 @@ GEO-INFER-API is the **central nervous system for communication and interoperabi
 -   **Discoverability & Usability:** Make APIs easily discoverable, well-documented, and straightforward for developers to use, providing client SDKs where appropriate.
 -   **Scalability & Performance:** Design APIs that can handle a high volume of requests efficiently and scale with the growth of the GEO-INFER framework.
 
-## Key Features
+## Core Features
 
 -   **OGC-Compliant API Development:** Implementation of key OGC API standards (e.g., OGC API Features, Processes, Maps, Tiles, EDR - Environmental Data Retrieval) to ensure interoperability with standard GIS tools and platforms.
 -   **Versatile API Paradigms:** Support for multiple API styles including RESTful services (using frameworks like FastAPI) for resource-oriented interactions and GraphQL for flexible and efficient data querying, catering to different client needs.
@@ -440,6 +440,149 @@ async def stream_spatial_updates():
 
 # Run the streaming client
 asyncio.run(stream_spatial_updates())
+```
+
+## API Reference
+
+### Core Classes
+
+#### FastAPI Application
+
+Main FastAPI application with middleware and routing.
+
+```python
+from geo_infer_api.app import create_app
+
+# Create FastAPI application
+app = create_app(
+    title="GEO-INFER API",
+    version="1.0.0",
+    cors_origins=["*"]
+)
+
+# Run application
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
+```
+
+#### API Gateway
+
+Central API gateway for routing and aggregation.
+
+```python
+from geo_infer_api.core.gateway import APIGateway
+
+# Initialize API gateway
+gateway = APIGateway(
+    backend_modules=['space', 'time', 'data'],
+    rate_limiting=True,
+    authentication_required=True
+)
+
+# Register module endpoints
+gateway.register_module('space', space_api_endpoints)
+gateway.register_module('time', time_api_endpoints)
+
+# Start gateway
+gateway.start()
+```
+
+#### OGC API Features
+
+OGC-compliant Features API implementation.
+
+```python
+from geo_infer_api.ogc import OGCFeaturesAPI
+
+# Initialize OGC Features API
+ogc_api = OGCFeaturesAPI(
+    collections=['buildings', 'roads', 'parcels'],
+    crs_support=['EPSG:4326', 'EPSG:3857']
+)
+
+# Get feature collection
+features = ogc_api.get_features(
+    collection_id='buildings',
+    bbox=[-122.5, 37.7, -122.3, 37.9]
+)
+```
+
+#### GraphQL Service
+
+GraphQL interface for flexible data querying.
+
+```python
+from geo_infer_api.graphql import GraphQLService
+
+# Initialize GraphQL service
+graphql = GraphQLService(
+    schema_path='schemas/geospatial.graphql',
+    resolvers=module_resolvers
+)
+
+# Execute query
+result = graphql.execute_query(
+    query="""
+    {
+        spatialFeatures(bbox: [-122.5, 37.7, -122.3, 37.9]) {
+            id
+            geometry
+            properties
+        }
+    }
+    """
+)
+```
+
+#### Webhook Manager
+
+Webhook and event subscription management.
+
+```python
+from geo_infer_api.webhooks import WebhookManager
+
+# Initialize webhook manager
+webhooks = WebhookManager(
+    event_types=['data_updated', 'analysis_complete'],
+    delivery_method='http'
+)
+
+# Subscribe to events
+subscription = webhooks.subscribe(
+    event_type='data_updated',
+    callback_url='https://example.com/webhook',
+    filters={'module': 'space'}
+)
+
+# Publish event
+webhooks.publish(
+    event_type='data_updated',
+    payload={'dataset_id': 'dataset_123'}
+)
+```
+
+### API Client SDK
+
+```python
+from geo_infer_api.client import GeoInferAPIClient
+
+# Initialize API client
+client = GeoInferAPIClient(
+    base_url='https://api.geo-infer.org',
+    api_key='your_api_key'
+)
+
+# Make API calls
+spatial_data = client.spatial.get_features(
+    collection='buildings',
+    bbox=[-122.5, 37.7, -122.3, 37.9]
+)
+
+temporal_data = client.temporal.get_timeseries(
+    location=[37.7749, -122.4194],
+    time_range='2023-01-01/2023-12-31'
+)
 ```
 
 ## 🔌 Integration Patterns

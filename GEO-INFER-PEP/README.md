@@ -37,7 +37,7 @@ GEO-INFER-PEP is a comprehensive solution for managing all aspects of people ope
 - **Build Community:** Provide tools for managing and nurturing the GEO-INFER community.
 - **Data-Driven Insights:** Enable informed decision-making through comprehensive reporting and analytics on people-related data.
 
-## Key Features
+## Core Features
 
 -   **Human Resources Management:** Employee/contributor records, payroll/stipend considerations, benefits administration (if applicable), compliance tracking.
 -   **Talent Acquisition & Management:** Recruitment pipeline for contributors and roles, candidate tracking, onboarding processes, skills inventory, competency mapping, career/contribution development planning.

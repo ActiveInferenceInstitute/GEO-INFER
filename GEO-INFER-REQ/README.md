@@ -42,7 +42,7 @@ GEO-INFER-REQ is a specialized module for managing the entire lifecycle of requi
 - **Facilitate Prioritization:** Offer approaches for prioritizing requirements based on stakeholder value, technical constraints, and spatial considerations.
 - **Integrate with Development Processes:** Ensure requirements engineering activities align with agile, traditional, and hybrid development methodologies.
 
-## Key Features
+## Core Features
 
 ### 1. Geospatial Requirements Specification Framework
 - **Description:** A comprehensive framework for capturing and documenting requirements specific to geospatial systems, with special attention to spatial data, operations, visualizations, and analyses.
@@ -126,6 +126,100 @@ graph TD
     class Supporting_Tools tools;
 ```
 
+## API Reference
+
+### Core Classes
+
+#### RequirementsEngine
+
+Main requirements engineering engine.
+
+```python
+from geo_infer_req.core.requirements import RequirementsEngine
+
+# Create requirements engine
+engine = RequirementsEngine()
+
+# Add requirement
+requirement = engine.add_requirement(
+    id='REQ-001',
+    description='System must support spatial queries',
+    spatial_context={'bbox': [-122.5, 37.7, -122.3, 37.9]},
+    priority='high'
+)
+
+# Validate requirement
+validation = engine.validate_requirement('REQ-001')
+```
+
+#### GeospatialUserStory
+
+Geospatial user story specification.
+
+```python
+from geo_infer_req.specification import GeospatialUserStory
+
+# Create geospatial user story
+story = GeospatialUserStory(
+    role="Emergency Response Planner",
+    action="identify evacuation routes",
+    benefit="ensure public safety during emergencies",
+    spatial_context={
+        'region': 'San Francisco Bay Area',
+        'bbox': [-122.5, 37.7, -122.3, 37.9]
+    },
+    acceptance_criteria=[
+        'Routes must avoid flood zones',
+        'Routes must be accessible within 15 minutes'
+    ]
+)
+```
+
+#### RequirementsTraceability
+
+Requirements traceability management.
+
+```python
+from geo_infer_req.traceability import RequirementsTraceability
+
+# Create traceability manager
+traceability = RequirementsTraceability()
+
+# Link requirement to design
+traceability.link_requirement_to_design(
+    requirement_id='REQ-001',
+    design_element='API.spatial_query',
+    relationship='implements'
+)
+
+# Get traceability matrix
+matrix = traceability.get_traceability_matrix()
+```
+
+#### SpatialContextModeler
+
+Spatial context modeling for requirements.
+
+```python
+from geo_infer_req.spatial import SpatialContextModeler
+
+# Create spatial context modeler
+modeler = SpatialContextModeler()
+
+# Model spatial context
+context = modeler.model_context(
+    location=[37.7749, -122.4194],
+    radius=5000,
+    constraints=['urban', 'coastal']
+)
+
+# Validate spatial requirement
+is_valid = modeler.validate_spatial_requirement(
+    requirement=spatial_req,
+    context=context
+)
+```
+
 ## Integration with other GEO-INFER Modules
 
 GEO-INFER-REQ interfaces with multiple modules to ensure requirements are properly integrated throughout the framework:
@@ -154,7 +248,7 @@ GEO-INFER-REQ interfaces with multiple modules to ensure requirements are proper
 # cd GEO-INFER
 
 # Install the REQ module
-pip install -e ./GEO-INFER-REQ
+uv pip install -e ./GEO-INFER-REQ
 ```
 
 ### Basic Usage Examples

@@ -36,7 +36,7 @@ GEO-INFER-TEST is the specialized testing module within the GEO-INFER framework 
 - **Integration with Logging Framework:** Deep integration with GEO-INFER-LOG for detailed test execution tracking and analysis
 - **Automated Quality Assurance:** Implement automated testing pipelines with comprehensive reporting
 
-## Key Features
+## Core Features
 
 ### 1. Automated Test Discovery & Execution
 - **Description:** Intelligent test discovery across all GEO-INFER modules with support for multiple test types
@@ -107,10 +107,10 @@ GEO-INFER-TEST is the specialized testing module within the GEO-INFER framework 
 ### Installation
 ```bash
 # Install the testing module
-pip install -e ./GEO-INFER-TEST
+uv pip install -e ./GEO-INFER-TEST
 
 # Install with development dependencies
-pip install -e "./GEO-INFER-TEST[dev]"
+uv pip install -e "./GEO-INFER-TEST[dev]"
 ```
 
 ### Quick Start
@@ -179,6 +179,146 @@ reporting:
   generate_json: true
   coverage_enabled: true
   output_directory: reports
+```
+
+## API Reference
+
+### Core Classes
+
+#### GeoInferTestRunner
+
+Main test runner for the GEO-INFER ecosystem.
+
+```python
+from geo_infer_test import GeoInferTestRunner, TestConfiguration
+
+# Create test configuration
+config = TestConfiguration(
+    modules=['SPACE', 'TIME', 'DATA'],
+    test_types=['unit', 'integration'],
+    log_integration_enabled=True
+)
+
+# Create test runner
+runner = GeoInferTestRunner(config)
+
+# Discover tests
+tests = runner.discover_tests()
+
+# Run all tests
+results = runner.run_all_tests()
+
+# Run tests for specific module
+module_results = runner.run_module_tests('SPACE')
+```
+
+#### TestDiscoverer
+
+Automated test discovery across modules.
+
+```python
+from geo_infer_test.core import TestDiscoverer
+
+# Create test discoverer
+discoverer = TestDiscoverer()
+
+# Discover all tests
+all_tests = discoverer.discover_all_tests(
+    root_path='GEO-INFER',
+    test_pattern='test_*.py'
+)
+
+# Discover module tests
+module_tests = discoverer.discover_module_tests('SPACE')
+```
+
+#### TestOrchestrator
+
+Test orchestration and execution management.
+
+```python
+from geo_infer_test.core import TestOrchestrator
+
+# Create orchestrator
+orchestrator = TestOrchestrator(
+    parallel_execution=True,
+    max_workers=4
+)
+
+# Execute test suite
+results = orchestrator.execute_suite(
+    test_suite=test_suite,
+    timeout=300
+)
+```
+
+#### IntegrationTester
+
+Cross-module integration testing.
+
+```python
+from geo_infer_test.core import IntegrationTester
+
+# Create integration tester
+tester = IntegrationTester()
+
+# Test module integration
+integration_result = tester.test_integration(
+    modules=['SPACE', 'TIME', 'DATA'],
+    workflow='spatio_temporal_analysis'
+)
+
+# Validate data flow
+flow_result = tester.validate_data_flow(
+    source_module='DATA',
+    target_module='SPACE',
+    data_format='geojson'
+)
+```
+
+#### PerformanceMonitor
+
+Performance monitoring and benchmarking.
+
+```python
+from geo_infer_test.core import PerformanceMonitor
+
+# Create performance monitor
+monitor = PerformanceMonitor()
+
+# Run benchmark
+benchmark_results = monitor.run_benchmark(
+    module='SPACE',
+    operation='spatial_indexing',
+    iterations=100
+)
+
+# Compare performance
+comparison = monitor.compare_performance(
+    baseline='v1.0.0',
+    current='v1.1.0',
+    module='SPACE'
+)
+```
+
+#### ModuleHealthChecker
+
+Module health and dependency checking.
+
+```python
+from geo_infer_test.core import ModuleHealthChecker
+
+# Create health checker
+health = ModuleHealthChecker()
+
+# Check module health
+health_status = health.check_module_health('SPACE')
+
+# Check dependencies
+deps_status = health.check_dependencies('SPACE')
+
+# Validate module structure
+structure_valid = health.validate_module_structure('SPACE')
 ```
 
 ## Integration with GEO-INFER-LOG

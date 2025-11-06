@@ -99,7 +99,7 @@ These bindings make H3 accessible across different programming environments whil
 The Python implementation (`h3-py`) is available through PyPI and provides a comprehensive set of functions mirroring the core C library[5]. Installation is straightforward:
 
 ```
-pip install h3
+uv pip install h3
 ```
 
 Basic usage examples demonstrate core functionality:

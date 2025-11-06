@@ -19,7 +19,7 @@ For those who want to get up and running quickly:
 
 1. Installation
    ```bash
-   pip install -e .
+   uv pip install -e .
    ```
 
 2. Configuration

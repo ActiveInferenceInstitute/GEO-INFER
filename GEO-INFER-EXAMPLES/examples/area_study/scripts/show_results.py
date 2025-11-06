@@ -156,7 +156,7 @@ def main():
         viewer.display_results()
 
         print("\n💡 For interactive dashboard with visualizations:")
-        print("   Install dependencies: pip install streamlit pandas plotly")
+        print("   Install dependencies: uv pip install streamlit pandas plotly")
         print("   Then run: python scripts/launch_dashboard.py")
 
         return 0

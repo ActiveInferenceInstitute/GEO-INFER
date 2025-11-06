@@ -124,7 +124,7 @@ Each H3 cell popup shows:
 ### **1. Install Dependencies:**
 ```bash
 cd GEO-INFER-SPACE
-pip install folium h3 geopandas shapely matplotlib seaborn
+uv pip install folium h3 geopandas shapely matplotlib seaborn
 ```
 
 ### **2. Run Basic Demo:**

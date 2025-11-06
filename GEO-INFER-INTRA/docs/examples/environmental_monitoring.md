@@ -29,9 +29,9 @@ Before starting, ensure you have:
 
 ```bash
 # Install required packages
-pip install geo-infer-act geo-infer-space geo-infer-time
-pip install geopandas folium matplotlib seaborn
-pip install pandas numpy scipy
+uv pip install geo-infer-act geo-infer-space geo-infer-time
+uv pip install geopandas folium matplotlib seaborn
+uv pip install pandas numpy scipy
 ```
 
 ## 🔧 Implementation

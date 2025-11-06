@@ -411,9 +411,9 @@ flowchart TD
 
 ### Installation
 ```bash
-pip install -e ./GEO-INFER-IOT
+uv pip install -e ./GEO-INFER-IOT
 # Optional protocol extras
-pip install paho-mqtt confluent-kafka pyserial aiocoap
+uv pip install paho-mqtt confluent-kafka pyserial aiocoap
 ```
 
 ### Quick Start Example

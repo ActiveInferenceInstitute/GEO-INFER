@@ -38,7 +38,7 @@ try:
     import h3
     H3_AVAILABLE = True
 except ImportError:
-    logger.error("h3-py package not available. Install with 'pip install h3'")
+    logger.error("h3-py package not available. Install with 'uv pip install h3'")
     H3_AVAILABLE = False
     sys.exit(1)
 
@@ -811,7 +811,7 @@ def main():
         return 1
     
     if not H3_AVAILABLE:
-        print("ERROR: h3-py package not available. Install with 'pip install h3'")
+        print("ERROR: h3-py package not available. Install with 'uv pip install h3'")
         return 1
     
     try:

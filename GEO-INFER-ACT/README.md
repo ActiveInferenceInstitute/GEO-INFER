@@ -36,7 +36,7 @@ Built on the **Free Energy Principle** from theoretical neuroscience and biology
 -   **Action as Inference:** Action is not merely a response to stimuli but an inferential process. Agents select actions that they expect will minimize their future expected free energy (i.e., actions that lead to preferred states and resolve uncertainty).
 -   **Perception as Inference:** Perception involves inverting the generative model to infer the hidden causes of sensory inputs, effectively updating beliefs about the state of the world.
 
-## Key Features
+## Core Features
 
 -   **Generative Models for Spatial-Temporal Dynamics:** Tools for defining and implementing probabilistic generative models that capture the causal structure of geospatial processes, including how states evolve over time and vary across space.
     -   Includes support for discrete and continuous state-space models, (Partially Observable) Markov Decision Processes (POMDPs), and dynamic Bayesian networks.
@@ -181,7 +181,7 @@ GEO-INFER-ACT/
 ### Installation
 ```bash
 # From the monorepo root
-pip install -e ./GEO-INFER-ACT
+uv pip install -e ./GEO-INFER-ACT
 ```
 
 ### Configuration
@@ -194,6 +194,103 @@ Configuration for specific models or experiments (e.g., prior distributions, sta
 ### Running Tests
 ```bash
 pytest tests/
+```
+
+## API Reference
+
+### Core Classes
+
+#### ActiveInferenceModel
+
+Main class for active inference agents with support for nested models.
+
+```python
+from geo_infer_act import ActiveInferenceModel
+
+# Create an active inference model
+model = ActiveInferenceModel(
+    model_type="categorical",
+    state_dim=10,
+    obs_dim=5,
+    action_dim=3
+)
+
+# Set generative model
+model.set_generative_model(generative_model)
+
+# Update beliefs based on observations
+model.update_beliefs(observations)
+
+# Select action based on expected free energy
+action = model.select_action()
+```
+
+#### FreeEnergyCalculator
+
+Calculates variational free energy for belief updating and policy selection.
+
+```python
+from geo_infer_act import FreeEnergyCalculator
+
+calculator = FreeEnergyCalculator()
+
+# Calculate free energy
+free_energy = calculator.calculate(
+    beliefs=current_beliefs,
+    observations=observations,
+    generative_model=model
+)
+```
+
+#### GenerativeModel
+
+Defines the probabilistic generative model for an active inference agent.
+
+```python
+from geo_infer_act import GenerativeModel
+
+# Create a generative model
+gen_model = GenerativeModel(
+    state_space=state_space,
+    observation_space=obs_space,
+    transition_dynamics=transition_func,
+    observation_likelihood=likelihood_func
+)
+```
+
+#### ActiveInferenceInterface
+
+High-level interface for creating and managing active inference models.
+
+```python
+from geo_infer_act.api import ActiveInferenceInterface
+
+# Initialize interface
+interface = ActiveInferenceInterface(config_path="config.yaml")
+
+# Create a model
+interface.create_model(
+    model_id="spatial_agent",
+    model_type="categorical",
+    parameters={"state_dim": 10, "obs_dim": 5}
+)
+
+# Run inference
+results = interface.run_inference(
+    model_id="spatial_agent",
+    observations=obs_data
+)
+```
+
+### Utility Functions
+
+```python
+from geo_infer_act.utils.integration import IntegrationUtils
+
+# Integration utilities for cross-module operations
+utils = IntegrationUtils()
+utils.integrate_with_space(spatial_data)
+utils.integrate_with_time(temporal_data)
 ```
 
 ## Integration with Other Modules

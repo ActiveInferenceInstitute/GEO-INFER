@@ -1,0 +1,342 @@
+"""
+Core training and evaluation functionality for geospatial AI models.
+
+This module provides training loops, evaluation metrics, and model management
+for geospatial machine learning workflows.
+"""
+
+import logging
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
+
+import numpy as np
+import pandas as pd
+from sklearn.metrics import (
+    accuracy_score,
+    classification_report,
+    mean_absolute_error,
+    mean_squared_error,
+    r2_score,
+)
+
+logger = logging.getLogger(__name__)
+
+
+@dataclass
+class TrainingConfig:
+    """
+    Configuration for model training.
+
+    Attributes:
+        batch_size: Batch size for training
+        epochs: Number of training epochs
+        learning_rate: Learning rate for optimizer
+        validation_split: Fraction of data to use for validation
+        early_stopping_patience: Patience for early stopping
+        save_best_model: Whether to save the best model during training
+        model_save_path: Path to save trained models
+        verbose: Verbosity level (0=silent, 1=progress, 2=detailed)
+    """
+
+    batch_size: int = 32
+    epochs: int = 100
+    learning_rate: float = 0.001
+    validation_split: float = 0.2
+    early_stopping_patience: int = 10
+    save_best_model: bool = True
+    model_save_path: Optional[Union[str, Path]] = None
+    verbose: int = 1
+
+    def __post_init__(self) -> None:
+        """Validate configuration parameters."""
+        if self.batch_size <= 0:
+            raise ValueError("batch_size must be positive")
+        if self.epochs <= 0:
+            raise ValueError("epochs must be positive")
+        if not 0 < self.learning_rate <= 1:
+            raise ValueError("learning_rate must be between 0 and 1")
+        if not 0 < self.validation_split < 1:
+            raise ValueError("validation_split must be between 0 and 1")
+        if self.early_stopping_patience < 0:
+            raise ValueError("early_stopping_patience must be non-negative")
+
+
+class ModelTrainer:
+    """
+    Trainer for geospatial AI models with comprehensive evaluation.
+
+    This class provides training loops, evaluation metrics, and model management
+    for both classification and regression tasks in geospatial contexts.
+    """
+
+    def __init__(self, config: Optional[TrainingConfig] = None) -> None:
+        """
+        Initialize the model trainer.
+
+        Args:
+            config: Training configuration. If None, uses default configuration.
+        """
+        self.config = config or TrainingConfig()
+        self.training_history: List[Dict[str, float]] = []
+        self.best_model: Optional[Any] = None
+        self.best_score: float = float("-inf")
+
+    def train_classifier(
+        self,
+        model: Any,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        X_val: Optional[np.ndarray] = None,
+        y_val: Optional[np.ndarray] = None,
+    ) -> Dict[str, Any]:
+        """
+        Train a classification model.
+
+        Args:
+            model: Scikit-learn compatible classifier
+            X_train: Training features
+            y_train: Training labels
+            X_val: Validation features (optional)
+            y_val: Validation labels (optional)
+
+        Returns:
+            Dictionary containing training history and evaluation metrics
+        """
+        logger.info(f"Training classifier with {len(X_train)} samples")
+
+        # Split validation data if not provided
+        if X_val is None or y_val is None:
+            from sklearn.model_selection import train_test_split
+
+            X_train, X_val, y_train, y_val = train_test_split(
+                X_train,
+                y_train,
+                test_size=self.config.validation_split,
+                random_state=42,
+                stratify=y_train,
+            )
+
+        # Train the model
+        model.fit(X_train, y_train)
+
+        # Evaluate on validation set
+        y_pred = model.predict(X_val)
+        accuracy = accuracy_score(y_val, y_pred)
+        report = classification_report(y_val, y_pred, output_dict=True)
+
+        # Store best model
+        if accuracy > self.best_score:
+            self.best_score = accuracy
+            self.best_model = model
+
+        # Save model if configured
+        if self.config.save_best_model and self.config.model_save_path:
+            self._save_model(model, self.config.model_save_path)
+
+        results = {
+            "accuracy": accuracy,
+            "classification_report": report,
+            "model": model,
+        }
+
+        logger.info(f"Training completed. Validation accuracy: {accuracy:.4f}")
+        return results
+
+    def train_regressor(
+        self,
+        model: Any,
+        X_train: np.ndarray,
+        y_train: np.ndarray,
+        X_val: Optional[np.ndarray] = None,
+        y_val: Optional[np.ndarray] = None,
+    ) -> Dict[str, Any]:
+        """
+        Train a regression model.
+
+        Args:
+            model: Scikit-learn compatible regressor
+            X_train: Training features
+            y_train: Training targets
+            X_val: Validation features (optional)
+            y_val: Validation targets (optional)
+
+        Returns:
+            Dictionary containing training history and evaluation metrics
+        """
+        logger.info(f"Training regressor with {len(X_train)} samples")
+
+        # Split validation data if not provided
+        if X_val is None or y_val is None:
+            from sklearn.model_selection import train_test_split
+
+            X_train, X_val, y_train, y_val = train_test_split(
+                X_train,
+                y_train,
+                test_size=self.config.validation_split,
+                random_state=42,
+            )
+
+        # Train the model
+        model.fit(X_train, y_train)
+
+        # Evaluate on validation set
+        y_pred = model.predict(X_val)
+        mse = mean_squared_error(y_val, y_pred)
+        mae = mean_absolute_error(y_val, y_pred)
+        r2 = r2_score(y_val, y_pred)
+        rmse = np.sqrt(mse)
+
+        # Store best model (using R² score)
+        if r2 > self.best_score:
+            self.best_score = r2
+            self.best_model = model
+
+        # Save model if configured
+        if self.config.save_best_model and self.config.model_save_path:
+            self._save_model(model, self.config.model_save_path)
+
+        results = {
+            "mse": mse,
+            "mae": mae,
+            "rmse": rmse,
+            "r2": r2,
+            "model": model,
+        }
+
+        logger.info(
+            f"Training completed. Validation R²: {r2:.4f}, RMSE: {rmse:.4f}"
+        )
+        return results
+
+    def evaluate_model(
+        self,
+        model: Any,
+        X_test: np.ndarray,
+        y_test: np.ndarray,
+        task_type: str = "classification",
+    ) -> Dict[str, Any]:
+        """
+        Evaluate a trained model on test data.
+
+        Args:
+            model: Trained model
+            X_test: Test features
+            y_test: Test labels/targets
+            task_type: Type of task ("classification" or "regression")
+
+        Returns:
+            Dictionary containing evaluation metrics
+        """
+        logger.info(f"Evaluating {task_type} model on {len(X_test)} test samples")
+
+        y_pred = model.predict(X_test)
+
+        if task_type == "classification":
+            accuracy = accuracy_score(y_test, y_pred)
+            report = classification_report(y_test, y_pred, output_dict=True)
+            
+            # Additional classification metrics
+            from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
+            
+            # Handle multi-class vs binary
+            if len(np.unique(y_test)) == 2:
+                average = 'binary'
+            else:
+                average = 'weighted'
+            
+            precision = precision_score(y_test, y_pred, average=average, zero_division=0)
+            recall = recall_score(y_test, y_pred, average=average, zero_division=0)
+            f1 = f1_score(y_test, y_pred, average=average, zero_division=0)
+            cm = confusion_matrix(y_test, y_pred)
+            
+            return {
+                "accuracy": float(accuracy),
+                "precision": float(precision),
+                "recall": float(recall),
+                "f1_score": float(f1),
+                "confusion_matrix": cm.tolist(),
+                "classification_report": report,
+                "predictions": y_pred.tolist() if isinstance(y_pred, np.ndarray) else y_pred,
+            }
+        elif task_type == "regression":
+            mse = mean_squared_error(y_test, y_pred)
+            mae = mean_absolute_error(y_test, y_pred)
+            r2 = r2_score(y_test, y_pred)
+            rmse = np.sqrt(mse)
+            
+            # Additional regression metrics
+            mape = np.mean(np.abs((y_test - y_pred) / (y_test + 1e-10))) * 100  # Mean Absolute Percentage Error
+            median_ae = np.median(np.abs(y_test - y_pred))  # Median Absolute Error
+            
+            # Calculate residuals
+            residuals = y_test - y_pred
+            residual_std = np.std(residuals)
+            
+            return {
+                "mse": float(mse),
+                "mae": float(mae),
+                "rmse": float(rmse),
+                "r2": float(r2),
+                "mape": float(mape),
+                "median_ae": float(median_ae),
+                "residual_std": float(residual_std),
+                "predictions": y_pred.tolist() if isinstance(y_pred, np.ndarray) else y_pred,
+            }
+        else:
+            raise ValueError(
+                f"Unknown task_type: {task_type}. Must be 'classification' or 'regression'"
+            )
+
+    def _save_model(self, model: Any, path: Union[str, Path]) -> None:
+        """
+        Save a trained model to disk using joblib (preferred) or pickle.
+
+        Args:
+            model: Model to save
+            path: Path to save the model
+        """
+        path = Path(path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Try joblib first (more efficient for sklearn models)
+        try:
+            import joblib
+            joblib.dump(model, path)
+            logger.info(f"Model saved to {path} using joblib")
+        except ImportError:
+            # Fallback to pickle
+            import pickle
+            with open(path, "wb") as f:
+                pickle.dump(model, f)
+            logger.info(f"Model saved to {path} using pickle (joblib not available)")
+
+    def load_model(self, path: Union[str, Path]) -> Any:
+        """
+        Load a trained model from disk (supports both joblib and pickle formats).
+
+        Args:
+            path: Path to the saved model
+
+        Returns:
+            Loaded model
+        """
+        path = Path(path)
+        if not path.exists():
+            raise FileNotFoundError(f"Model file not found: {path}")
+
+        # Try joblib first
+        try:
+            import joblib
+            model = joblib.load(path)
+            logger.info(f"Model loaded from {path} using joblib")
+            return model
+        except (ImportError, ValueError):
+            # Fallback to pickle
+            import pickle
+            with open(path, "rb") as f:
+                model = pickle.load(f)
+            logger.info(f"Model loaded from {path} using pickle")
+            return model
+
+

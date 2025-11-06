@@ -59,7 +59,7 @@ try:
     print("✓ Successfully imported spatial dependencies")
 except ImportError as e:
     print(f"✗ Error importing spatial dependencies: {e}")
-    print("Please install: pip install h3 geopandas shapely")
+    print("Please install: uv pip install h3 geopandas shapely")
     sys.exit(1)
 
 

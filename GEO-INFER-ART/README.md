@@ -37,7 +37,7 @@ GEO-INFER-ART explores the intersection of art, aesthetics, and geospatial data,
 *   **Integration of Art and Analysis**: To foster a closer relationship between geospatial analysis and artistic interpretation, allowing insights from one domain to enrich the other.
 *   **Democratization of Geo-Art Tools**: To make advanced tools for creating geospatial art accessible to a wider audience, including artists, designers, researchers, and educators.
 
-## Key Features
+## Core Features
 
 ### 1. 🌈 Aesthetic Geospatial Visualization
 -   **Description**: Tools for transforming raw geospatial data (vector, raster, point clouds) into visually compelling and artistically styled maps and scenes. This goes beyond conventional cartography to prioritize aesthetic impact and interpretive expression.
@@ -144,6 +144,136 @@ graph TD
 5.  **Output & Presentation Layer**: Renders and exports the artistic creations in various formats.
 6.  **Machine Learning Models**: Leverages AI for tasks like style transfer, content generation, or aesthetic assessment.
 
+## API Reference
+
+### Core Classes
+
+#### GeoArt
+
+Main class for creating artistic visualizations of geospatial data.
+
+```python
+from geo_infer_art import GeoArt, MapStyle
+
+# Load geospatial data
+art = GeoArt.load_geojson('data/features.geojson')
+
+# Apply artistic style
+art.apply_style(
+    style='watercolor',
+    color_palette='pastel',
+    line_width=2.0,
+    alpha=0.8
+)
+
+# Save visualization
+art.save('output/artistic_map.png', dpi=300)
+```
+
+#### StyleTransfer
+
+Neural style transfer for geospatial imagery.
+
+```python
+from geo_infer_art import StyleTransfer
+
+# Create style transfer
+transfer = StyleTransfer()
+
+# Load style image
+transfer.load_style_image('styles/van_gogh.jpg')
+
+# Apply style to geospatial image
+styled_image = transfer.apply(
+    content_image=satellite_imagery,
+    style_weight=0.5
+)
+```
+
+#### GenerativeMap
+
+Generative art from geospatial data.
+
+```python
+from geo_infer_art import GenerativeMap
+
+# Create generative map from elevation
+gen_map = GenerativeMap.from_elevation(
+    elevation_data=elevation_raster,
+    color_scheme='topographic'
+)
+
+# Save generative art
+gen_map.save('output/generative_terrain.png')
+```
+
+#### ProceduralArt
+
+Procedural art generation from geospatial coordinates.
+
+```python
+from geo_infer_art import ProceduralArt
+
+# Create procedural art
+procedural = ProceduralArt(
+    algorithm='mandelbrot',
+    params={'iterations': 100}
+)
+
+# Generate from coordinates
+art = procedural.from_geo_coordinates(
+    center=[37.7749, -122.4194],
+    zoom_level=10
+)
+
+# Save result
+art.save('output/procedural_art.png')
+```
+
+#### PlaceArt
+
+Place-based artistic expression.
+
+```python
+from geo_infer_art import PlaceArt
+
+# Create place art
+place_art = PlaceArt.from_coordinates(
+    lat=37.7749,
+    lon=-122.4194,
+    radius=5000
+)
+
+# Add metadata overlay
+place_art.add_metadata_overlay(
+    title='San Francisco',
+    cultural_context='Urban'
+)
+
+# Save place art
+place_art.save('output/place_art.png')
+```
+
+#### ColorPalette
+
+Advanced color palette management.
+
+```python
+from geo_infer_art import ColorPalette
+
+# Create palette from color theory
+palette = ColorPalette.from_color_theory(
+    scheme='complementary',
+    base_color='#3498db'
+)
+
+# Get palette colors
+colors = palette.get_palette(n_colors=5)
+
+# Invert palette
+inverted = palette.invert()
+```
+
 ## Integration with other GEO-INFER Modules
 
 -   **GEO-INFER-DATA**: The primary source for diverse geospatial data (vector, raster, sensor feeds, cultural datasets) that fuel the artistic processes in ART.
@@ -157,7 +287,7 @@ graph TD
 ## Installation
 
 ```bash
-pip install -e ./GEO-INFER-ART
+uv pip install -e ./GEO-INFER-ART
 ```
 
 ## Documentation

@@ -24,7 +24,7 @@ from geo_infer_ag.models import (
 
 # API exports
 from geo_infer_ag.api import (
-    AgricultureAPI,
+    AgriculturalAPI,
     FieldsResource,
     CropsResource,
     YieldResource

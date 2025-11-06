@@ -69,7 +69,7 @@ class StyleTransfer:
         if not TF_AVAILABLE:
             raise ImportError(
                 "TensorFlow is required for StyleTransfer. "
-                "Install it with 'pip install tensorflow'."
+                "Install it with 'uv pip install tensorflow'."
             )
             
         self.style_image = None
@@ -295,7 +295,7 @@ class StyleTransfer:
         if not TF_AVAILABLE:
             raise ImportError(
                 "TensorFlow is required for StyleTransfer. "
-                "Install it with 'pip install tensorflow'."
+                "Install it with 'uv pip install tensorflow'."
             )
             
         # Create a StyleTransfer instance

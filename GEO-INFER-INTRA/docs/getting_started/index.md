@@ -77,14 +77,14 @@ Choose the path that best fits your background and goals:
 
 ### Quick Install (Recommended)
 ```bash
-pip install geo-infer
+uv pip install geo-infer
 ```
 
 ### Development Install
 ```bash
 git clone https://github.com/geo-infer/geo-infer-intra.git
 cd geo-infer-intra
-pip install -e .
+uv pip install -e .
 ```
 
 ### Docker Install

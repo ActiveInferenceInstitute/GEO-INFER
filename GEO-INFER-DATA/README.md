@@ -142,7 +142,7 @@ api.start()  # Starts server on http://localhost:8001
 -   **Efficiency:** Optimize data pipelines and storage for rapid data retrieval and analysis.
 -   **Governance:** Establish clear protocols for data lineage, versioning, metadata management, and access control.
 
-## Key Features
+## Core Features
 
 -   **Distributed Geospatial Data Warehousing:** Design and management of data lake and data warehouse architectures suitable for large-scale geospatial data, enabling efficient querying and analytics across diverse datasets.
     -   Integration with PostGIS, MinIO, TimescaleDB, and other specialized data stores.
@@ -250,7 +250,7 @@ GEO-INFER-DATA/
 
 ### Installation
 ```bash
-pip install -e ./GEO-INFER-DATA
+uv pip install -e ./GEO-INFER-DATA
 ```
 
 ### Configuration
@@ -288,6 +288,147 @@ GEO-INFER-DATA is designed to be flexible with storage backends, leveraging the 
 -   **Redis:** In-memory data store for caching frequently accessed data, session management, and as a message broker for real-time updates.
 -   **Elasticsearch/OpenSearch:** For indexing and searching large volumes of textual and geospatial metadata, and for certain types of spatial queries.
 -   **Specialized Geospatial Databases/Engines:** Potential integration with systems like GeoMesa, GeoWave for very large-scale spatio-temporal analytics on distributed key-value stores (e.g., HBase, Accumulo).
+
+## API Reference
+
+### Core Classes
+
+#### MultiSourceDataIngestion
+
+Intelligent multi-source data ingestion with automatic format detection.
+
+```python
+from geo_infer_data import MultiSourceDataIngestion
+
+# Initialize ingestion system
+ingestion = MultiSourceDataIngestion(
+    data_sources=['satellite', 'sensors', 'crowdsourced'],
+    validation_enabled=True,
+    quality_threshold=0.8
+)
+
+# Ingest from multiple sources
+result = await ingestion.ingest_multi_source(
+    satellite={'bbox': [-122.5, 37.7, -122.3, 37.9]},
+    sensors={'time_range': '2023-01-01/2023-01-31'},
+    crowdsourced={'category': 'environment'}
+)
+```
+
+#### IntelligentETLPipeline
+
+Advanced ETL workflows with automatic dependency resolution.
+
+```python
+from geo_infer_data import IntelligentETLPipeline
+
+# Initialize ETL pipeline
+pipeline = IntelligentETLPipeline(
+    workflow_config='etl_config.yaml',
+    dependency_resolution='automatic',
+    error_recovery='intelligent_retry'
+)
+
+# Execute workflow
+result = await pipeline.execute_workflow(
+    source_data=raw_data,
+    target_storage=processed_storage,
+    transformation_rules=transformations
+)
+```
+
+#### AdaptiveDataStorage
+
+Multi-backend storage with automatic optimization.
+
+```python
+from geo_infer_data import AdaptiveDataStorage
+
+# Initialize adaptive storage
+storage = AdaptiveDataStorage(
+    storage_backends=['postgresql', 'minio', 'redis'],
+    optimization_strategy='access_pattern_based',
+    compression_enabled=True
+)
+
+# Store geospatial data
+data_id = await storage.store_geospatial_data(
+    data=geospatial_data,
+    metadata=dataset_metadata,
+    access_patterns=usage_patterns
+)
+
+# Retrieve data
+data = await storage.retrieve_geospatial_data(
+    data_id=data_id,
+    format='geopandas'
+)
+```
+
+#### DataQualityManager
+
+Comprehensive data validation and quality assurance.
+
+```python
+from geo_infer_data import DataQualityManager
+
+# Initialize quality manager
+quality_manager = DataQualityManager(
+    validation_rules='strict',
+    quality_metrics=['completeness', 'accuracy', 'consistency']
+)
+
+# Validate dataset
+quality_report = quality_manager.validate_dataset(
+    dataset=dataset,
+    schema=schema_definition
+)
+
+# Assess quality
+quality_score = quality_manager.assess_quality(quality_report)
+```
+
+#### DataAPI
+
+RESTful API for data access and management.
+
+```python
+from geo_infer_data.api import DataAPI
+
+# Initialize data API
+api = DataAPI(config='config/local.yaml')
+
+# Start API server
+api.start(host='0.0.0.0', port=8000)
+```
+
+### Utility Functions
+
+```python
+from geo_infer_data import (
+    initialize_data_system,
+    validate_data_integrity,
+    optimize_storage_performance
+)
+
+# Initialize complete data system
+system = initialize_data_system(
+    config_path='config/data_config.yaml',
+    storage_backends=['postgresql', 'minio'],
+    enable_validation=True
+)
+
+# Validate data integrity
+integrity_report = validate_data_integrity(
+    dataset_ids=['dataset_1', 'dataset_2']
+)
+
+# Optimize storage
+optimization_result = optimize_storage_performance(
+    storage_backend='postgresql',
+    optimization_target='query_performance'
+)
+```
 
 ## Integration with Other Modules
 

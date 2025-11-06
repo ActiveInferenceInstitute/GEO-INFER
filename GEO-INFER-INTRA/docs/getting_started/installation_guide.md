@@ -93,7 +93,7 @@ uv sync
 uv run python -c "import sys; print(sys.executable)"
 ```
 
-#### Using conda
+#### Using conda (Alternative)
 
 ```bash
 # Create a conda environment
@@ -102,11 +102,14 @@ conda create -n geo-infer python=3.9
 # Activate the environment
 conda activate geo-infer
 
-# Install GEO-INFER
-pip install geo-infer
+# Install uv in conda environment
+conda install -c conda-forge uv
+
+# Install GEO-INFER using uv (recommended)
+uv pip install geo-infer
 ```
 
-#### Using pyenv
+#### Using pyenv (Alternative)
 
 ```bash
 # Install Python 3.9
@@ -115,12 +118,11 @@ pyenv install 3.9.12
 # Set local Python version
 pyenv local 3.9.12
 
-# Create virtual environment
-python -m venv geo-infer-env
-source geo-infer-env/bin/activate
+# Install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
 
-# Install GEO-INFER
-pip install geo-infer
+# Install GEO-INFER using uv (recommended)
+uv pip install geo-infer
 ```
 
 ### Module-Specific Installation
@@ -129,22 +131,22 @@ Install only the modules you need:
 
 ```bash
 # Core modules
-pip install geo-infer-space    # Spatial analysis
-pip install geo-infer-time     # Temporal analysis
-pip install geo-infer-act      # Active inference
-pip install geo-infer-bayes    # Bayesian inference
+uv pip install geo-infer-space    # Spatial analysis
+uv pip install geo-infer-time     # Temporal analysis
+uv pip install geo-infer-act      # Active inference
+uv pip install geo-infer-bayes    # Bayesian inference
 
 # Domain-specific modules
-pip install geo-infer-ag       # Agriculture
-pip install geo-infer-bio      # Biodiversity
-pip install geo-infer-civ      # Civil infrastructure
-pip install geo-infer-econ     # Economics
-pip install geo-infer-risk     # Risk assessment
+uv pip install geo-infer-ag       # Agriculture
+uv pip install geo-infer-bio      # Biodiversity
+uv pip install geo-infer-civ      # Civil infrastructure
+uv pip install geo-infer-econ     # Economics
+uv pip install geo-infer-risk     # Risk assessment
 
 # Optional modules
-pip install geo-infer-sim      # Simulation
-pip install geo-infer-agent    # Agent modeling
-pip install geo-infer-cog      # Cognitive modeling
+uv pip install geo-infer-sim      # Simulation
+uv pip install geo-infer-agent    # Agent modeling
+uv pip install geo-infer-cog      # Cognitive modeling
 ```
 
 ### Dependencies Installation
@@ -204,7 +206,7 @@ For Windows, most dependencies are included in the Python packages. If you encou
 uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 # Install other GPU-accelerated libraries
-pip install cupy-cuda11x  # For NumPy-like operations on GPU
+uv pip install cupy-cuda11x  # For NumPy-like operations on GPU
 ```
 
 #### Database Support
@@ -375,11 +377,11 @@ sudo apt-get install python3-gdal
 
 # On macOS with Homebrew
 brew install gdal
-pip install GDAL
+uv pip install GDAL
 
 # On Windows
 # Download GDAL wheels from https://www.lfd.uci.edu/~gohlke/pythonlibs/
-pip install GDAL-3.4.3-cp39-cp39-win_amd64.whl
+uv pip install GDAL-3.4.3-cp39-cp39-win_amd64.whl
 ```
 
 #### Issue: GEOS Installation Problems
@@ -397,8 +399,8 @@ sudo apt-get install libgeos-dev
 brew install geos
 
 # Reinstall shapely
-pip uninstall shapely
-pip install shapely
+uv pip uninstall shapely
+uv pip install shapely
 ```
 
 #### Issue: Memory Issues
@@ -428,8 +430,8 @@ analyzer = SpatialAnalyzer(chunk_size=1000)
 nvidia-smi
 
 # Reinstall PyTorch with correct CUDA version
-pip uninstall torch torchvision torchaudio
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+uv pip uninstall torch torchvision torchaudio
+uv pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 ```
 
 ### Platform-Specific Issues

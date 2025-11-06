@@ -29,7 +29,7 @@ GEO-INFER-INTRA is the **central nervous system for knowledge management and ope
 -   **Knowledge Retention & Sharing:** Create a persistent and evolving knowledge base that captures expertise, lessons learned, and community wisdom.
 -   **FAIR Principles:** Ensure all knowledge assets (documentation, ontologies, schemas) are Findable, Accessible, Interoperable, and Reusable.
 
-## Key Features
+## Core Features
 
 -   **Standardized Ontologies & Vocabularies:** Development, management, and dissemination of controlled vocabularies and formal ontologies (e.g., using OWL, SKOS, RDFS) that define key geospatial concepts, relationships, entities, and processes. This ensures semantic interoperability across different modules and domains.
 -   **Comprehensive Documentation System:** Tools and platforms for creating, versioning, managing, and publishing all forms of documentation, including API references (auto-generated), technical guides, tutorials, user manuals, architectural diagrams, and contribution guidelines. (e.g., using Sphinx, MkDocs, ReadTheDocs).
@@ -212,13 +212,13 @@ pip list | grep geo-infer
 ### 2. Installation & Setup
 ```bash
 # Install GEO-INFER-INTRA
-pip install -e ./GEO-INFER-INTRA
+uv pip install -e ./GEO-INFER-INTRA
 
 # Install documentation dependencies
-pip install sphinx mkdocs-material mkdocs-mermaid2-plugin
+uv pip install sphinx mkdocs-material mkdocs-mermaid2-plugin
 
 # Install ontology management tools
-pip install rdflib owlready2 sparql-kernel
+uv pip install rdflib owlready2 sparql-kernel
 ```
 
 ### 3. Initialize Documentation System
@@ -438,6 +438,112 @@ export REDIS_URL="redis://localhost:6379"
 # Workflow Engine
 export AIRFLOW_HOME="/opt/airflow"
 export AIRFLOW__CORE__DAGS_FOLDER="/path/to/geo-infer-intra/workflows"
+```
+
+## API Reference
+
+### Core Classes
+
+#### DocumentationGenerator
+
+Automated documentation generation.
+
+```python
+from geo_infer_intra.documentation import DocumentationGenerator
+
+# Create documentation generator
+doc_gen = DocumentationGenerator(
+    source_path='src/',
+    output_path='docs/',
+    format='html'
+)
+
+# Generate API documentation
+doc_gen.generate_api_docs(
+    modules=['SPACE', 'TIME', 'DATA'],
+    include_examples=True
+)
+
+# Generate module documentation
+doc_gen.generate_module_docs(
+    module_name='SPACE',
+    include_architecture=True
+)
+```
+
+#### OntologyManager
+
+Ontology development and management.
+
+```python
+from geo_infer_intra.ontology import OntologyManager
+
+# Create ontology manager
+ontology = OntologyManager(
+    ontology_format='owl',
+    namespace='geo-infer'
+)
+
+# Add concept
+ontology.add_concept(
+    concept_id='spatial_feature',
+    definition='A geospatial entity with location',
+    relationships=['has_location', 'has_geometry']
+)
+
+# Validate ontology
+is_valid = ontology.validate()
+```
+
+#### WorkflowEngine
+
+Workflow management and execution.
+
+```python
+from geo_infer_intra.workflows import WorkflowEngine
+
+# Create workflow engine
+engine = WorkflowEngine(
+    workflow_format='bpmn',
+    execution_backend='airflow'
+)
+
+# Define workflow
+workflow = engine.define_workflow(
+    name='data_processing',
+    steps=['ingest', 'transform', 'analyze', 'visualize']
+)
+
+# Execute workflow
+results = engine.execute_workflow(workflow)
+```
+
+#### KnowledgeBase
+
+Integrated knowledge base management.
+
+```python
+from geo_infer_intra.knowledge import KnowledgeBase
+
+# Create knowledge base
+kb = KnowledgeBase(
+    storage_backend='elasticsearch',
+    index_name='geo-infer-knowledge'
+)
+
+# Add knowledge item
+kb.add_item(
+    title='H3 Indexing Guide',
+    content=guide_content,
+    tags=['spatial', 'indexing', 'h3'],
+    module='SPACE'
+)
+
+# Search knowledge
+results = kb.search(
+    query='spatial indexing',
+    filters={'module': 'SPACE'}
+)
 ```
 
 ## 🚀 Usage Examples
@@ -850,8 +956,8 @@ jobs:
         
     - name: Install INTRA dependencies
       run: |
-        pip install -e ./GEO-INFER-INTRA
-        pip install sphinx mkdocs-material elasticsearch
+        uv pip install -e ./GEO-INFER-INTRA
+        uv pip install sphinx mkdocs-material elasticsearch
         
     - name: Generate Documentation
       run: |
@@ -1150,7 +1256,7 @@ except ImportError as e:
 "
 
 # Reinstall in development mode
-pip install -e ./GEO-INFER-INTRA[all]
+uv pip install -e ./GEO-INFER-INTRA[all]
 ```
 
 **Issue**: "Ontology validation errors"
@@ -1219,7 +1325,7 @@ cd GEO-INFER-INTRA
 # Setup development environment
 python -m venv venv
 source venv/bin/activate  # Windows: venv\Scripts\activate
-pip install -e ".[dev,test,docs]"
+uv pip install -e ".[dev,test,docs]"
 
 # Install pre-commit hooks
 pre-commit install
@@ -1229,6 +1335,176 @@ python -m geo_infer_intra.dev.server --reload --debug
 
 # Run full test suite
 pytest tests/ --cov=geo_infer_intra --cov-report=html
+```
+
+## API Reference
+
+### Core Classes
+
+#### DocumentationGenerator
+
+Automated documentation generation and management.
+
+```python
+from geo_infer_intra.documentation import DocumentationGenerator
+
+# Create documentation generator
+doc_gen = DocumentationGenerator(
+    source_path="src/",
+    output_path="docs/",
+    format="mkdocs"
+)
+
+# Generate API documentation
+doc_gen.generate_api_docs(
+    modules=['geo_infer_space', 'geo_infer_time'],
+    include_examples=True
+)
+
+# Generate module documentation
+doc_gen.generate_module_docs(
+    module_name="GEO-INFER-SPACE",
+    template="module_template.md"
+)
+```
+
+#### OntologyManager
+
+Ontology and vocabulary management.
+
+```python
+from geo_infer_intra.ontology import OntologyManager
+
+# Create ontology manager
+ontology = OntologyManager(
+    ontology_path="ontologies/",
+    format="owl"
+)
+
+# Load ontology
+ontology.load_ontology("geospatial_ontology.owl")
+
+# Query ontology
+concepts = ontology.query(
+    query="SELECT ?concept WHERE { ?concept rdf:type owl:Class }"
+)
+
+# Validate ontology
+validation_report = ontology.validate()
+```
+
+#### WorkflowEngine
+
+Workflow orchestration and execution.
+
+```python
+from geo_infer_intra.workflows import WorkflowEngine, WorkflowDefinition
+
+# Create workflow engine
+engine = WorkflowEngine(
+    executor="airflow",
+    config_path="config/workflows.yaml"
+)
+
+# Define workflow
+workflow = WorkflowDefinition(
+    name="data_processing",
+    steps=[
+        {"task": "ingest_data", "module": "DATA"},
+        {"task": "spatial_analysis", "module": "SPACE"},
+        {"task": "temporal_analysis", "module": "TIME"}
+    ]
+)
+
+# Execute workflow
+result = engine.execute_workflow(workflow)
+```
+
+#### KnowledgeBase
+
+Integrated knowledge base with search.
+
+```python
+from geo_infer_intra.knowledge import KnowledgeBase
+
+# Create knowledge base
+kb = KnowledgeBase(
+    storage_backend="elasticsearch",
+    index_name="geo_infer_knowledge"
+)
+
+# Add document
+kb.add_document(
+    title="Spatial Indexing Guide",
+    content=guide_content,
+    tags=["spatial", "indexing", "h3"],
+    metadata={"module": "SPACE", "version": "1.0"}
+)
+
+# Search knowledge base
+results = kb.search(
+    query="spatial indexing best practices",
+    filters={"module": "SPACE"}
+)
+```
+
+#### ProcessRepository
+
+Best practices and process templates repository.
+
+```python
+from geo_infer_intra.processes import ProcessRepository
+
+# Create process repository
+repo = ProcessRepository(
+    templates_path="templates/",
+    best_practices_path="best_practices/"
+)
+
+# Get process template
+template = repo.get_template(
+    process_type="spatial_analysis",
+    domain="environmental"
+)
+
+# Get best practices
+best_practices = repo.get_best_practices(
+    category="data_quality",
+    module="DATA"
+)
+```
+
+### Utility Functions
+
+```python
+from geo_infer_intra import (
+    generate_documentation,
+    validate_ontology,
+    execute_workflow,
+    search_knowledge_base
+)
+
+# Generate documentation for all modules
+generate_documentation(
+    modules=['SPACE', 'TIME', 'DATA'],
+    output_format='mkdocs'
+)
+
+# Validate ontology
+validation_result = validate_ontology(
+    ontology_path="ontologies/geospatial.owl"
+)
+
+# Execute predefined workflow
+workflow_result = execute_workflow(
+    workflow_name="data_processing_pipeline"
+)
+
+# Search knowledge base
+search_results = search_knowledge_base(
+    query="spatial analysis",
+    filters={"module": "SPACE"}
+)
 ```
 
 ---

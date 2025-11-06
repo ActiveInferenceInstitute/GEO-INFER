@@ -16,7 +16,7 @@ This FAQ addresses the most common questions about GEO-INFER. If you don't find 
 ### Q: How do I install GEO-INFER?
 **A:** The simplest way is:
 ```bash
-pip install geo-infer
+uv pip install geo-infer
 ```
 For detailed installation instructions, see the [Installation Guide](../getting_started/installation_guide.md).
 
@@ -194,7 +194,7 @@ print(f"95% CI: [{prediction['ci_lower']:.2f}, {prediction['ci_upper']:.2f}]")
 
 ### Q: I get "ImportError: No module named 'geo_infer_space'" - what's wrong?
 **A:** This usually means:
-1. **Installation incomplete**: Run `pip install geo-infer` again
+1. **Installation incomplete**: Run `uv pip install geo-infer` again
 2. **Wrong Python environment**: Activate your virtual environment
 3. **Version mismatch**: Update to the latest version
 4. **Path issues**: Check your Python path
@@ -230,7 +230,7 @@ data = data[data.geometry.is_valid]
 ### Q: My GPU isn't being used - how do I enable it?
 **A:** Check these steps:
 1. **Install CUDA**: Follow NVIDIA's installation guide
-2. **Install PyTorch with CUDA**: `pip install torch --index-url https://download.pytorch.org/whl/cu118`
+2. **Install PyTorch with CUDA**: `uv pip install torch --index-url https://download.pytorch.org/whl/cu118`
 3. **Enable GPU in code**: `spatial_analyzer.enable_gpu()`
 4. **Check availability**: `torch.cuda.is_available()`
 
@@ -295,10 +295,10 @@ stream_result = analyzer.stream_analysis(data_path)
 **A:** Update commands:
 ```bash
 # Update all modules
-pip install --upgrade geo-infer
+uv pip install --upgrade geo-infer
 
 # Update specific modules
-pip install --upgrade geo-infer-space geo-infer-time
+uv pip install --upgrade geo-infer-space geo-infer-time
 
 # Check version
 pip show geo-infer

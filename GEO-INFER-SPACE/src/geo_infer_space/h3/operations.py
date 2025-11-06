@@ -17,7 +17,7 @@ try:
     H3_AVAILABLE = True
 except ImportError:
     H3_AVAILABLE = False
-    logger.warning("h3-py package not available. Install with 'pip install h3'")
+    logger.warning("h3-py package not available. Install with 'uv pip install h3'")
 
 
 # Additional utility functions for comprehensive H3 operations
@@ -150,7 +150,7 @@ def create_h3_grid_for_bounds(min_lat: float, max_lat: float,
         >>> print(f"Created grid with {len(grid)} cells")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     # Validate bounds
     if not (-90 <= min_lat <= max_lat <= 90):
@@ -200,7 +200,7 @@ def coordinate_to_cell(lat: float, lng: float, resolution: int) -> str:
         '89283082e3fffff'
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     # Validate inputs
     if not -90 <= lat <= 90:
@@ -238,7 +238,7 @@ def cell_to_coordinates(h3_index: str) -> Tuple[float, float]:
         >>> print(f"Lat: {coords[0]:.4f}, Lng: {coords[1]:.4f}")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         return h3.cell_to_latlng(h3_index)
@@ -266,7 +266,7 @@ def cell_to_boundary(h3_index: str, geo_json: bool = False) -> List[Tuple[float,
         >>> print(f"Hexagon has {len(boundary)} vertices")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         return h3.cell_to_boundary(h3_index, geo_json=geo_json)
@@ -295,7 +295,7 @@ def cells_to_geojson(h3_indices: List[str], properties: Optional[Dict[str, Any]]
         >>> print(f"Created FeatureCollection with {len(geojson['features'])} features")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     features = []
     
@@ -356,7 +356,7 @@ def grid_disk(h3_index: str, k: int) -> List[str]:
         >>> print(f"Found {len(neighbors)} cells within 2 rings")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         return list(h3.grid_disk(h3_index, k))
@@ -381,7 +381,7 @@ def grid_ring(h3_index: str, k: int) -> List[str]:
         >>> print(f"Found {len(ring_cells)} cells at ring 1")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if k <= 0:
         raise ValueError("Ring distance k must be greater than 0")
@@ -412,7 +412,7 @@ def grid_distance(h3_index1: str, h3_index2: str) -> int:
         >>> print(f"Grid distance: {distance} steps")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         return h3.grid_distance(h3_index1, h3_index2)
@@ -437,7 +437,7 @@ def grid_path(h3_index1: str, h3_index2: str) -> List[str]:
         >>> print(f"Path has {len(path)} steps")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         return h3.grid_path_cells(h3_index1, h3_index2)
@@ -464,7 +464,7 @@ def cell_to_parent(h3_index: str, parent_resolution: int) -> str:
         >>> print(f"Parent cell: {parent}")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         current_resolution = h3.get_resolution(h3_index)
@@ -493,7 +493,7 @@ def cell_to_children(h3_index: str, child_resolution: int) -> List[str]:
         >>> print(f"Found {len(children)} children")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         current_resolution = h3.get_resolution(h3_index)
@@ -522,7 +522,7 @@ def compact_cells(h3_indices: Set[str]) -> List[str]:
         >>> print(f"Compacted from {len(cells)} to {len(compacted)} cells")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         return list(h3.compact_cells(h3_indices))
@@ -548,7 +548,7 @@ def uncompact_cells(h3_indices: Set[str], target_resolution: int) -> List[str]:
         >>> print(f"Uncompacted to {len(uncompacted)} cells")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         return list(h3.uncompact_cells(h3_indices, target_resolution))
@@ -580,7 +580,7 @@ def polygon_to_cells(polygon_coords: List[Tuple[float, float]], resolution: int)
         >>> print(f"Polygon covered by {len(cells)} H3 cells")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         # Use H3's polygon_to_cells function
@@ -607,7 +607,7 @@ def cells_to_polygon(h3_indices: Set[str]) -> List[Tuple[float, float]]:
         >>> print(f"Boundary has {len(boundary)} vertices")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         return h3.cells_to_polygon(h3_indices, geo_json=False)
@@ -632,7 +632,7 @@ def cell_area(h3_index: str, unit: str = 'km^2') -> float:
         >>> print(f"Cell area: {area:.6f} km²")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         return h3.cell_area(h3_index, unit=unit)
@@ -658,7 +658,7 @@ def cells_area(h3_indices: Set[str], unit: str = 'km^2') -> float:
         >>> print(f"Total area: {total_area:.6f} km²")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         total_area = 0.0
@@ -687,7 +687,7 @@ def neighbor_cells(h3_index: str) -> List[str]:
         >>> print(f"Cell has {len(neighbors)} neighbors")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         # Get k-ring with k=1 and remove the center cell
@@ -715,7 +715,7 @@ def cell_resolution(h3_index: str) -> int:
         >>> print(f"Cell resolution: {resolution}")
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     try:
         return h3.get_resolution(h3_index)
@@ -944,7 +944,7 @@ def grid_statistics(h3_indices: Set[str]) -> Dict[str, Any]:
         (37.774929, -122.419415)
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not h3.is_valid_cell(h3_index):
         raise ValueError(f"Invalid H3 cell index: {h3_index}")
@@ -977,7 +977,7 @@ def cell_to_boundary(h3_index: str, geo_json_format: bool = False) -> Union[List
         Hexagon has 6 vertices
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not h3.is_valid_cell(h3_index):
         raise ValueError(f"Invalid H3 cell index: {h3_index}")
@@ -1015,7 +1015,7 @@ def cells_to_geojson(h3_indices: List[str], properties: Optional[Dict[str, Dict[
         FeatureCollection
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     features = []
     
@@ -1089,7 +1089,7 @@ def grid_disk(h3_index: str, k: int = 1) -> List[str]:
         Found 19 cells within 2 rings
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not h3.is_valid_cell(h3_index):
         raise ValueError(f"Invalid H3 cell index: {h3_index}")
@@ -1122,7 +1122,7 @@ def grid_ring(h3_index: str, k: int) -> List[str]:
         Ring 1 has 6 cells
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not h3.is_valid_cell(h3_index):
         raise ValueError(f"Invalid H3 cell index: {h3_index}")
@@ -1156,7 +1156,7 @@ def grid_distance(h3_index1: str, h3_index2: str) -> int:
         Distance: 2 cells
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not h3.is_valid_cell(h3_index1):
         raise ValueError(f"Invalid H3 cell index: {h3_index1}")
@@ -1197,7 +1197,7 @@ def grid_path(h3_index1: str, h3_index2: str) -> List[str]:
         Path has 3 cells
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not h3.is_valid_cell(h3_index1):
         raise ValueError(f"Invalid H3 cell index: {h3_index1}")
@@ -1232,7 +1232,7 @@ def cell_to_parent(h3_index: str, parent_resolution: int) -> str:
         Parent at resolution 7: 87283082e3fffff
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not h3.is_valid_cell(h3_index):
         raise ValueError(f"Invalid H3 cell index: {h3_index}")
@@ -1270,7 +1270,7 @@ def cell_to_children(h3_index: str, child_resolution: int) -> List[str]:
         Parent has 49 children at resolution 9
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not h3.is_valid_cell(h3_index):
         raise ValueError(f"Invalid H3 cell index: {h3_index}")
@@ -1307,7 +1307,7 @@ def compact_cells(h3_indices: List[str]) -> List[str]:
         Compacted 19 cells to 7
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not h3_indices:
         return []
@@ -1342,7 +1342,7 @@ def uncompact_cells(h3_indices: List[str], target_resolution: int) -> List[str]:
         Uncompacted to 50 cells at resolution 9
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not h3_indices:
         return []
@@ -1386,7 +1386,7 @@ def polygon_to_cells(polygon_coords: Union[List[Tuple[float, float]], Dict[str, 
         Polygon covered by 42 H3 cells
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not 0 <= resolution <= 15:
         raise ValueError(f"Resolution {resolution} must be between 0 and 15")
@@ -1441,7 +1441,7 @@ def cells_to_polygon(h3_indices: List[str]) -> List[Tuple[float, float]]:
         Boundary has 12 vertices
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not h3_indices:
         return []
@@ -1511,7 +1511,7 @@ def cell_area(h3_index: str, unit: str = 'km^2') -> float:
         Cell area: 0.105332 km²
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not h3.is_valid_cell(h3_index):
         raise ValueError(f"Invalid H3 cell index: {h3_index}")
@@ -1576,7 +1576,7 @@ def neighbor_cells(h3_index: str) -> List[str]:
         Cell has 6 neighbors
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not h3.is_valid_cell(h3_index):
         raise ValueError(f"Invalid H3 cell index: {h3_index}")
@@ -1605,7 +1605,7 @@ def cell_resolution(h3_index: str) -> int:
         Cell resolution: 9
     """
     if not H3_AVAILABLE:
-        raise ImportError("h3-py package required. Install with 'pip install h3'")
+        raise ImportError("h3-py package required. Install with 'uv pip install h3'")
     
     if not h3.is_valid_cell(h3_index):
         raise ValueError(f"Invalid H3 cell index: {h3_index}")

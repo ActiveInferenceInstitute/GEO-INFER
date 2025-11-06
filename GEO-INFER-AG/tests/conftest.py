@@ -1,12 +1,19 @@
 """Common test fixtures for GEO-INFER-AG tests."""
 
 import os
+import sys
 import numpy as np
 import pandas as pd
 import geopandas as gpd
 import pytest
 from shapely.geometry import Polygon, Point
 from datetime import datetime, timedelta
+
+# Add src directory to path for imports
+project_root = os.path.dirname(os.path.dirname(__file__))
+src_path = os.path.join(project_root, 'src')
+if src_path not in sys.path:
+    sys.path.insert(0, src_path)
 
 # Define constants for test data
 TEST_DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "geospatial")
@@ -146,4 +153,4 @@ def management_practices():
         "field_1": ["no_till", "cover_crops", "precision_agriculture"],
         "field_2": ["reduced_till", "crop_rotation"],
         "field_3": ["conventional_till", "organic_fertilizer"]
-    } 
+    }

@@ -754,6 +754,316 @@ spatial_config = config_manager.get_module_configuration('geo-infer-space')
 ai_config = config_manager.get_module_configuration('geo-infer-ai')
 ```
 
+## 🆕 New Integration Patterns (2025)
+
+### Pattern 4: Spatio-Temporal Data Integration (SPACE + TIME + DATA)
+
+This pattern demonstrates seamless integration between spatial indexing, temporal analysis, and data management for comprehensive spatio-temporal workflows.
+
+```python
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+from geo_infer_time.core.analysis import TemporalAnalyzer
+from geo_infer_time.models.timeseries import TimeSeries
+from geo_infer_data.core.ingestion import MultiSourceDataIngestion
+from geo_infer_data.core.storage import AdaptiveDataStorage
+import geopandas as gpd
+import pandas as pd
+
+class SpatioTemporalDataPipeline:
+    """Integrated pipeline for spatio-temporal data processing."""
+    
+    def __init__(self):
+        self.spatial_indexer = SpatialIndexingInterface(backend='h3')
+        self.temporal_analyzer = TemporalAnalyzer()
+        self.data_ingestion = MultiSourceDataIngestion()
+        self.data_storage = AdaptiveDataStorage()
+    
+    def process_spatial_temporal_data(self, gdf: gpd.GeoDataFrame):
+        """Process spatial-temporal data through integrated pipeline."""
+        # Step 1: Spatial indexing
+        gdf['h3_cell'] = gdf.apply(
+            lambda row: self.spatial_indexer.latlng_to_cell(
+                row.geometry.y, row.geometry.x, resolution=9
+            ), axis=1
+        )
+        
+        # Step 2: Temporal aggregation by spatial cell
+        temporal_data = gdf.groupby(['h3_cell', 'timestamp']).agg({
+            'value': 'mean',
+            'temperature': 'mean'
+        }).reset_index()
+        
+        # Step 3: Create time series for each spatial cell
+        time_series_by_cell = {}
+        for cell in temporal_data['h3_cell'].unique():
+            cell_data = temporal_data[temporal_data['h3_cell'] == cell]
+            ts = TimeSeries(
+                data=cell_data.set_index('timestamp'),
+                value_column='value'
+            )
+            time_series_by_cell[cell] = ts
+        
+        # Step 4: Temporal analysis per spatial cell
+        analysis_results = {}
+        for cell, ts in time_series_by_cell.items():
+            trend = self.temporal_analyzer.detect_trend(ts, method='linear')
+            seasonality = self.temporal_analyzer.detect_seasonality(ts)
+            analysis_results[cell] = {
+                'trend': trend,
+                'seasonality': seasonality
+            }
+        
+        return analysis_results
+
+# Usage
+pipeline = SpatioTemporalDataPipeline()
+results = pipeline.process_spatial_temporal_data(spatial_temporal_gdf)
+```
+
+**Key Benefits:**
+- Unified spatio-temporal data processing
+- Efficient spatial indexing with temporal aggregation
+- Comprehensive analysis combining spatial and temporal patterns
+- Scalable to large datasets
+
+**See Also:** `GEO-INFER-TEST/tests/integration/test_space_time_data_integration.py`
+
+### Pattern 5: Active Inference Agent Coordination (ACT + AGENT + ANT)
+
+This pattern demonstrates coordination between Active Inference models, agent frameworks, and swarm intelligence for intelligent multi-agent systems.
+
+```python
+from geo_infer_act.core.active_inference import ActiveInferenceModel
+from geo_infer_agent.core.agent_base import BaseAgent
+from geo_infer_agent.core.agent_registry import AgentRegistry
+from geo_infer_agent.api.messaging import MessagingService
+from geo_infer_ant.core.population import AgentPopulation
+from geo_infer_ant.core.swarm_agent import SwarmAgent
+
+class IntelligentSwarmSystem:
+    """Coordinated system using ACT, AGENT, and ANT modules."""
+    
+    def __init__(self, num_agents=10):
+        # Create Active Inference model
+        self.act_model = ActiveInferenceModel(
+            model_type='categorical',
+            state_dim=5,
+            obs_dim=3
+        )
+        
+        # Create agent registry
+        self.registry = AgentRegistry()
+        self.messaging = MessagingService()
+        
+        # Create swarm population
+        self.population = AgentPopulation()
+        
+        # Initialize agents with Active Inference
+        for i in range(num_agents):
+            agent = BaseAgent(
+                agent_id=f"swarm_agent_{i:03d}",
+                config={'spatial_bounds': {...}}
+            )
+            self.registry.register(agent)
+            self.population.add_agent(agent)
+    
+    def coordinate_swarm_action(self, observation):
+        """Coordinate swarm action using Active Inference."""
+        # Update Active Inference model with observation
+        self.act_model.update_beliefs(observation)
+        
+        # Generate action for each agent
+        actions = {}
+        for agent in self.population.get_agents():
+            # Agent uses Active Inference for decision making
+            action = self.act_model.sample_action()
+            actions[agent.agent_id] = action
+            
+            # Send action to agent via messaging
+            self.messaging.send_message(
+                agent.agent_id,
+                {'action': action, 'beliefs': self.act_model.get_beliefs()}
+            )
+        
+        return actions
+
+# Usage
+swarm = IntelligentSwarmSystem(num_agents=5)
+actions = swarm.coordinate_swarm_action(observation_data)
+```
+
+**Key Benefits:**
+- Intelligent decision-making using Active Inference
+- Coordinated multi-agent behavior
+- Swarm intelligence for complex tasks
+- Scalable agent communication
+
+**See Also:** `GEO-INFER-TEST/tests/integration/test_act_agent_ant_coordination.py`
+
+### Pattern 6: AI-Enhanced Domain Analysis (AI + SPACE + Domains)
+
+This pattern demonstrates applying AI/ML models to spatial data for domain-specific analysis in agriculture, health, and economics.
+
+```python
+from geo_infer_ai.core.training import ModelTrainer
+from geo_infer_ai.models.predictive.spatial_predictor import SpatialPredictor
+from geo_infer_ai.preprocessing.feature_engineering import GeospatialFeatureEngineer
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+from geo_infer_space.core.analytics import SpatialAnalyticsInterface
+from geo_infer_ag.core.agricultural import AgriculturalAnalysis
+from geo_infer_ag.models.crop_yield import CropYieldModel
+
+class AIEnhancedAgriculturalAnalysis:
+    """AI-enhanced agricultural analysis using SPACE and AG modules."""
+    
+    def __init__(self):
+        self.spatial_indexer = SpatialIndexingInterface(backend='h3')
+        self.spatial_analytics = SpatialAnalyticsInterface(backend='srai')
+        self.feature_engineer = GeospatialFeatureEngineer()
+        self.ag_analyzer = AgriculturalAnalysis()
+        self.crop_model = CropYieldModel(crop_type='corn')
+    
+    def predict_crop_yield(self, field_data: gpd.GeoDataFrame):
+        """Predict crop yield using AI + spatial analysis."""
+        # Step 1: Spatial feature engineering
+        field_data['h3_cell'] = field_data.apply(
+            lambda row: self.spatial_indexer.latlng_to_cell(
+                row.geometry.y, row.geometry.x, resolution=10
+            ), axis=1
+        )
+        
+        # Step 2: Extract spatial features
+        spatial_features = self.feature_engineer.extract_spatial_features(
+            field_data,
+            include_neighbors=True,
+            include_distances=True
+        )
+        
+        # Step 3: Apply AI model
+        predictor = SpatialPredictor(
+            model_type='random_forest',
+            spatial_features=True
+        )
+        
+        # Step 4: Train and predict
+        X = spatial_features
+        y = field_data['yield_actual']
+        
+        predictor.train(X, y)
+        predictions = predictor.predict(X)
+        
+        # Step 5: Domain-specific analysis
+        yield_analysis = self.ag_analyzer.analyze_yield_patterns(
+            field_data,
+            predictions
+        )
+        
+        return {
+            'predictions': predictions,
+            'analysis': yield_analysis,
+            'model_metrics': predictor.evaluate(X, y)
+        }
+
+# Usage
+analyzer = AIEnhancedAgriculturalAnalysis()
+results = analyzer.predict_crop_yield(agricultural_field_data)
+```
+
+**Key Benefits:**
+- AI/ML models applied to geospatial data
+- Domain-specific insights and analysis
+- Spatial feature engineering
+- End-to-end predictive workflows
+
+**See Also:** `GEO-INFER-TEST/tests/integration/test_ai_space_domain_integration.py`
+
+### Pattern 7: Security-First Application Architecture (SEC + API + APP)
+
+This pattern demonstrates secure application architecture with integrated authentication, authorization, and API management.
+
+```python
+from geo_infer_sec.core.security import SecurityManager
+from geo_infer_sec.core.authentication import AuthenticationManager
+from geo_infer_api.app import create_app
+from geo_infer_api.core.gateway import APIGateway
+from geo_infer_app.models.agent_interface import AgentInterface
+from geo_infer_app.components.dashboard import DashboardComponent
+
+class SecureApplicationSystem:
+    """Secure application system with integrated security."""
+    
+    def __init__(self):
+        # Initialize security
+        self.security = SecurityManager(
+            config={
+                'authentication_method': 'jwt',
+                'authorization_model': 'rbac',
+                'encryption_enabled': True
+            }
+        )
+        
+        self.auth = AuthenticationManager(method='jwt')
+        
+        # Initialize API with security
+        self.api_app = create_app(
+            title="GEO-INFER API",
+            version="1.0.0",
+            security_manager=self.security
+        )
+        
+        self.api_gateway = APIGateway(
+            app=self.api_app,
+            security_manager=self.security
+        )
+        
+        # Initialize application components
+        self.dashboard = DashboardComponent(
+            api_gateway=self.api_gateway
+        )
+    
+    def authenticate_request(self, credentials):
+        """Authenticate API request."""
+        token = self.auth.authenticate(credentials)
+        return token
+    
+    def authorize_action(self, token, action, resource):
+        """Authorize action on resource."""
+        user = self.auth.validate_token(token)
+        return self.security.authorize(user, action, resource)
+    
+    def secure_api_call(self, endpoint, data, token):
+        """Make secure API call with authentication."""
+        # Validate token
+        if not self.auth.validate_token(token):
+            raise ValueError("Invalid token")
+        
+        # Authorize action
+        if not self.authorize_action(token, 'read', endpoint):
+            raise PermissionError("Unauthorized")
+        
+        # Make API call through gateway
+        response = self.api_gateway.request(
+            endpoint=endpoint,
+            data=data,
+            headers={'Authorization': f'Bearer {token}'}
+        )
+        
+        return response
+
+# Usage
+system = SecureApplicationSystem()
+token = system.authenticate_request({'username': 'user', 'password': 'pass'})
+result = system.secure_api_call('/api/data', {}, token)
+```
+
+**Key Benefits:**
+- End-to-end security integration
+- Secure API access patterns
+- Authentication and authorization
+- Audit logging and monitoring
+
+**See Also:** `GEO-INFER-TEST/tests/integration/test_sec_api_app_security.py`
+
 ## 📚 Additional Resources
 
 ### Tutorials
@@ -786,3 +1096,24 @@ ai_config = config_manager.get_module_configuration('geo-infer-ai')
 ---
 
 *Last updated: 2025-01-19 | Framework Version: 1.0.0*
+
+## 🧪 Integration Testing
+
+All integration patterns are validated through comprehensive integration tests in `GEO-INFER-TEST/tests/integration/`:
+
+- **`test_space_time_data_integration.py`**: SPACE + TIME + DATA workflows
+- **`test_act_agent_ant_coordination.py`**: ACT + AGENT + ANT coordination
+- **`test_ai_space_domain_integration.py`**: AI + SPACE + domain modules
+- **`test_sec_api_app_security.py`**: SEC + API + APP security flows
+
+These tests use real implementations (no mocks) and validate:
+- Module interoperability
+- Data flow between modules
+- Error handling and edge cases
+- Performance characteristics
+
+Run integration tests:
+```bash
+cd GEO-INFER-TEST
+python -m pytest tests/integration/ -v
+```

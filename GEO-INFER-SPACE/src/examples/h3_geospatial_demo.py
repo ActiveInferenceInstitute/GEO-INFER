@@ -61,7 +61,7 @@ try:
     HAS_GEO_DEPS = True
 except ImportError as e:
     logger.error(f"Missing geospatial dependencies: {e}")
-    logger.error("Please install: pip install folium h3 geopandas shapely")
+    logger.error("Please install: uv pip install folium h3 geopandas shapely")
     HAS_GEO_DEPS = False
 
 
@@ -573,7 +573,7 @@ def main():
     
     if not HAS_GEO_DEPS:
         logger.error("❌ Missing required geospatial dependencies")
-        logger.error("Please install: pip install folium h3 geopandas shapely matplotlib seaborn")
+        logger.error("Please install: uv pip install folium h3 geopandas shapely matplotlib seaborn")
         return False
     
     # Initialize demo

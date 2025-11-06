@@ -1021,72 +1021,332 @@ class SwarmPatternAnalyzer:
     def _calculate_mutual_information(self, individual_behaviors: List[Dict[str, Any]], collective_outcomes: Dict[str, Any]) -> Dict[str, Any]:
         """Calculate mutual information between individual and collective behaviors."""
         try:
-            # Simplified mutual information calculation
-            # In practice, would use proper information theory methods
-
-            # Extract behavior patterns
-            individual_patterns = []
+            # Extract behavior patterns as numerical values
+            individual_values = []
             for behavior in individual_behaviors:
-                pattern = behavior.get('action_type', 'unknown')
-                individual_patterns.append(pattern)
+                # Extract numerical features from behavior
+                if 'action_type' in behavior:
+                    # Convert action type to numerical value
+                    action_type = behavior['action_type']
+                    action_map = {'forage': 0, 'explore': 1, 'communicate': 2, 'rest': 3, 'defend': 4}
+                    individual_values.append(action_map.get(action_type, 0))
+                elif 'value' in behavior:
+                    individual_values.append(float(behavior['value']))
+                else:
+                    individual_values.append(0.0)
 
-            # Extract collective outcomes
-            collective_patterns = []
+            # Extract collective outcome values
+            collective_values = []
             for outcome_type, outcome_data in collective_outcomes.items():
-                pattern = outcome_type
-                collective_patterns.append(pattern)
+                if isinstance(outcome_data, dict):
+                    # Extract numerical value from outcome
+                    value = outcome_data.get('value', outcome_data.get('score', 0.0))
+                    collective_values.append(float(value))
+                elif isinstance(outcome_data, (int, float)):
+                    collective_values.append(float(outcome_data))
+                else:
+                    collective_values.append(0.0)
 
-            # Calculate mutual information (simplified)
-            # This is a placeholder - would use actual MI calculation
-            mi_score = 0.5  # Placeholder value
+            if len(individual_values) < 2 or len(collective_values) < 2:
+                return {
+                    'mutual_information_score': 0.0,
+                    'interpretation': 'insufficient_data'
+                }
+
+            # Align lengths (take minimum)
+            min_len = min(len(individual_values), len(collective_values))
+            individual_values = np.array(individual_values[:min_len])
+            collective_values = np.array(collective_values[:min_len])
+
+            # Discretize for mutual information calculation
+            # Use quantile-based binning
+            n_bins = min(10, int(np.sqrt(len(individual_values))))
+            if n_bins < 2:
+                n_bins = 2
+
+            individual_binned = np.digitize(individual_values, np.linspace(
+                np.min(individual_values), np.max(individual_values), n_bins
+            ))
+            collective_binned = np.digitize(collective_values, np.linspace(
+                np.min(collective_values), np.max(collective_values), n_bins
+            ))
+
+            # Calculate mutual information using scikit-learn
+            try:
+                from sklearn.metrics import mutual_info_score
+                mi_score = mutual_info_score(individual_binned, collective_binned)
+                # Normalize by minimum entropy (normalized mutual information)
+                entropy_individual = self._calculate_entropy(individual_binned)
+                entropy_collective = self._calculate_entropy(collective_binned)
+                min_entropy = min(entropy_individual, entropy_collective)
+                normalized_mi = mi_score / min_entropy if min_entropy > 0 else 0.0
+                mi_score = min(1.0, normalized_mi)  # Normalize to [0, 1]
+            except ImportError:
+                # Fallback: calculate MI manually
+                mi_score = self._calculate_mutual_information_manual(individual_binned, collective_binned)
 
             return {
-                'mutual_information_score': mi_score,
-                'interpretation': 'high' if mi_score > 0.7 else 'medium' if mi_score > 0.3 else 'low'
+                'mutual_information_score': float(mi_score),
+                'interpretation': 'high' if mi_score > 0.7 else 'medium' if mi_score > 0.3 else 'low',
+                'entropy_individual': float(entropy_individual) if 'entropy_individual' in locals() else 0.0,
+                'entropy_collective': float(entropy_collective) if 'entropy_collective' in locals() else 0.0
             }
 
         except Exception as e:
             logger.warning(f"Mutual information calculation failed: {e}")
             return {'status': 'calculation_failed', 'error': str(e)}
 
-    def _calculate_transfer_entropy(self, individual_behaviors: List[Dict[str, Any]], collective_outcomes: Dict[str, Any]) -> Dict[str, Any]:
-        """Calculate transfer entropy between behaviors and outcomes."""
-        try:
-            # Simplified transfer entropy calculation
-            # In practice, would use proper transfer entropy methods
+    def _calculate_entropy(self, values: np.ndarray) -> float:
+        """Calculate Shannon entropy of discrete values."""
+        if len(values) == 0:
+            return 0.0
+        
+        # Count frequencies
+        unique, counts = np.unique(values, return_counts=True)
+        probabilities = counts / len(values)
+        
+        # Calculate entropy
+        entropy = -np.sum(probabilities * np.log2(probabilities + 1e-10))
+        return entropy
 
-            te_score = 0.3  # Placeholder value
+    def _calculate_mutual_information_manual(self, x: np.ndarray, y: np.ndarray) -> float:
+        """Calculate mutual information manually."""
+        # Create joint distribution
+        unique_x, counts_x = np.unique(x, return_counts=True)
+        unique_y, counts_y = np.unique(y, return_counts=True)
+        
+        # Joint probability
+        joint_counts = np.zeros((len(unique_x), len(unique_y)))
+        for i, val_x in enumerate(unique_x):
+            for j, val_y in enumerate(unique_y):
+                joint_counts[i, j] = np.sum((x == val_x) & (y == val_y))
+        
+        joint_prob = joint_counts / len(x)
+        prob_x = counts_x / len(x)
+        prob_y = counts_y / len(y)
+        
+        # Calculate MI
+        mi = 0.0
+        for i in range(len(unique_x)):
+            for j in range(len(unique_y)):
+                if joint_prob[i, j] > 0 and prob_x[i] > 0 and prob_y[j] > 0:
+                    mi += joint_prob[i, j] * np.log2(joint_prob[i, j] / (prob_x[i] * prob_y[j]))
+        
+        return max(0.0, mi)
+
+    def _calculate_transfer_entropy(self, individual_behaviors: List[Dict[str, Any]], collective_outcomes: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Calculate transfer entropy between behaviors and outcomes.
+        
+        Transfer entropy measures the directed information flow from individual behaviors
+        to collective outcomes, accounting for the history of both processes.
+        """
+        try:
+            # Extract time series from behaviors
+            behavior_series = []
+            for behavior in individual_behaviors:
+                if 'value' in behavior:
+                    behavior_series.append(float(behavior['value']))
+                elif 'action_type' in behavior:
+                    action_map = {'forage': 0, 'explore': 1, 'communicate': 2, 'rest': 3, 'defend': 4}
+                    behavior_series.append(float(action_map.get(behavior['action_type'], 0)))
+                else:
+                    behavior_series.append(0.0)
+
+            # Extract time series from outcomes
+            outcome_series = []
+            for outcome_type, outcome_data in collective_outcomes.items():
+                if isinstance(outcome_data, dict):
+                    outcome_series.append(float(outcome_data.get('value', outcome_data.get('score', 0.0))))
+                elif isinstance(outcome_data, (int, float)):
+                    outcome_series.append(float(outcome_data))
+                else:
+                    outcome_series.append(0.0)
+
+            if len(behavior_series) < 5 or len(outcome_series) < 5:
+                return {
+                    'transfer_entropy_score': 0.0,
+                    'interpretation': 'insufficient_data'
+                }
+
+            # Align series
+            min_len = min(len(behavior_series), len(outcome_series))
+            behavior_series = np.array(behavior_series[:min_len])
+            outcome_series = np.array(outcome_series[:min_len])
+
+            # Discretize for transfer entropy
+            n_bins = min(5, int(np.sqrt(len(behavior_series))))
+            if n_bins < 2:
+                n_bins = 2
+
+            behavior_binned = np.digitize(behavior_series, np.linspace(
+                np.min(behavior_series), np.max(behavior_series), n_bins
+            ))
+            outcome_binned = np.digitize(outcome_series, np.linspace(
+                np.min(outcome_series), np.max(outcome_series), n_bins
+            ))
+
+            # Calculate transfer entropy with history length k=1
+            k = 1  # History length
+            te_score = self._compute_transfer_entropy(behavior_binned, outcome_binned, k)
+
+            # Normalize by outcome entropy
+            outcome_entropy = self._calculate_entropy(outcome_binned)
+            normalized_te = te_score / outcome_entropy if outcome_entropy > 0 else 0.0
+            normalized_te = min(1.0, normalized_te)
 
             return {
-                'transfer_entropy_score': te_score,
-                'interpretation': 'high' if te_score > 0.5 else 'medium' if te_score > 0.2 else 'low'
+                'transfer_entropy_score': float(normalized_te),
+                'raw_transfer_entropy': float(te_score),
+                'interpretation': 'high' if normalized_te > 0.5 else 'medium' if normalized_te > 0.2 else 'low'
             }
 
         except Exception as e:
             logger.warning(f"Transfer entropy calculation failed: {e}")
             return {'status': 'calculation_failed', 'error': str(e)}
 
+    def _compute_transfer_entropy(self, x: np.ndarray, y: np.ndarray, k: int = 1) -> float:
+        """
+        Compute transfer entropy from X to Y.
+        
+        TE(X->Y) = H(Y_t | Y_{t-k}) - H(Y_t | Y_{t-k}, X_{t-k})
+        """
+        if len(x) < k + 1 or len(y) < k + 1:
+            return 0.0
+
+        # Create sequences with history
+        y_future = y[k:]
+        y_past = y[:-k] if k == 1 else np.array([y[i:i+k] for i in range(len(y)-k)])
+        x_past = x[:-k] if k == 1 else np.array([x[i:i+k] for i in range(len(x)-k)])
+
+        # Calculate conditional entropies
+        # H(Y_t | Y_{t-k})
+        h_y_given_y_past = self._conditional_entropy(y_future, y_past)
+
+        # H(Y_t | Y_{t-k}, X_{t-k})
+        # Combine past states
+        if k == 1:
+            combined_past = np.column_stack([y_past, x_past])
+        else:
+            combined_past = np.column_stack([y_past.flatten(), x_past.flatten()])
+        
+        h_y_given_yx_past = self._conditional_entropy(y_future, combined_past)
+
+        # Transfer entropy
+        te = h_y_given_y_past - h_y_given_yx_past
+        return max(0.0, te)
+
+    def _conditional_entropy(self, y: np.ndarray, x: np.ndarray) -> float:
+        """Calculate conditional entropy H(Y|X)."""
+        if len(y) != len(x):
+            return 0.0
+
+        # Create joint distribution
+        if x.ndim == 1:
+            x_reshaped = x.reshape(-1, 1)
+        else:
+            x_reshaped = x
+
+        # Discretize for discrete entropy calculation
+        # Use unique combinations
+        unique_combinations = {}
+        for i in range(len(y)):
+            x_key = tuple(x_reshaped[i]) if x_reshaped.ndim > 1 else (x_reshaped[i],)
+            if x_key not in unique_combinations:
+                unique_combinations[x_key] = []
+            unique_combinations[x_key].append(y[i])
+
+        # Calculate weighted conditional entropy
+        conditional_entropy = 0.0
+        for x_key, y_values in unique_combinations.items():
+            p_x = len(y_values) / len(y)
+            h_y_given_x = self._calculate_entropy(np.array(y_values))
+            conditional_entropy += p_x * h_y_given_x
+
+        return conditional_entropy
+
     def _calculate_fractal_dimension(self, individual_behaviors: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Calculate fractal dimension of behavior patterns."""
+        """
+        Calculate fractal dimension of behavior patterns using box-counting method.
+        
+        Implements the box-counting algorithm for estimating fractal dimension
+        of spatial patterns in swarm behavior.
+        """
         try:
             # Extract spatial positions from behaviors
             positions = []
             for behavior in individual_behaviors:
                 if 'position' in behavior:
-                    positions.append(behavior['position'])
+                    pos = behavior['position']
+                    if isinstance(pos, (list, np.ndarray)) and len(pos) >= 2:
+                        positions.append([float(pos[0]), float(pos[1])])
 
             if len(positions) < 3:
                 return {'status': 'insufficient_data'}
 
             positions = np.array(positions)
 
-            # Simplified fractal dimension calculation using box-counting
-            # In practice, would use proper fractal analysis
-            fractal_dim = 1.5  # Placeholder value
+            # Box-counting method for fractal dimension
+            # Use multiple box sizes
+            min_pos = np.min(positions, axis=0)
+            max_pos = np.max(positions, axis=0)
+            range_size = max(max_pos - min_pos)
+            
+            if range_size == 0:
+                return {'fractal_dimension': 0.0, 'interpretation': 'degenerate'}
+
+            # Box sizes (powers of 2)
+            box_sizes = []
+            box_counts = []
+            
+            max_box_size = range_size
+            min_box_size = range_size / 100.0  # At least 100 boxes
+            
+            current_size = max_box_size
+            while current_size >= min_box_size and len(box_sizes) < 10:
+                # Count boxes containing points
+                n_boxes_x = int(np.ceil((max_pos[0] - min_pos[0]) / current_size))
+                n_boxes_y = int(np.ceil((max_pos[1] - min_pos[1]) / current_size))
+                
+                if n_boxes_x == 0 or n_boxes_y == 0:
+                    break
+                
+                # Create grid and count occupied boxes
+                occupied_boxes = set()
+                for pos in positions:
+                    box_x = int((pos[0] - min_pos[0]) / current_size)
+                    box_y = int((pos[1] - min_pos[1]) / current_size)
+                    occupied_boxes.add((box_x, box_y))
+                
+                box_sizes.append(current_size)
+                box_counts.append(len(occupied_boxes))
+                
+                current_size /= 2.0
+
+            if len(box_sizes) < 2:
+                # Fallback: simple estimate
+                fractal_dim = 1.0
+            else:
+                # Fit log-log relationship: log(N) = -D * log(ε) + C
+                log_sizes = np.log(box_sizes)
+                log_counts = np.log(box_counts)
+                
+                # Linear regression
+                if len(log_sizes) > 1:
+                    # Use numpy polyfit
+                    coeffs = np.polyfit(log_sizes, log_counts, 1)
+                    fractal_dim = -coeffs[0]  # Negative slope
+                else:
+                    fractal_dim = 1.0
+
+            # Clamp to reasonable range [0, 2] for 2D patterns
+            fractal_dim = max(0.0, min(2.0, fractal_dim))
 
             return {
-                'fractal_dimension': fractal_dim,
-                'interpretation': 'complex' if fractal_dim > 1.5 else 'simple'
+                'fractal_dimension': float(fractal_dim),
+                'interpretation': 'complex' if fractal_dim > 1.5 else 'moderate' if fractal_dim > 1.0 else 'simple',
+                'box_sizes': box_sizes,
+                'box_counts': box_counts
             }
 
         except Exception as e:
@@ -1094,25 +1354,104 @@ class SwarmPatternAnalyzer:
             return {'status': 'calculation_failed', 'error': str(e)}
 
     def _calculate_lyapunov_exponents(self, individual_behaviors: List[Dict[str, Any]]) -> Dict[str, Any]:
-        """Calculate Lyapunov exponents for chaos analysis."""
+        """
+        Calculate Lyapunov exponents for chaos analysis.
+        
+        Uses a simplified approach to estimate the maximum Lyapunov exponent
+        from behavior time series data.
+        """
         try:
-            # Extract temporal behavior sequences
-            behavior_sequences = []
+            # Extract temporal behavior sequences as numerical values
+            behavior_values = []
+            timestamps = []
+            
             for behavior in individual_behaviors:
-                if 'timestamp' in behavior and 'action_type' in behavior:
-                    behavior_sequences.append((behavior['timestamp'], behavior['action_type']))
+                if 'value' in behavior:
+                    behavior_values.append(float(behavior['value']))
+                    timestamps.append(behavior.get('timestamp', datetime.now()))
+                elif 'action_type' in behavior:
+                    action_map = {'forage': 0, 'explore': 1, 'communicate': 2, 'rest': 3, 'defend': 4}
+                    behavior_values.append(float(action_map.get(behavior['action_type'], 0)))
+                    timestamps.append(behavior.get('timestamp', datetime.now()))
 
-            if len(behavior_sequences) < 10:
+            if len(behavior_values) < 10:
                 return {'status': 'insufficient_data'}
 
-            # Simplified Lyapunov exponent calculation
-            # In practice, would use proper chaos analysis methods
-            lyapunov_exp = 0.1  # Placeholder value
+            behavior_values = np.array(behavior_values)
+
+            # Simplified Lyapunov exponent estimation
+            # Method: Track divergence of nearby trajectories
+            # For simplicity, use phase space reconstruction with delay embedding
+            
+            # Create delay embedding (embedding dimension = 3, delay = 1)
+            embedding_dim = 3
+            delay = 1
+            
+            if len(behavior_values) < embedding_dim + delay:
+                return {'status': 'insufficient_data'}
+
+            # Create phase space vectors
+            phase_space = []
+            for i in range(len(behavior_values) - (embedding_dim - 1) * delay):
+                vector = [behavior_values[i + j * delay] for j in range(embedding_dim)]
+                phase_space.append(vector)
+            
+            phase_space = np.array(phase_space)
+
+            if len(phase_space) < 5:
+                return {'status': 'insufficient_data'}
+
+            # Find nearest neighbors and track divergence
+            divergences = []
+            max_iterations = min(20, len(phase_space) - 1)
+            
+            for i in range(min(10, len(phase_space) - max_iterations)):
+                # Find nearest neighbor
+                distances = np.linalg.norm(phase_space - phase_space[i], axis=1)
+                distances[i] = np.inf  # Exclude self
+                nearest_idx = np.argmin(distances)
+                
+                if nearest_idx >= len(phase_space) - 1:
+                    continue
+                
+                # Track divergence over time
+                initial_distance = distances[nearest_idx]
+                if initial_distance < 1e-10:
+                    continue
+                
+                for j in range(1, min(max_iterations, len(phase_space) - max(nearest_idx, i))):
+                    if i + j >= len(phase_space) or nearest_idx + j >= len(phase_space):
+                        break
+                    
+                    current_distance = np.linalg.norm(phase_space[i + j] - phase_space[nearest_idx + j])
+                    
+                    if current_distance > 0 and initial_distance > 0:
+                        divergence_rate = np.log(current_distance / initial_distance) / j
+                        if np.isfinite(divergence_rate):
+                            divergences.append(divergence_rate)
+
+            if len(divergences) == 0:
+                # Fallback: estimate from variance growth
+                if len(behavior_values) > 5:
+                    first_half_var = np.var(behavior_values[:len(behavior_values)//2])
+                    second_half_var = np.var(behavior_values[len(behavior_values)//2:])
+                    if first_half_var > 0:
+                        growth_rate = np.log(second_half_var / first_half_var) / (len(behavior_values) / 2)
+                        lyapunov_exp = max(0.0, growth_rate / 2.0)  # Simplified estimate
+                    else:
+                        lyapunov_exp = 0.0
+                else:
+                    lyapunov_exp = 0.0
+            else:
+                # Average divergence rate
+                lyapunov_exp = np.mean(divergences)
+                lyapunov_exp = max(0.0, lyapunov_exp)  # Ensure non-negative for this simplified method
 
             return {
-                'max_lyapunov_exponent': lyapunov_exp,
-                'chaos_detected': lyapunov_exp > 0,
-                'predictability': 'low' if lyapunov_exp > 0.1 else 'high'
+                'max_lyapunov_exponent': float(lyapunov_exp),
+                'chaos_detected': lyapunov_exp > 0.1,  # Threshold for chaos
+                'predictability': 'low' if lyapunov_exp > 0.1 else 'medium' if lyapunov_exp > 0.05 else 'high',
+                'divergence_samples': len(divergences)
             }
 
         except Exception as e:

@@ -12,14 +12,27 @@ __email__ = "geo-infer@activeinference.institute"
 
 # Import core security components
 try:
-    from .core.cognitive_security import CognitiveSecurity
-    from .core.privacy_framework import PrivacyFramework
+    from .core.authentication import AuthenticationManager, UserCredentials, TokenInfo
+    from .core.authorization import GeospatialAccessManager, Role, SpatialPermission
+    from .core.encryption import GeospatialEncryption
+    from .core.audit import AuditLogger, AuditEvent, AuditEventType, AuditEventSeverity
+    from .core.access_control import GeospatialAccessManager as AccessManager
     from .models.security_models import SecurityEvent, ThreatLevel
     from .utils.security_utils import SecurityUtils
     
     __all__ = [
-        'CognitiveSecurity',
-        'PrivacyFramework',
+        'AuthenticationManager',
+        'UserCredentials',
+        'TokenInfo',
+        'GeospatialAccessManager',
+        'AccessManager',
+        'Role',
+        'SpatialPermission',
+        'GeospatialEncryption',
+        'AuditLogger',
+        'AuditEvent',
+        'AuditEventType',
+        'AuditEventSeverity',
         'SecurityEvent',
         'ThreatLevel',
         'SecurityUtils'
