@@ -6,12 +6,24 @@ from geo_infer_time.core.stream_processing import StreamProcessor
 from geo_infer_time.core.interpolation import TemporalInterpolator
 from geo_infer_time.core.event_detection import EventDetector
 
-__all__ = [
-    "TemporalAnalyzer",
-    "ForecastingEngine",
-    "StreamProcessor",
-    "TemporalInterpolator",
-    "EventDetector",
-]
+# Advanced forecasting (optional dependency)
+try:
+    from geo_infer_time.core.advanced_forecasting import AdvancedForecastingEngine
+    __all__ = [
+        "TemporalAnalyzer",
+        "ForecastingEngine",
+        "AdvancedForecastingEngine",
+        "StreamProcessor",
+        "TemporalInterpolator",
+        "EventDetector",
+    ]
+except ImportError:
+    __all__ = [
+        "TemporalAnalyzer",
+        "ForecastingEngine",
+        "StreamProcessor",
+        "TemporalInterpolator",
+        "EventDetector",
+    ]
 
 

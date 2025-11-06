@@ -1,4 +1,6 @@
-"""Core forest analysis modules."""
+"""
+Core forest management and analysis modules.
+"""
 
 from .forest_inventory import ForestInventory
 from .carbon_sequestration import CarbonSequestrationModeler
@@ -11,4 +13,3 @@ __all__ = [
     "WildfireRiskAnalyzer",
     "ForestHealthMonitor",
 ]
-

@@ -20,67 +20,119 @@ from .growth_models import (
     TechnologyDiffusionModels
 )
 
-# Placeholder classes for modules not yet implemented
+# Stub classes for modules not yet implemented
+import logging
+from typing import Dict, Any, Optional
+
+logger = logging.getLogger(__name__)
+
+
 class AggregateGrowthModels:
-    """Main aggregate growth modeling class."""
-    pass
+    """
+    Aggregate growth modeling.
+    
+    Status: Stub implementation - full implementation pending.
+    """
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """Initialize aggregate growth models."""
+        self.config = config or {}
+        logger.warning("AggregateGrowthModels is a stub implementation")
+    
+    def model_growth(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Model aggregate growth."""
+        raise NotImplementedError("AggregateGrowthModels.model_growth not yet implemented")
+
 
 class BusinessCycleModels:
-    """Main business cycle modeling class."""
-    pass
+    """
+    Business cycle modeling.
+    
+    Status: Stub implementation - full implementation pending.
+    """
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """Initialize business cycle models."""
+        self.config = config or {}
+        logger.warning("BusinessCycleModels is a stub implementation")
+    
+    def model_cycles(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Model business cycles."""
+        raise NotImplementedError("BusinessCycleModels.model_cycles not yet implemented")
+
 
 class MonetaryPolicyModels:
-    """Main monetary policy modeling class."""
-    pass
+    """
+    Monetary policy modeling.
+    
+    Status: Stub implementation - full implementation pending.
+    """
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """Initialize monetary policy models."""
+        self.config = config or {}
+        logger.warning("MonetaryPolicyModels is a stub implementation")
+    
+    def model_policy(self, policy_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Model monetary policy."""
+        raise NotImplementedError("MonetaryPolicyModels.model_policy not yet implemented")
+
 
 class FiscalPolicyModels:
-    """Main fiscal policy modeling class."""
-    pass
+    """
+    Fiscal policy modeling.
+    
+    Status: Stub implementation - full implementation pending.
+    """
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """Initialize fiscal policy models."""
+        self.config = config or {}
+        logger.warning("FiscalPolicyModels is a stub implementation")
+    
+    def model_fiscal_policy(self, policy_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Model fiscal policy."""
+        raise NotImplementedError("FiscalPolicyModels.model_fiscal_policy not yet implemented")
+
 
 class TradeModels:
-    """Main trade modeling class."""
-    pass
+    """
+    International trade modeling.
+    
+    Status: Stub implementation - full implementation pending.
+    """
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """Initialize trade models."""
+        self.config = config or {}
+        logger.warning("TradeModels is a stub implementation")
+    
+    def model_trade(self, trade_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Model international trade."""
+        raise NotImplementedError("TradeModels.model_trade not yet implemented")
+
 
 __all__ = [
-    # Growth Models
+    # Growth Models (implemented)
+    'RegionProfile',
     'SolowGrowthModel',
     'EndogenousGrowthModels',
     'SpatialGrowthModels',
     'RegionalConvergenceAnalysis',
     'TechnologyDiffusionModels',
     
-    # Business Cycles
-    'DSGEModels',
-    'RealBusinessCycleModels', 
-    'NewKeynesianModels',
-    'SpatialBusinessCycles',
-    'RegionalSynchronization',
+    # Aggregate Growth (stub)
+    'AggregateGrowthModels',
     
-    # Monetary Policy
-    'MonetaryPolicyRules',
-    'InflationTargeting',
-    'ExchangeRateModels',
-    'SpatialMonetaryTransmission',
-    'RegionalMonetaryEffects',
+    # Business Cycles (stub)
+    'BusinessCycleModels',
     
-    # Fiscal Policy
-    'FiscalMultiplierModels',
-    'DebtSustainabilityAnalysis',
-    'SpatialFiscalPolicy',
-    'IntergovernmentalTransfers',
-    'TaxCompetitionModels',
+    # Monetary Policy (stub)
+    'MonetaryPolicyModels',
     
-    # International Trade
-    'GravityModels',
-    'TradeCreationDiversion',
-    'SpatialTradeModels', 
-    'RegionalTradeAgreements',
-    'GlobalValueChains',
+    # Fiscal Policy (stub)
+    'FiscalPolicyModels',
     
-    # Spatial Macroeconomics
-    'MultiRegionalModels',
-    'SpatialEquilibriumMacro',
-    'RegionalInterdependence',
-    'SpatialShockTransmission',
-    'MacroeconomicGeography'
+    # International Trade (stub)
+    'TradeModels',
 ] 

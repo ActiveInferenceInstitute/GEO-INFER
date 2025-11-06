@@ -1,4 +1,6 @@
-"""Core marine analysis modules."""
+"""
+Core marine and oceanographic analysis modules.
+"""
 
 from .oceanographic_data import OceanographicDataProcessor
 from .coastal_analysis import CoastalAnalyzer
@@ -13,4 +15,3 @@ __all__ = [
     "SeaLevelAnalyzer",
     "MarineSpatialPlanner",
 ]
-
