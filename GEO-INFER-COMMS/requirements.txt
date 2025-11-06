@@ -1,7 +1,3 @@
-# Core dependencies for GEO-INFER-COMMS
+# GEO-INFER-COMMS Requirements
 fastapi>=0.68.0
 pydantic>=1.8.0
-# Additional dependencies
-uvicorn>=0.15.0
-websockets>=10.0
-

@@ -1,3 +1,2 @@
-# Core dependencies for GEO-INFER-REQ
+# GEO-INFER-REQ Requirements
 pydantic>=1.8.0
-
