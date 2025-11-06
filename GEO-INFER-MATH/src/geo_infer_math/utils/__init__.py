@@ -5,6 +5,34 @@ This package provides helper functions, data conversion tools, and other utiliti
 that support the core mathematical operations and models.
 """
 
+# Import new utility modules
+try:
+    from geo_infer_math.utils.caching import (
+        cache_result,
+        ComputationCache,
+    )
+    _caching_available = True
+except ImportError:
+    _caching_available = False
+
+try:
+    from geo_infer_math.utils.exceptions import (
+        MathError,
+        NumericalError as NewNumericalError,
+        ConvergenceError as NewConvergenceError,
+        SingularMatrixError,
+        TheoremProvingError,
+        ProofVerificationError,
+        InformationTheoryError,
+        InvalidDistributionError,
+        SpatialError,
+        CoordinateError,
+        GeometryError,
+    )
+    _exceptions_available = True
+except ImportError:
+    _exceptions_available = False
+
 # Import available utilities
 try:
     from geo_infer_math.utils import validation
@@ -38,6 +66,44 @@ except ImportError:
 
 # Build __all__ list based on available modules
 __all__ = []
+
+# Add new utility exports
+if _caching_available:
+    __all__.extend(["cache_result", "ComputationCache"])
+
+if _exceptions_available:
+    __all__.extend([
+        "MathError",
+        "NewNumericalError",
+        "NewConvergenceError",
+        "SingularMatrixError",
+        "TheoremProvingError",
+        "ProofVerificationError",
+        "InformationTheoryError",
+        "InvalidDistributionError",
+        "SpatialError",
+        "CoordinateError",
+        "GeometryError",
+    ])
+
+# Try to import new validation functions
+try:
+    from geo_infer_math.utils.validation import (
+        validate_probabilities,
+        validate_coordinates as validate_coordinates_new,
+        validate_numerical,
+        validate_shape,
+        validate_range,
+    )
+    __all__.extend([
+        "validate_probabilities",
+        "validate_coordinates_new",
+        "validate_numerical",
+        "validate_shape",
+        "validate_range",
+    ])
+except ImportError:
+    pass
 
 # Import functions from available modules
 if _validation_available:

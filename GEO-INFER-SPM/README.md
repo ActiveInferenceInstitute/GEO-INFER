@@ -3,7 +3,7 @@ title: "GEO-INFER-SPM: Statistical Parametric Mapping"
 description: "Statistical parametric mapping methodology adapted for geospatial analysis to identify significant patterns in spatial-temporal data"
 purpose: "Provide statistical tools for analyzing spatially continuous data fields while preserving spatiotemporal relationships"
 module_type: "Analytical Core"
-status: "Alpha"
+status: "Beta"
 last_updated: "2025-01-19"
 dependencies: ["MATH", "SPACE"]
 compatibility: ["GEO-INFER-MATH", "GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-HEALTH"]

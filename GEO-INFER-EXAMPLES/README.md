@@ -121,6 +121,58 @@ examples/getting_started/
 └── visualization_fundamentals/       # APP + SPACE + TIME + ART
 ```
 
+### 🎯 Module Orchestrators (33 Modules)
+```
+examples/module_orchestrators/
+├── ACT/          # Active Inference
+├── AG/           # Agriculture
+├── AI/           # Artificial Intelligence
+├── AGENT/        # Intelligent Agents
+├── ANT/          # Complex Systems
+├── API/          # API Services
+├── APP/          # Applications
+├── ART/          # Artistic Expression
+├── BAYES/        # Bayesian Inference
+├── BIO/          # Bioinformatics
+├── CIV/          # Civic Engagement
+├── COG/          # Cognitive Modeling
+├── COMMS/        # Communications
+├── DATA/         # Data Management
+├── ECON/         # Economics
+├── GIT/          # Version Control
+├── HEALTH/       # Health Applications
+├── INTRA/        # Documentation
+├── IOT/          # IoT Integration
+├── MATH/         # Mathematical Foundations
+├── NORMS/        # Compliance
+├── OPS/          # Operations
+├── ORG/          # Organizations
+├── PEP/          # People Management
+├── PLACE/        # Place-Based Analysis
+├── REQ/          # Requirements
+├── RISK/         # Risk Management
+├── SEC/          # Security
+├── SIM/          # Simulation
+├── SPM/          # Statistical Mapping
+├── SPACE/        # Spatial Methods
+├── TEST/         # Testing Framework
+└── TIME/         # Temporal Methods
+```
+
+Each orchestrator demonstrates:
+- Module initialization and configuration
+- Core operations (3-5 key operations)
+- Dependency integration patterns
+- Error handling and validation
+- Complete end-to-end workflows
+- Performance monitoring
+
+**Quick Start**: Navigate to any module orchestrator and run:
+```bash
+cd examples/module_orchestrators/{MODULE_NAME}
+python scripts/run_orchestrator.py
+```
+
 ## 🔧 Integration Patterns Library
 
 ### **1. Linear Pipeline** 
@@ -183,6 +235,59 @@ Performance depends on dataset size and hardware. Benchmark locally if needed.
 - **Integration Patterns**: 15+ patterns with implementations
 - **Performance Monitoring**: Comprehensive benchmarking framework
 
+## 🎯 Module Orchestrators
+
+### Overview
+
+Each of the 33 GEO-INFER modules has a dedicated **thin orchestrator** example in `examples/module_orchestrators/{MODULE_NAME}/`. These orchestrators follow the **thin orchestrator pattern**:
+
+- **Thin Orchestrator Pattern**: Focus on orchestration structure and patterns, not detailed implementations
+- **Lightweight**: Minimal dependencies, can run without full module installation
+- **Educational**: Demonstrates how to orchestrate module operations
+- **Pattern-Based**: Shows integration patterns with dependencies
+- **Standardized Structure**: Consistent format across all modules
+
+**Key Characteristics:**
+- Orchestrates module operations without requiring full module implementations
+- Demonstrates orchestration patterns (initialization, operations, integration, error handling, workflows)
+- Provides structured output showing orchestration flow
+- Can be extended with actual module implementations as needed
+
+### Structure
+
+Each orchestrator follows this standardized structure:
+
+```
+module_orchestrators/{MODULE_NAME}/
+├── README.md                    # Comprehensive documentation
+├── scripts/
+│   └── run_orchestrator.py     # Main orchestrator implementation
+├── config/
+│   └── orchestrator_config.yaml # Module-specific configuration
+└── output/                      # Results directory (gitignored)
+```
+
+### Running Orchestrators
+
+```bash
+# Navigate to any module orchestrator
+cd examples/module_orchestrators/MATH
+
+# Run the orchestrator
+python scripts/run_orchestrator.py
+
+# View results
+ls output/
+```
+
+### Module Categories
+
+**Core Modules** (6): MATH, SPACE, TIME, DATA, BAYES, ACT  
+**Analytical Modules** (6): AI, COG, AGENT, SPM, SIM, ANT  
+**Domain Modules** (6): AG, HEALTH, ECON, RISK, LOG, BIO  
+**Infrastructure Modules** (6): API, APP, SEC, OPS, GIT, TEST  
+**Community & Governance** (9): CIV, PEP, ORG, COMMS, NORMS, REQ, INTRA, ART, PLACE
+
 ## 🚀 Quick Start
 
 ### **1. Run All Integration Examples (Instant Assessment)**
@@ -221,7 +326,18 @@ results = pipeline.execute_surveillance(data)
 pipeline.display_results(results)
 ```
 
-### **4. Explore Integration Patterns (10 minutes)**
+### **4. Explore Module Orchestrators (5 minutes)**
+```bash
+# Try a core module orchestrator
+cd examples/module_orchestrators/MATH
+python scripts/run_orchestrator.py
+
+# Try a domain module orchestrator
+cd ../HEALTH
+python scripts/run_orchestrator.py
+```
+
+### **5. Explore Integration Patterns (10 minutes)**
 ```python
 from geo_infer_examples.core import ModuleOrchestrator
 from geo_infer_examples.models import IntegrationPatterns

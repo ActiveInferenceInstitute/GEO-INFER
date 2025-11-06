@@ -97,6 +97,32 @@ GEO-INFER is a geospatial inference framework consisting of many modules organiz
 | **[GEO-INFER-BIO](../modules/geo-infer-bio.md)** | Biological Systems | 🔄 In Development | SPACE, MATH |
 | **[GEO-INFER-HEALTH](../modules/geo-infer-health.md)** | Health Systems | 🔄 In Development | SPACE, TIME |
 
+### 🔮 Proposed New Modules (Planning)
+| Module | Description | Priority | Dependencies | Reference |
+|--------|-------------|----------|--------------|-----------|
+| **GEO-INFER-CLIMATE** | Climate modeling, weather analysis, climate change impact | ⭐⭐⭐⭐⭐ | SPACE, TIME, BAYES, ACT | [New Module Proposals](./NEW_MODULE_PROPOSALS.md) |
+| **GEO-INFER-ENERGY** | Energy systems, renewable optimization, grid management | ⭐⭐⭐⭐⭐ | SPACE, TIME, ECON, RISK | [New Module Proposals](./NEW_MODULE_PROPOSALS.md) |
+| **GEO-INFER-WATER** | Water resources, hydrology, water quality monitoring | ⭐⭐⭐⭐ | SPACE, TIME, DATA, RISK | [New Module Proposals](./NEW_MODULE_PROPOSALS.md) |
+| **GEO-INFER-TRANSPORT** | Transportation systems, urban mobility, traffic optimization | ⭐⭐⭐⭐ | SPACE, TIME, LOG, AGENT | [New Module Proposals](./NEW_MODULE_PROPOSALS.md) |
+| **GEO-INFER-EDU** | Educational systems, school accessibility, resource allocation | ⭐⭐⭐ | SPACE, TIME, CIV, HEALTH | [New Module Proposals](./NEW_MODULE_PROPOSALS.md) |
+| **GEO-INFER-EMERGENCY** | Emergency management, disaster response, evacuation planning | ⭐⭐⭐ | SPACE, TIME, RISK, AGENT, IOT | [New Module Proposals](./NEW_MODULE_PROPOSALS.md) |
+
+**Note**: See [New Module Proposals](./NEW_MODULE_PROPOSALS.md) for detailed analysis of the above modules.
+
+### 🔮 Additional Proposed Modules (Planning)
+| Module | Description | Priority | Dependencies | Reference |
+|--------|-------------|----------|--------------|-----------|
+| **GEO-INFER-MARINE** | Marine and oceanographic analysis, coastal management | ⭐⭐⭐⭐⭐ | SPACE, TIME, BAYES, CLIMATE, BIO | [Additional Module Proposals](./ADDITIONAL_MODULE_PROPOSALS.md) |
+| **GEO-INFER-FOREST** | Forest management, carbon sequestration, wildfire risk | ⭐⭐⭐⭐ | SPACE, TIME, CLIMATE, RISK, BIO | [Additional Module Proposals](./ADDITIONAL_MODULE_PROPOSALS.md) |
+| **GEO-INFER-WASTE** | Waste management, recycling optimization, circular economy | ⭐⭐⭐⭐ | SPACE, TIME, LOG, ECON, CIV | [Additional Module Proposals](./ADDITIONAL_MODULE_PROPOSALS.md) |
+| **GEO-INFER-TELECOM** | Telecommunications network planning, 5G/6G deployment | ⭐⭐⭐⭐ | SPACE, TIME, IOT, ECON, RISK | [Additional Module Proposals](./ADDITIONAL_MODULE_PROPOSALS.md) |
+| **GEO-INFER-SOIL** | Soil analysis, soil health monitoring, land degradation | ⭐⭐⭐ | SPACE, TIME, AG, CLIMATE, RISK | [Additional Module Proposals](./ADDITIONAL_MODULE_PROPOSALS.md) |
+| **GEO-INFER-AIR** | Air quality monitoring, pollution source analysis | ⭐⭐⭐ | SPACE, TIME, HEALTH, RISK, IOT | [Additional Module Proposals](./ADDITIONAL_MODULE_PROPOSALS.md) |
+| **GEO-INFER-WILDLIFE** | Wildlife tracking, habitat analysis, conservation planning | ⭐⭐⭐ | SPACE, TIME, BIO, RISK, SIM | [Additional Module Proposals](./ADDITIONAL_MODULE_PROPOSALS.md) |
+| **GEO-INFER-RECREATION** | Parks, trails, outdoor recreation planning | ⭐⭐⭐ | SPACE, TIME, CIV, HEALTH, TOURISM | [Additional Module Proposals](./ADDITIONAL_MODULE_PROPOSALS.md) |
+
+**Note**: See [Additional Module Proposals](./ADDITIONAL_MODULE_PROPOSALS.md) for comprehensive analysis of all additional module opportunities including technical infrastructure (VIS, QUERY) and research modules (QUANTUM, NEURO).
+
 ### 📍 Place-Based
 | Module | Description | Status | Dependencies |
 |--------|-------------|--------|-------------|
