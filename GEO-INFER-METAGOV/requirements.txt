@@ -1,3 +1,4 @@
-pyyaml>=6.0
+# GEO-INFER-METAGOV Requirements
 numpy>=1.20
+pyyaml>=6.0
 typing_extensions>=4.0

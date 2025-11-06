@@ -26,7 +26,15 @@ logger = logging.getLogger(__name__)
 
 try:
     from geo_infer_space.h3.core import H3Cell, H3Grid, H3Analytics, H3Visualizer, H3Validator
-    from geo_infer_space.h3.operations import *
+    from geo_infer_space.h3.operations import (
+        coordinate_to_cell,
+        cell_to_coordinates,
+        cell_to_boundary,
+        grid_disk,
+        polygon_to_cells,
+        cell_area,
+        is_valid_cell,
+    )
     from geo_infer_space.h3.visualization import H3MapVisualizer, H3StaticVisualizer, H3InteractiveVisualizer
     H3_MODULES_AVAILABLE = True
 except ImportError as e:

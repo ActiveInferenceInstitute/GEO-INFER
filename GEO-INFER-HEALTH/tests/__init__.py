@@ -8,7 +8,9 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 # Import test utilities
-from .conftest import *
+# Note: conftest.py contains pytest fixtures, not regular imports
+# Fixtures are automatically available to test files via pytest
+# No explicit imports needed here
 
 __all__ = [
     "pytest",

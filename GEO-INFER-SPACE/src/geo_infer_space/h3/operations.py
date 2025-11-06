@@ -1829,3 +1829,43 @@ def grid_statistics(h3_indices: List[str]) -> Dict[str, Any]:
         'bounds': bounds,
         'coordinates': coordinates
     }
+
+# Export all public functions
+__all__ = [
+    # Resolution utilities
+    "get_resolution_info",
+    "find_optimal_resolution",
+    "create_h3_grid_for_bounds",
+    # Core H3 operations
+    "coordinate_to_cell",
+    "cell_to_coordinates",
+    "cell_to_boundary",
+    "cells_to_geojson",
+    # Grid operations
+    "grid_disk",
+    "grid_ring",
+    "grid_distance",
+    "grid_path",
+    # Hierarchy operations
+    "cell_to_parent",
+    "cell_to_children",
+    "compact_cells",
+    "uncompact_cells",
+    # Geometry operations
+    "polygon_to_cells",
+    "cells_to_polygon",
+    # Area operations
+    "cell_area",
+    "cells_area",
+    # Neighbor operations
+    "neighbor_cells",
+    "are_neighbor_cells",
+    # Set operations
+    "cells_intersection",
+    "cells_union",
+    "cells_difference",
+    # Utility operations
+    "cell_resolution",
+    "is_valid_cell",
+    "grid_statistics",
+]

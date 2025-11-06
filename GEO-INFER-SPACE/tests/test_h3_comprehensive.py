@@ -17,7 +17,17 @@ from typing import List, Dict, Any, Tuple
 # Import H3 modules to test
 try:
     from geo_infer_space.h3.core import H3Cell, H3Grid, H3Analytics, H3Visualizer, H3Validator
-    from geo_infer_space.h3.operations import *
+    from geo_infer_space.h3.operations import (
+        coordinate_to_cell,
+        cell_to_coordinates,
+        cell_to_boundary,
+        grid_disk,
+        grid_ring,
+        polygon_to_cells,
+        cell_area,
+        is_valid_cell,
+        grid_statistics,
+    )
     H3_MODULES_AVAILABLE = True
 except ImportError as e:
     H3_MODULES_AVAILABLE = False

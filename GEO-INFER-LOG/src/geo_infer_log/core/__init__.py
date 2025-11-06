@@ -5,15 +5,44 @@ This submodule contains the essential components for logistics, supply chain
 optimization, and transportation modeling with geospatial intelligence.
 """
 
-# Import core components
-from .routing import *
-from .supply_chain import *
-from .delivery import *
-from .transport import *
+# Import core components with explicit imports
+from .routing import (
+    VehicleType,
+    Vehicle,
+    RoutingParameters,
+    RouteOptimizer,
+    FleetManager,
+    VehicleRouter,
+    TravelTimeEstimator,
+)
+
+from .supply_chain import (
+    SupplyChainModel,
+    ResilienceAnalyzer,
+    NetworkOptimizer,
+    FacilityLocator,
+    InventoryManager,
+)
+
+from .delivery import (
+    LastMileRouter,
+    DeliveryScheduler,
+    ServiceAreaAnalyzer,
+)
+
+from .transport import (
+    MultiModalPlanner,
+    TransportationNetworkAnalyzer,
+    TrafficSimulator,
+    EmissionsCalculator,
+)
 
 # Package exports
 __all__ = [
     # Routing optimization
+    "VehicleType",
+    "Vehicle",
+    "RoutingParameters",
     "RouteOptimizer",
     "FleetManager",
     "VehicleRouter",
@@ -24,6 +53,7 @@ __all__ = [
     "ResilienceAnalyzer",
     "NetworkOptimizer",
     "FacilityLocator",
+    "InventoryManager",
     
     # Last-mile delivery
     "LastMileRouter",
@@ -34,5 +64,5 @@ __all__ = [
     "MultiModalPlanner",
     "TransportationNetworkAnalyzer",
     "TrafficSimulator",
-    "EmissionsCalculator"
+    "EmissionsCalculator",
 ] 

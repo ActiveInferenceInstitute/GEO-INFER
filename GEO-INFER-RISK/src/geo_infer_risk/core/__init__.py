@@ -5,11 +5,48 @@ This submodule contains the essential components for risk modeling, catastrophe
 assessment, and insurance analytics with geospatial dimensions.
 """
 
-# Import core components
-from .risk_models import *
-from .catastrophe_models import *
-from .insurance_models import *
-from .portfolio_models import *
+# Import core components with explicit imports
+from .risk_models import (
+    RiskParameters,
+    RiskModel,
+    HazardModel,
+    VulnerabilityModel,
+    ExposureModel,
+)
+
+from .catastrophe_models import (
+    CatastropheConfig,
+    EnhancedCatastropheModel,
+    EnhancedEarthquakeModel,
+    EnhancedHurricaneModel,
+    EnhancedFloodModel,
+    create_enhanced_earthquake_model,
+    create_enhanced_hurricane_model,
+    create_enhanced_flood_model,
+    CatastropheModel,  # Base class
+    EventGenerator,
+    ImpactCalculator,
+)
+
+from .insurance_models import (
+    InsuranceConfig,
+    InsuranceModel,
+    PropertyInsuranceModel,
+    LiabilityInsuranceModel,
+    CatastropheInsuranceModel,
+    InsuranceManager,
+    create_insurance_manager,
+    calculate_property_premium,
+    InsurancePricing,
+    ReinsuranceModel,
+    ClaimsPrediction,
+)
+
+from .portfolio_models import (
+    PortfolioAnalyzer,
+    DiversificationOptimizer,
+    ExposureAggregator,
+)
 from .risk_engine import EnhancedRiskEngine, RiskEngine, AnalysisJob, ModelIntegrationStatus
 from .hazard_model import (
     EnhancedHazardModel, HazardModel,
