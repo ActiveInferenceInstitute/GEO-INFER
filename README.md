@@ -744,6 +744,13 @@ uv run python -c "import yaml; print('YAML validation ready')"
 | **📊 Domain Applications** | Medium | Contribute to AG, HEALTH, or LOG modules |
 | **🎨 Visualization** | Medium | Enhance ART and APP modules |
 
+### 🔧 Development Configuration
+
+Each GEO-INFER module includes a module-specific `.cursorrules` file that extends the root framework rules with module-specific development guidelines, dependencies, data sources, and integration patterns. These files help ensure consistent development practices across all modules.
+
+- **Root Rules**: `/.cursorrules` - Framework-wide development principles
+- **Module Rules**: `GEO-INFER-{MODULE}/.cursorrules` - Module-specific guidelines
+
 ### 📖 Documentation Standards
 
 #### For Code Contributions

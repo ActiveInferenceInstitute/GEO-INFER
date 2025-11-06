@@ -1,52 +1,70 @@
 Metadata-Version: 2.4
 Name: geo-infer-math
 Version: 0.1.0
-Summary: Mathematical libraries and utilities for geospatial inference
-Author: GEO-INFER Team
-License: MIT
-Project-URL: Homepage, https://github.com/geo-infer/geo-infer-math
-Project-URL: Bug Tracker, https://github.com/geo-infer/geo-infer-math/issues
-Project-URL: Documentation, https://geo-infer-math.readthedocs.io/
+Summary: Core mathematical and statistical engine providing geometric operations, spatial statistics, and numerical methods for geospatial analysis
+Author-email: GEO-INFER Development Team <geo-infer@activeinference.institute>
+License: CC BY-ND-SA 4.0
+Project-URL: Homepage, https://github.com/geo-infer/geo-infer
+Project-URL: Documentation, https://geo-infer.readthedocs.io/
+Project-URL: Repository, https://github.com/geo-infer/geo-infer
+Project-URL: Bug Tracker, https://github.com/geo-infer/geo-infer/issues
+Keywords: geospatial,active inference,geoinformatics,mathematics, statistics, geometry, optimization, numerical, spatial-statistics
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: Creative Commons License
 Classifier: Programming Language :: Python :: 3
-Classifier: License :: OSI Approved :: MIT License
-Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python :: 3.9
+Classifier: Programming Language :: Python :: 3.10
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
 Classifier: Topic :: Scientific/Engineering :: GIS
-Classifier: Topic :: Scientific/Engineering :: Mathematics
 Classifier: Topic :: Scientific/Engineering :: Information Analysis
-Requires-Python: >=3.8
+Requires-Python: >=3.9
 Description-Content-Type: text/markdown
-Requires-Dist: numpy>=1.20.0
-Requires-Dist: scipy>=1.7.0
-Requires-Dist: pandas>=1.3.0
-Requires-Dist: geopandas>=0.10.0
-Requires-Dist: scikit-learn>=1.0.0
-Requires-Dist: matplotlib>=3.4.0
-Requires-Dist: shapely>=1.8.0
 Provides-Extra: dev
-Requires-Dist: pytest>=6.0; extra == "dev"
-Requires-Dist: pytest-cov>=2.12; extra == "dev"
-Requires-Dist: black>=21.5b2; extra == "dev"
-Requires-Dist: isort>=5.9.0; extra == "dev"
-Requires-Dist: mypy>=0.812; extra == "dev"
+Requires-Dist: pytest>=6.2.0; extra == "dev"
+Requires-Dist: pytest-cov>=2.12.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.20.0; extra == "dev"
+Requires-Dist: black>=21.9.0; extra == "dev"
 Requires-Dist: flake8>=3.9.0; extra == "dev"
-Requires-Dist: sphinx>=4.0.0; extra == "dev"
-Requires-Dist: sphinx-rtd-theme>=0.5.2; extra == "dev"
-Provides-Extra: gpu
-Requires-Dist: tensorflow>=2.8.0; extra == "gpu"
-Requires-Dist: torch>=1.10.0; extra == "gpu"
-Requires-Dist: cupy>=10.0.0; extra == "gpu"
+Requires-Dist: mypy>=0.910; extra == "dev"
+Requires-Dist: isort>=5.9.0; extra == "dev"
+Provides-Extra: docs
+Requires-Dist: sphinx>=4.2.0; extra == "docs"
+Requires-Dist: sphinx-rtd-theme>=1.0.0; extra == "docs"
+Requires-Dist: nbsphinx>=0.8.0; extra == "docs"
+Requires-Dist: myst-parser>=0.15.0; extra == "docs"
 
-# GEO-INFER-MATH
+---
+title: "GEO-INFER-MATH: Foundational Mathematical Library"
+description: "Core mathematical and statistical engine providing geometric operations, spatial statistics, and numerical methods for geospatial analysis"
+purpose: "Deliver robust mathematical foundations and computational efficiency for all GEO-INFER quantitative capabilities"
+module_type: "Analytical Core"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: []
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-BAYES", "GEO-INFER-ACT", "GEO-INFER-AI"]
+tags: ["mathematics", "statistics", "geometry", "optimization", "numerical", "spatial-statistics"]
+difficulty: "Advanced"
+estimated_time: "70"
+---
 
-**Foundational Mathematical Library for Geospatial Analysis and Inference**
+# GEO-INFER-MATH: Foundational Mathematical Library
+
+> **Purpose**: Deliver robust mathematical foundations and computational efficiency for all GEO-INFER quantitative capabilities
+>
+> This module provides comprehensive mathematical tools, statistical methods, and geometric operations specifically designed for geospatial data processing and analysis.
 
 ## Overview
 
-GEO-INFER-MATH serves as the **core mathematical and statistical engine** for the entire GEO-INFER framework. It provides a comprehensive suite of specialized mathematical tools, algorithms, statistical methods, and geometric operations specifically designed and optimized for processing, analyzing, and making inferences from geospatial data. This module underpins the quantitative capabilities of all other GEO-INFER modules, ensuring rigorous, accurate, and efficient computation for a wide range of spatial and spatio-temporal applications. Its scope ranges from fundamental geometric calculations and coordinate transformations to advanced spatial statistics, machine learning model components, and numerical methods.
+Note: Code examples are illustrative; see `GEO-INFER-MATH/examples` for runnable scripts.
 
-### Documentation
-- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-math.md
-- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+### Links
+- Module README: ../../GEO-INFER-MATH/README.md
+- Modules Overview: ../modules/index.md
+
+GEO-INFER-MATH serves as the core mathematical and statistical engine for the entire GEO-INFER framework, providing specialized tools for geospatial data processing, analysis, and inference.
 
 ## Core Objectives
 
@@ -288,6 +306,200 @@ GEO-INFER-MATH/
 -   Advanced algorithms for topological data analysis (TDA) in geospatial contexts.
 -   Further optimization of core algorithms for very large datasets.
 -   Enhanced support for distributed mathematical computations if required by other modules.
+
+## Advanced Features
+
+### 1. GPU-Accelerated Mathematical Operations
+**Purpose**: Leverage GPU computing for massive parallel mathematical operations on large geospatial datasets.
+
+```python
+from geo_infer_math.gpu import GPUAcceleratedMath
+
+gpu_math = GPUAcceleratedMath(
+    device='cuda',  # or 'rocm', 'metal'
+    precision='float32',
+    memory_optimization=True
+)
+
+# GPU-accelerated spatial statistics
+spatial_autocorr = gpu_math.compute_morans_i_gpu(
+    values=large_spatial_dataset,
+    coordinates=point_locations,
+    weights_type='distance_band',
+    threshold=1000.0
+)
+
+# GPU-accelerated geometric operations
+distances = gpu_math.compute_distance_matrix_gpu(
+    points1=million_points_set1,
+    points2=million_points_set2,
+    metric='haversine'
+)
+```
+
+### 2. Symbolic Mathematics and Automatic Differentiation
+**Purpose**: Enable symbolic computation and automatic differentiation for model derivation and optimization.
+
+```python
+from geo_infer_math.symbolic import SymbolicMath
+
+symbolic = SymbolicMath(
+    backend='sympy',
+    automatic_differentiation=True,
+    expression_simplification=True
+)
+
+# Define symbolic spatial model
+spatial_model = symbolic.define_spatial_model(
+    variables=['x', 'y', 'distance', 'angle'],
+    equations=['z = a*distance + b*angle + c'],
+    constraints=['distance >= 0', 'angle >= 0']
+)
+
+# Automatic differentiation for optimization
+gradients = symbolic.compute_gradients(
+    model=spatial_model,
+    parameters=['a', 'b', 'c'],
+    optimization_target='minimize_error'
+)
+```
+
+### 3. Topological Data Analysis (TDA) for Geospatial Data
+**Purpose**: Apply advanced topological methods to analyze spatial data structure and patterns.
+
+```python
+from geo_infer_math.topology import TopologicalDataAnalyzer
+
+tda = TopologicalDataAnalyzer(
+    persistence_threshold=0.05,
+    dimension_range=[0, 1, 2],
+    filtration_method='vietoris_rips'
+)
+
+# Compute persistent homology
+persistence_diagram = tda.compute_persistence(
+    spatial_points=point_cloud_data,
+    distance_metric='euclidean',
+    max_edge_length=100.0
+)
+
+# Extract topological features
+topological_features = tda.extract_features(
+    persistence_diagram=persistence_diagram,
+    feature_types=['birth', 'death', 'lifetime', 'bottleneck']
+)
+```
+
+## Performance Considerations
+
+### Computational Efficiency
+**Numerical Optimization**: Optimized implementations using NumPy, SciPy, and optional GPU acceleration for large-scale computations
+**Algorithm Selection**: Intelligent algorithm selection based on data size, dimensionality, and computational resources
+**Memory Management**: Efficient memory usage with streaming algorithms for datasets exceeding available RAM
+
+### Parallel Processing
+**Multi-Core Computation**: Automatic parallelization of mathematical operations across multiple CPU cores
+**GPU Acceleration**: Optional CUDA/ROCm support for massive parallel computations
+**Distributed Computing**: Support for distributed mathematical operations across compute clusters
+
+### Numerical Stability
+**Precision Handling**: Configurable precision levels (float32, float64, arbitrary precision) for numerical stability
+**Condition Number Monitoring**: Automatic detection and handling of ill-conditioned mathematical problems
+**Error Propagation**: Uncertainty quantification and error propagation through mathematical operations
+
+## Troubleshooting
+
+### Common Issues and Solutions
+
+#### Numerical Instability Problems
+**Issue**: Numerical overflow, underflow, or loss of precision in mathematical computations
+**Solution**: Increase numerical precision, use log-space calculations, or apply numerical stabilization techniques
+
+```python
+from geo_infer_math.utils.numerical_stability import stabilize_computation
+
+# Use stabilized computation
+result = stabilize_computation(
+    operation=matrix_inversion,
+    input_data=ill_conditioned_matrix,
+    precision='float64',
+    regularization=1e-10
+)
+```
+
+#### Matrix Singularity Issues
+**Issue**: Singular or near-singular matrices in linear algebra operations
+**Solution**: Apply regularization or use pseudo-inverse methods
+
+```python
+from geo_infer_math.core.linalg_tensor import regularized_inverse
+
+# Regularized matrix inversion
+inv_matrix = regularized_inverse(
+    matrix=singular_matrix,
+    regularization_parameter=1e-6,
+    method='tikhonov'
+)
+```
+
+#### Performance Bottlenecks
+**Issue**: Slow mathematical computations on large datasets
+**Solution**: Enable GPU acceleration, use sparse matrix representations, or apply parallel processing
+
+```python
+# Enable parallel processing
+from geo_infer_math.utils.parallel import enable_parallel_processing
+
+enable_parallel_processing(
+    num_workers=8,
+    backend='multiprocessing'
+)
+```
+
+### Debugging Mathematical Operations
+
+#### Enable Detailed Logging
+```python
+import logging
+logging.getLogger('geo_infer_math').setLevel(logging.DEBUG)
+```
+
+#### Validate Mathematical Results
+```python
+from geo_infer_math.utils.validators import MathematicalValidator
+
+validator = MathematicalValidator()
+validation_results = validator.validate_computation(
+    input_data=input_matrix,
+    output_data=computation_result,
+    expected_properties=['positive_definite', 'symmetric']
+)
+```
+
+#### Monitor Numerical Precision
+```python
+from geo_infer_math.utils.monitoring import NumericalMonitor
+
+monitor = NumericalMonitor()
+with monitor.track_precision():
+    result = complex_mathematical_operation(data)
+    
+precision_report = monitor.get_precision_report()
+```
+
+### Common Error Messages
+
+#### "Matrix is singular or nearly singular"
+**Cause**: Attempting to invert a matrix that is not invertible
+**Fix**: Use pseudo-inverse or add regularization
+
+#### "Numerical overflow in computation"
+**Cause**: Values exceeding the maximum representable number
+**Fix**: Use log-space calculations or increase precision
+
+#### "Convergence not achieved in iterative method"
+**Cause**: Iterative algorithm failed to converge within maximum iterations
+**Fix**: Increase iteration limit, adjust convergence criteria, or use different initial conditions
 
 ## Contributing
 

@@ -4,6 +4,24 @@
 
 This document describes the agent architectures and implementations within the GEO-INFER-AGENT module, which provides the core intelligent agent framework for the GEO-INFER ecosystem.
 
+## Implementation Status
+
+**⚠️ Important Note**: This document describes both **implemented** and **aspirational** features. Features marked with 🔮 are planned/aspirational and not yet implemented.
+
+### Currently Implemented
+
+- ✅ **Agent Models**: `BDIAgent`, `ActiveInferenceAgent`, `RLAgent`, `RuleBasedAgent`, `HybridAgent`
+- ✅ **Base Agent**: `BaseAgent` with lifecycle management
+- ✅ **Agent Registry**: `AgentRegistry` for agent management
+- ✅ **Messaging**: `MessagingService` for agent communication
+- ✅ **Telemetry**: `TelemetryService` for metrics and monitoring
+
+### Aspirational/Planned Features
+
+- 🔮 **Application-Specific Agents**: Environmental, Urban, Disaster Response agents
+- 🔮 **Agent Persistence**: State persistence and recovery mechanisms
+- 🔮 **Performance Monitoring**: Advanced performance monitoring and benchmarking
+
 ## Agent Architecture Types
 
 ### 1. Active Inference Agents
@@ -13,27 +31,38 @@ This document describes the agent architectures and implementations within the G
 Active Inference agents minimize variational free energy to maintain adaptive homeostasis with their environment.
 
 ```python
-from geo_infer_agent.core.active_inference import ActiveInferenceAgent
+from geo_infer_agent.models.active_inference import ActiveInferenceAgent
 
 # Create an active inference agent for geospatial analysis
 agent = ActiveInferenceAgent(
-    agent_id="spatial_analyzer_001",
-    generative_model=spatial_generative_model,
-    precision_parameters={'observation_noise': 0.1, 'state_noise': 0.05},
-    planning_horizon=10
+    state_dim=10,  # Dimensionality of state space
+    obs_dim=5,     # Dimensionality of observation space
+    action_dim=3,  # Dimensionality of action space
+    config={
+        'planning_horizon': 10,
+        'precision': 1.0,
+        'learning_rate': 0.01
+    }
 )
 
 # Agent perceives spatial environment
-observations = agent.perceive(spatial_data, environmental_context)
-
-# Agent updates beliefs about spatial patterns
-beliefs = agent.update_beliefs(observations)
+import numpy as np
+observation = np.array([0.5, 0.3, 0.8, 0.2, 0.9])
+beliefs = agent.perceive(observation)
 
 # Agent selects actions to minimize free energy
-actions = agent.select_actions(beliefs, available_actions)
+action = agent.act(observation)
 
-# Agent learns from environmental feedback
-agent.learn(outcomes, performance_metrics)
+# Agent learns from experience (add to experience buffer)
+agent.add_experience(
+    state=np.array([0.1, 0.2, 0.3, 0.4, 0.5]),
+    action=np.array([1, 0, 0]),
+    next_state=np.array([0.2, 0.3, 0.4, 0.5, 0.6]),
+    observation=observation
+)
+
+# Update the generative model
+agent.model.update(...)
 ```
 
 **Key Features**:
@@ -209,31 +238,36 @@ adapted_strategy = agent.adapt_reasoning_approach(
 **Location**: `src/geo_infer_agent/api/messaging.py`
 
 ```python
-from geo_infer_agent.api.messaging import AgentMessenger
+from geo_infer_agent.api.messaging import MessagingService
+from geo_infer_agent.api.messaging import Message
 
-# Create agent communication network
-messenger = AgentMessenger(
-    agent_id="coordinator_001",
-    communication_protocol='spatial_broadcast',
-    security_level='encrypted'
+# Create agent communication service
+messaging = MessagingService()
+
+# Send a message to another agent
+message = Message(
+    from_agent_id="coordinator_001",
+    to_agent_id="agent_002",
+    content={
+        'type': 'environmental_alert',
+        'location': {'lat': 37.7749, 'lng': -122.4194, 'radius': 5.0},
+        'content': 'Air quality deterioration detected',
+        'priority': 'high'
+    },
+    message_type='standard',
+    priority=8
 )
 
-# Register with agent network
-messenger.register_with_network(agent_registry)
+# Send message
+await messaging.send_message(message)
 
-# Send spatial context-aware message
-message = {
-    'type': 'environmental_alert',
-    'location': {'lat': 37.7749, 'lng': -122.4194, 'radius': 5.0},
-    'content': 'Air quality deterioration detected',
-    'priority': 'high'
-}
+# Receive messages for an agent
+incoming_messages = await messaging.get_messages("coordinator_001")
 
-messenger.broadcast_message(message, spatial_filter=coverage_area)
-
-# Receive and process messages
-incoming_messages = messenger.receive_messages()
-processed_messages = messenger.process_messages(incoming_messages)
+# Process received messages
+for msg in incoming_messages:
+    # Process message content
+    process_message(msg.content)
 ```
 
 ### Telemetry and Monitoring
@@ -241,35 +275,34 @@ processed_messages = messenger.process_messages(incoming_messages)
 **Location**: `src/geo_infer_agent/api/telemetry.py`
 
 ```python
-from geo_infer_agent.api.telemetry import AgentTelemetry
+from geo_infer_agent.api.telemetry import TelemetryService
+from geo_infer_agent.api.telemetry import CounterMetric
+from geo_infer_agent.api.telemetry import GaugeMetric
+from geo_infer_agent.api.telemetry import TimerMetric
 
-# Set up agent telemetry
-telemetry = AgentTelemetry(
-    agent_id="monitor_001",
-    metrics=['performance', 'reliability', 'communication'],
-    reporting_interval='5_minutes',
-    storage_backend='timeseries_db'
-)
+# Get telemetry service (singleton)
+telemetry = TelemetryService()
+
+# Start the telemetry service
+await telemetry.start(reporting_interval=60)
+
+# Create and track metrics
+counter = telemetry.create_counter("task_completions", "Number of completed tasks", "monitor_001")
+gauge = telemetry.create_gauge("cpu_usage", "CPU utilization percentage", "monitor_001")
+timer = telemetry.create_timer("task_duration", "Time to complete task", "monitor_001")
 
 # Track agent performance
-telemetry.track_performance(
-    task_completion_time=45.2,
-    resource_utilization={'cpu': 0.75, 'memory': 0.60},
-    decision_accuracy=0.92
-)
+counter.increment()
+gauge.set(0.75)  # 75% CPU usage
+timer.start()
+# ... perform task ...
+duration = timer.stop()
 
-# Monitor agent health
-health_status = telemetry.monitor_health(
-    error_rate=0.02,
-    response_time=2.1,
-    uptime_percentage=99.7
-)
+# Get agent metrics
+agent_metrics = telemetry.get_agent_metrics("monitor_001")
 
-# Generate telemetry reports
-reports = telemetry.generate_reports(
-    time_period='last_24_hours',
-    report_types=['performance', 'anomalies', 'trends']
-)
+# Get all metrics summary
+all_metrics = telemetry.get_all_metrics()
 ```
 
 ## Agent Registry and Discovery
@@ -279,31 +312,31 @@ reports = telemetry.generate_reports(
 ```python
 from geo_infer_agent.core.agent_registry import AgentRegistry
 
-# Initialize agent registry
-registry = AgentRegistry(
-    discovery_method='decentralized',
-    registry_backend='distributed_ledger',
-    update_frequency='real_time'
-)
+# Initialize agent registry (singleton)
+registry = AgentRegistry()
 
-# Register agent capabilities
-registry.register_agent(
+# Create and register an agent
+from geo_infer_agent.models.bdi import BDIAgent
+
+agent = BDIAgent(
     agent_id="spatial_analyzer_001",
-    capabilities=['spatial_analysis', 'pattern_recognition', 'forecasting'],
-    location={'lat': 37.7749, 'lng': -122.4194},
-    specialization='environmental_monitoring'
+    initial_beliefs={'capability': 'spatial_analysis'},
+    goals=['analyze_patterns'],
+    plans=['routine_analysis']
 )
 
-# Discover agents by capability
-available_agents = registry.discover_agents(
-    required_capabilities=['spatial_analysis'],
-    location_bounds=search_area,
-    performance_threshold=0.85
-)
+# Register agent
+registry.register_agent(agent)
 
-# Query agent status and load
-agent_status = registry.query_agent_status(agent_ids)
-load_distribution = registry.get_load_distribution()
+# Get agent by ID
+retrieved_agent = registry.get_agent("spatial_analyzer_001")
+
+# List all registered agents
+all_agents = registry.list_agents()
+
+# Start/stop agent
+await registry.start_agent("spatial_analyzer_001")
+await registry.stop_agent("spatial_analyzer_001")
 ```
 
 ## Agent Lifecycle Management
@@ -345,175 +378,132 @@ agent.initialize()
 agent.start_operation()
 ```
 
-### Agent Persistence and Recovery
+### Agent Persistence and Recovery 🔮
+
+**Status**: Planned/Aspirational
+
+**Note**: Agent persistence functionality is planned for future implementation. Currently, agents can use their internal state management through `BaseAgent.state` for basic persistence needs.
 
 ```python
-from geo_infer_agent.core.agent_persistence import AgentPersistence
+# 🔮 Planned implementation - not yet available
+# from geo_infer_agent.core.agent_persistence import AgentPersistence
 
-# Set up agent persistence
-persistence = AgentPersistence(
-    storage_backend='distributed_db',
-    backup_frequency='hourly',
-    recovery_strategy='state_based'
-)
+# Currently, use BaseAgent's state management:
+from geo_infer_agent.core.agent_base import BaseAgent
 
-# Save agent state
-agent_state = persistence.save_agent_state(
-    agent_id="spatial_analyzer_001",
-    state_data={
-        'beliefs': current_beliefs,
-        'goals': active_goals,
-        'learned_models': trained_models,
-        'performance_history': historical_metrics
-    }
-)
-
-# Restore agent from saved state
-restored_agent = persistence.restore_agent_state(
-    agent_id="spatial_analyzer_001",
-    state_version='latest'
-)
-
-# Handle agent failure and recovery
-recovery_plan = persistence.create_recovery_plan(
-    failed_agent_id="spatial_analyzer_001",
-    failure_reason='communication_timeout',
-    recovery_options=['restart', 'migrate', 'replicate']
-)
+class PersistentAgent(BaseAgent):
+    """Agent with custom persistence."""
+    def save_state(self, filepath):
+        """Save agent state to file."""
+        import json
+        state_data = {
+            'agent_id': self.agent_id,
+            'beliefs': self.state.beliefs,
+            'desires': self.state.desires,
+            'intentions': self.state.intentions
+        }
+        with open(filepath, 'w') as f:
+            json.dump(state_data, f)
+    
+    def load_state(self, filepath):
+        """Load agent state from file."""
+        import json
+        with open(filepath, 'r') as f:
+            state_data = json.load(f)
+        self.state.beliefs = state_data.get('beliefs', {})
+        self.state.desires = state_data.get('desires', [])
+        self.state.intentions = state_data.get('intentions', [])
 ```
 
-## Spatial Agent Applications
+## Spatial Agent Applications 🔮
 
-### Environmental Monitoring Agents
+**Status**: Planned/Aspirational
+
+**Note**: Application-specific agent implementations are planned for future releases. Currently, you can:
+- Use `GEO-INFER-ANT` swarm agents for environmental monitoring (`EnvironmentalMonitoringSwarm`)
+- Use `GEO-INFER-ACT` models for urban planning (`UrbanModel`)
+- Use `GEO-INFER-ANT` swarm agents for disaster response (`DisasterResponseSwarm`)
+
+See the respective module documentation for available implementations.
+
+### Environmental Monitoring Agents 🔮
 
 ```python
-from geo_infer_agent.applications.environmental import EnvironmentalMonitoringAgent
+# 🔮 Planned implementation - not yet available
+# from geo_infer_agent.applications.environmental import EnvironmentalMonitoringAgent
 
-env_agent = EnvironmentalMonitoringAgent(
-    monitoring_region=coverage_area,
-    sensor_types=['air_quality', 'water_quality', 'soil_moisture'],
-    alert_thresholds={'pollution': 0.8, 'contamination': 0.9},
-    adaptive_sampling=True
-)
+# Currently, use GEO-INFER-ANT:
+from geo_infer_ant.applications.environmental import EnvironmentalMonitoringSwarm
 
-# Continuous environmental monitoring
-monitoring_results = env_agent.monitor_environment()
-
-# Anomaly detection and alerting
-anomalies = env_agent.detect_anomalies(monitoring_results)
-
-if anomalies:
-    env_agent.raise_alerts(anomalies, stakeholders)
+# See GEO-INFER-ANT/AGENTS.md for usage examples
 ```
 
-### Urban Planning Agents
+### Urban Planning Agents 🔮
 
 ```python
-from geo_infer_agent.applications.urban import UrbanPlanningAgent
+# 🔮 Planned implementation - not yet available
+# from geo_infer_agent.applications.urban import UrbanPlanningAgent
 
-urban_agent = UrbanPlanningAgent(
-    planning_area=city_bounds,
-    planning_horizon=20,  # years
-    stakeholder_groups=['residents', 'businesses', 'government'],
-    optimization_criteria=['sustainability', 'equity', 'efficiency']
-)
+# Currently, use GEO-INFER-ACT:
+from geo_infer_act.models.urban import UrbanModel
 
-# Urban development scenario analysis
-scenarios = urban_agent.generate_scenarios(
-    current_state=city_baseline,
-    development_drivers=growth_factors,
-    constraint_factors=environmental_limits
-)
-
-# Multi-objective optimization
-optimal_plan = urban_agent.optimize_plan(
-    scenarios=scenarios,
-    objectives=planning_criteria,
-    constraints=budget_limits
-)
+# See GEO-INFER-ACT/AGENTS.md for usage examples
 ```
 
-### Disaster Response Agents
+### Disaster Response Agents 🔮
 
 ```python
-from geo_infer_agent.applications.disaster import DisasterResponseAgent
+# 🔮 Planned implementation - not yet available
+# from geo_infer_agent.applications.disaster import DisasterResponseAgent
 
-disaster_agent = DisasterResponseAgent(
-    disaster_types=['flood', 'earthquake', 'wildfire'],
-    response_phases=['preparedness', 'response', 'recovery'],
-    coordination_protocols=['incident_command', 'mutual_aid'],
-    real_time_adaptation=True
-)
+# Currently, use GEO-INFER-ANT:
+from geo_infer_ant.applications.disaster import DisasterResponseSwarm
 
-# Situation assessment
-situation_analysis = disaster_agent.assess_situation(
-    incident_reports=initial_reports,
-    sensor_data=real_time_feeds,
-    historical_patterns=past_incidents
-)
-
-# Resource deployment optimization
-deployment_plan = disaster_agent.optimize_deployment(
-    available_resources=response_assets,
-    incident_requirements=assessed_needs,
-    logistical_constraints=access_routes
-)
+# See GEO-INFER-ANT/AGENTS.md for usage examples
 ```
 
 ## Agent Performance and Metrics
 
-### Performance Monitoring
+### Performance Monitoring 🔮
+
+**Status**: Planned/Aspirational
+
+**Note**: Currently, use `TelemetryService` for basic performance tracking. Advanced performance monitoring and benchmarking are planned for future implementation.
 
 ```python
-from geo_infer_agent.core.agent_monitoring import AgentPerformanceMonitor
+# 🔮 Planned implementation - not yet available
+# from geo_infer_agent.core.agent_monitoring import AgentPerformanceMonitor
 
-monitor = AgentPerformanceMonitor(
-    metrics=['accuracy', 'efficiency', 'reliability', 'adaptability'],
-    benchmarking_enabled=True,
-    continuous_monitoring=True
-)
+# Currently, use TelemetryService for performance tracking:
+from geo_infer_agent.api.telemetry import TelemetryService
+from geo_infer_agent.api.telemetry import TimerMetric
+from geo_infer_agent.api.telemetry import CounterMetric
 
-# Monitor agent performance
-performance_metrics = monitor.track_performance(
-    agent_id="spatial_analyzer_001",
-    task_type="environmental_monitoring",
-    execution_time=45.2,
-    resource_usage={'cpu': 0.75, 'memory': 0.60},
-    outcome_quality=0.92
-)
+telemetry = TelemetryService()
+await telemetry.start()
 
-# Generate performance reports
-performance_report = monitor.generate_report(
-    agent_ids=["spatial_analyzer_001", "routing_optimizer_001"],
-    time_period="last_30_days",
-    report_format="comprehensive"
-)
+# Track performance metrics
+timer = telemetry.create_timer("task_execution", "Task execution time", "agent_001")
+counter = telemetry.create_counter("tasks_completed", "Completed tasks", "agent_001")
+
+timer.start()
+# ... perform task ...
+duration = timer.stop()
+counter.increment()
+
+# Get metrics
+metrics = telemetry.get_agent_metrics("agent_001")
 ```
 
-### Agent Benchmarking and Comparison
+### Agent Benchmarking and Comparison 🔮
+
+**Status**: Planned/Aspirational
 
 ```python
-from geo_infer_agent.core.agent_benchmarking import AgentBenchmarking
+# 🔮 Planned implementation - not yet available
+# from geo_infer_agent.core.agent_benchmarking import AgentBenchmarking
 
-benchmarking = AgentBenchmarking(
-    benchmark_suites=['spatial_reasoning', 'decision_making', 'adaptation'],
-    comparative_analysis=True,
-    statistical_significance=True
-)
-
-# Run agent benchmarks
-benchmark_results = benchmarking.run_benchmarks(
-    agents=[agent1, agent2, agent3],
-    test_scenarios=spatial_scenarios,
-    performance_criteria=['accuracy', 'speed', 'robustness']
-)
-
-# Compare agent architectures
-comparison_analysis = benchmarking.compare_architectures(
-    results=benchmark_results,
-    comparison_metrics=['performance', 'efficiency', 'scalability'],
-    statistical_tests=['anova', 'tukey_hsd']
-)
+# Benchmarking functionality is planned for future implementation
 ```
 
 ---

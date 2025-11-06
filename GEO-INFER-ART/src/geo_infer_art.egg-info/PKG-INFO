@@ -1,60 +1,95 @@
 Metadata-Version: 2.4
 Name: geo-infer-art
 Version: 0.1.0
-Summary: Art production and aesthetics with geospatial dimensions for the GEO-INFER framework
+Summary: Transform geospatial data into compelling artistic expressions through aesthetic visualizations and generative art systems
 Home-page: https://github.com/activeinference/GEO-INFER
 Author: GEO-INFER Team
-Author-email: info@geo-infer.org
+Author-email: GEO-INFER Development Team <geo-infer@activeinference.institute>
+License: CC BY-ND-SA 4.0
+Project-URL: Homepage, https://github.com/geo-infer/geo-infer
+Project-URL: Documentation, https://geo-infer.readthedocs.io/
+Project-URL: Repository, https://github.com/geo-infer/geo-infer
+Project-URL: Bug Tracker, https://github.com/geo-infer/geo-infer/issues
+Keywords: geospatial,active inference,geoinformatics,art, aesthetics, generative, visualization, creative, narrative
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Intended Audience :: Science/Research
+Classifier: License :: OSI Approved :: Creative Commons License
 Classifier: Programming Language :: Python :: 3
 Classifier: Programming Language :: Python :: 3.9
 Classifier: Programming Language :: Python :: 3.10
-Classifier: License :: OSI Approved :: Creative Commons License
-Classifier: Operating System :: OS Independent
-Classifier: Development Status :: 3 - Alpha
-Classifier: Intended Audience :: Science/Research
+Classifier: Programming Language :: Python :: 3.11
+Classifier: Programming Language :: Python :: 3.12
 Classifier: Topic :: Scientific/Engineering :: GIS
-Classifier: Topic :: Artistic Software
+Classifier: Topic :: Scientific/Engineering :: Information Analysis
 Requires-Python: >=3.9
 Description-Content-Type: text/markdown
-Requires-Dist: numpy>=1.21.0
-Requires-Dist: matplotlib>=3.4.0
-Requires-Dist: geopandas>=0.10.0
-Requires-Dist: rasterio>=1.2.0
-Requires-Dist: pillow>=8.3.0
-Requires-Dist: scipy>=1.7.0
+Requires-Dist: bokeh>=2.4.0
+Requires-Dist: cartopy>=0.20.0
 Requires-Dist: colour>=0.1.5
-Requires-Dist: scikit-image>=0.18.0
-Requires-Dist: tensorflow>=2.6.0
+Requires-Dist: folium>=0.12.0
+Requires-Dist: geopandas>=0.10.0
+Requires-Dist: imageio>=2.9.0
+Requires-Dist: imageio-ffmpeg>=0.4.0
+Requires-Dist: kaleido>=0.2.0
+Requires-Dist: matplotlib>=3.4.0
+Requires-Dist: mayavi>=4.7.0
+Requires-Dist: numpy>=1.21.0
 Requires-Dist: opencv-python>=4.5.0
+Requires-Dist: pillow>=8.3.0
+Requires-Dist: plotly>=5.0.0
+Requires-Dist: psutil>=5.8.0
+Requires-Dist: rasterio>=1.2.0
+Requires-Dist: scikit-image>=0.18.0
+Requires-Dist: scipy>=1.7.0
+Requires-Dist: seaborn>=0.11.0
+Requires-Dist: tensorflow>=2.6.0
 Provides-Extra: dev
-Requires-Dist: pytest>=6.2.5; extra == "dev"
-Requires-Dist: pytest-cov>=2.12.1; extra == "dev"
-Requires-Dist: black>=21.6b0; extra == "dev"
-Requires-Dist: flake8>=3.9.2; extra == "dev"
-Requires-Dist: isort>=5.9.2; extra == "dev"
+Requires-Dist: pytest>=6.2.0; extra == "dev"
+Requires-Dist: pytest-cov>=2.12.0; extra == "dev"
+Requires-Dist: pytest-asyncio>=0.20.0; extra == "dev"
+Requires-Dist: black>=21.9.0; extra == "dev"
+Requires-Dist: flake8>=3.9.0; extra == "dev"
+Requires-Dist: mypy>=0.910; extra == "dev"
+Requires-Dist: isort>=5.9.0; extra == "dev"
+Provides-Extra: docs
+Requires-Dist: sphinx>=4.2.0; extra == "docs"
+Requires-Dist: sphinx-rtd-theme>=1.0.0; extra == "docs"
+Requires-Dist: nbsphinx>=0.8.0; extra == "docs"
+Requires-Dist: myst-parser>=0.15.0; extra == "docs"
 Dynamic: author
-Dynamic: author-email
-Dynamic: classifier
-Dynamic: description
-Dynamic: description-content-type
 Dynamic: home-page
-Dynamic: provides-extra
-Dynamic: requires-dist
 Dynamic: requires-python
-Dynamic: summary
 
-# GEO-INFER-ART 🎨🗺️
+---
+title: "GEO-INFER-ART: Geospatial Art, Aesthetics, and Generative Systems"
+description: "Transform geospatial data into compelling artistic expressions through aesthetic visualizations and generative art systems"
+purpose: "Bridge analytical geospatial science with creative artistic practice for enhanced understanding and communication"
+module_type: "Applications"
+status: "Beta"
+last_updated: "2025-01-19"
+dependencies: ["SPACE", "APP"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-APP", "GEO-INFER-AI", "GEO-INFER-TIME"]
+tags: ["art", "aesthetics", "generative", "visualization", "creative", "narrative"]
+difficulty: "Intermediate"
+estimated_time: "50"
+---
 
-**Geospatial Art, Aesthetics, and Generative Systems**
+# GEO-INFER-ART: Geospatial Art, Aesthetics, and Generative Systems
 
-[![Python 3.9+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
-[![License: CC BY-ND-SA 4.0](https://img.shields.io/badge/License-CC%20BY--ND--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nd-sa/4.0/) <!-- Consider aligning with main project license if different -->
+> **Purpose**: Bridge analytical geospatial science with creative artistic practice for enhanced understanding and communication
+>
+> This module transforms geospatial information into compelling artistic expressions, aesthetically refined visualizations, and dynamic generative art systems.
 
 ## Overview
 
-GEO-INFER-ART is a specialized module within the GEO-INFER framework dedicated to exploring and exploiting the intersection of art, aesthetics, and geospatial data. This module provides tools, algorithms, and frameworks to transform geospatial information into compelling artistic expressions, aesthetically refined visualizations, and dynamic generative art systems. It aims to bridge the gap between analytical geospatial science and creative artistic practice, enabling new forms of understanding, communication, and engagement with our world.
+Note: Code examples are illustrative; see `GEO-INFER-ART/examples` for runnable scripts.
 
-By leveraging techniques from computer graphics, computational aesthetics, generative art, and cartographic design, GEO-INFER-ART empowers users to create visually rich and emotionally resonant representations of geographic phenomena, cultural narratives, and environmental data.
+### Links
+- Module README: ../../GEO-INFER-ART/README.md
+- Modules Overview: ../modules/index.md
+
+GEO-INFER-ART explores the intersection of art, aesthetics, and geospatial data, providing tools to transform geospatial information into compelling artistic expressions and aesthetically refined visualizations.
 
 ## Core Objectives
 
@@ -96,6 +131,19 @@ By leveraging techniques from computer graphics, computational aesthetics, gener
 -   **Description**: Support for creating interactive installations or live performances where geospatial data and artistic visuals respond in real-time to user input, environmental sensors, or live data feeds.
 -   **Techniques**: Integration with real-time data streams (GEO-INFER-DATA, external APIs), sensor input processing, interactive rendering engines, and potential links to VJing (Visual Jockey) software or creative coding platforms.
 -   **Benefits**: Creates immersive and engaging experiences, allows for co-creation of art with audiences, and provides a dynamic way to explore changing geospatial phenomena.
+
+### 7. 🎨 Advanced Artistic Techniques
+-   **Neural Style Transfer**: 15+ predefined artistic styles (Van Gogh, Monet, Picasso, etc.) with customizable parameters
+-   **Procedural Algorithms**: 12+ algorithms including Mandelbrot sets, Julia sets, space colonization, wave function collapse
+-   **Color Theory**: Advanced color palette generation, harmony analysis, and color manipulation tools
+-   **Animation Support**: Create animated visualizations with parameter sweeps and style transitions
+-   **Multi-format Export**: Support for PNG, JPG, SVG, PDF, and animated formats (GIF, MP4)
+
+### 8. 🛠️ Professional Tools
+-   **Interactive Elements**: Zoom, pan, hover, and click interactions
+-   **Layered Export**: Separate base, cultural, and annotation layers
+-   **Metadata Integration**: Comprehensive metadata tracking and export
+-   **Quality Assurance**: Input validation, error handling, and comprehensive testing
 
 ## Module Architecture
 
@@ -172,60 +220,19 @@ graph TD
 ## Installation
 
 ```bash
-# Assuming GEO-INFER-ART is part of the main GEO-INFER installation
-# or as a separately installable package:
-pip install geo-infer-art
+pip install -e ./GEO-INFER-ART
 ```
 
-Or install from source within the GEO-INFER monorepo:
+## Documentation
 
-```bash
-# git clone https://github.com/activeinference/GEO-INFER.git # if not already cloned
-cd GEO-INFER/GEO-INFER-ART
-pip install -e .
-# Ensure all dependencies, including those for graphics libraries, are met.
-```
+- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-art.md
+- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
 
 ## Quick Start
 
 ```python
-from geo_infer_art.core.visualization import geo_art # Adjusted import path
-from geo_infer_art.core.aesthetics import style_transfer # Adjusted import path
-from geo_infer_art.core.generation import generative_map # Adjusted import path
-
-# Example: Load geospatial data (pseudo-code for brevity)
-# geo_data = geo_art.load_vector_data("path/to/data.geojson")
-# elevation_data = geo_art.load_raster_data("path/to/elevation.tif")
-
-# Placeholder for actual data loading, which would depend on GEO-INFER-DATA integration
-class MockGeoData:
-    def __init__(self, name):
-        self.name = name
-    def save(self, path):
-        print(f"{self.name} saved to {path}")
-
-geo_data = MockGeoData("vector_data")
-elevation_data = MockGeoData("elevation_data")
-
-# Apply artistic style transfer to a map concept
-styled_map = style_transfer.apply_style(
-    source_data=geo_data, # Conceptual representation of map data
-    style_reference="van_gogh_starry_night", # Could be a keyword or path to style image
-    parameters={"strength": 0.8, "color_palette": "vibrant_blues"}
-)
-
-# Generate procedural art based on terrain concept
-terrain_art = generative_map.create_from_elevation(
-    elevation_data=elevation_data, # Conceptual representation of elevation
-    algorithm="flow_lines_abstract",
-    parameters={"line_density": 0.7, "color_scheme": "earth_tones"}
-)
-
-# Save outputs
-styled_map.save("artistic_map_output.png")
-terrain_art.save("terrain_abstract_art.png")
+# See examples/ for runnable scripts; APIs may change
 ```
-*Note: The Quick Start is illustrative and actual implementation details may vary based on the final API design and integration with other GEO-INFER modules.*
 
 ## Core Components (Conceptual - to be refined)
 
@@ -312,4 +319,4 @@ Contributions are highly welcome! We are looking for collaborators in areas like
 
 ## License
 
-This project is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License - see the `LICENSE` file in the GEO-INFER root directory for details. *(Please confirm if this is the intended license for this specific module, or if it aligns with a broader project license like MIT often seen in other modules. Consistency is key.)* 
+This project is licensed under CC BY-ND-SA 4.0 – see `LICENSE` at the repo root.

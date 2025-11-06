@@ -1,0 +1,98 @@
+# GEO-INFER-SEC Module Development Rules
+
+## Module Overview
+
+GEO-INFER-SEC provides comprehensive security and privacy framework for geospatial information systems with encryption, access control, and compliance.
+
+## Module-Specific Context
+
+**Purpose**: Provide robust security and privacy protections for geospatial information  
+**Module Type**: Security & Governance  
+**Status**: Alpha  
+**Dependencies**: None (foundational security module)  
+**Key Integrations**: All modules, GEO-INFER-DATA, GEO-INFER-API
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Security Implementation Requirements
+
+1. **Encryption**: Implement real encryption algorithms (AES, RSA, etc.) with proper key management
+2. **Access Control**: Use real authorization mechanisms (RBAC, ABAC, geospatial access control)
+3. **Authentication**: Implement real authentication (OAuth 2.0, JWT, multi-factor authentication)
+4. **Privacy Protection**: Use real privacy-preserving techniques (differential privacy, k-anonymity)
+5. **Compliance**: Support real regulatory compliance (GDPR, CCPA, HIPAA)
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder security mechanisms
+- NEVER skip encryption validation
+- NEVER omit access control checks
+- ALWAYS implement real security algorithms
+- ALWAYS use proper cryptographic practices
+
+### Real Implementation Requirements
+
+- **Encryption**: Implement real encryption with proper key management
+- **Access Control**: Use real authorization frameworks (RBAC, ABAC)
+- **Authentication**: Implement real authentication protocols (OAuth, JWT)
+- **Privacy**: Use real privacy-preserving techniques (differential privacy, k-anonymity)
+- **Audit Logging**: Implement real security audit logging
+
+## Dependencies and Integration
+
+### Required Modules
+
+- None (this is a foundational security module)
+
+### Integration Patterns
+
+```python
+# Security with data management
+from geo_infer_sec.core.encryption import DataEncryption
+from geo_infer_data.core.storage import StorageManager
+
+# Authentication for APIs
+from geo_infer_sec.core.authentication import AuthProvider
+from geo_infer_api.api.security import APISecurity
+
+# Privacy protection
+from geo_infer_sec.core.privacy import PrivacyProtection
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Security Policies**: Real security policies and configurations
+- **User Credentials**: Real authentication credentials (hashed, encrypted)
+- **Audit Logs**: Real security audit logs
+
+### API Standards
+
+- Use consistent security API patterns
+- Implement proper error handling for security issues
+- Support multiple authentication methods
+- Provide comprehensive security monitoring
+
+## Module-Specific Implementation Guidelines
+
+### Code Structure
+
+- Encryption: `src/geo_infer_sec/core/encryption.py`
+- Authentication: `src/geo_infer_sec/core/authentication.py`
+- Access Control: `src/geo_infer_sec/core/access_control.py`
+- Privacy: `src/geo_infer_sec/core/privacy.py`
+
+### Testing Requirements
+
+- Test encryption with real data
+- Validate authentication with real credentials
+- Test access control with real policies
+- Verify privacy protection with known attacks
+
+---
+
+**Remember**: This module provides security for the entire framework. Every implementation must use real security algorithms, proper cryptographic practices, and comprehensive protection mechanisms. No placeholders, no dummy security - only real, working security implementations.
+

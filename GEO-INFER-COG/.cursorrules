@@ -1,0 +1,98 @@
+# GEO-INFER-COG Module Development Rules
+
+## Module Overview
+
+GEO-INFER-COG provides cognitive geospatial processing that models human perception, reasoning, and spatial cognition for intuitive interfaces.
+
+## Module-Specific Context
+
+**Purpose**: Enhance human-centered spatial decision-making through cognitive modeling  
+**Module Type**: Analytical Core  
+**Status**: Beta  
+**Dependencies**: SPACE, AI  
+**Key Integrations**: GEO-INFER-APP, GEO-INFER-AGENT
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Cognitive Modeling Implementation Requirements
+
+1. **Cognitive Models**: Implement real cognitive models based on cognitive science literature
+2. **Spatial Reasoning**: Use real spatial reasoning algorithms (qualitative reasoning, landmark-based navigation)
+3. **Perception Modeling**: Implement real perceptual models (attention, memory, spatial cognition)
+4. **Human-Centered Design**: Design interfaces based on cognitive principles
+5. **Validation**: Test cognitive models with real human behavior data
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder cognitive models
+- NEVER skip cognitive validation steps
+- NEVER omit user testing
+- ALWAYS implement real cognitive algorithms
+- ALWAYS base models on cognitive science literature
+
+### Real Implementation Requirements
+
+- **Cognitive Models**: Implement real Bayesian cognitive models, spatial knowledge representations
+- **Spatial Reasoning**: Use real qualitative spatial reasoning algorithms
+- **Perception**: Implement real attention mechanisms, cognitive load models
+- **Visualization**: Design real perceptually uniform color schemes, attention-aware interfaces
+- **Language Processing**: Implement real spatial NLP for geographic references
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-SPACE**: Spatial operations and indexing
+- **GEO-INFER-AI**: Machine learning for cognitive modeling
+
+### Integration Patterns
+
+```python
+# Cognitive modeling with spatial data
+from geo_infer_cog.core.cognitive import CognitiveModel
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+
+# Integration with applications
+from geo_infer_app.core.interface import UserInterface
+
+# AI for cognitive modeling
+from geo_infer_ai.models import CognitiveMLModel
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Human Behavior Data**: Real user interaction data, eye-tracking, spatial navigation data
+- **Cognitive Maps**: Real cognitive map data, landmark saliency data
+- **Spatial Language**: Real geographic text data, place descriptions
+
+### API Standards
+
+- Use consistent cognitive API patterns
+- Implement proper error handling for cognitive models
+- Support both computational and qualitative models
+- Provide interpretability for cognitive processes
+
+## Module-Specific Implementation Guidelines
+
+### Code Structure
+
+- Cognitive Models: `src/geo_infer_cog/core/cognitive.py`
+- Spatial Reasoning: `src/geo_infer_cog/core/reasoning.py`
+- Perception: `src/geo_infer_cog/core/perception.py`
+- Visualization: `src/geo_infer_cog/core/visualization.py`
+
+### Testing Requirements
+
+- Test cognitive models with real human behavior data
+- Validate spatial reasoning with known cognitive patterns
+- Test interfaces with real users
+- Verify cognitive load models with empirical data
+
+---
+
+**Remember**: This module implements cognitive models for geospatial applications. Every implementation must be based on real cognitive science, use real algorithms, and be validated with human data. No placeholders, no simplified cognitive models - only real, working cognitive implementations.
+

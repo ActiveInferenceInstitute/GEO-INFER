@@ -1,0 +1,73 @@
+# GEO-INFER-ANT Module Development Rules
+
+## Module Overview
+
+GEO-INFER-ANT provides complex systems modeling using Active Inference principles with swarm intelligence and emergent behaviors.
+
+## Module-Specific Context
+
+**Purpose**: Provide swarm intelligence and complex adaptive systems modeling  
+**Module Type**: Simulation & Modeling  
+**Status**: Beta  
+**Dependencies**: ACT, SIM  
+**Key Integrations**: GEO-INFER-AI, GEO-INFER-AGENT
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Swarm Implementation Requirements
+
+1. **Swarm Agents**: Implement real swarm agent behaviors with proper rules
+2. **Stigmergy**: Use real stigmergic communication (pheromone systems, etc.)
+3. **Emergent Behavior**: Model real emergent behaviors from agent interactions
+4. **Optimization**: Implement real swarm-based optimization algorithms
+5. **Spatial Dynamics**: Use real spatial dynamics for swarm movement
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder swarm behaviors
+- NEVER skip stigmergic communication
+- NEVER omit emergent behavior modeling
+- ALWAYS implement real swarm algorithms
+- ALWAYS use proper spatial dynamics
+
+### Real Implementation Requirements
+
+- **Swarm Agents**: Implement real agent behaviors (foraging, defense, reproduction)
+- **Stigmergy**: Use real pheromone systems with proper diffusion and decay
+- **Emergent Behavior**: Model real emergence from local interactions
+- **Optimization**: Implement real swarm optimization (ant colony optimization, etc.)
+- **Spatial Dynamics**: Use real spatial indexing (H3 v4) for swarm environments
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-ACT**: Active Inference for agent decision-making
+- **GEO-INFER-SIM**: Simulation environments
+
+### Integration Patterns
+
+```python
+# Swarm with Active Inference
+from geo_infer_ant.core.swarm import SwarmSystem
+from geo_infer_act.core.active_inference import ActiveInferenceModel
+
+# Spatial swarm dynamics
+from geo_infer_ant.core.spatial_dynamics import SpatialSwarmDynamics
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Swarm Parameters**: Real colony parameters and behavioral rules
+- **Environmental Data**: Real environmental conditions for swarms
+- **Movement Data**: Real movement patterns and trajectories
+
+---
+
+**Remember**: This module implements swarm intelligence for complex systems. Every implementation must use real swarm algorithms, proper stigmergic communication, and comprehensive emergent behavior modeling. No placeholders, no dummy swarms - only real, working swarm implementations.
+

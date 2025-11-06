@@ -1,0 +1,54 @@
+# GEO-INFER-LOG Module Development Rules
+
+## Module Overview
+
+GEO-INFER-LOG provides logistics and supply chain optimization for transportation and routing.
+
+## Module-Specific Context
+
+**Purpose**: Provide logistics and supply chain optimization capabilities  
+**Module Type**: Domain-Specific  
+**Status**: Beta  
+**Dependencies**: SPACE, TIME, DATA  
+**Key Integrations**: GEO-INFER-AI, GEO-INFER-ECON
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Logistics Implementation Requirements
+
+1. **Route Optimization**: Implement real route optimization algorithms
+2. **Supply Chain Modeling**: Use real supply chain models
+3. **Transportation Networks**: Implement real network analysis
+4. **Logistics Planning**: Provide real logistics planning tools
+5. **Optimization**: Use real optimization algorithms
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder routing algorithms
+- NEVER skip network validation
+- NEVER omit optimization constraints
+- ALWAYS implement real logistics algorithms
+- ALWAYS use proper network data
+
+### Real Implementation Requirements
+
+- **Route Optimization**: Implement real routing algorithms (Dijkstra, A*, etc.)
+- **Supply Chain**: Use real supply chain modeling methods
+- **Network Analysis**: Implement real network analysis algorithms
+- **Logistics Planning**: Use real planning and scheduling methods
+- **Optimization**: Use real optimization solvers
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-SPACE**: Spatial operations for routing
+- **GEO-INFER-TIME**: Temporal analysis for scheduling
+- **GEO-INFER-DATA**: Data management for logistics data
+
+---
+
+**Remember**: This module implements logistics optimization for geospatial applications. Every implementation must use real routing algorithms, proper network analysis, and comprehensive logistics planning. No placeholders, no dummy routes - only real, working logistics implementations.
+

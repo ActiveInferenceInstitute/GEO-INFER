@@ -1,0 +1,99 @@
+# GEO-INFER-API Module Development Rules
+
+## Module Overview
+
+GEO-INFER-API provides standardized interfaces for geospatial interoperability with REST/GraphQL APIs and external system integration.
+
+## Module-Specific Context
+
+**Purpose**: Provide robust, scalable API infrastructure for module integration  
+**Module Type**: Data Management  
+**Status**: Beta  
+**Dependencies**: All modules  
+**Key Integrations**: All modules, external systems
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### API Implementation Requirements
+
+1. **OGC Compliance**: Implement real OGC API standards (Features, Processes, Maps, Tiles)
+2. **REST/GraphQL**: Use real REST and GraphQL implementations
+3. **Authentication**: Implement real authentication and authorization
+4. **Documentation**: Provide comprehensive API documentation (OpenAPI/Swagger)
+5. **Performance**: Optimize for high-throughput API requests
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder API endpoints
+- NEVER skip authentication/authorization
+- NEVER omit API documentation
+- ALWAYS implement real API handlers
+- ALWAYS use proper security mechanisms
+
+### Real Implementation Requirements
+
+- **API Endpoints**: Implement real REST endpoints with proper routing
+- **GraphQL**: Use real GraphQL schemas and resolvers
+- **Authentication**: Implement real OAuth 2.0, JWT, API key authentication
+- **Documentation**: Generate real OpenAPI/Swagger documentation
+- **Rate Limiting**: Implement real rate limiting and throttling
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **All GEO-INFER modules**: For service exposure
+- **GEO-INFER-SEC**: For authentication and authorization
+
+### Integration Patterns
+
+```python
+# API with module services
+from geo_infer_api.api.rest_api import RESTAPIService
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+
+# Authentication integration
+from geo_infer_api.api.security import APISecurity
+from geo_infer_sec.core.authentication import AuthProvider
+
+# GraphQL API
+from geo_infer_api.api.graphql_api import GraphQLService
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Module Services**: Real services from all GEO-INFER modules
+- **External APIs**: Real external API integrations
+- **Client Requests**: Real HTTP/HTTPS requests
+
+### API Standards
+
+- Follow OGC API standards
+- Use RESTful design principles
+- Implement proper GraphQL schemas
+- Provide comprehensive OpenAPI documentation
+
+## Module-Specific Implementation Guidelines
+
+### Code Structure
+
+- REST API: `src/geo_infer_api/api/rest_api.py`
+- GraphQL: `src/geo_infer_api/api/graphql_api.py`
+- Security: `src/geo_infer_api/api/security.py`
+- Schemas: `src/geo_infer_api/api/schemas.py`
+
+### Testing Requirements
+
+- Test API endpoints with real requests
+- Validate authentication with real credentials
+- Test rate limiting with realistic loads
+- Verify API documentation accuracy
+
+---
+
+**Remember**: This module provides API infrastructure for the entire framework. Every implementation must use real API handlers, proper security, and comprehensive documentation. No placeholders, no dummy endpoints - only real, working API implementations.
+

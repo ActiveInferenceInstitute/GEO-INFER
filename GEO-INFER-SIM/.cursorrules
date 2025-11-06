@@ -1,0 +1,72 @@
+# GEO-INFER-SIM Module Development Rules
+
+## Module Overview
+
+GEO-INFER-SIM provides simulation environments for hypothesis testing and geospatial system modeling.
+
+## Module-Specific Context
+
+**Purpose**: Provide simulation environments for geospatial hypothesis testing  
+**Module Type**: Simulation & Modeling  
+**Status**: Alpha  
+**Dependencies**: SPACE, TIME  
+**Key Integrations**: GEO-INFER-AGENT, GEO-INFER-ACT
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Simulation Implementation Requirements
+
+1. **Simulation Engines**: Implement real simulation engines with proper physics/models
+2. **Agent-Based Models**: Use real agent-based modeling with proper agent behaviors
+3. **Scenario Management**: Implement real scenario management and execution
+4. **Validation**: Provide real simulation validation and verification
+5. **Performance**: Optimize for large-scale simulations
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder simulation models
+- NEVER skip simulation validation
+- NEVER omit scenario management
+- ALWAYS implement real simulation engines
+- ALWAYS use proper modeling approaches
+
+### Real Implementation Requirements
+
+- **Simulation Models**: Implement real physics-based or agent-based models
+- **Scenario Execution**: Use real scenario execution with proper state management
+- **Validation**: Implement real validation with known outcomes
+- **Performance**: Optimize with real parallel processing and optimization
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-SPACE**: Spatial operations for simulation environments
+- **GEO-INFER-TIME**: Temporal modeling for dynamic simulations
+
+### Integration Patterns
+
+```python
+# Simulation with agents
+from geo_infer_sim.core.simulation import SimulationEngine
+from geo_infer_agent.core.agent_base import BaseAgent
+
+# Spatial simulation
+from geo_infer_sim.core.environment import SpatialEnvironment
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Simulation Models**: Real model specifications and parameters
+- **Initial Conditions**: Real initial state data
+- **Validation Data**: Real validation datasets
+
+---
+
+**Remember**: This module implements simulation environments for geospatial systems. Every implementation must use real simulation engines, proper modeling, and comprehensive validation. No placeholders, no dummy simulations - only real, working simulation implementations.
+

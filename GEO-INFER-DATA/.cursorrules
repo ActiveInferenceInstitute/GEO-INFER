@@ -1,0 +1,97 @@
+# GEO-INFER-DATA Module Development Rules
+
+## Module Overview
+
+GEO-INFER-DATA provides foundational data management, ETL pipelines, and storage optimization for geospatial datasets.
+
+## Module-Specific Context
+
+**Purpose**: Ensure reliable, timely access to high-quality geospatial data  
+**Module Type**: Data Management  
+**Status**: Beta  
+**Dependencies**: OPS, SEC  
+**Key Integrations**: All analytical modules
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Data Management Implementation Requirements
+
+1. **ETL Pipelines**: Implement complete ETL workflows with real data processing
+2. **Data Validation**: Use real validation algorithms with proper quality checks
+3. **Storage Optimization**: Implement real storage optimization strategies
+4. **Data Quality**: Ensure real data quality assurance with proper metrics
+5. **Performance**: Optimize for large-scale geospatial data processing
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder ETL steps
+- NEVER skip data validation
+- NEVER omit quality checks
+- ALWAYS implement real data processing
+- ALWAYS use proper data validation methods
+
+### Real Implementation Requirements
+
+- **ETL Pipelines**: Implement real extraction, transformation, and loading processes
+- **Data Validation**: Use real validation algorithms (schema validation, range checks, etc.)
+- **Storage**: Implement real storage backends (PostgreSQL, S3, etc.)
+- **Quality Assurance**: Use real quality metrics and validation rules
+- **Performance**: Optimize with real indexing, caching, and parallel processing
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-OPS**: System orchestration and monitoring
+- **GEO-INFER-SEC**: Security and access control
+
+### Integration Patterns
+
+```python
+# Data management with spatial operations
+from geo_infer_data.core.etl import ETLPipeline
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+
+# Data quality assurance
+from geo_infer_data.validation import DataValidator
+
+# Storage optimization
+from geo_infer_data.storage import StorageManager
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Geospatial Data**: Real vector/raster data from multiple sources
+- **Sensor Data**: Real IoT sensor streams
+- **Satellite Data**: Real Earth observation data
+
+### API Standards
+
+- Use consistent data API patterns
+- Implement proper error handling for data issues
+- Support multiple data formats (GeoJSON, Shapefile, GeoTIFF, etc.)
+- Provide comprehensive data quality metrics
+
+## Module-Specific Implementation Guidelines
+
+### Code Structure
+
+- ETL: `etl/` and `src/geo_infer_data/core/etl.py`
+- Validation: `validation/` and `src/geo_infer_data/validation.py`
+- Storage: `storage/` and `src/geo_infer_data/storage.py`
+
+### Testing Requirements
+
+- Test ETL pipelines with real data sources
+- Validate data quality with known datasets
+- Test storage optimization with large datasets
+- Verify performance with realistic workloads
+
+---
+
+**Remember**: This module provides foundational data management for the entire framework. Every implementation must use real data processing, proper validation, and comprehensive quality assurance. No placeholders, no dummy data - only real, working data management implementations.
+

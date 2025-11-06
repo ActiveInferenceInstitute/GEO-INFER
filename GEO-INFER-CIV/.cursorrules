@@ -1,0 +1,61 @@
+# GEO-INFER-CIV Module Development Rules
+
+## Module Overview
+
+GEO-INFER-CIV provides civic engagement and participatory mapping tools for community-driven spatial planning.
+
+## Module-Specific Context
+
+**Purpose**: Provide civic engagement and participatory mapping capabilities  
+**Module Type**: People & Community  
+**Status**: Alpha  
+**Dependencies**: SPACE, APP  
+**Key Integrations**: GEO-INFER-COMMS, GEO-INFER-ORG
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Civic Engagement Implementation Requirements
+
+1. **Participatory Mapping**: Implement real participatory mapping tools
+2. **Community Engagement**: Use real community engagement platforms
+3. **Stakeholder Management**: Implement real stakeholder management systems
+4. **Spatial Planning**: Provide real spatial planning tools
+5. **Data Collection**: Implement real community data collection mechanisms
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder engagement tools
+- NEVER skip stakeholder validation
+- NEVER omit community feedback
+- ALWAYS implement real engagement platforms
+- ALWAYS use proper spatial planning methods
+
+### Real Implementation Requirements
+
+- **Mapping Tools**: Implement real participatory mapping interfaces
+- **Engagement Platforms**: Use real community engagement systems
+- **Stakeholder Management**: Implement real stakeholder tracking
+- **Spatial Planning**: Use real spatial planning workflows
+- **Data Collection**: Implement real community data collection
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-SPACE**: Spatial operations for mapping
+- **GEO-INFER-APP**: Application interfaces for engagement
+
+### Integration Patterns
+
+```python
+# Civic engagement with spatial tools
+from geo_infer_civ.core.participatory import ParticipatoryMapping
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+```
+
+---
+
+**Remember**: This module implements civic engagement for geospatial applications. Every implementation must use real engagement tools, proper stakeholder management, and comprehensive community participation. No placeholders, no dummy engagement - only real, working civic engagement implementations.
+

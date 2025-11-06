@@ -1,0 +1,107 @@
+# GEO-INFER-SPACE Module Development Rules
+
+## Module Overview
+
+GEO-INFER-SPACE provides backend-agnostic advanced spatial methods with H3 v4 spatial indexing and comprehensive geospatial analysis capabilities.
+
+## Module-Specific Context
+
+**Purpose**: Provide advanced spatial analysis capabilities including H3 v4 indexing  
+**Module Type**: Spatial-Temporal  
+**Status**: Beta (FULLY MIGRATED to H3 v4)  
+**Dependencies**: DATA, MATH  
+**Key Integrations**: All domain modules, GEO-INFER-PLACE
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Spatial Implementation Requirements
+
+1. **H3 v4 API**: ALWAYS use H3 v4 API methods (`latlng_to_cell`, `cell_to_latlng`, `geo_to_cells`)
+2. **Backend Agnostic**: Support multiple backends (H3, SRAI) with proper dispatch
+3. **Coordinate Systems**: Use real CRS transformations with proper accuracy
+4. **Spatial Operations**: Implement real geometric operations (not approximations)
+5. **Performance**: Optimize for large-scale geospatial data processing
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER use H3 v3 API methods (deprecated)
+- NEVER create placeholder spatial operations
+- NEVER skip CRS validation
+- ALWAYS use real H3 v4 API methods
+- ALWAYS implement proper spatial indexing
+
+### Real Implementation Requirements
+
+- **H3 v4 Indexing**: Use `h3.latlng_to_cell()`, `h3.cell_to_latlng()`, `h3.geo_to_cells()`
+- **Spatial Indexing**: Implement real spatial indexing (H3, R-tree, QuadTree)
+- **Geometric Operations**: Use real geometric algorithms (shapely, computational geometry)
+- **CRS Transformations**: Implement real coordinate transformations (pyproj)
+- **Spatial Analytics**: Implement real spatial analysis (hotspots, clustering, interpolation)
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-DATA**: Data management and ETL
+- **GEO-INFER-MATH**: Mathematical foundations
+
+### Integration Patterns
+
+```python
+# H3 v4 spatial indexing
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+import h3
+
+# Use H3 v4 API
+cell = h3.latlng_to_cell(37.7749, -122.4194, 9)  # H3 v4
+latlng = h3.cell_to_latlng(cell)  # H3 v4
+
+# Backend-agnostic interface
+indexer = SpatialIndexingInterface(backend='h3')
+cell = indexer.latlng_to_cell(37.7749, -122.4194, 9)
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Geospatial Data**: Real vector/raster data, GeoJSON, Shapefiles, GeoTIFFs
+- **Coordinates**: Real lat/lng coordinates, projected coordinates
+- **Spatial Queries**: Real spatial queries and operations
+
+### API Standards
+
+- Use H3 v4 API consistently (no v3 methods)
+- Support multiple backends with proper dispatch
+- Implement proper error handling for spatial operations
+- Provide comprehensive spatial analysis capabilities
+
+## Module-Specific Implementation Guidelines
+
+### H3 v4 Requirements
+
+- **ALWAYS** use H3 v4 API: `latlng_to_cell()`, `cell_to_latlng()`, `geo_to_cells()`
+- **NEVER** use deprecated H3 v3 methods: `geo_to_h3()`, `h3_to_geo()`
+- Use proper H3 resolution levels (0-15)
+- Implement proper H3 cell validation
+
+### Code Structure
+
+- Spatial Indexing: `src/geo_infer_space/core/spatial_indexing.py`
+- Analytics: `src/geo_infer_space/core/analytics.py`
+- Geometric Operations: `src/geo_infer_space/core/geometry.py`
+- CRS: `src/geo_infer_space/core/crs.py`
+
+### Testing Requirements
+
+- Test H3 v4 API with real coordinates
+- Validate spatial operations with known geometries
+- Test CRS transformations with reference data
+- Verify spatial indexing performance
+
+---
+
+**Remember**: This module uses H3 v4 API exclusively. Every implementation must use real H3 v4 methods, proper spatial operations, and comprehensive geospatial analysis. No H3 v3 methods, no placeholders - only real, working H3 v4 spatial implementations.
+

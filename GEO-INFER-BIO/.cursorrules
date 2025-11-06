@@ -1,0 +1,54 @@
+# GEO-INFER-BIO Module Development Rules
+
+## Module Overview
+
+GEO-INFER-BIO provides bioinformatics analysis with spatial context for spatial omics and ecological modeling.
+
+## Module-Specific Context
+
+**Purpose**: Provide bioinformatics analysis with spatial dimensions  
+**Module Type**: Domain-Specific  
+**Status**: Beta  
+**Dependencies**: SPACE, TIME, DATA  
+**Key Integrations**: GEO-INFER-AI, GEO-INFER-HEALTH
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Bioinformatics Implementation Requirements
+
+1. **Spatial Omics**: Implement real spatial omics analysis
+2. **Ecological Modeling**: Use real ecological modeling methods
+3. **Phylogeography**: Implement real phylogeographic analysis
+4. **Genomic Analysis**: Provide real genomic data processing
+5. **Spatial Biology**: Use real spatial biology methods
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder bioinformatics models
+- NEVER skip data validation
+- NEVER omit spatial context
+- ALWAYS implement real bioinformatics algorithms
+- ALWAYS use proper biological data
+
+### Real Implementation Requirements
+
+- **Spatial Omics**: Implement real spatial transcriptomics, proteomics analysis
+- **Ecological Models**: Use real ecological modeling methods
+- **Phylogeography**: Implement real phylogeographic analysis
+- **Genomic Analysis**: Use real genomic data processing pipelines
+- **Spatial Biology**: Implement real spatial biology workflows
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-SPACE**: Spatial operations for biological data
+- **GEO-INFER-TIME**: Temporal analysis for evolutionary processes
+- **GEO-INFER-DATA**: Data management for biological data
+
+---
+
+**Remember**: This module implements bioinformatics with spatial context. Every implementation must use real biological data, proper spatial analysis, and comprehensive bioinformatics methods. No placeholders, no dummy data - only real, working bioinformatics implementations.
+

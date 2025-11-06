@@ -1,0 +1,79 @@
+# GEO-INFER-NORMS Module Development Rules
+
+## Module Overview
+
+GEO-INFER-NORMS provides social-technical compliance modeling for normative systems and regulatory compliance.
+
+## Module-Specific Context
+
+**Purpose**: Provide compliance tracking and normative system modeling  
+**Module Type**: Security & Governance  
+**Status**: Alpha  
+**Dependencies**: SPACE, DATA  
+**Key Integrations**: GEO-INFER-SEC, GEO-INFER-REQ
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Compliance Implementation Requirements
+
+1. **Normative Modeling**: Implement real normative system models
+2. **Compliance Tracking**: Use real compliance tracking mechanisms
+3. **Regulatory Mapping**: Implement real regulatory requirement mapping
+4. **Social Norms**: Model real social norms and compliance behavior
+5. **Validation**: Provide real compliance validation and reporting
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder compliance checks
+- NEVER skip regulatory validation
+- NEVER omit compliance tracking
+- ALWAYS implement real normative models
+- ALWAYS use proper compliance frameworks
+
+### Real Implementation Requirements
+
+- **Normative Models**: Implement real normative system models
+- **Compliance Tracking**: Use real tracking mechanisms with proper audit trails
+- **Regulatory Mapping**: Implement real regulatory requirement databases
+- **Social Norms**: Model real social compliance behaviors
+- **Reporting**: Generate real compliance reports
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-SPACE**: Spatial operations for location-based compliance
+- **GEO-INFER-DATA**: Data management for compliance data
+
+### Integration Patterns
+
+```python
+# Compliance with security
+from geo_infer_norms.core.compliance import ComplianceTracker
+from geo_infer_sec.core.access_control import AccessControl
+
+# Regulatory mapping
+from geo_infer_norms.core.regulatory import RegulatoryMapping
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Regulatory Requirements**: Real regulatory requirements databases
+- **Compliance Data**: Real compliance tracking data
+- **Social Norms**: Real social norm data
+
+### API Standards
+
+- Use consistent compliance API patterns
+- Implement proper error handling for compliance issues
+- Support multiple regulatory frameworks
+- Provide comprehensive compliance reporting
+
+---
+
+**Remember**: This module implements compliance modeling for geospatial applications. Every implementation must use real normative models, proper compliance tracking, and comprehensive regulatory support. No placeholders, no dummy compliance - only real, working compliance implementations.
+

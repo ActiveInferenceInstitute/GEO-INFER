@@ -1,4 +1,5 @@
 README.md
+pyproject.toml
 setup.py
 src/geo_infer_norms/__init__.py
 src/geo_infer_norms.egg-info/PKG-INFO

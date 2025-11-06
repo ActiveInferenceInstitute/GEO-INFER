@@ -1,0 +1,54 @@
+# GEO-INFER-ECON Module Development Rules
+
+## Module Overview
+
+GEO-INFER-ECON provides economic modeling with spatial dimensions for market analysis and policy modeling.
+
+## Module-Specific Context
+
+**Purpose**: Provide economic analysis with spatial dimensions  
+**Module Type**: Domain-Specific  
+**Status**: Alpha  
+**Dependencies**: SPACE, TIME, DATA  
+**Key Integrations**: GEO-INFER-AI, GEO-INFER-RISK
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Economic Implementation Requirements
+
+1. **Economic Models**: Implement real economic models with spatial dimensions
+2. **Market Analysis**: Use real market analysis methods
+3. **Policy Modeling**: Implement real policy impact modeling
+4. **Spatial Economics**: Provide real spatial economic analysis
+5. **Data Integration**: Integrate real economic data sources
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder economic models
+- NEVER skip economic validation
+- NEVER omit spatial dimensions
+- ALWAYS implement real economic algorithms
+- ALWAYS use proper economic data
+
+### Real Implementation Requirements
+
+- **Economic Models**: Implement real spatial economic models
+- **Market Analysis**: Use real market analysis algorithms
+- **Policy Modeling**: Implement real policy impact analysis
+- **Spatial Economics**: Use real spatial economic methods
+- **Data Sources**: Integrate real economic data APIs
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-SPACE**: Spatial operations for economic geography
+- **GEO-INFER-TIME**: Temporal analysis for economic trends
+- **GEO-INFER-DATA**: Data management for economic data
+
+---
+
+**Remember**: This module implements economic analysis with spatial dimensions. Every implementation must use real economic models, proper spatial analysis, and comprehensive economic data. No placeholders, no dummy models - only real, working economic implementations.
+

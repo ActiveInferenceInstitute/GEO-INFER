@@ -1,0 +1,52 @@
+# GEO-INFER-INTRA Module Development Rules
+
+## Module Overview
+
+GEO-INFER-INTRA provides project documentation, workflows, and ontology management for the GEO-INFER framework.
+
+## Module-Specific Context
+
+**Purpose**: Provide comprehensive documentation and standards for the framework  
+**Module Type**: Operations  
+**Status**: Beta  
+**Dependencies**: None (documentation module)  
+**Key Integrations**: All modules
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### Documentation Implementation Requirements
+
+1. **Documentation Standards**: Implement real documentation standards and templates
+2. **Workflow Management**: Use real workflow documentation and management
+3. **Ontology Management**: Implement real ontology management systems
+4. **Integration Guides**: Provide real integration documentation
+5. **Quality Assurance**: Ensure real documentation quality
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder documentation
+- NEVER skip documentation validation
+- NEVER omit cross-references
+- ALWAYS implement real documentation systems
+- ALWAYS use proper documentation standards
+
+### Real Implementation Requirements
+
+- **Documentation**: Implement real documentation generation and management
+- **Standards**: Use real documentation standards (YAML front matter, etc.)
+- **Ontologies**: Implement real ontology management
+- **Guides**: Provide real integration and usage guides
+- **Quality**: Ensure real documentation quality metrics
+
+## Dependencies and Integration
+
+### Required Modules
+
+- None (this is a documentation module for all modules)
+
+---
+
+**Remember**: This module provides documentation for the entire framework. Every implementation must use real documentation systems, proper standards, and comprehensive guides. No placeholders, no dummy documentation - only real, working documentation implementations.
+

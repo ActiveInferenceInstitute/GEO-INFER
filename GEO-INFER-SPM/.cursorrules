@@ -1,0 +1,106 @@
+# GEO-INFER-SPM Module Development Rules
+
+## Module Overview
+
+GEO-INFER-SPM provides Statistical Parametric Mapping methodology adapted for geospatial analysis to identify significant patterns in spatial-temporal data.
+
+## Module-Specific Context
+
+**Purpose**: Provide statistical tools for analyzing spatially continuous data fields  
+**Module Type**: Analytical Core  
+**Status**: Alpha  
+**Dependencies**: MATH, SPACE  
+**Key Integrations**: GEO-INFER-TIME, GEO-INFER-HEALTH
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### SPM Implementation Requirements
+
+1. **General Linear Model**: Implement real GLM with proper design matrices
+2. **Random Field Theory**: Use real RFT for multiple comparisons correction
+3. **Statistical Inference**: Implement real statistical tests (t-tests, F-tests)
+4. **Cluster Analysis**: Use real cluster-level inference methods
+5. **Spatial Smoothness**: Implement real smoothness estimation
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder statistical models
+- NEVER skip multiple comparisons correction
+- NEVER omit RFT calculations
+- ALWAYS implement real GLM algorithms
+- ALWAYS use proper statistical inference methods
+
+### Real Implementation Requirements
+
+- **GLM**: Implement real general linear model with proper design matrices
+- **RFT**: Use real random field theory for multiple comparisons
+- **Statistical Tests**: Implement real t-tests, F-tests, ANOVA
+- **Cluster Inference**: Use real cluster-level inference methods
+- **Spatial Analysis**: Implement real spatial autocorrelation modeling
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-MATH**: Mathematical foundations, statistics
+- **GEO-INFER-SPACE**: Spatial operations and indexing
+
+### Integration Patterns
+
+```python
+# SPM with spatial data
+from geo_infer_spm.core.glm import GeneralLinearModel
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+
+# Temporal SPM
+from geo_infer_spm.core.temporal_spm import TemporalSPM
+from geo_infer_time.core.temporal import TemporalModel
+
+# Health applications
+from geo_infer_health.core.epidemiology import EpidemiologyModel
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Spatial-Temporal Data**: Real continuous spatial fields (climate, health, environmental)
+- **Experimental Designs**: Real design matrices for statistical tests
+- **Reference Data**: Real reference distributions for statistical testing
+
+### API Standards
+
+- Use consistent SPM API patterns
+- Implement proper error handling for statistical issues
+- Support both spatial and temporal SPM
+- Provide comprehensive statistical summaries
+
+## Module-Specific Implementation Guidelines
+
+### Mathematical Foundations
+
+- Document all statistical methods with mathematical notation
+- Include proper citations to SPM literature
+- Implement numerical stability checks
+- Use appropriate statistical significance thresholds
+
+### Code Structure
+
+- GLM: `src/geo_infer_spm/core/glm.py`
+- RFT: `src/geo_infer_spm/core/rft.py`
+- Inference: `src/geo_infer_spm/core/inference.py`
+- Visualization: `src/geo_infer_spm/core/visualization.py`
+
+### Testing Requirements
+
+- Test GLM with known statistical models
+- Validate RFT corrections with simulated data
+- Test statistical inference with known outcomes
+- Verify statistical summaries
+
+---
+
+**Remember**: This module implements Statistical Parametric Mapping for geospatial analysis. Every implementation must use real GLM algorithms, proper RFT corrections, and rigorous statistical inference. No placeholders, no simplified statistics - only real, working SPM implementations.
+

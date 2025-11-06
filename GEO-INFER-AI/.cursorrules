@@ -1,0 +1,98 @@
+# GEO-INFER-AI Module Development Rules
+
+## Module Overview
+
+GEO-INFER-AI provides advanced machine learning and artificial intelligence capabilities specifically designed for geospatial analysis and decision-making.
+
+## Module-Specific Context
+
+**Purpose**: Provide comprehensive AI and machine learning capabilities for geospatial data  
+**Module Type**: Analytical Core  
+**Status**: Alpha  
+**Dependencies**: DATA, SPACE  
+**Key Integrations**: All domain modules, GEO-INFER-AGENT, GEO-INFER-APP
+
+## Core Development Principles
+
+This module extends the root framework rules (see `/.cursorrules`) with module-specific requirements:
+
+### AI/ML Implementation Requirements
+
+1. **Real Model Training**: Implement complete training pipelines with proper validation
+2. **Data Processing**: Use real data preprocessing and feature engineering
+3. **Model Evaluation**: Implement comprehensive evaluation metrics for geospatial tasks
+4. **Model Deployment**: Support real model serving and inference
+5. **Explainability**: Provide interpretability for geospatial AI models
+
+### Module-Specific NO MOCK Requirements
+
+- NEVER create placeholder ML models
+- NEVER skip data preprocessing steps
+- NEVER omit model evaluation
+- ALWAYS implement real training algorithms
+- ALWAYS use proper geospatial feature engineering
+
+### Real Implementation Requirements
+
+- **Computer Vision**: Implement real CNN/Transformer architectures for imagery
+- **Predictive Models**: Use real ML algorithms (random forests, neural networks, etc.)
+- **Feature Engineering**: Implement real geospatial feature extraction
+- **Model Training**: Use real optimization algorithms (Adam, SGD, etc.)
+- **Evaluation Metrics**: Implement geospatial-specific metrics (spatial accuracy, etc.)
+
+## Dependencies and Integration
+
+### Required Modules
+
+- **GEO-INFER-DATA**: Data management and preprocessing
+- **GEO-INFER-SPACE**: Spatial operations and H3 v4 indexing
+
+### Integration Patterns
+
+```python
+# AI with spatial data
+from geo_infer_ai.models import SpatialCNN, GeospatialPredictor
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+
+# Integration with agents
+from geo_infer_agent.models.rl import RLAgent
+
+# Data processing
+from geo_infer_data.core.etl import DataPipeline
+```
+
+## Data Sources and APIs
+
+### Real Data Sources
+
+- **Satellite Imagery**: Real Earth observation data (Sentinel, Landsat, etc.)
+- **Geospatial Features**: Real vector data, rasters, point clouds
+- **Training Labels**: Real annotated geospatial datasets
+
+### API Standards
+
+- Use consistent ML API patterns (scikit-learn, PyTorch, TensorFlow interfaces)
+- Implement proper error handling for model training
+- Support both supervised and unsupervised learning
+- Provide model explainability methods
+
+## Module-Specific Implementation Guidelines
+
+### Code Structure
+
+- Models: `src/geo_infer_ai/models/`
+- Training: `src/geo_infer_ai/training/`
+- Evaluation: `src/geo_infer_ai/evaluation/`
+- Utils: `src/geo_infer_ai/utils/`
+
+### Testing Requirements
+
+- Test model training with real geospatial data
+- Validate predictions with known outcomes
+- Test numerical stability with edge cases
+- Verify model explainability produces interpretable results
+
+---
+
+**Remember**: This module implements real AI/ML for geospatial applications. Every implementation must use real models, proper training, and comprehensive evaluation. No placeholders, no dummy models - only real, working AI implementations.
+
