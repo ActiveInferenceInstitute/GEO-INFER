@@ -1,0 +1,23 @@
+{
+  "total_modules": 41,
+  "structure": {
+    "has_requirements_txt": 41,
+    "has_setup_py": 41,
+    "has_pyproject_toml": 41,
+    "has_tests": 41,
+    "has_docs": 38,
+    "has_examples": 41
+  },
+  "documentation": {
+    "has_yaml_frontmatter": 41,
+    "has_all_sections": 41
+  },
+  "testing": {
+    "modules_with_tests": 41,
+    "total_test_files": 296
+  },
+  "dependencies": {
+    "modules_missing_deps": 38,
+    "total_missing_deps": 280
+  }
+}

@@ -1,3 +1,33 @@
 # GEO-INFER-COG Requirements
 numpy>=1.20.0
 pandas>=1.3.0
+
+# Added from comprehensive review
+adapters>=0.0.0
+api>=0.0.0
+cognitive_engine>=0.0.0
+cognitive_models>=0.0.0
+colorsys>=0.0.0
+core>=0.0.0
+decision>=0.0.0
+flask>=0.0.0
+flask_cors>=0.0.0
+helpers>=0.0.0
+itertools>=0.0.0
+math>=0.0.0
+matplotlib>=0.0.0
+models>=0.0.0
+networkx>=0.0.0
+processor>=0.0.0
+pyyaml>=0.0.0
+re>=0.0.0
+seaborn>=0.0.0
+spatial_language>=0.0.0
+spatial_memory>=0.0.0
+spatial_perception>=0.0.0
+spatial_reasoning>=0.0.0
+support>=0.0.0
+user_profiles>=0.0.0
+utils>=0.0.0
+validation>=0.0.0
+visualization>=0.0.0

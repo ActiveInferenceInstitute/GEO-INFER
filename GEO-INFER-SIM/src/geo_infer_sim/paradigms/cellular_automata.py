@@ -175,3 +175,4 @@ class CellularAutomata:
         logger.info("Cellular automata reset")
 
 
+

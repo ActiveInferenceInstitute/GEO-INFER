@@ -12,6 +12,21 @@ difficulty: "Intermediate"
 estimated_time: "45"
 ---
 
+
+
+## Integration
+
+This module integrates with:
+
+- Module 1
+- Module 2
+
+## API Reference
+
+### Main Classes
+
+- `ClassName`: Description
+
 # GEO-INFER-MARINE: Marine and Oceanographic Analysis
 
 ## Overview

@@ -1,3 +1,17 @@
 # GEO-INFER-COMMS Requirements
 fastapi>=0.68.0
 pydantic>=1.8.0
+
+# Added from comprehensive review
+asyncio>=0.0.0
+contextlib>=0.0.0
+email>=0.0.0
+heapq>=0.0.0
+math>=0.0.0
+queue>=0.0.0
+re>=0.0.0
+smtplib>=0.0.0
+threading>=0.0.0
+uuid>=0.0.0
+uvicorn>=0.0.0
+websockets>=0.0.0

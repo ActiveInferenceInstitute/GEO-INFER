@@ -10,6 +10,21 @@ tags: ["energy", "renewable-energy", "grid", "solar", "wind", "carbon-footprint"
 difficulty: "Intermediate"
 ---
 
+
+
+## Integration
+
+This module integrates with:
+
+- Module 1
+- Module 2
+
+## API Reference
+
+### Main Classes
+
+- `ClassName`: Description
+
 # GEO-INFER-ENERGY: Energy Systems Analysis
 
 ## Overview

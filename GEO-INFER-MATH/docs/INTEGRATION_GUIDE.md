@@ -75,3 +75,4 @@ mi = info_conv.calculate_mutual_information(prob_xy, prob_x, prob_y)
 4. Use theorem proving caching for repeated proofs
 5. Optimize information theory calculations with appropriate bin sizes
 
+

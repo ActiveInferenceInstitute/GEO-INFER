@@ -12,6 +12,13 @@ difficulty: "Advanced"
 estimated_time: "60"
 ---
 
+
+## Core Features
+
+- Feature 1
+- Feature 2
+- Feature 3
+
 # GEO-INFER-BAYES: Bayesian Inference for Geospatial Applications
 
 > **Purpose**: Enable robust inference and decision-making under uncertainty for geospatial applications

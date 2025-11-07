@@ -35,3 +35,4 @@ class TestRenewableResourceAssessor:
         result = assessor.assess_wind_potential(latitude, longitude)
         assert result is not None
 
+

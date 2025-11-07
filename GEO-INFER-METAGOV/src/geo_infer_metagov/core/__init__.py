@@ -6,6 +6,9 @@ from geo_infer_metagov.core.stakeholder import StakeholderGovernanceCoordinator
 from geo_infer_metagov.core.polycentric import PolycentricGovernanceSystem
 from geo_infer_metagov.core.adaptation import AdaptiveGovernanceSystem
 from geo_infer_metagov.core.accountability import AccountabilityFramework
+from geo_infer_metagov.core.conflict_resolution import ConflictResolver, ConflictResolutionMethod
+from geo_infer_metagov.core.performance import PerformanceEvaluator, PerformanceMetrics, PerformanceDimension
+from geo_infer_metagov.core.scenarios import ScenarioPlanner, Scenario, ScenarioAnalysis
 
 __all__ = [
     "MultiLevelGovernanceFramework",
@@ -14,4 +17,12 @@ __all__ = [
     "PolycentricGovernanceSystem",
     "AdaptiveGovernanceSystem",
     "AccountabilityFramework",
+    "ConflictResolver",
+    "ConflictResolutionMethod",
+    "PerformanceEvaluator",
+    "PerformanceMetrics",
+    "PerformanceDimension",
+    "ScenarioPlanner",
+    "Scenario",
+    "ScenarioAnalysis",
 ]

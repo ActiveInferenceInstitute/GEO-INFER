@@ -15,6 +15,19 @@ from geo_infer_metagov.core.stakeholder import StakeholderGovernanceCoordinator
 from geo_infer_metagov.core.polycentric import PolycentricGovernanceSystem
 from geo_infer_metagov.core.adaptation import AdaptiveGovernanceSystem
 from geo_infer_metagov.core.accountability import AccountabilityFramework
+from geo_infer_metagov.core.conflict_resolution import ConflictResolver, ConflictResolutionMethod
+from geo_infer_metagov.core.performance import PerformanceEvaluator, PerformanceMetrics, PerformanceDimension
+from geo_infer_metagov.core.scenarios import ScenarioPlanner, Scenario, ScenarioAnalysis
+
+# Integration modules (optional)
+try:
+    from geo_infer_metagov.integrations.spatial import SpatialGovernanceIntegration
+    from geo_infer_metagov.integrations.organizational import OrganizationalGovernanceIntegration
+    from geo_infer_metagov.integrations.security import SecurityGovernanceIntegration
+    from geo_infer_metagov.integrations.normative import NormativeGovernanceIntegration
+    INTEGRATIONS_AVAILABLE = True
+except ImportError:
+    INTEGRATIONS_AVAILABLE = False
 
 __all__ = [
     "MultiLevelGovernanceFramework",
@@ -23,4 +36,20 @@ __all__ = [
     "PolycentricGovernanceSystem",
     "AdaptiveGovernanceSystem",
     "AccountabilityFramework",
+    "ConflictResolver",
+    "ConflictResolutionMethod",
+    "PerformanceEvaluator",
+    "PerformanceMetrics",
+    "PerformanceDimension",
+    "ScenarioPlanner",
+    "Scenario",
+    "ScenarioAnalysis",
 ]
+
+if INTEGRATIONS_AVAILABLE:
+    __all__.extend([
+        "SpatialGovernanceIntegration",
+        "OrganizationalGovernanceIntegration",
+        "SecurityGovernanceIntegration",
+        "NormativeGovernanceIntegration",
+    ])

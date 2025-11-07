@@ -3,6 +3,9 @@ from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, HTTPException, Query, UploadFile, File, Depends
 from pathlib import Path
 import tempfile # For handling file uploads
+import logging
+
+logger = logging.getLogger(__name__)
 
 from ..models.hr_models import Employee
 from ..hr.importer import CSVHRImporter # Assuming CSV importer for now
@@ -73,7 +76,7 @@ async def upload_hr_csv(
         # This might occur if the temp_file_path is not handled correctly or CSVHRImporter fails before connect
         raise HTTPException(status_code=500, detail=f"HR CSV file not found. Path: {temp_file_path}")
     except Exception as e:
-        print(f"Error during HR CSV processing: {e}") # TODO: Proper logging
+        logger.error(f"Error during HR CSV processing: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"An error occurred processing the HR CSV file: {e}")
     finally:
         if temp_file_path.exists():

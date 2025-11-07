@@ -22,3 +22,12 @@ scikit-learn>=1.0.0
 scipy>=1.7.0
 uvicorn>=0.15.0
 websockets>=10.0
+
+# Added from comprehensive review
+asyncio>=0.0.0
+asyncio_mqtt>=0.0.0
+networkx>=0.0.0
+paho>=0.0.0
+random>=0.0.0
+registry>=0.0.0
+uuid>=0.0.0

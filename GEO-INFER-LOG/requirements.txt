@@ -1,3 +1,26 @@
 # GEO-INFER-LOG Requirements
 pandas>=1.3.0
 geopandas>=0.10.0
+
+# Added from comprehensive review
+asyncio>=0.0.0
+contextily>=0.0.0
+delivery>=0.0.0
+fastapi>=0.0.0
+folium>=0.0.0
+math>=0.0.0
+matplotlib>=0.0.0
+networkx>=0.0.0
+numpy>=0.0.0
+ortools>=0.0.0
+prometheus_client>=0.0.0
+pulp>=0.0.0
+pydantic>=0.0.0
+queue>=0.0.0
+routing>=0.0.0
+shapely>=0.0.0
+structlog>=0.0.0
+supply_chain>=0.0.0
+threading>=0.0.0
+transport>=0.0.0
+uuid>=0.0.0

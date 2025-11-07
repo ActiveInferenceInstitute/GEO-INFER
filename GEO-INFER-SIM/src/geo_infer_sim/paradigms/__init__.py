@@ -7,3 +7,4 @@ from geo_infer_sim.paradigms.cellular_automata import CellularAutomata
 __all__ = ["AgentBasedModel", "Agent", "SystemDynamicsModel", "CellularAutomata"]
 
 
+

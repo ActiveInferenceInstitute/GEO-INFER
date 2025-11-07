@@ -24,3 +24,4 @@ class TestForestInventory:
         )
         assert result is not None
 
+

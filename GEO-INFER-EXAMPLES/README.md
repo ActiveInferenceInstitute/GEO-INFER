@@ -12,6 +12,13 @@ difficulty: "Beginner"
 estimated_time: "30"
 ---
 
+
+## Core Features
+
+- Feature 1
+- Feature 2
+- Feature 3
+
 # GEO-INFER-EXAMPLES 🌟
 
 [![License: CC BY-ND-SA 4.0](https://img.shields.io/badge/License-CC%20BY--ND--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nd-sa/4.0/)

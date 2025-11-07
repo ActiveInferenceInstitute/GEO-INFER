@@ -12,6 +12,14 @@ difficulty: "Intermediate"
 estimated_time: "50"
 ---
 
+
+## Integration
+
+This module integrates with:
+
+- Module 1
+- Module 2
+
 # GEO-INFER-API: Standardized Interfaces for Geospatial Interoperability
 
 ## Overview
