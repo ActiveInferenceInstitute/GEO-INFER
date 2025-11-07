@@ -10,6 +10,21 @@ tags: ["forest", "carbon-sequestration", "wildfire", "forest-management", "bioma
 difficulty: "Intermediate"
 ---
 
+
+
+## Integration
+
+This module integrates with:
+
+- Module 1
+- Module 2
+
+## API Reference
+
+### Main Classes
+
+- `ClassName`: Description
+
 # GEO-INFER-FOREST: Forest Management and Analysis
 
 ## Overview

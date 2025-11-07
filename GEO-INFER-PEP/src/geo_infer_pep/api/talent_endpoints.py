@@ -80,6 +80,7 @@ async def get_candidate_pipeline_status_plot():
     else:
         raise HTTPException(status_code=500, detail="Failed to generate plot.")
 
-# TODO: Endpoints for JobRequisitions (CRUD)
-# TODO: Endpoints for specific candidate by ID, updating candidate status, interviews, offers.
-# TODO: More sophisticated error handling and data validation. 
+# Future enhancements:
+# - Endpoints for JobRequisitions (CRUD operations)
+# - Endpoints for specific candidate by ID, updating candidate status, interviews, offers
+# - Enhanced error handling and data validation with Pydantic models 

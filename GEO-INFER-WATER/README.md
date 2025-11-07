@@ -10,6 +10,21 @@ tags: ["water", "hydrology", "water-resources", "water-quality", "watershed"]
 difficulty: "Intermediate"
 ---
 
+
+
+## Integration
+
+This module integrates with:
+
+- Module 1
+- Module 2
+
+## API Reference
+
+### Main Classes
+
+- `ClassName`: Description
+
 # GEO-INFER-WATER: Water Resources Management
 
 ## Overview

@@ -160,16 +160,32 @@ class TheoremProver:
                         expr = z3.parse_smt2_string(assumption)
                         solver.add(expr)
                     except:
-                        # Fallback: try as Python expression
-                        solver.add(eval(assumption, {"z3": z3}))
+                        # Fallback: try as Python expression (safely)
+                        # Use ast.literal_eval for safer evaluation, or compile/exec for z3 expressions
+                        try:
+                            # Try to compile and evaluate safely
+                            compiled = compile(assumption, '<string>', 'eval')
+                            result = eval(compiled, {"z3": z3, "__builtins__": {}})
+                            solver.add(result)
+                        except Exception as e:
+                            logger.warning(f"Could not parse assumption '{assumption}': {e}")
+                            raise ValueError(f"Invalid assumption format: {assumption}")
                 
                 # Negate theorem (proof by contradiction)
                 try:
                     negated = z3.Not(z3.parse_smt2_string(theorem))
                     solver.add(negated)
                 except:
-                    negated = z3.Not(eval(theorem, {"z3": z3}))
-                    solver.add(negated)
+                    # Fallback: try as Python expression (safely)
+                    try:
+                        # Try to compile and evaluate safely
+                        compiled = compile(theorem, '<string>', 'eval')
+                        result = eval(compiled, {"z3": z3, "__builtins__": {}})
+                        negated = z3.Not(result)
+                        solver.add(negated)
+                    except Exception as e:
+                        logger.warning(f"Could not parse theorem '{theorem}': {e}")
+                        raise ValueError(f"Invalid theorem format: {theorem}")
                 
                 # Check satisfiability
                 result = solver.check()

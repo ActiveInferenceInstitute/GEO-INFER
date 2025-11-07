@@ -3,6 +3,9 @@ from typing import List, Optional, Dict, Any
 from fastapi import APIRouter, HTTPException, Query, Body, UploadFile, File, Depends
 from pathlib import Path
 import tempfile
+import logging
+
+logger = logging.getLogger(__name__)
 
 from ..models.crm_models import Customer
 from ..crm.importer import CSVCRMImporter # Assuming CSV importer
@@ -78,7 +81,7 @@ async def upload_crm_csv(
         raise HTTPException(status_code=500, detail="Temporary CSV file not found after upload. This should not happen.")
     except Exception as e:
         # Log the full error for debugging on the server
-        print(f"Error during CSV processing: {e}") # TODO: Replace with proper logging
+        logger.error(f"Error during CSV processing: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail=f"An error occurred processing the CSV file: {e}")
     finally:
         # Clean up the temporary file

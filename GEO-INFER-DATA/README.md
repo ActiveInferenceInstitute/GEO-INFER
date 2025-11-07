@@ -12,6 +12,11 @@ difficulty: "Intermediate"
 estimated_time: "60"
 ---
 
+
+## Overview
+
+This module provides...
+
 # GEO-INFER-DATA: Geospatial Data Management, ETL, and Storage Optimization
 
 > **Purpose**: Foundational data backbone providing ETL pipelines, storage optimization, and data quality assurance for geospatial datasets

@@ -17,6 +17,9 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 import uuid
+from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
+from cryptography.hazmat.primitives import padding
+from cryptography.hazmat.backends import default_backend
 
 logger = logging.getLogger(__name__)
 
@@ -115,42 +118,87 @@ class SecurityUtils:
     
     def encrypt_data(self, data: Union[str, bytes], key: bytes) -> Tuple[bytes, bytes]:
         """
-        Encrypt data using AES (simplified implementation).
+        Encrypt data using AES-256-CBC.
         
         Args:
             data: Data to encrypt
-            key: Encryption key
+            key: Encryption key (must be 32 bytes for AES-256)
         
         Returns:
             Tuple of (encrypted_data, iv)
+        
+        Raises:
+            ValueError: If key length is not 32 bytes
         """
         if isinstance(data, str):
             data = data.encode('utf-8')
         
+        # Ensure key is 32 bytes for AES-256
+        if len(key) != 32:
+            # Derive 32-byte key from provided key using SHA-256
+            key = hashlib.sha256(key).digest()
+        
         # Generate initialization vector
         iv = secrets.token_bytes(16)
         
-        # Simple XOR encryption (for demonstration - use proper AES in production)
-        encrypted = bytes(a ^ b for a, b in zip(data, key[:len(data)]))
+        # Create cipher
+        cipher = Cipher(
+            algorithms.AES(key),
+            modes.CBC(iv),
+            backend=default_backend()
+        )
+        encryptor = cipher.encryptor()
+        
+        # Pad data to block size (16 bytes for AES)
+        padder = padding.PKCS7(128).padder()
+        padded_data = padder.update(data)
+        padded_data += padder.finalize()
+        
+        # Encrypt
+        encrypted = encryptor.update(padded_data) + encryptor.finalize()
         
         return encrypted, iv
     
     def decrypt_data(self, encrypted_data: bytes, key: bytes, iv: bytes) -> bytes:
         """
-        Decrypt data using AES (simplified implementation).
+        Decrypt data using AES-256-CBC.
         
         Args:
             encrypted_data: Encrypted data
-            key: Decryption key
-            iv: Initialization vector
+            key: Decryption key (must be 32 bytes for AES-256)
+            iv: Initialization vector (must be 16 bytes)
         
         Returns:
             Decrypted data
-        """
-        # Simple XOR decryption (for demonstration - use proper AES in production)
-        decrypted = bytes(a ^ b for a, b in zip(encrypted_data, key[:len(encrypted_data)]))
         
-        return decrypted
+        Raises:
+            ValueError: If key or IV length is incorrect
+        """
+        # Ensure key is 32 bytes for AES-256
+        if len(key) != 32:
+            # Derive 32-byte key from provided key using SHA-256
+            key = hashlib.sha256(key).digest()
+        
+        if len(iv) != 16:
+            raise ValueError("IV must be 16 bytes")
+        
+        # Create cipher
+        cipher = Cipher(
+            algorithms.AES(key),
+            modes.CBC(iv),
+            backend=default_backend()
+        )
+        decryptor = cipher.decryptor()
+        
+        # Decrypt
+        padded_data = decryptor.update(encrypted_data) + decryptor.finalize()
+        
+        # Unpad
+        unpadder = padding.PKCS7(128).unpadder()
+        data = unpadder.update(padded_data)
+        data += unpadder.finalize()
+        
+        return data
     
     def anonymize_spatial_data(self, 
                               data: pd.DataFrame,

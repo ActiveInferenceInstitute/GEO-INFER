@@ -59,3 +59,4 @@ class GeometryError(SpatialError):
     """Exception for geometric operation errors."""
     pass
 
+

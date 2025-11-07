@@ -32,15 +32,29 @@ class AuthorizationManager:
     geospatial resources with spatial and temporal constraints.
     """
 
-    def __init__(self, access_manager: Optional[GeospatialAccessManager] = None) -> None:
+    def __init__(self, access_manager: Optional[GeospatialAccessManager] = None, secret_key: Optional[str] = None) -> None:
         """
         Initialize the authorization manager.
 
         Args:
             access_manager: Optional GeospatialAccessManager instance
+            secret_key: Secret key for access manager. If not provided, will raise error.
+                       Must be set via environment variable or configuration.
         """
+        import os
+        import secrets
+        
+        if secret_key is None:
+            secret_key = os.getenv("GEO_INFER_SEC_SECRET_KEY")
+            if secret_key is None:
+                raise ValueError(
+                    "Secret key must be provided either as parameter or "
+                    "via GEO_INFER_SEC_SECRET_KEY environment variable. "
+                    "Never use default secrets in production!"
+                )
+        
         self.access_manager = access_manager or GeospatialAccessManager(
-            secret_key="default_secret_key"
+            secret_key=secret_key
         )
 
     def check_permission(
@@ -212,5 +226,6 @@ class AuthorizationManager:
                 )
 
         return permissions
+
 
 

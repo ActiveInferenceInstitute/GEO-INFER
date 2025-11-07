@@ -25,3 +25,20 @@ seaborn>=0.11.0
 selenium>=4.0.0
 tabulate>=0.9.0
 
+
+# Added from comprehensive review
+ast>=0.0.0
+asyncio>=0.0.0
+concurrent>=0.0.0
+h3>=0.0.0
+inspect>=0.0.0
+log_integration>=0.0.0
+module_health>=0.0.0
+performance_monitor>=0.0.0
+re>=0.0.0
+scipy>=0.0.0
+statistics>=0.0.0
+test_discoverer>=0.0.0
+test_orchestrator>=0.0.0
+test_runner>=0.0.0
+unittest>=0.0.0

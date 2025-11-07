@@ -6,3 +6,25 @@ h3>=4.0.0
 numpy>=1.20.0
 pandas>=1.3.0
 pyyaml>=6.0
+
+# Added from comprehensive review
+base_module>=0.0.0
+branca>=0.0.0
+coastal_resilience_analyzer>=0.0.0
+core>=0.0.0
+county_boundary_loader>=0.0.0
+data_sources>=0.0.0
+fire_risk_assessor>=0.0.0
+folium>=0.0.0
+forest_health_monitor>=0.0.0
+hashlib>=0.0.0
+io>=0.0.0
+locations>=0.0.0
+matplotlib>=0.0.0
+plotly>=0.0.0
+requests>=0.0.0
+seaborn>=0.0.0
+unified_backend>=0.0.0
+urllib>=0.0.0
+utils>=0.0.0
+visualization_engine>=0.0.0

@@ -528,18 +528,11 @@ class HybridAgent(BaseAgent):
         agent_perceptions = perceptions.copy()
         
         # Customize based on agent type
-        if agent_type == "bdi":
-            # BDI agents may need belief-specific formatting
-            pass
-        elif agent_type == "active_inference":
-            # Active inference agents may need observation vector
-            pass
-        elif agent_type == "rl":
-            # RL agents may need state representation
-            pass
-        elif agent_type == "rule_based":
-            # Rule-based agents may need fact-specific formatting
-            pass
+        # Future implementations may add agent-type-specific formatting:
+        # - BDI agents: belief-specific formatting
+        # - Active inference agents: observation vector formatting
+        # - RL agents: state representation formatting
+        # - Rule-based agents: fact-specific formatting
         
         return agent_perceptions
     

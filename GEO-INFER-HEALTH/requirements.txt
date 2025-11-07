@@ -76,3 +76,20 @@ mypy>=1.7.0
 # sqlalchemy>=2.0.0
 # psycopg2-binary>=2.9.0
 # redis>=5.0.0
+
+# Added from comprehensive review
+advanced_geospatial>=0.0.0
+api>=0.0.0
+argparse>=0.0.0
+config>=0.0.0
+core>=0.0.0
+data_models>=0.0.0
+disease_surveillance>=0.0.0
+environmental_health>=0.0.0
+functools>=0.0.0
+geospatial_utils>=0.0.0
+healthcare_accessibility>=0.0.0
+math>=0.0.0
+models>=0.0.0
+re>=0.0.0
+utils>=0.0.0

@@ -131,3 +131,4 @@ class TestAuditLogger:
         assert report["compliance_metrics"]["denied_access_attempts"] >= 1
 
 
+

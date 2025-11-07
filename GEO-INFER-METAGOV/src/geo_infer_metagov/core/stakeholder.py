@@ -179,18 +179,94 @@ class StakeholderGovernanceCoordinator:
         return power_map.get(stakeholder_category.lower(), 0.4)
     
     def _analyze_power_dynamics(self, stakeholders: List[Stakeholder]) -> Dict[str, Any]:
-        """Analyze power dynamics among stakeholders."""
+        """
+        Analyze power dynamics among stakeholders using network analysis concepts.
+        
+        Calculates:
+        - Power concentration (Herfindahl index)
+        - Power distribution metrics
+        - Influence network characteristics
+        - Equity indicators
+        
+        References:
+        - Freeman, L. C. (1979). Centrality in Social Networks
+        - Bonacich, P. (1987). Power and Centrality: A Family of Measures
+        """
+        if not stakeholders:
+            return {
+                'total_influence': 0.0,
+                'total_power': 0.0,
+                'power_concentration': 0.0,
+                'power_disparity': 0.0,
+                'power_balance_assessment': 'no_data',
+                'herfindahl_index': 0.0,
+                'gini_coefficient': 0.0
+            }
+        
         total_influence = sum(s.influence_level for s in stakeholders)
         total_power = sum(s.decision_power for s in stakeholders)
+        
+        # Calculate Herfindahl index for power concentration
+        # H = sum(p_i^2) where p_i is the proportion of power held by stakeholder i
+        power_values = [s.decision_power for s in stakeholders]
+        if total_power > 0:
+            power_proportions = [p / total_power for p in power_values]
+            herfindahl_index = sum(p ** 2 for p in power_proportions)
+        else:
+            herfindahl_index = 0.0
+        
+        # Calculate Gini coefficient for inequality
+        sorted_powers = sorted(power_values)
+        n = len(sorted_powers)
+        if n > 1 and total_power > 0:
+            # Gini = (2 * sum(i * y_i)) / (n * sum(y_i)) - (n+1)/n
+            gini_numerator = sum((i + 1) * power for i, power in enumerate(sorted_powers))
+            gini_coefficient = (2 * gini_numerator) / (n * total_power) - (n + 1) / n
+            gini_coefficient = max(0.0, min(1.0, gini_coefficient))
+        else:
+            gini_coefficient = 0.0
+        
+        # Power concentration metrics
+        max_power = max(power_values) if power_values else 0
+        min_power = min(power_values) if power_values else 0
+        power_disparity = max_power - min_power
+        
+        # Power balance assessment
+        if herfindahl_index > 0.6:
+            balance_assessment = 'highly_concentrated'
+        elif herfindahl_index > 0.4:
+            balance_assessment = 'moderately_concentrated'
+        elif herfindahl_index > 0.25:
+            balance_assessment = 'relatively_balanced'
+        else:
+            balance_assessment = 'well_distributed'
+        
+        # Calculate power concentration ratio
+        power_concentration_ratio = max_power / total_power if total_power > 0 else 0
         
         return {
             'total_influence': total_influence,
             'total_power': total_power,
-            'power_concentration': max(s.decision_power for s in stakeholders) if stakeholders else 0,
-            'power_disparity': (max(s.decision_power for s in stakeholders) - 
-                              min(s.decision_power for s in stakeholders)) if stakeholders else 0,
-            'power_balance_assessment': 'unbalanced' if total_power > 2.5 else 'relatively_balanced'
+            'power_concentration': power_concentration_ratio,
+            'power_disparity': power_disparity,
+            'power_balance_assessment': balance_assessment,
+            'herfindahl_index': herfindahl_index,
+            'gini_coefficient': gini_coefficient,
+            'num_stakeholders': len(stakeholders),
+            'power_statistics': {
+                'mean': total_power / len(stakeholders) if stakeholders else 0,
+                'median': sorted_powers[n // 2] if sorted_powers else 0,
+                'std_dev': self._calculate_std_dev(power_values) if power_values else 0
+            }
         }
+    
+    def _calculate_std_dev(self, values: List[float]) -> float:
+        """Calculate standard deviation."""
+        if not values or len(values) < 2:
+            return 0.0
+        mean = sum(values) / len(values)
+        variance = sum((x - mean) ** 2 for x in values) / len(values)
+        return variance ** 0.5
     
     def _identify_conflicts(self, stakeholders: List[Stakeholder]) -> List[Dict[str, Any]]:
         """Identify potential conflicts between stakeholders."""
