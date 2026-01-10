@@ -85,9 +85,42 @@ class EcologicalNicheModel:
         
     def _initialize_model(self):
         """Initialize the active inference model for ecological niche with enhanced parameters."""
+        # Define A matrix (Likelihood) mapping 5 states to 4 observation channels
+        # States: Temp Sensitivity, Water Dependency, Resource Efficiency, Habitat Selectivity, Predator Avoidance
+        # Obs: [Temperature, Precipitation, Resources, Habitat Quality]
+        A = np.zeros((4, 5))
+        # Define some structured mapping (simplified)
+        A[:, 0] = [0.8, 0.1, 0.05, 0.05] # State 0 relates strongly to Obs 0
+        A[:, 1] = [0.1, 0.8, 0.05, 0.05] # State 1 relates strongly to Obs 1
+        A[:, 2] = [0.05, 0.1, 0.8, 0.05] # State 2 relates strongly to Obs 2
+        A[:, 3] = [0.05, 0.05, 0.1, 0.8] # State 3 relates strongly to Obs 3
+        A[:, 4] = [0.25, 0.25, 0.25, 0.25] # State 4 is generalist
+        
+        # Define B matrix (Transitions)
+        # 6 Actions -> num_controls = [6]
+        # Actions allow transitioning between states (adaptation)
+        num_controls = [6]
+        B = np.zeros((5, 5, 6))
+        # Default: stay in same state
+        for u in range(6):
+            np.fill_diagonal(B[:, :, u], 0.9) # High stability
+            # But action u (0-4) might push toward state u
+            if u < 5:
+                B[:, :, u] = 0.1  # Weak transition
+                B[u, :, u] = 0.9  # Strong transition to target state
+                # Re-normalize
+                for s in range(5):
+                    B[:, s, u] /= B[:, s, u].sum()
+            else:
+                 # Action 5: Mix/Explore (Randomize)
+                 B[:, :, 5] = 0.2
+        
         parameters = {
             "state_dim": self.n_env_states,
             "obs_dim": 4,  # Multi-dimensional environmental observations
+            "num_controls": num_controls,
+            "A": A,
+            "B": B,
             "prior_precision": 1.5,  # Higher precision for ecological sensitivity
             "learning_rate": 0.15,   # Faster adaptation for ecological dynamics
             "temporal_precision": 2.0,

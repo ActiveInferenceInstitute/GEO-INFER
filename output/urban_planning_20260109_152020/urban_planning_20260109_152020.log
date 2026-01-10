@@ -1,0 +1,36 @@
+2026-01-09 15:20:20,732 - UrbanActiveInference - INFO - Urban Planning Active Inference - Comprehensive Analysis
+2026-01-09 15:20:20,732 - UrbanActiveInference - INFO - ======================================================================
+2026-01-09 15:20:20,732 - UrbanActiveInference - INFO - Output directory: /Users/4d/Documents/GitHub/GEO-INFER/output/urban_planning_20260109_152020
+2026-01-09 15:20:20,732 - UrbanActiveInference - INFO - Starting Urban Planning Active Inference Model
+2026-01-09 15:20:20,732 - UrbanActiveInference - INFO - Multi-agent resource allocation and coordination simulation
+2026-01-09 15:20:20,734 - UrbanActiveInference - INFO - Initialized urban model: 6 locations, 4 resources, 3 agents
+2026-01-09 15:20:20,735 - geo_infer_act.api.interface - INFO - ActiveInferenceInterface initialized
+2026-01-09 15:20:20,735 - geo_infer_act.core.active_inference - INFO - Initialized ActiveInferenceModel with type: categorical
+2026-01-09 15:20:20,736 - geo_infer_act.api.interface - INFO - Created categorical model: agent_0_government
+2026-01-09 15:20:20,736 - geo_infer_act.api.interface - INFO - Set preferences for model agent_0_government
+2026-01-09 15:20:20,736 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/urban_planning_20260109_152020/agent_0
+2026-01-09 15:20:20,736 - UrbanActiveInference - INFO - Created model for Government agent (ID: 0)
+2026-01-09 15:20:20,736 - geo_infer_act.core.active_inference - INFO - Initialized ActiveInferenceModel with type: categorical
+2026-01-09 15:20:20,736 - geo_infer_act.api.interface - INFO - Created categorical model: agent_1_developer
+2026-01-09 15:20:20,736 - geo_infer_act.api.interface - INFO - Set preferences for model agent_1_developer
+2026-01-09 15:20:20,736 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/urban_planning_20260109_152020/agent_1
+2026-01-09 15:20:20,737 - UrbanActiveInference - INFO - Created model for Developer agent (ID: 1)
+2026-01-09 15:20:20,737 - geo_infer_act.core.active_inference - INFO - Initialized ActiveInferenceModel with type: categorical
+2026-01-09 15:20:20,737 - geo_infer_act.api.interface - INFO - Created categorical model: agent_2_community
+2026-01-09 15:20:20,737 - geo_infer_act.api.interface - INFO - Set preferences for model agent_2_community
+2026-01-09 15:20:20,737 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/urban_planning_20260109_152020/agent_2
+2026-01-09 15:20:20,737 - UrbanActiveInference - INFO - Created model for Community agent (ID: 2)
+2026-01-09 15:20:20,737 - UrbanActiveInference - INFO - Running urban development simulation for 20 steps...
+2026-01-09 15:20:20,737 - UrbanActiveInference - INFO - 
+--- Step 1/20 ---
+2026-01-09 15:20:20,737 - UrbanActiveInference - INFO - Overall urban quality: 0.497
+2026-01-09 15:20:20,737 - UrbanActiveInference - INFO - Cooperation index: 0.537
+2026-01-09 15:20:20,738 - UrbanActiveInference - INFO -   Agent 0 (Government):
+2026-01-09 15:20:20,738 - UrbanActiveInference - INFO -     Observation: [0. 1. 0. 0.]
+2026-01-09 15:20:20,738 - UrbanActiveInference - INFO -     Belief entropy: 0.5875
+2026-01-09 15:20:20,738 - UrbanActiveInference - INFO -     Surprise: 1.3863
+2026-01-09 15:20:20,738 - UrbanActiveInference - INFO -     Information gain: 0.7988
+2026-01-09 15:20:20,738 - UrbanActiveInference - INFO -     Free energy change: -1.3863 → -0.0949
+2026-01-09 15:20:20,738 - UrbanActiveInference - INFO -     Action: Invest 20.0 in Housing at location 3
+2026-01-09 15:20:20,738 - UrbanActiveInference - INFO -     Action success: True
+2026-01-09 15:20:20,738 - UrbanActiveInference - INFO -     Satisfaction: 0.762

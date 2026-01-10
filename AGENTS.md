@@ -44,9 +44,25 @@ This document comprehensively describes the multi-agent systems architecture wit
 
 ### Related Documentation
 
+**Core Agent Modules:**
 - **[GEO-INFER-ACT/AGENTS.md](./GEO-INFER-ACT/AGENTS.md)**: Active Inference agent implementations
 - **[GEO-INFER-AGENT/AGENTS.md](./GEO-INFER-AGENT/AGENTS.md)**: Core intelligent agent framework
-- **[GEO-INFER-ANT/AGENTS.md](./GEO-INFER-ANT/AGENTS.md)**: Swarm intelligence and complex adaptive systems agents
+- **[GEO-INFER-ANT/AGENTS.md](./GEO-INFER-ANT/AGENTS.md)**: Swarm intelligence agents
+
+**Infrastructure Modules:**
+- **[GEO-INFER-SPACE/AGENTS.md](./GEO-INFER-SPACE/AGENTS.md)**: Spatial intelligence for agents
+- **[GEO-INFER-TIME/AGENTS.md](./GEO-INFER-TIME/AGENTS.md)**: Temporal intelligence for agents
+- **[GEO-INFER-DATA/AGENTS.md](./GEO-INFER-DATA/AGENTS.md)**: Data management for agents
+- **[GEO-INFER-AI/AGENTS.md](./GEO-INFER-AI/AGENTS.md)**: AI/ML for agent learning
+- **[GEO-INFER-API/AGENTS.md](./GEO-INFER-API/AGENTS.md)**: Agent communication interfaces
+
+**Domain Applications:**
+- **[GEO-INFER-AG/AGENTS.md](./GEO-INFER-AG/AGENTS.md)**: Agricultural intelligence agents
+- **[GEO-INFER-HEALTH/AGENTS.md](./GEO-INFER-HEALTH/AGENTS.md)**: Health surveillance agents
+- **[GEO-INFER-CLIMATE/AGENTS.md](./GEO-INFER-CLIMATE/AGENTS.md)**: Climate analysis agents
+- **[GEO-INFER-TRANSPORT/AGENTS.md](./GEO-INFER-TRANSPORT/AGENTS.md)**: Transportation agents
+- **[GEO-INFER-EMERGENCY/AGENTS.md](./GEO-INFER-EMERGENCY/AGENTS.md)**: Emergency response agents
+
 
 ## 📋 Agent Module Index
 
@@ -64,11 +80,37 @@ This document comprehensively describes the multi-agent systems architecture wit
 
 | Module | Agent Applications | Status | Links |
 |--------|-------------------|--------|-------|
-| **[AG](./GEO-INFER-AG/)** | Agricultural monitoring agents, precision farming agents | ✅ Beta | [README](./GEO-INFER-AG/README.md) |
-| **[HEALTH](./GEO-INFER-HEALTH/)** | Disease surveillance agents, healthcare coordination agents | ✅ Beta | [README](./GEO-INFER-HEALTH/README.md) |
-| **[LOG](./GEO-INFER-LOG/)** | Logistics optimization agents, supply chain agents | ✅ Beta | [README](./GEO-INFER-LOG/README.md) |
-| **[RISK](./GEO-INFER-RISK/)** | Risk assessment agents, hazard monitoring agents | 🟡 Alpha | [README](./GEO-INFER-RISK/README.md) |
-| **[IOT](./GEO-INFER-IOT/)** | Sensor network agents, real-time monitoring agents | ✅ Beta | [README](./GEO-INFER-IOT/README.md) |
+| **[AG](./GEO-INFER-AG/)** | Crop monitoring, irrigation, pest detection, harvest planning | ✅ Beta | [README](./GEO-INFER-AG/README.md) \| [AGENTS.md](./GEO-INFER-AG/AGENTS.md) |
+| **[HEALTH](./GEO-INFER-HEALTH/)** | Disease surveillance, healthcare coordination, outbreak detection | ✅ Beta | [README](./GEO-INFER-HEALTH/README.md) \| [AGENTS.md](./GEO-INFER-HEALTH/AGENTS.md) |
+| **[LOG](./GEO-INFER-LOG/)** | Logistics optimization, fleet management, supply chain | ✅ Beta | [README](./GEO-INFER-LOG/README.md) \| [AGENTS.md](./GEO-INFER-LOG/AGENTS.md) |
+| **[RISK](./GEO-INFER-RISK/)** | Risk assessment, hazard monitoring, vulnerability analysis | 🟡 Alpha | [README](./GEO-INFER-RISK/README.md) \| [AGENTS.md](./GEO-INFER-RISK/AGENTS.md) |
+| **[IOT](./GEO-INFER-IOT/)** | Sensor network management, real-time monitoring | ✅ Beta | [README](./GEO-INFER-IOT/README.md) \| [AGENTS.md](./GEO-INFER-IOT/AGENTS.md) |
+| **[TRANSPORT](./GEO-INFER-TRANSPORT/)** | Traffic analysis, route optimization, demand forecasting | 🟡 Alpha | [README](./GEO-INFER-TRANSPORT/README.md) \| [AGENTS.md](./GEO-INFER-TRANSPORT/AGENTS.md) |
+| **[WATER](./GEO-INFER-WATER/)** | Water quality monitoring, watershed modeling, flood risk | 🟡 Alpha | [README](./GEO-INFER-WATER/README.md) \| [AGENTS.md](./GEO-INFER-WATER/AGENTS.md) |
+| **[FOREST](./GEO-INFER-FOREST/)** | Forest health, deforestation detection, biomass estimation | 🟡 Alpha | [README](./GEO-INFER-FOREST/README.md) \| [AGENTS.md](./GEO-INFER-FOREST/AGENTS.md) |
+| **[MARINE](./GEO-INFER-MARINE/)** | Ocean monitoring, coastal zone management, marine ecosystems | 🟡 Alpha | [README](./GEO-INFER-MARINE/README.md) \| [AGENTS.md](./GEO-INFER-MARINE/AGENTS.md) |
+| **[ENERGY](./GEO-INFER-ENERGY/)** | Renewable assessment, grid optimization, demand forecasting | 🟡 Alpha | [README](./GEO-INFER-ENERGY/README.md) \| [AGENTS.md](./GEO-INFER-ENERGY/AGENTS.md) |
+| **[EMERGENCY](./GEO-INFER-EMERGENCY/)** | Emergency coordination, resource deployment, evacuation | 🟡 Alpha | [README](./GEO-INFER-EMERGENCY/README.md) \| [AGENTS.md](./GEO-INFER-EMERGENCY/AGENTS.md) |
+| **[EDU](./GEO-INFER-EDU/)** | Curriculum design, learning support, progress tracking | 🟡 Alpha | [README](./GEO-INFER-EDU/README.md) \| [AGENTS.md](./GEO-INFER-EDU/AGENTS.md) |
+| **[BIO](./GEO-INFER-BIO/)** | Species distribution, biodiversity, ecosystem health | ✅ Beta | [README](./GEO-INFER-BIO/README.md) \| [AGENTS.md](./GEO-INFER-BIO/AGENTS.md) |
+| **[CLIMATE](./GEO-INFER-CLIMATE/)** | Climate analysis, adaptation planning, carbon accounting | 🟡 Alpha | [README](./GEO-INFER-CLIMATE/README.md) \| [AGENTS.md](./GEO-INFER-CLIMATE/AGENTS.md) |
+| **[ECON](./GEO-INFER-ECON/)** | Economic modeling, cost-benefit analysis, resource optimization | 🟡 Alpha | [README](./GEO-INFER-ECON/README.md) \| [AGENTS.md](./GEO-INFER-ECON/AGENTS.md) |
+
+### Agent Framework Support Modules
+
+| Module | Framework Capabilities | Status | Links |
+|--------|----------------------|--------|-------|
+| **[SPACE](./GEO-INFER-SPACE/)** | Spatial perception, reasoning, and action for agents | ✅ Beta | [README](./GEO-INFER-SPACE/README.md) \| [AGENTS.md](./GEO-INFER-SPACE/AGENTS.md) |
+| **[TIME](./GEO-INFER-TIME/)** | Temporal perception and forecasting for agents | 🟡 Alpha | [README](./GEO-INFER-TIME/README.md) \| [AGENTS.md](./GEO-INFER-TIME/AGENTS.md) |
+| **[DATA](./GEO-INFER-DATA/)** | Data perception and integration for agents | 🟡 Alpha | [README](./GEO-INFER-DATA/README.md) \| [AGENTS.md](./GEO-INFER-DATA/AGENTS.md) |
+| **[MATH](./GEO-INFER-MATH/)** | Mathematical foundations for agent inference | ✅ Beta | [README](./GEO-INFER-MATH/README.md) \| [AGENTS.md](./GEO-INFER-MATH/AGENTS.md) |
+| **[BAYES](./GEO-INFER-BAYES/)** | Bayesian inference for agent belief updating | 🟡 Alpha | [README](./GEO-INFER-BAYES/README.md) \| [AGENTS.md](./GEO-INFER-BAYES/AGENTS.md) |
+| **[AI](./GEO-INFER-AI/)** | ML/AI capabilities for agent perception and learning | 🟡 Alpha | [README](./GEO-INFER-AI/README.md) \| [AGENTS.md](./GEO-INFER-AI/AGENTS.md) |
+| **[API](./GEO-INFER-API/)** | Communication interfaces for agent messaging | ✅ Beta | [README](./GEO-INFER-API/README.md) \| [AGENTS.md](./GEO-INFER-API/AGENTS.md) |
+| **[APP](./GEO-INFER-APP/)** | Human-agent interaction interfaces | ✅ Beta | [README](./GEO-INFER-APP/README.md) \| [AGENTS.md](./GEO-INFER-APP/AGENTS.md) |
+| **[SEC](./GEO-INFER-SEC/)** | Security and authentication for agents | 🟡 Alpha | [README](./GEO-INFER-SEC/README.md) \| [AGENTS.md](./GEO-INFER-SEC/AGENTS.md) |
+| **[OPS](./GEO-INFER-OPS/)** | Deployment and monitoring for agents | 🟡 Alpha | [README](./GEO-INFER-OPS/README.md) \| [AGENTS.md](./GEO-INFER-OPS/AGENTS.md) |
+
 
 ### Agent Architectures & Capabilities
 

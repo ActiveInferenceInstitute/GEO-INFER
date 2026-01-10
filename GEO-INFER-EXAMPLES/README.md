@@ -12,6 +12,16 @@ difficulty: "Beginner"
 estimated_time: "30"
 ---
 
+<div align="center">
+  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
+  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
+  <a href="../README.md#-module-overview">📦 Module Index</a> •
+  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+</div>
+
+---
+
+
 
 ## Core Features
 

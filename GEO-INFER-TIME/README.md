@@ -12,6 +12,16 @@ difficulty: "Intermediate"
 estimated_time: "60"
 ---
 
+<div align="center">
+  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
+  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
+  <a href="../README.md#-module-overview">📦 Module Index</a> •
+  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+</div>
+
+---
+
+
 # GEO-INFER-TIME: Temporal Methods for Dynamic Geospatial Data
 
 > **Purpose**: Provide comprehensive temporal methods for analyzing dynamic geospatial data, time series, and spatio-temporal relationships

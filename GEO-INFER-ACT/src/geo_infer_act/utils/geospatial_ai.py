@@ -308,6 +308,8 @@ class EnvironmentalActiveInferenceEngine:
                             # Predict at future timestep
                             X_pred = np.array([[lat, lng, future_time]])
                             mean_pred, std_pred = self.gp_models[var].predict(X_pred, return_std=True)
+                            mean_pred = np.atleast_1d(mean_pred)
+                            std_pred = np.atleast_1d(std_pred)
                             
                             # Create prediction object
                             prediction = SpatialPrediction(
@@ -346,9 +348,16 @@ class EnvironmentalActiveInferenceEngine:
                         neighbor_values.append(getattr(env_state, variable))
             
             if neighbor_values:
-                factors['spatial_correlation'] = np.corrcoef([
-                    getattr(self.environmental_states[cell], variable, 0.5)
-                ] + neighbor_values)[0, 1:].mean()
+                try:
+                    data = [getattr(self.environmental_states[cell], variable, 0.5)] + neighbor_values
+                    corr_mat = np.corrcoef(data)
+                    # Handle scalar or 0-d output if it happens, though unlikely for list input
+                    if np.ndim(corr_mat) == 2:
+                        factors['spatial_correlation'] = corr_mat[0, 1:].mean()
+                    else:
+                        factors['spatial_correlation'] = 0.0
+                except Exception:
+                    factors['spatial_correlation'] = 0.0
             else:
                 factors['spatial_correlation'] = 0.0
         
@@ -359,9 +368,15 @@ class EnvironmentalActiveInferenceEngine:
                 historical_values.append(obs_record['observations'][cell][variable])
         
         if len(historical_values) > 1:
-            # Simple autocorrelation calculation
-            autocorr = np.corrcoef(historical_values[:-1], historical_values[1:])[0, 1]
-            factors['temporal_autocorrelation'] = autocorr if not np.isnan(autocorr) else 0.0
+            try:
+                corr_mat = np.corrcoef(historical_values[:-1], historical_values[1:])
+                if np.ndim(corr_mat) == 2:
+                    autocorr = corr_mat[0, 1]
+                    factors['temporal_autocorrelation'] = autocorr if not np.isnan(autocorr) else 0.0
+                else:
+                    factors['temporal_autocorrelation'] = 0.0
+            except Exception:
+                factors['temporal_autocorrelation'] = 0.0
         else:
             factors['temporal_autocorrelation'] = 0.0
         
@@ -660,6 +675,8 @@ class EnvironmentalActiveInferenceEngine:
                             current_time = env_state.timestamp or 0.0
                             X_pred = np.array([[lat, lng, current_time]])
                             predicted_mean, predicted_std = self.gp_models[var].predict(X_pred, return_std=True)
+                            predicted_mean = np.atleast_1d(predicted_mean)
+                            predicted_std = np.atleast_1d(predicted_std)
                             
                             # Complexity: KL divergence between posterior and prior
                             complexity = 0.5 * (np.log(prior_variance / (predicted_std[0]**2 + 1e-8)) + 

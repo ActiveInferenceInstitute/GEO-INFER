@@ -1,0 +1,42 @@
+{
+  "minimization_dynamics": {
+    "total_reduction": -1.2663206522803565,
+    "reduction_rate": 0.021508738597809357,
+    "efficiency": -0.031658016307008915,
+    "monotonicity": 0.3076923076923077,
+    "minimization_quality": "Poor - Increasing free energy"
+  },
+  "convergence_analysis": {
+    "is_converging": true,
+    "convergence_rate": 0.0007836900070214696,
+    "final_stability": 0.9995184725442767,
+    "convergence_quality": "strong"
+  },
+  "stability_assessment": {
+    "variance": 0.11174352650124404,
+    "coefficient_of_variation": -0.7498114388156077,
+    "large_jumps": 3,
+    "stability_score": 2.288685194298386,
+    "stability_rating": "Very Stable"
+  },
+  "anomaly_detection": {
+    "outliers": [
+      0,
+      1,
+      2
+    ],
+    "spikes": [
+      0,
+      1,
+      2
+    ],
+    "flat_periods": [],
+    "anomaly_score": 0.15
+  },
+  "efficiency_metrics": {
+    "efficiency_per_step": -0.032469760314880934,
+    "final_efficiency": -0.031658016307008915,
+    "actual_vs_theoretical": 2.381116867911166,
+    "efficiency_rating": "Inefficient"
+  }
+}

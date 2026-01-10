@@ -12,6 +12,16 @@ difficulty: "Advanced"
 estimated_time: "65"
 ---
 
+<div align="center">
+  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
+  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
+  <a href="../README.md#-module-overview">📦 Module Index</a> •
+  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+</div>
+
+---
+
+
 # GEO-INFER-ECON: Spatial Economic Modeling, Analysis, and Policy Evaluation
 
 > **Purpose**: Model economic phenomena with spatial dimensions, analyze market dynamics, and evaluate policy impacts

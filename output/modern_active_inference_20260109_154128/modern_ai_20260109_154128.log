@@ -1,0 +1,46 @@
+2026-01-09 15:41:28,033 - ModernActiveInference - INFO - Modern Active Inference - Comprehensive Analysis
+2026-01-09 15:41:28,033 - ModernActiveInference - INFO - ======================================================================
+2026-01-09 15:41:28,033 - ModernActiveInference - INFO - Output directory: /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154128
+2026-01-09 15:41:28,034 - geo_infer_act.api.interface - INFO - ActiveInferenceInterface initialized
+2026-01-09 15:41:28,034 - ModernActiveInference - INFO - Modern Active Inference Demo initialized
+2026-01-09 15:41:28,034 - ModernActiveInference - INFO - Enhanced with comprehensive analysis capabilities
+2026-01-09 15:41:28,034 - ModernActiveInference - INFO - Starting comprehensive modern Active Inference demonstration
+2026-01-09 15:41:28,034 - ModernActiveInference - INFO - 
+==================================================
+2026-01-09 15:41:28,034 - ModernActiveInference - INFO - 1. HIERARCHICAL ACTIVE INFERENCE
+2026-01-09 15:41:28,034 - ModernActiveInference - INFO - ==================================================
+2026-01-09 15:41:28,034 - ModernActiveInference - INFO - Creating hierarchical model: hierarchical_model
+2026-01-09 15:41:28,034 - geo_infer_act.core.active_inference - INFO - Initialized ActiveInferenceModel with type: categorical
+2026-01-09 15:41:28,034 - geo_infer_act.core.generative_model - INFO - Initialized 3 hierarchical levels
+2026-01-09 15:41:28,034 - geo_infer_act.api.interface - INFO - Created categorical model: hierarchical_model
+2026-01-09 15:41:28,034 - geo_infer_act.api.interface - INFO - Set preferences for model hierarchical_model
+2026-01-09 15:41:28,035 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154128/hierarchical
+2026-01-09 15:41:28,035 - ModernActiveInference - INFO -   Created 3-level hierarchical model
+2026-01-09 15:41:28,035 - ModernActiveInference - INFO -   Temporal horizons: [1, 5, 20]
+2026-01-09 15:41:28,035 - ModernActiveInference - INFO -   Message passing enabled: True
+2026-01-09 15:41:28,036 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=-4.2914
+2026-01-09 15:41:28,036 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=-4.2914
+2026-01-09 15:41:28,036 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=-4.2914
+2026-01-09 15:41:28,037 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=-4.2914
+2026-01-09 15:41:28,037 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=-4.2914
+2026-01-09 15:41:28,037 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=-4.2914
+2026-01-09 15:41:28,038 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=-4.2914
+2026-01-09 15:41:28,038 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=-4.2914
+2026-01-09 15:41:28,038 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=-4.2914
+2026-01-09 15:41:28,039 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=-4.2914
+2026-01-09 15:41:28,039 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=-4.2914
+2026-01-09 15:41:28,039 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=-4.2914
+2026-01-09 15:41:28,040 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=-4.2914
+2026-01-09 15:41:28,040 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=-4.2914
+2026-01-09 15:41:28,040 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=-4.2914
+2026-01-09 15:41:28,040 - ModernActiveInference - INFO - 
+==================================================
+2026-01-09 15:41:28,040 - ModernActiveInference - INFO - 2. MARKOV BLANKET ARCHITECTURE
+2026-01-09 15:41:28,040 - ModernActiveInference - INFO - ==================================================
+2026-01-09 15:41:28,040 - ModernActiveInference - INFO - Demonstrating Markov blanket architectures
+2026-01-09 15:41:28,040 - geo_infer_act.core.active_inference - INFO - Initialized ActiveInferenceModel with type: categorical
+2026-01-09 15:41:28,040 - geo_infer_act.core.generative_model - INFO - Initialized Markov blanket structure
+2026-01-09 15:41:28,040 - geo_infer_act.api.interface - INFO - Created categorical model: markov_blanket_model
+2026-01-09 15:41:28,041 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154128/markov_blanket
+2026-01-09 15:41:28,041 - ModernActiveInference - INFO - Running Markov blanket simulation for 30 steps
+2026-01-09 15:41:28,041 - ModernActiveInference - ERROR - Demo failed with error: 'ActiveInferenceModel' object has no attribute 'beliefs'

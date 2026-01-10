@@ -42,7 +42,13 @@ from geo_infer_act.utils.visualization import (
 )
 from geo_infer_act.utils.analysis import ActiveInferenceAnalyzer
 from geo_infer_act.utils.math import (
-    compute_surprise, compute_information_gain, assess_convergence,
+    compute_free_energy_categorical,
+    compute_expected_free_energy,
+    compute_information_gain,
+    compute_surprise,
+    entropy,
+    softmax,
+    assess_convergence,
     detect_stationarity, detect_periodicity, assess_complexity
 )
 from geo_infer_act.utils.config import load_config
@@ -144,12 +150,8 @@ class ModernActiveInferenceDemo:
         
         # Re-initialize for hierarchical
         model = self.ai_interface.models[model_id]
-        model.hierarchical = True
-        model._initialize_hierarchical_structure()
-        model.beliefs = model._initialize_beliefs()
-        model.preferences = model._initialize_preferences()
-        model.transition_model = model._initialize_transition_model()
-        model.observation_model = model._initialize_observation_model()
+        # model.hierarchical = True  # Already handled by params
+        # model._initialize_hierarchical_structure() # Already handled by GenerativeModel init
         
         # Set hierarchical preferences
         obs_base = np.array([0.8, 0.6, 0.4, 0.7, 0.5, 0.3])
@@ -228,7 +230,7 @@ class ModernActiveInferenceDemo:
             observation = np.clip(observation, 0, 1)
             
             # Get pre-update state
-            pre_beliefs = self.ai_interface.models[model_id].beliefs['states'].copy()
+            pre_beliefs = self.ai_interface.models[model_id].current_beliefs['states'].copy()
             pre_free_energy = self.ai_interface.get_free_energy(model_id)
             
             # Update beliefs
@@ -247,8 +249,10 @@ class ModernActiveInferenceDemo:
             conditional_independence_scores.append(independence_score)
             
             # Analytical metrics
-            surprise = compute_surprise(pre_beliefs, observation, sigma=0.2)
-            info_gain = compute_information_gain(pre_beliefs, updated_beliefs['states'])
+            surprise = compute_surprise(observation, pre_beliefs, sigma=0.2)
+            prior_ent = entropy(pre_beliefs)
+            post_ent = entropy(updated_beliefs['states'])
+            info_gain = compute_information_gain(prior_ent, post_ent)
             
             self.logger.info(f"  Step {step+1}: {phase}")
             self.logger.info(f"    Conditional independence: {independence_score:.4f}")
@@ -270,8 +274,9 @@ class ModernActiveInferenceDemo:
                 beliefs=updated_beliefs['states'],
                 observations=observation,
                 actions=np.array([policy_result['policy']['id']]),
+                policies=policy_result,
                 free_energy=post_free_energy,
-                step_data=step_data
+                metrics=step_data
             )
         
         # Analyze Markov blanket performance
@@ -289,133 +294,7 @@ class ModernActiveInferenceDemo:
             "scores": conditional_independence_scores
         }
     
-    def integrate_modern_tools(self) -> Dict[str, Any]:
-        """
-        Demonstrate integration with modern probabilistic programming tools.
-        
-        In a full implementation, this would interface with:
-        - RxInfer.jl for message passing algorithms
-        - Bayeux for Bayesian workflow optimization  
-        - pymdp for discrete active inference
-        """
-        self.logger.info("Demonstrating modern tool integration")
-        
-        integration_results = {}
-        tools_tested = ['RxInfer', 'Bayeux', 'pymdp', 'JAX', 'PyTorch']
-        successful_integrations = 0
-        
-        for tool in tools_tested:
-            self.logger.info(f"  Testing {tool} integration...")
-            
-            try:
-                # Simulate tool integration
-                if tool == 'RxInfer':
-                    # Simulate message passing optimization
-                    result = self._simulate_rxinfer_integration()
-                elif tool == 'Bayeux':
-                    # Simulate Bayesian workflow optimization
-                    result = self._simulate_bayeux_integration()
-                elif tool == 'pymdp':
-                    # Simulate discrete active inference
-                    result = self._simulate_pymdp_integration()
-                elif tool == 'JAX':
-                    # Simulate JAX acceleration
-                    result = self._simulate_jax_integration()
-                elif tool == 'PyTorch':
-                    # Simulate neural network integration
-                    result = self._simulate_pytorch_integration()
-                
-                integration_results[tool.lower()] = result
-                
-                if result['status'] == 'simulated':
-                    successful_integrations += 1
-                    self.logger.info(f"    ✓ {tool}: {result['description']}")
-                else:
-                    self.logger.info(f"    ✗ {tool}: {result.get('error', 'Unknown error')}")
-                    
-            except Exception as e:
-                self.logger.warning(f"    ⚠ {tool}: Integration failed - {e}")
-                integration_results[tool.lower()] = {"status": "error", "error": str(e)}
-        
-        self.logger.info(f"Tool integration summary: {successful_integrations}/{len(tools_tested)} successful")
-        
-        return {
-            "status": "success",
-            "successful_integrations": successful_integrations,
-            "tools_tested": len(tools_tested),
-            "integration_results": integration_results
-        }
-    
-    def _simulate_rxinfer_integration(self) -> Dict[str, Any]:
-        """Simulate RxInfer.jl message passing integration."""
-        # Simulate message passing optimization
-        efficiency_gain = np.random.uniform(1.5, 3.0)
-        convergence_improvement = np.random.uniform(0.2, 0.5)
-        
-        return {
-            "status": "simulated",
-            "description": f"Message passing efficiency increased by {efficiency_gain:.1f}x",
-            "metrics": {
-                "efficiency_gain": efficiency_gain,
-                "convergence_improvement": convergence_improvement
-            }
-        }
-    
-    def _simulate_bayeux_integration(self) -> Dict[str, Any]:
-        """Simulate Bayeux workflow optimization."""
-        workflow_optimization = np.random.uniform(0.3, 0.7)
-        diagnostic_improvement = np.random.uniform(0.4, 0.8)
-        
-        return {
-            "status": "simulated", 
-            "description": f"Bayesian workflow optimization improved by {workflow_optimization:.1%}",
-            "metrics": {
-                "workflow_optimization": workflow_optimization,
-                "diagnostic_improvement": diagnostic_improvement
-            }
-        }
-    
-    def _simulate_pymdp_integration(self) -> Dict[str, Any]:
-        """Simulate pymdp discrete active inference."""
-        discrete_efficiency = np.random.uniform(0.6, 0.9)
-        planning_horizon = np.random.randint(5, 15)
-        
-        return {
-            "status": "simulated",
-            "description": f"Discrete AI planning horizon extended to {planning_horizon} steps",
-            "metrics": {
-                "discrete_efficiency": discrete_efficiency,
-                "planning_horizon": planning_horizon
-            }
-        }
-    
-    def _simulate_jax_integration(self) -> Dict[str, Any]:
-        """Simulate JAX acceleration."""
-        acceleration_factor = np.random.uniform(10, 50)
-        compilation_time = np.random.uniform(0.1, 0.5)
-        
-        return {
-            "status": "simulated",
-            "description": f"JAX acceleration: {acceleration_factor:.1f}x speedup",
-            "metrics": {
-                "acceleration_factor": acceleration_factor,
-                "compilation_time": compilation_time
-            }
-        }
-    
-    def _simulate_pytorch_integration(self) -> Dict[str, Any]:
-        """Simulate PyTorch neural network integration."""
-        neural_accuracy = np.random.uniform(0.85, 0.95)
-        training_efficiency = np.random.uniform(0.6, 0.9)
-        
-        return {
-            "status": "simulated",
-            "description": f"Neural integration achieved {neural_accuracy:.1%} accuracy",
-            "metrics": {
-                "neural_accuracy": neural_accuracy,
-                "training_efficiency": training_efficiency
-            }
-        }
+
     
     def demonstrate_spatial_temporal_dynamics(self, model_id: str) -> Dict[str, Any]:
         """
@@ -442,7 +321,7 @@ class ModernActiveInferenceDemo:
         
         # Enable spatial navigation
         grid_size = int(np.sqrt(st_params["state_dim"]))  # 3 for 9 states
-        self.ai_interface.models[model_id].enable_spatial_navigation(grid_size)
+        self.ai_interface.models[model_id].generative_model.enable_spatial_navigation(grid_size)
         
         # Initialize analyzer
         self.analyzers[model_id] = ActiveInferenceAnalyzer(
@@ -477,7 +356,7 @@ class ModernActiveInferenceDemo:
             observation = np.clip(observation, 0, 1)
             
             # Get beliefs and update
-            pre_beliefs = self.ai_interface.models[model_id].beliefs['states'].copy()
+            pre_beliefs = self.ai_interface.models[model_id].current_beliefs['states'].copy()
             pre_free_energy = self.ai_interface.get_free_energy(model_id)
             
             observation_dict = {"observations": observation}
@@ -501,8 +380,10 @@ class ModernActiveInferenceDemo:
                 temporal_coherence.append(temporal_consistency)
             
             # Analytics
-            surprise = compute_surprise(pre_beliefs, observation, sigma=0.15)
-            info_gain = compute_information_gain(pre_beliefs, updated_beliefs['states'])
+            surprise = compute_surprise(observation, pre_beliefs, sigma=0.15)
+            prior_ent = entropy(pre_beliefs)
+            post_ent = entropy(updated_beliefs['states'])
+            info_gain = compute_information_gain(prior_ent, post_ent)
             
             self.logger.info(f"  Step {step+1}:")
             self.logger.info(f"    Spatial correlation: {spatial_correlation:.4f}")
@@ -524,8 +405,9 @@ class ModernActiveInferenceDemo:
                 beliefs=updated_beliefs['states'],
                 observations=observation,
                 actions=np.array([policy_result['policy']['id']]),
+                policies=policy_result,
                 free_energy=post_free_energy,
-                step_data=step_data
+                metrics=step_data
             )
         
         # Analysis
@@ -628,7 +510,7 @@ class ModernActiveInferenceDemo:
                 agent_obs = np.clip(agent_obs, 0, 1)
                 
                 # Update beliefs
-                pre_beliefs = self.ai_interface.models[model_id].beliefs['states'].copy()
+                pre_beliefs = self.ai_interface.models[model_id].current_beliefs['states'].copy()
                 pre_free_energy = self.ai_interface.get_free_energy(model_id)
                 
                 observation_dict = {"observations": agent_obs}
@@ -643,8 +525,10 @@ class ModernActiveInferenceDemo:
                 agent_free_energies.append(post_free_energy)
                 
                 # Calculate agent-specific metrics
-                surprise = compute_surprise(pre_beliefs, agent_obs, sigma=0.12)
-                info_gain = compute_information_gain(pre_beliefs, updated_beliefs['states'])
+                surprise = compute_surprise(agent_obs, pre_beliefs, sigma=0.12)
+                prior_ent = entropy(pre_beliefs)
+                post_ent = entropy(updated_beliefs['states'])
+                info_gain = compute_information_gain(prior_ent, post_ent)
                 
                 # Record step
                 step_data = {
@@ -661,8 +545,9 @@ class ModernActiveInferenceDemo:
                     beliefs=updated_beliefs['states'],
                     observations=agent_obs,
                     actions=np.array([policy_result['policy']['id']]),
+                    policies=policy_result,
                     free_energy=post_free_energy,
-                    step_data=step_data
+                    metrics=step_data
                 )
             
             # Calculate coordination metrics
@@ -695,8 +580,12 @@ class ModernActiveInferenceDemo:
         # Multi-agent analysis
         avg_coordination = np.mean(coordination_scores)
         avg_consensus = np.mean(consensus_measures)
-        coordination_improvement = coordination_scores[-5:] - coordination_scores[:5] if len(coordination_scores) >= 10 else [0]
-        improvement = np.mean(coordination_improvement) if len(coordination_improvement) > 0 else 0
+        if len(coordination_scores) >= 10:
+            scores_arr = np.array(coordination_scores)
+            coordination_improvement = scores_arr[-5:] - scores_arr[:5]
+            improvement = np.mean(coordination_improvement)
+        else:
+            improvement = 0.0
         
         self.logger.info(f"Multi-agent coordination analysis complete:")
         self.logger.info(f"  Average coordination: {avg_coordination:.4f}")
@@ -728,19 +617,19 @@ class ModernActiveInferenceDemo:
                 
                 # Generate comprehensive analysis
                 perception_analysis = analyzer.analyze_perception_patterns()
-                action_analysis = analyzer.analyze_action_patterns()
+                action_analysis = analyzer.analyze_action_selection_patterns()
                 free_energy_analysis = analyzer.analyze_free_energy_patterns()
                 
                 # Extract key performance metrics
                 metrics = {
-                    "perception_quality": perception_analysis['belief_dynamics']['quality_score'],
-                    "action_consistency": action_analysis['policy_dynamics']['consistency_score'],
-                    "free_energy_efficiency": free_energy_analysis['minimization']['efficiency_score'],
-                    "convergence_achieved": free_energy_analysis['convergence']['converged'],
-                    "system_stability": free_energy_analysis['stability']['is_stable'],
+                    "perception_quality": perception_analysis.get('perception_quality', {}).get('structure_score', 0),
+                    "action_consistency": action_analysis.get('action_consistency', {}).get('consistency_score', 0),
+                    "free_energy_efficiency": free_energy_analysis.get('efficiency_metrics', {}).get('efficiency_score', 0),
+                    "convergence_achieved": free_energy_analysis.get('convergence_analysis', {}).get('is_converging', False),
+                    "system_stability": free_energy_analysis.get('stability_assessment', {}).get('is_stable', False),
                     "total_steps": len(analyzer.step_history),
-                    "avg_surprise": np.mean([step['step_data'].get('surprise', 0) for step in analyzer.step_history if 'step_data' in step]),
-                    "avg_info_gain": np.mean([step['step_data'].get('information_gain', 0) for step in analyzer.step_history if 'step_data' in step])
+                    "avg_surprise": np.mean([step.get('step_data', {}).get('surprise', 0) for step in analyzer.step_history if 'step_data' in step]),
+                    "avg_info_gain": np.mean([step.get('step_data', {}).get('information_gain', 0) for step in analyzer.step_history if 'step_data' in step])
                 }
                 
                 performance_metrics[model_id] = metrics
@@ -781,34 +670,38 @@ class ModernActiveInferenceDemo:
                 analyzer = self.analyzers[model_id]
                 
                 # Create perception analysis
-                perception_fig = plot_perception_analysis(
-                    analyzer.step_history,
-                    title=f"Modern AI: {model_id} - Perception Analysis"
-                )
-                perception_fig.savefig(self.output_dir / f'{model_id}_perception.png', 
-                                     dpi=300, bbox_inches='tight')
-                plt.close(perception_fig)
+                try:
+                    plot_perception_analysis(
+                        analyzer.traces['beliefs'],
+                        analyzer.traces['observations'],
+                        analyzer.output_dir,
+                        title=f"Modern AI: {model_id} - Perception Analysis"
+                    )
+                except Exception as e:
+                    self.logger.error(f"Failed to plot perception analysis for {model_id}: {e}")
                 
                 # Create action analysis
-                action_fig = plot_action_analysis(
-                    analyzer.step_history,
-                    title=f"Modern AI: {model_id} - Action Analysis"
-                )
-                action_fig.savefig(self.output_dir / f'{model_id}_action.png', 
-                                 dpi=300, bbox_inches='tight')
-                plt.close(action_fig)
+                try:
+                    plot_action_analysis(
+                        analyzer.traces['policies'],
+                        analyzer.traces['actions'],
+                        analyzer.output_dir,
+                        title=f"Modern AI: {model_id} - Action Analysis"
+                    )
+                except Exception as e:
+                    self.logger.error(f"Failed to plot action analysis for {model_id}: {e}")
                 
                 # Create interpretability dashboard
-                dashboard_fig = create_interpretability_dashboard(
-                    analyzer.step_history,
-                    title=f"Modern AI: {model_id} - Interpretability Dashboard"
-                )
-                dashboard_fig.savefig(self.output_dir / f'{model_id}_dashboard.png', 
-                                    dpi=300, bbox_inches='tight')
-                plt.close(dashboard_fig)
+                try:
+                    create_interpretability_dashboard(
+                        analyzer,
+                        analyzer.output_dir
+                    )
+                except Exception as e:
+                    self.logger.error(f"Failed to create dashboard for {model_id}: {e}")
                 
                 # Export data
-                analyzer.export_to_csv(str(self.output_dir / f'{model_id}_data.csv'))
+                # analyzer.export_to_csv(str(analyzer.output_dir / 'data_export.csv'))
                 
                 self.logger.info(f"  Generated visualizations for {model_id}")
     
@@ -852,13 +745,13 @@ class ModernActiveInferenceDemo:
                         'step': step,
                         'observation_complexity': np.var(obs_level1)
                     }
-                    
                     self.analyzers[model_id].record_step(
                         beliefs=updated_beliefs['level_0']['states'],
                         observations=obs_level1,
                         actions=np.array([policy_result['policy']['id']]),
+                        policies=policy_result,
                         free_energy=self.ai_interface.get_free_energy(model_id),
-                        step_data=step_data
+                        metrics=step_data
                     )
             results["hierarchical_demo"] = hierarchical_result
             
@@ -871,14 +764,6 @@ class ModernActiveInferenceDemo:
             if blanket_result["status"] == "success":
                 model_ids.append("markov_blanket_model")
             results["markov_blanket_demo"] = blanket_result
-            
-            # 3. Modern Tool Integration
-            self.logger.info("\n" + "="*50)
-            self.logger.info("3. MODERN TOOL INTEGRATION")
-            self.logger.info("="*50)
-            
-            tool_result = self.integrate_modern_tools()
-            results["tool_integration_demo"] = tool_result
             
             # 4. Spatial-Temporal Dynamics
             self.logger.info("\n" + "="*50)
@@ -925,6 +810,8 @@ class ModernActiveInferenceDemo:
             self.logger.info("Modern Active Inference demonstration completed successfully")
             
         except Exception as e:
+            import traceback
+            traceback.print_exc()
             self.logger.error(f"Demo failed with error: {e}")
             results["error"] = str(e)
             results["partial_results"] = results.copy()

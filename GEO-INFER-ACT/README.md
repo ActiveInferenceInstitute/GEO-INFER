@@ -12,6 +12,16 @@ difficulty: "Advanced"
 estimated_time: "60"
 ---
 
+<div align="center">
+  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
+  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
+  <a href="../README.md#-module-overview">📦 Module Index</a> •
+  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+</div>
+
+---
+
+
 # GEO-INFER-ACT: Active Inference Modeling for Geospatial Systems
 
 ## Overview
@@ -24,7 +34,8 @@ Built on the **Free Energy Principle** from theoretical neuroscience and biology
 
 - **Hierarchical Active Inference** with message passing between multiple timescales
 - **Markov Blanket Architectures** for conditional independence and self-organization  
-- **Modern Tool Integration** with [RxInfer.jl](https://github.com/biaslab/RxInfer.jl), [Bayeux](https://github.com/jax-ml/bayeux), [pymdp](https://github.com/infer-actively/pymdp)
+- **Core Engine Powered by [inferactively-pymdp](https://github.com/infer-actively/pymdp)** ensuring mathematically rigorous implementation
+- **Integration** with [RxInfer.jl](https://github.com/biaslab/RxInfer.jl) and [Bayeux](https://github.com/jax-ml/bayeux) for advanced probabilistic programming
 - **Spatial-Temporal Extensions** for geospatial applications with H3 integration
 - **Neural Field Dynamics** for large-scale spatial modeling
 - **Multi-Agent Coordination** with consensus and hierarchical protocols

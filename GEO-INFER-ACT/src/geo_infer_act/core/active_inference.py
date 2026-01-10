@@ -94,9 +94,69 @@ class ActiveInferenceModel:
         if self.generative_model is None:
             raise ValueError("Generative model must be set before action selection")
         
+        # Try pymdp control if available
+        try:
+            from pymdp.control import construct_policies, sample_action
+            from pymdp.maths import spm_log_single
+            
+            # Check if we have necessary matrices
+            A = getattr(self.generative_model, 'observation_model', None)
+            B = getattr(self.generative_model, 'transition_model', None)
+            C = getattr(self.generative_model, 'preferences', None)
+            
+            if A is not None and B is not None and C is not None:
+                # Prepare qs (beliefs)
+                qs = self.current_beliefs.get('states') if isinstance(self.current_beliefs, dict) else self.current_beliefs
+                # Ensure qs is list of arrays (factors)
+                if isinstance(qs, np.ndarray) and qs.dtype != object:
+                    qs = [qs] 
+                elif isinstance(qs, list) and len(qs) > 0 and not isinstance(qs[0], np.ndarray):
+                     # If generic list, convert elements
+                     qs = [np.array(q) for q in qs]
+
+                # Get dimensions
+                num_controls = getattr(self.generative_model, 'num_controls', None)
+                if num_controls is None:
+                     # Infer from B
+                     # B[f] shape is (Ns, Ns, Nu)
+                     num_controls = [b.shape[-1] for b in B]
+
+                # Construct policies
+                # Use policy_len=1 for simple step, or getattr(self, 'horizon', 1)
+                policies = construct_policies(num_controls) 
+                
+                # Calculate Expected Free Energy (G)
+                # We need different G function depending on pymdp version or structure
+                # Try inferactively-pymdp common path
+                try:
+                    from pymdp.control import calculate_G_policies
+                    G = calculate_G_policies(A, B, C, qs, policies=policies)
+                    
+                    # Compute posterior over policies
+                    # Q_pi = softmax(-G) basically, or usage of update_posterior_policies
+                    from pymdp.inference import update_posterior_policies
+                    q_pi, _ = update_posterior_policies(qs, A, B, C, policies, use_utility=True) 
+                    # Note: update_posterior_policies might re-calc G internaly? 
+                    # If G is available, some versions allow passing it.
+                    # But simpler:
+                    q_pi = softmax(-G)
+                    
+                    # Sample action
+                    action = sample_action(q_pi, policies, num_controls, sampling_mode='marginal')
+                    
+                    self.current_actions = action
+                    return action
+                except ImportError:
+                     # Fallback to simple G calc if specific functions missing
+                     pass
+        except (ImportError, Exception):
+            pass # Pymdp not available or failed
+
+        # Standard / Fallback Implementation
+        
         # Generate default actions if none provided
         if available_actions is None:
-            available_actions = list(range(getattr(self.generative_model, 'action_dim', 3)))
+            available_actions = list(range(getattr(self.generative_model, 'num_controls', [3])[0]))
         
         selected_action: Any = None
         belief_vector = self._extract_belief_vector(self.current_beliefs)
@@ -187,6 +247,11 @@ class ActiveInferenceModel:
     
     def compute_free_energy(self) -> float:
         """Compute current variational free energy."""
+        
+        # Delegate to GenerativeModel if it supports free energy computation (handles hierarchical etc.)
+        if self.generative_model is not None and hasattr(self.generative_model, 'compute_free_energy'):
+            return self.generative_model.compute_free_energy()
+            
         if self.current_beliefs is None:
             return np.inf
 
@@ -280,27 +345,33 @@ class ActiveInferenceModel:
         beliefs = getattr(model, 'beliefs', None)
         if beliefs is None:
             if self.model_type == 'categorical' and getattr(model, 'state_dim', 0) > 0:
-                return normalize_distribution(np.ones(model.state_dim))
+                s_dim = model.state_dim
+                if isinstance(s_dim, list):
+                    return {'states': [normalize_distribution(np.ones(d)) for d in s_dim]}
+                return {'states': normalize_distribution(np.ones(s_dim))}
             if self.model_type == 'gaussian' and getattr(model, 'state_dim', 0) > 0:
-                precision = np.eye(model.state_dim) * getattr(model, 'prior_precision', 1.0)
-                return {'mean': np.zeros(model.state_dim), 'precision': precision}
+                s_dim = model.state_dim
+                if isinstance(s_dim, list): s_dim = s_dim[0] # Simplify for gaussian
+                precision = np.eye(s_dim) * getattr(model, 'prior_precision', 1.0)
+                return {'mean': np.zeros(s_dim), 'precision': precision}
             return None
 
         if isinstance(beliefs, dict):
             if self.model_type == 'categorical':
                 if 'states' in beliefs:
-                    return normalize_distribution(np.asarray(beliefs['states'], dtype=float).reshape(-1))
+                    # Return list/array structure as is, just wrapped in dict if not already
+                    return {'states': beliefs['states']}
                 for value in beliefs.values():
                     if isinstance(value, dict) and 'states' in value:
-                        return normalize_distribution(np.asarray(value['states'], dtype=float).reshape(-1))
+                        return {'states': value['states']}
             if self.model_type == 'gaussian' and 'mean' in beliefs and 'precision' in beliefs:
                 return {
                     'mean': np.asarray(beliefs['mean'], dtype=float).copy(),
                     'precision': np.asarray(beliefs['precision'], dtype=float).copy()
                 }
 
-        if isinstance(beliefs, np.ndarray):
-            return normalize_distribution(beliefs.astype(float))
+        if isinstance(beliefs, (np.ndarray, list)):
+            return {'states': beliefs}
 
         return None
 
@@ -312,9 +383,9 @@ class ActiveInferenceModel:
             if self.model_type == 'categorical':
                 extracted: Dict[str, Any] = {}
                 if 'states' in prefs:
-                    extracted['states'] = normalize_distribution(np.asarray(prefs['states'], dtype=float).reshape(-1))
+                    extracted['states'] = normalize_distribution(self._safe_flatten(prefs['states']))
                 if 'observations' in prefs:
-                    extracted['observations'] = normalize_distribution(np.asarray(prefs['observations'], dtype=float).reshape(-1))
+                    extracted['observations'] = normalize_distribution(self._safe_flatten(prefs['observations']))
                 return extracted or None
             if self.model_type == 'gaussian':
                 result: Dict[str, Any] = {}
@@ -323,8 +394,9 @@ class ActiveInferenceModel:
                 if 'precision' in prefs:
                     result['precision'] = np.asarray(prefs['precision'], dtype=float).copy()
                 return result or None
-        if isinstance(prefs, np.ndarray):
-            return normalize_distribution(prefs.astype(float))
+        if isinstance(prefs, (np.ndarray, list)):
+             # Safe flatten handles list or object array
+             return normalize_distribution(self._safe_flatten(prefs))
         return None
 
     def _update_beliefs_with_model(self, observation: np.ndarray):
@@ -334,10 +406,18 @@ class ActiveInferenceModel:
         try:
             if self.model_type == 'categorical':
                 updated = self.generative_model.update_beliefs({'observations': observation})
+                
+                # Check for hierarchical structure
+                if isinstance(updated, dict) and any(k.startswith('level_') for k in updated.keys()):
+                    return updated
+                    
                 if isinstance(updated, dict) and 'states' in updated:
-                    return normalize_distribution(np.asarray(updated['states'], dtype=float).reshape(-1))
+                    # Return consistent dict structure
+                    vec = normalize_distribution(self._safe_flatten(updated['states']))
+                    return {'states': vec}
                 if isinstance(updated, np.ndarray):
-                    return normalize_distribution(updated.astype(float))
+                    vec = normalize_distribution(updated.astype(float))
+                    return {'states': vec}
             elif self.model_type == 'gaussian':
                 updated = self.generative_model.update_beliefs({'observations': observation})
                 if isinstance(updated, dict) and 'mean' in updated and 'precision' in updated:
@@ -354,18 +434,49 @@ class ActiveInferenceModel:
         if self.current_beliefs is None:
             self.current_beliefs = self._extract_model_beliefs(self.generative_model)
 
-        if self.model_type == 'categorical' and isinstance(self.generative_model.observation_model, np.ndarray):
-            prior = self._extract_belief_vector(self.current_beliefs)
-            if prior is None:
-                return None
-            if self.generative_model.observation_model.shape[1] != len(prior):
-                obs_dim = self.generative_model.observation_model.shape[0]
-                self.generative_model.observation_model = np.ones((obs_dim, len(prior))) / max(obs_dim, 1)
-            return self.belief_updater.update_categorical(
-                prior,
-                observation,
-                self.generative_model.observation_model
-            )
+        # PYMDP Integration Check
+        if self.model_type == 'categorical':
+            A = getattr(self.generative_model, 'observation_model', None)
+            
+            # Safely get prior
+            if isinstance(self.current_beliefs, dict):
+                prior = self.current_beliefs.get('states')
+            else:
+                prior = self.current_beliefs # Assume it's the states array/list
+                
+            # Check if using pymdp style (A is object array or list of arrays)
+            if (isinstance(A, np.ndarray) and A.dtype == object) or isinstance(A, list):
+                try:
+                    from pymdp.inference import update_posterior_states
+                    # Convert observation to int/list of ints if needed
+                    # Observation comes in as float array usually in this codebase
+                    # But proper pymdp expects integers for categorical observations
+                    obs_indices = [int(o) for o in observation] if isinstance(observation, (list, np.ndarray)) else [int(observation)]
+                    
+                    # Update beliefs using pymdp
+                    qs = update_posterior_states(A, obs_indices, prior_beliefs=prior)
+                    
+                    # Update internal state clearly
+                    self.current_beliefs = {'states': qs}
+                    return {'states': qs}
+                except (ImportError, Exception) as e:
+                     logger.debug(f"Pymdp update failed: {e}")
+
+            # Fallback to existing manual update for simple arrays
+            prior_vec = self._extract_belief_vector(self.current_beliefs) # Will extract from dict or array
+            if isinstance(A, np.ndarray) and A.dtype != object:
+                if prior_vec is None: return None
+                if A.shape[1] != len(prior_vec):
+                    obs_dim = A.shape[0]
+                    # Creating a dummy A if dimensions mismatch is dangerous but preserving existing logic fallback
+                    self.generative_model.observation_model = np.ones((obs_dim, len(prior_vec))) / max(obs_dim, 1)
+                updated_beliefs = self.belief_updater.update_categorical(
+                    prior_vec,
+                    observation,
+                    self.generative_model.observation_model
+                )
+                self.current_beliefs = {'states': updated_beliefs}
+                return self.current_beliefs
 
         if self.model_type == 'gaussian':
             gaussian_beliefs = self._ensure_gaussian_beliefs(self.current_beliefs)
@@ -382,14 +493,43 @@ class ActiveInferenceModel:
 
         return self.current_beliefs
 
+    def _safe_flatten(self, data: Any) -> Optional[np.ndarray]:
+        """Safely flatten data that might be a list of arrays or object array."""
+        if data is None:
+            return None
+        
+        if isinstance(data, dict):
+            try:
+                # Recursively flatten values
+                arrays = [self._safe_flatten(v) for v in data.values()]
+                return np.concatenate(arrays)
+            except Exception:
+                pass # Fallback
+                
+        if isinstance(data, (list, tuple)):
+            try:
+                arrays = [np.asarray(x, dtype=float).reshape(-1) for x in data]
+                return np.concatenate(arrays)
+            except Exception:
+                return np.asarray(data, dtype=float).reshape(-1)
+                
+        if isinstance(data, np.ndarray):
+            if data.dtype == object:
+                try:
+                    arrays = [np.asarray(x, dtype=float).reshape(-1) for x in data.flat]
+                    return np.concatenate(arrays)
+                except Exception:
+                    pass
+            return np.asarray(data, dtype=float).reshape(-1)
+            
+        return np.array([float(data)])
+
     def _extract_belief_vector(self, beliefs: Any) -> Optional[np.ndarray]:
         if beliefs is None:
             return None
-        if isinstance(beliefs, np.ndarray):
-            return normalize_distribution(beliefs.astype(float))
         if isinstance(beliefs, dict) and 'states' in beliefs:
-            return normalize_distribution(np.asarray(beliefs['states'], dtype=float).reshape(-1))
-        return None
+            return normalize_distribution(self._safe_flatten(beliefs['states']))
+        return normalize_distribution(self._safe_flatten(beliefs))
 
     def _ensure_gaussian_beliefs(self, beliefs: Any) -> Optional[Dict[str, np.ndarray]]:
         if isinstance(beliefs, dict) and 'mean' in beliefs and 'precision' in beliefs:
@@ -407,34 +547,51 @@ class ActiveInferenceModel:
         return None
 
     def _get_preferences_vector(self, length: Optional[int] = None) -> np.ndarray:
-        vector: Optional[np.ndarray] = None
-        if isinstance(self.preferences, dict):
-            if 'states' in self.preferences:
-                vector = np.asarray(self.preferences['states'], dtype=float).reshape(-1)
-            elif 'observations' in self.preferences and self.generative_model is not None:
-                obs_prefs = normalize_distribution(np.asarray(self.preferences['observations'], dtype=float).reshape(-1))
-                observation_model = getattr(self.generative_model, 'observation_model', None)
-                if isinstance(observation_model, np.ndarray):
-                    vector = observation_model.T @ obs_prefs
-        elif isinstance(self.preferences, np.ndarray):
-            vector = self.preferences.astype(float).reshape(-1)
-
+        vector = None
+        
+        # 1. Try to get state preferences directly
+        if self.preferences is not None and isinstance(self.preferences, dict) and 'states' in self.preferences:
+             vector = self._safe_flatten(self.preferences['states'])
+        
         if vector is None and self.generative_model is not None:
-            gm_prefs = getattr(self.generative_model, 'preferences', None)
-            if isinstance(gm_prefs, dict):
-                if 'states' in gm_prefs:
-                    vector = np.asarray(gm_prefs['states'], dtype=float).reshape(-1)
-                elif 'observations' in gm_prefs and isinstance(self.generative_model.observation_model, np.ndarray):
-                    obs_prefs = normalize_distribution(np.asarray(gm_prefs['observations'], dtype=float).reshape(-1))
-                    vector = self.generative_model.observation_model.T @ obs_prefs
+             model_prefs = self._extract_model_preferences(self.generative_model)
+             if isinstance(model_prefs, dict) and 'states' in model_prefs:
+                 vector = self._safe_flatten(model_prefs['states'])
+             elif isinstance(model_prefs, np.ndarray):
+                 vector = self._safe_flatten(model_prefs)
 
+        # 2. If no state preferences, try to map observation preferences to states
+        if vector is None:
+             obs_prefs = None
+             if self.preferences and isinstance(self.preferences, dict) and 'observations' in self.preferences:
+                  obs_prefs = self._safe_flatten(self.preferences['observations'])
+             elif self.generative_model is not None:
+                  model_prefs = self._extract_model_preferences(self.generative_model)
+                  if isinstance(model_prefs, dict) and 'observations' in model_prefs:
+                       obs_prefs = self._safe_flatten(model_prefs['observations'])
+             
+             if obs_prefs is not None:
+                  # Use A matrix to map preferences: P(s) propto A.T @ P(o)
+                  observation_model = getattr(self.generative_model, 'observation_model', None)
+                  # Also support 'A' attribute directly if observation_model isn't set
+                  if observation_model is None:
+                       observation_model = getattr(self.generative_model, 'A', None)
+
+                  if isinstance(observation_model, np.ndarray):
+                       # Verify dimensions
+                       # A is (obs_dim, state_dim)
+                       # obs_prefs is (obs_dim)
+                       if observation_model.shape[0] == len(obs_prefs):
+                            vector = observation_model.T @ obs_prefs
+
+        # 3. Fallback to uniform
         if vector is None:
             belief_vector = self._extract_belief_vector(self.current_beliefs)
             default_length = length if length is not None else (len(belief_vector) if belief_vector is not None else 1)
             vector = np.ones(default_length) / max(default_length, 1)
 
-        if length is not None and len(vector) != length:
-            vector = self._align_vector(vector, length)
+        if length is not None:
+             vector = self._align_vector(vector, length)
 
         return normalize_distribution(vector)
 
@@ -469,6 +626,9 @@ class ActiveInferenceModel:
         return normalize_distribution(obs)
 
     def _align_vector(self, vector: np.ndarray, length: int) -> np.ndarray:
+        # Ensure input is at least 1D
+        vector = np.atleast_1d(vector)
+        
         if len(vector) == length:
             return vector
         if len(vector) < length:

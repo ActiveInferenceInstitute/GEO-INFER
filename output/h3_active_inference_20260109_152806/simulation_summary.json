@@ -1,0 +1,21 @@
+{
+  "basic_simulation": {
+    "total_cells": 4,
+    "total_agents": 3,
+    "total_timesteps": 10,
+    "final_free_energy": 0.6298565891451616,
+    "free_energy_reduction": -0.49105026622921844,
+    "total_processing_time": 0.002190113067626953
+  },
+  "environmental_analysis": {
+    "total_environmental_cells": 76,
+    "environmental_variables": 7,
+    "total_observations": 12,
+    "environmental_free_energy": 199286.4105535725
+  },
+  "hierarchical_analysis": {
+    "hierarchy_levels": 3,
+    "base_resolution": 8,
+    "emergent_patterns_detected": 11
+  }
+}

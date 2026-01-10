@@ -12,6 +12,16 @@ difficulty: "Advanced"
 estimated_time: "75"
 ---
 
+<div align="center">
+  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
+  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
+  <a href="../README.md#-module-overview">📦 Module Index</a> •
+  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+</div>
+
+---
+
+
 # GEO-INFER-SEC: Security and Privacy Framework for Geospatial Information
 
 > **Purpose**: Provide robust security and privacy protections for geospatial information systems and sensitive location data

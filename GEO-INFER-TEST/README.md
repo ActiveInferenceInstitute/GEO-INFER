@@ -12,6 +12,16 @@ difficulty: "Intermediate"
 estimated_time: "40"
 ---
 
+<div align="center">
+  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
+  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
+  <a href="../README.md#-module-overview">📦 Module Index</a> •
+  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+</div>
+
+---
+
+
 # GEO-INFER-TEST: Comprehensive Testing Framework
 
 > **Purpose**: Provide comprehensive testing capabilities for quality assurance and validation across the entire GEO-INFER ecosystem
