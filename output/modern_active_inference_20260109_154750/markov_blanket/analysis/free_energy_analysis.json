@@ -1,0 +1,34 @@
+{
+  "minimization_dynamics": {
+    "total_reduction": 0.0,
+    "reduction_rate": -9.602630321160137e-18,
+    "efficiency": 0.0,
+    "monotonicity": 0.0,
+    "minimization_quality": "Stable - No significant change"
+  },
+  "convergence_analysis": {
+    "is_converging": false,
+    "convergence_rate": 0.0,
+    "final_stability": 1.0,
+    "convergence_quality": "weak"
+  },
+  "stability_assessment": {
+    "variance": 1.9721522630525295e-31,
+    "coefficient_of_variation": -2.469220091093549e-16,
+    "large_jumps": 0,
+    "stability_score": 1.0000000000000002,
+    "stability_rating": "Very Stable"
+  },
+  "anomaly_detection": {
+    "outliers": [],
+    "spikes": [],
+    "flat_periods": [],
+    "anomaly_score": 0.0
+  },
+  "efficiency_metrics": {
+    "efficiency_per_step": 0.0,
+    "final_efficiency": 0.0,
+    "actual_vs_theoretical": 6.0490543505436385,
+    "efficiency_rating": "No Progress"
+  }
+}

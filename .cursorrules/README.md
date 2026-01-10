@@ -37,7 +37,7 @@ GEO-INFER is a comprehensive geospatial inference framework implementing Active 
 - **🧪 Simulation & Modeling**: SIM, ANT
 - **👥 People & Community**: CIV, PEP, ORG, COMMS
 - **🖥️ Applications**: APP, ART
-- **🏢 Domain-Specific**: AG, ECON, RISK, LOG, BIO, HEALTH
+- **🏢 Domain-Specific**: AG, ECON, RISK, LOG, BIO, HEALTH, CLIMATE, ENERGY, WATER, TRANSPORT, FOREST, MARINE, EMERGENCY, EDU
 - **📍 Place-Based**: PLACE
 - **⚙️ Operations**: OPS, INTRA, GIT, TEST, EXAMPLES
 

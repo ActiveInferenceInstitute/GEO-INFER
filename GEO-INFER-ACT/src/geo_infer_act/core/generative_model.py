@@ -193,6 +193,15 @@ class GenerativeModel:
     
     def _initialize_beliefs(self) -> Dict[str, Any]:
         """Initialize belief distributions with hierarchical support."""
+        if 'D' in self.parameters:
+             # If D is provided, it's the initial beliefs.
+             # Adapt structure to expected 'beliefs' dict format if needed
+             # But pymdp usually keeps D as an array.
+             # For internal consistency we wrap it if needed.
+             if isinstance(self.parameters['D'], np.ndarray) or isinstance(self.parameters['D'], list):
+                 return {'states': self.parameters['D']}
+             return self.parameters['D']
+
         if self.hierarchical:
             beliefs = {}
             for level in self.levels:
@@ -202,39 +211,13 @@ class GenerativeModel:
             return beliefs
         else:
             return {'states': np.ones(self.state_dim) / self.state_dim}
-    
-    def _initialize_level_beliefs(self, level: HierarchicalLevel) -> Dict[str, np.ndarray]:
-        """Initialize beliefs for a specific hierarchical level."""
-        if self.model_type == 'categorical':
-            return {
-                'states': np.ones(level.state_dim) / level.state_dim,
-                'precision': level.precision
-            }
-        elif self.model_type in ['gaussian', 'hierarchical_gaussian']:
-            return {
-                'mean': np.zeros(level.state_dim),
-                'precision': np.eye(level.state_dim) * level.precision
-            }
-        else:
-            raise ValueError(f"Unsupported model type: {self.model_type}")
-    
-    def _initialize_single_level_beliefs(self) -> Dict[str, np.ndarray]:
-        """Initialize beliefs for single-level models."""
-        if self.model_type == 'categorical':
-            return {
-                'states': np.ones(self.state_dim) / self.state_dim,
-                'precision': self.prior_precision
-            }
-        elif self.model_type == 'gaussian':
-            return {
-                'mean': np.zeros(self.state_dim),
-                'precision': np.eye(self.state_dim) * self.prior_precision
-            }
-        else:
-            raise ValueError(f"Unsupported model type: {self.model_type}")
             
     def _initialize_preferences(self) -> Dict[str, Any]:
         """Initialize prior preferences with hierarchical support."""
+        if 'C' in self.parameters:
+            # If C is provided
+            return self.parameters['C']
+
         if self.hierarchical:
             preferences = {}
             for level in self.levels:
@@ -262,6 +245,9 @@ class GenerativeModel:
     
     def _initialize_transition_model(self) -> Any:
         """Initialize the state transition model with hierarchical support."""
+        if 'B' in self.parameters:
+            return self.parameters['B']
+            
         if self.hierarchical:
             models = {}
             for level in self.levels:
@@ -284,6 +270,9 @@ class GenerativeModel:
     
     def _initialize_observation_model(self) -> Any:
         """Initialize the observation model with hierarchical support."""
+        if 'A' in self.parameters:
+            return self.parameters['A']
+            
         if self.hierarchical:
             models = {}
             for level in self.levels:
@@ -367,28 +356,33 @@ class GenerativeModel:
         """Send message from child level to parent."""
         if level.parent_level is None:
             return  # No parent to send to
+            
         parent_key = f'level_{level.parent_level}'
         level_key = f'level_{level.level_id}'
         
-        # Simplified message passing - in practice use proper factor graph
-        if level.child_levels:
-            for child_id in level.child_levels:
-                child_key = f'level_{child_id}'
-                if child_key in self.beliefs:
-                    child_beliefs = self.beliefs[child_key]['states']
-                    # Dummy update: average with child
-                    self.beliefs[parent_key]['states'] = (self.beliefs[parent_key]['states'] + child_beliefs[:len(self.beliefs[parent_key]['states'])]) / 2
-                    self.beliefs[parent_key]['states'] = normalize_distribution(self.beliefs[parent_key]['states'])
-        else:
-            # Pass up level beliefs
-            child_states = self.beliefs[level_key]['states']
-            parent_dim = len(self.beliefs[parent_key]['states'])
-            if len(child_states) < parent_dim:
-                child_states = np.pad(child_states, (0, parent_dim - len(child_states)))
-            elif len(child_states) > parent_dim:
-                child_states = child_states[:parent_dim]
-            self.beliefs[parent_key]['states'] += 0.1 * (child_states - self.beliefs[parent_key]['states'])
-            self.beliefs[parent_key]['states'] = normalize_distribution(self.beliefs[parent_key]['states'])
+        # Consistent Upward Message: Update Parent using Current Level (Child)
+        child_states = self.beliefs[level_key]['states']
+        parent_states = self.beliefs[parent_key]['states']
+        
+        child_dim = len(child_states)
+        parent_dim = len(parent_states)
+        
+        # Handle dimension mismatch
+        message = child_states.copy()
+        if child_dim < parent_dim:
+            # Pad with simple repetition or zeros
+            pad_width = parent_dim - child_dim
+            message = np.pad(message, (0, pad_width), 'wrap') # wrap acts as repeat-like
+        elif child_dim > parent_dim:
+            # Slice
+            message = message[:parent_dim]
+            
+        # Update parent beliefs with bottom-up message
+        # Simple additive update (simulating prediction error or influence)
+        influence_rate = 0.1
+        self.beliefs[parent_key]['states'] = normalize_distribution(
+            parent_states + influence_rate * (message - parent_states)
+        )
     
     def _send_message_down(self, level: HierarchicalLevel):
         """Send message from parent level to children."""

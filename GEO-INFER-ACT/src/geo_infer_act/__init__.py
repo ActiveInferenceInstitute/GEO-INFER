@@ -14,12 +14,14 @@ try:
     from .core.active_inference import ActiveInferenceModel
     from .core.free_energy import FreeEnergyCalculator
     from .core.generative_model import GenerativeModel
+    from .models.climate import ClimateModel
     from .utils.integration import IntegrationUtils
     
     __all__ = [
         'ActiveInferenceModel',
         'FreeEnergyCalculator', 
         'GenerativeModel',
+        'ClimateModel',
         'IntegrationUtils'
     ]
 except ImportError as e:

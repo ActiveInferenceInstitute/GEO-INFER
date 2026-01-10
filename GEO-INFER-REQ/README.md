@@ -12,6 +12,16 @@ difficulty: "Advanced"
 estimated_time: "55"
 ---
 
+<div align="center">
+  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
+  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
+  <a href="../README.md#-module-overview">📦 Module Index</a> •
+  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+</div>
+
+---
+
+
 # GEO-INFER-REQ: Geospatial Requirements Engineering, User Stories, and Specification Management
 
 > **Purpose**: Provide structured requirements engineering and specification management for geospatial information systems

@@ -12,6 +12,16 @@ difficulty: "Intermediate"
 estimated_time: "55"
 ---
 
+<div align="center">
+  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
+  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
+  <a href="../README.md#-module-overview">📦 Module Index</a> •
+  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+</div>
+
+---
+
+
 # GEO-INFER-SPACE: Backend-Agnostic Advanced Spatial Methods
 
 **Core Geospatial Engine with Multiple Backend Support (H3 & SRAI)**

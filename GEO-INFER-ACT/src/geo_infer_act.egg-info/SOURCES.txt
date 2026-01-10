@@ -34,12 +34,4 @@ src/geo_infer_act/utils/geospatial_ai.py
 src/geo_infer_act/utils/integration.py
 src/geo_infer_act/utils/math.py
 src/geo_infer_act/utils/visualization.py
-tests/test_analysis.py
-tests/test_api.py
-tests/test_core.py
-tests/test_geospatial_ai.py
-tests/test_h3.py
-tests/test_h3_active_inference.py
-tests/test_integration.py
-tests/test_models.py
-tests/test_utils.py
+tests/test_act_models_real.py

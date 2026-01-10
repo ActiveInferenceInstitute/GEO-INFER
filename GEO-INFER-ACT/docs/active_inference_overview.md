@@ -33,11 +33,11 @@ In geospatial settings, active inference enables agents to:
 - **Disaster Response**: Real-time path optimization in dynamic spatial fields.
 
 ## Implementation in GEO-INFER-ACT
-
-The module provides:
-- Categorical and Gaussian models for state estimation.
-- Hierarchical structures for multi-scale geospatial analysis.
-- Integration with H3 for spatial indexing.
+The module provides a **Real, Tested, and Documented** implementation of Active Inference:
+- **Core Engine**: Powered by `inferactively-pymdp` for robust categorical inference and policy selection.
+- **Models**: Defines clear A, B, C, D matrices for specific domains (Climate, Ecology).
+- **Hierarchical**: Supports multi-scale modeling for complex spatial systems.
+- **Integration**: Seamless connectivity with H3 spatial indexing and standard Python data stacks.
 
 For mathematical details, see [mathematical_framework.md].
 

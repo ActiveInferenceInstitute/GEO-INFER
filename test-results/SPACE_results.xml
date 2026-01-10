@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="2.143" timestamp="2025-11-06T09:19:45.822737-08:00" hostname="timelock.local"><testcase classname="" name="test_h3_core" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/tests/test_h3_core.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-GEO-INFER-SPACE/tests/test_h3_core.py:22: in &lt;module&gt;
-    from h3.core import (
-E   ModuleNotFoundError: No module named 'h3.core'</error></testcase></testsuite></testsuites>

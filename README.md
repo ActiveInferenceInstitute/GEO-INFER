@@ -8,7 +8,7 @@
 
 <div align="center">
   <h3>Comprehensive Geospatial Inference Framework</h3>
-  <p><em>Implementing Active Inference principles for ecological, civic, and commercial applications</em></p>
+  <p><em>Implementing Active Inference principles for regional, ecological, civic, and commercial applications</em></p>
   <br>
   <a href="#-quick-start">🚀 Quick Start</a> •
   <a href="#-module-overview">📦 Modules</a> •
@@ -121,19 +121,24 @@ GEO-INFER provides **41 specialized modules** organized into clear categories. E
 | **Risk** | RISK (insurance, hazard assessment) | 🟡 Alpha |
 | **Logistics** | LOG (supply chains, route optimization) | ✅ Beta |
 | **Biology** | BIO (spatial omics, ecological modeling) | ✅ Beta |
+| **Climate** | CLIMATE (climate modeling, adaptation) | 🟡 Alpha |
+| **Energy** | ENERGY (renewables, grid optimization) | 🟡 Alpha |
+| **Water** | WATER (hydrology, water quality) | 🟡 Alpha |
+| **Transport** | TRANSPORT (traffic, urban mobility) | 🟡 Alpha |
+| **Forest** | FOREST (forestry, deforestation detection) | 🟡 Alpha |
+| **Marine** | MARINE (ocean, coastal management) | 🟡 Alpha |
+| **Emergency** | EMERGENCY (disaster response, evacuation) | 🟡 Alpha |
+| **Education** | EDU (learning, curriculum design) | 🟡 Alpha |
 
-### 🔮 Proposed New Modules (Planning)
+### 🤖 Agent Documentation
 
-| Module | Purpose | Priority | Dependencies |
-|--------|---------|----------|--------------|
-| **CLIMATE** | Climate modeling, weather analysis, climate change impact | ⭐⭐⭐⭐⭐ | SPACE, TIME, BAYES, ACT |
-| **ENERGY** | Energy systems, renewable optimization, grid management | ⭐⭐⭐⭐⭐ | SPACE, TIME, ECON, RISK |
-| **WATER** | Water resources, hydrology, water quality monitoring | ⭐⭐⭐⭐ | SPACE, TIME, DATA, RISK |
-| **TRANSPORT** | Transportation systems, urban mobility, traffic optimization | ⭐⭐⭐⭐ | SPACE, TIME, LOG, AGENT |
-| **EDU** | Educational systems, school accessibility, resource allocation | ⭐⭐⭐ | SPACE, TIME, CIV, HEALTH |
-| **EMERGENCY** | Emergency management, disaster response, evacuation planning | ⭐⭐⭐ | SPACE, TIME, RISK, AGENT, IOT |
+All modules now have comprehensive `AGENTS.md` files documenting:
+- Agent capabilities and integration patterns
+- Implementation status (✅ Implemented / 🔮 Planned)
+- Code examples for agent integration
+- Framework support vs domain applications
 
-**Note**: See [New Module Proposals](./GEO-INFER-INTRA/docs/modules/NEW_MODULE_PROPOSALS.md) for detailed analysis and development guidelines. See [Additional Module Proposals](./GEO-INFER-INTRA/docs/modules/ADDITIONAL_MODULE_PROPOSALS.md) for additional module opportunities including MARINE, FOREST, WASTE, TELECOM, SOIL, AIR, WILDLIFE, and others.
+See [AGENTS.md](./AGENTS.md) for the complete multi-agent systems architecture.
 
 ### 👥 Community & Applications
 
@@ -188,11 +193,11 @@ GEO-INFER provides **41 specialized modules** organized into clear categories. E
 | **🧠 Analytical Core**       | [ACT](./GEO-INFER-ACT/), [BAYES](./GEO-INFER-BAYES/), [AI](./GEO-INFER-AI/), [MATH](./GEO-INFER-MATH/), [COG](./GEO-INFER-COG/), [AGENT](./GEO-INFER-AGENT/), [SPM](./GEO-INFER-SPM/) |
 | **🗺️ Spatial-Temporal**     | [SPACE](./GEO-INFER-SPACE/), [TIME](./GEO-INFER-TIME/), [IOT](./GEO-INFER-IOT/)                                                                                                       |
 | **💾 Data Management**       | [DATA](./GEO-INFER-DATA/), [API](./GEO-INFER-API/)                                                                                                           |
-| **🔒 Security & Governance** | [SEC](./GEO-INFER-SEC/), [NORMS](./GEO-INFER-NORMS/), [REQ](./GEO-INFER-REQ/)                                                                                |
+| **🔒 Security & Governance** | [SEC](./GEO-INFER-SEC/), [NORMS](./GEO-INFER-NORMS/), [REQ](./GEO-INFER-REQ/), [METAGOV](./GEO-INFER-METAGOV/)                                                                                |
 | **🧪 Simulation & Modeling** | [SIM](./GEO-INFER-SIM/), [ANT](./GEO-INFER-ANT/)                                                                                                             |
 | **👥 People & Community**    | [CIV](./GEO-INFER-CIV/), [PEP](./GEO-INFER-PEP/), [ORG](./GEO-INFER-ORG/), [COMMS](./GEO-INFER-COMMS/)                                                       |
 | **🖥️ Applications**         | [APP](./GEO-INFER-APP/), [ART](./GEO-INFER-ART/)                                                                                                             |
-| **🏢 Domain-Specific**       | [AG](./GEO-INFER-AG/), [ECON](./GEO-INFER-ECON/), [RISK](./GEO-INFER-RISK/), [LOG](./GEO-INFER-LOG/), [BIO](./GEO-INFER-BIO/), [HEALTH](./GEO-INFER-HEALTH/)                               |
+| **🏢 Domain-Specific**       | [AG](./GEO-INFER-AG/), [HEALTH](./GEO-INFER-HEALTH/), [ECON](./GEO-INFER-ECON/), [RISK](./GEO-INFER-RISK/), [LOG](./GEO-INFER-LOG/), [BIO](./GEO-INFER-BIO/), [CLIMATE](./GEO-INFER-CLIMATE/), [ENERGY](./GEO-INFER-ENERGY/), [WATER](./GEO-INFER-WATER/), [TRANSPORT](./GEO-INFER-TRANSPORT/), [FOREST](./GEO-INFER-FOREST/), [MARINE](./GEO-INFER-MARINE/), [EMERGENCY](./GEO-INFER-EMERGENCY/), [EDU](./GEO-INFER-EDU/) |
 | **📍 Place-Based**           | [PLACE](./GEO-INFER-PLACE/)                                                                                                                                                                      |
 | **⚙️ Operations**            | [OPS](./GEO-INFER-OPS/), [INTRA](./GEO-INFER-INTRA/), [GIT](./GEO-INFER-GIT/), [TEST](./GEO-INFER-TEST/), [EXAMPLES](./GEO-INFER-EXAMPLES/)                                                    |
 

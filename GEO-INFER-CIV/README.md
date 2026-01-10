@@ -12,6 +12,16 @@ difficulty: "Intermediate"
 estimated_time: "45"
 ---
 
+<div align="center">
+  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
+  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
+  <a href="../README.md#-module-overview">📦 Module Index</a> •
+  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+</div>
+
+---
+
+
 # GEO-INFER-CIV: Civic Engagement & Participatory Geospatial Technologies
 
 > **Purpose**: Empower communities and foster civic participation in geospatial data creation, analysis, and decision-making

@@ -1,0 +1,675 @@
+2026-01-09 15:48:17,924 - ModernActiveInference - INFO - Modern Active Inference - Comprehensive Analysis
+2026-01-09 15:48:17,924 - ModernActiveInference - INFO - ======================================================================
+2026-01-09 15:48:17,924 - ModernActiveInference - INFO - Output directory: /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817
+2026-01-09 15:48:17,925 - geo_infer_act.api.interface - INFO - ActiveInferenceInterface initialized
+2026-01-09 15:48:17,925 - ModernActiveInference - INFO - Modern Active Inference Demo initialized
+2026-01-09 15:48:17,925 - ModernActiveInference - INFO - Enhanced with comprehensive analysis capabilities
+2026-01-09 15:48:17,925 - ModernActiveInference - INFO - Starting comprehensive modern Active Inference demonstration
+2026-01-09 15:48:17,925 - ModernActiveInference - INFO - 
+==================================================
+2026-01-09 15:48:17,925 - ModernActiveInference - INFO - 1. HIERARCHICAL ACTIVE INFERENCE
+2026-01-09 15:48:17,925 - ModernActiveInference - INFO - ==================================================
+2026-01-09 15:48:17,925 - ModernActiveInference - INFO - Creating hierarchical model: hierarchical_model
+2026-01-09 15:48:17,925 - geo_infer_act.core.active_inference - INFO - Initialized ActiveInferenceModel with type: categorical
+2026-01-09 15:48:17,925 - geo_infer_act.core.generative_model - INFO - Initialized 3 hierarchical levels
+2026-01-09 15:48:17,925 - geo_infer_act.api.interface - INFO - Created categorical model: hierarchical_model
+2026-01-09 15:48:17,925 - geo_infer_act.api.interface - INFO - Set preferences for model hierarchical_model
+2026-01-09 15:48:17,926 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/hierarchical
+2026-01-09 15:48:17,926 - ModernActiveInference - INFO -   Created 3-level hierarchical model
+2026-01-09 15:48:17,926 - ModernActiveInference - INFO -   Temporal horizons: [1, 5, 20]
+2026-01-09 15:48:17,926 - ModernActiveInference - INFO -   Message passing enabled: True
+2026-01-09 15:48:17,926 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=-4.2914
+2026-01-09 15:48:17,927 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=-4.2914
+2026-01-09 15:48:17,927 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=-4.2914
+2026-01-09 15:48:17,927 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=-4.2914
+2026-01-09 15:48:17,927 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=-4.2914
+2026-01-09 15:48:17,928 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=-4.2914
+2026-01-09 15:48:17,928 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=-4.2914
+2026-01-09 15:48:17,928 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=-4.2914
+2026-01-09 15:48:17,929 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=-4.2914
+2026-01-09 15:48:17,929 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=-4.2914
+2026-01-09 15:48:17,929 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=-4.2914
+2026-01-09 15:48:17,930 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=-4.2914
+2026-01-09 15:48:17,930 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=-4.2914
+2026-01-09 15:48:17,930 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=-4.2914
+2026-01-09 15:48:17,931 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=-4.2914
+2026-01-09 15:48:17,931 - ModernActiveInference - INFO - 
+==================================================
+2026-01-09 15:48:17,931 - ModernActiveInference - INFO - 2. MARKOV BLANKET ARCHITECTURE
+2026-01-09 15:48:17,931 - ModernActiveInference - INFO - ==================================================
+2026-01-09 15:48:17,931 - ModernActiveInference - INFO - Demonstrating Markov blanket architectures
+2026-01-09 15:48:17,931 - geo_infer_act.core.active_inference - INFO - Initialized ActiveInferenceModel with type: categorical
+2026-01-09 15:48:17,931 - geo_infer_act.core.generative_model - INFO - Initialized Markov blanket structure
+2026-01-09 15:48:17,931 - geo_infer_act.api.interface - INFO - Created categorical model: markov_blanket_model
+2026-01-09 15:48:17,931 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/markov_blanket
+2026-01-09 15:48:17,931 - ModernActiveInference - INFO - Running Markov blanket simulation for 30 steps
+2026-01-09 15:48:17,957 - ModernActiveInference - INFO -   Step 1: external_influence
+2026-01-09 15:48:17,957 - ModernActiveInference - INFO -     Conditional independence: 0.9047
+2026-01-09 15:48:17,957 - ModernActiveInference - INFO -     Surprise: 1.0603
+2026-01-09 15:48:17,957 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:17,957 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=-1.7985
+2026-01-09 15:48:17,981 - ModernActiveInference - INFO -   Step 2: external_influence
+2026-01-09 15:48:17,981 - ModernActiveInference - INFO -     Conditional independence: 0.9694
+2026-01-09 15:48:17,981 - ModernActiveInference - INFO -     Surprise: 0.7311
+2026-01-09 15:48:17,981 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:17,981 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=-1.7985
+2026-01-09 15:48:18,005 - ModernActiveInference - INFO -   Step 3: external_influence
+2026-01-09 15:48:18,005 - ModernActiveInference - INFO -     Conditional independence: 0.9276
+2026-01-09 15:48:18,005 - ModernActiveInference - INFO -     Surprise: 0.1437
+2026-01-09 15:48:18,005 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,005 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=-1.7985
+2026-01-09 15:48:18,029 - ModernActiveInference - INFO -   Step 4: external_influence
+2026-01-09 15:48:18,029 - ModernActiveInference - INFO -     Conditional independence: 0.9497
+2026-01-09 15:48:18,029 - ModernActiveInference - INFO -     Surprise: 1.4522
+2026-01-09 15:48:18,029 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,029 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=-1.7985
+2026-01-09 15:48:18,056 - ModernActiveInference - INFO -   Step 5: external_influence
+2026-01-09 15:48:18,056 - ModernActiveInference - INFO -     Conditional independence: 0.8946
+2026-01-09 15:48:18,056 - ModernActiveInference - INFO -     Surprise: 0.3401
+2026-01-09 15:48:18,056 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,056 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=-1.7985
+2026-01-09 15:48:18,079 - ModernActiveInference - INFO -   Step 6: external_influence
+2026-01-09 15:48:18,079 - ModernActiveInference - INFO -     Conditional independence: 0.9250
+2026-01-09 15:48:18,079 - ModernActiveInference - INFO -     Surprise: 1.1960
+2026-01-09 15:48:18,079 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,079 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=-1.7985
+2026-01-09 15:48:18,102 - ModernActiveInference - INFO -   Step 7: external_influence
+2026-01-09 15:48:18,102 - ModernActiveInference - INFO -     Conditional independence: 0.9520
+2026-01-09 15:48:18,102 - ModernActiveInference - INFO -     Surprise: 0.1272
+2026-01-09 15:48:18,102 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,102 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=-1.7985
+2026-01-09 15:48:18,126 - ModernActiveInference - INFO -   Step 8: external_influence
+2026-01-09 15:48:18,126 - ModernActiveInference - INFO -     Conditional independence: 0.9103
+2026-01-09 15:48:18,126 - ModernActiveInference - INFO -     Surprise: 0.7090
+2026-01-09 15:48:18,126 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,126 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=-1.7985
+2026-01-09 15:48:18,149 - ModernActiveInference - INFO -   Step 9: external_influence
+2026-01-09 15:48:18,149 - ModernActiveInference - INFO -     Conditional independence: 0.9358
+2026-01-09 15:48:18,149 - ModernActiveInference - INFO -     Surprise: 1.1707
+2026-01-09 15:48:18,149 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,149 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=-1.7985
+2026-01-09 15:48:18,171 - ModernActiveInference - INFO -   Step 10: external_influence
+2026-01-09 15:48:18,171 - ModernActiveInference - INFO -     Conditional independence: 0.9550
+2026-01-09 15:48:18,171 - ModernActiveInference - INFO -     Surprise: 0.3665
+2026-01-09 15:48:18,171 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,171 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=-1.7985
+2026-01-09 15:48:18,197 - ModernActiveInference - INFO -   Step 11: internal_processing
+2026-01-09 15:48:18,197 - ModernActiveInference - INFO -     Conditional independence: 0.9864
+2026-01-09 15:48:18,197 - ModernActiveInference - INFO -     Surprise: 0.5288
+2026-01-09 15:48:18,197 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,197 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=-1.7985
+2026-01-09 15:48:18,223 - ModernActiveInference - INFO -   Step 12: internal_processing
+2026-01-09 15:48:18,223 - ModernActiveInference - INFO -     Conditional independence: 0.9548
+2026-01-09 15:48:18,223 - ModernActiveInference - INFO -     Surprise: 0.1100
+2026-01-09 15:48:18,223 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,223 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=-1.7985
+2026-01-09 15:48:18,246 - ModernActiveInference - INFO -   Step 13: internal_processing
+2026-01-09 15:48:18,246 - ModernActiveInference - INFO -     Conditional independence: 0.9651
+2026-01-09 15:48:18,246 - ModernActiveInference - INFO -     Surprise: 0.0000
+2026-01-09 15:48:18,246 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,246 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=-1.7985
+2026-01-09 15:48:18,272 - ModernActiveInference - INFO -   Step 14: internal_processing
+2026-01-09 15:48:18,272 - ModernActiveInference - INFO -     Conditional independence: 0.9349
+2026-01-09 15:48:18,272 - ModernActiveInference - INFO -     Surprise: 0.0000
+2026-01-09 15:48:18,272 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,272 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=-1.7985
+2026-01-09 15:48:18,297 - ModernActiveInference - INFO -   Step 15: internal_processing
+2026-01-09 15:48:18,297 - ModernActiveInference - INFO -     Conditional independence: 0.9373
+2026-01-09 15:48:18,297 - ModernActiveInference - INFO -     Surprise: 0.9867
+2026-01-09 15:48:18,297 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,297 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=-1.7985
+2026-01-09 15:48:18,322 - ModernActiveInference - INFO -   Step 16: internal_processing
+2026-01-09 15:48:18,322 - ModernActiveInference - INFO -     Conditional independence: 0.9605
+2026-01-09 15:48:18,322 - ModernActiveInference - INFO -     Surprise: 0.7375
+2026-01-09 15:48:18,322 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,322 - geo_infer_act.utils.analysis - DEBUG - Recorded step 16: FE=-1.7985
+2026-01-09 15:48:18,346 - ModernActiveInference - INFO -   Step 17: internal_processing
+2026-01-09 15:48:18,346 - ModernActiveInference - INFO -     Conditional independence: 0.9850
+2026-01-09 15:48:18,346 - ModernActiveInference - INFO -     Surprise: 0.3270
+2026-01-09 15:48:18,346 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,346 - geo_infer_act.utils.analysis - DEBUG - Recorded step 17: FE=-1.7985
+2026-01-09 15:48:18,370 - ModernActiveInference - INFO -   Step 18: internal_processing
+2026-01-09 15:48:18,370 - ModernActiveInference - INFO -     Conditional independence: 0.9638
+2026-01-09 15:48:18,370 - ModernActiveInference - INFO -     Surprise: 0.7065
+2026-01-09 15:48:18,370 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,370 - geo_infer_act.utils.analysis - DEBUG - Recorded step 18: FE=-1.7985
+2026-01-09 15:48:18,395 - ModernActiveInference - INFO -   Step 19: internal_processing
+2026-01-09 15:48:18,396 - ModernActiveInference - INFO -     Conditional independence: 0.9645
+2026-01-09 15:48:18,396 - ModernActiveInference - INFO -     Surprise: 0.0549
+2026-01-09 15:48:18,396 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,396 - geo_infer_act.utils.analysis - DEBUG - Recorded step 19: FE=-1.7985
+2026-01-09 15:48:18,420 - ModernActiveInference - INFO -   Step 20: internal_processing
+2026-01-09 15:48:18,420 - ModernActiveInference - INFO -     Conditional independence: 0.9919
+2026-01-09 15:48:18,420 - ModernActiveInference - INFO -     Surprise: 1.4638
+2026-01-09 15:48:18,420 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,420 - geo_infer_act.utils.analysis - DEBUG - Recorded step 20: FE=-1.7985
+2026-01-09 15:48:18,445 - ModernActiveInference - INFO -   Step 21: active_sampling
+2026-01-09 15:48:18,445 - ModernActiveInference - INFO -     Conditional independence: 0.9175
+2026-01-09 15:48:18,445 - ModernActiveInference - INFO -     Surprise: 0.9003
+2026-01-09 15:48:18,445 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,445 - geo_infer_act.utils.analysis - DEBUG - Recorded step 21: FE=-1.7985
+2026-01-09 15:48:18,470 - ModernActiveInference - INFO -   Step 22: active_sampling
+2026-01-09 15:48:18,470 - ModernActiveInference - INFO -     Conditional independence: 0.9685
+2026-01-09 15:48:18,470 - ModernActiveInference - INFO -     Surprise: 1.8510
+2026-01-09 15:48:18,470 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,470 - geo_infer_act.utils.analysis - DEBUG - Recorded step 22: FE=-1.7985
+2026-01-09 15:48:18,492 - ModernActiveInference - INFO -   Step 23: active_sampling
+2026-01-09 15:48:18,492 - ModernActiveInference - INFO -     Conditional independence: 0.9317
+2026-01-09 15:48:18,492 - ModernActiveInference - INFO -     Surprise: 0.4187
+2026-01-09 15:48:18,492 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,492 - geo_infer_act.utils.analysis - DEBUG - Recorded step 23: FE=-1.7985
+2026-01-09 15:48:18,516 - ModernActiveInference - INFO -   Step 24: active_sampling
+2026-01-09 15:48:18,516 - ModernActiveInference - INFO -     Conditional independence: 0.9709
+2026-01-09 15:48:18,517 - ModernActiveInference - INFO -     Surprise: 0.7579
+2026-01-09 15:48:18,517 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,517 - geo_infer_act.utils.analysis - DEBUG - Recorded step 24: FE=-1.7985
+2026-01-09 15:48:18,542 - ModernActiveInference - INFO -   Step 25: active_sampling
+2026-01-09 15:48:18,542 - ModernActiveInference - INFO -     Conditional independence: 0.8992
+2026-01-09 15:48:18,542 - ModernActiveInference - INFO -     Surprise: 1.3042
+2026-01-09 15:48:18,542 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,542 - geo_infer_act.utils.analysis - DEBUG - Recorded step 25: FE=-1.7985
+2026-01-09 15:48:18,564 - ModernActiveInference - INFO -   Step 26: active_sampling
+2026-01-09 15:48:18,564 - ModernActiveInference - INFO -     Conditional independence: 0.9128
+2026-01-09 15:48:18,564 - ModernActiveInference - INFO -     Surprise: 1.6947
+2026-01-09 15:48:18,564 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,564 - geo_infer_act.utils.analysis - DEBUG - Recorded step 26: FE=-1.7985
+2026-01-09 15:48:18,588 - ModernActiveInference - INFO -   Step 27: active_sampling
+2026-01-09 15:48:18,588 - ModernActiveInference - INFO -     Conditional independence: 0.9883
+2026-01-09 15:48:18,588 - ModernActiveInference - INFO -     Surprise: 0.5290
+2026-01-09 15:48:18,588 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,588 - geo_infer_act.utils.analysis - DEBUG - Recorded step 27: FE=-1.7985
+2026-01-09 15:48:18,612 - ModernActiveInference - INFO -   Step 28: active_sampling
+2026-01-09 15:48:18,612 - ModernActiveInference - INFO -     Conditional independence: 0.9021
+2026-01-09 15:48:18,612 - ModernActiveInference - INFO -     Surprise: 1.4244
+2026-01-09 15:48:18,612 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,612 - geo_infer_act.utils.analysis - DEBUG - Recorded step 28: FE=-1.7985
+2026-01-09 15:48:18,635 - ModernActiveInference - INFO -   Step 29: active_sampling
+2026-01-09 15:48:18,635 - ModernActiveInference - INFO -     Conditional independence: 0.9514
+2026-01-09 15:48:18,635 - ModernActiveInference - INFO -     Surprise: 0.9141
+2026-01-09 15:48:18,635 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,635 - geo_infer_act.utils.analysis - DEBUG - Recorded step 29: FE=-1.7985
+2026-01-09 15:48:18,660 - ModernActiveInference - INFO -   Step 30: active_sampling
+2026-01-09 15:48:18,660 - ModernActiveInference - INFO -     Conditional independence: 0.9297
+2026-01-09 15:48:18,660 - ModernActiveInference - INFO -     Surprise: 0.8094
+2026-01-09 15:48:18,660 - ModernActiveInference - INFO -     Information gain: 0.0000
+2026-01-09 15:48:18,660 - geo_infer_act.utils.analysis - DEBUG - Recorded step 30: FE=-1.7985
+2026-01-09 15:48:18,660 - ModernActiveInference - INFO - Markov blanket analysis complete:
+2026-01-09 15:48:18,660 - ModernActiveInference - INFO -   Average conditional independence: 0.9447
+2026-01-09 15:48:18,660 - ModernActiveInference - INFO -   Independence stability: 0.9721
+2026-01-09 15:48:18,660 - ModernActiveInference - INFO - 
+==================================================
+2026-01-09 15:48:18,660 - ModernActiveInference - INFO - 4. SPATIAL-TEMPORAL DYNAMICS
+2026-01-09 15:48:18,660 - ModernActiveInference - INFO - ==================================================
+2026-01-09 15:48:18,660 - ModernActiveInference - INFO - Demonstrating spatial-temporal dynamics
+2026-01-09 15:48:18,660 - geo_infer_act.core.active_inference - INFO - Initialized ActiveInferenceModel with type: categorical
+2026-01-09 15:48:18,660 - geo_infer_act.api.interface - INFO - Created categorical model: spatial_temporal_model
+2026-01-09 15:48:18,660 - geo_infer_act.core.generative_model - INFO - Enabled spatial navigation with 3x3 grid
+2026-01-09 15:48:18,660 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/spatial_temporal
+2026-01-09 15:48:18,660 - ModernActiveInference - INFO - Running spatial-temporal simulation for 25 steps
+2026-01-09 15:48:18,664 - ModernActiveInference - INFO -   Step 1:
+2026-01-09 15:48:18,664 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,664 - ModernActiveInference - INFO -     Surprise: 3.9677
+2026-01-09 15:48:18,664 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=-2.2608
+2026-01-09 15:48:18,667 - ModernActiveInference - INFO -   Step 2:
+2026-01-09 15:48:18,667 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,667 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,667 - ModernActiveInference - INFO -     Surprise: 5.1740
+2026-01-09 15:48:18,667 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=-2.2608
+2026-01-09 15:48:18,670 - ModernActiveInference - INFO -   Step 3:
+2026-01-09 15:48:18,670 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,670 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,670 - ModernActiveInference - INFO -     Surprise: 3.0933
+2026-01-09 15:48:18,670 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=-2.2608
+2026-01-09 15:48:18,674 - ModernActiveInference - INFO -   Step 4:
+2026-01-09 15:48:18,674 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,674 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,674 - ModernActiveInference - INFO -     Surprise: 2.5560
+2026-01-09 15:48:18,674 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=-2.2608
+2026-01-09 15:48:18,677 - ModernActiveInference - INFO -   Step 5:
+2026-01-09 15:48:18,677 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,677 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,677 - ModernActiveInference - INFO -     Surprise: 3.1332
+2026-01-09 15:48:18,677 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=-2.2608
+2026-01-09 15:48:18,680 - ModernActiveInference - INFO -   Step 6:
+2026-01-09 15:48:18,680 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,680 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,680 - ModernActiveInference - INFO -     Surprise: 2.0119
+2026-01-09 15:48:18,680 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=-2.2608
+2026-01-09 15:48:18,683 - ModernActiveInference - INFO -   Step 7:
+2026-01-09 15:48:18,683 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,683 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,683 - ModernActiveInference - INFO -     Surprise: 2.0197
+2026-01-09 15:48:18,683 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=-2.2608
+2026-01-09 15:48:18,686 - ModernActiveInference - INFO -   Step 8:
+2026-01-09 15:48:18,686 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,686 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,686 - ModernActiveInference - INFO -     Surprise: 2.2234
+2026-01-09 15:48:18,686 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=-2.2608
+2026-01-09 15:48:18,689 - ModernActiveInference - INFO -   Step 9:
+2026-01-09 15:48:18,689 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,689 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,689 - ModernActiveInference - INFO -     Surprise: 1.7059
+2026-01-09 15:48:18,689 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=-2.2608
+2026-01-09 15:48:18,692 - ModernActiveInference - INFO -   Step 10:
+2026-01-09 15:48:18,692 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,692 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,692 - ModernActiveInference - INFO -     Surprise: 1.7590
+2026-01-09 15:48:18,692 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=-2.2608
+2026-01-09 15:48:18,696 - ModernActiveInference - INFO -   Step 11:
+2026-01-09 15:48:18,696 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,696 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,696 - ModernActiveInference - INFO -     Surprise: 0.7369
+2026-01-09 15:48:18,696 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=-2.2608
+2026-01-09 15:48:18,699 - ModernActiveInference - INFO -   Step 12:
+2026-01-09 15:48:18,699 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,699 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,699 - ModernActiveInference - INFO -     Surprise: 1.3575
+2026-01-09 15:48:18,699 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=-2.2608
+2026-01-09 15:48:18,702 - ModernActiveInference - INFO -   Step 13:
+2026-01-09 15:48:18,702 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,702 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,702 - ModernActiveInference - INFO -     Surprise: 1.1641
+2026-01-09 15:48:18,702 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=-2.2608
+2026-01-09 15:48:18,705 - ModernActiveInference - INFO -   Step 14:
+2026-01-09 15:48:18,705 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,705 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,705 - ModernActiveInference - INFO -     Surprise: 2.1546
+2026-01-09 15:48:18,705 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=-2.2608
+2026-01-09 15:48:18,708 - ModernActiveInference - INFO -   Step 15:
+2026-01-09 15:48:18,708 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,708 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,708 - ModernActiveInference - INFO -     Surprise: 1.8685
+2026-01-09 15:48:18,708 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=-2.2608
+2026-01-09 15:48:18,711 - ModernActiveInference - INFO -   Step 16:
+2026-01-09 15:48:18,711 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,711 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,712 - ModernActiveInference - INFO -     Surprise: 3.9989
+2026-01-09 15:48:18,712 - geo_infer_act.utils.analysis - DEBUG - Recorded step 16: FE=-2.2608
+2026-01-09 15:48:18,715 - ModernActiveInference - INFO -   Step 17:
+2026-01-09 15:48:18,715 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,715 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,715 - ModernActiveInference - INFO -     Surprise: 2.5545
+2026-01-09 15:48:18,715 - geo_infer_act.utils.analysis - DEBUG - Recorded step 17: FE=-2.2608
+2026-01-09 15:48:18,718 - ModernActiveInference - INFO -   Step 18:
+2026-01-09 15:48:18,718 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,718 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,718 - ModernActiveInference - INFO -     Surprise: 2.3080
+2026-01-09 15:48:18,718 - geo_infer_act.utils.analysis - DEBUG - Recorded step 18: FE=-2.2608
+2026-01-09 15:48:18,722 - ModernActiveInference - INFO -   Step 19:
+2026-01-09 15:48:18,722 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,722 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,722 - ModernActiveInference - INFO -     Surprise: 3.5752
+2026-01-09 15:48:18,722 - geo_infer_act.utils.analysis - DEBUG - Recorded step 19: FE=-2.2608
+2026-01-09 15:48:18,725 - ModernActiveInference - INFO -   Step 20:
+2026-01-09 15:48:18,725 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,725 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,725 - ModernActiveInference - INFO -     Surprise: 4.1155
+2026-01-09 15:48:18,725 - geo_infer_act.utils.analysis - DEBUG - Recorded step 20: FE=-2.2608
+2026-01-09 15:48:18,728 - ModernActiveInference - INFO -   Step 21:
+2026-01-09 15:48:18,728 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,728 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,728 - ModernActiveInference - INFO -     Surprise: 4.6291
+2026-01-09 15:48:18,728 - geo_infer_act.utils.analysis - DEBUG - Recorded step 21: FE=-2.2608
+2026-01-09 15:48:18,731 - ModernActiveInference - INFO -   Step 22:
+2026-01-09 15:48:18,731 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,731 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,731 - ModernActiveInference - INFO -     Surprise: 4.4234
+2026-01-09 15:48:18,731 - geo_infer_act.utils.analysis - DEBUG - Recorded step 22: FE=-2.2608
+2026-01-09 15:48:18,734 - ModernActiveInference - INFO -   Step 23:
+2026-01-09 15:48:18,734 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,734 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,734 - ModernActiveInference - INFO -     Surprise: 4.0631
+2026-01-09 15:48:18,734 - geo_infer_act.utils.analysis - DEBUG - Recorded step 23: FE=-2.2608
+2026-01-09 15:48:18,737 - ModernActiveInference - INFO -   Step 24:
+2026-01-09 15:48:18,737 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,737 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,737 - ModernActiveInference - INFO -     Surprise: 5.4847
+2026-01-09 15:48:18,737 - geo_infer_act.utils.analysis - DEBUG - Recorded step 24: FE=-2.2608
+2026-01-09 15:48:18,740 - ModernActiveInference - INFO -   Step 25:
+2026-01-09 15:48:18,740 - ModernActiveInference - INFO -     Spatial correlation: nan
+2026-01-09 15:48:18,740 - ModernActiveInference - INFO -     Temporal coherence: 1.0000
+2026-01-09 15:48:18,740 - ModernActiveInference - INFO -     Surprise: 4.7579
+2026-01-09 15:48:18,740 - geo_infer_act.utils.analysis - DEBUG - Recorded step 25: FE=-2.2608
+2026-01-09 15:48:18,740 - ModernActiveInference - INFO - Spatial-temporal analysis complete:
+2026-01-09 15:48:18,740 - ModernActiveInference - INFO -   Average spatial correlation: nan
+2026-01-09 15:48:18,740 - ModernActiveInference - INFO -   Average temporal coherence: 1.0000
+2026-01-09 15:48:18,740 - ModernActiveInference - INFO -   Spatial stability: nan
+2026-01-09 15:48:18,740 - ModernActiveInference - INFO - 
+==================================================
+2026-01-09 15:48:18,740 - ModernActiveInference - INFO - 5. MULTI-AGENT COORDINATION
+2026-01-09 15:48:18,740 - ModernActiveInference - INFO - ==================================================
+2026-01-09 15:48:18,740 - ModernActiveInference - INFO - Demonstrating multi-agent coordination
+2026-01-09 15:48:18,740 - geo_infer_act.core.active_inference - INFO - Initialized ActiveInferenceModel with type: categorical
+2026-01-09 15:48:18,740 - geo_infer_act.api.interface - INFO - Created categorical model: multi_agent_agent_0
+2026-01-09 15:48:18,741 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_0
+2026-01-09 15:48:18,741 - ModernActiveInference - INFO -   Created agent 0 (Leader)
+2026-01-09 15:48:18,741 - geo_infer_act.core.active_inference - INFO - Initialized ActiveInferenceModel with type: categorical
+2026-01-09 15:48:18,741 - geo_infer_act.api.interface - INFO - Created categorical model: multi_agent_agent_1
+2026-01-09 15:48:18,741 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_1
+2026-01-09 15:48:18,741 - ModernActiveInference - INFO -   Created agent 1 (Coordinator)
+2026-01-09 15:48:18,741 - geo_infer_act.core.active_inference - INFO - Initialized ActiveInferenceModel with type: categorical
+2026-01-09 15:48:18,741 - geo_infer_act.api.interface - INFO - Created categorical model: multi_agent_agent_2
+2026-01-09 15:48:18,742 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_2
+2026-01-09 15:48:18,742 - ModernActiveInference - INFO -   Created agent 2 (Follower)
+2026-01-09 15:48:18,742 - geo_infer_act.core.active_inference - INFO - Initialized ActiveInferenceModel with type: categorical
+2026-01-09 15:48:18,742 - geo_infer_act.api.interface - INFO - Created categorical model: multi_agent_agent_3
+2026-01-09 15:48:18,742 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_3
+2026-01-09 15:48:18,742 - ModernActiveInference - INFO -   Created agent 3 (Follower)
+2026-01-09 15:48:18,742 - ModernActiveInference - INFO - Running multi-agent coordination for 20 steps
+2026-01-09 15:48:18,769 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=-1.7944
+2026-01-09 15:48:18,771 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=-1.6094
+2026-01-09 15:48:18,771 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=-1.3863
+2026-01-09 15:48:18,772 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=-1.3863
+2026-01-09 15:48:18,772 - ModernActiveInference - INFO -   Step 1: coordination_challenge
+2026-01-09 15:48:18,772 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:18,772 - ModernActiveInference - INFO -     Action consensus: 0.8000
+2026-01-09 15:48:18,772 - ModernActiveInference - INFO -     Agent actions: [2, 1, 1, 2]
+2026-01-09 15:48:18,796 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=-1.7944
+2026-01-09 15:48:18,798 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=-1.6094
+2026-01-09 15:48:18,798 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=-1.3863
+2026-01-09 15:48:18,799 - geo_infer_act.utils.analysis - DEBUG - Recorded step 2: FE=-1.3863
+2026-01-09 15:48:18,799 - ModernActiveInference - INFO -   Step 2: coordination_challenge
+2026-01-09 15:48:18,799 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:18,799 - ModernActiveInference - INFO -     Action consensus: 0.5926
+2026-01-09 15:48:18,799 - ModernActiveInference - INFO -     Agent actions: [2, 1, 0, 2]
+2026-01-09 15:48:18,824 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=-1.7944
+2026-01-09 15:48:18,825 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=-1.6094
+2026-01-09 15:48:18,825 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=-1.3863
+2026-01-09 15:48:18,826 - geo_infer_act.utils.analysis - DEBUG - Recorded step 3: FE=-1.3863
+2026-01-09 15:48:18,826 - ModernActiveInference - INFO -   Step 3: coordination_challenge
+2026-01-09 15:48:18,826 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:18,826 - ModernActiveInference - INFO -     Action consensus: 0.6667
+2026-01-09 15:48:18,826 - ModernActiveInference - INFO -     Agent actions: [1, 1, 2, 0]
+2026-01-09 15:48:18,850 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=-1.7944
+2026-01-09 15:48:18,852 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=-1.6094
+2026-01-09 15:48:18,852 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=-1.3863
+2026-01-09 15:48:18,852 - geo_infer_act.utils.analysis - DEBUG - Recorded step 4: FE=-1.3863
+2026-01-09 15:48:18,853 - ModernActiveInference - INFO -   Step 4: coordination_challenge
+2026-01-09 15:48:18,853 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:18,853 - ModernActiveInference - INFO -     Action consensus: 0.5926
+2026-01-09 15:48:18,853 - ModernActiveInference - INFO -     Agent actions: [2, 1, 0, 0]
+2026-01-09 15:48:18,877 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=-1.7944
+2026-01-09 15:48:18,878 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=-1.6094
+2026-01-09 15:48:18,879 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=-1.3863
+2026-01-09 15:48:18,879 - geo_infer_act.utils.analysis - DEBUG - Recorded step 5: FE=-1.3863
+2026-01-09 15:48:18,879 - ModernActiveInference - INFO -   Step 5: coordination_challenge
+2026-01-09 15:48:18,879 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:18,879 - ModernActiveInference - INFO -     Action consensus: 0.5926
+2026-01-09 15:48:18,879 - ModernActiveInference - INFO -     Agent actions: [0, 1, 2, 2]
+2026-01-09 15:48:18,903 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=-1.7944
+2026-01-09 15:48:18,905 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=-1.6094
+2026-01-09 15:48:18,905 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=-1.3863
+2026-01-09 15:48:18,906 - geo_infer_act.utils.analysis - DEBUG - Recorded step 6: FE=-1.3863
+2026-01-09 15:48:18,906 - ModernActiveInference - INFO -   Step 6: coordination_challenge
+2026-01-09 15:48:18,906 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:18,906 - ModernActiveInference - INFO -     Action consensus: 0.6667
+2026-01-09 15:48:18,906 - ModernActiveInference - INFO -     Agent actions: [0, 2, 1, 1]
+2026-01-09 15:48:18,932 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=-1.7944
+2026-01-09 15:48:18,933 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=-1.6094
+2026-01-09 15:48:18,934 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=-1.3863
+2026-01-09 15:48:18,934 - geo_infer_act.utils.analysis - DEBUG - Recorded step 7: FE=-1.3863
+2026-01-09 15:48:18,934 - ModernActiveInference - INFO -   Step 7: coordination_challenge
+2026-01-09 15:48:18,934 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:18,934 - ModernActiveInference - INFO -     Action consensus: 0.8421
+2026-01-09 15:48:18,934 - ModernActiveInference - INFO -     Agent actions: [1, 2, 2, 2]
+2026-01-09 15:48:18,960 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=-1.7944
+2026-01-09 15:48:18,962 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=-1.6094
+2026-01-09 15:48:18,962 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=-1.3863
+2026-01-09 15:48:18,962 - geo_infer_act.utils.analysis - DEBUG - Recorded step 8: FE=-1.3863
+2026-01-09 15:48:18,962 - ModernActiveInference - INFO -   Step 8: consensus_building
+2026-01-09 15:48:18,962 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:18,962 - ModernActiveInference - INFO -     Action consensus: 0.5926
+2026-01-09 15:48:18,962 - ModernActiveInference - INFO -     Agent actions: [2, 1, 0, 2]
+2026-01-09 15:48:18,987 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=-1.7944
+2026-01-09 15:48:18,989 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=-1.6094
+2026-01-09 15:48:18,989 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=-1.3863
+2026-01-09 15:48:18,990 - geo_infer_act.utils.analysis - DEBUG - Recorded step 9: FE=-1.3863
+2026-01-09 15:48:18,990 - ModernActiveInference - INFO -   Step 9: consensus_building
+2026-01-09 15:48:18,990 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:18,990 - ModernActiveInference - INFO -     Action consensus: 0.6667
+2026-01-09 15:48:18,990 - ModernActiveInference - INFO -     Agent actions: [1, 0, 1, 2]
+2026-01-09 15:48:19,016 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=-1.7944
+2026-01-09 15:48:19,018 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=-1.6094
+2026-01-09 15:48:19,018 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=-1.3863
+2026-01-09 15:48:19,019 - geo_infer_act.utils.analysis - DEBUG - Recorded step 10: FE=-1.3863
+2026-01-09 15:48:19,019 - ModernActiveInference - INFO -   Step 10: consensus_building
+2026-01-09 15:48:19,019 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:19,019 - ModernActiveInference - INFO -     Action consensus: 0.5000
+2026-01-09 15:48:19,019 - ModernActiveInference - INFO -     Agent actions: [0, 2, 2, 0]
+2026-01-09 15:48:19,045 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=-1.7944
+2026-01-09 15:48:19,047 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=-1.6094
+2026-01-09 15:48:19,047 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=-1.3863
+2026-01-09 15:48:19,047 - geo_infer_act.utils.analysis - DEBUG - Recorded step 11: FE=-1.3863
+2026-01-09 15:48:19,048 - ModernActiveInference - INFO -   Step 11: consensus_building
+2026-01-09 15:48:19,048 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:19,048 - ModernActiveInference - INFO -     Action consensus: 0.6667
+2026-01-09 15:48:19,048 - ModernActiveInference - INFO -     Agent actions: [1, 0, 1, 2]
+2026-01-09 15:48:19,071 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=-1.7944
+2026-01-09 15:48:19,073 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=-1.6094
+2026-01-09 15:48:19,073 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=-1.3863
+2026-01-09 15:48:19,073 - geo_infer_act.utils.analysis - DEBUG - Recorded step 12: FE=-1.3863
+2026-01-09 15:48:19,073 - ModernActiveInference - INFO -   Step 12: consensus_building
+2026-01-09 15:48:19,073 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:19,073 - ModernActiveInference - INFO -     Action consensus: 0.6667
+2026-01-09 15:48:19,073 - ModernActiveInference - INFO -     Agent actions: [2, 1, 1, 0]
+2026-01-09 15:48:19,097 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=-1.7944
+2026-01-09 15:48:19,098 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=-1.6094
+2026-01-09 15:48:19,099 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=-1.3863
+2026-01-09 15:48:19,099 - geo_infer_act.utils.analysis - DEBUG - Recorded step 13: FE=-1.3863
+2026-01-09 15:48:19,099 - ModernActiveInference - INFO -   Step 13: consensus_building
+2026-01-09 15:48:19,099 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:19,099 - ModernActiveInference - INFO -     Action consensus: 0.5714
+2026-01-09 15:48:19,099 - ModernActiveInference - INFO -     Agent actions: [2, 0, 0, 0]
+2026-01-09 15:48:19,124 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=-1.7944
+2026-01-09 15:48:19,125 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=-1.6094
+2026-01-09 15:48:19,126 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=-1.3863
+2026-01-09 15:48:19,126 - geo_infer_act.utils.analysis - DEBUG - Recorded step 14: FE=-1.3863
+2026-01-09 15:48:19,126 - ModernActiveInference - INFO -   Step 14: consensus_building
+2026-01-09 15:48:19,126 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:19,126 - ModernActiveInference - INFO -     Action consensus: 0.5926
+2026-01-09 15:48:19,126 - ModernActiveInference - INFO -     Agent actions: [0, 2, 1, 2]
+2026-01-09 15:48:19,151 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=-1.7944
+2026-01-09 15:48:19,153 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=-1.6094
+2026-01-09 15:48:19,154 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=-1.3863
+2026-01-09 15:48:19,154 - geo_infer_act.utils.analysis - DEBUG - Recorded step 15: FE=-1.3863
+2026-01-09 15:48:19,154 - ModernActiveInference - INFO -   Step 15: synchronized_action
+2026-01-09 15:48:19,154 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:19,154 - ModernActiveInference - INFO -     Action consensus: 0.6667
+2026-01-09 15:48:19,154 - ModernActiveInference - INFO -     Agent actions: [2, 0, 1, 1]
+2026-01-09 15:48:19,178 - geo_infer_act.utils.analysis - DEBUG - Recorded step 16: FE=-1.7944
+2026-01-09 15:48:19,179 - geo_infer_act.utils.analysis - DEBUG - Recorded step 16: FE=-1.6094
+2026-01-09 15:48:19,180 - geo_infer_act.utils.analysis - DEBUG - Recorded step 16: FE=-1.3863
+2026-01-09 15:48:19,180 - geo_infer_act.utils.analysis - DEBUG - Recorded step 16: FE=-1.3863
+2026-01-09 15:48:19,180 - ModernActiveInference - INFO -   Step 16: synchronized_action
+2026-01-09 15:48:19,180 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:19,180 - ModernActiveInference - INFO -     Action consensus: 0.8000
+2026-01-09 15:48:19,180 - ModernActiveInference - INFO -     Agent actions: [1, 2, 1, 2]
+2026-01-09 15:48:19,205 - geo_infer_act.utils.analysis - DEBUG - Recorded step 17: FE=-1.7944
+2026-01-09 15:48:19,207 - geo_infer_act.utils.analysis - DEBUG - Recorded step 17: FE=-1.6094
+2026-01-09 15:48:19,207 - geo_infer_act.utils.analysis - DEBUG - Recorded step 17: FE=-1.3863
+2026-01-09 15:48:19,207 - geo_infer_act.utils.analysis - DEBUG - Recorded step 17: FE=-1.3863
+2026-01-09 15:48:19,208 - ModernActiveInference - INFO -   Step 17: synchronized_action
+2026-01-09 15:48:19,208 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:19,208 - ModernActiveInference - INFO -     Action consensus: 0.5926
+2026-01-09 15:48:19,208 - ModernActiveInference - INFO -     Agent actions: [0, 2, 1, 2]
+2026-01-09 15:48:19,232 - geo_infer_act.utils.analysis - DEBUG - Recorded step 18: FE=-1.7944
+2026-01-09 15:48:19,234 - geo_infer_act.utils.analysis - DEBUG - Recorded step 18: FE=-1.6094
+2026-01-09 15:48:19,234 - geo_infer_act.utils.analysis - DEBUG - Recorded step 18: FE=-1.3863
+2026-01-09 15:48:19,235 - geo_infer_act.utils.analysis - DEBUG - Recorded step 18: FE=-1.3863
+2026-01-09 15:48:19,235 - ModernActiveInference - INFO -   Step 18: synchronized_action
+2026-01-09 15:48:19,235 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:19,235 - ModernActiveInference - INFO -     Action consensus: 0.5000
+2026-01-09 15:48:19,235 - ModernActiveInference - INFO -     Agent actions: [2, 2, 0, 0]
+2026-01-09 15:48:19,259 - geo_infer_act.utils.analysis - DEBUG - Recorded step 19: FE=-1.7944
+2026-01-09 15:48:19,261 - geo_infer_act.utils.analysis - DEBUG - Recorded step 19: FE=-1.6094
+2026-01-09 15:48:19,261 - geo_infer_act.utils.analysis - DEBUG - Recorded step 19: FE=-1.3863
+2026-01-09 15:48:19,262 - geo_infer_act.utils.analysis - DEBUG - Recorded step 19: FE=-1.3863
+2026-01-09 15:48:19,262 - ModernActiveInference - INFO -   Step 19: synchronized_action
+2026-01-09 15:48:19,262 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:19,262 - ModernActiveInference - INFO -     Action consensus: 0.6667
+2026-01-09 15:48:19,262 - ModernActiveInference - INFO -     Agent actions: [1, 1, 2, 0]
+2026-01-09 15:48:19,286 - geo_infer_act.utils.analysis - DEBUG - Recorded step 20: FE=-1.7944
+2026-01-09 15:48:19,288 - geo_infer_act.utils.analysis - DEBUG - Recorded step 20: FE=-1.6094
+2026-01-09 15:48:19,288 - geo_infer_act.utils.analysis - DEBUG - Recorded step 20: FE=-1.3863
+2026-01-09 15:48:19,289 - geo_infer_act.utils.analysis - DEBUG - Recorded step 20: FE=-1.3863
+2026-01-09 15:48:19,289 - ModernActiveInference - INFO -   Step 20: synchronized_action
+2026-01-09 15:48:19,289 - ModernActiveInference - INFO -     Coordination score: 0.0000
+2026-01-09 15:48:19,289 - ModernActiveInference - INFO -     Action consensus: 0.8000
+2026-01-09 15:48:19,289 - ModernActiveInference - INFO -     Agent actions: [1, 1, 0, 0]
+2026-01-09 15:48:19,289 - ModernActiveInference - INFO - Multi-agent coordination analysis complete:
+2026-01-09 15:48:19,289 - ModernActiveInference - INFO -   Average coordination: 0.0000
+2026-01-09 15:48:19,289 - ModernActiveInference - INFO -   Average consensus: 0.6518
+2026-01-09 15:48:19,289 - ModernActiveInference - INFO -   Coordination improvement: 0.0000
+2026-01-09 15:48:19,289 - ModernActiveInference - INFO - 
+==================================================
+2026-01-09 15:48:19,289 - ModernActiveInference - INFO - 6. PERFORMANCE BENCHMARKING
+2026-01-09 15:48:19,289 - ModernActiveInference - INFO - ==================================================
+2026-01-09 15:48:19,289 - ModernActiveInference - INFO - Benchmarking performance across all models
+2026-01-09 15:48:19,289 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2026-01-09 15:48:19,292 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/hierarchical/analysis/perception_analysis.json
+2026-01-09 15:48:19,292 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2026-01-09 15:48:19,292 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2026-01-09 15:48:19,293 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/hierarchical/analysis/action_selection_analysis.json
+2026-01-09 15:48:19,293 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2026-01-09 15:48:19,293 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2026-01-09 15:48:19,293 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/hierarchical/analysis/free_energy_analysis.json
+2026-01-09 15:48:19,293 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2026-01-09 15:48:19,293 - ModernActiveInference - INFO -   hierarchical_model:
+2026-01-09 15:48:19,293 - ModernActiveInference - INFO -     Perception quality: 0.000
+2026-01-09 15:48:19,293 - ModernActiveInference - INFO -     Action consistency: 0.400
+2026-01-09 15:48:19,293 - ModernActiveInference - INFO -     Free energy efficiency: 0.000
+2026-01-09 15:48:19,293 - ModernActiveInference - INFO -     Convergence: False
+2026-01-09 15:48:19,293 - ModernActiveInference - INFO -     Stability: False
+2026-01-09 15:48:19,293 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2026-01-09 15:48:19,295 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/markov_blanket/analysis/perception_analysis.json
+2026-01-09 15:48:19,295 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2026-01-09 15:48:19,295 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2026-01-09 15:48:19,297 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/markov_blanket/analysis/action_selection_analysis.json
+2026-01-09 15:48:19,297 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2026-01-09 15:48:19,297 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2026-01-09 15:48:19,297 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/markov_blanket/analysis/free_energy_analysis.json
+2026-01-09 15:48:19,297 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2026-01-09 15:48:19,297 - ModernActiveInference - INFO -   markov_blanket_model:
+2026-01-09 15:48:19,297 - ModernActiveInference - INFO -     Perception quality: 0.000
+2026-01-09 15:48:19,297 - ModernActiveInference - INFO -     Action consistency: 0.533
+2026-01-09 15:48:19,297 - ModernActiveInference - INFO -     Free energy efficiency: 0.000
+2026-01-09 15:48:19,297 - ModernActiveInference - INFO -     Convergence: False
+2026-01-09 15:48:19,297 - ModernActiveInference - INFO -     Stability: False
+2026-01-09 15:48:19,297 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2026-01-09 15:48:19,301 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/spatial_temporal/analysis/perception_analysis.json
+2026-01-09 15:48:19,301 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2026-01-09 15:48:19,301 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2026-01-09 15:48:19,302 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/spatial_temporal/analysis/action_selection_analysis.json
+2026-01-09 15:48:19,302 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2026-01-09 15:48:19,302 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2026-01-09 15:48:19,302 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/spatial_temporal/analysis/free_energy_analysis.json
+2026-01-09 15:48:19,302 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2026-01-09 15:48:19,302 - ModernActiveInference - INFO -   spatial_temporal_model:
+2026-01-09 15:48:19,302 - ModernActiveInference - INFO -     Perception quality: 0.000
+2026-01-09 15:48:19,302 - ModernActiveInference - INFO -     Action consistency: 0.400
+2026-01-09 15:48:19,303 - ModernActiveInference - INFO -     Free energy efficiency: 0.000
+2026-01-09 15:48:19,303 - ModernActiveInference - INFO -     Convergence: False
+2026-01-09 15:48:19,303 - ModernActiveInference - INFO -     Stability: False
+2026-01-09 15:48:19,303 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2026-01-09 15:48:19,304 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_0/analysis/perception_analysis.json
+2026-01-09 15:48:19,305 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2026-01-09 15:48:19,305 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2026-01-09 15:48:19,306 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_0/analysis/action_selection_analysis.json
+2026-01-09 15:48:19,306 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2026-01-09 15:48:19,306 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2026-01-09 15:48:19,306 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_0/analysis/free_energy_analysis.json
+2026-01-09 15:48:19,306 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2026-01-09 15:48:19,306 - ModernActiveInference - INFO -   multi_agent_agent_0:
+2026-01-09 15:48:19,306 - ModernActiveInference - INFO -     Perception quality: 0.000
+2026-01-09 15:48:19,306 - ModernActiveInference - INFO -     Action consistency: 0.250
+2026-01-09 15:48:19,306 - ModernActiveInference - INFO -     Free energy efficiency: 0.000
+2026-01-09 15:48:19,306 - ModernActiveInference - INFO -     Convergence: False
+2026-01-09 15:48:19,306 - ModernActiveInference - INFO -     Stability: False
+2026-01-09 15:48:19,306 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2026-01-09 15:48:19,308 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_1/analysis/perception_analysis.json
+2026-01-09 15:48:19,308 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2026-01-09 15:48:19,308 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2026-01-09 15:48:19,309 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_1/analysis/action_selection_analysis.json
+2026-01-09 15:48:19,309 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2026-01-09 15:48:19,309 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2026-01-09 15:48:19,309 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_1/analysis/free_energy_analysis.json
+2026-01-09 15:48:19,309 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2026-01-09 15:48:19,309 - ModernActiveInference - INFO -   multi_agent_agent_1:
+2026-01-09 15:48:19,309 - ModernActiveInference - INFO -     Perception quality: 0.000
+2026-01-09 15:48:19,309 - ModernActiveInference - INFO -     Action consistency: 0.450
+2026-01-09 15:48:19,310 - ModernActiveInference - INFO -     Free energy efficiency: 0.000
+2026-01-09 15:48:19,310 - ModernActiveInference - INFO -     Convergence: False
+2026-01-09 15:48:19,310 - ModernActiveInference - INFO -     Stability: False
+2026-01-09 15:48:19,310 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2026-01-09 15:48:19,311 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_2/analysis/perception_analysis.json
+2026-01-09 15:48:19,311 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2026-01-09 15:48:19,311 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2026-01-09 15:48:19,312 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_2/analysis/action_selection_analysis.json
+2026-01-09 15:48:19,312 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2026-01-09 15:48:19,312 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2026-01-09 15:48:19,312 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_2/analysis/free_energy_analysis.json
+2026-01-09 15:48:19,312 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2026-01-09 15:48:19,313 - ModernActiveInference - INFO -   multi_agent_agent_2:
+2026-01-09 15:48:19,313 - ModernActiveInference - INFO -     Perception quality: 0.000
+2026-01-09 15:48:19,313 - ModernActiveInference - INFO -     Action consistency: 0.250
+2026-01-09 15:48:19,313 - ModernActiveInference - INFO -     Free energy efficiency: 0.000
+2026-01-09 15:48:19,313 - ModernActiveInference - INFO -     Convergence: False
+2026-01-09 15:48:19,313 - ModernActiveInference - INFO -     Stability: False
+2026-01-09 15:48:19,313 - geo_infer_act.utils.analysis - INFO - Analyzing perception patterns...
+2026-01-09 15:48:19,314 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_3/analysis/perception_analysis.json
+2026-01-09 15:48:19,314 - geo_infer_act.utils.analysis - INFO - Perception pattern analysis completed
+2026-01-09 15:48:19,314 - geo_infer_act.utils.analysis - INFO - Analyzing action selection patterns...
+2026-01-09 15:48:19,315 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_3/analysis/action_selection_analysis.json
+2026-01-09 15:48:19,315 - geo_infer_act.utils.analysis - INFO - Action selection pattern analysis completed
+2026-01-09 15:48:19,315 - geo_infer_act.utils.analysis - INFO - Analyzing Variational Free Energy patterns...
+2026-01-09 15:48:19,316 - geo_infer_act.utils.analysis - INFO - Analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_3/analysis/free_energy_analysis.json
+2026-01-09 15:48:19,316 - geo_infer_act.utils.analysis - INFO - Free Energy pattern analysis completed
+2026-01-09 15:48:19,316 - ModernActiveInference - INFO -   multi_agent_agent_3:
+2026-01-09 15:48:19,316 - ModernActiveInference - INFO -     Perception quality: 0.000
+2026-01-09 15:48:19,316 - ModernActiveInference - INFO -     Action consistency: 0.450
+2026-01-09 15:48:19,316 - ModernActiveInference - INFO -     Free energy efficiency: 0.000
+2026-01-09 15:48:19,316 - ModernActiveInference - INFO -     Convergence: False
+2026-01-09 15:48:19,316 - ModernActiveInference - INFO -     Stability: False
+2026-01-09 15:48:19,316 - ModernActiveInference - INFO - Overall Performance Summary:
+2026-01-09 15:48:19,316 - ModernActiveInference - INFO -   Average Perception Quality: 0.000
+2026-01-09 15:48:19,316 - ModernActiveInference - INFO -   Average Action Consistency: 0.390
+2026-01-09 15:48:19,316 - ModernActiveInference - INFO -   Average FE efficiency: 0.000
+2026-01-09 15:48:19,316 - ModernActiveInference - INFO - 
+==================================================
+2026-01-09 15:48:19,316 - ModernActiveInference - INFO - 7. COMPREHENSIVE VISUALIZATIONS
+2026-01-09 15:48:19,316 - ModernActiveInference - INFO - ==================================================
+2026-01-09 15:48:19,316 - ModernActiveInference - INFO - Creating comprehensive visualizations
+2026-01-09 15:48:19,857 - geo_infer_act.utils.visualization - INFO - Perception analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/hierarchical
+2026-01-09 15:48:20,271 - geo_infer_act.utils.visualization - INFO - Action analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/hierarchical
+2026-01-09 15:48:20,743 - geo_infer_act.utils.visualization - INFO - Interpretability dashboard saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/hierarchical
+2026-01-09 15:48:20,744 - ModernActiveInference - INFO -   Generated visualizations for hierarchical_model
+2026-01-09 15:48:21,301 - geo_infer_act.utils.visualization - INFO - Perception analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/markov_blanket
+2026-01-09 15:48:21,711 - geo_infer_act.utils.visualization - INFO - Action analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/markov_blanket
+2026-01-09 15:48:22,189 - geo_infer_act.utils.visualization - INFO - Interpretability dashboard saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/markov_blanket
+2026-01-09 15:48:22,189 - ModernActiveInference - INFO -   Generated visualizations for markov_blanket_model
+2026-01-09 15:48:22,731 - geo_infer_act.utils.visualization - INFO - Perception analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/spatial_temporal
+2026-01-09 15:48:23,137 - geo_infer_act.utils.visualization - INFO - Action analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/spatial_temporal
+2026-01-09 15:48:23,598 - geo_infer_act.utils.visualization - INFO - Interpretability dashboard saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/spatial_temporal
+2026-01-09 15:48:23,599 - ModernActiveInference - INFO -   Generated visualizations for spatial_temporal_model
+2026-01-09 15:48:24,096 - geo_infer_act.utils.visualization - INFO - Perception analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_0
+2026-01-09 15:48:24,558 - geo_infer_act.utils.visualization - INFO - Action analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_0
+2026-01-09 15:48:25,033 - geo_infer_act.utils.visualization - INFO - Interpretability dashboard saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_0
+2026-01-09 15:48:25,033 - ModernActiveInference - INFO -   Generated visualizations for multi_agent_agent_0
+2026-01-09 15:48:25,578 - geo_infer_act.utils.visualization - INFO - Perception analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_1
+2026-01-09 15:48:25,984 - geo_infer_act.utils.visualization - INFO - Action analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_1
+2026-01-09 15:48:26,453 - geo_infer_act.utils.visualization - INFO - Interpretability dashboard saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_1
+2026-01-09 15:48:26,453 - ModernActiveInference - INFO -   Generated visualizations for multi_agent_agent_1
+2026-01-09 15:48:27,033 - geo_infer_act.utils.visualization - INFO - Perception analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_2
+2026-01-09 15:48:27,442 - geo_infer_act.utils.visualization - INFO - Action analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_2
+2026-01-09 15:48:27,921 - geo_infer_act.utils.visualization - INFO - Interpretability dashboard saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_2
+2026-01-09 15:48:27,921 - ModernActiveInference - INFO -   Generated visualizations for multi_agent_agent_2
+2026-01-09 15:48:28,418 - geo_infer_act.utils.visualization - INFO - Perception analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_3
+2026-01-09 15:48:28,883 - geo_infer_act.utils.visualization - INFO - Action analysis saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_3
+2026-01-09 15:48:29,356 - geo_infer_act.utils.visualization - INFO - Interpretability dashboard saved to /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/multi_agent/agent_3
+2026-01-09 15:48:29,356 - ModernActiveInference - INFO -   Generated visualizations for multi_agent_agent_3
+2026-01-09 15:48:29,356 - ModernActiveInference - INFO - 
+==================================================
+2026-01-09 15:48:29,356 - ModernActiveInference - INFO - 8. GENERATING COMPREHENSIVE REPORT
+2026-01-09 15:48:29,356 - ModernActiveInference - INFO - ==================================================
+2026-01-09 15:48:29,357 - ModernActiveInference - INFO - Comprehensive report saved to: /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154817/comprehensive_modern_ai_report.txt
+2026-01-09 15:48:29,357 - ModernActiveInference - INFO - Modern Active Inference demonstration completed successfully

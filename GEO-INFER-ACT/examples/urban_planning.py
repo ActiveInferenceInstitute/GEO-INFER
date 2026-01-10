@@ -38,7 +38,7 @@ from geo_infer_act.utils.visualization import (
 from geo_infer_act.utils.analysis import ActiveInferenceAnalyzer
 from geo_infer_act.utils.math import (
     compute_surprise, compute_information_gain, assess_convergence,
-    detect_stationarity, detect_periodicity, assess_complexity
+    detect_stationarity, detect_periodicity, assess_complexity, softmax
 )
 
 
@@ -403,44 +403,66 @@ def main():
     for i, agent in enumerate(urban_model.agent_states):
         model_id = f"agent_{i}_{agent['type'].lower()}"
         
-        # Different agent types have different model parameters
+        # Define dimensions aligned with resource types (4)
+        # States: [Focus_Housing, Focus_Commercial, Focus_Transport, Focus_Green]
+        state_dim = 4
+        # Observations: [Quality_High, Quality_Med, Quality_Low, Cooperation_High] - Mapped to 4 dim
+        # Actually observation vector in create_urban_observation is size 4.
+        obs_dim = 4
+        # Actions: [Invest_Housing, Invest_Commercial, Invest_Transport, Invest_Green]
+        num_controls = [4]
+        
+        # --- Construct Matrices for Real Active Inference ---
+        
+        # A Matrix (Likelihood): P(o|s)
+        # Identity-like: If I focus on X, I expect to see signal X (simplification)
+        A = np.eye(obs_dim, state_dim)
+        # Add some noise/uncertainty
+        A = A * 0.8 + 0.05
+        
+        # B Matrix (Transition): P(s'|s, u)
+        # Controlled transition: Action u forces state to become u
+        B = np.zeros((state_dim, state_dim, num_controls[0]))
+        for u in range(num_controls[0]):
+            B[:, :, u] = 0.0
+            B[u, :, u] = 1.0 # Deterministic transition to state u given action u
+            
+        # C Matrix (Preferences): P(o)
+        # Define based on agent type
         if agent['type'] == 'Government':
-            parameters = {
-                "state_dim": 5,  # Planning, Implementation, Evaluation, Coordination, Budget
-                "obs_dim": 4,    # Quality, Resources, Cooperation, Satisfaction
-                "prior_precision": 1.5,
-                "learning_rate": 0.08,
-                "enable_adaptation": True
-            }
+            # Balanced preference across all observations (as proxies for resources)
+            # Actually obs is [HighQ, MedQ, LowQ, Coop]
+            # Preference: High Quality (0) and High Cooperation (3)
+            C = np.array([2.0, 0.0, -2.0, 1.0])
         elif agent['type'] == 'Developer':
-            parameters = {
-                "state_dim": 4,  # Investment, Development, Marketing, Profit
-                "obs_dim": 4,
-                "prior_precision": 1.2,
-                "learning_rate": 0.12,
-                "enable_adaptation": True
-            }
+            # Focus on specific outcomes? Let's say High Quality (0)
+            C = np.array([3.0, 1.0, -1.0, 0.0])
         else:  # Community
-            parameters = {
-                "state_dim": 4,  # Advocacy, Participation, Satisfaction, Resistance
-                "obs_dim": 4,
-                "prior_precision": 1.0,
-                "learning_rate": 0.15,
-                "enable_adaptation": True
-            }
+            # High Cooperation (3) and High Quality (0)
+            C = np.array([1.5, 0.0, -1.0, 3.0])
+            
+        # D Matrix (Prior): Uniform
+        D = np.ones(state_dim) / state_dim
+        
+        parameters = {
+            "state_dim": state_dim,
+            "obs_dim": obs_dim,
+            "num_controls": num_controls,
+            "A": A,
+            "B": B,
+            "C": C,
+            "D": D,
+            "prior_precision": 1.5,
+            "learning_rate": 0.1,
+            "enable_adaptation": True
+        }
         
         ai_interface.create_model(model_id, "categorical", parameters)
         agent_models[i] = model_id
         
-        # Set agent-specific preferences
-        if agent['type'] == 'Government':
-            preferences = {"observations": np.array([0.3, 0.3, 0.3, 0.1])}  # Balanced development
-        elif agent['type'] == 'Developer':
-            preferences = {"observations": np.array([0.1, 0.4, 0.4, 0.1])}  # Profit-focused
-        else:  # Community
-            preferences = {"observations": np.array([0.4, 0.2, 0.2, 0.2])}  # Quality-focused
-        
-        ai_interface.set_preferences(model_id, preferences)
+        # Set preferences explicitly (interface helper)
+        # The C matrix above is used by pymdp control, but 'update_beliefs' might define 'preferences' attribute
+        ai_interface.set_preferences(model_id, {"observations": softmax(C)})
         
         # Initialize analyzer for each agent
         analyzers[i] = ActiveInferenceAnalyzer(
@@ -474,7 +496,7 @@ def main():
             observation = create_urban_observation(current_state, agent_id)
             
             # Get pre-update state for analysis
-            pre_beliefs = ai_interface.models[model_id].beliefs['states'].copy()
+            pre_beliefs = ai_interface.models[model_id].current_beliefs['states'].copy()
             pre_free_energy = ai_interface.get_free_energy(model_id)
             
             # Update beliefs
@@ -486,10 +508,47 @@ def main():
             policy_result = ai_interface.select_policy(model_id)
             
             # Convert policy to urban development action
-            policy_id = policy_result['policy']['id']
+            # Policy ID (0-3) corresponds to Resource Type (Housing, Commercial, Transport, Green)
+            # Location: Ideally policy would also select location (requiring Factor 2), 
+            # but for this 1-factor model we select location based on agent's current location or 'focus'
+            
+            # Use the actual action from pymdp if available
+            # ai_interface.select_policy returns {'policy': p, 'action': a} usually
+            # But let's stick to the 'policy' object which likely contains 'action' or is the action itself
+            
+            # Policy result structure depends on ActiveInferenceModel.act return
+            # If pymdp logic was used, 'act' returns an action array/list.
+            # If fallback logic, it returns a dict-like or int.
+            
+            # Let's inspect what select_policy returns.
+            # In interface.py: return self.models[model_id].act(...)
+            # In active_inference.py: act returns 'selected_action' which is likely a numpy array [action_idx] 
+            # if pymdp sampled it, or an int/dict if fallback.
+            
+            action_val = policy_result
+            if isinstance(action_val, dict):
+                action_idx = int(action_val.get('action', 0))
+            elif isinstance(action_val, (list, np.ndarray)):
+                 action_idx = int(action_val[0])
+            else:
+                 action_idx = int(action_val)
+            
+            policy_id = action_idx
+                 
+            # In our B matrix, Action u -> State u
+            # We defined 4 actions mapping to 4 resource types
+            resource_type = action_idx % n_resources
+            
+            # For location, we can simulate 'moving' or just picking a location
+            # Let's say the agent picks a location near them or random for now
+            # To be fully active inference, location should be a policy target.
+            # But we only set up 1 factor (Resource Focus).
+            # So we keep location random-ish or heuristic based on agent focus.
+            loc_target = np.random.randint(0, n_locations)
+            
             action = {
-                'location': np.random.randint(0, n_locations),
-                'resource_type': policy_id % n_resources,
+                'location': loc_target,
+                'resource_type': resource_type,
                 'investment': min(agent['budget'] * 0.2, 25.0)
             }
             

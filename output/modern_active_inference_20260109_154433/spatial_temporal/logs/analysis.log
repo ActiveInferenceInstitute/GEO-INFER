@@ -1,0 +1,2 @@
+2026-01-09 15:44:33,888 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/modern_active_inference_20260109_154433/spatial_temporal
+2026-01-09 15:44:33,893 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=-2.2608

@@ -603,7 +603,7 @@ def plot_action_analysis(policy_history: List[Dict[str, Any]],
     
     for policy_data in policy_history:
         if 'all_probabilities' in policy_data:
-            policy_probs.append(policy_data['all_probabilities'])
+            policy_probs.append(np.array(policy_data['all_probabilities']))
         if 'all_free_energies' in policy_data:
             expected_free_energies.append(policy_data['all_free_energies'])
         if 'policy' in policy_data and 'id' in policy_data['policy']:
@@ -626,7 +626,9 @@ def plot_action_analysis(policy_history: List[Dict[str, Any]],
     # 2. Policy entropy over time
     if policy_probs:
         ax2 = fig.add_subplot(gs[0, 2])
-        entropies = [-np.sum(probs * np.log(probs + 1e-8)) for probs in policy_probs]
+        # Ensure probs is numpy array for entropy calculation
+        policy_probs_for_entropy = [np.array(p) for p in policy_probs]
+        entropies = [-np.sum(probs * np.log(probs + 1e-8)) for probs in policy_probs_for_entropy]
         ax2.plot(entropies, linewidth=2, color='purple', marker='s', markersize=3)
         ax2.set_title('Policy Selection Entropy')
         ax2.set_xlabel('Time Step')
@@ -921,10 +923,9 @@ def create_interpretability_dashboard(analyzer, output_dir: Path):
         policy_probs = []
         for policy_data in analyzer.traces['policies']:
             if 'all_probabilities' in policy_data:
-                policy_probs.append(policy_data['all_probabilities'])
+                policy_probs.append(np.array(policy_data['all_probabilities'])) # Ensure probs is numpy array
         
         if policy_probs:
-            policy_probs_array = np.array(policy_probs)
             entropies = [-np.sum(probs * np.log(probs + 1e-8)) for probs in policy_probs]
             
             ax5.plot(entropies, linewidth=2, color='purple', marker='o', markersize=3)
@@ -997,7 +998,7 @@ def create_interpretability_dashboard(analyzer, output_dir: Path):
             policy_probs = []
             for policy_data in analyzer.traces['policies']:
                 if 'all_probabilities' in policy_data:
-                    policy_probs.append(policy_data['all_probabilities'])
+                    policy_probs.append(np.array(policy_data['all_probabilities']))
             
             if policy_probs:
                 decisiveness = np.mean([np.max(probs) for probs in policy_probs])
@@ -1077,7 +1078,7 @@ def create_interpretability_dashboard(analyzer, output_dir: Path):
         policy_probs = []
         for policy_data in analyzer.traces['policies']:
             if 'all_probabilities' in policy_data:
-                policy_probs.append(policy_data['all_probabilities'])
+                policy_probs.append(np.array(policy_data['all_probabilities']))
         
         if policy_probs:
             policy_probs_array = np.array(policy_probs)

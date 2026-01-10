@@ -1,3 +1,12 @@
+
+<div align="center">
+  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
+  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
+  <a href="../README.md#-module-overview">📦 Module Index</a> •
+  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+</div>
+
+---
 # GEO-INFER-ACT: Active Inference Agents
 
 ## Overview
@@ -23,6 +32,61 @@ This document describes the Active Inference agent implementations within the GE
 - 🔮 **Spatial Belief Propagation**: Belief propagation across spatial networks
 
 ## Active Inference Agent Architecture
+
+### 🤖 Module Agent Capabilities
+
+This module provides **Core Active Inference Intelligence** for the GEO-INFER Multi-Agent System. It implements the "Brain" of the agents.
+
+### Framework Capabilities
+| Capability | Description | Status |
+|------------|-------------|--------|
+| **ActiveInferenceModel** | Core probabilistic engine minimizing free energy | ✅ Real |
+| **GenerativeModel** | Hierarchical, factorized probabilistic models (A, B, C, D) | ✅ Real |
+| **Policy Selection** | Expected Free Energy (EFE) minimization implementation | ✅ Real |
+| **Spatial Navigation** | H3-integrated spatial active inference | ✅ Beta |
+| **Hierarchical Modeling** | Nested temporal scales and deep temporal models | ✅ Beta |
+| **ClimateModel** | Specialized agent for climate adaptation | ✅ Real |
+| **EcologicalModel** | Ecological niche modeling | 🟡 Alpha |
+
+## 🔌 Integration Patterns
+
+### Using GEO-INFER-ACT in Agents
+
+```python
+from geo_infer_act import ActiveInferenceModel, ClimateModel
+
+# 1. Initialize a domain-specific agent (Real Pymdp Implementation)
+climate_agent = ClimateModel(config={'prior_precision': 2.0})
+
+# 2. Perceive environment (updates beliefs using free energy)
+# Observations: [Thermometer_Index, CO2_Sensor_Index]
+beliefs = climate_agent.perceive([0, 1]) # 0=Normal Temp, 1=Warning CO2
+
+# 3. Act on environment (selects policy via EFE)
+action = climate_agent.act() 
+# Returns action index (e.g., 1=ReduceEmissions)
+
+print(f"Agent chose action {action} to minimize expected free energy")
+```
+
+### Advanced Usage: Custom Generative Models
+
+You can define custom matrices (A, B, C, D) for bespoke agents:
+
+```python
+from geo_infer_act import ActiveInferenceModel
+
+# Define state-space matrices
+A = ... # Likelihood P(o|s)
+B = ... # Transition P(s'|s,u)
+C = ... # Preferences P(o)
+D = ... # Priors P(s)
+
+agent = ActiveInferenceModel(
+    model_type='categorical',
+    A=A, B=B, C=C, D=D
+)
+```
 
 ### Core Agent Structure
 

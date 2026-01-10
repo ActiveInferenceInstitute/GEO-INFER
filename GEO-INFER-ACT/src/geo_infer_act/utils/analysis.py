@@ -50,6 +50,7 @@ class ActiveInferenceAnalyzer:
             'actions': [],
             'policies': [],
             'free_energy': [],
+            'metrics': [],
             'timestamps': []
         }
         
@@ -79,6 +80,7 @@ class ActiveInferenceAnalyzer:
                    actions: Any,
                    policies: Dict[str, Any],
                    free_energy: float,
+                   metrics: Optional[Dict[str, Any]] = None,
                    timestamp: Optional[float] = None):
         """Record a single Active Inference step for analysis."""
         import time
@@ -92,9 +94,31 @@ class ActiveInferenceAnalyzer:
         self.traces['actions'].append(actions)
         self.traces['policies'].append(policies.copy() if hasattr(policies, 'copy') else policies)
         self.traces['free_energy'].append(free_energy)
+        self.traces['metrics'].append(metrics if metrics is not None else {})
         self.traces['timestamps'].append(timestamp)
         
         logger.debug(f"Recorded step {len(self.traces['beliefs'])}: FE={free_energy:.4f}")
+    
+    @property
+    def step_history(self) -> List[Dict[str, Any]]:
+        """Return a list of step dictionaries for backward compatibility and easy iteration."""
+        history = []
+        for i in range(len(self.traces['timestamps'])):
+            step = {
+                'step': i,
+                'beliefs': self.traces['beliefs'][i],
+                'observations': self.traces['observations'][i],
+                'action': self.traces['actions'][i],
+                'policies': self.traces['policies'][i],
+                'free_energy': self.traces['free_energy'][i],
+                'metrics': self.traces['metrics'][i],
+                'timestamp': self.traces['timestamps'][i]
+            }
+            # For compatibility with code expecting 'step_data'
+            if self.traces['metrics'][i]:
+                step['step_data'] = self.traces['metrics'][i]
+            history.append(step)
+        return history
     
     def analyze_perception_patterns(self) -> Dict[str, Any]:
         """
@@ -571,7 +595,7 @@ class ActiveInferenceAnalyzer:
         
         for policy_data in self.traces['policies']:
             if 'all_probabilities' in policy_data:
-                probs = policy_data['all_probabilities']
+                probs = np.array(policy_data['all_probabilities'])
                 # Entropy as exploration measure
                 entropy = -np.sum(probs * np.log(probs + 1e-8))
                 max_entropy = np.log(len(probs))

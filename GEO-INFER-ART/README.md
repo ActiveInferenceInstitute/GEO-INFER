@@ -12,6 +12,16 @@ difficulty: "Intermediate"
 estimated_time: "50"
 ---
 
+<div align="center">
+  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
+  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
+  <a href="../README.md#-module-overview">📦 Module Index</a> •
+  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+</div>
+
+---
+
+
 # GEO-INFER-ART: Geospatial Art, Aesthetics, and Generative Systems
 
 > **Purpose**: Bridge analytical geospatial science with creative artistic practice for enhanced understanding and communication

@@ -1,0 +1,6 @@
+2026-01-09 15:20:36,269 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/urban_planning_20260109_152036/agent_0
+2026-01-09 15:20:36,270 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/urban_planning_20260109_152036/agent_1
+2026-01-09 15:20:36,270 - geo_infer_act.utils.analysis - INFO - ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/urban_planning_20260109_152036/agent_2
+2026-01-09 15:20:36,271 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=-0.3756
+2026-01-09 15:20:36,272 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=-0.3756
+2026-01-09 15:20:36,272 - geo_infer_act.utils.analysis - DEBUG - Recorded step 1: FE=-0.3756
