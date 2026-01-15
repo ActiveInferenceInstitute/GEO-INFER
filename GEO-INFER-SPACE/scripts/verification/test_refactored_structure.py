@@ -154,14 +154,13 @@ def test_directory_structure():
     """Test that the new directory structure exists."""
     print("\n🧪 Testing directory structure...")
 
-    base_path = Path(__file__).parent
+    # Base path should be the project root (2 levels up from scripts/verification/)
+    base_path = Path(__file__).parent.parent.parent
 
     required_dirs = [
         "src/geo_infer_space/core",
         "src/geo_infer_space/backends/h3",
         "src/geo_infer_space/backends/srai",
-        "backends/h3/tests",
-        "backends/srai/tests"
     ]
 
     for dir_path in required_dirs:

@@ -1,6 +1,5 @@
 README.md
 pyproject.toml
-setup.py
 src/examples/california_multilayer_demo.py
 src/examples/h3_geospatial_demo.py
 src/examples/osc_geo_example.py
@@ -40,6 +39,7 @@ src/geo_infer_space/core/base_module.py
 src/geo_infer_space/core/data_integrator.py
 src/geo_infer_space/core/dispatcher.py
 src/geo_infer_space/core/geometric_operations.py
+src/geo_infer_space/core/interfaces.py
 src/geo_infer_space/core/place_analyzer.py
 src/geo_infer_space/core/processor.py
 src/geo_infer_space/core/spatial_indexing.py
@@ -126,20 +126,3 @@ src/geo_infer_space/tools/verify_h3_v4_compliance.py
 src/geo_infer_space/utils/__init__.py
 src/geo_infer_space/utils/config_loader.py
 src/geo_infer_space/utils/h3_utils.py
-tests/test_analytics_comprehensive.py
-tests/test_base_module.py
-tests/test_core.py
-tests/test_data_integrator.py
-tests/test_enhanced_reporting.py
-tests/test_h3_analytics.py
-tests/test_h3_comprehensive.py
-tests/test_h3_core.py
-tests/test_h3_ml_integration.py
-tests/test_h3_operations.py
-tests/test_nested_comprehensive.py
-tests/test_osc_geo.py
-tests/test_osc_scripts.py
-tests/test_place_analyzer.py
-tests/test_spatial_processor.py
-tests/test_unified_backend.py
-tests/test_visualization_engine.py

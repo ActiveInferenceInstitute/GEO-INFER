@@ -1,3 +1,4 @@
+# GEO-INFER-MATH: Mathematical Foundations
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-MATH: Mathematical Framework Support
 
 ## Overview
+
 
 The GEO-INFER-MATH module provides foundational mathematical capabilities that power the intelligent agent ecosystem. It enables agents to perform spatial statistics, geometric operations, optimization, and numerical computations essential for Active Inference and decision-making.
 

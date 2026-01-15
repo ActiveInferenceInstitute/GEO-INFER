@@ -1,3 +1,4 @@
+# GEO-INFER-OPS: Operations Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>

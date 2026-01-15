@@ -1,3 +1,4 @@
+# GEO-INFER-SIM: Simulation Agents
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-SIM: Simulation Framework Support
 
 ## Overview
+
 
 The GEO-INFER-SIM module provides comprehensive simulation capabilities for testing, training, and validating intelligent agents. It enables creating virtual geospatial environments where agents can learn, adapt, and be evaluated before real-world deployment.
 

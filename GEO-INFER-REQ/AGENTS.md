@@ -1,3 +1,4 @@
+# GEO-INFER-REQ: Requirements Engineering Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-REQ: Requirements Framework Support
 
 ## Overview
+
 
 The GEO-INFER-REQ module provides requirements management capabilities enabling agents to capture, track, and validate system requirements.
 

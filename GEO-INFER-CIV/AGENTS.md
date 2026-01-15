@@ -1,3 +1,4 @@
+# GEO-INFER-CIV: Civic Intelligence Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-CIV: Civic Engagement Framework Support
 
 ## Overview
+
 
 The GEO-INFER-CIV module provides civic engagement and participatory planning capabilities enabling intelligent agents to facilitate community input, democratic participation, and collaborative decision-making in geospatial contexts.
 

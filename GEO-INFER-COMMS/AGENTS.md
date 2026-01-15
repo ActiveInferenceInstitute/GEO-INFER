@@ -1,3 +1,4 @@
+# GEO-INFER-COMMS: Communications Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,7 +8,7 @@
 </div>
 
 ---
-# GEO-INFER-COMMS: Communications Framework Support
+
 
 ## Overview
 

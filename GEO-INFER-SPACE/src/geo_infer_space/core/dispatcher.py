@@ -10,9 +10,17 @@ import logging
 from typing import Dict, Any, Optional, Union, Protocol, Type
 from abc import ABC, abstractmethod
 
+from .interfaces import (
+    SpatialBackendProtocol,
+    IndexingBackendProtocol,
+    AnalyticsBackendProtocol,
+    BackendNotAvailableError,
+)
+
 logger = logging.getLogger(__name__)
 
 
+# Keep these for backward compatibility - they re-export from interfaces
 class SpatialBackendInterface(Protocol):
     """Protocol defining the interface that all spatial backends must implement."""
 
@@ -151,7 +159,8 @@ class SpatialBackendDispatcher:
 
         backend_instance = self.backends[backend_name]
 
-        if not isinstance(backend_instance, SpatialIndexingBackend):
+        # Check backend supports indexing (duck typing)
+        if not hasattr(backend_instance, 'latlng_to_cell'):
             raise ValueError(f"Backend '{backend_name}' does not support indexing operations")
 
         # Map operation names to backend methods
@@ -163,6 +172,14 @@ class SpatialBackendDispatcher:
             'get_distance': 'get_cell_distance',
             'compact_cells': 'compact_cells',
             'uncompact_cells': 'uncompact_cells',
+            'get_cell_parent': 'get_cell_parent',
+            'get_cell_children': 'get_cell_children',
+            'get_cell_path': 'get_cell_path',
+            'get_cell_ring': 'get_cell_ring',
+            'get_cell_resolution': 'get_cell_resolution',
+            'get_cell_boundary': 'get_cell_boundary',
+            'get_cell_area': 'get_cell_area',
+            'cells_to_multipolygon': 'cells_to_multipolygon',
         }
 
         if operation not in operation_map:
@@ -182,7 +199,8 @@ class SpatialBackendDispatcher:
 
         backend_instance = self.backends[backend_name]
 
-        if not isinstance(backend_instance, SpatialAnalyticsBackend):
+        # Check backend supports analytics (duck typing)
+        if not hasattr(backend_instance, 'analyze_hotspots'):
             raise ValueError(f"Backend '{backend_name}' does not support analytics operations")
 
         # Map operation names to backend methods

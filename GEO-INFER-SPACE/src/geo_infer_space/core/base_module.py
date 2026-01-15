@@ -10,7 +10,6 @@ for data acquisition, processing, and analysis with H3 spatial indexing.
 import logging
 import json
 import numpy as np
-import h3
 import time
 from pathlib import Path
 from abc import ABC, abstractmethod
@@ -23,6 +22,8 @@ import os
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from geo_infer_space.core.unified_backend import UnifiedH3Backend
+
+from geo_infer_space.core import SpatialIndexingInterface
 
 logger = logging.getLogger(__name__)
 
@@ -67,6 +68,9 @@ class BaseAnalysisModule(ABC):
         self.config = {}
         if config_path and config_path.exists():
             self._load_config()
+
+        # Initialize spatial interface
+        self.spatial = SpatialIndexingInterface()
 
     @abstractmethod
     def acquire_raw_data(self) -> Path:
@@ -206,9 +210,8 @@ class BaseAnalysisModule(ABC):
                         }
                         
                         try:
-                            # Use H3 v4 API to convert polygon to cells
-                            # Try the correct H3 v4 method: geo_to_cells instead of polygon_to_cells
-                            h3_cells = h3.geo_to_cells(geojson_polygon, self.h3_resolution)
+                            # Use unified spatial interface to convert polygon to cells
+                            h3_cells = self.spatial.polygon_to_cells(geojson_polygon, self.h3_resolution)
                             logger.debug(f"[{self.module_name}] ✅ Feature {idx} converted to {len(h3_cells)} H3 cells")
                             
                             # Store the H3 cells for this feature
@@ -245,7 +248,7 @@ class BaseAnalysisModule(ABC):
                                     "coordinates": [list(polygon.exterior.coords)]
                                 }
                                 
-                                h3_cells = h3.geo_to_cells(geojson_polygon, self.h3_resolution)
+                                h3_cells = self.spatial.polygon_to_cells(geojson_polygon, self.h3_resolution)
                                 logger.debug(f"[{self.module_name}] ✅ Feature {idx} polygon {polygon_idx} converted to {len(h3_cells)} H3 cells")
                                 
                                 # Store the H3 cells for this feature

@@ -1,3 +1,4 @@
+# GEO-INFER-TIME: Temporal Intelligence Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-TIME: Temporal Intelligence Framework Support
 
 ## Overview
+
 
 The GEO-INFER-TIME module provides foundational temporal capabilities that power the intelligent agent ecosystem. It enables agents to reason about time, analyze temporal patterns, forecast future states, and manage time-series data.
 

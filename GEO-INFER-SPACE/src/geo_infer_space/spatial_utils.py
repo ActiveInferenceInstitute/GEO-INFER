@@ -10,8 +10,9 @@ from typing import Dict, List, Optional, Tuple, Any, Union
 import numpy as np
 import pandas as pd
 from shapely.geometry import Point, Polygon, LineString
-import h3
+from shapely.geometry import Point, Polygon, LineString
 from pyproj import Transformer
+from .core import SpatialIndexingInterface
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,7 @@ class SpatialUtils:
     def __init__(self):
         """Initialize SpatialUtils."""
         self.transformers = {}
+        self.indexer = SpatialIndexingInterface()
         logger.info("SpatialUtils initialized")
     
     def get_transformer(self, from_crs: str, to_crs: str) -> Transformer:
@@ -142,8 +144,8 @@ class SpatialUtils:
         # Get bounding box
         minx, miny, maxx, maxy = polygon.bounds
         
-        # Use H3 v4 API: polygon_to_cells
-        cells = h3.polygon_to_cells(
+        # Use Unified Spatial Interface
+        cells = self.indexer.polygon_to_cells(
             {
                 "type": "Polygon",
                 "coordinates": [list(polygon.exterior.coords)]
@@ -178,8 +180,8 @@ class SpatialUtils:
         Returns:
             Snapped coordinates (lat, lon)
         """
-        cell = h3.latlng_to_cell(lat, lon, resolution)
-        center_lat, center_lon = h3.cell_to_latlng(cell)
+        cell = self.indexer.latlng_to_cell(lat, lon, resolution)
+        center_lat, center_lon = self.indexer.cell_to_latlng(cell)
         return center_lat, center_lon
     
     def calculate_spatial_density(self, points: List[Tuple[float, float]], 

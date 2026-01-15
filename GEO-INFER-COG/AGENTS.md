@@ -1,3 +1,4 @@
+# GEO-INFER-COG: Cognitive Modeling Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,7 +8,7 @@
 </div>
 
 ---
-# GEO-INFER-COG: Cognitive Modeling Framework Support
+
 
 ## Overview
 

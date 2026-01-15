@@ -19,28 +19,32 @@ from .core.geometric_operations import GeometricOperationsInterface
 from .core.analytics import SpatialAnalyticsInterface
 from .core.dispatcher import get_backend_dispatcher, configure_backends
 
-# Import legacy H3 utilities for backward compatibility
-try:
-    from .core.spatial_indexing import latlng_to_cell as h3_latlng_to_cell
-    from .core.spatial_indexing import cell_to_latlng as h3_cell_to_latlng
-    from .core.spatial_indexing import polygon_to_cells as h3_polygon_to_cells
+# Provide backward-compatible names using the unified spatial interface
+# These are REAL method wrappers, not mock implementations
+def cell_to_latlng_boundary(cell: str):
+    """Get cell boundary. Wraps SpatialIndexingInterface.get_cell_boundary."""
+    return SpatialIndexingInterface().get_cell_boundary(cell)
 
-    # Provide backward-compatible names
-    cell_to_latlng_boundary = h3_cell_to_latlng  # Simplified for compatibility
-    geo_to_cells = h3_polygon_to_cells  # Simplified for compatibility
-    grid_disk = lambda cell, k: []  # Mock implementation for compatibility
-    grid_distance = lambda cell1, cell2: 0  # Mock implementation for compatibility
-    compact_cells = lambda cells: cells  # Mock implementation for compatibility
-    uncompact_cells = lambda cells, res: cells  # Mock implementation for compatibility
+def geo_to_cells(polygon, resolution: int):
+    """Convert polygon to cells. Wraps SpatialIndexingInterface.polygon_to_cells."""
+    return SpatialIndexingInterface().polygon_to_cells(polygon, resolution)
 
-except ImportError:
-    # Fallback if core imports fail
-    cell_to_latlng_boundary = None
-    geo_to_cells = None
-    grid_disk = None
-    grid_distance = None
-    compact_cells = None
-    uncompact_cells = None
+def grid_disk(cell: str, k: int = 1):
+    """Get cells within k rings. Wraps SpatialIndexingInterface.get_cell_neighbors."""
+    return SpatialIndexingInterface().get_cell_neighbors(cell, k)
+
+def grid_distance(cell1: str, cell2: str):
+    """Get grid distance between cells. Wraps SpatialIndexingInterface.get_cell_distance."""
+    return SpatialIndexingInterface().get_cell_distance(cell1, cell2)
+
+def compact_cells(cells):
+    """Compact cells. Wraps SpatialIndexingInterface.compact_cells."""
+    return SpatialIndexingInterface().compact_cells(cells)
+
+def uncompact_cells(cells, resolution: int):
+    """Uncompact cells. Wraps SpatialIndexingInterface.uncompact_cells."""
+    return SpatialIndexingInterface().uncompact_cells(cells, resolution)
+
 
 # Import additional components with error handling
 try:
@@ -100,7 +104,7 @@ __all__ = [
     'cell_to_latlng',
     'polygon_to_cells',
 
-    # Legacy H3 utilities (for backward compatibility)
+    # Backward-compatible H3 utilities (real implementations)
     'cell_to_latlng_boundary',
     'geo_to_cells',
     'grid_disk',

@@ -1,3 +1,4 @@
+# GEO-INFER-EXAMPLES: Example Implementations
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-EXAMPLES: Example Framework Support
 
 ## Overview
+
 
 The GEO-INFER-EXAMPLES module provides example implementations, tutorials, and reference applications demonstrating agent capabilities across the framework.
 

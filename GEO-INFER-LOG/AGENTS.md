@@ -1,3 +1,4 @@
+# GEO-INFER-LOG: Logistics Intelligence Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,7 +8,7 @@
 </div>
 
 ---
-# GEO-INFER-LOG: Logistics Intelligence Framework Support
+
 
 ## Overview
 

@@ -1,3 +1,4 @@
+# GEO-INFER-PLACE: Place-Based Analysis Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-PLACE: Place-Based Analysis Framework Support
 
 ## Overview
+
 
 The GEO-INFER-PLACE module provides place-based analysis capabilities enabling agents to understand the unique characteristics, identity, and significance of geographic places.
 

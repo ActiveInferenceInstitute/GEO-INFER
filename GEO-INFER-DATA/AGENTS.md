@@ -1,3 +1,4 @@
+# GEO-INFER-DATA: Data Management Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-DATA: Data Management Framework Support
 
 ## Overview
+
 
 The GEO-INFER-DATA module provides foundational data management capabilities that power the intelligent agent ecosystem. It enables agents to access, integrate, and manage diverse geospatial data sources including satellite imagery, sensor networks, and external APIs.
 

@@ -1,3 +1,4 @@
+# GEO-INFER-ORG: Organizational Informatics
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-ORG: Organizational Analysis Framework Support
 
 ## Overview
+
 
 The GEO-INFER-ORG module provides organizational analysis capabilities enabling agents to understand, model, and optimize organizational structures and workflows.
 

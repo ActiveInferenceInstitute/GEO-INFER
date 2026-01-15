@@ -387,7 +387,7 @@ def create_sample_datasets() -> Dict[str, H3Dataset]:
     # 3. Simple test dataset (no dependencies)
     test_cells = []
     for i in range(5):
-        # Create mock cells with fake indices
+        # Create placeholder cells for compatibility testing (no real H3 index)
         cell = H3Cell(index=f"test_cell_{i:03d}", resolution=7)
         cell.latitude = 37.7 + i * 0.01
         cell.longitude = -122.4 + i * 0.01

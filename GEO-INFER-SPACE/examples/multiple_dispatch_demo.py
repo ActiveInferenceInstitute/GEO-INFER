@@ -69,26 +69,31 @@ def demonstrate_multiple_dispatch():
     compacted_h3 = h3_indexer.compact_cells(cells_h3)
     print(f"✅ H3 compact_cells: {len(compacted_h3)} compacted cells")
 
-    # SRAI Backend
-    srai_indexer = SpatialIndexingInterface(backend='srai')
-    cell_srai = srai_indexer.latlng_to_cell(sf_coords[0], sf_coords[1], 9)
-    print(f"✅ SRAI latlng_to_cell: {cell_srai}")
+    # SRAI Backend (skip if not available)
+    try:
+        srai_indexer = SpatialIndexingInterface(backend='srai')
+        if not srai_indexer._backend.is_available():
+            raise RuntimeError("SRAI not available")
+        cell_srai = srai_indexer.latlng_to_cell(sf_coords[0], sf_coords[1], 9)
+        print(f"✅ SRAI latlng_to_cell: {cell_srai}")
 
-    lat_srai, lng_srai = srai_indexer.cell_to_latlng(cell_srai)
-    print(f"✅ SRAI cell_to_latlng: ({lat_srai:.4f}, {lng_srai:.4f})")
+        lat_srai, lng_srai = srai_indexer.cell_to_latlng(cell_srai)
+        print(f"✅ SRAI cell_to_latlng: ({lat_srai:.4f}, {lng_srai:.4f})")
 
-    cells_srai = srai_indexer.polygon_to_cells(polygon, 9)
-    print(f"✅ SRAI polygon_to_cells: {len(cells_srai)} cells")
+        cells_srai = srai_indexer.polygon_to_cells(polygon, 9)
+        print(f"✅ SRAI polygon_to_cells: {len(cells_srai)} cells")
 
-    neighbors_srai = srai_indexer.get_cell_neighbors(cell_srai, k=1)
-    print(f"✅ SRAI get_cell_neighbors: {len(neighbors_srai)} neighbors")
+        neighbors_srai = srai_indexer.get_cell_neighbors(cell_srai, k=1)
+        print(f"✅ SRAI get_cell_neighbors: {len(neighbors_srai)} neighbors")
+    except Exception as e:
+        print(f"⚠️  SRAI operations skipped: {e}")
 
     # 2. SPATIAL ANALYTICS OPERATIONS
     print("\n📊 SPATIAL ANALYTICS OPERATIONS")
     print("-" * 40)
 
     # Sample data for analytics
-    cells = [cell_h3, cell_srai] + [f"cell_{i}" for i in range(3, 8)]
+    cells = [cell_h3] + [f"cell_{i}" for i in range(2, 8)]
     values = [100, 80, 60, 120, 90, 70, 110]
 
     data = {'cells': cells, 'values': values}
@@ -98,10 +103,15 @@ def demonstrate_multiple_dispatch():
     hotspots_h3 = h3_analytics.analyze_hotspots(data)
     print(f"✅ H3 analyze_hotspots: {hotspots_h3.get('hotspot_count', 0)} hotspots")
 
-    # SRAI Analytics
-    srai_analytics = SpatialAnalyticsInterface(backend='srai')
-    hotspots_srai = srai_analytics.analyze_hotspots(data)
-    print(f"✅ SRAI analyze_hotspots: {hotspots_srai.get('hotspot_count', 0)} hotspots")
+    # SRAI Analytics (skip if not available)
+    try:
+        srai_analytics = SpatialAnalyticsInterface(backend='srai')
+        if not srai_analytics._backend.is_available():
+            raise RuntimeError("SRAI not available")
+        hotspots_srai = srai_analytics.analyze_hotspots(data)
+        print(f"✅ SRAI analyze_hotspots: {hotspots_srai.get('hotspot_count', 0)} hotspots")
+    except Exception as e:
+        print(f"⚠️  SRAI analytics skipped: {e}")
 
     # 3. CONVENIENCE FUNCTIONS
     print("\n🛠️  CONVENIENCE FUNCTIONS")

@@ -50,6 +50,8 @@ from .point_cloud import (
     surface_generation
 )
 
+from .temporal import TemporalAnalyzer
+
 __all__ = [
     # Vector operations
     'buffer_and_intersect',
@@ -62,28 +64,14 @@ __all__ = [
     # Raster operations
     'terrain_analysis',
     'map_algebra',
-    'focal_statistics',
-    'zonal_statistics',
-    'raster_overlay',
-    'image_processing',
     
-    # Network analysis
-    'shortest_path',
-    'service_area',
-    'network_connectivity',
-    'routing_analysis',
-    'accessibility_analysis',
+    # Temporal analysis
+    'TemporalAnalyzer',
     
-    # Geostatistics
+    # Geostatistical functions
     'spatial_interpolation',
     'clustering_analysis',
     'hotspot_detection',
     'spatial_autocorrelation',
     'variogram_analysis',
-    
-    # Point cloud
-    'point_cloud_filtering',
-    'feature_extraction',
-    'classification',
-    'surface_generation'
 ]

@@ -1,3 +1,4 @@
+# GEO-INFER-NORMS: Normative Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-NORMS: Compliance Framework Support
 
 ## Overview
+
 
 The GEO-INFER-NORMS module provides regulatory compliance and normative reasoning capabilities enabling agents to operate within legal, ethical, and policy frameworks.
 

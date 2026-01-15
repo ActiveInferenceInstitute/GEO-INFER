@@ -1,3 +1,4 @@
+# GEO-INFER-SEC: Security Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-SEC: Security Framework Support
 
 ## Overview
+
 
 The GEO-INFER-SEC module provides security and authentication capabilities that protect the intelligent agent ecosystem, ensuring secure communication, data protection, and access control.
 

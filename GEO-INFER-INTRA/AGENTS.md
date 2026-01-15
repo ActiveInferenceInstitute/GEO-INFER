@@ -1,3 +1,4 @@
+# GEO-INFER-INTRA: Internal Documentation Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-INTRA: Documentation Framework Support
 
 ## Overview
+
 
 The GEO-INFER-INTRA module provides documentation and knowledge management capabilities serving as the central documentation hub for the GEO-INFER framework.
 

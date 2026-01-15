@@ -6,22 +6,56 @@ that integrates with the generic spatial methods layer.
 
 SRAI (Spatial Representation for Artificial Intelligence) is a geospatial AI library
 that supports multiple spatial indexing systems including H3, S2, administrative boundaries, etc.
+
+All operations require the SRAI library - operations will raise SRAIUnavailableError
+if SRAI is not installed.
 """
 
 import logging
+from functools import wraps
 from typing import Dict, Any, List, Optional, Tuple, Union
 
-from ...core.dispatcher import SpatialIndexingBackend, SpatialAnalyticsBackend
+from ...core.interfaces import (
+    IndexingBackendProtocol,
+    AnalyticsBackendProtocol,
+    SRAIUnavailableError,
+)
 
 logger = logging.getLogger(__name__)
 
 
-class SraiBackend(SpatialIndexingBackend, SpatialAnalyticsBackend):
+# Check SRAI availability once at module load
+try:
+    import srai
+    SRAI_AVAILABLE = True
+    SRAI_VERSION = getattr(srai, '__version__', 'unknown')
+    logger.info(f"SRAI library v{SRAI_VERSION} is available")
+except ImportError:
+    SRAI_AVAILABLE = False
+    SRAI_VERSION = None
+    srai = None
+    logger.warning("SRAI library is not available")
+
+
+def _require_srai(operation: str):
+    """Decorator to require SRAI library for an operation."""
+    def decorator(func):
+        @wraps(func)
+        def wrapper(self, *args, **kwargs):
+            if not SRAI_AVAILABLE:
+                raise SRAIUnavailableError(operation)
+            return func(self, *args, **kwargs)
+        return wrapper
+    return decorator
+
+
+class SraiBackend:
     """
     SRAI backend implementation for spatial operations.
 
     This class provides SRAI-specific implementations of the generic spatial
-    interfaces defined in the core dispatcher module.
+    interfaces defined in the core dispatcher module. All operations require
+    the SRAI library - operations will raise SRAIUnavailableError if not installed.
 
     SRAI supports multiple spatial indexing systems:
     - H3 hexagonal hierarchical geospatial indexing system
@@ -29,23 +63,25 @@ class SraiBackend(SpatialIndexingBackend, SpatialAnalyticsBackend):
     - Administrative boundary-based regionalization
     - Slippy map tiles (Web Mercator)
     - Voronoi-based regionalization
+    
+    Implements: IndexingBackendProtocol, AnalyticsBackendProtocol
     """
 
     def __init__(self, default_regionalizer: str = 'h3'):
+        """
+        Initialize the SRAI backend.
+        
+        Args:
+            default_regionalizer: Default regionalizer to use ('h3', 's2', etc.)
+        """
         self.default_regionalizer = default_regionalizer
-        self._check_srai_availability()
-
-    def _check_srai_availability(self):
-        """Check if SRAI library is available."""
-        try:
-            import srai
-            self.srai = srai
-            self._available = True
-            logger.info("SRAI library is available")
-        except ImportError:
-            self.srai = None
-            self._available = False
-            logger.warning("SRAI library is not available - using mock implementations")
+        self._available = SRAI_AVAILABLE
+        self.srai = srai if SRAI_AVAILABLE else None
+        
+        if SRAI_AVAILABLE:
+            logger.info(f"SRAI backend initialized with {default_regionalizer} regionalizer")
+        else:
+            logger.warning("SRAI backend initialized but library is not available")
 
     @property
     def name(self) -> str:
@@ -55,9 +91,7 @@ class SraiBackend(SpatialIndexingBackend, SpatialAnalyticsBackend):
     @property
     def version(self) -> str:
         """Return the backend version."""
-        if self.srai:
-            return getattr(self.srai, '__version__', 'unknown')
-        return "0.0.0"
+        return SRAI_VERSION if SRAI_VERSION else "0.0.0"
 
     def is_available(self) -> bool:
         """Check if the backend is available and functional."""
@@ -65,13 +99,19 @@ class SraiBackend(SpatialIndexingBackend, SpatialAnalyticsBackend):
 
     def get_capabilities(self) -> Dict[str, Any]:
         """Return the backend's capabilities."""
-        base_capabilities = {
+        logger.debug("Getting SRAI backend capabilities")
+        
+        capabilities = {
             'indexing': {
                 'latlng_to_cell': True,
                 'cell_to_latlng': True,
                 'polygon_to_cells': True,
                 'get_neighbors': True,
                 'get_distance': True,
+                'get_resolution': True,
+                'get_boundary': True,
+                'get_area': True,
+                'cells_to_multipolygon': True,
             },
             'analytics': {
                 'analyze_hotspots': True,
@@ -89,194 +129,506 @@ class SraiBackend(SpatialIndexingBackend, SpatialAnalyticsBackend):
         }
 
         if self._available:
-            # Add SRAI-specific capabilities when available
             try:
-                from srai.regionalizers import H3Regionalizer, S2Regionalizer
-                from srai.embedders import CountEmbedder, Hex2VecEmbedder
-                base_capabilities['regionalizers_available'] = True
-                base_capabilities['embedders_available'] = True
+                from srai.regionalizers import H3Regionalizer
+                capabilities['regionalizers_available'] = True
             except ImportError:
-                pass
+                capabilities['regionalizers_available'] = False
+            
+            try:
+                from srai.embedders import CountEmbedder
+                capabilities['embedders_available'] = True
+            except ImportError:
+                capabilities['embedders_available'] = False
 
-        return base_capabilities
+        return capabilities
 
-    # SpatialIndexingBackend implementation
+    # ==================== Spatial Indexing Methods ====================
+
+    @_require_srai("latlng_to_cell")
     def latlng_to_cell(self, lat: float, lng: float, resolution: int) -> str:
-        """Convert lat/lng coordinates to SRAI region cell."""
-        if not self._available:
-            return self._mock_latlng_to_cell(lat, lng, resolution)
+        """
+        Convert lat/lng coordinates to SRAI region cell.
+        
+        Uses the configured regionalizer (H3 by default) to generate cell IDs.
+        
+        Args:
+            lat: Latitude (-90 to 90)
+            lng: Longitude (-180 to 180)
+            resolution: Resolution level (0-15 for H3)
+            
+        Returns:
+            Cell identifier string
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.debug(f"Converting ({lat}, {lng}) to cell at resolution {resolution}")
+        
+        if self.default_regionalizer == 'h3':
+            from srai.regionalizers import H3Regionalizer
+            # SRAI uses H3 under the hood for H3 regionalizer
+            import h3
+            cell = h3.latlng_to_cell(lat, lng, resolution)
+            logger.debug(f"Generated H3 cell: {cell}")
+            return cell
+        else:
+            # For other regionalizers, use SRAI's approach
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for latlng_to_cell")
 
-        try:
-            # Use the default regionalizer (H3 by default)
-            if self.default_regionalizer == 'h3':
-                from srai.regionalizers import H3Regionalizer
-                regionalizer = H3Regionalizer(resolution=resolution)
-                # This is a simplified implementation - would need proper point geometry
-                return f"h3_{lat:.6f}_{lng:.6f}_{resolution}"
-            else:
-                # Fallback to mock implementation
-                return self._mock_latlng_to_cell(lat, lng, resolution)
-        except Exception as e:
-            logger.warning(f"SRAI latlng_to_cell failed: {e}")
-            return self._mock_latlng_to_cell(lat, lng, resolution)
-
+    @_require_srai("cell_to_latlng")
     def cell_to_latlng(self, cell: str) -> tuple[float, float]:
-        """Convert SRAI region cell back to lat/lng coordinates."""
-        if not self._available:
-            return self._mock_cell_to_latlng(cell)
+        """
+        Convert SRAI region cell back to lat/lng coordinates.
+        
+        Args:
+            cell: Cell identifier
+            
+        Returns:
+            Tuple of (latitude, longitude)
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.debug(f"Converting cell {cell} to coordinates")
+        
+        if self.default_regionalizer == 'h3':
+            import h3
+            lat, lng = h3.cell_to_latlng(cell)
+            logger.debug(f"Cell {cell} center: ({lat}, {lng})")
+            return lat, lng
+        else:
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for cell_to_latlng")
 
-        # Parse cell identifier to extract coordinates
-        # This is a simplified implementation
-        try:
-            parts = cell.split('_')
-            if len(parts) >= 3:
-                lat = float(parts[1])
-                lng = float(parts[2])
-                return lat, lng
-        except (ValueError, IndexError):
-            pass
+    @_require_srai("polygon_to_cells")
+    def polygon_to_cells(self, polygon: Dict[str, Any], resolution: int) -> List[str]:
+        """
+        Convert polygon to list of SRAI region cells.
+        
+        Args:
+            polygon: GeoJSON-like polygon dictionary
+            resolution: Resolution level (0-15 for H3)
+            
+        Returns:
+            List of cell identifiers covering the polygon
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.info(f"Converting polygon to cells at resolution {resolution}")
+        
+        if self.default_regionalizer == 'h3':
+            from srai.regionalizers import H3Regionalizer
+            import geopandas as gpd
+            from shapely.geometry import shape
+            
+            # Create geometry from GeoJSON
+            geom = shape(polygon)
+            gdf = gpd.GeoDataFrame(geometry=[geom], crs="EPSG:4326")
+            
+            # Use H3Regionalizer
+            regionalizer = H3Regionalizer(resolution=resolution)
+            regions = regionalizer.transform(gdf)
+            
+            cells = list(regions.index)
+            logger.info(f"Polygon converted to {len(cells)} cells")
+            return cells
+        else:
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for polygon_to_cells")
 
-        return self._mock_cell_to_latlng(cell)
-
-    def polygon_to_cells(self, polygon: Dict[str, Any], resolution: int) -> list[str]:
-        """Convert polygon to list of SRAI region cells."""
-        if not self._available:
-            return self._mock_polygon_to_cells(polygon, resolution)
-
-        try:
-            # Use the default regionalizer
-            if self.default_regionalizer == 'h3':
-                from srai.regionalizers import H3Regionalizer
-                # This is a simplified implementation
-                # In practice, would need to create proper geometry objects
-                coords = polygon.get('coordinates', [])
-                cells = []
-                for ring in coords:
-                    for coord in ring:
-                        if len(coord) >= 2:
-                            lat, lng = coord[1], coord[0]
-                            cell = self.latlng_to_cell(lat, lng, resolution)
-                            if cell not in cells:
-                                cells.append(cell)
-                return cells
-        except Exception as e:
-            logger.warning(f"SRAI polygon_to_cells failed: {e}")
-
-        return self._mock_polygon_to_cells(polygon, resolution)
-
+    @_require_srai("get_cell_neighbors")
     def get_cell_neighbors(self, cell: str, k: int = 1) -> List[str]:
-        """Get neighboring cells around a given cell."""
-        if not self._available:
-            return self._mock_get_cell_neighbors(cell, k)
+        """
+        Get neighboring cells around a given cell.
+        
+        Args:
+            cell: Central cell identifier
+            k: Number of rings of neighbors (default 1)
+            
+        Returns:
+            List of neighboring cell identifiers
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.debug(f"Getting k={k} neighbors for cell {cell}")
+        
+        if self.default_regionalizer == 'h3':
+            import h3
+            neighbors = list(h3.grid_disk(cell, k))
+            # Remove the center cell
+            if cell in neighbors:
+                neighbors.remove(cell)
+            logger.debug(f"Found {len(neighbors)} neighbors")
+            return neighbors
+        else:
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_neighbors")
 
-        # SRAI mock implementation - could be enhanced with SRAI-specific logic
-        return self._mock_get_cell_neighbors(cell, k)
-
+    @_require_srai("get_cell_distance")
     def get_cell_distance(self, cell1: str, cell2: str) -> int:
-        """Calculate the distance between two spatial index cells."""
-        if not self._available:
-            return self._mock_get_cell_distance(cell1, cell2)
+        """
+        Calculate the grid distance between two cells.
+        
+        Args:
+            cell1: First cell identifier
+            cell2: Second cell identifier
+            
+        Returns:
+            Grid distance between cells
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.debug(f"Computing distance between {cell1} and {cell2}")
+        
+        if self.default_regionalizer == 'h3':
+            import h3
+            distance = h3.grid_distance(cell1, cell2)
+            logger.debug(f"Distance: {distance}")
+            return distance
+        else:
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_distance")
 
-        # SRAI mock implementation - could be enhanced with SRAI-specific logic
-        return self._mock_get_cell_distance(cell1, cell2)
-
+    @_require_srai("compact_cells")
     def compact_cells(self, cells: List[str]) -> List[str]:
-        """Compact a list of cells into a more efficient representation."""
-        if not self._available:
-            return cells  # Return as-is for mock
+        """
+        Compact a list of cells into a more efficient representation.
+        
+        Args:
+            cells: List of cell identifiers
+            
+        Returns:
+            Compacted list of cell identifiers at mixed resolutions
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.info(f"Compacting {len(cells)} cells")
+        
+        if self.default_regionalizer == 'h3':
+            import h3
+            compacted = list(h3.compact_cells(cells))
+            logger.info(f"Compacted to {len(compacted)} cells")
+            return compacted
+        else:
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for compact_cells")
 
-        # SRAI mock implementation - could be enhanced with SRAI-specific logic
-        return cells
-
+    @_require_srai("uncompact_cells")
     def uncompact_cells(self, compacted_cells: List[str], resolution: int) -> List[str]:
-        """Uncompact cells back to individual cell identifiers."""
-        if not self._available:
-            return compacted_cells  # Return as-is for mock
+        """
+        Uncompact cells back to individual cell identifiers.
+        
+        Args:
+            compacted_cells: Compacted cell identifiers
+            resolution: Target resolution level
+            
+        Returns:
+            List of individual cell identifiers at target resolution
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.info(f"Uncompacting {len(compacted_cells)} cells to resolution {resolution}")
+        
+        if self.default_regionalizer == 'h3':
+            import h3
+            uncompacted = list(h3.uncompact_cells(compacted_cells, resolution))
+            logger.info(f"Uncompacted to {len(uncompacted)} cells")
+            return uncompacted
+        else:
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for uncompact_cells")
 
-        # SRAI mock implementation - could be enhanced with SRAI-specific logic
-        return compacted_cells
+    @_require_srai("get_cell_parent")
+    def get_cell_parent(self, cell: str, resolution: int) -> str:
+        """
+        Get the parent of a cell at a coarser resolution.
+        
+        Args:
+            cell: Cell identifier
+            resolution: Target resolution
+            
+        Returns:
+            Parent cell identifier
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.debug(f"Getting parent of {cell} at resolution {resolution}")
+        
+        if self.default_regionalizer == 'h3':
+            import h3
+            return h3.cell_to_parent(cell, resolution)
+        else:
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_parent")
 
-    # Mock implementations for when SRAI is not available
-    def _mock_get_cell_neighbors(self, cell: str, k: int = 1) -> List[str]:
-        """Mock neighbor generation when SRAI is not available."""
-        # Simple mock: return cell repeated k times
-        return [cell] * min(k, 6)  # Hexagon has max 6 neighbors
+    @_require_srai("get_cell_children")
+    def get_cell_children(self, cell: str, resolution: int) -> List[str]:
+        """
+        Get children of a cell at a finer resolution.
+        
+        Args:
+            cell: Cell identifier
+            resolution: Target resolution
+            
+        Returns:
+            List of child cell identifiers
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.debug(f"Getting children of {cell} at resolution {resolution}")
+        
+        if self.default_regionalizer == 'h3':
+            import h3
+            return list(h3.cell_to_children(cell, resolution))
+        else:
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_children")
 
-    def _mock_get_cell_distance(self, cell1: str, cell2: str) -> int:
-        """Mock distance calculation when SRAI is not available."""
-        # Simple hash-based distance
-        return abs(hash(cell1) - hash(cell2)) % 10
+    @_require_srai("get_cell_path")
+    def get_cell_path(self, start_cell: str, end_cell: str) -> List[str]:
+        """
+        Get the path of cells between two cells.
+        
+        Args:
+            start_cell: Start cell identifier
+            end_cell: End cell identifier
+            
+        Returns:
+            List of cell identifiers in the path
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.debug(f"Calculating path from {start_cell} to {end_cell}")
+        
+        if self.default_regionalizer == 'h3':
+            import h3
+            # H3 v4 API check
+            return list(h3.grid_path_cells(start_cell, end_cell))
+        else:
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_path")
 
-    # SpatialAnalyticsBackend implementation
-    def analyze_hotspots(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Analyze spatial hotspots using SRAI analytics."""
-        if not self._available:
-            return self._mock_analyze_hotspots(data)
+    @_require_srai("get_cell_ring")
+    def get_cell_ring(self, cell: str, k: int) -> List[str]:
+        """
+        Get the ring of cells at distance k.
+        
+        Args:
+            cell: Center cell identifier
+            k: Distance in grid steps
+            
+        Returns:
+            List of cell identifiers in the ring
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.debug(f"Getting ring k={k} for {cell}")
+        
+        if self.default_regionalizer == 'h3':
+            import h3
+            return list(h3.grid_ring(cell, k))
+        else:
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_ring")
 
-        try:
-            # Use SRAI's analytical capabilities
-            # This is a simplified implementation
-            cells = data.get('cells', [])
-            values = data.get('values', [])
+    @_require_srai("get_cell_resolution")
+    def get_cell_resolution(self, cell: str) -> int:
+        """
+        Get the resolution level of a cell.
+        
+        Args:
+            cell: Cell identifier
+            
+        Returns:
+            Resolution level (0-15 for H3)
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.debug(f"Getting resolution for cell {cell}")
+        
+        if self.default_regionalizer == 'h3':
+            import h3
+            resolution = h3.get_resolution(cell)
+            logger.debug(f"Cell {cell} has resolution {resolution}")
+            return resolution
+        else:
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_resolution")
 
-            if len(cells) != len(values):
-                raise ValueError("Cells and values must have the same length")
+    @_require_srai("get_cell_boundary")
+    def get_cell_boundary(self, cell: str) -> List[Tuple[float, float]]:
+        """
+        Get the boundary coordinates of a cell.
+        
+        Args:
+            cell: Cell identifier
+            
+        Returns:
+            List of (latitude, longitude) tuples forming the cell boundary
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.debug(f"Getting boundary for cell {cell}")
+        
+        if self.default_regionalizer == 'h3':
+            import h3
+            boundary = h3.cell_to_boundary(cell)
+            result = [(lat, lng) for lat, lng in boundary]
+            logger.debug(f"Cell {cell} has {len(result)} boundary vertices")
+            return result
+        else:
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_boundary")
 
-            # Use statistical methods to detect hotspots
-            import numpy as np
-            values_array = np.array(values)
+    @_require_srai("get_cell_area")
+    def get_cell_area(self, cell: str) -> float:
+        """
+        Get the area of a cell in square kilometers.
+        
+        Args:
+            cell: Cell identifier
+            
+        Returns:
+            Area in km²
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.debug(f"Getting area for cell {cell}")
+        
+        if self.default_regionalizer == 'h3':
+            import h3
+            area = h3.cell_area(cell, unit='km^2')
+            logger.debug(f"Cell {cell} has area {area:.6f} km²")
+            return area
+        else:
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_area")
 
-            # Simple hotspot detection using standard deviation
-            mean_val = np.mean(values_array)
-            std_val = np.std(values_array)
-            threshold = mean_val + std_val
-
-            hotspots = []
-            for cell, value in zip(cells, values):
-                if value > threshold:
-                    hotspots.append({
-                        'cell': cell,
-                        'value': value,
-                        'intensity': 'high' if value > mean_val + 2 * std_val else 'medium',
-                        'z_score': (value - mean_val) / std_val if std_val > 0 else 0
-                    })
-
+    @_require_srai("cells_to_multipolygon")
+    def cells_to_multipolygon(self, cells: List[str]) -> Dict[str, Any]:
+        """
+        Convert a list of cells to a GeoJSON MultiPolygon geometry.
+        
+        Args:
+            cells: List of cell identifiers
+            
+        Returns:
+            GeoJSON-like dictionary with 'type' and 'coordinates'
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.info(f"Converting {len(cells)} cells to MultiPolygon")
+        
+        if not cells:
+            return {"type": "MultiPolygon", "coordinates": []}
+        
+        if self.default_regionalizer == 'h3':
+            import h3
+            polygons = []
+            for cell in cells:
+                boundary = h3.cell_to_boundary(cell)
+                # Convert to GeoJSON format [lng, lat] and close the ring
+                ring = [[lng, lat] for lat, lng in boundary]
+                ring.append(ring[0])
+                polygons.append([ring])
+            
+            logger.info(f"Created MultiPolygon with {len(polygons)} polygons")
             return {
-                'hotspots': hotspots,
-                'threshold': threshold,
-                'total_cells': len(cells),
-                'hotspot_count': len(hotspots),
-                'statistics': {
-                    'mean': mean_val,
-                    'std': std_val,
-                    'min': np.min(values_array),
-                    'max': np.max(values_array)
-                }
+                "type": "MultiPolygon",
+                "coordinates": polygons
             }
-        except Exception as e:
-            logger.warning(f"SRAI analyze_hotspots failed: {e}")
-            return self._mock_analyze_hotspots(data)
+        else:
+            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for cells_to_multipolygon")
 
-    def compute_proximity(self, points: list[tuple[float, float]]) -> Dict[str, Any]:
-        """Compute proximity analysis using SRAI."""
-        if not self._available:
-            return self._mock_compute_proximity(points)
+    # ==================== Analytics Methods ====================
 
-        try:
-            # Convert points to regions and compute proximity
-            regions = []
-            for lat, lng in points:
-                region = self.latlng_to_cell(lat, lng, 9)  # Use resolution 9
-                regions.append(region)
+    @_require_srai("analyze_hotspots")
+    def analyze_hotspots(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """
+        Analyze spatial hotspots using SRAI analytics.
+        
+        Args:
+            data: Dictionary with 'cells' (list of cell IDs) and 
+                  'values' (corresponding numeric values)
+                  
+        Returns:
+            Dictionary with hotspot analysis results
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+            ValueError: If data format is invalid
+        """
+        logger.info("Analyzing hotspots with SRAI")
+        
+        cells = data.get('cells', [])
+        values = data.get('values', [])
 
-            # Calculate proximity based on region relationships
-            proximity_pairs = []
-            for i, region1 in enumerate(regions):
-                for j, region2 in enumerate(regions[i+1:], i+1):
-                    # This is a simplified proximity calculation
-                    # In practice, would use proper spatial relationships
-                    distance = abs(hash(region1) - hash(region2)) % 100  # Mock distance
+        if len(cells) != len(values):
+            raise ValueError("Cells and values must have the same length")
 
+        # Use statistical methods to detect hotspots
+        import numpy as np
+        values_array = np.array(values)
+
+        # Hotspot detection using standard deviation
+        mean_val = float(np.mean(values_array))
+        std_val = float(np.std(values_array))
+        threshold = mean_val + std_val
+
+        hotspots = []
+        for cell, value in zip(cells, values):
+            if value > threshold:
+                hotspots.append({
+                    'cell': cell,
+                    'value': float(value),
+                    'intensity': 'high' if value > mean_val + 2 * std_val else 'medium',
+                    'z_score': float((value - mean_val) / std_val) if std_val > 0 else 0.0
+                })
+
+        logger.info(f"Found {len(hotspots)} hotspots (threshold: {threshold:.2f})")
+        
+        return {
+            'hotspots': hotspots,
+            'threshold': threshold,
+            'total_cells': len(cells),
+            'hotspot_count': len(hotspots),
+            'statistics': {
+                'mean': mean_val,
+                'std': std_val,
+                'min': float(np.min(values_array)),
+                'max': float(np.max(values_array))
+            }
+        }
+
+    @_require_srai("compute_proximity")
+    def compute_proximity(self, points: List[tuple[float, float]]) -> Dict[str, Any]:
+        """
+        Compute proximity analysis using SRAI.
+        
+        Args:
+            points: List of (latitude, longitude) coordinate tuples
+            
+        Returns:
+            Dictionary with proximity analysis results
+            
+        Raises:
+            SRAIUnavailableError: If SRAI library is not installed
+        """
+        logger.info(f"Computing proximity for {len(points)} points")
+        
+        # Convert points to regions
+        regions = []
+        for lat, lng in points:
+            region = self.latlng_to_cell(lat, lng, 9)  # Use resolution 9
+            regions.append(region)
+
+        # Calculate distances between cells
+        proximity_pairs = []
+        for i, region1 in enumerate(regions):
+            for j, region2 in enumerate(regions[i+1:], i+1):
+                try:
+                    distance = self.get_cell_distance(region1, region2)
                     proximity_pairs.append({
                         'from_region': region1,
                         'to_region': region2,
@@ -284,90 +636,15 @@ class SraiBackend(SpatialIndexingBackend, SpatialAnalyticsBackend):
                         'from_point': points[i],
                         'to_point': points[j]
                     })
+                except Exception as e:
+                    logger.debug(f"Could not compute distance: {e}")
+                    continue
 
-            return {
-                'proximity_pairs': proximity_pairs,
-                'total_points': len(points),
-                'analyzed_pairs': len(proximity_pairs),
-                'regionalizer': self.default_regionalizer
-            }
-        except Exception as e:
-            logger.warning(f"SRAI compute_proximity failed: {e}")
-            return self._mock_compute_proximity(points)
-
-    # Mock implementations for when SRAI is not available
-    def _mock_latlng_to_cell(self, lat: float, lng: float, resolution: int) -> str:
-        """Mock SRAI cell generation when SRAI is not available."""
-        # SRAI-style mock cell ID
-        hash_input = f"srai_{lat:.6f}_{lng:.6f}_{resolution}"
-        hash_value = hash(hash_input) % (16 ** 8)
-        return f"{hash_value:08x}"
-
-    def _mock_cell_to_latlng(self, cell: str) -> tuple[float, float]:
-        """Mock lat/lng extraction when SRAI is not available."""
-        try:
-            hash_value = int(cell, 16)
-            # Simple reverse mapping
-            lat = (hash_value % 180) - 90
-            lng = (hash_value // 180) % 360 - 180
-            return lat, lng
-        except ValueError:
-            return 0.0, 0.0
-
-    def _mock_polygon_to_cells(self, polygon: Dict[str, Any], resolution: int) -> list[str]:
-        """Mock polygon to cells conversion when SRAI is not available."""
-        coords = polygon.get('coordinates', [])
-        if not coords:
-            return []
-
-        cells = []
-        for ring in coords:
-            for coord in ring:
-                if len(coord) >= 2:
-                    lat, lng = coord[1], coord[0]
-                    cell = self._mock_latlng_to_cell(lat, lng, resolution)
-                    if cell not in cells:
-                        cells.append(cell)
-
-        return cells
-
-    def _mock_analyze_hotspots(self, data: Dict[str, Any]) -> Dict[str, Any]:
-        """Mock hotspot analysis when SRAI is not available."""
-        cells = data.get('cells', [])
-        values = data.get('values', [])
-
-        if len(cells) != len(values):
-            hotspots = []
-        else:
-            threshold = sorted(values)[len(values) // 2] if values else 0
-            hotspots = [
-                {'cell': cell, 'value': value, 'intensity': 'high'}
-                for cell, value in zip(cells, values)
-                if value > threshold
-            ]
-
+        logger.info(f"Analyzed {len(proximity_pairs)} proximity pairs")
+        
         return {
-            'hotspots': hotspots,
-            'threshold': threshold,
-            'total_cells': len(cells),
-            'hotspot_count': len(hotspots)
-        }
-
-    def _mock_compute_proximity(self, points: list[tuple[float, float]]) -> Dict[str, Any]:
-        """Mock proximity analysis when SRAI is not available."""
-        distances = []
-        for i, (lat1, lng1) in enumerate(points):
-            for j, (lat2, lng2) in enumerate(points[i+1:], i+1):
-                # Simple Euclidean distance (not accurate for lat/lng)
-                distance = ((lat1 - lat2) ** 2 + (lng1 - lng2) ** 2) ** 0.5
-                distances.append({
-                    'from_point': (lat1, lng1),
-                    'to_point': (lat2, lng2),
-                    'distance': distance
-                })
-
-        return {
-            'proximity_pairs': distances,
+            'proximity_pairs': proximity_pairs,
             'total_points': len(points),
-            'analyzed_pairs': len(distances)
+            'analyzed_pairs': len(proximity_pairs),
+            'regionalizer': self.default_regionalizer
         }

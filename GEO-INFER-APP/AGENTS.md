@@ -1,3 +1,4 @@
+# GEO-INFER-APP: Application Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-APP: Application Framework Support
 
 ## Overview
+
 
 The GEO-INFER-APP module provides web and mobile application frameworks that enable human-agent interaction, visualization of agent activities, and user-facing interfaces for the GEO-INFER ecosystem.
 
