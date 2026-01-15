@@ -1,3 +1,4 @@
+# GEO-INFER-METAGOV: Metagovernance Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-METAGOV: Meta-Governance Framework Support
 
 ## Overview
+
 
 The GEO-INFER-METAGOV module provides meta-governance capabilities enabling agents to participate in, analyze, and support governance processes across scales.
 

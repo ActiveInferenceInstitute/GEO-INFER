@@ -1,3 +1,4 @@
+# GEO-INFER-FOREST: Forest Intelligence Agents
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-FOREST: Forest Management Intelligence Agents
 
 ## Overview
+
 
 The GEO-INFER-FOREST module provides forest management capabilities enabling agents to monitor forest health, detect deforestation, estimate biomass, and support sustainable forestry.
 

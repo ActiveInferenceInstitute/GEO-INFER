@@ -1,3 +1,4 @@
+# GEO-INFER-SPM: Spatial Project Management
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-SPM: Statistical and Probabilistic Mapping Framework Support
 
 ## Overview
+
 
 The GEO-INFER-SPM module provides statistical and probabilistic mapping capabilities enabling agents to create uncertainty-aware spatial predictions and probability surfaces.
 

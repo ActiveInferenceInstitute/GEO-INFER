@@ -1,3 +1,4 @@
+# GEO-INFER-PEP: Policy and Enforcement Protocols
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-PEP: People and Demographics Framework Support
 
 ## Overview
+
 
 The GEO-INFER-PEP module provides population and demographic analysis capabilities enabling agents to understand human population patterns, mobility, and social dynamics.
 

@@ -1,3 +1,4 @@
+# GEO-INFER-ENERGY: Energy Intelligence Agents
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-ENERGY: Energy Systems Intelligence Agents
 
 ## Overview
+
 
 The GEO-INFER-ENERGY module provides energy systems analysis capabilities enabling agents to optimize renewable resources, manage grid operations, and support energy transition planning.
 

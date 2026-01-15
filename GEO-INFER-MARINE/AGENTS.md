@@ -1,3 +1,4 @@
+# GEO-INFER-MARINE: Marine Intelligence Agents
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-MARINE: Marine and Coastal Intelligence Agents
 
 ## Overview
+
 
 The GEO-INFER-MARINE module provides marine and coastal management capabilities enabling agents to monitor ocean conditions, track marine ecosystems, and support coastal zone management.
 

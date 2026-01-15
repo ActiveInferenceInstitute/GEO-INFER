@@ -1,3 +1,4 @@
+# GEO-INFER-SPACE: Spatial Intelligence Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-SPACE: Spatial Intelligence Framework Support
 
 ## Overview
+
 
 The GEO-INFER-SPACE module provides foundational spatial capabilities that power the intelligent agent ecosystem. It enables agents to perceive, reason about, and act within geospatial environments using H3 v4 indexing, spatial analysis, and coordinate transformations.
 

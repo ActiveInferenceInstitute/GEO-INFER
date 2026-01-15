@@ -1,3 +1,4 @@
+# GEO-INFER-CLIMATE: Climate Intelligence Agents
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-CLIMATE: Climate Intelligence Framework Support
 
 ## Overview
+
 
 The GEO-INFER-CLIMATE module provides climate analysis and adaptation capabilities that enable intelligent agents to understand climate patterns, assess climate risks, and support climate-resilient decision-making.
 

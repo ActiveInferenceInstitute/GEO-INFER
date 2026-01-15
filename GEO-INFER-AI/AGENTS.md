@@ -1,3 +1,4 @@
+# GEO-INFER-AI: Artificial Intelligence Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-AI: AI/ML Framework Support for Agents
 
 ## Overview
+
 
 The GEO-INFER-AI module provides machine learning and artificial intelligence capabilities that power intelligent agents within the GEO-INFER framework. While AI primarily serves as a foundational toolkit, it enables sophisticated perception, learning, and decision-making for agents across all domain modules.
 

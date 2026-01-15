@@ -1,3 +1,4 @@
+# GEO-INFER-ART: Artifact Management Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-ART: Creative and Artistic Agent Applications
 
 ## Overview
+
 
 The GEO-INFER-ART module provides creative and artistic applications for geospatial intelligence, including generative art, data visualization as artistic expression, and creative exploration of spatial patterns. This module enables agents to produce aesthetically meaningful outputs.
 

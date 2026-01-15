@@ -1,3 +1,4 @@
+# GEO-INFER-ECON: Economic Intelligence Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-ECON: Economic Analysis Framework Support
 
 ## Overview
+
 
 The GEO-INFER-ECON module provides economic analysis capabilities that enable intelligent agents to understand, model, and optimize economic aspects of geospatial systems including resource allocation, market dynamics, and cost-benefit analysis.
 

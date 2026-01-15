@@ -29,10 +29,26 @@ except ImportError:
     H3_AVAILABLE = False
     logger.warning("h3-py package not available. Install with 'uv pip install h3'")
 
-# Import H3 components from the main h3 module
+# Import H3 components from the backends module (unified architecture)
 try:
-    from ...h3.core import H3Grid, H3Cell
-    from ...h3.operations import grid_disk, grid_distance, neighbor_cells
+    from ...backends.h3.core import H3Grid, H3Cell
+    from ...core import SpatialIndexingInterface
+    
+    # Create module-level interface for convenience
+    _spatial = SpatialIndexingInterface()
+    
+    def grid_disk(cell_index: str, k: int = 1):
+        """Get cells within k rings using unified interface."""
+        return _spatial.get_cell_neighbors(cell_index, k)
+    
+    def grid_distance(cell1: str, cell2: str):
+        """Get grid distance using unified interface."""
+        return _spatial.get_cell_distance(cell1, cell2)
+    
+    def neighbor_cells(cell_index: str):
+        """Get immediate neighbors using unified interface."""
+        return _spatial.get_cell_neighbors(cell_index, 1)
+    
     H3_CORE_AVAILABLE = True
 except ImportError:
     H3_CORE_AVAILABLE = False
@@ -128,7 +144,7 @@ class NestedCell:
         """Get area of the cell in square kilometers."""
         if self.h3_cell and hasattr(self.h3_cell, 'area_km2'):
             return self.h3_cell.area_km2
-        return 1.0  # Default area for mock cells
+        return 1.0  # Default area when H3Cell area not available
     
     @property
     def latitude(self) -> float:

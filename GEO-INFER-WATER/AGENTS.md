@@ -1,3 +1,4 @@
+# GEO-INFER-WATER: Water Resource Intelligence
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,7 +8,7 @@
 </div>
 
 ---
-# GEO-INFER-WATER: Water Resource Intelligence Agents
+
 
 ## Overview
 

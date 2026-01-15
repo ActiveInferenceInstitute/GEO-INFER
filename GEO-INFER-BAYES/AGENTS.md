@@ -1,3 +1,4 @@
+# GEO-INFER-BAYES: Bayesian Inference Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,7 +8,7 @@
 </div>
 
 ---
-# GEO-INFER-BAYES: Bayesian Inference Framework Support
+
 
 ## Overview
 

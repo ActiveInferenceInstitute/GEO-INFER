@@ -1,3 +1,4 @@
+# GEO-INFER-BIO: Biodiversity Intelligence Agents
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-BIO: Bioinformatics Framework Support
 
 ## Overview
+
 
 The GEO-INFER-BIO module provides biodiversity and ecological analysis capabilities enabling intelligent agents to monitor species distributions, analyze ecosystem health, and support conservation planning.
 

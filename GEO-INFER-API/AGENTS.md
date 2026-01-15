@@ -1,3 +1,4 @@
+# GEO-INFER-API: API Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-API: Agent Framework Support
 
 ## Overview
+
 
 The GEO-INFER-API module provides foundational RESTful and GraphQL API capabilities that enable agent communication, coordination, and external service integration. This module serves as the communication backbone for the multi-agent ecosystem.
 

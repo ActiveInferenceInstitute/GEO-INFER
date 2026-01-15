@@ -1,3 +1,4 @@
+# GEO-INFER-GIT: Version Control Framework
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
@@ -7,9 +8,9 @@
 </div>
 
 ---
-# GEO-INFER-GIT: Version Control Framework Support
 
 ## Overview
+
 
 The GEO-INFER-GIT module provides version control and collaboration capabilities enabling agents to track changes, manage versions, and coordinate development workflows.
 
