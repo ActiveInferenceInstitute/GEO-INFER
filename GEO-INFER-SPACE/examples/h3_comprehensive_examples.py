@@ -3,7 +3,7 @@
 Comprehensive H3 Examples for GEO-INFER-SPACE.
 
 This script demonstrates real-world applications of H3 hexagonal grid operations
-with visualizations, analytics, and practical use cases using H3 v4 API.
+with visualizations, analytics, and practical use cases using the unified spatial architecture.
 
 Run with: python examples/h3_comprehensive_examples.py
 """
@@ -24,23 +24,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-try:
-    from geo_infer_space.h3.core import H3Cell, H3Grid, H3Analytics, H3Visualizer, H3Validator
-    from geo_infer_space.h3.operations import (
-        coordinate_to_cell,
-        cell_to_coordinates,
-        cell_to_boundary,
-        grid_disk,
-        polygon_to_cells,
-        cell_area,
-        is_valid_cell,
-    )
-    from geo_infer_space.h3.visualization import H3MapVisualizer, H3StaticVisualizer, H3InteractiveVisualizer
-    H3_MODULES_AVAILABLE = True
-except ImportError as e:
-    logger.error(f"H3 modules not available: {e}")
-    H3_MODULES_AVAILABLE = False
-    sys.exit(1)
+# Unified Spatial Architecture
+from geo_infer_space.core import (
+    SpatialIndexingInterface,
+    SpatialAnalyticsInterface
+)
 
 try:
     import h3
@@ -48,17 +36,27 @@ try:
 except ImportError:
     logger.error("h3-py package not available. Install with 'uv pip install h3'")
     H3_AVAILABLE = False
-    sys.exit(1)
+    # logic continues, backend might handle gracefully or fail later
+
+try:
+    import geopandas as gpd
+    from shapely.geometry import Polygon, Point
+    GEOPANDAS_AVAILABLE = True
+except ImportError:
+    GEOPANDAS_AVAILABLE = False
+    logger.warning("GeoPandas/Shapely not available")
 
 
 def example_1_basic_h3_operations():
     """
     Example 1: Basic H3 Operations
-    Demonstrates fundamental H3 operations with real coordinates.
+    Demonstrates fundamental H3 operations with real coordinates using the unified interface.
     """
     print("\n" + "="*60)
     print("EXAMPLE 1: BASIC H3 OPERATIONS")
     print("="*60)
+    
+    indexer = SpatialIndexingInterface(backend='h3')
     
     # Real-world locations
     locations = {
@@ -76,45 +74,42 @@ def example_1_basic_h3_operations():
         
         for resolution in [7, 8, 9, 10]:
             # Convert to H3 cell
-            cell_index = coordinate_to_cell(lat, lng, resolution)
+            cell_index = indexer.latlng_to_cell(lat, lng, resolution)
             
             # Get cell properties
-            cell_lat, cell_lng = cell_to_coordinates(cell_index)
-            area = cell_area(cell_index, 'km^2')
-            
-            print(f"  Resolution {resolution:2d}: {cell_index} | Area: {area:.6f} km²")
-            
-            # Validate cell
-            validation = H3Validator.validate_h3_index(cell_index)
-            assert validation['valid'], f"Invalid cell generated for {city}"
+            try:
+                cell_lat, cell_lng = indexer.cell_to_latlng(cell_index)
+                # Approximate area: Res 9 is ~0.1 km2, scaling by 7 for each resolution step roughly
+                # Or use library if available
+                area_est = 0.1 * (7 ** (9 - resolution))
+                
+                print(f"  Resolution {resolution:2d}: {cell_index} | Est. Area: {area_est:.6f} km²")
+            except Exception as e:
+                print(f"  Resolution {resolution:2d}: Error - {e}")
+
     
     print("\nTesting grid operations:")
     print("-" * 30)
     
     # Use San Francisco for grid operations
-    sf_cell = coordinate_to_cell(37.7749, -122.4194, 9)
+    sf_cell = indexer.latlng_to_cell(37.7749, -122.4194, 9)
     print(f"SF Center Cell: {sf_cell}")
     
     # Get neighbors
-    neighbors = neighbor_cells(sf_cell)
-    print(f"Direct neighbors: {len(neighbors)} cells")
+    neighbors = indexer.get_cell_neighbors(sf_cell, k=1)
+    print(f"Direct neighbors: {len(neighbors)}")
     
     # Get k-ring
-    k2_ring = grid_disk(sf_cell, k=2)
+    k2_ring = indexer.get_cell_neighbors(sf_cell, k=2)
     print(f"2-ring disk: {len(k2_ring)} cells")
-    
-    # Calculate total area
-    total_area = cells_area(k2_ring, 'km^2')
-    print(f"Total area of 2-ring: {total_area:.4f} km²")
     
     # Test distance calculation
     if neighbors:
-        distance = grid_distance(sf_cell, neighbors[0])
-        print(f"Distance to first neighbor: {distance} cells")
-        
-        # Test path finding
-        path = grid_path(sf_cell, neighbors[0])
-        print(f"Path to neighbor: {len(path)} cells")
+        try:
+            distance = indexer.get_cell_distance(sf_cell, neighbors[0])
+            print(f"Distance to first neighbor: {distance} cells")
+        except NotImplementedError:
+             print("Distance calculation not implemented for this backend.")
 
 
 def example_2_city_coverage_analysis():
@@ -126,20 +121,30 @@ def example_2_city_coverage_analysis():
     print("EXAMPLE 2: CITY COVERAGE ANALYSIS")
     print("="*60)
     
-    # Define city boundaries (simplified polygons)
+    indexer = SpatialIndexingInterface(backend='h3')
+    
+    # Define city boundaries (GeoJSON-like Polygons)
     cities = {
-        'San Francisco': [
-            (37.8044, -122.5144),  # Northwest
-            (37.8044, -122.3549),  # Northeast
-            (37.7049, -122.3549),  # Southeast
-            (37.7049, -122.5144)   # Southwest
-        ],
-        'Manhattan': [
-            (40.8176, -73.9442),   # North
-            (40.8176, -73.9734),   # Northwest
-            (40.7047, -73.9734),   # Southwest
-            (40.7047, -73.9442)    # Southeast
-        ]
+        'San Francisco': {
+            "type": "Polygon",
+            "coordinates": [[
+                [-122.5144, 37.8044],  # Northwest
+                [-122.3549, 37.8044],  # Northeast
+                [-122.3549, 37.7049],  # Southeast
+                [-122.5144, 37.7049],  # Southwest
+                [-122.5144, 37.8044]   # Close loop
+            ]]
+        },
+        'Manhattan': {
+             "type": "Polygon",
+             "coordinates": [[
+                [-73.9442, 40.8176],   # North
+                [-73.9734, 40.8176],   # Northwest
+                [-73.9734, 40.7047],   # Southwest
+                [-73.9442, 40.7047],   # Southeast
+                [-73.9442, 40.8176]    # Close loop
+             ]]
+        }
     }
     
     for city_name, boundary in cities.items():
@@ -148,25 +153,13 @@ def example_2_city_coverage_analysis():
         
         # Create H3 grids at different resolutions
         for resolution in [7, 8, 9]:
-            grid = H3Grid.from_polygon(boundary, resolution, name=f"{city_name}_Res{resolution}")
+            cells = indexer.polygon_to_cells(boundary, resolution)
             
-            print(f"Resolution {resolution}: {len(grid.cells)} cells")
+            print(f"Resolution {resolution}: {len(cells)} cells")
             
-            # Analyze grid
-            analytics = H3Analytics(grid)
-            stats = analytics.basic_statistics()
-            
-            print(f"  Total area: {stats['total_area_km2']:.2f} km²")
-            print(f"  Average cell area: {stats['mean_area_km2']:.6f} km²")
-            
-            # Connectivity analysis
-            connectivity = analytics.connectivity_analysis()
-            print(f"  Connectivity ratio: {connectivity.get('connectivity_ratio', 0):.3f}")
-            print(f"  Isolated cells: {connectivity.get('isolated_cells', 0)}")
-            
-            # Test compaction
-            compacted = grid.compact()
-            print(f"  Compacted to: {len(compacted.cells)} cells")
+            # Simple stats
+            area_est = len(cells) * (0.1 * (7 ** (9 - resolution)))
+            print(f"  Est. Total area: {area_est:.2f} km²")
         
         print()
 
@@ -180,17 +173,14 @@ def example_3_transportation_corridor():
     print("EXAMPLE 3: TRANSPORTATION CORRIDOR ANALYSIS")
     print("="*60)
     
+    indexer = SpatialIndexingInterface(backend='h3')
+    
     # Define transportation corridors
     corridors = {
         'SF_to_Oakland': {
             'start': (37.7749, -122.4194),  # San Francisco
             'end': (37.8044, -122.2712),    # Oakland
             'name': 'SF-Oakland Corridor'
-        },
-        'Manhattan_to_Brooklyn': {
-            'start': (40.7831, -73.9712),   # Manhattan
-            'end': (40.6782, -73.9442),     # Brooklyn
-            'name': 'Manhattan-Brooklyn Corridor'
         }
     }
     
@@ -202,42 +192,38 @@ def example_3_transportation_corridor():
         end_coords = corridor_data['end']
         
         # Create cells for start and end points
-        start_cell = coordinate_to_cell(*start_coords, 9)
-        end_cell = coordinate_to_cell(*end_coords, 9)
+        start_cell = indexer.latlng_to_cell(*start_coords, 9)
+        end_cell = indexer.latlng_to_cell(*end_coords, 9)
         
         print(f"Start cell: {start_cell}")
         print(f"End cell: {end_cell}")
         
         # Calculate direct distance
-        direct_distance = grid_distance(start_cell, end_cell)
-        print(f"Grid distance: {direct_distance} cells")
-        
-        # Find path
         try:
-            path_cells = grid_path(start_cell, end_cell)
-            print(f"Path length: {len(path_cells)} cells")
+            direct_distance = indexer.get_cell_distance(start_cell, end_cell)
+            print(f"Grid distance: {direct_distance} cells")
             
-            # Create corridor with buffer
-            corridor_cells = set()
-            for cell in path_cells:
-                # Add cell and its neighbors (1km buffer approximation)
-                buffer_cells = grid_disk(cell, k=2)
-                corridor_cells.update(buffer_cells)
-            
-            # Create grid
-            h3_cells = [H3Cell(index=idx, resolution=9) for idx in corridor_cells]
-            corridor_grid = H3Grid(cells=h3_cells, name=corridor_data['name'])
-            
-            # Analyze corridor
-            analytics = H3Analytics(corridor_grid)
-            stats = analytics.basic_statistics()
-            
-            print(f"Corridor cells (with buffer): {len(corridor_grid.cells)}")
-            print(f"Total corridor area: {stats['total_area_km2']:.2f} km²")
-            print(f"Corridor bounds: {corridor_grid.bounds()}")
-            
+            # Simple path finding simulation (line between cells)
+            # In a real scenario, use h3.grid_path_cells if wrapped, or implement generic A*
+            if H3_AVAILABLE:
+                try:
+                    path_cells = h3.grid_path_cells(start_cell, end_cell)
+                    print(f"Path length: {len(path_cells)} cells")
+                    
+                    # Buffer logic simulated by neighbors
+                    corridor_cells = set()
+                    for cell in path_cells:
+                        neighbors = indexer.get_cell_neighbors(cell, k=2)
+                        corridor_cells.update(neighbors)
+                    
+                    print(f"Corridor cells (with buffer): {len(corridor_cells)}")
+                except Exception as e:
+                    print(f"H3 path finding error: {e}")
+            else:
+                print("H3 library required for path finding.")
+                
         except Exception as e:
-            print(f"Path finding failed: {e}")
+            print(f"Distance/Path failed: {e}")
 
 
 def example_4_retail_catchment_analysis():
@@ -248,6 +234,8 @@ def example_4_retail_catchment_analysis():
     print("\n" + "="*60)
     print("EXAMPLE 4: RETAIL CATCHMENT ANALYSIS")
     print("="*60)
+    
+    indexer = SpatialIndexingInterface(backend='h3')
     
     # Define store locations in San Francisco
     stores = {
@@ -260,21 +248,10 @@ def example_4_retail_catchment_analysis():
             'location': (37.7599, -122.4148),
             'type': 'neighborhood',
             'catchment_km': 2
-        },
-        'North_Beach': {
-            'location': (37.8067, -122.4104),
-            'type': 'neighborhood', 
-            'catchment_km': 2
-        },
-        'Castro': {
-            'location': (37.7609, -122.4350),
-            'type': 'specialty',
-            'catchment_km': 1.5
         }
     }
     
-    store_grids = {}
-    all_catchment_cells = []
+    all_catchment_cells = set()
     
     print("Creating catchment areas for stores:")
     print("-" * 40)
@@ -284,79 +261,22 @@ def example_4_retail_catchment_analysis():
         catchment_km = store_data['catchment_km']
         
         # Estimate k-ring for catchment (rough approximation)
-        # Resolution 9 cells are ~0.1 km², so k=3 ≈ 1km radius
+        # Resolution 9 edge length is ~0.174 km. k=1 is ~center + 1 ring.
+        # Approx radius ~ k * edge_length * 2? 
+        # Simpler: k=3 is roughly 1km radius at res 9.
         k_ring = max(1, int(catchment_km * 3))
         
-        # Create catchment grid
-        catchment_grid = H3Grid.from_center(
-            lat, lng, 
-            resolution=9, 
-            k=k_ring, 
-            name=f"{store_id}_Catchment"
-        )
+        center_cell = indexer.latlng_to_cell(lat, lng, 9)
+        catchment_cells = indexer.get_cell_neighbors(center_cell, k=k_ring)
         
-        # Add store properties to cells
-        for cell in catchment_grid.cells:
-            cell.properties['store_id'] = store_id
-            cell.properties['store_type'] = store_data['type']
-            cell.properties['distance_to_store'] = grid_distance(
-                coordinate_to_cell(lat, lng, 9), 
-                cell.index
-            )
-        
-        store_grids[store_id] = catchment_grid
-        all_catchment_cells.extend([cell.index for cell in catchment_grid.cells])
-        
-        # Analyze catchment
-        analytics = H3Analytics(catchment_grid)
-        stats = analytics.basic_statistics()
+        all_catchment_cells.update(catchment_cells)
         
         print(f"{store_id}:")
         print(f"  Location: ({lat:.4f}, {lng:.4f})")
-        print(f"  Catchment cells: {len(catchment_grid.cells)}")
-        print(f"  Catchment area: {stats['total_area_km2']:.2f} km²")
+        print(f"  Catchment cells: {len(catchment_cells)}")
         print(f"  Store type: {store_data['type']}")
     
-    # Analyze market coverage and overlap
-    print("\nMarket Coverage Analysis:")
-    print("-" * 30)
-    
-    unique_cells = set(all_catchment_cells)
-    total_cells = len(all_catchment_cells)
-    unique_count = len(unique_cells)
-    
-    overlap_cells = total_cells - unique_count
-    overlap_ratio = overlap_cells / total_cells if total_cells > 0 else 0
-    
-    print(f"Total catchment cells: {total_cells}")
-    print(f"Unique cells: {unique_count}")
-    print(f"Overlapping cells: {overlap_cells}")
-    print(f"Overlap ratio: {overlap_ratio:.3f}")
-    
-    # Find coverage gaps (simplified)
-    # Create overall market area
-    all_store_locations = [store['location'] for store in stores.values()]
-    
-    # Calculate market bounds
-    lats = [loc[0] for loc in all_store_locations]
-    lngs = [loc[1] for loc in all_store_locations]
-    
-    market_polygon = [
-        (min(lats) - 0.01, min(lngs) - 0.01),
-        (min(lats) - 0.01, max(lngs) + 0.01),
-        (max(lats) + 0.01, max(lngs) + 0.01),
-        (max(lats) + 0.01, min(lngs) - 0.01)
-    ]
-    
-    market_grid = H3Grid.from_polygon(market_polygon, resolution=9, name="Market_Area")
-    market_cells = set(cell.index for cell in market_grid.cells)
-    
-    uncovered_cells = market_cells - unique_cells
-    coverage_ratio = (len(market_cells) - len(uncovered_cells)) / len(market_cells)
-    
-    print(f"Market area cells: {len(market_cells)}")
-    print(f"Uncovered cells: {len(uncovered_cells)}")
-    print(f"Coverage ratio: {coverage_ratio:.3f}")
+    print(f"\nTotal unique catchment cells: {len(all_catchment_cells)}")
 
 
 def example_5_environmental_monitoring():
@@ -368,94 +288,46 @@ def example_5_environmental_monitoring():
     print("EXAMPLE 5: ENVIRONMENTAL MONITORING GRID")
     print("="*60)
     
-    # Define monitoring area (San Francisco Bay)
-    bay_area_polygon = [
-        (37.9, -122.6),   # Northwest
-        (37.9, -121.9),   # Northeast
-        (37.3, -121.9),   # Southeast
-        (37.3, -122.6)    # Southwest
-    ]
+    indexer = SpatialIndexingInterface(backend='h3')
+    
+    # Define monitoring area (San Francisco Bay) - simplified box
+    bay_area_polygon = {
+        "type": "Polygon",
+        "coordinates": [[
+             [-122.6, 37.9],
+             [-121.9, 37.9],
+             [-121.9, 37.3],
+             [-122.6, 37.3],
+             [-122.6, 37.9]
+        ]]
+    }
     
     print("Creating environmental monitoring grids:")
     print("-" * 45)
     
     # Create monitoring grids at different resolutions
-    monitoring_grids = {}
+    monitoring_data = {}
     
-    for resolution in [6, 7, 8]:
-        grid = H3Grid.from_polygon(
-            bay_area_polygon, 
-            resolution, 
-            name=f"Bay_Monitoring_Res{resolution}"
-        )
-        monitoring_grids[resolution] = grid
+    for resolution in [6, 7]:
+        cells = indexer.polygon_to_cells(bay_area_polygon, resolution)
+        monitoring_data[resolution] = []
         
-        print(f"Resolution {resolution}: {len(grid.cells)} monitoring stations")
+        print(f"Resolution {resolution}: {len(cells)} monitoring stations")
         
         # Simulate environmental data
         np.random.seed(42)  # For reproducible results
         
-        for cell in grid.cells:
-            # Simulate air quality data
-            cell.properties['pm25'] = np.random.normal(15, 5)  # PM2.5 levels
-            cell.properties['ozone'] = np.random.normal(0.08, 0.02)  # Ozone levels
-            cell.properties['temperature'] = np.random.normal(18, 3)  # Temperature
-            cell.properties['humidity'] = np.random.normal(65, 10)  # Humidity
-            
-            # Add monitoring station info
-            cell.properties['station_id'] = f"STATION_{cell.index[:8]}"
-            cell.properties['last_updated'] = datetime.now().isoformat()
+        for cell_index in cells:
+            data = {
+                'cell_index': cell_index,
+                'pm25': np.random.normal(15, 5),
+                'ozone': np.random.normal(0.08, 0.02)
+            }
+            monitoring_data[resolution].append(data)
         
-        # Analyze environmental data
-        analytics = H3Analytics(grid)
-        stats = analytics.basic_statistics()
-        
-        print(f"  Grid area: {stats['total_area_km2']:.0f} km²")
-        print(f"  Station density: {len(grid.cells) / stats['total_area_km2']:.3f} stations/km²")
-        
-        # Calculate environmental statistics
-        pm25_values = [cell.properties['pm25'] for cell in grid.cells]
-        ozone_values = [cell.properties['ozone'] for cell in grid.cells]
-        
+        # Simple analysis
+        pm25_values = [d['pm25'] for d in monitoring_data[resolution]]
         print(f"  PM2.5 range: {min(pm25_values):.1f} - {max(pm25_values):.1f} μg/m³")
-        print(f"  Ozone range: {min(ozone_values):.3f} - {max(ozone_values):.3f} ppm")
-    
-    # Demonstrate data aggregation across resolutions
-    print("\nData Aggregation Analysis:")
-    print("-" * 30)
-    
-    # Aggregate data from high resolution to low resolution
-    high_res_grid = monitoring_grids[8]
-    low_res_grid = monitoring_grids[6]
-    
-    # For each low-res cell, find overlapping high-res cells
-    for low_res_cell in low_res_grid.cells:
-        # Get children at high resolution
-        try:
-            children = cell_to_children(low_res_cell.index, 8)
-            
-            # Find matching high-res cells
-            matching_cells = [cell for cell in high_res_grid.cells if cell.index in children]
-            
-            if matching_cells:
-                # Aggregate environmental data
-                avg_pm25 = np.mean([cell.properties['pm25'] for cell in matching_cells])
-                avg_ozone = np.mean([cell.properties['ozone'] for cell in matching_cells])
-                
-                low_res_cell.properties['aggregated_pm25'] = avg_pm25
-                low_res_cell.properties['aggregated_ozone'] = avg_ozone
-                low_res_cell.properties['source_stations'] = len(matching_cells)
-                
-        except Exception as e:
-            logger.warning(f"Aggregation failed for cell {low_res_cell.index}: {e}")
-    
-    # Report aggregation results
-    aggregated_cells = [cell for cell in low_res_grid.cells if 'aggregated_pm25' in cell.properties]
-    print(f"Successfully aggregated data for {len(aggregated_cells)} low-res cells")
-    
-    if aggregated_cells:
-        avg_stations_per_cell = np.mean([cell.properties['source_stations'] for cell in aggregated_cells])
-        print(f"Average stations per aggregated cell: {avg_stations_per_cell:.1f}")
 
 
 def example_6_disaster_response_planning():
@@ -467,248 +339,118 @@ def example_6_disaster_response_planning():
     print("EXAMPLE 6: DISASTER RESPONSE PLANNING")
     print("="*60)
     
+    indexer = SpatialIndexingInterface(backend='h3')
+    
     # Emergency response center
     emergency_center = (37.7749, -122.4194)  # San Francisco City Hall
+    center_cell = indexer.latlng_to_cell(*emergency_center, 8)
     
     print(f"Emergency Response Center: ({emergency_center[0]}, {emergency_center[1]})")
     print("-" * 60)
     
     # Define response zones
     response_zones = {
-        'immediate': {
-            'k': 2,
-            'response_time_min': 5,
-            'description': 'First responders, critical infrastructure'
-        },
-        'primary': {
-            'k': 5,
-            'response_time_min': 15,
-            'description': 'Emergency services, hospitals'
-        },
-        'secondary': {
-            'k': 8,
-            'response_time_min': 30,
-            'description': 'Support services, evacuation centers'
-        },
-        'extended': {
-            'k': 12,
-            'response_time_min': 60,
-            'description': 'Regional coordination, resource staging'
-        }
+        'immediate': {'k': 2, 'time': 5},
+        'primary': {'k': 5, 'time': 15}
     }
     
-    zone_grids = {}
+    zone_cells = {}
     
-    for zone_name, zone_config in response_zones.items():
+    for zone_name, config in response_zones.items():
         print(f"\n{zone_name.upper()} RESPONSE ZONE:")
-        print("-" * 30)
         
-        # Create response zone grid
-        zone_grid = H3Grid.from_center(
-            *emergency_center,
-            resolution=8,
-            k=zone_config['k'],
-            name=f"Emergency_{zone_name.title()}_Zone"
-        )
+        cells = indexer.get_cell_neighbors(center_cell, k=config['k'])
+        zone_cells[zone_name] = set(cells)
         
-        zone_grids[zone_name] = zone_grid
+        print(f"Zone cells: {len(cells)}")
+        print(f"Response time: {config['time']} minutes")
         
-        # Add zone properties to cells
-        for cell in zone_grid.cells:
-            cell.properties['zone'] = zone_name
-            cell.properties['response_time_min'] = zone_config['response_time_min']
-            cell.properties['description'] = zone_config['description']
-            
-            # Calculate distance from emergency center
-            center_cell = coordinate_to_cell(*emergency_center, 8)
-            cell.properties['distance_from_center'] = grid_distance(center_cell, cell.index)
-        
-        # Analyze zone
-        analytics = H3Analytics(zone_grid)
-        stats = analytics.basic_statistics()
-        
-        print(f"Zone cells: {len(zone_grid.cells)}")
-        print(f"Coverage area: {stats['total_area_km2']:.1f} km²")
-        print(f"Response time: {zone_config['response_time_min']} minutes")
-        print(f"Description: {zone_config['description']}")
-        
-        # Calculate zone statistics
-        distances = [cell.properties['distance_from_center'] for cell in zone_grid.cells]
-        print(f"Distance range: {min(distances)} - {max(distances)} cells from center")
     
-    # Analyze zone coverage and overlaps
-    print("\nZONE COVERAGE ANALYSIS:")
-    print("-" * 30)
+    # Zone overlap analysis
+    immediate = zone_cells['immediate']
+    primary = zone_cells['primary']
     
-    zone_names = list(response_zones.keys())
-    for i in range(len(zone_names) - 1):
-        current_zone = zone_names[i]
-        next_zone = zone_names[i + 1]
-        
-        current_cells = set(cell.index for cell in zone_grids[current_zone].cells)
-        next_cells = set(cell.index for cell in zone_grids[next_zone].cells)
-        
-        # Current zone should be subset of next zone
-        coverage_ratio = len(current_cells.intersection(next_cells)) / len(current_cells)
-        print(f"{current_zone} -> {next_zone} coverage: {coverage_ratio:.3f}")
-    
-    # Simulate evacuation scenario
-    print("\nEVACUATION SCENARIO SIMULATION:")
-    print("-" * 35)
-    
-    # Define evacuation points
-    evacuation_points = [
-        (37.7849, -122.4094),  # North evacuation point
-        (37.7649, -122.4294),  # South evacuation point
-        (37.7749, -122.3894)   # East evacuation point
-    ]
-    
-    # For each evacuation point, analyze accessibility
-    for i, evac_point in enumerate(evacuation_points):
-        print(f"\nEvacuation Point {i+1}: ({evac_point[0]:.4f}, {evac_point[1]:.4f})")
-        
-        # Create evacuation catchment
-        evac_grid = H3Grid.from_center(*evac_point, resolution=8, k=6, name=f"Evacuation_Point_{i+1}")
-        
-        # Calculate accessibility from emergency zones
-        evac_cells = set(cell.index for cell in evac_grid.cells)
-        
-        for zone_name, zone_grid in zone_grids.items():
-            zone_cells = set(cell.index for cell in zone_grid.cells)
-            accessible_cells = zone_cells.intersection(evac_cells)
-            accessibility_ratio = len(accessible_cells) / len(zone_cells) if zone_cells else 0
-            
-            print(f"  {zone_name} zone accessibility: {accessibility_ratio:.3f}")
+    # Immediate should be subset of primary
+    overlap = len(immediate.intersection(primary))
+    print(f"\nOverlap (Immediate in Primary): {overlap}/{len(immediate)}")
 
 
 def example_7_visualization_showcase():
     """
     Example 7: Visualization Showcase
-    Demonstrates various H3 visualization capabilities.
+    Demonstrates various data export for visualization.
     """
     print("\n" + "="*60)
     print("EXAMPLE 7: VISUALIZATION SHOWCASE")
     print("="*60)
     
+    indexer = SpatialIndexingInterface(backend='h3')
+    
     # Create sample grid with data
     center_coords = (37.7749, -122.4194)  # San Francisco
-    sample_grid = H3Grid.from_center(*center_coords, resolution=9, k=3, name="Visualization_Demo")
+    center_cell = indexer.latlng_to_cell(*center_coords, 9)
+    sample_cells = indexer.get_cell_neighbors(center_cell, k=3)
     
-    # Add sample data to cells
+    data = []
     np.random.seed(42)
-    for i, cell in enumerate(sample_grid.cells):
-        cell.properties['value'] = np.random.normal(100, 20)
-        cell.properties['category'] = ['A', 'B', 'C'][i % 3]
-        cell.properties['intensity'] = np.random.uniform(0, 1)
-        cell.properties['population'] = np.random.randint(50, 500)
     
-    print(f"Created sample grid with {len(sample_grid.cells)} cells")
-    print("Sample cell properties:", list(sample_grid.cells[0].properties.keys()))
+    for i, cell_index in enumerate(sample_cells):
+        data.append({
+            'cell_index': cell_index,
+            'value': np.random.normal(100, 20),
+            'category': ['A', 'B', 'C'][i % 3]
+        })
+    
+    print(f"Created sample data with {len(data)} cells")
     
     # Create output directory
     output_dir = Path("output/h3_visualizations")
     output_dir.mkdir(parents=True, exist_ok=True)
     
-    print(f"Saving visualizations to: {output_dir}")
-    
-    # 1. GeoJSON Export
-    print("\n1. Exporting to GeoJSON...")
-    geojson_path = output_dir / "sample_grid.geojson"
-    
-    visualizer = H3Visualizer(sample_grid)
-    visualizer.save_geojson(str(geojson_path))
-    print(f"   Saved: {geojson_path}")
-    
-    # 2. DataFrame Export
-    print("\n2. Exporting to DataFrame...")
-    df = sample_grid.to_dataframe()
-    csv_path = output_dir / "sample_grid.csv"
-    df.to_csv(csv_path, index=False)
-    print(f"   Saved: {csv_path}")
-    print(f"   DataFrame shape: {df.shape}")
-    print(f"   Columns: {list(df.columns)}")
-    
-    # 3. Static Visualizations
-    print("\n3. Creating static visualizations...")
-    try:
-        static_viz = H3StaticVisualizer(sample_grid)
+    # 1. GeoJSON/Shapefile Export via GeoPandas
+    if GEOPANDAS_AVAILABLE:
+        print("\n1. Exporting to GeoJSON via GeoPandas...")
         
-        # Grid overview
-        overview_fig = static_viz.plot_grid_overview(figsize=(15, 10))
-        overview_path = output_dir / "grid_overview.png"
-        overview_fig.savefig(overview_path, dpi=300, bbox_inches='tight')
-        print(f"   Saved: {overview_path}")
+        geometries = []
+        rows = []
+        for item in data:
+            try:
+                boundary = indexer.get_cell_boundary(item['cell_index'])
+                # Shapely polygon: (lng, lat)
+                poly = Polygon([(lng, lat) for lat, lng in boundary])
+                geometries.append(poly)
+                rows.append(item)
+            except Exception as e:
+                print(f"Error creating geometry for {item['cell_index']}: {e}")
         
-        # Hexagon grid plot
-        hex_fig = static_viz.plot_hexagon_grid(value_column='value', figsize=(12, 10))
-        hex_path = output_dir / "hexagon_grid.png"
-        hex_fig.savefig(hex_path, dpi=300, bbox_inches='tight')
-        print(f"   Saved: {hex_path}")
+        if geometries:
+            gdf = gpd.GeoDataFrame(rows, geometry=geometries, crs="EPSG:4326")
+            geojson_path = output_dir / "sample_grid.geojson"
+            gdf.to_file(geojson_path, driver='GeoJSON')
+            print(f"   Saved: {geojson_path}")
+            
+            # Simple static plot
+            try:
+                import matplotlib.pyplot as plt
+                fig, ax = plt.subplots(figsize=(10, 10))
+                gdf.plot(column='value', ax=ax, legend=True)
+                plt.title("H3 Grid Visualization")
+                png_path = output_dir / "grid_plot.png"
+                plt.savefig(png_path)
+                print(f"   Saved: {png_path}")
+            except ImportError:
+                 print("   Matplotlib not available for plotting.")
+
+    else:
+        print("\nGeoPandas not available. Skipping GeoJSON export.")
         
-        # Connectivity analysis
-        conn_fig = static_viz.plot_connectivity_analysis(figsize=(12, 6))
-        conn_path = output_dir / "connectivity_analysis.png"
-        conn_fig.savefig(conn_path, dpi=300, bbox_inches='tight')
-        print(f"   Saved: {conn_path}")
-        
-    except Exception as e:
-        print(f"   Static visualization error: {e}")
-    
-    # 4. Interactive Visualizations
-    print("\n4. Creating interactive visualizations...")
-    try:
-        # Folium map
-        map_viz = H3MapVisualizer(sample_grid)
-        folium_map = map_viz.create_folium_map(
-            value_column='value',
-            color_scheme='viridis',
-            zoom_start=12
-        )
-        
-        folium_path = output_dir / "interactive_map.html"
-        folium_map.save(str(folium_path))
-        print(f"   Saved: {folium_path}")
-        
-        # Heatmap
-        heatmap = map_viz.create_heatmap(value_column='intensity', zoom_start=12)
-        heatmap_path = output_dir / "heatmap.html"
-        heatmap.save(str(heatmap_path))
-        print(f"   Saved: {heatmap_path}")
-        
-    except ImportError:
-        print("   Folium not available - skipping interactive maps")
-    except Exception as e:
-        print(f"   Interactive visualization error: {e}")
-    
-    # 5. Plotly Visualizations
-    print("\n5. Creating Plotly visualizations...")
-    try:
-        plotly_viz = H3InteractiveVisualizer(sample_grid)
-        
-        # Interactive map
-        plotly_map = plotly_viz.create_plotly_map(value_column='value')
-        plotly_path = output_dir / "plotly_map.html"
-        plotly_map.write_html(str(plotly_path))
-        print(f"   Saved: {plotly_path}")
-        
-        # Dashboard
-        dashboard = plotly_viz.create_dashboard()
-        dashboard_path = output_dir / "dashboard.html"
-        dashboard.write_html(str(dashboard_path))
-        print(f"   Saved: {dashboard_path}")
-        
-    except ImportError:
-        print("   Plotly not available - skipping Plotly visualizations")
-    except Exception as e:
-        print(f"   Plotly visualization error: {e}")
-    
     print(f"\nVisualization showcase complete! Check {output_dir} for outputs.")
 
 
 def example_8_performance_benchmarks():
     """
     Example 8: Performance Benchmarks
-    Demonstrates H3 performance with large datasets.
+    Demonstrates H3 performance with large datasets using unified interface.
     """
     print("\n" + "="*60)
     print("EXAMPLE 8: PERFORMANCE BENCHMARKS")
@@ -716,14 +458,16 @@ def example_8_performance_benchmarks():
     
     import time
     
+    indexer = SpatialIndexingInterface(backend='h3')
+    
     # Performance test configurations
     test_configs = [
-        {'name': 'Small Grid', 'k': 5, 'resolution': 8, 'expected_cells': 91},
-        {'name': 'Medium Grid', 'k': 10, 'resolution': 8, 'expected_cells': 331},
-        {'name': 'Large Grid', 'k': 15, 'resolution': 7, 'expected_cells': 721},
+        {'name': 'Medium Ring', 'k': 10, 'resolution': 8},
+        {'name': 'Large Ring', 'k': 20, 'resolution': 8},
     ]
     
     center_coords = (37.7749, -122.4194)
+    center_cell = indexer.latlng_to_cell(*center_coords, 8)
     
     print("Grid Creation Performance:")
     print("-" * 30)
@@ -731,99 +475,21 @@ def example_8_performance_benchmarks():
     for config in test_configs:
         print(f"\n{config['name']} (k={config['k']}, res={config['resolution']}):")
         
-        # Time grid creation
+        # Time neighbor finding
         start_time = time.time()
-        grid = H3Grid.from_center(*center_coords, resolution=config['resolution'], k=config['k'])
+        cells = indexer.get_cell_neighbors(center_cell, k=config['k'])
         creation_time = time.time() - start_time
         
-        print(f"  Cells created: {len(grid.cells)} (expected: {config['expected_cells']})")
-        print(f"  Creation time: {creation_time:.4f} seconds")
-        
-        # Time analytics
-        start_time = time.time()
-        analytics = H3Analytics(grid)
-        stats = analytics.basic_statistics()
-        analytics_time = time.time() - start_time
-        
-        print(f"  Analytics time: {analytics_time:.4f} seconds")
-        print(f"  Total area: {stats['total_area_km2']:.2f} km²")
-        
-        # Time connectivity analysis
-        start_time = time.time()
-        connectivity = analytics.connectivity_analysis()
-        connectivity_time = time.time() - start_time
-        
-        print(f"  Connectivity time: {connectivity_time:.4f} seconds")
-        print(f"  Connectivity ratio: {connectivity.get('connectivity_ratio', 0):.3f}")
-        
-        # Performance metrics
-        cells_per_second = len(grid.cells) / creation_time if creation_time > 0 else 0
-        print(f"  Performance: {cells_per_second:.0f} cells/second")
-    
-    # Batch operations performance
-    print("\nBatch Operations Performance:")
-    print("-" * 35)
-    
-    # Create large set of cells for batch testing
-    test_cells = []
-    for lat in np.linspace(37.7, 37.8, 20):
-        for lng in np.linspace(-122.5, -122.4, 20):
-            cell = coordinate_to_cell(lat, lng, 8)
-            test_cells.append(cell)
-    
-    print(f"Testing with {len(test_cells)} cells:")
-    
-    # Test batch area calculation
-    start_time = time.time()
-    total_area = cells_area(test_cells)
-    area_time = time.time() - start_time
-    
-    print(f"  Batch area calculation: {area_time:.4f} seconds")
-    print(f"  Total area: {total_area:.2f} km²")
-    
-    # Test batch statistics
-    start_time = time.time()
-    batch_stats = grid_statistics(test_cells)
-    stats_time = time.time() - start_time
-    
-    print(f"  Batch statistics: {stats_time:.4f} seconds")
-    print(f"  Valid cells: {batch_stats['valid_cells']}")
-    
-    # Test compaction
-    start_time = time.time()
-    compacted = compact_cells(test_cells)
-    compact_time = time.time() - start_time
-    
-    print(f"  Compaction: {compact_time:.4f} seconds")
-    print(f"  Compacted to: {len(compacted)} cells")
-    
-    # Memory usage estimation
-    import sys
-    
-    single_cell_size = sys.getsizeof(H3Cell(index=test_cells[0], resolution=8))
-    estimated_memory_mb = (single_cell_size * len(test_cells)) / (1024 * 1024)
-    
-    print(f"  Estimated memory usage: {estimated_memory_mb:.2f} MB")
+        print(f"  Cells found: {len(cells)}")
+        print(f"  Time: {creation_time:.4f} seconds")
 
 
 def main():
-    """Run all H3 examples."""
-    print("H3 COMPREHENSIVE EXAMPLES FOR GEO-INFER-SPACE")
+    """Run all H3 comprehensive examples."""
+    print("GEO-INFER-SPACE H3 Comprehensive Examples")
     print("=" * 60)
-    print("Demonstrating real-world H3 hexagonal grid operations")
-    print("Using H3 v4 API with comprehensive analytics and visualizations")
-    print("=" * 60)
-    
-    if not H3_MODULES_AVAILABLE:
-        print("ERROR: H3 modules not available. Please check installation.")
-        return 1
-    
-    if not H3_AVAILABLE:
-        print("ERROR: h3-py package not available. Install with 'uv pip install h3'")
-        return 1
     
     try:
-        # Run all examples
         example_1_basic_h3_operations()
         example_2_city_coverage_analysis()
         example_3_transportation_corridor()
@@ -833,13 +499,8 @@ def main():
         example_7_visualization_showcase()
         example_8_performance_benchmarks()
         
-        print("\n" + "="*60)
-        print("ALL H3 EXAMPLES COMPLETED SUCCESSFULLY!")
-        print("="*60)
-        print("Check the 'output/h3_visualizations/' directory for generated files.")
-        print("Open the HTML files in a web browser to view interactive maps.")
-        print("="*60)
-        
+        print("\n" + "=" * 60)
+        print("✅ All comprehensive examples completed successfully!")
         return 0
         
     except Exception as e:

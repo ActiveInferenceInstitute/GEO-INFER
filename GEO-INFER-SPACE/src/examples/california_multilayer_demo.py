@@ -41,19 +41,11 @@ logging.basicConfig(
 )
 logger = logging.getLogger("california_multilayer_demo")
 
-# Import OSC-GEO functionality
+# H3 Library Import
 try:
-    from geo_infer_space.osc_geo import (
-        setup_osc_geo,
-        create_h3_grid_manager,
-        load_data_to_h3_grid
-    )
-    from geo_infer_space.osc_geo.utils.h3_utils import (
-        cell_to_latlngjson,
-        geojson_to_h3
-    )
-except ImportError as e:
-    logger.error(f"Failed to import geo_infer_space.osc_geo: {e}")
+    import h3
+except ImportError:
+    logger.error("Failed to import h3 library. Please install it: uv pip install h3")
     sys.exit(1)
 
 # California bounding box (approximate)
@@ -290,21 +282,8 @@ def main():
     """
     Main function to run the California multi-layer geospatial demo.
     """
-    # Check if repos already exist before setting up
-    repo_paths = [
-        Path("GEO-INFER-SPACE/repo/osc-geo-h3grid-srv"),
-        Path("GEO-INFER-SPACE/repo/osc-geo-h3loader-cli")
-    ]
     
-    repos_exist = all(repo_path.exists() for repo_path in repo_paths)
-    
-    if repos_exist:
-        logger.info("OSC repositories already exist, skipping setup...")
-    else:
-        logger.info("Setting up OSC-GEO...")
-        setup_osc_geo()
-    
-    logger.info("Using H3 utility functions for geospatial processing...")
+    logger.info("Using H3 library for geospatial processing...")
 
     # Generate simulated data
     logger.info("Generating simulated zoning data...")

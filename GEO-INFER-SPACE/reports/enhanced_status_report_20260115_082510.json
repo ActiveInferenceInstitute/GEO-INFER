@@ -1,0 +1,41 @@
+{
+  "report_metadata": {
+    "timestamp": "2026-01-15T08:25:09.695383",
+    "reporter_version": "enhanced_v1.0",
+    "visualizations_enabled": true
+  },
+  "status_data": {
+    "timestamp": "2026-01-15T08:25:09.695317",
+    "repositories": {
+      "h3grid-srv": {
+        "key": "h3grid-srv",
+        "name": "osc-geo-h3grid-srv",
+        "path": "/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3grid-srv",
+        "clone_url": "https://github.com/docxology/osc-geo-h3grid-srv.git",
+        "exists": false,
+        "is_git_repo": false,
+        "current_branch": "",
+        "latest_commit": "",
+        "has_venv": false
+      },
+      "h3loader-cli": {
+        "key": "h3loader-cli",
+        "name": "osc-geo-h3loader-cli",
+        "path": "/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo/osc-geo-h3loader-cli",
+        "clone_url": "https://github.com/docxology/osc-geo-h3loader-cli.git",
+        "exists": false,
+        "is_git_repo": false,
+        "current_branch": "",
+        "latest_commit": "",
+        "has_venv": false
+      }
+    },
+    "all_repos_exist": false
+  },
+  "summary": "OSC Repository Status (as of 2026-01-15T08:25:09.695317)\nAll repositories exist: False\n\nRepository Status:\n  \u274c osc-geo-h3grid-srv (h3grid-srv)\n  \u274c osc-geo-h3loader-cli (h3loader-cli)",
+  "visualizations": {
+    "repository_health": "visualizations/status/repository_health_20260115_082510.png",
+    "git_timeline": "visualizations/status/git_timeline_20260115_082510.png",
+    "environment_status": "visualizations/status/environment_status_20260115_082510.png"
+  }
+}

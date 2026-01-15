@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_9146958b2ea73a75d04cb45d160d328b {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css"/>
+</head>
+<body>
+    
+    
+        <div style="position: fixed; 
+                    top: 10px; left: 50px; width: 400px; height: 80px; 
+                    background-color: white; border: 2px solid grey; z-index:9999; 
+                    font-size: 14px; color: black; font-weight: bold;
+                    padding: 10px; border-radius: 5px; box-shadow: 0 0 15px rgba(0,0,0,0.2);">
+            <div style="font-size: 18px; margin-bottom: 5px; color: #2E8B57;">
+                🗺️ GEO-INFER Place-Based Analysis
+            </div>
+            <div style="font-size: 14px; color: #4682B4;">
+                📍 Location
+            </div>
+            <div style="font-size: 11px; color: #666; margin-top: 5px;">
+                Interactive Geospatial Dashboard • 2026-01-15 08:20
+            </div>
+        </div>
+        
+    
+            <div class="folium-map" id="map_9146958b2ea73a75d04cb45d160d328b" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_9146958b2ea73a75d04cb45d160d328b = L.map(
+                "map_9146958b2ea73a75d04cb45d160d328b",
+                {
+                    center: [41.5, -124.0],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 10,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_e1151753413d056ccd1b5eb5b40c4ce3 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u00a9 CartoDB, \u00a9 OpenStreetMap contributors",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_e1151753413d056ccd1b5eb5b40c4ce3.addTo(map_9146958b2ea73a75d04cb45d160d328b);
+        
+    
+            var feature_group_4d7ca665659bfa520b9d156adbaccbac = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_4d7ca665659bfa520b9d156adbaccbac.addTo(map_9146958b2ea73a75d04cb45d160d328b);
+        
+    
+            var feature_group_12ad18e292d52467852dee831b526d68 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var marker_cluster_44d6bb783a773314cebac0491f5af868 = L.markerClusterGroup(
+                {
+}
+            );
+        
+    
+            marker_cluster_44d6bb783a773314cebac0491f5af868.addTo(feature_group_12ad18e292d52467852dee831b526d68);
+        
+    
+            feature_group_12ad18e292d52467852dee831b526d68.addTo(map_9146958b2ea73a75d04cb45d160d328b);
+        
+    
+            var feature_group_4e90ce6bdc5369c881bd941b30a9d220 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_4e90ce6bdc5369c881bd941b30a9d220.addTo(map_9146958b2ea73a75d04cb45d160d328b);
+        
+    
+            var feature_group_72711f57eeeee515fbd3a7668f0b18f2 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_72711f57eeeee515fbd3a7668f0b18f2.addTo(map_9146958b2ea73a75d04cb45d160d328b);
+        
+    
+            var feature_group_7ed4c2054dccff65efac59b575db2852 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_7ed4c2054dccff65efac59b575db2852.addTo(map_9146958b2ea73a75d04cb45d160d328b);
+        
+    
+            var feature_group_2d6609f5a1804ab093a0121fb13eb5ec = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var layer_control_c4d8a2add450fa96de4f6557e9953f05_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_e1151753413d056ccd1b5eb5b40c4ce3,
+                },
+                overlays :  {
+                    "\ud83d\udd37 H3 Spatial Grid" : feature_group_4d7ca665659bfa520b9d156adbaccbac,
+                    "\ud83c\udf32 Forest Health" : feature_group_12ad18e292d52467852dee831b526d68,
+                    "\ud83c\udf0a Coastal Resilience" : feature_group_4e90ce6bdc5369c881bd941b30a9d220,
+                    "\ud83d\udd25 Fire Risk" : feature_group_72711f57eeeee515fbd3a7668f0b18f2,
+                    "\ud83c\udfd8\ufe0f Community Development" : feature_group_7ed4c2054dccff65efac59b575db2852,
+                    "\ud83d\udd17 Cross-Domain Integration" : feature_group_2d6609f5a1804ab093a0121fb13eb5ec,
+                },
+            };
+            let layer_control_c4d8a2add450fa96de4f6557e9953f05 = L.control.layers(
+                layer_control_c4d8a2add450fa96de4f6557e9953f05_layers.base_layers,
+                layer_control_c4d8a2add450fa96de4f6557e9953f05_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_9146958b2ea73a75d04cb45d160d328b);
+
+        
+</script>
+</html>

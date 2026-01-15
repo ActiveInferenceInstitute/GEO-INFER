@@ -24,4 +24,3 @@ src/geo_infer_place/locations/del_norte_county/forest_health_monitor.py
 src/geo_infer_place/utils/__init__.py
 src/geo_infer_place/utils/data_sources.py
 src/geo_infer_place/utils/integration.py
-tests/test_place_analyzer.py

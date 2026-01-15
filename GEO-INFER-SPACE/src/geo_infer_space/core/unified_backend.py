@@ -76,17 +76,20 @@ class UnifiedH3Backend:
         self.modules = modules
         self.resolution = resolution
         self.target_region = target_region
-        self.base_data_dir = base_data_dir or Path('./data')
+        if base_data_dir:
+            self.base_data_dir = Path(base_data_dir)
+        else:
+            self.base_data_dir = Path('./data')
         self.unified_data: Dict[str, Dict] = {}
         self.analysis_scores: Dict[str, Dict] = {}
         
         # --- OSC Integration ---
         try:
-            self.h3_loader: H3DataLoader = create_h3_data_loader(repo_base_dir=osc_repo_dir)
+            self.h3_loader: Optional[H3DataLoader] = create_h3_data_loader(repo_base_dir=osc_repo_dir)
             logger.info("Successfully initialized H3DataLoader from GEO-INFER-SPACE.")
         except Exception as e:
-            logger.error(f"Failed to initialize H3DataLoader from GEO-INFER-SPACE: {e}")
-            raise RuntimeError(f"Failed to initialize H3DataLoader: {e}")
+            logger.warning(f"Failed to initialize H3DataLoader from GEO-INFER-SPACE: {e}. Functionality relying on OSC data loading will be unavailable.")
+            self.h3_loader = None
         # --- End OSC Integration ---
 
         self.target_hexagons_by_area, self.target_hexagons = self._define_target_region(target_areas)

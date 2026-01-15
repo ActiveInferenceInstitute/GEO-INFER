@@ -106,19 +106,8 @@ def check_dependencies() -> bool:
         logger.error("Please install missing packages: uv pip install " + " ".join(missing_packages))
         return False
     
-    # Check SPACE integration
-    try:
-        from geo_infer_space.osc_geo import check_integration_status
-        status = check_integration_status()
-        if hasattr(status, 'status') and status.status == 'ready':
-            logger.info("✅ SPACE integration ready")
-        else:
-            logger.warning("⚠️ SPACE integration needs setup")
-            logger.info("Run: python -c 'from geo_infer_space.osc_geo import setup_osc_geo; setup_osc_geo()'")
-    except Exception as e:
-        logger.warning(f"⚠️ SPACE integration not available: {e}")
-    
-    logger.info("✅ Dependency check complete")
+    # OSC-GEO integration removed/unified
+    logger.info("✅ Dependency check complete (Unified Backend active)")
     return True
 
 def setup_spatial_processor() -> SpatialProcessor:

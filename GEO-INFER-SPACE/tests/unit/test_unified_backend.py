@@ -37,7 +37,7 @@ class TestUnifiedH3Backend(unittest.TestCase):
             json.dump(sample_geojson, f)
         self.geojson_path = config_path
         self.backend_instance = UnifiedH3Backend(modules={}, resolution=8)
-        self.modules = {'mock': MockModule(self.backend_instance, 'mock')}
+        self.modules = {'mock': MockModule('mock')}
         self.backend = UnifiedH3Backend(
             modules=self.modules,
             resolution=8,

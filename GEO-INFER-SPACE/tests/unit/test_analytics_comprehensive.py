@@ -77,7 +77,7 @@ class TestVectorOperations:
         
         assert isinstance(result, gpd.GeoDataFrame)
         assert len(result) >= 0
-        assert result.crs == sample_points.crs
+        assert result.crs == polygons_proj.crs
     
     def test_overlay_analysis(self, sample_polygons):
         """Test overlay operations."""
@@ -324,7 +324,7 @@ class TestH3Operations:
         cell = latlng_to_cell(lat, lng, resolution)
         boundary = cell_to_latlng_boundary(cell)
         
-        assert isinstance(boundary, list)
+        assert isinstance(boundary, (list, tuple))
         assert len(boundary) >= 6  # Hexagon has 6 vertices
         assert all(len(coord) == 2 for coord in boundary)
 

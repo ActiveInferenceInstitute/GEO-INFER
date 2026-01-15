@@ -64,6 +64,10 @@ class TimeSeries:
 
         logger.debug(f"Created TimeSeries with {len(self.data)} observations")
 
+    def __len__(self) -> int:
+        """Get length of time series."""
+        return len(self.data)
+
     @property
     def timestamps(self) -> pd.DatetimeIndex:
         """Get timestamps."""

@@ -197,8 +197,7 @@ The module empowers all other GEO-INFER components with robust capabilities for 
 -   **Techniques/Examples:** Utilizes underlying libraries like PROJ, supports EPSG code lookups, on-the-fly reprojection for analysis and visualization, handling of vertical datums.
 -   **Benefits:** Prevents common errors related to mismatched CRSs, ensures all spatial data is accurately georeferenced and aligned for analysis.
 
-### 6. OS Climate Integration for Standardized Geospatial Processing
-- **Description:** Integration with selected tools and services from the OS-Climate initiative, particularly those related to H3 grid services and data loading, promoting standardization in climate-related geospatial analysis. We use forks of these repositories under github.com/docxology, originally from github.com/os-climate.
+
 
 ## Success Story: Cascadian Agricultural Land Analysis Framework
 
@@ -222,7 +221,7 @@ The module empowers all other GEO-INFER components with robust capabilities for 
 # All Cascadian modules use SPACE utilities
 from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, polygon_to_cells
 from geo_infer_space.core.spatial_processor import SpatialProcessor
-from geo_infer_space.osc_geo import create_h3_data_loader
+# OSC-GEO functionality now natively integrated into UnifiedH3Backend
 ```
 
 **Key Performance Metrics**:
@@ -785,16 +784,7 @@ cell = latlng_to_cell(40.7128, -74.0060, 9)
 boundary = cell_to_latlng_boundary(cell)
 ```
 
-**4. OS Climate H3 Grid Service Usage (from existing README)**
-```python
-# from geo_infer_space.osc_geo import create_h3_grid_manager, load_data_to_h3_grid
-# grid_manager = create_h3_grid_manager(auto_start=True)
-# load_data_to_h3_grid(
-# input_file="data/example.geojson",
-# output_file="output/h3_data.geojson",
-# resolution=8
-# )
-```
+
 
 ## 🔧 Comprehensive Spatial Analytics Capabilities
 
