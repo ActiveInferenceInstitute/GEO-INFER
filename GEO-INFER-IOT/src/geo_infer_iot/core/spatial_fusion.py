@@ -13,8 +13,7 @@ import h3
 
 # Optional imports for enhanced functionality
 try:
-    from geo_infer_space.osc_geo.utils.spatial_operations import SpatialOperations
-    from geo_infer_space.osc_geo.utils.h3_utils import get_h3_neighbors, h3_resolution_stats
+    from geo_infer_space.utils.h3_utils import get_h3_neighbors
     HAS_GEO_SPACE = True
 except ImportError:
     HAS_GEO_SPACE = False
@@ -40,7 +39,7 @@ class SpatialDataFusion:
 
         # Initialize spatial operations if available
         if HAS_GEO_SPACE:
-            self.spatial_operations = SpatialOperations()
+            pass # Spatial utils loaded
 
         # Default fusion parameters
         self.default_params = {

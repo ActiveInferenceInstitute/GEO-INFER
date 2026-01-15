@@ -471,43 +471,7 @@ from utils.enhanced_data_manager import create_enhanced_data_manager
 from utils.enhanced_h3_fusion import create_enhanced_h3_fusion
 
 # Existing imports for SPACE and PLACE
-try:
-    from geo_infer_space.osc_geo import (
-        setup_osc_geo,
-        create_h3_data_loader,
-        create_h3_grid_manager,
-        load_data_to_h3_grid,
-        check_integration_status,
-        run_diagnostics
-    )
-    SPACE_OSC_AVAILABLE = True
-except ImportError as e:
-    print(f"WARNING: SPACE OSC integration not available: {e}")
-    SPACE_OSC_AVAILABLE = False
-    # Create placeholder functions
-    def setup_osc_geo(*args, **kwargs): return None
-    def create_h3_data_loader(*args, **kwargs): return None
-    def create_h3_grid_manager(*args, **kwargs): return None
-    def load_data_to_h3_grid(*args, **kwargs): return None
-    def check_integration_status(*args, **kwargs): return type('MockStatus', (), {'status': 'not_available'})()
-    def run_diagnostics(*args, **kwargs): return "Diagnostics not available"
 
-try:
-    from geo_infer_space.osc_geo.utils import (
-        cell_to_latlngjson,
-        geojson_to_h3,
-        check_repo_status,
-        generate_summary
-    )
-    SPACE_UTILS_AVAILABLE = True
-except ImportError as e:
-    print(f"WARNING: SPACE utils not available: {e}")
-    SPACE_UTILS_AVAILABLE = False
-    # Create placeholder functions
-    def cell_to_latlngjson(*args, **kwargs): return {}
-    def geojson_to_h3(*args, **kwargs): return {}
-    def check_repo_status(*args, **kwargs): return "not_available"
-    def generate_summary(*args, **kwargs): return "Summary not available"
 
 try:
     from geo_infer_space.core.visualization_engine import InteractiveVisualizationEngine

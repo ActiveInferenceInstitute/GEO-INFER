@@ -73,29 +73,33 @@ def create_test_cell(cell_idx: str, resolution: int = 9, system_id: str = "test_
             h3_cell = H3Cell(index=cell_idx, resolution=resolution)
             cell = NestedCell(h3_cell=h3_cell, system_id=system_id)
         except Exception:
-            # Fall back to mock if H3 cell creation fails
-            mock_h3_cell = type('MockH3Cell', (), {
-                'index': cell_idx,
-                'resolution': resolution,
-                'latitude': 0.0,
-                'longitude': 0.0,
-                'area_km2': 1.0,
-                'boundary': [],
-                'properties': {}
-            })()
-            cell = NestedCell(h3_cell=mock_h3_cell, system_id=system_id)
+            # Fall back to simple cell if H3 cell creation fails
+            class SimpleH3Cell:
+                def __init__(self, index, resolution):
+                    self.index = index
+                    self.resolution = resolution
+                    self.latitude = 0.0
+                    self.longitude = 0.0
+                    self.area_km2 = 1.0
+                    self.boundary = []
+                    self.properties = {}
+
+            simple_cell = SimpleH3Cell(index=cell_idx, resolution=resolution)
+            cell = NestedCell(h3_cell=simple_cell, system_id=system_id)
     else:
-        # Create mock H3Cell-like object
-        mock_h3_cell = type('MockH3Cell', (), {
-            'index': cell_idx,
-            'resolution': resolution,
-            'latitude': 0.0,
-            'longitude': 0.0,
-            'area_km2': 1.0,
-            'boundary': [],
-            'properties': {}
-        })()
-        cell = NestedCell(h3_cell=mock_h3_cell, system_id=system_id)
+        # Create simple H3Cell-like object for testing
+        class SimpleH3Cell:
+            def __init__(self, index, resolution):
+                self.index = index
+                self.resolution = resolution
+                self.latitude = 0.0
+                self.longitude = 0.0
+                self.area_km2 = 1.0
+                self.boundary = []
+                self.properties = {}
+
+        simple_cell = SimpleH3Cell(index=cell_idx, resolution=resolution)
+        cell = NestedCell(h3_cell=simple_cell, system_id=system_id)
     
     return cell
 

@@ -156,14 +156,7 @@ improvements:
 
 # SPACE integration settings
 space_integration:
-  osc_geo:
-    enabled: true
-    repo_path: "/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
-    h3_loader:
-      timeout_seconds: 300
-      max_retries: 3
-      batch_size: 1000
-      parallel_processing: true
+
   
   spatial_processor:
     enabled: true

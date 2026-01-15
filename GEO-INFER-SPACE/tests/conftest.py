@@ -5,12 +5,7 @@ import subprocess
 import shutil
 import os
 
-# Optional: OSC integration imports (skip if heavy deps missing)
-try:
-    from geo_infer_space.osc_geo import create_h3_data_loader  # type: ignore
-except Exception as _osc_exc:  # pragma: no cover
-    create_h3_data_loader = None  # type: ignore
-    print(f"[tests] Warning: OSC integration not available; some tests may be skipped: {_osc_exc}")
+# OSC integration removed (Unified Backend active)
 
 # Add cloned repo paths to Python path for test discovery
 repo_dir = Path(__file__).parent.parent / "repo"
@@ -139,8 +134,7 @@ def pytest_collection_modifyitems(config, items):
     # Define test order based on dependencies
     test_order = [
         # 1. Setup and repository tests (foundational)
-        "test_osc_scripts.py",
-        "test_osc_geo.py",
+        # (Legacy OSC tests removed)
         
         # 2. Core functionality tests (base modules and backend)
         "test_base_module.py", 

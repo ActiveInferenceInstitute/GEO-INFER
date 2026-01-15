@@ -78,7 +78,7 @@ def test_cross_module_imports():
     
     cross_import_tests = [
         ('geo_infer_place', 'PlaceAnalyzer'),
-        ('geo_infer_space', 'setup_osc_geo'),
+        ('geo_infer_space', 'SpatialIndexingInterface'),
         ('geo_infer_iot', 'IoTDataIngestion'),
         ('geo_infer_bayes', 'GaussianProcess'),
         ('geo_infer_act', 'ActiveInferenceModel'),
@@ -156,8 +156,8 @@ def test_specific_functionality():
     
     # Test SPACE module H3 functionality
     try:
-        from geo_infer_space import setup_osc_geo
-        tests['space_h3'] = {'status': 'success', 'description': 'H3 spatial indexing'}
+        from geo_infer_space import SpatialIndexingInterface
+        tests['space_h3'] = {'status': 'success', 'description': 'H3 spatial interface'}
         logger.info("✓ SPACE H3 functionality available")
     except Exception as e:
         tests['space_h3'] = {'status': 'error', 'error': str(e)}

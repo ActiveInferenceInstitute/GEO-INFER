@@ -41,7 +41,7 @@ except ImportError as e:
     HAS_BAYES = False
 
 try:
-    from geo_infer_space.osc_geo.utils.h3_utils import cell_to_latlngjson
+    from geo_infer_space.utils.h3_utils import cell_to_latlng
     print("✓ Successfully imported GEO-INFER-SPACE modules")
     HAS_SPACE = True
 except ImportError as e:

@@ -268,16 +268,12 @@ def test_main_script_functionality():
             )
             
             # Mock all external dependencies before importing
-            with patch('geo_infer_space.osc_geo.create_h3_data_loader') as mock_h3_loader, \
-                 patch('geo_infer_space.osc_geo.setup_osc_geo') as mock_setup, \
-                 patch('geo_infer_space.core.spatial_processor.SpatialProcessor') as mock_spatial, \
+            with patch('geo_infer_space.core.spatial_processor.SpatialProcessor') as mock_spatial, \
                  patch('geo_infer_space.core.visualization_engine.InteractiveVisualizationEngine') as mock_viz, \
                  patch('geo_infer_space.core.data_integrator.DataIntegrator') as mock_integrator, \
                  patch('geo_infer_place.core.unified_backend.create_h3_data_loader') as mock_place_loader:
                 
                 # Configure mocks
-                mock_h3_loader.return_value = Mock()
-                mock_setup.return_value = Mock()
                 mock_spatial.return_value = Mock()
                 mock_viz.return_value = Mock()
                 mock_integrator.return_value = Mock()
