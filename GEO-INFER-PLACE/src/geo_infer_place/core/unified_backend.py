@@ -1,63 +1,75 @@
 #!/usr/bin/env python3
 """
-Unified H3 Backend for Cascadian Agricultural Land Analysis - Enhanced with SPACE Integration
+Unified H3 Backend for Cascadian Agricultural Land Analysis
 
 This module provides a unified interface for integrating multiple data sources
 through H3 spatial indexing, enabling cross-border analysis between California
-and Oregon agricultural areas with maximum SPACE integration.
+and Oregon agricultural areas with full GEO-INFER-SPACE integration.
 """
 import sys
 import json
 import os
+import hashlib
+import time
+import logging
 from typing import Dict, List, Optional, Tuple, Any
 from datetime import datetime
 from pathlib import Path
-import logging
+from collections import defaultdict
+
 import numpy as np
 import pandas as pd
 import geopandas as gpd
-from shapely.geometry import Polygon, MultiPolygon, mapping
+import h3
 import folium
 from folium.plugins import HeatMap, MarkerCluster
+from shapely.geometry import Point, Polygon, MultiPolygon, mapping
+from shapely.geometry.base import BaseGeometry
+from shapely.ops import unary_union
 
-# --- Enhanced H3 and OSC Integration ---
-import h3
-from geo_infer_space.osc_geo import create_h3_data_loader, H3DataLoader
-from geo_infer_space.osc_geo.utils import cell_to_latlngjson, geojson_to_h3
+try:
+    from shapely import mapping
+except ImportError:
+    from shapely.geometry import mapping
+
+# --- GEO-INFER-SPACE Imports ---
+from geo_infer_space import (
+    SpatialIndexingInterface,
+    latlng_to_cell,
+    cell_to_latlng,
+    polygon_to_cells,
+)
+from geo_infer_space.core.dispatcher import get_backend_dispatcher
 from geo_infer_space.core.spatial_processor import SpatialProcessor
 from geo_infer_space.core.data_integrator import DataIntegrator
 from geo_infer_space.core.visualization_engine import InteractiveVisualizationEngine
-from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
-from geo_infer_space.utils.config_loader import LocationConfigLoader, LocationBounds
-
-# --- Local Core Imports ---
-# Base class for type hinting
-from .base_module import BaseAnalysisModule
 from geo_infer_space.core.unified_backend import UnifiedH3Backend, NumpyEncoder
+from geo_infer_space.utils.config_loader import LocationConfigLoader, LocationBounds
+from geo_infer_space.utils.h3_utils import (
+    latlng_to_cell as h3_latlng_to_cell,
+    cell_to_latlng as h3_cell_to_latlng,
+    polygon_to_cells as h3_polygon_to_cells,
+)
 
-import hashlib
-from typing import List, Dict, Any, Optional, Tuple
-import logging
-import time
-from collections import defaultdict
+# SPACE is available since imports succeeded
+SPACE_AVAILABLE = True
 
-# Import SPACE components with fallback handling
-try:
-    from geo_infer_space.core.unified_backend import UnifiedH3Backend
-    from geo_infer_space.osc_geo import create_h3_data_loader
-    from geo_infer_space.utils.config_loader import LocationConfigLoader
-    from geo_infer_space.utils.h3_utils import polygon_to_cells
-    SPACE_AVAILABLE = True
-except ImportError as e:
-    logging.warning(f"SPACE components not fully available: {e}")
-    SPACE_AVAILABLE = False
-    UnifiedH3Backend = object
+# --- Local Imports ---
+from .base_module import BaseAnalysisModule
+from ..utils.h3_operations import (
+    cell_to_latlng_boundary,
+    geo_to_cells,
+    grid_disk,
+    grid_distance,
+    cell_area,
+    get_resolution,
+    is_valid_cell,
+    are_neighbor_cells,
+)
 
-# Standard imports
-import h3
-import numpy as np
-from shapely.geometry import Point, Polygon, MultiPolygon, shape as shapely_shape
-from shapely.geometry.base import BaseGeometry
+logger = logging.getLogger(__name__)
+
+
 from shapely.ops import unary_union
 try:
     from shapely import mapping
@@ -115,13 +127,9 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         self.h3_data_loader = None
         self.h3_loader = None  # Add this attribute for compatibility with SPACE BaseAnalysisModule
         self.osc_repo_dir = osc_repo_dir
-        if SPACE_AVAILABLE and osc_repo_dir:
-            try:
-                self.h3_data_loader = create_h3_data_loader(osc_repo_dir)
-                self.h3_loader = self.h3_data_loader  # Set h3_loader to h3_data_loader for compatibility
-                logger.info("Successfully initialized H3DataLoader from GEO-INFER-SPACE.")
-            except Exception as e:
-                logger.warning(f"Failed to initialize H3DataLoader: {e}")
+        # Note: H3DataLoader from osc_geo has been removed from SPACE
+        # Using native H3 library directly for spatial operations
+        logger.info("Using native H3 library for spatial indexing (osc_geo module deprecated)")
         
         # Get target counties and generate hexagons with caching
         county_geoms, all_hexagons = self._define_target_region_cached(target_counties)

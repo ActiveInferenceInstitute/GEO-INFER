@@ -11,11 +11,13 @@ from .dispatcher import SpatialBackendDispatcher, get_backend_dispatcher
 from .spatial_indexing import SpatialIndexingInterface
 from .geometric_operations import GeometricOperationsInterface
 from .analytics import SpatialAnalyticsInterface
+from .statistics import SpatialStatistics
 
 __all__ = [
     'SpatialBackendDispatcher',
     'get_backend_dispatcher',
     'SpatialIndexingInterface',
     'GeometricOperationsInterface',
-    'SpatialAnalyticsInterface'
+    'SpatialAnalyticsInterface',
+    'SpatialStatistics',
 ]

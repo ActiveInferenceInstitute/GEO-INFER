@@ -298,8 +298,8 @@ class AnalyticsBackendProtocol(SpatialBackendProtocol, Protocol):
     """
     Protocol for spatial analytics backends.
     
-    Defines methods for spatial analysis operations like hotspot detection
-    and proximity analysis.
+    Defines methods for spatial analysis operations like hotspot detection,
+    proximity analysis, clustering, and spatial interpolation.
     """
 
     def analyze_hotspots(self, data: Dict[str, Any]) -> Dict[str, Any]:
@@ -333,6 +333,113 @@ class AnalyticsBackendProtocol(SpatialBackendProtocol, Protocol):
             
         Raises:
             ValueError: If points are invalid
+            RuntimeError: If backend is not available
+        """
+        ...
+
+    def find_clusters(
+        self, 
+        cells: List[str], 
+        values: List[float], 
+        min_cluster_size: int = 3,
+        distance_threshold: int = 1
+    ) -> Dict[str, Any]:
+        """
+        Find spatial clusters of cells based on values and proximity.
+        
+        Args:
+            cells: List of spatial cell identifiers
+            values: Corresponding values for each cell
+            min_cluster_size: Minimum number of cells to form a cluster
+            distance_threshold: Maximum grid distance between cluster members
+            
+        Returns:
+            Dictionary with:
+                - clusters: List of cluster dictionaries with cells and stats
+                - num_clusters: Number of clusters found
+                - noise_cells: Cells not belonging to any cluster
+                
+        Raises:
+            ValueError: If cells and values have different lengths
+            RuntimeError: If backend is not available
+        """
+        ...
+
+    def calculate_density(
+        self, 
+        cells: List[str], 
+        values: List[float],
+        kernel_radius: int = 1
+    ) -> Dict[str, Any]:
+        """
+        Calculate density values across cells using kernel smoothing.
+        
+        Args:
+            cells: List of spatial cell identifiers
+            values: Values at each cell location
+            kernel_radius: Radius for kernel density estimation in grid steps
+            
+        Returns:
+            Dictionary with:
+                - densities: Dictionary mapping cell -> density value
+                - statistics: Mean, max, min density values
+                
+        Raises:
+            ValueError: If cells and values have different lengths
+            RuntimeError: If backend is not available
+        """
+        ...
+
+    def spatial_join(
+        self, 
+        cells_a: List[str], 
+        cells_b: List[str],
+        join_type: str = "intersects"
+    ) -> Dict[str, Any]:
+        """
+        Join two sets of cells based on spatial relationships.
+        
+        Args:
+            cells_a: First set of spatial cell identifiers
+            cells_b: Second set of spatial cell identifiers
+            join_type: Type of join ('intersects', 'contains', 'within')
+            
+        Returns:
+            Dictionary with:
+                - matches: List of (cell_a, cell_b) pairs that satisfy the relationship
+                - unmatched_a: Cells from A with no matches
+                - unmatched_b: Cells from B with no matches
+                
+        Raises:
+            ValueError: If join_type is invalid
+            RuntimeError: If backend is not available
+        """
+        ...
+
+    def interpolate_values(
+        self, 
+        cells: List[str], 
+        values: List[float],
+        target_cells: List[str],
+        method: str = "idw"
+    ) -> Dict[str, Any]:
+        """
+        Interpolate values at target cell locations.
+        
+        Args:
+            cells: List of cells with known values
+            values: Known values at each cell location
+            target_cells: Cells where values should be interpolated
+            method: Interpolation method ('idw', 'nearest', 'linear')
+            
+        Returns:
+            Dictionary with:
+                - interpolated: Dictionary mapping target_cell -> interpolated value
+                - method: Method used
+                - source_count: Number of source cells used
+                
+        Raises:
+            ValueError: If cells and values have different lengths
             RuntimeError: If backend is not available
         """
         ...

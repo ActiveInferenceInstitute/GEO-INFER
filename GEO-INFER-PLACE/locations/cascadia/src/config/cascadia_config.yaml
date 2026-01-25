@@ -1,0 +1,106 @@
+analysis:
+  active_modules:
+  - zoning
+  - current_use
+  - ownership
+  - improvements
+  debug_mode: false
+  force_refresh: false
+  h3_resolution: 8
+  skip_cache: false
+  spatial_analysis_enabled: false
+  target_counties:
+  - CA:Del Norte
+  validate_h3: false
+  verbose_logging: false
+data:
+  cache_enabled: true
+  data_quality_threshold: 0.8
+  export_format: geojson
+  fallback_to_synthetic: true
+  keep_recent_runs: 3
+  output_dir: output
+  real_data_priority: true
+modules:
+  current_use:
+    data_sources:
+    - usda
+    - state
+    enabled: true
+  ground_water:
+    data_sources:
+    - usgs
+    - state
+    enabled: false
+  improvements:
+    data_sources:
+    - permit
+    - state
+    enabled: true
+  mortgage_debt:
+    data_sources:
+    - federal
+    - state
+    enabled: false
+  ownership:
+    data_sources:
+    - assessor
+    - state
+    enabled: true
+  power_source:
+    data_sources:
+    - utility
+    - state
+    enabled: false
+  surface_water:
+    data_sources:
+    - usgs
+    - state
+    enabled: false
+  water_rights:
+    data_sources:
+    - state
+    enabled: false
+  zoning:
+    data_sources:
+    - county
+    - state
+    enabled: true
+timestamp: '2026-01-25T14:03:53.027124'
+visualization:
+  color_schemes:
+    current_use:
+      Agriculture: '#90EE90'
+      Commercial: '#FFD700'
+      Forest: '#228B22'
+      Industrial: '#A0522D'
+      Open Space: '#98FB98'
+      Residential: '#FFB6C1'
+    improvements:
+      High: '#FF0000'
+      Low: '#FFFF00'
+      Medium: '#FFA500'
+      None: '#808080'
+    ownership:
+      Corporate: '#45B7D1'
+      Private: '#FF6B6B'
+      Public: '#4ECDC4'
+      Trust: '#96CEB4'
+    zoning:
+      Agricultural: '#90EE90'
+      Commercial: '#FFD700'
+      Conservation: '#228B22'
+      Industrial: '#A0522D'
+      Residential: '#FFB6C1'
+  datashader_viz: false
+  deepscatter_viz: false
+  default_center:
+  - 41.7558
+  - -124.2016
+  default_zoom: 10
+  export_data: true
+  generate_dashboard: false
+  interactive_maps: true
+  lightweight_viz: true
+  static_plots: true
+  tile_layer: OpenStreetMap

@@ -207,6 +207,10 @@ class SpatialBackendDispatcher:
         operation_map = {
             'analyze_hotspots': 'analyze_hotspots',
             'compute_proximity': 'compute_proximity',
+            'find_clusters': 'find_clusters',
+            'calculate_density': 'calculate_density',
+            'spatial_join': 'spatial_join',
+            'interpolate_values': 'interpolate_values',
         }
 
         if operation not in operation_map:

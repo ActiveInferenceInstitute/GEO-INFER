@@ -14,4 +14,4 @@ __all__ = [
     "BaseAnalysisModule",
     "CascadianAgriculturalH3Backend",
     "InteractiveVisualizationEngine"
-] 
+]

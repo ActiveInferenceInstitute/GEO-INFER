@@ -6,54 +6,94 @@ This module provides comprehensive spatial analysis capabilities including:
 - Raster analysis (terrain, map algebra, focal statistics)
 - Network analysis (routing, service areas)
 - Geostatistics (interpolation, clustering, hotspot detection)
-- Point cloud processing
+- Spatio-temporal analysis
 """
 
-from .vector import (
-    buffer_and_intersect,
-    overlay_analysis,
-    proximity_analysis,
-    spatial_join_analysis,
-    geometric_calculations,
-    topology_operations
-)
+import logging
 
-from .raster import (
-    terrain_analysis,
-    map_algebra,
-    focal_statistics,
-    zonal_statistics,
-    raster_overlay,
-    image_processing
-)
+logger = logging.getLogger(__name__)
 
-from .network import (
-    shortest_path,
-    service_area,
-    network_connectivity,
-    routing_analysis,
-    accessibility_analysis
-)
-
-from .geostatistics import (
-    spatial_interpolation,
-    clustering_analysis,
-    hotspot_detection,
-    spatial_autocorrelation,
-    variogram_analysis
-)
-
-from .point_cloud import (
-    point_cloud_filtering,
-    feature_extraction,
-    classification,
-    surface_generation
-)
-
+# Core analytics - always available
 from .temporal import TemporalAnalyzer
+from .spatiotemporal import SpatioTemporalAnalyzer
+
+# Vector operations
+try:
+    from .vector import (
+        buffer_and_intersect,
+        overlay_analysis,
+        proximity_analysis,
+        spatial_join_analysis,
+        geometric_calculations,
+        topology_operations
+    )
+    VECTOR_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Vector analytics not available: {e}")
+    VECTOR_AVAILABLE = False
+
+# Raster operations (requires rasterio)
+try:
+    from .raster import (
+        terrain_analysis,
+        map_algebra,
+        focal_statistics,
+        zonal_statistics,
+        raster_overlay,
+        image_processing
+    )
+    RASTER_AVAILABLE = True
+except ImportError as e:
+    logger.debug(f"Raster analytics not available: {e}")
+    RASTER_AVAILABLE = False
+
+# Network operations
+try:
+    from .network import (
+        shortest_path,
+        service_area,
+        network_connectivity,
+        routing_analysis,
+        accessibility_analysis
+    )
+    NETWORK_AVAILABLE = True
+except ImportError as e:
+    logger.debug(f"Network analytics not available: {e}")
+    NETWORK_AVAILABLE = False
+
+# Geostatistics
+try:
+    from .geostatistics import (
+        spatial_interpolation,
+        clustering_analysis,
+        hotspot_detection,
+        spatial_autocorrelation,
+        variogram_analysis
+    )
+    GEOSTATISTICS_AVAILABLE = True
+except ImportError as e:
+    logger.debug(f"Geostatistics not available: {e}")
+    GEOSTATISTICS_AVAILABLE = False
+
+# Point cloud
+try:
+    from .point_cloud import (
+        point_cloud_filtering,
+        feature_extraction,
+        classification,
+        surface_generation
+    )
+    POINT_CLOUD_AVAILABLE = True
+except ImportError as e:
+    logger.debug(f"Point cloud analytics not available: {e}")
+    POINT_CLOUD_AVAILABLE = False
 
 __all__ = [
-    # Vector operations
+    # Always available
+    'TemporalAnalyzer',
+    'SpatioTemporalAnalyzer',
+    
+    # Vector operations (if available)
     'buffer_and_intersect',
     'overlay_analysis', 
     'proximity_analysis',
@@ -64,9 +104,6 @@ __all__ = [
     # Raster operations
     'terrain_analysis',
     'map_algebra',
-    
-    # Temporal analysis
-    'TemporalAnalyzer',
     
     # Geostatistical functions
     'spatial_interpolation',

@@ -1,6 +1,6 @@
 # 🌍 GEO-INFER Framework
 
-[![License: CC BY-ND-SA 4.0](https://img.shields.io/badge/License-CC%20BY--ND--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nd-sa/4.0/)
+[![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/geo-infer/geo-infer/pulls)
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289DA.svg)](https://discord.activeinference.institute/)
 [![H3 Version](https://img.shields.io/badge/H3-v4.0+-blue.svg)](https://h3geo.org/)
@@ -860,7 +860,7 @@ Each GEO-INFER module includes a module-specific `.cursorrules` file that extend
 
 ## License
 
-This project is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
@@ -989,7 +989,7 @@ This project is licensed under the Creative Commons Attribution-NoDerivatives-Sh
 ---
 
 **🌍 GEO-INFER Framework** | **Framework Version**: 4.0+ | **H3 Version**: v4.0+ | **Python**: 3.9+  
-**📅 Last Updated**: 2025-01-19 | **📋 Documentation**: ✅ **COMPREHENSIVE** | **🧪 Testing**: ✅ **OPERATIONAL**  
-**Maintained by**: GEO-INFER Community | **License**: CC BY-ND-SA 4.0
+**📅 Last Updated**: 2026-01-24 | **📋 Documentation**: ✅ **COMPREHENSIVE** | **🧪 Testing**: ✅ **OPERATIONAL**  
+**Maintained by**: GEO-INFER Community | **License**: CC BY-NC-SA 4.0
 
 *Building the future of geospatial inference through Active Inference principles and collaborative development.*

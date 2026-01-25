@@ -279,7 +279,6 @@ class ForecastingEngine:
         train_timeseries = TimeSeries(
             data=train_values,
             timestamps=train_dates,
-            frequency=timeseries.frequency,
         )
 
         # Use the same model type as in forecast_result

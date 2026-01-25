@@ -1,0 +1,487 @@
+"""
+Evacuation planning module.
+
+Provides evacuation zone delineation, route optimization,
+shelter management, and clearance time estimation.
+"""
+
+import logging
+from typing import Dict, List, Optional, Any, Tuple
+from dataclasses import dataclass, field
+from datetime import datetime
+from enum import Enum
+
+logger = logging.getLogger(__name__)
+
+
+class EvacuationLevel(Enum):
+    """Evacuation alert levels."""
+    WARNING = "warning"  # Be prepared to evacuate
+    ORDER = "order"  # Evacuate immediately
+    LIFT = "lift"  # Safe to return
+
+
+@dataclass
+class EvacuationZone:
+    """Represents an evacuation zone."""
+    zone_id: str
+    name: str
+    geometry: Dict[str, Any]  # GeoJSON geometry
+    population: int
+    level: EvacuationLevel = EvacuationLevel.WARNING
+    special_populations: List[str] = field(default_factory=list)
+
+
+@dataclass
+class Shelter:
+    """Represents an evacuation shelter."""
+    shelter_id: str
+    name: str
+    location: Dict[str, Any]
+    capacity: int
+    current_occupancy: int = 0
+    services: List[str] = field(default_factory=list)
+    accessible: bool = True
+
+
+@dataclass
+class EvacuationRoute:
+    """Represents an evacuation route."""
+    route_id: str
+    origin_zone: str
+    destination_shelter: str
+    path: List[Dict[str, float]]  # List of coordinates
+    distance_km: float
+    estimated_time_minutes: float
+    capacity_vehicles_per_hour: int
+
+
+class EvacuationPlanner:
+    """
+    Plan and execute evacuations with route optimization,
+    shelter management, and special population support.
+    """
+    
+    def __init__(
+        self,
+        road_network: Optional[Dict[str, Any]] = None,
+        population_data: Optional[Dict[str, Any]] = None,
+        shelters: Optional[List[Dict[str, Any]]] = None,
+        special_needs: Optional[List[str]] = None
+    ):
+        """
+        Initialize evacuation planner.
+        
+        Args:
+            road_network: Road network for routing
+            population_data: Population demographics
+            shelters: Available shelter locations
+            special_needs: Special needs facilities to consider
+        """
+        self.road_network = road_network
+        self.population_data = population_data
+        self.special_needs = special_needs or ["hospitals", "nursing_homes", "schools"]
+        self._zones: Dict[str, EvacuationZone] = {}
+        self._shelters: Dict[str, Shelter] = {}
+        self._routes: Dict[str, EvacuationRoute] = {}
+        
+        # Register shelters
+        if shelters:
+            for shelter_data in shelters:
+                self.register_shelter(shelter_data)
+        
+        logger.info("Initialized EvacuationPlanner")
+    
+    def register_shelter(self, shelter_data: Dict[str, Any]) -> Shelter:
+        """Register a shelter in the system."""
+        shelter = Shelter(
+            shelter_id=shelter_data.get("id", f"shelter_{len(self._shelters)}"),
+            name=shelter_data.get("name", ""),
+            location=shelter_data.get("location", {}),
+            capacity=shelter_data.get("capacity", 100),
+            services=shelter_data.get("services", []),
+            accessible=shelter_data.get("accessible", True)
+        )
+        self._shelters[shelter.shelter_id] = shelter
+        return shelter
+    
+    def plan(
+        self,
+        affected_zone: Dict[str, Any],
+        population: Dict[str, Any],
+        destinations: List[Dict[str, Any]],
+        phasing: str = "staged",
+        contraflow: bool = False
+    ) -> Dict[str, Any]:
+        """
+        Create an evacuation plan.
+        
+        Args:
+            affected_zone: Zone requiring evacuation
+            population: Population in affected area
+            destinations: Shelter destinations
+            phasing: Evacuation phasing strategy
+            contraflow: Enable contraflow lanes
+            
+        Returns:
+            Complete evacuation plan
+        """
+        plan_id = f"evac_plan_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+        
+        # Create evacuation zone
+        zone = EvacuationZone(
+            zone_id=affected_zone.get("id", "zone_1"),
+            name=affected_zone.get("name", "Evacuation Zone"),
+            geometry=affected_zone.get("geometry", {}),
+            population=population.get("total", 0),
+            level=EvacuationLevel(affected_zone.get("level", "order")),
+            special_populations=population.get("special_populations", [])
+        )
+        self._zones[zone.zone_id] = zone
+        
+        # Register destinations as shelters
+        for dest in destinations:
+            if dest.get("id") not in self._shelters:
+                self.register_shelter(dest)
+        
+        # Generate routes
+        routes = self.optimize_routes(
+            origins=[zone.zone_id],
+            destinations=[d.get("id") for d in destinations],
+            objectives=["clearance_time", "safety"],
+            constraints={"road_capacity": True, "contraflow": contraflow}
+        )
+        
+        # Calculate phasing
+        phases = self._calculate_phases(zone, phasing)
+        
+        # Estimate clearance time
+        clearance = self.estimate_clearance_time(
+            evacuation_plan={"zone": zone, "routes": routes},
+            traffic_model="dynamic_assignment",
+            scenarios=["expected"]
+        )
+        
+        plan = {
+            "plan_id": plan_id,
+            "created_at": datetime.now().isoformat(),
+            "affected_zone": {
+                "id": zone.zone_id,
+                "name": zone.name,
+                "population": zone.population,
+                "level": zone.level.value
+            },
+            "destinations": [
+                {"id": s.shelter_id, "name": s.name, "capacity": s.capacity}
+                for s in self._shelters.values()
+            ],
+            "routes": routes.get("routes", []),
+            "phasing": {
+                "strategy": phasing,
+                "phases": phases
+            },
+            "contraflow": {
+                "enabled": contraflow,
+                "segments": self._identify_contraflow_segments() if contraflow else []
+            },
+            "estimated_clearance_time_hours": clearance.get("expected", {}).get("clearance_hours", 0),
+            "special_populations": self._plan_special_populations(zone),
+            "status": "planned"
+        }
+        
+        logger.info(f"Created evacuation plan {plan_id} for {zone.population} people")
+        return plan
+    
+    def _calculate_phases(self, zone: EvacuationZone, strategy: str) -> List[Dict[str, Any]]:
+        """Calculate evacuation phases."""
+        phases = []
+        
+        if strategy == "staged":
+            # Stage by distance from hazard
+            phases = [
+                {"phase": 1, "description": "Immediate danger zone", "population_pct": 30, "delay_hours": 0},
+                {"phase": 2, "description": "High risk zone", "population_pct": 40, "delay_hours": 2},
+                {"phase": 3, "description": "Precautionary zone", "population_pct": 30, "delay_hours": 4}
+            ]
+        elif strategy == "simultaneous":
+            phases = [
+                {"phase": 1, "description": "All zones", "population_pct": 100, "delay_hours": 0}
+            ]
+        elif strategy == "time_phased":
+            # Phase by time of day
+            phases = [
+                {"phase": 1, "description": "Morning departure", "population_pct": 40, "delay_hours": 0},
+                {"phase": 2, "description": "Afternoon departure", "population_pct": 35, "delay_hours": 4},
+                {"phase": 3, "description": "Evening departure", "population_pct": 25, "delay_hours": 8}
+            ]
+        
+        return phases
+    
+    def _identify_contraflow_segments(self) -> List[Dict[str, Any]]:
+        """Identify road segments suitable for contraflow."""
+        # Return sample contraflow segments
+        return [
+            {"road": "Highway 101", "from_mile": 0, "to_mile": 20, "lanes_reversed": 2}
+        ]
+    
+    def _plan_special_populations(self, zone: EvacuationZone) -> Dict[str, Any]:
+        """Plan for special populations in the zone."""
+        return {
+            "facilities": zone.special_populations,
+            "transportation_needed": True,
+            "medical_support_needed": "hospitals" in zone.special_populations,
+            "accessible_vehicles_needed": True
+        }
+    
+    def optimize_routes(
+        self,
+        origins: List[str],
+        destinations: List[str],
+        objectives: List[str],
+        constraints: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Optimize evacuation routes.
+        
+        Args:
+            origins: Origin zone IDs
+            destinations: Destination shelter IDs
+            objectives: Optimization objectives
+            constraints: Routing constraints
+            
+        Returns:
+            Optimized routes
+        """
+        routes = []
+        
+        for origin in origins:
+            for destination in destinations:
+                route_id = f"route_{origin}_{destination}"
+                
+                # Generate route (simplified)
+                route = {
+                    "route_id": route_id,
+                    "origin": origin,
+                    "destination": destination,
+                    "distance_km": 15.0,  # Placeholder
+                    "estimated_time_minutes": 30,
+                    "capacity_vehicles_per_hour": 2000,
+                    "road_segments": [
+                        {"name": "Local Street", "length_km": 2},
+                        {"name": "Main Highway", "length_km": 10},
+                        {"name": "Access Road", "length_km": 3}
+                    ],
+                    "hazards": [],
+                    "accessibility_score": 0.9
+                }
+                routes.append(route)
+        
+        result = {
+            "optimization_objectives": objectives,
+            "constraints": constraints,
+            "routes": routes,
+            "total_routes": len(routes),
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        logger.info(f"Optimized {len(routes)} evacuation routes")
+        return result
+    
+    def plan_shelters(
+        self,
+        shelter_locations: List[Dict[str, Any]],
+        population_estimate: int,
+        duration_days: int,
+        services: List[str]
+    ) -> Dict[str, Any]:
+        """
+        Plan shelter operations.
+        
+        Args:
+            shelter_locations: Available shelter locations
+            population_estimate: Estimated evacuee count
+            duration_days: Expected shelter duration
+            services: Required services
+            
+        Returns:
+            Shelter operations plan
+        """
+        # Register shelters
+        for loc in shelter_locations:
+            if loc.get("id") not in self._shelters:
+                self.register_shelter(loc)
+        
+        total_capacity = sum(s.capacity for s in self._shelters.values())
+        capacity_sufficient = total_capacity >= population_estimate
+        
+        shelter_assignments = []
+        remaining_population = population_estimate
+        
+        for shelter in self._shelters.values():
+            assigned = min(remaining_population, shelter.capacity)
+            shelter_assignments.append({
+                "shelter_id": shelter.shelter_id,
+                "name": shelter.name,
+                "capacity": shelter.capacity,
+                "assigned_population": assigned,
+                "utilization": assigned / shelter.capacity if shelter.capacity > 0 else 0
+            })
+            remaining_population -= assigned
+            if remaining_population <= 0:
+                break
+        
+        plan = {
+            "population_estimate": population_estimate,
+            "duration_days": duration_days,
+            "total_shelter_capacity": total_capacity,
+            "capacity_sufficient": capacity_sufficient,
+            "overflow_population": max(0, remaining_population),
+            "shelters": shelter_assignments,
+            "services": {
+                service: "planned" for service in services
+            },
+            "resource_requirements": {
+                "cots": population_estimate,
+                "blankets": population_estimate * 2,
+                "meals_per_day": population_estimate * 3,
+                "water_gallons_per_day": population_estimate * 3
+            },
+            "staffing_needs": {
+                "shelter_managers": len(self._shelters),
+                "volunteers_per_shift": population_estimate // 50,
+                "medical_staff": "medical" in services
+            }
+        }
+        
+        logger.info(f"Planned shelters for {population_estimate} evacuees")
+        return plan
+    
+    def plan_special_populations(
+        self,
+        facilities: List[Dict[str, Any]],
+        transportation: List[Dict[str, Any]],
+        receiving_facilities: List[Dict[str, Any]],
+        medical_support: bool = True
+    ) -> Dict[str, Any]:
+        """
+        Plan evacuation of special populations.
+        
+        Args:
+            facilities: Special needs facilities to evacuate
+            transportation: Available specialized transport
+            receiving_facilities: Destination facilities
+            medical_support: Whether medical support is needed
+            
+        Returns:
+            Special populations evacuation plan
+        """
+        plans = []
+        
+        for facility in facilities:
+            facility_type = facility.get("type", "unknown")
+            population = facility.get("population", 0)
+            
+            # Determine transport requirements
+            transport_type = "ambulance" if facility_type == "hospital" else "accessible_bus"
+            transport_capacity = 4 if transport_type == "ambulance" else 30
+            trips_needed = (population + transport_capacity - 1) // transport_capacity
+            
+            # Find appropriate receiving facility
+            receiving = None
+            for recv in receiving_facilities:
+                if recv.get("type") == facility_type and recv.get("available_capacity", 0) >= population:
+                    receiving = recv
+                    break
+            
+            plan = {
+                "facility_id": facility.get("id"),
+                "facility_name": facility.get("name"),
+                "facility_type": facility_type,
+                "population": population,
+                "transport_type": transport_type,
+                "trips_required": trips_needed,
+                "receiving_facility": receiving.get("name") if receiving else "To be determined",
+                "medical_support": medical_support and facility_type == "hospital",
+                "priority": "high" if facility_type in ["hospital", "dialysis_center"] else "medium",
+                "estimated_evacuation_hours": trips_needed * 1.5
+            }
+            plans.append(plan)
+        
+        result = {
+            "total_facilities": len(facilities),
+            "total_population": sum(f.get("population", 0) for f in facilities),
+            "facility_plans": plans,
+            "transport_requirements": {
+                "ambulances": sum(1 for p in plans if p["transport_type"] == "ambulance"),
+                "accessible_buses": sum(1 for p in plans if p["transport_type"] == "accessible_bus")
+            },
+            "medical_support_needed": medical_support,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        logger.info(f"Planned evacuation for {len(facilities)} special needs facilities")
+        return result
+    
+    def estimate_clearance_time(
+        self,
+        evacuation_plan: Dict[str, Any],
+        traffic_model: str = "dynamic_assignment",
+        scenarios: List[str] = None
+    ) -> Dict[str, Any]:
+        """
+        Estimate evacuation clearance time.
+        
+        Args:
+            evacuation_plan: The evacuation plan
+            traffic_model: Traffic model to use
+            scenarios: Scenarios to model
+            
+        Returns:
+            Clearance time estimates
+        """
+        scenarios = scenarios or ["best_case", "expected", "worst_case"]
+        
+        zone = evacuation_plan.get("zone")
+        population = zone.population if hasattr(zone, "population") else zone.get("population", 10000)
+        
+        # Calculate based on vehicle loading and network capacity
+        persons_per_vehicle = 2.5
+        vehicles = population / persons_per_vehicle
+        
+        routes = evacuation_plan.get("routes", [])
+        # Handle case where routes is a dict with "routes" key (from optimize_routes result)
+        if isinstance(routes, dict):
+            routes = routes.get("routes", [])
+        total_capacity = sum(r.get("capacity_vehicles_per_hour", 1000) for r in routes) if routes else 2000
+        
+        # Base clearance time
+        base_clearance = vehicles / total_capacity if total_capacity > 0 else 10
+        
+        estimates = {}
+        scenario_multipliers = {
+            "best_case": 0.7,
+            "expected": 1.0,
+            "worst_case": 1.5
+        }
+        
+        for scenario in scenarios:
+            multiplier = scenario_multipliers.get(scenario, 1.0)
+            clearance_hours = base_clearance * multiplier
+            
+            estimates[scenario] = {
+                "clearance_hours": round(clearance_hours, 1),
+                "vehicles": int(vehicles),
+                "network_capacity_per_hour": total_capacity,
+                "loading_time_hours": 1.0 * multiplier,
+                "travel_time_hours": (clearance_hours - 1.0 * multiplier) if clearance_hours > 1 else 0.5
+            }
+        
+        result = {
+            "traffic_model": traffic_model,
+            "population": population,
+            "estimates": estimates,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        logger.info(f"Estimated clearance time: {estimates.get('expected', {}).get('clearance_hours', 0)} hours")
+        return estimates

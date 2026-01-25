@@ -585,3 +585,855 @@ class H3Backend:
             }
         except Exception as e:
             raise ValueError(f"Invalid H3 cell identifiers: {e}") from e
+
+    @_require_h3("find_clusters")
+    def find_clusters(
+        self, 
+        cells: List[str], 
+        values: List[float], 
+        min_cluster_size: int = 3,
+        distance_threshold: int = 1
+    ) -> Dict[str, Any]:
+        """
+        Find spatial clusters of cells based on values and proximity.
+        
+        Uses a grid-based DBSCAN-like algorithm that groups cells that are
+        within distance_threshold grid steps of each other.
+        
+        Args:
+            cells: List of H3 cell identifiers
+            values: Corresponding values for each cell
+            min_cluster_size: Minimum number of cells to form a cluster
+            distance_threshold: Maximum grid distance between cluster members
+            
+        Returns:
+            Dictionary with clusters, statistics, and noise cells
+        """
+        if len(cells) != len(values):
+            raise ValueError(f"Cells ({len(cells)}) and values ({len(values)}) must have the same length")
+        
+        logger.info(f"Finding clusters in {len(cells)} cells with min_size={min_cluster_size}")
+        
+        # Create cell-value mapping
+        cell_values = dict(zip(cells, values))
+        cell_set = set(cells)
+        visited = set()
+        clusters = []
+        noise = []
+        
+        def get_neighbors_in_set(cell: str) -> List[str]:
+            """Get neighbors of a cell that are in our cell set."""
+            try:
+                neighbors = list(self.h3.grid_disk(cell, distance_threshold))
+                return [n for n in neighbors if n in cell_set and n != cell]
+            except Exception:
+                return []
+        
+        def expand_cluster(cell: str, neighbors: List[str], cluster: List[str]):
+            """Expand cluster from seed cell."""
+            cluster.append(cell)
+            i = 0
+            while i < len(neighbors):
+                neighbor = neighbors[i]
+                if neighbor not in visited:
+                    visited.add(neighbor)
+                    new_neighbors = get_neighbors_in_set(neighbor)
+                    if len(new_neighbors) >= min_cluster_size - 1:
+                        neighbors.extend([n for n in new_neighbors if n not in neighbors])
+                if neighbor not in cluster:
+                    cluster.append(neighbor)
+                i += 1
+        
+        # Main clustering loop
+        for cell in cells:
+            if cell in visited:
+                continue
+            visited.add(cell)
+            
+            neighbors = get_neighbors_in_set(cell)
+            if len(neighbors) < min_cluster_size - 1:
+                noise.append(cell)
+            else:
+                cluster = []
+                expand_cluster(cell, neighbors, cluster)
+                if len(cluster) >= min_cluster_size:
+                    cluster_values = [cell_values[c] for c in cluster]
+                    clusters.append({
+                        'id': len(clusters),
+                        'cells': cluster,
+                        'size': len(cluster),
+                        'mean_value': sum(cluster_values) / len(cluster_values),
+                        'min_value': min(cluster_values),
+                        'max_value': max(cluster_values),
+                    })
+                else:
+                    noise.extend(cluster)
+        
+        logger.info(f"Found {len(clusters)} clusters, {len(noise)} noise cells")
+        
+        return {
+            'clusters': clusters,
+            'num_clusters': len(clusters),
+            'noise_cells': noise,
+            'noise_count': len(noise),
+            'total_cells': len(cells),
+            'parameters': {
+                'min_cluster_size': min_cluster_size,
+                'distance_threshold': distance_threshold
+            }
+        }
+
+    @_require_h3("calculate_density")
+    def calculate_density(
+        self, 
+        cells: List[str], 
+        values: List[float],
+        kernel_radius: int = 1
+    ) -> Dict[str, Any]:
+        """
+        Calculate density values across cells using kernel smoothing.
+        
+        Uses inverse distance weighting within the kernel radius.
+        
+        Args:
+            cells: List of H3 cell identifiers
+            values: Values at each cell location
+            kernel_radius: Radius for kernel density estimation in grid steps
+            
+        Returns:
+            Dictionary with density values and statistics
+        """
+        if len(cells) != len(values):
+            raise ValueError(f"Cells ({len(cells)}) and values ({len(values)}) must have the same length")
+        
+        logger.info(f"Calculating density for {len(cells)} cells with kernel_radius={kernel_radius}")
+        
+        cell_values = dict(zip(cells, values))
+        cell_set = set(cells)
+        densities = {}
+        
+        for cell in cells:
+            # Get neighbors within kernel radius
+            try:
+                neighborhood = list(self.h3.grid_disk(cell, kernel_radius))
+            except Exception:
+                neighborhood = [cell]
+            
+            # Calculate weighted average (IDW with distance weights)
+            total_weight = 0.0
+            weighted_sum = 0.0
+            
+            for neighbor in neighborhood:
+                if neighbor in cell_set:
+                    try:
+                        distance = self.h3.grid_distance(cell, neighbor)
+                        # Inverse distance weight (avoid div by zero)
+                        weight = 1.0 / (distance + 1)
+                        weighted_sum += cell_values[neighbor] * weight
+                        total_weight += weight
+                    except Exception:
+                        continue
+            
+            densities[cell] = weighted_sum / total_weight if total_weight > 0 else 0.0
+        
+        density_values = list(densities.values())
+        
+        return {
+            'densities': densities,
+            'statistics': {
+                'mean': sum(density_values) / len(density_values) if density_values else 0.0,
+                'max': max(density_values) if density_values else 0.0,
+                'min': min(density_values) if density_values else 0.0,
+            },
+            'kernel_radius': kernel_radius,
+            'cells_processed': len(cells)
+        }
+
+    @_require_h3("spatial_join")
+    def spatial_join(
+        self, 
+        cells_a: List[str], 
+        cells_b: List[str],
+        join_type: str = "intersects"
+    ) -> Dict[str, Any]:
+        """
+        Join two sets of cells based on spatial relationships.
+        
+        Args:
+            cells_a: First set of H3 cell identifiers
+            cells_b: Second set of H3 cell identifiers
+            join_type: Type of join ('intersects', 'contains', 'within')
+            
+        Returns:
+            Dictionary with matched pairs and unmatched cells
+        """
+        valid_join_types = {'intersects', 'contains', 'within'}
+        if join_type not in valid_join_types:
+            raise ValueError(f"Invalid join_type: {join_type}. Must be one of {valid_join_types}")
+        
+        logger.info(f"Performing spatial join ({join_type}) on {len(cells_a)} x {len(cells_b)} cells")
+        
+        set_a = set(cells_a)
+        set_b = set(cells_b)
+        matches = []
+        matched_a = set()
+        matched_b = set()
+        
+        if join_type == "intersects":
+            # Cells intersect if they are the same or neighbors
+            for cell_a in cells_a:
+                try:
+                    neighbors = set(self.h3.grid_disk(cell_a, 1))
+                    for cell_b in cells_b:
+                        if cell_b in neighbors or cell_a == cell_b:
+                            matches.append((cell_a, cell_b))
+                            matched_a.add(cell_a)
+                            matched_b.add(cell_b)
+                except Exception:
+                    continue
+        
+        elif join_type == "contains":
+            # Cell A contains B if B is at a finer resolution and within A's boundary
+            for cell_a in cells_a:
+                res_a = self.h3.get_resolution(cell_a)
+                for cell_b in cells_b:
+                    res_b = self.h3.get_resolution(cell_b)
+                    if res_b > res_a:
+                        try:
+                            parent = self.h3.cell_to_parent(cell_b, res_a)
+                            if parent == cell_a:
+                                matches.append((cell_a, cell_b))
+                                matched_a.add(cell_a)
+                                matched_b.add(cell_b)
+                        except Exception:
+                            continue
+        
+        elif join_type == "within":
+            # Cell A is within B if A is at a finer resolution and within B's boundary
+            for cell_a in cells_a:
+                res_a = self.h3.get_resolution(cell_a)
+                for cell_b in cells_b:
+                    res_b = self.h3.get_resolution(cell_b)
+                    if res_a > res_b:
+                        try:
+                            parent = self.h3.cell_to_parent(cell_a, res_b)
+                            if parent == cell_b:
+                                matches.append((cell_a, cell_b))
+                                matched_a.add(cell_a)
+                                matched_b.add(cell_b)
+                        except Exception:
+                            continue
+        
+        logger.info(f"Found {len(matches)} matches")
+        
+        return {
+            'matches': matches,
+            'match_count': len(matches),
+            'unmatched_a': list(set_a - matched_a),
+            'unmatched_b': list(set_b - matched_b),
+            'join_type': join_type
+        }
+
+    @_require_h3("interpolate_values")
+    def interpolate_values(
+        self, 
+        cells: List[str], 
+        values: List[float],
+        target_cells: List[str],
+        method: str = "idw"
+    ) -> Dict[str, Any]:
+        """
+        Interpolate values at target cell locations using source cells.
+        
+        Args:
+            cells: List of cells with known values
+            values: Known values at each cell location
+            target_cells: Cells where values should be interpolated
+            method: Interpolation method ('idw', 'nearest', 'linear')
+            
+        Returns:
+            Dictionary with interpolated values and metadata
+        """
+        if len(cells) != len(values):
+            raise ValueError(f"Cells ({len(cells)}) and values ({len(values)}) must have the same length")
+        
+        valid_methods = {'idw', 'nearest', 'linear'}
+        if method not in valid_methods:
+            raise ValueError(f"Invalid method: {method}. Must be one of {valid_methods}")
+        
+        logger.info(f"Interpolating {len(target_cells)} target cells from {len(cells)} source cells using {method}")
+        
+        cell_values = dict(zip(cells, values))
+        interpolated = {}
+        
+        for target in target_cells:
+            if target in cell_values:
+                # Target cell has a known value
+                interpolated[target] = cell_values[target]
+                continue
+            
+            if method == "nearest":
+                # Find nearest source cell
+                min_distance = float('inf')
+                nearest_value = 0.0
+                for source, value in cell_values.items():
+                    try:
+                        dist = self.h3.grid_distance(target, source)
+                        if dist < min_distance:
+                            min_distance = dist
+                            nearest_value = value
+                    except Exception:
+                        continue
+                interpolated[target] = nearest_value
+            
+            elif method == "idw" or method == "linear":
+                # Inverse distance weighting
+                total_weight = 0.0
+                weighted_sum = 0.0
+                power = 2.0 if method == "idw" else 1.0
+                
+                for source, value in cell_values.items():
+                    try:
+                        dist = self.h3.grid_distance(target, source)
+                        if dist == 0:
+                            weighted_sum = value
+                            total_weight = 1.0
+                            break
+                        weight = 1.0 / (dist ** power)
+                        weighted_sum += value * weight
+                        total_weight += weight
+                    except Exception:
+                        continue
+                
+                interpolated[target] = weighted_sum / total_weight if total_weight > 0 else 0.0
+        
+        interpolated_values = list(interpolated.values())
+        
+        return {
+            'interpolated': interpolated,
+            'method': method,
+            'source_count': len(cells),
+            'target_count': len(target_cells),
+            'statistics': {
+                'mean': sum(interpolated_values) / len(interpolated_values) if interpolated_values else 0.0,
+                'min': min(interpolated_values) if interpolated_values else 0.0,
+                'max': max(interpolated_values) if interpolated_values else 0.0,
+            }
+        }
+
+    # =========================================================================
+    # VALIDATION METHODS
+    # =========================================================================
+
+    @_require_h3("is_valid_cell")
+    def is_valid_cell(self, cell: str) -> bool:
+        """
+        Check if an H3 cell identifier is valid.
+        
+        Args:
+            cell: H3 cell identifier to validate
+            
+        Returns:
+            True if valid, False otherwise
+        """
+        try:
+            return self.h3.is_valid_cell(cell)
+        except Exception:
+            return False
+
+    def validate_resolution(self, resolution: int) -> Dict[str, Any]:
+        """
+        Validate that a resolution is within the valid H3 range.
+        
+        Args:
+            resolution: Resolution value to validate (should be 0-15)
+            
+        Returns:
+            Dictionary with validation result and details
+        """
+        is_valid = isinstance(resolution, int) and 0 <= resolution <= 15
+        return {
+            'valid': is_valid,
+            'resolution': resolution,
+            'min_resolution': 0,
+            'max_resolution': 15,
+            'error': None if is_valid else f"Resolution must be integer 0-15, got {resolution}"
+        }
+
+    def validate_coordinates(self, lat: float, lng: float) -> Dict[str, Any]:
+        """
+        Validate lat/lng coordinates are within valid ranges.
+        
+        Args:
+            lat: Latitude (-90 to 90)
+            lng: Longitude (-180 to 180)
+            
+        Returns:
+            Dictionary with validation result and details
+        """
+        lat_valid = isinstance(lat, (int, float)) and -90 <= lat <= 90
+        lng_valid = isinstance(lng, (int, float)) and -180 <= lng <= 180
+        
+        errors = []
+        if not lat_valid:
+            errors.append(f"Latitude must be -90 to 90, got {lat}")
+        if not lng_valid:
+            errors.append(f"Longitude must be -180 to 180, got {lng}")
+        
+        return {
+            'valid': lat_valid and lng_valid,
+            'lat': lat,
+            'lng': lng,
+            'lat_valid': lat_valid,
+            'lng_valid': lng_valid,
+            'errors': errors if errors else None
+        }
+
+    @_require_h3("are_neighbors")
+    def are_neighbors(self, cell1: str, cell2: str) -> bool:
+        """
+        Check if two H3 cells are neighbors (adjacent).
+        
+        Args:
+            cell1: First H3 cell identifier
+            cell2: Second H3 cell identifier
+            
+        Returns:
+            True if cells are neighbors, False otherwise
+        """
+        try:
+            return self.h3.are_neighbor_cells(cell1, cell2)
+        except Exception:
+            return False
+
+    @_require_h3("is_pentagon")
+    def is_pentagon(self, cell: str) -> bool:
+        """
+        Check if an H3 cell is a pentagon (12 per resolution).
+        
+        Args:
+            cell: H3 cell identifier
+            
+        Returns:
+            True if cell is a pentagon, False if hexagon
+        """
+        try:
+            return self.h3.is_pentagon(cell)
+        except Exception:
+            return False
+
+    @_require_h3("is_res_class_iii")
+    def is_res_class_iii(self, cell: str) -> bool:
+        """
+        Check if cell is Class III resolution (aperture 7 rotation).
+        
+        Class III cells have a 60° rotation relative to their parent.
+        Odd resolutions (1, 3, 5, ...) are Class III.
+        
+        Args:
+            cell: H3 cell identifier
+            
+        Returns:
+            True if Class III, False if Class II
+        """
+        try:
+            res = self.h3.get_resolution(cell)
+            return res % 2 == 1
+        except Exception:
+            return False
+
+    @_require_h3("get_base_cell")
+    def get_base_cell(self, cell: str) -> int:
+        """
+        Get the base cell number (0-121) for any H3 cell.
+        
+        Base cells are the 122 resolution-0 cells that tile the icosahedron.
+        
+        Args:
+            cell: H3 cell identifier at any resolution
+            
+        Returns:
+            Base cell number (0-121)
+        """
+        return self.h3.get_base_cell_number(cell)
+
+    @_require_h3("get_icosahedron_faces")
+    def get_icosahedron_faces(self, cell: str) -> List[int]:
+        """
+        Get the icosahedron faces a cell intersects.
+        
+        Most cells touch 1 face, but cells near vertices touch multiple.
+        
+        Args:
+            cell: H3 cell identifier
+            
+        Returns:
+            List of face numbers (0-19)
+        """
+        return list(self.h3.get_icosahedron_faces(cell))
+
+    @_require_h3("get_pentagons")
+    def get_pentagons(self, resolution: int) -> List[str]:
+        """
+        Get all 12 pentagon cells at a given resolution.
+        
+        Args:
+            resolution: H3 resolution (0-15)
+            
+        Returns:
+            List of 12 pentagon cell identifiers
+        """
+        res_check = self.validate_resolution(resolution)
+        if not res_check['valid']:
+            raise ValueError(res_check['error'])
+        return list(self.h3.get_pentagons(resolution))
+
+    @_require_h3("get_cells_at_resolution")
+    def get_cells_at_resolution(
+        self, 
+        cells: List[str], 
+        target_resolution: int
+    ) -> List[str]:
+        """
+        Convert a mixed-resolution set of cells to a uniform resolution.
+        
+        For cells at higher resolution, gets parent.
+        For cells at lower resolution, gets children.
+        
+        Args:
+            cells: List of H3 cells at any resolutions
+            target_resolution: Desired uniform resolution
+            
+        Returns:
+            List of cells all at target_resolution
+        """
+        res_check = self.validate_resolution(target_resolution)
+        if not res_check['valid']:
+            raise ValueError(res_check['error'])
+        
+        result = set()
+        for cell in cells:
+            cell_res = self.h3.get_resolution(cell)
+            if cell_res == target_resolution:
+                result.add(cell)
+            elif cell_res > target_resolution:
+                # Get parent
+                result.add(self.h3.cell_to_parent(cell, target_resolution))
+            else:
+                # Get children
+                result.update(self.h3.cell_to_children(cell, target_resolution))
+        return list(result)
+
+    # =========================================================================
+    # DIRECTED EDGE METHODS
+    # =========================================================================
+
+    @_require_h3("get_directed_edge")
+    def get_directed_edge(self, origin: str, destination: str) -> str:
+        """
+        Get the directed edge from origin to destination cell.
+        
+        Args:
+            origin: Origin H3 cell
+            destination: Destination H3 cell (must be neighbor)
+            
+        Returns:
+            Directed edge identifier
+            
+        Raises:
+            ValueError: If cells are not neighbors
+        """
+        if not self.are_neighbors(origin, destination):
+            raise ValueError(f"Cells {origin} and {destination} are not neighbors")
+        return self.h3.cells_to_directed_edge(origin, destination)
+
+    @_require_h3("edge_to_cells")
+    def edge_to_cells(self, edge: str) -> Tuple[str, str]:
+        """
+        Get the origin and destination cells of a directed edge.
+        
+        Args:
+            edge: Directed edge identifier
+            
+        Returns:
+            Tuple of (origin_cell, destination_cell)
+        """
+        origin = self.h3.get_directed_edge_origin(edge)
+        destination = self.h3.get_directed_edge_destination(edge)
+        return (origin, destination)
+
+    @_require_h3("get_cell_edges")
+    def get_cell_edges(self, cell: str) -> List[str]:
+        """
+        Get all directed edges originating from a cell.
+        
+        Hexagons have 6 edges, pentagons have 5.
+        
+        Args:
+            cell: H3 cell identifier
+            
+        Returns:
+            List of directed edge identifiers
+        """
+        return list(self.h3.origin_to_directed_edges(cell))
+
+    @_require_h3("get_edge_boundary")
+    def get_edge_boundary(self, edge: str) -> List[Tuple[float, float]]:
+        """
+        Get the geographic boundary of a directed edge.
+        
+        Args:
+            edge: Directed edge identifier
+            
+        Returns:
+            List of (lat, lng) tuples defining the edge
+        """
+        return list(self.h3.directed_edge_to_boundary(edge))
+
+    # =========================================================================
+    # LOCAL IJ COORDINATE METHODS
+    # =========================================================================
+
+    @_require_h3("cell_to_local_ij")
+    def cell_to_local_ij(self, origin: str, cell: str) -> Tuple[int, int]:
+        """
+        Get the local IJ coordinates of a cell relative to an origin.
+        
+        IJ coordinates are a local 2D coordinate system anchored at origin.
+        
+        Args:
+            origin: Origin cell for the coordinate system
+            cell: Cell to get coordinates for
+            
+        Returns:
+            Tuple of (i, j) coordinates
+        """
+        ij = self.h3.cell_to_local_ij(origin, cell)
+        return (ij[0], ij[1])
+
+    @_require_h3("local_ij_to_cell")
+    def local_ij_to_cell(self, origin: str, i: int, j: int) -> str:
+        """
+        Convert local IJ coordinates back to a cell identifier.
+        
+        Args:
+            origin: Origin cell for the coordinate system
+            i: I coordinate
+            j: J coordinate
+            
+        Returns:
+            H3 cell identifier
+        """
+        return self.h3.local_ij_to_cell(origin, i, j)
+
+    # =========================================================================
+    # GEOMETRIC CALCULATION METHODS
+    # =========================================================================
+
+    @_require_h3("great_circle_distance")
+    def great_circle_distance(
+        self, 
+        lat1: float, 
+        lng1: float, 
+        lat2: float, 
+        lng2: float,
+        unit: str = 'm'
+    ) -> float:
+        """
+        Calculate great circle distance between two points.
+        
+        Args:
+            lat1, lng1: First point coordinates
+            lat2, lng2: Second point coordinates
+            unit: Distance unit ('m', 'km', 'rads')
+            
+        Returns:
+            Distance in specified unit
+        """
+        import math
+        
+        # Convert to radians
+        lat1_r = math.radians(lat1)
+        lat2_r = math.radians(lat2)
+        dlat = math.radians(lat2 - lat1)
+        dlng = math.radians(lng2 - lng1)
+        
+        # Haversine formula
+        a = math.sin(dlat/2)**2 + math.cos(lat1_r) * math.cos(lat2_r) * math.sin(dlng/2)**2
+        c = 2 * math.asin(math.sqrt(a))
+        
+        if unit == 'rads':
+            return c
+        
+        # Earth radius in meters
+        r = 6371000
+        distance_m = r * c
+        
+        if unit == 'km':
+            return distance_m / 1000
+        return distance_m
+
+    @_require_h3("cell_to_geodesic_area")
+    def cell_to_geodesic_area(self, cell: str, unit: str = 'km^2') -> float:
+        """
+        Get the geodesic (accurate) area of an H3 cell.
+        
+        More accurate than get_cell_area for cells near poles.
+        
+        Args:
+            cell: H3 cell identifier
+            unit: Area unit ('m^2', 'km^2')
+            
+        Returns:
+            Area in specified unit
+        """
+        area_rads = self.h3.cell_area(cell, unit='rads^2')
+        
+        # Earth radius squared (meters)
+        r2 = 6371000 ** 2
+        area_m2 = area_rads * r2
+        
+        if unit == 'km^2':
+            return area_m2 / 1_000_000
+        return area_m2
+
+    @_require_h3("average_edge_length")
+    def average_edge_length(self, resolution: int, unit: str = 'm') -> float:
+        """
+        Get the average edge length for cells at a resolution.
+        
+        Args:
+            resolution: H3 resolution (0-15)
+            unit: Length unit ('m', 'km')
+            
+        Returns:
+            Average edge length in specified unit
+        """
+        res_check = self.validate_resolution(resolution)
+        if not res_check['valid']:
+            raise ValueError(res_check['error'])
+        
+        length = self.h3.average_hexagon_edge_length(resolution, unit=unit)
+        return length
+
+    @_require_h3("line_to_cells")
+    def line_to_cells(
+        self, 
+        start_lat: float, 
+        start_lng: float,
+        end_lat: float,
+        end_lng: float,
+        resolution: int
+    ) -> List[str]:
+        """
+        Convert a line segment to H3 cells it passes through.
+        
+        Args:
+            start_lat, start_lng: Start point coordinates
+            end_lat, end_lng: End point coordinates
+            resolution: H3 resolution
+            
+        Returns:
+            List of H3 cells along the line
+        """
+        res_check = self.validate_resolution(resolution)
+        if not res_check['valid']:
+            raise ValueError(res_check['error'])
+        
+        start_cell = self.h3.latlng_to_cell(start_lat, start_lng, resolution)
+        end_cell = self.h3.latlng_to_cell(end_lat, end_lng, resolution)
+        
+        try:
+            return list(self.h3.grid_path_cells(start_cell, end_cell))
+        except Exception:
+            # Fallback: return just endpoints if path fails
+            return [start_cell, end_cell]
+
+    @_require_h3("point_distance_to_cell_center")
+    def point_distance_to_cell_center(
+        self, 
+        lat: float, 
+        lng: float, 
+        cell: str
+    ) -> float:
+        """
+        Calculate distance from a point to a cell's center.
+        
+        Args:
+            lat, lng: Point coordinates
+            cell: H3 cell identifier
+            
+        Returns:
+            Distance in meters
+        """
+        center = self.h3.cell_to_latlng(cell)
+        return self.great_circle_distance(lat, lng, center[0], center[1], unit='m')
+
+    @_require_h3("get_resolution_stats")
+    def get_resolution_stats(self, resolution: int) -> Dict[str, Any]:
+        """
+        Get statistics about a given H3 resolution level.
+        
+        Args:
+            resolution: H3 resolution (0-15)
+            
+        Returns:
+            Dictionary with resolution statistics
+        """
+        res_check = self.validate_resolution(resolution)
+        if not res_check['valid']:
+            raise ValueError(res_check['error'])
+        
+        return {
+            'resolution': resolution,
+            'num_hexagons': self.h3.get_num_cells(resolution) - 12,
+            'num_pentagons': 12,
+            'total_cells': self.h3.get_num_cells(resolution),
+            'average_area_km2': self.h3.average_hexagon_area(resolution, unit='km^2'),
+            'average_edge_length_km': self.h3.average_hexagon_edge_length(resolution, unit='km'),
+            'class': 'III' if resolution % 2 == 1 else 'II'
+        }
+
+    # =========================================================================
+    # COMPREHENSIVE VALIDATION
+    # =========================================================================
+
+    def validate_cell_set(self, cells: List[str]) -> Dict[str, Any]:
+        """
+        Validate a set of H3 cells comprehensively.
+        
+        Args:
+            cells: List of H3 cell identifiers
+            
+        Returns:
+            Comprehensive validation report
+        """
+        if not self._available:
+            return {'error': 'H3 library not available'}
+        
+        valid_cells = []
+        invalid_cells = []
+        resolutions = set()
+        pentagons = []
+        
+        for cell in cells:
+            if self.is_valid_cell(cell):
+                valid_cells.append(cell)
+                resolutions.add(self.h3.get_resolution(cell))
+                if self.is_pentagon(cell):
+                    pentagons.append(cell)
+            else:
+                invalid_cells.append(cell)
+        
+        return {
+            'total_cells': len(cells),
+            'valid_count': len(valid_cells),
+            'invalid_count': len(invalid_cells),
+            'invalid_cells': invalid_cells[:10],  # Limit output
+            'resolutions_present': sorted(list(resolutions)),
+            'is_uniform_resolution': len(resolutions) <= 1,
+            'pentagon_count': len(pentagons),
+            'pentagons': pentagons,
+            'all_valid': len(invalid_cells) == 0
+        }
+

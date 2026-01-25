@@ -21,7 +21,18 @@ from folium.plugins import HeatMap, MarkerCluster
 
 # --- H3 and OSC Integration ---
 import h3
-from geo_infer_space.osc_geo import create_h3_data_loader, H3DataLoader
+
+# OSC integration is optional - allows standalone operation
+try:
+    from geo_infer_space.osc_geo import create_h3_data_loader, H3DataLoader
+    OSC_GEO_AVAILABLE = True
+except ImportError:
+    OSC_GEO_AVAILABLE = False
+    H3DataLoader = None
+    
+    def create_h3_data_loader(*args, **kwargs):
+        """Stub for when osc_geo is not available."""
+        raise ImportError("osc_geo module not available. OSC data loading disabled.")
 
 # --- Local Core Imports ---
 # Base class for type hinting

@@ -1,9 +1,0 @@
-{
-"type": "FeatureCollection",
-"name": "synthetic_current_use_data",
-"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-"features": [
-{ "type": "Feature", "properties": { "crop_type": "Hay/Alfalfa", "intensity": "high", "water_usage": "irrigated", "acres": 2500, "source": "NASS_CDL_2022", "county": "Del Norte" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -124.2, 41.5 ], [ -124.2, 41.8 ], [ -123.8, 41.8 ], [ -123.8, 41.5 ], [ -124.2, 41.5 ] ] ] } },
-{ "type": "Feature", "properties": { "crop_type": "Mixed Vegetables", "intensity": "medium", "water_usage": "irrigated", "acres": 1500, "source": "NASS_CDL_2022", "county": "Del Norte" }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -124.0, 41.5 ], [ -124.0, 41.7 ], [ -123.8, 41.7 ], [ -123.8, 41.5 ], [ -124.0, 41.5 ] ] ] } }
-]
-}
