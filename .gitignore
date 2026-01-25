@@ -1,4 +1,19 @@
+# Python bytecode and caches
 *.pyc
+__pycache__/
+*.pyo
+*.pyd
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+
+# Build artifacts
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Data files
 *.zip
 *.duckdb 
 *.tif
@@ -21,3 +36,5 @@ GEO-INFER-SPACE/src/geo_infer_space/osc_geo/utils/reports/osc-geo-h3loader-cli/
 GEO-INFER-SPACE/build
 GEO-INFER-SPACE/repos
 GEO-INFER-SPACE/.DS_Store
+GEO-INFER-PLACE/locations/cascadia/data/improvements/CA.geojson
+GEO-INFER-PLACE/locations/cascadia/data/improvements/tl_2023_us_zcta520/tl_2023_us_zcta520.shp

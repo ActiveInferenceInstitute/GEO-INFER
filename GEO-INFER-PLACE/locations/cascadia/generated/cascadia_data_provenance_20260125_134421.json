@@ -1,0 +1,16 @@
+{
+  "timestamp": "2026-01-25T13:44:21.262459",
+  "h3_resolution": 8,
+  "modules": {
+    "zoning": {
+      "h3_cache": "test_output/zoning/data/cache/zoning_h3_res8.json",
+      "output_hexagons": 2584,
+      "input_features": 2,
+      "empirical_exists": false,
+      "synthetic_exists": true,
+      "raw_exists": true
+    }
+  },
+  "fusion_cache": "test_output/data/cache/fusion",
+  "scores_cache": "test_output/data/cache/scores/scores_856191ed49bbd78e.json"
+}

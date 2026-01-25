@@ -7,7 +7,12 @@
       "description": "California statewide parcel boundaries from CAL FIRE",
       "coverage": "California",
       "update_frequency": "Quarterly",
-      "fields_of_interest": ["OWNER_NAME", "PARCEL_SIZE", "LAND_USE", "ASSESSED_VALUE"]
+      "fields_of_interest": [
+        "OWNER_NAME",
+        "PARCEL_SIZE",
+        "LAND_USE",
+        "ASSESSED_VALUE"
+      ]
     },
     "del_norte_parcels": {
       "name": "Del Norte County Parcel Data",
@@ -16,7 +21,13 @@
       "description": "Del Norte County official parcel data",
       "coverage": "Del Norte County, CA",
       "update_frequency": "Monthly",
-      "fields_of_interest": ["OWNER_NAME", "ACRES", "LAND_USE", "IMPROVEMENT_VALUE", "LAND_VALUE"]
+      "fields_of_interest": [
+        "OWNER_NAME",
+        "ACRES",
+        "LAND_USE",
+        "IMPROVEMENT_VALUE",
+        "LAND_VALUE"
+      ]
     },
     "del_norte_zoning": {
       "name": "Del Norte County Zoning Data",
@@ -25,16 +36,26 @@
       "description": "Del Norte County official zoning designations",
       "coverage": "Del Norte County, CA",
       "update_frequency": "Monthly",
-      "fields_of_interest": ["ZONE_CODE", "ZONE_DESC", "ACRES", "GENERAL_PLAN"]
+      "fields_of_interest": [
+        "ZONE_CODE",
+        "ZONE_DESC",
+        "ACRES",
+        "GENERAL_PLAN"
+      ]
     },
     "ca_fmmp": {
       "name": "California Farmland Mapping and Monitoring Program",
-      "url": "https://gis.conservation.ca.gov/server/rest/services/DLRP/Farmland_Mapping_and_Monitoring_Program/FeatureServer/0",
+      "url": "https://gis.conservation.ca.gov/server/rest/services/DLRP/CaliforniaImportantFarmland_2022/FeatureServer/0",
       "type": "arcgis",
-      "description": "Official California farmland classification data",
+      "description": "Official California farmland classification data (2022)",
       "coverage": "California",
-      "update_frequency": "Annual",
-      "fields_of_interest": ["CI_CLASSNM", "ACRES", "COUNTY"]
+      "update_frequency": "Biennial",
+      "fields_of_interest": [
+        "polygon_ty",
+        "upd_year",
+        "county_nam",
+        "Shape_Area"
+      ]
     },
     "usda_cdl": {
       "name": "USDA Cropland Data Layer",
@@ -43,7 +64,11 @@
       "description": "30-meter cropland classification data",
       "coverage": "United States",
       "update_frequency": "Annual",
-      "fields_of_interest": ["CLASS_NAME", "ACRES", "VALUE"]
+      "fields_of_interest": [
+        "CLASS_NAME",
+        "ACRES",
+        "VALUE"
+      ]
     },
     "or_parcels": {
       "name": "Oregon Parcel Data (ORMAP)",
@@ -52,7 +77,12 @@
       "description": "Oregon statewide parcel mapping from ORMAP consortium",
       "coverage": "Oregon",
       "update_frequency": "Continuous",
-      "fields_of_interest": ["OWNER_NAME", "ACRES", "PROP_CLASS", "MARKET_VALUE"]
+      "fields_of_interest": [
+        "OWNER_NAME",
+        "ACRES",
+        "PROP_CLASS",
+        "MARKET_VALUE"
+      ]
     },
     "wa_parcels": {
       "name": "Washington County Parcel Data",
@@ -61,8 +91,38 @@
       "description": "King County parcel data (example for Washington state)",
       "coverage": "King County, WA",
       "update_frequency": "Weekly",
-      "fields_of_interest": ["TAXPAYER_NAME", "SQFT_LOT", "CURRENT_ZONING", "APPRAISED_VALUE"]
+      "fields_of_interest": [
+        "TAXPAYER_NAME",
+        "SQFT_LOT",
+        "CURRENT_ZONING",
+        "APPRAISED_VALUE"
+      ]
     }
+  },
+  "ground_water": {
+    "nwis_url": "https://waterservices.usgs.gov/nwis/gwlevels/",
+    "parameter_cd": "72019"
+  },
+  "surface_water": {
+    "nhd_flowlines_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/4",
+    "nhd_waterbodies_url": "https://hydro.nationalmap.gov/arcgis/rest/services/nhd/MapServer/6"
+  },
+  "water_rights": {
+    "ca_ewrims_csv_url": "https://data.ca.gov/dataset/e68dbb51-5a02-42c2-9e8c-8f921501650c/resource/82a9d821-2a5c-42b7-a8b2-2977d2087522/download/water_rights_ewrims_2021-01-01.csv",
+    "ca_ewrims_service_url": "https://gispublic.waterboards.ca.gov/arcgis/rest/services/Water_Rights/Points_of_Diversion/MapServer/0",
+    "or_wr_service_url": "https://gis.oregon.gov/arcgis/rest/services/WR/WR_WaterRights/MapServer"
+  },
+  "power_source": {
+    "eia_url": "https://api.eia.gov/v2/",
+    "hifld_transmission_url": "https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Electric_Power_Transmission_Lines/FeatureServer/0",
+    "hifld_power_plants_url": "https://services1.arcgis.com/Hp6G80Pky0om7QvQ/arcgis/rest/services/Power_Plants/FeatureServer/0"
+  },
+  "mortgage_debt": {
+    "census_api_base": "https://api.census.gov/data/2022/acs/acs5",
+    "hmda_url": "https://ffiec.cfpb.gov/v2/public/hmda/aggregated"
+  },
+  "improvements": {
+    "ms_footprints_url": "https://usbuildingfootprints.blob.core.windows.net/footprints/California.json"
   },
   "fallback_sources": {
     "parcelquest": {
@@ -80,18 +140,40 @@
   },
   "field_mappings": {
     "standard_fields": {
-      "owner_name": ["OWNER_NAME", "TAXPAYER_NAME", "OWNER"],
-      "parcel_size": ["PARCEL_SIZE", "ACRES", "SQFT_LOT", "AREA"],
-      "land_use": ["LAND_USE", "PROP_CLASS", "CURRENT_ZONING", "USE_CODE"],
-      "assessed_value": ["ASSESSED_VALUE", "MARKET_VALUE", "APPRAISED_VALUE", "TOTAL_VALUE"]
+      "owner_name": [
+        "OWNER_NAME",
+        "TAXPAYER_NAME",
+        "OWNER"
+      ],
+      "parcel_size": [
+        "PARCEL_SIZE",
+        "ACRES",
+        "SQFT_LOT",
+        "AREA"
+      ],
+      "land_use": [
+        "LAND_USE",
+        "PROP_CLASS",
+        "CURRENT_ZONING",
+        "USE_CODE"
+      ],
+      "assessed_value": [
+        "ASSESSED_VALUE",
+        "MARKET_VALUE",
+        "APPRAISED_VALUE",
+        "TOTAL_VALUE"
+      ]
     }
   },
   "data_quality": {
-    "minimum_fields": ["owner_name", "parcel_size"],
+    "minimum_fields": [
+      "owner_name",
+      "parcel_size"
+    ],
     "validation_rules": {
       "owner_name": "Required, non-empty string",
       "parcel_size": "Positive numeric value",
       "assessed_value": "Optional, positive numeric value"
     }
   }
-} 
+}

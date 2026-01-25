@@ -325,6 +325,364 @@ class TravelTimeEstimator:
         Returns:
             Estimated travel time in minutes
         """
-        # Implementation would estimate travel time
-        # This is a simplified placeholder
-        return 0.0 
+        # Calculate haversine distance
+        from math import radians, sin, cos, sqrt, atan2
+        
+        lon1, lat1 = origin
+        lon2, lat2 = destination
+        
+        R = 6371  # Earth radius in km
+        
+        phi1, phi2 = radians(lat1), radians(lat2)
+        dphi = radians(lat2 - lat1)
+        dlambda = radians(lon2 - lon1)
+        
+        a = sin(dphi/2)**2 + cos(phi1) * cos(phi2) * sin(dlambda/2)**2
+        c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        
+        distance = R * c  # km
+        
+        # Estimate time based on average speed (30 km/h urban, adjusted for traffic)
+        base_speed = 30  # km/h
+        
+        # Adjust for time of day if departure_time provided
+        traffic_factor = 1.0
+        if departure_time and self.use_historical_data:
+            traffic_factor = self._get_traffic_factor(departure_time)
+        
+        adjusted_speed = base_speed / traffic_factor
+        travel_time = (distance / adjusted_speed) * 60  # minutes
+        
+        return travel_time
+    
+    def _get_traffic_factor(self, departure_time: str) -> float:
+        """Get traffic adjustment factor based on time of day.
+        
+        Args:
+            departure_time: ISO format datetime
+            
+        Returns:
+            Traffic factor (1.0 = normal, >1.0 = slower)
+        """
+        from datetime import datetime
+        
+        try:
+            dt = datetime.fromisoformat(departure_time.replace('Z', '+00:00'))
+            hour = dt.hour
+            
+            # Peak hours have higher factors (slower traffic)
+            if 7 <= hour <= 9 or 16 <= hour <= 18:
+                return 1.5  # Rush hour
+            elif 10 <= hour <= 15:
+                return 1.1  # Daytime
+            elif 19 <= hour <= 22:
+                return 1.2  # Evening
+            else:
+                return 0.9  # Night (faster)
+        except:
+            return 1.0
+    
+    def calculate_time_matrix(self,
+                             locations: List[Tuple[float, float]],
+                             departure_time: Optional[str] = None) -> np.ndarray:
+        """Calculate a travel time matrix between all locations.
+        
+        Args:
+            locations: List of (lon, lat) coordinates
+            departure_time: Optional departure time
+            
+        Returns:
+            NxN numpy array of travel times in minutes
+        """
+        n = len(locations)
+        matrix = np.zeros((n, n))
+        
+        for i in range(n):
+            for j in range(n):
+                if i != j:
+                    matrix[i, j] = self.estimate_travel_time(
+                        locations[i], locations[j], departure_time
+                    )
+        
+        return matrix
+    
+    def calculate_distance_matrix(self,
+                                  locations: List[Tuple[float, float]]) -> np.ndarray:
+        """Calculate a distance matrix between all locations.
+        
+        Args:
+            locations: List of (lon, lat) coordinates
+            
+        Returns:
+            NxN numpy array of distances in km
+        """
+        from math import radians, sin, cos, sqrt, atan2
+        
+        n = len(locations)
+        matrix = np.zeros((n, n))
+        R = 6371  # Earth radius in km
+        
+        for i in range(n):
+            for j in range(n):
+                if i != j:
+                    lon1, lat1 = locations[i]
+                    lon2, lat2 = locations[j]
+                    
+                    phi1, phi2 = radians(lat1), radians(lat2)
+                    dphi = radians(lat2 - lat1)
+                    dlambda = radians(lon2 - lon1)
+                    
+                    a = sin(dphi/2)**2 + cos(phi1) * cos(phi2) * sin(dlambda/2)**2
+                    c = 2 * atan2(sqrt(a), sqrt(1 - a))
+                    
+                    matrix[i, j] = R * c
+        
+        return matrix
+    
+    def estimate_arrival_times(self,
+                               route: List[Tuple[float, float]],
+                               departure_time: str,
+                               service_times: Optional[List[float]] = None) -> List[str]:
+        """Estimate arrival times at each stop along a route.
+        
+        Args:
+            route: List of (lon, lat) coordinates
+            departure_time: ISO format departure time
+            service_times: Optional list of service times at each stop (minutes)
+            
+        Returns:
+            List of estimated arrival times in ISO format
+        """
+        from datetime import datetime, timedelta
+        
+        current_time = datetime.fromisoformat(departure_time.replace('Z', '+00:00'))
+        arrivals = [departure_time]
+        
+        if service_times is None:
+            service_times = [0.0] * len(route)
+        
+        for i in range(1, len(route)):
+            travel = self.estimate_travel_time(route[i-1], route[i])
+            service = service_times[i-1] if i-1 < len(service_times) else 0
+            
+            current_time += timedelta(minutes=travel + service)
+            arrivals.append(current_time.isoformat())
+        
+        return arrivals
+
+
+class MultiObjectiveOptimizer:
+    """Multi-objective optimization for logistics routing."""
+    
+    def __init__(self, objectives: List[str]):
+        """Initialize multi-objective optimizer.
+        
+        Args:
+            objectives: List of objective names (e.g., ['time', 'distance', 'emissions'])
+        """
+        self.objectives = objectives
+        self.weights = {obj: 1.0 / len(objectives) for obj in objectives}
+    
+    def set_weights(self, weights: Dict[str, float]) -> None:
+        """Set objective weights.
+        
+        Args:
+            weights: Dictionary of objective -> weight
+        """
+        total = sum(weights.values())
+        self.weights = {k: v/total for k, v in weights.items()}
+    
+    def calculate_pareto_front(self,
+                               solutions: List[Dict]) -> List[Dict]:
+        """Calculate the Pareto front from a set of solutions.
+        
+        Args:
+            solutions: List of solution dictionaries with objective values
+            
+        Returns:
+            List of non-dominated solutions
+        """
+        pareto_front = []
+        
+        for solution in solutions:
+            is_dominated = False
+            
+            for other in solutions:
+                if solution == other:
+                    continue
+                
+                # Check if 'other' dominates 'solution'
+                dominates = all(
+                    other.get(obj, float('inf')) <= solution.get(obj, float('inf'))
+                    for obj in self.objectives
+                ) and any(
+                    other.get(obj, float('inf')) < solution.get(obj, float('inf'))
+                    for obj in self.objectives
+                )
+                
+                if dominates:
+                    is_dominated = True
+                    break
+            
+            if not is_dominated:
+                pareto_front.append(solution)
+        
+        return pareto_front
+    
+    def select_compromise(self,
+                          pareto_front: List[Dict]) -> Dict:
+        """Select a compromise solution from the Pareto front.
+        
+        Args:
+            pareto_front: List of Pareto-optimal solutions
+            
+        Returns:
+            Best compromise solution based on weights
+        """
+        if not pareto_front:
+            return {}
+        
+        # Normalize objectives
+        min_vals = {obj: min(s.get(obj, 0) for s in pareto_front) for obj in self.objectives}
+        max_vals = {obj: max(s.get(obj, 0) for s in pareto_front) for obj in self.objectives}
+        
+        best_solution = None
+        best_score = float('inf')
+        
+        for solution in pareto_front:
+            weighted_sum = 0
+            for obj in self.objectives:
+                val = solution.get(obj, 0)
+                range_val = max_vals[obj] - min_vals[obj]
+                if range_val > 0:
+                    normalized = (val - min_vals[obj]) / range_val
+                else:
+                    normalized = 0
+                weighted_sum += self.weights[obj] * normalized
+            
+            if weighted_sum < best_score:
+                best_score = weighted_sum
+                best_solution = solution
+        
+        return best_solution
+
+
+class RealTimeTracker:
+    """Real-time tracking and dynamic re-routing."""
+    
+    def __init__(self):
+        """Initialize real-time tracker."""
+        self.vehicle_positions = {}  # vehicle_id -> (lon, lat, timestamp)
+        self.active_routes = {}  # vehicle_id -> route info
+        self.events = []  # List of events (delays, completions, etc.)
+    
+    def update_position(self,
+                        vehicle_id: str,
+                        position: Tuple[float, float],
+                        timestamp: str) -> Dict:
+        """Update vehicle position.
+        
+        Args:
+            vehicle_id: ID of the vehicle
+            position: (lon, lat) current position
+            timestamp: ISO format timestamp
+            
+        Returns:
+            Update status and any triggered events
+        """
+        old_position = self.vehicle_positions.get(vehicle_id)
+        self.vehicle_positions[vehicle_id] = (position[0], position[1], timestamp)
+        
+        result = {
+            'vehicle_id': vehicle_id,
+            'position': position,
+            'timestamp': timestamp,
+            'events': []
+        }
+        
+        # Check if vehicle is on route
+        if vehicle_id in self.active_routes:
+            route_info = self.active_routes[vehicle_id]
+            
+            # Check for arrival at next stop
+            if self._is_at_stop(position, route_info.get('next_stop')):
+                result['events'].append({
+                    'type': 'arrival',
+                    'stop': route_info.get('next_stop'),
+                    'timestamp': timestamp
+                })
+        
+        return result
+    
+    def _is_at_stop(self,
+                    position: Tuple[float, float],
+                    stop: Optional[Tuple[float, float]],
+                    threshold_km: float = 0.1) -> bool:
+        """Check if position is at a stop.
+        
+        Args:
+            position: Current position
+            stop: Stop position
+            threshold_km: Distance threshold in km
+            
+        Returns:
+            True if at stop
+        """
+        if stop is None:
+            return False
+        
+        from math import radians, sin, cos, sqrt, atan2
+        
+        lon1, lat1 = position
+        lon2, lat2 = stop
+        
+        R = 6371
+        phi1, phi2 = radians(lat1), radians(lat2)
+        dphi = radians(lat2 - lat1)
+        dlambda = radians(lon2 - lon1)
+        
+        a = sin(dphi/2)**2 + cos(phi1) * cos(phi2) * sin(dlambda/2)**2
+        c = 2 * atan2(sqrt(a), sqrt(1 - a))
+        
+        distance = R * c
+        
+        return distance <= threshold_km
+    
+    def get_fleet_positions(self) -> Dict:
+        """Get current positions of all tracked vehicles.
+        
+        Returns:
+            Dictionary of vehicle positions
+        """
+        return {
+            vid: {'lon': pos[0], 'lat': pos[1], 'timestamp': pos[2]}
+            for vid, pos in self.vehicle_positions.items()
+        }
+    
+    def calculate_eta(self,
+                      vehicle_id: str,
+                      destination: Tuple[float, float],
+                      estimator: TravelTimeEstimator) -> Optional[str]:
+        """Calculate ETA for a vehicle to reach destination.
+        
+        Args:
+            vehicle_id: ID of the vehicle
+            destination: (lon, lat) destination
+            estimator: Travel time estimator
+            
+        Returns:
+            Estimated arrival time in ISO format, or None if vehicle not tracked
+        """
+        from datetime import datetime, timedelta
+        
+        if vehicle_id not in self.vehicle_positions:
+            return None
+        
+        pos = self.vehicle_positions[vehicle_id]
+        current_pos = (pos[0], pos[1])
+        current_time = datetime.fromisoformat(pos[2].replace('Z', '+00:00'))
+        
+        travel_time = estimator.estimate_travel_time(current_pos, destination)
+        eta = current_time + timedelta(minutes=travel_time)
+        
+        return eta.isoformat()

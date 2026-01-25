@@ -1,9 +1,0 @@
-{
-"type": "FeatureCollection",
-"name": "synthetic_zoning_data",
-"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-"features": [
-{ "type": "Feature", "properties": { "zone_type": "Agricultural", "zone_code": "A-1", "acres": 15000, "source": "CA_FMMP_2022", "data_year": 2022 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -124.2, 41.5 ], [ -124.2, 41.8 ], [ -123.8, 41.8 ], [ -123.8, 41.5 ], [ -124.2, 41.5 ] ] ] } },
-{ "type": "Feature", "properties": { "zone_type": "Rural Residential", "zone_code": "RR", "acres": 5000, "source": "CA_FMMP_2022", "data_year": 2022 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ -124.0, 41.6 ], [ -124.0, 41.9 ], [ -123.6, 41.9 ], [ -123.6, 41.6 ], [ -124.0, 41.6 ] ] ] } }
-]
-}

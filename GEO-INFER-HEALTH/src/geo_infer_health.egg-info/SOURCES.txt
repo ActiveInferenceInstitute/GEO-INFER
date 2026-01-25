@@ -37,6 +37,7 @@ src/geo_infer_health/utils/geospatial_utils.py
 src/geo_infer_health/utils/logging.py
 tests/__init__.py
 tests/conftest.py
+tests/test_disease_surveillance.py
 tests/integration/test_full_workflow.py
 tests/unit/test_advanced_geospatial.py
 tests/unit/test_config.py

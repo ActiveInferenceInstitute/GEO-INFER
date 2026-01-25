@@ -21,13 +21,13 @@ Core Components:
 
 Supported Locations:
 - Del Norte County, California (forest health, coastal resilience, fire risk)
+- Cascadia Bioregion (agricultural land analysis)
 - Additional locations can be added following the same framework
 
 Example Usage:
-    >>> from geo_infer_place import PlaceAnalyzer
-    >>> analyzer = PlaceAnalyzer('del_norte_county')
-    >>> analyzer.run_comprehensive_analysis()
-    >>> analyzer.generate_interactive_dashboard()
+    >>> from geo_infer_place import CascadianAgriculturalH3Backend
+    >>> backend = CascadianAgriculturalH3Backend(h3_resolution=8, target_counties=["CA:Del Norte"])
+    >>> backend.generate_interactive_map()
 """
 
 from typing import Dict, List, Optional, Any, Tuple
@@ -41,61 +41,70 @@ __email__ = "geo-infer@activeinference.institute"
 # Configure logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
-# Core imports
-from geo_infer_space.core.place_analyzer import PlaceAnalyzer
+# --- GEO-INFER-SPACE Core Imports ---
+from geo_infer_space import PlaceAnalyzer
 from geo_infer_space.core.data_integrator import DataIntegrator
-from .core.visualization_engine import InteractiveVisualizationEngine
+from geo_infer_space.utils.config_loader import LocationConfigLoader
 
-# Location-specific imports with fallbacks
-try:
-    from .locations.del_norte_county.del_norte_analyzer import DelNorteCountyAnalyzer
-except ImportError:
-    DelNorteCountyAnalyzer = None
-    
+# --- Local Core Imports ---
+from .core.visualization_engine import InteractiveVisualizationEngine
+from .core import CascadianAgriculturalH3Backend, BaseAnalysisModule
+
+# --- Location-specific Imports ---
 from .locations.del_norte_county.forest_health_monitor import ForestHealthMonitor
 from .locations.del_norte_county.coastal_resilience_analyzer import CoastalResilienceAnalyzer
 from .locations.del_norte_county.fire_risk_assessor import FireRiskAssessor
 
-# Note: CommunityDevelopmentTracker not yet implemented
-# from .locations.del_norte_county.community_development_tracker import CommunityDevelopmentTracker
-
-# Configuration and utilities
-from geo_infer_space.utils.config_loader import LocationConfigLoader
+# --- Utilities ---
 from .utils.data_sources import CaliforniaDataSources
+from .utils.h3_operations import (
+    latlng_to_cell,
+    cell_to_latlng,
+    polygon_to_cells,
+    grid_disk,
+    is_valid_cell,
+)
 
-# API clients - using core implementation for consistency
-from .core.api_clients import CaliforniaAPIManager, NOAAClient, CALFIREClient, USGSClient, CDECClient
+# --- API Clients ---
+from .core.api_clients import (
+    CaliforniaAPIManager,
+    NOAAClient,
+    CALFIREClient,
+    USGSClient,
+    CDECClient,
+)
 
-# Export public API (only include modules that are actually available)
+# Export public API
 __all__ = [
     # Core components
     'PlaceAnalyzer',
+    'DataIntegrator',
     'InteractiveVisualizationEngine',
+    'CascadianAgriculturalH3Backend',
+    'BaseAnalysisModule',
+    'LocationConfigLoader',
     
     # Del Norte County specific
     'ForestHealthMonitor',
-    'CoastalResilienceAnalyzer', 
+    'CoastalResilienceAnalyzer',
     'FireRiskAssessor',
     
     # Utilities
-    'LocationConfigLoader',
     'CaliforniaDataSources',
+    'latlng_to_cell',
+    'cell_to_latlng',
+    'polygon_to_cells',
+    'grid_disk',
+    'is_valid_cell',
     
     # API clients
     'CaliforniaAPIManager',
-    'NOAAClient', 
-    'CALFIREClient', 
+    'NOAAClient',
+    'CALFIREClient',
     'USGSClient',
     'CDECClient',
 ]
 
-# Add optional components if they exist
-if DataIntegrator is not None:
-    __all__.append('DataIntegrator')
-if DelNorteCountyAnalyzer is not None:
-    __all__.append('DelNorteCountyAnalyzer')
-if NOAAClient is not None:
-    __all__.extend(['NOAAClient', 'CALFIREClient', 'USGSClient'])
 
 def get_supported_locations() -> List[str]:
     """
@@ -106,8 +115,9 @@ def get_supported_locations() -> List[str]:
     """
     return [
         'del_norte_county',
-        # Additional locations can be added here
+        'cascadia',
     ]
+
 
 def create_analyzer(location_code: str, config_path: Optional[str] = None) -> PlaceAnalyzer:
     """
@@ -127,4 +137,4 @@ def create_analyzer(location_code: str, config_path: Optional[str] = None) -> Pl
         raise ValueError(f"Location '{location_code}' not supported. "
                         f"Available locations: {get_supported_locations()}")
     
-    return PlaceAnalyzer(location_code=location_code, config_path=config_path) 
+    return PlaceAnalyzer(location_code=location_code, config_path=config_path)

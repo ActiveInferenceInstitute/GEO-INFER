@@ -51,23 +51,23 @@ for p in [place_src_path, space_src_path]:
     elif not os.path.isdir(p):
         print(f"WARNING: Required src path not found: {p}")
 
-# Now we can safely import the utility functions
-from utils.setup_manager import setup_logging, load_analysis_config
-from utils.data_processor import (
+# Now we can safely import the utility functions from new src.core location
+from src.core.setup_manager import setup_logging, load_analysis_config
+from src.core.data_processor import (
     create_shared_backend,
     initialize_modules,
     validate_data_acquisition,
     export_results
 )
-from utils.analysis_engine import run_comprehensive_analysis
-from utils.reporting_engine import generate_analysis_report, export_data_provenance
+from src.core.analysis_engine import run_comprehensive_analysis
+from src.core.reporting_engine import generate_analysis_report, export_data_provenance
 
 # Import enhanced modules for H3 geospatial data fusion
-from utils.enhanced_data_manager import create_enhanced_data_manager
-from utils.enhanced_h3_fusion import create_enhanced_h3_fusion
-from utils.enhanced_logging import EnhancedLoggingConfig
-from utils.real_data_acquisition import create_real_data_acquisition
-from utils.comprehensive_visualization import create_comprehensive_visualization_engine
+from src.core.enhanced_data_manager import create_enhanced_data_manager
+from src.core.enhanced_h3_fusion import create_enhanced_h3_fusion
+from src.core.enhanced_logging import EnhancedLoggingConfig
+from src.core.real_data_acquisition import create_real_data_acquisition
+from src.core.visualization.comprehensive_visualization import create_comprehensive_visualization_engine
 
 def parse_counties(counties_str: str) -> dict:
     """Parse counties string into a mapping of state -> list[county].
@@ -121,7 +121,7 @@ def initialize_analysis(args):
 
     # Validate configuration
     logger.info("🔍 Validating configuration...")
-    from utils.enhanced_config import create_enhanced_config_manager
+    from src.core.enhanced_config import create_enhanced_config_manager
     config_manager = create_enhanced_config_manager()
     validation_result = config_manager.validate_configuration()
 
@@ -223,7 +223,7 @@ def initialize_modules_with_enhanced_data_management(active_modules, shared_back
     
     # Import all the specialized modules from the 'cascadia' location
     try:
-        from zoning.geo_infer_zoning import GeoInferZoning
+        from src.data_modules.zoning.geo_infer_zoning import GeoInferZoning
         ZONING_AVAILABLE = True
     except ImportError as e:
         logger.warning(f"Zoning module not available: {e}")
@@ -231,7 +231,7 @@ def initialize_modules_with_enhanced_data_management(active_modules, shared_back
         GeoInferZoning = None
 
     try:
-        from current_use.geo_infer_current_use import GeoInferCurrentUse
+        from src.data_modules.current_use.geo_infer_current_use import GeoInferCurrentUse
         CURRENT_USE_AVAILABLE = True
     except ImportError as e:
         logger.warning(f"Current use module not available: {e}")
@@ -239,7 +239,7 @@ def initialize_modules_with_enhanced_data_management(active_modules, shared_back
         GeoInferCurrentUse = None
 
     try:
-        from ownership.geo_infer_ownership import GeoInferOwnership
+        from src.data_modules.ownership.geo_infer_ownership import GeoInferOwnership
         OWNERSHIP_AVAILABLE = True
     except ImportError as e:
         logger.warning(f"Ownership module not available: {e}")
@@ -247,7 +247,7 @@ def initialize_modules_with_enhanced_data_management(active_modules, shared_back
         GeoInferOwnership = None
 
     try:
-        from improvements.geo_infer_improvements import GeoInferImprovements
+        from src.data_modules.improvements.geo_infer_improvements import GeoInferImprovements
         IMPROVEMENTS_AVAILABLE = True
     except ImportError as e:
         logger.warning(f"Improvements module not available: {e}")
@@ -256,7 +256,7 @@ def initialize_modules_with_enhanced_data_management(active_modules, shared_back
 
     # Additional modules
     try:
-        from water_rights.geo_infer_water_rights import GeoInferWaterRights
+        from src.data_modules.water_rights.geo_infer_water_rights import GeoInferWaterRights
         WATER_RIGHTS_AVAILABLE = True
     except ImportError as e:
         logger.warning(f"Water rights module not available: {e}")
@@ -264,7 +264,7 @@ def initialize_modules_with_enhanced_data_management(active_modules, shared_back
         GeoInferWaterRights = None
 
     try:
-        from ground_water.geo_infer_ground_water import GeoInferGroundWater
+        from src.data_modules.ground_water.geo_infer_ground_water import GeoInferGroundWater
         GROUND_WATER_AVAILABLE = True
     except ImportError as e:
         logger.warning(f"Ground water module not available: {e}")
@@ -272,7 +272,7 @@ def initialize_modules_with_enhanced_data_management(active_modules, shared_back
         GeoInferGroundWater = None
 
     try:
-        from surface_water.geo_infer_surface_water import GeoInferSurfaceWater
+        from src.data_modules.surface_water.geo_infer_surface_water import GeoInferSurfaceWater
         SURFACE_WATER_AVAILABLE = True
     except ImportError as e:
         logger.warning(f"Surface water module not available: {e}")
@@ -280,7 +280,7 @@ def initialize_modules_with_enhanced_data_management(active_modules, shared_back
         GeoInferSurfaceWater = None
 
     try:
-        from power_source.geo_infer_power_source import GeoInferPowerSource
+        from src.data_modules.power_source.geo_infer_power_source import GeoInferPowerSource
         POWER_SOURCE_AVAILABLE = True
     except ImportError as e:
         logger.warning(f"Power source module not available: {e}")
@@ -288,7 +288,7 @@ def initialize_modules_with_enhanced_data_management(active_modules, shared_back
         GeoInferPowerSource = None
 
     try:
-        from mortgage_debt.geo_infer_mortgage_debt import GeoInferMortgageDebt
+        from src.data_modules.mortgage_debt.geo_infer_mortgage_debt import GeoInferMortgageDebt
         MORTGAGE_DEBT_AVAILABLE = True
     except ImportError as e:
         logger.warning(f"Mortgage debt module not available: {e}")
@@ -442,7 +442,7 @@ Options:
 # Additional imports needed for main script functionality
 
 # Import utils modules
-from utils.setup_manager import (
+from src.core.setup_manager import (
     setup_logging,
     check_dependencies,
     setup_spatial_processor,
@@ -450,16 +450,16 @@ from utils.setup_manager import (
     load_analysis_config,
     setup_visualization_engine
 )
-from utils.analysis_engine import (
+from src.core.analysis_engine import (
     perform_enhanced_spatial_analysis,
     run_comprehensive_analysis
 )
-from utils.reporting_engine import (
+from src.core.reporting_engine import (
     generate_spatial_analysis_report,
     generate_enhanced_dashboard,
     generate_analysis_report
 )
-from utils.data_processor import (
+from src.core.data_processor import (
     initialize_modules,
     create_shared_backend,
     export_results,
@@ -467,8 +467,8 @@ from utils.data_processor import (
 )
 
 # Import enhanced modules
-from utils.enhanced_data_manager import create_enhanced_data_manager
-from utils.enhanced_h3_fusion import create_enhanced_h3_fusion
+from src.core.enhanced_data_manager import create_enhanced_data_manager
+from src.core.enhanced_h3_fusion import create_enhanced_h3_fusion
 
 # Existing imports for SPACE and PLACE
 
@@ -584,7 +584,7 @@ except ImportError as e:
 
 # Import all the specialized modules from the 'cascadia' location
 try:
-    from zoning.geo_infer_zoning import GeoInferZoning
+    from src.data_modules.zoning.geo_infer_zoning import GeoInferZoning
     ZONING_AVAILABLE = True
 except ImportError as e:
     print(f"WARNING: Zoning module not available: {e}")
@@ -592,7 +592,7 @@ except ImportError as e:
     GeoInferZoning = None
 
 try:
-    from current_use.geo_infer_current_use import GeoInferCurrentUse
+    from src.data_modules.current_use.geo_infer_current_use import GeoInferCurrentUse
     CURRENT_USE_AVAILABLE = True
 except ImportError as e:
     print(f"WARNING: Current use module not available: {e}")
@@ -600,7 +600,7 @@ except ImportError as e:
     GeoInferCurrentUse = None
 
 try:
-    from ownership.geo_infer_ownership import GeoInferOwnership
+    from src.data_modules.ownership.geo_infer_ownership import GeoInferOwnership
     OWNERSHIP_AVAILABLE = True
 except ImportError as e:
     print(f"WARNING: Ownership module not available: {e}")
@@ -608,7 +608,7 @@ except ImportError as e:
     GeoInferOwnership = None
 
 try:
-    from improvements.geo_infer_improvements import GeoInferImprovements
+    from src.data_modules.improvements.geo_infer_improvements import GeoInferImprovements
     IMPROVEMENTS_AVAILABLE = True
 except ImportError as e:
     print(f"WARNING: Improvements module not available: {e}")
@@ -833,7 +833,7 @@ def main():
 
         # Load and validate configuration
         config = load_analysis_config()
-        from utils.enhanced_config import create_enhanced_config_manager
+        from src.core.enhanced_config import create_enhanced_config_manager
         config_manager = create_enhanced_config_manager()
         validation_result = config_manager.validate_configuration()
 
@@ -880,7 +880,7 @@ def main():
 
         # Load configuration
         config = load_analysis_config()
-        from utils.enhanced_config import create_enhanced_config_manager
+        from src.core.enhanced_config import create_enhanced_config_manager
         config_manager = create_enhanced_config_manager()
 
         # Get active modules
@@ -891,7 +891,7 @@ def main():
             active_modules = [m.strip() for m in args.modules.split(',') if m.strip()]
 
         # Create enhanced data manager for benchmarking
-        from utils.enhanced_data_manager import EnhancedDataManager
+        from src.core.enhanced_data_manager import EnhancedDataManager
         benchmark_data_manager = EnhancedDataManager(Path(args.output_dir) / "data", args.h3_resolution)
 
         # Run benchmarks for each module
@@ -1078,11 +1078,11 @@ def run_comprehensive_analysis_with_enhanced_data(backend, modules, data_manager
                 logger.info(f"✅ Using real data for {module_name}: {real_data_path}")
                 data_path = real_data_path
             else:
-                logger.info(f"⚠️ Using synthetic data for {module_name}")
+                logger.info(f"ℹ️  Acquiring data via standard module extraction for {module_name}")
                 data_path = data_manager.acquire_data_with_caching(
                     module_name=module_name,
                     data_source_func=module.acquire_raw_data,
-                    force_refresh=args.force_refresh
+                    force_refresh=(args.force_refresh or getattr(args, 'skip_cache', False))
                 )
 
             h3_data = data_manager.process_to_h3_with_caching(
@@ -1529,7 +1529,7 @@ def export_results_with_visualizations(backend, redevelopment_scores, summary, a
     if args.lightweight_viz:
         logger.info("📊 Generating lightweight static visualizations...")
         try:
-            from utils.static_visualization import create_static_plots
+            from src.core.visualization.static_visualization import create_static_plots
             static_results = create_static_plots(backend, output_dir)
             export_paths.update(static_results)
             logger.info("✅ Lightweight visualizations created")
@@ -1539,7 +1539,7 @@ def export_results_with_visualizations(backend, redevelopment_scores, summary, a
     if args.datashader_viz:
         logger.info("📊 Generating Datashader visualizations...")
         try:
-            from utils.datashader_visualization import create_datashader_visualization
+            from src.core.visualization.datashader_visualization import create_datashader_visualization
             datashader_results = create_datashader_visualization(backend, output_dir)
             export_paths.update(datashader_results)
             logger.info("✅ Datashader visualizations created")
@@ -1549,7 +1549,7 @@ def export_results_with_visualizations(backend, redevelopment_scores, summary, a
     if args.deepscatter_viz and not getattr(args, 'skip_deepscatter', False):
         logger.info("📊 Generating Deepscatter visualizations...")
         try:
-            from utils.deepscatter_visualization import create_deepscatter_visualization
+            from src.core.visualization.deepscatter_visualization import create_deepscatter_visualization
             deepscatter_results = create_deepscatter_visualization(backend, output_dir)
             export_paths.update(deepscatter_results)
             logger.info("✅ Deepscatter visualizations created")
