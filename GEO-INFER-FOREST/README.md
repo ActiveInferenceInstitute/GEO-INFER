@@ -1,182 +1,188 @@
 ---
-title: "GEO-INFER-FOREST: Forest Management Systems"
-description: "Forest monitoring, deforestation detection, biomass estimation, and sustainable forestry"
-purpose: "Provide comprehensive forest analysis tools for health monitoring, change detection, carbon accounting, and fire risk assessment"
+title: "GEO-INFER-FOREST: Forest and Vegetation Analysis"
+description: "Forest monitoring, vegetation analysis, and woodland management"
+purpose: "Provide forest inventory, change detection, and ecosystem analysis capabilities"
 module_type: "Domain Application"
 status: "Alpha"
-last_updated: "2026-01-09"
-dependencies: ["SPACE", "TIME", "BIO", "CLIMATE", "RISK"]
-tags: ["forest", "deforestation", "biomass", "carbon", "wildfire", "remote-sensing"]
+last_updated: "2026-01-26"
+dependencies: ["SPACE", "TIME", "DATA", "BIO"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-DATA", "GEO-INFER-BIO"]
+tags: ["forestry", "vegetation", "remote-sensing", "carbon", "biodiversity"]
 difficulty: "Intermediate"
+estimated_time: "50"
 ---
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./docs/">📚 Documentation</a>
 </div>
 
 ---
 
-
-# GEO-INFER-FOREST: Forest Management Systems
+# GEO-INFER-FOREST: Forest and Vegetation Analysis
 
 ## Overview
 
-GEO-INFER-FOREST provides comprehensive forest management analysis including health monitoring, deforestation detection, biomass estimation, fire risk assessment, and sustainable forestry planning. The module leverages satellite imagery and Active Inference for adaptive forest management.
+**GEO-INFER-FOREST** provides comprehensive capabilities for forest monitoring and vegetation analysis. The module enables:
 
-## Core Features
+- **Forest Inventory**: Biomass estimation, species classification
+- **Change Detection**: Deforestation, degradation, regrowth monitoring
+- **Fire Risk Assessment**: Fuel load mapping, fire danger indices
+- **Carbon Accounting**: Forest carbon stock estimation
+- **Health Monitoring**: Pest, disease, and stress detection
 
-- **Forest Health Monitoring**: Vegetation indices and condition assessment
-- **Deforestation Detection**: Change detection and alert systems
-- **Biomass Estimation**: Above-ground carbon stock calculation
-- **Fire Risk Assessment**: Wildfire probability and spread modeling
-- **Sustainable Forestry**: Harvest planning and regeneration tracking
+## Features
 
-## Architecture
-
-```
-GEO-INFER-FOREST/
-├── src/
-│   └── geo_infer_forest/
-│       ├── core/
-│       │   ├── health_monitoring.py      # Forest condition analysis
-│       │   ├── deforestation.py          # Change detection
-│       │   ├── biomass_estimation.py     # Carbon stocks
-│       │   └── fire_risk.py              # Wildfire modeling
-│       ├── models/
-│       │   ├── vegetation_indices.py     # NDVI, EVI, NBR
-│       │   ├── allometric_models.py      # Biomass equations
-│       │   └── fire_spread.py            # Fire behavior models
-│       └── utils/
-│           ├── spectral_analysis.py      # Image processing
-│           └── canopy_metrics.py         # Structure analysis
-├── tests/
-├── README.md
-└── AGENTS.md
-```
-
-## Quick Start
+### Forest Inventory
 
 ```python
-from geo_infer_forest import (
-    ForestHealthAnalyzer,
-    DeforestationDetector,
-    BiomassEstimator,
-    FireRiskAssessor
+from geo_infer_forest import ForestInventory
+
+# Conduct forest inventory
+inventory = ForestInventory()
+
+results = inventory.analyze(
+    area=forest_boundary,
+    data_sources={
+        "lidar": lidar_point_cloud,
+        "imagery": satellite_imagery,
+        "plots": field_plots
+    }
 )
 
-# Monitor forest health
-health_analyzer = ForestHealthAnalyzer()
-health_status = health_analyzer.assess(
-    imagery=satellite_data,
-    indices=['ndvi', 'evi', 'nbr'],
-    baseline=reference_period
+print(f"Canopy height: {results.mean_height} m")
+print(f"Biomass: {results.biomass_tonnes_ha} t/ha")
+print(f"Dominant species: {results.dominant_species}")
+```
+
+### Change Detection
+
+```python
+from geo_infer_forest import ChangeDetector
+
+# Detect forest changes
+detector = ChangeDetector()
+
+changes = detector.detect(
+    area=study_area,
+    start_date="2020-01-01",
+    end_date="2025-12-31",
+    change_types=["deforestation", "degradation", "regrowth"]
 )
 
-# Detect deforestation
-deforestation_detector = DeforestationDetector()
-changes = deforestation_detector.detect(
-    current=recent_imagery,
-    baseline=historical_imagery,
-    method='bfast'
-)
+print(f"Forest loss: {changes.loss_hectares} ha")
+print(f"Forest gain: {changes.gain_hectares} ha")
+print(f"Net change: {changes.net_change_hectares} ha")
+```
 
-# Estimate biomass
-biomass_estimator = BiomassEstimator()
-carbon_stocks = biomass_estimator.estimate(
-    canopy_height=lidar_data,
-    forest_type=species_map,
-    method='allometric'
-)
+### Fire Risk Assessment
+
+```python
+from geo_infer_forest import FireRisk
 
 # Assess fire risk
-fire_assessor = FireRiskAssessor()
-fire_risk = fire_assessor.assess(
-    vegetation=fuel_load,
-    weather=fire_weather_indices,
-    terrain=slope_aspect
+fire_risk = FireRisk()
+
+assessment = fire_risk.assess(
+    area=wildland_area,
+    weather=current_weather,
+    fuel_data=fuel_model,
+    topography=dem
 )
+
+print(f"Fire danger rating: {assessment.danger_rating}")
+print(f"Spread rate: {assessment.spread_rate} m/min")
+print(f"High risk areas: {assessment.high_risk_zones}")
 ```
 
-## API Reference
-
-### ForestHealthAnalyzer
-
-Monitors forest condition using vegetation indices.
+### Carbon Accounting
 
 ```python
-analyzer = ForestHealthAnalyzer()
+from geo_infer_forest import CarbonAccounting
 
-# Health assessment
-health = analyzer.assess(
-    imagery: xr.DataArray,
-    indices: List[str],
-    baseline: Optional[xr.DataArray] = None
-) -> Dict[str, xr.DataArray]
+# Estimate forest carbon
+carbon = CarbonAccounting()
 
-# Anomaly detection
-anomalies = analyzer.detect_anomalies(
-    current: xr.DataArray,
-    historical: xr.DataArray,
-    threshold: float = 2.0
-) -> xr.DataArray
+stocks = carbon.estimate(
+    forest_area=forest_boundary,
+    inventory_data=forest_inventory,
+    pools=["above_ground", "below_ground", "soil", "dead_wood"]
+)
+
+print(f"Total carbon: {stocks.total_tonnes} tC")
+print(f"CO2 equivalent: {stocks.co2e_tonnes} tCO2e")
+print(f"Annual sequestration: {stocks.annual_sequestration} tC/year")
 ```
 
-### DeforestationDetector
+## Analysis Capabilities
 
-Detects forest cover changes over time.
+| Analysis Type | Description |
+|---------------|-------------|
+| **Canopy Height** | LiDAR-based height modeling |
+| **Biomass** | Above/below-ground biomass mapping |
+| **Species Classification** | ML-based species mapping |
+| **NDVI/EVI** | Vegetation indices time series |
+| **Disturbance** | Fire, harvest, storm detection |
+| **Structure** | Canopy cover, gap analysis |
 
-```python
-detector = DeforestationDetector()
+## Data Sources
 
-# Change detection
-changes = detector.detect(
-    current: xr.DataArray,
-    baseline: xr.DataArray,
-    method: str = 'difference',
-    threshold: float = 0.3
-) -> gpd.GeoDataFrame
-```
-
-### BiomassEstimator
-
-Estimates above-ground biomass and carbon stocks.
-
-```python
-estimator = BiomassEstimator()
-
-# Biomass estimation
-biomass = estimator.estimate(
-    canopy_height: xr.DataArray,
-    forest_type: xr.DataArray,
-    method: str = 'allometric'
-) -> xr.DataArray
-```
+| Data Type | Sources |
+|-----------|---------|
+| **Satellite** | Landsat, Sentinel-2, MODIS, Planet |
+| **LiDAR** | Airborne, GEDI, ICESat-2 |
+| **Radar** | Sentinel-1, ALOS PALSAR |
+| **Field** | Plot data, inventory samples |
 
 ## Integration Points
 
-- **GEO-INFER-SPACE**: Spatial analysis for forest mapping
-- **GEO-INFER-TIME**: Temporal analysis for change detection
-- **GEO-INFER-BIO**: Biodiversity assessment in forest ecosystems
-- **GEO-INFER-CLIMATE**: Climate impacts on forest health
-- **GEO-INFER-RISK**: Fire and pest risk assessment
+| Module | Integration |
+|--------|-------------|
+| **GEO-INFER-BIO** | Biodiversity, habitat analysis |
+| **GEO-INFER-CLIMATE** | Climate impacts on forests |
+| **GEO-INFER-WATER** | Watershed forest coverage |
+| **GEO-INFER-RISK** | Fire and pest risk modeling |
+
+## Installation
+
+```bash
+# Install forest module
+uv pip install -e "./GEO-INFER-FOREST"
+
+# With remote sensing tools
+uv pip install -e "./GEO-INFER-FOREST[remote_sensing]"
+```
 
 ## Use Cases
 
-1. **REDD+ Monitoring**: Track deforestation for carbon credit programs
-2. **Fire Management**: Early warning and suppression planning
-3. **Sustainable Harvesting**: Optimize timber extraction
-4. **Carbon Accounting**: National forest inventory and reporting
-5. **Restoration Planning**: Monitor reforestation success
+### REDD+ Carbon Monitoring
 
-## Status
+```python
+from geo_infer_forest import REDDMonitor
 
-**Current Status**: Alpha - Core functionality implemented with ongoing development.
+monitor = REDDMonitor(project="amazon_conservation")
 
-## References
+# Generate REDD+ report
+report = monitor.generate_report(
+    reference_period=("2010", "2015"),
+    monitoring_period=("2020", "2025"),
+    uncertainty_analysis=True
+)
 
-- [Global Forest Watch](https://www.globalforestwatch.org/)
-- [Hansen Global Forest Change](https://earthenginepartners.appspot.com/science-2013-global-forest)
-- [GEDI LiDAR](https://gedi.umd.edu/)
+print(f"Emissions reduced: {report.emissions_reduced} tCO2e")
+print(f"Carbon credits: {report.credits}")
+```
+
+## Related Documentation
+
+- [GEO-INFER-BIO](../GEO-INFER-BIO/README.md): Biodiversity
+- [GEO-INFER-CLIMATE](../GEO-INFER-CLIMATE/README.md): Climate
+- [AGENTS.md](./AGENTS.md): Forest agent capabilities
+
+---
+
+**Status**: Alpha - Core functionality implemented
+
+**Last Updated**: 2026-01-26

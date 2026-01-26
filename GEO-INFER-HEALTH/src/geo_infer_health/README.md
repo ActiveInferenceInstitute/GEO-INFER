@@ -1,0 +1,4 @@
+# geo_infer_health
+ ## Overview
+ GEO-INFER-HEALTH: Geospatial Applications for Public Health, Epidemiology, and Healthcare Accessibility This module provides tools for spatial health analytics, including: - Disease surveillance and outbreak modeling - Healthcare accessibility analysis - Environmental health risk assessment - Spatial epidemiology methods - Health disparities mapping The module integrates with the broader GEO-INFER framework and implements Active Inference principles for health analytics. ## Contents
+ - **api/**: Submodule - **cli.py**: Python definitions - **core/**: Submodule - **models/**: Submodule - **utils/**: Submodule 

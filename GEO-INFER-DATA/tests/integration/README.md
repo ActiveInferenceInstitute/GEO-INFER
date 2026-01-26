@@ -1,0 +1,4 @@
+# integration
+ ## Overview
+ Integration tests for GEO-INFER-DATA. This module contains integration tests that verify how different components of the GEO-INFER-DATA module work together in realistic scenarios. Test Categories: end_to_end: workflows from data ingestion to storage cross_component: Tests of component interactions data_flow: Tests of data flow between components performance_integration: Performance tests across components Examples: >>> # Run integration tests >>> python -m pytest tests/integration/ -v >>> >>> # Run specific integration test >>> python -m pytest tests/integration/test_end_to_end.py::test_complete_workflow ## Contents
+ - **test_end_to_end.py**: Python definitions 

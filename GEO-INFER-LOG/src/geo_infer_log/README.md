@@ -1,0 +1,4 @@
+# geo_infer_log
+ ## Overview
+ GEO-INFER-LOG: Logging and Monitoring Module This module provides logging, monitoring, and observability capabilities for the GEO-INFER framework. It supports structured logging, performance metrics, distributed tracing, and integration with monitoring systems. Key Features: - Structured JSON logging with spatial context - Performance metrics collection and analysis - Real-time log aggregation and search - Integration with monitoring systems (Prometheus, Grafana) - Distributed tracing for multi-module workflows - Log-based alerting and anomaly detection ## Contents
+ - **api/**: Submodule - **core/**: Submodule - **models/**: Submodule - **utils/**: Submodule 

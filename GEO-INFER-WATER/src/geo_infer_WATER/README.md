@@ -1,0 +1,5 @@
+# geo_infer_WATER
+ ## Overview
+ **Path**: `GEO-INFER-WATER/src/geo_infer_WATER` GEO-INFER-WATER: Water Resources Management Module ## Implementation
+ ### `core/flood_drought.py` **Classes**: FloodDroughtAnalyzer **Functions**: assess_flood_risk, assess_drought_risk ### `core/hydrology.py` **Classes**: HydrologicalModeler **Functions**: rainfall_runoff_model, estimate_groundwater_recharge, calculate_water_balance ### `core/water_infrastructure.py` **Classes**: WaterInfrastructurePlanner **Functions**: optimize_water_allocation, assess_infrastructure_needs ### `core/water_quality.py` **Classes**: WaterBodyType, PollutantType, WaterSample, WaterQualityAssessor **Functions**: assess_water_quality, calculate_wqi, identify_pollution_sources, track_pollution_plume, analyze_trends ### `core/watershed.py` **Classes**: WatershedAnalyzer **Functions**: delineate_watershed, calculate_flow_accumulation, identify_stream_network ## Contents
+ - **api/**: Subdirectory - **core/**: Subdirectory - **utils/**: Subdirectory --- 

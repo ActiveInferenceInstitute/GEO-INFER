@@ -1389,9 +1389,73 @@ def create_interactive_h3_slider(history: List[Dict[str, Dict]], metric: str = '
         # Update animation speed
         fig.layout.updatemenus[0].buttons[0].args[1]["frame"]["duration"] = 1000
         fig.layout.updatemenus[0].buttons[0].args[1]["transition"]["duration"] = 500
-        
+            
         return fig
         
     except Exception as e:
         logger.error(f"Failed to create interactive H3 plot: {e}")
         return None 
+
+class BeliefVisualizer:
+    """
+    Visualizer for active inference agent beliefs and internal states.
+    Wrapper around functional plotting utilities for object-oriented usage.
+    """
+    
+    def __init__(self, output_dir: Optional[Union[str, Path]] = None):
+        """
+        Initialize the visualizer.
+        
+        Args:
+            output_dir: Directory to save plots. Defaults to current directory.
+        """
+        self.output_dir = Path(output_dir) if output_dir else Path('.')
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        
+    def plot_belief_evolution(self, 
+                            belief_history: List[np.ndarray], 
+                            observations_history: Optional[List[np.ndarray]] = None,
+                            output_path: Optional[str] = None) -> None:
+        """
+        Plot the evolution of beliefs over time.
+        
+        Args:
+            belief_history: List of belief arrays (one per timestep)
+            observations_history: Optional list of observations
+            output_path: Optional filename override (relative to output_dir)
+        """
+        if not belief_history:
+            logger.warning("No belief history provided to plot_belief_evolution")
+            return
+
+        # Use the comprehensive perception analysis if observations are present
+        if observations_history:
+            plot_perception_analysis(
+                beliefs_history=belief_history,
+                observations_history=observations_history,
+                output_dir=self.output_dir,
+                title="Belief Evolution Analysis"
+            )
+        else:
+            # Simple belief plot if no observations
+            fig, ax = plt.subplots(figsize=(12, 8))
+            beliefs_array = np.array(belief_history)
+            
+            im = ax.imshow(beliefs_array.T, aspect='auto', cmap='viridis', interpolation='nearest')
+            ax.set_title('Belief Evolution')
+            ax.set_xlabel('Time Step')
+            ax.set_ylabel('State')
+            plt.colorbar(im, ax=ax, label='Belief Probability')
+            
+            save_path = self.output_dir / (output_path or 'belief_evolution.png')
+            plt.savefig(save_path, dpi=300, bbox_inches='tight')
+            plt.close()
+            logger.info(f"Belief evolution plot saved to {save_path}")
+
+    def plot_free_energy_trace(self, free_energy_history: List[float], output_path: str = "free_energy.png"):
+        """Plot free energy minimization trace."""
+        fig = plot_free_energy(free_energy_history, title="Free Energy Trace")
+        save_path = self.output_dir / output_path
+        fig.savefig(save_path, dpi=300, bbox_inches='tight')
+        plt.close(fig)
+        logger.info(f"Free energy trace saved to {save_path}")

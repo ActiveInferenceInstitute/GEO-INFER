@@ -1,216 +1,160 @@
-# Active Inference Module Diagrams
+# Active Inference Diagrams
 
-This document provides visual representations of the Active Inference architecture and workflows.
+## Overview
 
-## Class Diagram
+This document provides visual diagrams explaining Active Inference concepts and their implementation in GEO-INFER agents.
+
+## The Free Energy Principle
 
 ```mermaid
-classDiagram
-    class BaseAgent {
-        <<abstract>>
-        +agent_id: str
-        +config: Dict
-        +initialize() async
-        +perceive() async
-        +decide() async
-        +act(action) async
-        +shutdown() async
-    }
+graph TB
+    subgraph "Free Energy Minimization"
+        FE[Free Energy F]
+        ACC[Accuracy]
+        COMP[Complexity]
+        
+        FE --> |=| COMP
+        COMP --> |minus| ACC
+    end
     
-    class AgentState {
-        <<abstract>>
-        +to_dict() Dict
-        +from_dict(data) AgentState
-    }
+    subgraph "Two Routes"
+        PERC[Perception<br>Update beliefs]
+        ACT[Action<br>Change world]
+    end
     
-    class GenerativeModel {
-        +state_dimensions: int
-        +observation_dimensions: int
-        +control_dimensions: int
-        +learning_rate: float
-        +A: ndarray
-        +B: ndarray
-        +C: ndarray
-        +D: ndarray
-        +current_state_beliefs: ndarray
-        +history: List
-        +update_likelihood(observation, state)
-        +update_transition(prev_state, current_state, action)
-        +update_preferences(preferred_observations)
-        +infer_state(observation) ndarray
-        +predict_next_state(current_state, action) ndarray
-        +expected_free_energy(state_belief, action, planning_horizon) float
-        +select_action(current_state_belief, planning_horizon) int
-        +to_dict() Dict
-        +from_dict(data) GenerativeModel
-    }
-    
-    class ActiveInferenceState {
-        +state_dimensions: int
-        +observation_dimensions: int
-        +control_dimensions: int
-        +generative_model: GenerativeModel
-        +observation_history: List
-        +action_history: List
-        +update_with_observation(observation) ndarray
-        +record_action(action, reward)
-        +update_preferences(preferred_obs)
-        +select_action(planning_horizon) int
-        +to_dict() Dict
-        +from_dict(data) ActiveInferenceState
-    }
-    
-    class ActiveInferenceAgent {
-        +state: ActiveInferenceState
-        +_action_handlers: Dict
-        +_perception_handlers: Dict
-        +initialize() async
-        +perceive() async
-        +_process_observations(observations)
-        +decide() async
-        +_convert_action_index_to_action(action_idx) Dict
-        +act(action) async
-        +shutdown() async
-        +_register_default_action_handlers()
-        +_register_default_perception_handlers()
-        +_handle_wait_action(agent, action) async
-        +_handle_update_preferences(agent, action) async
-        +_handle_query_model(agent, action) async
-        +_handle_sensor_perceptions(agent, perception)
-        +_save_model(path)
-        +_load_model(path)
-    }
-    
-    BaseAgent <|-- ActiveInferenceAgent
-    AgentState <|-- ActiveInferenceState
-    ActiveInferenceAgent o-- ActiveInferenceState
-    ActiveInferenceState o-- GenerativeModel
+    FE --> PERC
+    FE --> ACT
 ```
 
-## Active Inference Process
+## Agent Architecture
+
+```mermaid
+graph LR
+    subgraph Agent
+        GM[Generative<br>Model]
+        B[Beliefs<br>q(s)]
+        PE[Policy<br>Evaluator]
+        L[Learner]
+    end
+    
+    subgraph Environment
+        S[States]
+        O[Observations]
+    end
+    
+    O -->|perceive| B
+    B -->|plan| PE
+    PE -->|act| S
+    S --> O
+    O -.->|learn| L
+    L -.-> GM
+```
+
+## Generative Model Structure
+
+```mermaid
+graph TD
+    subgraph "Generative Model p(o,s)"
+        D[Prior p(s₀)]
+        B[Transitions p(s'|s,a)]
+        A[Likelihood p(o|s)]
+        C[Preferences p(o)]
+    end
+    
+    D --> |initial state| B
+    B --> |state evolution| A
+    A --> |observations| C
+```
+
+## Expected Free Energy Components
+
+```mermaid
+graph LR
+    subgraph "Expected Free Energy G"
+        EPI[Epistemic Value<br>Information Gain]
+        PRAG[Pragmatic Value<br>Goal Achievement]
+    end
+    
+    EPI --> |exploration| G[G = Epistemic + Pragmatic]
+    PRAG --> |exploitation| G
+```
+
+## Perception-Action Loop
 
 ```mermaid
 sequenceDiagram
     participant E as Environment
-    participant A as ActiveInferenceAgent
-    participant S as ActiveInferenceState
-    participant G as GenerativeModel
+    participant A as Agent
+    participant M as Model
     
-    A->>A: initialize()
-    A->>S: Create ActiveInferenceState
-    S->>G: Create GenerativeModel
-    
-    loop Agent Lifecycle
-        A->>E: perceive()
-        E-->>A: observations
-        A->>S: update_with_observation(observations)
-        S->>G: infer_state(observations)
-        G-->>S: posterior state beliefs
-        
-        A->>A: decide()
-        A->>S: select_action()
-        S->>G: select_action(state_beliefs)
-        G->>G: expected_free_energy for each action
-        G-->>S: selected action
-        S-->>A: action index
-        A->>A: convert action index to action
-        
-        A->>E: act(action)
-        E-->>A: action result
-        A->>S: record_action(action, reward)
-        
-        alt Positive Reward
-            A->>S: update_preferences(observation)
-            S->>G: update_preferences(observation)
-        end
-        
-        alt New Transition Observed
-            S->>G: update_transition(prev_state, current_state, action)
-        end
-        
-        alt New Observation
-            S->>G: update_likelihood(observation, state)
-        end
-    end
-    
-    A->>A: shutdown()
+    E->>A: Observation o
+    A->>M: Update beliefs q(s)
+    M->>A: Posterior beliefs
+    A->>M: Evaluate policies G(π)
+    M->>A: Policy probabilities
+    A->>E: Execute action a
+    E->>E: State transition
 ```
 
-## Free Energy Minimization
+## Multi-Agent Coordination
 
 ```mermaid
-flowchart TD
-    A[Active Inference Agent] -->|Perceives| B[Sensory Observations]
-    B -->|Updates| C[Generative Model]
-    C -->|Infers| D[Hidden States]
-    D -->|Predicts| E[Expected Free Energy]
-    E -->|Minimizes| F[Action Selection]
-    F -->|Executes| G[Actions]
-    G -->|Changes| H[Environment]
-    H -->|Produces| B
-    
-    subgraph "State Inference (Perception)"
-        B
-        C
-        D
+graph TB
+    subgraph "Swarm of Agents"
+        A1[Agent 1]
+        A2[Agent 2]
+        A3[Agent 3]
     end
     
-    subgraph "Action Selection (Decision)"
-        E
-        F
+    subgraph "Shared Beliefs"
+        SB[Common<br>World Model]
     end
     
-    C -.->|Updates Model Parameters| C
+    subgraph "Environment"
+        ENV[Geospatial<br>Environment]
+    end
+    
+    A1 <--> SB
+    A2 <--> SB
+    A3 <--> SB
+    
+    A1 --> ENV
+    A2 --> ENV
+    A3 --> ENV
 ```
 
-## Geospatial Integration
+## Hierarchical State Space (H3)
 
 ```mermaid
-flowchart LR
-    A[Geospatial Data] -->|Encoding| B[Observation Vector]
-    B -->|Update| C[Active Inference Agent]
-    C -->|Decision| D[Action Selection]
-    D -->|Execution| E[Geospatial Action]
-    E -->|Feedback| F[Environment Change]
-    F -->|New Data| A
-    
-    subgraph "Observation Processing"
-        G[Land Cover] -->|Encode| B
-        H[Points of Interest] -->|Distance| B
-        I[Elevation] -->|Normalize| B
+graph TD
+    subgraph "H3 Hierarchy"
+        R4[Resolution 4<br>~1,000 km]
+        R6[Resolution 6<br>~36 km]
+        R8[Resolution 8<br>~460 m]
+        R10[Resolution 10<br>~65 m]
     end
     
-    subgraph "Action Types"
-        D --> J[Movement]
-        D --> K[Sampling]
-        D --> L[Analysis]
-    end
+    R4 --> R6
+    R6 --> R8
+    R8 --> R10
 ```
 
-## Model Components Interaction
+## Belief Update Dynamics
 
 ```mermaid
-stateDiagram-v2
-    [*] --> Initialize
+graph LR
+    subgraph "Belief Update"
+        PRIOR[Prior Beliefs<br>q(s)]
+        OBS[Observation o]
+        LIK[Likelihood<br>p(o|s)]
+        POST[Posterior<br>q(s|o)]
+    end
     
-    state "Active Inference Agent" as Agent {
-        [*] --> Perceive
-        Perceive --> Decide
-        Decide --> Act
-        Act --> Perceive
-        
-        state "Generative Model" as Model {
-            [*] --> Prior
-            Prior --> Likelihood
-            Likelihood --> Posterior
-            Posterior --> FreeEnergy
-            FreeEnergy --> PolicySelection
-            PolicySelection --> ActionExecution
-            ActionExecution --> ModelUpdate
-            ModelUpdate --> Prior
-        }
-    }
-    
-    Initialize --> Agent
-    Agent --> [*] : Shutdown
-``` 
+    PRIOR --> |×| LIK
+    OBS --> LIK
+    LIK --> |normalize| POST
+```
+
+---
+
+**Last Updated**: 2026-01-26

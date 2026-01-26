@@ -1,0 +1,4 @@
+# performance
+ ## Overview
+ Performance tests for GEO-INFER-DATA. This module contains performance tests and benchmarks for all GEO-INFER-DATA components including throughput, latency, and scalability tests. Test Categories: benchmarks: Performance benchmarks for different operations scalability: Scalability tests with varying data sizes stress_tests: Stress tests under high load memory_tests: Memory usage and optimization tests Examples: >>> # Run performance tests >>> python -m pytest tests/performance/ -v >>> >>> # Run specific benchmark >>> python -m pytest tests/performance/test_benchmarks.py::test_ingestion_throughput ## Contents
+ - **test_benchmarks.py**: Python definitions 

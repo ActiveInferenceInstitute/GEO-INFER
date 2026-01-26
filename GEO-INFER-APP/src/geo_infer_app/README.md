@@ -1,0 +1,5 @@
+# geo_infer_app
+ ## Overview
+ **Path**: `GEO-INFER-APP/src/geo_infer_app` Component for geo_infer_app. ## Implementation
+ ### `models/agent_visualization.py` **Classes**: VisualizationType, VisualizationConfig, AgentVisualization **Functions**: get_default_config, state_to_map_feature, state_to_dashboard_data ### `models/agent_factory.py` **Classes**: AgentFactory **Functions**: register_interface, create_interface, get_available_agent_types ### `models/agent_configuration.py` **Classes**: ConfigFieldType, ConfigField, AgentConfigSchema, AgentConfiguration **Functions**: register_schema, get_schema, validate_config, get_default_config ### `models/agent_interface.py` **Classes**: AgentType, AgentState, AgentInterface **Functions**: get_agent_state, list_agents, send_command, register_event_handler, create_agent ### `models/interfaces/bdi_interface.py` **Classes**: BDIAgentInterface, BDIAgent, BeliefBase, DesireSet, IntentionStructure **Functions**: get_agent_state, list_agents, send_command, register_event_handler, create_agent ## Contents
+ - **api/**: Subdirectory - **components/**: Subdirectory - **models/**: Subdirectory --- 

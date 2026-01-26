@@ -7,7 +7,7 @@
 [![Python](https://img.shields.io/badge/Python-3.9+-green.svg)](https://python.org/)
 
 <div align="center">
-  <h3>Comprehensive Geospatial Inference Framework</h3>
+  <h3>Geospatial Inference Framework</h3>
   <p><em>Implementing Active Inference principles for regional, ecological, civic, and commercial applications</em></p>
   <br>
   <a href="#-quick-start">🚀 Quick Start</a> •
@@ -21,42 +21,46 @@
 
 ## 🌟 What is GEO-INFER?
 
-**GEO-INFER** is a comprehensive geospatial inference framework that implements Active Inference principles for complex spatial-temporal problems. The framework provides **41 specialized modules** organized into clear categories with well-defined dependencies and data flow patterns.
+**GEO-INFER** is a geospatial inference framework that implements Active Inference principles for spatial-temporal problems. The framework provides **41 specialized modules** organized into categories with defined dependencies and data flow patterns.
 
 ### ✨ Key Features
 
-- **🗺️ Advanced Spatial Analysis**: H3 v4 spatial indexing and geospatial processing
+- **🗺️ Spatial Analysis**: H3 v4 spatial indexing and geospatial processing
 - **🧠 Active Inference**: Mathematical foundations for perception-action loops
 - **🔄 Data Processing Pipelines**: Validation, quality control, and ETL workflows
 - **🧩 Modular Architecture**: 41 specialized modules with clear dependencies
-- **🧪 Comprehensive Testing**: Unified test suite across all modules
-- **📚 Professional Documentation**: Standardized documentation with integration guides
+- **🧪 Testing**: Unified test suite across all modules
+- **📚 Documentation**: Standardized documentation with integration guides
 
 ## 🚀 Quick Start
 
 ### ⚡ Get Started in 3 Steps
 
 ```bash
-# 1. Clone and enter the repository
+# 1
+. Clone and enter the repository
 git clone https://github.com/geo-infer/geo-infer.git
 cd GEO-INFER
 
-# 2. Install core modules (choose what you need)
+# 2
+. Install core modules (choose what you need)
 uv pip install -e ./GEO-INFER-MATH    # Mathematical foundations
 uv pip install -e ./GEO-INFER-SPACE   # Spatial analysis (H3 v4)
 uv pip install -e ./GEO-INFER-ACT     # Active inference
 
-# 3. Run your first analysis
+# 3
+. Run your first analysis
 python -c "
 from geo_infer_space import SpatialAnalyzer
 from geo_infer_act import ActiveInferenceModel
 
-# Create your first spatial analysis
+# Create
+ your first spatial analysis
 analyzer = SpatialAnalyzer()
 model = ActiveInferenceModel()
 
 print('🎉 GEO-INFER is ready!')
-print('📚 Check GEO-INFER-INTRA/docs/ for comprehensive documentation')
+print('📚 Check GEO-INFER-INTRA/docs/ for documentation')
 "
 ```
 
@@ -132,7 +136,8 @@ GEO-INFER provides **41 specialized modules** organized into clear categories. E
 
 ### 🤖 Agent Documentation
 
-All modules now have comprehensive `AGENTS.md` files documenting:
+All modules have `AGENTS.md` files documenting:
+
 - Agent capabilities and integration patterns
 - Implementation status (✅ Implemented / 🔮 Planned)
 - Code examples for agent integration
@@ -181,8 +186,8 @@ See [AGENTS.md](./AGENTS.md) for the complete multi-agent systems architecture.
 ### 🔗 Key Resources
 
 - **📋 Module Index**: Complete module overview with status and dependencies
-- **🎨 Integration Examples**: Real-world integration patterns and use cases
-- **📚 API Documentation**: Comprehensive API references and schemas
+- **🎨 Integration Examples**: Integration patterns and use cases
+- **📚 API Documentation**: API references and schemas
 - **🔧 Development Standards**: Coding guidelines and best practices
 - **🧪 Quality Assurance**: Testing frameworks and validation procedures
 
@@ -201,7 +206,9 @@ See [AGENTS.md](./AGENTS.md) for the complete multi-agent systems architecture.
 | **📍 Place-Based**           | [PLACE](./GEO-INFER-PLACE/)                                                                                                                                                                      |
 | **⚙️ Operations**            | [OPS](./GEO-INFER-OPS/), [INTRA](./GEO-INFER-INTRA/), [GIT](./GEO-INFER-GIT/), [TEST](./GEO-INFER-TEST/), [EXAMPLES](./GEO-INFER-EXAMPLES/)                                                    |
 
-## Architecture Overview
+## Architecture
+
+ Overview
 
 ```mermaid
 graph TB
@@ -391,7 +398,11 @@ graph TB
 | **EDU** 🔮 | SPACE, TIME, CIV, HEALTH | ECON | Educational systems, school accessibility | → Education/Social | Planning | ⏳ Planned |
 | **EMERGENCY** 🔮 | SPACE, TIME, RISK, AGENT, IOT | ANT | Emergency management, disaster response | → Emergency/Safety | Planning | ⏳ Planned |
 
-### Legend
+### Lege
+
+n
+d
+
 - **→** : Provides data/services to  
 - **←** : Consumes data/services from  
 - **↔** : Bidirectional data exchange
@@ -556,7 +567,7 @@ flowchart TD
 | **GEO-INFER-ECON**  | [Economic modeling with spatial dimensions](./GEO-INFER-ECON/README.md) | Economic indicators, market data, spatial boundaries | Economic models, policy analysis, market simulations | SPACE, TIME, DATA | Alpha | ✅ Updated |
 | **GEO-INFER-GIT**   | [Git integration and version control workflows](./GEO-INFER-GIT/README.md) | Repository configurations, version control needs | Automated versioning, repository management, CI/CD integration | OPS | Beta | ✅ Updated |
 | **GEO-INFER-HEALTH** | [Geospatial applications for public health and epidemiology](./GEO-INFER-HEALTH/README.md) | Health data, epidemiological records, environmental factors | Disease surveillance, healthcare accessibility analysis, health risk assessment | SPACE, TIME, DATA | Alpha | ✅ Updated |
-| **GEO-INFER-INTRA** | [Project documentation, workflows, and ontology management](./GEO-INFER-INTRA/README.md) | Project requirements, documentation needs, ontological structures | Comprehensive documentation, workflow templates, standardized ontologies | All modules | Beta | ✅ Updated |
+| **GEO-INFER-INTRA** | [Project documentation, workflows, and ontology management](./GEO-INFER-INTRA/README.md) | Project requirements, documentation needs, ontological structures | Documentation, workflow templates, standardized ontologies | All modules | Beta | ✅ Updated |
 | **GEO-INFER-IOT** | [Internet of Things sensors and spatial web integration](./GEO-INFER-IOT/README.md) | IoT sensor streams, device metadata, spatial coordinates | Real-time sensor data fusion, Bayesian spatial interpolation, global sensor networks | SPACE, BAYES, DATA | Alpha | ✅ Updated |
 | **GEO-INFER-MATH**  | [Mathematical foundations and computational methods](./GEO-INFER-MATH/README.md) | Mathematical problems, spatial calculations, statistical requirements | Mathematical solutions, spatial statistics, optimization results | - | Beta | ✅ Updated |
 | **GEO-INFER-NORMS** | [Social-technical compliance modeling](./GEO-INFER-NORMS/README.md) | Regulatory requirements, compliance data, social norms | Compliance tracking, regulatory impact mapping, social norm modeling | SPACE, DATA | Alpha | ✅ Updated |
@@ -567,12 +578,12 @@ flowchart TD
 | **GEO-INFER-SEC**   | [Security and privacy frameworks for geospatial information](./GEO-INFER-SEC/README.md) | Security requirements, privacy constraints, access control needs | Security protocols, data anonymization, compliance frameworks | - | Alpha | ✅ Updated |
 | **GEO-INFER-SIM**   | [Simulation environments for hypothesis testing](./GEO-INFER-SIM/README.md) | Model parameters, scenario definitions, simulation requirements | Digital twins, agent-based models, scenario planning tools | SPACE, TIME | Alpha | ✅ Updated |
 | **GEO-INFER-SPM**   | [Statistical Parametric Mapping for spatial-temporal analysis](./GEO-INFER-SPM/README.md) | Spatial-temporal data, statistical models, field observations | GLM analysis, random field theory, cluster-level inference | MATH, SPACE | Alpha | ✅ Updated |
-| **GEO-INFER-SPACE** | [Advanced spatial methods for comprehensive geospatial analysis](./GEO-INFER-SPACE/README.md) | Vector/raster data, coordinates, geometries, spatial queries | Processed spatial data, analysis results, spatial indices | DATA, MATH | Beta | ✅ **FULLY MIGRATED** |
+| **GEO-INFER-SPACE** | [Spatial methods for geospatial analysis](./GEO-INFER-SPACE/README.md) | Vector/raster data, coordinates, geometries, spatial queries | Processed spatial data, analysis results, spatial indices | DATA, MATH | Beta | ✅ **FULLY MIGRATED** |
 | **GEO-INFER-TIME**  | [Temporal methods for timeline expression and dynamic data fusion](./GEO-INFER-TIME/README.md) | Time-series data, sensor streams, historical records | Forecasts, trends, temporal patterns, events | DATA, MATH | Alpha | ✅ Updated |
 | **GEO-INFER-RISK**  | [Risk modeling and insurance for geospatial applications](./GEO-INFER-RISK/README.md) | Risk factors, hazard data, vulnerability assessments | Risk models, insurance pricing, exposure management | SPACE, TIME, DATA | Alpha | ✅ Updated |
 | **GEO-INFER-LOG**   | [Logistics and supply chain optimization](./GEO-INFER-LOG/README.md) | Transportation networks, supply chain data, logistics requirements | Route optimization, supply chain modeling, logistics planning | SPACE, TIME, DATA | Alpha | ✅ Updated |
-| **GEO-INFER-PLACE** | [Deep place-based analyses for specific geographic locations](./GEO-INFER-PLACE/README.md) | Location-specific data, regional datasets, local context | Comprehensive regional analyses, place-based insights, territorial assessments | SPACE, TIME, DATA, ALL | Beta | ✅ **FULLY MIGRATED** |
-| **GEO-INFER-TEST**  | [Comprehensive testing framework for quality assurance](./GEO-INFER-TEST/README.md) | Test requirements, quality metrics, integration needs | Automated test suites, quality reports, integration validation | All modules | Alpha | ✅ Updated |
+| **GEO-INFER-PLACE** | [Place-based analyses for specific geographic locations](./GEO-INFER-PLACE/README.md) | Location-specific data, regional datasets, local context | Regional analyses, place-based insights, territorial assessments | SPACE, TIME, DATA, ALL | Beta | ✅ **FULLY MIGRATED** |
+| **GEO-INFER-TEST**  | [Testing framework for quality assurance](./GEO-INFER-TEST/README.md) | Test requirements, quality metrics, integration needs | Automated test suites, quality reports, integration validation | All modules | Alpha | ✅ Updated |
 | **GEO-INFER-EXAMPLES** | [Cross-module integration demonstrations and tutorials](./GEO-INFER-EXAMPLES/README.md) | Integration requirements, tutorial needs, demonstration scenarios | Integration examples, best practices, entry-point tutorials | All modules | Beta | ✅ Updated |
 
 ## 🔄 Framework Position in Geospatial Ecosystem
@@ -664,56 +675,85 @@ graph TD
 
 ## 🎯 Use Cases & Real-World Applications
 
-### Environmental Management
+### Environmenta
+
+l
+ Management
 Implement sophisticated environmental monitoring and adaptive management using SPACE, TIME, and ACT modules integrated with domain-specific modules (AG, HEALTH, RISK, BIO).
 
-### Governance & Organizational Systems
+### Governanc
+
+e
+ & Organizational Systems
 Design and coordinate multi-level governance systems using **METAGOV** with stakeholder platforms, institutional design, and accountability mechanisms. Integrate with organizational (ORG), normative (NORMS), and security (SEC) frameworks.
 
-### Urban & Civic Systems
+### Urba
+
+n
+ & Civic Systems
 Build smart city applications combining real-time spatial analysis (SPACE, IOT), cognitive modeling (COG), autonomous agents (AGENT), and community engagement (CIV, COMMS).
 
-### Supply Chain & Logistics
+### Suppl
+
+y
+ Chain & Logistics
 Optimize complex logistics networks using spatial optimization (SPACE), temporal analysis (TIME), and economic modeling (ECON).
 
-## Testing & Quality Assurance
+## Testing
 
-### Comprehensive Testing Framework
+ & Quality Assurance
+
+### Comprehensiv
+
+e
+ Testing Framework
 
 ```bash
-# Run unified test suite
+# Run
+ unified test suite
 uv run python GEO-INFER-TEST/run_unified_tests.py
 
-# Run specific test categories
+# Run
+ specific test categories
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
 uv run python GEO-INFER-TEST/run_unified_tests.py --category performance
 
-# Run tests for specific module
+# Run
+ tests for specific module
 uv run python GEO-INFER-TEST/run_unified_tests.py --module SPACE
 
-# Run H3 v4 migration tests
+# Run
+ H3 v4 migration tests
 uv run python GEO-INFER-TEST/run_unified_tests.py --h3-migration
 
-# Run with pytest directly
+# Run
+ with pytest directly
 uv run python -m pytest GEO-INFER-TEST/tests/ -v
 ```
 
-## Documentation
+## Documentatio
 
-### API Documentation
+n
+
+### AP
+
+I
+ Documentation
 
 - **Core API**: [SPACE Module API](./GEO-INFER-SPACE/docs/api_schema.yaml)
 - **H3 Utilities**: [H3 v4 Functions](./GEO-INFER-SPACE/src/geo_infer_space/utils/h3_utils.py)
-- **Place Analysis**: [PLACE Module API](./GEO-INFER-PLACE/docs/api_schema.yaml)
+- **Place Analysis**: [PLACE Module](./GEO-INFER-PLACE/README.md)
 - **Module Docs Index**: [INTRA Modules Overview](./GEO-INFER-INTRA/docs/modules/index.md)
 
-### Tutorials & Examples
+### Tutorial
 
-- **Getting Started**: [Basic Tutorial](./GEO-INFER-EXAMPLES/examples/basic_tutorial.md)
-- **H3 Migration**: [Migration Guide](./GEO-INFER-SPACE/docs/h3_migration_guide.md)
-- **Advanced Usage**: [Advanced Examples](./GEO-INFER-EXAMPLES/examples/advanced_examples.md)
+s
+ & Examples
 
+- **Getting Started**: [Getting Started Examples](./GEO-INFER-EXAMPLES/examples/getting_started/)
+- **H3 Migration**: [H3 v4 Migration Guide](./GEO-INFER-SPACE/docs/H3_V4_MIGRATION_GUIDE.md)
+- **Advanced Usage**: [Module Orchestrators](./GEO-INFER-EXAMPLES/examples/module_orchestrators/)
 
 ## 👥 Contributing
 
@@ -722,36 +762,49 @@ We welcome contributions from developers, researchers, and geospatial profession
 ### 🚀 Quick Start for Contributors
 
 ```bash
-# 1. Fork and clone
+# 1
+. Fork and clone
 git clone https://github.com/your-username/geo-infer.git
 cd GEO-INFER
 
-# 2. Set up development environment
+# 2
+. Set up development environment
 uv pip install -e ./GEO-INFER-MATH ./GEO-INFER-SPACE  # Install core modules
 
-# 3. Run tests to verify setup
+# 3
+. Run tests to verify setup
 uv run python GEO-INFER-TEST/run_unified_tests.py --category unit
 
-# 4. Check documentation standards
+# 4
+. Check documentation standards
 uv run python -c "import yaml; print('YAML validation ready')"
 ```
 
 ### 📋 Development Workflow
 
-#### 1. **Choose Your Contribution Type**
+#### 1
+
+. **Choose Your Contribution Type**
+
 - **🐛 Bug Fixes**: Fix issues in existing modules
 - **✨ New Features**: Add capabilities to existing modules
 - **📚 Documentation**: Improve docs, examples, or tutorials
 - **🧪 Testing**: Add tests or improve test coverage
 - **🔧 Infrastructure**: CI/CD, tooling, or build improvements
 
-#### 2. **Follow Development Standards**
+#### 2
+
+. **Follow Development Standards**
+
 - **Code Quality**: Professional, functional, intelligent, modular code
 - **Documentation**: Update docs simultaneously with code changes
 - **Testing**: Write comprehensive tests for all functionality
 - **Integration**: Ensure cross-module compatibility
 
-#### 3. **Documentation Requirements**
+#### 3
+
+. **Documentation Requirements**
+
 - **YAML Front Matter**: Required for all new documentation
 - **Working Examples**: Provide runnable code samples
 - **Integration Guides**: Document cross-module interactions
@@ -777,13 +830,21 @@ Each GEO-INFER module includes a module-specific `.cursorrules` file that extend
 
 ### 📖 Documentation Standards
 
-#### For Code Contributions
+#### Fo
+
+r
+ Code Contributions
+
 - **Docstrings**: Comprehensive docstrings with examples
 - **Type Hints**: Full type annotations for all parameters
 - **Mathematical Documentation**: Document theoretical foundations
 - **Integration Examples**: Show cross-module usage
 
-#### For Documentation Contributions
+#### Fo
+
+r
+ Documentation Contributions
+
 - **YAML Front Matter**: Required metadata structure
 - **Standard Sections**: Overview, Core Features, API Reference, Use Cases
 - **Working Examples**: Tested, runnable code samples
@@ -791,13 +852,21 @@ Each GEO-INFER module includes a module-specific `.cursorrules` file that extend
 
 ### 🔧 Technical Requirements
 
-#### Code Standards
+#### Cod
+
+e
+ Standards
+
 - **Python**: 3.9+ with type hints
 - **Style**: PEP 8 with Black formatting
 - **Testing**: Comprehensive unit and integration tests
 - **Performance**: Optimize for large-scale geospatial data
 
-#### Documentation Standards
+#### Documentatio
+
+n
+ Standards
+
 - **Format**: Markdown with YAML front matter
 - **Examples**: Working, tested code samples
 - **Accessibility**: Clear, professional language
@@ -806,6 +875,7 @@ Each GEO-INFER module includes a module-specific `.cursorrules` file that extend
 ### 🚨 Important Guidelines
 
 #### ✅ Always Do These
+
 - Follow the established module structure
 - Write comprehensive tests and documentation
 - Update documentation when modifying code
@@ -813,6 +883,7 @@ Each GEO-INFER module includes a module-specific `.cursorrules` file that extend
 - Implement real functionality (no mock methods)
 
 #### ❌ Never Do These
+
 - Create mock or placeholder implementations
 - Hardcode configuration values
 - Ignore error conditions
@@ -821,13 +892,21 @@ Each GEO-INFER module includes a module-specific `.cursorrules` file that extend
 
 ### 🏆 Recognition & Support
 
-#### Getting Help
+#### Gettin
+
+g
+ Help
+
 - **📖 Documentation**: Check `GEO-INFER-INTRA/docs/` for comprehensive guides
 - **💬 Community**: Join our [Discord](https://discord.activeinference.institute/) community
 - **🐛 Issues**: Report bugs or request features on GitHub
 - **📧 Support**: Contact maintainers for technical guidance
 
-#### Recognition
+#### Recogniti
+
+o
+n
+
 - **Contributors**: Listed in module READMEs and project acknowledgments
 - **Documentation**: Featured in integration guides and tutorials
 - **Testing**: Recognized in test coverage reports and quality metrics
@@ -843,26 +922,38 @@ Each GEO-INFER module includes a module-specific `.cursorrules` file that extend
 
 **Ready to contribute?** Start with our [documentation standards](GEO-INFER-INTRA/docs/DOCUMENTATION_STANDARDS.md) and join our community of geospatial innovators!
 
-## Community
+## Communit
 
-### Join the Community
+y
+
+### Joi
+
+n
+ the Community
 
 - **Discord**: [Active Inference Institute](https://discord.activeinference.institute/)
 - **GitHub Discussions**: [Framework Discussions](https://github.com/geo-infer/geo-infer/discussions)
 - **Documentation**: [Comprehensive Docs](./GEO-INFER-INTRA/docs/)
 
-### Community Guidelines
+### Communit
+
+y
+ Guidelines
 
 - **Be Respectful**: Foster an inclusive and welcoming environment
 - **Share Knowledge**: Help others learn and grow
 - **Report Issues**: Contribute to framework improvement
 - **Follow Standards**: Maintain code quality and documentation
 
-## License
+## Licens
+
+e
 
 This project is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License - see the [LICENSE](LICENSE) file for details.
 
-## Acknowledgments
+## Acknowledgment
+
+s
 
 - **H3 Development Team**: For the excellent H3 v4 spatial indexing library
 - **Active Inference Institute**: For foundational Active Inference principles
@@ -890,18 +981,21 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 ### 📊 **Current Compliance Status**
 
 #### **Documentation Compliance**
+
 - ✅ **YAML Front Matter**: 100% (36/36 modules)
 - ✅ **API Reference Sections**: 100% (24/24 target modules)
 - ✅ **Core Features Sections**: 100% (standardized across all modules)
 - ⚠️ **Use Cases Sections**: ~80% (needs expansion in some modules)
 
 #### **Infrastructure Compliance**
+
 - ✅ **requirements.txt**: 100% (36/36 modules)
 - ✅ **setup.py/pyproject.toml**: 100% (36/36 modules)
 - ✅ **Package Structure**: 100% (all modules follow standard structure)
 - ✅ **Examples Directory**: 100% (all modules have working examples)
 
 #### **Testing Compliance**
+
 - ✅ **Test Suites**: 100% (36/36 modules have tests)
 - ✅ **Integration Tests**: 4 comprehensive cross-module test suites
   - SPACE + TIME + DATA workflows
@@ -911,6 +1005,7 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 - ✅ **Unified Test Runner**: Operational with test discovery and coverage reporting
 
 #### **Module Status Breakdown**
+
 - ✅ **Beta (Production Ready)**: 28 modules
 - 🟡 **Alpha (Early Development)**: 7 modules (AI, SIM, TIME, ANT, SEC, SPM, TEST, CIV)
 - 🔮 **Planning**: 1 module (METAGOV)
@@ -918,17 +1013,20 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 ### 🚀 **Recent Improvements (2025-01-19)**
 
 #### **Phase 1-2: Critical Infrastructure & Testing** ✅ Complete
+
 - Added `requirements.txt` to 25 modules
 - Added `setup.py` to 13 modules
 - Created test suites for 11 modules
 - Fixed package structure issues across modules
 
 #### **Phase 3: Documentation** ✅ Complete
+
 - Added API Reference sections to 22 modules
 - Standardized Core Features sections
 - Verified YAML front matter compliance (100%)
 
 #### **Phase 4: Module Enhancements** ✅ Complete
+
 - Enhanced AI module (joblib persistence, expanded metrics)
 - Enhanced TIME module (exponential smoothing, forecast validation)
 - Enhanced SIM module (batch execution, result analysis)
@@ -936,12 +1034,14 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 - Replaced placeholder implementations with real algorithms
 
 #### **Phase 5: Integration & Validation** ✅ Complete
+
 - Created 4 comprehensive integration test suites
 - Validated all dependencies (missing, unused, inconsistent)
 - Fixed critical syntax/import errors in 7 modules
 - Unified test suite operational
 
 #### **Phase 6: Examples & Guides** ✅ Complete
+
 - Added working examples to 8 modules (TIME, AG, LOG, RISK, REQ, ORG, CIV)
 - Updated integration guide with 4 new integration patterns
 - Created example README files for all modules
@@ -949,6 +1049,7 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 ### 🎯 **Current Development Focus**
 
 #### **High Priority (Immediate)**
+
 - ✅ Complete YAML template application → **DONE**
 - ✅ Develop comprehensive cross-module integration tests → **DONE**
 - ✅ Add working examples to all modules → **DONE**
@@ -956,6 +1057,7 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 - ⏳ Implement performance benchmarks and optimization guidelines
 
 #### **Medium Priority (Next Phase)**
+
 - ⏳ Expand Use Cases sections with practical examples
 - ⏳ Create domain-specific integration tutorials
 - ⏳ Implement automated documentation generation
@@ -964,19 +1066,22 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 ### 📞 **Get Involved**
 
 **🌟 New to GEO-INFER?**
+
 - Start with our [Quick Start Guide](#-quick-start)
 - Explore [Integration Examples](GEO-INFER-INTRA/docs/guides/)
 - Join our [Discord Community](https://discord.activeinference.institute/)
 
 **👨‍💻 Want to Contribute?**
+
 - Review our [Documentation Standards](GEO-INFER-INTRA/docs/DOCUMENTATION_STANDARDS.md)
 - Check the [Module Index](GEO-INFER-INTRA/docs/modules/index.md)
 - Run the [Unified Test Suite](GEO-INFER-TEST/run_unified_tests.py)
 
 **🔬 Research & Development?**
+
 - Explore [Active Inference Modules](GEO-INFER-ACT/)
 - Work with [Spatial Analysis](GEO-INFER-SPACE/) (H3 v4 ready)
-- Contribute to [Domain Applications](GEO-INFER-AG/, GEO-INFER-HEALTH/)
+- Contribute to [Domain Applications](./GEO-INFER-AG/) or [Health Module](./GEO-INFER-HEALTH/)
 
 ### 🤝 **Community & Support**
 
@@ -989,7 +1094,7 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 ---
 
 **🌍 GEO-INFER Framework** | **Framework Version**: 4.0+ | **H3 Version**: v4.0+ | **Python**: 3.9+  
-**📅 Last Updated**: 2026-01-24 | **📋 Documentation**: ✅ **COMPREHENSIVE** | **🧪 Testing**: ✅ **OPERATIONAL**  
+**📅 Last Updated**: 2026-01-26 | **📋 Documentation**: ✅ **COMPREHENSIVE** | **🧪 Testing**: ✅ **OPERATIONAL**  
 **Maintained by**: GEO-INFER Community | **License**: CC BY-NC-SA 4.0
 
 *Building the future of geospatial inference through Active Inference principles and collaborative development.*

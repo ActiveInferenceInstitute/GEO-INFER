@@ -1,0 +1,5 @@
+# tests
+ ## Overview
+ **Path**: `GEO-INFER-IOT/tests` Testing and quality assurance. ## Implementation
+ ### `unit/test_ingestion.py` **Classes**: TestSensorMeasurement, TestIoTDataIngestion, TestRadiationMonitoringSystem, TestSpatialInferenceConfig **Functions**: test_measurement_creation_with_coordinates, test_measurement_creation_without_coordinates, test_measurement_validation, setUp, test_ingestion_initialization ### `integration/test_iot_integration.py` **Classes**: TestIoTModuleIntegration, TestCrossModuleIntegration **Functions**: setUp, test_registry_ingestion_integration, test_spatial_fusion_integration, test_quality_control_integration, test_end_to_end_workflow ## Contents
+ - **integration/**: Subdirectory - **pytest.ini**: File file - **requirements-test.txt**: File file - **run_tests.sh**: File file - **unit/**: Subdirectory --- 

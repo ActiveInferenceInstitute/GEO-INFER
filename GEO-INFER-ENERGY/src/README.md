@@ -1,0 +1,5 @@
+# src
+ ## Overview
+ **Path**: `GEO-INFER-ENERGY/src` Source code implementation. ## Implementation
+ ### `geo_infer_ENERGY/core/energy_grid.py` **Classes**: EnergyGridOptimizer **Functions**: optimize_grid_network, assess_grid_reliability ### `geo_infer_ENERGY/core/energy_demand.py` **Classes**: EnergyDemandForecaster **Functions**: forecast_demand, identify_peak_demand ### `geo_infer_ENERGY/core/carbon_footprint.py` **Classes**: CarbonFootprintAnalyzer **Functions**: calculate_emissions, calculate_carbon_intensity, assess_renewable_impact ### `geo_infer_ENERGY/core/energy_infrastructure.py` **Classes**: EnergyInfrastructurePlanner **Functions**: optimize_facility_siting, assess_infrastructure_capacity ### `geo_infer_ENERGY/core/renewable_resources.py` **Classes**: RenewableType, SuitabilityClass, RenewableSite, RenewableResourceAssessor **Functions**: assess_solar_potential, assess_wind_potential, assess_hydro_potential, assess_site_suitability, calculate_capacity_factor ## Contents
+ - **geo_infer_ENERGY/**: Subdirectory - **geo_infer_energy.egg-info/**: Subdirectory --- 

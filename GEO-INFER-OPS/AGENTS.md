@@ -1,72 +1,150 @@
-# GEO-INFER-OPS: Operations Framework
+# GEO-INFER-OPS: Agent Capabilities
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./README.md">📚 Module Documentation</a>
 </div>
 
 ---
-# GEO-INFER-OPS: Operations Framework Support
 
 ## Overview
 
-The GEO-INFER-OPS module provides DevOps and operational capabilities that support deploying, monitoring, and maintaining the intelligent agent ecosystem in production environments.
+The **GEO-INFER-OPS** module provides DevOps and operational capabilities for agents, enabling deployment, monitoring, scaling, and management of agent systems in production environments.
+
+## Agent Capabilities
+
+### 1. Agent Deployment
+
+```python
+from geo_infer_ops import AgentDeployer
+
+# Deploy agents to production
+deployer = AgentDeployer()
+
+deployment = deployer.deploy(
+    agent_config=agent_spec,
+    target="kubernetes",
+    replicas=3,
+    resources={
+        "cpu": "1",
+        "memory": "4Gi",
+        "gpu": "0"
+    }
+)
+
+print(f"Deployment ID: {deployment.id}")
+print(f"Status: {deployment.status}")
+print(f"Endpoints: {deployment.endpoints}")
+```
+
+### 2. Health Monitoring
+
+```python
+from geo_infer_ops import HealthMonitor
+
+# Monitor agent health
+monitor = HealthMonitor()
+
+# Get health status
+health = monitor.check(
+    agents=["agent_001", "agent_002", "agent_003"],
+    metrics=["latency", "error_rate", "memory", "cpu"]
+)
+
+for agent_id, status in health.items():
+    print(f"Agent {agent_id}:")
+    print(f"  Health: {status.health_score}%")
+    print(f"  Latency: {status.latency_ms}ms")
+```
+
+### 3. Auto-Scaling
+
+```python
+from geo_infer_ops import AutoScaler
+
+# Configure auto-scaling
+scaler = AutoScaler()
+
+policy = scaler.configure(
+    agent_type="analysis_agent",
+    scaling_rules={
+        "cpu_threshold": 70,  # percent
+        "queue_depth": 100,
+        "min_replicas": 2,
+        "max_replicas": 10
+    }
+)
+
+# Get scaling events
+events = scaler.get_events(last_hours=24)
+```
+
+### 4. Observability
+
+```python
+from geo_infer_ops import Observability
+
+# Full observability stack
+obs = Observability()
+
+# Collect traces
+obs.trace(
+    agent_id="agent_001",
+    operation="spatial_analysis",
+    span_data=operation_data
+)
+
+# Query logs
+logs = obs.query_logs(
+    agent_pattern="analysis_*",
+    level="ERROR",
+    time_range=("2026-01-25", "2026-01-26")
+)
+```
 
 ## Implementation Status
 
 ### Currently Implemented
 
-- ✅ **DeploymentManager**: Container orchestration and deployment
-- ✅ **MonitoringService**: System health monitoring
-- ✅ **LoggingService**: Centralized logging
-- ✅ **ConfigurationManager**: Configuration management
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Deployment** | ✅ Ready | K8s, Docker, cloud |
+| **Health Monitoring** | ✅ Ready | Real-time metrics |
+| **Auto-Scaling** | ✅ Ready | Policy-based scaling |
+| **Observability** | ✅ Ready | Logs, traces, metrics |
 
 ### Aspirational/Planned Features
 
-- 🔮 **SelfHealingAgent**: Autonomous system recovery
-- 🔮 **ScalingAgent**: Dynamic resource scaling
+| Feature | Priority | Description |
+|---------|----------|-------------|
+| **SREAgent** | 🔮 High | Autonomous incident response |
+| **CostOptimizer** | 🔮 Medium | Resource cost optimization |
+| **ChaosAgent** | 🔮 Medium | Chaos engineering tests |
 
-## Agent Capabilities Supported
+## Use Cases
 
-### 1. Agent Deployment
-
-```python
-from geo_infer_ops import DeploymentManager
-
-# Deploy agent instances
-deployment = DeploymentManager()
-deployment.deploy_agent(
-    agent_config=agent_spec,
-    replicas=3,
-    environment='production'
-)
-```
-
-### 2. System Monitoring
+### Production Agent Management
 
 ```python
-from geo_infer_ops import MonitoringService
+from geo_infer_ops import ProductionManager
 
-# Monitor agent health
-monitor = MonitoringService()
-health_status = monitor.check_agents(
-    agents=deployed_agents,
-    metrics=['cpu', 'memory', 'latency']
+manager = ProductionManager(cluster="prod-west")
+
+# Rolling update
+manager.rolling_update(
+    agent_type="spatial_agent",
+    new_version="2.1.0",
+    strategy="blue_green"
 )
+
+# Get deployment status
+status = manager.get_status()
 ```
-
-## Integration Status
-
-| Capability | Status | Description |
-|------------|--------|-------------|
-| **Deployment** | ✅ Ready | Container orchestration |
-| **Monitoring** | ✅ Ready | Health tracking |
-| **Logging** | ✅ Ready | Centralized logs |
-| **Configuration** | ✅ Ready | Config management |
-| **Self-Healing** | 🔮 Planned | Autonomous recovery |
 
 ---
 
-This AGENTS.md documents how GEO-INFER-OPS provides operational capabilities for the agent ecosystem.
+This AGENTS.md documents how GEO-INFER-OPS provides operational capabilities for agents.
+
+**Last Updated**: 2026-01-26

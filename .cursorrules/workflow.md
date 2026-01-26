@@ -3,7 +3,7 @@
 ## Environment Management with uv
 
 **All environment management and package installation MUST use `uv`**:
-- **Installation**: Always use `uv pip install` instead of `pip install`
+- **Installation**: Always use `uv pip install` instead of `uv pip install`
 - **Running Scripts**: Use `uv run python` instead of `python` for scripts
 - **Dependencies**: All dependency installation commands in documentation and code must use `uv`
 - **Error Messages**: All error messages suggesting package installation must recommend `uv pip install`

@@ -33,7 +33,7 @@ from geo_infer_place.locations.del_norte_county.coastal_resilience_analyzer impo
 from geo_infer_place.locations.del_norte_county.fire_risk_assessor import (
     FireRiskAssessor,
 )
-from geo_infer_place.locations.del_norte_county.advanced_dashboard import (
+from geo_infer_place.locations.del_norte_county.dashboard import (
     AdvancedDashboard,
 )
 from geo_infer_place.utils.integration import DelNorteDataIntegrator

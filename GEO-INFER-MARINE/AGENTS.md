@@ -1,89 +1,97 @@
-# GEO-INFER-MARINE: Marine Intelligence Agents
+# GEO-INFER-MARINE: Agent Capabilities
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./README.md">📚 Module Documentation</a>
 </div>
 
 ---
 
 ## Overview
 
+The **GEO-INFER-MARINE** module provides marine analysis capabilities for agents, including ocean monitoring, coastal analysis, and fisheries management.
 
-The GEO-INFER-MARINE module provides marine and coastal management capabilities enabling agents to monitor ocean conditions, track marine ecosystems, and support coastal zone management.
-
-## Implementation Status
-
-**⚠️ Important Note**: This document describes both **implemented** and **aspirational** features. Features marked with 🔮 are planned/aspirational.
-
-### Currently Implemented
-
-- ✅ **OceanConditionsAnalyzer**: Ocean state monitoring
-- ✅ **CoastalZoneManager**: Coastal dynamics analysis
-- ✅ **MarineEcosystemMonitor**: Marine biodiversity tracking
-- ✅ **ShippingOptimizer**: Maritime route optimization
-
-### Aspirational/Planned Features
-
-- 🔮 **MarinePatrolAgent**: Autonomous ocean monitoring
-- 🔮 **CoastalProtectionAgent**: Real-time coastal management
-
-## Agent Capabilities Supported
+## Agent Capabilities
 
 ### 1. Ocean Monitoring
 
 ```python
-from geo_infer_marine import OceanConditionsAnalyzer
+from geo_infer_marine import OceanMonitor
 
-# Agent monitors ocean conditions
-analyzer = OceanConditionsAnalyzer()
-ocean_state = analyzer.analyze(
-    region=ocean_area,
-    parameters=['sst', 'salinity', 'chlorophyll', 'currents']
+# Monitor ocean conditions
+monitor = OceanMonitor()
+
+conditions = monitor.get(
+    area=study_area,
+    parameters=["sst", "chlorophyll", "currents"]
 )
+
+print(f"SST: {conditions.sst}°C")
+print(f"Chlorophyll: {conditions.chl} mg/m³")
 ```
 
-### 2. Coastal Zone Analysis
+### 2. Coastal Analysis
 
 ```python
-from geo_infer_marine import CoastalZoneManager
+from geo_infer_marine import CoastalAnalyzer
 
-# Coastal dynamics analysis
-manager = CoastalZoneManager()
-coastal_state = manager.assess(
-    coastline=shoreline_data,
-    sea_level=tide_gauge_data,
-    erosion_risk=vulnerability_map
+# Analyze coastal dynamics
+coastal = CoastalAnalyzer()
+
+erosion = coastal.analyze(
+    shoreline=coastline,
+    period=("2000", "2025")
 )
+
+print(f"Erosion rate: {erosion.rate} m/year")
 ```
 
-### 3. Marine Ecosystem Monitoring
+### 3. Marine Spatial Planning
 
 ```python
-from geo_infer_marine import MarineEcosystemMonitor
+from geo_infer_marine import MarinePlanner
 
-# Marine biodiversity tracking
-monitor = MarineEcosystemMonitor()
-ecosystem_health = monitor.assess(
-    species_data=marine_observations,
-    habitat=seafloor_map,
-    threats=['pollution', 'overfishing', 'climate']
+# Create marine spatial plan
+planner = MarinePlanner()
+
+plan = planner.create(
+    area=eez,
+    uses=["fishing", "shipping", "conservation"]
 )
 ```
 
-## Integration Status
+### 4. Fisheries Analysis
 
-| Capability | Status | Description |
-|------------|--------|-------------|
-| **Ocean Conditions** | ✅ Ready | State monitoring |
-| **Coastal Zone** | ✅ Ready | Dynamics analysis |
-| **Marine Ecosystems** | ✅ Ready | Biodiversity tracking |
-| **Shipping Routes** | ✅ Ready | Maritime optimization |
-| **Patrol Agent** | 🔮 Planned | Autonomous monitoring |
-| **Protection Agent** | 🔮 Planned | Real-time management |
+```python
+from geo_infer_marine import FisheriesAnalyzer
+
+# Analyze fisheries
+fisheries = FisheriesAnalyzer()
+
+stock = fisheries.assess(
+    species="cod",
+    area=fishing_grounds
+)
+
+print(f"Stock status: {stock.status}")
+```
+
+## Implementation Status
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Ocean** | ✅ Ready | SST, currents |
+| **Coastal** | ✅ Ready | Erosion, inundation |
+| **MSP** | ✅ Ready | Zone planning |
+| **Fisheries** | ✅ Ready | Stock assessment |
+
+### Aspirational Features
+
+- 🔮 **OceanSentinelAgent**: Real-time monitoring
+- 🔮 **FisheriesAgent**: Sustainable quotas
 
 ---
 
-This AGENTS.md documents how GEO-INFER-MARINE provides marine intelligence capabilities.
+**Last Updated**: 2026-01-26

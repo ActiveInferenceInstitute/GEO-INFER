@@ -1,700 +1,115 @@
 ---
-title: "GEO-INFER-ANT: Complex Adaptive Systems and Swarm Intelligence"
-description: "Comprehensive swarm intelligence and complex adaptive systems modeling using Active Inference principles for emergent collective behavior in geospatial contexts"
-purpose: "Model and simulate complex adaptive systems inspired by swarm intelligence and stigmergy using Active Inference principles"
-module_type: "Simulation & Modeling"
-status: "Beta"
-last_updated: "2025-01-19"
-dependencies: ["ACT", "SIM", "SPACE", "AGENT", "MATH"]
-compatibility: ["GEO-INFER-ACT", "GEO-INFER-SIM", "GEO-INFER-AGENT", "GEO-INFER-SPACE", "GEO-INFER-MATH"]
-tags: ["complex-adaptive-systems", "swarm-intelligence", "emergent-behavior", "stigmergy", "ant-colony-optimization", "particle-swarm", "active-inference", "collective-intelligence"]
+title: "GEO-INFER-ANT: Swarm Intelligence"
+description: "Ant colony optimization, swarm coordination, and collective behavior"
+purpose: "Enable swarm-based problem solving and agent coordination"
+module_type: "Core Intelligence"
+status: "Alpha"
+last_updated: "2026-01-26"
+dependencies: ["SPACE", "ACT"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-ACT", "GEO-INFER-AGENT"]
+tags: ["swarm", "ant-colony", "optimization", "collective", "coordination"]
 difficulty: "Advanced"
-estimated_time: "90"
+estimated_time: "40"
 ---
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./docs/">📚 Documentation</a>
 </div>
 
 ---
 
-
-# GEO-INFER-ANT: Active Inference in Networked Topologies
-
-**Active Inference in Networked Topologies: Complex Adaptive Systems Modeling**
+# GEO-INFER-ANT: Swarm Intelligence
 
 ## Overview
 
-GEO-INFER-ANT is a specialized module for modeling and simulating complex adaptive systems (CAS) inspired by swarm intelligence and stigmergy. It uses Active Inference from GEO-INFER-ACT for agent behavior and studies emergent collective dynamics in spatial and temporal contexts.
+**GEO-INFER-ANT** provides swarm intelligence:
 
-### Documentation
-- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-ant.md
-- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+- **ACO**: Ant colony optimization
+- **Swarm Coordination**: Multi-agent coordination
+- **Pheromone Mapping**: Path reinforcement
+- **Collective Decision**: Group decisions
 
-## Core Concepts
+## Features
 
--   **Complex Adaptive Systems (CAS):** Systems composed of many interacting components whose collective behavior is difficult to predict from the behavior of individual components. They exhibit properties like emergence, self-organization, and adaptation.
--   **Swarm Intelligence:** The collective problem-solving behavior of decentralized, self-organized systems, typically consisting of a population of simple agents interacting locally with one another and with their environment.
--   **Stigmergy:** A mechanism of indirect coordination between agents, where the trace left in the environment by an action stimulates the performance of a subsequent action by the same or a different agent (e.g., pheromone trails in ants).
--   **Emergence:** The arising of novel and coherent structures, patterns, and properties during the process of self-organization in complex systems.
--   **Self-Organization:** A process where some form of overall order or coordination arises out of the local interactions between smaller, initially disordered components of a system, without external control.
--   **Active Inference for Agents:** Individual agents within the ANT module are often modeled as active inference agents, making decisions to minimize their free energy (see GEO-INFER-ACT).
+### Ant Colony Optimization
 
-## Core Features
+```python
+from geo_infer_ant import AntColonyOptimizer
 
--   **Multi-Scale "Ant" Entity Modeling:** Design and simulation of individual agents ("ants" or other entities) with specific sensory capabilities, internal states (beliefs, preferences modeled via active inference), and action repertoires operating within a geospatial environment.
--   **Movement Data Integration & Analysis:** Tools for integrating empirical movement data (e.g., GPS tracks of animals, pedestrian flows) to calibrate and validate agent-based models or to serve as input for collective behavior analysis.
--   **Configurable Simulation Environments:** Flexible environments allowing definition of spatial layouts (using GEO-INFER-SPACE), resource distributions, obstacles, and dynamic changes (using GEO-INFER-TIME) that influence agent behavior.
--   **Stigmergic Interaction Mechanisms:** Implementation of various forms of indirect communication, such as digital pheromones, shared knowledge maps, or environmental markers that agents can deposit, sense, and react to.
--   **Ant-Inspired & Bio-Inspired Algorithms:** Implementation of algorithms like Ant Colony Optimization (ACO), Particle Swarm Optimization (PSO), Artificial Bee Colony (ABC), and other swarm intelligence techniques for geospatial optimization problems (e.g., routing, task allocation, area coverage).
--   **Collective Behavior Analysis Tools:** Metrics and visualization techniques to study emergent patterns, such as flocking, schooling, trail formation, task specialization, and collective decision-making.
--   **Network-Based Interactions:** Modeling interactions between agents based on various network topologies (e.g., spatial proximity networks, social networks, communication networks).
+# Solve TSP with ACO
+aco = AntColonyOptimizer()
 
-## Conceptual Model of ANT System Dynamics
+solution = aco.solve(
+    problem="tsp",
+    nodes=delivery_points,
+    n_ants=50
+)
 
-```mermaid
-graph TD
-    subgraph Environment_Layer as "Geospatial Environment (SPACE, TIME)"
-        RE[Resources]
-        OBS[Obstacles]
-        PATHS[Pathways]
-        STIG[Stigmergic Traces (Pheromones, Markers)]
-    end
-
-    subgraph Agent_Layer as "Population of Active Inference Agents (ANTs)"
-        A1[Agent 1 (ActInf)]
-        A2[Agent 2 (ActInf)]
-        An[Agent n (ActInf)]
-    end
-
-    subgraph Collective_Behavior as "Emergent Collective Behavior"
-        FORAGE[Collective Foraging]
-        NAV[Optimized Navigation]
-        TASK_ALLOC[Dynamic Task Allocation]
-        SENSE[Distributed Sensing]
-    end
-
-    %% Agent-Environment Interactions
-    A1 -- "Senses/Acts" --> RE
-    A1 -- "Senses/Acts" --> OBS
-    A1 -- "Senses/Acts" --> PATHS
-    A1 -- "Deposits/Senses" --> STIG
-    A2 -- "Senses/Acts" --> RE
-    A2 -- "Senses/Acts" --> OBS
-    A2 -- "Senses/Acts" --> PATHS
-    A2 -- "Deposits/Senses" --> STIG
-    An -- "Senses/Acts" --> RE
-    An -- "Senses/Acts" --> OBS
-    An -- "Senses/Acts" --> PATHS
-    An -- "Deposits/Senses" --> STIG
-
-    %% Agent-Agent Interactions (often indirect via STIG or direct if modeled)
-    A1 <-->|Local Interactions| A2
-    A2 <-->|Local Interactions| An
-
-    %% Emergence
-    Agent_Layer -- "Local Interactions Lead To" --> Collective_Behavior
-    STIG -- "Mediates" --> Collective_Behavior
-
-    classDef antComponent fill:#ffd9b3,stroke:#ff8c00,stroke-width:2px;
-    class Agent_Layer,Collective_Behavior antComponent;
+print(f"Best route: {solution.distance}")
 ```
 
-## Directory Structure
-```
-GEO-INFER-ANT/
-├── config/              # Configuration files and schema validation
-│   ├── example_config.yaml    # Example configuration with all parameters
-│   └── schema.json            # JSON schema for configuration validation
-├── docs/                # Detailed documentation and API reference
-├── examples/            # Working examples and tutorials
-│   ├── swarm_intelligence_demo.py    # Complete demonstration of all features
-│   └── tutorials/        # Step-by-step tutorials
-├── src/                 # Source code implementation
-│   └── geo_infer_ant/   # Main Python package
-│       ├── __init__.py       # Package initialization and exports
-│       ├── core/        # Core swarm intelligence components
-│       │   ├── __init__.py
-│       │   ├── agent_base.py          # Base agent classes with Active Inference
-│       │   ├── population.py          # Agent population management
-│       │   ├── stigmergy.py           # Pheromone-based communication
-│       │   └── digital_stigmergy.py   # Digital stigmergy systems
-│       ├── algorithms/  # Swarm optimization algorithms
-│       │   ├── __init__.py
-│       │   ├── aco.py         # Ant Colony Optimization
-│       │   ├── pso.py         # Particle Swarm Optimization
-│       │   └── abc.py         # Artificial Bee Colony
-│       ├── applications/ # Domain-specific applications
-│       │   ├── __init__.py
-│       │   ├── environmental.py  # Environmental monitoring swarms
-│       │   ├── disaster.py       # Disaster response coordination
-│       │   └── urban.py          # Urban optimization systems
-│       └── analysis/    # Analysis and evaluation tools
-│           ├── __init__.py
-│           ├── patterns.py    # Pattern recognition and emergence detection
-│           └── metrics.py     # Performance metrics and evaluation
-└── tests/               # Comprehensive test suite
-    ├── unit/            # Unit tests for individual components
-    ├── integration/     # Integration tests for component interaction
-    └── performance/     # Performance and scalability tests
+### Swarm Coordination
+
+```python
+from geo_infer_ant import SwarmCoordinator
+
+# Coordinate drone swarm
+swarm = SwarmCoordinator()
+
+swarm.deploy(
+    agents=drones,
+    area=search_region,
+    behavior="coverage"
+)
 ```
 
-## Current Implementation Status
+### Pheromone Mapping
 
-### ✅ **FULLY IMPLEMENTED** (Beta Release)
+```python
+from geo_infer_ant import PheromoneMapper
 
-#### Core Components
-- **SwarmAgent**: Complete implementation with Active Inference integration
-- **AgentPopulation**: Full population dynamics and management system
-- **PheromoneSystem**: Comprehensive pheromone-based stigmergic communication
-- **DigitalStigmergy**: Modern digital communication and coordination systems
+# Map pheromone trails
+mapper = PheromoneMapper()
 
-#### Optimization Algorithms
-- **Ant Colony Optimization (ACO)**: Full implementation with multiple variants (AS, ACS, MMAS)
-- **Particle Swarm Optimization (PSO)**: Complete PSO with adaptive parameters and multi-swarm coordination
-- **Artificial Bee Colony (ABC)**: Full ABC implementation with foraging strategies
-
-#### Applications
-- **Environmental Monitoring**: Complete swarm-based environmental monitoring system
-- **Adaptive sampling**, **anomaly detection**, **collective intelligence processing**
-- **Real-time sensor integration** and **spatial interpolation**
-
-#### Analysis Tools
-- **SwarmPatternAnalyzer**: Comprehensive emergent behavior pattern analysis
-- **Spatial pattern recognition** (clustering, flocking, migration)
-- **Interaction network analysis** and **information theory measures**
-- **Complexity analysis** (fractal dimension, Lyapunov exponents)
-- **Emergence detection** and interpretation
-
-#### Integration Framework
-- **GEO-INFER-SPACE**: H3 spatial indexing and analytics integration
-- **GEO-INFER-ACT**: Active Inference for individual agent behaviors
-- **Configuration system**: YAML/JSON configuration with schema validation
-- **Comprehensive test suite**: Unit, integration, and performance tests
-
-### 🔄 **PARTIALLY IMPLEMENTED**
-- **Disaster Response Applications**: Framework implemented, domain-specific logic pending
-- **Urban Optimization Systems**: Core framework ready, specific urban models pending
-- **Advanced Visualization**: Basic plotting, advanced visualization tools pending
-- **API Layer**: Core functionality, REST API endpoints pending
-
-### 📋 **REMAINING TASKS**
-- **Performance Optimization**: Advanced optimization for large-scale simulations
-- **Extended Integration**: Deeper integration with additional GEO-INFER modules
-- **Production Deployment**: Containerization and deployment tools
-- **Documentation**: API documentation generation and interactive tutorials
-
-### 🧪 **Testing and Validation**
-- **Unit Tests**: 95%+ coverage of core components
-- **Integration Tests**: Cross-component functionality validation
-- **Performance Tests**: Scalability testing up to 1000+ agents
-- **Example Validation**: Working demonstrations of all major features
-
-## Getting Started
-
-### Prerequisites
-- Python 3.9+
-- NumPy, SciPy, Matplotlib
-- NetworkX (for graph-based interactions)
-- Integration with GEO-INFER-ACT, GEO-INFER-SPACE, GEO-INFER-TIME
-
-### Quick Start
-```bash
-# Clone and install
-git clone <repository>
-cd GEO-INFER-ANT
-uv pip install -e .
-
-# Run complete demonstration
-uv run python examples/swarm_intelligence_demo.py
-
-# Run tests
-uv run python -m pytest tests/ -v
-
-# View documentation
-open docs/README.md
+map = mapper.create(
+    paths=agent_paths,
+    decay_rate=0.1
+)
 ```
 
-### Installation
-```bash
-uv pip install -e ./GEO-INFER-ANT
+### Collective Decision
+
+```python
+from geo_infer_ant import CollectiveDecision
+
+# Swarm voting
+decision = CollectiveDecision()
+
+result = decision.vote(
+    agents=swarm,
+    alternatives=options
+)
 ```
-
-### Configuration
-Simulation parameters, agent characteristics (e.g., sensory range, pheromone deposition rates), and environment details are typically configured via YAML files in `config/` or directly in experiment scripts.
-```bash
-# cp config/example_aco_config.yaml config/my_aco_experiment.yaml
-# # Edit my_aco_experiment.yaml
-```
-
-### Running Examples
-```bash
-python examples/ant_colony_optimization_routing.py
-python examples/swarm_foraging_simulation.py
-```
-
-## Theoretical Foundations
-
-GEO-INFER-ANT builds upon and integrates concepts from:
-
--   **Active Inference (GEO-INFER-ACT):** Provides the principled basis for individual agent perception, learning, and decision-making to minimize free energy.
--   **Complexity Science:** Explores how interactions among many components lead to emergent, system-level properties not present in the components themselves.
--   **Swarm Intelligence:** Studies collective computation and problem-solving in decentralized systems (e.g., ACO, PSO, flocking/schooling models).
--   **Multi-Agent Systems (MAS):** Focuses on systems composed of multiple autonomous, interacting intelligent agents.
--   **Network Theory:** Analyzes the structure of connections between agents and how this influences information flow and collective dynamics.
--   **Statistical Mechanics & Synergetics:** Mathematical frameworks for understanding phase transitions and pattern formation in multi-component systems.
-
-## Modeling Capabilities
-
-The module provides tools for constructing and analyzing models of:
-
--   **Ant Colony Optimization (ACO) for Spatial Problems:** Finding optimal paths in networks (e.g., road networks, pipeline layouts), a VRP (Vehicle Routing Problem) variant solutions.
--   **Agent-Based Simulations of Movement & Foraging:** Simulating how groups of animals or autonomous robots explore, search for, and exploit resources in a geospatial environment.
--   **Stigmergic Communication & Construction:** Modeling how agents indirectly coordinate through modifications of their shared environment (e.g., trail formation, nest building).
--   **Distributed Sensing & Collective Intelligence:** Simulating how a swarm of simple sensors or agents can collectively map an area, detect anomalies, or make robust group decisions.
--   **Adaptive Foraging & Task Allocation Strategies:** Investigating how agent populations dynamically allocate themselves to different tasks or resource patches in response to changing environmental conditions.
--   **Opinion Dynamics & Consensus Formation:** Modeling how local interactions and information exchange lead to global patterns of agreement or polarization in a spatially distributed population.
 
 ## Algorithms
 
-Key algorithms implemented or supported by the module include:
+| Algorithm | Application |
+|-----------|-------------|
+| **ACO** | Routing, scheduling |
+| **PSO** | Optimization |
+| **Bees** | Foraging patterns |
 
--   **Ant Colony Optimization (ACO) variants:** For pathfinding, routing, and combinatorial optimization problems.
--   **Particle Swarm Optimization (PSO):** For continuous optimization problems in geospatial contexts.
--   **Artificial Bee Colony (ABC) & other foraging algorithms.**
--   **Boids Algorithm (Flocking/Schooling):** For simulating basic swarm movement and cohesion.
--   **Stigmergic Pattern Formation Algorithms:** E.g., digital pheromone evaporation and diffusion models.
--   **Distributed Task Allocation Algorithms:** E.g., threshold-based models, market-based approaches.
--   **Self-Organizing Maps (SOMs) / Growing Neural Gas (GNG):** For adaptive geospatial clustering and topology learning, sometimes inspired by neural self-organization.
+## Installation
 
-## API Reference
-
-### Core Classes
-
-#### SwarmAgent
-
-Base class for individual swarm agents with Active Inference integration.
-
-```python
-from geo_infer_ant import SwarmAgent
-
-# Create a swarm agent
-agent = SwarmAgent(
-    agent_id="ant_001",
-    position=np.array([37.7749, -122.4194]),
-    sensory_range=100.0,
-    movement_speed=1.5,
-    active_inference_enabled=True
-)
-
-# Perceive environment
-sensory_input = agent.perceive_environment(
-    spatial_context=current_location,
-    environmental_signals=pheromone_trails
-)
-
-# Make decision
-action = agent.make_decision(sensory_input)
-
-# Execute action
-agent.execute_action(action)
+```bash
+uv pip install -e "./GEO-INFER-ANT"
 ```
 
-#### AgentPopulation
+---
 
-Manages populations of swarm agents with collective behavior.
+**Status**: Alpha
 
-```python
-from geo_infer_ant import AgentPopulation
-
-# Create agent population
-population = AgentPopulation(
-    population_size=1000,
-    agent_types=['worker', 'scout', 'soldier'],
-    spatial_distribution='clustered'
-)
-
-# Configure population behavior
-population.set_behavioral_rules(
-    foraging_rules=foraging_strategy,
-    defense_rules=defense_protocol
-)
-
-# Run simulation
-results = population.simulate(
-    time_steps=1000,
-    environment=spatial_environment
-)
-```
-
-#### PheromoneSystem
-
-Stigmergic communication system using pheromone trails.
-
-```python
-from geo_infer_ant import PheromoneSystem
-
-# Initialize pheromone system
-pheromones = PheromoneSystem(
-    evaporation_rate=0.1,
-    deposition_amount=1.0,
-    spatial_resolution=10.0
-)
-
-# Deposit pheromone
-pheromones.deposit(
-    location=agent_position,
-    pheromone_type='food_trail',
-    intensity=1.0
-)
-
-# Sense pheromones
-concentration = pheromones.sense(
-    location=agent_position,
-    radius=50.0
-)
-```
-
-#### AntColonyOptimization
-
-Ant Colony Optimization algorithm for combinatorial problems.
-
-```python
-from geo_infer_ant import AntColonyOptimization
-
-# Initialize ACO
-aco = AntColonyOptimization(
-    number_of_ants=50,
-    max_iterations=100,
-    variant='ACS'
-)
-
-# Solve optimization problem
-result = aco.solve(
-    problem_graph=spatial_graph,
-    objective_function=route_cost_function
-)
-
-# Get optimal solution
-optimal_route = result.best_solution
-```
-
-#### ParticleSwarmOptimization
-
-Particle Swarm Optimization for continuous optimization.
-
-```python
-from geo_infer_ant import ParticleSwarmOptimization
-
-# Initialize PSO
-pso = ParticleSwarmOptimization(
-    swarm_size=100,
-    dimensions=2,
-    max_iterations=200
-)
-
-# Optimize function
-optimal_point = pso.optimize(
-    objective_function=spatial_cost_function,
-    bounds=[(0, 100), (0, 100)]
-)
-```
-
-#### EnvironmentalMonitoringSwarm
-
-Application-specific swarm for environmental monitoring.
-
-```python
-from geo_infer_ant import EnvironmentalMonitoringSwarm
-
-# Create monitoring swarm
-swarm = EnvironmentalMonitoringSwarm(
-    monitoring_region=region_bounds,
-    sensor_types=['temperature', 'humidity', 'air_quality'],
-    agent_density=10  # agents per km²
-)
-
-# Deploy swarm
-swarm.deploy()
-
-# Collect data
-monitoring_data = swarm.collect_data(
-    time_window=timedelta(hours=24)
-)
-```
-
-### Utility Functions
-
-```python
-from geo_infer_ant import load_config, validate_config, setup_ant_module
-
-# Load configuration
-config = load_config("config/example_config.yaml")
-
-# Validate configuration
-is_valid = validate_config(config)
-
-# Setup module
-module_config = setup_ant_module(config_path="config.yaml")
-```
-
-## Integration with Other Modules
-
-GEO-INFER-ANT interacts closely with:
-
--   **GEO-INFER-ACT:** Provides the core active inference framework that can drive the behavior of individual "ant" agents, enabling them to learn and adapt based on minimizing free energy.
--   **GEO-INFER-SPACE:** Defines the spatial environment (grids, networks, continuous spaces, terrain features) in which ANT agents operate and interact. Agent perception and movement are constrained and influenced by SPACE.
--   **GEO-INFER-TIME:** Manages the temporal evolution of the simulation environment and agent states. Dynamic resource availability, environmental changes, and agent lifecycles are handled via TIME.
--   **GEO-INFER-SIM:** ANT can be considered a specialized type of simulation within the broader SIM module. SIM might provide higher-level orchestration or visualization tools for ANT simulations.
--   **GEO-INFER-AI:** Machine learning techniques from AI can be used to analyze the emergent behavior of ANT systems, or to train more sophisticated policies for individual agents.
--   **GEO-INFER-VIS (if it exists, or GEO-INFER-ART/APP for viz):** For visualizing agent movements, pheromone trails, emergent structures, and simulation dynamics.
-
-## Applications
-
--   **Optimizing Resource Discovery & Exploitation in Ecological Systems:** Modeling animal foraging, pollination dynamics, or predator-prey interactions.
--   **Simulating Human Movement Patterns & Crowd Dynamics:** Understanding pedestrian flows in urban areas, evacuation scenarios, or the spread of information/disease.
--   **Designing Resilient & Adaptive Infrastructure Networks:** E.g., self-healing communication networks, adaptive traffic routing systems.
--   **Robotics & Autonomous Systems:** Developing control strategies for swarms of autonomous robots for tasks like exploration, mapping, search and rescue, or distributed construction.
--   **Logistics & Transportation Network Optimization:** Finding efficient routes for delivery fleets, managing supply chains with decentralized agents.
--   **Understanding Information Flow & Collective Decision-Making in Social Systems:** Modeling opinion dynamics, innovation diffusion, or the emergence of social norms.
-
-## Contributing
-
-Contributions are welcome and can include:
--   Developing new agent behavioral models (especially those based on active inference).
--   Implementing novel swarm intelligence algorithms or stigmergic mechanisms.
--   Creating new simulation environments or scenarios for geospatial CAS.
--   Adding tools for analyzing and visualizing collective behavior.
--   Integrating with empirical data on animal or human collective movement.
-
-Follow the contribution guidelines in the main GEO-INFER documentation (`CONTRIBUTING.md`) and any specific guidelines in `GEO-INFER-ANT/docs/CONTRIBUTING_ANT.md` (to be created).
-
-## Advanced Features
-
-### 1. Adaptive Stigmergy Systems
-**Purpose**: Advanced stigmergic coordination mechanisms that adapt to environmental changes and task requirements.
-
-```python
-from geo_infer_ant.stigmergy import AdaptiveStigmergySystem
-
-stigmergy_system = AdaptiveStigmergySystem(
-    pheromone_types=['attraction', 'repulsion', 'information'],
-    decay_functions=['exponential', 'power_law', 'adaptive'],
-    environmental_adaptation=True,
-    multi_modal_communication=True
-)
-
-# Create adaptive pheromone trails
-trail_network = stigmergy_system.create_trail_network(
-    environment=spatial_environment,
-    agent_types=['foragers', 'builders', 'scouts'],
-    adaptation_rate=0.1
-)
-
-# Environment-responsive pheromone decay
-dynamic_decay = stigmergy_system.compute_adaptive_decay(
-    environmental_factors=['humidity', 'temperature', 'wind'],
-    pheromone_type='information',
-    base_decay_rate=0.05
-)
-```
-
-### 2. Multi-Agent Reinforcement Learning for Collective Behavior
-**Purpose**: Train groups of agents to learn optimal collective behaviors using multi-agent reinforcement learning.
-
-```python
-from geo_infer_ant.multi_agent_rl import CollectiveRLTrainer
-
-rl_trainer = CollectiveRLTrainer(
-    agent_count=100,
-    state_space=['position', 'pheromone_levels', 'neighbor_states'],
-    action_space=['move', 'deposit_pheromone', 'interact'],
-    reward_function='collective_efficiency',
-    algorithm='multi_agent_ppo'
-)
-
-# Train collective behavior
-trained_agents = rl_trainer.train_collective_policy(
-    training_episodes=10000,
-    batch_size=1024,
-    exploration_strategy='entropy_regularized',
-    curriculum_learning=True
-)
-
-# Emergent behavior analysis
-emergent_patterns = rl_trainer.analyze_emergent_behavior(
-    trained_agents=trained_agents,
-    analysis_metrics=['coordination', 'efficiency', 'adaptability']
-)
-```
-
-### 3. Hierarchical Agent Organizations
-**Purpose**: Multi-level agent hierarchies for complex task decomposition and coordination.
-
-```python
-from geo_infer_ant.hierarchy import HierarchicalAgentOrganization
-
-hierarchy = HierarchicalAgentOrganization(
-    levels=['strategic', 'tactical', 'operational'],
-    communication_topology='hierarchical',
-    decision_making='distributed_consensus',
-    adaptation_mechanisms=['reorganization', 'level_migration']
-)
-
-# Create hierarchical structure
-org_structure = hierarchy.create_organization(
-    total_agents=1000,
-    level_distribution=[0.1, 0.3, 0.6],  # strategic, tactical, operational
-    communication_links=hierarchy_links
-)
-
-# Hierarchical task allocation
-task_allocation = hierarchy.allocate_tasks_hierarchically(
-    global_objectives=['optimize_resource_usage', 'maximize_coverage'],
-    local_constraints=['energy_limits', 'communication_range'],
-    optimization_strategy='multi_objective'
-)
-```
-
-## Performance Considerations
-
-### Computational Efficiency
-**Large-Scale Simulations**: Optimized algorithms for simulating thousands of agents with minimal computational overhead
-**Memory Management**: Efficient memory usage for agent states, pheromone fields, and interaction networks
-**Parallel Processing**: Distributed computation across multiple cores and nodes for large simulations
-
-### Real-Time Performance
-**Simulation Speed**: Real-time or faster-than-real-time execution for interactive applications
-**Adaptive Resolution**: Dynamic adjustment of simulation parameters based on available computational resources
-**Incremental Updates**: Efficient incremental state updates for continuous-time simulations
-
-### Scalability and Distribution
-**Horizontal Scaling**: Distribute agent populations across multiple compute nodes
-**Load Balancing**: Dynamic load balancing for heterogeneous agent workloads
-**Fault Tolerance**: Agent replication and failover mechanisms for robust simulations
-
-## Troubleshooting
-
-### Common Issues and Solutions
-
-#### Agent Coordination Failures
-**Issue**: Agents not coordinating effectively or forming suboptimal patterns
-**Solution**: Adjust pheromone parameters, verify communication protocols, and check environmental constraints
-
-```python
-from geo_infer_ant.diagnostics import CoordinationDiagnostics
-
-diagnostics = CoordinationDiagnostics()
-coord_analysis = diagnostics.analyze_coordination(
-    agent_population=agents,
-    pheromone_network=pheromone_trails,
-    interaction_patterns=interaction_history
-)
-
-# Optimize pheromone parameters
-optimized_params = diagnostics.optimize_pheromone_parameters(
-    current_params=pheromone_config,
-    coordination_metrics=coord_analysis['metrics']
-)
-```
-
-#### Simulation Performance Degradation
-**Issue**: Simulation slowing down as agent count or complexity increases
-**Solution**: Enable parallel processing, optimize agent update algorithms, and implement spatial partitioning
-
-```python
-from geo_infer_ant.performance import SimulationOptimizer
-
-optimizer = SimulationOptimizer(
-    parallel_processing=True,
-    spatial_partitioning=True,
-    adaptive_timestep=True
-)
-
-# Optimize simulation performance
-optimized_config = optimizer.optimize_simulation(
-    current_config=simulation_params,
-    performance_targets={'fps': 60, 'memory_mb': 4096},
-    resource_constraints=available_resources
-)
-```
-
-#### Emergent Behavior Instabilities
-**Issue**: System exhibiting unstable or chaotic emergent behaviors
-**Solution**: Adjust agent parameters, implement stabilization mechanisms, and validate model assumptions
-
-```python
-from geo_infer_ant.stability import BehaviorStabilizer
-
-stabilizer = BehaviorStabilizer(
-    stability_metrics=['convergence', 'oscillation', 'divergence'],
-    control_mechanisms=['damping', 'feedback', 'restructuring']
-)
-
-# Stabilize emergent behaviors
-stabilized_system = stabilizer.stabilize_behavior(
-    agent_system=unstable_agents,
-    target_stability=0.85,
-    adaptation_strategy='gradual'
-)
-```
-
-### Debugging Agent Systems
-
-#### Enable Detailed Logging
-```python
-import logging
-logging.getLogger('geo_infer_ant').setLevel(logging.DEBUG)
-
-# Enable agent state logging
-logging.getLogger('geo_infer_ant.agents').setLevel(logging.INFO)
-```
-
-#### Visualize Agent Behaviors
-```python
-from geo_infer_ant.visualization import AgentVisualizer
-
-visualizer = AgentVisualizer()
-visualizer.plot_agent_trajectories(
-    agents=agent_population,
-    trails=pheromone_network,
-    time_steps=simulation_history,
-    output_path='agent_behaviors.png'
-)
-```
-
-#### Monitor System Metrics
-```python
-from geo_infer_ant.monitoring import SystemMonitor
-
-monitor = SystemMonitor(
-    metrics=['coordination_efficiency', 'emergent_patterns', 'resource_usage'],
-    sampling_interval=1.0
-)
-
-with monitor.monitor_system():
-    simulation.run(steps=1000)
-    
-metrics_report = monitor.get_report()
-```
-
-### Common Error Messages
-
-#### "Pheromone evaporation rate too high"
-**Cause**: Pheromone trails disappearing before agents can follow them
-**Fix**: Reduce evaporation rate or increase pheromone deposit amounts
-
-#### "Agent population divergence"
-**Cause**: Agent behaviors becoming too dissimilar, losing collective coordination
-**Fix**: Increase communication frequency or implement coordination protocols
-
-#### "Simulation timestep instability"
-**Cause**: Time steps too large for system dynamics
-**Fix**: Reduce time step size or implement adaptive timestepping
-
-## License
-
-This module is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details. 
+**Last Updated**: 2026-01-26

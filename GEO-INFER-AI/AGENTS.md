@@ -11,8 +11,7 @@
 
 ## Overview
 
-
-The GEO-INFER-AI module provides machine learning and artificial intelligence capabilities that power intelligent agents within the GEO-INFER framework. While AI primarily serves as a foundational toolkit, it enables sophisticated perception, learning, and decision-making for agents across all domain modules.
+The GEO-INFER-AI module provides machine learning and artificial intelligence capabilities for intelligent agents within the GEO-INFER framework. It enables perception, learning, and decision-making for agents across all domain modules.
 
 ## Implementation Status
 
@@ -24,12 +23,83 @@ The GEO-INFER-AI module provides machine learning and artificial intelligence ca
 - ✅ **ImageClassifier**: Computer vision for satellite and aerial imagery
 - ✅ **SpatialPredictor**: Predictive models for geospatial forecasting
 - ✅ **GeospatialFeatureEngineer**: Preprocessing and feature extraction
+- ✅ **MLflowPipeline**: MLOps integration with MLflow
+- ✅ **ModelExplainer**: Explainable AI techniques
 
 ### Aspirational/Planned Features
 
 - 🔮 **AutoML Pipeline**: Automated model selection and hyperparameter tuning
 - 🔮 **Federated Learning**: Privacy-preserving distributed training
 - 🔮 **Neural Architecture Search**: Automated model architecture optimization
+
+## Technical Capabilities
+
+### Core Classes
+
+#### Model Training
+
+- **`ModelTrainer`**: `ModelTrainer(config: Optional[TrainingConfig] = None)`
+  - Training and evaluation framework
+  - Methods:
+    - `train(model, X_train, y_train, **kwargs) -> TrainedModel`
+    - `evaluate(model, X_test, y_test, **kwargs) -> Dict[str, float]`
+    - `cross_validate(model, X, y, cv=5, **kwargs) -> Dict[str, Any]`
+
+- **`TrainingConfig`**: `TrainingConfig(batch_size=32, epochs=100, learning_rate=0.001, **kwargs)`
+  - Training configuration dataclass
+
+#### Computer Vision
+
+- **`ImageClassifier`**: `ImageClassifier(model_type='resnet50', num_classes=10, input_shape=(256, 256, 3), **kwargs)`
+  - Image classification for geospatial imagery
+  - Methods:
+    - `fit(X_train, y_train, **kwargs) -> None`
+    - `predict(X, **kwargs) -> np.ndarray`
+    - `predict_proba(X, **kwargs) -> np.ndarray`
+
+#### Predictive Modeling
+
+- **`SpatialPredictor`**: `SpatialPredictor(model_type='random_forest', spatial_features=None, **kwargs)`
+  - Predictive models for geospatial forecasting
+  - Methods:
+    - `fit(features, targets, **kwargs) -> None`
+    - `predict(features, **kwargs) -> np.ndarray`
+    - `predict_proba(features, **kwargs) -> np.ndarray`
+
+#### Feature Engineering
+
+- **`GeospatialFeatureEngineer`**: `GeospatialFeatureEngineer(**kwargs)`
+  - Geospatial feature extraction and preprocessing
+  - Methods:
+    - `extract_features(data, **kwargs) -> np.ndarray`
+    - `transform(data, **kwargs) -> np.ndarray`
+    - `fit_transform(data, **kwargs) -> np.ndarray`
+
+#### MLOps
+
+- **`MLflowPipeline`**: `MLflowPipeline(experiment_name='default', **kwargs)`
+  - MLflow integration for MLOps
+  - Methods:
+    - `log_model(model, model_name, **kwargs) -> None`
+    - `log_metrics(metrics, step=None) -> None`
+    - `log_params(params) -> None`
+
+#### Model Evaluation
+
+- **`GeospatialModelEvaluator`**: `GeospatialModelEvaluator(**kwargs)`
+  - Geospatial model evaluation
+  - Methods:
+    - `evaluate(model, X, y, **kwargs) -> Dict[str, float]`
+    - `spatial_cross_validate(model, X, y, spatial_folds, **kwargs) -> Dict[str, Any]`
+
+#### Explainability
+
+- **`ModelExplainer`**: `ModelExplainer(model, method='shap', **kwargs)`
+  - Model explainability and interpretability
+  - Methods:
+    - `explain(X, **kwargs) -> Dict[str, Any]`
+    - `feature_importance(**kwargs) -> np.ndarray`
+    - `plot_explanations(X, output_path, **kwargs) -> None`
 
 ## Agent Capabilities Supported
 
@@ -65,7 +135,7 @@ predictor = SpatialPredictor(
 )
 
 # Agent learns spatial patterns
-predictor.train(features=spatial_features, targets=outcomes)
+predictor.fit(features=spatial_features, targets=outcomes)
 
 # Agent applies learned knowledge
 predictions = predictor.predict(new_features)
@@ -109,7 +179,7 @@ AI supports distributed learning across agent populations:
 - **Ensemble Methods**: Combining predictions from multiple agent models
 - **Transfer Learning**: Agents share learned representations
 
-## Implementation Status
+## Integration Status
 
 | Capability | Status | Description |
 |------------|--------|-------------|
@@ -117,9 +187,11 @@ AI supports distributed learning across agent populations:
 | **Spatial Prediction** | ✅ Implemented | Geospatial forecasting models |
 | **Feature Engineering** | ✅ Implemented | Spatial feature extraction |
 | **MLOps Pipeline** | ✅ Implemented | MLflow integration |
+| **Model Evaluation** | ✅ Implemented | Geospatial model evaluation |
+| **Explainability** | ✅ Implemented | XAI techniques |
 | **AutoML** | 🔮 Planned | Automated model optimization |
 | **Federated Learning** | 🔮 Planned | Distributed training |
 
 ---
 
-This AGENTS.md file documents how the GEO-INFER-AI module provides foundational AI/ML capabilities that power intelligent agents across the GEO-INFER framework.
+This AGENTS.md file documents how the GEO-INFER-AI module provides AI/ML capabilities for intelligent agents across the GEO-INFER framework.

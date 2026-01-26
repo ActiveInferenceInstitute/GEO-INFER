@@ -11,12 +11,13 @@ import os
 from pathlib import Path
 
 # Add paths for imports
-cascadian_dir = os.path.dirname(os.path.realpath(__file__))
-project_root = os.path.abspath(os.path.join(cascadian_dir, '..', '..', '..'))
+cascadian_test_dir = os.path.dirname(os.path.realpath(__file__))
+cascadian_root = os.path.abspath(os.path.join(cascadian_test_dir, '..', '..'))
+project_root = os.path.abspath(os.path.join(cascadian_root, '..', '..', '..'))
 place_src_path = os.path.join(project_root, 'GEO-INFER-PLACE', 'src')
 space_src_path = os.path.join(project_root, 'GEO-INFER-SPACE', 'src')
 
-for p in [cascadian_dir, place_src_path, space_src_path]:
+for p in [cascadian_root, place_src_path, space_src_path]:
     if os.path.isdir(p) and p not in sys.path:
         sys.path.insert(0, p)
 
@@ -36,10 +37,10 @@ from geo_infer_space.core.base_module import BaseAnalysisModule
 from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend
 
 # Import converted modules
-from zoning.geo_infer_zoning import GeoInferZoning
-from current_use.geo_infer_current_use import GeoInferCurrentUse
-from ownership.geo_infer_ownership import GeoInferOwnership
-from improvements.geo_infer_improvements import GeoInferImprovements
+from src.data_modules.zoning.geo_infer_zoning import GeoInferZoning
+from src.data_modules.current_use.geo_infer_current_use import GeoInferCurrentUse
+from src.data_modules.ownership.geo_infer_ownership import GeoInferOwnership
+from src.data_modules.improvements.geo_infer_improvements import GeoInferImprovements
 
 def test_h3_integration():
     """Test basic H3 integration from SPACE"""

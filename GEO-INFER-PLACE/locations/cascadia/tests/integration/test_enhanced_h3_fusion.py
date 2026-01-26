@@ -20,12 +20,12 @@ import tempfile
 import shutil
 
 # Add the cascadia directory to the path
-cascadia_dir = Path(__file__).parent.parent
+cascadia_dir = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(cascadia_dir))
 
 # Import enhanced modules
-from utils.enhanced_data_manager import create_enhanced_data_manager
-from utils.enhanced_h3_fusion import create_enhanced_h3_fusion
+from src.core.enhanced_data_manager import create_enhanced_data_manager
+from src.core.enhanced_h3_fusion import create_enhanced_h3_fusion
 
 class EnhancedH3FusionTestSuite:
     """

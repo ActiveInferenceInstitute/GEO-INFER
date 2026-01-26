@@ -30,9 +30,9 @@ project_root = os.path.abspath(os.path.join(cascadian_dir, '..', '..', '..'))
 place_src_path = os.path.join(project_root, 'GEO-INFER-PLACE', 'src')
 space_src_path = os.path.join(project_root, 'GEO-INFER-SPACE', 'src')
 # Add the parent directory (cascadia) to path for local module imports
-cascadia_parent_dir = os.path.dirname(cascadian_dir)
+cascadia_root = os.path.dirname(os.path.dirname(cascadian_dir))
 
-for p in [cascadian_dir, cascadia_parent_dir, place_src_path, space_src_path]:
+for p in [cascadian_dir, cascadia_root, place_src_path, space_src_path]:
     if os.path.isdir(p) and p not in sys.path:
         sys.path.insert(0, p)
 
@@ -48,10 +48,10 @@ try:
     from geo_infer_space.core.unified_backend import NumpyEncoder
     
     # Import modules
-    from zoning.geo_infer_zoning import GeoInferZoning
-    from current_use.geo_infer_current_use import GeoInferCurrentUse
-    from ownership.geo_infer_ownership import GeoInferOwnership
-    from improvements.geo_infer_improvements import GeoInferImprovements
+    from src.data_modules.zoning.geo_infer_zoning import GeoInferZoning
+    from src.data_modules.current_use.geo_infer_current_use import GeoInferCurrentUse
+    from src.data_modules.ownership.geo_infer_ownership import GeoInferOwnership
+    from src.data_modules.improvements.geo_infer_improvements import GeoInferImprovements
     
     IMPORTS_SUCCESSFUL = True
 except ImportError as e:

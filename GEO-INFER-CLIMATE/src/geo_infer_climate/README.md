@@ -1,0 +1,4 @@
+# geo_infer_climate
+ ## Overview
+ GEO-INFER-CLIMATE: Climate Modeling and Analysis Module This module provides climate modeling, weather analysis, and climate change impact assessment capabilities for geospatial systems. Key Features: - Climate data processing (CMIP, reanalysis datasets) - Climate indices calculation (SPI, PDSI, heat indices) - Statistical and dynamical downscaling methods - Climate change projections and scenario analysis - Extreme weather event analysis - Climate impact assessment - Climate adaptation planning tools ## Contents
+ - **api/**: Submodule - **core/**: Submodule - **utils/**: Submodule 

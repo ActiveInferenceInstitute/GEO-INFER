@@ -1,90 +1,115 @@
-# GEO-INFER-ENERGY: Energy Intelligence Agents
+# GEO-INFER-ENERGY: Agent Capabilities
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./README.md">📚 Module Documentation</a>
 </div>
 
 ---
 
 ## Overview
 
+The **GEO-INFER-ENERGY** module provides energy systems capabilities for agents, enabling renewable resource assessment, grid analysis, and energy planning.
 
-The GEO-INFER-ENERGY module provides energy systems analysis capabilities enabling agents to optimize renewable resources, manage grid operations, and support energy transition planning.
+## Agent Capabilities
+
+### 1. Renewable Assessment
+
+```python
+from geo_infer_energy import RenewableAssessor
+
+# Assess renewable potential
+assessor = RenewableAssessor()
+
+solar = assessor.assess_solar(
+    area=study_region,
+    metrics=["ghi", "capacity_factor", "lcoe"]
+)
+
+wind = assessor.assess_wind(
+    area=study_region,
+    hub_height=100
+)
+
+print(f"Solar potential: {solar.capacity_mw} MW")
+print(f"Wind potential: {wind.capacity_mw} MW")
+```
+
+### 2. Grid Analysis
+
+```python
+from geo_infer_energy import GridAnalyzer
+
+# Analyze power grid
+grid = GridAnalyzer()
+
+analysis = grid.analyze_capacity(
+    network=transmission_lines,
+    new_generation=proposed_projects,
+    load_forecast=demand_data
+)
+
+print(f"Constraints: {analysis.bottlenecks}")
+print(f"Upgrade needs: ${analysis.upgrade_cost}M")
+```
+
+### 3. Site Selection
+
+```python
+from geo_infer_energy import SiteSuitability
+
+# Find optimal energy sites
+suitability = SiteSuitability()
+
+sites = suitability.find_sites(
+    energy_type="solar_pv",
+    region=county,
+    constraints={"slope": 5, "land_use": ["barren", "agricultural"]}
+)
+
+print(f"Suitable sites: {len(sites)}")
+print(f"Total capacity: {sites.total_mw} MW")
+```
+
+### 4. Energy Transition
+
+```python
+from geo_infer_energy import TransitionPlanner
+
+# Plan energy transition
+planner = TransitionPlanner()
+
+plan = planner.create(
+    target={"renewable": 100, "year": 2045},
+    technologies=["solar", "wind", "storage"],
+    constraints={"budget": 10_000_000_000}
+)
+
+print(f"Investment needed: ${plan.total_cost}B")
+```
 
 ## Implementation Status
 
-**⚠️ Important Note**: This document describes both **implemented** and **aspirational** features. Features marked with 🔮 are planned/aspirational.
-
 ### Currently Implemented
 
-- ✅ **RenewableResourceAssessor**: Solar, wind, hydro potential analysis
-- ✅ **EnergyGridOptimizer**: Grid network optimization
-- ✅ **EnergyDemandForecaster**: Demand prediction
-- ✅ **CarbonFootprintAnalyzer**: Emissions assessment
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Renewable** | ✅ Ready | Resource assessment |
+| **Grid** | ✅ Ready | Network analysis |
+| **Siting** | ✅ Ready | Location optimization |
+| **Transition** | ✅ Ready | Decarbonization |
 
 ### Aspirational/Planned Features
 
-- 🔮 **GridManagementAgent**: Autonomous grid operations
-- 🔮 **EnergyTransitionAgent**: Decarbonization planning
-
-## Agent Capabilities Supported
-
-### 1. Renewable Resource Assessment
-
-```python
-from geo_infer_energy import RenewableResourceAssessor
-
-# Agent assesses renewable potential
-assessor = RenewableResourceAssessor()
-potential = assessor.assess(
-    region=study_area,
-    resources=['solar', 'wind', 'hydro'],
-    resolution='high'
-)
-```
-
-### 2. Grid Optimization
-
-```python
-from geo_infer_energy import EnergyGridOptimizer
-
-# Grid network optimization
-optimizer = EnergyGridOptimizer()
-grid_plan = optimizer.optimize(
-    demand=load_forecast,
-    supply=generation_assets,
-    constraints=['reliability', 'cost', 'emissions']
-)
-```
-
-### 3. Demand Forecasting
-
-```python
-from geo_infer_energy import EnergyDemandForecaster
-
-# Predict energy demand
-forecaster = EnergyDemandForecaster()
-demand = forecaster.forecast(
-    historical_data=consumption_history,
-    weather=weather_forecast,
-    horizon='7_days'
-)
-```
-
-## Integration Status
-
-| Capability | Status | Description |
-|------------|--------|-------------|
-| **Renewable Assessment** | ✅ Ready | Resource potential |
-| **Grid Optimization** | ✅ Ready | Network planning |
-| **Demand Forecasting** | ✅ Ready | Load prediction |
-| **Carbon Analysis** | ✅ Ready | Emissions tracking |
-| **Grid Agent** | 🔮 Planned | Autonomous operations |
-| **Transition Agent** | 🔮 Planned | Decarbonization |
+| Feature | Priority | Description |
+|---------|----------|-------------|
+| **GridOperatorAgent** | 🔮 High | Autonomous dispatch |
+| **DemandResponseAgent** | 🔮 Medium | Load management |
 
 ---
 
-This AGENTS.md documents how GEO-INFER-ENERGY provides energy systems intelligence capabilities.
+This AGENTS.md documents how GEO-INFER-ENERGY provides energy capabilities for agents.
+
+**Last Updated**: 2026-01-26

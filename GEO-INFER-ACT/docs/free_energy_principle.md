@@ -1,55 +1,134 @@
-# Free Energy Principle in GEO-INFER-ACT
+# The Free Energy Principle
 
-## Core Principle
+## Introduction
 
-The free energy principle states that any self-organizing system resists dispersion by minimizing the variational free energy of its internal states relative to its sensory inputs.
+The **Free Energy Principle (FEP)** is a theoretical framework proposing that all adaptive systems—from cells to societies—minimize variational free energy to maintain their existence and adapt to their environment.
 
-### Mathematical Formulation
+## Historical Context
 
-Variational Free Energy:
+Developed by neuroscientist **Karl Friston** at University College London, the FEP emerged from efforts to understand brain function through the lens of Bayesian inference and statistical physics.
 
-\[ F(q) = \int q(\mathbf{s}) \ln \frac{q(\mathbf{s})}{p(\mathbf{s}, \mathbf{o})} d\mathbf{s} \]
+## Core Formulation
 
-Decomposed as:
+### Variational Free Energy
 
-\[ F = \text{Energy} - \text{Entropy} = D_{KL}[q(\mathbf{s}) || p(\mathbf{s}|\mathbf{o})] - \ln p(\mathbf{o}) \]
+Free energy is defined as:
 
-Where:
-- \( D_{KL} \) is the Kullback-Leibler divergence (complexity term).
-- \( -\ln p(\mathbf{o}) \) is the negative log evidence (inaccuracy term).
-
-### Free Energy Decomposition Visualization
-
-```mermaid
-graph LR
-    A[Variational Free Energy F] --> B[Complexity<br>D_KL[q||p]]
-    A --> C[Inaccuracy<br>-ln p(o)]
-    B --> D[Minimizes divergence<br>from true posterior]
-    C --> E[Maximizes model evidence]
+```
+F = E_q[log q(s) - log p(o,s)]
+     = E_q[log q(s)] - E_q[log p(o,s)]
+     = -H[q(s)] + E_q[-log p(o,s)]
 ```
 
-This diagram illustrates how free energy bounds surprise, with complexity penalizing deviations from priors and inaccuracy encouraging accurate predictions.
+This can be rewritten as:
 
-## Extensions to Geospatial Domains
+```
+F = DKL[q(s) || p(s|o)] + (-log p(o))
+```
 
-In geospatial contexts, we extend the principle to include spatial and temporal dimensions:
+Where:
 
-### Spatial Free Energy
+- `DKL` - Kullback-Leibler divergence (a measure of difference between distributions)
+- `q(s)` - Approximate posterior (recognition density)
+- `p(s|o)` - True posterior
+- `p(o)` - Model evidence (marginalized likelihood)
 
-\[ F_{spatial} = \int q(\mathbf{s}(\mathbf{r})) \ln \frac{q(\mathbf{s}(\mathbf{r}))}{p(\mathbf{s}(\mathbf{r}), \mathbf{o}(\mathbf{r}))} d\mathbf{r} \]
+### Key Insight
 
-Where \( \mathbf{r} \) is the spatial coordinate.
+Since `DKL ≥ 0`, free energy is an **upper bound on surprise**:
 
-### Temporal Hierarchies
+```
+F ≥ -log p(o) = surprise
+```
 
-For multi-scale temporal dynamics:
+Minimizing F therefore minimizes surprise.
 
-\[ F = \sum_{k=1}^K F^{(k)} + \sum_{k=1}^{K-1} D_{KL}[q^{(k)}(\mathbf{s}^{(k)}) || p^{(k)}(\mathbf{s}^{(k)} | \mathbf{s}^{(k+1)})] \]
+## Two Routes to Minimization
 
-## Applications in GEO-INFER
+### 1. Perceptual Inference
 
-- **Resource Allocation**: Minimize free energy in spatial resource distributions.
-- **Path Planning**: Select trajectories that minimize expected free energy over space-time.
-- **Uncertainty Reduction**: Active sensing in geospatial environments to resolve spatial ambiguities.
+Adjust beliefs `q(s)` to better explain observations:
 
-See [active_inference_overview.md] for implementation details. 
+```python
+# Gradient descent on beliefs
+dq/dt = -∂F/∂q
+```
+
+This is equivalent to Bayesian belief updating.
+
+### 2. Active Inference
+
+Select actions that change observations to match predictions:
+
+```python
+# Select action minimizing expected free energy
+action = argmin_a E[F(o_future | a)]
+```
+
+## Mathematical Details
+
+### Generative Model
+
+The joint probability `p(o,s)` factorizes as:
+
+```
+p(o,s) = p(o|s) × p(s)
+```
+
+Where:
+
+- `p(o|s)` - Likelihood (how states generate observations)
+- `p(s)` - Prior (expected states)
+
+### Belief Updating
+
+Under Laplace approximation (Gaussian beliefs):
+
+```
+μ = μ + Δt × (∂F/∂μ)
+```
+
+Where `μ` is the mean of the approximate posterior.
+
+## Connection to Other Frameworks
+
+| Framework | Relationship |
+|-----------|--------------|
+| **Bayesian Inference** | FEP generalizes Bayesian updating |
+| **Predictive Coding** | Perception as prediction error minimization |
+| **Optimal Control** | Action selection with uncertainty |
+| **Information Theory** | Free energy involves entropy and KL divergence |
+| **Thermodynamics** | Analogy to free energy in physics |
+
+## Implications
+
+### For Neuroscience
+
+- Brain as an inference machine
+- Hierarchical predictive processing
+- Unified theory of perception, action, learning
+
+### For AI
+
+- Principled approach to agent design
+- Natural exploration-exploitation balance
+- Robust to uncertainty
+
+### For Geospatial AI
+
+- Agents that actively seek information
+- Spatial uncertainty quantification
+- Adaptive environmental monitoring
+
+## Further Reading
+
+- [Active Inference Overview](./active_inference_overview.md)
+- [Mathematical Framework](./mathematical_framework.md)
+
+## References
+
+Friston, K. (2010). The free-energy principle: a unified brain theory? *Nature Reviews Neuroscience*, 11(2), 127-138.
+
+---
+
+**Last Updated**: 2026-01-26

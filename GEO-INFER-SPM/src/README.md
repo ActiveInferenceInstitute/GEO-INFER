@@ -1,0 +1,5 @@
+# src
+ ## Overview
+ **Path**: `GEO-INFER-SPM/src` Source code implementation. ## Implementation
+ ### `geo_infer_spm/visualization/maps.py` **Functions**: create_statistical_map, plot_spm_results, create_interactive_map ### `geo_infer_spm/visualization/diagnostics.py` **Functions**: plot_model_diagnostics, plot_contrast_results ### `geo_infer_spm/visualization/interactive.py` **Functions**: create_interactive_map, create_dashboard, create_time_series_explorer ### `geo_infer_spm/core/advanced/nonparametric.py` **Classes**: NonparametricSPM **Functions**: fit_nonparametric, fit, predict, get_smooth_components ### `geo_infer_spm/core/advanced/mixed_effects.py` **Classes**: MixedEffectsSPM **Functions**: fit_mixed_effects, fit, predict, get_random_effects, anova ## Contents
+ - **geo_infer_spm/**: Subdirectory - **geo_infer_spm.egg-info/**: Subdirectory --- 

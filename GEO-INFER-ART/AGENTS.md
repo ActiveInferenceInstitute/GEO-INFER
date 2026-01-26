@@ -1,112 +1,135 @@
-# GEO-INFER-ART: Artifact Management Framework
+# GEO-INFER-ART: Agent Capabilities
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./README.md">📚 Module Documentation</a>
 </div>
 
 ---
 
 ## Overview
 
+The **GEO-INFER-ART** module provides artistic and visualization capabilities for agents, enabling cartographic design, data visualization, and generative art from geospatial data.
 
-The GEO-INFER-ART module provides creative and artistic applications for geospatial intelligence, including generative art, data visualization as artistic expression, and creative exploration of spatial patterns. This module enables agents to produce aesthetically meaningful outputs.
+## Agent Capabilities
+
+### 1. Cartographic Design
+
+```python
+from geo_infer_art import CartographicDesigner
+
+# Create beautiful maps
+designer = CartographicDesigner()
+
+map_design = designer.create(
+    data=spatial_data,
+    style="watercolor",
+    color_palette="earth_tones",
+    labels=True,
+    legend=True
+)
+
+map_design.export("map.png", dpi=300)
+```
+
+### 2. Data Visualization
+
+```python
+from geo_infer_art import GeoVisualizer
+
+# Create data visualizations
+viz = GeoVisualizer()
+
+# 3D terrain visualization
+terrain = viz.render_3d(
+    dem=elevation_data,
+    texture=satellite_imagery,
+    exaggeration=2.0,
+    camera_angle=45
+)
+
+# Animated time series
+animation = viz.animate(
+    data=temporal_data,
+    frames_per_second=10,
+    output="timelapse.mp4"
+)
+```
+
+### 3. Generative Art
+
+```python
+from geo_infer_art import GenerativeArtist
+
+# Generate art from geo data
+artist = GenerativeArtist()
+
+artwork = artist.generate(
+    source=city_streets,
+    style="abstract_flow",
+    colors=["#2C3E50", "#E74C3C", "#ECF0F1"],
+    randomness=0.3
+)
+
+artwork.save("city_art.svg")
+```
+
+### 4. Infographic Generator
+
+```python
+from geo_infer_art import InfographicGenerator
+
+# Create map infographics
+infographic = InfographicGenerator()
+
+result = infographic.create(
+    title="Urban Growth 2020-2025",
+    data=growth_statistics,
+    map_extent=city_boundary,
+    charts=["growth_rate", "population"],
+    style="modern"
+)
+```
 
 ## Implementation Status
 
-**⚠️ Important Note**: This document describes both **implemented** and **aspirational** features. Features marked with 🔮 are planned/aspirational and not yet implemented.
-
 ### Currently Implemented
 
-- ✅ **Generative Art Engine**: Algorithmic art generation from spatial data
-- ✅ **Data-Driven Visualization**: Artistic representations of geospatial analysis
-- ✅ **Pattern Aesthetics**: Visual exploration of spatial patterns
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Cartography** | ✅ Ready | Map styling |
+| **3D Visualization** | ✅ Ready | Terrain, buildings |
+| **Generative Art** | ✅ Ready | Algorithmic art |
+| **Infographics** | ✅ Ready | Data stories |
 
 ### Aspirational/Planned Features
 
-- 🔮 **Generative Agent Art**: Agents creating collaborative artwork
-- 🔮 **Spatial Sonification**: Converting spatial data to sound/music
-- 🔮 **Interactive Installations**: Physical-digital geospatial art
+| Feature | Priority | Description |
+|---------|----------|-------------|
+| **ArtDirectorAgent** | 🔮 Medium | Style recommendations |
+| **AnimationAgent** | 🔮 Medium | Complex animations |
 
-## Agent Capabilities Supported
+## Use Cases
 
-### 1. Generative Art Creation
-
-ART enables agents to create visual representations of their analysis:
-
-```python
-from geo_infer_art import GenerativeArtEngine
-
-# Initialize generative art engine
-engine = GenerativeArtEngine(
-    style='abstract_geospatial',
-    color_palette='earth_tones'
-)
-
-# Generate art from spatial analysis
-artwork = engine.generate(
-    spatial_data=analysis_results,
-    interpretation='flow_patterns',
-    resolution=(4096, 4096)
-)
-```
-
-### 2. Creative Pattern Exploration
-
-ART supports artistic exploration of spatial patterns:
+### City Visualization
 
 ```python
-from geo_infer_art import PatternVisualizer
+from geo_infer_art import CityVisualizer
 
-# Pattern-based artistic visualization
-viz = PatternVisualizer(
-    aesthetic_mode='organic',
-    animation_enabled=True
-)
+city_viz = CityVisualizer(city="san_francisco")
 
-# Visualize agent movements as art
-viz.render_trajectories(
-    paths=agent_paths,
-    style='particle_flow',
-    duration=60  # seconds
+# Generate city portrait
+portrait = city_viz.create_portrait(
+    style="isometric_3d",
+    highlight=["landmarks", "transit"],
+    time_of_day="golden_hour"
 )
 ```
-
-### 3. Collaborative Art Generation 🔮
-
-Future capability for multi-agent collaborative art:
-
-```python
-# 🔮 Planned - Conceptual Example
-from geo_infer_art.agents import ArtCollaborationAgent
-
-agent = ArtCollaborationAgent(
-    name="artist_01",
-    artistic_style="abstract_landscape",
-    collaboration_mode="emergent"
-)
-
-# Collaborative artwork creation
-collective_art = agent.collaborate_with(
-    other_agents=partner_agents,
-    shared_canvas=canvas_space,
-    theme="urban_flows"
-)
-```
-
-## Integration Status
-
-| Capability | Status | Description |
-|------------|--------|-------------|
-| **Generative Art** | ✅ Ready | Algorithmic art from spatial data |
-| **Data Visualization** | ✅ Ready | Artistic data representation |
-| **Pattern Aesthetics** | ✅ Ready | Visual pattern exploration |
-| **Agent Collaboration** | 🔮 Planned | Multi-agent art creation |
-| **Sonification** | 🔮 Planned | Spatial data as sound |
-| **Installations** | 🔮 Planned | Physical-digital art |
 
 ---
 
-This AGENTS.md file documents how the GEO-INFER-ART module enables creative and artistic expression within the intelligent agent ecosystem.
+This AGENTS.md documents how GEO-INFER-ART provides artistic capabilities for agents.
+
+**Last Updated**: 2026-01-26

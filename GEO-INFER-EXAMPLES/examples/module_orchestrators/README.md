@@ -1,0 +1,4 @@
+# module_orchestrators
+ ## Overview
+ Structural component for module_orchestrators. ## Contents
+ - **ACT/**: Submodule - **AG/**: Submodule - **AGENT/**: Submodule - **AI/**: Submodule - **ANT/**: Submodule - **API/**: Submodule - **APP/**: Submodule - **ART/**: Submodule - **BAYES/**: Submodule - **BIO/**: Submodule - **CIV/**: Submodule - **COG/**: Submodule - **COMMS/**: Submodule - **DATA/**: Submodule - **ECON/**: Submodule - **GIT/**: Submodule - **HEALTH/**: Submodule - **INTRA/**: Submodule - **IOT/**: Submodule - **LOG/**: Submodule - **MATH/**: Submodule - **NORMS/**: Submodule - **OPS/**: Submodule - **ORG/**: Submodule - **PEP/**: Submodule - **PLACE/**: Submodule - **REQ/**: Submodule - **RISK/**: Submodule - **SEC/**: Submodule - **SIM/**: Submodule - **SPACE/**: Submodule - **SPM/**: Submodule - **TEST/**: Submodule - **TIME/**: Submodule - **generate_orchestrators.py**: Python definitions - **update_to_thin_orchestrators.py**: Python definitions 

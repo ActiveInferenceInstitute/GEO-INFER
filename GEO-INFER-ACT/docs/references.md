@@ -1,38 +1,77 @@
-# References for GEO-INFER-ACT
+# References
 
-## Core Papers
+## Core Active Inference Literature
 
-1. Friston, K. (2010). The free-energy principle: a unified brain theory? *Nature Reviews Neuroscience*, 11(2), 127-138. [Link](https://doi.org/10.1038/nrn2787)
+### Foundational Papers
 
-2. Friston, K., FitzGerald, T., Rigoli, F., Schwartenbeck, P., & Pezzulo, G. (2017). Active inference: a process theory. *Neural Computation*, 29(1), 1-49. [Link](https://doi.org/10.1162/neco_a_00912)
+1. **Friston, K.** (2010). The free-energy principle: a unified brain theory? *Nature Reviews Neuroscience*, 11(2), 127-138.
+   - The foundational paper introducing the Free Energy Principle
 
-3. Parr, T., & Friston, K. J. (2019). Generalised free energy and active inference. *Biological Cybernetics*, 113(5-6), 495-513. [Link](https://doi.org/10.1007/s00422-019-00805-w)
+2. **Friston, K., FitzGerald, T., Rigoli, F., Schwartenbeck, P., & Pezzulo, G.** (2017). Active inference: a process theory. *Neural Computation*, 29(1), 1-49.
+   - Comprehensive process theory of Active Inference
 
-## Geospatial Applications
+3. **Parr, T., Pezzulo, G., & Friston, K. J.** (2022). *Active Inference: The Free Energy Principle in Mind, Brain, and Behavior*. MIT Press.
+   - The definitive textbook on Active Inference
 
-4. Sajid, N., Ball, P. J., & Friston, K. J. (2021). Active inference: demystified and compared. *Neural Computation*, 33(3), 674-712. (Includes spatial examples)
+### Technical Implementations
 
-5. Friston, K., et al. (2022). Active inference and cognitive consistency. *Psychological Review*. (Applications to spatial cognition)
+1. **Da Costa, L., Parr, T., Sajid, N., Veselic, S., Neacsu, V., & Friston, K.** (2020). Active inference on discrete state-spaces: A synthesis. *Journal of Mathematical Psychology*, 99, 102447.
+   - Mathematical synthesis for discrete implementations
 
-## Additional References
+2. **Champion, T., Bowman, H., & Grześ, M.** (2022). Branching Time Active Inference with Bayesian Filtering. *Neural Computation*, 34(10), 2132-2172.
+   - Advanced temporal modeling
 
-### Hierarchical Modeling
-6. Friston, K., et al. (2023). Hierarchical active inference: A synthesis of enactive and predictive processing. *Frontiers in Psychology*, 14.
+## Geospatial AI & Robotics
 
-### Geospatial Extensions
-7. Kaplanis, C., et al. (2022). Active inference in spatial navigation. *arXiv preprint arXiv:2203.10106*.
+### Spatial Cognition
 
-### Implementation
-8. Bagaev, D., et al. (2024). RxInfer.jl: A Julia package for reactive message passing. *Journal of Open Source Software*.
+1. **Tobler, W. R.** (1970). A computer movie simulating urban growth in the Detroit region. *Economic Geography*, 46(sup1), 234-240.
+   - First law of geography
 
-## Implementation Resources
+2. **Anselin, L.** (1995). Local indicators of spatial association—LISA. *Geographical Analysis*, 27(2), 93-115.
+   - Spatial autocorrelation
 
-- Active Inference Institute Textbook: https://www.activeinference.org/textbook
+### Multi-Agent Systems
 
-- RxInfer Documentation: https://rxinfer.ml/
+1. **Wooldridge, M.** (2009). *An Introduction to MultiAgent Systems*. John Wiley & Sons.
+   - Agent fundamentals
 
-- Bayeux GitHub: https://github.com/blackjax-devs/bayeux
+2. **Dorigo, M., & Stützle, T.** (2004). *Ant Colony Optimization*. MIT Press.
+   - Swarm intelligence
 
-- GEO-INFER Framework: Internal module docs in GEO-INFER/docs/
+## Bayesian Methods
 
-Last updated: 2025 
+1. **Murphy, K. P.** (2012). *Machine Learning: A Probabilistic Perspective*. MIT Press.
+    - Probabilistic ML foundations
+
+2. **Bishop, C. M.** (2006). *Pattern Recognition and Machine Learning*. Springer.
+    - Bayesian inference
+
+## GIS & Spatial Analysis
+
+1. **Longley, P. A., Goodchild, M. F., Maguire, D. J., & Rhind, D. W.** (2015). *Geographic Information Science and Systems*. Wiley.
+    - GIS fundamentals
+
+2. **de Smith, M. J., Goodchild, M. F., & Longley, P.** (2018). *Geospatial Analysis: A Comprehensive Guide*. Troubador Publishing.
+    - Spatial analysis methods
+
+## Online Resources
+
+### Active Inference Institute
+
+- [Website](https://activeinference.org/)
+- Educational materials, papers, discussions
+
+### pymdp
+
+- [GitHub](https://github.com/infer-actively/pymdp)
+- Python package for Active Inference
+
+### SPM
+
+- [Website](https://www.fil.ion.ucl.ac.uk/spm/)
+- Statistical Parametric Mapping software
+
+---
+
+**Last Updated**: 2026-01-26

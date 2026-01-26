@@ -1,42 +1,6 @@
-# GEO-INFER-ORG Examples
-
-This directory contains working examples demonstrating the capabilities of the GEO-INFER-ORG module.
-
-## Available Examples
-
-### Basic Governance Example (`basic_governance_example.py`)
-
-Demonstrates fundamental governance capabilities:
-- Governance framework setup
-- Community management
-- Stakeholder engagement
-- Multi-level governance coordination
-
-**What you'll learn:**
-- How to set up governance frameworks
-- Community management tools
-- Stakeholder engagement processes
-- Multi-level coordination
-
-**Prerequisites:**
-- Python 3.9+
-- GEO-INFER-ORG module installed
-
-**Usage:**
-```bash
-cd GEO-INFER-ORG
-python examples/basic_governance_example.py
-```
-
-## Integration Examples
-
-GEO-INFER-ORG integrates seamlessly with other GEO-INFER modules:
-
-- **PEP + ORG**: People management
-- **COMMS + ORG**: Communication systems
-- **CIV + ORG**: Civic engagement
-- **NORMS + ORG**: Normative frameworks
-- **REQ + ORG**: Requirements management
-
-See `GEO-INFER-EXAMPLES` for comprehensive cross-module integration examples.
-
+# GEO
+-INFER-ORG Examples This directory contains working examples demonstrating the capabilities of the GEO-INFER-ORG module. ## Available
+ Examples ### Basi
+c
+ Governance Example (`basic_governance_example.py`) Demonstrates fundamental governance capabilities: - Governance framework setup - Community management - Stakeholder engagement - Multi-level governance coordination **What you'll learn:** - How to set up governance frameworks - Community management tools - Stakeholder engagement processes - Multi-level coordination **Prerequisites:** - Python 3.9+ - GEO-INFER-ORG module installed **Usage:** ```bash cd GEO-INFER-ORG python examples/basic_governance_example.py ``` ## Integration
+ Examples GEO-INFER-ORG integrates seamlessly with other GEO-INFER modules: - **PEP + ORG**: People management - **COMMS + ORG**: Communication systems - **CIV + ORG**: Civic engagement - **NORMS + ORG**: Normative frameworks - **REQ + ORG**: Requirements management See `GEO-INFER-EXAMPLES` for cross-module integration examples. 

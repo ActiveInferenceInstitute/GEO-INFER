@@ -1,123 +1,133 @@
-# GEO-INFER-API: API Framework
+# GEO-INFER-API: Agent Capabilities
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./README.md">📚 Module Documentation</a>
 </div>
 
 ---
 
 ## Overview
 
+The **GEO-INFER-API** module provides API infrastructure for agents, enabling RESTful services, GraphQL endpoints, and real-time streaming APIs for geospatial operations.
 
-The GEO-INFER-API module provides foundational RESTful and GraphQL API capabilities that enable agent communication, coordination, and external service integration. This module serves as the communication backbone for the multi-agent ecosystem.
+## Agent Capabilities
+
+### 1. REST API Server
+
+```python
+from geo_infer_api import APIServer
+
+# Create REST API for agents
+server = APIServer()
+
+# Register agent endpoints
+@server.route("/analyze", methods=["POST"])
+async def analyze_endpoint(request):
+    agent = get_analysis_agent()
+    result = await agent.analyze(request.data)
+    return {"result": result}
+
+# Start server
+server.run(host="0.0.0.0", port=8080)
+```
+
+### 2. GraphQL Interface
+
+```python
+from geo_infer_api import GraphQLServer
+
+# Create GraphQL API
+gql = GraphQLServer()
+
+# Define schema with spatial types
+gql.add_type("""
+    type SpatialQuery {
+        within(geometry: GeoJSON!): [Feature]
+        nearby(point: Point!, radius: Float!): [Feature]
+        intersects(geometry: GeoJSON!): [Feature]
+    }
+""")
+
+# Start GraphQL server
+gql.run(port=4000)
+```
+
+### 3. Streaming API
+
+```python
+from geo_infer_api import StreamingAPI
+
+# Create real-time streaming API
+stream = StreamingAPI()
+
+# Stream agent observations
+@stream.websocket("/observations")
+async def stream_observations(ws):
+    agent = get_monitoring_agent()
+    async for observation in agent.observe():
+        await ws.send(observation.to_json())
+```
+
+### 4. API Gateway
+
+```python
+from geo_infer_api import APIGateway
+
+# Create gateway for multiple agents
+gateway = APIGateway()
+
+# Route to different agents
+gateway.add_route("/spatial/*", service="spatial_agent")
+gateway.add_route("/analysis/*", service="analysis_agent")
+gateway.add_route("/data/*", service="data_agent")
+
+# Add rate limiting and auth
+gateway.add_middleware("rate_limit", requests_per_minute=100)
+gateway.add_middleware("auth", provider="jwt")
+```
 
 ## Implementation Status
 
-**⚠️ Important Note**: This document describes both **implemented** and **aspirational** features. Features marked with 🔮 are planned/aspirational and not yet implemented.
-
 ### Currently Implemented
 
-- ✅ **REST API Framework**: FastAPI-based endpoints for all modules
-- ✅ **Authentication & Authorization**: JWT-based security
-- ✅ **Rate Limiting**: Request throttling and quota management
-- ✅ **WebSocket Support**: Real-time bidirectional communication
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **REST API** | ✅ Ready | RESTful endpoints |
+| **GraphQL** | ✅ Ready | Query language API |
+| **Streaming** | ✅ Ready | WebSocket, SSE |
+| **Gateway** | ✅ Ready | Routing, rate limiting |
 
 ### Aspirational/Planned Features
 
-- 🔮 **GraphQL API**: Flexible query interface
-- 🔮 **gRPC Support**: High-performance inter-service communication
-- 🔮 **Agent-to-Agent Protocol**: Standardized FIPA-ACL messaging
+| Feature | Priority | Description |
+|---------|----------|-------------|
+| **APIAgent** | 🔮 High | Self-documenting APIs |
+| **LoadBalancer** | 🔮 Medium | Intelligent routing |
 
-## Agent Capabilities Supported
+## Use Cases
 
-### 1. Agent Communication Interface
-
-API provides the communication layer for agent interactions:
-
-```python
-from geo_infer_api import AgentAPIClient
-
-# Agent communication client
-client = AgentAPIClient(
-    base_url="http://localhost:8000",
-    agent_id="agent_001",
-    auth_token=jwt_token
-)
-
-# Send message to another agent
-response = client.send_message(
-    to_agent="agent_002",
-    message_type="coordination",
-    payload={'task': 'data_collection', 'area': region}
-)
-
-# Receive messages
-messages = client.receive_messages()
-```
-
-### 2. External Service Integration
-
-API enables agents to interact with external data sources and services:
+### Geospatial Service API
 
 ```python
-from geo_infer_api import ExternalServiceClient
+from geo_infer_api import GeoServiceAPI
 
-# External service integration
-service = ExternalServiceClient()
+api = GeoServiceAPI()
 
-# Fetch satellite imagery
-imagery = service.fetch_satellite_data(
-    bbox=bounding_box,
-    date_range=time_window,
-    product='sentinel-2'
-)
+# Expose spatial operations
+api.expose_operations([
+    "buffer", "intersect", "union", 
+    "spatial_join", "geocode"
+])
 
-# Query weather services
-weather = service.fetch_weather_forecast(
-    location=coordinates,
-    horizon_days=7
-)
+# Auto-generate OpenAPI docs
+api.generate_docs()
 ```
-
-### 3. Real-Time Agent Coordination
-
-WebSocket support enables real-time agent coordination:
-
-```python
-from geo_infer_api import AgentWebSocket
-
-# Real-time agent connection
-ws = AgentWebSocket(
-    url="ws://localhost:8000/agents",
-    agent_id="agent_001"
-)
-
-# Subscribe to coordination events
-ws.subscribe("coordination_channel")
-
-# Broadcast status
-ws.broadcast({
-    'type': 'status_update',
-    'position': current_position,
-    'task_status': 'active'
-})
-```
-
-## Integration Status
-
-| Capability | Status | Description |
-|------------|--------|-------------|
-| **REST Endpoints** | ✅ Ready | Full CRUD operations for all modules |
-| **Authentication** | ✅ Ready | JWT-based agent authentication |
-| **WebSocket** | ✅ Ready | Real-time communication |
-| **Rate Limiting** | ✅ Ready | Quota management |
-| **GraphQL** | 🔮 Planned | Flexible query interface |
-| **gRPC** | 🔮 Planned | High-performance RPC |
-| **FIPA-ACL** | 🔮 Planned | Agent communication language |
 
 ---
 
-This AGENTS.md file documents how the GEO-INFER-API module provides communication infrastructure for the intelligent agent ecosystem.
+This AGENTS.md documents how GEO-INFER-API provides API capabilities for agents.
+
+**Last Updated**: 2026-01-26

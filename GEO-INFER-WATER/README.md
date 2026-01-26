@@ -1,188 +1,183 @@
 ---
-title: "GEO-INFER-WATER: Water Resource Management"
-description: "Water quality monitoring, watershed modeling, and water infrastructure optimization"
-purpose: "Provide comprehensive water analysis tools for quality assessment, hydrological modeling, flood risk, and distribution network optimization"
+title: "GEO-INFER-WATER: Water Resources Management"
+description: "Hydrology, water quality, and watershed management"
+purpose: "Provide hydrological analysis, water quality monitoring, and watershed management capabilities"
 module_type: "Domain Application"
 status: "Alpha"
-last_updated: "2026-01-09"
-dependencies: ["SPACE", "TIME", "CLIMATE", "RISK", "HEALTH"]
-tags: ["water", "hydrology", "watershed", "flood", "water-quality", "infrastructure"]
+last_updated: "2026-01-26"
+dependencies: ["SPACE", "TIME", "DATA", "CLIMATE"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-DATA", "GEO-INFER-CLIMATE"]
+tags: ["hydrology", "water-quality", "watershed", "groundwater", "flood"]
 difficulty: "Intermediate"
+estimated_time: "55"
 ---
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./docs/">📚 Documentation</a>
 </div>
 
 ---
 
-
-# GEO-INFER-WATER: Water Resource Management
+# GEO-INFER-WATER: Water Resources Management
 
 ## Overview
 
-GEO-INFER-WATER provides comprehensive water resource management including quality monitoring, watershed modeling, flood risk assessment, and distribution network optimization. The module supports sustainable water management and infrastructure planning.
+**GEO-INFER-WATER** provides comprehensive capabilities for water resources analysis and management. The module enables:
 
-## Core Features
+- **Watershed Analysis**: Delineation, flow accumulation, drainage networks
+- **Water Quality**: Monitoring, pollution tracking, treatment planning
+- **Flood Modeling**: Inundation mapping, flood hazard assessment
+- **Groundwater**: Aquifer mapping, recharge estimation
+- **Water Supply**: Demand forecasting, infrastructure planning
 
-- **Water Quality Monitoring**: Real-time quality assessment and standards compliance
-- **Watershed Modeling**: Hydrological simulation and runoff prediction
-- **Flood Risk Assessment**: Inundation mapping and early warning
-- **Distribution Optimization**: Network efficiency and leak detection
-- **Groundwater Analysis**: Aquifer modeling and recharge assessment
+## Features
 
-## Architecture
-
-```
-GEO-INFER-WATER/
-├── src/
-│   └── geo_infer_water/
-│       ├── core/
-│       │   ├── quality_monitoring.py     # Water quality analysis
-│       │   ├── watershed_modeling.py     # Hydrological models
-│       │   ├── flood_assessment.py       # Flood risk analysis
-│       │   └── distribution.py           # Network optimization
-│       ├── models/
-│       │   ├── hydrological_models.py    # Rainfall-runoff
-│       │   ├── hydraulic_models.py       # Flow simulation
-│       │   └── quality_models.py         # Contaminant transport
-│       └── utils/
-│           ├── stream_network.py         # Drainage extraction
-│           └── water_balance.py          # Balance calculations
-├── tests/
-├── README.md
-└── AGENTS.md
-```
-
-## Quick Start
+### Watershed Analysis
 
 ```python
-from geo_infer_water import (
-    WaterQualityAnalyzer,
-    WatershedModeler,
-    FloodRiskAssessor,
-    DistributionOptimizer
+from geo_infer_water import WatershedAnalyzer
+
+# Analyze watershed
+analyzer = WatershedAnalyzer()
+
+watershed = analyzer.delineate(
+    dem=elevation_data,
+    pour_point=(lat, lon),
+    snap_distance=100  # meters
 )
+
+print(f"Watershed area: {watershed.area_km2} km²")
+print(f"Stream length: {watershed.stream_length_km} km")
+print(f"Drainage density: {watershed.drainage_density}")
+```
+
+### Water Quality Monitoring
+
+```python
+from geo_infer_water import WaterQualityMonitor
 
 # Monitor water quality
-quality_analyzer = WaterQualityAnalyzer()
-quality = quality_analyzer.assess(
-    sensors=water_sensors,
-    parameters=['ph', 'dissolved_oxygen', 'turbidity', 'temperature'],
-    standards='drinking_water'
+monitor = WaterQualityMonitor()
+
+quality = monitor.assess(
+    water_body=lake_boundary,
+    parameters=["ph", "dissolved_oxygen", "turbidity", "nutrients"],
+    data_source="sensor_network"
 )
 
-# Model watershed hydrology
-watershed_modeler = WatershedModeler()
-runoff = watershed_modeler.simulate(
-    watershed=catchment_boundary,
-    precipitation=rainfall_data,
-    land_cover=land_use_map
-)
-
-# Assess flood risk
-flood_assessor = FloodRiskAssessor()
-flood_risk = flood_assessor.assess(
-    dem=elevation_model,
-    hydrology=stream_network,
-    scenarios=['10yr', '100yr', '500yr']
-)
-
-# Optimize distribution network
-distribution_optimizer = DistributionOptimizer()
-optimization = distribution_optimizer.optimize(
-    network=pipe_network,
-    demand=consumption_points,
-    constraints=['pressure', 'velocity', 'cost']
-)
+print(f"Water Quality Index: {quality.wqi}")
+print(f"Status: {quality.status}")
+print(f"Exceedances: {quality.parameter_exceedances}")
 ```
 
-## API Reference
-
-### WaterQualityAnalyzer
-
-Monitors and assesses water quality.
+### Flood Modeling
 
 ```python
-analyzer = WaterQualityAnalyzer()
+from geo_infer_water import FloodModeler
 
-# Quality assessment
-quality = analyzer.assess(
-    sensors: gpd.GeoDataFrame,
-    parameters: List[str],
-    standards: str
-) -> pd.DataFrame
+# Model flood scenarios
+modeler = FloodModeler()
 
-# Compliance check
-compliance = analyzer.check_compliance(
-    measurements: pd.DataFrame,
-    regulations: Dict[str, float]
-) -> Dict[str, bool]
+flood = modeler.simulate(
+    dem=terrain_data,
+    stream_network=streams,
+    scenario="100_year_return",
+    rainfall=design_storm
+)
+
+print(f"Inundation area: {flood.inundation_area_km2} km²")
+print(f"Max depth: {flood.max_depth} m")
+print(f"Affected structures: {flood.structures_affected}")
 ```
 
-### WatershedModeler
-
-Simulates hydrological processes.
+### Groundwater Analysis
 
 ```python
-modeler = WatershedModeler()
+from geo_infer_water import GroundwaterAnalyzer
 
-# Runoff simulation
-runoff = modeler.simulate(
-    watershed: gpd.GeoDataFrame,
-    precipitation: xr.DataArray,
-    land_cover: xr.DataArray,
-    method: str = 'scs_cn'
-) -> xr.DataArray
+# Analyze groundwater
+gw = GroundwaterAnalyzer()
+
+analysis = gw.analyze(
+    aquifer=aquifer_boundary,
+    well_data=monitoring_wells,
+    analysis_type="water_table_contours"
+)
+
+print(f"Average depth to water: {analysis.avg_depth} m")
+print(f"Flow direction: {analysis.flow_direction}")
+print(f"Recharge rate: {analysis.recharge_rate} mm/year")
 ```
 
-### FloodRiskAssessor
+## Analysis Capabilities
 
-Assesses flood hazards and risks.
+| Analysis Type | Description |
+|---------------|-------------|
+| **Hydrologic** | Runoff, flow routing, time of concentration |
+| **Hydraulic** | Channel capacity, floodplain mapping |
+| **Water Balance** | Precipitation, ET, storage |
+| **Quality** | Pollutant transport, TMDLs |
+| **Infrastructure** | Pipe networks, treatment capacity |
 
-```python
-assessor = FloodRiskAssessor()
+## Data Sources
 
-# Flood mapping
-flood_extent = assessor.map_inundation(
-    dem: xr.DataArray,
-    water_level: float,
-    method: str = 'static'
-) -> xr.DataArray
-
-# Risk assessment
-risk = assessor.assess(
-    flood_extent: xr.DataArray,
-    exposure: gpd.GeoDataFrame,
-    vulnerability: Dict[str, float]
-) -> gpd.GeoDataFrame
-```
+| Data Type | Sources |
+|-----------|---------|
+| **Stream Gauges** | USGS, state agencies |
+| **Precipitation** | NOAA, radar, gauge networks |
+| **Satellite** | MODIS, Sentinel, GRACE |
+| **Models** | NWM, SWAT, HEC-HMS |
 
 ## Integration Points
 
-- **GEO-INFER-SPACE**: Spatial analysis for watershed delineation
-- **GEO-INFER-TIME**: Temporal patterns for flow forecasting
-- **GEO-INFER-CLIMATE**: Climate impacts on water resources
-- **GEO-INFER-RISK**: Flood and drought risk assessment
-- **GEO-INFER-HEALTH**: Water quality health impacts
+| Module | Integration |
+|--------|-------------|
+| **GEO-INFER-CLIMATE** | Precipitation, drought |
+| **GEO-INFER-AG** | Agricultural water use |
+| **GEO-INFER-RISK** | Flood risk assessment |
+| **GEO-INFER-HEALTH** | Waterborne disease |
+
+## Installation
+
+```bash
+# Install water module
+uv pip install -e "./GEO-INFER-WATER"
+
+# With hydrologic modeling tools
+uv pip install -e "./GEO-INFER-WATER[hydrology]"
+```
 
 ## Use Cases
 
-1. **Drinking Water Safety**: Real-time quality monitoring and alerts
-2. **Flood Management**: Early warning and emergency response
-3. **Irrigation Planning**: Agricultural water allocation
-4. **Infrastructure Planning**: Network design and maintenance
-5. **Drought Monitoring**: Water scarcity assessment and response
+### Integrated Water Resources Management
 
-## Status
+```python
+from geo_infer_water import WaterResourcesManager
 
-**Current Status**: Alpha - Core functionality implemented with ongoing development.
+manager = WaterResourcesManager(basin="colorado_river")
 
-## References
+# Balance water supply and demand
+balance = manager.analyze_balance(
+    supply_sources=["surface", "groundwater", "recycled"],
+    demand_sectors=["municipal", "agricultural", "environmental"],
+    scenario="drought_2026"
+)
 
-- [USGS Water Resources](https://www.usgs.gov/mission-areas/water-resources)
-- [EPA Water Quality](https://www.epa.gov/waterdata)
-- [Global Flood Monitoring](https://www.globalfloods.eu/)
+print(f"Supply-demand gap: {balance.gap_af} acre-feet")
+print(f"Recommendations: {balance.recommendations}")
+```
+
+## Related Documentation
+
+- [GEO-INFER-MARINE](../GEO-INFER-MARINE/README.md): Marine systems
+- [GEO-INFER-CLIMATE](../GEO-INFER-CLIMATE/README.md): Climate impacts
+- [AGENTS.md](./AGENTS.md): Water agent capabilities
+
+---
+
+**Status**: Alpha - Core functionality implemented
+
+**Last Updated**: 2026-01-26

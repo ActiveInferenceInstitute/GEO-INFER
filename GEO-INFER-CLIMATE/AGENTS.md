@@ -1,102 +1,134 @@
-# GEO-INFER-CLIMATE: Climate Intelligence Agents
+# GEO-INFER-CLIMATE: Agent Capabilities
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./README.md">📚 Module Documentation</a>
 </div>
 
 ---
 
 ## Overview
 
+The **GEO-INFER-CLIMATE** module provides climate analysis capabilities for agents, enabling weather data integration, climate modeling, and climate change impact assessment.
 
-The GEO-INFER-CLIMATE module provides climate analysis and adaptation capabilities that enable intelligent agents to understand climate patterns, assess climate risks, and support climate-resilient decision-making.
+## Agent Capabilities
+
+### 1. Weather Data Access
+
+```python
+from geo_infer_climate import WeatherService
+
+# Access weather data
+weather = WeatherService()
+
+# Get current conditions
+current = weather.get_current(
+    location=(37.77, -122.41),
+    parameters=["temperature", "precipitation", "wind"]
+)
+
+# Get forecast
+forecast = weather.get_forecast(
+    location=(37.77, -122.41),
+    hours_ahead=72
+)
+
+print(f"Current temp: {current.temperature}°C")
+print(f"Rain probability: {forecast[0].precipitation_prob}%")
+```
+
+### 2. Climate Projections
+
+```python
+from geo_infer_climate import ClimateProjector
+
+# Access climate projections
+projector = ClimateProjector()
+
+projection = projector.get_projection(
+    region=study_area,
+    scenario="ssp245",  # SSP2-4.5
+    time_period=("2040", "2060"),
+    variables=["temperature", "precipitation"]
+)
+
+print(f"Projected warming: {projection.temp_change}°C")
+print(f"Precip change: {projection.precip_change}%")
+```
+
+### 3. Climate Risk Analysis
+
+```python
+from geo_infer_climate import ClimateRiskAnalyzer
+
+# Analyze climate risks
+analyzer = ClimateRiskAnalyzer()
+
+risk = analyzer.assess(
+    assets=infrastructure_locations,
+    hazards=["sea_level_rise", "extreme_heat", "flooding"],
+    time_horizon=2050
+)
+
+print(f"High risk assets: {risk.high_risk_count}")
+print(f"Adaptation needs: {risk.recommendations}")
+```
+
+### 4. Historical Analysis
+
+```python
+from geo_infer_climate import HistoricalAnalyzer
+
+# Analyze historical climate
+historical = HistoricalAnalyzer()
+
+trends = historical.analyze(
+    region=city_boundary,
+    period=("1990", "2025"),
+    metrics=["mean_temp", "extreme_heat_days", "precipitation"]
+)
+
+print(f"Warming trend: {trends.temp_trend}°C/decade")
+```
 
 ## Implementation Status
 
-**⚠️ Important Note**: This document describes both **implemented** and **aspirational** features. Features marked with 🔮 are planned/aspirational.
-
 ### Currently Implemented
 
-- ✅ **ClimateAnalyzer**: Climate pattern analysis
-- ✅ **ClimateProjection**: Future climate scenarios
-- ✅ **AdaptationPlanner**: Climate adaptation strategies
-- ✅ **CarbonAccountant**: Carbon footprint assessment
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Weather Data** | ✅ Ready | Real-time weather |
+| **Projections** | ✅ Ready | CMIP6 scenarios |
+| **Risk Analysis** | ✅ Ready | Climate risk |
+| **Historical** | ✅ Ready | Trend analysis |
 
 ### Aspirational/Planned Features
 
-- 🔮 **ClimateMonitoringAgent**: Real-time climate surveillance
-- 🔮 **AdaptationAgent**: Autonomous adaptation planning
+| Feature | Priority | Description |
+|---------|----------|-------------|
+| **ClimateAdvisorAgent** | 🔮 High | Adaptation guidance |
+| **ExtremeWeatherAgent** | 🔮 High | Event prediction |
 
-## Agent Capabilities Supported
+## Use Cases
 
-### 1. Climate Perception
-
-CLIMATE enables agents to perceive climate conditions:
-
-```python
-from geo_infer_climate import ClimateAnalyzer
-
-# Climate analysis for agent awareness
-analyzer = ClimateAnalyzer()
-
-# Agent assesses climate patterns
-climate_profile = analyzer.analyze(
-    region=area_of_interest,
-    variables=['temperature', 'precipitation', 'extreme_events'],
-    period='1990-2024'
-)
-```
-
-### 2. Climate Projection
-
-CLIMATE supports future scenario planning:
-
-```python
-from geo_infer_climate import ClimateProjection
-
-# Climate projection
-projection = ClimateProjection()
-
-# Agent projects future climate
-future_climate = projection.project(
-    scenarios=['SSP1-2.6', 'SSP2-4.5', 'SSP5-8.5'],
-    horizon=2050,
-    variables=['temperature', 'precipitation']
-)
-```
-
-### 3. Adaptation Planning
-
-CLIMATE enables climate-resilient actions:
+### Climate Adaptation Planning
 
 ```python
 from geo_infer_climate import AdaptationPlanner
 
-# Adaptation planning
-planner = AdaptationPlanner()
+planner = AdaptationPlanner(city="metropolis")
 
-# Agent develops adaptation strategies
-adaptation_plan = planner.plan(
-    climate_risks=projected_risks,
-    vulnerabilities=vulnerability_assessment,
-    resources=available_resources
+plan = planner.develop_plan(
+    risks=["urban_heat", "flooding"],
+    strategies=["green_infrastructure", "resilient_design"],
+    budget=50_000_000
 )
 ```
 
-## Integration Status
-
-| Capability | Status | Description |
-|------------|--------|-------------|
-| **Climate Analysis** | ✅ Ready | Pattern analysis |
-| **Climate Projection** | ✅ Ready | Future scenarios |
-| **Adaptation Planning** | ✅ Ready | Resilience strategies |
-| **Carbon Accounting** | ✅ Ready | Footprint assessment |
-| **Climate Monitoring** | 🔮 Planned | Real-time surveillance |
-| **Adaptation Agent** | 🔮 Planned | Autonomous planning |
-
 ---
 
-This AGENTS.md documents how GEO-INFER-CLIMATE provides climate intelligence capabilities for the agent ecosystem.
+This AGENTS.md documents how GEO-INFER-CLIMATE provides climate capabilities for agents.
+
+**Last Updated**: 2026-01-26

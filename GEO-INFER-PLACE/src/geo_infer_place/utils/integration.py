@@ -153,6 +153,43 @@ class _CALFIREWrapper:
 
         return {"type": "FeatureCollection", "features": feats}
 
+    def get_active_incidents(self) -> Dict[str, Any]:
+        """Fetch active CAL FIRE incidents.
+        
+        Returns:
+            Dictionary with incident data
+        """
+        cache_key = self._get_cache_key('get_active_incidents')
+        cached_data = self._get_cached_data(cache_key)
+
+        if cached_data is not None:
+            return cached_data
+
+        try:
+            incidents = self._client.fetch_incidents()
+            # Filter for Del Norte County
+            del_norte_incidents = []
+            if isinstance(incidents, list):
+                for incident in incidents:
+                    if 'Counties' in incident and 'Del Norte' in incident.get('Counties', ''):
+                        del_norte_incidents.append({
+                            'name': incident.get('Name', 'Unknown'),
+                            'location': incident.get('Location', ''),
+                            'acres': incident.get('AcresBurned', 0),
+                            'contained': incident.get('PercentContained', 0),
+                            'lat': incident.get('Latitude', 0),
+                            'lon': incident.get('Longitude', 0),
+                            'start_date': incident.get('Started', ''),
+                            'status': incident.get('Status', 'Unknown')
+                        })
+            
+            result = {'incidents': del_norte_incidents, 'success': True}
+            self._cache_data(cache_key, result)
+            return result
+        except Exception as e:
+            logger.warning(f"Failed to fetch active incidents: {e}")
+            return {'incidents': [], 'success': False, 'error': str(e)}
+
     def _generate_synthetic_fire_perimeters(
         self,
         bbox: Optional[Tuple[float, float, float, float]] = None,
@@ -423,6 +460,41 @@ class _NOAAWrapper:
         except Exception as e:
             logger.warning(f"Failed to cache data for key {cache_key}: {e}")
 
+    def get_weather_data(self, station_id: str = "KCEC") -> Dict[str, Any]:
+        """Fetch weather observation data.
+        
+        Args:
+            station_id: Weather station ID (default KCEC for Crescent City)
+            
+        Returns:
+            Dictionary with weather data
+        """
+        cache_key = self._get_cache_key('get_weather_data', station_id=station_id)
+        cached_data = self._get_cached_data(cache_key)
+        
+        if cached_data is not None:
+            return cached_data
+            
+        try:
+            data = self._client.fetch_weather_observations(station_id)
+            if isinstance(data, dict):
+                properties = data.get('properties', {})
+                result = {
+                    'temperature': properties.get('temperature', {}).get('value'),
+                    'humidity': properties.get('relativeHumidity', {}).get('value'),
+                    'wind_speed': properties.get('windSpeed', {}).get('value'),
+                    'wind_direction': properties.get('windDirection', {}).get('value'),
+                    'pressure': properties.get('barometricPressure', {}).get('value'),
+                    'timestamp': properties.get('timestamp'),
+                    'success': True
+                }
+                self._cache_data(cache_key, result)
+                return result
+        except Exception as e:
+            logger.warning(f"Failed to fetch weather data: {e}")
+            
+        return {'success': False, 'error': 'Weather data fetch failed'}
+
     def get_tide_gauge_data(
         self,
         bbox: Optional[Tuple[float, float, float, float]] = None,
@@ -599,6 +671,73 @@ class _NOAAWrapper:
         }
 
 
+
+class _USGSWrapper:
+    """Wrapper for USGS data."""
+    
+    def __init__(self, api_manager: CaliforniaAPIManager, cache_dir: Optional[Path] = None) -> None:
+        self._client = api_manager.usgs_eq
+        self.cache_dir = cache_dir or Path.home() / '.geo_infer_place' / 'cache'
+        self.cache_dir.mkdir(parents=True, exist_ok=True)
+        self.cache_ttl = timedelta(minutes=60)
+
+    def _get_cache_key(self, method_name: str, **kwargs) -> str:
+        key_data = {'method': method_name, **kwargs}
+        key_str = json.dumps(key_data, sort_keys=True, default=str)
+        return hashlib.md5(key_str.encode()).hexdigest()
+
+    def _get_cached_data(self, cache_key: str) -> Optional[Any]:
+        cache_file = self.cache_dir / f"{cache_key}.json"
+        if not cache_file.exists(): return None
+        try:
+            with open(cache_file, 'r') as f:
+                data = json.load(f)
+            if datetime.now() - datetime.fromisoformat(data['timestamp']) > self.cache_ttl:
+                cache_file.unlink()
+                return None
+            return data['data']
+        except Exception:
+            return None
+
+    def _cache_data(self, cache_key: str, data: Any) -> None:
+        try:
+            with open(self.cache_dir / f"{cache_key}.json", 'w') as f:
+                json.dump({'timestamp': datetime.now().isoformat(), 'data': data}, f, default=str)
+        except Exception:
+            pass
+
+    def get_earthquakes(self) -> Dict[str, Any]:
+        """Fetch recent earthquakes in Del Norte area."""
+        cache_key = self._get_cache_key('get_earthquakes')
+        cached = self._get_cached_data(cache_key)
+        if cached: return cached
+        
+        try:
+            data = self._client.fetch_earthquakes()
+            local_earthquakes = []
+            if isinstance(data, dict):
+                for feature in data.get('features', []):
+                    coords = feature.get('geometry', {}).get('coordinates', [])
+                    if len(coords) >= 2:
+                        lon, lat = coords[0], coords[1]
+                        # Del Norte bounds check
+                        if -124.5 <= lon <= -123.5 and 41.4 <= lat <= 42.1:
+                            props = feature.get('properties', {})
+                            local_earthquakes.append({
+                                'magnitude': props.get('mag'),
+                                'place': props.get('place'),
+                                'time': props.get('time'),
+                                'lat': lat,
+                                'lon': lon,
+                                'depth': coords[2] if len(coords) > 2 else None
+                            })
+            result = {'earthquakes': local_earthquakes, 'success': True}
+            self._cache_data(cache_key, result)
+            return result
+        except Exception as e:
+            logger.warning(f"Failed to fetch earthquakes: {e}")
+            return {'earthquakes': [], 'success': False, 'error': str(e)}
+
 class DelNorteDataIntegrator:
     """Integrator that aggregates API wrappers for analyzers.
 
@@ -613,5 +752,6 @@ class DelNorteDataIntegrator:
         api_manager = CaliforniaAPIManager()
         self.calfire_client = _CALFIREWrapper(api_manager, cache_dir)
         self.noaa_client = _NOAAWrapper(api_manager, cache_dir)
+        self.usgs_client = _USGSWrapper(api_manager, cache_dir)
 
 

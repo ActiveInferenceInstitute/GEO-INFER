@@ -1,121 +1,171 @@
-# Active Inference for World Systems Modeling in GEO-INFER-ACT
+# World Systems Modeling
 
 ## Introduction
 
-The GEO-INFER-ACT module enables professional, flexible active inference modeling for complex world systems. By applying active inference principles through the ACT modules, users can create nested, multi-level models that bridge local and global scales. This facilitates sophisticated simulations of interconnected systems, such as energy transitions, climate adaptation, and socio-technical dynamics, with built-in uncertainty quantification and adaptive learning.
+World systems modeling in Active Inference refers to the construction of generative models that capture the dynamics of complex socio-ecological systems. This document describes how GEO-INFER-ACT enables modeling of world systems.
 
-Active inference in GEO-INFER treats systems as self-organizing entities that minimize free energy across hierarchies, allowing for dynamic integration of data, policies, and behaviors at various scales.
+## What is a World System?
 
-[See active_inference_overview.md for foundational concepts]
+A world system is an interconnected network of:
 
-## Core Principles
+- **Physical systems**: Climate, hydrology, geology
+- **Ecological systems**: Ecosystems, biodiversity, resource flows
+- **Social systems**: Economies, governance, culture
+- **Technological systems**: Infrastructure, networks, energy
 
-### Hierarchical Active Inference
+## Modeling Approach
 
-Models are structured hierarchically, with Markov blankets defining system boundaries:
+### Hierarchical Generative Models
 
-\[ p(s_i | s_{\neg i}) = p(s_i | \text{mb}(s_i)) \]
+World systems are naturally hierarchical:
 
-This enables nested modeling where local (e.g., urban) systems interface with national or global levels.
-
-### Free Energy Minimization
-
-Systems minimize variational free energy:
-
-\[ F = D_{KL}[q(s) || p(s|o)] - \ln p(o) \]
-
-In world systems, this extends to multi-scale optimization, incorporating epistemic (information-seeking) and pragmatic (goal-directed) values.
-
-[Details in free_energy_principle.md]
-
-### Adaptive Belief Updating
-
-Using Bayesian inference with message passing, models self-update based on new evidence, ideal for evolving world systems like energy markets or climate scenarios.
-
-## Multi-Level Modeling Capabilities
-
-GEO-INFER-ACT supports bidirectional scaling:
-
-- **Downscaling**: From global/national models to urban/local contexts, incorporating granular data like grid infrastructure and local policies.
-- **Upscaling**: Aggregating local insights to inform higher-level strategies, e.g., national decarbonization plans.
-
-### Integration of Constraints
-
-Models incorporate policy, permitting, finance, and behavioral factors:
-- Regulatory alignment using reinforcement learning for scenario simulation.
-- Finance optimization with uncertainty-aware investment pathways.
-- Behavioral modeling for stakeholder coordination.
-
-### Multi-Level Hierarchy Mindmap
-
-```mermaid
-mindmap
-  root((World System))
-    Global Scale
-      Climate Models
-      National Policies
-      Earth Systems
-    Regional Scale
-      Energy Grids
-      Policy Interfaces
-      Economic Factors
-    Urban Scale
-      Local Infrastructure
-      Stakeholder Behaviors
-      Spatial Data
+```
+Global Level
+├── Continental Level
+│   ├── National Level
+│   │   ├── Regional Level
+│   │   │   ├── Local Level
+│   │   │   │   └── Site Level
 ```
 
-This mindmap represents the nested scales in world systems modeling, showing bidirectional information flow.
+Each level has its own state space and dynamics, with information flowing up and down the hierarchy.
 
-## Applications to Energy Transition and Decarbonization
+### Multi-Scale State Spaces
 
-### Bridging Urban and National Scales
+```python
+from geo_infer_act import WorldSystemModel
 
-Active inference agents nest urban energy models within national frameworks, enabling:
-- Dynamic forecasting of decarbonization pathways.
-- Uncertainty quantification in climate impacts and policy effects.
-- Optimization of infrastructure permitting and finance.
+model = WorldSystemModel(
+    levels={
+        "global": GlobalClimateModel(),
+        "regional": RegionalEconomyModel(),
+        "local": LocalEcosystemModel()
+    },
+    couplings={
+        ("global", "regional"): climate_economy_coupling,
+        ("regional", "local"): economy_ecosystem_coupling
+    }
+)
+```
 
-### Socio-Technical Dynamics
+## System Components
 
-Incorporate geospatial data for spatialized modeling:
-- Energy demand projections with climate forecasts.
-- Multi-agent coordination for stakeholders (governments, utilities, investors).
+### Physical Subsystem
 
-[Example: urban_planning.py demonstrates multi-agent resource allocation]
+```python
+physical_states = {
+    "temperature": ContinuousState(range=(-50, 50)),
+    "precipitation": ContinuousState(range=(0, 500)),
+    "land_cover": CategoricalState(categories=land_types),
+    "elevation": StaticState(source=dem_data)
+}
+```
 
-### Decision Support
+### Ecological Subsystem
 
-Generate interactive dashboards for policymakers, with visualizations of scenarios, risks, and opportunities.
+```python
+ecological_states = {
+    "biomass": ContinuousState(dynamics=growth_model),
+    "species_richness": DiscreteState(range=(0, 1000)),
+    "habitat_quality": ContinuousState(range=(0, 1)),
+    "connectivity": NetworkState(graph=habitat_network)
+}
+```
 
-## Integration with GEO-INFER Modules
+### Social Subsystem
 
-- **SPACE**: Spatial indexing (e.g., H3) for geospatial dynamics [geospatial_applications.md].
-- **TIME**: Temporal hierarchies for multi-scale forecasting.
-- **AGENT**: Multi-agent systems for coordination.
-- **DATA**: Probabilistic data fusion.
-- **API**: Programmatic access [api_schema.yaml].
+```python
+social_states = {
+    "population": ContinuousState(dynamics=demographic_model),
+    "land_use": CategoricalState(categories=use_types),
+    "governance": InstitutionalState(rules=governance_rules),
+    "economy": EconomicState(model=economic_model)
+}
+```
 
-## Case Studies
+## Active Inference for World Systems
 
-1. **Urban Decarbonization**: Nested models linking city GHG inventories to national NDCs.
-2. **Climate Adaptation**: Predictive modeling of infrastructure vulnerabilities.
-3. **Energy Finance**: RL-based simulation of investment risks and policy impacts.
+### Perception
 
-## Mathematical Foundations
+Agents monitoring world systems update beliefs about system states:
 
-Extended from core active inference equations to multi-level systems:
+```python
+# Multi-source observation integration
+observations = {
+    "satellite": satellite_imagery,
+    "sensors": iot_data,
+    "surveys": social_surveys,
+    "reports": administrative_data
+}
 
-\[ F_{multi} = \sum_{levels} F^{(l)} + \sum_{interfaces} D_{KL}[q^{(l)} || p^{(l+1)}] \]
+beliefs = agent.perceive(observations)
+```
 
-[Full details in mathematical_framework.md]
+### Action
 
-## Best Practices
+Interventions in world systems:
 
-- Start with hierarchical model definition.
-- Validate via backcasting and inter-model comparisons.
-- Use Monte Carlo methods for uncertainty analysis.
+```python
+actions = {
+    "policy": implement_policy,
+    "infrastructure": build_infrastructure,
+    "conservation": protect_area,
+    "restoration": restore_ecosystem
+}
 
-## References
+# Select action minimizing expected free energy
+best_action = agent.act(preferences=sustainable_development_goals)
+```
 
-[See references.md for key papers and resources] 
+### Learning
+
+Adaptation through model updating:
+
+```python
+# Learn from outcomes
+agent.learn(
+    predicted=expected_outcomes,
+    observed=actual_outcomes
+)
+```
+
+## Applications
+
+### Climate Adaptation Planning
+
+```python
+climate_agent = WorldSystemAgent(
+    model=coupled_climate_society_model,
+    preferences=adaptation_goals
+)
+
+# Identify optimal adaptation strategies
+strategies = climate_agent.plan(
+    scenarios=climate_scenarios,
+    horizon=2050
+)
+```
+
+### Sustainable Development
+
+```python
+sdg_agent = WorldSystemAgent(
+    model=sdg_system_model,
+    preferences=sdg_targets
+)
+
+# Balance competing goals
+development_plan = sdg_agent.optimize(
+    constraints=resource_limits,
+    trade_offs=sdg_interactions
+)
+```
+
+## Further Reading
+
+- [Geospatial Applications](./geospatial_applications.md)
+- [Mathematical Framework](./mathematical_framework.md)
+
+---
+
+**Last Updated**: 2026-01-26

@@ -1,43 +1,6 @@
-# GEO-INFER-AG Examples
-
-This directory contains working examples demonstrating the capabilities of the GEO-INFER-AG module.
-
-## Available Examples
-
-### Basic Agricultural Analysis (`basic_agricultural_analysis.py`)
-
-Demonstrates fundamental agricultural analysis capabilities:
-- Field boundary management
-- Crop yield modeling
-- Seasonal analysis
-- Agricultural sustainability assessment
-
-**What you'll learn:**
-- How to create and manage agricultural field boundaries
-- Crop yield prediction and modeling
-- Seasonal pattern analysis
-- Agricultural data processing
-
-**Prerequisites:**
-- Python 3.9+
-- GEO-INFER-AG module installed
-- Required dependencies: `geopandas`, `shapely`, `pandas`, `numpy`
-
-**Usage:**
-```bash
-cd GEO-INFER-AG
-python examples/basic_agricultural_analysis.py
-```
-
-## Integration Examples
-
-GEO-INFER-AG integrates seamlessly with other GEO-INFER modules:
-
-- **SPACE + AG**: Spatial field analysis and mapping
-- **TIME + AG**: Temporal crop monitoring
-- **IOT + AG**: Real-time sensor data integration
-- **AI + AG**: Predictive agricultural analytics
-- **SIM + AG**: Agricultural system simulation
-
-See `GEO-INFER-EXAMPLES` for comprehensive cross-module integration examples.
-
+# GEO
+-INFER-AG Examples This directory contains working examples demonstrating the capabilities of the GEO-INFER-AG module. ## Available
+ Examples ### Basi
+c
+ Agricultural Analysis (`basic_agricultural_analysis.py`) Demonstrates fundamental agricultural analysis capabilities: - Field boundary management - Crop yield modeling - Seasonal analysis - Agricultural sustainability assessment **What you'll learn:** - How to create and manage agricultural field boundaries - Crop yield prediction and modeling - Seasonal pattern analysis - Agricultural data processing **Prerequisites:** - Python 3.9+ - GEO-INFER-AG module installed - Required dependencies: `geopandas`, `shapely`, `pandas`, `numpy` **Usage:** ```bash cd GEO-INFER-AG python examples/basic_agricultural_analysis.py ``` ## Integration
+ Examples GEO-INFER-AG integrates seamlessly with other GEO-INFER modules: - **SPACE + AG**: Spatial field analysis and mapping - **TIME + AG**: Temporal crop monitoring - **IOT + AG**: Real-time sensor data integration - **AI + AG**: Predictive agricultural analytics - **SIM + AG**: Agricultural system simulation See `GEO-INFER-EXAMPLES` for cross-module integration examples. 

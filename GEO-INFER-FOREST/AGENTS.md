@@ -1,90 +1,104 @@
-# GEO-INFER-FOREST: Forest Intelligence Agents
+# GEO-INFER-FOREST: Agent Capabilities
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./README.md">📚 Module Documentation</a>
 </div>
 
 ---
 
 ## Overview
 
+The **GEO-INFER-FOREST** module provides forest monitoring capabilities for agents, enabling forest inventory, change detection, and ecosystem analysis.
 
-The GEO-INFER-FOREST module provides forest management capabilities enabling agents to monitor forest health, detect deforestation, estimate biomass, and support sustainable forestry.
+## Agent Capabilities
+
+### 1. Forest Inventory
+
+```python
+from geo_infer_forest import ForestInventory
+
+# Conduct forest inventory
+inventory = ForestInventory()
+
+results = inventory.analyze(
+    area=forest_boundary,
+    data_sources={"lidar": lidar_data, "imagery": satellite}
+)
+
+print(f"Biomass: {results.biomass_tonnes_ha} t/ha")
+print(f"Canopy height: {results.mean_height} m")
+```
+
+### 2. Change Detection
+
+```python
+from geo_infer_forest import ChangeDetector
+
+# Detect forest changes
+detector = ChangeDetector()
+
+changes = detector.detect(
+    area=study_area,
+    start_date="2020-01-01",
+    end_date="2025-12-31"
+)
+
+print(f"Forest loss: {changes.loss_hectares} ha")
+print(f"Forest gain: {changes.gain_hectares} ha")
+```
+
+### 3. Fire Risk
+
+```python
+from geo_infer_forest import FireRisk
+
+# Assess fire risk
+risk = FireRisk()
+
+assessment = risk.assess(
+    area=wildland_area,
+    weather=current_weather,
+    fuel_data=fuel_model
+)
+
+print(f"Fire danger: {assessment.danger_rating}")
+```
+
+### 4. Carbon Accounting
+
+```python
+from geo_infer_forest import CarbonAccounting
+
+# Estimate carbon stocks
+carbon = CarbonAccounting()
+
+stocks = carbon.estimate(
+    forest_area=forest_boundary,
+    pools=["above_ground", "below_ground", "soil"]
+)
+
+print(f"Total carbon: {stocks.total_tonnes} tC")
+```
 
 ## Implementation Status
 
-**⚠️ Important Note**: This document describes both **implemented** and **aspirational** features. Features marked with 🔮 are planned/aspirational.
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Inventory** | ✅ Ready | Biomass, structure |
+| **Change Detection** | ✅ Ready | Deforestation monitoring |
+| **Fire Risk** | ✅ Ready | Fire danger assessment |
+| **Carbon** | ✅ Ready | Carbon accounting |
 
-### Currently Implemented
+### Aspirational Features
 
-- ✅ **ForestHealthAnalyzer**: Forest condition monitoring
-- ✅ **DeforestationDetector**: Change detection and alerts
-- ✅ **BiomassEstimator**: Carbon stock estimation
-- ✅ **FireRiskAssessor**: Wildfire risk modeling
-
-### Aspirational/Planned Features
-
-- 🔮 **ForestMonitoringAgent**: Autonomous forest surveillance
-- 🔮 **FireResponseAgent**: Real-time fire detection and response
-
-## Agent Capabilities Supported
-
-### 1. Forest Health Monitoring
-
-```python
-from geo_infer_forest import ForestHealthAnalyzer
-
-# Agent monitors forest health
-analyzer = ForestHealthAnalyzer()
-health = analyzer.assess(
-    imagery=satellite_data,
-    indices=['ndvi', 'evi', 'nbr'],
-    baseline=reference_period
-)
-```
-
-### 2. Deforestation Detection
-
-```python
-from geo_infer_forest import DeforestationDetector
-
-# Detect forest loss
-detector = DeforestationDetector()
-changes = detector.detect(
-    current=recent_imagery,
-    baseline=historical_imagery,
-    threshold=0.3
-)
-```
-
-### 3. Biomass Estimation
-
-```python
-from geo_infer_forest import BiomassEstimator
-
-# Estimate carbon stocks
-estimator = BiomassEstimator()
-biomass = estimator.estimate(
-    canopy_height=lidar_data,
-    forest_type=species_map,
-    method='allometric'
-)
-```
-
-## Integration Status
-
-| Capability | Status | Description |
-|------------|--------|-------------|
-| **Forest Health** | ✅ Ready | Condition monitoring |
-| **Deforestation** | ✅ Ready | Change detection |
-| **Biomass** | ✅ Ready | Carbon estimation |
-| **Fire Risk** | ✅ Ready | Wildfire modeling |
-| **Monitoring Agent** | 🔮 Planned | Autonomous surveillance |
-| **Fire Agent** | 🔮 Planned | Real-time response |
+- 🔮 **ForestMonitorAgent**: Continuous monitoring
+- 🔮 **FirePredictionAgent**: Fire spread prediction
 
 ---
 
-This AGENTS.md documents how GEO-INFER-FOREST provides forest management intelligence capabilities.
+This AGENTS.md documents how GEO-INFER-FOREST provides forest capabilities for agents.
+
+**Last Updated**: 2026-01-26

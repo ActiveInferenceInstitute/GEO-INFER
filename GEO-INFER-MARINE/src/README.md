@@ -1,0 +1,5 @@
+# src
+ ## Overview
+ **Path**: `GEO-INFER-MARINE/src` Source code implementation. ## Implementation
+ ### `geo_infer_MARINE/core/oceanographic_data.py` **Classes**: OceanographicDataProcessor **Functions**: load_oceanographic_data, process_3d_ocean_data, calculate_ocean_currents ### `geo_infer_MARINE/core/coastal_analysis.py` **Classes**: CoastalAnalyzer **Functions**: assess_coastal_vulnerability, analyze_coastal_erosion ### `geo_infer_MARINE/core/marine_ecosystems.py` **Classes**: MarineHabitatType, SpeciesData, MarineEcosystemModeler **Functions**: assess_coral_reef_health, model_fisheries_stock, calculate_biodiversity_indices, register_species, model_species_distribution ### `geo_infer_MARINE/core/sea_level.py` **Classes**: SeaLevelAnalyzer **Functions**: project_sea_level_rise, assess_inundation ### `geo_infer_MARINE/core/marine_spatial_planning.py` **Classes**: MarineSpatialPlanner **Functions**: design_mpa_network, optimize_offshore_wind_siting ## Contents
+ - **geo_infer_MARINE/**: Subdirectory - **geo_infer_marine.egg-info/**: Subdirectory --- 

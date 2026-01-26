@@ -334,7 +334,7 @@ class ComprehensiveVisualizationEngine:
             # 1. Data coverage visualization
             total_targets = max(1, len(self._get_hexagons_map(h3_data)))
             coverage_fig = self._create_coverage_plot(data_sources, total_targets)
-            coverage_path = self.static_dir / f"data_coverage_{timestamp}.png"
+            coverage_path = self.static_dir / "data_coverage.png"
             coverage_fig.savefig(coverage_path, dpi=300, bbox_inches='tight')
             plt.close(coverage_fig)
             viz_paths['coverage_plot'] = coverage_path
@@ -342,21 +342,21 @@ class ComprehensiveVisualizationEngine:
             # 2. Redevelopment score distribution
             if redevelopment_scores:
                 score_fig = self._create_score_distribution_plot(redevelopment_scores)
-                score_path = self.static_dir / f"redevelopment_scores_{timestamp}.png"
+                score_path = self.static_dir / "redevelopment_scores.png"
                 score_fig.savefig(score_path, dpi=300, bbox_inches='tight')
                 plt.close(score_fig)
                 viz_paths['score_distribution'] = score_path
             
             # 3. Module comparison chart
             module_fig = self._create_module_comparison_plot(data_sources, total_targets)
-            module_path = self.static_dir / f"module_comparison_{timestamp}.png"
+            module_path = self.static_dir / "module_comparison.png"
             module_fig.savefig(module_path, dpi=300, bbox_inches='tight')
             plt.close(module_fig)
             viz_paths['module_comparison'] = module_path
             
             # 4. Data quality heatmap
             quality_fig = self._create_quality_heatmap(data_sources, total_targets)
-            quality_path = self.static_dir / f"data_quality_{timestamp}.png"
+            quality_path = self.static_dir / "data_quality.png"
             quality_fig.savefig(quality_path, dpi=300, bbox_inches='tight')
             plt.close(quality_fig)
             viz_paths['quality_heatmap'] = quality_path
@@ -404,7 +404,7 @@ class ComprehensiveVisualizationEngine:
         )
         
         # Save dashboard
-        dashboard_path = self.dashboard_dir / f"cascadia_dashboard_{timestamp}.html"
+        dashboard_path = self.dashboard_dir / "cascadia_dashboard.html"
         with open(dashboard_path, 'w', encoding='utf-8') as f:
             f.write(dashboard_html)
         
@@ -434,7 +434,7 @@ class ComprehensiveVisualizationEngine:
         try:
             # Export H3 data as GeoJSON
             h3_geojson = self._convert_h3_to_geojson(h3_data)
-            h3_path = self.export_dir / f"h3_data_{timestamp}.geojson"
+            h3_path = self.export_dir / "h3_data.geojson"
             with open(h3_path, 'w') as f:
                 json.dump(h3_geojson, f, indent=2)
             export_paths['h3_geojson'] = h3_path
@@ -445,7 +445,7 @@ class ComprehensiveVisualizationEngine:
                     {'hex_id': hex_id, 'score': score}
                     for hex_id, score in redevelopment_scores.items()
                 ])
-                scores_path = self.export_dir / f"redevelopment_scores_{timestamp}.csv"
+                scores_path = self.export_dir / "redevelopment_scores.csv"
                 scores_df.to_csv(scores_path, index=False)
                 export_paths['scores_csv'] = scores_path
 
@@ -464,7 +464,7 @@ class ComprehensiveVisualizationEngine:
                     'coverage_percentage': (len(hex_map) / max(1, len(self._get_hexagons_map(h3_data))) * 100.0)
                 }
 
-            summary_path = self.export_dir / f"data_sources_summary_{timestamp}.json"
+            summary_path = self.export_dir / "data_sources_summary.json"
             with open(summary_path, 'w') as f:
                 json.dump(sources_summary, f, indent=2)
             export_paths['sources_summary'] = summary_path

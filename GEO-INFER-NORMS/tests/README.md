@@ -1,0 +1,5 @@
+# tests
+ ## Overview
+ **Path**: `GEO-INFER-NORMS/tests` Testing and quality assurance. ## Implementation
+ ### `unit/test_zoning_analysis.py` **Classes**: TestZoningAnalyzer, TestLandUseClassifier **Functions**: setup_method, test_get_district_by_id, test_get_code_by_id, test_get_zoning_at_point, test_calculate_compatibility ### `unit/test_normative_inference.py` **Classes**: TestNormativeInference, TestSocialNormDiffusion **Functions**: setup_method, test_add_norm, test_add_observation, test_get_latest_observation, test_check_norm_compliance ### `unit/test_legal_frameworks.py` **Classes**: TestJurisdictionHandler, TestLegalFramework **Functions**: setup_method, test_get_jurisdiction_by_id, test_get_jurisdiction_hierarchy, test_find_jurisdictions_by_name, test_find_jurisdictions_at_level ## Contents
+ - **integration/**: Subdirectory - **test-outputs/**: Subdirectory - **unit/**: Subdirectory --- 
