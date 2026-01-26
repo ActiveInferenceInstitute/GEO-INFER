@@ -1,0 +1,5 @@
+# src
+ ## Overview
+ **Path**: `GEO-INFER-CLIMATE/src` Source code implementation. ## Implementation
+ ### `geo_infer_climate/core/extreme_events.py` **Classes**: ExtremeEventType, Severity, ExtremeEvent, ExtremeEventAnalyzer **Functions**: detect_heatwaves, detect_droughts, detect_cold_spells, detect_floods, calculate_return_period ### `geo_infer_climate/core/climate_data.py` **Classes**: ClimateDataProcessor **Functions**: load_dataset, validate_dataset, preprocess_dataset, extract_temporal_subset, extract_spatial_subset ### `geo_infer_climate/core/downscaling.py` **Classes**: DownscalingMethods **Functions**: bias_correction, statistical_downscaling ### `geo_infer_climate/core/climate_indices.py` **Classes**: ClimateIndicesCalculator **Functions**: calculate_spi, calculate_heat_index, calculate_extreme_indices, calculate_pdsi ### `geo_infer_climate/core/projections.py` **Classes**: ClimateProjections **Functions**: project_future_climate ## Contents
+ - **geo_infer_climate/**: Subdirectory - **geo_infer_climate.egg-info/**: Subdirectory --- 

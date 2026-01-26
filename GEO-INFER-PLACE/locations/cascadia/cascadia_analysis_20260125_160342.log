@@ -1,0 +1,527 @@
+2026-01-25 16:03:42,783 - src.core.setup_manager - INFO - Enhanced Cascadia Analysis Framework initialized with SPACE integration
+2026-01-25 16:03:42,783 - src.core.setup_manager - INFO - Log file: cascadia_analysis_20260125_160342.log
+2026-01-25 16:03:42,783 - __main__ - INFO - 🌲 Starting Cascadia Agricultural Analysis Framework
+2026-01-25 16:03:42,783 - __main__ - INFO - 📊 Analysis Parameters:
+2026-01-25 16:03:42,783 - __main__ - INFO -    H3 Resolution: 8
+2026-01-25 16:03:42,783 - __main__ - INFO -    Target Counties: CA:Del Norte
+2026-01-25 16:03:42,783 - __main__ - INFO -    Active Modules: zoning,ownership,improvements,ground_water,surface_water,water_rights,power_source,mortgage_debt
+2026-01-25 16:03:42,783 - __main__ - INFO -    Export Format: geojson
+2026-01-25 16:03:42,783 - __main__ - INFO -    Output Directory: output
+2026-01-25 16:03:42,783 - __main__ - INFO -    Visualization Options: Interactive Dashboard
+2026-01-25 16:03:42,784 - cascadia - INFO - Enhanced logging initialized with level: INFO
+2026-01-25 16:03:42,784 - __main__ - INFO - 🚀 Initializing Cascadia Agricultural Analysis Framework
+2026-01-25 16:03:42,784 - __main__ - INFO - Enhanced logging initialized: output/cascadia_analysis.log
+2026-01-25 16:03:42,791 - src.core.setup_manager - INFO - Loaded analysis configuration from config/analysis_config.yaml
+2026-01-25 16:03:42,791 - __main__ - INFO - 🔍 Validating configuration...
+2026-01-25 16:03:42,798 - src.core.enhanced_config - INFO - Configuration loaded from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/src/config/cascadia_config.yaml
+2026-01-25 16:03:42,798 - src.core.enhanced_config - INFO - Enhanced Configuration Manager initialized
+2026-01-25 16:03:42,798 - __main__ - INFO - Target counties: {'CA': ['Del Norte']}
+2026-01-25 16:03:42,798 - __main__ - INFO - Active modules: ['zoning', 'ownership', 'improvements', 'ground_water', 'surface_water', 'water_rights', 'power_source', 'mortgage_debt']
+2026-01-25 16:03:42,798 - __main__ - INFO - 📊 Configuration validation: ✅ PASSED
+2026-01-25 16:03:42,798 - src.core.data_processor - INFO - 🔧 Creating shared backend for all modules...
+2026-01-25 16:03:42,798 - geo_infer_place.core.unified_backend - INFO - Using native H3 library for spatial indexing (osc_geo module deprecated)
+2026-01-25 16:03:42,799 - geo_infer_place.core.unified_backend - INFO - Loading region data from cache: output/data/cache/region_cache_4e2b5626c8c4ca7a05c736003fae87ed.json
+2026-01-25 16:03:42,799 - geo_infer_place.core.unified_backend - INFO - ✅ Loaded 7749 hexagons from cache
+2026-01-25 16:03:42,799 - geo_infer_place.core.unified_backend - INFO - Using cached region data
+2026-01-25 16:03:42,800 - geo_infer_space.core.unified_backend - WARNING - Failed to initialize H3DataLoader from GEO-INFER-SPACE: osc_geo module not available. OSC data loading disabled.. Functionality relying on OSC data loading will be unavailable.
+2026-01-25 16:03:42,800 - geo_infer_place.core.unified_backend - ERROR - No county geometries could be loaded or defined. Cannot define a target region.
+2026-01-25 16:03:42,800 - geo_infer_space.core.unified_backend - INFO - UnifiedH3Backend initialized for 'Cascadia' with 0 active modules at H3 resolution 8
+2026-01-25 16:03:42,800 - geo_infer_space.core.unified_backend - INFO - Active modules: []
+2026-01-25 16:03:42,800 - geo_infer_space.core.unified_backend - INFO - Defined 0 total target hexagons across 0 areas.
+2026-01-25 16:03:42,800 - geo_infer_space.utils.config_loader - INFO - Config loader initialized with directory: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config
+2026-01-25 16:03:42,800 - geo_infer_space.utils.config_loader - WARNING - Location config not found: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/src/config/cascadia.yaml
+2026-01-25 16:03:42,800 - geo_infer_space.utils.config_loader - DEBUG - Configuration validation passed
+2026-01-25 16:03:42,800 - geo_infer_place.core.unified_backend - INFO - ✅ Cascadia configuration loaded successfully
+2026-01-25 16:03:42,800 - geo_infer_place.core.unified_backend - INFO - Loading county geometries with boundary loader...
+2026-01-25 16:03:42,810 - county_boundary_loader - INFO - Loaded county boundaries configuration from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/county_boundaries.yaml
+2026-01-25 16:03:42,810 - county_boundary_loader - INFO - Loaded GeoJSON geometry for ca_del_norte from /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/config/ca_del_norte_boundary.geojson
+2026-01-25 16:03:42,810 - geo_infer_place.core.unified_backend - INFO - Successfully loaded county geometries using boundary loader
+2026-01-25 16:03:42,810 - geo_infer_place.core.unified_backend - INFO - Generating hexagons for Del_Norte, CA using SPACE utilities...
+2026-01-25 16:03:42,810 - geo_infer_place.core.unified_backend - DEBUG - Geometry type: <class 'dict'>, Geometry: {'type': 'Polygon', 'coordinates': [[[-124.5, 41.4], [-124.5, 42.0], [-123.5, 42.0], [-123.5, 41.4], [-124.5, 41.4]]]}
+2026-01-25 16:03:42,816 - geo_infer_place.core.unified_backend - INFO - Generated 7749 hexagons for Del_Norte, CA
+2026-01-25 16:03:42,818 - geo_infer_place.core.unified_backend - INFO - ✅ Generated 7749 H3 hexagons using SPACE utilities
+2026-01-25 16:03:42,818 - geo_infer_place.core.unified_backend - INFO - Enhanced CascadianAgriculturalH3Backend initialized for 'Cascadia' with 0 active modules at H3 resolution 8
+2026-01-25 16:03:42,818 - geo_infer_place.core.unified_backend - INFO - Active modules: []
+2026-01-25 16:03:42,818 - geo_infer_place.core.unified_backend - INFO - Defined 7749 total target hexagons across 1 states.
+2026-01-25 16:03:42,818 - geo_infer_place.core.unified_backend - INFO - SPACE integration: Spatial processor, data integrator, and visualization engine available
+2026-01-25 16:03:42,818 - src.core.data_processor - INFO - ✅ Shared backend created with 7749 target hexagons
+2026-01-25 16:03:42,819 - src.core.enhanced_data_manager - INFO - Enhanced Data Manager initialized with H3 resolution 8
+2026-01-25 16:03:42,819 - src.core.enhanced_data_manager - INFO - SPACE H3 utilities available: True
+2026-01-25 16:03:42,819 - src.core.enhanced_h3_fusion - INFO - Enhanced H3 Fusion initialized with resolution 8
+2026-01-25 16:03:42,819 - src.core.enhanced_h3_fusion - INFO - SPACE H3 utilities available: True
+2026-01-25 16:03:42,819 - src.core.enhanced_h3_fusion - INFO - Spatial analysis enabled: True
+2026-01-25 16:03:42,819 - src.core.enhanced_h3_fusion - INFO - Fusion mode: geom_intersect
+2026-01-25 16:03:42,819 - src.core.enhanced_h3_fusion - INFO - Fusion cache directory: output/data/cache/fusion
+2026-01-25 16:03:42,819 - selenium.webdriver.common.selenium_manager - DEBUG - Selenium Manager binary found at: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/.venv/lib/python3.12/site-packages/selenium/webdriver/common/macos/selenium-manager
+2026-01-25 16:03:42,819 - selenium.webdriver.common.selenium_manager - DEBUG - Executing process: /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/.venv/lib/python3.12/site-packages/selenium/webdriver/common/macos/selenium-manager --browser chrome --debug --language-binding python --output json
+2026-01-25 16:03:44,770 - selenium.webdriver.common.selenium_manager - DEBUG - Sending stats to Plausible: Props { browser: "chrome", browser_version: "", os: "macos", arch: "arm64", lang: "python", selenium_version: "4.40" }
+2026-01-25 16:03:44,770 - selenium.webdriver.common.selenium_manager - DEBUG - chromedriver not found in PATH
+2026-01-25 16:03:44,770 - selenium.webdriver.common.selenium_manager - DEBUG - chrome detected at /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+2026-01-25 16:03:44,770 - selenium.webdriver.common.selenium_manager - DEBUG - Running command: /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --version
+2026-01-25 16:03:44,770 - selenium.webdriver.common.selenium_manager - DEBUG - Output: "Google Chrome 144.0.7559.97 "
+2026-01-25 16:03:44,770 - selenium.webdriver.common.selenium_manager - DEBUG - Detected browser: chrome 144.0.7559.97
+2026-01-25 16:03:44,770 - selenium.webdriver.common.selenium_manager - DEBUG - Discovering versions from https://googlechromelabs.github.io/chrome-for-testing/known-good-versions-with-downloads.json
+2026-01-25 16:03:44,770 - selenium.webdriver.common.selenium_manager - DEBUG - Required driver: chromedriver 144.0.7559.96
+2026-01-25 16:03:44,770 - selenium.webdriver.common.selenium_manager - DEBUG - chromedriver 144.0.7559.96 already in the cache
+2026-01-25 16:03:44,770 - selenium.webdriver.common.selenium_manager - DEBUG - Driver path: /Users/4d/.cache/selenium/chromedriver/mac-arm64/144.0.7559.96/chromedriver
+2026-01-25 16:03:44,770 - selenium.webdriver.common.selenium_manager - DEBUG - Browser path: /Applications/Google Chrome.app/Contents/MacOS/Google Chrome
+2026-01-25 16:03:44,774 - selenium.webdriver.common.service - DEBUG - Started executable: `/Users/4d/.cache/selenium/chromedriver/mac-arm64/144.0.7559.96/chromedriver` in a child process with pid: 30477 using 0 to output -3
+2026-01-25 16:03:44,811 - selenium.webdriver.remote.remote_connection - DEBUG - POST http://localhost:59076/session {'capabilities': {'firstMatch': [{}], 'alwaysMatch': {'browserName': 'chrome', 'pageLoadStrategy': <PageLoadStrategy.normal: 'normal'>, 'browserVersion': None, 'goog:chromeOptions': {'extensions': [], 'binary': '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome', 'args': ['--headless', '--no-sandbox', '--disable-dev-shm-usage', '--disable-gpu', '--window-size=1920,1080']}}}}
+2026-01-25 16:03:44,812 - urllib3.connectionpool - DEBUG - Starting new HTTP connection (1): localhost:59076
+2026-01-25 16:04:08,507 - urllib3.connectionpool - DEBUG - http://localhost:59076 "POST /session HTTP/1.1" 200 0
+2026-01-25 16:04:08,508 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":{"capabilities":{"acceptInsecureCerts":false,"browserName":"chrome","browserVersion":"144.0.7559.97","chrome":{"chromedriverVersion":"144.0.7559.96 (d7b80622cfab91c265741194e7942eefd2d21811-refs/branch-heads/7559@{#3667})","userDataDir":"/var/folders/vc/rgmbpjpj0dbg61vr54xjskc80000gn/T/org.chromium.Chromium.scoped_dir.GZXSZH"},"fedcm:accounts":true,"goog:chromeOptions":{"debuggerAddress":"localhost:59150"},"goog:processID":30478,"networkConnectionEnabled":false,"pageLoadStrategy":"normal","platformName":"mac","proxy":{},"setWindowRect":true,"strictFileInteractability":false,"timeouts":{"implicit":0,"pageLoad":300000,"script":30000},"unhandledPromptBehavior":"dismiss and notify","webauthn:extension:credBlob":true,"webauthn:extension:largeBlob":true,"webauthn:extension:minPinLength":true,"webauthn:extension:prf":true,"webauthn:virtualAuthenticators":true},"sessionId":"c9c4a0546131d3a055fd03dccd8ac555"}} | headers=HTTPHeaderDict({'Content-Length': '923', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2026-01-25 16:04:08,508 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2026-01-25 16:04:08,509 - selenium.webdriver.remote.remote_connection - DEBUG - POST http://localhost:59076/session/c9c4a0546131d3a055fd03dccd8ac555/timeouts {'implicit': 10000}
+2026-01-25 16:04:08,512 - urllib3.connectionpool - DEBUG - http://localhost:59076 "POST /session/c9c4a0546131d3a055fd03dccd8ac555/timeouts HTTP/1.1" 200 0
+2026-01-25 16:04:08,512 - selenium.webdriver.remote.remote_connection - DEBUG - Remote response: status=200 | data={"value":null} | headers=HTTPHeaderDict({'Content-Length': '14', 'Content-Type': 'application/json; charset=utf-8', 'cache-control': 'no-cache'})
+2026-01-25 16:04:08,512 - selenium.webdriver.remote.remote_connection - DEBUG - Finished Request
+2026-01-25 16:04:08,513 - src.core.real_data_acquisition - INFO - Web driver initialized successfully
+2026-01-25 16:04:08,513 - src.core.real_data_acquisition - INFO - Real Data Acquisition system initialized
+2026-01-25 16:04:08,514 - src.core.visualization.comprehensive_visualization - INFO - Comprehensive Visualization Engine initialized
+2026-01-25 16:04:08,518 - src.core.enhanced_h3_fusion - INFO - ✅ H3 operations validation completed successfully
+2026-01-25 16:04:08,518 - __main__ - INFO - H3 validation result: {'h3_api_version': '4.x', 'space_integration': True, 'operations_tested': ['latlng_to_cell', 'cell_to_latlng', 'cell_to_latlng_boundary', 'geo_to_cells', 'grid_disk', 'cell_area', 'is_valid_cell'], 'errors': [], 'warnings': []}
+2026-01-25 16:04:08,546 - geo_infer_space.backends.h3.h3_backend - INFO - H3 library v4.3.1 loaded successfully
+2026-01-25 16:04:08,547 - geo_infer_space.core.dispatcher - INFO - Registered spatial backend: h3
+2026-01-25 16:04:08,547 - geo_infer_space.core.dispatcher - INFO - H3 backend loaded successfully
+2026-01-25 16:04:08,549 - geo_infer_space.backends.srai.srai_backend - WARNING - SRAI library is not available
+2026-01-25 16:04:08,549 - geo_infer_space.backends.srai.srai_backend - WARNING - SRAI backend initialized but library is not available
+2026-01-25 16:04:08,549 - geo_infer_space.backends.srai.srai_backend - DEBUG - Getting SRAI backend capabilities
+2026-01-25 16:04:08,549 - geo_infer_space.core.dispatcher - INFO - Registered spatial backend: srai
+2026-01-25 16:04:08,549 - geo_infer_space.core.dispatcher - INFO - SRAI backend loaded successfully
+2026-01-25 16:04:08,549 - src.data_modules.zoning.data_sources - INFO - [zoning] Loaded config from config/data_urls.json
+2026-01-25 16:04:08,549 - src.data_modules.zoning.geo_infer_zoning - INFO - Initialized GeoInferZoning module with real OSC H3 v4 integration.
+2026-01-25 16:04:08,549 - __main__ - INFO - ✅ Zoning module initialized with enhanced data management
+2026-01-25 16:04:08,550 - src.data_modules.ownership.data_sources - ERROR - Could not load or parse config file at /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/src/data_modules/ownership/../config/data_urls.json: [Errno 2] No such file or directory: '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/src/data_modules/ownership/../config/data_urls.json'
+2026-01-25 16:04:08,550 - src.data_modules.ownership.geo_infer_ownership - INFO - Initialized GeoInferOwnership module with real OSC H3 v4 integration.
+2026-01-25 16:04:08,550 - __main__ - INFO - ✅ Ownership module initialized with enhanced data management
+2026-01-25 16:04:08,550 - src.data_modules.improvements.data_sources - INFO - Initialized CascadianImprovementsDataSources.
+2026-01-25 16:04:08,550 - src.data_modules.improvements.geo_infer_improvements - INFO - Initialized GeoInferImprovements module.
+2026-01-25 16:04:08,550 - __main__ - INFO - ✅ Improvements module initialized with enhanced data management
+2026-01-25 16:04:08,550 - src.data_modules.water_rights.data_sources - ERROR - Could not load or parse water_rights config: [Errno 2] No such file or directory: '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/src/data_modules/water_rights/../config/data_urls.json'
+2026-01-25 16:04:08,550 - src.data_modules.water_rights.data_sources - INFO - Initialized CascadianWaterRightsDataSources.
+2026-01-25 16:04:08,550 - src.data_modules.water_rights.geo_infer_water_rights - INFO - Initialized GeoInferWaterRights with resolution 8
+2026-01-25 16:04:08,550 - __main__ - INFO - ✅ Water rights module initialized with enhanced data management
+2026-01-25 16:04:08,550 - src.data_modules.ground_water.data_sources - ERROR - Could not load or parse ground_water config: [Errno 2] No such file or directory: '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/src/data_modules/ground_water/../config/data_urls.json'
+2026-01-25 16:04:08,550 - src.data_modules.ground_water.data_sources - INFO - Initialized CascadianGroundWaterDataSources
+2026-01-25 16:04:08,550 - src.data_modules.ground_water.geo_infer_ground_water - INFO - Initialized GeoInferGroundWater with resolution 8
+2026-01-25 16:04:08,550 - __main__ - INFO - ✅ Ground water module initialized with enhanced data management
+2026-01-25 16:04:08,550 - src.data_modules.surface_water.data_sources - ERROR - Could not load or parse surface_water config: [Errno 2] No such file or directory: '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/src/data_modules/surface_water/../config/data_urls.json'
+2026-01-25 16:04:08,550 - src.data_modules.surface_water.geo_infer_surface_water - INFO - Initialized GeoInferSurfaceWater with resolution 8
+2026-01-25 16:04:08,550 - __main__ - INFO - ✅ Surface water module initialized with enhanced data management
+2026-01-25 16:04:08,550 - src.data_modules.power_source.data_sources - ERROR - Could not load or parse power_source config: [Errno 2] No such file or directory: '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/src/data_modules/power_source/../config/data_urls.json'
+2026-01-25 16:04:08,550 - src.data_modules.power_source.geo_infer_power_source - INFO - Initialized GeoInferPowerSource with resolution 8
+2026-01-25 16:04:08,550 - __main__ - INFO - ✅ Power source module initialized with enhanced data management
+2026-01-25 16:04:08,550 - src.data_modules.mortgage_debt.data_sources - ERROR - Could not load or parse mortgage_debt config: [Errno 2] No such file or directory: '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/locations/cascadia/src/data_modules/mortgage_debt/../config/data_urls.json'
+2026-01-25 16:04:08,550 - src.data_modules.mortgage_debt.geo_infer_mortgage_debt - INFO - Initialized GeoInferMortgageDebt with backend integration
+2026-01-25 16:04:08,551 - __main__ - INFO - ✅ Mortgage debt module initialized with enhanced data management
+2026-01-25 16:04:08,551 - __main__ - INFO - ✅ Updated shared backend with 8 active modules
+2026-01-25 16:04:08,551 - __main__ - INFO - 🚀 Starting enhanced comprehensive analysis with real data acquisition and H3 geospatial fusion...
+2026-01-25 16:04:08,552 - __main__ - INFO - 📊 Processing module: zoning
+2026-01-25 16:04:08,552 - __main__ - INFO - 📊 Processing module: ownership
+2026-01-25 16:04:08,552 - __main__ - INFO - 📊 Processing module: improvements
+2026-01-25 16:04:08,552 - cascadia.processing.real_data_acquisition - INFO - 🚀 PROCESSING START - Zoning Data Acquisition
+2026-01-25 16:04:08,552 - __main__ - INFO - 📊 Processing module: water_rights
+2026-01-25 16:04:08,553 - __main__ - INFO - 📊 Processing module: ground_water
+2026-01-25 16:04:08,553 - __main__ - INFO - 📊 Processing module: surface_water
+2026-01-25 16:04:08,553 - cascadia.processing.real_data_acquisition - INFO -    Module: real_data_acquisition
+2026-01-25 16:04:08,553 - __main__ - INFO - 📊 Processing module: power_source
+2026-01-25 16:04:08,553 - __main__ - INFO - ℹ️  Acquiring data via standard module extraction for water_rights
+2026-01-25 16:04:08,553 - __main__ - INFO - 📊 Processing module: mortgage_debt
+2026-01-25 16:04:08,553 - __main__ - INFO - ℹ️  Acquiring data via standard module extraction for ground_water
+2026-01-25 16:04:08,553 - __main__ - INFO - ℹ️  Acquiring data via standard module extraction for surface_water
+2026-01-25 16:04:08,553 - cascadia.processing.real_data_acquisition - INFO -    Parameters: {'sources': ['Del Norte County', 'California State']}
+2026-01-25 16:04:08,554 - __main__ - INFO - ℹ️  Acquiring data via standard module extraction for power_source
+2026-01-25 16:04:08,554 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2026-01-25 16:04:08,554 - __main__ - INFO - ℹ️  Acquiring data via standard module extraction for mortgage_debt
+2026-01-25 16:04:08,555 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2026-01-25 16:04:08,555 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2026-01-25 16:04:08,555 - selenium.webdriver.remote.remote_connection - DEBUG - POST http://localhost:59076/session/c9c4a0546131d3a055fd03dccd8ac555/url {'url': 'https://www.co.del-norte.ca.us/departments/planning-building'}
+2026-01-25 16:04:08,555 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2026-01-25 16:04:08,555 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:08,555 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2026-01-25 16:04:08,555 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:08,555 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:08,555 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:08,555 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'water_rights', 'force_refresh': True}
+2026-01-25 16:04:08,555 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:08,555 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'ground_water', 'force_refresh': True}
+2026-01-25 16:04:08,555 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'surface_water', 'force_refresh': True}
+2026-01-25 16:04:08,555 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'power_source', 'force_refresh': True}
+2026-01-25 16:04:08,556 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'mortgage_debt', 'force_refresh': True}
+2026-01-25 16:04:08,556 - cascadia.processing.data_manager - INFO -    Step: Data Acquisition
+2026-01-25 16:04:08,556 - cascadia.processing.data_manager - INFO -    Step: Data Acquisition
+2026-01-25 16:04:08,556 - cascadia.processing.data_manager - INFO -      action: calling_data_source_func
+2026-01-25 16:04:08,556 - cascadia.processing.data_manager - INFO -    Step: Data Acquisition
+2026-01-25 16:04:08,557 - cascadia.processing.data_manager - INFO -      action: calling_data_source_func
+2026-01-25 16:04:08,557 - cascadia.processing.data_manager - INFO -    Step: Data Acquisition
+2026-01-25 16:04:08,557 - cascadia.processing.data_manager - INFO -      module: power_source
+2026-01-25 16:04:08,557 - cascadia.processing.data_manager - INFO -      action: calling_data_source_func
+2026-01-25 16:04:08,557 - cascadia.processing.data_manager - INFO -    Step: Data Acquisition
+2026-01-25 16:04:08,557 - cascadia.processing.data_manager - INFO -      module: water_rights
+2026-01-25 16:04:08,557 - cascadia.processing.data_manager - INFO -      action: calling_data_source_func
+2026-01-25 16:04:08,558 - cascadia.processing.data_manager - INFO -      module: surface_water
+2026-01-25 16:04:08,558 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): services.countyofdelnorte.us:443
+2026-01-25 16:04:08,558 - cascadia.processing.data_manager - INFO -      action: calling_data_source_func
+2026-01-25 16:04:08,558 - src.data_modules.power_source.data_sources - INFO - Fetching all power infrastructure features from HIFLD...
+2026-01-25 16:04:08,559 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): services.countyofdelnorte.us:443
+2026-01-25 16:04:08,559 - cascadia.processing.data_manager - INFO -      module: ground_water
+2026-01-25 16:04:08,560 - cascadia.processing.data_manager - INFO -      module: mortgage_debt
+2026-01-25 16:04:08,560 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Validation and Storage
+2026-01-25 16:04:08,560 - src.data_modules.power_source.data_sources - ERROR - HIFLD service URL for 'transmission lines' not configured.
+2026-01-25 16:04:08,562 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:08,562 - src.core.real_data_acquisition - ERROR - Failed to acquire ownership data: HTTPSConnectionPool(host='services.countyofdelnorte.us', port=443): Max retries exceeded with url: /arcgis/rest/services/Parcels/MapServer/0/query?where=1%3D1&outFields=OWNER_NAME%2CACRES%2CLAND_USE%2CIMPROVEMENT_VALUE%2CLAND_VALUE%2CAPN&returnGeometry=true&f=geojson&geometryPrecision=6&maxRecordCount=10000 (Caused by NameResolutionError("HTTPSConnection(host='services.countyofdelnorte.us', port=443): Failed to resolve 'services.countyofdelnorte.us' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-01-25 16:04:08,562 - src.core.real_data_acquisition - ERROR - Failed to acquire improvements data: HTTPSConnectionPool(host='services.countyofdelnorte.us', port=443): Max retries exceeded with url: /arcgis/rest/services/BuildingPermits/MapServer/0/query?where=1%3D1&outFields=IMPROVEMENT_VALUE%2CLAND_VALUE%2CBUILDING_TYPE%2CYEAR_BUILT%2CAPN&returnGeometry=true&f=geojson&geometryPrecision=6&maxRecordCount=10000 (Caused by NameResolutionError("HTTPSConnection(host='services.countyofdelnorte.us', port=443): Failed to resolve 'services.countyofdelnorte.us' ([Errno 8] nodename nor servname provided, or not known)"))
+2026-01-25 16:04:08,577 - src.data_modules.power_source.data_sources - ERROR - HIFLD service URL for 'power plants' not configured.
+2026-01-25 16:04:08,577 - src.data_modules.mortgage_debt.geo_infer_mortgage_debt - INFO - [mortgage_debt] Using cached raw data at output/mortgage_debt/data/raw/raw_mortgage_debt_data.geojson
+2026-01-25 16:04:08,577 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Validation and Storage
+2026-01-25 16:04:08,577 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'water_rights', 'raw_path': 'output/water_rights/data/raw/raw_water_rights_data.geojson'}
+2026-01-25 16:04:08,577 - __main__ - INFO - ℹ️  Acquiring data via standard module extraction for ownership
+2026-01-25 16:04:08,578 - src.data_modules.power_source.data_sources - INFO - Incomplete HIFLD data, querying OSM...
+2026-01-25 16:04:08,578 - __main__ - INFO - ℹ️  Acquiring data via standard module extraction for improvements
+2026-01-25 16:04:08,579 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Validation and Storage
+2026-01-25 16:04:08,579 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:08,579 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2026-01-25 16:04:08,581 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Acquisition
+2026-01-25 16:04:08,581 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:08,582 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'ground_water', 'raw_path': 'output/ground_water/data/raw/raw_ground_water_data.geojson'}
+2026-01-25 16:04:08,583 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:08,585 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:08,585 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'mortgage_debt', 'raw_path': 'output/mortgage_debt/data/raw/raw_mortgage_debt_data.geojson'}
+2026-01-25 16:04:08,587 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'ownership', 'force_refresh': True}
+2026-01-25 16:04:08,588 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'improvements', 'force_refresh': True}
+2026-01-25 16:04:08,592 - cascadia.processing.data_manager - INFO -    Step: Data Acquisition
+2026-01-25 16:04:08,592 - cascadia.processing.data_manager - INFO -      action: calling_data_source_func
+2026-01-25 16:04:08,593 - cascadia.processing.data_manager - INFO -      module: ownership
+2026-01-25 16:04:08,594 - src.data_modules.ownership.geo_infer_ownership - INFO - [ownership] 🔍 Acquiring raw ownership data...
+2026-01-25 16:04:08,594 - cascadia.processing.data_manager - INFO -    Step: Data Acquisition
+2026-01-25 16:04:08,594 - cascadia.processing.data_manager - INFO -      action: calling_data_source_func
+2026-01-25 16:04:08,595 - cascadia.processing.data_manager - INFO -      module: improvements
+2026-01-25 16:04:08,595 - src.data_modules.improvements.geo_infer_improvements - INFO - [improvements] 🔍 Acquiring raw improvements data...
+2026-01-25 16:04:08,596 - src.data_modules.ownership.geo_infer_ownership - WARNING - [ownership] ⚠️ No ownership data found, creating synthetic data...
+2026-01-25 16:04:08,596 - src.data_modules.ownership.geo_infer_ownership - INFO - Creating real ownership data based on H3 hexagon analysis...
+2026-01-25 16:04:08,602 - src.data_modules.improvements.geo_infer_improvements - INFO - [improvements] ✅ Found cached raw improvements data: output/improvements/data/raw/raw_improvements_data.geojson
+2026-01-25 16:04:08,606 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Validation and Storage
+2026-01-25 16:04:08,608 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:08,609 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'improvements', 'raw_path': 'output/improvements/data/raw/raw_improvements_data.geojson'}
+2026-01-25 16:04:10,747 - src.core.enhanced_data_manager - INFO - 🗺️  GEODATAFRAME SUMMARY - water_rights_raw_data
+2026-01-25 16:04:10,750 - src.core.enhanced_data_manager - INFO - 🗺️  GEODATAFRAME SUMMARY - ground_water_raw_data
+2026-01-25 16:04:10,752 - src.core.enhanced_data_manager - INFO - 🗺️  GEODATAFRAME SUMMARY - mortgage_debt_raw_data
+2026-01-25 16:04:10,752 - src.core.enhanced_data_manager - INFO -    Shape: (0, 1)
+2026-01-25 16:04:10,753 - src.core.enhanced_data_manager - INFO -    Shape: (0, 1)
+2026-01-25 16:04:10,763 - src.core.enhanced_data_manager - INFO -    Shape: (0, 1)
+2026-01-25 16:04:10,766 - src.core.enhanced_data_manager - INFO -    CRS: EPSG:4326
+2026-01-25 16:04:10,766 - src.core.enhanced_data_manager - INFO - 🗺️  GEODATAFRAME SUMMARY - improvements_raw_data
+2026-01-25 16:04:10,766 - src.core.enhanced_data_manager - INFO -    CRS: EPSG:4326
+2026-01-25 16:04:10,767 - src.core.enhanced_data_manager - INFO -    CRS: EPSG:4326
+2026-01-25 16:04:10,768 - src.core.enhanced_data_manager - INFO -    Geometry Type: []
+2026-01-25 16:04:10,772 - pyogrio._io - INFO - Created 100 records
+2026-01-25 16:04:10,773 - src.core.enhanced_data_manager - INFO -    Shape: (500, 4)
+2026-01-25 16:04:10,774 - src.core.enhanced_data_manager - INFO -    Geometry Type: []
+2026-01-25 16:04:10,775 - src.core.enhanced_data_manager - INFO -    Geometry Type: []
+2026-01-25 16:04:10,776 - src.core.enhanced_data_manager - INFO -    Bounds: [nan nan nan nan]
+2026-01-25 16:04:10,776 - src.data_modules.ownership.geo_infer_ownership - INFO - Created 100 real ownership features
+2026-01-25 16:04:10,777 - src.core.enhanced_data_manager - INFO -    CRS: EPSG:4326
+2026-01-25 16:04:10,777 - src.core.enhanced_data_manager - INFO -    Bounds: [nan nan nan nan]
+2026-01-25 16:04:10,778 - src.core.enhanced_data_manager - INFO -    Bounds: [nan nan nan nan]
+2026-01-25 16:04:10,778 - src.core.enhanced_data_manager - INFO - 📋 DATAFRAME SUMMARY - water_rights_raw_data
+2026-01-25 16:04:10,786 - pyogrio._io - INFO - Created 100 records
+2026-01-25 16:04:10,786 - src.core.enhanced_data_manager - INFO - 📋 DATAFRAME SUMMARY - ground_water_raw_data
+2026-01-25 16:04:10,786 - src.core.enhanced_data_manager - INFO - 📋 DATAFRAME SUMMARY - mortgage_debt_raw_data
+2026-01-25 16:04:10,788 - src.core.enhanced_data_manager - INFO -    Geometry Type: ['Polygon']
+2026-01-25 16:04:10,789 - src.core.enhanced_data_manager - INFO -    Shape: (0, 1)
+2026-01-25 16:04:10,789 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - Data Validation and Storage
+2026-01-25 16:04:10,791 - src.core.enhanced_data_manager - INFO -    Shape: (0, 1)
+2026-01-25 16:04:10,791 - src.core.enhanced_data_manager - INFO -    Shape: (0, 1)
+2026-01-25 16:04:10,792 - src.core.enhanced_data_manager - INFO -    Bounds: [  41.39591676 -124.50144468   42.00346747 -123.49460285]
+2026-01-25 16:04:10,794 - src.core.enhanced_data_manager - INFO -    Memory Usage: 0.00 MB
+2026-01-25 16:04:10,794 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:10,795 - src.core.enhanced_data_manager - INFO -    Memory Usage: 0.00 MB
+2026-01-25 16:04:10,796 - src.core.enhanced_data_manager - INFO -    Memory Usage: 0.00 MB
+2026-01-25 16:04:10,799 - src.core.enhanced_data_manager - INFO -    Columns: ['geometry']
+2026-01-25 16:04:10,799 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'ownership', 'raw_path': 'output/ownership/data/raw/raw_ownership_data.geojson'}
+2026-01-25 16:04:10,799 - src.core.enhanced_data_manager - INFO -    Columns: ['geometry']
+2026-01-25 16:04:10,800 - src.core.enhanced_data_manager - INFO -    Columns: ['geometry']
+2026-01-25 16:04:10,800 - src.core.enhanced_data_manager - INFO -    Data Types: {'geometry': <geopandas.array.GeometryDtype object at 0x11a945790>}
+2026-01-25 16:04:10,805 - src.core.enhanced_data_manager - INFO -    Data Types: {'geometry': <geopandas.array.GeometryDtype object at 0x11a945790>}
+2026-01-25 16:04:10,805 - src.core.enhanced_data_manager - INFO - 🗺️  GEODATAFRAME SUMMARY - ownership_raw_data
+2026-01-25 16:04:10,810 - src.core.enhanced_data_manager - INFO -    Shape: (100, 6)
+2026-01-25 16:04:10,809 - cascadia.data.data_manager - INFO - 🔍 DATA VALIDATION - Module: data_manager
+2026-01-25 16:04:10,807 - src.core.enhanced_data_manager - INFO -    Data Types: {'geometry': <geopandas.array.GeometryDtype object at 0x11a945790>}
+2026-01-25 16:04:10,810 - src.core.enhanced_data_manager - INFO -    CRS: EPSG:4326
+2026-01-25 16:04:10,810 - cascadia.data.data_manager - INFO - 🔍 DATA VALIDATION - Module: data_manager
+2026-01-25 16:04:10,811 - cascadia.data.data_manager - INFO -    Quality Score: 0.00
+2026-01-25 16:04:10,811 - cascadia.data.data_manager - INFO - 🔍 DATA VALIDATION - Module: data_manager
+2026-01-25 16:04:10,812 - src.core.enhanced_data_manager - INFO -    Geometry Type: ['Polygon']
+2026-01-25 16:04:10,813 - cascadia.data.data_manager - INFO -    Quality Score: 0.00
+2026-01-25 16:04:10,813 - cascadia.data.data_manager - INFO -    Validation Results: {'is_valid': False, 'errors': ['Empty dataset'], 'warnings': [], 'quality_score': 0.0, 'feature_count': 0, 'geometry_types': [], 'crs': 'EPSG:4326', 'attribute_summary': {}, 'spatial_summary': {}, 'data_quality_metrics': {}}
+2026-01-25 16:04:10,814 - cascadia.data.data_manager - INFO -    Quality Score: 0.00
+2026-01-25 16:04:10,815 - src.core.enhanced_data_manager - INFO -    Bounds: [  41.39617603 -124.50450855   41.47929869 -124.12332766]
+2026-01-25 16:04:10,815 - cascadia.data.data_manager - INFO -    Validation Results: {'is_valid': False, 'errors': ['Empty dataset'], 'warnings': [], 'quality_score': 0.0, 'feature_count': 0, 'geometry_types': [], 'crs': 'EPSG:4326', 'attribute_summary': {}, 'spatial_summary': {}, 'data_quality_metrics': {}}
+2026-01-25 16:04:10,816 - src.core.enhanced_data_manager - WARNING - [water_rights] ⚠️ Data validation failed: ['Empty dataset']
+2026-01-25 16:04:10,817 - cascadia.data.data_manager - INFO -    Validation Results: {'is_valid': False, 'errors': ['Empty dataset'], 'warnings': [], 'quality_score': 0.0, 'feature_count': 0, 'geometry_types': [], 'crs': 'EPSG:4326', 'attribute_summary': {}, 'spatial_summary': {}, 'data_quality_metrics': {}}
+2026-01-25 16:04:10,817 - src.core.enhanced_data_manager - WARNING - [ground_water] ⚠️ Data validation failed: ['Empty dataset']
+2026-01-25 16:04:10,817 - src.core.enhanced_data_manager - INFO - [water_rights] 🔧 Creating synthetic data...
+2026-01-25 16:04:10,818 - src.core.enhanced_data_manager - WARNING - [mortgage_debt] ⚠️ Data validation failed: ['Empty dataset']
+2026-01-25 16:04:10,818 - src.core.enhanced_data_manager - INFO - [ground_water] 🔧 Creating synthetic data...
+2026-01-25 16:04:10,820 - pyogrio._io - INFO - Created 1 records
+2026-01-25 16:04:10,821 - src.core.enhanced_data_manager - INFO - [mortgage_debt] 🔧 Creating synthetic data...
+2026-01-25 16:04:10,825 - pyogrio._io - INFO - Created 1 records
+2026-01-25 16:04:10,825 - src.core.enhanced_data_manager - INFO - [water_rights] ✅ Created synthetic data: output/water_rights/data/synthetic/synthetic_water_rights_data.geojson
+2026-01-25 16:04:10,828 - pyogrio._io - INFO - Created 1 records
+2026-01-25 16:04:10,829 - src.core.enhanced_data_manager - INFO - [ground_water] ✅ Created synthetic data: output/ground_water/data/synthetic/synthetic_ground_water_data.geojson
+2026-01-25 16:04:10,829 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - Data Acquisition
+2026-01-25 16:04:10,830 - src.core.enhanced_data_manager - INFO - [mortgage_debt] ✅ Created synthetic data: output/mortgage_debt/data/synthetic/synthetic_mortgage_debt_data.geojson
+2026-01-25 16:04:10,830 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - Data Acquisition
+2026-01-25 16:04:10,830 - cascadia.processing.data_manager - INFO -    Duration: 2.28s
+2026-01-25 16:04:10,831 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - Data Acquisition
+2026-01-25 16:04:10,832 - cascadia.processing.data_manager - INFO -    Duration: 2.28s
+2026-01-25 16:04:10,840 - cascadia.processing.data_manager - INFO -    source: new_data
+2026-01-25 16:04:10,840 - cascadia.processing.data_manager - INFO -    module: ground_water
+2026-01-25 16:04:10,840 - cascadia.processing.data_manager - INFO -    path: output/ground_water/data/synthetic/synthetic_ground_water_data.geojson
+2026-01-25 16:04:10,833 - cascadia.processing.data_manager - INFO -    source: new_data
+2026-01-25 16:04:10,840 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2026-01-25 16:04:10,860 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:10,860 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'ground_water', 'data_path': 'output/ground_water/data/synthetic/synthetic_ground_water_data.geojson', 'target_hexagons_count': 7749}
+2026-01-25 16:04:10,835 - cascadia.processing.data_manager - INFO -    Duration: 2.28s
+2026-01-25 16:04:10,843 - cascadia.processing.data_manager - INFO -    module: water_rights
+2026-01-25 16:04:10,862 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2026-01-25 16:04:10,862 - cascadia.processing.data_manager - INFO -    source: new_data
+2026-01-25 16:04:10,864 - cascadia.processing.data_manager - INFO -    module: mortgage_debt
+2026-01-25 16:04:10,864 - cascadia.processing.data_manager - INFO -    path: output/mortgage_debt/data/synthetic/synthetic_mortgage_debt_data.geojson
+2026-01-25 16:04:10,863 - cascadia.processing.data_manager - INFO -    path: output/water_rights/data/synthetic/synthetic_water_rights_data.geojson
+2026-01-25 16:04:10,863 - cascadia.processing.data_manager - INFO -      action: cache_invalid
+2026-01-25 16:04:10,875 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2026-01-25 16:04:10,878 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2026-01-25 16:04:10,879 - cascadia.processing.data_manager - INFO -      module: ground_water
+2026-01-25 16:04:10,879 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:10,880 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:10,880 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2026-01-25 16:04:10,882 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'mortgage_debt', 'data_path': 'output/mortgage_debt/data/synthetic/synthetic_mortgage_debt_data.geojson', 'target_hexagons_count': 7749}
+2026-01-25 16:04:10,883 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'water_rights', 'data_path': 'output/water_rights/data/synthetic/synthetic_water_rights_data.geojson', 'target_hexagons_count': 7749}
+2026-01-25 16:04:10,884 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2026-01-25 16:04:10,892 - cascadia.processing.data_manager - INFO -      module: ground_water
+2026-01-25 16:04:10,921 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2026-01-25 16:04:10,935 - cascadia.processing.data_manager - INFO -      action: cache_invalid
+2026-01-25 16:04:10,983 - cascadia.processing.data_manager - INFO -      module: mortgage_debt
+2026-01-25 16:04:10,984 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2026-01-25 16:04:10,984 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2026-01-25 16:04:10,984 - cascadia.processing.data_manager - INFO -      module: mortgage_debt
+2026-01-25 16:04:10,935 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2026-01-25 16:04:11,021 - cascadia.processing.data_manager - INFO -      action: cache_invalid
+2026-01-25 16:04:11,021 - cascadia.processing.data_manager - INFO -      module: water_rights
+2026-01-25 16:04:11,021 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2026-01-25 16:04:11,021 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2026-01-25 16:04:11,021 - cascadia.processing.data_manager - INFO -      module: water_rights
+2026-01-25 16:04:11,310 - src.core.enhanced_data_manager - INFO - [ground_water] ✅ Processed 1 features to 1551 H3 hexagons
+2026-01-25 16:04:11,311 - src.core.enhanced_data_manager - INFO - [mortgage_debt] ✅ Processed 1 features to 1551 H3 hexagons
+2026-01-25 16:04:11,331 - src.core.enhanced_data_manager - INFO - [water_rights] ✅ Processed 1 features to 1551 H3 hexagons
+2026-01-25 16:04:11,348 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2026-01-25 16:04:11,349 - cascadia.data.data_manager - INFO -    Input Features: 1
+2026-01-25 16:04:11,349 - cascadia.data.data_manager - INFO -    Output Hexagons: 1,551
+2026-01-25 16:04:11,349 - cascadia.data.data_manager - INFO -    Coverage: 20.0%
+2026-01-25 16:04:11,349 - cascadia.data.data_manager - INFO -    Processing Time: 0.51s
+2026-01-25 16:04:11,349 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2026-01-25 16:04:11,350 - cascadia.processing.data_manager - INFO -    Duration: 0.51s
+2026-01-25 16:04:11,350 - cascadia.processing.data_manager - INFO -    source: new_processing
+2026-01-25 16:04:11,350 - cascadia.processing.data_manager - INFO -    module: ground_water
+2026-01-25 16:04:11,351 - cascadia.processing.data_manager - INFO -    input_features: 1
+2026-01-25 16:04:11,352 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2026-01-25 16:04:11,352 - cascadia.processing.data_manager - INFO -    output_hexagons: 1551
+2026-01-25 16:04:11,353 - cascadia.data.data_manager - INFO -    Input Features: 1
+2026-01-25 16:04:11,355 - cascadia.data.data_manager - INFO -    Output Hexagons: 1,551
+2026-01-25 16:04:11,355 - cascadia.data.data_manager - INFO -    Coverage: 20.0%
+2026-01-25 16:04:11,356 - cascadia.data.data_manager - INFO -    Processing Time: 0.47s
+2026-01-25 16:04:11,356 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2026-01-25 16:04:11,358 - cascadia.processing.data_manager - INFO -    Duration: 0.48s
+2026-01-25 16:04:11,358 - cascadia.processing.data_manager - INFO -    source: new_processing
+2026-01-25 16:04:11,359 - cascadia.processing.data_manager - INFO -    module: water_rights
+2026-01-25 16:04:11,360 - cascadia.processing.data_manager - INFO -    input_features: 1
+2026-01-25 16:04:11,360 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2026-01-25 16:04:11,360 - cascadia.processing.data_manager - INFO -    output_hexagons: 1551
+2026-01-25 16:04:11,360 - cascadia.data.data_manager - INFO -    Input Features: 1
+2026-01-25 16:04:11,361 - cascadia.data.data_manager - INFO -    Output Hexagons: 1,551
+2026-01-25 16:04:11,361 - cascadia.data.data_manager - INFO -    Coverage: 20.0%
+2026-01-25 16:04:11,361 - cascadia.data.data_manager - INFO -    Processing Time: 0.49s
+2026-01-25 16:04:11,361 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2026-01-25 16:04:11,361 - cascadia.processing.data_manager - INFO -    Duration: 0.49s
+2026-01-25 16:04:11,361 - cascadia.processing.data_manager - INFO -    source: new_processing
+2026-01-25 16:04:11,361 - cascadia.processing.data_manager - INFO -    module: mortgage_debt
+2026-01-25 16:04:11,362 - cascadia.processing.data_manager - INFO -    input_features: 1
+2026-01-25 16:04:11,363 - cascadia.processing.data_manager - INFO -    output_hexagons: 1551
+2026-01-25 16:04:11,368 - __main__ - INFO - 📋 ground_water data quality: synthetic data only, recommendations: []
+2026-01-25 16:04:11,374 - __main__ - INFO - 📋 water_rights data quality: synthetic data only, recommendations: []
+2026-01-25 16:04:11,374 - __main__ - INFO - 📋 mortgage_debt data quality: synthetic data only, recommendations: []
+2026-01-25 16:04:11,548 - src.data_modules.surface_water.data_sources - INFO - Fetching all surface water features from NHD...
+2026-01-25 16:04:11,549 - src.data_modules.surface_water.data_sources - ERROR - No URL configured for NHD layer 'flowlines'.
+2026-01-25 16:04:11,550 - src.data_modules.surface_water.data_sources - ERROR - No URL configured for NHD layer 'waterbodies'.
+2026-01-25 16:04:11,551 - src.data_modules.surface_water.data_sources - INFO - NHD returned no data. Falling back to OSM.
+2026-01-25 16:04:11,551 - src.data_modules.surface_water.data_sources - INFO - Querying OpenStreetMap Overpass API for surface water...
+2026-01-25 16:04:11,552 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): overpass-api.de:443
+2026-01-25 16:04:11,704 - src.data_modules.power_source.data_sources - INFO - PowerSource: Querying OSM for power lines/plants (fallback/augment)...
+2026-01-25 16:04:11,704 - urllib3.connectionpool - DEBUG - Starting new HTTPS connection (1): overpass-api.de:443
+2026-01-25 16:04:11,770 - src.core.enhanced_data_manager - INFO -    Total Area: 95.07 km²
+2026-01-25 16:04:11,770 - src.core.enhanced_data_manager - INFO -    Total Area: 0.53 km²
+2026-01-25 16:04:11,770 - src.core.enhanced_data_manager - INFO - 📋 DATAFRAME SUMMARY - ownership_raw_data
+2026-01-25 16:04:11,770 - src.core.enhanced_data_manager - INFO - 📋 DATAFRAME SUMMARY - improvements_raw_data
+2026-01-25 16:04:11,770 - src.core.enhanced_data_manager - INFO -    Shape: (100, 6)
+2026-01-25 16:04:11,770 - src.core.enhanced_data_manager - INFO -    Shape: (500, 4)
+2026-01-25 16:04:11,771 - src.core.enhanced_data_manager - INFO -    Memory Usage: 0.02 MB
+2026-01-25 16:04:11,771 - src.core.enhanced_data_manager - INFO -    Memory Usage: 0.04 MB
+2026-01-25 16:04:11,771 - src.core.enhanced_data_manager - INFO -    Columns: ['owner_name', 'parcel_size', 'owner_type', 'acres', 'source', 'geometry']
+2026-01-25 16:04:11,771 - src.core.enhanced_data_manager - INFO -    Columns: ['improvement_value', 'land_value', 'parcel_id', 'geometry']
+2026-01-25 16:04:11,771 - src.core.enhanced_data_manager - INFO -    Data Types: {'owner_name': dtype('O'), 'parcel_size': dtype('float64'), 'owner_type': dtype('O'), 'acres': dtype('float64'), 'source': dtype('O'), 'geometry': <geopandas.array.GeometryDtype object at 0x11a945790>}
+2026-01-25 16:04:11,771 - src.core.enhanced_data_manager - INFO -    Data Types: {'improvement_value': dtype('int32'), 'land_value': dtype('int32'), 'parcel_id': dtype('O'), 'geometry': <geopandas.array.GeometryDtype object at 0x11a945790>}
+2026-01-25 16:04:11,772 - src.core.enhanced_data_manager - INFO -    Null Values: {'owner_name': 0, 'parcel_size': 0, 'owner_type': 0, 'acres': 0, 'source': 0, 'geometry': 0}
+2026-01-25 16:04:11,773 - src.core.enhanced_data_manager - INFO -    Unique Values (first 5 cols): {'owner_name': 5, 'parcel_size': 5, 'owner_type': 5, 'acres': 5, 'source': 1}
+2026-01-25 16:04:11,773 - src.core.enhanced_data_manager - INFO -    Null Values: {'improvement_value': 0, 'land_value': 0, 'parcel_id': 0, 'geometry': 0}
+2026-01-25 16:04:11,776 - src.core.enhanced_data_manager - INFO -    Unique Values (first 5 cols): {'improvement_value': 499, 'land_value': 498, 'parcel_id': 500, 'geometry': 500}
+2026-01-25 16:04:11,780 - cascadia.data.data_manager - INFO - 🔍 DATA VALIDATION - Module: data_manager
+2026-01-25 16:04:11,780 - cascadia.data.data_manager - INFO -    Quality Score: 0.97
+2026-01-25 16:04:11,780 - cascadia.data.data_manager - INFO -    Validation Results: {'is_valid': np.True_, 'errors': [], 'warnings': ["Column 'source' has only one unique value", 'Latitude values outside valid range'], 'quality_score': np.float64(0.9714285714285715), 'feature_count': 100, 'geometry_types': ['Polygon'], 'crs': 'EPSG:4326', 'attribute_summary': {'owner_name': {'null_count': 0, 'null_percentage': 0.0, 'unique_count': 5, 'data_type': 'object'}, 'parcel_size': {'null_count': 0, 'null_percentage': 0.0, 'unique_count': 5, 'data_type': 'float64'}, 'owner_type': {'null_count': 0, 'null_percentage': 0.0, 'unique_count': 5, 'data_type': 'object'}, 'acres': {'null_count': 0, 'null_percentage': 0.0, 'unique_count': 5, 'data_type': 'float64'}, 'source': {'null_count': 0, 'null_percentage': 0.0, 'unique_count': 1, 'data_type': 'object'}}, 'spatial_summary': {'bounds': [41.39617603166997, -124.50450855305226, 41.47929869133251, -124.1233276585563], 'total_area': 0.0077162625436906695, 'mean_area': 7.71626254369067e-05, 'null_geometries': 0, 'invalid_geometries': 0, 'geometry_type_distribution': {'Polygon': 100}}, 'data_quality_metrics': {'completeness_score': np.float64(1.0), 'validity_score': np.float64(1.0), 'consistency_score': 1.0, 'accuracy_score': 0.9}}
+2026-01-25 16:04:11,784 - src.core.enhanced_data_manager - DEBUG - [ownership] Empirical data analysis: 5/6 indicators (score: 0.83)
+2026-01-25 16:04:11,784 - cascadia.data.data_manager - INFO - 📊 REAL DATA ACQUIRED - Module: data_manager
+2026-01-25 16:04:11,784 - cascadia.data.data_manager - INFO -    Source URL: output/ownership/data/raw/raw_ownership_data.geojson
+2026-01-25 16:04:11,784 - cascadia.data.data_manager - INFO -    File Path: output/ownership/data/empirical/empirical_ownership_data.geojson
+2026-01-25 16:04:11,784 - cascadia.data.data_manager - INFO -    Data Type: Empirical
+2026-01-25 16:04:11,784 - cascadia.data.data_manager - INFO -    Row Count: 100
+2026-01-25 16:04:11,784 - cascadia.data.data_manager - INFO -    File Size: 0.05 MB
+2026-01-25 16:04:11,784 - cascadia.data.data_manager - INFO -    Geometry Types: ['Polygon']
+2026-01-25 16:04:11,785 - cascadia.data.data_manager - INFO - 🔍 DATA VALIDATION - Module: data_manager
+2026-01-25 16:04:11,785 - cascadia.data.data_manager - INFO -    CRS: EPSG:4326
+2026-01-25 16:04:11,785 - cascadia.data.data_manager - INFO -    Quality Score: 0.97
+2026-01-25 16:04:11,785 - src.core.enhanced_data_manager - ERROR - [ownership] ❌ Data validation error: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+2026-01-25 16:04:11,785 - cascadia.data.data_manager - INFO -    Validation Results: {'is_valid': np.True_, 'errors': [], 'warnings': ['Latitude values outside valid range'], 'quality_score': np.float64(0.9714285714285715), 'feature_count': 500, 'geometry_types': ['Polygon'], 'crs': 'EPSG:4326', 'attribute_summary': {'improvement_value': {'null_count': 0, 'null_percentage': 0.0, 'unique_count': 499, 'data_type': 'int32'}, 'land_value': {'null_count': 0, 'null_percentage': 0.0, 'unique_count': 498, 'data_type': 'int32'}, 'parcel_id': {'null_count': 0, 'null_percentage': 0.0, 'unique_count': 500, 'data_type': 'object'}}, 'spatial_summary': {'bounds': [41.39591675840825, -124.50144468106375, 42.00346747340679, -123.49460285487287], 'total_area': 4.331019790593037e-05, 'mean_area': 8.662039581186075e-08, 'null_geometries': 0, 'invalid_geometries': 0, 'geometry_type_distribution': {'Polygon': 500}}, 'data_quality_metrics': {'completeness_score': np.float64(1.0), 'validity_score': np.float64(1.0), 'consistency_score': 1.0, 'accuracy_score': 0.9}}
+2026-01-25 16:04:11,785 - src.core.enhanced_data_manager - INFO - [ownership] 🔧 Creating synthetic data...
+2026-01-25 16:04:11,797 - src.core.enhanced_data_manager - DEBUG - [improvements] Empirical data analysis: 4/6 indicators (score: 0.67)
+2026-01-25 16:04:11,799 - pyogrio._io - INFO - Created 2 records
+2026-01-25 16:04:11,799 - src.core.enhanced_data_manager - INFO - [ownership] ✅ Created synthetic data: output/ownership/data/synthetic/synthetic_ownership_data.geojson
+2026-01-25 16:04:11,799 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - Data Acquisition
+2026-01-25 16:04:11,799 - cascadia.processing.data_manager - INFO -    Duration: 3.22s
+2026-01-25 16:04:11,799 - cascadia.processing.data_manager - INFO -    source: new_data
+2026-01-25 16:04:11,799 - cascadia.processing.data_manager - INFO -    module: ownership
+2026-01-25 16:04:11,799 - cascadia.processing.data_manager - INFO -    path: output/ownership/data/synthetic/synthetic_ownership_data.geojson
+2026-01-25 16:04:11,799 - cascadia.data.data_manager - INFO - 📊 REAL DATA ACQUIRED - Module: data_manager
+2026-01-25 16:04:11,799 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2026-01-25 16:04:11,800 - cascadia.data.data_manager - INFO -    Source URL: output/improvements/data/raw/raw_improvements_data.geojson
+2026-01-25 16:04:11,800 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:11,800 - cascadia.data.data_manager - INFO -    File Path: output/improvements/data/empirical/empirical_improvements_data.geojson
+2026-01-25 16:04:11,800 - cascadia.data.data_manager - INFO -    Data Type: Empirical
+2026-01-25 16:04:11,800 - cascadia.data.data_manager - INFO -    Row Count: 500
+2026-01-25 16:04:11,800 - cascadia.data.data_manager - INFO -    File Size: 0.20 MB
+2026-01-25 16:04:11,800 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'ownership', 'data_path': 'output/ownership/data/synthetic/synthetic_ownership_data.geojson', 'target_hexagons_count': 7749}
+2026-01-25 16:04:11,800 - cascadia.data.data_manager - INFO -    Geometry Types: ['Polygon']
+2026-01-25 16:04:11,800 - cascadia.data.data_manager - INFO -    CRS: EPSG:4326
+2026-01-25 16:04:11,800 - src.core.enhanced_data_manager - ERROR - [improvements] ❌ Data validation error: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()
+2026-01-25 16:04:11,800 - src.core.enhanced_data_manager - INFO - [improvements] 🔧 Creating synthetic data...
+2026-01-25 16:04:11,802 - pyogrio._io - INFO - Created 2 records
+2026-01-25 16:04:11,802 - src.core.enhanced_data_manager - INFO - [improvements] ✅ Created synthetic data: output/improvements/data/synthetic/synthetic_improvements_data.geojson
+2026-01-25 16:04:11,802 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - Data Acquisition
+2026-01-25 16:04:11,802 - cascadia.processing.data_manager - INFO -    Duration: 3.22s
+2026-01-25 16:04:11,802 - cascadia.processing.data_manager - INFO -    source: new_data
+2026-01-25 16:04:11,802 - cascadia.processing.data_manager - INFO -    module: improvements
+2026-01-25 16:04:11,802 - cascadia.processing.data_manager - INFO -    path: output/improvements/data/synthetic/synthetic_improvements_data.geojson
+2026-01-25 16:04:11,802 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2026-01-25 16:04:11,802 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:11,802 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2026-01-25 16:04:11,802 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'improvements', 'data_path': 'output/improvements/data/synthetic/synthetic_improvements_data.geojson', 'target_hexagons_count': 7749}
+2026-01-25 16:04:11,802 - cascadia.processing.data_manager - INFO -      action: cache_invalid
+2026-01-25 16:04:11,802 - cascadia.processing.data_manager - INFO -      module: ownership
+2026-01-25 16:04:11,803 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2026-01-25 16:04:11,803 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2026-01-25 16:04:11,803 - cascadia.processing.data_manager - INFO -      module: ownership
+2026-01-25 16:04:11,829 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2026-01-25 16:04:11,841 - cascadia.processing.data_manager - INFO -      action: cache_invalid
+2026-01-25 16:04:11,853 - cascadia.processing.data_manager - INFO -      module: improvements
+2026-01-25 16:04:11,865 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2026-01-25 16:04:11,871 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2026-01-25 16:04:11,882 - cascadia.processing.data_manager - INFO -      module: improvements
+2026-01-25 16:04:11,902 - src.core.enhanced_data_manager - INFO - [improvements] ✅ Processed 2 features to 2 H3 hexagons
+2026-01-25 16:04:11,940 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2026-01-25 16:04:11,950 - src.core.enhanced_data_manager - INFO - [ownership] ✅ Processed 2 features to 2584 H3 hexagons
+2026-01-25 16:04:11,950 - cascadia.data.data_manager - INFO -    Input Features: 2
+2026-01-25 16:04:11,950 - cascadia.data.data_manager - INFO -    Output Hexagons: 2
+2026-01-25 16:04:11,950 - cascadia.data.data_manager - INFO -    Coverage: 0.0%
+2026-01-25 16:04:11,950 - cascadia.data.data_manager - INFO -    Processing Time: 0.14s
+2026-01-25 16:04:11,950 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2026-01-25 16:04:11,950 - cascadia.processing.data_manager - INFO -    Duration: 0.15s
+2026-01-25 16:04:11,951 - cascadia.processing.data_manager - INFO -    source: new_processing
+2026-01-25 16:04:11,951 - cascadia.processing.data_manager - INFO -    module: improvements
+2026-01-25 16:04:11,951 - cascadia.processing.data_manager - INFO -    input_features: 2
+2026-01-25 16:04:11,952 - cascadia.processing.data_manager - INFO -    output_hexagons: 2
+2026-01-25 16:04:11,957 - __main__ - INFO - 📋 improvements data quality: synthetic data only, recommendations: []
+2026-01-25 16:04:11,965 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2026-01-25 16:04:11,965 - cascadia.data.data_manager - INFO -    Input Features: 2
+2026-01-25 16:04:11,965 - cascadia.data.data_manager - INFO -    Output Hexagons: 2,584
+2026-01-25 16:04:11,965 - cascadia.data.data_manager - INFO -    Coverage: 33.3%
+2026-01-25 16:04:11,965 - cascadia.data.data_manager - INFO -    Processing Time: 0.17s
+2026-01-25 16:04:11,965 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2026-01-25 16:04:11,965 - cascadia.processing.data_manager - INFO -    Duration: 0.17s
+2026-01-25 16:04:11,965 - cascadia.processing.data_manager - INFO -    source: new_processing
+2026-01-25 16:04:11,965 - cascadia.processing.data_manager - INFO -    module: ownership
+2026-01-25 16:04:11,965 - cascadia.processing.data_manager - INFO -    input_features: 2
+2026-01-25 16:04:11,965 - cascadia.processing.data_manager - INFO -    output_hexagons: 2584
+2026-01-25 16:04:11,969 - __main__ - INFO - 📋 ownership data quality: synthetic data only, recommendations: []
+2026-01-25 16:04:13,053 - urllib3.connectionpool - DEBUG - https://overpass-api.de:443 "POST /api/interpreter HTTP/1.1" 400 497
+2026-01-25 16:04:13,053 - urllib3.connectionpool - DEBUG - https://overpass-api.de:443 "POST /api/interpreter HTTP/1.1" 400 506
+2026-01-25 16:04:13,054 - src.data_modules.surface_water.data_sources - ERROR - OSM Overpass query failed: 400 Client Error: Bad Request for url: https://overpass-api.de/api/interpreter
+2026-01-25 16:04:13,055 - src.data_modules.power_source.data_sources - ERROR - OSM Overpass query failed for power: 400 Client Error: Bad Request for url: https://overpass-api.de/api/interpreter
+2026-01-25 16:04:13,056 - cascadia.data.data_manager - ERROR - ⚠️  FALLBACK DATA USED - Module: data_manager
+2026-01-25 16:04:13,057 - cascadia.data.data_manager - ERROR - ⚠️  FALLBACK DATA USED - Module: data_manager
+2026-01-25 16:04:13,058 - cascadia.data.data_manager - ERROR -    Original Source: data_source_func
+2026-01-25 16:04:13,058 - cascadia.data.data_manager - ERROR -    Original Source: data_source_func
+2026-01-25 16:04:13,058 - cascadia.data.data_manager - ERROR -    Fallback Reason: Exception: The truth value of a GeoDataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2026-01-25 16:04:13,058 - cascadia.data.data_manager - ERROR -    Fallback Reason: Exception: The truth value of a GeoDataFrame is ambiguous. Use a.empty, a.bool(), a.item(), a.any() or a.all().
+2026-01-25 16:04:13,058 - cascadia.data.data_manager - ERROR -    Fallback Type: synthetic_data
+2026-01-25 16:04:13,058 - cascadia.data.data_manager - ERROR -    Fallback Type: synthetic_data
+2026-01-25 16:04:13,058 - cascadia.data.data_manager - ERROR -    Limitations: ['Data acquisition failed', 'Using generated test data']
+2026-01-25 16:04:13,058 - cascadia.data.data_manager - ERROR -    Limitations: ['Data acquisition failed', 'Using generated test data']
+2026-01-25 16:04:13,058 - src.core.enhanced_data_manager - INFO - [surface_water] 🔧 Creating synthetic data...
+2026-01-25 16:04:13,058 - src.core.enhanced_data_manager - INFO - [power_source] 🔧 Creating synthetic data...
+2026-01-25 16:04:13,062 - pyogrio._io - INFO - Created 1 records
+2026-01-25 16:04:13,062 - pyogrio._io - INFO - Created 1 records
+2026-01-25 16:04:13,062 - src.core.enhanced_data_manager - INFO - [power_source] ✅ Created synthetic data: output/power_source/data/synthetic/synthetic_power_source_data.geojson
+2026-01-25 16:04:13,063 - src.core.enhanced_data_manager - INFO - [surface_water] ✅ Created synthetic data: output/surface_water/data/synthetic/synthetic_surface_water_data.geojson
+2026-01-25 16:04:13,063 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2026-01-25 16:04:13,063 - cascadia.processing.data_manager - INFO - 🚀 PROCESSING START - H3 Processing
+2026-01-25 16:04:13,063 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:13,063 - cascadia.processing.data_manager - INFO -    Module: data_manager
+2026-01-25 16:04:13,063 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'power_source', 'data_path': 'output/power_source/data/synthetic/synthetic_power_source_data.geojson', 'target_hexagons_count': 7749}
+2026-01-25 16:04:13,063 - cascadia.processing.data_manager - INFO -    Parameters: {'module': 'surface_water', 'data_path': 'output/surface_water/data/synthetic/synthetic_surface_water_data.geojson', 'target_hexagons_count': 7749}
+2026-01-25 16:04:13,065 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2026-01-25 16:04:13,067 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2026-01-25 16:04:13,067 - cascadia.processing.data_manager - INFO -      action: cache_invalid
+2026-01-25 16:04:13,067 - cascadia.processing.data_manager - INFO -      action: cache_invalid
+2026-01-25 16:04:13,067 - cascadia.processing.data_manager - INFO -      module: power_source
+2026-01-25 16:04:13,067 - cascadia.processing.data_manager - INFO -      module: surface_water
+2026-01-25 16:04:13,067 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2026-01-25 16:04:13,067 - cascadia.processing.data_manager - INFO -    Step: H3 Processing
+2026-01-25 16:04:13,067 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2026-01-25 16:04:13,067 - cascadia.processing.data_manager - INFO -      action: processing_to_h3
+2026-01-25 16:04:13,067 - cascadia.processing.data_manager - INFO -      module: power_source
+2026-01-25 16:04:13,067 - cascadia.processing.data_manager - INFO -      module: surface_water
+2026-01-25 16:04:13,196 - src.core.enhanced_data_manager - INFO - [power_source] ✅ Processed 1 features to 1551 H3 hexagons
+2026-01-25 16:04:13,212 - src.core.enhanced_data_manager - INFO - [surface_water] ✅ Processed 1 features to 1551 H3 hexagons
+2026-01-25 16:04:13,224 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2026-01-25 16:04:13,224 - cascadia.data.data_manager - INFO - 🔷 H3 PROCESSING - Module: data_manager
+2026-01-25 16:04:13,224 - cascadia.data.data_manager - INFO -    Input Features: 1
+2026-01-25 16:04:13,224 - cascadia.data.data_manager - INFO -    Input Features: 1
+2026-01-25 16:04:13,224 - cascadia.data.data_manager - INFO -    Output Hexagons: 1,551
+2026-01-25 16:04:13,224 - cascadia.data.data_manager - INFO -    Output Hexagons: 1,551
+2026-01-25 16:04:13,224 - cascadia.data.data_manager - INFO -    Coverage: 20.0%
+2026-01-25 16:04:13,224 - cascadia.data.data_manager - INFO -    Coverage: 20.0%
+2026-01-25 16:04:13,224 - cascadia.data.data_manager - INFO -    Processing Time: 0.16s
+2026-01-25 16:04:13,224 - cascadia.data.data_manager - INFO -    Processing Time: 0.16s
+2026-01-25 16:04:13,224 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2026-01-25 16:04:13,224 - cascadia.processing.data_manager - INFO - ✅ PROCESSING COMPLETE - H3 Processing
+2026-01-25 16:04:13,224 - cascadia.processing.data_manager - INFO -    Duration: 0.16s
+2026-01-25 16:04:13,224 - cascadia.processing.data_manager - INFO -    Duration: 0.16s
+2026-01-25 16:04:13,224 - cascadia.processing.data_manager - INFO -    source: new_processing
+2026-01-25 16:04:13,225 - cascadia.processing.data_manager - INFO -    source: new_processing
+2026-01-25 16:04:13,225 - cascadia.processing.data_manager - INFO -    module: surface_water
+2026-01-25 16:04:13,225 - cascadia.processing.data_manager - INFO -    module: power_source
+2026-01-25 16:04:13,225 - cascadia.processing.data_manager - INFO -    input_features: 1
+2026-01-25 16:04:13,225 - cascadia.processing.data_manager - INFO -    input_features: 1
+2026-01-25 16:04:13,225 - cascadia.processing.data_manager - INFO -    output_hexagons: 1551
+2026-01-25 16:04:13,225 - cascadia.processing.data_manager - INFO -    output_hexagons: 1551
+2026-01-25 16:04:13,228 - __main__ - INFO - 📋 power_source data quality: synthetic data only, recommendations: []
+2026-01-25 16:04:13,228 - __main__ - INFO - 📋 surface_water data quality: synthetic data only, recommendations: []

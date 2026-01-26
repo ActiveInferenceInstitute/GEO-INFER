@@ -66,6 +66,14 @@ class FreeEnergyCalculator:
             - Parr, T., Pezzulo, G., & Friston, K. (2022). Active Inference
         """
         # Ensure valid probability distributions
+        beliefs = np.asarray(beliefs)
+        if beliefs.dtype == object:
+            try:
+                beliefs = np.stack([np.asarray(b) for b in beliefs.flat]).astype(float)
+            except Exception:
+                pass 
+        else:
+            beliefs = beliefs.astype(float)
         beliefs = beliefs + 1e-8
         beliefs = beliefs / beliefs.sum()
         

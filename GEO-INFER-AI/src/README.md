@@ -1,0 +1,5 @@
+# src
+ ## Overview
+ **Path**: `GEO-INFER-AI/src` Source code implementation. ## Implementation
+ ### `geo_infer_ai/core/model_evaluation.py` **Classes**: GeospatialModelEvaluator **Functions**: evaluate_classification, evaluate_regression, evaluate_spatial_accuracy, cross_validate_spatial ### `geo_infer_ai/core/explainability.py` **Classes**: ModelExplainer **Functions**: calculate_feature_importance, explain_prediction, generate_spatial_explanation ### `geo_infer_ai/core/training.py` **Classes**: TrainingConfig, ModelTrainer **Functions**: train_classifier, train_regressor, evaluate_model, load_model ### `geo_infer_ai/pipelines/mlflow_integration.py` **Classes**: MLflowPipeline **Functions**: start_run, end_run, log_params, log_metrics, log_model ### `geo_infer_ai/models/predictive/spatial_predictor.py` **Classes**: SpatialPredictor **Functions**: fit, predict, get_feature_importance, get_feature_names ## Contents
+ - **geo_infer_ai/**: Subdirectory - **geo_infer_ai.egg-info/**: Subdirectory --- 

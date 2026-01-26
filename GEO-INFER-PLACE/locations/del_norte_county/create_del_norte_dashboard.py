@@ -16,7 +16,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from geo_infer_place.locations.del_norte_county.advanced_dashboard import AdvancedDashboard
+from geo_infer_place.locations.del_norte_county.dashboard import AdvancedDashboard
 
 
 def main() -> None:

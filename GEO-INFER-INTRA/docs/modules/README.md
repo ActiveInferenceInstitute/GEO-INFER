@@ -1,0 +1,4 @@
+# modules
+ ## Overview
+ **Path**: `GEO-INFER-INTRA/docs/modules` Module documentation. ## Contents
+ - **geo-infer-act.md**: File file - **geo-infer-ag.md**: File file - **geo-infer-agent.md**: File file - **geo-infer-ai.md**: File file - **geo-infer-ant.md**: File file - **geo-infer-api.md**: File file - **geo-infer-app.md**: File file - **geo-infer-art.md**: File file - **geo-infer-bayes.md**: File file - **geo-infer-bio.md**: File file - **geo-infer-civ.md**: File file - **geo-infer-climate.md**: File file - **geo-infer-cog.md**: File file - **geo-infer-comms.md**: File file - **geo-infer-data.md**: File file - **geo-infer-econ.md**: File file - **geo-infer-edu.md**: File file - **geo-infer-emergency.md**: File file - **geo-infer-energy.md**: File file - **geo-infer-examples.md**: File file --- 

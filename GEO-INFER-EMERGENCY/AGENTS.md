@@ -1,49 +1,37 @@
-# GEO-INFER-EMERGENCY: Emergency Response Intelligence
+# GEO-INFER-EMERGENCY: Agent Capabilities
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./README.md">📚 Module Documentation</a>
 </div>
 
 ---
 
-
 ## Overview
 
-The GEO-INFER-EMERGENCY module provides emergency management capabilities enabling agents to coordinate disaster response, optimize resource deployment, and support crisis communication.
+The **GEO-INFER-EMERGENCY** module provides emergency response capabilities for agents, enabling disaster management, resource coordination, and evacuation planning.
 
-## Implementation Status
+## Agent Capabilities
 
-**⚠️ Important Note**: This document describes both **implemented** and **aspirational** features. Features marked with 🔮 are planned/aspirational.
-
-### Currently Implemented
-
-- ✅ **EmergencyCoordinator**: Multi-agency coordination
-- ✅ **ResourceDeployer**: Resource allocation optimization
-- ✅ **EvacuationPlanner**: Evacuation route planning
-- ✅ **SituationAnalyzer**: Real-time situational awareness
-
-### Aspirational/Planned Features
-
-- 🔮 **DisasterResponseAgent**: Autonomous response coordination
-- 🔮 **SearchRescueAgent**: SAR mission optimization
-
-## Agent Capabilities Supported
-
-### 1. Emergency Coordination
+### 1. Incident Management
 
 ```python
-from geo_infer_emergency import EmergencyCoordinator
+from geo_infer_emergency import IncidentManager
 
-# Agent coordinates response
-coordinator = EmergencyCoordinator()
-response = coordinator.coordinate(
-    incident=emergency_event,
-    agencies=['fire', 'police', 'medical', 'utilities'],
-    resources=available_resources
+# Manage emergency incidents
+manager = IncidentManager()
+
+incident = manager.create_incident(
+    type="wildfire",
+    location=fire_origin,
+    severity="high",
+    resources_needed=["fire", "ems", "law"]
 )
+
+print(f"Incident ID: {incident.id}")
+print(f"ICS structure: {incident.command_structure}")
 ```
 
 ### 2. Resource Deployment
@@ -51,13 +39,17 @@ response = coordinator.coordinate(
 ```python
 from geo_infer_emergency import ResourceDeployer
 
-# Optimize resource deployment
+# Deploy emergency resources
 deployer = ResourceDeployer()
+
 deployment = deployer.optimize(
-    resources=emergency_assets,
-    demand=affected_areas,
-    constraints=['time', 'capacity', 'accessibility']
+    incident=active_incident,
+    resources=available_units,
+    priorities=["life_safety", "containment"]
 )
+
+print(f"Assignments: {deployment.assignments}")
+print(f"Coverage: {deployment.coverage}%")
 ```
 
 ### 3. Evacuation Planning
@@ -65,26 +57,74 @@ deployment = deployer.optimize(
 ```python
 from geo_infer_emergency import EvacuationPlanner
 
-# Plan evacuation routes
+# Plan evacuations
 planner = EvacuationPlanner()
-evacuation = planner.plan(
-    affected_zone=hazard_area,
-    population=demographic_data,
-    destinations=shelter_locations
+
+plan = planner.create(
+    threat_zone=danger_area,
+    population=affected_population,
+    shelters=available_shelters,
+    road_network=roads
 )
+
+print(f"Routes: {len(plan.routes)}")
+print(f"Clearance time: {plan.clearance_hours} hours")
 ```
 
-## Integration Status
+### 4. Situational Awareness
 
-| Capability | Status | Description |
-|------------|--------|-------------|
-| **Coordination** | ✅ Ready | Multi-agency response |
-| **Resource Deployment** | ✅ Ready | Allocation optimization |
+```python
+from geo_infer_emergency import SituationMonitor
+
+# Monitor emergency situation
+monitor = SituationMonitor()
+
+sitrep = monitor.get_situation(
+    incident=incident_id,
+    include=["perimeter", "resources", "weather"]
+)
+
+print(f"Threat evolution: {sitrep.threat_status}")
+print(f"Population at risk: {sitrep.at_risk_population}")
+```
+
+## Implementation Status
+
+### Currently Implemented
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Incidents** | ✅ Ready | ICS management |
+| **Resources** | ✅ Ready | Deployment optimization |
 | **Evacuation** | ✅ Ready | Route planning |
-| **Situation Analysis** | ✅ Ready | Real-time awareness |
-| **Response Agent** | 🔮 Planned | Autonomous coordination |
-| **SAR Agent** | 🔮 Planned | Search and rescue |
+| **Situational** | ✅ Ready | Real-time monitoring |
+
+### Aspirational/Planned Features
+
+| Feature | Priority | Description |
+|---------|----------|-------------|
+| **IncidentCommanderAgent** | 🔮 High | Autonomous IC support |
+| **EvacuationAgent** | 🔮 High | Dynamic routing |
+
+## Use Cases
+
+### Multi-Agency Response
+
+```python
+from geo_infer_emergency import MultiAgencyCoordinator
+
+coordinator = MultiAgencyCoordinator(incident=incident)
+
+coordinator.assign_sectors([
+    {"agency": "fire", "sector": "alpha"},
+    {"agency": "law", "sector": "bravo"}
+])
+
+coordinator.establish_unified_command()
+```
 
 ---
 
-This AGENTS.md documents how GEO-INFER-EMERGENCY provides emergency response intelligence capabilities.
+This AGENTS.md documents how GEO-INFER-EMERGENCY provides emergency capabilities for agents.
+
+**Last Updated**: 2026-01-26

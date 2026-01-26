@@ -15,6 +15,7 @@ from geo_infer_act.core.free_energy import FreeEnergyCalculator
 from geo_infer_act.core.policy_selection import PolicySelector
 from geo_infer_act.core.belief_updating import BayesianBeliefUpdate
 from geo_infer_act.utils.math import softmax, normalize_distribution
+from geo_infer_act.utils.analysis import ActiveInferenceAnalyzer
 
 logger = logging.getLogger(__name__)
 
@@ -41,6 +42,13 @@ class ActiveInferenceModel:
         self.free_energy_calculator = FreeEnergyCalculator()
         self.policy_selector = PolicySelector()
         self.belief_updater = BayesianBeliefUpdate()
+
+        # Analyzer Integration
+        self.output_dir = kwargs.get('output_dir', None)
+        self.analyzer = None
+        if self.output_dir:
+             self.analyzer = ActiveInferenceAnalyzer(self.output_dir)
+             logger.info(f"Active Inference Analyzer enabled. Logging to {self.output_dir}")
         
         # State variables
         self.current_beliefs = None
@@ -242,6 +250,32 @@ class ActiveInferenceModel:
             'free_energy': self.compute_free_energy() if beliefs is not None else np.inf
         }
         self.history.append(step_data)
+        
+        # Comprehensive Logging via Analyzer
+        if self.analyzer:
+             # Gather deep diagnostics
+             policies = {}
+             # Try to extract policy probabilities if available (set during act())
+             # Note: current_actions logic in act() doesn't strictly save the distribution 'q_pi',
+             # so we might need to enhance act() to save it or re-calculate/infer it here.
+             # For now, we save what we have.
+             
+             metrics = {
+                 'model_type': self.model_type,
+                 'free_energy': step_data['free_energy']
+             }
+             
+             # If using pymdp, we might have access to G or q_pi if we stored them.
+             # Ideally act() should store 'latest_policy_probs' or similar.
+             
+             self.analyzer.record_step(
+                 beliefs=step_data['beliefs'],
+                 observations=step_data['observation'],
+                 actions=action,
+                 policies=policies, # Placeholder until act() stores deeper data
+                 free_energy=step_data['free_energy'],
+                 metrics=metrics
+             )
         
         return beliefs, action
     

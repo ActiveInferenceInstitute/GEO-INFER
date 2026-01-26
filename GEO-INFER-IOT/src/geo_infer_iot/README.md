@@ -1,0 +1,4 @@
+# geo_infer_iot
+ ## Overview
+ GEO-INFER-IOT Internet of Things sensors and spatial web integration for the GEO-INFER framework. This module provides capabilities for ingesting, processing, and analyzing IoT sensor data in spatial context, enabling real-time environmental monitoring and Bayesian spatial inference at global scale. Key components: - IoT data ingestion from multiple protocols (MQTT, CoAP, LoRaWAN, HTTP) - Real-time spatial data fusion with H3 indexing - Bayesian spatial inference for converting point measurements to continuous surfaces - Quality control and sensor network management - Integration with environmental monitoring systems ## Contents
+ - **api/**: Submodule - **config/**: Submodule - **core/**: Submodule - **models/**: Submodule - **performance/**: Submodule - **utils/**: Submodule 

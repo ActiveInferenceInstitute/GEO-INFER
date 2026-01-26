@@ -1,91 +1,102 @@
-# GEO-INFER-TRANSPORT: Transportation Intelligence
+# GEO-INFER-TRANSPORT: Agent Capabilities
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./README.md">📚 Module Documentation</a>
 </div>
 
 ---
 
-
 ## Overview
 
-The GEO-INFER-TRANSPORT module provides intelligent transportation system capabilities enabling agents to optimize traffic flow, plan routes, and manage multimodal transportation networks.
+The **GEO-INFER-TRANSPORT** module provides transportation analysis capabilities for agents, enabling network analysis, traffic modeling, and mobility planning.
 
-## Implementation Status
+## Agent Capabilities
 
-**⚠️ Important Note**: This document describes both **implemented** and **aspirational** features. Features marked with 🔮 are planned/aspirational.
-
-### Currently Implemented
-
-- ✅ **TrafficAnalyzer**: Real-time traffic analysis
-- ✅ **RouteOptimizer**: Multi-modal route planning
-- ✅ **NetworkModeler**: Transportation network modeling
-- ✅ **DemandForecaster**: Travel demand prediction
-
-### Aspirational/Planned Features
-
-- 🔮 **TrafficManagementAgent**: Autonomous traffic control
-- 🔮 **AutonomousVehicleAgent**: Connected vehicle integration
-
-## Agent Capabilities Supported
-
-### 1. Traffic Analysis
+### 1. Network Analysis
 
 ```python
-from geo_infer_transport import TrafficAnalyzer
+from geo_infer_transport import NetworkAnalyzer
 
-# Agent analyzes traffic conditions
-analyzer = TrafficAnalyzer()
-traffic_state = analyzer.analyze(
+# Analyze transport network
+analyzer = NetworkAnalyzer()
+
+route = analyzer.find_route(
+    origin=(37.77, -122.41),
+    destination=(37.80, -122.27),
+    mode="car"
+)
+
+print(f"Distance: {route.distance_km} km")
+print(f"Duration: {route.duration_min} min")
+```
+
+### 2. Traffic Modeling
+
+```python
+from geo_infer_transport import TrafficModeler
+
+# Model traffic flow
+modeler = TrafficModeler()
+
+flow = modeler.simulate(
     network=road_network,
-    sensors=traffic_sensors,
-    time_window='real_time'
+    demand=od_matrix,
+    time_period="peak"
 )
+
+print(f"Congestion: {flow.congestion_index}")
+print(f"Bottlenecks: {flow.bottlenecks}")
 ```
 
-### 2. Route Optimization
+### 3. Transit Planning
 
 ```python
-from geo_infer_transport import RouteOptimizer
+from geo_infer_transport import TransitPlanner
 
-# Multi-modal route planning
-optimizer = RouteOptimizer()
-route = optimizer.optimize(
-    origin=start_point,
-    destination=end_point,
-    modes=['driving', 'transit', 'cycling'],
-    criteria=['time', 'cost', 'emissions']
+# Plan transit routes
+planner = TransitPlanner()
+
+coverage = planner.analyze_coverage(
+    routes=gtfs_data,
+    population=census_data
 )
+
+print(f"Coverage: {coverage.percent}%")
 ```
 
-### 3. Demand Forecasting
+### 4. Demand Forecast
 
 ```python
 from geo_infer_transport import DemandForecaster
 
-# Predict travel demand
+# Forecast travel demand
 forecaster = DemandForecaster()
-demand = forecaster.forecast(
-    historical_data=trip_records,
-    horizon='24_hours',
-    granularity='zone'
+
+forecast = forecaster.predict(
+    historical=traffic_counts,
+    scenario="growth"
 )
+
+print(f"Projected VMT: {forecast.vmt}")
 ```
 
-## Integration Status
+## Implementation Status
 
-| Capability | Status | Description |
-|------------|--------|-------------|
-| **Traffic Analysis** | ✅ Ready | Real-time conditions |
-| **Route Optimization** | ✅ Ready | Multi-modal routing |
-| **Network Modeling** | ✅ Ready | Network analysis |
-| **Demand Forecasting** | ✅ Ready | Travel prediction |
-| **Traffic Agent** | 🔮 Planned | Autonomous control |
-| **AV Integration** | 🔮 Planned | Connected vehicles |
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Network** | ✅ Ready | Routing, analysis |
+| **Traffic** | ✅ Ready | Flow simulation |
+| **Transit** | ✅ Ready | Coverage, GTFS |
+| **Demand** | ✅ Ready | Forecasting |
+
+### Aspirational Features
+
+- 🔮 **TrafficAgent**: Real-time optimization
+- 🔮 **RoutingAgent**: Dynamic routing
 
 ---
 
-This AGENTS.md documents how GEO-INFER-TRANSPORT provides transportation intelligence capabilities.
+**Last Updated**: 2026-01-26

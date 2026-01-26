@@ -1,42 +1,6 @@
-# GEO-INFER-REQ Examples
-
-This directory contains working examples demonstrating the capabilities of the GEO-INFER-REQ module.
-
-## Available Examples
-
-### Basic Requirements Example (`basic_requirements_example.py`)
-
-Demonstrates fundamental requirements engineering capabilities:
-- Requirements management
-- Geospatial user stories
-- Requirements traceability
-- Requirements validation
-
-**What you'll learn:**
-- How to manage requirements
-- Creating geospatial user stories
-- Requirements traceability matrix
-- Integration with other modules
-
-**Prerequisites:**
-- Python 3.9+
-- GEO-INFER-REQ module installed
-
-**Usage:**
-```bash
-cd GEO-INFER-REQ
-python examples/basic_requirements_example.py
-```
-
-## Integration Examples
-
-GEO-INFER-REQ integrates seamlessly with other GEO-INFER modules:
-
-- **NORMS + REQ**: Regulatory requirements
-- **SEC + REQ**: Security requirements
-- **SPACE + REQ**: Spatial requirements
-- **APP + REQ**: Application requirements
-- **ORG + REQ**: Organizational requirements
-
-See `GEO-INFER-EXAMPLES` for comprehensive cross-module integration examples.
-
+# GEO
+-INFER-REQ Examples This directory contains working examples demonstrating the capabilities of the GEO-INFER-REQ module. ## Available
+ Examples ### Basi
+c
+ Requirements Example (`basic_requirements_example.py`) Demonstrates fundamental requirements engineering capabilities: - Requirements management - Geospatial user stories - Requirements traceability - Requirements validation **What you'll learn:** - How to manage requirements - Creating geospatial user stories - Requirements traceability matrix - Integration with other modules **Prerequisites:** - Python 3.9+ - GEO-INFER-REQ module installed **Usage:** ```bash cd GEO-INFER-REQ python examples/basic_requirements_example.py ``` ## Integration
+ Examples GEO-INFER-REQ integrates seamlessly with other GEO-INFER modules: - **NORMS + REQ**: Regulatory requirements - **SEC + REQ**: Security requirements - **SPACE + REQ**: Spatial requirements - **APP + REQ**: Application requirements - **ORG + REQ**: Organizational requirements See `GEO-INFER-EXAMPLES` for cross-module integration examples. 

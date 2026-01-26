@@ -1,0 +1,4 @@
+# geo_infer_ai
+ ## Overview
+ GEO-INFER-AI: Artificial Intelligence and Machine Learning for Geospatial Workflows This module provides AI and machine learning capabilities for geospatial data processing, pattern recognition, and predictive modeling. Key Features: - Computer vision for satellite and aerial imagery - Predictive ML models for geospatial forecasting - MLOps integration with MLflow - Geospatial data preprocessing and feature engineering - Model repository and pre-trained models - Explainable AI (XAI) techniques ## Contents
+ - **core/**: Submodule - **models/**: Submodule - **pipelines/**: Submodule - **preprocessing/**: Submodule - **utils/**: Submodule 

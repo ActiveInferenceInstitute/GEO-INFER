@@ -26,11 +26,12 @@ This module extends the root framework rules (see `/.cursorrules`) with module-s
 
 ### Module-Specific NO MOCK Requirements
 
-- NEVER create placeholder generative models
-- NEVER use simplified probability distributions without justification
-- NEVER skip variational inference steps
-- ALWAYS implement real belief propagation algorithms
-- ALWAYS use proper mathematical foundations from Active Inference theory
+- **NEVER** create placeholder generative models
+- **NEVER** use simplified probability distributions without justification
+- **NEVER** skip variational inference steps
+- **ALWAYS** implement real belief propagation algorithms
+- **ALWAYS** use proper mathematical foundations from Active Inference theory
+- **ALWAYS** validate matrices (A, B, C, D) dimensions and properties
 
 ### Real Implementation Requirements
 

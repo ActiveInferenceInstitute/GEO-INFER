@@ -1,0 +1,4 @@
+# unit
+ ## Overview
+ Unit Tests for GEO-INFER-ANT This package contains unit tests for all components of the GEO-INFER-ANT swarm intelligence framework. Test Structure: - test_core.py: Tests for core components (agents, population, stigmergy) - test_algorithms.py: Tests for optimization algorithms (ACO, PSO, ABC) - test_applications.py: Tests for domain applications (environmental monitoring) - test_analysis.py: Tests for pattern analysis and metrics - test_metrics.py: Tests for performance evaluation framework Usage: python -m pytest tests/unit/ -v python -m pytest tests/unit/test_core.py -v python -m pytest tests/unit/test_algorithms.py -v ## Contents
+ - **test_algorithms.py**: Python definitions - **test_analysis.py**: Python definitions - **test_applications.py**: Python definitions - **test_core.py**: Python definitions - **test_metrics.py**: Python definitions 

@@ -1,10 +1,10 @@
 ---
 title: "GEO-INFER-BAYES: Bayesian Inference for Geospatial Applications"
-description: "Comprehensive Bayesian inference framework with probabilistic modeling, uncertainty quantification, and computational methods for geospatial data"
-purpose: "Enable robust inference and decision-making under uncertainty for geospatial applications"
+description: "Bayesian inference framework with probabilistic modeling, uncertainty quantification, and computational methods for geospatial data"
+purpose: "Enable inference and decision-making under uncertainty for geospatial applications"
 module_type: "Analytical Core"
 status: "Beta"
-last_updated: "2025-01-19"
+last_updated: "2026-01-26"
 dependencies: ["MATH"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-ACT", "GEO-INFER-AI"]
 tags: ["bayesian", "inference", "uncertainty", "probabilistic", "mcmc", "hierarchical"]
@@ -21,19 +21,11 @@ estimated_time: "60"
 
 ---
 
-
-
-## Core Features
-
-- Feature 1
-- Feature 2
-- Feature 3
-
 # GEO-INFER-BAYES: Bayesian Inference for Geospatial Applications
 
-> **Purpose**: Enable robust inference and decision-making under uncertainty for geospatial applications
+> **Purpose**: Enable inference and decision-making under uncertainty for geospatial applications
 >
-> This module provides comprehensive Bayesian inference capabilities with probabilistic modeling, uncertainty quantification, and computational methods specifically tailored for geospatial data analysis.
+> This module provides Bayesian inference capabilities with probabilistic modeling, uncertainty quantification, and computational methods for geospatial data analysis.
 
 ## Overview
 
@@ -43,7 +35,25 @@ Note: Code examples are illustrative; see `GEO-INFER-BAYES/examples` for runnabl
 - Module README: ../../GEO-INFER-BAYES/README.md
 - Modules Overview: ../modules/index.md
 
-GEO-INFER-BAYES provides a comprehensive framework for Bayesian inference processes within the GEO-INFER ecosystem, implementing probabilistic modeling, uncertainty quantification, and Bayesian computational methods specifically tailored for geospatial applications.
+GEO-INFER-BAYES provides a framework for Bayesian inference processes within the GEO-INFER ecosystem, implementing probabilistic modeling, uncertainty quantification, and Bayesian computational methods for geospatial applications.
+
+## Core Objectives
+
+- **Probabilistic Modeling**: Implement Bayesian models for spatial and spatio-temporal data
+- **Uncertainty Quantification**: Provide methods for quantifying and propagating uncertainty
+- **Inference Methods**: Support multiple inference algorithms (MCMC, HMC, VI, SMC, ABC)
+- **Model Comparison**: Enable model selection and comparison using information criteria
+- **Integration**: Seamless integration with Active Inference, spatial analysis, and domain modules
+
+## Core Features
+
+- **Spatial Gaussian Processes**: RBF, Matern, and Exponential kernels for spatial interpolation
+- **Spatio-Temporal Models**: Temporal extensions for time-series geospatial data
+- **Hierarchical Bayesian Models**: Multi-level models for nested spatial structures
+- **Inference Methods**: MCMC, HMC, Variational Inference, SMC, and ABC
+- **Posterior Analysis**: Uncertainty quantification, credible intervals, and visualization
+- **Model Comparison**: WAIC, LOO-CV, and Bayes factors for model selection
+- **API Interfaces**: Integration with PyMC, Stan, and TensorFlow Probability
 
 ## Installation
 
@@ -64,8 +74,29 @@ uv pip install -e .
 ## Quick Start
 
 ```python
-# See examples/ for runnable scripts; APIs may change
+from geo_infer_bayes import SpatialGP, BayesianInference
+
+# Create spatial Gaussian Process model
+gp = SpatialGP(kernel='matern', lengthscale=1.0, variance=1.0)
+
+# Initialize inference engine
+inference = BayesianInference(model=gp, method='mcmc')
+
+# Run inference
+posterior = inference.sample(
+    data=observations,
+    spatial_coords=locations,
+    n_samples=1000
+)
+
+# Predict with uncertainty
+predictions, std = posterior.predict_spatial(
+    grid=target_locations,
+    return_uncertainty=True
+)
 ```
+
+See `examples/` directory for complete runnable scripts.
 
 ## Module Structure
 
@@ -371,7 +402,7 @@ For full documentation, see the `docs/` directory or visit the [online documenta
 
 ## Contributing
 
-Please read [CONTRIBUTING.md](../CONTRIBUTING.md) for details on contributing to this module.
+Please read the [Contributing Guidelines](../../README.md#-contributing) for details on contributing to this module.
 
 ## License
 

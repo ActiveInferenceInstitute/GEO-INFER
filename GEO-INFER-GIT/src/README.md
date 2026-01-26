@@ -1,0 +1,5 @@
+# src
+ ## Overview
+ **Path**: `GEO-INFER-GIT/src` Source code implementation. ## Implementation
+ ### `geo_infer_git/core/repo_manager.py` **Classes**: RepoManager **Functions**: clone_repositories, sync_repositories, check_repo_status, create_branch, checkout_branch ### `geo_infer_git/core/advanced_git.py` **Classes**: SubmoduleInfo, MergeConflict, CherryPickOperation, RebaseOperation, SubmoduleManager **Functions**: create_advanced_git_operations, initialize_submodules, update_submodules, sync_submodules, get_submodule_status ### `geo_infer_git/core/github_api.py` **Classes**: GitHubRepository, RateLimit, GitHubAPI **Functions**: from_api_response, reset_datetime, get_rate_limit, get_user_repositories, get_organization_repositories ## Contents
+ - **geo_infer_git/**: Subdirectory - **geo_infer_git.egg-info/**: Subdirectory --- 

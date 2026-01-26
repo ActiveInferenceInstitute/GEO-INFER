@@ -1,0 +1,4 @@
+# fixtures
+ ## Overview
+ Test fixtures for GEO-INFER-DATA. This module contains test fixtures, mock data, and test utilities for testing of all GEO-INFER-DATA components. Fixtures: mock_environmental_data: Sample environmental monitoring data mock_geospatial_data: Sample geospatial vector data mock_raster_data: Sample raster/imagery data mock_time_series_data: Sample time series data mock_metadata: Sample dataset metadata mock_api_responses: Mock API response data mock_database_config: Mock database configuration Examples: >>> # Use fixtures in tests >>> def test_ingestion(mock_environmental_data, mock_metadata): ... # Test data ingestion ... result = await ingestion.ingest_multi_source(sensors=mock_environmental_data) ... assert result['quality_score'] > 0.8 ## Contents
+ No public modules or subdirectories. 

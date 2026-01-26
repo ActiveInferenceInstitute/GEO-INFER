@@ -1,486 +1,170 @@
 ---
-title: "GEO-INFER-OPS: Operational Kernel"
-description: "System orchestration, monitoring, infrastructure management, and deployment automation for the GEO-INFER ecosystem"
-purpose: "Provide operational kernel for system orchestration, monitoring, and infrastructure management across all GEO-INFER modules"
-module_type: "Operations"
-status: "Alpha"
-last_updated: "2025-01-19"
+title: "GEO-INFER-OPS: Operations and DevOps"
+description: "Deployment, monitoring, scaling, and production management for agent systems"
+purpose: "Provide DevOps infrastructure for deploying and managing agents in production"
+module_type: "Infrastructure"
+status: "Beta"
+last_updated: "2026-01-26"
 dependencies: ["SEC"]
-compatibility: ["GEO-INFER-SEC", "GEO-INFER-DATA", "GEO-INFER-API", "GEO-INFER-TEST"]
-tags: ["operations", "orchestration", "monitoring", "infrastructure", "deployment", "automation"]
+compatibility: ["All GEO-INFER modules"]
+tags: ["devops", "deployment", "monitoring", "kubernetes", "observability"]
 difficulty: "Advanced"
-estimated_time: "70"
+estimated_time: "50"
 ---
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./docs/">📚 Documentation</a>
 </div>
 
 ---
 
-
-# GEO-INFER-OPS: Operational Kernel for System Orchestration, Monitoring, and Infrastructure Management
-
-> **Purpose**: Provide operational kernel for system orchestration, monitoring, and infrastructure management across all GEO-INFER modules
->
-> This module delivers system orchestration, monitoring, infrastructure management, and deployment automation for the GEO-INFER ecosystem.
+# GEO-INFER-OPS: Operations and DevOps
 
 ## Overview
 
-Note: Code examples are illustrative; see `GEO-INFER-OPS/examples` for runnable scripts.
+**GEO-INFER-OPS** provides production operations capabilities:
 
-### Links
-- Module README: ../../GEO-INFER-OPS/README.md
-- Modules Overview: ../modules/index.md
+- **Deployment**: Container orchestration and agent deployment
+- **Monitoring**: Health checks and performance metrics
+- **Scaling**: Auto-scaling based on load and policies
+- **Observability**: Logging, tracing, and alerting
 
-GEO-INFER-OPS provides infrastructure for system orchestration, monitoring, testing, logging, and configuration management. It ensures reliable, scalable, and secure operations across GEO-INFER components with observability, automated testing, and resource management.
+## Features
 
-### Documentation
-- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-ops.md
-- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
-
-## Core Objectives
-
-- **System Orchestration**: Coordinate and manage the lifecycle of all GEO-INFER modules and their interdependencies
-- **Infrastructure Management**: Provide containerized, scalable deployment with auto-scaling and load balancing
-- **Comprehensive Monitoring**: Real-time observability of system performance, health, and resource utilization
-- **Automated Testing**: Continuous integration and testing pipelines ensuring code quality and reliability
-- **Configuration Management**: Centralized, secure, and version-controlled configuration for all modules
-- **Security Operations**: Security monitoring, vulnerability management, and compliance enforcement
-- **Disaster Recovery**: Backup, restoration, and business continuity planning
-
-## Architecture
-
-```mermaid
-graph TB
-    subgraph Core Components
-        C[Configuration]
-        L[Logging]
-        M[Monitoring]
-        T[Testing]
-    end
-    
-    subgraph External Systems
-        P[Prometheus]
-        G[Grafana]
-        D[Docker]
-        K[Kubernetes]
-    end
-    
-    subgraph Other Modules
-        SEC[GEO-INFER-SEC]
-        DATA[GEO-INFER-DATA]
-        API[GEO-INFER-API]
-        APP[GEO-INFER-APP]
-    end
-    
-    C --> L
-    C --> M
-    C --> T
-    
-    L --> P
-    M --> P
-    P --> G
-    
-    T --> D
-    T --> K
-    
-    SEC --> C
-    DATA --> C
-    API --> C
-    APP --> C
-```
-
-## Data Flow
-
-### Inputs
-- **System Metrics**: CPU, memory, disk, network utilization from all modules
-- **Application Logs**: Structured logs from all GEO-INFER components
-- **Configuration Files**: YAML configurations, environment variables, secrets
-- **Health Checks**: Module health status and dependency information
-- **External Monitoring**: Infrastructure metrics from cloud providers
-
-### Processes
-- **Metrics Collection & Aggregation**: Prometheus-based metrics gathering and storage
-- **Log Processing & Analysis**: Structured logging with real-time analysis and alerting
-- **Configuration Validation & Distribution**: Centralized config management with validation
-- **Automated Testing**: CI/CD pipelines with comprehensive test coverage
-- **Resource Orchestration**: Container lifecycle management and auto-scaling
-
-### Outputs
-- **Monitoring Dashboards**: Grafana visualizations and real-time system status
-- **Alerting & Notifications**: Automated alerts via email, Slack, PagerDuty
-- **Configuration Updates**: Validated and distributed configuration changes
-- **Test Reports**: Automated testing results and coverage reports
-- **System Health Status**: Overall framework health and performance metrics
-
-## Core Features
-
-### 1. Advanced Configuration Management
-- **Multi-Environment Support**: Development, staging, production configurations
-- **Secret Management**: Integration with HashiCorp Vault, Kubernetes secrets
-- **Configuration Validation**: Schema-based validation with error reporting
-- **Dynamic Updates**: Hot-reload capability for non-critical configuration changes
-- **Version Control**: Git-based configuration versioning with rollback capability
-
-### 2. Comprehensive Logging & Observability
-- **Structured Logging**: JSON-formatted logs with consistent schema across modules
-- **Centralized Collection**: ELK stack (Elasticsearch, Logstash, Kibana) integration
-- **Real-time Analysis**: Log streaming and real-time anomaly detection
-- **Correlation IDs**: Request tracing across distributed components
-- **Custom Metrics**: Application-specific metrics collection and analysis
-
-### 3. Production-Grade Monitoring
-- **Multi-Dimensional Metrics**: Prometheus metrics with labels and tags
-- **Custom Dashboards**: Grafana dashboards for different stakeholder needs
-- **SLA Monitoring**: Service level indicators and objectives tracking
-- **Capacity Planning**: Resource utilization trends and forecasting
-- **Performance Profiling**: Application performance monitoring and optimization
-
-### 4. Automated Testing & Quality Assurance
-- **Comprehensive Test Suite**: Unit, integration, system, and performance tests
-- **Continuous Integration**: GitHub Actions, Jenkins, or GitLab CI integration
-- **Quality Gates**: Code coverage, security scanning, performance benchmarks
-- **Test Data Management**: Automated test data generation and cleanup
-- **Cross-Module Testing**: Integration testing across GEO-INFER components
-
-### 5. Container Orchestration & Deployment
-- **Kubernetes Management**: Pod lifecycle, service discovery, load balancing
-- **Auto-Scaling**: Horizontal and vertical pod autoscaling based on metrics
-- **Rolling Deployments**: Zero-downtime deployments with rollback capability
-- **Multi-Cloud Support**: AWS EKS, Google GKE, Azure AKS compatibility
-- **Infrastructure as Code**: Terraform and Helm charts for reproducible deployments
-
-## Directory Structure
-
-```mermaid
-graph TD
-    A[GEO-INFER-OPS] --> B[src]
-    A --> C[config]
-    A --> D[deployment]
-    A --> E[monitoring]
-    A --> F[tests]
-    A --> G[docs]
-    
-    B --> B1[geo_infer_ops]
-    B1 --> B2[core]
-    B1 --> B3[api]
-    B1 --> B4[models]
-    B1 --> B5[utils]
-    
-    C --> C1[example.yaml]
-    C --> C2[local.yaml]
-    
-    D --> D1[kubernetes]
-    D --> D2[docker]
-    
-    E --> E1[prometheus]
-    E --> E2[grafana]
-    
-    F --> F1[test_config.py]
-    F --> F2[test_logging.py]
-    F --> F3[test_monitoring.py]
-    F --> F4[test_testing.py]
-```
-
-## 🚀 Quick Start (5 minutes)
-
-### 1. Prerequisites Check
-```bash
-# Verify system requirements
-docker --version      # Docker 20.10+
-kubectl version       # Kubernetes 1.20+
-python --version      # Python 3.9+
-
-# Check available resources
-docker system info | grep "Total Memory"
-```
-
-### 2. Installation & Setup
-```bash
-# Install GEO-INFER-OPS
-uv pip install -e ./GEO-INFER-OPS
-
-# Initialize configuration
-./scripts/init-ops.sh
-
-# Verify import
-python -c "import geo_infer_ops; print('import ok')"
-```
-
-### 3. Basic Configuration
-```bash
-# Copy and customize configuration
-cp config/example.yaml config/local.yaml
-
-# Set required environment variables
-export GEO_INFER_ENV=local
-export PROMETHEUS_PORT=9090
-export GRAFANA_PORT=3000
-
-# Validate configuration
-python -m geo_infer_ops.cli validate-config config/local.yaml
-```
-
-### 4. Start Core Services
-```bash
-# Start monitoring stack
-docker-compose up -d prometheus grafana
-
-# Verify services are running
-curl http://localhost:9090/api/v1/status/config  # Prometheus
-curl http://localhost:3000/api/health            # Grafana
-
-# Check service logs
-docker-compose logs -f prometheus grafana
-```
-
-### 5. Monitor First Module
-```python
-# Simple monitoring example
-from geo_infer_ops.monitoring import MetricsCollector
-from geo_infer_ops.config import load_config
-
-# Initialize monitoring
-config = load_config("config/local.yaml")
-metrics = MetricsCollector(config)
-
-# Start collecting metrics
-metrics.start_collection()
-print("✅ Monitoring active - visit http://localhost:3000 for dashboards")
-```
-
-### 6. Next Steps
-- 📊 Visit Grafana dashboard: `http://localhost:3000` (admin/admin)
-- 🔍 Check Prometheus targets: `http://localhost:9090/targets`
-- 📋 See [deployment guide](./docs/deployment.md) for production setup
-- 🔧 Review [configuration reference](./docs/configuration.md) for advanced options
-
-## Getting Started (Detailed)
-
-### Installation
-```bash
-uv pip install -e .
-```
-
-### Configuration
-```bash
-cp config/example.yaml config/local.yaml
-# Edit local.yaml with your configuration
-```
-
-### Running Tests
-```bash
-pytest tests/
-```
-
-## API Reference
-
-### Core Classes
-
-#### Orchestrator
-
-System orchestration and task management.
+### Agent Deployment
 
 ```python
-from geo_infer_ops import Orchestrator, Task, TaskStatus
+from geo_infer_ops import AgentDeployer
 
-# Create orchestrator
-orchestrator = Orchestrator()
+# Deploy agents to production
+deployer = AgentDeployer()
 
-# Define task
-task = Task(
-    task_id="data_processing",
-    module="GEO-INFER-DATA",
-    action="process_dataset",
-    params={'dataset_id': 'dataset_123'}
+deployment = deployer.deploy(
+    agent_config=agent_spec,
+    target="kubernetes",
+    replicas=3,
+    resources={"cpu": "1", "memory": "4Gi"}
 )
 
-# Execute task
-result = orchestrator.execute_task(task)
-
-# Monitor task status
-status = orchestrator.get_task_status("data_processing")
+print(f"Deployment: {deployment.id}")
+print(f"Endpoints: {deployment.endpoints}")
 ```
 
-#### DeploymentManager
-
-Infrastructure deployment and management.
+### Health Monitoring
 
 ```python
-from geo_infer_ops import DeploymentManager
+from geo_infer_ops import HealthMonitor
 
-# Create deployment manager
-deployment = DeploymentManager(
-    config_path='config/deployment.yaml'
+# Monitor agent health
+monitor = HealthMonitor()
+
+health = monitor.check(
+    agents=["agent_001", "agent_002"],
+    metrics=["latency", "error_rate", "memory"]
 )
 
-# Deploy module
-deployment.deploy_module(
-    module_name='GEO-INFER-API',
-    version='1.0.0',
-    replicas=3
-)
+for agent, status in health.items():
+    print(f"{agent}: {status.health_score}%")
+```
 
-# Scale module
-deployment.scale_module(
-    module_name='GEO-INFER-API',
-    replicas=5
+### Auto-Scaling
+
+```python
+from geo_infer_ops import AutoScaler
+
+# Configure auto-scaling
+scaler = AutoScaler()
+
+policy = scaler.configure(
+    agent_type="analysis_agent",
+    rules={
+        "cpu_threshold": 70,
+        "min_replicas": 2,
+        "max_replicas": 10
+    }
 )
 ```
 
-#### HealthChecker
-
-System health monitoring.
+### Observability
 
 ```python
-from geo_infer_ops import HealthChecker, HealthStatus, HealthCheck
+from geo_infer_ops import Observability
 
-# Create health checker
-health = HealthChecker()
+# Full observability stack
+obs = Observability()
 
-# Add health check
-health.add_check(
-    HealthCheck(
-        name="api_health",
-        module="GEO-INFER-API",
-        endpoint="/health"
-    )
+# Distributed tracing
+obs.trace(agent_id="agent_001", operation="analysis")
+
+# Query logs
+logs = obs.query_logs(
+    agent_pattern="*",
+    level="ERROR",
+    time_range=("2026-01-25", "2026-01-26")
 )
 
-# Run health checks
-status = health.check_all()
-
-# Get module health
-module_health = health.get_module_health("GEO-INFER-API")
-```
-
-### Utility Functions
-
-#### Configuration Management
-
-```python
-from geo_infer_ops import load_config, get_config
-
-# Load configuration
-config = load_config('config/ops.yaml')
-
-# Get current config
-current_config = get_config()
-```
-
-#### Logging Setup
-
-```python
-from geo_infer_ops import setup_logging, get_logger
-
-# Setup logging
-setup_logging(
-    log_level='INFO',
-    json_format=True,
-    log_file='logs/ops.log'
-)
-
-# Get logger
-logger = get_logger('geo_infer_ops')
-```
-
-#### Monitoring Setup
-
-```python
-from geo_infer_ops import setup_monitoring
-
-# Setup monitoring
-setup_monitoring(
-    metrics_enabled=True,
-    metrics_path='/metrics',
-    prometheus_enabled=True
+# Set alerts
+obs.create_alert(
+    name="high_latency",
+    condition="latency > 1000ms",
+    notify=["ops-team"]
 )
 ```
 
-#### Testing Setup
+## Deployment Targets
 
-```python
-from geo_infer_ops import setup_testing, create_test_client
+| Target | Description |
+|--------|-------------|
+| **Kubernetes** | Container orchestration |
+| **Docker Compose** | Local development |
+| **AWS ECS/Fargate** | Serverless containers |
+| **GCP Cloud Run** | Managed containers |
 
-# Setup testing framework
-setup_testing(
-    test_discovery_path='tests/',
-    coverage_enabled=True
-)
+## Monitoring Metrics
 
-# Create test client
-client = create_test_client()
-```
+| Metric | Description |
+|--------|-------------|
+| **Latency** | Response time |
+| **Throughput** | Requests/second |
+| **Error Rate** | Failed requests |
+| **CPU/Memory** | Resource usage |
 
-## Integration with Other Modules
+## Integration Points
 
-```mermaid
-sequenceDiagram
-    participant App as GEO-INFER-APP
-    participant API as GEO-INFER-API
-    participant Data as GEO-INFER-DATA
-    participant Sec as GEO-INFER-SEC
-    participant Ops as GEO-INFER-OPS
-    
-    App->>Ops: Initialize logging
-    Ops-->>App: Configured logger
-    
-    API->>Ops: Setup monitoring
-    Ops-->>API: Configured metrics
-    
-    Data->>Ops: Load configuration
-    Ops-->>Data: Validated config
-    
-    Sec->>Ops: Setup testing
-    Ops-->>Sec: Test environment
-```
+| Module | Integration |
+|--------|-------------|
+| **GEO-INFER-SEC** | Security policies |
+| **GEO-INFER-API** | API endpoints |
+| **GEO-INFER-TEST** | CI/CD integration |
 
-## Deployment
+## Installation
 
-### Docker
 ```bash
-docker build -t geo-infer-ops .
-docker-compose up -d
+uv pip install -e "./GEO-INFER-OPS"
 ```
 
-### Kubernetes
-```bash
-kubectl apply -f deployment/kubernetes/
+## Use Cases
+
+### Production Deployment
+
+```python
+from geo_infer_ops import ProductionManager
+
+manager = ProductionManager(cluster="prod")
+
+# Rolling update
+manager.rolling_update(
+    agent_type="spatial_agent",
+    new_version="2.1.0",
+    strategy="blue_green"
+)
 ```
 
-## Monitoring Dashboard
+---
 
-```mermaid
-graph LR
-    subgraph Metrics Collection
-        A[Application] --> B[Prometheus]
-        C[System] --> B
-    end
-    
-    subgraph Visualization
-        B --> D[Grafana]
-        D --> E[Dashboard 1]
-        D --> F[Dashboard 2]
-        D --> G[Dashboard 3]
-    end
-    
-    subgraph Alerts
-        B --> H[Alert Manager]
-        H --> I[Email]
-        H --> J[Slack]
-    end
-```
+**Status**: Beta
 
-## Contributing
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
-
-## License
-This project is licensed under the MIT License - see the LICENSE file for details. 
+**Last Updated**: 2026-01-26

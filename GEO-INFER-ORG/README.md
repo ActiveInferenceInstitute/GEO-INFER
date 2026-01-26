@@ -1,604 +1,126 @@
 ---
-title: "GEO-INFER-ORG: Geospatial Organization, Governance, and Community Structure"
-description: "Organizational structures, governance frameworks, and community processes for geospatial initiatives"
-purpose: "Establish effective governance models and foster inclusive community structures for geospatial projects"
-module_type: "People & Community"
-status: "Beta"
-last_updated: "2025-01-19"
-dependencies: ["PEP", "COMMS"]
-compatibility: ["GEO-INFER-PEP", "GEO-INFER-COMMS", "GEO-INFER-CIV"]
-tags: ["governance", "organization", "community", "stakeholders", "leadership"]
+title: "GEO-INFER-ORG: Organizational Modeling"
+description: "Organizational structures, team coordination, and resource allocation"
+purpose: "Model organizational hierarchies and coordinate distributed teams"
+module_type: "Domain Application"
+status: "Alpha"
+last_updated: "2026-01-26"
+dependencies: ["SPACE", "DATA"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-DATA", "GEO-INFER-OPS"]
+tags: ["organization", "teams", "coordination", "resources", "hierarchy"]
 difficulty: "Intermediate"
-estimated_time: "40"
+estimated_time: "35"
 ---
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./docs/">📚 Documentation</a>
 </div>
 
 ---
 
-
-# GEO-INFER-ORG: Geospatial Organization, Governance, and Community Structure
-
-> **Purpose**: Establish effective governance models and foster inclusive community structures for geospatial initiatives
->
-> This module provides organizational structures, governance frameworks, and community processes for establishing effective leadership, decision-making, and collaborative workflows in geospatial projects.
+# GEO-INFER-ORG: Organizational Modeling
 
 ## Overview
 
-Note: Code examples are illustrative; see `GEO-INFER-ORG/examples` for runnable scripts.
+**GEO-INFER-ORG** provides organizational capabilities:
 
-### Links
-- Module README: ../../GEO-INFER-ORG/README.md
-- Modules Overview: ../modules/index.md
+- **Org Modeling**: Hierarchical structure modeling
+- **Team Coordination**: Distributed team management
+- **Network Analysis**: Communication patterns
+- **Resource Allocation**: Staff and resource optimization
 
-GEO-INFER-ORG is dedicated to developing and implementing organizational structures, governance frameworks, and community processes for geospatial initiatives. It focuses on the human and institutional aspects of geospatial systems.
+## Features
 
-## Core Objectives
-
-- **Establish Effective Governance Models:** Develop frameworks for transparent, accountable, and participatory decision-making in geospatial initiatives.
-- **Foster Inclusive Community Structures:** Create systems and processes that encourage diverse participation and equitable involvement.
-- **Support Collaborative Workflows:** Design organizational approaches that facilitate effective collaboration among stakeholders with varied expertise and interests.
-- **Enable Sustainable Operations:** Provide models for resource allocation, fundraising, and long-term operational sustainability.
-- **Integrate Ethical Considerations:** Embed ethical principles and responsible practices into organizational structures and processes.
-- **Facilitate Knowledge Transfer:** Build systems for effective knowledge sharing, documentation, and organizational learning.
-- **Enhance Stakeholder Engagement:** Develop methodologies for meaningful involvement of all relevant stakeholders in geospatial projects.
-
-## Core Features
-
-### 1. Geospatial Governance Framework
-- **Description:** Comprehensive models and tools for establishing effective governance structures for geospatial initiatives, from small projects to large institutions.
-- **Components/Examples:** Decision-making frameworks, role definitions, accountability mechanisms, consensus protocols, conflict resolution processes, policy development templates.
-- **Benefits:** Increased transparency, improved decision quality, reduced conflicts, clearer accountability, more sustainable operations.
-
-### 2. Community Development Toolkit
-- **Description:** Resources and methodologies for building vibrant, inclusive communities around geospatial projects and technologies.
-- **Components/Examples:** Community engagement strategies, onboarding processes, mentorship programs, contributor pathways, code of conduct templates, diversity and inclusion frameworks.
-- **Benefits:** Broader participation, increased diversity of contributors, improved retention, stronger community identity, more resilient community structure.
-
-### 3. Spatial Stakeholder Mapping & Analysis
-- **Description:** Tools for identifying, analyzing, and engaging with stakeholders based on their spatial relationships and interests.
-- **Components/Examples:** Geospatial stakeholder mapping techniques, interest-based analysis frameworks, spatially-aware engagement strategies, participatory mapping methodologies.
-- **Benefits:** More effective stakeholder engagement, better understanding of diverse perspectives, reduced conflict, improved collaboration across geographies.
-
-### 4. Geospatial Project Management System
-- **Description:** Specialized approaches and tools for managing geospatial projects, with attention to their unique technical, data, and stakeholder characteristics.
-- **Components/Examples:** Geospatial workflow templates, resource allocation frameworks, progress tracking methodologies, quality assurance processes for spatial data and analysis.
-- **Benefits:** Improved project outcomes, more efficient resource utilization, better alignment between technical work and stakeholder needs, enhanced quality control.
-
-### 5. Organizational Knowledge Management
-- **Description:** Systems for capturing, organizing, and sharing organizational knowledge within geospatial initiatives.
-- **Components/Examples:** Knowledge base structures, documentation frameworks, training materials, community memory preservation, expertise directories.
-- **Benefits:** Reduced knowledge loss, improved onboarding, enhanced institutional memory, more effective knowledge transfer between participants.
-
-## Module Architecture
-
-```mermaid
-graph TD
-    subgraph ORG_Core as "GEO-INFER-ORG Core"
-        GOV[Governance Framework]
-        COM[Community Management]
-        STAKE[Stakeholder Engagement]
-        PROJ[Project Management]
-        KNOW[Knowledge Management]
-    end
-
-    subgraph Implementation_Tools as "Implementation Tools"
-        POLICY[Policy Templates & Guides]
-        PROCESS[Process Workflows]
-        COLLAB[Collaboration Platforms]
-        DOCS[Documentation Systems]
-        METRICS[Organizational Metrics]
-    end
-
-    subgraph Integration_Points as "Integration Points with GEO-INFER"
-        COMMS[GEO-INFER-COMMS]
-        PEP[GEO-INFER-PEP]
-        NORMS[GEO-INFER-NORMS]
-        INTRA[GEO-INFER-INTRA]
-        CIV[GEO-INFER-CIV]
-    end
-
-    %% Core connections
-    GOV --> POLICY
-    GOV --> METRICS
-    COM --> COLLAB
-    COM --> PROCESS
-    STAKE --> PROCESS
-    STAKE --> METRICS
-    PROJ --> PROCESS
-    PROJ --> METRICS
-    KNOW --> DOCS
-    KNOW --> COLLAB
-
-    %% Integration connections
-    GOV <--> NORMS
-    COM <--> COMMS
-    COM <--> PEP
-    STAKE <--> CIV
-    KNOW <--> INTRA
-    PROJ <--> INTRA
-
-    classDef orgcore fill:#ffecb3,stroke:#ff9800,stroke-width:2px;
-    class ORG_Core orgcore;
-    classDef tools fill:#e1f5fe,stroke:#03a9f4,stroke-width:2px;
-    class Implementation_Tools tools;
-```
-
-## API Reference
-
-### Core Classes
-
-#### GovernanceFramework
-
-Governance framework implementation.
+### Organizational Modeling
 
 ```python
-from geo_infer_org.core.governance import GovernanceFramework
+from geo_infer_org import OrganizationModel
 
-# Create governance framework
-governance = GovernanceFramework(
-    structure='democratic',
-    decision_process='consensus'
-)
+# Model organization
+org = OrganizationModel()
 
-# Add governance rule
-governance.add_rule(
-    rule_id='decision_making',
-    description='Major decisions require 2/3 majority',
-    scope='project_wide'
-)
-
-# Make decision
-decision = governance.make_decision(
-    proposal=proposal,
-    stakeholders=stakeholder_list
+org.create_structure(
+    type="hierarchical",
+    units=[
+        {"name": "HQ", "location": hq_coords},
+        {"name": "Region_West", "location": west_coords}
+    ]
 )
 ```
 
-#### CommunityManager
-
-Community structure and engagement management.
+### Team Coordination
 
 ```python
-from geo_infer_org.core.community import CommunityManager
+from geo_infer_org import TeamCoordinator
 
-# Create community manager
-community = CommunityManager(
-    community_name='GEO-INFER Contributors',
-    structure='open_source'
+# Coordinate teams
+coordinator = TeamCoordinator()
+
+assignment = coordinator.assign(
+    teams=field_teams,
+    areas=service_zones
 )
 
-# Add member
-community.add_member(
-    member_id='user_001',
-    role='contributor',
-    expertise=['spatial_analysis', 'python']
-)
-
-# Track engagement
-engagement = community.track_engagement(
-    member_id='user_001',
-    activities=['code_contributions', 'documentation']
-)
+print(f"Coverage: {assignment.coverage}%")
 ```
 
-#### StakeholderMapper
-
-Spatial stakeholder mapping and analysis.
+### Network Analysis
 
 ```python
-from geo_infer_org.core.stakeholders import StakeholderMapper
+from geo_infer_org import OrgNetworkAnalyzer
 
-# Create stakeholder mapper
-mapper = StakeholderMapper()
+# Analyze org network
+analyzer = OrgNetworkAnalyzer()
 
-# Map stakeholders
-stakeholder_map = mapper.map_stakeholders(
-    region=project_region,
-    interests=['environmental', 'economic', 'social']
+analysis = analyzer.analyze(
+    network=org_graph,
+    metrics=["centrality", "clustering"]
 )
 
-# Analyze stakeholder influence
-influence = mapper.analyze_influence(
-    stakeholder_id='stakeholder_001',
-    decision_domain='land_use'
-)
+print(f"Key connectors: {analysis.central_nodes}")
 ```
 
-#### ProjectManager
-
-Geospatial project management.
+### Resource Allocation
 
 ```python
-from geo_infer_org.core.projects import ProjectManager
+from geo_infer_org import ResourceAllocator
 
-# Create project manager
-pm = ProjectManager(
-    project_name='Urban Planning Initiative',
-    spatial_scope=city_boundaries
-)
+# Allocate resources
+allocator = ResourceAllocator()
 
-# Add task
-pm.add_task(
-    task_id='task_001',
-    description='Spatial analysis of zoning',
-    dependencies=[],
-    spatial_requirements={'bbox': [-122.5, 37.7, -122.3, 37.9]}
-)
-
-# Track progress
-progress = pm.track_progress(project_id='project_001')
-```
-
-#### KnowledgeManager
-
-Organizational knowledge management.
-
-```python
-from geo_infer_org.core.knowledge import KnowledgeManager
-
-# Create knowledge manager
-km = KnowledgeManager(
-    knowledge_base_path='knowledge/',
-    structure='hierarchical'
-)
-
-# Add knowledge item
-km.add_knowledge(
-    title='Spatial Analysis Best Practices',
-    content=best_practices_doc,
-    tags=['spatial', 'analysis', 'guidelines']
-)
-
-# Search knowledge
-results = km.search_knowledge(
-    query='H3 indexing',
-    tags=['spatial', 'indexing']
+allocation = allocator.optimize(
+    resources=staff,
+    demands=regional_needs
 )
 ```
 
-## Integration with other GEO-INFER Modules
+## Model Types
 
-GEO-INFER-ORG serves as the organizational foundation for the entire framework:
+| Type | Description |
+|------|-------------|
+| **Hierarchical** | Traditional org chart |
+| **Matrix** | Cross-functional |
+| **Network** | Flat, connected |
+| **Hybrid** | Combined models |
 
-- **GEO-INFER-COMMS:** Provides the communication infrastructure needed to implement ORG's governance and community processes, while ORG supplies the institutional structure for COMMS activities.
-- **GEO-INFER-PEP:** Works closely with ORG to align people management with organizational structures and community needs.
-- **GEO-INFER-NORMS:** ORG implements the ethical frameworks and norms developed by NORMS, translating principles into operational policies.
-- **GEO-INFER-INTRA:** ORG's knowledge management approaches inform INTRA's documentation strategies, while INTRA provides the tools for implementing ORG's knowledge preservation goals.
-- **GEO-INFER-CIV:** ORG provides governance models that CIV can adapt for community-level implementation, while CIV offers insights on community needs.
-- **Technical Modules:** ORG ensures that technical development across all modules is aligned with stakeholder needs and organizational priorities.
+## Integration Points
 
-## Getting Started
+| Module | Integration |
+|--------|-------------|
+| **GEO-INFER-OPS** | Deployment teams |
+| **GEO-INFER-EMERGENCY** | Incident command |
 
-### Prerequisites
-- Understanding of project management principles
-- Familiarity with community governance concepts
-- Knowledge of collaborative workflows and tools
+## Installation
 
-### Implementation
 ```bash
-# No traditional software installation is needed for ORG
-# Instead, you might start by exploring the governance templates
-cp GEO-INFER-ORG/templates/governance_template.md my_project_governance.md
-
-# Or setting up a community structure
-cp GEO-INFER-ORG/templates/community_structure.md my_community_structure.md
+uv pip install -e "./GEO-INFER-ORG"
 ```
 
-### Basic Usage Examples
+---
 
-**1. Establishing a Governance Structure**
-```python
-from geo_infer_org.governance import GovernanceFramework
+**Status**: Alpha
 
-# Create a new governance framework for a geospatial project
-governance = GovernanceFramework(
-    name="River Basin Monitoring Initiative",
-    scale="regional",
-    stakeholders=["government", "research", "community", "industry"]
-)
-
-# Configure decision-making approach
-governance.set_decision_model(
-    model_type="consent-based",
-    quorum=0.6,
-    veto_rules={"blocking": ["ethical_concerns", "legal_violations"]}
-)
-
-# Define roles and responsibilities
-governance.add_role(
-    name="Technical Coordination",
-    responsibilities=["data standards", "technology selection", "quality control"],
-    selection_process="election",
-    term_length="1 year"
-)
-
-# Generate governance documentation
-governance.generate_documentation("my_project/governance/")
-```
-
-**2. Stakeholder Mapping and Analysis**
-```python
-from geo_infer_org.stakeholders import SpatialStakeholderMap
-import geopandas as gpd
-
-# Load study area boundary
-study_area = gpd.read_file("project_data/river_basin_boundary.geojson")
-
-# Create a spatial stakeholder map
-stakeholder_map = SpatialStakeholderMap(study_area=study_area)
-
-# Add stakeholder groups with spatial presence
-stakeholder_map.add_stakeholder_group(
-    name="Riverside Communities",
-    geography="project_data/communities.geojson",
-    interests=["flood protection", "water quality", "recreation"],
-    influence_level=3,  # 1-5 scale
-    impact_level=5      # 1-5 scale
-)
-
-# Analyze spatial relationships between stakeholders
-proximity_analysis = stakeholder_map.analyze_spatial_relationships()
-
-# Generate engagement strategies based on spatial context
-engagement_plan = stakeholder_map.generate_engagement_strategy(
-    approach="participatory",
-    language_considerations=True,
-    accessibility_needs=True
-)
-
-# Visualize stakeholder map
-stakeholder_map.visualize(
-    by="influence",
-    output_file="stakeholder_map.html"
-)
-```
-
-**3. Community Health Monitoring**
-```python
-from geo_infer_org.community import CommunityHealthMonitor
-import datetime
-
-# Initialize community health monitoring
-monitor = CommunityHealthMonitor(
-    community_name="GeoRivers Initiative",
-    start_date=datetime.datetime(2023, 1, 1)
-)
-
-# Add data sources for community metrics
-monitor.add_data_source(
-    name="forum_activity",
-    source_type="discourse_api",
-    config={"url": "https://forum.georivers.org", "api_key": "***"}
-)
-
-monitor.add_data_source(
-    name="code_contributions",
-    source_type="github_api",
-    config={"repository": "georivers/monitoring-tools"}
-)
-
-# Define health metrics
-monitor.define_metric(
-    name="contributor_diversity",
-    data_sources=["forum_activity", "code_contributions"],
-    calculation="geographic_distribution",
-    target_value={"min_countries": 10, "max_concentration": 0.3}
-)
-
-# Generate community health report
-report = monitor.generate_report(
-    time_period="last_quarter",
-    format="html",
-    include_recommendations=True
-)
-
-# Output report
-with open("community_health_q2_2023.html", "w") as f:
-    f.write(report)
-```
-
-## Directory Structure
-```
-GEO-INFER-ORG/
-├── config/                 # Configuration files and settings
-├── docs/                   # Documentation on organizational principles
-│   ├── governance_models/    # Documentation on governance approaches
-│   ├── community_building/   # Guides for community development
-│   └── case_studies/         # Real-world organizational examples
-├── examples/               # Example implementations
-│   ├── governance_examples/  # Sample governance structures
-│   ├── community_setups/     # Example community configurations
-│   └── stakeholder_maps/     # Sample stakeholder analyses
-├── templates/              # Templates for governance, policies, etc.
-├── src/
-│   └── geo_infer_org/
-│       ├── __init__.py
-│       ├── api/            # API for organizational tools
-│       ├── core/           # Core organizational models
-│       │   ├── __init__.py
-│       │   ├── governance.py       # Governance framework implementation
-│       │   ├── community.py        # Community structure implementation
-│       │   ├── stakeholders.py     # Stakeholder management tools
-│       │   └── knowledge.py        # Knowledge management systems
-│       ├── models/         # Data models for organizational components
-│       │   ├── __init__.py
-│       │   ├── role_models.py      # Models for roles and responsibilities
-│       │   └── process_models.py   # Models for organizational processes
-│       └── utils/          # Utility functions
-│           ├── __init__.py
-│           ├── metrics.py          # Organizational metrics calculation
-│           └── visualization.py    # Visualization of org structures
-└── tests/                  # Tests for organizational models
-```
-
-## Best Practices
-
-### Governance
-- Ensure decision-making processes are transparent and documented
-- Balance efficiency with inclusivity in governance design
-- Develop clear escalation paths for conflicts and issues
-- Regularly review and adapt governance structures
-
-### Community Development
-- Focus on creating clear pathways for new contributors
-- Establish explicit norms and expectations
-- Recognize and reward diverse forms of contribution
-- Invest in mentorship and knowledge transfer
-
-### Stakeholder Engagement
-- Map stakeholders based on both interest and spatial context
-- Develop engagement strategies appropriate to stakeholder characteristics
-- Create multiple channels for feedback and participation
-- Regularly reassess stakeholder landscape as projects evolve
-
-## API Reference
-
-### Core Classes
-
-#### GovernanceFramework
-
-Comprehensive governance framework for geospatial initiatives.
-
-```python
-from geo_infer_org.governance import GovernanceFramework
-
-# Create governance framework
-governance = GovernanceFramework(
-    name="River Basin Monitoring Initiative",
-    scale="regional",
-    stakeholders=["government", "research", "community", "industry"]
-)
-
-# Configure decision-making
-governance.set_decision_model(
-    model_type="consent-based",
-    quorum=0.6
-)
-
-# Add roles
-governance.add_role(
-    name="Technical Coordination",
-    responsibilities=["data standards", "technology selection"]
-)
-```
-
-#### SpatialStakeholderMap
-
-Spatial stakeholder mapping and analysis.
-
-```python
-from geo_infer_org.stakeholders import SpatialStakeholderMap
-
-# Create stakeholder map
-stakeholder_map = SpatialStakeholderMap(study_area=study_area)
-
-# Add stakeholder groups
-stakeholder_map.add_stakeholder_group(
-    name="Riverside Communities",
-    geography="communities.geojson",
-    interests=["flood protection", "water quality"],
-    influence_level=3
-)
-
-# Analyze stakeholder landscape
-analysis = stakeholder_map.analyze_stakeholder_landscape()
-```
-
-#### CommunityManager
-
-Community development and management.
-
-```python
-from geo_infer_org.community import CommunityManager
-
-# Create community manager
-community = CommunityManager(
-    project_name="Geospatial Initiative",
-    onboarding_enabled=True
-)
-
-# Add contributor pathway
-community.add_contributor_pathway(
-    name="New Contributor",
-    steps=["onboarding", "first_contribution", "mentorship"]
-)
-
-# Track community health
-health_metrics = community.assess_community_health()
-```
-
-#### ProjectManager
-
-Geospatial project management system.
-
-```python
-from geo_infer_org.projects import ProjectManager
-
-# Create project manager
-project = ProjectManager(
-    project_name="Spatial Analysis Project",
-    workflow_template="geospatial_analysis"
-)
-
-# Define project phases
-project.add_phase(
-    name="Data Collection",
-    tasks=["data_ingestion", "validation", "storage"]
-)
-
-# Track progress
-progress = project.get_progress_report()
-```
-
-#### KnowledgeManager
-
-Organizational knowledge management.
-
-```python
-from geo_infer_org.knowledge import KnowledgeManager
-
-# Create knowledge manager
-knowledge = KnowledgeManager(
-    knowledge_base_path="knowledge/",
-    search_enabled=True
-)
-
-# Add knowledge asset
-knowledge.add_asset(
-    title="Spatial Analysis Best Practices",
-    content=best_practices_doc,
-    tags=["spatial", "analysis", "best_practices"]
-)
-
-# Search knowledge base
-results = knowledge.search("spatial indexing")
-```
-
-## Future Development
-
-- Integration of machine learning for organizational pattern analysis
-- Advanced visualization tools for complex governance structures
-- Adaptive recommendation systems for organizational improvement
-- Spatial network analysis for distributed community optimization
-- Cross-cultural governance models for international geospatial initiatives
-
-## Contributing
-
-Contributions to GEO-INFER-ORG are welcome! We especially value input from those with experience in:
-- Community management and governance
-- Geospatial project management
-- Stakeholder engagement in spatial contexts
-- Organizational development
-- Knowledge management systems
-
-Please refer to the main `CONTRIBUTING.md` in the GEO-INFER root directory for contribution guidelines.
-
-## License
-
-This module, as part of the GEO-INFER framework, is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details. 
+**Last Updated**: 2026-01-26

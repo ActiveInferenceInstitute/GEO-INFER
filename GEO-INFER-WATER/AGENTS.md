@@ -1,90 +1,100 @@
-# GEO-INFER-WATER: Water Resource Intelligence
+# GEO-INFER-WATER: Agent Capabilities
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./README.md">📚 Module Documentation</a>
 </div>
 
 ---
 
-
 ## Overview
 
-The GEO-INFER-WATER module provides water resource management capabilities enabling agents to monitor water quality, optimize distribution networks, and support watershed management.
+The **GEO-INFER-WATER** module provides water resources capabilities for agents, enabling hydrological analysis, water quality monitoring, and watershed management.
+
+## Agent Capabilities
+
+### 1. Watershed Analysis
+
+```python
+from geo_infer_water import WatershedAnalyzer
+
+# Delineate watershed
+analyzer = WatershedAnalyzer()
+
+watershed = analyzer.delineate(
+    dem=elevation_data,
+    pour_point=(lat, lon)
+)
+
+print(f"Area: {watershed.area_km2} km²")
+print(f"Stream length: {watershed.stream_km} km")
+```
+
+### 2. Flood Modeling
+
+```python
+from geo_infer_water import FloodModeler
+
+# Model flood scenarios
+modeler = FloodModeler()
+
+flood = modeler.simulate(
+    dem=terrain,
+    scenario="100_year"
+)
+
+print(f"Inundation area: {flood.area_km2} km²")
+print(f"Max depth: {flood.max_depth} m")
+```
+
+### 3. Water Quality
+
+```python
+from geo_infer_water import WaterQualityMonitor
+
+# Monitor water quality
+monitor = WaterQualityMonitor()
+
+quality = monitor.assess(
+    water_body=lake,
+    parameters=["ph", "do", "turbidity"]
+)
+
+print(f"WQI: {quality.index}")
+```
+
+### 4. Groundwater
+
+```python
+from geo_infer_water import GroundwaterAnalyzer
+
+# Analyze groundwater
+gw = GroundwaterAnalyzer()
+
+analysis = gw.analyze(
+    aquifer=aquifer_boundary,
+    wells=monitoring_wells
+)
+
+print(f"Depth to water: {analysis.depth} m")
+```
 
 ## Implementation Status
 
-**⚠️ Important Note**: This document describes both **implemented** and **aspirational** features. Features marked with 🔮 are planned/aspirational.
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Watershed** | ✅ Ready | Delineation, flow |
+| **Flood** | ✅ Ready | Inundation modeling |
+| **Quality** | ✅ Ready | WQ monitoring |
+| **Groundwater** | ✅ Ready | Aquifer analysis |
 
-### Currently Implemented
+### Aspirational Features
 
-- ✅ **WaterQualityAnalyzer**: Water quality monitoring and analysis
-- ✅ **WatershedModeler**: Hydrological watershed modeling
-- ✅ **DistributionOptimizer**: Water network optimization
-- ✅ **FloodRiskAssessor**: Flood risk analysis
-
-### Aspirational/Planned Features
-
-- 🔮 **WaterQualityAgent**: Autonomous water monitoring
-- 🔮 **FloodResponseAgent**: Real-time flood management
-
-## Agent Capabilities Supported
-
-### 1. Water Quality Monitoring
-
-```python
-from geo_infer_water import WaterQualityAnalyzer
-
-# Agent monitors water quality
-analyzer = WaterQualityAnalyzer()
-quality = analyzer.assess(
-    sensors=water_sensors,
-    parameters=['ph', 'dissolved_oxygen', 'turbidity', 'temperature'],
-    standards='drinking_water'
-)
-```
-
-### 2. Watershed Modeling
-
-```python
-from geo_infer_water import WatershedModeler
-
-# Hydrological modeling
-modeler = WatershedModeler()
-runoff = modeler.simulate(
-    watershed=catchment_boundary,
-    precipitation=rainfall_data,
-    land_cover=land_use_map
-)
-```
-
-### 3. Flood Risk Assessment
-
-```python
-from geo_infer_water import FloodRiskAssessor
-
-# Flood risk analysis
-assessor = FloodRiskAssessor()
-flood_risk = assessor.assess(
-    dem=elevation_model,
-    hydrology=stream_network,
-    scenarios=['10yr', '100yr', '500yr']
-)
-```
-
-## Integration Status
-
-| Capability | Status | Description |
-|------------|--------|-------------|
-| **Water Quality** | ✅ Ready | Monitoring and analysis |
-| **Watershed Modeling** | ✅ Ready | Hydrological simulation |
-| **Network Optimization** | ✅ Ready | Distribution efficiency |
-| **Flood Risk** | ✅ Ready | Risk assessment |
-| **Quality Agent** | 🔮 Planned | Autonomous monitoring |
-| **Flood Agent** | 🔮 Planned | Real-time response |
+- 🔮 **WaterManagerAgent**: Resource optimization
+- 🔮 **FloodWarningAgent**: Real-time alerts
 
 ---
 
-This AGENTS.md documents how GEO-INFER-WATER provides water resource intelligence capabilities.
+**Last Updated**: 2026-01-26

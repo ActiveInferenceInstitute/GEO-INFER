@@ -1,0 +1,5 @@
+# scripts
+ ## Overview
+ **Path**: `GEO-INFER-SPACE/scripts` Utility scripts. ## Implementation
+ ### `verification/test_h3_basic.py` **Functions**: test_h3_imports, test_h3_basic_operations, test_h3_structure, test_h3_documentation, test_h3_file_structure ### `verification/test_multiple_dispatch_comprehensive.py` **Functions**: test_multiple_dispatch_indexing, test_multiple_dispatch_analytics, test_backend_capabilities, test_convenience_functions, test_backend_dispatcher_configuration ### `verification/test_refactored_structure.py` **Functions**: test_core_imports, test_backend_dispatcher, test_spatial_indexing_interface, test_backend_implementations, test_backward_compatibility ### `verification/verify_installation.py` **Functions**: test_core_imports, test_h3_functionality, test_vector_operations, test_data_models, test_api_schemas ### `verification/test_core_functionality.py` **Functions**: test_module_structure, test_basic_imports, test_h3_utils_structure, test_analytics_structure, test_api_structure ## Contents
+ - **verification/**: Subdirectory --- 

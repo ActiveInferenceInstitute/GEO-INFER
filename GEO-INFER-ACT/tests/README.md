@@ -1,390 +1,44 @@
-# GEO-INFER-ACT Test Suite
-
-This directory contains comprehensive tests for the GEO-INFER-ACT Active Inference framework.
-
-## Directory Structure
-
-```
-tests/
-├── __init__.py
-├── test_analysis.py           # Performance analysis tests
-├── test_api.py               # API endpoint tests
-├── test_core.py              # Core Active Inference tests
-├── test_geospatial_ai.py     # Geospatial AI utility tests
-├── test_h3_active_inference.py  # H3 spatial Active Inference tests
-├── test_h3.py                # H3 integration tests
-├── test_integration.py       # Integration tests
-├── test_models.py            # Model-specific tests
-└── test_utils.py             # Utility function tests
-```
-
-## Test Categories
-
-### Core Active Inference Tests
-
-**File**: `test_core.py`
-
-Tests fundamental Active Inference components:
-
-```python
-def test_active_inference_agent():
-    """Test basic Active Inference agent functionality"""
-    agent = ActiveInferenceAgent(
-        agent_id="test_agent",
-        generative_model=create_test_model(),
-        precision_parameters={'sensory': 1.0, 'action': 0.8}
-    )
-
-    # Test agent initialization
-    assert agent.agent_id == "test_agent"
-    assert agent.generative_model is not None
-
-    # Test perception
-    observations = generate_test_observations()
-    beliefs = agent.perceive(observations)
-
-    assert 'posterior' in beliefs
-    assert beliefs['posterior'].shape[0] > 0
-
-def test_free_energy_calculation():
-    """Test variational free energy computation"""
-    calculator = FreeEnergyCalculator()
-
-    vfe = calculator.variational_free_energy(
-        posterior_beliefs=test_posterior,
-        observations=test_observations,
-        generative_model=test_model
-    )
-
-    assert isinstance(vfe, (int, float))
-    assert vfe >= 0  # Free energy should be non-negative
-```
-
-### Model-Specific Tests
-
-**File**: `test_models.py`
-
-Tests specialized Active Inference models:
-
-```python
-def test_ecological_model():
-    """Test ecological monitoring model"""
-    model = EcologicalMonitor(
-        ecosystem_type='forest',
-        species_of_interest=['oak', 'pine']
-    )
-
-    # Test model initialization
-    assert model.ecosystem_type == 'forest'
-    assert len(model.species_of_interest) == 2
-
-    # Test ecological assessment
-    sensor_data = generate_ecological_data()
-    assessment = model.assess_ecosystem_state(sensor_data)
-
-    assert 'biodiversity_index' in assessment
-    assert 'health_score' in assessment
-
-def test_urban_planning_model():
-    """Test urban planning Active Inference model"""
-    model = UrbanPlanner(
-        planning_area=city_bounds,
-        planning_horizon=20
-    )
-
-    scenarios = model.generate_scenarios(
-        current_state=test_city_data,
-        drivers=test_growth_drivers
-    )
-
-    assert len(scenarios) > 0
-    assert all('population' in s for s in scenarios)
-```
-
-### Geospatial Integration Tests
-
-**File**: `test_geospatial_ai.py`
-
-Tests geospatial AI utilities:
-
-```python
-def test_spatial_reasoning():
-    """Test spatial reasoning capabilities"""
-    geo_ai = GeospatialAI()
-
-    spatial_data = generate_spatial_dataset()
-    patterns = geo_ai.extract_spatial_patterns(spatial_data)
-
-    assert 'clusters' in patterns
-    assert 'gradients' in patterns
-    assert len(patterns['clusters']) >= 0
-
-def test_h3_integration():
-    """Test H3 spatial indexing integration"""
-    h3_ai = H3ActiveInference(
-        resolution=8,
-        temporal_model='ar1'
-    )
-
-    geospatial_data = generate_h3_data()
-    inference_result = h3_ai.spatial_inference(geospatial_data)
-
-    assert 'h3_index' in inference_result
-    assert inference_result['resolution'] == 8
-```
-
-### API Tests
-
-**File**: `test_api.py`
-
-Tests REST API endpoints:
-
-```python
-def test_agent_creation_endpoint(client):
-    """Test agent creation via API"""
-    response = client.post('/api/agents', json={
-        'agent_id': 'test_agent',
-        'model_type': 'active_inference',
-        'parameters': {'precision': 1.0}
-    })
-
-    assert response.status_code == 201
-    data = response.get_json()
-    assert data['agent_id'] == 'test_agent'
-    assert 'created_at' in data
-
-def test_belief_retrieval_endpoint(client, test_agent):
-    """Test belief retrieval endpoint"""
-    response = client.get(f'/api/agents/{test_agent.id}/beliefs')
-
-    assert response.status_code == 200
-    beliefs = response.get_json()
-    assert 'posterior' in beliefs
-    assert 'uncertainty' in beliefs
-```
-
-### Integration Tests
-
-**File**: `test_integration.py`
-
-Tests component integration:
-
-```python
-def test_full_active_inference_pipeline():
-    """Test complete Active Inference pipeline"""
-    # Create agent
-    agent = ActiveInferenceAgent(...)
-
-    # Simulate perception-action cycle
-    for _ in range(10):
-        observations = generate_environment_observations()
-        beliefs = agent.perceive(observations)
-        actions = agent.select_actions(beliefs)
-        outcomes = simulate_action_execution(actions)
-        agent.learn(outcomes)
-
-    # Verify learning
-    final_performance = agent.evaluate_performance()
-    assert final_performance['accuracy'] > 0.8
-    assert final_performance['free_energy'] < initial_free_energy
-```
-
-## Running Tests
-
-### Basic Test Execution
-
-```bash
-# Run all tests
-python -m pytest tests/
-
-# Run specific test file
-python -m pytest tests/test_core.py
-
-# Run specific test function
-python -m pytest tests/test_core.py::test_active_inference_agent
-
-# Run with verbose output
-python -m pytest -v tests/
-```
-
-### Test with Coverage
-
-```bash
-# Generate coverage report
-python -m pytest --cov=geo_infer_act --cov-report=html tests/
-
-# View coverage report
-open htmlcov/index.html
-```
-
-### Performance Testing
-
-```bash
-# Run performance benchmarks
-python -m pytest --benchmark-only tests/
-
-# Profile specific test
-python -m pytest --profile tests/test_core.py
-```
-
-## Test Configuration
-
-### Fixtures
-
-Common test fixtures in `conftest.py`:
-
-```python
-@pytest.fixture
-def sample_generative_model():
-    """Provide sample generative model"""
-    return create_test_generative_model()
-
-@pytest.fixture
-def test_agent(sample_generative_model):
-    """Provide test Active Inference agent"""
-    return ActiveInferenceAgent(
-        agent_id="test_agent",
-        generative_model=sample_generative_model
-    )
-
-@pytest.fixture
-def client(app):
-    """Provide test client for API tests"""
-    return app.test_client()
-```
-
-### Test Data
-
-Test data utilities:
-
-```python
-def generate_test_observations():
-    """Generate synthetic observation data"""
-    return {
-        'spatial_data': np.random.randn(100, 2),
-        'temporal_data': np.random.randn(50),
-        'sensor_data': np.random.exponential(1.0, 20)
-    }
-
-def create_test_generative_model():
-    """Create simple generative model for testing"""
-    model = GenerativeModel()
-    model.define_states({'position': '2d_continuous'})
-    model.define_observations({'location': 'gaussian'})
-    return model
-```
-
-## Test Coverage Goals
-
-- **Core Functionality**: >95% coverage
-- **Model Classes**: >90% coverage each
-- **API Endpoints**: 100% coverage
-- **Integration Tests**: Cover all major workflows
-- **Error Handling**: Test edge cases and failures
-
-## Performance Benchmarks
-
-### Benchmark Tests
-
-Key performance benchmarks:
-
-```python
-def test_variational_inference_performance(benchmark):
-    """Benchmark variational inference speed"""
-    vi = VariationalInference()
-    data = generate_large_dataset()
-
-    result = benchmark(vi.infer_posterior, data, test_model)
-    assert result['convergence'] < 1e-4
-
-def test_spatial_inference_scaling(benchmark):
-    """Test spatial inference scaling"""
-    spatial_ai = GeospatialAI()
-    large_dataset = generate_spatial_dataset(size=10000)
-
-    result = benchmark(spatial_ai.process_dataset, large_dataset)
-    assert result['processing_time'] < 60.0  # seconds
-```
-
-## Continuous Integration
-
-### CI Pipeline
-
-Tests run automatically on:
-- All commits to main/develop branches
-- Pull requests
-- Release candidates
-
-### Quality Gates
-
-- Test coverage > 90%
-- No critical security vulnerabilities
-- Performance regression < 5%
-- All linting checks pass
-
-## Writing New Tests
-
-### Test Structure
-
-```python
-import pytest
-from geo_infer_act.core.active_inference import ActiveInferenceAgent
-
-class TestActiveInferenceAgent:
-    """Test Active Inference agent functionality"""
-
-    def test_agent_initialization(self, sample_generative_model):
-        """Test agent creation"""
-        agent = ActiveInferenceAgent(
-            agent_id="test",
-            generative_model=sample_generative_model
-        )
-        assert agent.is_initialized()
-
-    def test_perception_update(self, test_agent):
-        """Test belief updating through perception"""
-        observations = generate_test_observations()
-
-        initial_beliefs = test_agent.get_beliefs()
-        test_agent.perceive(observations)
-        updated_beliefs = test_agent.get_beliefs()
-
-        assert updated_beliefs != initial_beliefs
-        assert test_agent.free_energy < initial_beliefs.get('free_energy', float('inf'))
-
-    def test_action_selection(self, test_agent):
-        """Test expected free energy minimization"""
-        beliefs = test_agent.get_beliefs()
-        actions = test_agent.select_actions(beliefs)
-
-        assert len(actions) > 0
-        assert all(isinstance(a, dict) for a in actions)
-```
-
-## Debugging and Troubleshooting
-
-### Common Issues
-
-1. **Numerical Instability**: Check precision parameters and learning rates
-2. **Convergence Issues**: Verify generative model specification
-3. **Memory Issues**: Monitor tensor sizes in large-scale tests
-4. **Async Test Issues**: Use pytest-asyncio for async functionality
-
-### Debugging Tools
-
-```bash
-# Run with debugging
-python -m pytest --pdb tests/test_core.py::TestActiveInference::test_perception
-
-# Run with detailed logging
-python -m pytest -s --log-cli-level=DEBUG tests/
-```
-
-## Contributing
-
-1. Add tests for new functionality before implementation
-2. Maintain >90% test coverage
-3. Include performance benchmarks for critical paths
-4. Update this README for new test categories
-5. Run full test suite locally before pushing
-
+# GEO
+-INFER-ACT Test Suite This directory contains tests for the GEO-INFER-ACT Active Inference framework. ## Directory
+ Structure ``` tests/ ├── __init__.py ├── test_analysis.py # Performance analysis tests ├── test_api.py # API endpoint tests ├── test_core.py # Core Active Inference tests ├── test_geospatial_ai.py # Geospatial AI utility tests ├── test_h3_active_inference.py # H3 spatial Active Inference tests ├── test_h3.py # H3 integration tests ├── test_integration.py # Integration tests ├── test_models.py # Model-specific tests └── test_utils.py # Utility function tests ``` ## Test
+ Categories ### Cor
+e
+ Active Inference Tests **File**: `test_core.py` Tests fundamental Active Inference components: ```python def test_active_inference_agent(): """Test basic Active Inference agent functionality""" agent = ActiveInferenceAgent( agent_id="test_agent", generative_model=create_test_model(), precision_parameters={'sensory': 1.0, 'action': 0.8} ) # Test agent initialization assert agent.agent_id == "test_agent" assert agent.generative_model is not None # Test perception observations = generate_test_observations() beliefs = agent.perceive(observations) assert 'posterior' in beliefs assert beliefs['posterior'].shape[0] > 0 def test_free_energy_calculation(): """Test variational free energy computation""" calculator = FreeEnergyCalculator() vfe = calculator.variational_free_energy( posterior_beliefs=test_posterior, observations=test_observations, generative_model=test_model ) assert isinstance(vfe, (int, float)) assert vfe >= 0 # Free energy should be non-negative ``` ### Mode
+l
+-Specific Tests **File**: `test_models.py` Tests specialized Active Inference models: ```python def test_ecological_model(): """Test ecological monitoring model""" model = EcologicalMonitor( ecosystem_type='forest', species_of_interest=['oak', 'pine'] ) # Test model initialization assert model.ecosystem_type == 'forest' assert len(model.species_of_interest) == 2 # Test ecological assessment sensor_data = generate_ecological_data() assessment = model.assess_ecosystem_state(sensor_data) assert 'biodiversity_index' in assessment assert 'health_score' in assessment def test_urban_planning_model(): """Test urban planning Active Inference model""" model = UrbanPlanner( planning_area=city_bounds, planning_horizon=20 ) scenarios = model.generate_scenarios( current_state=test_city_data, drivers=test_growth_drivers ) assert len(scenarios) > 0 assert all('population' in s for s in scenarios) ``` ### Geospatia
+l
+ Integration Tests **File**: `test_geospatial_ai.py` Tests geospatial AI utilities: ```python def test_spatial_reasoning(): """Test spatial reasoning capabilities""" geo_ai = GeospatialAI() spatial_data = generate_spatial_dataset() patterns = geo_ai.extract_spatial_patterns(spatial_data) assert 'clusters' in patterns assert 'gradients' in patterns assert len(patterns['clusters']) >= 0 def test_h3_integration(): """Test H3 spatial indexing integration""" h3_ai = H3ActiveInference( resolution=8, temporal_model='ar1' ) geospatial_data = generate_h3_data() inference_result = h3_ai.spatial_inference(geospatial_data) assert 'h3_index' in inference_result assert inference_result['resolution'] == 8 ``` ### AP
+I
+ Tests **File**: `test_api.py` Tests REST API endpoints: ```python def test_agent_creation_endpoint(client): """Test agent creation via API""" response = client.post('/api/agents', json={ 'agent_id': 'test_agent', 'model_type': 'active_inference', 'parameters': {'precision': 1.0} }) assert response.status_code == 201 data = response.get_json() assert data['agent_id'] == 'test_agent' assert 'created_at' in data def test_belief_retrieval_endpoint(client, test_agent): """Test belief retrieval endpoint""" response = client.get(f'/api/agents/{test_agent.id}/beliefs') assert response.status_code == 200 beliefs = response.get_json() assert 'posterior' in beliefs assert 'uncertainty' in beliefs ``` ### Integratio
+n
+ Tests **File**: `test_integration.py` Tests component integration: ```python def test_full_active_inference_pipeline(): """Test Active Inference pipeline""" # Create agent agent = ActiveInferenceAgent(...) # Simulate perception-action cycle for _ in range(10): observations = generate_environment_observations() beliefs = agent.perceive(observations) actions = agent.select_actions(beliefs) outcomes = simulate_action_execution(actions) agent.learn(outcomes) # Verify learning final_performance = agent.evaluate_performance() assert final_performance['accuracy'] > 0.8 assert final_performance['free_energy'] < initial_free_energy ``` ## Running
+ Tests ### Basi
+c
+ Test Execution ```bash # Run all tests python -m pytest tests/ # Run specific test file python -m pytest tests/test_core.py # Run specific test function python -m pytest tests/test_core.py::test_active_inference_agent # Run with verbose output python -m pytest -v tests/ ``` ### Tes
+t
+ with Coverage ```bash # Generate coverage report python -m pytest --cov=geo_infer_act --cov-report=html tests/ # View coverage report open htmlcov/index.html ``` ### Performanc
+e
+ Testing ```bash # Run performance benchmarks python -m pytest --benchmark-only tests/ # Profile specific test python -m pytest --profile tests/test_core.py ``` ## Test
+ Configuration ### Fixture
+s
+ Common test fixtures in `conftest.py`: ```python @pytest.fixture def sample_generative_model(): """Provide sample generative model""" return create_test_generative_model() @pytest.fixture def test_agent(sample_generative_model): """Provide test Active Inference agent""" return ActiveInferenceAgent( agent_id="test_agent", generative_model=sample_generative_model ) @pytest.fixture def client(app): """Provide test client for API tests""" return app.test_client() ``` ### Tes
+t
+ Data Test data utilities: ```python def generate_test_observations(): """Generate synthetic observation data""" return { 'spatial_data': np.random.randn(100, 2), 'temporal_data': np.random.randn(50), 'sensor_data': np.random.exponential(1.0, 20) } def create_test_generative_model(): """Create simple generative model for testing""" model = GenerativeModel() model.define_states({'position': '2d_continuous'}) model.define_observations({'location': 'gaussian'}) return model ``` ## Test
+ Coverage Goals - **Core Functionality**: >95% coverage - **Model Classes**: >90% coverage each - **API Endpoints**: 100% coverage - **Integration Tests**: Cover all major workflows - **Error Handling**: Test edge cases and failures ## Performance
+ Benchmarks ### Benchmar
+k
+ Tests Key performance benchmarks: ```python def test_variational_inference_performance(benchmark): """Benchmark variational inference speed""" vi = VariationalInference() data = generate_large_dataset() result = benchmark(vi.infer_posterior, data, test_model) assert result['convergence'] < 1e-4 def test_spatial_inference_scaling(benchmark): """Test spatial inference scaling""" spatial_ai = GeospatialAI() large_dataset = generate_spatial_dataset(size=10000) result = benchmark(spatial_ai.process_dataset, large_dataset) assert result['processing_time'] < 60.0 # seconds ``` ## Continuous
+ Integration ### C
+I
+ Pipeline Tests run automatically on: - All commits to main/develop branches - Pull requests - Release candidates ### Qualit
+y
+ Gates - Test coverage > 90% - No critical security vulnerabilities - Performance regression < 5% - All linting checks pass ## Writing
+ Tests ### Tes
+t
+ Structure ```python import pytest from geo_infer_act.core.active_inference import ActiveInferenceAgent class TestActiveInferenceAgent: """Test Active Inference agent functionality""" def test_agent_initialization(self, sample_generative_model): """Test agent creation""" agent = ActiveInferenceAgent( agent_id="test", generative_model=sample_generative_model ) assert agent.is_initialized() def test_perception_update(self, test_agent): """Test belief updating through perception""" observations = generate_test_observations() initial_beliefs = test_agent.get_beliefs() test_agent.perceive(observations) updated_beliefs = test_agent.get_beliefs() assert updated_beliefs != initial_beliefs assert test_agent.free_energy < initial_beliefs.get('free_energy', float('inf')) def test_action_selection(self, test_agent): """Test expected free energy minimization""" beliefs = test_agent.get_beliefs() actions = test_agent.select_actions(beliefs) assert len(actions) > 0 assert all(isinstance(a, dict) for a in actions) ``` ## Debugging
+ and Troubleshooting ### Commo
+n
+ Issues 1. **Numerical Instability**: Check precision parameters and learning rates 2. **Convergence Issues**: Verify generative model specification 3. **Memory Issues**: Monitor tensor sizes in large-scale tests 4. **Async Test Issues**: Use pytest-asyncio for async functionality ### Debuggin
+g
+ Tools ```bash # Run with debugging python -m pytest --pdb tests/test_core.py::TestActiveInference::test_perception # Run with logging python -m pytest -s --log-cli-level=DEBUG tests/ ``` ## Contributing
+ 1. Add tests for functionality before implementation 2. Maintain >90% test coverage 3. Include performance benchmarks for critical paths 4. Update this README for test categories 5. Run test suite locally before pushing 

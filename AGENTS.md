@@ -6,6 +6,7 @@
 - [Agent Module Index](#agent-module-index)
   - [Core Agent Modules](#core-agent-modules)
   - [Agent-Enabled Domain Modules](#agent-enabled-domain-modules)
+  - [Agent Framework Support Modules](#agent-framework-support-modules)
   - [Agent Architectures & Capabilities](#agent-architectures--capabilities)
 - [Implementation Status](#implementation-status)
   - [Currently Implemented](#currently-implemented)
@@ -29,11 +30,11 @@
 
 ## Overview
 
-This document comprehensively describes the multi-agent systems architecture within the GEO-INFER framework. It covers the design principles, agent types, coordination mechanisms, security protocols, and integration patterns that enable intelligent, autonomous geospatial decision-making.
+This document describes the multi-agent systems architecture within the GEO-INFER framework. It covers design principles, agent types, coordination mechanisms, security protocols, and integration patterns that enable autonomous geospatial decision-making.
 
 ### 🧭 Quick Navigation
 
-- **[Agent Module Index](#-agent-module-index)** - Complete index of agent-related modules
+- **[Agent Module Index](#-agent-module-index)** - Index of agent-related modules
 - **[Implementation Status](#implementation-status)** - What's implemented vs. planned
 - **[Core Agent Framework](#core-agent-framework)** - Base agent types and lifecycle
 - **[Multi-Agent Coordination](#multi-agent-coordination)** - Coordination strategies and protocols
@@ -45,11 +46,13 @@ This document comprehensively describes the multi-agent systems architecture wit
 ### Related Documentation
 
 **Core Agent Modules:**
+
 - **[GEO-INFER-ACT/AGENTS.md](./GEO-INFER-ACT/AGENTS.md)**: Active Inference agent implementations
-- **[GEO-INFER-AGENT/AGENTS.md](./GEO-INFER-AGENT/AGENTS.md)**: Core intelligent agent framework
+- **[GEO-INFER-AGENT/AGENTS.md](./GEO-INFER-AGENT/AGENTS.md)**: Core agent framework
 - **[GEO-INFER-ANT/AGENTS.md](./GEO-INFER-ANT/AGENTS.md)**: Swarm intelligence agents
 
 **Infrastructure Modules:**
+
 - **[GEO-INFER-SPACE/AGENTS.md](./GEO-INFER-SPACE/AGENTS.md)**: Spatial intelligence for agents
 - **[GEO-INFER-TIME/AGENTS.md](./GEO-INFER-TIME/AGENTS.md)**: Temporal intelligence for agents
 - **[GEO-INFER-DATA/AGENTS.md](./GEO-INFER-DATA/AGENTS.md)**: Data management for agents
@@ -57,12 +60,12 @@ This document comprehensively describes the multi-agent systems architecture wit
 - **[GEO-INFER-API/AGENTS.md](./GEO-INFER-API/AGENTS.md)**: Agent communication interfaces
 
 **Domain Applications:**
+
 - **[GEO-INFER-AG/AGENTS.md](./GEO-INFER-AG/AGENTS.md)**: Agricultural intelligence agents
 - **[GEO-INFER-HEALTH/AGENTS.md](./GEO-INFER-HEALTH/AGENTS.md)**: Health surveillance agents
 - **[GEO-INFER-CLIMATE/AGENTS.md](./GEO-INFER-CLIMATE/AGENTS.md)**: Climate analysis agents
 - **[GEO-INFER-TRANSPORT/AGENTS.md](./GEO-INFER-TRANSPORT/AGENTS.md)**: Transportation agents
 - **[GEO-INFER-EMERGENCY/AGENTS.md](./GEO-INFER-EMERGENCY/AGENTS.md)**: Emergency response agents
-
 
 ## 📋 Agent Module Index
 
@@ -111,7 +114,6 @@ This document comprehensively describes the multi-agent systems architecture wit
 | **[SEC](./GEO-INFER-SEC/)** | Security and authentication for agents | 🟡 Alpha | [README](./GEO-INFER-SEC/README.md) \| [AGENTS.md](./GEO-INFER-SEC/AGENTS.md) |
 | **[OPS](./GEO-INFER-OPS/)** | Deployment and monitoring for agents | 🟡 Alpha | [README](./GEO-INFER-OPS/README.md) \| [AGENTS.md](./GEO-INFER-OPS/AGENTS.md) |
 
-
 ### Agent Architectures & Capabilities
 
 | Architecture | Module | Implementation | Status | Links |
@@ -122,7 +124,7 @@ This document comprehensively describes the multi-agent systems architecture wit
 | **Rule-Based** | [AGENT](./GEO-INFER-AGENT/) | `RuleBasedAgent` | ✅ Implemented | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/models/rule_based.py) |
 | **Hybrid** | [AGENT](./GEO-INFER-AGENT/) | `HybridAgent` | ✅ Implemented | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/models/hybrid.py) |
 | **Swarm Intelligence** | [ANT](./GEO-INFER-ANT/) | `SwarmAgent`, `AgentPopulation` | ✅ Implemented | [Source](./GEO-INFER-ANT/src/geo_infer_ant/core/) |
-| **Stigmergic Communication** | [ANT](./GEO-INFER-ANT/) | `PheromoneSystem`, `DigitalStigmergy` | ✅ Implemented | [Source](./GEO-INFER-ANT/src/geo_infer_ant/communication/) |
+| **Stigmergic Communication** | [ANT](./GEO-INFER-ANT/) | `PheromoneSystem`, `DigitalStigmergy` | ✅ Implemented | [Source](./GEO-INFER-ANT/src/geo_infer_ant/core/) |
 | **Swarm Optimization** | [ANT](./GEO-INFER-ANT/) | `ABC`, `PSO`, `ACO` algorithms | ✅ Implemented | [Source](./GEO-INFER-ANT/src/geo_infer_ant/algorithms/) |
 | **Cognitive Modeling** | [COG](./GEO-INFER-COG/) | Cognitive agents with attention, memory | 🟡 In Development | [Source](./GEO-INFER-COG/src/) |
 | **Multi-Agent Coordination** | [AGENT](./GEO-INFER-AGENT/) | `AgentRegistry`, `MessagingService` | ✅ Implemented | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/core/) |
@@ -142,7 +144,7 @@ This document comprehensively describes the multi-agent systems architecture wit
 | **RL Agents** | AGENT | `RLAgent` | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/models/rl.py) |
 | **Hybrid Agents** | AGENT | `HybridAgent` | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/models/hybrid.py) |
 | **Swarm Agents** | ANT | `SwarmAgent`, `AgentPopulation` | [Source](./GEO-INFER-ANT/src/geo_infer_ant/core/) |
-| **Stigmergic Communication** | ANT | `PheromoneSystem`, `DigitalStigmergy` | [Source](./GEO-INFER-ANT/src/geo_infer_ant/communication/) |
+| **Stigmergic Communication** | ANT | `PheromoneSystem`, `DigitalStigmergy` | [Source](./GEO-INFER-ANT/src/geo_infer_ant/core/) |
 | **Agent Communication** | AGENT | `MessagingService` | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/api/messaging.py) |
 | **Agent Telemetry** | AGENT | `TelemetryService` | [Source](./GEO-INFER-AGENT/src/geo_infer_agent/api/telemetry.py) |
 | **Swarm Optimization** | ANT | `ABC`, `PSO`, `ACO` algorithms | [Source](./GEO-INFER-ANT/src/geo_infer_ant/algorithms/) |
@@ -176,37 +178,37 @@ graph TB
         ACA[Agent Capabilities]
         ACI[Agent Intelligence]
     end
-
+    
     subgraph Coordination_Layer
         MAS[Multi-Agent Systems]
         COM[Communication Protocols]
         NEG[Negotiation Mechanisms]
         CON[Conflict Resolution]
     end
-
+    
     subgraph Spatial_Intelligence
         SAI[Spatial Awareness]
         SAD[Spatial Decision Making]
         SAM[Spatial Memory]
         SAL[Spatial Learning]
     end
-
+    
     subgraph Integration_Layer
         ACT[GEO-INFER-ACT]
         AI[GEO-INFER-AI]
         SPACE[GEO-INFER-SPACE]
         SEC[GEO-INFER-SEC]
     end
-
+    
     Core_Agent_Framework --> Coordination_Layer
     Coordination_Layer --> Spatial_Intelligence
     Spatial_Intelligence --> Integration_Layer
-
+    
     classDef core fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
     classDef coord fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
     classDef spatial fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
     classDef integration fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-
+    
     class Core_Agent_Framework core
     class Coordination_Layer coord
     class Spatial_Intelligence spatial
@@ -224,12 +226,14 @@ graph TB
 **Purpose**: Autonomous environmental data collection and analysis.
 
 **Capabilities**:
+
 - Real-time sensor data processing
 - Anomaly detection and alerting
 - Predictive environmental modeling
 - Quality assurance and validation
 
 **Spatial Intelligence**:
+
 - Adaptive sampling strategies based on spatial variability
 - Optimal sensor placement algorithms
 - Spatial interpolation of sensor data
@@ -261,15 +265,17 @@ agent.optimize_sensor_placement()
 
 **Status**: Planned/Aspirational
 
-**Purpose**: Intelligent infrastructure monitoring and maintenance.
+**Purpose**: Infrastructure monitoring and maintenance.
 
 **Capabilities**:
+
 - Structural health monitoring
 - Predictive maintenance scheduling
 - Resource allocation optimization
 - Risk assessment and mitigation
 
 **Spatial Intelligence**:
+
 - Infrastructure network analysis
 - Spatial dependency mapping
 - Critical infrastructure identification
@@ -302,12 +308,14 @@ agent.assess_risks()
 **Purpose**: Collaborative urban development and planning.
 
 **Capabilities**:
+
 - Land use analysis and optimization
 - Demographic trend analysis
 - Infrastructure planning coordination
 - Stakeholder engagement facilitation
 
 **Spatial Intelligence**:
+
 - Urban growth modeling
 - Spatial equity analysis
 - Multi-objective optimization
@@ -342,12 +350,14 @@ agent.facilitate_stakeholder_engagement()
 **Purpose**: Coordinated emergency management and response.
 
 **Capabilities**:
+
 - Real-time situation assessment
 - Resource deployment optimization
 - Multi-agency coordination
 - Public communication management
 
 **Spatial Intelligence**:
+
 - Dynamic risk mapping
 - Evacuation route optimization
 - Resource allocation algorithms
@@ -382,29 +392,29 @@ stateDiagram-v2
     Created --> Configured: Load Configuration
     Configured --> Registered: Register with System
     Registered --> Active: Start Operations
-
+    
     Active --> Learning: Continuous Learning
     Learning --> Active: Update Models
-
+    
     Active --> Coordinating: Multi-Agent Coordination
     Coordinating --> Active: Coordination Complete
-
+    
     Active --> Communicating: Inter-Agent Communication
     Communicating --> Active: Communication Complete
-
+    
     Active --> Idle: Low Activity Period
     Idle --> Active: Activity Detected
-
+    
     Active --> Maintenance: Scheduled Maintenance
     Maintenance --> Active: Maintenance Complete
-
+    
     Active --> Error: System Error
     Error --> Recovering: Error Recovery
     Recovering --> Active: Recovery Successful
-
+    
     Active --> Decommissioned: Agent Retirement
     Decommissioned --> [*]
-
+    
     note right of Active : Core Operational State
     note right of Learning : Continuous Improvement
     note right of Coordinating : Collaborative Behavior
@@ -421,6 +431,7 @@ stateDiagram-v2
 **Structure**: Tree-based hierarchy with central coordination.
 
 **Benefits**:
+
 - Clear command structure
 - Efficient decision making
 - Resource optimization
@@ -450,6 +461,7 @@ coordinator.set_coordination_rules()
 **Structure**: Self-organizing systems with emergent behavior.
 
 **Benefits**:
+
 - Adaptability to changing conditions
 - Resilience to agent failures
 - Scalability
@@ -481,6 +493,7 @@ coordinator.monitor_system_stability()
 **Structure**: Market-based resource allocation.
 
 **Benefits**:
+
 - Efficient resource allocation
 - Incentive compatibility
 - Price discovery
@@ -536,8 +549,6 @@ protocol.configure_authentication()
 
 **Protocol**: Decentralized agent communication.
 
-**Note**: Currently, use `MessagingService` from `geo_infer_agent.api.messaging` for agent communication.
-
 ```python
 # 🔮 Planned implementation - not yet available
 from geo_infer_agent.communication import PeerToPeerProtocol
@@ -560,8 +571,6 @@ protocol.optimize_routing()
 **Status**: Planned/Aspirational
 
 **Protocol**: Structured communication through hierarchy.
-
-**Note**: Currently, use `MessagingService` from `geo_infer_agent.api.messaging` for agent communication.
 
 ```python
 # 🔮 Planned implementation - not yet available
@@ -637,6 +646,7 @@ negotiator.facilitate_negotiation()
 **Status**: Planned/Aspirational
 
 **Capabilities**:
+
 - Geographic context understanding
 - Spatial relationship recognition
 - Scale awareness and management
@@ -666,6 +676,7 @@ perception.manage_scales()
 **Status**: Planned/Aspirational
 
 **Capabilities**:
+
 - Long-term spatial knowledge storage
 - Short-term spatial working memory
 - Spatial pattern recognition
@@ -745,6 +756,7 @@ optimizer.select_optimal_solution()
 **Status**: Planned/Aspirational
 
 **Capabilities**:
+
 - Spatial navigation learning
 - Resource allocation optimization
 - Adaptive behavior development
@@ -774,6 +786,7 @@ learner.adapt_to_environmental_changes()
 **Status**: Planned/Aspirational
 
 **Capabilities**:
+
 - Cross-domain knowledge transfer
 - Spatial analogy recognition
 - Domain adaptation techniques
@@ -827,8 +840,6 @@ security.monitor_security_events()
 
 **Status**: Planned/Aspirational
 
-**Note**: Use `GEO-INFER-SEC` for secure communication functionality.
-
 ```python
 # 🔮 Planned implementation - not yet available
 from geo_infer_agent.security import SecureCommunicationManager
@@ -849,8 +860,6 @@ communication.verify_message_integrity()
 #### Privacy Protection 🔮
 
 **Status**: Planned/Aspirational
-
-**Note**: Use `GEO-INFER-SEC` for privacy protection functionality.
 
 ```python
 # 🔮 Planned implementation - not yet available
@@ -926,13 +935,12 @@ action = agent.act(observation)
 **Pattern**: Machine learning enhancement of agent capabilities.
 
 ```python
-# 🔮 Note: IntelligentAgent and AIEngine integration is aspirational
+# Note: IntelligentAgent and AIEngine integration is aspirational
 # Currently, use specific agent models from geo_infer_agent.models
-
 from geo_infer_agent.models.rl import RLAgent
 from geo_infer_agent.models.hybrid import HybridAgent
 
-# Create AI-enhanced agent using RL
+# Create AI-agent using RL
 rl_agent = RLAgent(
     state_dim=10,
     action_dim=3,
@@ -949,7 +957,7 @@ hybrid_agent = HybridAgent(
 
 ### GEO-INFER-SPACE Integration
 
-**Pattern**: Backend-agnostic spatial data and analysis for agent operations with multiple dispatch support.
+**Pattern**: Backend-agnostic spatial data and analysis for agent operations.
 
 **Module**: [GEO-INFER-SPACE](./GEO-INFER-SPACE/) | [Documentation](./GEO-INFER-SPACE/README.md)
 
@@ -962,8 +970,8 @@ from geo_infer_space.core.dispatcher import configure_backends
 # Configure backend preferences for agent operations
 configure_backends({
     'default_backends': {
-        'indexing': 'h3',      # Use H3 v4 for spatial indexing (hexagonal grids)
-        'analytics': 'srai',   # Use SRAI for spatial analytics (AI-enhanced)
+        'indexing': 'h3',    # Use H3 v4 for spatial indexing
+        'analytics': 'srai',  # Use SRAI for spatial analytics
     }
 })
 
@@ -971,28 +979,16 @@ configure_backends({
 registry = AgentRegistry()
 
 # Create backend-agnostic spatial interfaces
-spatial_indexer = SpatialIndexingInterface()     # Uses H3 v4 by default for indexing
-spatial_analytics = SpatialAnalyticsInterface()  # Uses SRAI by default for analytics
+spatial_indexer = SpatialIndexingInterface()  # Uses H3 v4 by default
+spatial_analytics = SpatialAnalyticsInterface()  # Uses SRAI by default
 
 # Use H3 v4 backend explicitly for high-precision spatial operations
 h3_indexer = SpatialIndexingInterface(backend='h3')
-cell_h3 = h3_indexer.latlng_to_cell(37.7749, -122.4194, 9)  # San Francisco coordinates (H3 v4 API)
+cell_h3 = h3_indexer.latlng_to_cell(37.7749, -122.4194, 9)  # H3 v4 API
 
-# Use SRAI backend explicitly for AI-enhanced analytics
+# Use SRAI backend explicitly for AI-analytics
 srai_analytics = SpatialAnalyticsInterface(backend='srai')
 hotspots = srai_analytics.analyze_hotspots(spatial_data)
-
-# Agents can use spatial interfaces for spatial operations
-def adaptive_spatial_analysis(agent, context):
-    """Example: Agent adapts spatial backend based on analysis requirements."""
-    if context['requires_high_precision']:
-        # Use H3 v4 for precise spatial indexing
-        indexer = SpatialIndexingInterface(backend='h3')
-        return indexer.latlng_to_cell(context['lat'], context['lng'], 12)  # H3 v4 API
-    else:
-        # Use SRAI for AI-enhanced spatial analysis
-        analytics = SpatialAnalyticsInterface(backend='srai')
-        return analytics.analyze_hotspots(context['data'])
 ```
 
 ### GEO-INFER-SEC Integration
@@ -1000,19 +996,15 @@ def adaptive_spatial_analysis(agent, context):
 **Pattern**: Security framework for agent operations.
 
 ```python
-# 🔮 Note: IntelligentAgent integration with SEC is aspirational
-# Currently, use BaseAgent and integrate security at the application level
-
+# Note: IntelligentAgent integration with SEC is aspirational
+# Currently, use BaseAgent and integrate security at application level
 from geo_infer_agent.core.agent_base import BaseAgent
-# Note: Import SecurityEngine from GEO-INFER-SEC when available
-# from geo_infer_sec import SecurityEngine
 
-# Create agent with security considerations
 class SecureAgent(BaseAgent):
     """Agent with security integration."""
+    
     def __init__(self, agent_id=None, config=None):
         super().__init__(agent_id, config)
-        # Integrate security at agent level
         self.security_enabled = config.get('security_enabled', False) if config else False
 
 # Create secure agent instance
@@ -1100,7 +1092,7 @@ optimizer.manage_memory_efficiently()
 # 🔮 Planned implementation - not yet available
 from geo_infer_agent.smart_city import SmartCityAgentSystem
 
-# Create smart city agent system
+# Create city agent system
 city_system = SmartCityAgentSystem(
     city_bounds=san_francisco_bounds,
     agent_types=['traffic', 'energy', 'waste', 'security', 'health'],
@@ -1225,9 +1217,9 @@ validator.assess_emergent_behavior()
 
 ## Future Developments
 
-### Advanced Capabilities
+### Planned Capabilities
 
-1. **Quantum-Enhanced Agents**: Quantum computing for complex spatial optimization
+1. **Quantum-Agents**: Quantum computing for complex spatial optimization
 2. **Neuromorphic Agents**: Brain-inspired computing for spatial cognition
 3. **Autonomous Agent Evolution**: Self-evolving agent populations
 4. **Inter-Agent Learning**: Knowledge transfer between agent populations
@@ -1243,5 +1235,6 @@ validator.assess_emergent_behavior()
 
 ---
 
-**This document provides a comprehensive framework for understanding and implementing multi-agent systems within the GEO-INFER ecosystem. The architecture emphasizes spatial intelligence, secure coordination, and scalable performance while maintaining integration with core GEO-INFER modules.**
+**This document provides a framework for understanding and implementing multi-agent systems within the GEO-INFER ecosystem. The architecture emphasizes spatial intelligence, secure coordination, and scalable performance while maintaining integration with core GEO-INFER modules.**
 
+**Last Updated**: 2026-01-26

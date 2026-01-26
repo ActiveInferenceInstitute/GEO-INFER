@@ -1,0 +1,5 @@
+# tests
+ ## Overview
+ **Path**: `GEO-INFER-EDU/tests` Tests package initialization. ## Implementation
+ ### `test_exercises.py` **Classes**: TestExerciseGenerator, TestExercise, TestAssessment **Functions**: generator, test_init_default, test_create_exercises, test_progressive_difficulty, test_fixed_difficulty ### `test_progress.py` **Classes**: TestProgressTracker, TestLearnerProgress, TestCompetencyRecord **Functions**: tracker, sample_activities, sample_assessments, test_init_default, test_track_progress ### `test_curriculum.py` **Classes**: TestCurriculumDesigner, TestLearningObjective, TestCurriculum **Functions**: designer, test_init_default, test_init_with_parameters, test_design_curriculum, test_design_with_custom_objectives ## Contents
+ - **test_curriculum.py**: Python module - **test_exercises.py**: Python module - **test_progress.py**: Python module --- 

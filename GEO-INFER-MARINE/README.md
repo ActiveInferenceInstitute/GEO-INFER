@@ -1,186 +1,188 @@
 ---
-title: "GEO-INFER-MARINE: Marine and Coastal Systems"
-description: "Ocean monitoring, coastal zone management, and marine ecosystem analysis"
-purpose: "Provide comprehensive marine analysis tools for ocean conditions, coastal dynamics, marine biodiversity, and maritime operations"
+title: "GEO-INFER-MARINE: Marine and Coastal Analysis"
+description: "Ocean monitoring, coastal analysis, and marine resource management"
+purpose: "Provide marine spatial analysis, oceanographic modeling, and coastal zone management"
 module_type: "Domain Application"
 status: "Alpha"
-last_updated: "2026-01-09"
-dependencies: ["SPACE", "TIME", "BIO", "CLIMATE", "RISK"]
-tags: ["marine", "ocean", "coastal", "maritime", "fisheries", "sea-level"]
+last_updated: "2026-01-26"
+dependencies: ["SPACE", "TIME", "DATA", "CLIMATE"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-DATA", "GEO-INFER-CLIMATE"]
+tags: ["marine", "ocean", "coastal", "fisheries", "maritime"]
 difficulty: "Intermediate"
+estimated_time: "55"
 ---
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./docs/">📚 Documentation</a>
 </div>
 
 ---
 
-
-# GEO-INFER-MARINE: Marine and Coastal Systems
+# GEO-INFER-MARINE: Marine and Coastal Analysis
 
 ## Overview
 
-GEO-INFER-MARINE provides comprehensive marine and coastal analysis including ocean state monitoring, coastal zone management, marine ecosystem tracking, and maritime route optimization. The module supports sustainable ocean management and coastal resilience.
+**GEO-INFER-MARINE** provides comprehensive capabilities for marine and coastal spatial analysis. The module enables:
 
-## Core Features
+- **Ocean Monitoring**: Sea surface temperature, chlorophyll, currents
+- **Coastal Analysis**: Erosion, inundation, habitat mapping
+- **Marine Spatial Planning**: Zoning, use conflicts, conservation
+- **Fisheries Management**: Stock assessment, habitat modeling
+- **Maritime Operations**: Shipping routes, port analysis
 
-- **Ocean Conditions Monitoring**: SST, salinity, currents, and chlorophyll
-- **Coastal Zone Management**: Shoreline dynamics and erosion analysis
-- **Marine Ecosystem Tracking**: Biodiversity and habitat monitoring
-- **Maritime Operations**: Shipping route optimization and port planning
-- **Sea Level Analysis**: Rise projections and vulnerability assessment
+## Features
 
-## Architecture
-
-```
-GEO-INFER-MARINE/
-├── src/
-│   └── geo_infer_marine/
-│       ├── core/
-│       │   ├── ocean_monitoring.py       # Ocean state analysis
-│       │   ├── coastal_dynamics.py       # Shoreline changes
-│       │   ├── marine_ecosystems.py      # Biodiversity tracking
-│       │   └── maritime_ops.py           # Shipping optimization
-│       ├── models/
-│       │   ├── ocean_models.py           # Hydrodynamic models
-│       │   ├── coastal_models.py         # Erosion and accretion
-│       │   └── habitat_models.py         # Species distribution
-│       └── utils/
-│           ├── bathymetry.py             # Seafloor analysis
-│           └── tidal_analysis.py         # Tidal patterns
-├── tests/
-├── README.md
-└── AGENTS.md
-```
-
-## Quick Start
+### Ocean Monitoring
 
 ```python
-from geo_infer_marine import (
-    OceanConditionsAnalyzer,
-    CoastalZoneManager,
-    MarineEcosystemMonitor,
-    ShippingOptimizer
-)
+from geo_infer_marine import OceanMonitor
 
 # Monitor ocean conditions
-ocean_analyzer = OceanConditionsAnalyzer()
-ocean_state = ocean_analyzer.analyze(
-    region=ocean_area,
-    parameters=['sst', 'salinity', 'chlorophyll', 'currents']
+monitor = OceanMonitor()
+
+conditions = monitor.get_conditions(
+    area=study_area,
+    parameters=["sst", "chlorophyll", "salinity", "currents"],
+    date="2026-01-26"
 )
+
+print(f"Sea Surface Temperature: {conditions.sst}°C")
+print(f"Chlorophyll-a: {conditions.chlorophyll} mg/m³")
+print(f"Current speed: {conditions.current_speed} m/s")
+```
+
+### Coastal Analysis
+
+```python
+from geo_infer_marine import CoastalAnalyzer
 
 # Analyze coastal dynamics
-coastal_manager = CoastalZoneManager()
-coastal_state = coastal_manager.assess(
-    coastline=shoreline_data,
-    sea_level=tide_gauge_data,
-    historical=past_shorelines
+coastal = CoastalAnalyzer()
+
+analysis = coastal.analyze(
+    shoreline=coastline,
+    dem=coastal_dem,
+    wave_data=wave_hindcast,
+    period=("2000", "2025")
 )
 
-# Track marine ecosystems
-ecosystem_monitor = MarineEcosystemMonitor()
-ecosystem_health = ecosystem_monitor.assess(
-    species_data=marine_observations,
-    habitat=seafloor_map,
-    protected_areas=mpa_boundaries
+print(f"Erosion rate: {analysis.erosion_rate} m/year")
+print(f"High erosion areas: {analysis.hotspots}")
+print(f"Sea level rise impact: {analysis.slr_impact}")
+```
+
+### Marine Spatial Planning
+
+```python
+from geo_infer_marine import MarinePlanner
+
+# Create marine spatial plan
+planner = MarinePlanner()
+
+plan = planner.create_plan(
+    planning_area=eez_boundary,
+    uses=["fishing", "shipping", "renewable_energy", "conservation"],
+    constraints={
+        "protected_areas": mpas,
+        "shipping_lanes": major_routes
+    }
 )
 
-# Optimize shipping routes
-shipping_optimizer = ShippingOptimizer()
-route = shipping_optimizer.optimize(
-    origin=port_a,
-    destination=port_b,
-    constraints=['weather', 'fuel', 'time']
+print(f"Zone allocations: {plan.zones}")
+print(f"Conflicts resolved: {plan.conflicts_addressed}")
+```
+
+### Fisheries Analysis
+
+```python
+from geo_infer_marine import FisheriesAnalyzer
+
+# Analyze fisheries
+fisheries = FisheriesAnalyzer()
+
+assessment = fisheries.assess(
+    species="atlantic_cod",
+    area=fishing_grounds,
+    data={
+        "catch": catch_data,
+        "effort": effort_data,
+        "survey": trawl_survey
+    }
 )
+
+print(f"Stock status: {assessment.stock_status}")
+print(f"Spawning biomass: {assessment.spawning_biomass}")
+print(f"Sustainable yield: {assessment.msy}")
 ```
 
-## API Reference
+## Analysis Capabilities
 
-### OceanConditionsAnalyzer
+| Analysis Type | Description |
+|---------------|-------------|
+| **Bathymetry** | Seafloor mapping, depth analysis |
+| **Habitat Mapping** | Benthic classification, coral reefs |
+| **Water Quality** | Turbidity, nutrients, pollution |
+| **Coastal Hazards** | Storm surge, tsunami, flooding |
+| **Vessel Tracking** | AIS analysis, traffic patterns |
 
-Monitors ocean state parameters.
+## Data Sources
 
-```python
-analyzer = OceanConditionsAnalyzer()
-
-# Ocean state analysis
-state = analyzer.analyze(
-    region: Polygon,
-    parameters: List[str],
-    time_range: Tuple[datetime, datetime]
-) -> xr.Dataset
-
-# Anomaly detection
-anomalies = analyzer.detect_anomalies(
-    current: xr.Dataset,
-    climatology: xr.Dataset
-) -> xr.Dataset
-```
-
-### CoastalZoneManager
-
-Manages coastal zone dynamics and planning.
-
-```python
-manager = CoastalZoneManager()
-
-# Shoreline analysis
-dynamics = manager.analyze_shoreline(
-    coastline: gpd.GeoDataFrame,
-    historical: List[gpd.GeoDataFrame],
-    method: str = 'dsas'
-) -> gpd.GeoDataFrame
-
-# Vulnerability assessment
-vulnerability = manager.assess_vulnerability(
-    coastal_zone: gpd.GeoDataFrame,
-    sea_level_rise: float,
-    storm_surge: float
-) -> gpd.GeoDataFrame
-```
-
-### MarineEcosystemMonitor
-
-Tracks marine biodiversity and habitat health.
-
-```python
-monitor = MarineEcosystemMonitor()
-
-# Ecosystem assessment
-health = monitor.assess(
-    species_data: gpd.GeoDataFrame,
-    habitat: xr.DataArray,
-    metrics: List[str]
-) -> Dict[str, float]
-```
+| Data Type | Sources |
+|-----------|---------|
+| **Satellite** | MODIS, Sentinel-3, Landsat |
+| **Buoys** | NDBC, Argo floats |
+| **Models** | HYCOM, ROMS, WaveWatch III |
+| **AIS** | Vessel tracking data |
 
 ## Integration Points
 
-- **GEO-INFER-SPACE**: Spatial analysis for marine mapping
-- **GEO-INFER-TIME**: Temporal patterns for tidal analysis
-- **GEO-INFER-BIO**: Marine biodiversity assessment
-- **GEO-INFER-CLIMATE**: Climate impacts on ocean systems
-- **GEO-INFER-RISK**: Coastal hazard assessment
+| Module | Integration |
+|--------|-------------|
+| **GEO-INFER-CLIMATE** | Ocean-climate interactions |
+| **GEO-INFER-BIO** | Marine biodiversity |
+| **GEO-INFER-RISK** | Coastal hazard assessment |
+| **GEO-INFER-LOG** | Maritime logistics |
+
+## Installation
+
+```bash
+# Install marine module
+uv pip install -e "./GEO-INFER-MARINE"
+
+# With oceanographic tools
+uv pip install -e "./GEO-INFER-MARINE[ocean]"
+```
 
 ## Use Cases
 
-1. **Fisheries Management**: Sustainable fishing zone planning
-2. **Coastal Protection**: Sea wall and natural defense planning
-3. **Marine Conservation**: MPA design and monitoring
-4. **Port Operations**: Navigation and logistics optimization
-5. **Climate Adaptation**: Sea level rise vulnerability assessment
+### Blue Economy Planning
 
-## Status
+```python
+from geo_infer_marine import BlueEconomyPlanner
 
-**Current Status**: Alpha - Core functionality implemented with ongoing development.
+planner = BlueEconomyPlanner(region="pacific_islands")
 
-## References
+# Analyze blue economy potential
+potential = planner.assess_potential(
+    sectors=["aquaculture", "tourism", "offshore_wind"],
+    sustainability_constraints=True
+)
 
-- [Copernicus Marine Service](https://marine.copernicus.eu/)
-- [NOAA Ocean Data](https://www.noaa.gov/ocean)
-- [Global Fishing Watch](https://globalfishingwatch.org/)
+print(f"Economic potential: ${potential.value_billions}B")
+print(f"Sustainable zones: {potential.suitable_areas}")
+```
+
+## Related Documentation
+
+- [GEO-INFER-WATER](../GEO-INFER-WATER/README.md): Water resources
+- [GEO-INFER-CLIMATE](../GEO-INFER-CLIMATE/README.md): Climate
+- [AGENTS.md](./AGENTS.md): Marine agent capabilities
+
+---
+
+**Status**: Alpha - Core functionality implemented
+
+**Last Updated**: 2026-01-26

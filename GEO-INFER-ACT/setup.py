@@ -16,6 +16,17 @@ setup(
         "pyro-ppl>=1.7.0",
         "networkx>=2.6.0",
         "pyyaml>=6.0",
+        "scikit-learn>=1.0.0",
+        "inferactively-pymdp>=0.0.5",
+        "h3>=3.7.0",
+        "shapely>=1.7.0",
+        "arviz>=0.11.0",
+        "bayeux-ml>=0.0.1",
+        "jax>=0.2.0",
+        "plotly>=5.0.0",
+        "pymc>=4.0.0",
+        "requests>=2.25.0",
+        "seaborn>=0.11.0",
     ],
     extras_require={
         "dev": [

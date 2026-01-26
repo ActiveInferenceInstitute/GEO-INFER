@@ -543,8 +543,18 @@ class GenerativeModel:
             return total_fe
         else:
             beliefs = self.beliefs['states']
-            observations = np.ones(self.obs_dim) / self.obs_dim  # Dummy
-            preferences = np.ones(self.state_dim) / self.state_dim
+            
+            # Handle factorized dimensions for dummy observations/preferences
+            if isinstance(self.obs_dim, list):
+                observations = np.array([np.ones(d)/d for d in self.obs_dim])
+            else:
+                observations = np.ones(self.obs_dim) / self.obs_dim
+                
+            if isinstance(self.state_dim, list):
+                preferences = np.array([np.ones(d)/d for d in self.state_dim])
+            else:
+                preferences = np.ones(self.state_dim) / self.state_dim
+                
             return self.free_energy_calculator.compute_categorical_free_energy(beliefs, observations, preferences)
     
     def add_nested_level(self, child_model: 'GenerativeModel'):

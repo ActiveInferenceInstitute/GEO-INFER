@@ -1,0 +1,4 @@
+# geo_infer_test
+ ## Overview
+ GEO-INFER-TEST: Testing and Quality Assurance Module This module provides testing, validation, and quality assurance capabilities for the GEO-INFER framework. It supports unit testing, integration testing, performance testing, and data quality validation. Key Features: - Automated test suite execution - Data quality validation and monitoring - Performance benchmarking and regression testing - Integration testing across modules - Spatial data validation - IoT sensor data quality control - Bayesian inference validation ## Contents
+ - **api/**: Submodule - **core/**: Submodule - **models/**: Submodule - **utils/**: Submodule 

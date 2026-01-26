@@ -1,0 +1,4 @@
+# tests
+ ## Overview
+ GEO-INFER Framework Unified Test Suite This package provides testing capabilities for all GEO-INFER modules using a unified, modular approach with test-driven development principles. The test suite includes: - Unit tests for individual functions and classes - Integration tests for cross-module interactions - System tests for end-to-end workflows - Performance tests for scalability validation - API tests for external interfaces - Geospatial-specific tests for spatial functionality ## Contents
+ - **conftest.py**: Python definitions - **integration/**: Submodule - **unit/**: Submodule 

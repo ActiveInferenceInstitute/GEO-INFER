@@ -1,704 +1,124 @@
 ---
-title: "GEO-INFER-SIM: Simulation Environments for Geospatial Analysis"
-description: "Advanced simulation environments for geospatial hypothesis testing, policy evaluation, and scenario analysis using agent-based modeling and system dynamics"
-purpose: "Provide comprehensive simulation capabilities for testing geospatial hypotheses, evaluating policies, and analyzing complex system behaviors"
-module_type: "Simulation & Modeling"
-status: "Alpha"
-last_updated: "2025-01-19"
-dependencies: ["SPACE", "TIME"]
-compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-ACT", "GEO-INFER-AGENT", "All domain modules"]
-tags: ["simulation", "agent-based-modeling", "system-dynamics", "scenario-analysis", "hypothesis-testing", "policy-evaluation"]
+title: "GEO-INFER-SIM: Simulation Framework"
+description: "Agent-based modeling, discrete event simulation, and scenario analysis"
+purpose: "Provide simulation capabilities for spatial systems and agent behavior"
+module_type: "Core Analysis"
+status: "Beta"
+last_updated: "2026-01-26"
+dependencies: ["SPACE", "TIME", "ACT"]
+compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-ACT"]
+tags: ["simulation", "abm", "modeling", "scenarios", "monte-carlo"]
 difficulty: "Advanced"
-estimated_time: "85"
+estimated_time: "50"
 ---
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./docs/">📚 Documentation</a>
 </div>
 
 ---
 
-
-# GEO-INFER-SIM: Simulation Environments for Geospatial Hypothesis Testing & Policy Evaluation
+# GEO-INFER-SIM: Simulation Framework
 
 ## Overview
 
-GEO-INFER-SIM is the simulation engine and experimentation workbench within the GEO-INFER framework. It supports agent-based modeling (ABM), system dynamics, cellular automata, discrete event simulation, and digital twin workflows for ecological, urban, social, and environmental systems across spatial and temporal scales.
+**GEO-INFER-SIM** provides simulation capabilities:
 
-### Documentation
-- Module page: ../GEO-INFER-INTRA/docs/modules/geo-infer-sim.md
-- Modules index: ../GEO-INFER-INTRA/docs/modules/index.md
+- **Agent-Based Models**: Spatial ABM simulations
+- **Discrete Event**: Event-driven simulations
+- **Scenario Analysis**: What-if comparisons
+- **Monte Carlo**: Probabilistic analysis
 
-## Core Objectives
+## Features
 
--   **Hypothesis Testing:** Provide a virtual laboratory to test theories about how geospatial systems function and respond to changes.
--   **Scenario Exploration:** Enable the creation and comparison of multiple future scenarios based on different assumptions or interventions.
--   **Policy Evaluation:** Assess the likely outcomes and trade-offs of various policy options before implementation in the real world.
--   **Behavioral Understanding:** Gain insights into the emergent behavior of complex systems arising from the interactions of individual components or agents.
--   **Decision Support:** Furnish policymakers and stakeholders with quantitative and qualitative evidence to inform decision-making under uncertainty.
--   **Digital Twin Creation:** Facilitate the development of dynamic, data-driven virtual replicas of real-world geospatial assets or systems.
+### Agent-Based Modeling
 
-## Core Features
+```python
+from geo_infer_sim import ABMSimulator
 
--   **Multi-Paradigm Simulation Support:** Implements and integrates various simulation approaches:
-    -   **Agent-Based Models (ABM):** Simulating systems as collections of autonomous, interacting agents (e.g., individuals, households, animals, organizations).
-    -   **System Dynamics (SD):** Modeling systems using stocks, flows, and feedback loops to understand aggregate behavior over time.
-    -   **Cellular Automata (CA):** Simulating spatial processes based on local rules applied to grid cells (e.g., urban sprawl, fire spread).
-    -   **Discrete Event Simulation (DES):** Modeling systems as sequences of events occurring at discrete points in time (e.g., queuing systems, logistics).
-    -   **Hybrid Models:** Combining elements from different paradigms to capture diverse aspects of a system.
--   **Digital Twin Technology Foundation:** Tools for creating dynamic virtual representations of real-world systems (e.g., cities, ecosystems, infrastructure networks) that are continuously updated with real-world data, enabling real-time monitoring, prediction, and optimization.
--   **Scenario Management & Analysis:** Robust capabilities for defining, managing, running, and comparing multiple simulation scenarios with varying parameters, inputs, or policy interventions.
--   **Integration with Real-World Data:** Tools for calibrating simulation models using historical data and validating simulation outputs against observed real-world patterns (from GEO-INFER-DATA).
--   **Extensible Model Library:** A collection of pre-built, customizable simulation models for common geospatial applications (e.g., urban growth, disease spread, land use change, ecological succession).
--   **Visualization & Output Analysis:** Integrated tools for visualizing simulation dynamics (2D/3D, temporal animations) and analyzing output data (statistical summaries, sensitivity analysis, uncertainty quantification).
--   **High-Performance Computing (HPC) Support:** Designed for scalability, with options for parallel execution, GPU acceleration, and distributed computing for large and computationally intensive simulations.
+# Create ABM simulation
+simulator = ABMSimulator()
 
-## General Simulation Workflow (Conceptual)
+model = simulator.create(
+    environment=city_grid,
+    agents=pedestrian_agents,
+    rules=movement_rules
+)
 
-```mermaid
-graph TD
-    subgraph Setup_Phase as "1. Model Setup & Calibration"
-        A[Define Research Question / Policy Problem]
-        B[Conceptual Model Development]
-        C[Select Simulation Paradigm (ABM, SD, CA etc.)]
-        D[Gather Input Data (GEO-INFER-DATA)]
-        E[Model Implementation (Code/Visual)]
-        F[Parameterization & Calibration (using Historical Data)]
-        G[Model Validation]
-    end
-
-    subgraph Experimentation_Phase as "2. Experimentation & Scenario Analysis"
-        H[Define Scenarios / Interventions]
-        I[Set Up Simulation Experiments (Batch Runs)]
-        J[Run Simulations (GEO-INFER-SIM Engine)]
-        K[Collect Simulation Output Data]
-    end
-
-    subgraph Analysis_Phase as "3. Output Analysis & Interpretation"
-        L[Visualize Simulation Dynamics]
-        M[Statistical Analysis of Outputs]
-        N[Sensitivity Analysis & Uncertainty Quantification]
-        O[Compare Scenarios & Evaluate Outcomes]
-        P[Generate Reports & Insights]
-        Q[Decision Support / Further Iteration]
-    end
-
-    A --> B --> C --> E
-    D --> E
-    D --> F
-    E --> F --> G
-    G --> H
-    H --> I --> J --> K
-    K --> L; K --> M; K --> N; K --> O;
-    L --> P; M --> P; N --> P; O --> P;
-    P --> Q
-    Q --> A %% Iterative process
-
-    classDef simPhase fill:#f0f8ff,stroke:#4682b4,stroke-width:2px;
-    class Setup_Phase,Experimentation_Phase,Analysis_Phase simPhase;
+results = model.run(steps=1000)
+print(f"Emergent patterns: {results.patterns}")
 ```
 
-## Directory Structure
+### Discrete Event Simulation
+
+```python
+from geo_infer_sim import DiscreteEventSim
+
+# Event-driven simulation
+des = DiscreteEventSim()
+
+sim = des.create(
+    model=logistics_model,
+    events=["arrival", "processing"]
+)
+
+results = sim.run(duration_hours=24)
+print(f"Throughput: {results.throughput}")
 ```
-GEO-INFER-SIM/
-├── config/              # Configuration for simulation runs, model parameters, scenarios
-├── docs/                # Detailed documentation, model descriptions, tutorials
-├── examples/            # Example simulation scripts and use cases
-├── src/                 # Source code
-│   └── geo_infer_sim/   # Main Python package
-│       ├── api/         # API for controlling simulations and retrieving results
-│       ├── core/        # Core simulation engine, schedulers, event handlers
-│       ├── models/      # Base classes for agents, environments, specific model implementations
-│       ├── paradigms/   # Implementations for ABM, SD, CA, DES logic
-│       ├── io/          # Input/output for simulation data, model states
-│       ├── analysis/    # Tools for analyzing simulation outputs
-│       └── utils/       # Utility functions, visualization helpers
-└── tests/               # Unit and integration tests for simulation components
+
+### Scenario Analysis
+
+```python
+from geo_infer_sim import ScenarioAnalyzer
+
+# Compare scenarios
+analyzer = ScenarioAnalyzer()
+
+comparison = analyzer.compare(
+    base=current_state,
+    alternatives=[scenario_a, scenario_b],
+    metrics=["cost", "coverage"]
+)
+
+print(f"Best scenario: {comparison.best}")
 ```
 
-## Getting Started
+### Monte Carlo
 
-### Prerequisites
-- Python 3.9+
-- NumPy, SciPy, Pandas, Matplotlib
-- Specific libraries depending on paradigm (e.g., Mesa for ABM, PySD for System Dynamics)
-- Access to GEO-INFER-DATA for input/calibration data.
+```python
+from geo_infer_sim import MonteCarloSim
 
-### Installation
+# Probabilistic analysis
+mc = MonteCarloSim()
+
+analysis = mc.run(
+    model=risk_model,
+    iterations=10000
+)
+
+print(f"95% CI: {analysis.ci_95}")
+```
+
+## Simulation Types
+
+| Type | Application |
+|------|-------------|
+| **ABM** | Social behavior |
+| **DES** | Logistics, queues |
+| **SD** | System dynamics |
+| **MC** | Risk analysis |
+
+## Installation
+
 ```bash
-uv pip install -e ./GEO-INFER-SIM
+uv pip install -e "./GEO-INFER-SIM"
 ```
 
-### Configuration
-Simulation scenarios, model parameters, input data paths, and output locations are typically defined in YAML or JSON configuration files within the `config/` directory or passed as arguments to simulation scripts.
-```bash
-# cp config/example_urban_growth_scenario.yaml config/my_urban_scenario.yaml
-# # Edit my_urban_scenario.yaml
-```
+---
 
-### Running a Simulation
-Simulations are usually executed via scripts or a command-line interface provided by the module.
-```bash
-python -m geo_infer_sim.run --config config/my_urban_scenario.yaml
-# or
-# python examples/run_forest_fire_simulation.py --parameters config/fire_params.json
-```
+**Status**: Beta
 
-## Simulation Types Supported
-
-GEO-INFER-SIM offers flexibility by supporting various established simulation paradigms:
-
--   **Agent-Based Models (ABM):** Focuses on individual heterogeneous agents and their local interactions. Excellent for capturing emergent behavior from the bottom up (e.g., pedestrian models, market simulations, epidemiological models).
--   **System Dynamics (SD):** Uses stocks, flows, and feedback loops to model aggregate system behavior over time. Useful for understanding policy impacts in complex systems with delays and non-linearities (e.g., resource management, macroeconomic models).
--   **Cellular Automata (CA):** Models systems as a grid of cells, where each cell's state changes based on local rules and the states of its neighbors. Effective for simulating spatial diffusion, pattern formation, and land-use change.
--   **Discrete Event Simulation (DES):** Represents systems as a sequence of events occurring at specific points in time. Suited for process-oriented modeling, such as logistics, queuing systems, or healthcare workflows.
--   **Hybrid Models:** Combines strengths of different paradigms. For example, an ABM might be used for household decisions, with the aggregate impact fed into an SD model of resource consumption, all within a CA-defined spatial landscape.
-
-## Digital Twin Capabilities
-
-The module provides foundational elements for developing Digital Twins of geospatial systems:
-
--   **Real-time Data Integration:** Connectors to ingest live data streams (from IoT, sensors, APIs via GEO-INFER-DATA) to keep the digital twin synchronized with its physical counterpart.
--   **Model Calibration & Validation with Historical Data:** Tools to automatically calibrate model parameters using historical observations and validate predictive accuracy.
--   **"What-if" Scenario Generation & Comparison:** Easily define and run alternative scenarios to explore potential futures or the impact of decisions.
--   **Sensitivity Analysis:** Identify which model parameters or input factors have the most significant impact on simulation outcomes.
--   **Uncertainty Quantification:** Propagate uncertainties in input data and model parameters through the simulation to understand the range of possible outcomes.
--   **Interactive Visualization of Simulation Results:** Tools to visualize the state of the digital twin and its predicted evolution in 2D/3D and over time, often integrated with GEO-INFER-APP or GEO-INFER-ART.
-
-## Model Library (Examples)
-
-A library of pre-built or easily adaptable models for common simulation scenarios accelerates development:
-
--   **Urban Growth & Land Use Change:** Models like SLEUTH, agent-based land market simulations.
--   **Transportation & Mobility Patterns:** ABM for pedestrian/vehicle movement, traffic simulation, public transport optimization.
--   **Ecosystem Dynamics & Biodiversity:** Predator-prey models, species distribution models under climate change, habitat fragmentation effects.
--   **Epidemiological Models:** SEIR/SIR models, agent-based disease spread simulations.
--   **Water Resource Management:** Models for river basin dynamics, irrigation demand, groundwater depletion under different climate and policy scenarios.
--   **Emergency Response & Disaster Scenarios:** Evacuation models, resource allocation during disasters, wildfire spread simulations.
--   **Agricultural Systems:** Crop growth models, farmer decision-making ABMs.
-
-## Module Simulation Methods
-
-GEO-INFER-SIM provides comprehensive simulation methods that are **exactly named after each GEO-INFER module**, enabling direct simulation of module-specific behaviors and workflows.
-
-### ModuleSimulations Class
-
-The `ModuleSimulations` class provides simulation methods for all GEO-INFER modules:
-
-```python
-from geo_infer_sim import ModuleSimulations, ModuleSimulationConfig
-
-# Initialize module simulations
-config = ModuleSimulationConfig(
-    time_horizon=100.0,
-    time_step=1.0,
-    random_seed=42,
-)
-sims = ModuleSimulations(config)
-
-# Simulate any GEO-INFER module
-act_results = sims.simulate_act()          # Active Inference
-space_results = sims.simulate_space()      # Spatial Analysis
-ag_results = sims.simulate_ag()            # Agriculture
-health_results = sims.simulate_health()     # Health Applications
-ai_results = sims.simulate_ai()            # Artificial Intelligence
-# ... and 30+ more module simulation methods
-```
-
-### Available Module Simulation Methods
-
-All GEO-INFER modules have corresponding simulation methods:
-
-#### Core Analytical Modules
-- `simulate_act()` - Active Inference processes
-- `simulate_bayes()` - Bayesian inference
-- `simulate_ai()` - Machine learning and AI
-- `simulate_math()` - Mathematical computations
-- `simulate_cog()` - Cognitive modeling
-- `simulate_agent()` - Multi-agent systems
-- `simulate_spm()` - Statistical parametric mapping
-
-#### Spatial-Temporal Modules
-- `simulate_space()` - Spatial analysis and H3 indexing
-- `simulate_time()` - Temporal analysis and forecasting
-- `simulate_iot()` - IoT sensor networks
-
-#### Infrastructure Modules
-- `simulate_data()` - Data management and ETL
-- `simulate_api()` - API services
-- `simulate_sec()` - Security and privacy
-- `simulate_ops()` - System operations
-
-#### Domain Application Modules
-- `simulate_ag()` - Agricultural processes
-- `simulate_health()` - Health applications
-- `simulate_econ()` - Economic modeling
-- `simulate_risk()` - Risk management
-- `simulate_log()` - Logistics optimization
-- `simulate_bio()` - Bioinformatics
-
-#### Community & Application Modules
-- `simulate_civ()` - Civic engagement
-- `simulate_app()` - Application interfaces
-- `simulate_art()` - Artistic generation
-- `simulate_place()` - Place-based analysis
-
-#### Simulation & Complex Systems
-- `simulate_ant()` - Swarm intelligence
-- `simulate_sim()` - Meta-simulation processes
-
-#### People & Governance Modules
-- `simulate_pep()` - People management
-- `simulate_org()` - Organizational dynamics
-- `simulate_comms()` - Communications
-- `simulate_norms()` - Normative systems
-- `simulate_req()` - Requirements engineering
-
-#### Operations Modules
-- `simulate_intra()` - Internal documentation
-- `simulate_git()` - Version control
-- `simulate_test()` - Testing framework
-- `simulate_examples()` - Example generation
-
-### Example: Simulating Multiple Modules
-
-```python
-from geo_infer_sim import ModuleSimulations, ModuleSimulationConfig
-
-# Initialize
-sims = ModuleSimulations(ModuleSimulationConfig(time_horizon=50.0))
-
-# Simulate multiple modules
-results = {
-    "act": sims.simulate_act(),
-    "space": sims.simulate_space(),
-    "health": sims.simulate_health(),
-    "econ": sims.simulate_econ(),
-}
-
-# Access results
-for module, result in results.items():
-    print(f"{module.upper()}: {result['module']}")
-    print(f"  Status: {result['simulation_results']['status']}")
-```
-
-Each simulation method returns module-specific results including:
-- Module-specific metrics and histories
-- Simulation execution results
-- Time-series data for analysis
-- Module-specific state information
-
-See `examples/module_simulations_example.py` for comprehensive usage examples.
-
-## API Reference
-
-### Core Classes
-
-#### SimulationEngine
-
-Main simulation engine for running simulations.
-
-```python
-from geo_infer_sim import SimulationEngine, SimulationConfig
-
-# Configure simulation
-config = SimulationConfig(
-    time_step=1.0,
-    max_time=100.0,
-    output_interval=1.0,
-    random_seed=42
-)
-
-# Initialize engine
-engine = SimulationEngine(config)
-
-# Initialize simulation state
-initial_state = {"population": 100, "resources": 50}
-engine.initialize(initial_state)
-
-# Define step function
-def step_function(time, state):
-    return {
-        "population": state["population"] * 1.01,
-        "resources": state["resources"] - 1
-    }
-
-# Run simulation
-results = engine.run(step_function)
-```
-
-#### AgentBasedModel
-
-Agent-based modeling framework.
-
-```python
-from geo_infer_sim import AgentBasedModel, Agent
-import numpy as np
-
-# Create ABM
-abm = AgentBasedModel(
-    spatial_bounds=region_bounds,
-    time_step=1.0
-)
-
-# Add agents
-for i in range(100):
-    agent = Agent(
-        agent_id=f"agent_{i}",
-        position=np.random.rand(2) * 100,
-        properties={"type": "mobile"}
-    )
-    abm.add_agent(agent)
-
-# Run simulation
-abm.simulate(time_steps=1000)
-```
-
-#### SystemDynamicsModel
-
-System dynamics modeling with stocks and flows.
-
-```python
-from geo_infer_sim import SystemDynamicsModel
-
-# Create system dynamics model
-sd_model = SystemDynamicsModel()
-
-# Define stocks
-sd_model.add_stock("population", initial_value=1000)
-sd_model.add_stock("resources", initial_value=5000)
-
-# Define flows
-sd_model.add_flow(
-    "birth_rate",
-    source=None,
-    target="population",
-    rate=lambda t, s: s["population"] * 0.02
-)
-
-# Run simulation
-results = sd_model.simulate(time_horizon=100)
-```
-
-#### CellularAutomata
-
-Cellular automata for spatial pattern simulation.
-
-```python
-from geo_infer_sim import CellularAutomata
-
-# Create CA model
-ca = CellularAutomata(
-    grid_size=(100, 100),
-    neighborhood_type='moore',
-    transition_rules=game_of_life_rules
-)
-
-# Initialize grid
-ca.initialize_grid(initial_pattern)
-
-# Run simulation
-for step in range(100):
-    ca.step()
-    pattern = ca.get_grid_state()
-```
-
-#### ScenarioManager
-
-Scenario management and comparison.
-
-```python
-from geo_infer_sim import ScenarioManager
-
-# Create scenario manager
-manager = ScenarioManager()
-
-# Define scenarios
-scenario1 = manager.create_scenario(
-    name="baseline",
-    parameters={"growth_rate": 0.01}
-)
-
-scenario2 = manager.create_scenario(
-    name="high_growth",
-    parameters={"growth_rate": 0.02}
-)
-
-# Run scenarios
-results = manager.run_scenarios([scenario1, scenario2])
-
-# Compare results
-comparison = manager.compare_scenarios(results)
-```
-
-## Integration with Other Modules
-
-GEO-INFER-SIM is a highly integrative module:
-
--   **GEO-INFER-DATA:** Provides essential input data (initial conditions, parameters, historical series for calibration/validation) for simulations and stores simulation outputs.
--   **GEO-INFER-SPACE:** Defines the spatial context (grids, networks, terrain) in which simulations occur. Spatial analysis tools from SPACE can be used on simulation inputs/outputs.
--   **GEO-INFER-TIME:** Manages the temporal aspects of simulations, including event scheduling, time-stepping, and analysis of time-series outputs.
--   **GEO-INFER-ACT & GEO-INFER-AGENT:** These modules can provide the behavioral logic for agents within ABMs run in SIM. For instance, ACT agents making decisions based on free energy minimization can be simulated in SIM environments.
--   **GEO-INFER-AI:** Machine learning models from AI can be used to create surrogate models for computationally expensive simulations, learn agent behaviors from data, or analyze complex simulation outputs.
--   **GEO-INFER-NORMS & GEO-INFER-REQ:** Policy scenarios, rules, and constraints defined in NORMS or as requirements in REQ can be translated into simulation parameters or agent behaviors to test their impacts.
--   **GEO-INFER-APP & GEO-INFER-ART:** Provide frontends for configuring simulations, visualizing results, and creating interactive digital twin interfaces or artistic representations of simulation dynamics.
-
-## Performance Optimization
-
-Strategies for handling computationally intensive simulations include:
-
--   **Parallel Processing:** Utilizing multi-core CPUs for running multiple simulation instances or parallelizing computations within a single simulation.
--   **GPU Acceleration:** Offloading suitable computations (e.g., CA updates, some ABM interactions) to GPUs.
--   **Distributed Computing Options:** Support for running large-scale simulations across clusters (e.g., using Dask, Spark, or MPI integrations).
--   **Model Abstraction & Simplification Techniques:** Methods for reducing model complexity while preserving key behaviors.
--   **Surrogate Modeling (Emulation):** Training machine learning models (from GEO-INFER-AI) to approximate the input-output behavior of complex simulations, allowing for faster exploration of parameter space.
-
-## Contributing
-
-Contributions are highly encouraged:
--   Developing new simulation models or extending the model library.
--   Implementing support for new simulation paradigms or engines.
--   Enhancing performance optimization features.
--   Creating tools for advanced simulation output analysis and visualization.
--   Adding new example use cases and tutorials.
-
-## Advanced Features
-
-### 1. Multi-Paradigm Simulation Framework
-**Purpose**: Support multiple simulation paradigms (agent-based, system dynamics, discrete event) in a unified framework.
-
-```python
-from geo_infer_sim.multi_paradigm import MultiParadigmSimulator
-
-simulator = MultiParadigmSimulator(
-    paradigms=['agent_based', 'system_dynamics', 'discrete_event', 'hybrid'],
-    paradigm_switching=True,
-    cross_paradigm_validation=True,
-    meta_modeling=True
-)
-
-# Create hybrid simulation model
-hybrid_model = simulator.create_hybrid_model(
-    agent_component=agent_behavior_rules,
-    system_dynamics_component=flow_diagrams,
-    discrete_event_component=event_schedules,
-    coupling_mechanisms=interaction_rules
-)
-
-# Run multi-paradigm simulation
-simulation_results = simulator.run_hybrid_simulation(
-    model=hybrid_model,
-    time_horizon=simulation_period,
-    paradigm_adaptation=adaptive_switching,
-    validation_across_paradigms=True
-)
-```
-
-### 2. Real-Time Adaptive Simulation
-**Purpose**: Simulations that adapt in real-time based on incoming data and changing conditions.
-
-```python
-from geo_infer_sim.adaptive import RealTimeAdaptiveSimulator
-
-adaptive_sim = RealTimeAdaptiveSimulator(
-    adaptation_triggers=['data_stream', 'performance_threshold', 'external_events'],
-    adaptation_strategies=['parameter_update', 'model_refinement', 'structural_change'],
-    real_time_constraints=True,
-    feedback_loops=True
-)
-
-# Set up real-time adaptation
-adaptation_config = adaptive_sim.configure_adaptation(
-    data_streams=['sensor_data', 'external_feeds'],
-    performance_monitors=['accuracy', 'stability', 'efficiency'],
-    adaptation_frequency='continuous'
-)
-
-# Run adaptive simulation
-simulation_run = adaptive_sim.run_adaptive_simulation(
-    base_model=initial_model,
-    adaptation_config=adaptation_config,
-    real_time_data_stream=live_data_feed
-)
-```
-
-### 3. Simulation-Based Optimization and Design
-**Purpose**: Use simulations for optimization, design exploration, and parameter tuning.
-
-```python
-from geo_infer_sim.optimization import SimulationBasedOptimizer
-
-optimizer = SimulationBasedOptimizer(
-    optimization_algorithms=['genetic_algorithm', 'bayesian_optimization', 'surrogate_modeling'],
-    multi_objective=True,
-    uncertainty_quantification=True,
-    parallel_evaluation=True
-)
-
-# Define optimization problem
-optimization_problem = optimizer.define_problem(
-    design_variables=['model_parameters', 'initial_conditions', 'boundary_conditions'],
-    objectives=['minimize_cost', 'maximize_performance', 'ensure_stability'],
-    constraints=['physical_limits', 'computational_feasibility']
-)
-
-# Run simulation-based optimization
-optimal_solution = optimizer.optimize_design(
-    problem=optimization_problem,
-    simulation_model=complex_system_model,
-    evaluation_budget=1000,
-    convergence_criteria={'tolerance': 1e-6, 'max_iterations': 100}
-)
-```
-
-## Performance Considerations
-
-### Computational Efficiency
-**Large-Scale Simulations**: Optimized algorithms for simulating complex systems with millions of entities
-**Time-Step Optimization**: Adaptive time-stepping for maintaining accuracy while improving performance
-**Memory Management**: Efficient memory usage for long-running simulations with extensive state histories
-
-### Parallel and Distributed Computing
-**Multi-Core Processing**: Automatic parallelization across multiple CPU cores for faster simulation execution
-**Distributed Simulation**: Support for running simulations across multiple compute nodes and clusters
-**GPU Acceleration**: CUDA/ROCm support for computationally intensive simulation algorithms
-
-### Real-Time Performance
-**Sub-Real-Time Execution**: Simulations running faster than real-time for scenario planning and testing
-**Interactive Simulation**: Responsive simulations for interactive exploration and parameter tuning
-**Streaming Output**: Efficient handling of large simulation outputs with streaming and compression
-
-## Troubleshooting
-
-### Common Issues and Solutions
-
-#### Simulation Instability Problems
-**Issue**: Simulations becoming unstable or producing unrealistic results
-**Solution**: Implement numerical stabilization, check time step sizes, and validate model assumptions
-
-```python
-from geo_infer_sim.stability import SimulationStabilizer
-
-stabilizer = SimulationStabilizer(
-    stability_metrics=['numerical_stability', 'physical_realism', 'convergence'],
-    stabilization_methods=['adaptive_timestep', 'numerical_damping', 'constraint_enforcement']
-)
-
-# Stabilize simulation
-stabilized_simulation = stabilizer.stabilize_simulation(
-    unstable_model=problematic_simulation,
-    stability_targets={'numerical_error': 1e-8, 'physical_violations': 0},
-    adaptation_strategy='conservative'
-)
-```
-
-#### Performance Bottlenecks
-**Issue**: Simulations running slowly or consuming excessive computational resources
-**Solution**: Profile performance, optimize algorithms, and implement parallel processing
-
-```python
-from geo_infer_sim.performance import SimulationPerformanceOptimizer
-
-optimizer = SimulationPerformanceOptimizer(
-    profiling_tools=['cProfile', 'memory_profiler', 'gpu_monitor'],
-    optimization_strategies=['algorithm_selection', 'parallelization', 'caching'],
-    resource_monitoring=True
-)
-
-# Optimize simulation performance
-optimized_simulation = optimizer.optimize_performance(
-    current_simulation=slow_simulation,
-    performance_targets={'speedup': 10.0, 'memory_reduction': 0.5},
-    available_resources=compute_environment
-)
-```
-
-#### Model Validation Issues
-**Issue**: Simulation results not matching expected or real-world behaviors
-**Solution**: Implement comprehensive validation, sensitivity analysis, and model calibration
-
-```python
-from geo_infer_sim.validation import SimulationValidator
-
-validator = SimulationValidator(
-    validation_methods=['statistical_tests', 'pattern_matching', 'expert_assessment'],
-    sensitivity_analysis=True,
-    calibration_procedures=True
-)
-
-# Validate simulation model
-validation_report = validator.validate_simulation(
-    simulation_model=candidate_model,
-    reference_data=empirical_measurements,
-    validation_criteria=['accuracy', 'precision', 'robustness']
-)
-```
-
-### Debugging Simulation Systems
-
-#### Enable Detailed Logging
-```python
-import logging
-logging.getLogger('geo_infer_sim').setLevel(logging.DEBUG)
-
-# Enable component-specific logging
-logging.getLogger('geo_infer_sim.multi_paradigm').setLevel(logging.INFO)
-```
-
-#### Visualize Simulation States
-```python
-from geo_infer_sim.visualization import SimulationVisualizer
-
-visualizer = SimulationVisualizer()
-visualizer.animate_simulation(
-    simulation_history=simulation_states,
-    visualization_types=['spatial', 'temporal', 'network'],
-    output_format='interactive_html'
-)
-```
-
-#### Monitor Simulation Health
-```python
-from geo_infer_sim.monitoring import SimulationHealthMonitor
-
-monitor = SimulationHealthMonitor(
-    health_metrics=['numerical_stability', 'performance', 'resource_usage'],
-    alert_thresholds={'instability': 0.1, 'slowdown': 0.2}
-)
-
-with monitor.monitor_simulation():
-    simulation.run(duration=simulation_time)
-    
-health_report = monitor.get_health_report()
-```
-
-### Common Error Messages
-
-#### "Simulation timestep too large"
-**Cause**: Time steps exceeding numerical stability limits
-**Fix**: Reduce time step size or implement adaptive time-stepping
-
-#### "Model constraint violation"
-**Cause**: Simulation violating physical or logical constraints
-**Fix**: Implement constraint enforcement or adjust model parameters
-
-#### "Parallel simulation synchronization error"
-**Cause**: Timing issues in distributed simulation execution
-**Fix**: Improve synchronization mechanisms or reduce parallel complexity
-
-## Contributing
-
-Contributions are welcome and can include:
--   Implementing support for new simulation paradigms or engines.
--   Enhancing performance optimization features.
--   Creating tools for advanced simulation output analysis and visualization.
--   Adding new example use cases and tutorials.
-
-Follow the contribution guidelines in the main GEO-INFER documentation (`CONTRIBUTING.md`) and any specific guidelines in `GEO-INFER-SIM/docs/CONTRIBUTING_SIM.md` (to be created).
-
-## License
-
-This module is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details. 
+**Last Updated**: 2026-01-26

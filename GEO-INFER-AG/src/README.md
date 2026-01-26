@@ -1,0 +1,5 @@
+# src
+ ## Overview
+ **Path**: `GEO-INFER-AG/src` Source code implementation. ## Implementation
+ ### `geo_infer_ag/core/sustainability.py` **Classes**: SustainabilityAssessment **Functions**: assess_carbon_sequestration, assess_water_usage, assess_soil_health, assess_biodiversity, calculate_sustainability_index ### `geo_infer_ag/core/agricultural_analysis.py` **Classes**: AgriculturalAnalysis, AgriculturalResults **Functions**: run, get_metric, plot_spatial_distribution, summary ### `geo_infer_ag/core/field_boundary.py` **Classes**: FieldBoundaryManager **Functions**: add_field, remove_field, update_field, get_field, get_fields_by_crop ### `geo_infer_ag/core/seasonal_analysis.py` **Classes**: SeasonalAnalysis **Functions**: detect_growing_season, identify_phenological_stages, analyze_temporal_trends, analyze_spatial_temporal_patterns, plot_growing_season ### `geo_infer_ag/models/crop_yield.py` **Classes**: CropYieldModel **Functions**: fit, predict, get_feature_importance, save, load ## Contents
+ - **geo_infer_ag/**: Subdirectory - **geo_infer_ag.egg-info/**: Subdirectory --- 

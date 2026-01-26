@@ -8,11 +8,7 @@ from typing import Dict, Any, List, Optional
 import numpy as np
 import logging
 
-try:
-    from pymdp import utils
-except ImportError:
-    # Fallback if pymdp not yet fully installed in environment, though we added it to requirements
-    pass
+from pymdp import utils
 
 from geo_infer_act.core.active_inference import ActiveInferenceModel
 from geo_infer_act.core.generative_model import GenerativeModel
@@ -51,8 +47,10 @@ class ClimateModel(ActiveInferenceModel):
         # Dimensions: Therm(3), CO2Sens(3)
         self.num_obs = [3, 3]
         # Actions: Mitigation(3) for both factors (or just one control factor affecting both)
-        # Let's say we have one control factor: Mitigation Policy
-        self.num_controls = [3] 
+        # Actions: Mitigation for Temp, Mitigation for CO2
+        # We explicitly model them as separate controls to avoid pymdp indexing errors
+        # (Since generic implementation assumes 1-to-1 mapping between state factors and control factors)
+        self.num_controls = [3, 3] 
         
         # Initialize generative model matrices
         A = self._build_likelihood_A()
@@ -88,7 +86,7 @@ class ClimateModel(ActiveInferenceModel):
         self.generative_model.observation_model = A
         self.generative_model.transition_model = B
         self.generative_model.preferences = C
-        self.generative_model.beliefs = D # Initial beliefs from prior
+        self.generative_model.beliefs = {'states': D} # Initial beliefs from prior wrapped in dict
         
         # Also set the internal active inference components to use these
         self.set_generative_model(self.generative_model)

@@ -1,8 +1,10 @@
-# GEO-INFER Cursor Rules
+# GEO
+-INFER Cursor Rules
 
 This directory contains modular cursor rules for the GEO-INFER framework development. Rules are organized by topic for maintainability and clarity.
 
-## Structure
+## Structur
+e
 
 - **`README.md`** (this file) - Overview and navigation
 - **`principles.md`** - Core development principles and philosophy
@@ -16,20 +18,26 @@ This directory contains modular cursor rules for the GEO-INFER framework develop
 - **`standards.md`** - Excellence standards and code review checklist
 - **`navigation.md`** - Navigation guide and key resources
 
-## Quick Reference
+## Quick
+ Reference
 
-### Most Important Rules
+### Mos
+t
+ Important Rules
 1. **NO MOCK METHODS** - See `principles.md`
 2. **Use `uv` for all package management** - See `workflow.md`
 3. **Follow module structure standards** - See `structure.md`
-4. **Comprehensive documentation required** - See `documentation.md`
+4. **documentation required** - See `documentation.md`
 5. **Active Inference first** - See `principles.md`
 
-## Framework Overview
+## Framework
+ Overview
 
-GEO-INFER is a comprehensive geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. The framework consists of 30+ specialized modules organized into distinct categories.
+GEO-INFER is a geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. The framework consists of 30+ specialized modules organized into distinct categories.
 
-### Core Module Categories:
+### Cor
+e
+ Module Categories:
 - **🧠 Analytical Core**: ACT, BAYES, AI, MATH, COG, AGENT, SPM
 - **🗺️ Spatial-Temporal**: SPACE, TIME, IOT
 - **💾 Data Management**: DATA, API
@@ -41,28 +49,36 @@ GEO-INFER is a comprehensive geospatial inference framework implementing Active 
 - **📍 Place-Based**: PLACE
 - **⚙️ Operations**: OPS, INTRA, GIT, TEST, EXAMPLES
 
-## Usage
+## Usag
+e
 
 Cursor will automatically load rules from this directory. For specific guidance, refer to the relevant module file.
 
-## Module-Specific Rules
+## Module
+-Specific Rules
 
 Modules can extend these root framework rules with module-specific development guidelines by creating a `.cursorrules` file in their module directory.
 
-### Pattern
+### Patte
+r
+n
 
 Each module can have its own `.cursorrules` file at:
 ```
 GEO-INFER-{MODULE}/.cursorrules
 ```
 
-### How It Works
+### Ho
+w
+ It Works
 
 - **Root Rules** (`.cursorrules/` directory): Apply to all modules universally
 - **Module Rules** (`GEO-INFER-{MODULE}/.cursorrules`): Extend root rules with module-specific requirements
 - **Relationship**: Module rules reference and extend root rules, not replace them
 
-### Examples
+### Exampl
+e
+s
 
 Many modules already have module-specific `.cursorrules` files:
 - `GEO-INFER-ACT/.cursorrules` - Active Inference implementation requirements
@@ -71,9 +87,10 @@ Many modules already have module-specific `.cursorrules` files:
 
 For details on the module-specific rules pattern, see `structure.md` in this directory.
 
-## Key Resources
+## Key
+ Resources
 
-- **Main README**: `/README.md` - Comprehensive project overview
+- **Main README**: `/README.md` - project overview
 - **Module Index**: `GEO-INFER-INTRA/docs/modules/index.md` - All modules overview
 - **Integration Guide**: `GEO-INFER-INTRA/docs/guides/MODULE_INTEGRATION_GUIDE.md` - Cross-module patterns
 - **Standards**: `GEO-INFER-INTRA/docs/DOCUMENTATION_STANDARDS.md` - Documentation guidelines

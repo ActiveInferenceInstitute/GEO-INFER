@@ -1,677 +1,140 @@
 ---
-title: "GEO-INFER-AGENT: Autonomous Geospatial Agents"
-description: "Intelligent autonomous agents for geospatial decision-making, perception, and action with Active Inference, BDI, and reinforcement learning architectures"
-purpose: "Provide autonomous intelligent agents capable of perceiving geospatial environments, making decisions, and taking actions to achieve goals"
-module_type: "Analytical Core"
+title: "GEO-INFER-AGENT: Agent Orchestration Framework"
+description: "Multi-agent coordination, lifecycle management, and agent communication"
+purpose: "Provide infrastructure for deploying and managing multiple geospatial agents"
+module_type: "Core Framework"
 status: "Beta"
-last_updated: "2025-01-19"
-dependencies: ["ACT", "AI"]
-compatibility: ["GEO-INFER-ACT", "GEO-INFER-AI", "GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-SIM"]
-tags: ["autonomous-agents", "intelligent-systems", "bdi", "active-inference", "reinforcement-learning", "multi-agent-systems"]
+last_updated: "2026-01-26"
+dependencies: ["ACT", "COMMS"]
+compatibility: ["GEO-INFER-ACT", "GEO-INFER-COMMS", "GEO-INFER-OPS"]
+tags: ["agents", "orchestration", "multi-agent", "coordination", "lifecycle"]
 difficulty: "Advanced"
-estimated_time: "70"
+estimated_time: "50"
 ---
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./docs/">📚 Documentation</a>
 </div>
 
 ---
 
-
-# GEO-INFER-AGENT: Autonomous Geospatial Agents
-
-**Autonomous Geospatial Agents: Perception, Decision, and Action**
+# GEO-INFER-AGENT: Agent Orchestration Framework
 
 ## Overview
 
-GEO-INFER-AGENT is the module dedicated to the **design, implementation, and orchestration of autonomous intelligent agents** within the GEO-INFER framework. These agents are software entities capable of perceiving their (geospatial) environment, making decisions, and taking actions to achieve specific goals without constant human intervention. This module provides the foundational components for building agents that can perform tasks such as autonomous data collection, real-time environmental monitoring, distributed sensing, adaptive resource management, and even coordinating complex multi-agent systems. By leveraging principles from Active Inference (via GEO-INFER-ACT), Belief-Desire-Intention (BDI) models, Reinforcement Learning (RL), and other AI paradigms, GEO-INFER-AGENT aims to enable sophisticated, adaptive, and robust autonomous operations in dynamic geospatial contexts.
+**GEO-INFER-AGENT** provides agent orchestration:
 
-## Core Objectives
+- **Agent Lifecycle**: Create, deploy, manage agents
+- **Multi-Agent Coordination**: Agent collaboration
+- **Communication**: Inter-agent messaging
+- **Delegation**: Task distribution
 
--   **Autonomy:** Enable agents to perform complex geospatial tasks with minimal human supervision.
--   **Adaptivity:** Equip agents to learn from experience and adapt their behavior to changing environmental conditions or new information.
--   **Intelligence:** Incorporate reasoning, planning, and decision-making capabilities based on various AI paradigms.
--   **Coordination:** Facilitate effective communication and collaboration between multiple agents to solve distributed problems.
--   **Situatedness & Embodiment (Conceptual):** Design agents that are aware of and can interact meaningfully with their geospatial environment, whether virtual (in simulations) or physical (via robotics/IoT integrations).
--   **Goal-Orientation:** Enable agents to pursue predefined or dynamically generated goals effectively.
--   **Ethical Operation:** Promote the development of agents that operate transparently, accountably, and in alignment with human values (see Ethical Considerations).
+## Features
 
-## Core Features
-
--   **Diverse Agent Architectures:** Support for multiple agent control architectures including:
-    -   **Active Inference Agents (integrating GEO-INFER-ACT):** Agents that act to minimize free energy, enabling perception, learning, and planning under uncertainty.
-    -   **Belief-Desire-Intention (BDI) Agents:** Goal-driven agents with explicit representations of beliefs, desires (goals), and intentions (plans).
-    -   **Reinforcement Learning (RL) Agents (integrating GEO-INFER-AI):** Agents that learn optimal policies through trial-and-error interaction with an environment.
-    -   **Rule-Based & Expert System Agents:** Agents operating based on predefined sets of rules or knowledge bases.
-    -   **Hybrid Architectures:** Combining strengths from different approaches.
--   **Autonomous Geospatial Data Collection & Processing:** Agents capable of navigating to specified areas (virtual or physical), collecting data (e.g., imagery, sensor readings, social media), and performing initial processing.
--   **Multi-Agent Systems (MAS) Coordination:** Frameworks for communication (e.g., FIPA-ACL like message passing, shared blackboards, stigmergy) and coordination (e.g., contract nets, auctions, distributed task allocation) among multiple agents.
--   **Self-Adaptive & Learning Capabilities:** Agents that can monitor their own performance, learn from new data or feedback, and adapt their strategies or internal models over time.
--   **Planning & Task Execution Engine:** Components for agents to generate plans to achieve goals and reliably execute those plans, including error handling and replanning.
--   **Perception & World Modeling:** Mechanisms for agents to perceive their environment (using data from GEO-INFER-DATA, GEO-INFER-SPACE, GEO-INFER-TIME), build internal models (world representations), and update these models based on new observations.
--   **Agent Orchestration & Deployment Tools:** Utilities for configuring, launching, monitoring, and managing the lifecycle of individual agents and multi-agent systems.
-
-## Generic Agent Perception-Action Loop (Conceptual)
-
-```mermaid
-graph TD
-    subgraph Agent_Internal as "Autonomous Agent (GEO-INFER-AGENT)"
-        P[Perception Module]
-        WM[World Model / Beliefs]
-        DM[Decision-Making / Reasoning Engine]
-        PLAN[Planning Module]
-        ACT_SELECT[Action Selection]
-    end
-
-    subgraph Environment as "Geospatial Environment & Other Agents"
-        ENV_STATE[Environmental State (Data, Space, Time)]
-        OTHER_AGENTS[Other Agents / Systems]
-    end
-    
-    subgraph Action_Execution as "Action Execution"
-        ACTION[Perform Action]
-    end
-
-    %% Agent Loop
-    P -->|Sensory Input| WM
-    WM -->|Current State & Goals| DM
-    DM -->|Strategic Choices| PLAN
-    PLAN -->|Possible Plans| ACT_SELECT
-    ACT_SELECT -->|Selected Action| ACTION
-
-    %% Interaction with Environment
-    ENV_STATE -- "Sensed By" --> P
-    OTHER_AGENTS -- "Communicates/Observed By" --> P
-    ACTION -- "Modifies" --> ENV_STATE
-    ACTION -- "Affects/Communicates To" --> OTHER_AGENTS
-
-    %% Feedback & Learning (Implicit)
-    WM -- "Updates Based on Action Outcome (via Perception)" --> P
-    DM -- "Learns from Outcomes" --> WM
-
-    classDef agentInternal fill:#f0fff0,stroke:#2e8b57,stroke-width:2px;
-    class Agent_Internal agentInternal;
-```
-
-## Directory Structure
-```
-GEO-INFER-AGENT/
-├── config/                 # Agent configurations, behavior trees, initial belief sets
-├── docs/                   # Documentation on agent architectures, API, ethical guidelines
-├── examples/               # Example agent implementations and multi-agent scenarios
-├── src/                    # Source code
-│   └── geo_infer_agent/    # Main Python package
-│       ├── agents/         # Implementations of specific agent types and architectures (BDI, ActInf, RL)
-│       ├── api/            # API for agent control, monitoring, and inter-agent communication
-│       ├── core/           # Core agent lifecycle management, perception, action execution
-│       ├── models/         # Data models for agent beliefs, plans, messages, environment states
-│       │   ├── bdi/        # Belief-Desire-Intention specific models
-│       │   └── schemas/    # General Pydantic schemas for agent communication
-│       ├── planning/       # Planning algorithms (e.g., HTN, PDDL-like)
-│       ├── coordination/   # Protocols for multi-agent coordination
-│       └── utils/          # Utility functions, logging, deployment scripts
-└── tests/                  # Unit and integration tests for agent components and behaviors
-```
-
-## 🚀 Quick Start (5 minutes)
-
-### 1. Prerequisites Check
-```bash
-# Verify Python version
-python --version  # Should be 3.9+
-
-# Check agent framework dependencies
-python -c "import numpy, pandas; print('✅ Basic libraries available')"
-
-# Check required GEO-INFER modules
-pip list | grep geo-infer
-```
-
-### 2. Installation
-```bash
-uv pip install -e ./GEO-INFER-AGENT
-# Optional extras for RL/ActInf examples
-uv pip install stable-baselines3 gym pymdp
-uv run python -c "import geo_infer_agent; print('import ok')"
-```
-
-### 3. Basic Configuration
-```bash
-# Copy example configuration
-cp config/example.yaml config/local.yaml
-
-# Set up agent environment
-mkdir -p ./agent_workspace/{logs,models,data}
-
-# Edit agent configuration
-nano config/local.yaml
-```
-
-### 4. Create Your First Agent
-```python
-# Simple geospatial data collection agent
-from geo_infer_agent.agents import DataCollectionAgent
-from geo_infer_agent.core import AgentEnvironment
-import geopandas as gpd
-
-# Initialize agent environment
-env = AgentEnvironment(
-    spatial_bounds=(-74.1, 40.6, -73.9, 40.8),  # NYC bounding box
-    temporal_range=("2024-01-01", "2024-12-31")
-)
-
-# Create a data collection agent
-agent = DataCollectionAgent(
-    name="nyc_data_collector",
-    environment=env,
-    collection_goals=["traffic_data", "air_quality"]
-)
-
-# Start agent
-agent.start()
-print(f"✅ Agent {agent.name} started successfully")
-
-# Check agent status
-status = agent.get_status()
-print(f"Agent status: {status}")
-```
-
-### 5. Run Multi-Agent Example
-```python
-# Multi-agent coordination example
-from geo_infer_agent.coordination import MultiAgentSystem
-from geo_infer_agent.agents import MonitoringAgent, AnalysisAgent
-
-# Create multi-agent system
-mas = MultiAgentSystem()
-
-# Add monitoring agent
-monitor_agent = MonitoringAgent(
-    name="environmental_monitor",
-    monitoring_area="POLYGON((-74.0 40.7, -73.95 40.7, -73.95 40.75, -74.0 40.75, -74.0 40.7))"
-)
-
-# Add analysis agent
-analysis_agent = AnalysisAgent(
-    name="data_analyzer",
-    analysis_types=["anomaly_detection", "trend_analysis"]
-)
-
-# Deploy agents
-mas.add_agent(monitor_agent)
-mas.add_agent(analysis_agent)
-mas.start_coordination()
-
-print("✅ Multi-agent system deployed successfully")
-```
-
-### 6. Monitor Agent Performance
-```bash
-# Check agent logs
-tail -f agent_workspace/logs/agent_activity.log
-
-# View agent dashboard (if running)
-open http://localhost:8080/agent-dashboard
-
-# Test agent communication
-python -m geo_infer_agent.cli test-communication
-```
-
-### 7. Next Steps
-- 📖 See [agent examples](./examples/) for BDI, RL, and Active Inference agents
-- 🔗 Check [integration guide](./docs/integration.md) for connecting with other modules
-- 🛠️ Visit [agent architectures](./docs/agent_architectures.md) for advanced configurations
-- 📋 Review [ethical guidelines](./docs/ethics.md) for responsible agent development
-
-## Getting Started (Detailed)
-
-### Prerequisites
-- Python 3.9+
-- Libraries specific to chosen agent architectures (e.g., `spade` for some BDI, `pymdp` for Active Inference, RL libraries like `stable-baselines3` or `Ray RLlib`).
-- Potentially a message queue system (e.g., RabbitMQ, Redis Streams) for inter-agent communication in distributed MAS.
-
-### Installation
-```bash
-# Clone the GEO-INFER repository if you haven't already
-# git clone https://github.com/activeinference/GEO-INFER.git
-# cd GEO-INFER/GEO-INFER-AGENT
-
-uv pip install -e .
-# or poetry install if pyproject.toml is configured
-```
-
-### Configuration
-Agent behaviors, initial beliefs, goals, planning operators, and communication settings are often defined in YAML or JSON configuration files in `config/`, or directly within agent definition scripts.
-```bash
-# cp config/example_actinf_agent.yaml config/my_actinf_config.yaml
-# # Edit my_actinf_config.yaml with specific parameters for your Active Inference agent
-```
-
-### Running a Simple Agent (Example)
-```bash
-# Example: Running a data collection agent defined in a script
-python examples/run_data_collector_agent.py --config config/data_collector_params.yaml --area "POLYGON((...))"
-
-# Example: Starting a BDI agent platform (if applicable)
-# python -m geo_infer_agent.platforms.bdi_platform --config config/bdi_setup.yaml
-```
-
-## Agent Types Supported
-
-GEO-INFER-AGENT aims to support a variety of specialized autonomous agents:
-
--   **Data Collection Agents:** Autonomously navigate to areas of interest (virtual or physical) to gather specific geospatial information (e.g., satellite imagery, sensor readings, social media posts, VGI).
--   **Analysis Agents:** Process collected or streamed geospatial data to extract insights, detect patterns, or identify anomalies (e.g., change detection agent, feature extraction agent).
--   **Monitoring Agents:** Continuously observe specific spatial phenomena or areas, triggering alerts or actions when predefined conditions are met (e.g., deforestation monitor, flood risk monitor).
--   **Decision & Control Agents:** Make autonomous decisions and take actions to manage or influence geospatial systems (e.g., adaptive irrigation controller, dynamic traffic management agent).
--   **Coordination & Broker Agents:** Facilitate communication and task allocation within multi-agent systems, acting as mediators or brokers.
--   **Learning Agents:** Explicitly designed to improve their performance over time through experience, feedback, or interaction with other agents or humans.
--   **Simulation Agents (for GEO-INFER-SIM):** Agents designed to operate within simulated environments, often used to test hypotheses or explore complex system dynamics before real-world deployment.
-
-## Agent Capabilities
-
-Key capabilities provided or integrated by the module include:
-
--   **Geospatial Perception:** Interpreting sensor data, map layers, and other geospatial information to build an understanding of the environment.
--   **Spatial & Temporal Reasoning:** Making inferences about spatial relationships, temporal patterns, and dynamic processes.
--   **Goal-Directed Planning & Execution:** Generating sequences of actions to achieve objectives, monitoring execution, and replanning if necessary.
--   **Adaptive Behavior:** Modifying actions or strategies in response to changes in the environment or new information.
--   **Inter-Agent Communication & Coordination:** Exchanging messages, sharing knowledge, and coordinating actions with other agents (human or artificial).
--   **Learning from Experience:** Utilizing machine learning (e.g., RL, supervised learning from GEO-INFER-AI) or other adaptive mechanisms (e.g., Bayesian updating in Active Inference) to improve behavior.
--   **Navigation & Pathfinding:** (For mobile agents) Planning and executing routes through geospatial environments.
-
-## Agent Architectures Supported
-
-The module facilitates the implementation of various established agent architectures:
-
--   **Belief-Desire-Intention (BDI):** Agents with explicit mentalistic notions. Beliefs represent the agent's knowledge about the world, Desires represent its goals, and Intentions represent its committed plans of action.
--   **Active Inference (ActInf):** Agents driven by the imperative to minimize variational free energy (or maximize model evidence). This provides a first-principles account of perception, learning, and decision-making under uncertainty (strong ties to GEO-INFER-ACT).
--   **Reinforcement Learning (RL):** Agents learn optimal policies by interacting with an environment and receiving rewards or punishments. Often involves training deep neural networks (ties to GEO-INFER-AI).
--   **Rule-Based / Expert Systems:** Agents operate based on a predefined set of IF-THEN rules or a knowledge base curated by domain experts.
--   **Hybrid Architectures:** Combining elements from different architectures to leverage their respective strengths (e.g., an RL agent might use a BDI-style planner for high-level goal setting).
-
-## API Reference
-
-### Core Classes
-
-#### BaseAgent
-
-Foundation class for all intelligent agents.
+### Agent Lifecycle
 
 ```python
-from geo_infer_agent.core.agent_base import BaseAgent, AgentState
+from geo_infer_agent import AgentManager
 
-# Create base agent
-agent = BaseAgent(
-    agent_id="agent_001",
-    config={'spatial_bounds': region_bounds}
+# Manage agent lifecycle
+manager = AgentManager()
+
+# Create agent
+agent = manager.create(
+    type="spatial_analyst",
+    config=agent_config
 )
 
-# Get agent state
-state = agent.get_state()
+# Deploy agent
+manager.deploy(agent)
 
-# Execute action
-result = agent.act(observation)
+# Monitor agent
+status = manager.get_status(agent.id)
 ```
 
-#### BDIAgent
-
-Belief-Desire-Intention agent implementation.
+### Multi-Agent Coordination
 
 ```python
-from geo_infer_agent.models.bdi import BDIAgent, Belief, Desire, Plan
+from geo_infer_agent import MultiAgentCoordinator
 
-# Create BDI agent
-bdi_agent = BDIAgent(
-    agent_id="bdi_001",
-    initial_beliefs={'location': [37.7749, -122.4194]},
-    goals=['collect_data', 'monitor_environment']
+# Coordinate multiple agents
+coordinator = MultiAgentCoordinator()
+
+# Create agent team
+team = coordinator.create_team(
+    agents=[analyst, monitor, reporter],
+    coordination="hierarchical"
 )
 
-# Update beliefs
-bdi_agent.update_belief('location', new_location)
-
-# Add desire
-bdi_agent.add_desire(Desire('optimize_route', priority=0.8))
-
-# Execute plan
-result = bdi_agent.execute_plan()
+# Assign task
+result = team.execute(task=analysis_task)
 ```
 
-#### ActiveInferenceAgent
-
-Active Inference-based agent.
+### Agent Communication
 
 ```python
-from geo_infer_agent.models.active_inference import ActiveInferenceAgent
+from geo_infer_agent import AgentMessaging
 
-# Create active inference agent
-act_agent = ActiveInferenceAgent(
-    state_dim=10,
-    obs_dim=5,
-    action_dim=3,
-    config={'planning_horizon': 5}
-)
-
-# Perceive environment
-observation = act_agent.perceive(obs_array)
-
-# Act to minimize free energy
-action = act_agent.act(observation)
-```
-
-#### RLAgent
-
-Reinforcement Learning agent.
-
-```python
-from geo_infer_agent.models.rl import RLAgent
-
-# Create RL agent
-rl_agent = RLAgent(
-    state_dim=10,
-    action_dim=3,
-    learning_rate=0.001
-)
-
-# Train agent
-rl_agent.train(episodes=1000)
-
-# Get action
-action = rl_agent.select_action(state)
-```
-
-#### AgentRegistry
-
-Agent registration and discovery.
-
-```python
-from geo_infer_agent.core.agent_registry import AgentRegistry
-
-# Create registry
-registry = AgentRegistry()
-
-# Register agent
-registry.register(agent_id="agent_001", agent=my_agent)
-
-# Get agent
-agent = registry.get_agent("agent_001")
-
-# List all agents
-all_agents = registry.list_agents()
-```
-
-#### MessagingService
-
-Inter-agent communication.
-
-```python
-from geo_infer_agent.api.messaging import MessagingService
-
-# Create messaging service
-messaging = MessagingService()
+# Inter-agent communication
+messaging = AgentMessaging()
 
 # Send message
-messaging.send_message(
-    from_agent="agent_001",
-    to_agent="agent_002",
-    message_type="coordination",
-    payload={'task': 'data_collection'}
+messaging.send(
+    from_agent=sensor_agent,
+    to_agent=analysis_agent,
+    message=observation
 )
 
-# Receive messages
-messages = messaging.get_messages(agent_id="agent_002")
+# Broadcast
+messaging.broadcast(
+    from_agent=coordinator,
+    message=instructions
+)
 ```
 
-## Integration with Other Modules
-
-GEO-INFER-AGENT is designed to work in concert with many other GEO-INFER modules:
-
--   **GEO-INFER-ACT:** Provides the core mathematical and conceptual framework for agents based on Active Inference.
--   **GEO-INFER-AI:** Offers machine learning models and algorithms that can be embedded within agents for perception, learning, and decision-making (e.g., computer vision for image analysis, RL for policy learning).
--   **GEO-INFER-SPACE & GEO-INFER-TIME:** Provide the environmental context (spatial data, geometries, temporal dynamics) that agents perceive, reason about, and act within.
--   **GEO-INFER-DATA:** Serves as the source for observational data agents use for perception and learning, and as a repository for data collected by agents.
--   **GEO-INFER-SIM:** Agents can be deployed and tested within simulation environments created by SIM, allowing for rapid prototyping and evaluation before real-world application.
--   **GEO-INFER-API:** Agents may expose their own APIs for control and monitoring, or interact with other GEO-INFER modules via their APIs.
--   **GEO-INFER-NORMS & GEO-INFER-CIV:** Agents can be designed to operate according to norms or policies defined in NORMS, or interact with community platforms from CIV (e.g., a data collection agent responding to citizen requests).
--   **GEO-INFER-OPS:** May be used for deploying, monitoring, and managing the lifecycle of agent-based systems, especially in distributed settings.
-
-## Application Areas
-
--   **Automated Environmental Monitoring:** Deploying agents to track changes in land cover, water quality, air pollution, or biodiversity.
--   **Autonomous Field Data Collection:** Using mobile agents (drones, ground robots, or virtual agents querying APIs) to gather geospatial data in remote or hazardous areas.
--   **Intelligent Urban Infrastructure Management:** Agents for optimizing traffic flow, managing energy distribution, or monitoring public utilities.
--   **Disaster Response & Coordination:** Multi-agent systems for damage assessment, resource allocation, and search and rescue operations.
--   **Adaptive Conservation Management:** Agents that monitor wildlife populations or habitat conditions and suggest or implement adaptive management strategies.
--   **Precision Agriculture / Smart Farming:** Agents for monitoring crop health, optimizing irrigation and fertilization, or controlling autonomous farm equipment.
-
-## Ethical Considerations & Responsible AI
-
-The development and deployment of autonomous agents raise significant ethical considerations. GEO-INFER-AGENT promotes responsible AI practices:
-
--   **Transparency & Explainability (XAI):** Designing agents whose decision-making processes can be understood and explained, especially for critical applications.
--   **Human Oversight & Intervention:** Ensuring that human operators can monitor agent activities, intervene if necessary, and override autonomous decisions.
--   **Privacy-Preserving Data Handling:** Agents must adhere to privacy principles when collecting, processing, and storing geospatial data, especially personal or sensitive information.
--   **Fairness & Non-Discrimination:** Ensuring that agent behaviors and decisions do not lead to unfair or discriminatory outcomes, particularly in resource allocation or access to services.
--   **Accountability & Responsibility:** Establishing clear lines of responsibility for agent actions and their consequences.
--   **Security & Robustness:** Designing agents that are resilient to adversarial attacks and operate reliably under uncertain conditions.
--   **Impact Assessment & Value Alignment:** Tools and frameworks for assessing the potential societal and environmental impacts of agent deployments and ensuring they align with human values and ethical guidelines (potentially integrating with GEO-INFER-NORMS).
-
-## Advanced Features
-
-### 1. Swarm Intelligence for Geospatial Tasks
-**Purpose**: Collective intelligence through coordinated behavior of multiple simple agents.
+### Task Delegation
 
 ```python
-from geo_infer_agent.swarm import SwarmIntelligenceSystem
+from geo_infer_agent import TaskDelegator
 
-swarm = SwarmIntelligenceSystem(
-    swarm_size=100,
-    coordination_algorithm='particle_swarm_optimization',
-    collective_behavior=['flocking', 'foraging', 'division_of_labor'],
-    spatial_coverage=monitoring_area
-)
+# Delegate tasks
+delegator = TaskDelegator()
 
-# Deploy swarm for spatial coverage
-coverage_strategy = swarm.optimize_coverage(
-    target_area=search_region,
-    resource_constraints=battery_life,
-    communication_range=100.0
-)
-
-# Emergent problem solving
-collective_solution = swarm.solve_spatial_problem(
-    problem_type='optimal_placement',
-    constraints=spatial_constraints,
-    objective_function=coverage_metric
+assignments = delegator.distribute(
+    task=large_analysis,
+    agents=available_agents,
+    strategy="load_balanced"
 )
 ```
 
-### 2. Meta-Learning for Agent Adaptation
-**Purpose**: Enable agents to learn how to learn and rapidly adapt to new spatial tasks.
+## Agent Types
 
-```python
-from geo_infer_agent.meta_learning import MetaLearningAgent
+| Type | Role |
+|------|------|
+| **Analyst** | Data analysis |
+| **Monitor** | Observation |
+| **Coordinator** | Orchestration |
+| **Specialist** | Domain expert |
 
-meta_agent = MetaLearningAgent(
-    meta_algorithm='model_agnostic_meta_learning',
-    adaptation_steps=5,
-    task_distribution=spatial_task_family,
-    transfer_learning=True
-)
+## Integration Points
 
-# Meta-train across multiple spatial tasks
-meta_trained_agent = meta_agent.meta_train(
-    training_tasks=spatial_task_collection,
-    meta_epochs=1000,
-    inner_loop_steps=5
-)
+| Module | Integration |
+|--------|-------------|
+| **GEO-INFER-ACT** | Agent behavior |
+| **GEO-INFER-OPS** | Deployment |
+| **GEO-INFER-COMMS** | Messaging |
 
-# Rapid adaptation to new task
-adapted_agent = meta_trained_agent.adapt_to_task(
-    new_task=novel_spatial_problem,
-    few_shot_examples=limited_data,
-    adaptation_steps=3
-)
+## Installation
+
+```bash
+uv pip install -e "./GEO-INFER-AGENT"
 ```
 
-### 3. Cognitive Architecture for Complex Reasoning
-**Purpose**: Human-like cognitive capabilities for sophisticated geospatial reasoning.
+---
 
-```python
-from geo_infer_agent.cognitive import CognitiveAgent
+**Status**: Beta
 
-cognitive_agent = CognitiveAgent(
-    cognitive_modules=['perception', 'memory', 'reasoning', 'learning', 'planning'],
-    working_memory_capacity=7,
-    episodic_memory=True,
-    semantic_memory=True
-)
-
-# Complex spatial reasoning
-reasoning_result = cognitive_agent.spatial_reasoning(
-    spatial_problem=complex_navigation_task,
-    knowledge_base=geographic_knowledge,
-    reasoning_strategy='analogy_based'
-)
-
-# Cognitive learning and memory
-cognitive_agent.store_episodic_memory(
-    episode=spatial_experience,
-    context=environmental_conditions,
-    outcomes=task_results
-)
-```
-
-## Performance Considerations
-
-### Computational Efficiency
-**Agent Scalability**: Efficient algorithms for managing thousands of concurrent agents with minimal overhead
-**Message Passing**: Optimized communication protocols for large-scale multi-agent systems
-**Decision Speed**: Sub-second decision-making for time-critical applications
-
-### Distributed Computing
-**Horizontal Scaling**: Distribute agent populations across multiple compute nodes
-**Load Balancing**: Dynamic load balancing for agent workloads
-**Fault Tolerance**: Agent replication and failover mechanisms
-
-### Resource Management
-**Memory Optimization**: Efficient memory management for agent beliefs and knowledge bases
-**Computation Scheduling**: Intelligent scheduling of agent computations and communications
-**Energy Efficiency**: Power-aware algorithms for battery-powered mobile agents
-
-## Troubleshooting
-
-### Common Issues and Solutions
-
-#### Agent Communication Failures
-**Issue**: Agents unable to communicate or coordinate effectively
-**Solution**: Verify network connectivity, check message protocols, and ensure proper agent registration
-
-```python
-from geo_infer_agent.diagnostics import AgentDiagnostics
-
-diagnostics = AgentDiagnostics()
-comm_report = diagnostics.diagnose_communication(
-    agent_ids=problematic_agents,
-    check_network=True,
-    check_protocols=True,
-    check_registration=True
-)
-```
-
-#### Agent Coordination Deadlocks
-**Issue**: Multiple agents waiting indefinitely for each other
-**Solution**: Implement timeout mechanisms and deadlock detection algorithms
-
-```python
-from geo_infer_agent.coordination import DeadlockDetector
-
-detector = DeadlockDetector(
-    monitoring_interval=5.0,
-    deadlock_resolution='priority_based',
-    timeout_threshold=30.0
-)
-
-detector.monitor_agent_system(agent_population)
-```
-
-#### Poor Agent Performance
-**Issue**: Agents making suboptimal decisions or failing to achieve goals
-**Solution**: Analyze agent learning curves, verify model specifications, and adjust parameters
-
-```python
-from geo_infer_agent.analysis import AgentPerformanceAnalyzer
-
-analyzer = AgentPerformanceAnalyzer()
-analysis = analyzer.analyze_agent_performance(
-    agent_id="spatial_analyzer_001",
-    metrics=['decision_quality', 'goal_achievement', 'adaptation_speed'],
-    time_period='last_7_days'
-)
-```
-
-### Debugging Agent Behavior
-
-#### Enable Detailed Logging
-```python
-import logging
-logging.getLogger('geo_infer_agent').setLevel(logging.DEBUG)
-```
-
-#### Visualize Agent Decision Trees
-```python
-from geo_infer_agent.visualization import AgentVisualizer
-
-visualizer = AgentVisualizer()
-visualizer.plot_decision_tree(
-    agent=agent_instance,
-    decision_history=past_decisions,
-    output_path='agent_decisions.png'
-)
-```
-
-#### Monitor Agent State Evolution
-```python
-from geo_infer_agent.monitoring import AgentStateMonitor
-
-monitor = AgentStateMonitor()
-with monitor.track_agent_state(agent_id="monitor_001"):
-    agent.execute_task(complex_task)
-    
-state_evolution = monitor.get_state_history()
-```
-
-### Common Error Messages
-
-#### "Agent registration failed"
-**Cause**: Agent unable to register with the agent registry
-**Fix**: Check network connectivity and registry service availability
-
-#### "Belief update diverged"
-**Cause**: Numerical instability in belief update calculations
-**Fix**: Adjust numerical precision or use stabilized update algorithms
-
-#### "Action selection timeout"
-**Cause**: Agent unable to select action within time limit
-**Fix**: Simplify action space or increase computation time budget
-
-## Contributing
-
-Contributions are welcome from AI researchers, software engineers, ethicists, and domain experts. Areas for contribution include:
--   Developing new agent architectures or improving existing ones.
--   Implementing novel planning, learning, or coordination algorithms for agents.
--   Creating example agents for specific geospatial tasks or application domains.
--   Building tools for testing, debugging, and monitoring agents.
--   Advancing research and implementation of ethical AI principles for geospatial agents.
--   Developing standardized communication protocols for multi-agent systems.
-
-Follow the contribution guidelines in the main GEO-INFER documentation (`CONTRIBUTING.md`) and specific guidelines for agent development in `GEO-INFER-AGENT/docs/CONTRIBUTING_AGENT.md` (to be created).
-
-## License
-
-This module is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for full details. 
+**Last Updated**: 2026-01-26

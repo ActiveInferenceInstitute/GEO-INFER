@@ -18,6 +18,16 @@ class CALFIREClient(BaseAPIManager):
     """
     def __init__(self):
         super().__init__("https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/ArcGIS/rest/services/California_Fire_Perimeters/FeatureServer")
+        self.incident_url = "https://www.fire.ca.gov/umbraco/api/IncidentApi/GetIncidents"
+
+    def fetch_incidents(self) -> Any:
+        """
+        Fetch active fire incidents from CAL FIRE.
+        
+        Returns:
+            JSON list of incidents
+        """
+        return self.fetch_data("", {}, base_url=self.incident_url)
 
     def fetch_perimeters(self, year: Optional[int] = None, county: Optional[str] = None) -> Dict[str, Any]:
         """
@@ -50,6 +60,20 @@ class NOAAClient(BaseAPIManager):
     """
     def __init__(self):
         super().__init__("https://api.tidesandcurrents.noaa.gov/api/prod/datagetter")
+        self.weather_url = "https://api.weather.gov/stations"
+
+    def fetch_weather_observations(self, station_id: str) -> Dict[str, Any]:
+        """
+        Fetch latest weather observations for a station.
+        
+        Args:
+            station_id: Weather station ID (e.g., KCEC)
+            
+        Returns:
+            JSON data with weather properties
+        """
+        url = f"{self.weather_url}/{station_id}/observations/latest"
+        return self.fetch_data("", {}, base_url=url)
 
     def fetch_tide_data(self, station: str, begin_date: str, end_date: str, product: str = "water_level") -> Dict[str, Any]:
         """
@@ -106,6 +130,25 @@ class USGSClient(BaseAPIManager):
         }
         return self.fetch_data("", params)
 
+class USGSEarthquakeClient(BaseAPIManager):
+    """
+    Client for USGS Earthquake data.
+    """
+    def __init__(self):
+        super().__init__("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary")
+        
+    def fetch_earthquakes(self, feed: str = "all_day.geojson") -> Dict[str, Any]:
+        """
+        Fetch earthquake data feed.
+        
+        Args:
+            feed: Feed name (default: all_day.geojson)
+            
+        Returns:
+            GeoJSON data
+        """
+        return self.fetch_data(f"/{feed}", {})
+
 class CDECClient(BaseAPIManager):
     """
     Client for California Data Exchange Center.
@@ -142,6 +185,7 @@ class CaliforniaAPIManager:
         self.calfire = CALFIREClient()
         self.noaa = NOAAClient()
         self.usgs = USGSClient()
+        self.usgs_eq = USGSEarthquakeClient()
         self.cdec = CDECClient()
         
         logger.info("California API Manager initialized with specific clients") 

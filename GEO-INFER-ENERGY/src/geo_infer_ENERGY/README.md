@@ -1,0 +1,5 @@
+# geo_infer_ENERGY
+ ## Overview
+ **Path**: `GEO-INFER-ENERGY/src/geo_infer_ENERGY` GEO-INFER-ENERGY: Energy Systems Analysis Module ## Implementation
+ ### `core/energy_grid.py` **Classes**: EnergyGridOptimizer **Functions**: optimize_grid_network, assess_grid_reliability ### `core/energy_demand.py` **Classes**: EnergyDemandForecaster **Functions**: forecast_demand, identify_peak_demand ### `core/carbon_footprint.py` **Classes**: CarbonFootprintAnalyzer **Functions**: calculate_emissions, calculate_carbon_intensity, assess_renewable_impact ### `core/energy_infrastructure.py` **Classes**: EnergyInfrastructurePlanner **Functions**: optimize_facility_siting, assess_infrastructure_capacity ### `core/renewable_resources.py` **Classes**: RenewableType, SuitabilityClass, RenewableSite, RenewableResourceAssessor **Functions**: assess_solar_potential, assess_wind_potential, assess_hydro_potential, assess_site_suitability, calculate_capacity_factor ## Contents
+ - **api/**: Subdirectory - **core/**: Subdirectory - **utils/**: Subdirectory --- 

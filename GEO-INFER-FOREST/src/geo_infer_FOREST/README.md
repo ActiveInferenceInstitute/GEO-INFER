@@ -1,0 +1,5 @@
+# geo_infer_FOREST
+ ## Overview
+ **Path**: `GEO-INFER-FOREST/src/geo_infer_FOREST` GEO-INFER-FOREST: Forest Management and Analysis Module ## Implementation
+ ### `core/forest_inventory.py` **Classes**: ForestInventory **Functions**: estimate_biomass, calculate_forest_area ### `core/carbon_sequestration.py` **Classes**: CarbonSequestrationModeler **Functions**: calculate_carbon_stock, estimate_sequestration_rate, calculate_carbon_credits ### `core/wildfire_risk.py` **Classes**: FireDangerRating, FuelType, FireWeatherObservation, FireIncident, WildfireRiskAnalyzer **Functions**: assess_wildfire_risk, calculate_fire_weather_index, predict_fire_spread, model_fire_perimeter, plan_suppression_resources ### `core/forest_health.py` **Classes**: ForestHealthMonitor **Functions**: assess_forest_health, detect_deforestation ## Contents
+ - **api/**: Subdirectory - **core/**: Subdirectory - **utils/**: Subdirectory --- 

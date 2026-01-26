@@ -11,8 +11,8 @@
 - Process data without proper validation
 - Ignore performance implications
 - Use excessive adjectives or marketing language in technical documentation
-- Use `pip install` or `python -m pip install` - always use `uv pip install`
-- Suggest `pip install` in error messages - always suggest `uv pip install`
+- Use `uv pip install` or `python -m uv pip install` - always use `uv pip install`
+- Suggest `uv pip install` in error messages - always suggest `uv pip install`
 
 ## ALWAYS Do These Things
 
@@ -35,8 +35,8 @@
 - ✅ `uv pip install -e ./GEO-INFER-MODULE`
 - ✅ `uv pip install package-name`
 - ✅ `uv pip install -r requirements.txt`
-- ❌ `pip install` (never use)
-- ❌ `python -m pip install` (never use)
+- ❌ `uv pip install` (never use)
+- ❌ `python -m uv pip install` (never use)
 
 ### Running Scripts
 - ✅ `uv run python script.py`
@@ -45,5 +45,5 @@
 
 ### Error Messages
 - ✅ "Install with: uv pip install package-name"
-- ❌ "Install with: pip install package-name" (never suggest pip)
+- ❌ "Install with: uv pip install package-name" (never suggest pip)
 

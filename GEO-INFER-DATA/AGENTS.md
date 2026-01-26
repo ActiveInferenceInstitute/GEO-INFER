@@ -1,111 +1,104 @@
-# GEO-INFER-DATA: Data Management Framework
+# GEO-INFER-DATA: Agent Capabilities
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./README.md">📚 Module Documentation</a>
 </div>
 
 ---
 
 ## Overview
 
+The **GEO-INFER-DATA** module provides data management capabilities for agents, enabling data ingestion, transformation, storage, and retrieval of geospatial datasets.
 
-The GEO-INFER-DATA module provides foundational data management capabilities that power the intelligent agent ecosystem. It enables agents to access, integrate, and manage diverse geospatial data sources including satellite imagery, sensor networks, and external APIs.
+## Agent Capabilities
+
+### 1. Data Ingestion
+
+```python
+from geo_infer_data import DataIngester
+
+# Ingest geospatial data
+ingester = DataIngester()
+
+dataset = ingester.ingest(
+    source="s3://bucket/parcels.parquet",
+    format="geoparquet",
+    validation=True
+)
+
+print(f"Records: {dataset.count}")
+print(f"CRS: {dataset.crs}")
+```
+
+### 2. Data Transformation
+
+```python
+from geo_infer_data import DataTransformer
+
+# Transform spatial data
+transformer = DataTransformer()
+
+transformed = transformer.transform(
+    data=input_data,
+    operations=["reproject", "simplify", "buffer"],
+    target_crs="EPSG:4326"
+)
+
+print(f"Output features: {transformed.count}")
+```
+
+### 3. Data Catalog
+
+```python
+from geo_infer_data import DataCatalog
+
+# Access data catalog
+catalog = DataCatalog()
+
+# Search for datasets
+datasets = catalog.search(
+    keywords=["parcels", "zoning"],
+    bbox=city_boundary,
+    temporal="2025"
+)
+
+print(f"Found: {len(datasets)} datasets")
+```
+
+### 4. Data Quality
+
+```python
+from geo_infer_data import DataQualityChecker
+
+# Check data quality
+checker = DataQualityChecker()
+
+report = checker.check(
+    data=spatial_dataset,
+    rules=["valid_geometry", "no_gaps", "topology"]
+)
+
+print(f"Quality score: {report.score}%")
+print(f"Issues: {report.issues}")
+```
 
 ## Implementation Status
 
-**⚠️ Important Note**: This document describes both **implemented** and **aspirational** features. Features marked with 🔮 are planned/aspirational.
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Ingestion** | ✅ Ready | Multi-format import |
+| **Transform** | ✅ Ready | ETL operations |
+| **Catalog** | ✅ Ready | Metadata management |
+| **Quality** | ✅ Ready | Validation |
 
-### Currently Implemented
+### Aspirational Features
 
-- ✅ **DataCatalog**: Metadata management and data discovery
-- ✅ **DataLoader**: Multi-format geospatial data loading
-- ✅ **DataIntegrator**: Multi-source data fusion
-- ✅ **STACClient**: Spatio-Temporal Asset Catalog integration
-- ✅ **DataValidator**: Data quality assurance
-
-### Aspirational/Planned Features
-
-- 🔮 **DataCollectionAgent**: Autonomous data acquisition
-- 🔮 **DataQualityAgent**: Automated quality monitoring
-
-## Agent Capabilities Supported
-
-### 1. Data Perception
-
-DATA enables agents to perceive their environment through diverse data sources:
-
-```python
-from geo_infer_data import DataLoader, STACClient
-
-# Initialize data access
-loader = DataLoader()
-stac = STACClient(url="https://stac.example.com")
-
-# Agent accesses satellite imagery
-imagery = stac.search(
-    bbox=agent_area_of_interest,
-    datetime="2024-01-01/2024-01-31",
-    collections=["sentinel-2"]
-)
-
-# Load and process data
-raster_data = loader.load_raster(imagery.best_match())
-```
-
-### 2. Data Integration
-
-DATA supports multi-source data fusion for comprehensive situational awareness:
-
-```python
-from geo_infer_data import DataIntegrator
-
-# Multi-source integration
-integrator = DataIntegrator()
-
-# Agent fuses multiple data sources
-fused_data = integrator.integrate([
-    satellite_imagery,
-    weather_data,
-    sensor_network_data,
-    social_media_signals
-])
-```
-
-### 3. Data Quality Assurance
-
-DATA ensures agents operate on reliable, validated data:
-
-```python
-from geo_infer_data import DataValidator
-
-# Data validation
-validator = DataValidator()
-
-# Agent validates incoming data
-quality_report = validator.validate(
-    data=incoming_stream,
-    checks=['completeness', 'consistency', 'accuracy', 'timeliness']
-)
-
-# Filter reliable data for decision-making
-reliable_data = validator.filter_by_quality(data, threshold=0.8)
-```
-
-## Integration Status
-
-| Capability | Status | Description |
-|------------|--------|-------------|
-| **Data Catalog** | ✅ Ready | Metadata and discovery |
-| **Data Loading** | ✅ Ready | Multi-format support |
-| **Data Integration** | ✅ Ready | Multi-source fusion |
-| **STAC Integration** | ✅ Ready | Satellite data access |
-| **Data Validation** | ✅ Ready | Quality assurance |
-| **Collection Agent** | 🔮 Planned | Autonomous acquisition |
-| **Quality Agent** | 🔮 Planned | Automated monitoring |
+- 🔮 **DataCuratorAgent**: Autonomous data management
+- 🔮 **DataDiscoveryAgent**: Intelligent search
 
 ---
 
-This AGENTS.md documents how GEO-INFER-DATA provides foundational data management capabilities for the agent ecosystem.
+**Last Updated**: 2026-01-26

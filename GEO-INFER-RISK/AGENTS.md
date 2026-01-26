@@ -1,102 +1,108 @@
-# GEO-INFER-RISK: Risk Assessment Framework
+# GEO-INFER-RISK: Agent Capabilities
 
 <div align="center">
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="./README.md">📚 Module Documentation</a>
 </div>
 
 ---
 
-
 ## Overview
 
-The GEO-INFER-RISK module provides risk assessment and vulnerability analysis capabilities that enable intelligent agents to identify, evaluate, and respond to geospatial risks including natural hazards, climate risks, and infrastructure vulnerabilities.
+The **GEO-INFER-RISK** module provides risk assessment capabilities for agents, enabling hazard identification, vulnerability analysis, and risk modeling in geospatial contexts.
 
-## Implementation Status
+## Agent Capabilities
 
-**⚠️ Important Note**: This document describes both **implemented** and **aspirational** features. Features marked with 🔮 are planned/aspirational.
-
-### Currently Implemented
-
-- ✅ **RiskAssessment**: Multi-hazard risk analysis
-- ✅ **VulnerabilityMapping**: Spatial vulnerability assessment
-- ✅ **ExposureAnalysis**: Asset and population exposure
-- ✅ **RiskVisualization**: Risk communication tools
-
-### Aspirational/Planned Features
-
-- 🔮 **RiskMonitoringAgent**: Real-time risk surveillance
-- 🔮 **AdaptiveRiskAgent**: Dynamic risk response
-
-## Agent Capabilities Supported
-
-### 1. Risk Perception
-
-RISK enables agents to perceive and assess risks:
+### 1. Hazard Assessment
 
 ```python
-from geo_infer_risk import RiskAssessment
+from geo_infer_risk import HazardAssessor
 
-# Risk assessment for agent awareness
-assessment = RiskAssessment()
+# Assess natural hazards
+assessor = HazardAssessor()
 
-# Agent assesses regional risks
-risk_profile = assessment.analyze(
-    hazards=['flood', 'earthquake', 'wildfire'],
-    region=area_of_interest,
-    temporal_horizon='10_years'
+hazards = assessor.assess(
+    area=study_region,
+    hazard_types=["flood", "earthquake", "wildfire"],
+    return_periods=[10, 50, 100, 500]
 )
+
+print(f"Flood zones: {hazards.flood.zone_areas}")
+print(f"Seismic hazard: {hazards.earthquake.pga}")
 ```
 
 ### 2. Vulnerability Analysis
 
-RISK supports vulnerability assessment for informed decisions:
-
 ```python
-from geo_infer_risk import VulnerabilityMapping
+from geo_infer_risk import VulnerabilityAnalyzer
 
-# Vulnerability analysis
-vulnerability = VulnerabilityMapping()
+# Analyze asset vulnerability
+vuln = VulnerabilityAnalyzer()
 
-# Agent maps vulnerabilities
-vuln_map = vulnerability.assess(
-    assets=infrastructure_data,
-    population=demographic_data,
-    hazard_exposure=hazard_zones
+analysis = vuln.analyze(
+    assets=building_footprints,
+    hazards=hazard_layers,
+    factors=["age", "construction", "occupancy"]
 )
+
+print(f"High vulnerability: {analysis.high_risk_count}")
+print(f"Estimated loss: ${analysis.expected_loss}M")
 ```
 
-### 3. Risk-Informed Action
-
-RISK enables risk-aware agent behavior:
+### 3. Risk Modeling
 
 ```python
-from geo_infer_risk import ExposureAnalysis
+from geo_infer_risk import RiskModeler
 
-# Exposure analysis
-exposure = ExposureAnalysis()
+# Model risk scenarios
+modeler = RiskModeler()
 
-# Agent evaluates exposure for decisions
-exposure_results = exposure.calculate(
-    elements_at_risk=critical_assets,
-    hazard_scenarios=projected_events,
-    time_horizon=planning_period
+risk = modeler.model(
+    hazard=earthquake_scenario,
+    exposure=building_inventory,
+    vulnerability=fragility_curves
 )
+
+print(f"Expected casualties: {risk.casualties}")
+print(f"Economic loss: ${risk.economic_loss}B")
 ```
 
-## Integration Status
+### 4. Mitigation Planning
 
-| Capability | Status | Description |
-|------------|--------|-------------|
-| **Risk Assessment** | ✅ Ready | Multi-hazard analysis |
-| **Vulnerability Mapping** | ✅ Ready | Spatial vulnerability |
-| **Exposure Analysis** | ✅ Ready | Asset/population exposure |
-| **Risk Visualization** | ✅ Ready | Communication tools |
-| **Risk Monitoring** | 🔮 Planned | Real-time surveillance |
-| **Adaptive Risk** | 🔮 Planned | Dynamic response |
+```python
+from geo_infer_risk import MitigationPlanner
+
+# Plan risk mitigation
+planner = MitigationPlanner()
+
+plan = planner.create(
+    risks=identified_risks,
+    strategies=["retrofit", "relocation", "insurance"],
+    budget=100_000_000
+)
+
+print(f"Risk reduction: {plan.risk_reduction}%")
+print(f"ROI: {plan.benefit_cost_ratio}")
+```
+
+## Implementation Status
+
+| Feature | Status | Description |
+|---------|--------|-------------|
+| **Hazard** | ✅ Ready | Multi-hazard assessment |
+| **Vulnerability** | ✅ Ready | Asset analysis |
+| **Risk Model** | ✅ Ready | Loss estimation |
+| **Mitigation** | ✅ Ready | Strategy planning |
+
+### Aspirational Features
+
+- 🔮 **RiskAdvisorAgent**: Autonomous risk guidance
+- 🔮 **EarlyWarningAgent**: Real-time alerts
 
 ---
 
-This AGENTS.md documents how GEO-INFER-RISK provides risk assessment capabilities for the agent ecosystem.
+This AGENTS.md documents how GEO-INFER-RISK provides risk capabilities for agents.
+
+**Last Updated**: 2026-01-26

@@ -2,69 +2,104 @@
 
 ## Introduction
 
-Active inference is a theoretical framework derived from the free energy principle, proposed by Karl Friston. It provides a unified account of perception, action, and learning in biological and artificial systems. In the context of GEO-INFER-ACT, active inference is applied to geospatial problems, enabling intelligent decision-making in spatial-temporal environments.
+Active Inference is a unifying framework for understanding perception, learning, and action in biological and artificial agents. It is based on the **Free Energy Principle** developed by Karl Friston, which proposes that all adaptive systems minimize variational free energy.
 
-### Key Concepts
+## Core Concepts
 
-1. **Free Energy Principle**: Systems minimize variational free energy to maintain homeostasis.
-   - Variational Free Energy: \( F = D_{KL}[q(\mathbf{s}) || p(\mathbf{s}|\mathbf{o})] - \ln p(\mathbf{o}) \)
-   - This bounds the surprise (negative log evidence) of observations.
+### 1. The Free Energy Principle
 
-2. **Generative Model**: A probabilistic model of how sensations are generated from hidden causes.
-   - \( p(\mathbf{o}, \mathbf{s}) = p(\mathbf{o}|\mathbf{s}) p(\mathbf{s}) \)
+All living systems maintain their existence by minimizing surprise (negative log probability of observations). Since surprise cannot be computed directly, agents minimize an upper bound called **variational free energy**.
 
-3. **Approximate Posterior**: \( q(\mathbf{s}) \) approximates the true posterior \( p(\mathbf{s}|\mathbf{o}) \).
-
-4. **Belief Updating**: Perception as inference, minimizing free energy via gradient descent or message passing.
-
-5. **Policy Selection**: Action as inference, selecting policies that minimize expected free energy.
-   - Expected Free Energy: \( G(\pi) = \sum_{\tau} \mathbb{E}_{Q} [\ln Q(\tilde{\mathbf{o}}_\tau|\pi) - \ln P(\tilde{\mathbf{o}}_\tau)] + \mathbb{E}_{Q} [H[Q(\tilde{\mathbf{s}}_\tau|\pi)]] \)
-
-## Geospatial Applications in GEO-INFER
-
-In geospatial settings, active inference enables agents to:
-- Perceive spatial patterns and temporal dynamics.
-- Predict environmental changes.
-- Make decisions for resource allocation, path planning, etc.
-
-### Examples
-- **Urban Planning**: Agents coordinate resource distribution while minimizing expected free energy [as demonstrated in urban_planning.py].
-- **Ecological Modeling**: Predicting species distribution in changing environments.
-- **Disaster Response**: Real-time path optimization in dynamic spatial fields.
-
-## Implementation in GEO-INFER-ACT
-The module provides a **Real, Tested, and Documented** implementation of Active Inference:
-- **Core Engine**: Powered by `inferactively-pymdp` for robust categorical inference and policy selection.
-- **Models**: Defines clear A, B, C, D matrices for specific domains (Climate, Ecology).
-- **Hierarchical**: Supports multi-scale modeling for complex spatial systems.
-- **Integration**: Seamless connectivity with H3 spatial indexing and standard Python data stacks.
-
-For mathematical details, see [mathematical_framework.md].
-
-## Active Inference Cycle
-
-The following Mermaid flowchart depicts the core active inference process:
-
-```mermaid
-graph TD
-    A[Observation] --> B[Belief Updating]
-    B --> C[Free Energy Calculation]
-    C --> D[Policy Selection]
-    D --> E[Action Execution]
-    E --> A
-    subgraph Perception
-        A
-        B
-    end
-    subgraph Action
-        D
-        E
-    end
-    C -. Expected Free Energy .-> D
+```
+F = E_q[log q(s) - log p(o,s)]
 ```
 
-This diagram shows the perception-action loop, where observations update beliefs, free energy is minimized, policies are selected, and actions generate new observations.
+Where:
 
-References:
-- Friston, K. (2010). The free-energy principle: a unified brain theory? Nature Reviews Neuroscience.
-- Active Inference Institute resources. 
+- `q(s)` - Approximate posterior (beliefs about hidden states)
+- `p(o,s)` - Generative model (how states generate observations)
+- `o` - Observations
+- `s` - Hidden states
+
+### 2. Perception as Inference
+
+Perception is the process of updating beliefs to minimize free energy:
+
+```python
+# Perception loop
+observation = environment.observe()
+beliefs = agent.update_beliefs(observation)
+```
+
+The agent maintains a **generative model** of how the world works and inverts this model to infer hidden states from observations.
+
+### 3. Action as Inference
+
+Rather than maximizing reward, agents select actions that minimize **expected free energy**:
+
+```
+G = E_q[log q(s|π) - log p(o,s|π)]
+```
+
+This naturally balances:
+
+- **Pragmatic value**: Achieving preferred outcomes
+- **Epistemic value**: Reducing uncertainty (exploration)
+
+### 4. Learning as Model Updating
+
+Learning involves updating the parameters of the generative model based on experience, reducing prediction errors over time.
+
+## Active Inference Loop
+
+```mermaid
+graph LR
+    subgraph Agent
+        GM[Generative Model]
+        B[Beliefs q(s)]
+        P[Policy Selection]
+    end
+    
+    subgraph World
+        S[States]
+        O[Observations]
+    end
+    
+    O -->|Perception| B
+    B -->|Planning| P
+    P -->|Action| S
+    S --> O
+    B -.->|Learning| GM
+```
+
+## Key Advantages
+
+| Feature | Description |
+|---------|-------------|
+| **Unified Framework** | Perception, action, and learning under one principle |
+| **Natural Exploration** | Epistemic value drives curiosity |
+| **Robust Behavior** | Handles uncertainty naturally |
+| **Biologically Plausible** | Grounded in neuroscience |
+
+## Geospatial Applications
+
+Active Inference is particularly suited for geospatial agents because:
+
+1. **Spatial Uncertainty**: Environments have inherent uncertainty that agents must navigate
+2. **Exploration-Exploitation**: Agents must balance surveying new areas vs. exploiting known resources
+3. **Multi-Scale Reasoning**: H3 hierarchies map naturally to hierarchical generative models
+4. **Adaptive Behavior**: Agents can adapt to changing environments without reprogramming
+
+## Further Reading
+
+- [Free Energy Principle](./free_energy_principle.md)
+- [Mathematical Framework](./mathematical_framework.md)
+- [Geospatial Applications](./geospatial_applications.md)
+
+## References
+
+See [references.md](./references.md) for academic citations.
+
+---
+
+**Last Updated**: 2026-01-26
