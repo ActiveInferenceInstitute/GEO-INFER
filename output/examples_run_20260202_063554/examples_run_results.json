@@ -1,0 +1,82 @@
+{
+  "summary": {
+    "total": 6,
+    "successful": 5,
+    "failed": 1,
+    "success_rate": 0.8333333333333334,
+    "total_duration": 37.26
+  },
+  "results": [
+    {
+      "script": "simple_model.py",
+      "status": "success",
+      "success": true,
+      "return_code": 0,
+      "duration": 4.75,
+      "stdout_lines": 1,
+      "stderr_lines": 49,
+      "metrics": {},
+      "error": null
+    },
+    {
+      "script": "spatial_inference_demo.py",
+      "status": "success",
+      "success": true,
+      "return_code": 0,
+      "duration": 2.15,
+      "stdout_lines": 4,
+      "stderr_lines": 2,
+      "metrics": {
+        "completed": true
+      },
+      "error": null
+    },
+    {
+      "script": "ecological_model.py",
+      "status": "success",
+      "success": true,
+      "return_code": 0,
+      "duration": 5.52,
+      "stdout_lines": 7,
+      "stderr_lines": 81,
+      "metrics": {},
+      "error": null
+    },
+    {
+      "script": "urban_planning.py",
+      "status": "success",
+      "success": true,
+      "return_code": 0,
+      "duration": 8.51,
+      "stdout_lines": 1,
+      "stderr_lines": 119,
+      "metrics": {},
+      "error": null
+    },
+    {
+      "script": "h3_active_inference.py",
+      "status": "failed",
+      "success": false,
+      "return_code": 1,
+      "duration": 1.96,
+      "stdout_lines": 1,
+      "stderr_lines": 10,
+      "metrics": {},
+      "error": "WARNING:root:Some ACT module components not available: cannot import name 'utils' from 'pymdp' (/Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/pymdp/__init__.py)\nTraceback (most recent call last):\n  File \"/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/h3_active_inference.py\", line 66, in <module>\n    from geo_infer_act.models.multi_agent import MultiAgentModel\n  File \"/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/src/geo_infer_act/models/__init__.py\", line 11, i"
+    },
+    {
+      "script": "modern_active_inference.py",
+      "status": "success",
+      "success": true,
+      "return_code": 0,
+      "duration": 14.37,
+      "stdout_lines": 41,
+      "stderr_lines": 332,
+      "metrics": {
+        "completed": true
+      },
+      "error": null
+    }
+  ],
+  "timestamp": "2026-02-02T06:36:31.583364"
+}

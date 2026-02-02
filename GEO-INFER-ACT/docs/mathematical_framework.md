@@ -220,6 +220,35 @@ Hierarchical H3 enables multi-scale generative models:
 p(s) = p(s_fine | s_coarse) × p(s_coarse)
 ```
 
+## Code Implementation References
+
+### VFE Implementation
+
+The variational free energy formulas above are implemented in:
+
+- **[`core/free_energy.py`](../src/geo_infer_act/core/free_energy.py)**: `FreeEnergyCalculator` class
+  - `compute_categorical_free_energy()` (lines 67-93)
+  - `compute_gaussian_free_energy()` (lines 95-129)
+- **[`utils/math.py:297-323`](../src/geo_infer_act/utils/math.py)**: `compute_free_energy_categorical()` utility
+- **[`core/spatial_agent.py:347-382`](../src/geo_infer_act/core/spatial_agent.py)**: `_compute_spatial_free_energy()` for H3 grids
+
+### EFE Implementation
+
+The expected free energy formulas are implemented in:
+
+- **[`core/free_energy.py:153-189`](../src/geo_infer_act/core/free_energy.py)**: `compute_expected_free_energy()`
+- **[`core/policy_selection.py:103-145`](../src/geo_infer_act/core/policy_selection.py)**: `PolicySelector.compute_expected_free_energy()`
+- **[`utils/math.py:327-353`](../src/geo_infer_act/utils/math.py)**: Standalone utility function
+
+### Working Examples
+
+| Example | Mathematical Concepts Demonstrated |
+|---------|-----------------------------------|
+| [`spatial_inference_demo.py`](../examples/spatial_inference_demo.py) | Spatial VFE, H3 belief propagation |
+| [`modern_active_inference.py`](../examples/modern_active_inference.py) | Full VFE/EFE cycle, hierarchical models |
+| [`h3_active_inference.py`](../examples/h3_active_inference.py) | H3 state space, spatial transitions |
+| [`simple_model.py`](../examples/simple_model.py) | Basic belief updating, VFE minimization |
+
 ## Further Reading
 
 - [Active Inference Overview](./active_inference_overview.md)

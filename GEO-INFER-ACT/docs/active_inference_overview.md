@@ -90,6 +90,26 @@ Active Inference is particularly suited for geospatial agents because:
 3. **Multi-Scale Reasoning**: H3 hierarchies map naturally to hierarchical generative models
 4. **Adaptive Behavior**: Agents can adapt to changing environments without reprogramming
 
+## Code & Example References
+
+### Where VFE/EFE Are Calculated
+
+| Component | Location | Purpose |
+|-----------|----------|---------|
+| **VFE Calculator** | [`core/free_energy.py`](../src/geo_infer_act/core/free_energy.py) | Core VFE computation |
+| **EFE for Policy** | [`core/policy_selection.py`](../src/geo_infer_act/core/policy_selection.py) | Action selection via EFE |
+| **Spatial VFE** | [`core/spatial_agent.py`](../src/geo_infer_act/core/spatial_agent.py) | VFE across H3 cells |
+| **Math Utilities** | [`utils/math.py`](../src/geo_infer_act/utils/math.py) | Standalone VFE/EFE functions |
+
+### Examples Demonstrating Active Inference
+
+| Example | Key Concepts |
+|---------|--------------|
+| [`spatial_inference_demo.py`](../examples/spatial_inference_demo.py) | Spatial VFE, belief propagation, EFE action selection |
+| [`modern_active_inference.py`](../examples/modern_active_inference.py) | Hierarchical models, multi-agent VFE |
+| [`h3_active_inference.py`](../examples/h3_active_inference.py) | H3 geospatial VFE, environment simulation |
+| [`simple_model.py`](../examples/simple_model.py) | Basic perception-action loop |
+
 ## Further Reading
 
 - [Free Energy Principle](./free_energy_principle.md)

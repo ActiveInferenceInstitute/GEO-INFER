@@ -1,0 +1,44 @@
+======================================================================
+GEO-INFER-ACT Examples Execution Report
+======================================================================
+Timestamp: 2026-02-02 06:35:30
+Output Directory: /Users/4d/Documents/GitHub/GEO-INFER/output/examples_run_20260202_063523
+
+SUMMARY
+----------------------------------------
+Total Examples: 2
+Successful: 2
+Failed: 0
+Success Rate: 100.0%
+Total Duration: 6.8s
+
+INDIVIDUAL RESULTS
+----------------------------------------
+✅ simple_model.py
+   Status: success
+   Duration: 4.6s
+
+✅ spatial_inference_demo.py
+   Status: success
+   Duration: 2.1s
+   completed: True
+
+MODULE COVERAGE
+----------------------------------------
+Core Modules Used:
+  ✓ ActiveInferenceModel - all examples
+  ✓ FreeEnergyCalculator - VFE computation
+  ✓ GenerativeModel - state spaces
+  ✓ PolicySelector - EFE-based action selection
+  ✓ SpatialActiveInferenceAgent - spatial demos
+
+API Modules Used:
+  ✓ ActiveInferenceInterface - unified interface
+
+Utils Modules Used:
+  ✓ ActiveInferenceAnalyzer - analysis & logging
+  ✓ visualization - plots & dashboards
+  ✓ math - VFE/EFE computations
+  ✓ spatial_diagnostics - H3 spatial metrics
+
+======================================================================

@@ -112,7 +112,7 @@ def main():
     logger.info(f"Set structured prior preferences: {preferences['observations']}")
     
     # 5. Get initial beliefs and record baseline
-    initial_beliefs = ai_interface.models[model_id].beliefs
+    initial_beliefs = ai_interface.models[model_id].current_beliefs
     state_labels = ["Exploration", "Exploitation", "Planning", "Rest"]
     observation_labels = ["Search", "Success", "Transition"]
     
@@ -159,7 +159,7 @@ def main():
         logger.info(f"  Observation: {observation} ({observation_labels[np.argmax(observation)]})")
         
         # Get pre-update state
-        pre_beliefs = ai_interface.models[model_id].beliefs['states'].copy()
+        pre_beliefs = ai_interface.models[model_id].current_beliefs['states'].copy()
         pre_free_energy = ai_interface.get_free_energy(model_id)
         
         # Update beliefs with this observation

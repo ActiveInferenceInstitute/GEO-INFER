@@ -8,7 +8,26 @@ from typing import Dict, Any, List, Optional
 import numpy as np
 import logging
 
-from pymdp import utils
+# Try to import pymdp utils, provide fallback implementations if not available
+try:
+    from pymdp import utils
+except ImportError:
+    # Provide fallback implementations for key pymdp utils functions
+    class utils:
+        """Fallback pymdp utils when package not available."""
+        
+        @staticmethod
+        def obj_array(n: int) -> np.ndarray:
+            """Create an object array of size n."""
+            return np.empty(n, dtype=object)
+        
+        @staticmethod
+        def norm_dist(dist: np.ndarray) -> np.ndarray:
+            """Normalize a distribution along columns."""
+            dist = dist.astype(float)
+            col_sums = dist.sum(axis=0, keepdims=True)
+            col_sums[col_sums == 0] = 1.0  # Avoid division by zero
+            return dist / col_sums
 
 from geo_infer_act.core.active_inference import ActiveInferenceModel
 from geo_infer_act.core.generative_model import GenerativeModel
