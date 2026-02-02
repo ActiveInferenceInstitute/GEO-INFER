@@ -1,0 +1,25 @@
+{
+  "policy_dynamics": {
+    "error": "No policy probability data available"
+  },
+  "action_consistency": {
+    "consistency_score": 0.3076923076923077,
+    "num_action_changes": 9,
+    "action_diversity": 3
+  },
+  "exploration_exploitation": {
+    "error": "No exploration data available"
+  },
+  "policy_convergence": {
+    "error": "Insufficient policy probability data"
+  },
+  "decision_quality": {
+    "overall_quality_score": 0.3076923076923077,
+    "quality_rating": "Poor",
+    "components": {
+      "consistency": 0.3076923076923077,
+      "exploration_balance": 0.5,
+      "free_energy_reduction": 0.0
+    }
+  }
+}

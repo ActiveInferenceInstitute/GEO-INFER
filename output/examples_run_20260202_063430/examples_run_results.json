@@ -1,0 +1,36 @@
+{
+  "summary": {
+    "total": 2,
+    "successful": 1,
+    "failed": 1,
+    "success_rate": 0.5,
+    "total_duration": 4.75
+  },
+  "results": [
+    {
+      "script": "simple_model.py",
+      "status": "failed",
+      "success": false,
+      "return_code": 1,
+      "duration": 2.56,
+      "stdout_lines": 1,
+      "stderr_lines": 11,
+      "metrics": {},
+      "error": "WARNING:root:Some ACT module components not available: cannot import name 'utils' from 'pymdp' (/Users/4d/.pyenv/versions/3.12.11/lib/python3.12/site-packages/pymdp/__init__.py)\nINFO:geo_infer_act.utils.analysis:ActiveInferenceAnalyzer initialized with output: /Users/4d/Documents/GitHub/GEO-INFER/output/simple_model_20260202_063432\nTraceback (most recent call last):\n  File \"/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/examples/simple_model.py\", line 456, in <module>\n    main() \n    ^^^^^^\n"
+    },
+    {
+      "script": "spatial_inference_demo.py",
+      "status": "success",
+      "success": true,
+      "return_code": 0,
+      "duration": 2.19,
+      "stdout_lines": 4,
+      "stderr_lines": 2,
+      "metrics": {
+        "completed": true
+      },
+      "error": null
+    }
+  ],
+  "timestamp": "2026-02-02T06:34:34.804988"
+}

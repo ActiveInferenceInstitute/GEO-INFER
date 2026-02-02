@@ -174,6 +174,21 @@ swarm.coordinate(
 | **GEO-INFER-DATA** | Prior knowledge, historical data |
 | **GEO-INFER-SIM** | Simulation of generative models |
 
+## Working Examples
+
+See these examples for VFE/EFE in geospatial contexts:
+
+| Example | VFE/EFE Concepts |
+|---------|------------------|
+| [`spatial_inference_demo.py`](../examples/spatial_inference_demo.py) | Spatial VFE across H3 cells |
+| [`h3_active_inference.py`](../examples/h3_active_inference.py) | H3 grid VFE evolution, multi-agent |
+| [`urban_planning.py`](../examples/urban_planning.py) | Planning with spatial EFE |
+
+For mathematical foundations:
+
+- [Free Energy Principle](./free_energy_principle.md) - VFE/EFE formulas and code locations
+- [Mathematical Framework](./mathematical_framework.md) - Detailed equations
+
 ## Further Reading
 
 - [Active Inference Overview](./active_inference_overview.md)

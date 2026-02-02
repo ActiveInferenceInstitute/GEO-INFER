@@ -29,6 +29,16 @@ Where:
 
 The system demonstrates emergent spatial patterns, adaptive resource
 allocation, and hierarchical environmental modeling.
+
+VFE/EFE Implementation:
+    - VFE: Lines 265, 290, 305-313 (compute_free_energy())
+    - EFE: Via policy selection in action loops
+    - Spatial VFE evolution tracked in free_energy_evolution list
+
+Documentation:
+    - Free Energy Principle: ../docs/free_energy_principle.md
+    - Mathematical Framework: ../docs/mathematical_framework.md
+    - Active Inference Overview: ../docs/active_inference_overview.md
 """
 
 import os

@@ -1,0 +1,181 @@
+{
+  "belief_dynamics": {
+    "belief_change_magnitude": {
+      "mean": 2.81325508036659e-17,
+      "std": 3.3484433012787606e-17,
+      "max": 6.798699777552591e-17
+    },
+    "entropy_dynamics": {
+      "initial": 1.791759409228057,
+      "final": 1.791759409228057,
+      "mean": 1.791759409228057,
+      "trend": 1.9205260642320275e-17
+    },
+    "stability_by_state": [
+      1.7854260317492402e-17,
+      1.7854260317492402e-17,
+      1.7854260317492402e-17,
+      1.7854260317492402e-17,
+      1.7854260317492402e-17,
+      1.7854260317492402e-17
+    ],
+    "state_switches": 0,
+    "switch_rate": 0.0
+  },
+  "observation_response": {
+    "responsiveness": {
+      "mean": 1.0163112937087106e-16,
+      "std": 1.5344606394949785e-16,
+      "distribution": [
+        0.0,
+        6.686795756221101e-16,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        2.428466478176591e-16,
+        0.0,
+        2.155902327792659e-16,
+        1.335882304038066e-16,
+        0.0,
+        6.704167816568313e-17,
+        0.0,
+        0.0,
+        1.7547085813786074e-16,
+        0.0,
+        2.228545705791371e-16,
+        0.0,
+        0.0,
+        2.3645799709811586e-16,
+        1.348008129537833e-16,
+        2.6372550535874694e-16,
+        3.689682250912513e-16,
+        0.0,
+        2.1727841774784098e-16
+      ]
+    },
+    "correlation_analysis": {
+      "state_0_obs_0": -0.04968449484235997,
+      "state_0_obs_1": 0.03139752546404813,
+      "state_0_obs_2": -0.020898714358986784,
+      "state_0_obs_3": 0.061571719679745604,
+      "state_1_obs_0": -0.04968449484235997,
+      "state_1_obs_1": 0.03139752546404813,
+      "state_1_obs_2": -0.020898714358986784,
+      "state_1_obs_3": 0.061571719679745604,
+      "state_2_obs_0": -0.04968449484235997,
+      "state_2_obs_1": 0.03139752546404813,
+      "state_2_obs_2": -0.020898714358986784,
+      "state_2_obs_3": 0.061571719679745604,
+      "state_3_obs_0": -0.04968449484235997,
+      "state_3_obs_1": 0.03139752546404813,
+      "state_3_obs_2": -0.020898714358986784,
+      "state_3_obs_3": 0.061571719679745604,
+      "state_4_obs_0": -0.04968449484235997,
+      "state_4_obs_1": 0.03139752546404813,
+      "state_4_obs_2": -0.020898714358986784,
+      "state_4_obs_3": 0.061571719679745604,
+      "state_5_obs_0": -0.04968449484235997,
+      "state_5_obs_1": 0.03139752546404813,
+      "state_5_obs_2": -0.020898714358986784,
+      "state_5_obs_3": 0.061571719679745604
+    }
+  },
+  "perception_quality": {
+    "is_flat": true,
+    "randomness_score": 0.06976744186046513,
+    "structure_score": 1.8004931852175253e-18,
+    "quality_rating": "Poor - Flat/Non-responsive"
+  },
+  "pattern_detection": {
+    "oscillations": {
+      "state_0": {
+        "num_peaks": 0,
+        "num_valleys": 6,
+        "estimated_frequency": 0.0,
+        "amplitude": 4.7266042096723027e-17
+      },
+      "state_1": {
+        "num_peaks": 0,
+        "num_valleys": 6,
+        "estimated_frequency": 0.0,
+        "amplitude": 4.7266042096723027e-17
+      },
+      "state_2": {
+        "num_peaks": 0,
+        "num_valleys": 6,
+        "estimated_frequency": 0.0,
+        "amplitude": 4.7266042096723027e-17
+      },
+      "state_3": {
+        "num_peaks": 0,
+        "num_valleys": 6,
+        "estimated_frequency": 0.0,
+        "amplitude": 4.7266042096723027e-17
+      },
+      "state_4": {
+        "num_peaks": 0,
+        "num_valleys": 6,
+        "estimated_frequency": 0.0,
+        "amplitude": 4.7266042096723027e-17
+      },
+      "state_5": {
+        "num_peaks": 0,
+        "num_valleys": 6,
+        "estimated_frequency": 0.0,
+        "amplitude": 4.7266042096723027e-17
+      }
+    },
+    "convergence": {
+      "state_0": {
+        "is_converging": false,
+        "convergence_rate": 1.100531396792706e-35,
+        "final_variance": 4.622231866529366e-34
+      },
+      "state_1": {
+        "is_converging": false,
+        "convergence_rate": 1.100531396792706e-35,
+        "final_variance": 4.622231866529366e-34
+      },
+      "state_2": {
+        "is_converging": false,
+        "convergence_rate": 1.100531396792706e-35,
+        "final_variance": 4.622231866529366e-34
+      },
+      "state_3": {
+        "is_converging": false,
+        "convergence_rate": 1.100531396792706e-35,
+        "final_variance": 4.622231866529366e-34
+      },
+      "state_4": {
+        "is_converging": false,
+        "convergence_rate": 1.100531396792706e-35,
+        "final_variance": 4.622231866529366e-34
+      },
+      "state_5": {
+        "is_converging": false,
+        "convergence_rate": 1.100531396792706e-35,
+        "final_variance": 4.622231866529366e-34
+      }
+    },
+    "phase_transitions": {
+      "num_transitions": 0,
+      "transitions": [],
+      "transition_rate": 0.0
+    }
+  },
+  "surprise_analysis": {
+    "surprise_statistics": {
+      "mean": 1.7917594092280567,
+      "std": 1.7670807611707617e-16,
+      "min": 1.7917594092280567,
+      "max": 1.7917594092280569
+    },
+    "surprise_trend": 2.880789096348041e-17,
+    "high_surprise_events": 0
+  }
+}

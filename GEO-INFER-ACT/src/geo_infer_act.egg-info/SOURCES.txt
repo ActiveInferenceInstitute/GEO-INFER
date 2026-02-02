@@ -27,6 +27,7 @@ src/geo_infer_act/core/free_energy.py
 src/geo_infer_act/core/generative_model.py
 src/geo_infer_act/core/markov_decision_process.py
 src/geo_infer_act/core/policy_selection.py
+src/geo_infer_act/core/spatial_agent.py
 src/geo_infer_act/core/variational_inference.py
 src/geo_infer_act/models/AGENTS.md
 src/geo_infer_act/models/README.md
@@ -45,5 +46,6 @@ src/geo_infer_act/utils/config.py
 src/geo_infer_act/utils/geospatial_ai.py
 src/geo_infer_act/utils/integration.py
 src/geo_infer_act/utils/math.py
+src/geo_infer_act/utils/spatial_diagnostics.py
 src/geo_infer_act/utils/visualization.py
 tests/test_act_models_real.py

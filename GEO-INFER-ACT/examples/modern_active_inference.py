@@ -19,6 +19,16 @@ Features demonstrated:
 - Comprehensive analysis and pattern detection
 - Real-time logging and quality assessment
 - Professional visualization suite
+
+VFE/EFE Implementation:
+    - VFE: Lines 234, 239, 360, 364, 514, 518 (get_free_energy())
+    - EFE: Line 46 imports compute_expected_free_energy, used in policy selection
+    - Full VFE/EFE cycle: ContextualAgent.perceive_and_act(), SpatialAgent classes
+
+Documentation:
+    - Free Energy Principle: ../docs/free_energy_principle.md
+    - Mathematical Framework: ../docs/mathematical_framework.md
+    - Active Inference Overview: ../docs/active_inference_overview.md
 """
 import numpy as np
 import matplotlib
