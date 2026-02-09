@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Comprehensive documentation for all 40+ modules
+- Comprehensive documentation for all 44 modules
 - AGENTS.md files documenting agent capabilities for each module
 - Root-level CONTRIBUTING.md, CODE_OF_CONDUCT.md, and SECURITY.md
 - GitHub issue and PR templates

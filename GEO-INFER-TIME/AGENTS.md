@@ -26,13 +26,11 @@ analyzer = TimeSeriesAnalyzer()
 analysis = analyzer.analyze(
     data=sensor_readings,
     frequency="hourly",
-    decompose=True
-)
+    decompose=True)
 
 print(f"Trend: {analysis.trend}")
 print(f"Seasonality: {analysis.seasonal_period}")
-print(f"Anomalies: {analysis.anomalies}")
-```
+print(f"Anomalies: {analysis.anomalies}")```
 
 ### 2. Forecasting
 
@@ -46,12 +44,10 @@ forecast = forecaster.predict(
     data=historical_data,
     horizon=30,
     method="prophet",
-    confidence=0.95
-)
+    confidence=0.95)
 
 print(f"Forecast: {forecast.values}")
-print(f"Uncertainty: {forecast.confidence_interval}")
-```
+print(f"Uncertainty: {forecast.confidence_interval}")```
 
 ### 3. Temporal Pattern Mining
 
@@ -63,12 +59,10 @@ miner = PatternMiner()
 
 patterns = miner.find(
     data=activity_data,
-    pattern_types=["periodic", "sequential", "burst"]
-)
+    pattern_types=["periodic", "sequential", "burst"])
 
 print(f"Daily patterns: {patterns.daily}")
-print(f"Weekly patterns: {patterns.weekly}")
-```
+print(f"Weekly patterns: {patterns.weekly}")```
 
 ### 4. Event Detection
 
@@ -80,12 +74,10 @@ detector = EventDetector()
 
 events = detector.detect(
     data=monitoring_data,
-    methods=["change_point", "anomaly", "threshold"]
-)
+    methods=["change_point", "anomaly", "threshold"])
 
 print(f"Events detected: {len(events)}")
-print(f"Significant events: {events.significant}")
-```
+print(f"Significant events: {events.significant}")```
 
 ## Implementation Status
 

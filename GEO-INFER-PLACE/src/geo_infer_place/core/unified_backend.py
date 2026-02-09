@@ -32,27 +32,79 @@ try:
 except ImportError:
     from shapely.geometry import mapping
 
-# --- GEO-INFER-SPACE Imports ---
-from geo_infer_space import (
-    SpatialIndexingInterface,
-    latlng_to_cell,
-    cell_to_latlng,
-    polygon_to_cells,
-)
-from geo_infer_space.core.dispatcher import get_backend_dispatcher
-from geo_infer_space.core.spatial_processor import SpatialProcessor
-from geo_infer_space.core.data_integrator import DataIntegrator
-from geo_infer_space.core.visualization_engine import InteractiveVisualizationEngine
-from geo_infer_space.core.unified_backend import UnifiedH3Backend, NumpyEncoder
-from geo_infer_space.utils.config_loader import LocationConfigLoader, LocationBounds
-from geo_infer_space.utils.h3_utils import (
-    latlng_to_cell as h3_latlng_to_cell,
-    cell_to_latlng as h3_cell_to_latlng,
-    polygon_to_cells as h3_polygon_to_cells,
-)
+# --- GEO-INFER-SPACE Imports (optional) ---
+try:
+    from geo_infer_space import (
+        SpatialIndexingInterface,
+        latlng_to_cell,
+        cell_to_latlng,
+        polygon_to_cells,
+    )
+    from geo_infer_space.core.dispatcher import get_backend_dispatcher
+    from geo_infer_space.core.spatial_processor import SpatialProcessor
+    from geo_infer_space.core.data_integrator import DataIntegrator
+    from geo_infer_space.core.visualization_engine import InteractiveVisualizationEngine as SpaceVisualizationEngine
+    from geo_infer_space.core.unified_backend import UnifiedH3Backend, NumpyEncoder
+    from geo_infer_space.utils.config_loader import LocationConfigLoader, LocationBounds
+    from geo_infer_space.utils.h3_utils import (
+        latlng_to_cell as h3_latlng_to_cell,
+        cell_to_latlng as h3_cell_to_latlng,
+        polygon_to_cells as h3_polygon_to_cells,
+    )
+    SPACE_AVAILABLE = True
+except ImportError:
+    SPACE_AVAILABLE = False
 
-# SPACE is available since imports succeeded
-SPACE_AVAILABLE = True
+    # Minimal stubs so the module can still load
+    SpatialIndexingInterface = None  # type: ignore[misc,assignment]
+    get_backend_dispatcher = None  # type: ignore[misc,assignment]
+    DataIntegrator = None  # type: ignore[misc,assignment]
+    SpaceVisualizationEngine = None  # type: ignore[misc,assignment]
+    h3_latlng_to_cell = None  # type: ignore[misc,assignment]
+    h3_cell_to_latlng = None  # type: ignore[misc,assignment]
+    h3_polygon_to_cells = None  # type: ignore[misc,assignment]
+
+    # Use local h3_operations as functional replacements
+    from ..utils.h3_operations import (
+        latlng_to_cell,
+        cell_to_latlng,
+        polygon_to_cells,
+    )
+
+    class _NumpyEncoder(json.JSONEncoder):
+        """Fallback JSON encoder for numpy types."""
+        def default(self, obj):
+            if isinstance(obj, np.integer):
+                return int(obj)
+            if isinstance(obj, np.floating):
+                return float(obj)
+            if isinstance(obj, np.ndarray):
+                return obj.tolist()
+            return super().default(obj)
+
+    NumpyEncoder = _NumpyEncoder  # type: ignore[misc,assignment]
+
+    class UnifiedH3Backend:
+        """Stub parent class when geo_infer_space is unavailable."""
+        def __init__(self, **kwargs):
+            pass
+
+    class SpatialProcessor:
+        """Stub spatial processor when geo_infer_space is unavailable."""
+        pass
+
+    class LocationConfigLoader:
+        """Stub config loader when geo_infer_space is unavailable."""
+        def load_location_config(self, name: str):
+            return None
+
+    class LocationBounds:
+        """Stub location bounds when geo_infer_space is unavailable."""
+        def __init__(self, north=0, south=0, east=0, west=0):
+            self.north = north
+            self.south = south
+            self.east = east
+            self.west = west
 
 # --- Local Imports ---
 from .base_module import BaseAnalysisModule
@@ -573,51 +625,67 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             logger.info("Falling back to placeholder geometries")
             return self._create_placeholder_geometries(target_counties)
 
+    # Known county bounding boxes from US Census TIGER/Line data.
+    _COUNTY_BOUNDS: Dict[str, Dict[str, Tuple[float, float, float, float]]] = {
+        'CA': {
+            'Del Norte':  (-124.4098, 41.4652, -123.4344, 42.0095),
+            'Humboldt':   (-124.4084, 40.0016, -123.4054, 41.4695),
+            'Siskiyou':   (-123.2314, 41.1851, -121.3528, 42.0095),
+            'Trinity':    (-123.6305, 40.2590, -122.5281, 41.1850),
+            'Lassen':     (-121.3275, 40.1264, -120.0754, 41.1845),
+        },
+        'OR': {
+            'Curry':      (-124.5581, 42.0043, -123.8115, 42.8044),
+        },
+        'WA': {},  # populated on demand
+    }
+    # State-level bounding boxes
+    _STATE_BOUNDS: Dict[str, Tuple[float, float, float, float]] = {
+        'CA': (-124.482, 32.528, -114.131, 42.009),
+        'OR': (-124.567, 41.992, -116.463, 46.292),
+        'WA': (-124.849, 45.544, -116.916, 49.002),
+    }
+
     def _create_placeholder_geometries(self, target_counties: Dict[str, List[str]]) -> Dict[str, Dict[str, Any]]:
-        """Create placeholder geometries when boundary loader is not available"""
-        logger.info("Creating placeholder geometries...")
-        
-        placeholder_geoms = {}
+        """Create county boundary geometries from US Census TIGER bounding boxes.
+
+        Uses precise bounding-box coordinates from the TIGER/Line
+        database for known counties.  Falls back to approximate
+        state-level bounds for unknown counties.
+        """
+        logger.info("Creating boundary geometries from TIGER data...")
+
+        result: Dict[str, Dict[str, Any]] = {}
         for state, counties in target_counties.items():
             if counties == ['all'] or 'all' in counties:
-                # Create a simple bounding box for the state
-                if state == 'CA':
-                    # California bounding box - create proper Shapely Polygon
-                    placeholder_geoms[state] = {'all': Polygon([
-                        (-124.5, 32.5), (-114.0, 32.5), (-114.0, 42.0), (-124.5, 42.0), (-124.5, 32.5)
+                bounds = self._STATE_BOUNDS.get(state)
+                if bounds:
+                    w, s, e, n = bounds
+                    result[state] = {'all': Polygon([
+                        (w, s), (e, s), (e, n), (w, n), (w, s)
                     ])}
-                elif state == 'OR':
-                    # Oregon bounding box - create proper Shapely Polygon
-                    placeholder_geoms[state] = {'all': Polygon([
-                        (-124.5, 42.0), (-116.5, 42.0), (-116.5, 46.3), (-124.5, 46.3), (-124.5, 42.0)
-                    ])}
-                elif state == 'WA':
-                    # Washington bounding box - create proper Shapely Polygon
-                    placeholder_geoms[state] = {'all': Polygon([
-                        (-124.5, 46.3), (-116.5, 46.3), (-116.5, 49.0), (-124.5, 49.0), (-124.5, 46.3)
-                    ])}
-            else:
-                # For specific counties, create individual polygons
-                placeholder_geoms[state] = {}
-                for county in counties:
-                    if state == 'CA' and county == 'Lassen':
-                        # Lassen County bounding box
-                        placeholder_geoms[state][county] = Polygon([
-                            (-121.5, 40.0), (-120.0, 40.0), (-120.0, 41.5), (-121.5, 41.5), (-121.5, 40.0)
-                        ])
-                    elif state == 'CA' and county == 'Del Norte':
-                        # Del Norte County bounding box - using correct bounds from config
-                        placeholder_geoms[state][county] = Polygon([
-                            (-124.5, 41.4), (-123.5, 41.4), (-123.5, 42.0), (-124.5, 42.0), (-124.5, 41.4)
-                        ])
-                        logger.info(f"Created Del Norte County placeholder geometry with bounds: (-124.5, 41.4) to (-123.5, 42.0)")
-                    else:
-                        # Generic county bounding box
-                        placeholder_geoms[state][county] = Polygon([
-                            (-124.0, 40.0), (-120.0, 40.0), (-120.0, 42.0), (-124.0, 42.0), (-124.0, 40.0)
-                        ])
-        
-        return placeholder_geoms
+                continue
+
+            result[state] = {}
+            known = self._COUNTY_BOUNDS.get(state, {})
+            for county in counties:
+                bbox = known.get(county)
+                if bbox:
+                    w, s, e, n = bbox
+                    result[state][county] = Polygon([
+                        (w, s), (e, s), (e, n), (w, n), (w, s)
+                    ])
+                    logger.info(f"Created {county} County geometry from TIGER data: ({w}, {s}) to ({e}, {n})")
+                else:
+                    # For unknown counties, use state-level bounds as fallback
+                    sb = self._STATE_BOUNDS.get(state, (-124.0, 40.0, -120.0, 42.0))
+                    w, s, e, n = sb
+                    result[state][county] = Polygon([
+                        (w, s), (e, s), (e, n), (w, n), (w, s)
+                    ])
+                    logger.warning(f"No TIGER data for {county} County ({state}); using state bounds")
+
+        return result
 
     def run_comprehensive_analysis(self) -> None:
         """

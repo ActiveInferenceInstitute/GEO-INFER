@@ -1,5 +1,3 @@
-
-
 # Agent
 : geo_infer_pep 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-PEP/src/geo_infer_pep` 
-- **Type**: Directory Node 
+- **Type**: Directory Node

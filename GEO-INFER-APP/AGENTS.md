@@ -28,19 +28,16 @@ dashboard.add_widget(
     type="map",
     data_source=agent.get_spatial_data,
     layers=["parcels", "zones", "points"],
-    interactive=True
-)
+    interactive=True)
 
 # Add chart widget
 dashboard.add_widget(
     type="chart",
     chart_type="time_series",
-    data_source=agent.get_metrics
-)
+    data_source=agent.get_metrics)
 
 # Deploy dashboard
-dashboard.deploy(port=3000)
-```
+dashboard.deploy(port=3000)```
 
 ### 2. Interactive Maps
 
@@ -58,15 +55,13 @@ app.set_center(lat=37.77, lon=-122.41, zoom=12)
 app.add_layer(
     name="real_time_sensors",
     source=sensor_agent.stream,
-    style={"type": "heatmap"}
-)
+    style={"type": "heatmap"})
 
 # Add interactivity
 @app.on_click
 def handle_click(event):
     info = agent.query_location(event.latlng)
-    app.show_popup(info)
-```
+    app.show_popup(info)```
 
 ### 3. Report Generator
 
@@ -80,11 +75,9 @@ report = generator.create(
     template="spatial_analysis",
     data=agent.get_analysis_results(),
     include_maps=True,
-    format="pdf"
-)
+    format="pdf")
 
-print(f"Report generated: {report.path}")
-```
+print(f"Report generated: {report.path}")```
 
 ### 4. Mobile App Support
 
@@ -99,12 +92,10 @@ mobile.enable_features([
     "offline_maps",
     "gps_tracking",
     "photo_capture",
-    "form_builder"
-])
+    "form_builder"])
 
 # Sync with agent
-mobile.set_sync_agent(field_agent)
-```
+mobile.set_sync_agent(field_agent)```
 
 ## Implementation Status
 
@@ -138,8 +129,7 @@ ops.add_map(agent.get_live_data)
 ops.add_alerts(agent.get_alerts)
 ops.add_metrics(agent.get_kpis)
 
-ops.launch()
-```
+ops.launch()```
 
 ---
 

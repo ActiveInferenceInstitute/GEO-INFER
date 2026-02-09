@@ -1,12 +1,30 @@
 # Agent
-: scripts ## Scope
- This directory contains scripts components for the module. It provides 1 classes and 2 functions. ## Classes
- and Functions ### NORMSOrchestrato
-r
- Thin orchestrator for GEO-INFER-NORMS module demonstrations. **Methods**: - `run_orchestrator()`: Run the NORMS module demonstration. ### setup_loggin
-g
- `setup_logging()` Configure logging for the orchestrator. ### mai
-n
- `main()` Main function. ## Capabilities
- - **1 classes** for core functionality - **2 functions** for utility operations ## Integration
- - **Location**: `examples/module_orchestrators/NORMS/scripts` - **Type**: Directory Node 
+: scripts
+
+## Scope
+ This directory contains scripts components for the module. It provides 1 classes and 2 functions.
+
+## Classes
+ and Functions
+
+### NORMSOrchestrator
+ Thin orchestrator for GEO-INFER-NORMS module demonstrations.
+
+**Methods**:
+- `run_orchestrator()`: Run the NORMS module demonstration.
+
+### setup_logging
+ `setup_logging()` Configure logging for the orchestrator.
+
+### main
+ `main()` Main function.
+
+## Capabilities
+
+- **1 classes** for core functionality
+- **2 functions** for utility operations
+
+## Integration
+
+- **Location**: `examples/module_orchestrators/NORMS/scripts`
+- **Type**: Directory Node

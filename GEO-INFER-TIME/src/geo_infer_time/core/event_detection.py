@@ -91,6 +91,34 @@ class EventDetector:
                         }
                     )
 
+        elif method == "isolation_forest":
+            try:
+                from sklearn.ensemble import IsolationForest
+            except ImportError:
+                raise ImportError(
+                    "scikit-learn required for isolation_forest method"
+                )
+
+            clf = IsolationForest(
+                contamination=0.05,
+                random_state=42,
+            )
+            predictions = clf.fit_predict(values.reshape(-1, 1))
+            scores = clf.decision_function(values.reshape(-1, 1))
+
+            for i, (pred, val, score) in enumerate(
+                zip(predictions, values, scores)
+            ):
+                if pred == -1:
+                    anomalies.append(
+                        {
+                            "timestamp": timestamps[i].isoformat(),
+                            "value": float(val),
+                            "score": float(score),
+                            "type": "outlier",
+                        }
+                    )
+
         else:
             raise ValueError(f"Unknown anomaly detection method: {method}")
 

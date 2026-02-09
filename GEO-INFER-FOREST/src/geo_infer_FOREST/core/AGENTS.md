@@ -25,14 +25,12 @@ monitor = ForestHealthMonitor()
 health_assessment = monitor.assess_forest_health(
     ndvi=ndvi_data,
     temperature=temperature_data,
-    precipitation=precipitation_data
-)
+    precipitation=precipitation_data)
 
 # Detect deforestation
 deforestation = monitor.detect_deforestation(
     forest_cover_time_series=time_series_data,
-    threshold=0.2
-)
+    threshold=0.2)
 ```
 
 ### 2. Wildfire Risk Assessment
@@ -47,19 +45,16 @@ risk_assessment = analyzer.assess_wildfire_risk(
     temperature=temp_data,
     precipitation=precip_data,
     fuel_load=fuel_data,
-    wind_speed=wind_data
-)
+    wind_speed=wind_data)
 
 # Predict fire spread
 spread_prediction = analyzer.predict_fire_spread(
     ignition_points=ignition_data,
     fuel_load=fuel_data,
-    wind_direction=wind_dir_data
-)
+    wind_direction=wind_dir_data)
 
 # Register fire incident
-incident_id = analyzer.register_incident(FireIncident(...))
-```
+incident_id = analyzer.register_incident(FireIncident(...))```
 
 ### 3. Carbon Sequestration
 
@@ -74,15 +69,13 @@ carbon_stock = modeler.calculate_carbon_stock(biomass=biomass_data)
 # Estimate sequestration rate
 sequestration_rate = modeler.estimate_sequestration_rate(
     biomass_growth=growth_data,
-    time_period=365
-)
+    time_period=365)
 
 # Calculate carbon credits
 credits = modeler.calculate_carbon_credits(
     carbon_sequestration=seq_data,
     area=area_data,
-    price_per_ton=50.0
-)
+    price_per_ton=50.0)
 ```
 
 ### 4. Forest Inventory
@@ -95,14 +88,12 @@ inventory = ForestInventory()
 # Estimate biomass
 biomass = inventory.estimate_biomass(
     forest_cover=cover_data,
-    tree_density=density_data
-)
+    tree_density=density_data)
 
 # Calculate forest area
 area = inventory.calculate_forest_area(
     forest_cover=cover_data,
-    cell_area=cell_area_data
-)
+    cell_area=cell_area_data)
 ```
 
 ## Key Classes

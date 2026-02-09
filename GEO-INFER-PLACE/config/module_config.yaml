@@ -2,10 +2,10 @@
 
 module:
   name: "GEO-INFER-PLACE"
-  version: "0.1.0"
-  description: "Deep place-based geospatial analysis framework"
+  version: "1.1.0"
+  description: "Deep place-based geospatial analysis framework with Cascadia subduction zone and Del Norte County focus"
   category: "place_based"
-  status: "beta"
+  status: "production"
 
 # Global settings for place-based analysis
 global:
@@ -54,8 +54,11 @@ locations:
     research_themes:
       - "forest_ecosystem_management"
       - "coastal_resilience"
-      - "rural_community_development" 
+      - "rural_community_development"
       - "fire_risk_assessment"
+      - "seismic_hazard_assessment"
+      - "cascadia_subduction_zone"
+      - "tsunami_preparedness"
       - "economic_sustainability"
     
     # Data sources
@@ -89,6 +92,20 @@ locations:
       fire_risk:
         indicators: ["fuel_moisture", "wind_speed", "temperature"]
         update_frequency: "hourly"
+
+      seismic_hazard:
+        indicators: ["earthquake_count", "max_magnitude", "csz_proximity"]
+        update_frequency: "hourly"
+        data_sources: ["USGS Earthquake Hazards Program"]
+        csz_parameters:
+          last_event: "1700-01-26"
+          recurrence_interval_years: 243
+          max_magnitude: 9.0
+
+      tsunami_risk:
+        indicators: ["inundation_zone", "wave_height", "travel_time"]
+        update_frequency: "daily"
+        reference_stations: ["9419750"]
 
   australia:
     name: "Australia Continental Analysis"
@@ -254,10 +271,18 @@ locations:
 # Integration settings with other GEO-INFER modules
 integrations:
   required_modules:
-    - "GEO-INFER-SPACE"
-    - "GEO-INFER-TIME"
-    - "GEO-INFER-DATA"
-  
+    - name: "GEO-INFER-SPACE"
+      usage: "H3 spatial indexing, PlaceAnalyzer, BaseAPIManager, config loader"
+      imported_as: "geo_infer_space"
+    - name: "GEO-INFER-DATA"
+      usage: "DataQualityManager, MultiSourceDataIngestion (via PlaceDataManager bridge)"
+      imported_as: "geo_infer_data"
+      graceful_fallback: true
+    - name: "GEO-INFER-TIME"
+      usage: "TemporalAnalyzer, EventDetector, ForecastingEngine (via PlaceTemporalAnalyzer bridge)"
+      imported_as: "geo_infer_time"
+      graceful_fallback: true
+
   optional_modules:
     - "GEO-INFER-AI"
     - "GEO-INFER-BAYES"

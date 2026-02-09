@@ -24,20 +24,17 @@ analyzer = DiseaseHotspotAnalyzer(reports=disease_reports, population_data=popul
 hotspots = analyzer.identify_simple_hotspots(
     threshold_case_count=5,
     scan_radius_km=10.0,
-    min_density_cases_per_sq_km=0.5
-)
+    min_density_cases_per_sq_km=0.5)
 
 # Calculate incidence rate
 incidence_rate, total_cases, population = analyzer.calculate_local_incidence_rate(
     center_loc=location,
     radius_km=10.0,
-    time_window_days=30
-)
+    time_window_days=30)
 
 # Active Inference-based analysis
 ai_analyzer = ActiveInferenceDiseaseAnalyzer(reports=disease_reports)
-ai_results = ai_analyzer.analyze_with_active_inference(time_window_days=30)
-```
+ai_results = ai_analyzer.analyze_with_active_inference(time_window_days=30)```
 
 ### 2. Healthcare Accessibility
 
@@ -50,15 +47,13 @@ analyzer = HealthcareAccessibilityAnalyzer(facilities=health_facilities)
 nearest = analyzer.get_nearest_facility(
     loc=patient_location,
     facility_type='hospital',
-    required_services=['emergency', 'surgery']
-)
+    required_services=['emergency', 'surgery'])
 
 # Find facilities in radius
 facilities = analyzer.find_facilities_in_radius(
     center_loc=location,
     radius_km=25.0,
-    facility_type='clinic'
-)
+    facility_type='clinic')
 ```
 
 ### 3. Environmental Health
@@ -74,16 +69,14 @@ readings = analyzer.get_environmental_readings_near_location(
     radius_km=5.0,
     parameter_name='pm2.5',
     start_time=start_date,
-    end_time=end_date
-)
+    end_time=end_date)
 
 # Calculate average exposure
 exposure = analyzer.calculate_average_exposure(
     target_locations=locations,
     radius_km=5.0,
     parameter_name='pm2.5',
-    time_window_days=30
-)
+    time_window_days=30)
 ```
 
 ## Key Classes

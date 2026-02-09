@@ -1,5 +1,3 @@
-
-
 # Agent
 : tools 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-SPACE/tests/tools` 
-- **Type**: Directory Node 
+- **Type**: Directory Node

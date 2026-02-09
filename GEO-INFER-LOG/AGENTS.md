@@ -31,13 +31,11 @@ routes = optimizer.optimize(
         "time_windows": True,
         "capacity": True,
         "driver_breaks": True
-    }
-)
+    })
 
 print(f"Total routes: {len(routes)}")
 print(f"Total distance: {routes.total_distance_km} km")
-print(f"Estimated time: {routes.total_time_hours} hours")
-```
+print(f"Estimated time: {routes.total_time_hours} hours")```
 
 ### 2. Fleet Management
 
@@ -49,14 +47,14 @@ fleet = FleetManager()
 
 # Track vehicles in real-time
 tracking = fleet.track_all(
-    update_interval=30,  # seconds
-    include_metrics=["speed", "fuel", "eta"]
-)
+    update_interval=30, 
+
+# seconds
+    include_metrics=["speed", "fuel", "eta"])
 
 for vehicle in tracking:
     print(f"Vehicle {vehicle.id}: {vehicle.location}")
-    print(f"  ETA to next stop: {vehicle.eta}")
-```
+    print(f"  ETA to next stop: {vehicle.eta}")```
 
 ### 3. Warehouse Optimization
 
@@ -70,12 +68,10 @@ warehouse = WarehouseOptimizer(facility=warehouse_layout)
 picking = warehouse.optimize_picking(
     orders=pending_orders,
     strategy="wave_picking",
-    workers=available_workers
-)
+    workers=available_workers)
 
 print(f"Picking efficiency: {picking.efficiency_score}")
-print(f"Routes generated: {len(picking.routes)}")
-```
+print(f"Routes generated: {len(picking.routes)}")```
 
 ### 4. Demand Forecasting
 
@@ -89,12 +85,10 @@ forecast = forecaster.predict(
     historical_data=shipment_history,
     horizon_days=30,
     granularity="zone",
-    factors=["seasonality", "promotions", "weather"]
-)
+    factors=["seasonality", "promotions", "weather"])
 
 print(f"Predicted volume: {forecast.total_volume}")
-print(f"Peak days: {forecast.peak_periods}")
-```
+print(f"Peak days: {forecast.peak_periods}")```
 
 ## Implementation Status
 
@@ -131,12 +125,10 @@ plan = optimizer.plan(
     preferences={
         "minimize": "emissions",
         "allow_lockers": True
-    }
-)
+    })
 
 print(f"Routes planned: {len(plan.routes)}")
-print(f"CO2 saved: {plan.emissions_saved_kg} kg")
-```
+print(f"CO2 saved: {plan.emissions_saved_kg} kg")```
 
 ---
 

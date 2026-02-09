@@ -46,160 +46,109 @@ def test_h3_integration():
     """Test basic H3 integration from SPACE"""
     logger.info("Testing H3 integration...")
     
-    try:
-        # Test basic H3 functions
-        lat, lng = 40.5, -120.5  # Lassen County area
-        h3_cell = latlng_to_cell(lat, lng, 8)
-        logger.info(f"✅ H3 cell for ({lat}, {lng}): {h3_cell}")
-        
-        # Test reverse conversion
-        lat2, lng2 = cell_to_latlng(h3_cell)
-        logger.info(f"✅ Reverse conversion: ({lat2:.3f}, {lng2:.3f})")
-        
-        # Test boundary
-        boundary = cell_to_latlng_boundary(h3_cell)
-        logger.info(f"✅ Boundary has {len(boundary)} points")
-        
-        return True
-    except Exception as e:
-        logger.error(f"❌ H3 integration test failed: {e}")
-        return False
+    # Test basic H3 functions
+    lat, lng = 40.5, -120.5  # Lassen County area
+    h3_cell = latlng_to_cell(lat, lng, 8)
+    assert h3_cell, "H3 cell creation failed"
+    logger.info(f"✅ H3 cell for ({lat}, {lng}): {h3_cell}")
+    
+    # Test reverse conversion
+    lat2, lng2 = cell_to_latlng(h3_cell)
+    assert abs(lat - lat2) < 0.1, "Reverse lat conversion inaccurate"
+    assert abs(lng - lng2) < 0.1, "Reverse lng conversion inaccurate"
+    logger.info(f"✅ Reverse conversion: ({lat2:.3f}, {lng2:.3f})")
+    
+    # Test boundary
+    boundary = cell_to_latlng_boundary(h3_cell)
+    assert len(boundary) > 0, "Boundary has no points"
+    logger.info(f"✅ Boundary has {len(boundary)} points")
+
+def _init_backend_and_modules():
+    """Helper: create backend and initialize modules. Returns (backend, modules)."""
+    config_path = Path('config/analysis_config.yaml')
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+
+    output_dir = Path('./test_output')
+    output_dir.mkdir(exist_ok=True)
+    osc_repo_dir = Path(os.environ.get(
+        'OSC_REPOS_DIR',
+        str(Path(__file__).resolve().parents[4] / "GEO-INFER-SPACE" / "repo")
+    ))
+    backend = CascadianAgriculturalH3Backend(
+        modules={},
+        resolution=8,
+        bioregion='Cascadia',
+        target_counties={'CA': ['Lassen']},
+        base_data_dir=output_dir / 'data',
+        osc_repo_dir=osc_repo_dir
+    )
+    logger.info(f"✅ Backend created with {len(backend.target_hexagons)} target hexagons")
+
+    modules = {}
+    modules['zoning'] = GeoInferZoning(backend)
+    logger.info("✅ Zoning module initialized")
+    modules['current_use'] = GeoInferCurrentUse(backend)
+    logger.info("✅ Current use module initialized")
+    modules['ownership'] = GeoInferOwnership(backend)
+    logger.info("✅ Ownership module initialized")
+    modules['improvements'] = GeoInferImprovements(backend)
+    logger.info("✅ Improvements module initialized")
+
+    return backend, modules
+
 
 def test_module_initialization():
     """Test module initialization with backend"""
     logger.info("Testing module initialization...")
-    
-    try:
-        # Load config
-        config_path = Path('config/analysis_config.yaml')
-        with open(config_path, 'r') as f:
-            config = yaml.safe_load(f)
-        
-        target_counties = config['analysis_settings']['target_counties']
-        
-        # Create a test backend
-        backend = CascadianAgriculturalH3Backend(
-            modules={},
-            resolution=8,
-            bioregion='Cascadia',
-            target_counties={'CA': ['Lassen']},
-            base_data_dir=output_dir / 'data',
-            osc_repo_dir="/home/trim/Documents/GitHub/GEO-INFER/GEO-INFER-SPACE/repo"
-        )
-        
-        logger.info(f"✅ Backend created with {len(backend.target_hexagons)} target hexagons")
-        
-        # Test module initialization
-        modules = {}
-        
-        # Test zoning module
-        try:
-            modules['zoning'] = GeoInferZoning(backend)
-            logger.info("✅ Zoning module initialized")
-        except Exception as e:
-            logger.error(f"❌ Zoning module failed: {e}")
-        
-        # Test current_use module
-        try:
-            modules['current_use'] = GeoInferCurrentUse(backend)
-            logger.info("✅ Current use module initialized")
-        except Exception as e:
-            logger.error(f"❌ Current use module failed: {e}")
-        
-        # Test ownership module
-        try:
-            modules['ownership'] = GeoInferOwnership(backend)
-            logger.info("✅ Ownership module initialized")
-        except Exception as e:
-            logger.error(f"❌ Ownership module failed: {e}")
-        
-        # Test improvements module
-        try:
-            modules['improvements'] = GeoInferImprovements(backend)
-            logger.info("✅ Improvements module initialized")
-        except Exception as e:
-            logger.error(f"❌ Improvements module failed: {e}")
-        
-        logger.info(f"✅ Successfully initialized {len(modules)} modules")
-        return True, backend, modules
-        
-    except Exception as e:
-        logger.error(f"❌ Module initialization test failed: {e}")
-        return False, None, None
+    backend, modules = _init_backend_and_modules()
+    assert backend is not None, "Backend creation failed"
+    assert len(modules) == 4, f"Expected 4 modules, got {len(modules)}"
+    logger.info(f"✅ Successfully initialized {len(modules)} modules")
 
 def test_module_workflow():
     """Test the BaseAnalysisModule workflow"""
     logger.info("Testing module workflow...")
+    backend, modules = _init_backend_and_modules()
     
-    success, backend, modules = test_module_initialization()
-    if not success:
-        return False
+    zoning_module = modules['zoning']
     
-    # Test the standardized workflow for one module
-    try:
-        zoning_module = modules['zoning']
-        
-        # Test that module has required methods
-        required_methods = ['acquire_raw_data', 'run_final_analysis', 'run_analysis']
-        for method_name in required_methods:
-            if hasattr(zoning_module, method_name):
-                logger.info(f"✅ {method_name} method exists")
-            else:
-                logger.error(f"❌ {method_name} method missing")
-        
-        # Test data directory creation
-        if zoning_module.data_dir.exists():
-            logger.info(f"✅ Data directory created: {zoning_module.data_dir}")
-        else:
-            logger.error(f"❌ Data directory not created")
-        
-        return True
-        
-    except Exception as e:
-        logger.error(f"❌ Module workflow test failed: {e}")
-        return False
+    # Test that module has required methods
+    required_methods = ['acquire_raw_data', 'run_final_analysis', 'run_analysis']
+    for method_name in required_methods:
+        assert hasattr(zoning_module, method_name), f"{method_name} method missing"
+        logger.info(f"✅ {method_name} method exists")
+    
+    # Test data directory creation
+    assert zoning_module.data_dir.exists(), "Data directory not created"
+    logger.info(f"✅ Data directory created: {zoning_module.data_dir}")
 
 def main():
-    """Run all tests"""
+    """Run all tests (CLI entry point)."""
     logger.info("🚀 Starting Cascadia module tests...")
-    
-    # Create output directory
     output_dir = Path('./test_output')
     output_dir.mkdir(exist_ok=True)
-    
+
     tests = [
         ("H3 Integration", test_h3_integration),
-        ("Module Initialization", lambda: test_module_initialization()[0]),
-        ("Module Workflow", test_module_workflow)
+        ("Module Initialization", test_module_initialization),
+        ("Module Workflow", test_module_workflow),
     ]
-    
-    results = {}
+
+    passed = 0
     for test_name, test_func in tests:
         logger.info(f"\n--- Running {test_name} Test ---")
         try:
-            results[test_name] = test_func()
-        except Exception as e:
-            logger.error(f"❌ {test_name} test crashed: {e}")
-            results[test_name] = False
-    
-    # Print summary
-    logger.info("\n--- Test Summary ---")
-    passed = 0
-    for test_name, result in results.items():
-        status = "✅ PASS" if result else "❌ FAIL"
-        logger.info(f"{test_name}: {status}")
-        if result:
+            test_func()
             passed += 1
-    
+            logger.info(f"{test_name}: ✅ PASS")
+        except Exception as e:
+            logger.error(f"{test_name}: ❌ FAIL — {e}")
+
     logger.info(f"\nOverall: {passed}/{len(tests)} tests passed")
-    
-    if passed == len(tests):
-        logger.info("🎉 All tests passed! Modules are working correctly.")
-    else:
-        logger.warning("⚠️ Some tests failed. Check the logs above.")
-    
     return passed == len(tests)
+
 
 if __name__ == "__main__":
     success = main()
-    sys.exit(0 if success else 1) 
+    sys.exit(0 if success else 1)

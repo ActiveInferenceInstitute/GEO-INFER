@@ -5,6 +5,9 @@ Analyzes agricultural land ownership patterns, including concentration
 metrics and institutional vs. individual ownership classification.
 """
 
-from .geo_infer_ownership import GeoInferOwnership
+try:
+    from .geo_infer_ownership import GeoInferOwnership
+except ImportError:
+    GeoInferOwnership = None
 
 __all__ = ['GeoInferOwnership'] 

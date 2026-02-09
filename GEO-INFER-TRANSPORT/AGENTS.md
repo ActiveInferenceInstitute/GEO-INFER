@@ -26,12 +26,10 @@ analyzer = NetworkAnalyzer()
 route = analyzer.find_route(
     origin=(37.77, -122.41),
     destination=(37.80, -122.27),
-    mode="car"
-)
+    mode="car")
 
 print(f"Distance: {route.distance_km} km")
-print(f"Duration: {route.duration_min} min")
-```
+print(f"Duration: {route.duration_min} min")```
 
 ### 2. Traffic Modeling
 
@@ -44,12 +42,10 @@ modeler = TrafficModeler()
 flow = modeler.simulate(
     network=road_network,
     demand=od_matrix,
-    time_period="peak"
-)
+    time_period="peak")
 
 print(f"Congestion: {flow.congestion_index}")
-print(f"Bottlenecks: {flow.bottlenecks}")
-```
+print(f"Bottlenecks: {flow.bottlenecks}")```
 
 ### 3. Transit Planning
 
@@ -61,11 +57,9 @@ planner = TransitPlanner()
 
 coverage = planner.analyze_coverage(
     routes=gtfs_data,
-    population=census_data
-)
+    population=census_data)
 
-print(f"Coverage: {coverage.percent}%")
-```
+print(f"Coverage: {coverage.percent}%")```
 
 ### 4. Demand Forecast
 
@@ -77,11 +71,9 @@ forecaster = DemandForecaster()
 
 forecast = forecaster.predict(
     historical=traffic_counts,
-    scenario="growth"
-)
+    scenario="growth")
 
-print(f"Projected VMT: {forecast.vmt}")
-```
+print(f"Projected VMT: {forecast.vmt}")```
 
 ## Implementation Status
 

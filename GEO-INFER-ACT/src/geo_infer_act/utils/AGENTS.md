@@ -402,8 +402,6 @@ Create animated GIF of H3 grid evolution over time.
 
 Create interactive slider plot for H3 grid evolution.
 
-
-
 ## Capabilities
 
 - **Analysis**: `ActiveInferenceAnalyzer` for model behavior analysis
@@ -420,6 +418,9 @@ Create interactive slider plot for H3 grid evolution.
 - **Type**: Utility Module Component
 - **Dependencies**: NumPy, SciPy, Matplotlib for mathematical and visualization operations
 - **Used By**: 
-  - `geo_infer_act.core` for mathematical utilities
-  - `geo_infer_act.models` for analysis and visualization
-  - `geo_infer_act.api` for integration utilities
+ 
+- `geo_infer_act.core` for mathematical utilities
+ 
+- `geo_infer_act.models` for analysis and visualization
+ 
+- `geo_infer_act.api` for integration utilities

@@ -141,7 +141,7 @@ class CascadianSurfaceWaterDataSources:
                                         'gnis_name': element['tags'].get('name', 'Unknown'),
                                         'areasqkm': poly.area * 111 * 111 # rough estimate
                                     })
-                            except:
+                            except Exception:
                                 pass
 
             flowlines_gdf = gpd.GeoDataFrame(flowlines, crs="EPSG:4326") if flowlines else gpd.GeoDataFrame(geometry=[], crs="EPSG:4326")

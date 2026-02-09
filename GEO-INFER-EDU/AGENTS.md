@@ -31,12 +31,10 @@ curriculum = designer.create(
         "Perform buffer analysis",
         "Create spatial joins",
         "Interpret results"
-    ]
-)
+    ])
 
 print(f"Modules: {len(curriculum.modules)}")
-print(f"Assessments: {curriculum.assessments}")
-```
+print(f"Assessments: {curriculum.assessments}")```
 
 ### 2. Interactive Exercises
 
@@ -50,12 +48,10 @@ exercises = generator.create(
     concepts=["coordinate_systems", "projections"],
     format="interactive_map",
     difficulty="progressive",
-    auto_feedback=True
-)
+    auto_feedback=True)
 
 # Start exercise session
-session = exercises.start(learner_id="student_001")
-```
+session = exercises.start(learner_id="student_001")```
 
 ### 3. Progress Tracking
 
@@ -67,13 +63,11 @@ tracker = ProgressTracker()
 
 progress = tracker.get_progress(
     learner="student_001",
-    course="gis_fundamentals"
-)
+    course="gis_fundamentals")
 
 print(f"Completion: {progress.completion}%")
 print(f"Mastered topics: {progress.mastered}")
-print(f"Recommendations: {progress.next_steps}")
-```
+print(f"Recommendations: {progress.next_steps}")```
 
 ### 4. Adaptive Learning
 
@@ -86,12 +80,10 @@ adaptive = AdaptiveLearner()
 path = adaptive.recommend(
     learner_profile=student_profile,
     goal="become_gis_analyst",
-    available_time="10_hours_week"
-)
+    available_time="10_hours_week")
 
 print(f"Recommended path: {path.modules}")
-print(f"Estimated completion: {path.weeks} weeks")
-```
+print(f"Estimated completion: {path.weeks} weeks")```
 
 ## Implementation Status
 
@@ -123,11 +115,9 @@ program = TrainingProgram(name="GIS Analyst Certification")
 program.add_modules([
     "gis_fundamentals",
     "spatial_analysis",
-    "remote_sensing"
-])
+    "remote_sensing"])
 
-program.deploy(platform="online")
-```
+program.deploy(platform="online")```
 
 ---
 

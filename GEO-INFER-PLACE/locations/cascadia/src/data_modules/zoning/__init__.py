@@ -5,7 +5,10 @@ Provides comprehensive agricultural zoning classification and regulatory
 analysis across the Cascadian bioregion.
 """
 
-from .geo_infer_zoning import GeoInferZoning
+try:
+    from .geo_infer_zoning import GeoInferZoning
+except ImportError:
+    GeoInferZoning = None
 from .data_sources import CascadianZoningDataSources
 
 __all__ = ['GeoInferZoning', 'CascadianZoningDataSources'] 

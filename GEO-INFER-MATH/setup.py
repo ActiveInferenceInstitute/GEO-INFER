@@ -9,8 +9,21 @@ setup(
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     python_requires=">=3.9",
-    install_requires=[],
+    install_requires=[
+        "numpy>=1.20.0",
+        "scipy>=1.7.0",
+        "pandas>=1.3.0",
+        "psutil>=5.8.0",
+        "scikit-learn>=1.0.0",
+        "sympy>=1.9.0",
+    ],
     extras_require={
+        "theorem-proving": [
+            "z3-solver>=4.12.0",
+        ],
+        "gpu": [
+            "cupy>=10.0.0",
+        ],
         "dev": [
             "pytest>=6.2.0",
             "pytest-cov>=2.12.0",
@@ -32,5 +45,3 @@ setup(
         "": ["*.yaml", "*.yml", "*.json", "*.md", "*.txt"],
     },
 )
-
-

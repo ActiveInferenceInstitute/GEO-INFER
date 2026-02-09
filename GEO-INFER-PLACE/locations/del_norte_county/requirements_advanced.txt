@@ -32,14 +32,14 @@ aiohttp>=3.8.0              # Async HTTP client (for concurrent API calls)
 python-dotenv>=0.19.0       # Environment variable management
 
 # Time series and temporal analysis
-datetime                    # Built-in Python datetime
+# datetime                  # Built-in (not a pip package)
 dateutil>=2.8.0             # Date utilities
 pytz>=2022.1                # Timezone handling
 
 # Configuration and data formats
 PyYAML>=6.0                 # YAML configuration files
 toml>=0.10.0                # TOML configuration support
-configparser                # Built-in configuration parser
+# configparser              # Built-in (not a pip package)
 json5>=0.9.0                # Extended JSON support
 
 # Web and dashboard frameworks (for enhanced dashboards)
@@ -80,7 +80,7 @@ sphinx>=5.1.0              # Documentation generator
 sphinx-rtd-theme>=1.0.0    # Documentation theme
 
 # Database and caching (for advanced data management)
-sqlite3                     # Built-in SQLite support
+# sqlite3                   # Built-in (not a pip package)
 redis>=4.3.0                # Redis for caching (optional)
 psycopg2-binary>=2.9.0      # PostgreSQL adapter (optional)
 
@@ -101,10 +101,10 @@ sentry-sdk>=1.9.0           # Error tracking (optional)
 geoip2>=4.6.0               # IP geolocation (optional)
 geopy>=2.2.0                # Geocoding and distance calculations
 
-# Specialized California data sources
-calfire-api>=0.1.0          # Custom CAL FIRE API wrapper
-cdec-api>=0.2.0             # California Data Exchange Center API
-ca-drought-api>=0.1.0       # California drought monitoring API
+# Specialized California data sources (aspirational — not yet on PyPI)
+# calfire-api>=0.1.0        # Custom CAL FIRE API wrapper
+# cdec-api>=0.2.0           # California Data Exchange Center API
+# ca-drought-api>=0.1.0     # California drought monitoring API
 
 # Machine learning for geospatial analysis
 xgboost>=1.6.0              # Gradient boosting (optional)

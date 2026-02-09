@@ -6,8 +6,13 @@ geospatial analysis including H3 operations, configuration management,
 data source integration, and helper functions.
 """
 
-from geo_infer_space.utils.config_loader import LocationConfigLoader
+try:
+    from geo_infer_space.utils.config_loader import LocationConfigLoader
+except ImportError:
+    LocationConfigLoader = None  # type: ignore[misc,assignment]
+from .caching import CachedAPIWrapper
 from .data_sources import CaliforniaDataSources
+from .integration import DelNorteDataIntegrator
 from .h3_operations import (
     latlng_to_cell,
     cell_to_latlng,
@@ -25,7 +30,9 @@ from .h3_operations import (
 
 __all__ = [
     "LocationConfigLoader",
+    "CachedAPIWrapper",
     "CaliforniaDataSources",
+    "DelNorteDataIntegrator",
     # H3 operations
     "latlng_to_cell",
     "cell_to_latlng",

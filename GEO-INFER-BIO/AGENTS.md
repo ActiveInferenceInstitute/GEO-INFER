@@ -26,11 +26,9 @@ modeler = SpeciesModeler()
 distribution = modeler.predict(
     species="ursus_americanus",
     occurrences=sighting_data,
-    predictors=environmental_layers
-)
+    predictors=environmental_layers)
 
-print(f"Suitable habitat: {distribution.area_km2} km²")
-```
+print(f"Suitable habitat: {distribution.area_km2} km²")```
 
 ### 2. Habitat Analysis
 
@@ -42,11 +40,9 @@ analyzer = HabitatAnalyzer()
 
 quality = analyzer.assess(
     area=study_region,
-    metrics=["connectivity", "fragmentation", "core_area"]
-)
+    metrics=["connectivity", "fragmentation", "core_area"])
 
-print(f"Habitat quality: {quality.score}")
-```
+print(f"Habitat quality: {quality.score}")```
 
 ### 3. Conservation Planning
 
@@ -59,11 +55,9 @@ planner = ConservationPlanner()
 plan = planner.prioritize(
     targets=species_targets,
     cost_layer=land_costs,
-    budget=10_000_000
-)
+    budget=10_000_000)
 
-print(f"Priority areas: {plan.selected_areas}")
-```
+print(f"Priority areas: {plan.selected_areas}")```
 
 ### 4. Biodiversity Metrics
 
@@ -75,11 +69,9 @@ calc = BiodiversityCalculator()
 
 metrics = calc.compute(
     species_data=survey_data,
-    indices=["shannon", "simpson", "species_richness"]
-)
+    indices=["shannon", "simpson", "species_richness"])
 
-print(f"Shannon index: {metrics.shannon}")
-```
+print(f"Shannon index: {metrics.shannon}")```
 
 ## Implementation Status
 

@@ -60,8 +60,7 @@ pytest tests/unit/
 pytest tests/unit/test_ingestion.py
 
 # Run with coverage
-pytest tests/unit/ --cov=src/geo_infer_data
-```
+pytest tests/unit/ --cov=src/geo_infer_data```
 
 ## Integration
 

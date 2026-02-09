@@ -174,7 +174,7 @@ class SraiBackend:
             return cell
         else:
             # For other regionalizers, use SRAI's approach
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for latlng_to_cell")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for latlng_to_cell")
 
     @_require_srai("cell_to_latlng")
     def cell_to_latlng(self, cell: str) -> tuple[float, float]:
@@ -198,7 +198,7 @@ class SraiBackend:
             logger.debug(f"Cell {cell} center: ({lat}, {lng})")
             return lat, lng
         else:
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for cell_to_latlng")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for cell_to_latlng")
 
     @_require_srai("polygon_to_cells")
     def polygon_to_cells(self, polygon: Dict[str, Any], resolution: int) -> List[str]:
@@ -234,7 +234,7 @@ class SraiBackend:
             logger.info(f"Polygon converted to {len(cells)} cells")
             return cells
         else:
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for polygon_to_cells")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for polygon_to_cells")
 
     @_require_srai("get_cell_neighbors")
     def get_cell_neighbors(self, cell: str, k: int = 1) -> List[str]:
@@ -262,7 +262,7 @@ class SraiBackend:
             logger.debug(f"Found {len(neighbors)} neighbors")
             return neighbors
         else:
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_neighbors")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_neighbors")
 
     @_require_srai("get_cell_distance")
     def get_cell_distance(self, cell1: str, cell2: str) -> int:
@@ -287,7 +287,7 @@ class SraiBackend:
             logger.debug(f"Distance: {distance}")
             return distance
         else:
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_distance")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_distance")
 
     @_require_srai("compact_cells")
     def compact_cells(self, cells: List[str]) -> List[str]:
@@ -311,7 +311,7 @@ class SraiBackend:
             logger.info(f"Compacted to {len(compacted)} cells")
             return compacted
         else:
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for compact_cells")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for compact_cells")
 
     @_require_srai("uncompact_cells")
     def uncompact_cells(self, compacted_cells: List[str], resolution: int) -> List[str]:
@@ -336,7 +336,7 @@ class SraiBackend:
             logger.info(f"Uncompacted to {len(uncompacted)} cells")
             return uncompacted
         else:
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for uncompact_cells")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for uncompact_cells")
 
     @_require_srai("get_cell_parent")
     def get_cell_parent(self, cell: str, resolution: int) -> str:
@@ -359,7 +359,7 @@ class SraiBackend:
             import h3
             return h3.cell_to_parent(cell, resolution)
         else:
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_parent")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_parent")
 
     @_require_srai("get_cell_children")
     def get_cell_children(self, cell: str, resolution: int) -> List[str]:
@@ -382,7 +382,7 @@ class SraiBackend:
             import h3
             return list(h3.cell_to_children(cell, resolution))
         else:
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_children")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_children")
 
     @_require_srai("get_cell_path")
     def get_cell_path(self, start_cell: str, end_cell: str) -> List[str]:
@@ -406,7 +406,7 @@ class SraiBackend:
             # H3 v4 API check
             return list(h3.grid_path_cells(start_cell, end_cell))
         else:
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_path")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_path")
 
     @_require_srai("get_cell_ring")
     def get_cell_ring(self, cell: str, k: int) -> List[str]:
@@ -429,7 +429,7 @@ class SraiBackend:
             import h3
             return list(h3.grid_ring(cell, k))
         else:
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_ring")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_ring")
 
     @_require_srai("get_cell_resolution")
     def get_cell_resolution(self, cell: str) -> int:
@@ -453,7 +453,7 @@ class SraiBackend:
             logger.debug(f"Cell {cell} has resolution {resolution}")
             return resolution
         else:
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_resolution")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_resolution")
 
     @_require_srai("get_cell_boundary")
     def get_cell_boundary(self, cell: str) -> List[Tuple[float, float]]:
@@ -478,7 +478,7 @@ class SraiBackend:
             logger.debug(f"Cell {cell} has {len(result)} boundary vertices")
             return result
         else:
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_boundary")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_boundary")
 
     @_require_srai("get_cell_area")
     def get_cell_area(self, cell: str) -> float:
@@ -502,7 +502,7 @@ class SraiBackend:
             logger.debug(f"Cell {cell} has area {area:.6f} km²")
             return area
         else:
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for get_cell_area")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for get_cell_area")
 
     @_require_srai("cells_to_multipolygon")
     def cells_to_multipolygon(self, cells: List[str]) -> Dict[str, Any]:
@@ -539,7 +539,7 @@ class SraiBackend:
                 "coordinates": polygons
             }
         else:
-            raise NotImplementedError(f"Regionalizer {self.default_regionalizer} not yet supported for cells_to_multipolygon")
+            raise ValueError(f"Regionalizer '{self.default_regionalizer}' is not supported for cells_to_multipolygon")
 
     # ==================== Analytics Methods ====================
 

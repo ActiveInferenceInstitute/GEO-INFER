@@ -29,12 +29,10 @@ proposal = manager.submit(
     type="feature",
     description="Upgrade spatial indexing to H3 version 5",
     affected_modules=["SPACE", "DATA", "ACT"],
-    author="contributor_001"
-)
+    author="contributor_001")
 
 print(f"Proposal ID: {proposal.pep_id}")
-print(f"Status: {proposal.status}")
-```
+print(f"Status: {proposal.status}")```
 
 ### 2. Review Process
 
@@ -48,14 +46,12 @@ coordinator = ReviewCoordinator()
 review = coordinator.initiate_review(
     proposal=pep_id,
     reviewers=["maintainer_1", "maintainer_2", "expert_1"],
-    deadline_days=14
-)
+    deadline_days=14)
 
 # Get review status
 status = coordinator.get_review_status(pep_id)
 print(f"Reviews completed: {status.completed}/{status.total}")
-print(f"Consensus: {status.consensus_level}")
-```
+print(f"Consensus: {status.consensus_level}")```
 
 ### 3. Decision Tracking
 
@@ -70,13 +66,11 @@ decision = tracker.record(
     pep_id="PEP-2026-003",
     decision="accepted",
     rationale="Aligns with roadmap, community support",
-    implementation_plan=impl_details
-)
+    implementation_plan=impl_details)
 
 # Query decisions
 active = tracker.query(status="accepted", year=2026)
-print(f"Accepted proposals in 2026: {len(active)}")
-```
+print(f"Accepted proposals in 2026: {len(active)}")```
 
 ### 4. Implementation Tracking
 
@@ -91,12 +85,10 @@ impl.update(
     pep_id="PEP-2026-003",
     milestone="core_implementation",
     progress=75,
-    blockers=[]
-)
+    blockers=[])
 
 # Get implementation dashboard
-dashboard = impl.get_dashboard()
-```
+dashboard = impl.get_dashboard()```
 
 ## Implementation Status
 
@@ -139,12 +131,10 @@ board = GovernanceBoard()
 # Conduct quarterly review
 review = board.quarterly_review(
     quarter="2026-Q1",
-    include=["pending_peps", "roadmap", "community_feedback"]
-)
+    include=["pending_peps", "roadmap", "community_feedback"])
 
 print(f"PEPs reviewed: {review.peps_reviewed}")
-print(f"Decisions made: {review.decisions}")
-```
+print(f"Decisions made: {review.decisions}")```
 
 ---
 

@@ -1,5 +1,3 @@
-
-
 # Agent
 : geo_infer_econ 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-ECON/src/geo_infer_econ` 
-- **Type**: Directory Node 
+- **Type**: Directory Node

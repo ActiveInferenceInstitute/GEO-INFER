@@ -141,8 +141,6 @@ Variational inference engine for active inference models.
 - `importance_sampling_update(prior: Dict[str, np.ndarray], likelihood_fn: callable, observations: np.ndarray, n_samples: int) -> Dict[str, np.ndarray]`: Perform importance sampling for posterior approximation.
 - `compute_elbo(posterior: Dict[str, np.ndarray], prior: Dict[str, np.ndarray], likelihood: Dict[str, np.ndarray], observations: np.ndarray) -> float`: Compute Evidence Lower BOund (ELBO).
 
-
-
 ## Capabilities
 
 - **Active Inference Modeling**: Core `ActiveInferenceModel` class orchestrating perception-action loops
@@ -160,9 +158,12 @@ Variational inference engine for active inference models.
 - **Type**: Core Module Component
 - **Dependencies**: `numpy`, `scipy`, `geo_infer_act.utils.math` for mathematical utilities
 - **Used By**: 
-  - `geo_infer_act.models` for domain-specific models
-  - `geo_infer_act.api` for API interfaces
-  - `geo_infer_agent` for agent implementations
+ 
+- `geo_infer_act.models` for domain-specific models
+ 
+- `geo_infer_act.api` for API interfaces
+ 
+- `geo_infer_agent` for agent implementations
 - **Provides**: Core Active Inference algorithms and models for the GEO-INFER framework
 
 ---

@@ -20,7 +20,7 @@ from .core import (
 
 # Microeconomic imports
 from .microeconomics import (
-    ConsumerTheoryModels,
+    ConsumerChoiceModels,
     ProducerTheoryModels,
     MarketStructureAnalysis,
     GameTheoryModels,
@@ -45,8 +45,11 @@ from .bioregional import (
     CircularEconomyModels
 )
 
-# API imports
-from .api import EconomicAnalysisAPI
+# API imports (optional — requires fastapi)
+try:
+    from .api import EconomicAnalysisAPI
+except ImportError:
+    EconomicAnalysisAPI = None  # type: ignore[misc,assignment]
 
 # Utilities
 from .utils import (
@@ -63,7 +66,7 @@ __all__ = [
     'PolicyAnalysisEngine',
     
     # Microeconomics
-    'ConsumerTheoryModels',
+    'ConsumerChoiceModels',
     'ProducerTheoryModels',
     'MarketStructureAnalysis',
     'GameTheoryModels',
@@ -89,4 +92,5 @@ __all__ = [
     'ResultsVisualizer',
     'ModelValidator',
     'EconomicIndicators'
-] 
+]
+ 

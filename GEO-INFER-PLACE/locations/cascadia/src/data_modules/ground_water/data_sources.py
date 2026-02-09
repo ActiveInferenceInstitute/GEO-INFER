@@ -16,7 +16,14 @@ from typing import List, Tuple
 from shapely.geometry import Polygon
 
 # Import H3 utilities from the unified backend's path
-from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
+try:
+    from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
+except ImportError:
+    import h3
+    latlng_to_cell = h3.latlng_to_cell
+    cell_to_latlng = h3.cell_to_latlng
+    cell_to_latlng_boundary = h3.cell_to_boundary
+    polygon_to_cells = h3.polygon_to_cells
 
 
 logger = logging.getLogger(__name__)

@@ -31,12 +31,10 @@ org.create_structure(
         {"name": "Region_West", "location": west_coords, "level": 1},
         {"name": "Region_East", "location": east_coords, "level": 1}
     ],
-    relationships="reporting"
-)
+    relationships="reporting")
 
 print(f"Total units: {org.unit_count}")
-print(f"Hierarchy depth: {org.depth}")
-```
+print(f"Hierarchy depth: {org.depth}")```
 
 ### 2. Team Coordination
 
@@ -54,12 +52,10 @@ assignment = coordinator.assign(
         "minimize_travel": True,
         "balance_workload": True,
         "respect_skills": True
-    }
-)
+    })
 
 print(f"Assignments: {assignment.team_area_map}")
-print(f"Coverage: {assignment.coverage_percent}%")
-```
+print(f"Coverage: {assignment.coverage_percent}%")```
 
 ### 3. Organizational Network Analysis
 
@@ -71,12 +67,10 @@ analyzer = OrgNetworkAnalyzer()
 
 analysis = analyzer.analyze(
     org_graph=organization_network,
-    metrics=["centrality", "clustering", "communication_paths"]
-)
+    metrics=["centrality", "clustering", "communication_paths"])
 
 print(f"Key connectors: {analysis.central_nodes}")
-print(f"Communication bottlenecks: {analysis.bottlenecks}")
-```
+print(f"Communication bottlenecks: {analysis.bottlenecks}")```
 
 ### 4. Resource Allocation
 
@@ -92,12 +86,10 @@ allocation = allocator.optimize(
     constraints={
         "budget": 1_000_000,
         "min_coverage": 0.9
-    }
-)
+    })
 
 print(f"Allocations: {allocation.assignments}")
-print(f"Efficiency: {allocation.efficiency_score}")
-```
+print(f"Efficiency: {allocation.efficiency_score}")```
 
 ## Implementation Status
 
@@ -131,11 +123,9 @@ ops = FieldOperations(org="utility_company")
 plan = ops.plan_day(
     crews=available_crews,
     work_orders=today_orders,
-    priorities=["emergency", "scheduled", "proactive"]
-)
+    priorities=["emergency", "scheduled", "proactive"])
 
-print(f"Routes planned: {len(plan.routes)}")
-```
+print(f"Routes planned: {len(plan.routes)}")```
 
 ---
 

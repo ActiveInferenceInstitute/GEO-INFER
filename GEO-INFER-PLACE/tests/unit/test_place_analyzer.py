@@ -8,7 +8,6 @@ location management, analysis workflows, and integration capabilities.
 
 import pytest
 import unittest
-from unittest.mock import Mock, patch
 import sys
 import os
 
@@ -41,37 +40,21 @@ class TestPlaceAnalyzer(unittest.TestCase):
         self.assertIsNotNone(self.analyzer)
         self.assertIsInstance(self.analyzer, PlaceAnalyzer)
     
-    @patch('geo_infer_place.get_available_locations')
-    def test_get_available_locations(self, mock_get_locations):
-        """Test retrieval of available study locations."""
-        # Mock return value
-        mock_locations = [
-            {
-                "name": "del_norte_county",
-                "display_name": "Del Norte County, California, USA",
-                "status": "available",
-                "focus_areas": ["forest_management", "coastal_resilience"]
-            },
-            {
-                "name": "australia",
-                "display_name": "Australia Continental Analysis", 
-                "status": "available",
-                "focus_areas": ["climate_monitoring", "biodiversity"]
-            },
-            {
-                "name": "siberia",
-                "display_name": "Siberian Arctic and Sub-Arctic Region",
-                "status": "available", 
-                "focus_areas": ["permafrost_monitoring", "arctic_climate"]
-            }
-        ]
-        mock_get_locations.return_value = mock_locations
-        
-        if get_available_locations is not None:
-            locations = get_available_locations()
-            self.assertEqual(len(locations), 3)
-            self.assertTrue(all('name' in loc for loc in locations))
-            self.assertTrue(all('display_name' in loc for loc in locations))
+    def test_get_available_locations(self):
+        """Test retrieval of available study locations using real implementation."""
+        if get_available_locations is None:
+            self.skipTest("get_available_locations not available")
+
+        locations = get_available_locations()
+
+        # Verify we get a list of locations
+        self.assertIsInstance(locations, list)
+        self.assertGreater(len(locations), 0)
+
+        # Verify location structure
+        for loc in locations:
+            self.assertIn('name', loc)
+            self.assertIn('display_name', loc)
     
     def test_location_specific_analyzers(self):
         """Test location-specific analyzer availability."""
@@ -171,9 +154,14 @@ class TestLocationConfigurations(unittest.TestCase):
         """Test that location-specific requirements files exist."""
         locations = ['del_norte_county', 'australia', 'siberia']
         
+        # Locations live at project root: GEO-INFER-PLACE/locations/
+        project_root = os.path.join(
+            os.path.dirname(__file__), '..', '..'
+        )
+        
         for location in locations:
             req_path = os.path.join(
-                os.path.dirname(__file__), '..', 'locations', location,
+                project_root, 'locations', location,
                 'requirements.txt'
             )
             

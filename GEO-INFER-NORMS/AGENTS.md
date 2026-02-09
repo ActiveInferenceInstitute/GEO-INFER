@@ -28,19 +28,16 @@ engine.add_rule(
     name="protected_area_restriction",
     condition="location WITHIN protected_areas",
     action="DENY",
-    message="Access restricted in protected areas"
-)
+    message="Access restricted in protected areas")
 
 # Check compliance
 result = engine.check(
     agent_id="drone_001",
     proposed_action="fly_through",
-    location=point
-)
+    location=point)
 
 print(f"Allowed: {result.allowed}")
-print(f"Reason: {result.reason}")
-```
+print(f"Reason: {result.reason}")```
 
 ### 2. Regulatory Compliance
 
@@ -54,13 +51,11 @@ compliance = ComplianceChecker()
 validation = compliance.validate(
     activity="construction",
     location=project_site,
-    regulations=["zoning", "environmental", "building_code"]
-)
+    regulations=["zoning", "environmental", "building_code"])
 
 print(f"Compliant: {validation.is_compliant}")
 print(f"Violations: {validation.violations}")
-print(f"Required permits: {validation.required_permits}")
-```
+print(f"Required permits: {validation.required_permits}")```
 
 ### 3. Ethical Constraints
 
@@ -75,18 +70,15 @@ ethics.add_constraint(
     name="privacy_protection",
     description="Avoid surveillance in residential areas",
     affected_areas=residential_zones,
-    constraint_type="soft"
-)
+    constraint_type="soft")
 
 # Check action ethics
 assessment = ethics.assess(
     action="continuous_monitoring",
-    location=proposed_location
-)
+    location=proposed_location)
 
 print(f"Ethical score: {assessment.score}")
-print(f"Concerns: {assessment.concerns}")
-```
+print(f"Concerns: {assessment.concerns}")```
 
 ### 4. Norm Reasoning
 
@@ -102,12 +94,10 @@ resolution = reasoner.resolve_conflict(
         {"type": "obligation", "action": "respond_to_emergency"},
         {"type": "prohibition", "action": "enter_restricted_area"}
     ],
-    context=emergency_situation
-)
+    context=emergency_situation)
 
 print(f"Resolution: {resolution.recommended_action}")
-print(f"Justification: {resolution.justification}")
-```
+print(f"Justification: {resolution.justification}")```
 
 ## Implementation Status
 
@@ -142,12 +132,10 @@ check = compliance.validate_flight(
     flight_path=proposed_route,
     altitude_ft=300,
     time=planned_time,
-    operator_cert="remote_pilot"
-)
+    operator_cert="remote_pilot")
 
 print(f"Flight approved: {check.approved}")
-print(f"Restrictions: {check.restrictions}")
-```
+print(f"Restrictions: {check.restrictions}")```
 
 ---
 

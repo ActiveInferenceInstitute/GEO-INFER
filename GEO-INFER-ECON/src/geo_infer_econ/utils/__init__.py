@@ -2,7 +2,7 @@
 Utility functions and classes for GEO-INFER-ECON.
 """
 
-from .data_loader import DataLoader
+from .data_loader import EconomicDataLoader as DataLoader
 from .visualizer import ResultsVisualizer
 from .validator import ModelValidator
 from .indicators import EconomicIndicators

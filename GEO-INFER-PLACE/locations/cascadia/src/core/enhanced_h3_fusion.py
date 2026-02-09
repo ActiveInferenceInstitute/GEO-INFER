@@ -24,22 +24,36 @@ from shapely.ops import unary_union
 import h3
 
 # Import H3 utilities from consolidated geo_infer_place module
-from geo_infer_place.utils.h3_operations import (
-    latlng_to_cell,
-    cell_to_latlng,
-    cell_to_latlng_boundary,
-    geo_to_cells,
-    polygon_to_cells,
-    grid_disk,
-    grid_distance,
-    cell_area,
-    get_resolution,
-    is_valid_cell,
-    are_neighbor_cells,
-)
-
-# H3 utilities are available since imports succeeded
-SPACE_H3_AVAILABLE = True
+try:
+    from geo_infer_place.utils.h3_operations import (
+        latlng_to_cell,
+        cell_to_latlng,
+        cell_to_latlng_boundary,
+        geo_to_cells,
+        polygon_to_cells,
+        grid_disk,
+        grid_distance,
+        cell_area,
+        get_resolution,
+        is_valid_cell,
+        are_neighbor_cells,
+    )
+    SPACE_H3_AVAILABLE = True
+except ImportError:
+    # Fallback to direct h3 imports
+    latlng_to_cell = h3.latlng_to_cell
+    cell_to_latlng = h3.cell_to_latlng
+    cell_to_latlng_boundary = h3.cell_to_boundary
+    polygon_to_cells = h3.polygon_to_cells
+    grid_disk = h3.grid_disk
+    grid_distance = h3.grid_distance
+    cell_area = h3.cell_area
+    get_resolution = h3.get_resolution
+    is_valid_cell = h3.is_valid_cell
+    are_neighbor_cells = h3.are_neighbor_cells
+    def geo_to_cells(geojson, res):
+        return h3.geo_to_cells(h3.geo_to_h3shape(geojson), res)
+    SPACE_H3_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 

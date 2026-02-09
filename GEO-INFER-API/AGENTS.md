@@ -31,8 +31,7 @@ async def analyze_endpoint(request):
     return {"result": result}
 
 # Start server
-server.run(host="0.0.0.0", port=8080)
-```
+server.run(host="0.0.0.0", port=8080)```
 
 ### 2. GraphQL Interface
 
@@ -52,8 +51,7 @@ gql.add_type("""
 """)
 
 # Start GraphQL server
-gql.run(port=4000)
-```
+gql.run(port=4000)```
 
 ### 3. Streaming API
 
@@ -68,8 +66,7 @@ stream = StreamingAPI()
 async def stream_observations(ws):
     agent = get_monitoring_agent()
     async for observation in agent.observe():
-        await ws.send(observation.to_json())
-```
+        await ws.send(observation.to_json())```
 
 ### 4. API Gateway
 
@@ -86,8 +83,7 @@ gateway.add_route("/data/*", service="data_agent")
 
 # Add rate limiting and auth
 gateway.add_middleware("rate_limit", requests_per_minute=100)
-gateway.add_middleware("auth", provider="jwt")
-```
+gateway.add_middleware("auth", provider="jwt")```
 
 ## Implementation Status
 
@@ -119,12 +115,10 @@ api = GeoServiceAPI()
 # Expose spatial operations
 api.expose_operations([
     "buffer", "intersect", "union", 
-    "spatial_join", "geocode"
-])
+    "spatial_join", "geocode"])
 
 # Auto-generate OpenAPI docs
-api.generate_docs()
-```
+api.generate_docs()```
 
 ---
 

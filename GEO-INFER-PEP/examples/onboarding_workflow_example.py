@@ -105,8 +105,8 @@ def demonstrate_onboarding_workflow():
             failed_onboardings += 1
             print(f"❌ Onboarding error for {candidate.first_name}: {str(e)}")
 
-    print("
-📊 Onboarding Results:"    print(f"  - Successful: {successful_onboardings}")
+    print("\n📊 Onboarding Results:")
+    print(f"  - Successful: {successful_onboardings}")
     print(f"  - Failed: {failed_onboardings}")
 
     return successful_onboardings, failed_onboardings
@@ -137,7 +137,8 @@ def main():
         talent_dashboard = generate_comprehensive_talent_dashboard()
 
         if "message" not in talent_dashboard:
-            print("📊 Talent Metrics:"            print(f"  - Total Candidates: {talent_dashboard.get('total_candidates', 0)}")
+            print("📊 Talent Metrics:")
+            print(f"  - Total Candidates: {talent_dashboard.get('total_candidates', 0)}")
 
             status_breakdown = talent_dashboard.get('status_breakdown', {})
             print("\n📋 Candidate Status Breakdown:")
@@ -158,7 +159,8 @@ def main():
         hr_dashboard = generate_comprehensive_hr_dashboard()
 
         if "message" not in hr_dashboard:
-            print("🏢 HR Metrics After Onboarding:"            print(f"  - Total Employees: {hr_dashboard.get('total_employees', 0)}")
+            print("🏢 HR Metrics After Onboarding:")
+            print(f"  - Total Employees: {hr_dashboard.get('total_employees', 0)}")
             print(f"  - Active Employees: {hr_dashboard.get('active_employees', 0)}")
 
             dept_breakdown = hr_dashboard.get('headcount_by_department', {})
@@ -189,7 +191,7 @@ def main():
                 # Show enrichment data
                 if "tenure_years" in emp.custom_fields:
                     tenure_years = emp.custom_fields["tenure_years"]
-                    print(".1f")
+                    print(f"     Tenure: {tenure_years:.1f} years")
 
                 if "service_milestone" in emp.custom_fields:
                     print(f"     Milestone: {emp.custom_fields['service_milestone']}")

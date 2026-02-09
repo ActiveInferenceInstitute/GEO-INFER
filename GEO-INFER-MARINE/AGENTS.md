@@ -25,12 +25,10 @@ monitor = OceanMonitor()
 
 conditions = monitor.get(
     area=study_area,
-    parameters=["sst", "chlorophyll", "currents"]
-)
+    parameters=["sst", "chlorophyll", "currents"])
 
 print(f"SST: {conditions.sst}°C")
-print(f"Chlorophyll: {conditions.chl} mg/m³")
-```
+print(f"Chlorophyll: {conditions.chl} mg/m³")```
 
 ### 2. Coastal Analysis
 
@@ -42,11 +40,9 @@ coastal = CoastalAnalyzer()
 
 erosion = coastal.analyze(
     shoreline=coastline,
-    period=("2000", "2025")
-)
+    period=("2000", "2025"))
 
-print(f"Erosion rate: {erosion.rate} m/year")
-```
+print(f"Erosion rate: {erosion.rate} m/year")```
 
 ### 3. Marine Spatial Planning
 
@@ -58,8 +54,7 @@ planner = MarinePlanner()
 
 plan = planner.create(
     area=eez,
-    uses=["fishing", "shipping", "conservation"]
-)
+    uses=["fishing", "shipping", "conservation"])
 ```
 
 ### 4. Fisheries Analysis
@@ -72,11 +67,9 @@ fisheries = FisheriesAnalyzer()
 
 stock = fisheries.assess(
     species="cod",
-    area=fishing_grounds
-)
+    area=fishing_grounds)
 
-print(f"Stock status: {stock.status}")
-```
+print(f"Stock status: {stock.status}")```
 
 ## Implementation Status
 

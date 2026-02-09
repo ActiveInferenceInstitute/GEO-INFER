@@ -27,12 +27,10 @@ solution = aco.solve(
     problem_type="tsp",
     nodes=delivery_locations,
     n_ants=50,
-    iterations=100
-)
+    iterations=100)
 
 print(f"Best route distance: {solution.distance}")
-print(f"Route: {solution.path}")
-```
+print(f"Route: {solution.path}")```
 
 ### 2. Swarm Coordination
 
@@ -45,13 +43,11 @@ swarm = SwarmCoordinator()
 swarm.deploy(
     agents=drone_agents,
     area=search_region,
-    behavior="coverage"
-)
+    behavior="coverage")
 
 # Get swarm status
 status = swarm.get_status()
-print(f"Coverage: {status.coverage}%")
-```
+print(f"Coverage: {status.coverage}%")```
 
 ### 3. Pheromone Mapping
 
@@ -64,11 +60,9 @@ mapper = PheromoneMapper()
 pheromone_map = mapper.create(
     paths=agent_paths,
     decay_rate=0.1,
-    reinforcement=path_quality
-)
+    reinforcement=path_quality)
 
-print(f"Hot paths: {pheromone_map.strongest}")
-```
+print(f"Hot paths: {pheromone_map.strongest}")```
 
 ### 4. Collective Decision
 
@@ -81,11 +75,9 @@ decision = CollectiveDecision()
 result = decision.vote(
     agents=swarm_agents,
     alternatives=site_options,
-    method="quorum_sensing"
-)
+    method="quorum_sensing")
 
-print(f"Selected: {result.choice}")
-```
+print(f"Selected: {result.choice}")```
 
 ## Implementation Status
 

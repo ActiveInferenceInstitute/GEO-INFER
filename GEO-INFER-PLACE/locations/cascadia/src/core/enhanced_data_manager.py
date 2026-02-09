@@ -36,22 +36,36 @@ from .enhanced_logging import (
 )
 
 # Import H3 utilities from consolidated geo_infer_place module
-from geo_infer_place.utils.h3_operations import (
-    latlng_to_cell,
-    cell_to_latlng,
-    cell_to_latlng_boundary,
-    geo_to_cells,
-    polygon_to_cells,
-    grid_disk,
-    grid_distance,
-    cell_area,
-    get_resolution,
-    is_valid_cell,
-    are_neighbor_cells,
-)
-
-# H3 utilities are available since imports succeeded
-SPACE_H3_AVAILABLE = True
+try:
+    from geo_infer_place.utils.h3_operations import (
+        latlng_to_cell,
+        cell_to_latlng,
+        cell_to_latlng_boundary,
+        geo_to_cells,
+        polygon_to_cells,
+        grid_disk,
+        grid_distance,
+        cell_area,
+        get_resolution,
+        is_valid_cell,
+        are_neighbor_cells,
+    )
+    SPACE_H3_AVAILABLE = True
+except ImportError:
+    # Fallback to direct h3 imports
+    latlng_to_cell = h3.latlng_to_cell
+    cell_to_latlng = h3.cell_to_latlng
+    cell_to_latlng_boundary = h3.cell_to_boundary
+    polygon_to_cells = h3.polygon_to_cells
+    grid_disk = h3.grid_disk
+    grid_distance = h3.grid_distance
+    cell_area = h3.cell_area
+    get_resolution = h3.get_resolution
+    is_valid_cell = h3.is_valid_cell
+    are_neighbor_cells = h3.are_neighbor_cells
+    def geo_to_cells(geojson, res):
+        return h3.geo_to_cells(h3.geo_to_h3shape(geojson), res)
+    SPACE_H3_AVAILABLE = False
 
 logger = logging.getLogger(__name__)
 
@@ -103,9 +117,13 @@ class EnhancedDataManager:
         logger.info(f"Enhanced Data Manager initialized with H3 resolution {h3_resolution}")
         logger.info(f"SPACE H3 utilities available: {SPACE_H3_AVAILABLE}")
 
-    def get_data_quality_report(self, module_name: str) -> Dict[str, Any]:
+    def get_comprehensive_data_quality_report(self, module_name: str) -> Dict[str, Any]:
         """
         Generate comprehensive data quality report for a module.
+
+        Reads actual data files, validates GeoDataFrames, and generates
+        quality scores with recommendations. For a simpler file-existence
+        check, use ``get_data_quality_report``.
 
         Args:
             module_name: Name of the module to analyze

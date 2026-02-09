@@ -76,7 +76,7 @@ def main():
             print(f"    Department: {emp.department}, Title: {emp.job_title}")
             print(f"    Status: {emp.employment_status.value}")
             if "tenure_years" in emp.custom_fields:
-                print(".1f")
+                print(f"    Tenure: {emp.custom_fields['tenure_years']:.1f} years")
             print()
 
     except Exception as e:
@@ -93,7 +93,8 @@ def main():
             return
 
         print("✅ HR Dashboard generated successfully!")
-        print("\n📊 Key Metrics:"        print(f"  - Total Employees: {dashboard.get('total_employees', 0)}")
+        print("\n📊 Key Metrics:")
+        print(f"  - Total Employees: {dashboard.get('total_employees', 0)}")
         print(f"  - Active Employees: {dashboard.get('active_employees', 0)}")
 
         # Display department breakdown
@@ -111,7 +112,7 @@ def main():
             if 'counts' in gender_diversity:
                 for gender, count in gender_diversity['counts'].items():
                     percentage = gender_diversity['percentages'].get(gender, 0)
-                    print(".1f")
+                    print(f"  - {gender}: {count} ({percentage:.1f}%)")
 
     except Exception as e:
         print(f"❌ Error generating dashboard: {str(e)}")

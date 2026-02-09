@@ -151,17 +151,7 @@ class CascadianMortgageDataSources:
             number_of_loans=('loan_amount', 'count')
         ).reset_index()
 
-        # Calculate Loan to Value Ratio
-        agg_df['loan_to_value_ratio'] = agg_df['total_loan_volume'] / (agg_df['average_property_value'] * agg_df['number_of_loans']) # logic fix: sum loans / sum values
-        # Better LTV: Sum(Loan) / Sum(Property Value)
-        agg_df['loan_to_value_ratio'] = agg_df['total_loan_volume'] / (agg_df['average_property_value'] * agg_df['number_of_loans']) 
-        # Wait, if I want weighted avg LTV, it is Sum(Loan) / Sum(Value). 
-        # agg_df['average_property_value'] * number_of_loans is approx Sum(Value).
-        # Let's do it cleaner:
-        
-        # ... actually the prev code had logical error.
-        # Let's recalculate correctly
-        
+        # Calculate Loan to Value Ratio: Sum(Loan Amount) / Sum(Property Value) per tract
         tract_sums = hmda_df.groupby('census_tract')[['loan_amount', 'property_value']].sum().reset_index()
         agg_df['loan_to_value_ratio'] = tract_sums['loan_amount'] / tract_sums['property_value']
         

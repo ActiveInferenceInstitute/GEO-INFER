@@ -12,7 +12,7 @@ Implements game theory applications in economics including:
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Any, Union
+from typing import Callable, Dict, List, Optional, Tuple, Any, Union
 from dataclasses import dataclass
 import logging
 from scipy.optimize import minimize, fsolve

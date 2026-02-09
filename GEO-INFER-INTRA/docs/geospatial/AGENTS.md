@@ -1,5 +1,3 @@
-
-
 # Agent
 : geospatial 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-INTRA/docs/geospatial` 
-- **Type**: Directory Node 
+- **Type**: Directory Node

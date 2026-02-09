@@ -3,7 +3,6 @@ Unit tests for BDI agent interface.
 """
 
 import unittest
-from unittest.mock import MagicMock, patch
 import json
 
 from geo_infer_app.models.agent_interface import AgentType, AgentState
@@ -161,21 +160,27 @@ class TestBDIAgentInterface(unittest.TestCase):
             self.interface.send_command("invalid-id", "add_belief", {})
     
     def test_event_handlers(self):
-        """Test event handlers."""
-        # Create a mock event handler
-        mock_handler = MagicMock()
-        
+        """Test event handlers with a real recorder."""
+        # Real event recorder instead of mock
+        class EventRecorder:
+            def __init__(self):
+                self.calls = []
+            def __call__(self, event_data):
+                self.calls.append(event_data)
+
+        handler = EventRecorder()
+
         # Register the handler
-        self.interface.register_event_handler("agent_updated", mock_handler)
-        
+        self.interface.register_event_handler("agent_updated", handler)
+
         # Send a command to trigger the event
         self.interface.send_command(self.agent_id, "move", {
             "location": {"lat": 42.0, "lng": -76.0}
         })
-        
-        # Verify the handler was called
-        mock_handler.assert_called_once()
-        call_args = mock_handler.call_args[0][0]
+
+        # Verify the handler was called exactly once
+        self.assertEqual(len(handler.calls), 1)
+        call_args = handler.calls[0]
         self.assertEqual(call_args["agent_id"], self.agent_id)
         self.assertIsInstance(call_args["state"], AgentState)
 

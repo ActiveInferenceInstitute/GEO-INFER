@@ -1,5 +1,3 @@
-
-
 # Agent
 : module_orchestrators 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-EXAMPLES/examples/module_orchestrators` 
-- **Type**: Directory Node 
+- **Type**: Directory Node

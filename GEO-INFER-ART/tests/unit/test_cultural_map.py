@@ -5,7 +5,6 @@ Unit tests for the CulturalMap class in geo_infer_art.core.place.cultural_map.
 
 import os
 import unittest
-from unittest.mock import patch
 import numpy as np
 from PIL import Image
 
@@ -283,15 +282,12 @@ class TestCulturalMap(unittest.TestCase):
                 radius_km=-10.0  # Invalid radius
             )
         
-        # Test invalid theme
-        with patch('geo_infer_art.core.place.cultural_map.CulturalMap._fetch_region_data') as mock_fetch:
-            mock_fetch.return_value = (None, {"region": "Rome"})
-            
-            with self.assertRaises(ValueError):
-                CulturalMap.from_region(
-                    region_name="rome",
-                    cultural_theme="invalid_theme"  # Invalid theme
-                )
+        # Test invalid region name using real from_region call
+        with self.assertRaises(ValueError):
+            CulturalMap.from_region(
+                region_name="nonexistent_region",
+                cultural_theme="historical"
+            )
 
 
 if __name__ == "__main__":

@@ -20,8 +20,12 @@ from folium.plugins import MarkerCluster, HeatMap
 import branca.colormap as cm
 import numpy as np
 
-# Import GEO-INFER modules
-from geo_infer_space.utils.config_loader import LocationConfigLoader, LocationBounds
+# Import GEO-INFER modules (optional)
+try:
+    from geo_infer_space.utils.config_loader import LocationConfigLoader, LocationBounds
+except ImportError:
+    LocationConfigLoader = None  # type: ignore[misc,assignment]
+    LocationBounds = None  # type: ignore[misc,assignment]
 from ...utils.data_sources import CaliforniaDataSources
 from ...core.api_clients import CaliforniaAPIManager
 from ...core.visualization_engine import InteractiveVisualizationEngine

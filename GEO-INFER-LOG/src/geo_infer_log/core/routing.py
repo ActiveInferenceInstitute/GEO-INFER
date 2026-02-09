@@ -11,7 +11,11 @@ import networkx as nx
 from typing import Dict, List, Optional, Tuple, Union
 from dataclasses import dataclass
 from enum import Enum
+import logging
+from scipy.spatial import KDTree
+from shapely.geometry import LineString, Point
 
+logger = logging.getLogger(__name__)
 
 class VehicleType(Enum):
     """Types of vehicles for routing."""
@@ -58,16 +62,53 @@ class RouteOptimizer:
         self.parameters = parameters or RoutingParameters()
         self.network = None
         self.vehicles = []
+        self._node_tree = None
+        self._node_indices = None
+        self._nodes_list = None
     
     def load_network(self, network_file: str) -> None:
         """Load a transportation network from a file.
         
         Args:
-            network_file: Path to network file
+            network_file: Path to network file (Pickle or GraphML)
         """
-        # Implementation would load from various formats (OSM, shapefile, etc.)
-        self.network = nx.read_gpickle(network_file)
+        try:
+            if network_file.endswith('.gpickle') or network_file.endswith('.p'):
+                self.network = nx.read_gpickle(network_file)
+            elif network_file.endswith('.graphml'):
+                self.network = nx.read_graphml(network_file)
+            else:
+                # Default to pickle if unknown extension
+                self.network = nx.read_gpickle(network_file)
+                
+            self._build_spatial_index()
+        except Exception as e:
+            logger.error(f"Failed to load network: {e}")
+            raise
     
+    def _build_spatial_index(self):
+        """Build KDTree for fast nearest node lookup."""
+        if self.network:
+            self._nodes_list = list(self.network.nodes)
+            coords = []
+            valid_nodes = []
+            
+            for node in self._nodes_list:
+                # Support various coordinate attribute names
+                data = self.network.nodes[node]
+                lon = data.get('x', data.get('lon', data.get('longitude')))
+                lat = data.get('y', data.get('lat', data.get('latitude')))
+                
+                if lon is not None and lat is not None:
+                    coords.append((lon, lat))
+                    valid_nodes.append(node)
+            
+            if coords:
+                self._node_tree = KDTree(coords)
+                self._node_indices = valid_nodes
+            else:
+                logger.warning("No coordinates found in network nodes. Nearest neighbor lookup will fail.")
+
     def add_vehicle(self, vehicle: Vehicle) -> None:
         """Add a vehicle to the fleet.
         
@@ -104,24 +145,37 @@ class RouteOptimizer:
         # Solve the routing problem
         if not waypoint_nodes:
             # Simple shortest path
-            path = nx.shortest_path(
-                self.network, 
-                origin_node, 
-                dest_node, 
-                weight=self.parameters.weight_factor
-            )
-            distance = nx.shortest_path_length(
-                self.network, 
-                origin_node, 
-                dest_node, 
-                weight='distance'
-            )
-            travel_time = nx.shortest_path_length(
-                self.network, 
-                origin_node, 
-                dest_node, 
-                weight='time'
-            )
+            try:
+                path = nx.shortest_path(
+                    self.network, 
+                    origin_node, 
+                    dest_node, 
+                    weight=self.parameters.weight_factor
+                )
+                
+                try:
+                    distance = nx.shortest_path_length(
+                        self.network, 
+                        origin_node, 
+                        dest_node, 
+                        weight='distance'
+                    )
+                except nx.NetworkXNoPath:
+                    distance = 0.0 # Fallback
+                
+                try:
+                    travel_time = nx.shortest_path_length(
+                        self.network, 
+                        origin_node, 
+                        dest_node, 
+                        weight='time'
+                    )
+                except nx.NetworkXNoPath:
+                    travel_time = 0.0 # Fallback
+
+            except nx.NetworkXNoPath:
+                logger.warning(f"No path found between {origin_node} and {dest_node}")
+                return {'error': 'No path found'}
         else:
             # With waypoints - solve as TSP
             path, distance, travel_time = self._solve_with_waypoints(
@@ -151,15 +205,30 @@ class RouteOptimizer:
         Returns:
             Node ID in the network
         """
-        # Implementation would find the closest network node to the point
-        # This is a simplified placeholder
-        return list(self.network.nodes)[0]
+        if self._node_tree:
+            dist, idx = self._node_tree.query(point)
+            return self._node_indices[idx]
+        
+        # Fallback if no index (slow)
+        min_dist = float('inf')
+        nearest = None
+        
+        for node in self.network.nodes:
+            data = self.network.nodes[node]
+            lon = data.get('x', data.get('lon', 0))
+            lat = data.get('y', data.get('lat', 0))
+            dist = (lon - point[0])**2 + (lat - point[1])**2
+            if dist < min_dist:
+                min_dist = dist
+                nearest = node
+                
+        return nearest or list(self.network.nodes)[0]
     
     def _solve_with_waypoints(self, 
                              origin_node: int, 
                              dest_node: int, 
                              waypoint_nodes: List[int]) -> Tuple[List, float, float]:
-        """Solve routing problem with waypoints.
+        """Solve routing problem with waypoints (TSP-like).
         
         Args:
             origin_node: Starting node
@@ -169,9 +238,71 @@ class RouteOptimizer:
         Returns:
             Tuple of (path, distance, travel_time)
         """
-        # Implementation would solve as TSP or VRP
-        # This is a simplified placeholder
-        return [], 0.0, 0.0
+        try:
+             # Construct a subgraph containing only relevant nodes for TSP approximation
+            nodes_to_visit = [origin_node] + waypoint_nodes + [dest_node]
+            
+            # Simple greedy approach: Nearest Neighbor
+            current_node = origin_node
+            unvisited = set(waypoint_nodes)
+            full_path = []
+            total_distance = 0.0
+            total_time = 0.0
+            
+            while unvisited:
+                # Find nearest unvisited
+                nearest_node = None
+                min_dist = float('inf')
+                
+                for node in unvisited:
+                    try:
+                        d = nx.shortest_path_length(self.network, current_node, node, weight='distance')
+                        if d < min_dist:
+                            min_dist = d
+                            nearest_node = node
+                    except nx.NetworkXNoPath:
+                        continue
+                
+                if nearest_node:
+                    # Get path to nearest
+                    segment = nx.shortest_path(self.network, current_node, nearest_node, weight=self.parameters.weight_factor)
+                    if full_path:
+                        full_path.extend(segment[1:]) # Avoid duplicating node
+                    else:
+                        full_path.extend(segment)
+                    
+                    total_distance += min_dist
+                    # Add time approx
+                    try:
+                        t = nx.shortest_path_length(self.network, current_node, nearest_node, weight='time')
+                        total_time += t
+                    except:
+                        pass
+                        
+                    current_node = nearest_node
+                    unvisited.remove(nearest_node)
+                else:
+                    break # Cannot reach remaining nodes
+            
+            # Finally go to destination
+            try:
+                final_segment = nx.shortest_path(self.network, current_node, dest_node, weight=self.parameters.weight_factor)
+                if full_path:
+                    full_path.extend(final_segment[1:])
+                else:
+                    full_path.extend(final_segment)
+                
+                total_distance += nx.shortest_path_length(self.network, current_node, dest_node, weight='distance')
+                total_time += nx.shortest_path_length(self.network, current_node, dest_node, weight='time')
+            except:
+                pass # path could not be completed
+                
+            return full_path, total_distance, total_time
+
+        except Exception as e:
+            logger.error(f"TSP solving failed: {e}")
+            return [], 0.0, 0.0
+
     
     def _extract_route_geometry(self, path: List[int]) -> gpd.GeoSeries:
         """Extract the geometry of a route from the path.
@@ -182,9 +313,17 @@ class RouteOptimizer:
         Returns:
             GeoSeries with route geometry
         """
-        # Implementation would extract LineString from network
-        # This is a simplified placeholder
-        return gpd.GeoSeries()
+        coords = []
+        for node in path:
+            data = self.network.nodes[node]
+            x = data.get('x', data.get('lon'))
+            y = data.get('y', data.get('lat'))
+            if x is not None and y is not None:
+                coords.append((x, y))
+        
+        if len(coords) >= 2:
+            return gpd.GeoSeries([LineString(coords)])
+        return gpd.GeoSeries([])
 
 
 class FleetManager:
@@ -278,16 +417,64 @@ class VehicleRouter:
         """Solve a vehicle routing problem.
         
         Args:
-            deliveries: List of delivery information
+            deliveries: List of delivery information {'id', 'location': (lon, lat), 'demand'}
             depots: List of depot locations
             constraints: Dictionary of constraints
             
         Returns:
             Solution to the VRP
         """
-        # Implementation would solve a complex VRP
-        # This is a simplified placeholder
-        return {}
+        # Greedy cluster-first implementation
+        
+        solution = {'routes': {}, 'unassigned': []}
+        
+        # Simple heuristic: Assign nearest deliveries to vehicles until capacity/range constraint
+        
+        available_vehicles = list(self.fleet_manager.vehicles.values())
+        unassigned_deliveries = deliveries.copy()
+        
+        for vehicle in available_vehicles:
+            if not unassigned_deliveries:
+                break
+                
+            # Find a depot (use first for simplicity or nearest)
+            depot = depots[0] 
+            
+            route_points = []
+            current_load = 0
+            current_pos = depot
+            
+            # While capacity allows, add nearest delivery
+            while unassigned_deliveries:
+                nearest_idx = -1
+                min_dist = float('inf')
+                
+                for i, d in enumerate(unassigned_deliveries):
+                    loc = d['location']
+                    dist = (loc[0] - current_pos[0])**2 + (loc[1] - current_pos[1])**2
+                    if dist < min_dist:
+                        min_dist = dist
+                        nearest_idx = i
+                
+                if nearest_idx >= 0:
+                    d = unassigned_deliveries[nearest_idx]
+                    if current_load + d.get('demand', 0) <= vehicle.capacity:
+                        route_points.append(d['location'])
+                        current_load += d.get('demand', 0)
+                        current_pos = d['location']
+                        unassigned_deliveries.pop(nearest_idx)
+                    else:
+                        break # Vehicle full
+                else:
+                    break
+            
+            if route_points:
+                # Optimize the route sequence
+                assignment = self.fleet_manager.assign_delivery(vehicle.id, route_points, depot)
+                solution['routes'][vehicle.id] = assignment
+        
+        solution['unassigned'] = unassigned_deliveries
+        return solution
 
 
 class TravelTimeEstimator:
@@ -306,10 +493,16 @@ class TravelTimeEstimator:
         """Load historical traffic data.
         
         Args:
-            data_file: Path to data file
+            data_file: Path to data file (CSV)
         """
-        # Implementation would load historical traffic data
-        pass
+        import pandas as pd
+        try:
+            # Expecting CSV with columns: origin_id, dest_id, hour, travel_time
+            self.historical_data = pd.read_csv(data_file)
+            logger.info(f"Loaded {len(self.historical_data)} historical records")
+        except Exception as e:
+            logger.error(f"Failed to load historical data: {e}")
+            raise
     
     def estimate_travel_time(self, 
                            origin: Tuple[float, float], 

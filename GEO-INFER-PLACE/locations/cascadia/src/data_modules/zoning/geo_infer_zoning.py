@@ -340,7 +340,7 @@ class GeoInferZoning(BaseAnalysisModule):
             class_val = self._find_col_value(props, ['ZONE_CLASS', 'ZONE_CODE', 'ALT_ZONE']).upper()
             if 'EFU' in class_val or 'EXCLUSIVE FARM USE' in class_val: return 'PRIME_AG'
             if 'FARM' in class_val or 'AGRICULTURE' in class_val: return 'IMPORTANT_AG'
-            if 'FOREST' in val and 'FARM' in class_val: return 'MIXED_FARM_FOREST'
+            if 'FOREST' in class_val and 'FARM' in class_val: return 'MIXED_FARM_FOREST'
             if 'RURAL RESIDENTIAL' in class_val or class_val.startswith('RR'): return 'RURAL_RESIDENTIAL'
         elif 'WA_KING_COUNTY' in source:
             class_val = self._find_col_value(props, ['CURRZONE', 'ZONING_SUM']).upper()

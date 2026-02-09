@@ -31,13 +31,11 @@ deployment = deployer.deploy(
         "cpu": "1",
         "memory": "4Gi",
         "gpu": "0"
-    }
-)
+    })
 
 print(f"Deployment ID: {deployment.id}")
 print(f"Status: {deployment.status}")
-print(f"Endpoints: {deployment.endpoints}")
-```
+print(f"Endpoints: {deployment.endpoints}")```
 
 ### 2. Health Monitoring
 
@@ -50,14 +48,12 @@ monitor = HealthMonitor()
 # Get health status
 health = monitor.check(
     agents=["agent_001", "agent_002", "agent_003"],
-    metrics=["latency", "error_rate", "memory", "cpu"]
-)
+    metrics=["latency", "error_rate", "memory", "cpu"])
 
 for agent_id, status in health.items():
     print(f"Agent {agent_id}:")
     print(f"  Health: {status.health_score}%")
-    print(f"  Latency: {status.latency_ms}ms")
-```
+    print(f"  Latency: {status.latency_ms}ms")```
 
 ### 3. Auto-Scaling
 
@@ -70,16 +66,16 @@ scaler = AutoScaler()
 policy = scaler.configure(
     agent_type="analysis_agent",
     scaling_rules={
-        "cpu_threshold": 70,  # percent
+        "cpu_threshold": 70, 
+
+# percent
         "queue_depth": 100,
         "min_replicas": 2,
         "max_replicas": 10
-    }
-)
+    })
 
 # Get scaling events
-events = scaler.get_events(last_hours=24)
-```
+events = scaler.get_events(last_hours=24)```
 
 ### 4. Observability
 
@@ -93,15 +89,13 @@ obs = Observability()
 obs.trace(
     agent_id="agent_001",
     operation="spatial_analysis",
-    span_data=operation_data
-)
+    span_data=operation_data)
 
 # Query logs
 logs = obs.query_logs(
     agent_pattern="analysis_*",
     level="ERROR",
-    time_range=("2026-01-25", "2026-01-26")
-)
+    time_range=("2026-01-25", "2026-01-26"))
 ```
 
 ## Implementation Status
@@ -136,12 +130,10 @@ manager = ProductionManager(cluster="prod-west")
 manager.rolling_update(
     agent_type="spatial_agent",
     new_version="2.1.0",
-    strategy="blue_green"
-)
+    strategy="blue_green")
 
 # Get deployment status
-status = manager.get_status()
-```
+status = manager.get_status()```
 
 ---
 

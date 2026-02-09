@@ -38,8 +38,7 @@ lat, lng = indexer.cell_to_latlng(cell)
 cells = indexer.polygon_to_cells(polygon, resolution=9)
 
 # Get cell neighbors
-neighbors = indexer.get_cell_neighbors(cell, k=1)
-```
+neighbors = indexer.get_cell_neighbors(cell, k=1)```
 
 ### 2. Spatial Analytics
 
@@ -59,8 +58,7 @@ proximity = analytics.compute_proximity(points)
 clusters = analytics.cluster_points(points)
 
 # Detect patterns
-patterns = analytics.detect_patterns(data)
-```
+patterns = analytics.detect_patterns(data)```
 
 ### 3. Geometric Operations
 
@@ -80,8 +78,7 @@ area = geom_ops.calculate_area(geometry)
 distance = geom_ops.calculate_distance(geom1, geom2)
 
 # Transform CRS
-transformed = geom_ops.transform_geometry(geometry, from_crs='EPSG:4326', to_crs='EPSG:3857')
-```
+transformed = geom_ops.transform_geometry(geometry, from_crs='EPSG:4326', to_crs='EPSG:3857')```
 
 ### 4. Backend Management
 
@@ -93,8 +90,7 @@ configure_backends({
     'default_backends': {
         'indexing': 'h3',
         'analytics': 'srai'
-    }
-})
+    }})
 
 # Get dispatcher
 dispatcher = get_backend_dispatcher()
@@ -103,8 +99,7 @@ dispatcher = get_backend_dispatcher()
 dispatcher.register_backend('custom', custom_backend)
 
 # Dispatch operations
-result = dispatcher.dispatch_indexing_operation('latlng_to_cell', 37.7749, -122.4194, 9)
-```
+result = dispatcher.dispatch_indexing_operation('latlng_to_cell', 37.7749, -122.4194, 9)```
 
 ### 5. Spatial Statistics
 
@@ -121,8 +116,7 @@ moran_result = stats.moran_i(cells, values, weight_type='queen')
 getis_result = stats.getis_ord_g(cells, values, distance=3)
 
 # Nearest neighbor analysis
-nn_result = stats.nearest_neighbor_index(cells)
-```
+nn_result = stats.nearest_neighbor_index(cells)```
 
 ## Key Classes
 

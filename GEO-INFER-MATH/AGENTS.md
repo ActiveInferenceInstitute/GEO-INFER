@@ -26,12 +26,10 @@ optimizer = Optimizer()
 solution = optimizer.solve(
     problem_type="facility_location",
     objectives=["minimize_distance", "maximize_coverage"],
-    constraints=constraints
-)
+    constraints=constraints)
 
 print(f"Optimal locations: {solution.locations}")
-print(f"Coverage: {solution.coverage}%")
-```
+print(f"Coverage: {solution.coverage}%")```
 
 ### 2. Computational Geometry
 
@@ -48,8 +46,7 @@ voronoi = engine.voronoi(points=facility_locations)
 hull = engine.convex_hull(points=sample_points)
 
 # Triangulation
-triangles = engine.delaunay(points=survey_points)
-```
+triangles = engine.delaunay(points=survey_points)```
 
 ### 3. Matrix Operations
 
@@ -62,12 +59,10 @@ matrix = MatrixOps()
 # Spatial weights matrix
 weights = matrix.spatial_weights(
     geometries=polygons,
-    method="queen"
-)
+    method="queen")
 
 # Eigenvalue decomposition
-eigens = matrix.eigendecompose(weights)
-```
+eigens = matrix.eigendecompose(weights)```
 
 ### 4. Interpolation
 
@@ -80,11 +75,9 @@ interpolator = Interpolator()
 surface = interpolator.interpolate(
     points=sample_points,
     method="idw",
-    resolution=100
-)
+    resolution=100)
 
-print(f"Grid size: {surface.shape}")
-```
+print(f"Grid size: {surface.shape}")```
 
 ## Implementation Status
 

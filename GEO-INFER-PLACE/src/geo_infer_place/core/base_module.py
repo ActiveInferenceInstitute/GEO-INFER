@@ -18,8 +18,6 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .unified_backend import CascadianAgriculturalH3Backend
 
-from geo_infer_space.core.base_module import BaseAnalysisModule
-
 logger = logging.getLogger(__name__)
 
 class BaseAnalysisModule(ABC):

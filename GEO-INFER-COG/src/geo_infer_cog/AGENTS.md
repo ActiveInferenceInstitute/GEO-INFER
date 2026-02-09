@@ -1,5 +1,3 @@
-
-
 # Agent
 : geo_infer_cog 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-COG/src/geo_infer_cog` 
-- **Type**: Directory Node 
+- **Type**: Directory Node

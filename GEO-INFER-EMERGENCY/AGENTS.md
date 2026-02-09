@@ -27,12 +27,10 @@ incident = manager.create_incident(
     type="wildfire",
     location=fire_origin,
     severity="high",
-    resources_needed=["fire", "ems", "law"]
-)
+    resources_needed=["fire", "ems", "law"])
 
 print(f"Incident ID: {incident.id}")
-print(f"ICS structure: {incident.command_structure}")
-```
+print(f"ICS structure: {incident.command_structure}")```
 
 ### 2. Resource Deployment
 
@@ -45,12 +43,10 @@ deployer = ResourceDeployer()
 deployment = deployer.optimize(
     incident=active_incident,
     resources=available_units,
-    priorities=["life_safety", "containment"]
-)
+    priorities=["life_safety", "containment"])
 
 print(f"Assignments: {deployment.assignments}")
-print(f"Coverage: {deployment.coverage}%")
-```
+print(f"Coverage: {deployment.coverage}%")```
 
 ### 3. Evacuation Planning
 
@@ -64,12 +60,10 @@ plan = planner.create(
     threat_zone=danger_area,
     population=affected_population,
     shelters=available_shelters,
-    road_network=roads
-)
+    road_network=roads)
 
 print(f"Routes: {len(plan.routes)}")
-print(f"Clearance time: {plan.clearance_hours} hours")
-```
+print(f"Clearance time: {plan.clearance_hours} hours")```
 
 ### 4. Situational Awareness
 
@@ -81,12 +75,10 @@ monitor = SituationMonitor()
 
 sitrep = monitor.get_situation(
     incident=incident_id,
-    include=["perimeter", "resources", "weather"]
-)
+    include=["perimeter", "resources", "weather"])
 
 print(f"Threat evolution: {sitrep.threat_status}")
-print(f"Population at risk: {sitrep.at_risk_population}")
-```
+print(f"Population at risk: {sitrep.at_risk_population}")```
 
 ## Implementation Status
 
@@ -117,11 +109,9 @@ coordinator = MultiAgencyCoordinator(incident=incident)
 
 coordinator.assign_sectors([
     {"agency": "fire", "sector": "alpha"},
-    {"agency": "law", "sector": "bravo"}
-])
+    {"agency": "law", "sector": "bravo"}])
 
-coordinator.establish_unified_command()
-```
+coordinator.establish_unified_command()```
 
 ---
 

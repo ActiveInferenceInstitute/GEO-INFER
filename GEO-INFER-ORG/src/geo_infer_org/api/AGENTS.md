@@ -1,6 +1,16 @@
 # Agent
-: api ## Scope
- This directory contains api components for the module. ## Classes
- and Functions No public classes or functions found in this directory. ## Capabilities
- - Core module functionality ## Integration
- - **Location**: `GEO-INFER-ORG/src/geo_infer_org/api` - **Type**: Directory Node 
+: api
+
+## Scope
+ This directory contains api components for the module.
+
+## Classes
+ and Functions No public classes or functions found in this directory.
+
+## Capabilities
+ - Core module functionality
+
+## Integration
+
+- **Location**: `GEO-INFER-ORG/src/geo_infer_org/api`
+- **Type**: Directory Node

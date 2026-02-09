@@ -1,5 +1,3 @@
-
-
 # Agent
 : examples 
 
@@ -9,8 +7,7 @@
 ## Capabilities
  
 
-### Exampl
-e
+### Example
  Scripts 
 - **advanced_geospatial_analysis/**: analysis examples 
 - **convenience_api_examples/**: API usage examples 
@@ -22,4 +19,4 @@ e
 ## Integration
  
 - **Location**: `GEO-INFER-MATH/examples` 
-- **Type**: Usage examples and demonstrations 
+- **Type**: Usage examples and demonstrations

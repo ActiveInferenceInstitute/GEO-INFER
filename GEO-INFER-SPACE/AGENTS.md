@@ -25,12 +25,10 @@ indexer = H3Indexer()
 
 cells = indexer.index(
     geometry=city_boundary,
-    resolution=9
-)
+    resolution=9)
 
 print(f"H3 cells: {len(cells)}")
-print(f"Coverage: {cells.coverage}%")
-```
+print(f"Coverage: {cells.coverage}%")```
 
 ### 2. Spatial Queries
 
@@ -42,14 +40,12 @@ query = SpatialQuery()
 
 results = query.within(
     features=buildings,
-    boundary=flood_zone
-)
+    boundary=flood_zone)
 
 nearby = query.nearby(
     point=location,
     radius_m=1000,
-    features=amenities
-)
+    features=amenities)
 ```
 
 ### 3. Geometric Operations
@@ -62,8 +58,7 @@ ops = GeometryOps()
 
 buffered = ops.buffer(geometry, distance=100)
 intersection = ops.intersect(layer_a, layer_b)
-union = ops.union(polygons)
-```
+union = ops.union(polygons)```
 
 ### 4. Coordinate Transforms
 
@@ -76,8 +71,7 @@ projector = Projector()
 transformed = projector.transform(
     geometry=data,
     from_crs="EPSG:4326",
-    to_crs="EPSG:3857"
-)
+    to_crs="EPSG:3857")
 ```
 
 ## Implementation Status

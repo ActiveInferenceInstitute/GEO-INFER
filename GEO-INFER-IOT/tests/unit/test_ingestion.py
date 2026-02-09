@@ -8,7 +8,6 @@ behavior with various input data and configurations.
 import unittest
 import asyncio
 from datetime import datetime, timezone
-from unittest.mock import Mock, patch, MagicMock
 import numpy as np
 import h3
 
@@ -21,6 +20,7 @@ from geo_infer_iot.core.ingestion import (
     SensorMeasurement, IoTDataIngestion, RadiationMonitoringSystem,
     SpatialInferenceConfig
 )
+from geo_infer_iot.core.registry import SensorRegistry
 
 
 class TestSensorMeasurement(unittest.TestCase):
@@ -97,9 +97,9 @@ class TestIoTDataIngestion(unittest.TestCase):
             }
         }
 
-        # Mock registry for testing
-        self.mock_registry = Mock()
-        self.ingestion = IoTDataIngestion(self.mock_registry, self.config)
+        # Use real SensorRegistry instead of mock
+        self.registry = SensorRegistry()
+        self.ingestion = IoTDataIngestion(self.registry, self.config)
 
     def test_ingestion_initialization(self):
         """Test IoTDataIngestion initialization."""
@@ -173,9 +173,6 @@ class TestIoTDataIngestion(unittest.TestCase):
             latitude=40.7128,
             longitude=-74.0060
         )
-
-        # Mock the spatial inference update
-        self.ingestion._update_spatial_inference = Mock(return_value=asyncio.coroutine(lambda x: None)())
 
         result = yield from self.ingestion.ingest_measurement(measurement)
 

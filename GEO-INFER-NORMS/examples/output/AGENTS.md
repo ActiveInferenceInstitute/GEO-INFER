@@ -1,16 +1,13 @@
 # Agent
 : output
 
-## Scop
-e
+## Scope
 This agent is responsible for handling operations within the `output` scope.
 
-## Capabilitie
-s
+## Capabilities
 Core capabilities include:
 - Directory management
 
-## Integratio
-n
+## Integration
 - **Location**: `GEO-INFER-NORMS/examples/output`
 - **Type**: Directory Node

@@ -14,7 +14,7 @@ __all__ = [
     "AIGradientHelpers",
     "SpatialLossFunctions",
     "OptimizationBridges",
-    "TensorOperations",
+    "SpatialTensorOperations",
     "SpatialAttention",
     # ACT Integration
     "FreeEnergyCalculator",

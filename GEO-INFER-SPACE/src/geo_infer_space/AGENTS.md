@@ -1,5 +1,3 @@
-
-
 # Agent
 : geo_infer_space 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-SPACE/src/geo_infer_space` 
-- **Type**: Directory Node 
+- **Type**: Directory Node
