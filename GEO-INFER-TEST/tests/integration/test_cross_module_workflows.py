@@ -14,7 +14,6 @@ from pathlib import Path
 import tempfile
 import json
 import time
-from unittest.mock import Mock, patch
 from shapely.geometry import Point, Polygon
 from datetime import datetime, timedelta
 

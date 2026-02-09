@@ -27,13 +27,11 @@ runner = TutorialRunner()
 tutorial = runner.run(
     topic="active_inference_agents",
     level="intermediate",
-    interactive=True
-)
+    interactive=True)
 
 # Get tutorial progress
 progress = tutorial.get_progress()
-print(f"Completed: {progress.completed}/{progress.total} steps")
-```
+print(f"Completed: {progress.completed}/{progress.total} steps")```
 
 ### 2. Example Catalog
 
@@ -46,13 +44,11 @@ catalog = ExampleCatalog()
 # Find examples by domain
 spatial_examples = catalog.search(
     domain="spatial_analysis",
-    difficulty="beginner"
-)
+    difficulty="beginner")
 
 # Run an example
 example = catalog.get("urban_planning_agent")
-result = example.run()
-```
+result = example.run()```
 
 ### 3. Demo Applications
 
@@ -62,12 +58,10 @@ from geo_infer_examples.demos import EnvironmentalMonitorDemo
 # Run environmental monitoring demo
 demo = EnvironmentalMonitorDemo(
     region="san_francisco_bay",
-    sensors=["air_quality", "temperature", "humidity"]
-)
+    sensors=["air_quality", "temperature", "humidity"])
 
 # Execute demo with visualization
-demo.run(visualize=True)
-```
+demo.run(visualize=True)```
 
 ### 4. Use Case Library
 
@@ -82,8 +76,7 @@ ag_cases = library.get_domain("agriculture")
 
 # Run precision farming example
 case = ag_cases.get("precision_irrigation")
-case.demonstrate()
-```
+case.demonstrate()```
 
 ## Implementation Status
 
@@ -114,8 +107,7 @@ case.demonstrate()
 from geo_infer_examples.active_inference import QuickStartAgent
 
 agent = QuickStartAgent()
-agent.demonstrate_perception_action_loop()
-```
+agent.demonstrate_perception_action_loop()```
 
 ### Multi-Agent Examples
 
@@ -124,8 +116,7 @@ agent.demonstrate_perception_action_loop()
 from geo_infer_examples.multi_agent import SwarmDemo
 
 swarm = SwarmDemo(num_agents=10)
-swarm.demonstrate_emergent_behavior()
-```
+swarm.demonstrate_emergent_behavior()```
 
 ### Domain-Specific Examples
 
@@ -158,8 +149,7 @@ graph LR
     DEMO --> USER
     USE --> AGENT
     
-    USER --> AGENT
-```
+    USER --> AGENT```
 
 ## Running Examples
 
@@ -173,8 +163,7 @@ python -m geo_infer_examples list
 python -m geo_infer_examples run urban_planning_agent
 
 # Start tutorial
-python -m geo_infer_examples tutorial active_inference --level beginner
-```
+python -m geo_infer_examples tutorial active_inference --level beginner```
 
 ### Jupyter Notebooks
 
@@ -183,8 +172,7 @@ python -m geo_infer_examples tutorial active_inference --level beginner
 from geo_infer_examples.notebooks import load_notebook
 
 notebook = load_notebook("agent_basics")
-notebook.render()
-```
+notebook.render()```
 
 ---
 

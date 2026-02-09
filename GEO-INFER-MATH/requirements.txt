@@ -4,31 +4,21 @@ numpy>=1.20.0
 scipy>=1.7.0
 pandas>=1.3.0
 
-# Optional theorem proving dependencies
-# z3-solver>=4.12.0  # Uncomment for Z3 theorem proving support
-# sympy>=1.9.0  # Uncomment for enhanced symbolic math support
+# System monitoring
+psutil>=5.8.0
 
+# Machine learning (required for models/)
+scikit-learn>=1.0.0
 
-# Added from comprehensive review
-concurrent>=0.0.0
-core>=0.0.0
-cupy>=0.0.0
-flask>=0.0.0
-functools>=0.0.0
-gzip>=0.0.0
-hashlib>=0.0.0
-heapq>=0.0.0
-math>=0.0.0
-multiprocessing>=0.0.0
-pickle>=0.0.0
-psutil>=0.0.0
-pywt>=0.0.0
-scikit-learn>=0.0.0
-symengine>=0.0.0
-sympy>=0.0.0
-tensorflow>=0.0.0
-threading>=0.0.0
-torch>=0.0.0
-werkzeug>=0.0.0
-z3>=0.0.0
-zlib>=0.0.0
+# Symbolic math (required for core/symbolic_math.py)
+sympy>=1.9.0
+
+# Optional heavy dependencies — install as needed:
+# cupy>=10.0.0          # GPU acceleration
+# pywt>=1.1.0           # Wavelet transforms
+# symengine>=0.9.0      # Fast symbolic engine
+# tensorflow>=2.8.0     # Deep learning integration
+# torch>=1.10.0         # PyTorch integration
+# z3-solver>=4.12.0     # Theorem proving backend
+# flask>=2.0.0          # API server (if serving)
+# werkzeug>=2.0.0       # API server utilities

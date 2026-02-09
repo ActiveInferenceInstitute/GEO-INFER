@@ -1,5 +1,3 @@
-
-
 # Agent
 : scripts 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-INTRA/scripts` 
-- **Type**: Directory Node 
+- **Type**: Directory Node

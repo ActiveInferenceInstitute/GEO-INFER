@@ -27,13 +27,11 @@ feedback = platform.collect_input(
     topic=planning_proposal,
     methods=["survey", "map_comments", "forum"],
     duration_days=30,
-    languages=["en", "es", "zh"]
-)
+    languages=["en", "es", "zh"])
 
 print(f"Responses collected: {feedback.total_responses}")
 print(f"Sentiment: {feedback.overall_sentiment}")
-print(f"Key themes: {feedback.extracted_themes}")
-```
+print(f"Key themes: {feedback.extracted_themes}")```
 
 ### 2. Consensus Building
 
@@ -47,13 +45,11 @@ agreement = consensus.build(
     stakeholders=community_groups,
     alternatives=planning_options,
     criteria=evaluation_criteria,
-    method="multi_criteria_analysis"
-)
+    method="multi_criteria_analysis")
 
 print(f"Consensus reached: {agreement.consensus_level}%")
 print(f"Preferred alternative: {agreement.top_choice}")
-print(f"Areas of disagreement: {agreement.disagreements}")
-```
+print(f"Areas of disagreement: {agreement.disagreements}")```
 
 ### 3. Transparency Reporting
 
@@ -66,12 +62,10 @@ reporter = TransparencyReporter()
 report = reporter.generate(
     project="downtown_redevelopment",
     period=("2025-01-01", "2025-12-31"),
-    metrics=["budget", "timeline", "community_input"]
-)
+    metrics=["budget", "timeline", "community_input"])
 
 print(f"Budget utilization: {report.budget_used}%")
-print(f"Community input incorporated: {report.input_addressed}%")
-```
+print(f"Community input incorporated: {report.input_addressed}%")```
 
 ### 4. Participatory Mapping
 
@@ -84,18 +78,15 @@ mapper = ParticipatoryMapper()
 community_map = mapper.create_session(
     topic="neighborhood_improvements",
     base_layers=["streets", "parcels", "zoning"],
-    contribution_types=["point", "polygon", "comment"]
-)
+    contribution_types=["point", "polygon", "comment"])
 
 # Aggregate community input
 aggregated = mapper.aggregate_contributions(
     session=community_map,
-    clustering=True
-)
+    clustering=True)
 
 print(f"Contributions: {aggregated.contribution_count}")
-print(f"Hot spots: {aggregated.identified_hotspots}")
-```
+print(f"Hot spots: {aggregated.identified_hotspots}")```
 
 ## Implementation Status
 
@@ -144,8 +135,7 @@ graph TD
     REPORT --> DEMOCRACY
     
     LIAISON --> DECISIONS
-    DEMOCRACY --> PLANS
-```
+    DEMOCRACY --> PLANS```
 
 ## Use Cases
 
@@ -160,12 +150,10 @@ planner = NeighborhoodPlanner(area="oak_district")
 process = planner.run_process(
     phases=["visioning", "alternatives", "selection"],
     engagement_methods=["workshop", "online", "popup"],
-    timeline_months=6
-)
+    timeline_months=6)
 
 print(f"Participants: {process.total_participants}")
-print(f"Community priorities: {process.identified_priorities}")
-```
+print(f"Community priorities: {process.identified_priorities}")```
 
 ### 2. Budget Allocation
 
@@ -175,17 +163,14 @@ from geo_infer_civ import ParticipatoryBudgeting
 pb = ParticipatoryBudgeting(
     jurisdiction="city_of_metropolis",
     budget=5_000_000,
-    categories=["parks", "streets", "safety", "arts"]
-)
+    categories=["parks", "streets", "safety", "arts"])
 
 # Run voting process
 results = pb.conduct_voting(
     proposals=community_proposals,
-    voting_period_days=14
-)
+    voting_period_days=14)
 
-print(f"Winning projects: {results.funded_projects}")
-```
+print(f"Winning projects: {results.funded_projects}")```
 
 ---
 

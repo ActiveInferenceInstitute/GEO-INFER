@@ -15,7 +15,7 @@ import json
 import unittest
 import numpy as np
 import asyncio
-from unittest.mock import patch, MagicMock
+
 from datetime import datetime
 from copy import deepcopy
 
@@ -326,74 +326,69 @@ class TestActiveInferenceAgent(unittest.TestCase):
         self.assertTrue(len(self.agent._perception_handlers) > 0)
     
     async def test_perception_cycle(self):
-        """Test the perception cycle."""
-        # Mock the perceive method to return test observations
-        test_observations = {"sensor_data": [0.1, 0.2, 0.3, 0.4]}
-        
-        with patch.object(self.agent, 'perceive', return_value=asyncio.Future()) as mock_perceive:
-            mock_perceive.return_value.set_result(test_observations)
-            
-            # Initialize agent
-            await self.agent.initialize()
-            
-            # Run perception
-            observations = await self.agent.perceive()
-            
-            # Check observations
-            self.assertEqual(observations, test_observations)
-    
-    async def test_decision_cycle(self):
-        """Test the decision cycle."""
+        """Test the perception cycle using real perceive method."""
         # Initialize agent
         await self.agent.initialize()
-        
-        # Mock the state's select_action method
-        action_idx = 1
-        with patch.object(self.agent.state, 'select_action', return_value=action_idx):
-            # Run decision
-            action = await self.agent.decide()
-            
-            # Check action
-            self.assertIsNotNone(action)
-            self.assertIn('type', action)
-    
+
+        # Real perceive call — returns empty dict when no sensors registered
+        observations = await self.agent.perceive()
+
+        # Check observations is a dict (empty since no sensors)
+        self.assertIsInstance(observations, dict)
+
+    async def test_decision_cycle(self):
+        """Test the decision cycle using real select_action."""
+        # Initialize agent
+        await self.agent.initialize()
+
+        # Feed an observation to set beliefs before deciding
+        obs = np.array([0.1, 0.2, 0.3, 0.4])
+        self.agent.state.update_with_observation(obs)
+
+        # Run real decision
+        action = await self.agent.decide()
+
+        # Check action
+        self.assertIsNotNone(action)
+        self.assertIn('type', action)
+
     async def test_action_cycle(self):
         """Test the action cycle."""
         # Initialize agent
         await self.agent.initialize()
-        
+
         # Define test action
         test_action = {"type": "wait", "duration": 1.0}
-        
+
         # Run action
         result = await self.agent.act(test_action)
-        
+
         # Check result
         self.assertIsNotNone(result)
         self.assertIn('status', result)
-    
+
     async def test_full_cycle(self):
-        """Test a full perception-decision-action cycle."""
+        """Test a full perception-decision-action cycle with real methods."""
         # Initialize agent
         await self.agent.initialize()
-        
-        # Mock perceive to return test observations
-        test_observations = {"sensor_data": [0.1, 0.2, 0.3, 0.4]}
-        with patch.object(self.agent, 'perceive', return_value=asyncio.Future()) as mock_perceive:
-            mock_perceive.return_value.set_result(test_observations)
-            
-            # Mock state's select_action to return a deterministic action
-            action_idx = 0
-            with patch.object(self.agent.state, 'select_action', return_value=action_idx):
-                # Run a full cycle
-                observations = await self.agent.perceive()
-                action = await self.agent.decide()
-                result = await self.agent.act(action)
-                
-                # Check results
-                self.assertEqual(observations, test_observations)
-                self.assertIsNotNone(action)
-                self.assertIn('status', result)
+
+        # Run real perception
+        observations = await self.agent.perceive()
+        self.assertIsInstance(observations, dict)
+
+        # Feed an observation so the agent has beliefs for decisions
+        obs = np.array([0.1, 0.2, 0.3, 0.4])
+        self.agent.state.update_with_observation(obs)
+
+        # Run real decision
+        action = await self.agent.decide()
+        self.assertIsNotNone(action)
+        self.assertIn('type', action)
+
+        # Run real action
+        result = await self.agent.act(action)
+        self.assertIsNotNone(result)
+        self.assertIn('status', result)
     
     async def test_action_handlers(self):
         """Test action handlers."""

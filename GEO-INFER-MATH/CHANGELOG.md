@@ -1,1 +1,61 @@
-# Changelog - GEO-INFER-MATH ## [0.1.0] - 2025-01-19 ### Added #### Information Theory Module - Shannon, Renyi, and Tsallis entropy measures - Spatial entropy calculations - Mutual information and conditional mutual information - KL divergence, JS divergence, and Renyi divergence - Information geometry (Fisher information, geodesic distances) - Channel capacity calculations - Spatial coding and compression utilities #### Theorem Proving Environment - Multi-backend theorem prover (Z3, Isabelle, Lean support) - Spatial mathematics theorem library - Proof verification capabilities - Automated proof strategies (geometric, statistical, direct, contradiction, induction) - Integration with symbolic math module - Proof generation for symbolic operations #### Symbolic Math - Theorem proving integration - Proof generation for symbolic operations - Improved automatic differentiation with verification - Spatial model verification - Symbolic-to-numeric conversion with proof preservation #### Convenience API Layer - Active Inference convenience methods (free energy, variational inference, belief updating) - Bayesian convenience methods (posterior helpers, prior builders, MCMC wrappers) - AI/ML convenience methods (gradient helpers, loss functions, optimization wrappers) - Information theory convenience methods - spatial analysis convenience - Cross-module integration helpers #### Module Integration Layers - **AI Integration**: Gradient helpers, spatial loss functions, optimization bridges, tensor operations, spatial attention foundations - **ACT Integration**: Free energy calculations, variational inference helpers, belief updating, policy optimization, generative models - **BAYES Integration**: Posterior helpers, prior builders, MCMC helpers, Bayesian optimization, model selection #### Utilities - Caching utilities for expensive computations - Custom exception classes for better error handling - Validation decorators for input validation - Configuration management system - Performance optimization utilities ### - `core/integration.py` with theorem proving and information theory integration - Updated main `__init__.py` to export all modules - module discovery and availability checking ### Changed - Updated `requirements.txt` with optional theorem proving dependencies - Updated `pyproject.toml` with optional dependencies section - Improved error handling throughout ### Documentation - Added examples for information theory - Added convenience API usage examples - Created quick start guide - Added improvement suggestions document ### Testing - Added tests for information theory module - Added tests for convenience APIs - test coverage ## Migration Notes - All existing functionality remains backward compatible - modules are optional and gracefully degrade if dependencies are missing - Convenience APIs provide easier access to existing functionality - Configuration system allows fine-tuning without code changes 
+# Changelog
+
+All notable changes to GEO-INFER-MATH are documented here.
+Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
+
+---
+
+## [0.1.1] — 2026-02-09
+
+### Fixed
+
+- **Critical**: Fixed `SyntaxError` on lines 134/140 of `__init__.py`
+  (`from geo_infer_math import models.regression` → `from geo_infer_math.models import regression`)
+- **Critical**: Fixed `IndentationError` in `information_geometry.py` line 97
+  (body of `information_metric()` was double-indented)
+- **Critical**: Removed 14 stdlib modules from `requirements.txt` (e.g. `math`, `hashlib`, `threading`)
+- Fixed name collision in `tensor_operations.py` (class `TensorOperations` → `SpatialTensorOperations`)
+- Wrapped 4 missing API module imports in `api/__init__.py` with `try/except`
+
+### Changed
+
+- **Integration stubs expanded**: All 14 integration files (~10 lines each) rewritten
+  with full mathematical implementations, logging, and validation:
+  - `act/`: free energy, belief updating, variational inference, generative models, policy optimisation
+  - `ai/`: spatial loss functions, optimisation bridges, spatial attention, spatial tensor operations
+  - `bayes/`: conjugate posteriors, prior builders, MCMC, Bayesian optimisation, model selection
+- Synced `setup.py` with `pyproject.toml` (added `install_requires` and optional deps)
+- Updated `IMPROVEMENTS.md` from single line to structured documentation
+- Updated `AGENTS.md` API examples
+
+### Added
+
+- `SpatialTensorOperations` class with distance tensor, adjacency tensor, and convolution kernels
+- `FreeEnergyCalculator` with variational, expected, and Bethe free energy
+- `BeliefUpdating` with precision-weighted prediction errors
+- `VariationalInferenceHelpers` with CAVI and ELBO tracking
+- `GenerativeModels` with POMDP A/B/C/D matrix construction
+- `PolicyOptimization` with expected free energy minimisation
+- `SpatialLossFunctions` with spatial MSE, geo-weighted loss, distance penalty
+- `OptimizationBridges` with LR scheduling and gradient clipping
+- `SpatialAttention` with multi-head and distance-weighted attention
+- `PosteriorHelpers` with Normal-Normal, Beta-Binomial, Gamma-Poisson
+- `PriorBuilders` with 6 distribution types
+- `MCMCHelpers` with Metropolis-Hastings and ESS diagnostics
+- `BayesianOptimization` with GP surrogate and Expected Improvement
+- `ModelSelection` with BIC, AIC, AICc, WAIC, and Bayes factors
+
+---
+
+## [0.1.0] — 2026-01-26
+
+### Added
+
+- Initial release of GEO-INFER-MATH module
+- Core modules: `spatial_statistics`, `computational_geometry`, `numerical_methods`,
+  `linalg_tensor`, `transforms`, `theorem_prover`, `symbolic_math`, `information_theory`
+- Model modules: `regression`, `clustering`
+- API layer: `spatial_analysis`, `convenience`
+- Integration sub-packages: `act`, `ai`, `bayes`
+- Utility modules: caching, config, validation, exceptions, logging
+- 8 unit test files, example scripts, documentation

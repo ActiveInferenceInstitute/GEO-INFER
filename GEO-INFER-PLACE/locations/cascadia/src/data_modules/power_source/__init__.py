@@ -5,6 +5,9 @@ Analyzes proximity to and capacity of electrical power infrastructure,
 including transmission lines and substations.
 """
 
-from .geo_infer_power_source import GeoInferPowerSource
+try:
+    from .geo_infer_power_source import GeoInferPowerSource
+except ImportError:
+    GeoInferPowerSource = None
 
 __all__ = ['GeoInferPowerSource'] 

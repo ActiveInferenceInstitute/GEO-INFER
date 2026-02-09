@@ -14,17 +14,13 @@ space_src_path = project_root / 'GEO-INFER-SPACE' / 'src'
 for p in [place_src_path, space_src_path]:
     if p.exists() and str(p) not in sys.path:
         sys.path.insert(0, str(p))
-        print(f"Added to path: {p}")
 
 # Set OSC repo path
 osc_repo_path = project_root / 'GEO-INFER-SPACE' / 'repo'
 os.environ['OSC_REPOS_DIR'] = str(osc_repo_path)
-print(f"Set OSC_REPOS_DIR to {osc_repo_path}")
 
-try:
+
+def test_import_cascadian_backend():
+    """CascadianAgriculturalH3Backend must be importable."""
     from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend
-    print("✅ Successfully imported CascadianAgriculturalH3Backend")
-except ImportError as e:
-    print(f"❌ Failed to import CascadianAgriculturalH3Backend: {e}")
-    import traceback
-    traceback.print_exc()
+    assert CascadianAgriculturalH3Backend is not None

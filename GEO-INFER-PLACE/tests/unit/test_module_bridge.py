@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+"""
+Tests for GEO-INFER-PLACE module bridge.
+
+Validates PlaceDataManager (dataset validation, provenance) and
+PlaceTemporalAnalyzer (trend detection, anomalies, forecast).
+"""
+
+import pytest
+
+from geo_infer_place.core.module_bridge import (
+    PlaceDataManager,
+    PlaceTemporalAnalyzer,
+)
+
+
+# -- PlaceDataManager -------------------------------------------------------
+
+class TestPlaceDataManager:
+    """Test PlaceDataManager initialization and core methods."""
+
+    def test_can_instantiate(self):
+        mgr = PlaceDataManager()
+        assert mgr is not None
+
+    def test_validate_dataset_valid(self):
+        """A well-formed dict dataset should validate successfully."""
+        mgr = PlaceDataManager()
+        report = mgr.validate_dataset({"key": "value"}, name="test_ds")
+        assert isinstance(report, dict)
+        assert "valid" in report
+
+    def test_validate_dataset_empty(self):
+        """An empty dataset should be flagged."""
+        mgr = PlaceDataManager()
+        report = mgr.validate_dataset({}, name="empty_ds")
+        assert isinstance(report, dict)
+
+    def test_provenance_logging(self):
+        """log_provenance + get_provenance should round-trip."""
+        mgr = PlaceDataManager()
+        mgr.log_provenance("noaa_tides", metadata={"station": "9419750"})
+        prov = mgr.get_provenance()
+        assert isinstance(prov, list)
+        assert len(prov) >= 1
+        assert prov[-1]["source"] == "noaa_tides"
+
+
+# -- PlaceTemporalAnalyzer --------------------------------------------------
+
+class TestPlaceTemporalAnalyzer:
+    """Test PlaceTemporalAnalyzer trend/anomaly/forecast methods."""
+
+    def test_can_instantiate(self):
+        analyzer = PlaceTemporalAnalyzer()
+        assert analyzer is not None
+
+    def test_detect_trend(self):
+        """detect_trend on an increasing series should report positive slope."""
+        analyzer = PlaceTemporalAnalyzer()
+        values = list(range(100))
+        result = analyzer.detect_trend(values, label="linear_up")
+        assert isinstance(result, dict)
+        assert result["slope"] > 0
+        assert result["direction"] in ("increasing", "positive", "up")
+
+    def test_detect_anomalies(self):
+        """detect_anomalies should return a dict with an anomalies list."""
+        analyzer = PlaceTemporalAnalyzer()
+        values = [10.0] * 50 + [999.0] + [10.0] * 49  # one outlier
+        result = analyzer.detect_anomalies(values, sigma_threshold=2.0)
+        assert isinstance(result, dict)
+        assert "anomalies" in result
+        assert len(result["anomalies"]) >= 1
+
+    def test_forecast_returns_values(self):
+        """forecast should return predicted values list."""
+        analyzer = PlaceTemporalAnalyzer()
+        values = [float(x) for x in range(50)]
+        result = analyzer.forecast(values, horizon=5)
+        assert isinstance(result, dict)
+        assert "forecast" in result
+        assert len(result["forecast"]) == 5
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

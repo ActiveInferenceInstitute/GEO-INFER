@@ -81,8 +81,7 @@ from geo_infer_api.core import APIError, ValidationError, NotFoundError
 
 # Raise API errors
 raise ValidationError(detail="Invalid input data", error_code="VALIDATION_001")
-raise NotFoundError(detail="Resource not found", error_code="NOT_FOUND_001")
-```
+raise NotFoundError(detail="Resource not found", error_code="NOT_FOUND_001")```
 
 ### 2. Middleware
 
@@ -92,8 +91,7 @@ from geo_infer_api.core import ErrorHandlerMiddleware, RequestLoggingMiddleware,
 # Add middleware to FastAPI app
 app.add_middleware(ErrorHandlerMiddleware)
 app.add_middleware(RequestLoggingMiddleware)
-app.add_middleware(CORSHeadersMiddleware)
-```
+app.add_middleware(CORSHeadersMiddleware)```
 
 ### 3. Configuration
 
@@ -103,8 +101,7 @@ from geo_infer_api.core import get_settings
 # Get application settings
 settings = get_settings()
 print(f"API prefix: {settings.api_prefix}")
-print(f"CORS origins: {settings.cors_origins}")
-```
+print(f"CORS origins: {settings.cors_origins}")```
 
 ## Integration
 
@@ -112,7 +109,8 @@ print(f"CORS origins: {settings.cors_origins}")
 - **Type**: Core Module Component
 - **Dependencies**: `fastapi`, `pydantic`, `pydantic-settings`
 - **Used By**: 
-  - `geo_infer_api.endpoints` for API endpoint implementations
+ 
+- `geo_infer_api.endpoints` for API endpoint implementations
   - All GEO-INFER modules for API interfaces
 - **Provides**: Core API framework components for error handling, middleware, and configuration
 

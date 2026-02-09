@@ -26,12 +26,10 @@ economist = SpatialEconomist()
 analysis = economist.analyze(
     region=metro_area,
     indicators=["gdp", "employment", "income"],
-    spatial_units="census_tract"
-)
+    spatial_units="census_tract")
 
 print(f"Economic hotspots: {analysis.hotspots}")
-print(f"Growth corridors: {analysis.growth_areas}")
-```
+print(f"Growth corridors: {analysis.growth_areas}")```
 
 ### 2. Market Analysis
 
@@ -44,12 +42,10 @@ market = MarketAnalyzer()
 assessment = market.assess(
     area=neighborhood,
     property_type="residential",
-    metrics=["price_trends", "inventory", "days_on_market"]
-)
+    metrics=["price_trends", "inventory", "days_on_market"])
 
 print(f"Median price: ${assessment.median_price}")
-print(f"YoY change: {assessment.price_change}%")
-```
+print(f"YoY change: {assessment.price_change}%")```
 
 ### 3. Economic Impact
 
@@ -62,13 +58,11 @@ impact = ImpactAnalyzer()
 study = impact.analyze(
     project=new_development,
     methods=["input_output", "fiscal"],
-    time_horizon=10
-)
+    time_horizon=10)
 
 print(f"Direct jobs: {study.direct_jobs}")
 print(f"Total economic output: ${study.total_output}M")
-print(f"Tax revenue: ${study.tax_revenue}M")
-```
+print(f"Tax revenue: ${study.tax_revenue}M")```
 
 ### 4. Cost-Benefit Analysis
 
@@ -82,12 +76,10 @@ result = cba.analyze(
     project=infrastructure_project,
     costs=project_costs,
     benefits=["travel_time", "safety", "emissions"],
-    discount_rate=0.03
-)
+    discount_rate=0.03)
 
 print(f"NPV: ${result.npv}M")
-print(f"BCR: {result.benefit_cost_ratio}")
-```
+print(f"BCR: {result.benefit_cost_ratio}")```
 
 ## Implementation Status
 
@@ -119,8 +111,7 @@ selector = SiteSelector()
 sites = selector.find_optimal(
     business_type="retail",
     criteria={"population": 50000, "income": 75000},
-    competitors=existing_stores
-)
+    competitors=existing_stores)
 ```
 
 ---

@@ -283,8 +283,8 @@ class EnhancedConfigManager:
         """Get data configuration."""
         return self.config.data
     
-    def get_module_config(self) -> ModuleConfig:
-        """Get module configuration."""
+    def get_all_module_configs(self) -> ModuleConfig:
+        """Get the full module configuration object."""
         return self.config.modules
     
     def get_active_modules(self) -> List[str]:

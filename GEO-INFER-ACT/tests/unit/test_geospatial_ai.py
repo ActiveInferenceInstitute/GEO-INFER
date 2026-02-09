@@ -11,7 +11,7 @@ import numpy as np
 import tempfile
 import json
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+
 import h3
 import logging
 

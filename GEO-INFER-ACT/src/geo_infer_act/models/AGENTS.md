@@ -87,8 +87,6 @@ Urban planning model using active inference.
 - `step(input_actions)`: Advance one simulation step.
 - `run_simulation(n_steps: int)`: 
 
-
-
 ## Capabilities
 
 - **8 classes** for core functionality
@@ -99,6 +97,8 @@ Urban planning model using active inference.
 - **Type**: Module Component
 - **Dependencies**: `geo_infer_act.core` for core Active Inference functionality
 - **Used By**: 
-  - `geo_infer_act.api` for API interfaces
-  - `geo_infer_act.examples` for demonstration
+ 
+- `geo_infer_act.api` for API interfaces
+ 
+- `geo_infer_act.examples` for demonstration
   - Domain modules (AG, FOREST, CLIMATE) for specialized applications

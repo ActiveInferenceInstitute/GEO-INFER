@@ -1,32 +1,117 @@
 # Agent
-: core ## Scope
- This directory contains core components for the module. It provides 10 classes and 3 functions. ## Classes
- and Functions ### AdvancedForecastingEngin
-e
- forecasting engine with multiple methods. **Methods**: - `forecast_arima(time_series: pd.Series, order: Tuple[int, int, int], forecast_steps: int, seasonal: Optional[Tuple[int, int, int, int]]) -> Dict[str, Any]`: Forecast using ARIMA model. - `forecast_exponential_smoothing(time_series: pd.Series, trend: Optional[str], seasonal: Optional[str], forecast_steps: int) -> Dict[str, Any]`: Forecast using exponential smoothing. - `detect_trend_seasonality(time_series: pd.Series) -> Dict[str, Any]`: Detect trend and seasonality in time series. ### AnomalyTyp
-e
- Types of anomalies. ### Anomal
-y
- Detected anomaly. ### TemporalAnalyze
-r
- Temporal analyzer for time series data. **Methods**: - `detect_trend(timeseries: TimeSeries, method: str) -> Dict[str, Any]`: Detect trend in time series. - `detect_seasonality(timeseries: TimeSeries, max_periods: int) -> Dict[str, Any]`: Detect seasonality in time series. - `decompose(timeseries: TimeSeries, model: str, period: Optional[int]) -> Dict[str, Any]`: Decompose time series into trend, seasonal, and residual components. - `test_stationarity(timeseries: TimeSeries) -> Dict[str, Any]`: Test time series stationarity using Augmented Dickey-Fuller test. - `detect_anomalies(timeseries: TimeSeries, method: str, threshold: float, window_size: Optional[int]) -> Dict[str, Any]`: Detect anomalies in time series. - `detect_change_points(timeseries: TimeSeries, method: str, min_segment_length: int) -> Dict[str, Any]`: Detect change points (structural breaks) in time series. - `calculate_cross_correlation(timeseries1: TimeSeries, timeseries2: TimeSeries, max_lag: int) -> Dict[str, Any]`: Calculate cross-correlation between two time series. - `validate_forecast(actual: List[float], predicted: List[float], confidence_intervals: Optional[List[Tuple[float, float]]]) -> Dict[str, Any]`: Validate forecast accuracy with multiple metrics. - `calculate_autocorrelation(timeseries: TimeSeries, max_lag: int) -> Dict[str, Any]`: Calculate autocorrelation function. - `calculate_rolling_statistics(timeseries: TimeSeries, window: int, statistics: Optional[List[str]]) -> Dict[str, Any]`: Calculate rolling statistics over a time series. - `detect_periodicity(timeseries: TimeSeries, max_period: int) -> Dict[str, Any]`: Detect periodicity in time series using FFT-based spectral analysis. - `calculate_granger_causality(timeseries1: TimeSeries, timeseries2: TimeSeries, max_lag: int) -> Dict[str, Any]`: Test for Granger causality between two time series. - `compute_temporal_entropy(timeseries: TimeSeries, bins: int, method: str) -> Dict[str, Any]`: Compute entropy measures for a time series. ### EventDetecto
-r
- Event detector for time series data. **Methods**: - `detect_anomalies(timeseries: TimeSeries, method: str) -> Dict[str, Any]`: Detect anomalies in time series. - `detect_changepoints(timeseries: TimeSeries, sensitivity: float) -> Dict[str, Any]`: Detect changepoints in time series. ### ForecastingEngin
-e
- Forecasting engine for time series prediction. **Methods**: - `forecast_linear(timeseries: TimeSeries, horizon: int) -> Dict[str, Any]`: Forecast using linear regression. - `forecast_arima(timeseries: TimeSeries, horizon: int, order: Tuple[int, int, int]) -> Dict[str, Any]`: Forecast using ARIMA model. - `forecast_moving_average(timeseries: TimeSeries, horizon: int, window: int) -> Dict[str, Any]`: Forecast using moving average. - `forecast_exponential_smoothing(timeseries: Any, horizon: int, alpha: float, trend: Optional[str], seasonal: Optional[str], seasonal_periods: Optional[int]) -> Dict[str, Any]`: Forecast using exponential smoothing (Holt-Winters). - `validate_forecast(timeseries: Any, forecast_result: Dict[str, Any], validation_split: float) -> Dict[str, Any]`: Validate forecast accuracy using time series cross-validation. ### TemporalInterpolato
-r
- Temporal interpolator for time series data. **Methods**: - `interpolate(timeseries: TimeSeries, method: str, limit: Optional[int]) -> TimeSeries`: Interpolate missing values in time series. - `impute(timeseries: TimeSeries, method: str) -> TimeSeries`: Impute missing values using various strategies. ### TemporalStatistic
-s
- temporal statistics for time series analysis. **Methods**: - `calculate_summary(values: List[float], timestamps: Optional[List]) -> Dict[str, Any]`: Calculate summary statistics for a time series. - `calculate_differences(values: List[float], order: int, seasonal_period: Optional[int]) -> Dict[str, Any]`: Calculate differenced series for stationarity. - `ljung_box_test(values: List[float], lags: int) -> Dict[str, Any]`: Perform Ljung-Box test for autocorrelation in residuals. - `jarque_bera_test(values: List[float]) -> Dict[str, Any]`: Perform Jarque-Bera test for normality. - `durbin_watson_test(residuals: List[float]) -> Dict[str, Any]`: Calculate Durbin-Watson statistic for serial correlation. - `hurst_exponent(values: List[float], max_lag: Optional[int]) -> Dict[str, Any]`: Calculate Hurst exponent for long-term memory. - `information_criteria(residuals: List[float], num_params: int, log_likelihood: Optional[float]) -> Dict[str, Any]`: Calculate information criteria for model selection. - `residual_diagnostics(residuals: List[float]) -> Dict[str, Any]`: residual diagnostics. ### StreamProcesso
-r
- Real-time stream processor for temporal data. **Methods**: - `add_data_point(timestamp: datetime, value: float, metadata: Optional[Dict[str, Any]]) -> None`: Add a data point to the stream. - `process_window() -> Optional[Dict[str, Any]]`: Process the current window and return aggregated result. - `get_recent_windows(count: int) -> List[Dict[str, Any]]`: Get recent processing windows. ### TemporalVisualizatio
-n
- Visualization engine for temporal analysis. **Methods**: - `plot_timeseries(values: List[float], timestamps: Optional[List], title: str, ylabel: str, xlabel: str, color: str, show_grid: bool, save_path: Optional[Path]) -> Optional[Any]`: Create a basic time series plot. - `plot_decomposition(trend: List[float], seasonal: List[float], residual: List[float], original: Optional[List[float]], timestamps: Optional[List], title: str, save_path: Optional[Path]) -> Optional[Any]`: Create a decomposition plot with trend, seasonal, and residual panels. - `plot_forecast(historical: List[float], forecast: List[float], confidence_lower: Optional[List[float]], confidence_upper: Optional[List[float]], timestamps_historical: Optional[List], timestamps_forecast: Optional[List], title: str, save_path: Optional[Path]) -> Optional[Any]`: Create a forecast plot with confidence intervals. - `plot_acf_pacf(acf_values: List[float], pacf_values: Optional[List[float]], confidence_bound: float, title: str, save_path: Optional[Path]) -> Optional[Any]`: Create ACF and PACF plots. - `plot_anomalies(values: List[float], anomaly_indices: List[int], timestamps: Optional[List], title: str, save_path: Optional[Path]) -> Optional[Any]`: Create a plot highlighting anomalies. - `plot_rolling_statistics(values: List[float], rolling_mean: List[float], rolling_std: Optional[List[float]], timestamps: Optional[List], window: int, title: str, save_path: Optional[Path]) -> Optional[Any]`: Create a plot with rolling mean and standard deviation bands. - `plot_seasonality(values: List[float], period: int, timestamps: Optional[List], title: str, save_path: Optional[Path]) -> Optional[Any]`: Create seasonal subseries plot. - `create_dashboard(values: List[float], timestamps: Optional[List], decomposition: Optional[Dict[str, List[float]]], forecast: Optional[Dict[str, Any]], anomalies: Optional[List[int]], title: str, save_path: Optional[Path]) -> Optional[Any]`: Create a multi-panel dashboard. ### test_grange
-r
- `test_granger(y: np.ndarray, x: np.ndarray, lag: int) -> Dict[str, Any]` Simple F-test for Granger causality. ### count_matche
-s
- `count_matches(template_length)` ### find_change_poin
-t
- `find_change_point(start, end)` ## Capabilities
- - **10 classes** for core functionality - **3 functions** for utility operations ## Integration
- - **Location**: `GEO-INFER-TIME/src/geo_infer_time/core` - **Type**: Directory Node 
+: core
+
+## Scope
+ This directory contains core components for the module. It provides 10 classes and 3 functions.
+
+## Classes
+ and Functions
+
+### AdvancedForecastingEngine
+ forecasting engine with multiple methods.
+
+**Methods**:
+- `forecast_arima(time_series: pd.Series, order: Tuple[int, int, int], forecast_steps: int, seasonal: Optional[Tuple[int, int, int, int]]) -> Dict[str, Any]`: Forecast using ARIMA model.
+- `forecast_exponential_smoothing(time_series: pd.Series, trend: Optional[str], seasonal: Optional[str], forecast_steps: int) -> Dict[str, Any]`: Forecast using exponential smoothing.
+- `detect_trend_seasonality(time_series: pd.Series) -> Dict[str, Any]`: Detect trend and seasonality in time series.
+
+### AnomalyType
+ Types of anomalies.
+
+### Anomaly
+ Detected anomaly.
+
+### TemporalAnalyzer
+ Temporal analyzer for time series data.
+
+**Methods**:
+- `detect_trend(timeseries: TimeSeries, method: str) -> Dict[str, Any]`: Detect trend in time series.
+- `detect_seasonality(timeseries: TimeSeries, max_periods: int) -> Dict[str, Any]`: Detect seasonality in time series.
+- `decompose(timeseries: TimeSeries, model: str, period: Optional[int]) -> Dict[str, Any]`: Decompose time series into trend, seasonal, and residual components.
+- `test_stationarity(timeseries: TimeSeries) -> Dict[str, Any]`: Test time series stationarity using Augmented Dickey-Fuller test.
+- `detect_anomalies(timeseries: TimeSeries, method: str, threshold: float, window_size: Optional[int]) -> Dict[str, Any]`: Detect anomalies in time series.
+- `detect_change_points(timeseries: TimeSeries, method: str, min_segment_length: int) -> Dict[str, Any]`: Detect change points (structural breaks) in time series.
+- `calculate_cross_correlation(timeseries1: TimeSeries, timeseries2: TimeSeries, max_lag: int) -> Dict[str, Any]`: Calculate cross-correlation between two time series.
+- `validate_forecast(actual: List[float], predicted: List[float], confidence_intervals: Optional[List[Tuple[float, float]]]) -> Dict[str, Any]`: Validate forecast accuracy with multiple metrics.
+- `calculate_autocorrelation(timeseries: TimeSeries, max_lag: int) -> Dict[str, Any]`: Calculate autocorrelation function.
+- `calculate_rolling_statistics(timeseries: TimeSeries, window: int, statistics: Optional[List[str]]) -> Dict[str, Any]`: Calculate rolling statistics over a time series.
+- `detect_periodicity(timeseries: TimeSeries, max_period: int) -> Dict[str, Any]`: Detect periodicity in time series using FFT-based spectral analysis.
+- `calculate_granger_causality(timeseries1: TimeSeries, timeseries2: TimeSeries, max_lag: int) -> Dict[str, Any]`: Test for Granger causality between two time series.
+- `compute_temporal_entropy(timeseries: TimeSeries, bins: int, method: str) -> Dict[str, Any]`: Compute entropy measures for a time series.
+
+### EventDetector
+ Event detector for time series data.
+
+**Methods**:
+- `detect_anomalies(timeseries: TimeSeries, method: str) -> Dict[str, Any]`: Detect anomalies in time series.
+- `detect_changepoints(timeseries: TimeSeries, sensitivity: float) -> Dict[str, Any]`: Detect changepoints in time series.
+
+### ForecastingEngine
+ Forecasting engine for time series prediction.
+
+**Methods**:
+- `forecast_linear(timeseries: TimeSeries, horizon: int) -> Dict[str, Any]`: Forecast using linear regression.
+- `forecast_arima(timeseries: TimeSeries, horizon: int, order: Tuple[int, int, int]) -> Dict[str, Any]`: Forecast using ARIMA model.
+- `forecast_moving_average(timeseries: TimeSeries, horizon: int, window: int) -> Dict[str, Any]`: Forecast using moving average.
+- `forecast_exponential_smoothing(timeseries: Any, horizon: int, alpha: float, trend: Optional[str], seasonal: Optional[str], seasonal_periods: Optional[int]) -> Dict[str, Any]`: Forecast using exponential smoothing (Holt-Winters).
+- `validate_forecast(timeseries: Any, forecast_result: Dict[str, Any], validation_split: float) -> Dict[str, Any]`: Validate forecast accuracy using time series cross-validation.
+
+### TemporalInterpolator
+ Temporal interpolator for time series data.
+
+**Methods**:
+- `interpolate(timeseries: TimeSeries, method: str, limit: Optional[int]) -> TimeSeries`: Interpolate missing values in time series.
+- `impute(timeseries: TimeSeries, method: str) -> TimeSeries`: Impute missing values using various strategies.
+
+### TemporalStatistics
+ temporal statistics for time series analysis.
+
+**Methods**:
+- `calculate_summary(values: List[float], timestamps: Optional[List]) -> Dict[str, Any]`: Calculate summary statistics for a time series.
+- `calculate_differences(values: List[float], order: int, seasonal_period: Optional[int]) -> Dict[str, Any]`: Calculate differenced series for stationarity.
+- `ljung_box_test(values: List[float], lags: int) -> Dict[str, Any]`: Perform Ljung-Box test for autocorrelation in residuals.
+- `jarque_bera_test(values: List[float]) -> Dict[str, Any]`: Perform Jarque-Bera test for normality.
+- `durbin_watson_test(residuals: List[float]) -> Dict[str, Any]`: Calculate Durbin-Watson statistic for serial correlation.
+- `hurst_exponent(values: List[float], max_lag: Optional[int]) -> Dict[str, Any]`: Calculate Hurst exponent for long-term memory.
+- `information_criteria(residuals: List[float], num_params: int, log_likelihood: Optional[float]) -> Dict[str, Any]`: Calculate information criteria for model selection.
+- `residual_diagnostics(residuals: List[float]) -> Dict[str, Any]`: residual diagnostics.
+
+### StreamProcessor
+ Real-time stream processor for temporal data.
+
+**Methods**:
+- `add_data_point(timestamp: datetime, value: float, metadata: Optional[Dict[str, Any]]) -> None`: Add a data point to the stream.
+- `process_window() -> Optional[Dict[str, Any]]`: Process the current window and return aggregated result.
+- `get_recent_windows(count: int) -> List[Dict[str, Any]]`: Get recent processing windows.
+
+### TemporalVisualization
+ Visualization engine for temporal analysis.
+
+**Methods**:
+- `plot_timeseries(values: List[float], timestamps: Optional[List], title: str, ylabel: str, xlabel: str, color: str, show_grid: bool, save_path: Optional[Path]) -> Optional[Any]`: Create a basic time series plot.
+- `plot_decomposition(trend: List[float], seasonal: List[float], residual: List[float], original: Optional[List[float]], timestamps: Optional[List], title: str, save_path: Optional[Path]) -> Optional[Any]`: Create a decomposition plot with trend, seasonal, and residual panels.
+- `plot_forecast(historical: List[float], forecast: List[float], confidence_lower: Optional[List[float]], confidence_upper: Optional[List[float]], timestamps_historical: Optional[List], timestamps_forecast: Optional[List], title: str, save_path: Optional[Path]) -> Optional[Any]`: Create a forecast plot with confidence intervals.
+- `plot_acf_pacf(acf_values: List[float], pacf_values: Optional[List[float]], confidence_bound: float, title: str, save_path: Optional[Path]) -> Optional[Any]`: Create ACF and PACF plots.
+- `plot_anomalies(values: List[float], anomaly_indices: List[int], timestamps: Optional[List], title: str, save_path: Optional[Path]) -> Optional[Any]`: Create a plot highlighting anomalies.
+- `plot_rolling_statistics(values: List[float], rolling_mean: List[float], rolling_std: Optional[List[float]], timestamps: Optional[List], window: int, title: str, save_path: Optional[Path]) -> Optional[Any]`: Create a plot with rolling mean and standard deviation bands.
+- `plot_seasonality(values: List[float], period: int, timestamps: Optional[List], title: str, save_path: Optional[Path]) -> Optional[Any]`: Create seasonal subseries plot.
+- `create_dashboard(values: List[float], timestamps: Optional[List], decomposition: Optional[Dict[str, List[float]]], forecast: Optional[Dict[str, Any]], anomalies: Optional[List[int]], title: str, save_path: Optional[Path]) -> Optional[Any]`: Create a multi-panel dashboard.
+
+### test_granger
+ `test_granger(y: np.ndarray, x: np.ndarray, lag: int) -> Dict[str, Any]` Simple F-test for Granger causality.
+
+### count_matches
+ `count_matches(template_length)`
+
+### find_change_point
+ `find_change_point(start, end)`
+
+## Capabilities
+
+- **10 classes** for core functionality
+- **3 functions** for utility operations
+
+## Integration
+
+- **Location**: `GEO-INFER-TIME/src/geo_infer_time/core`
+- **Type**: Directory Node

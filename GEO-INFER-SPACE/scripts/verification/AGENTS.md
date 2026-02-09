@@ -1,5 +1,3 @@
-
-
 # Agent
 : verification 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-SPACE/scripts/verification` 
-- **Type**: Directory Node 
+- **Type**: Directory Node

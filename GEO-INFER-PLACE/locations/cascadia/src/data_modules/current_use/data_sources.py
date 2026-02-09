@@ -7,6 +7,7 @@ land use analysis across the Cascadian bioregion (Northern California + Oregon).
 
 import logging
 import os
+from datetime import datetime
 from typing import Dict, List, Tuple, Optional, NamedTuple, Any
 from pathlib import Path
 import json
@@ -23,7 +24,14 @@ import rasterio
 from rasterio.mask import mask
 
 # Import H3 utilities from the unified backend's path
-from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
+try:
+    from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
+except ImportError:
+    import h3
+    latlng_to_cell = h3.latlng_to_cell
+    cell_to_latlng = h3.cell_to_latlng
+    cell_to_latlng_boundary = h3.cell_to_boundary
+    polygon_to_cells = h3.polygon_to_cells
 
 logger = logging.getLogger(__name__)
 

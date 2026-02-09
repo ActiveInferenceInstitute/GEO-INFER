@@ -27,14 +27,12 @@ auth = Authenticator()
 token = auth.authenticate(
     agent_id="analysis_agent_001",
     credentials=agent_credentials,
-    method="jwt"
-)
+    method="jwt")
 
 # Validate token
 validation = auth.validate(token)
 print(f"Valid: {validation.is_valid}")
-print(f"Permissions: {validation.permissions}")
-```
+print(f"Permissions: {validation.permissions}")```
 
 ### 2. Authorization
 
@@ -49,8 +47,7 @@ allowed = authz.check(
     subject="agent_001",
     action="read",
     resource="sensitive_layer",
-    context={"location": query_location}
-)
+    context={"location": query_location})
 
 print(f"Access allowed: {allowed}")
 
@@ -58,8 +55,7 @@ print(f"Access allowed: {allowed}")
 spatial_access = authz.check_spatial(
     subject="agent_001",
     area=restricted_zone,
-    operation="query"
-)
+    operation="query")
 ```
 
 ### 3. Data Encryption
@@ -74,14 +70,12 @@ encryptor = DataEncryptor()
 encrypted = encryptor.encrypt(
     data=sensitive_addresses,
     method="aes_256_gcm",
-    key_id="prod_key_2026"
-)
+    key_id="prod_key_2026")
 
 # Decrypt with authorization
 decrypted = encryptor.decrypt(
     data=encrypted,
-    authorization=auth_token
-)
+    authorization=auth_token)
 ```
 
 ### 4. Audit Logging
@@ -99,14 +93,12 @@ audit.log(
     action="query",
     resource="parcels_layer",
     outcome="success",
-    details={"rows_returned": 150}
-)
+    details={"rows_returned": 150})
 
 # Query audit logs
 logs = audit.query(
     time_range=("2026-01-25", "2026-01-26"),
-    subject="agent_001"
-)
+    subject="agent_001")
 ```
 
 ## Implementation Status
@@ -145,8 +137,7 @@ access = zt.verify_access(
     verify_identity=True,
     verify_device=True,
     verify_context=True,
-    continuous=True
-)
+    continuous=True)
 ```
 
 ### Location-Based Access
@@ -162,14 +153,12 @@ lac.define_zone(
     name="restricted_area",
     geometry=restricted_polygon,
     access_level="classified",
-    allowed_roles=["admin", "security"]
-)
+    allowed_roles=["admin", "security"])
 
 # Check location access
 access = lac.check(
     user="analyst_001",
-    query_location=point
-)
+    query_location=point)
 ```
 
 ## Use Cases
@@ -188,9 +177,10 @@ class MySecureAgent(SecureAgent):
     
     @require_permission("sensitive_data.read")
     def analyze_sensitive_data(self, data):
-        # Automatically audited
-        return self.process(data)
-```
+       
+
+# Automatically audited
+        return self.process(data)```
 
 ---
 

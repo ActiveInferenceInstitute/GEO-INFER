@@ -41,9 +41,12 @@ The GEO-INFER-AI module provides machine learning and artificial intelligence ca
 - **`ModelTrainer`**: `ModelTrainer(config: Optional[TrainingConfig] = None)`
   - Training and evaluation framework
   - Methods:
-    - `train(model, X_train, y_train, **kwargs) -> TrainedModel`
-    - `evaluate(model, X_test, y_test, **kwargs) -> Dict[str, float]`
-    - `cross_validate(model, X, y, cv=5, **kwargs) -> Dict[str, Any]`
+   
+- `train(model, X_train, y_train, **kwargs) -> TrainedModel`
+   
+- `evaluate(model, X_test, y_test, **kwargs) -> Dict[str, float]`
+   
+- `cross_validate(model, X, y, cv=5, **kwargs) -> Dict[str, Any]`
 
 - **`TrainingConfig`**: `TrainingConfig(batch_size=32, epochs=100, learning_rate=0.001, **kwargs)`
   - Training configuration dataclass
@@ -53,53 +56,70 @@ The GEO-INFER-AI module provides machine learning and artificial intelligence ca
 - **`ImageClassifier`**: `ImageClassifier(model_type='resnet50', num_classes=10, input_shape=(256, 256, 3), **kwargs)`
   - Image classification for geospatial imagery
   - Methods:
-    - `fit(X_train, y_train, **kwargs) -> None`
-    - `predict(X, **kwargs) -> np.ndarray`
-    - `predict_proba(X, **kwargs) -> np.ndarray`
+   
+- `fit(X_train, y_train, **kwargs) -> None`
+   
+- `predict(X, **kwargs) -> np.ndarray`
+   
+- `predict_proba(X, **kwargs) -> np.ndarray`
 
 #### Predictive Modeling
 
 - **`SpatialPredictor`**: `SpatialPredictor(model_type='random_forest', spatial_features=None, **kwargs)`
   - Predictive models for geospatial forecasting
   - Methods:
-    - `fit(features, targets, **kwargs) -> None`
-    - `predict(features, **kwargs) -> np.ndarray`
-    - `predict_proba(features, **kwargs) -> np.ndarray`
+   
+- `fit(features, targets, **kwargs) -> None`
+   
+- `predict(features, **kwargs) -> np.ndarray`
+   
+- `predict_proba(features, **kwargs) -> np.ndarray`
 
 #### Feature Engineering
 
 - **`GeospatialFeatureEngineer`**: `GeospatialFeatureEngineer(**kwargs)`
   - Geospatial feature extraction and preprocessing
   - Methods:
-    - `extract_features(data, **kwargs) -> np.ndarray`
-    - `transform(data, **kwargs) -> np.ndarray`
-    - `fit_transform(data, **kwargs) -> np.ndarray`
+   
+- `extract_features(data, **kwargs) -> np.ndarray`
+   
+- `transform(data, **kwargs) -> np.ndarray`
+   
+- `fit_transform(data, **kwargs) -> np.ndarray`
 
 #### MLOps
 
 - **`MLflowPipeline`**: `MLflowPipeline(experiment_name='default', **kwargs)`
   - MLflow integration for MLOps
   - Methods:
-    - `log_model(model, model_name, **kwargs) -> None`
-    - `log_metrics(metrics, step=None) -> None`
-    - `log_params(params) -> None`
+   
+- `log_model(model, model_name, **kwargs) -> None`
+   
+- `log_metrics(metrics, step=None) -> None`
+   
+- `log_params(params) -> None`
 
 #### Model Evaluation
 
 - **`GeospatialModelEvaluator`**: `GeospatialModelEvaluator(**kwargs)`
   - Geospatial model evaluation
   - Methods:
-    - `evaluate(model, X, y, **kwargs) -> Dict[str, float]`
-    - `spatial_cross_validate(model, X, y, spatial_folds, **kwargs) -> Dict[str, Any]`
+   
+- `evaluate(model, X, y, **kwargs) -> Dict[str, float]`
+   
+- `spatial_cross_validate(model, X, y, spatial_folds, **kwargs) -> Dict[str, Any]`
 
 #### Explainability
 
 - **`ModelExplainer`**: `ModelExplainer(model, method='shap', **kwargs)`
   - Model explainability and interpretability
   - Methods:
-    - `explain(X, **kwargs) -> Dict[str, Any]`
-    - `feature_importance(**kwargs) -> np.ndarray`
-    - `plot_explanations(X, output_path, **kwargs) -> None`
+   
+- `explain(X, **kwargs) -> Dict[str, Any]`
+   
+- `feature_importance(**kwargs) -> np.ndarray`
+   
+- `plot_explanations(X, output_path, **kwargs) -> None`
 
 ## Agent Capabilities Supported
 
@@ -113,13 +133,13 @@ from geo_infer_ai import ImageClassifier
 # Initialize classifier for agent perception
 classifier = ImageClassifier(
     model_type='resnet50',
-    num_classes=10,  # land cover classes
-    input_shape=(256, 256, 3)
-)
+    num_classes=10, 
+
+# land cover classes
+    input_shape=(256, 256, 3))
 
 # Agent uses classifier for environmental perception
-predictions = classifier.predict(satellite_images)
-```
+predictions = classifier.predict(satellite_images)```
 
 ### 2. Learning and Adaptation
 
@@ -131,15 +151,13 @@ from geo_infer_ai import SpatialPredictor
 # Create learning model for agent adaptation
 predictor = SpatialPredictor(
     model_type='random_forest',
-    spatial_features=['elevation', 'ndvi', 'precipitation']
-)
+    spatial_features=['elevation', 'ndvi', 'precipitation'])
 
 # Agent learns spatial patterns
 predictor.fit(features=spatial_features, targets=outcomes)
 
 # Agent applies learned knowledge
-predictions = predictor.predict(new_features)
-```
+predictions = predictor.predict(new_features)```
 
 ### 3. Decision Support
 
@@ -152,14 +170,12 @@ from geo_infer_ai import ModelTrainer, TrainingConfig
 config = TrainingConfig(
     batch_size=32,
     epochs=100,
-    learning_rate=0.001
-)
+    learning_rate=0.001)
 
 trainer = ModelTrainer(config)
 
 # Train decision model
-trainer.train(model=decision_model, X_train=data, y_train=labels)
-```
+trainer.train(model=decision_model, X_train=data, y_train=labels)```
 
 ## Integration with Agent Framework
 

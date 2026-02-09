@@ -94,16 +94,16 @@ def information_metric(
     Returns:
         Information metric distance
     """
-        fisher_matrix = np.asarray(fisher_matrix)
-        delta_theta = np.asarray(delta_theta).flatten()
-        
-        if fisher_matrix.shape[0] != len(delta_theta):
-            raise ValueError("Fisher matrix and delta_theta must have compatible dimensions")
-        
-        # Calculate metric distance
-        metric = np.dot(delta_theta, np.dot(fisher_matrix, delta_theta))
-        
-        return float(np.sqrt(max(0.0, metric)))
+    fisher_matrix = np.asarray(fisher_matrix)
+    delta_theta = np.asarray(delta_theta).flatten()
+    
+    if fisher_matrix.shape[0] != len(delta_theta):
+        raise ValueError("Fisher matrix and delta_theta must have compatible dimensions")
+    
+    # Calculate metric distance
+    metric = np.dot(delta_theta, np.dot(fisher_matrix, delta_theta))
+    
+    return float(np.sqrt(max(0.0, metric)))
 
 
 def geodesic_distance(

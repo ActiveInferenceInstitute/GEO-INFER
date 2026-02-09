@@ -27,12 +27,10 @@ versioning = VersionController(repo_path="./my_project")
 versioning.commit(
     changes=modified_files,
     message="Agent-generated spatial analysis update",
-    author="GeoAgent <agent@geo-infer.org>"
-)
+    author="GeoAgent <agent@geo-infer.org>")
 
 # Track modification history
-history = versioning.get_history(file_path="spatial_data.geojson")
-```
+history = versioning.get_history(file_path="spatial_data.geojson")```
 
 ### 2. Change Detection
 
@@ -46,9 +44,10 @@ tracker = ChangeTracker(watch_path="./data")
 changes = tracker.detect_changes()
 for change in changes:
     print(f"Modified: {change.file_path}")
-    print(f"Type: {change.change_type}")  # added, modified, deleted
-    print(f"Diff: {change.diff_summary}")
-```
+    print(f"Type: {change.change_type}") 
+
+# added, modified, deleted
+    print(f"Diff: {change.diff_summary}")```
 
 ### 3. Geospatial Data Versioning
 
@@ -65,14 +64,12 @@ version = versioner.snapshot(
         "source": "census_2025",
         "resolution": "block_group",
         "crs": "EPSG:4326"
-    }
-)
+    })
 
 # Compare versions
 diff = versioner.compare(version_a="v1.0", version_b="v1.1")
 print(f"Features added: {diff.features_added}")
-print(f"Features modified: {diff.features_modified}")
-```
+print(f"Features modified: {diff.features_modified}")```
 
 ### 4. Multi-Agent Collaboration
 
@@ -87,14 +84,15 @@ collab.register_agent(agent_id="agent_001", role="data_processor")
 
 # Lock file for exclusive access
 with collab.lock("shared_data.geojson"):
-    # Agent performs exclusive operations
+   
+
+# Agent performs exclusive operations
     process_data()
 
 # Merge changes from multiple agents
 collab.merge_agent_changes(
     source_agent="agent_001",
-    target_branch="main"
-)
+    target_branch="main")
 ```
 
 ## Implementation Status
@@ -139,8 +137,7 @@ graph TD
     subgraph Collaboration
         MERGE --> RESOLVE[Conflict Resolution]
         RESOLVE --> MAIN[Main Branch]
-    end
-```
+    end```
 
 ## Use Cases
 
@@ -156,18 +153,21 @@ class VersionedPipelineAgent(DataPipelineAgent):
         self.versioning = VersionController()
     
     def process_and_version(self, input_data):
-        # Process data
+       
+
+# Process data
         output = self.process(input_data)
         
-        # Save and version results
+       
+
+# Save and version results
         self.save(output, "results/analysis.geojson")
         self.versioning.commit(
             message=f"Pipeline run: {self.run_id}",
             changes=["results/analysis.geojson"]
         )
         
-        return output
-```
+        return output```
 
 ### 2. Collaborative Spatial Analysis
 
@@ -187,8 +187,7 @@ collab.push_changes(agent_id="traffic_agent")
 
 # Merge and validate
 collab.merge_all()
-validation_agent.validate_combined_results()
-```
+validation_agent.validate_combined_results()```
 
 ### 3. Data Provenance Tracking
 
@@ -202,14 +201,12 @@ tracker.record_transformation(
     input_files=["raw_data.csv"],
     output_files=["processed.geojson"],
     transformation="spatial_join",
-    agent_id="processing_agent"
-)
+    agent_id="processing_agent")
 
 # Query provenance
 lineage = tracker.get_lineage("processed.geojson")
 print(f"Origin: {lineage.origin}")
-print(f"Transformations: {lineage.transformations}")
-```
+print(f"Transformations: {lineage.transformations}")```
 
 ---
 

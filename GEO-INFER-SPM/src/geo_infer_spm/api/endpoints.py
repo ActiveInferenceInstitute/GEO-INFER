@@ -221,13 +221,76 @@ class SPMAPI:
         )
 
     def _csv_to_spmdata(self, data: Dict[str, Any]) -> SPMData:
-        """Convert CSV-like data to SPMData object."""
-        # Simplified CSV conversion
-        from ..utils.data_io import load_csv_with_coords
+        """Convert CSV-like data to SPMData object.
 
-        # Assume data is dictionary with CSV-like structure
-        # This would need proper CSV parsing in real implementation
-        raise NotImplementedError("CSV upload not implemented")
+        Expects data dict with either:
+          - 'rows': list of dicts, each with coordinate and value keys
+          - 'columns': dict mapping column names to lists of values
+
+        Coordinate columns are identified by keys containing 'lat', 'lon',
+        'x', 'y', or 'easting'/'northing'. Remaining numeric columns become
+        the data values.
+
+        Args:
+            data: CSV-like data dictionary
+
+        Returns:
+            SPMData object
+        """
+        import numpy as np
+
+        coord_keys_lat = {'lat', 'latitude', 'y', 'northing'}
+        coord_keys_lon = {'lon', 'lng', 'longitude', 'x', 'easting'}
+
+        rows = data.get('rows', [])
+        columns = data.get('columns', {})
+
+        # Convert column-oriented to row-oriented if needed
+        if columns and not rows:
+            col_names = list(columns.keys())
+            n_rows = len(next(iter(columns.values())))
+            rows = [{c: columns[c][i] for c in col_names} for i in range(n_rows)]
+
+        if not rows:
+            raise ValueError("CSV data must contain 'rows' or 'columns'")
+
+        # Identify coordinate and value columns
+        all_keys = set(rows[0].keys())
+        lat_col = next((k for k in all_keys if k.lower() in coord_keys_lat), None)
+        lon_col = next((k for k in all_keys if k.lower() in coord_keys_lon), None)
+
+        if not lat_col or not lon_col:
+            raise ValueError(
+                f"Could not identify coordinate columns from keys: {all_keys}. "
+                "Expected columns matching lat/lon/x/y/easting/northing."
+            )
+
+        value_cols = sorted(all_keys - {lat_col, lon_col})
+        # Filter to numeric-looking value columns
+        numeric_cols = []
+        for col in value_cols:
+            try:
+                float(rows[0][col])
+                numeric_cols.append(col)
+            except (ValueError, TypeError):
+                pass
+
+        coordinates = np.array([[float(r[lat_col]), float(r[lon_col])] for r in rows])
+        data_values = np.array([[float(r.get(c, 0)) for c in numeric_cols] for r in rows])
+
+        return SPMData(
+            data=data_values,
+            coordinates=coordinates,
+            time=data.get('time'),
+            covariates=data.get('covariates', {}),
+            metadata={
+                'source_format': 'csv',
+                'coordinate_columns': [lat_col, lon_col],
+                'value_columns': numeric_cols,
+                **(data.get('metadata', {})),
+            },
+            crs=data.get('crs', 'EPSG:4326'),
+        )
 
     def _create_design_from_spec(self, design_spec: Dict[str, Any], data: SPMData):
         """Create design matrix from API specification."""

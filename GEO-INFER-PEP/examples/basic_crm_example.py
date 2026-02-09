@@ -114,7 +114,8 @@ def main():
             return
 
         print("✅ CRM Dashboard generated successfully!")
-        print("\n📊 Key Metrics:"        print(f"  - Total Customers: {dashboard.get('total_customers', 0)}")
+        print("\n📊 Key Metrics:")
+        print(f"  - Total Customers: {dashboard.get('total_customers', 0)}")
         print(f"  - Active Customers: {dashboard.get('active_customers', 0)}")
 
         # Display status breakdown
@@ -131,7 +132,7 @@ def main():
             print(f"  - Total Identified Leads: {conversion_report.get('total_identified_leads', 0)}")
             print(f"  - Total Converted Customers: {conversion_report.get('total_converted_customers', 0)}")
             conversion_rate = conversion_report.get('lead_to_customer_conversion_rate', 0)
-            print(".1f")
+            print(f"  - Conversion Rate: {conversion_rate:.1f}%")
 
         print(f"\n📅 Data Freshness: {dashboard.get('data_freshness', 'Unknown')}")
 

@@ -25,12 +25,10 @@ analyzer = WatershedAnalyzer()
 
 watershed = analyzer.delineate(
     dem=elevation_data,
-    pour_point=(lat, lon)
-)
+    pour_point=(lat, lon))
 
 print(f"Area: {watershed.area_km2} km²")
-print(f"Stream length: {watershed.stream_km} km")
-```
+print(f"Stream length: {watershed.stream_km} km")```
 
 ### 2. Flood Modeling
 
@@ -42,12 +40,10 @@ modeler = FloodModeler()
 
 flood = modeler.simulate(
     dem=terrain,
-    scenario="100_year"
-)
+    scenario="100_year")
 
 print(f"Inundation area: {flood.area_km2} km²")
-print(f"Max depth: {flood.max_depth} m")
-```
+print(f"Max depth: {flood.max_depth} m")```
 
 ### 3. Water Quality
 
@@ -59,11 +55,9 @@ monitor = WaterQualityMonitor()
 
 quality = monitor.assess(
     water_body=lake,
-    parameters=["ph", "do", "turbidity"]
-)
+    parameters=["ph", "do", "turbidity"])
 
-print(f"WQI: {quality.index}")
-```
+print(f"WQI: {quality.index}")```
 
 ### 4. Groundwater
 
@@ -75,11 +69,9 @@ gw = GroundwaterAnalyzer()
 
 analysis = gw.analyze(
     aquifer=aquifer_boundary,
-    wells=monitoring_wells
-)
+    wells=monitoring_wells)
 
-print(f"Depth to water: {analysis.depth} m")
-```
+print(f"Depth to water: {analysis.depth} m")```
 
 ## Implementation Status
 

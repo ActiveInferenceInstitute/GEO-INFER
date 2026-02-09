@@ -8,7 +8,6 @@ together seamlessly.
 
 import pytest
 import asyncio
-from unittest.mock import Mock, AsyncMock
 import pandas as pd
 import geopandas as gpd
 import numpy as np
@@ -26,7 +25,6 @@ from geo_infer_data.models.schemas import (
     TemporalExtent,
     DataLineage
 )
-
 
 class TestEndToEndWorkflows:
     """End-to-end workflow integration tests."""
@@ -382,7 +380,6 @@ class TestEndToEndWorkflows:
         print(f"   - Validation time: {validation_time:.2f}s")
         print(f"   - Final quality: {quality_report.overall_score:.2f}")
 
-
 class TestCrossComponentIntegration:
     """Cross-component integration tests."""
 
@@ -511,7 +508,6 @@ class TestCrossComponentIntegration:
         print(f"   - ETL status: {result['status']}")
         print(f"   - Records processed: {result['transformed_records']}")
 
-
 class TestDataFlowIntegration:
     """Data flow integration tests."""
 
@@ -599,7 +595,6 @@ class TestDataFlowIntegration:
         print(f"   - Time series stored: {dataset_id}")
         print(f"   - Temporal query results: {len(temporal_results)}")
         print(f"   - Quality score: {quality_report.overall_score:.2f}")
-
 
 class TestPerformanceIntegration:
     """Performance integration tests."""

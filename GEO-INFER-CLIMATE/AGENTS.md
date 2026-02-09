@@ -26,18 +26,15 @@ weather = WeatherService()
 # Get current conditions
 current = weather.get_current(
     location=(37.77, -122.41),
-    parameters=["temperature", "precipitation", "wind"]
-)
+    parameters=["temperature", "precipitation", "wind"])
 
 # Get forecast
 forecast = weather.get_forecast(
     location=(37.77, -122.41),
-    hours_ahead=72
-)
+    hours_ahead=72)
 
 print(f"Current temp: {current.temperature}°C")
-print(f"Rain probability: {forecast[0].precipitation_prob}%")
-```
+print(f"Rain probability: {forecast[0].precipitation_prob}%")```
 
 ### 2. Climate Projections
 
@@ -49,14 +46,14 @@ projector = ClimateProjector()
 
 projection = projector.get_projection(
     region=study_area,
-    scenario="ssp245",  # SSP2-4.5
+    scenario="ssp245", 
+
+# SSP2-4.5
     time_period=("2040", "2060"),
-    variables=["temperature", "precipitation"]
-)
+    variables=["temperature", "precipitation"])
 
 print(f"Projected warming: {projection.temp_change}°C")
-print(f"Precip change: {projection.precip_change}%")
-```
+print(f"Precip change: {projection.precip_change}%")```
 
 ### 3. Climate Risk Analysis
 
@@ -69,12 +66,10 @@ analyzer = ClimateRiskAnalyzer()
 risk = analyzer.assess(
     assets=infrastructure_locations,
     hazards=["sea_level_rise", "extreme_heat", "flooding"],
-    time_horizon=2050
-)
+    time_horizon=2050)
 
 print(f"High risk assets: {risk.high_risk_count}")
-print(f"Adaptation needs: {risk.recommendations}")
-```
+print(f"Adaptation needs: {risk.recommendations}")```
 
 ### 4. Historical Analysis
 
@@ -87,11 +82,9 @@ historical = HistoricalAnalyzer()
 trends = historical.analyze(
     region=city_boundary,
     period=("1990", "2025"),
-    metrics=["mean_temp", "extreme_heat_days", "precipitation"]
-)
+    metrics=["mean_temp", "extreme_heat_days", "precipitation"])
 
-print(f"Warming trend: {trends.temp_trend}°C/decade")
-```
+print(f"Warming trend: {trends.temp_trend}°C/decade")```
 
 ## Implementation Status
 
@@ -123,8 +116,7 @@ planner = AdaptationPlanner(city="metropolis")
 plan = planner.develop_plan(
     risks=["urban_heat", "flooding"],
     strategies=["green_infrastructure", "resilient_design"],
-    budget=50_000_000
-)
+    budget=50_000_000)
 ```
 
 ---

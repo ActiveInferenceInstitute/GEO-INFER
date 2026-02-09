@@ -28,11 +28,9 @@ map_design = designer.create(
     style="watercolor",
     color_palette="earth_tones",
     labels=True,
-    legend=True
-)
+    legend=True)
 
-map_design.export("map.png", dpi=300)
-```
+map_design.export("map.png", dpi=300)```
 
 ### 2. Data Visualization
 
@@ -47,15 +45,13 @@ terrain = viz.render_3d(
     dem=elevation_data,
     texture=satellite_imagery,
     exaggeration=2.0,
-    camera_angle=45
-)
+    camera_angle=45)
 
 # Animated time series
 animation = viz.animate(
     data=temporal_data,
     frames_per_second=10,
-    output="timelapse.mp4"
-)
+    output="timelapse.mp4")
 ```
 
 ### 3. Generative Art
@@ -70,11 +66,9 @@ artwork = artist.generate(
     source=city_streets,
     style="abstract_flow",
     colors=["#2C3E50", "#E74C3C", "#ECF0F1"],
-    randomness=0.3
-)
+    randomness=0.3)
 
-artwork.save("city_art.svg")
-```
+artwork.save("city_art.svg")```
 
 ### 4. Infographic Generator
 
@@ -89,8 +83,7 @@ result = infographic.create(
     data=growth_statistics,
     map_extent=city_boundary,
     charts=["growth_rate", "population"],
-    style="modern"
-)
+    style="modern")
 ```
 
 ## Implementation Status
@@ -124,8 +117,7 @@ city_viz = CityVisualizer(city="san_francisco")
 portrait = city_viz.create_portrait(
     style="isometric_3d",
     highlight=["landmarks", "transit"],
-    time_of_day="golden_hour"
-)
+    time_of_day="golden_hour")
 ```
 
 ---

@@ -11,10 +11,16 @@ from dataclasses import dataclass
 from enum import Enum
 import pandas as pd
 import numpy as np
-from statsmodels.tsa.seasonal import seasonal_decompose
-from statsmodels.tsa.stattools import adfuller, acf, ccf
 
 from ..models.timeseries import TimeSeries
+
+# Optional statsmodels imports
+try:
+    from statsmodels.tsa.seasonal import seasonal_decompose
+    from statsmodels.tsa.stattools import adfuller, acf, ccf
+    HAS_STATSMODELS = True
+except ImportError:
+    HAS_STATSMODELS = False
 
 logger = logging.getLogger(__name__)
 
@@ -173,6 +179,8 @@ class TemporalAnalyzer:
                 period = min(12, len(series) // 2)
 
         try:
+            if not HAS_STATSMODELS:
+                raise ImportError("statsmodels required for decomposition")
             decomposition = seasonal_decompose(
                 series, model=model, period=period, extrapolate_trend="freq"
             )
@@ -209,6 +217,8 @@ class TemporalAnalyzer:
         values = data.iloc[:, 0].dropna().values
 
         try:
+            if not HAS_STATSMODELS:
+                raise ImportError("statsmodels required for stationarity test")
             result = adfuller(values)
 
             return {
@@ -601,7 +611,18 @@ class TemporalAnalyzer:
 
         # Calculate ACF
         nlags = min(max_lag, len(values) // 2)
-        acf_values = acf(values, nlags=nlags, fft=True)
+        if not HAS_STATSMODELS:
+            # Fallback: compute ACF manually
+            n = len(values)
+            mean = np.mean(values)
+            var = np.var(values)
+            acf_values = np.array([
+                np.sum((values[:n-k] - mean) * (values[k:] - mean)) / (n * var)
+                if var > 0 else 0.0
+                for k in range(nlags + 1)
+            ])
+        else:
+            acf_values = acf(values, nlags=nlags, fft=True)
 
         # Find significant lags
         n = len(values)

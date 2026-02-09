@@ -15,7 +15,7 @@ import unittest
 import numpy as np
 import pandas as pd
 import geopandas as gpd
-from unittest.mock import Mock, patch, MagicMock
+
 from shapely.geometry import Point, Polygon
 import tempfile
 import os
@@ -258,13 +258,19 @@ class TestModelValidation(unittest.TestCase):
         self.X = np.column_stack([np.ones(n), X])
         self.y = self.X @ np.array([1, 2, -1]) + np.random.randn(n) * 0.1
 
-        # Create mock model
-        self.mock_model = Mock()
-        self.mock_model.predict.return_value = self.X @ np.array([1, 2, -1])
+        # Create a real simple linear model instead of a mock
+        class SimpleLinearModel:
+            """Real linear model for testing validation."""
+            def __init__(self, coefficients):
+                self.coefficients = coefficients
+            def predict(self, X):
+                return X @ self.coefficients
+
+        self.test_model = SimpleLinearModel(coefficients=np.array([1, 2, -1]))
 
     def test_regression_validation(self):
         """Test regression model validation"""
-        predictions = self.mock_model.predict(self.X)
+        predictions = self.test_model.predict(self.X)
         validation_results = self.validator.validate_economic_model_results(
             predictions, self.y, model_type='regression'
         )
@@ -277,7 +283,7 @@ class TestModelValidation(unittest.TestCase):
     def test_model_assumptions_validation(self):
         """Test econometric model assumptions validation"""
         assumptions_results = self.validator.validate_model_assumptions(
-            self.mock_model, self.X, self.y
+            self.test_model, self.X, self.y
         )
 
         self.assertIn('linearity', assumptions_results)
@@ -291,7 +297,7 @@ class TestModelValidation(unittest.TestCase):
         W = np.eye(len(self.y))
 
         spatial_validation = self.validator.validate_spatial_model_assumptions(
-            self.mock_model, self.X, self.y, W
+            self.test_model, self.X, self.y, W
         )
 
         self.assertIn('base_assumptions', spatial_validation)

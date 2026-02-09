@@ -1,5 +1,3 @@
-
-
 # Agent
 : docs 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-INTRA/docs` 
-- **Type**: Directory Node 
+- **Type**: Directory Node

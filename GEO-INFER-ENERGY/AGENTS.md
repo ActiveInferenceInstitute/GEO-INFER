@@ -25,17 +25,14 @@ assessor = RenewableAssessor()
 
 solar = assessor.assess_solar(
     area=study_region,
-    metrics=["ghi", "capacity_factor", "lcoe"]
-)
+    metrics=["ghi", "capacity_factor", "lcoe"])
 
 wind = assessor.assess_wind(
     area=study_region,
-    hub_height=100
-)
+    hub_height=100)
 
 print(f"Solar potential: {solar.capacity_mw} MW")
-print(f"Wind potential: {wind.capacity_mw} MW")
-```
+print(f"Wind potential: {wind.capacity_mw} MW")```
 
 ### 2. Grid Analysis
 
@@ -48,12 +45,10 @@ grid = GridAnalyzer()
 analysis = grid.analyze_capacity(
     network=transmission_lines,
     new_generation=proposed_projects,
-    load_forecast=demand_data
-)
+    load_forecast=demand_data)
 
 print(f"Constraints: {analysis.bottlenecks}")
-print(f"Upgrade needs: ${analysis.upgrade_cost}M")
-```
+print(f"Upgrade needs: ${analysis.upgrade_cost}M")```
 
 ### 3. Site Selection
 
@@ -66,12 +61,10 @@ suitability = SiteSuitability()
 sites = suitability.find_sites(
     energy_type="solar_pv",
     region=county,
-    constraints={"slope": 5, "land_use": ["barren", "agricultural"]}
-)
+    constraints={"slope": 5, "land_use": ["barren", "agricultural"]})
 
 print(f"Suitable sites: {len(sites)}")
-print(f"Total capacity: {sites.total_mw} MW")
-```
+print(f"Total capacity: {sites.total_mw} MW")```
 
 ### 4. Energy Transition
 
@@ -84,11 +77,9 @@ planner = TransitionPlanner()
 plan = planner.create(
     target={"renewable": 100, "year": 2045},
     technologies=["solar", "wind", "storage"],
-    constraints={"budget": 10_000_000_000}
-)
+    constraints={"budget": 10_000_000_000})
 
-print(f"Investment needed: ${plan.total_cost}B")
-```
+print(f"Investment needed: ${plan.total_cost}B")```
 
 ## Implementation Status
 

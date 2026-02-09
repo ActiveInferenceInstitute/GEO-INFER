@@ -28,13 +28,11 @@ result = mapper.analyze(
     spatial_data=population_density,
     hypothesis="hotspot_detection",
     significance_level=0.05,
-    correction="bonferroni"
-)
+    correction="bonferroni")
 
 print(f"Significant clusters: {result.clusters}")
 print(f"P-values: {result.p_values}")
-print(f"Effect sizes: {result.effect_sizes}")
-```
+print(f"Effect sizes: {result.effect_sizes}")```
 
 ### 2. Spatial Regression
 
@@ -49,13 +47,11 @@ model = regressor.fit(
     y=housing_prices,
     X=predictor_features,
     spatial_weights=neighborhood_weights,
-    model_type="spatial_lag"
-)
+    model_type="spatial_lag")
 
 print(f"Coefficients: {model.coefficients}")
 print(f"Spatial autocorrelation: {model.rho}")
-print(f"R-squared: {model.r_squared}")
-```
+print(f"R-squared: {model.r_squared}")```
 
 ### 3. Hypothesis Testing
 
@@ -69,12 +65,10 @@ tester = SpatialHypothesisTester()
 clustering_result = tester.test_clustering(
     points=crime_locations,
     null_hypothesis="complete_spatial_randomness",
-    test="ripley_k"
-)
+    test="ripley_k")
 
 print(f"Clustering detected: {clustering_result.is_significant}")
-print(f"K-statistic: {clustering_result.k_value}")
-```
+print(f"K-statistic: {clustering_result.k_value}")```
 
 ### 4. Geostatistics
 
@@ -88,15 +82,13 @@ geo = Geostatistics()
 variogram = geo.compute_variogram(
     data=soil_samples,
     model="spherical",
-    max_distance=5000
-)
+    max_distance=5000)
 
 # Kriging interpolation
 interpolated = geo.krige(
     data=soil_samples,
     variogram=variogram,
-    target_grid=prediction_grid
-)
+    target_grid=prediction_grid)
 ```
 
 ## Implementation Status
@@ -139,8 +131,7 @@ graph TD
     REG --> ANALYST
     TEST --> ANALYST
     GEO --> ANALYST
-    ANALYST --> DECISION
-```
+    ANALYST --> DECISION```
 
 ## Use Cases
 
@@ -155,13 +146,11 @@ analyzer = EnvironmentalAnalyzer()
 analysis = analyzer.analyze_pollution(
     measurements=air_quality_data,
     spatial_extent=city_boundary,
-    temporal_range=("2025-01-01", "2025-12-31")
-)
+    temporal_range=("2025-01-01", "2025-12-31"))
 
 print(f"Hotspots: {analysis.hotspots}")
 print(f"Trends: {analysis.temporal_trends}")
-print(f"Risk areas: {analysis.risk_zones}")
-```
+print(f"Risk areas: {analysis.risk_zones}")```
 
 ### 2. Epidemiological Analysis
 
@@ -174,12 +163,10 @@ mapper = DiseaseMapper()
 mapping = mapper.analyze(
     cases=disease_cases,
     population=population_data,
-    risk_factors=environmental_factors
-)
+    risk_factors=environmental_factors)
 
 print(f"Relative risk: {mapping.relative_risk}")
-print(f"Cluster locations: {mapping.clusters}")
-```
+print(f"Cluster locations: {mapping.clusters}")```
 
 ---
 

@@ -1,5 +1,3 @@
-
-
 # Agent
 : generated 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-PLACE/locations/cascadia/generated` 
-- **Type**: Directory Node 
+- **Type**: Directory Node

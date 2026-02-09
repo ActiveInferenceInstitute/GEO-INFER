@@ -208,19 +208,19 @@ class PerformanceMonitor:
         warnings = []
 
         if metrics.cpu_percent > self.thresholds['cpu_percent']:
-            warnings.append(f"High CPU usage: {metrics.cpu_percent".1f"}%")
+            warnings.append(f"High CPU usage: {metrics.cpu_percent:.1f}%")
 
         if metrics.memory_percent > self.thresholds['memory_percent']:
-            warnings.append(f"High memory usage: {metrics.memory_percent".1f"}%")
+            warnings.append(f"High memory usage: {metrics.memory_percent:.1f}%")
 
         if metrics.measurements_per_second < self.thresholds['measurements_per_second']:
-            warnings.append(f"Low measurement throughput: {metrics.measurements_per_second".1f"}/sec")
+            warnings.append(f"Low measurement throughput: {metrics.measurements_per_second:.1f}/sec")
 
         if metrics.processing_latency_ms > self.thresholds['latency_ms']:
-            warnings.append(f"High processing latency: {metrics.processing_latency_ms".1f"}ms")
+            warnings.append(f"High processing latency: {metrics.processing_latency_ms:.1f}ms")
 
         if metrics.error_rate > self.thresholds['error_rate']:
-            warnings.append(f"High error rate: {metrics.error_rate".2%"}")
+            warnings.append(f"High error rate: {metrics.error_rate:.2%}")
 
         if warnings:
             logger.warning(f"Performance thresholds exceeded: {', '.join(warnings)}")

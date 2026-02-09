@@ -28,8 +28,7 @@ pytest tests/performance/
 pytest tests/performance/ --profile
 
 # Run specific benchmark
-pytest tests/performance/test_benchmarks.py::test_ingestion_benchmark
-```
+pytest tests/performance/test_benchmarks.py::test_ingestion_benchmark```
 
 ## Integration
 

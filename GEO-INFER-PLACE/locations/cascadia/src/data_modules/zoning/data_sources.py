@@ -8,6 +8,7 @@ Fetches real zoning/farmland classification data from:
 import json
 import logging
 import requests
+import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Polygon, box
 from pathlib import Path
@@ -295,7 +296,7 @@ class CascadianZoningDataSources:
         
         # 4. Combine or use synthetic fallback
         if all_gdfs:
-            combined_gdf = gpd.pd.concat(all_gdfs, ignore_index=True)
+            combined_gdf = pd.concat(all_gdfs, ignore_index=True)
             logger.info(f"[zoning] Combined {len(combined_gdf)} total features from {len(all_gdfs)} sources")
         else:
             logger.warning("[zoning] No real data fetched, using synthetic fallback")

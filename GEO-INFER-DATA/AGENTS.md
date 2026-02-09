@@ -26,12 +26,10 @@ ingester = DataIngester()
 dataset = ingester.ingest(
     source="s3://bucket/parcels.parquet",
     format="geoparquet",
-    validation=True
-)
+    validation=True)
 
 print(f"Records: {dataset.count}")
-print(f"CRS: {dataset.crs}")
-```
+print(f"CRS: {dataset.crs}")```
 
 ### 2. Data Transformation
 
@@ -44,11 +42,9 @@ transformer = DataTransformer()
 transformed = transformer.transform(
     data=input_data,
     operations=["reproject", "simplify", "buffer"],
-    target_crs="EPSG:4326"
-)
+    target_crs="EPSG:4326")
 
-print(f"Output features: {transformed.count}")
-```
+print(f"Output features: {transformed.count}")```
 
 ### 3. Data Catalog
 
@@ -62,11 +58,9 @@ catalog = DataCatalog()
 datasets = catalog.search(
     keywords=["parcels", "zoning"],
     bbox=city_boundary,
-    temporal="2025"
-)
+    temporal="2025")
 
-print(f"Found: {len(datasets)} datasets")
-```
+print(f"Found: {len(datasets)} datasets")```
 
 ### 4. Data Quality
 
@@ -78,12 +72,10 @@ checker = DataQualityChecker()
 
 report = checker.check(
     data=spatial_dataset,
-    rules=["valid_geometry", "no_gaps", "topology"]
-)
+    rules=["valid_geometry", "no_gaps", "topology"])
 
 print(f"Quality score: {report.score}%")
-print(f"Issues: {report.issues}")
-```
+print(f"Issues: {report.issues}")```
 
 ## Implementation Status
 

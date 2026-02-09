@@ -1,5 +1,3 @@
-
-
 # Agent
 : examples 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-SPACE/examples` 
-- **Type**: Directory Node 
+- **Type**: Directory Node

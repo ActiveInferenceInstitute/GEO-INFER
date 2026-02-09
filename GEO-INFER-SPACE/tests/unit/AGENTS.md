@@ -1,5 +1,3 @@
-
-
 # Agent
 : unit 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-SPACE/tests/unit` 
-- **Type**: Directory Node 
+- **Type**: Directory Node

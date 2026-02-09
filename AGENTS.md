@@ -212,8 +212,7 @@ graph TB
     class Core_Agent_Framework core
     class Coordination_Layer coord
     class Spatial_Intelligence spatial
-    class Integration_Layer integration
-```
+    class Integration_Layer integration```
 
 ## Core Agent Framework
 
@@ -251,15 +250,13 @@ agent = EnvironmentalMonitoringAgent(
     sensors=['temperature', 'humidity', 'air_quality'],
     monitoring_frequency='real_time',
     anomaly_detection=True,
-    predictive_modeling=True
-)
+    predictive_modeling=True)
 
 # Agent capabilities
 agent.monitor_environment()
 agent.detect_anomalies()
 agent.generate_alerts()
-agent.optimize_sensor_placement()
-```
+agent.optimize_sensor_placement()```
 
 #### 2. Infrastructure Management Agents 🔮
 
@@ -291,15 +288,13 @@ agent = InfrastructureManagementAgent(
     spatial_network=road_network,
     maintenance_schedule='predictive',
     risk_assessment=True,
-    resource_optimization=True
-)
+    resource_optimization=True)
 
 # Agent capabilities
 agent.monitor_infrastructure_health()
 agent.schedule_maintenance()
 agent.optimize_resource_allocation()
-agent.assess_risks()
-```
+agent.assess_risks()```
 
 #### 3. Urban Planning Agents 🔮
 
@@ -333,15 +328,13 @@ agent = UrbanPlanningAgent(
     stakeholder_groups=['residents', 'businesses', 'government'],
     spatial_resolution='high',
     multi_objective_optimization=True,
-    scenario_planning=True
-)
+    scenario_planning=True)
 
 # Agent capabilities
 agent.analyze_land_use_patterns()
 agent.model_urban_growth()
 agent.optimize_development_scenarios()
-agent.facilitate_stakeholder_engagement()
-```
+agent.facilitate_stakeholder_engagement()```
 
 #### 4. Emergency Response Agents 🔮
 
@@ -374,15 +367,13 @@ agent = EmergencyResponseAgent(
     emergency_types=['flood', 'fire', 'earthquake'],
     response_coordination='multi_agency',
     real_time_assessment=True,
-    public_communication=True
-)
+    public_communication=True)
 
 # Agent capabilities
 agent.assess_situation()
 agent.optimize_resource_deployment()
 agent.coordinate_response_efforts()
-agent.manage_public_communication()
-```
+agent.manage_public_communication()```
 
 ### Agent Lifecycle Management
 
@@ -417,8 +408,7 @@ stateDiagram-v2
     
     note right of Active : Core Operational State
     note right of Learning : Continuous Improvement
-    note right of Coordinating : Collaborative Behavior
-```
+    note right of Coordinating : Collaborative Behavior```
 
 ## Multi-Agent Coordination
 
@@ -445,14 +435,12 @@ coordinator = HierarchicalCoordinator(
     hierarchy_levels=['global', 'regional', 'local'],
     coordination_frequency='real_time',
     decision_authority='distributed',
-    conflict_resolution='escalation'
-)
+    conflict_resolution='escalation')
 
 # Establish coordination hierarchy
 coordinator.establish_hierarchy(agent_population)
 coordinator.assign_roles()
-coordinator.set_coordination_rules()
-```
+coordinator.set_coordination_rules()```
 
 #### Emergent Coordination 🔮
 
@@ -477,14 +465,12 @@ coordinator = EmergentCoordinator(
     emergence_mechanisms=['stigmergy', 'self_organization'],
     feedback_loops=True,
     adaptation_rate='dynamic',
-    stability_thresholds=True
-)
+    stability_thresholds=True)
 
 # Enable emergent coordination
 coordinator.enable_stigmergic_communication()
 coordinator.set_emergence_conditions()
-coordinator.monitor_system_stability()
-```
+coordinator.monitor_system_stability()```
 
 #### Auction-Based Coordination 🔮
 
@@ -507,14 +493,12 @@ coordinator = AuctionCoordinator(
     auction_mechanism='combinatorial',
     bidding_strategy='truthful',
     payment_rule='vickrey_clarke_groves',
-    resource_types=['computing', 'bandwidth', 'storage']
-)
+    resource_types=['computing', 'bandwidth', 'storage'])
 
 # Implement auction coordination
 coordinator.designate_auctioneer()
 coordinator.set_resource_markets()
-coordinator.run_auction_rounds()
-```
+coordinator.run_auction_rounds()```
 
 ### Communication Protocols
 
@@ -534,14 +518,12 @@ protocol = SpatialBroadcastProtocol(
     spatial_bounds=communication_region,
     encryption_method='aes256',
     authentication='mutual_tls',
-    message_integrity='hmac_sha256'
-)
+    message_integrity='hmac_sha256')
 
 # Configure spatial broadcasting
 protocol.set_spatial_boundaries()
 protocol.enable_encryption()
-protocol.configure_authentication()
-```
+protocol.configure_authentication()```
 
 #### Peer-to-Peer Mesh Networks 🔮
 
@@ -557,14 +539,12 @@ protocol = PeerToPeerProtocol(
     network_topology='mesh',
     routing_algorithm='geographic',
     reliability_guarantees='best_effort',
-    bandwidth_optimization=True
-)
+    bandwidth_optimization=True)
 
 # Establish peer-to-peer network
 protocol.discover_peers()
 protocol.establish_connections()
-protocol.optimize_routing()
-```
+protocol.optimize_routing()```
 
 #### Hierarchical Message Passing 🔮
 
@@ -580,14 +560,12 @@ protocol = HierarchicalProtocol(
     hierarchy_definition=hierarchy_structure,
     message_routing='top_down_bottom_up',
     priority_levels=['emergency', 'urgent', 'normal'],
-    quality_of_service=True
-)
+    quality_of_service=True)
 
 # Implement hierarchical communication
 protocol.define_hierarchy()
 protocol.set_message_routing()
-protocol.prioritize_communication()
-```
+protocol.prioritize_communication()```
 
 ### Negotiation Mechanisms
 
@@ -605,14 +583,12 @@ negotiator = BilateralNegotiator(
     negotiation_protocol='alternating_offers',
     utility_functions='custom_defined',
     time_constraints=True,
-    fairness_criteria='pareto_optimal'
-)
+    fairness_criteria='pareto_optimal')
 
 # Conduct bilateral negotiation
 negotiator.define_negotiation_space()
 negotiator.set_utility_functions()
-negotiator.conduct_negotiation()
-```
+negotiator.conduct_negotiation()```
 
 #### Multi-Party Negotiation 🔮
 
@@ -628,14 +604,12 @@ negotiator = MultiPartyNegotiator(
     negotiation_model='monotonic_concession',
     coalition_formation=True,
     mediator_support=True,
-    consensus_mechanisms=True
-)
+    consensus_mechanisms=True)
 
 # Manage multi-party negotiations
 negotiator.identify_stakeholders()
 negotiator.form_coalitions()
-negotiator.facilitate_negotiation()
-```
+negotiator.facilitate_negotiation()```
 
 ## Spatial Intelligence
 
@@ -662,14 +636,12 @@ perception = SpatialPerception(
     spatial_context='urban_environment',
     scale_awareness='multi_resolution',
     coordinate_systems=['wgs84', 'utm', 'local'],
-    relationship_types=['containment', 'adjacency', 'proximity']
-)
+    relationship_types=['containment', 'adjacency', 'proximity'])
 
 # Enable spatial perception
 perception.analyze_spatial_context()
 perception.recognize_relationships()
-perception.manage_scales()
-```
+perception.manage_scales()```
 
 #### Spatial Memory 🔮
 
@@ -690,14 +662,12 @@ memory = SpatialMemory(
     memory_capacity='adaptive',
     knowledge_types=['factual', 'procedural', 'episodic'],
     update_mechanisms='incremental_learning',
-    retrieval_strategies='associative'
-)
+    retrieval_strategies='associative')
 
 # Manage spatial memory
 memory.store_spatial_knowledge()
 memory.retrieve_spatial_patterns()
-memory.update_geographic_knowledge()
-```
+memory.update_geographic_knowledge()```
 
 ### Spatial Decision Making
 
@@ -717,14 +687,12 @@ reasoner = BayesianSpatialReasoner(
     uncertainty_model='bayesian_networks',
     evidence_integration='real_time',
     belief_updating='active_inference',
-    decision_thresholds='adaptive'
-)
+    decision_thresholds='adaptive')
 
 # Perform Bayesian spatial reasoning
 reasoner.update_beliefs(evidence)
 reasoner.assess_uncertainty()
-reasoner.make_spatial_decisions()
-```
+reasoner.make_spatial_decisions()```
 
 #### Multi-Objective Spatial Optimization 🔮
 
@@ -740,14 +708,12 @@ optimizer = MultiObjectiveSpatialOptimizer(
     objectives=['efficiency', 'equity', 'sustainability'],
     optimization_algorithm='pareto_frontier',
     constraint_handling='penalty_methods',
-    solution_evaluation='weighted_sum'
-)
+    solution_evaluation='weighted_sum')
 
 # Optimize spatial decisions
 optimizer.define_objectives()
 optimizer.generate_pareto_frontier()
-optimizer.select_optimal_solution()
-```
+optimizer.select_optimal_solution()```
 
 ### Spatial Learning
 
@@ -772,14 +738,12 @@ learner = SpatialReinforcementLearner(
     learning_algorithm='deep_q_learning',
     spatial_state_representation='graph_based',
     action_space='continuous_movement',
-    reward_function='task_specific'
-)
+    reward_function='task_specific')
 
 # Learn spatial behaviors
 learner.explore_spatial_environment()
 learner.optimize_navigation_strategy()
-learner.adapt_to_environmental_changes()
-```
+learner.adapt_to_environmental_changes()```
 
 #### Transfer Learning Across Spatial Domains 🔮
 
@@ -800,14 +764,12 @@ learner = SpatialTransferLearner(
     source_domains=['urban_planning', 'environmental_monitoring'],
     target_domain='emergency_response',
     transfer_mechanism='fine_tuning',
-    adaptation_strategy='domain_adversarial'
-)
+    adaptation_strategy='domain_adversarial')
 
 # Transfer spatial knowledge
 learner.identify_transferable_knowledge()
 learner.adapt_to_target_domain()
-learner.fine_tune_spatial_models()
-```
+learner.fine_tune_spatial_models()```
 
 ## Security and Privacy
 
@@ -827,14 +789,12 @@ security = AgentSecurityManager(
     authentication_methods=['certificate_based', 'zero_knowledge'],
     authorization_model='attribute_based',
     audit_logging=True,
-    threat_detection=True
-)
+    threat_detection=True)
 
 # Implement agent security
 security.authenticate_agents()
 security.authorize_actions()
-security.monitor_security_events()
-```
+security.monitor_security_events()```
 
 #### Secure Communication 🔮
 
@@ -848,14 +808,12 @@ communication = SecureCommunicationManager(
     encryption_protocols=['quantum_resistant', 'post_quantum'],
     key_management='distributed',
     message_integrity='blockchain_based',
-    privacy_preservation='differential_privacy'
-)
+    privacy_preservation='differential_privacy')
 
 # Secure agent communications
 communication.establish_secure_channels()
 communication.encrypt_messages()
-communication.verify_message_integrity()
-```
+communication.verify_message_integrity()```
 
 #### Privacy Protection 🔮
 
@@ -869,14 +827,12 @@ privacy = PrivacyProtectionManager(
     privacy_techniques=['federated_learning', 'homomorphic_encryption'],
     data_minimization=True,
     consent_management=True,
-    privacy_policies='gdpr_compliant'
-)
+    privacy_policies='gdpr_compliant')
 
 # Protect agent privacy
 privacy.minimize_data_collection()
 privacy.implement_privacy_preserving_computation()
-privacy.manage_consent_and_policies()
-```
+privacy.manage_consent_and_policies()```
 
 ## Integration Patterns
 
@@ -908,27 +864,30 @@ from geo_infer_act.core.active_inference import ActiveInferenceModel
 
 # Create agent with active inference
 agent = ActiveInferenceAgent(
-    state_dim=10,  # Dimensionality of state space
-    obs_dim=5,     # Dimensionality of observation space
-    action_dim=3,  # Dimensionality of action space
+    state_dim=10, 
+
+# Dimensionality of state space
+    obs_dim=5,    
+
+# Dimensionality of observation space
+    action_dim=3, 
+
+# Dimensionality of action space
     config={
         'planning_horizon': 5,
         'precision': 1.0,
         'learning_rate': 0.01
-    }
-)
+    })
 
 # Create Active Inference model from ACT module
 act_model = ActiveInferenceModel(
     model_type='categorical',
     state_dim=10,
-    obs_dim=5
-)
+    obs_dim=5)
 
 # Use the agent for perception and action
 observation = agent.perceive(obs_array)
-action = agent.act(observation)
-```
+action = agent.act(observation)```
 
 ### GEO-INFER-AI Integration
 
@@ -944,15 +903,13 @@ from geo_infer_agent.models.hybrid import HybridAgent
 rl_agent = RLAgent(
     state_dim=10,
     action_dim=3,
-    learning_rate=0.001
-)
+    learning_rate=0.001)
 
 # Or use hybrid agent combining multiple approaches
 hybrid_agent = HybridAgent(
     agent_id="hybrid_001",
     model_types=['active_inference', 'reinforcement_learning'],
-    config={'learning_rate': 0.01}
-)
+    config={'learning_rate': 0.01})
 ```
 
 ### GEO-INFER-SPACE Integration
@@ -970,26 +927,34 @@ from geo_infer_space.core.dispatcher import configure_backends
 # Configure backend preferences for agent operations
 configure_backends({
     'default_backends': {
-        'indexing': 'h3',    # Use H3 v4 for spatial indexing
-        'analytics': 'srai',  # Use SRAI for spatial analytics
-    }
-})
+        'indexing': 'h3',   
+
+# Use H3 v4 for spatial indexing
+        'analytics': 'srai', 
+
+# Use SRAI for spatial analytics
+    }})
 
 # Create agent registry for managing multiple agents
 registry = AgentRegistry()
 
 # Create backend-agnostic spatial interfaces
-spatial_indexer = SpatialIndexingInterface()  # Uses H3 v4 by default
-spatial_analytics = SpatialAnalyticsInterface()  # Uses SRAI by default
+spatial_indexer = SpatialIndexingInterface() 
+
+# Uses H3 v4 by default
+spatial_analytics = SpatialAnalyticsInterface() 
+
+# Uses SRAI by default
 
 # Use H3 v4 backend explicitly for high-precision spatial operations
 h3_indexer = SpatialIndexingInterface(backend='h3')
-cell_h3 = h3_indexer.latlng_to_cell(37.7749, -122.4194, 9)  # H3 v4 API
+cell_h3 = h3_indexer.latlng_to_cell(37.7749, -122.4194, 9) 
+
+# H3 v4 API
 
 # Use SRAI backend explicitly for AI-analytics
 srai_analytics = SpatialAnalyticsInterface(backend='srai')
-hotspots = srai_analytics.analyze_hotspots(spatial_data)
-```
+hotspots = srai_analytics.analyze_hotspots(spatial_data)```
 
 ### GEO-INFER-SEC Integration
 
@@ -1010,8 +975,7 @@ class SecureAgent(BaseAgent):
 # Create secure agent instance
 agent = SecureAgent(
     agent_id="secure_agent",
-    config={'security_enabled': True}
-)
+    config={'security_enabled': True})
 ```
 
 ## Performance Optimization
@@ -1028,15 +992,13 @@ optimizer = AgentPerformanceOptimizer(
     scaling_strategy='horizontal',
     load_balancing='spatial_partitioning',
     resource_allocation='dynamic',
-    monitoring_enabled=True
-)
+    monitoring_enabled=True)
 
 # Optimize agent performance
 optimizer.scale_agent_population()
 optimizer.balance_workload()
 optimizer.allocate_resources()
-optimizer.monitor_performance()
-```
+optimizer.monitor_performance()```
 
 ### Efficient Coordination 🔮
 
@@ -1050,14 +1012,12 @@ optimizer = CoordinationPerformanceOptimizer(
     coordination_efficiency='adaptive',
     communication_overhead='minimized',
     decision_speed='optimized',
-    scalability='horizontal'
-)
+    scalability='horizontal')
 
 # Optimize coordination performance
 optimizer.streamline_communication()
 optimizer.parallelize_decisions()
-optimizer.distribute_coordination()
-```
+optimizer.distribute_coordination()```
 
 ### Spatial Intelligence Optimization 🔮
 
@@ -1071,14 +1031,12 @@ optimizer = SpatialIntelligenceOptimizer(
     spatial_indexing='h3_optimized',
     computation_parallelization='gpu_accelerated',
     memory_management='adaptive',
-    caching_strategy='hierarchical'
-)
+    caching_strategy='hierarchical')
 
 # Optimize spatial intelligence
 optimizer.optimize_spatial_indexing()
 optimizer.enable_parallel_computation()
-optimizer.manage_memory_efficiently()
-```
+optimizer.manage_memory_efficiently()```
 
 ## Use Cases
 
@@ -1097,8 +1055,7 @@ city_system = SmartCityAgentSystem(
     city_bounds=san_francisco_bounds,
     agent_types=['traffic', 'energy', 'waste', 'security', 'health'],
     coordination_strategy='hierarchical_emergent',
-    real_time_monitoring=True
-)
+    real_time_monitoring=True)
 
 # Deploy city management agents
 traffic_agent = city_system.deploy_traffic_agent()
@@ -1108,8 +1065,7 @@ security_agent = city_system.deploy_security_agent()
 # Enable coordinated city management
 city_system.enable_cross_domain_coordination()
 city_system.monitor_city_performance()
-city_system.optimize_city_operations()
-```
+city_system.optimize_city_operations()```
 
 ### Environmental Monitoring Network 🔮
 
@@ -1128,8 +1084,7 @@ network = EnvironmentalMonitoringNetwork(
     monitoring_region=california_bounds,
     agent_density='adaptive',
     sensor_types=['air_quality', 'water_quality', 'soil_moisture', 'wildlife'],
-    coordination_strategy='swarm_intelligence'
-)
+    coordination_strategy='swarm_intelligence')
 
 # Deploy monitoring agents
 air_quality_agents = network.deploy_air_quality_agents()
@@ -1139,8 +1094,7 @@ wildlife_agents = network.deploy_wildlife_agents()
 # Enable adaptive monitoring
 network.enable_adaptive_sampling()
 network.coordinate_monitoring_efforts()
-network.detect_environmental_anomalies()
-```
+network.detect_environmental_anomalies()```
 
 ### Emergency Response Coordination 🔮
 
@@ -1159,8 +1113,7 @@ coordinator = EmergencyResponseCoordinator(
     emergency_types=['flood', 'fire', 'earthquake', 'hurricane'],
     agency_types=['fire', 'police', 'medical', 'national_guard'],
     coordination_strategy='auction_based',
-    real_time_optimization=True
-)
+    real_time_optimization=True)
 
 # Deploy emergency response agents
 response_agents = coordinator.deploy_emergency_agents()
@@ -1169,8 +1122,7 @@ response_agents = coordinator.deploy_emergency_agents()
 coordinator.assess_situation()
 coordinator.allocate_resources()
 coordinator.optimize_response_routes()
-coordinator.coordinate_agency_efforts()
-```
+coordinator.coordinate_agency_efforts()```
 
 ## Testing and Validation
 
@@ -1185,15 +1137,13 @@ from geo_infer_agent.testing import AgentTestingFramework
 testing = AgentTestingFramework(
     test_types=['unit', 'integration', 'performance', 'security'],
     simulation_environment='virtual',
-    validation_metrics=['correctness', 'efficiency', 'robustness']
-)
+    validation_metrics=['correctness', 'efficiency', 'robustness'])
 
 # Test agent functionality
 testing.test_agent_decision_making()
 testing.test_agent_coordination()
 testing.test_agent_security()
-testing.validate_agent_performance()
-```
+testing.validate_agent_performance()```
 
 ### Multi-Agent System Validation 🔮
 
@@ -1206,14 +1156,12 @@ from geo_infer_agent.testing import MultiAgentSystemValidator
 validator = MultiAgentSystemValidator(
     validation_scenarios=['normal_operation', 'stress_testing', 'failure_recovery'],
     performance_metrics=['throughput', 'latency', 'scalability'],
-    correctness_criteria=['emergent_behavior', 'system_stability']
-)
+    correctness_criteria=['emergent_behavior', 'system_stability'])
 
 # Validate MAS functionality
 validator.validate_coordination_mechanisms()
 validator.test_system_resilience()
-validator.assess_emergent_behavior()
-```
+validator.assess_emergent_behavior()```
 
 ## Future Developments
 

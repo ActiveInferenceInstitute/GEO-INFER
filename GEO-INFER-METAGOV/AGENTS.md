@@ -30,14 +30,12 @@ policy = modeler.create_policy(
     constraints={
         "building_density": 0,
         "land_conversion": False
-    }
-)
+    })
 
 # Simulate policy impact
 impact = modeler.simulate_impact(policy, time_horizon="10_years")
 print(f"Preserved area: {impact.preserved_hectares} ha")
-print(f"Economic impact: ${impact.economic_cost}M")
-```
+print(f"Economic impact: ${impact.economic_cost}M")```
 
 ### 2. Stakeholder Coordination
 
@@ -55,8 +53,7 @@ coordinator.register_stakeholder("developers", role="proposal_submitter")
 # Facilitate voting
 result = coordinator.conduct_vote(
     proposal="rezoning_downtown",
-    voting_method="weighted_score"
-)
+    voting_method="weighted_score")
 ```
 
 ### 3. Governance Analytics
@@ -71,13 +68,11 @@ analyzer = GovernanceAnalyzer()
 patterns = analyzer.analyze_decisions(
     jurisdiction="san_francisco",
     decision_type="zoning",
-    time_range=("2020-01-01", "2025-12-31")
-)
+    time_range=("2020-01-01", "2025-12-31"))
 
 print(f"Approval rate: {patterns.approval_rate}%")
 print(f"Avg decision time: {patterns.avg_days} days")
-print(f"Common concerns: {patterns.top_concerns}")
-```
+print(f"Common concerns: {patterns.top_concerns}")```
 
 ### 4. Rule Engine
 
@@ -91,16 +86,14 @@ engine = RuleEngine()
 engine.add_rule(
     name="residential_height_limit",
     condition="zone_type == 'residential'",
-    constraint="building_height <= 35 feet"
-)
+    constraint="building_height <= 35 feet")
 
 # Validate proposal against rules
 proposal = {"zone_type": "residential", "building_height": 40}
 validation = engine.validate(proposal)
 
 if not validation.is_valid:
-    print(f"Violations: {validation.violations}")
-```
+    print(f"Violations: {validation.violations}")```
 
 ## Implementation Status
 
@@ -149,8 +142,7 @@ graph TD
     ANALYTICS --> GOV_AGENT
     
     GOV_AGENT --> DECISION
-    COMP_AGENT --> COMPLIANCE
-```
+    COMP_AGENT --> COMPLIANCE```
 
 ## Use Cases
 
@@ -166,14 +158,12 @@ proposal = {
     "type": "mixed_use",
     "location": downtown_parcel,
     "height": 150,
-    "units": 200
-}
+    "units": 200}
 
 evaluation = framework.evaluate_proposal(proposal)
 print(f"Compliance: {evaluation.compliance_score}%")
 print(f"Community impact: {evaluation.community_impact}")
-print(f"Recommendation: {evaluation.recommendation}")
-```
+print(f"Recommendation: {evaluation.recommendation}")```
 
 ### 2. Environmental Governance
 
@@ -186,12 +176,10 @@ env_gov = EnvironmentalGovernance()
 regulation = env_gov.create_regulation(
     name="watershed_protection",
     affected_area=watershed_boundary,
-    restrictions=["no_development", "buffer_zones"]
-)
+    restrictions=["no_development", "buffer_zones"])
 
 # Monitor compliance
-violations = env_gov.monitor_compliance(regulation)
-```
+violations = env_gov.monitor_compliance(regulation)```
 
 ---
 

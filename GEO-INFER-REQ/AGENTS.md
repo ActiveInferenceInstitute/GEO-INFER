@@ -26,8 +26,7 @@ analyzer = RequirementsAnalyzer()
 # Parse and validate requirements
 requirements = analyzer.parse(
     source="requirements.txt",
-    format="pip"
-)
+    format="pip")
 
 # Check compatibility
 compatibility = analyzer.check_compatibility(
@@ -35,12 +34,10 @@ compatibility = analyzer.check_compatibility(
     environment={
         "python_version": "3.11",
         "platform": "linux"
-    }
-)
+    })
 
 print(f"Compatible: {compatibility.is_compatible}")
-print(f"Issues: {compatibility.issues}")
-```
+print(f"Issues: {compatibility.issues}")```
 
 ### 2. Dependency Resolution
 
@@ -56,12 +53,10 @@ solution = resolver.resolve(
     constraints={
         "numpy": ">=1.20,<2.0",
         "h3": ">=4.0"
-    }
-)
+    })
 
 print(f"Resolved packages: {solution.packages}")
-print(f"Install order: {solution.install_order}")
-```
+print(f"Install order: {solution.install_order}")```
 
 ### 3. Project Planning
 
@@ -78,13 +73,11 @@ plan = planner.create_plan(
     constraints={
         "memory_limit": "8GB",
         "time_budget": "2_hours"
-    }
-)
+    })
 
 print(f"Required modules: {plan.modules}")
 print(f"Estimated resources: {plan.resource_estimate}")
-print(f"Setup steps: {plan.setup_steps}")
-```
+print(f"Setup steps: {plan.setup_steps}")```
 
 ### 4. Environment Management
 
@@ -98,13 +91,11 @@ env_manager = EnvironmentManager()
 env = env_manager.create(
     name="analysis_env",
     requirements=["geo-infer-act", "geo-infer-space"],
-    isolation="virtual"
-)
+    isolation="virtual")
 
 # Validate environment
 validation = env_manager.validate(env)
-print(f"Environment valid: {validation.is_valid}")
-```
+print(f"Environment valid: {validation.is_valid}")```
 
 ## Implementation Status
 
@@ -147,8 +138,7 @@ graph TD
     RESOLVE --> SETUP
     PLAN --> DEPLOY
     ENV --> DEPLOY
-    RESOLVE --> UPDATE
-```
+    RESOLVE --> UPDATE```
 
 ## Use Cases
 
@@ -162,17 +152,20 @@ class SelfConfiguringAgent(BaseAgent):
     def __init__(self, capabilities_needed):
         self.req_manager = RequirementsManager()
         
-        # Resolve required dependencies
+       
+
+# Resolve required dependencies
         deps = self.req_manager.resolve_for_capabilities(
             capabilities_needed
         )
         
-        # Verify environment
+       
+
+# Verify environment
         if not self.req_manager.verify_installed(deps):
             self.req_manager.install_missing(deps)
         
-        super().__init__()
-```
+        super().__init__()```
 
 ### 2. Multi-Agent Deployment
 
@@ -185,13 +178,11 @@ planner = DeploymentPlanner()
 deployment = planner.plan_deployment(
     agents=["DataCollectorAgent", "AnalysisAgent", "ReportAgent"],
     target_environment="kubernetes",
-    resources={"cpu": "4", "memory": "16GB"}
-)
+    resources={"cpu": "4", "memory": "16GB"})
 
 print(f"Container images: {deployment.images}")
 print(f"Resource allocation: {deployment.resources}")
-print(f"Deployment order: {deployment.order}")
-```
+print(f"Deployment order: {deployment.order}")```
 
 ---
 

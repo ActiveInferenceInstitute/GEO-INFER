@@ -26,12 +26,10 @@ assessor = HazardAssessor()
 hazards = assessor.assess(
     area=study_region,
     hazard_types=["flood", "earthquake", "wildfire"],
-    return_periods=[10, 50, 100, 500]
-)
+    return_periods=[10, 50, 100, 500])
 
 print(f"Flood zones: {hazards.flood.zone_areas}")
-print(f"Seismic hazard: {hazards.earthquake.pga}")
-```
+print(f"Seismic hazard: {hazards.earthquake.pga}")```
 
 ### 2. Vulnerability Analysis
 
@@ -44,12 +42,10 @@ vuln = VulnerabilityAnalyzer()
 analysis = vuln.analyze(
     assets=building_footprints,
     hazards=hazard_layers,
-    factors=["age", "construction", "occupancy"]
-)
+    factors=["age", "construction", "occupancy"])
 
 print(f"High vulnerability: {analysis.high_risk_count}")
-print(f"Estimated loss: ${analysis.expected_loss}M")
-```
+print(f"Estimated loss: ${analysis.expected_loss}M")```
 
 ### 3. Risk Modeling
 
@@ -62,12 +58,10 @@ modeler = RiskModeler()
 risk = modeler.model(
     hazard=earthquake_scenario,
     exposure=building_inventory,
-    vulnerability=fragility_curves
-)
+    vulnerability=fragility_curves)
 
 print(f"Expected casualties: {risk.casualties}")
-print(f"Economic loss: ${risk.economic_loss}B")
-```
+print(f"Economic loss: ${risk.economic_loss}B")```
 
 ### 4. Mitigation Planning
 
@@ -80,12 +74,10 @@ planner = MitigationPlanner()
 plan = planner.create(
     risks=identified_risks,
     strategies=["retrofit", "relocation", "insurance"],
-    budget=100_000_000
-)
+    budget=100_000_000)
 
 print(f"Risk reduction: {plan.risk_reduction}%")
-print(f"ROI: {plan.benefit_cost_ratio}")
-```
+print(f"ROI: {plan.benefit_cost_ratio}")```
 
 ## Implementation Status
 

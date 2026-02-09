@@ -359,4 +359,417 @@ class BiophysicalEquilibriumModels:
             return sum(service_values)
 
 # Export the main class
-__all__ = ['BiophysicalEquilibriumModels', 'EcologicalEconomicsConfig'] 
+__all__ = [
+    'BiophysicalEquilibriumModels',
+    'EcologicalEconomicsConfig',
+    'EcologicalEconomicsEngine',
+    'ThermoeconomicModels',
+    'EcologicalFootprintAnalysis',
+    'CarryingCapacityModels',
+]
+
+
+class ThermoeconomicModels:
+    """Energy-flow economics using emergy analysis and exergy efficiency.
+
+    Models the thermodynamic basis of economic value, tracking energy
+    transformations across ecological-economic systems.
+    """
+
+    def __init__(self, config: Optional[EcologicalEconomicsConfig] = None):
+        self.config = config or EcologicalEconomicsConfig()
+        # Solar emjoules per joule for common energy forms
+        self._transformities: Dict[str, float] = {
+            "sunlight": 1.0,
+            "wind": 1_496.0,
+            "rain_chemical": 18_199.0,
+            "wood": 34_500.0,
+            "coal": 40_000.0,
+            "electricity": 174_000.0,
+            "human_labor": 6_800_000.0,
+        }
+        logger.info("ThermoeconomicModels initialized")
+
+    def emergy_analysis(self, flows: List[Dict[str, Any]]) -> Dict[str, Any]:
+        """Compute total emergy (solar emjoules) for a set of energy flows.
+
+        Args:
+            flows: List of dicts with ``energy_type``, ``joules``.
+
+        Returns:
+            Dict with per-flow emergy, total emergy, and emergy yield ratio.
+        """
+        results = []
+        total_emergy = 0.0
+        renewable_emergy = 0.0
+
+        for flow in flows:
+            energy_type = flow.get("energy_type", "sunlight")
+            joules = float(flow.get("joules", 0))
+            transformity = self._transformities.get(energy_type, 1.0)
+            emergy = joules * transformity
+            total_emergy += emergy
+            if energy_type in {"sunlight", "wind", "rain_chemical"}:
+                renewable_emergy += emergy
+            results.append({
+                "energy_type": energy_type,
+                "joules": joules,
+                "transformity": transformity,
+                "emergy_sej": round(emergy, 2),
+            })
+
+        # Emergy Yield Ratio = total emergy / purchased emergy
+        purchased_emergy = total_emergy - renewable_emergy
+        eyr = (
+            round(total_emergy / purchased_emergy, 4)
+            if purchased_emergy > 0
+            else float("inf")
+        )
+
+        return {
+            "flows": results,
+            "total_emergy_sej": round(total_emergy, 2),
+            "renewable_fraction": round(
+                renewable_emergy / max(total_emergy, 1e-10), 4
+            ),
+            "emergy_yield_ratio": eyr,
+        }
+
+    def exergy_efficiency(
+        self,
+        energy_input: float,
+        useful_work: float,
+        waste_heat: float,
+    ) -> Dict[str, Any]:
+        """Compute exergy (second-law) efficiency.
+
+        Args:
+            energy_input: Total energy input (joules).
+            useful_work: Useful work extracted (joules).
+            waste_heat: Waste heat dissipated (joules).
+
+        Returns:
+            Dict with first-law and second-law efficiencies.
+        """
+        first_law = useful_work / max(energy_input, 1e-10)
+        exergy_available = energy_input - waste_heat
+        second_law = useful_work / max(exergy_available, 1e-10)
+
+        return {
+            "energy_input": energy_input,
+            "useful_work": useful_work,
+            "waste_heat": waste_heat,
+            "first_law_efficiency": round(first_law, 4),
+            "second_law_efficiency": round(min(second_law, 1.0), 4),
+        }
+
+
+class EcologicalFootprintAnalysis:
+    """Ecological footprint vs biocapacity accounting.
+
+    Computes per-capita and aggregate footprints across six land-use types
+    following the Global Footprint Network methodology.
+    """
+
+    LAND_USE_TYPES = [
+        "cropland",
+        "grazing",
+        "forest",
+        "fishing",
+        "built_up",
+        "carbon",
+    ]
+
+    # Default global-average yield factors (gha / ha)
+    _DEFAULT_YIELD_FACTORS: Dict[str, float] = {
+        "cropland": 2.51,
+        "grazing": 0.46,
+        "forest": 1.26,
+        "fishing": 0.37,
+        "built_up": 2.51,
+        "carbon": 1.26,
+    }
+
+    # Equivalence factors (global hectares per bioproductive hectare)
+    _DEFAULT_EQ_FACTORS: Dict[str, float] = {
+        "cropland": 2.51,
+        "grazing": 0.46,
+        "forest": 1.26,
+        "fishing": 0.37,
+        "built_up": 2.51,
+        "carbon": 1.26,
+    }
+
+    def __init__(self, config: Optional[EcologicalEconomicsConfig] = None):
+        self.config = config or EcologicalEconomicsConfig()
+        logger.info("EcologicalFootprintAnalysis initialized")
+
+    def compute_footprint(
+        self,
+        consumption: Dict[str, float],
+        population: float = 1.0,
+        yield_factors: Optional[Dict[str, float]] = None,
+        equivalence_factors: Optional[Dict[str, float]] = None,
+    ) -> Dict[str, Any]:
+        """Compute ecological footprint in global hectares.
+
+        Args:
+            consumption: Dict mapping land-use type → hectares consumed.
+            population: Population for per-capita calculation.
+            yield_factors: Optional custom yield factors.
+            equivalence_factors: Optional custom equivalence factors.
+
+        Returns:
+            Dict with per-type footprint, total, and per-capita values.
+        """
+        yf = yield_factors or self._DEFAULT_YIELD_FACTORS
+        ef = equivalence_factors or self._DEFAULT_EQ_FACTORS
+
+        breakdown: Dict[str, float] = {}
+        for lut in self.LAND_USE_TYPES:
+            area = float(consumption.get(lut, 0))
+            gha = area * yf.get(lut, 1.0) * ef.get(lut, 1.0)
+            breakdown[lut] = round(gha, 4)
+
+        total_gha = sum(breakdown.values())
+        per_capita = total_gha / max(population, 1)
+
+        return {
+            "footprint_by_type_gha": breakdown,
+            "total_footprint_gha": round(total_gha, 4),
+            "per_capita_gha": round(per_capita, 4),
+            "population": population,
+        }
+
+    def compute_biocapacity(
+        self,
+        areas: Dict[str, float],
+        yield_factors: Optional[Dict[str, float]] = None,
+        equivalence_factors: Optional[Dict[str, float]] = None,
+    ) -> Dict[str, Any]:
+        """Compute biocapacity in global hectares.
+
+        Args:
+            areas: Dict mapping land-use type → bioproductive hectares available.
+            yield_factors: Optional custom yield factors.
+            equivalence_factors: Optional custom equivalence factors.
+
+        Returns:
+            Dict with per-type biocapacity and total.
+        """
+        yf = yield_factors or self._DEFAULT_YIELD_FACTORS
+        ef = equivalence_factors or self._DEFAULT_EQ_FACTORS
+
+        breakdown: Dict[str, float] = {}
+        for lut in self.LAND_USE_TYPES:
+            area = float(areas.get(lut, 0))
+            gha = area * yf.get(lut, 1.0) * ef.get(lut, 1.0)
+            breakdown[lut] = round(gha, 4)
+
+        return {
+            "biocapacity_by_type_gha": breakdown,
+            "total_biocapacity_gha": round(sum(breakdown.values()), 4),
+        }
+
+    def overshoot_analysis(
+        self,
+        footprint_gha: float,
+        biocapacity_gha: float,
+    ) -> Dict[str, Any]:
+        """Determine ecological overshoot or reserve.
+
+        Args:
+            footprint_gha: Total ecological footprint.
+            biocapacity_gha: Total biocapacity.
+
+        Returns:
+            Dict with deficit/reserve, number of earths, and overshoot day.
+        """
+        balance = biocapacity_gha - footprint_gha
+        n_earths = footprint_gha / max(biocapacity_gha, 1e-10)
+        overshoot_day = int(365 / max(n_earths, 1e-10)) if n_earths > 1 else None
+
+        return {
+            "ecological_balance_gha": round(balance, 4),
+            "status": "reserve" if balance >= 0 else "deficit",
+            "number_of_earths": round(n_earths, 4),
+            "overshoot_day": overshoot_day,
+        }
+
+
+class CarryingCapacityModels:
+    """Population and resource carrying capacity estimation.
+
+    Uses logistic growth with resource constraints to estimate the maximum
+    sustainable population or throughput for a bioregion.
+    """
+
+    def __init__(self, config: Optional[EcologicalEconomicsConfig] = None):
+        self.config = config or EcologicalEconomicsConfig()
+        logger.info("CarryingCapacityModels initialized")
+
+    def estimate_carrying_capacity(
+        self,
+        resources: List[Dict[str, Any]],
+        current_population: float,
+        safety_margin: float = 0.2,
+    ) -> Dict[str, Any]:
+        """Estimate carrying capacity from multiple resource constraints.
+
+        Args:
+            resources: List of dicts with ``name``, ``available``,
+                       ``per_capita_requirement``.
+            current_population: Current population count.
+            safety_margin: Fraction reserved as buffer (0-1).
+
+        Returns:
+            Dict with per-resource capacity, binding constraint, and status.
+        """
+        capacities: Dict[str, float] = {}
+        for r in resources:
+            name = r.get("name", "unknown")
+            available = float(r.get("available", 0))
+            per_cap = float(r.get("per_capita_requirement", 1))
+            usable = available * (1 - safety_margin)
+            cap = usable / max(per_cap, 1e-10)
+            capacities[name] = round(cap, 2)
+
+        binding_resource = min(capacities, key=capacities.get)
+        carrying_cap = capacities[binding_resource]
+        utilisation = current_population / max(carrying_cap, 1e-10)
+
+        return {
+            "per_resource_capacity": capacities,
+            "carrying_capacity": round(carrying_cap, 2),
+            "binding_resource": binding_resource,
+            "current_population": current_population,
+            "utilisation_ratio": round(utilisation, 4),
+            "status": "within_capacity" if utilisation <= 1.0 else "over_capacity",
+            "safety_margin": safety_margin,
+        }
+
+    def simulate_logistic_growth(
+        self,
+        initial_population: float,
+        carrying_capacity: float,
+        growth_rate: float = 0.03,
+        time_horizon: Optional[int] = None,
+    ) -> Dict[str, Any]:
+        """Simulate logistic population growth toward carrying capacity.
+
+        Args:
+            initial_population: Starting population.
+            carrying_capacity: Maximum sustainable population K.
+            growth_rate: Intrinsic growth rate r.
+            time_horizon: Years to simulate.
+
+        Returns:
+            Dict with time-series, half-saturation year, and equilibrium flag.
+        """
+        T = time_horizon or self.config.time_horizon
+        pop = float(initial_population)
+        K = float(carrying_capacity)
+        series = [round(pop, 2)]
+
+        half_k_year: Optional[int] = None
+
+        for year in range(1, T + 1):
+            dpop = growth_rate * pop * (1 - pop / K)
+            pop = max(0.0, pop + dpop)
+            series.append(round(pop, 2))
+            if half_k_year is None and pop >= K / 2:
+                half_k_year = year
+
+        equilibrium = abs(series[-1] - K) / K < 0.01
+
+        return {
+            "population_series": series,
+            "final_population": series[-1],
+            "carrying_capacity": K,
+            "growth_rate": growth_rate,
+            "half_saturation_year": half_k_year,
+            "equilibrium_reached": equilibrium,
+            "years": T,
+        }
+
+
+class EcologicalEconomicsEngine:
+    """Unified orchestrator for ecological economics analyses.
+
+    Composes BiophysicalEquilibrium, ThermoeconomicModels,
+    EcologicalFootprintAnalysis, and CarryingCapacityModels into a
+    single entry-point.
+    """
+
+    def __init__(self, config: Optional[EcologicalEconomicsConfig] = None):
+        self.config = config or EcologicalEconomicsConfig()
+        self.biophysical = BiophysicalEquilibriumModels(self.config)
+        self.thermodynamics = ThermoeconomicModels(self.config)
+        self.footprint = EcologicalFootprintAnalysis(self.config)
+        self.carrying_capacity = CarryingCapacityModels(self.config)
+        logger.info("EcologicalEconomicsEngine initialized")
+
+    def run_analysis(self, analysis_type: str, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Run an ecological economics analysis by type.
+
+        Args:
+            analysis_type: One of ``'equilibrium'``, ``'emergy'``,
+                ``'footprint'``, ``'carrying_capacity'``.
+            data: Parameters for the chosen analysis.
+
+        Returns:
+            Analysis results dict.
+
+        Raises:
+            ValueError: If *analysis_type* is unknown.
+        """
+        dispatch: Dict[str, Any] = {
+            "equilibrium": self._run_equilibrium,
+            "emergy": self._run_emergy,
+            "footprint": self._run_footprint,
+            "carrying_capacity": self._run_carrying_capacity,
+        }
+        if analysis_type not in dispatch:
+            raise ValueError(
+                f"Unknown analysis type '{analysis_type}'. "
+                f"Choose from: {list(dispatch.keys())}"
+            )
+        logger.info("Running ecological economics analysis: %s", analysis_type)
+        return dispatch[analysis_type](data)
+
+    # ------------------------------------------------------------------
+    # Private dispatch targets
+    # ------------------------------------------------------------------
+
+    def _run_equilibrium(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        model_type = data.pop("model_type", "lotka_volterra")
+        time_steps = data.pop("time_steps", 100)
+        return self.biophysical.analyze_equilibrium(model_type, data, time_steps)
+
+    def _run_emergy(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        flows = data.get("flows", [])
+        return self.thermodynamics.emergy_analysis(flows)
+
+    def _run_footprint(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        consumption = data.get("consumption", {})
+        population = data.get("population", 1.0)
+        fp = self.footprint.compute_footprint(consumption, population)
+
+        areas = data.get("biocapacity_areas")
+        if areas:
+            bc = self.footprint.compute_biocapacity(areas)
+            overshoot = self.footprint.overshoot_analysis(
+                fp["total_footprint_gha"], bc["total_biocapacity_gha"]
+            )
+            fp.update(bc)
+            fp.update(overshoot)
+
+        return fp
+
+    def _run_carrying_capacity(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        resources = data.get("resources", [])
+        current_pop = data.get("current_population", 0)
+        safety = data.get("safety_margin", 0.2)
+        return self.carrying_capacity.estimate_carrying_capacity(
+            resources, current_pop, safety
+        )

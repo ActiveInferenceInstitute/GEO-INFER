@@ -433,7 +433,7 @@ class GeoInferOwnership(BaseAnalysisModule):
                 parcels_projected = parcels_gdf.to_crs('EPSG:3310')
                 parcels_gdf['calculated_acres'] = parcels_projected.geometry.area * 0.000247105
                 area_col = 'calculated_acres'
-            except:
+            except Exception:
                 # Fallback to rough area calculation
                 parcels_gdf['calculated_acres'] = parcels_gdf.geometry.area * 111000 * 111000 * 0.000247105
             area_col = 'calculated_acres'
@@ -462,7 +462,7 @@ class GeoInferOwnership(BaseAnalysisModule):
                 largest_share = owner_shares.max()
         
         # Calculate redevelopment potential score based on ownership patterns
-        redevelopment_score = self._calculate_redevelopment_score(
+        redevelopment_score = self._calculate_real_redevelopment_score(
             hhi, largest_share, unique_owners, num_parcels, avg_parcel_size
         )
         
@@ -476,78 +476,4 @@ class GeoInferOwnership(BaseAnalysisModule):
             'redevelopment_score': redevelopment_score
         }
 
-    def _calculate_redevelopment_score(self, hhi: float, largest_share: float, 
-                                     unique_owners: int, parcel_count: int, 
-                                     avg_parcel_size: float) -> float:
-        """
-        Calculate redevelopment potential score based on ownership patterns.
-        
-        Higher scores indicate better redevelopment potential:
-        - Lower ownership concentration (easier to negotiate)
-        - Moderate parcel sizes (not too fragmented, not too consolidated)
-        - Multiple owners (more potential for development partnerships)
-        
-        Args:
-            hhi: Herfindahl-Hirschman Index
-            largest_share: Percentage owned by largest owner
-            unique_owners: Number of unique owners
-            parcel_count: Total number of parcels
-            avg_parcel_size: Average parcel size in acres
-            
-        Returns:
-            Redevelopment potential score (0.0 to 1.0)
-        """
-        score = 0.0
-        
-        # Ownership concentration factor (lower concentration = higher score)
-        if hhi > 0:
-            # Normalize HHI (range 0-10000, where 10000 = monopoly)
-            concentration_score = max(0, 1 - (hhi / 10000))
-        else:
-            concentration_score = 0.5  # Default if no ownership data
-        
-        # Parcel size factor (moderate sizes preferred)
-        if avg_parcel_size > 0:
-            # Optimal range: 40-160 acres (good for agricultural development)
-            if 40 <= avg_parcel_size <= 160:
-                size_score = 1.0
-            elif avg_parcel_size < 40:
-                size_score = avg_parcel_size / 40  # Too small
-            else:
-                size_score = max(0.2, 160 / avg_parcel_size)  # Too large
-        else:
-            size_score = 0.0
-        
-        # Owner diversity factor
-        if unique_owners > 0:
-            # Sweet spot: 3-8 owners (diverse but manageable)
-            if 3 <= unique_owners <= 8:
-                diversity_score = 1.0
-            elif unique_owners < 3:
-                diversity_score = unique_owners / 3
-            else:
-                diversity_score = max(0.3, 8 / unique_owners)
-        else:
-            diversity_score = 0.0
-        
-        # Parcel count factor (avoid excessive fragmentation)
-        if parcel_count > 0:
-            # Prefer 5-20 parcels per H3 cell
-            if 5 <= parcel_count <= 20:
-                fragmentation_score = 1.0
-            elif parcel_count < 5:
-                fragmentation_score = parcel_count / 5
-            else:
-                fragmentation_score = max(0.2, 20 / parcel_count)
-        else:
-            fragmentation_score = 0.0
-        
-        # Weighted combination
-        score = (
-            concentration_score * 0.3 +
-            size_score * 0.3 +
-            diversity_score * 0.25 +
-            fragmentation_score * 0.15
-        )
-        
-        return min(1.0, max(0.0, score)) 
+ 

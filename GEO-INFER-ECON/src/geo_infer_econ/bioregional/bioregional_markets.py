@@ -583,6 +583,350 @@ class LocalFoodSystems:
         return np.sqrt((loc1[0] - loc2[0])**2 + (loc1[1] - loc2[1])**2) * 111  # km
 
 
+class CarbonMarkets:
+    """Cap-and-trade carbon market with allowance allocation and compliance.
+
+    Supports regional carbon trading, tracks emissions against allowances,
+    and enables credit generation from sequestration projects.
+    """
+
+    def __init__(self, market_design: BioregionalMarketDesign):
+        self.market_design = market_design
+        self.allowances: Dict[str, float] = {}  # participant_id → tonnes CO2
+        self.emissions: Dict[str, float] = {}   # participant_id → tonnes CO2
+        self.price_per_tonne: float = 50.0
+        self.trade_history: List[Dict[str, Any]] = []
+        self.sequestration_projects: Dict[str, Dict[str, Any]] = {}
+
+    def set_cap(self, total_cap: float, allocation: Dict[str, float]) -> Dict[str, Any]:
+        """Set the emissions cap and allocate allowances.
+
+        Args:
+            total_cap: Total allowable emissions (tonnes CO2).
+            allocation: Dict mapping participant_id → share (0-1).
+
+        Returns:
+            Dict with per-participant allowances.
+        """
+        self.allowances = {}
+        for pid, share in allocation.items():
+            self.allowances[pid] = round(total_cap * share, 2)
+
+        return {
+            "total_cap": total_cap,
+            "participant_allowances": dict(self.allowances),
+            "n_participants": len(self.allowances),
+        }
+
+    def report_emissions(self, participant_id: str, emissions: float) -> Dict[str, Any]:
+        """Report emissions for a participant.
+
+        Args:
+            participant_id: Participant identifier.
+            emissions: Tonnes of CO2 emitted.
+
+        Returns:
+            Dict with balance and compliance status.
+        """
+        self.emissions[participant_id] = self.emissions.get(participant_id, 0) + emissions
+        allowance = self.allowances.get(participant_id, 0)
+        balance = allowance - self.emissions[participant_id]
+
+        return {
+            "participant_id": participant_id,
+            "emissions_reported": emissions,
+            "cumulative_emissions": self.emissions[participant_id],
+            "allowance": allowance,
+            "balance": round(balance, 2),
+            "compliant": balance >= 0,
+        }
+
+    def trade_allowances(
+        self,
+        seller_id: str,
+        buyer_id: str,
+        tonnes: float,
+        price_per_tonne: Optional[float] = None,
+    ) -> Dict[str, Any]:
+        """Execute an allowance trade between participants.
+
+        Args:
+            seller_id: Selling participant.
+            buyer_id: Buying participant.
+            tonnes: Tonnes of CO2 allowance to transfer.
+            price_per_tonne: Agreed price; defaults to market price.
+
+        Returns:
+            Dict with trade details and updated balances.
+        """
+        price = price_per_tonne or self.price_per_tonne
+        seller_balance = self.allowances.get(seller_id, 0) - self.emissions.get(seller_id, 0)
+
+        if seller_balance < tonnes:
+            return {"error": f"Seller {seller_id} has insufficient surplus ({seller_balance:.2f} t)"}
+
+        self.allowances[seller_id] -= tonnes
+        self.allowances[buyer_id] = self.allowances.get(buyer_id, 0) + tonnes
+        total_cost = round(price * tonnes, 2)
+
+        trade = {
+            "seller_id": seller_id,
+            "buyer_id": buyer_id,
+            "tonnes": tonnes,
+            "price_per_tonne": price,
+            "total_cost": total_cost,
+            "timestamp": datetime.now().isoformat(),
+        }
+        self.trade_history.append(trade)
+        self.market_design.transaction_history.append(trade)
+
+        return {
+            "trade": trade,
+            "seller_new_allowance": self.allowances[seller_id],
+            "buyer_new_allowance": self.allowances[buyer_id],
+        }
+
+    def register_sequestration_project(
+        self,
+        project_id: str,
+        asset_id: str,
+        annual_sequestration: float,
+        duration_years: int = 20,
+    ) -> Dict[str, Any]:
+        """Register a carbon sequestration project for credit generation.
+
+        Args:
+            project_id: Unique project identifier.
+            asset_id: ID of the underlying bioregional asset.
+            annual_sequestration: Tonnes CO2 sequestered per year.
+            duration_years: Project crediting period.
+
+        Returns:
+            Dict with project details and projected credits.
+        """
+        project = {
+            "project_id": project_id,
+            "asset_id": asset_id,
+            "annual_sequestration": annual_sequestration,
+            "duration_years": duration_years,
+            "total_projected_credits": round(annual_sequestration * duration_years, 2),
+            "credits_issued": 0.0,
+            "status": "registered",
+        }
+        self.sequestration_projects[project_id] = project
+        return project
+
+    def check_compliance(self) -> Dict[str, Any]:
+        """Check compliance for all participants.
+
+        Returns:
+            Dict with per-participant compliance and summary.
+        """
+        results: Dict[str, Dict[str, Any]] = {}
+        compliant_count = 0
+        total_surplus = 0.0
+        total_deficit = 0.0
+
+        for pid, allowance in self.allowances.items():
+            emitted = self.emissions.get(pid, 0)
+            balance = allowance - emitted
+            is_compliant = balance >= 0
+
+            if is_compliant:
+                compliant_count += 1
+                total_surplus += balance
+            else:
+                total_deficit += abs(balance)
+
+            results[pid] = {
+                "allowance": allowance,
+                "emissions": emitted,
+                "balance": round(balance, 2),
+                "compliant": is_compliant,
+            }
+
+        return {
+            "participant_results": results,
+            "n_compliant": compliant_count,
+            "n_non_compliant": len(self.allowances) - compliant_count,
+            "total_surplus_tonnes": round(total_surplus, 2),
+            "total_deficit_tonnes": round(total_deficit, 2),
+        }
+
+
+class WaterMarkets:
+    """Water rights trading and watershed allocation markets.
+
+    Manages water rights registration, priority-based allocation, and
+    inter-participant trading within watershed boundaries.
+    """
+
+    def __init__(self, market_design: BioregionalMarketDesign):
+        self.market_design = market_design
+        self.water_rights: Dict[str, Dict[str, Any]] = {}
+        self.allocations: Dict[str, float] = {}
+        self.trade_history: List[Dict[str, Any]] = []
+        self.watershed_supply: float = 0.0
+
+    def set_watershed_supply(self, annual_supply_m3: float) -> Dict[str, Any]:
+        """Set the total available water supply for the watershed.
+
+        Args:
+            annual_supply_m3: Total annual water supply in cubic metres.
+
+        Returns:
+            Dict with supply summary.
+        """
+        self.watershed_supply = annual_supply_m3
+        return {
+            "annual_supply_m3": annual_supply_m3,
+            "total_allocated": round(sum(self.allocations.values()), 2),
+            "available": round(annual_supply_m3 - sum(self.allocations.values()), 2),
+        }
+
+    def register_water_right(
+        self,
+        right_id: str,
+        holder_id: str,
+        volume_m3: float,
+        priority: int = 1,
+        use_type: str = "agricultural",
+    ) -> Dict[str, Any]:
+        """Register a water right.
+
+        Args:
+            right_id: Unique right identifier.
+            holder_id: Holder participant ID.
+            volume_m3: Annual volume entitlement (m³).
+            priority: Priority level (1 = highest / senior).
+            use_type: Usage category (agricultural, municipal, industrial,
+                      environmental).
+
+        Returns:
+            Dict with registered right details.
+        """
+        right = {
+            "right_id": right_id,
+            "holder_id": holder_id,
+            "volume_m3": volume_m3,
+            "priority": priority,
+            "use_type": use_type,
+            "status": "active",
+        }
+        self.water_rights[right_id] = right
+        self.allocations[holder_id] = self.allocations.get(holder_id, 0) + volume_m3
+
+        return right
+
+    def allocate_by_priority(self) -> Dict[str, Any]:
+        """Allocate water by priority when supply is scarce.
+
+        Rights are filled in priority order (lower number = higher priority).
+        When supply is exhausted, remaining rights get proportional shares.
+
+        Returns:
+            Dict with per-right allocation and shortfall.
+        """
+        sorted_rights = sorted(self.water_rights.values(), key=lambda r: r["priority"])
+        remaining = self.watershed_supply
+        allocations: Dict[str, float] = {}
+        shortfalls: Dict[str, float] = {}
+
+        for right in sorted_rights:
+            rid = right["right_id"]
+            requested = right["volume_m3"]
+
+            if remaining >= requested:
+                allocations[rid] = requested
+                remaining -= requested
+                shortfalls[rid] = 0.0
+            else:
+                allocations[rid] = max(remaining, 0.0)
+                shortfalls[rid] = round(requested - max(remaining, 0.0), 2)
+                remaining = 0.0
+
+        total_allocated = sum(allocations.values())
+        total_shortfall = sum(shortfalls.values())
+
+        return {
+            "allocations": {k: round(v, 2) for k, v in allocations.items()},
+            "shortfalls": shortfalls,
+            "total_allocated_m3": round(total_allocated, 2),
+            "total_shortfall_m3": round(total_shortfall, 2),
+            "supply_utilisation": round(
+                total_allocated / max(self.watershed_supply, 1e-10), 4
+            ),
+        }
+
+    def trade_water_rights(
+        self,
+        seller_id: str,
+        buyer_id: str,
+        volume_m3: float,
+        price_per_m3: float,
+    ) -> Dict[str, Any]:
+        """Trade water allocation between participants.
+
+        Args:
+            seller_id: Selling participant.
+            buyer_id: Buying participant.
+            volume_m3: Volume to transfer (m³).
+            price_per_m3: Price per cubic metre.
+
+        Returns:
+            Dict with trade details and updated allocations.
+        """
+        seller_alloc = self.allocations.get(seller_id, 0)
+
+        if seller_alloc < volume_m3:
+            return {
+                "error": f"Seller {seller_id} has insufficient allocation "
+                         f"({seller_alloc:.2f} m³)"
+            }
+
+        self.allocations[seller_id] -= volume_m3
+        self.allocations[buyer_id] = self.allocations.get(buyer_id, 0) + volume_m3
+        total_cost = round(price_per_m3 * volume_m3, 2)
+
+        trade = {
+            "seller_id": seller_id,
+            "buyer_id": buyer_id,
+            "volume_m3": volume_m3,
+            "price_per_m3": price_per_m3,
+            "total_cost": total_cost,
+            "timestamp": datetime.now().isoformat(),
+        }
+        self.trade_history.append(trade)
+        self.market_design.transaction_history.append(trade)
+
+        return {
+            "trade": trade,
+            "seller_new_allocation": round(self.allocations[seller_id], 2),
+            "buyer_new_allocation": round(self.allocations[buyer_id], 2),
+        }
+
+    def watershed_balance(self) -> Dict[str, Any]:
+        """Get overall watershed water balance.
+
+        Returns:
+            Dict with supply, demand, and balance metrics.
+        """
+        total_demand = sum(r["volume_m3"] for r in self.water_rights.values())
+        total_allocated = sum(self.allocations.values())
+
+        return {
+            "watershed_supply_m3": self.watershed_supply,
+            "total_demand_m3": round(total_demand, 2),
+            "total_allocated_m3": round(total_allocated, 2),
+            "unallocated_m3": round(self.watershed_supply - total_allocated, 2),
+            "demand_to_supply_ratio": round(
+                total_demand / max(self.watershed_supply, 1e-10), 4
+            ),
+            "n_active_rights": len(self.water_rights),
+            "n_trades": len(self.trade_history),
+        }
+
+
 # Example usage and testing functions
 def example_bioregional_market():
     """

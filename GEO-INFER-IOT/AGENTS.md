@@ -26,14 +26,12 @@ network = SensorNetwork()
 # Register sensors
 network.register_sensors([
     {"id": "temp_001", "type": "temperature", "location": (37.77, -122.41)},
-    {"id": "air_001", "type": "air_quality", "location": (37.78, -122.42)},
-])
+    {"id": "air_001", "type": "air_quality", "location": (37.78, -122.42)},])
 
 # Get network status
 status = network.get_status()
 print(f"Active sensors: {status.active_count}")
-print(f"Data rate: {status.total_data_rate} msg/sec")
-```
+print(f"Data rate: {status.total_data_rate} msg/sec")```
 
 ### 2. Real-Time Data Streaming
 
@@ -47,12 +45,10 @@ streamer = DataStreamer()
 async for reading in streamer.subscribe(
     sensors=["temp_*", "humidity_*"],
     area=city_boundary,
-    update_rate="1s"
-):
+    update_rate="1s"):
     print(f"Sensor: {reading.sensor_id}")
     print(f"Value: {reading.value}")
-    print(f"Location: {reading.location}")
-```
+    print(f"Location: {reading.location}")```
 
 ### 3. Edge Processing
 
@@ -69,8 +65,7 @@ processor.deploy(
     trigger_rules={
         "temperature": {"threshold": 100, "action": "alert"},
         "vibration": {"threshold": 0.5, "action": "log"}
-    }
-)
+    })
 ```
 
 ### 4. Device Coordination
@@ -85,15 +80,13 @@ coordinator = DeviceCoordinator()
 mesh = coordinator.create_mesh(
     devices=sensor_array,
     topology="mesh",
-    redundancy=True
-)
+    redundancy=True)
 
 # Coordinate sensing campaign
 campaign = coordinator.run_campaign(
     objective="pollution_mapping",
     duration_hours=24,
-    sampling_strategy="adaptive"
-)
+    sampling_strategy="adaptive")
 ```
 
 ## Implementation Status
@@ -135,8 +128,7 @@ graph TD
     SENSORS --> MONITOR
     STREAM --> MONITOR
     EDGE --> DEPLOY
-    COORD --> MAINT
-```
+    COORD --> MAINT```
 
 ## Use Cases
 
@@ -151,12 +143,10 @@ network = EnvironmentMonitorNetwork(area="bay_area")
 network.deploy(
     sensor_types=["air_quality", "noise", "temperature"],
     density="urban_high",
-    solar_powered=True
-)
+    solar_powered=True)
 
 # Get real-time environmental status
-status = network.get_environmental_status()
-```
+status = network.get_environmental_status()```
 
 ---
 

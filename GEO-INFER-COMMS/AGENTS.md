@@ -28,12 +28,10 @@ alert = broadcaster.broadcast(
     message="Flash flood warning in effect",
     affected_area=flood_zone_polygon,
     channels=["sms", "email", "push", "sirens"],
-    priority="critical"
-)
+    priority="critical")
 
 print(f"Recipients reached: {alert.recipients_count}")
-print(f"Delivery rate: {alert.delivery_success_rate}%")
-```
+print(f"Delivery rate: {alert.delivery_success_rate}%")```
 
 ### 2. Location-Based Notifications
 
@@ -47,12 +45,10 @@ notification = notifier.send(
     target_users=subscribed_users,
     trigger_zone=geofence_polygon,
     message="You are entering a protected area",
-    trigger_type="enter"
-)
+    trigger_type="enter")
 
 print(f"Active geofences: {notifier.active_geofences}")
-print(f"Triggered notifications: {notification.count}")
-```
+print(f"Triggered notifications: {notification.count}")```
 
 ### 3. Inter-Agent Communication
 
@@ -71,14 +67,12 @@ message = messenger.send(
         "location": (37.7749, -122.4194),
         "data": sensor_reading
     },
-    delivery="guaranteed"
-)
+    delivery="guaranteed")
 
 # Subscribe to topics
 messenger.subscribe(
     topics=["weather_updates", "traffic_incidents"],
-    callback=handle_message
-)
+    callback=handle_message)
 ```
 
 ### 4. Multi-Channel Delivery
@@ -97,11 +91,9 @@ result = delivery.send(
         "sms": {"max_length": 160},
         "push": {"action_buttons": ["details", "dismiss"]}
     },
-    scheduling="immediate"
-)
+    scheduling="immediate")
 
-print(f"Channel delivery: {result.channel_stats}")
-```
+print(f"Channel delivery: {result.channel_stats}")```
 
 ## Implementation Status
 
@@ -144,8 +136,7 @@ graph TD
     PUBLIC --> CHANNEL
     MESSENGER -.-> EMERGENCY
     MESSENGER -.-> MONITOR
-    MESSENGER -.-> PUBLIC
-```
+    MESSENGER -.-> PUBLIC```
 
 ## Use Cases
 
@@ -162,8 +153,7 @@ eas.issue_alert(
     description="Missing child alert",
     search_area=search_polygon,
     vehicle_description="Blue sedan, CA plate ABC123",
-    broadcast_radius_miles=50
-)
+    broadcast_radius_miles=50)
 ```
 
 ### 2. Real-Time Status Updates
@@ -177,8 +167,7 @@ updater = StatusUpdater()
 updater.stream_updates(
     event="music_festival",
     update_types=["crowd", "traffic", "weather"],
-    frequency_seconds=60
-)
+    frequency_seconds=60)
 ```
 
 ---

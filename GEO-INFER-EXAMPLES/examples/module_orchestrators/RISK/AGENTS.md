@@ -1,6 +1,16 @@
 # Agent
-: RISK ## Scope
- This directory contains RISK components for the module. ## Classes
- and Functions No public classes or functions found in this directory. ## Capabilities
- - Core module functionality ## Integration
- - **Location**: `GEO-INFER-EXAMPLES/examples/module_orchestrators/RISK` - **Type**: Directory Node 
+: RISK
+
+## Scope
+ This directory contains RISK components for the module.
+
+## Classes
+ and Functions No public classes or functions found in this directory.
+
+## Capabilities
+ - Core module functionality
+
+## Integration
+
+- **Location**: `GEO-INFER-EXAMPLES/examples/module_orchestrators/RISK`
+- **Type**: Directory Node

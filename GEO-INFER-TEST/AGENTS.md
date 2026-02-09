@@ -40,8 +40,7 @@ class TestMyAgent(AgentTestCase):
         action = self.agent.act()
         
         self.assertValidAction(action)
-        self.assertActionMinimizesFreeEnergy(self.agent, action)
-```
+        self.assertActionMinimizesFreeEnergy(self.agent, action)```
 
 ### 2. Spatial Testing Utilities
 
@@ -50,11 +49,15 @@ from geo_infer_test import SpatialTestUtils
 
 class TestSpatialOperations(SpatialTestUtils):
     def test_spatial_query(self):
-        # Create test geometries
+       
+
+# Create test geometries
         polygon = self.create_test_polygon(bounds=[-122.5, 37.7, -122.3, 37.9])
         points = self.create_test_points(n=100, within=polygon)
         
-        # Test spatial query
+       
+
+# Test spatial query
         result = self.agent.query_within(polygon)
         
         self.assertPointsInPolygon(result, polygon)
@@ -62,8 +65,7 @@ class TestSpatialOperations(SpatialTestUtils):
     
     def test_h3_indexing(self):
         cell = self.create_test_h3_cell(resolution=9)
-        self.assertValidH3Cell(cell)
-```
+        self.assertValidH3Cell(cell)```
 
 ### 3. Mock Environments
 
@@ -74,22 +76,19 @@ from geo_infer_test import MockEnvironment
 env = MockEnvironment(
     spatial_extent={"type": "grid", "size": 100},
     temporal_steps=50,
-    random_seed=42
-)
+    random_seed=42)
 
 # Configure environment responses
 env.set_observations([
     {"state": "normal", "probability": 0.7},
-    {"state": "anomaly", "probability": 0.3}
-])
+    {"state": "anomaly", "probability": 0.3}])
 
 # Run agent in mock environment
 with env:
     for step in range(50):
         obs = env.get_observation()
         action = agent.act(obs)
-        reward = env.step(action)
-```
+        reward = env.step(action)```
 
 ### 4. Performance Benchmarking
 
@@ -103,13 +102,11 @@ results = benchmark.run(
     agent=my_agent,
     scenarios=["urban_navigation", "resource_allocation", "anomaly_detection"],
     metrics=["latency", "accuracy", "memory_usage"],
-    iterations=100
-)
+    iterations=100)
 
 print(f"Average latency: {results.avg_latency}ms")
 print(f"Accuracy: {results.accuracy}%")
-print(f"Peak memory: {results.peak_memory}MB")
-```
+print(f"Peak memory: {results.peak_memory}MB")```
 
 ## Implementation Status
 
@@ -160,8 +157,7 @@ graph LR
     PERF --> TEST
     
     BUILD --> TEST
-    TEST --> DEPLOY
-```
+    TEST --> DEPLOY```
 
 ## Use Cases
 
@@ -176,18 +172,21 @@ class TestSwarmBehavior(MultiAgentTestCase):
     
     def test_emergent_coordination(self):
         """Test swarm exhibits emergent coordination."""
-        # Run swarm simulation
+       
+
+# Run swarm simulation
         self.swarm.run(steps=100)
         
-        # Verify coordination emerged
+       
+
+# Verify coordination emerged
         self.assertCoordinationEmerged(self.swarm)
         self.assertNoCollisions(self.swarm)
     
     def test_communication(self):
         """Test agents communicate correctly."""
         messages = self.swarm.get_messages()
-        self.assertAllMessagesDelivered(messages)
-```
+        self.assertAllMessagesDelivered(messages)```
 
 ### 2. Regression Testing
 
@@ -196,18 +195,15 @@ from geo_infer_test import RegressionTestSuite
 
 suite = RegressionTestSuite(
     baseline_version="1.0.0",
-    current_version="1.1.0"
-)
+    current_version="1.1.0")
 
 # Compare agent behavior across versions
 regression = suite.detect_regressions(
     test_scenarios=standard_scenarios,
-    tolerance=0.05
-)
+    tolerance=0.05)
 
 if regression.has_regressions:
-    print(f"Regressions found: {regression.details}")
-```
+    print(f"Regressions found: {regression.details}")```
 
 ---
 

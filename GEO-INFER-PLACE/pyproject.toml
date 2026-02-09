@@ -40,9 +40,14 @@ dependencies = [
     "seaborn>=0.12.0",
     "branca>=0.6.0",
     "requests>=2.28.0",
+    "geo-infer-space",
 ]
 
 [project.optional-dependencies]
+full = [
+    "geo-infer-data",
+    "geo-infer-time",
+]
 dev = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",

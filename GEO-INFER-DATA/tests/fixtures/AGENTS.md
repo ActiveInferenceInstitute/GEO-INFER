@@ -32,8 +32,7 @@ from tests.fixtures import sample_geodataframe, mock_satellite_data
 # Use fixtures in tests
 def test_ingestion(sample_geodataframe):
     result = ingestion.ingest(sample_geodataframe)
-    assert result is not None
-```
+    assert result is not None```
 
 ## Integration
 

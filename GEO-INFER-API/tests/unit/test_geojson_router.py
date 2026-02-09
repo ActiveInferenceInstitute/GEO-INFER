@@ -4,7 +4,6 @@ Tests for the GeoJSON polygon endpoints.
 These tests verify the functionality of the GeoJSON polygon API endpoints.
 """
 import json
-from unittest.mock import patch
 
 import pytest
 from fastapi.testclient import TestClient
@@ -13,10 +12,8 @@ from geo_infer_api.app import main_app
 from geo_infer_api.endpoints.geojson_router import POLYGON_FEATURES
 from geo_infer_api.models.geojson import GeoJSONType, Polygon, PolygonFeature
 
-
 # Create a test client
 client = TestClient(main_app)
-
 
 # Sample polygon data for tests
 SAMPLE_POLYGON_COORDS = [
@@ -59,7 +56,6 @@ INVALID_POLYGON_FEATURE = {
     }
 }
 
-
 # Fixtures
 @pytest.fixture(autouse=True)
 def clear_polygon_features():
@@ -67,7 +63,6 @@ def clear_polygon_features():
     POLYGON_FEATURES.clear()
     yield
     POLYGON_FEATURES.clear()
-
 
 @pytest.fixture
 def sample_polygon_feature():
@@ -85,7 +80,6 @@ def sample_polygon_feature():
         }
     )
 
-
 def add_sample_feature():
     """Add a sample feature to the POLYGON_FEATURES dictionary."""
     response = client.post(
@@ -94,7 +88,6 @@ def add_sample_feature():
     )
     assert response.status_code == 201
     return response.json()["id"]
-
 
 # Tests
 def test_list_collections():
@@ -106,7 +99,6 @@ def test_list_collections():
     assert len(data["collections"]) == 1
     assert data["collections"][0]["id"] == "polygons"
 
-
 def test_get_polygon_collection():
     """Test getting polygon collection metadata."""
     response = client.get("/api/v1/collections/polygons")
@@ -116,7 +108,6 @@ def test_get_polygon_collection():
     assert "extent" in data
     assert "links" in data
 
-
 def test_list_polygon_features_empty():
     """Test listing polygon features when none exist."""
     response = client.get("/api/v1/collections/polygons/items")
@@ -124,7 +115,6 @@ def test_list_polygon_features_empty():
     data = response.json()
     assert data["type"] == "FeatureCollection"
     assert len(data["features"]) == 0
-
 
 def test_create_polygon_feature():
     """Test creating a new polygon feature."""
@@ -139,7 +129,6 @@ def test_create_polygon_feature():
     assert data["geometry"]["type"] == "Polygon"
     assert len(POLYGON_FEATURES) == 1
 
-
 def test_create_invalid_polygon_feature():
     """Test creating an invalid polygon feature."""
     response = client.post(
@@ -147,7 +136,6 @@ def test_create_invalid_polygon_feature():
         json=INVALID_POLYGON_FEATURE
     )
     assert response.status_code == 422  # Validation error
-
 
 def test_create_duplicate_polygon_feature():
     """Test creating a polygon feature with an ID that already exists."""
@@ -161,7 +149,6 @@ def test_create_duplicate_polygon_feature():
     )
     assert response.status_code == 409  # Conflict
 
-
 def test_get_polygon_feature():
     """Test getting a specific polygon feature."""
     # Add a feature
@@ -174,12 +161,10 @@ def test_get_polygon_feature():
     assert data["id"] == feature_id
     assert data["properties"]["name"] == "Test Polygon"
 
-
 def test_get_nonexistent_polygon_feature():
     """Test getting a polygon feature that doesn't exist."""
     response = client.get("/api/v1/collections/polygons/items/nonexistent")
     assert response.status_code == 404
-
 
 def test_update_polygon_feature():
     """Test updating a polygon feature."""
@@ -202,7 +187,6 @@ def test_update_polygon_feature():
     assert data["id"] == feature_id
     assert data["properties"]["name"] == "Updated Test Polygon"
 
-
 def test_update_nonexistent_polygon_feature():
     """Test updating a polygon feature that doesn't exist."""
     response = client.put(
@@ -210,7 +194,6 @@ def test_update_nonexistent_polygon_feature():
         json=SAMPLE_POLYGON_FEATURE
     )
     assert response.status_code == 404
-
 
 def test_delete_polygon_feature():
     """Test deleting a polygon feature."""
@@ -223,12 +206,10 @@ def test_delete_polygon_feature():
     assert response.status_code == 204
     assert len(POLYGON_FEATURES) == 0
 
-
 def test_delete_nonexistent_polygon_feature():
     """Test deleting a polygon feature that doesn't exist."""
     response = client.delete("/api/v1/collections/polygons/items/nonexistent")
     assert response.status_code == 404
-
 
 def test_list_polygon_features_with_bbox():
     """Test listing polygon features with a bounding box filter."""
@@ -251,14 +232,12 @@ def test_list_polygon_features_with_bbox():
     data = response.json()
     assert len(data["features"]) == 0
 
-
 def test_list_polygon_features_with_invalid_bbox():
     """Test listing polygon features with an invalid bounding box."""
     response = client.get(
         "/api/v1/collections/polygons/items?bbox=invalid"
     )
     assert response.status_code == 400
-
 
 def test_calculate_polygon_area():
     """Test calculating the area of a polygon."""
@@ -272,7 +251,6 @@ def test_calculate_polygon_area():
     assert isinstance(data["area_sq_km"], float)
     assert data["area_sq_km"] > 0
 
-
 def test_simplify_polygon():
     """Test simplifying a polygon."""
     response = client.post(
@@ -284,7 +262,6 @@ def test_simplify_polygon():
     assert data["geometry"]["type"] == "Polygon"
     # The simplified polygon should still have at least 4 points (triangle + closing point)
     assert len(data["geometry"]["coordinates"][0]) >= 4
-
 
 def test_check_polygon_contains_point():
     """Test checking if a polygon contains a point."""

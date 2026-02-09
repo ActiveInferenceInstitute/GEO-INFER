@@ -1,14 +1,66 @@
-# Agent
-: del_norte_county ## Scope
- This directory contains del_norte_county components for the module. It provides 4 classes and 1 functions. ## Classes
- and Functions ### CoastalResilienceAnalyze
-r
- Coastal resilience analysis system for Del Norte County. **Methods**: - `run_analysis(temporal_range: Optional[Tuple[str, str]]) -> Dict[str, Any]`: Run coastal resilience analysis. - `get_monitoring_status() -> Dict[str, Any]`: Get current monitoring system status. ### DelNorteComprehensiveDashboar
-d
- interactive dashboard for Del Norte County analysis. **Methods**: - `load_configuration() -> Dict[str, Any]`: Load Del Norte County configuration and initialize analyzers. - `fetch_real_data() -> Dict[str, Any]`: Fetch real data from California and federal APIs. - `run_comprehensive_analysis() -> Dict[str, Any]`: Run analysis across all domains. - `generate_comprehensive_dashboard() -> str`: Generate interactive dashboard with all analysis results. - `export_analysis_results() -> str`: Export analysis results to JSON. - `generate_summary_report() -> str`: Generate a summary report of the analysis. ### FireRiskAssesso
-r
- Fire risk assessment system for Del Norte County. **Methods**: - `run_analysis(temporal_range: Optional[Tuple[str, str]]) -> Dict[str, Any]`: Run fire risk analysis. - `get_monitoring_status()`: Get current monitoring system status. ### ForestHealthMonito
-r
- Forest health monitoring system for Del Norte County. **Methods**: - `run_analysis(temporal_range: Optional[Tuple[str, str]]) -> Dict[str, Any]`: Run forest health analysis for Del Norte County. - `get_monitoring_status() -> Dict[str, Any]`: Get current monitoring system status. ## Capabilities
- - **4 classes** for core functionality - **1 functions** for utility operations ## Integration
- - **Location**: `src/geo_infer_place/locations/del_norte_county` - **Type**: Directory Node 
+# Agent: del_norte_county (src)
+
+## Scope
+
+Production source code for Del Norte County geospatial analysis. Contains 5 analyzer
+classes and 1 dashboard sub-package providing environmental monitoring, coastal
+resilience, wildfire risk, seismic hazard, and interactive visualization.
+
+## Classes
+
+### ForestHealthMonitor
+
+Forest health monitoring for Del Norte County's redwood, Douglas fir, and mixed conifer ecosystems.
+
+**Key Methods**:
+
+- `run_analysis(temporal_range)` — Full forest health assessment pipeline
+- `get_monitoring_status()` — Current monitoring system status
+
+### CoastalResilienceAnalyzer
+
+Coastal resilience analysis for 45 miles of Pacific coastline.
+
+**Key Methods**:
+
+- `run_analysis(temporal_range)` — Coastal resilience assessment pipeline
+- `get_monitoring_status()` — Current monitoring system status
+
+### FireRiskAssessor
+
+Wildfire risk assessment integrating fire weather, fuel moisture, and WUI analysis.
+
+**Key Methods**:
+
+- `run_analysis(temporal_range)` — Fire risk assessment pipeline
+- `get_monitoring_status()` — Current monitoring system status
+
+### SeismicHazardAnalyzer
+
+Cascadia Subduction Zone seismic and tsunami hazard analysis using USGS data feeds.
+
+**Key Methods**:
+
+- `run_analysis()` — Seismic hazard assessment pipeline (earthquake data, hazard grid, tsunami risk, CSZ scenario)
+
+### DelNorteComprehensiveDashboard
+
+Multi-domain interactive dashboard integrating all analysis domains.
+
+**Key Methods**:
+
+- `run_comprehensive_analysis()` — Run all analyzers
+- `generate_comprehensive_dashboard()` — Generate interactive HTML dashboard
+- `export_analysis_results()` — Export to JSON
+
+## Capabilities
+
+- **5 analyzer classes** with full analysis pipelines
+- **1 dashboard sub-package** (`dashboard/`) with `AdvancedDashboard`
+- **H3 spatial indexing** at resolution 8
+- **API integration**: CAL FIRE, NOAA, USGS via `DelNorteDataIntegrator`
+
+## Integration
+
+- **Location**: `src/geo_infer_place/locations/del_norte_county`
+- **Type**: Directory Node (production source)

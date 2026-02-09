@@ -195,7 +195,7 @@ class QualityController:
                     if prev_val != 0:  # Avoid division by zero
                         change_rate = abs(curr_val - prev_val) / abs(prev_val)
                         if change_rate > max_change_rate:
-                            issues.append(f"Temporal change rate {change_rate".2%"} exceeds threshold {max_change_rate".2%"}")
+                            issues.append(f"Temporal change rate {change_rate:.2%} exceeds threshold {max_change_rate:.2%}")
 
         return QualityCheckResult(len(issues) == 0, issues, 0.9 if len(issues) == 0 else 0.6)
 
@@ -222,7 +222,7 @@ class QualityController:
                 if std_val > 0:
                     z_score = abs(value - mean_val) / std_val
                     if z_score > 3.0:  # 3-sigma rule
-                        issues.append(f"Statistical outlier detected (z-score: {z_score".2f"})")
+                        issues.append(f"Statistical outlier detected (z-score: {z_score:.2f})")
 
             # Update baseline statistics
             self._update_sensor_baseline(sensor_id, value)

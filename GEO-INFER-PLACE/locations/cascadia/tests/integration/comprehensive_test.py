@@ -220,7 +220,7 @@ class ComprehensiveTestSuite:
             import importlib.util
             spec = importlib.util.spec_from_file_location(
                 "cascadia_main",
-                Path(cascadia_parent_dir) / "cascadia_main.py"
+                Path(cascadia_root) / "cascadia_main.py"
             )
             cascadia_main = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(cascadia_main)
@@ -514,7 +514,7 @@ class ComprehensiveTestSuite:
             import importlib.util
             spec = importlib.util.spec_from_file_location(
                 "cascadia_main",
-                Path(cascadia_parent_dir) / "cascadia_main.py"
+                Path(cascadia_root) / "cascadia_main.py"
             )
             cascadia_main = importlib.util.module_from_spec(spec)
             spec.loader.exec_module(cascadia_main)
@@ -614,7 +614,7 @@ class ComprehensiveTestSuite:
                 import importlib.util
                 spec = importlib.util.spec_from_file_location(
                     "cascadia_main",
-                    Path(cascadia_parent_dir) / "cascadia_main.py"
+                    Path(cascadia_root) / "cascadia_main.py"
                 )
                 cascadia_main = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(cascadia_main)

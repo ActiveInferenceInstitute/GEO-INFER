@@ -1,122 +1,486 @@
 # Agent
-: core ## Scope
- This directory contains core components for the module. It provides 58 classes and 0 functions. ## Classes
- and Functions ### ChannelManage
-r
- Central channel management system. **Methods**: - `create_channel(request: ChannelRequest, creator_id: str) -> ChannelResponse`: Create a communication channel. - `get_channel(channel_id: str) -> Optional[ChannelResponse]`: Retrieve a specific channel by ID. - `get_channels(channel_type: Optional[ChannelType], status: Optional[ChannelStatus], creator_id: Optional[str], limit: int) -> List[ChannelResponse]`: Get channels with filtering options. - `update_channel(channel_id: str, updates: Dict[str, Any], user_id: str) -> bool`: Update channel properties. - `delete_channel(channel_id: str, user_id: str) -> bool`: Delete a channel. - `add_member(channel_id: str, user_id: str, added_by: str) -> bool`: Add a member to a channel. - `remove_member(channel_id: str, user_id: str, removed_by: str) -> bool`: Remove a member from a channel. - `get_members(channel_id: str) -> List[str]`: Get list of members in a channel. - `subscribe_to_channel(channel_id: str, user_id: str, request: SubscriptionRequest) -> Optional[SubscriptionResponse]`: Subscribe a user to a channel. - `unsubscribe_from_channel(channel_id: str, user_id: str) -> bool`: Unsubscribe a user from a channel. - `check_permission(channel_id: str, user_id: str, permission: str) -> bool`: Check if a user has a specific permission in a channel. - `set_permissions(channel_id: str, user_id: str, permissions: Dict[str, Any], set_by: str) -> bool`: Set permissions for a user in a channel. - `get_channels_by_location(location: GeospatialPoint, radius_km: float) -> List[ChannelResponse]`: Find channels near a specific location. - `get_channel_statistics() -> Dict[str, Any]`: Get channel system statistics. ### ChannelMetric
-s
- Metrics for channel system performance. **Methods**: - `to_dict() -> Dict[str, Any]`: Convert metrics to dictionary. - `reset() -> None`: Reset all metrics. ### ChannelPermissionManage
-r
- permission management for channels. **Methods**: - `create_permission_template(template_name: str, permissions: Dict[str, Any], description: str) -> None`: Create a reusable permission template. - `apply_permission_template(channel_id: str, template_name: str, user_id: str, applied_by: str) -> bool`: Apply a permission template to a user in a channel. - `check_geospatial_permission(channel_id: str, user_id: str, permission: str, location: GeospatialPoint) -> bool`: Check if user has permission at a specific location. - `get_effective_permissions(channel_id: str, user_id: str) -> Dict[str, Any]`: Get all effective permissions for a user in a channel. ### ChannelMessageFilte
-r
- message filtering for channels. **Methods**: - `add_content_filter(channel_id: str, filter_rule: Dict[str, Any], added_by: str) -> bool`: Add a content filter rule to a channel. - `filter_message(message: MessageResponse, channel_id: str) -> bool`: Check if message passes channel filters. ### ChannelAnalytic
-s
- Analytics and monitoring for channel activity. **Methods**: - `log_activity(channel_id: str, activity_type: str, user_id: str, details: Optional[Dict[str, Any]]) -> None`: Log channel activity for analytics. - `get_channel_activity(channel_id: str, start_time: Optional[datetime], end_time: Optional[datetime], activity_types: Optional[List[str]]) -> List[Dict[str, Any]]`: Get activity log for a specific channel. - `get_channel_analytics(channel_id: str) -> Dict[str, Any]`: Get analytics for a channel. - `get_system_analytics() -> Dict[str, Any]`: Get system-wide channel analytics. ### CollaborationManage
-r
- Central collaboration session management system. **Methods**: - `create_session(request: CollaborationSessionRequest, creator_id: str) -> CollaborationSessionResponse`: Create a collaboration session. - `join_session(session_id: str, user_id: str, participant_role: ParticipantRole) -> JoinSessionResponse`: Join an existing collaboration session. - `leave_session(session_id: str, user_id: str) -> bool`: Leave a collaboration session. - `end_session(session_id: str, ended_by: str) -> bool`: End a collaboration session. - `get_session(session_id: str) -> Optional[CollaborationSessionResponse]`: Get a specific session by ID. - `get_sessions(session_type: Optional[CollaborationType], status: Optional[str], participant_id: Optional[str], limit: int) -> List[CollaborationSessionResponse]`: Get sessions with filtering. - `get_participant_sessions(user_id: str) -> List[CollaborationSessionResponse]`: Get all sessions for a specific participant. - `add_session_message(session_id: str, user_id: str, message: Dict[str, Any]) -> bool`: Add a message to a session's shared workspace. - `get_session_messages(session_id: str, limit: int) -> List[Dict[str, Any]]`: Get messages from a session's shared workspace. - `update_shared_document(session_id: str, document_id: str, user_id: str, updates: Dict[str, Any]) -> bool`: Update a shared document in the session workspace. - `get_shared_document(session_id: str, document_id: str) -> Optional[Dict[str, Any]]`: Get a shared document from the session workspace. - `get_session_statistics() -> Dict[str, Any]`: Get collaboration system statistics. ### CollaborationMetric
-s
- Metrics for collaboration system performance. **Methods**: - `to_dict() -> Dict[str, Any]`: Convert metrics to dictionary. - `reset() -> None`: Reset all metrics. ### RealTimeCollaborationEngin
-e
- Real-time collaboration engine for live session coordination. **Methods**: - `update_live_cursor(session_id: str, user_id: str, cursor_data: Dict[str, Any]) -> None`: Update a user's live cursor position in a session. - `get_live_cursors(session_id: str) -> Dict[str, Any]`: Get all live cursors for a session. - `start_shared_editing(session_id: str, document_id: str, user_id: str) -> bool`: Start shared editing session for a document. - `end_shared_editing(session_id: str, document_id: str, user_id: str) -> bool`: End shared editing session for a document. - `get_active_editors(session_id: str, document_id: str) -> List[str]`: Get list of active editors for a document. - `create_voice_channel(session_id: str, channel_config: Dict[str, Any]) -> str`: Create a voice channel for a session. - `join_voice_channel(channel_id: str, user_id: str) -> bool`: Join a voice channel. - `leave_voice_channel(channel_id: str, user_id: str) -> bool`: Leave a voice channel. ### GeospatialCollaborationCoordinato
-r
- Geospatial coordination for collaboration sessions. **Methods**: - `update_participant_location(session_id: str, user_id: str, location: GeospatialPoint, accuracy: float) -> None`: Update a participant's location in a collaboration session. - `get_session_participant_locations(session_id: str) -> Dict[str, GeospatialMetadata]`: Get all participant locations for a session. - `create_spatial_workspace(session_id: str, workspace_config: Dict[str, Any]) -> str`: Create a spatial workspace for collaborative geospatial work. - `add_spatial_feature(workspace_id: str, user_id: str, feature: Dict[str, Any]) -> bool`: Add a spatial feature to a workspace. - `add_workspace_annotation(workspace_id: str, user_id: str, annotation: Dict[str, Any]) -> bool`: Add an annotation to a spatial workspace. - `get_workspace_features(workspace_id: str) -> List[Dict[str, Any]]`: Get all features in a spatial workspace. - `get_workspace_annotations(workspace_id: str) -> Dict[str, Any]`: Get all annotations in a spatial workspace. ### CollaborationNotificationManage
-r
- Notification management for collaboration sessions. **Methods**: - `send_session_notification(session_id: str, notification: Dict[str, Any], sender_id: str) -> bool`: Send a notification to all participants in a session. - `get_session_notifications(session_id: str, limit: int) -> List[Dict[str, Any]]`: Get notifications for a session. - `clear_session_notifications(session_id: str, user_id: str) -> bool`: Clear notifications for a user in a session. ### CollaborationAnalytic
-s
- Analytics and monitoring for collaboration sessions. **Methods**: - `record_session_activity(session_id: str, activity_type: str, user_id: str, details: Optional[Dict[str, Any]]) -> None`: Record an activity in a collaboration session. - `get_session_analytics(session_id: str) -> Dict[str, Any]`: Get analytics for a session. - `get_system_analytics() -> Dict[str, Any]`: Get system-wide collaboration analytics. ### EventManage
-r
- Central event management system. **Methods**: - `start() -> None`: Start the event manager. - `stop() -> None`: Stop the event manager. - `publish_event(request: EventPublishRequest) -> EventPublishResponse`: Publish an event to the system. - `subscribe_to_events(subscriber_id: str, request: EventSubscriptionRequest, callback: Callable[[EventPublishResponse], None]) -> str`: Subscribe to events with filtering. - `unsubscribe_from_events(subscriber_id: str, subscription_id: str) -> bool`: Unsubscribe from events. - `register_event_processor(event_type: str, processor: EventProcessor) -> None`: Register an event processor for a specific event type. - `get_events(event_type: Optional[str], source: Optional[str], start_time: Optional[datetime], end_time: Optional[datetime], limit: int) -> List[EventPublishResponse]`: Get events with filtering. - `get_event_statistics() -> Dict[str, Any]`: Get event system statistics. ### EventMetric
-s
- Metrics for event system performance. **Methods**: - `to_dict() -> Dict[str, Any]`: Convert metrics to dictionary. - `reset() -> None`: Reset all metrics. ### EventProcesso
-r
- Base class for event processors. **Methods**: - `process_event(event: EventPublishResponse) -> None`: Process an event. ### DataUpdateProcesso
-r
- Processor for data update events. **Methods**: - `process_event(event: EventPublishResponse) -> None`: Process data update events. ### SystemAlertProcesso
-r
- Processor for system alert events. **Methods**: - `process_event(event: EventPublishResponse) -> None`: Process system alert events. ### UserActionProcesso
-r
- Processor for user action events. **Methods**: - `process_event(event: EventPublishResponse) -> None`: Process user action events. ### SensorTriggerProcesso
-r
- Processor for sensor trigger events. **Methods**: - `process_event(event: EventPublishResponse) -> None`: Process sensor trigger events. ### GeospatialChangeProcesso
-r
- Processor for geospatial change events. **Methods**: - `process_event(event: EventPublishResponse) -> None`: Process geospatial change events. ### EventFilte
-r
- event filtering capabilities. **Methods**: - `register_filter(filter_name: str, filter_func: Callable) -> None`: Register a custom event filter. - `apply_filters(event: EventPublishResponse, filters: List[Dict[str, Any]]) -> bool`: Apply multiple filters to an event. ### EventSchedule
-r
- event scheduling and timing system. **Methods**: - `start() -> None`: Start the event scheduler. - `stop() -> None`: Stop the event scheduler. - `schedule_event(event_request: EventPublishRequest, schedule_time: datetime, schedule_id: Optional[str]) -> str`: Schedule an event for future publication. - `schedule_recurring_event(event_request: EventPublishRequest, schedule_config: Dict[str, Any], recurring_id: Optional[str]) -> str`: Schedule a recurring event. - `cancel_scheduled_event(schedule_id: str) -> bool`: Cancel a scheduled event. - `cancel_recurring_event(recurring_id: str) -> bool`: Cancel a recurring event. ### ScheduledEven
-t
- Represents a scheduled event. ### RecurringEven
-t
- Represents a recurring event. ### EventWebhookManage
-r
- Webhook management for external event delivery. **Methods**: - `register_webhook(webhook_id: str, config: WebhookConfig) -> bool`: Register a webhook for event delivery. - `unregister_webhook(webhook_id: str) -> bool`: Unregister a webhook. - `deliver_to_webhook(webhook_id: str, event: EventPublishResponse) -> bool`: Deliver event to a specific webhook. ### WebhookConfi
-g
- Configuration for a webhook. ### WebhookDeliver
-y
- Record of a webhook delivery attempt. ### MessageBroke
-r
- Central message broker for routing and delivery. **Methods**: - `start() -> None`: Start the message broker processing. - `stop() -> None`: Stop the message broker processing. - `send_message(request: MessageRequest, sender_id: str) -> MessageResponse`: Send a message through the broker. - `broadcast_message(request: BroadcastRequest, sender_id: str) -> BroadcastResponse`: Broadcast a message to multiple recipients based on criteria. - `subscribe(subscriber_id: str, callback: Callable[[MessageResponse], None], spatial_filter: Optional[SpatialFilter]) -> str`: Subscribe to messages with optional spatial filtering. - `unsubscribe(subscriber_id: str, subscription_id: Optional[str]) -> bool`: Unsubscribe from messages. - `get_message(message_id: str) -> Optional[MessageResponse]`: Retrieve a specific message by ID. - `get_messages(sender_id: Optional[str], channel_id: Optional[str], start_time: Optional[datetime], end_time: Optional[datetime], limit: int) -> List[MessageResponse]`: Retrieve messages with filtering options. - `get_metrics() -> Dict[str, Any]`: Get current broker metrics. ### MessageMetric
-s
- Metrics for message broker performance. **Methods**: - `to_dict() -> Dict[str, Any]`: Convert metrics to dictionary. - `reset() -> None`: Reset all metrics. ### MessageRoute
-r
- message routing with geospatial intelligence. **Methods**: - `add_routing_rule(rule: RoutingRule) -> None`: Add a routing rule for message filtering and distribution. - `route_message(message: MessageResponse) -> List[str]`: Route message based on configured rules. - `get_routing_statistics() -> Dict[str, Any]`: Get routing performance statistics. ### RoutingRul
-e
- A rule for message routing and filtering. **Methods**: - `matches(message: MessageResponse) -> bool`: Check if message matches this routing rule. - `apply(message: MessageResponse) -> List[str]`: Apply routing rule to generate recipient list. - `set_broker(broker: 'MessageBroker') -> None`: Set the message broker reference for this rule. ### MessageFormatte
-r
- Format messages for different delivery methods and contexts. **Methods**: - `format_for_sms(message: MessageResponse, max_length: int) -> str`: Format message for SMS delivery. - `format_for_email(message: MessageResponse) -> Dict[str, str]`: Format message for email delivery. - `format_for_push_notification(message: MessageResponse) -> Dict[str, str]`: Format message for push notification. - `format_for_geospatial_context(message: MessageResponse) -> Dict[str, Any]`: Format message with geospatial context information. ### NotificationManage
-r
- Central notification management system. **Methods**: - `start() -> None`: Start the notification manager. - `stop() -> None`: Stop the notification manager. - `create_notification(request: NotificationRequest) -> NotificationResponse`: Create a notification. - `send_notification(notification_id: str) -> bool`: Send a specific notification immediately. - `schedule_notification(request: NotificationRequest, schedule_time: datetime) -> str`: Schedule a notification for future delivery. - `mark_as_read(notification_id: str, user_id: str) -> bool`: Mark a notification as read by a user. - `get_notifications(user_id: Optional[str], status: Optional[NotificationStatus], start_time: Optional[datetime], end_time: Optional[datetime], limit: int) -> List[NotificationResponse]`: Get notifications with filtering. - `add_spatial_filter(filter_id: str, spatial_filter: SpatialFilter) -> None`: Add a spatial filter for notification targeting. - `remove_spatial_filter(filter_id: str) -> bool`: Remove a spatial filter. - `register_delivery_handler(method: str, handler: Callable) -> None`: Register a custom delivery handler for a notification method. - `get_metrics() -> Dict[str, Any]`: Get notification system metrics. ### NotificationMetric
-s
- Metrics for notification system performance. **Methods**: - `to_dict() -> Dict[str, Any]`: Convert metrics to dictionary. - `reset() -> None`: Reset all metrics. ### AlertSyste
-m
- alert system for critical notifications. **Methods**: - `create_alert_rule(rule: AlertRule) -> str`: Create a alert rule. - `trigger_alert(rule_id: str, trigger_data: Dict[str, Any], geospatial_context: Optional[GeospatialMetadata]) -> Optional[AlertResponse]`: Trigger an alert based on a rule. - `get_alert_history(rule_id: Optional[str], start_time: Optional[datetime], end_time: Optional[datetime], limit: int) -> List[AlertResponse]`: Get alert history with filtering. - `get_alert_statistics() -> Dict[str, Any]`: Get alert system statistics. ### AlertRul
-e
- Rule for triggering alerts based on conditions. **Methods**: - `evaluate_conditions(trigger_data: Dict[str, Any]) -> bool`: Evaluate if alert conditions are met. - `update_last_triggered() -> None`: Update the last triggered timestamp. ### AlertRespons
-e
- Response from alert triggering. **Methods**: - `to_dict() -> Dict[str, Any]`: Convert to dictionary. ### NotificationFormatte
-r
- Format notifications for different delivery methods and contexts. **Methods**: - `format_for_sms(notification: NotificationResponse, max_length: int) -> str`: Format notification for SMS delivery. - `format_for_email(notification: NotificationResponse) -> Dict[str, str]`: Format notification for email delivery. - `format_for_push_notification(notification: NotificationResponse) -> Dict[str, str]`: Format notification for push notification. - `format_for_geospatial_context(notification: NotificationResponse) -> Dict[str, Any]`: Format notification with geospatial context information. ### EmergencyAlertSyste
-m
- Specialized system for emergency alerts and critical notifications. **Methods**: - `register_emergency_contact(contact_id: str, contact_info: Dict[str, Any], priority: int) -> None`: Register an emergency contact. - `define_emergency_zone(zone_id: str, bounds: GeospatialBounds) -> None`: Define an emergency zone for spatial alerting. - `declare_emergency(emergency_type: str, location: GeospatialPoint, severity: str, description: str) -> str`: Declare a emergency situation. - `resolve_emergency(emergency_id: str) -> bool`: Resolve an active emergency. - `get_active_emergencies() -> List[EmergencyAlert]`: Get list of currently active emergencies. ### EmergencyAler
-t
- Represents an active emergency situation. **Methods**: - `to_dict() -> Dict[str, Any]`: Convert to dictionary. ### AdvancedSpatialRoute
-r
- geospatial message router with routing algorithms. **Methods**: - `route_message(message: MessageResponse, target_nodes: List[str], routing_context: Optional[Dict[str, Any]]) -> Dict[str, List[str]]`: Route message using geospatial algorithms. - `update_network_topology(topology: Dict[str, Dict[str, float]]) -> None`: Update network topology information. - `update_node_loads(node_loads: Dict[str, float]) -> None`: Update current node load information. - `record_routing_result(message_id: str, route: List[str], success: bool, latency: Optional[float]) -> None`: Record routing result for performance analysis. - `get_routing_analytics() -> Dict[str, Any]`: Get routing performance analytics. ### SpatialRoutingMetric
-s
- Metrics for spatial routing performance. **Methods**: - `to_dict() -> Dict[str, Any]`: Convert metrics to dictionary. - `reset() -> None`: Reset all metrics. ### GeospatialLoadBalance
-r
- Geospatial load balancer for message distribution. **Methods**: - `register_node_location(node_id: str, location: GeospatialPoint) -> None`: Register a node's geospatial location. - `update_node_load(node_id: str, load: float) -> None`: Update load information for a node. - `select_optimal_node(message_location: GeospatialPoint, exclude_nodes: Optional[List[str]]) -> Optional[str]`: Select the optimal node for a message based on location and load. - `get_load_distribution() -> Dict[str, Any]`: Get current load distribution across nodes. ### SpatialClusteringRoute
-r
- Spatial clustering-based message router. **Methods**: - `add_node_to_cluster(node_id: str, location: GeospatialPoint) -> str`: Add a node to an appropriate cluster. - `route_to_cluster(message_location: GeospatialPoint, cluster_strategy: str) -> Optional[str]`: Route message to appropriate cluster. - `get_cluster_info(cluster_id: str) -> Optional[Dict[str, Any]]`: Get information about a specific cluster. ### SpatialCluste
-r
- Represents a spatial cluster of nodes. **Methods**: - `add_node(node_id: str, location: GeospatialPoint) -> None`: Add a node to this cluster. - `remove_node(node_id: str) -> None`: Remove a node from this cluster. - `contains_location(location: GeospatialPoint, radius_km: float) -> bool`: Check if location is within cluster radius. ### AdaptiveRoutingEngin
-e
- Adaptive routing engine that learns and optimizes routing patterns. **Methods**: - `learn_from_routing_result(message: MessageResponse, route: List[str], performance: Dict[str, Any]) -> None`: Learn from a routing result to improve future routing. - `predict_optimal_route(message: MessageResponse, available_routes: Dict[str, List[str]]) -> Optional[str]`: Predict the optimal route for a message. - `get_routing_insights() -> Dict[str, Any]`: Get insights into routing performance and patterns. ### GeospatialMessageQueu
-e
- Geospatial message queue with priority and spatial organization. **Methods**: - `enqueue_message(message: MessageResponse) -> bool`: Add message to geospatial queue. - `dequeue_message(spatial_filter: Optional[SpatialFilter]) -> Optional[MessageResponse]`: Dequeue highest priority message, optionally filtered by spatial criteria. - `get_messages_by_location(location: GeospatialPoint, radius_km: float, limit: int) -> List[MessageResponse]`: Get messages near a specific location. - `get_queue_stats() -> Dict[str, Any]`: Get queue statistics. ### SpatialRoutingOptimize
-r
- Optimizer for spatial routing algorithms. **Methods**: - `analyze_routing_performance() -> Dict[str, Any]`: Analyze routing performance and suggest optimizations. - `optimize_routing_strategy() -> None`: Optimize routing strategy based on performance analysis. ### DataStrea
-m
- Individual data stream with geospatial capabilities. **Methods**: - `add_data_point(data: Any, geospatial_context: Optional[GeospatialMetadata]) -> bool`: Add a data point to the stream. - `get_data_points(count: int, timeout: float) -> List[Dict[str, Any]]`: Get data points from the stream buffer. - `get_stats() -> Dict[str, Any]`: Get stream statistics. ### StreamManage
-r
- Central stream management system. **Methods**: - `start() -> None`: Start the stream manager. - `stop() -> None`: Stop the stream manager. - `create_stream(request: StreamRequest, creator_id: str) -> StreamResponse`: Create a data stream. - `get_stream(stream_id: str) -> Optional[DataStream]`: Get a specific stream by ID. - `get_streams(stream_type: Optional[StreamType], limit: int) -> List[DataStream]`: Get streams with optional filtering. - `subscribe_to_stream(stream_id: str, subscriber_id: str) -> bool`: Subscribe to a stream. - `unsubscribe_from_stream(stream_id: str, subscriber_id: str) -> bool`: Unsubscribe from a stream. - `publish_to_stream(stream_id: str, data: Any, geospatial_context: Optional[GeospatialMetadata]) -> bool`: Publish data to a stream. - `get_streams_by_location(location: GeospatialPoint, radius_km: float) -> List[DataStream]`: Get streams near a specific location. - `get_stream_statistics() -> Dict[str, Any]`: Get stream statistics. ### StreamMetric
-s
- Metrics for streaming system performance. **Methods**: - `to_dict() -> Dict[str, Any]`: Convert metrics to dictionary. - `reset() -> None`: Reset all metrics. ### GeospatialDataStrea
-m
- Specialized stream for geospatial data with spatial features. **Methods**: - `add_geospatial_data(location: GeospatialPoint, data: Any, timestamp: Optional[datetime]) -> None`: Add geospatial data point to the stream. - `get_data_at_location(location: GeospatialPoint, radius_km: float) -> List[Dict[str, Any]]`: Get data points near a location. - `get_temporal_series(location: GeospatialPoint, time_window: Optional[timedelta]) -> List[Dict[str, Any]]`: Get temporal data series for a location. ### StreamingProtocolManage
-r
- Protocol manager for different streaming protocols. **Methods**: - `get_protocol(protocol_name: str) -> Optional[StreamingProtocol]`: Get a streaming protocol implementation. - `list_available_protocols() -> List[str]`: List all available streaming protocols. - `register_protocol(name: str, protocol: StreamingProtocol) -> None`: Register a streaming protocol. ### StreamingProtoco
-l
- Base class for streaming protocols. **Methods**: - `get_protocol_stats() -> Dict[str, Any]`: Get protocol-specific statistics. ### WebSocketStreamingProtoco
-l
- WebSocket streaming protocol implementation. ### MQTTStreamingProtoco
-l
- MQTT streaming protocol implementation. ### ServerSentEventsProtoco
-l
- Server-Sent Events streaming protocol implementation. ### StreamingAnalytic
-s
- Analytics and monitoring for streaming system. **Methods**: - `record_streaming_event(stream_id: str, event_type: str, details: Optional[Dict[str, Any]]) -> None`: Record a streaming event for analytics. - `get_streaming_analytics(stream_id: str) -> Dict[str, Any]`: Get analytics for a specific stream. - `get_system_streaming_analytics() -> Dict[str, Any]`: Get system-wide streaming analytics. ### StreamingOrchestrato
-r
- High-level streaming orchestrator. **Methods**: - `create_geospatial_stream(stream_id: str, geospatial_config: Dict[str, Any]) -> GeospatialDataStream`: Create a specialized geospatial data stream. - `stream_geospatial_data(stream_id: str, location: GeospatialPoint, data: Any, protocol: str) -> bool`: Stream geospatial data through specified protocol. - `get_streaming_insights() -> Dict[str, Any]`: Get streaming insights. ## Capabilities
- - **58 classes** for core functionality ## Integration
- - **Location**: `GEO-INFER-COMMS/src/geo_infer_comms/core` - **Type**: Directory Node 
+: core
+
+## Scope
+ This directory contains core components for the module. It provides 58 classes and 0 functions.
+
+## Classes
+ and Functions
+
+### ChannelManager
+ Central channel management system.
+
+**Methods**:
+- `create_channel(request: ChannelRequest, creator_id: str) -> ChannelResponse`: Create a communication channel.
+- `get_channel(channel_id: str) -> Optional[ChannelResponse]`: Retrieve a specific channel by ID.
+- `get_channels(channel_type: Optional[ChannelType], status: Optional[ChannelStatus], creator_id: Optional[str], limit: int) -> List[ChannelResponse]`: Get channels with filtering options.
+- `update_channel(channel_id: str, updates: Dict[str, Any], user_id: str) -> bool`: Update channel properties.
+- `delete_channel(channel_id: str, user_id: str) -> bool`: Delete a channel.
+- `add_member(channel_id: str, user_id: str, added_by: str) -> bool`: Add a member to a channel.
+- `remove_member(channel_id: str, user_id: str, removed_by: str) -> bool`: Remove a member from a channel.
+- `get_members(channel_id: str) -> List[str]`: Get list of members in a channel.
+- `subscribe_to_channel(channel_id: str, user_id: str, request: SubscriptionRequest) -> Optional[SubscriptionResponse]`: Subscribe a user to a channel.
+- `unsubscribe_from_channel(channel_id: str, user_id: str) -> bool`: Unsubscribe a user from a channel.
+- `check_permission(channel_id: str, user_id: str, permission: str) -> bool`: Check if a user has a specific permission in a channel.
+- `set_permissions(channel_id: str, user_id: str, permissions: Dict[str, Any], set_by: str) -> bool`: Set permissions for a user in a channel.
+- `get_channels_by_location(location: GeospatialPoint, radius_km: float) -> List[ChannelResponse]`: Find channels near a specific location.
+- `get_channel_statistics() -> Dict[str, Any]`: Get channel system statistics.
+
+### ChannelMetrics
+ Metrics for channel system performance.
+
+**Methods**:
+- `to_dict() -> Dict[str, Any]`: Convert metrics to dictionary.
+- `reset() -> None`: Reset all metrics.
+
+### ChannelPermissionManager
+ permission management for channels.
+
+**Methods**:
+- `create_permission_template(template_name: str, permissions: Dict[str, Any], description: str) -> None`: Create a reusable permission template.
+- `apply_permission_template(channel_id: str, template_name: str, user_id: str, applied_by: str) -> bool`: Apply a permission template to a user in a channel.
+- `check_geospatial_permission(channel_id: str, user_id: str, permission: str, location: GeospatialPoint) -> bool`: Check if user has permission at a specific location.
+- `get_effective_permissions(channel_id: str, user_id: str) -> Dict[str, Any]`: Get all effective permissions for a user in a channel.
+
+### ChannelMessageFilter
+ message filtering for channels.
+
+**Methods**:
+- `add_content_filter(channel_id: str, filter_rule: Dict[str, Any], added_by: str) -> bool`: Add a content filter rule to a channel.
+- `filter_message(message: MessageResponse, channel_id: str) -> bool`: Check if message passes channel filters.
+
+### ChannelAnalytics
+ Analytics and monitoring for channel activity.
+
+**Methods**:
+- `log_activity(channel_id: str, activity_type: str, user_id: str, details: Optional[Dict[str, Any]]) -> None`: Log channel activity for analytics.
+- `get_channel_activity(channel_id: str, start_time: Optional[datetime], end_time: Optional[datetime], activity_types: Optional[List[str]]) -> List[Dict[str, Any]]`: Get activity log for a specific channel.
+- `get_channel_analytics(channel_id: str) -> Dict[str, Any]`: Get analytics for a channel.
+- `get_system_analytics() -> Dict[str, Any]`: Get system-wide channel analytics.
+
+### CollaborationManager
+ Central collaboration session management system.
+
+**Methods**:
+- `create_session(request: CollaborationSessionRequest, creator_id: str) -> CollaborationSessionResponse`: Create a collaboration session.
+- `join_session(session_id: str, user_id: str, participant_role: ParticipantRole) -> JoinSessionResponse`: Join an existing collaboration session.
+- `leave_session(session_id: str, user_id: str) -> bool`: Leave a collaboration session.
+- `end_session(session_id: str, ended_by: str) -> bool`: End a collaboration session.
+- `get_session(session_id: str) -> Optional[CollaborationSessionResponse]`: Get a specific session by ID.
+- `get_sessions(session_type: Optional[CollaborationType], status: Optional[str], participant_id: Optional[str], limit: int) -> List[CollaborationSessionResponse]`: Get sessions with filtering.
+- `get_participant_sessions(user_id: str) -> List[CollaborationSessionResponse]`: Get all sessions for a specific participant.
+- `add_session_message(session_id: str, user_id: str, message: Dict[str, Any]) -> bool`: Add a message to a session's shared workspace.
+- `get_session_messages(session_id: str, limit: int) -> List[Dict[str, Any]]`: Get messages from a session's shared workspace.
+- `update_shared_document(session_id: str, document_id: str, user_id: str, updates: Dict[str, Any]) -> bool`: Update a shared document in the session workspace.
+- `get_shared_document(session_id: str, document_id: str) -> Optional[Dict[str, Any]]`: Get a shared document from the session workspace.
+- `get_session_statistics() -> Dict[str, Any]`: Get collaboration system statistics.
+
+### CollaborationMetrics
+ Metrics for collaboration system performance.
+
+**Methods**:
+- `to_dict() -> Dict[str, Any]`: Convert metrics to dictionary.
+- `reset() -> None`: Reset all metrics.
+
+### RealTimeCollaborationEngine
+ Real-time collaboration engine for live session coordination.
+
+**Methods**:
+- `update_live_cursor(session_id: str, user_id: str, cursor_data: Dict[str, Any]) -> None`: Update a user's live cursor position in a session.
+- `get_live_cursors(session_id: str) -> Dict[str, Any]`: Get all live cursors for a session.
+- `start_shared_editing(session_id: str, document_id: str, user_id: str) -> bool`: Start shared editing session for a document.
+- `end_shared_editing(session_id: str, document_id: str, user_id: str) -> bool`: End shared editing session for a document.
+- `get_active_editors(session_id: str, document_id: str) -> List[str]`: Get list of active editors for a document.
+- `create_voice_channel(session_id: str, channel_config: Dict[str, Any]) -> str`: Create a voice channel for a session.
+- `join_voice_channel(channel_id: str, user_id: str) -> bool`: Join a voice channel.
+- `leave_voice_channel(channel_id: str, user_id: str) -> bool`: Leave a voice channel.
+
+### GeospatialCollaborationCoordinator
+ Geospatial coordination for collaboration sessions.
+
+**Methods**:
+- `update_participant_location(session_id: str, user_id: str, location: GeospatialPoint, accuracy: float) -> None`: Update a participant's location in a collaboration session.
+- `get_session_participant_locations(session_id: str) -> Dict[str, GeospatialMetadata]`: Get all participant locations for a session.
+- `create_spatial_workspace(session_id: str, workspace_config: Dict[str, Any]) -> str`: Create a spatial workspace for collaborative geospatial work.
+- `add_spatial_feature(workspace_id: str, user_id: str, feature: Dict[str, Any]) -> bool`: Add a spatial feature to a workspace.
+- `add_workspace_annotation(workspace_id: str, user_id: str, annotation: Dict[str, Any]) -> bool`: Add an annotation to a spatial workspace.
+- `get_workspace_features(workspace_id: str) -> List[Dict[str, Any]]`: Get all features in a spatial workspace.
+- `get_workspace_annotations(workspace_id: str) -> Dict[str, Any]`: Get all annotations in a spatial workspace.
+
+### CollaborationNotificationManager
+ Notification management for collaboration sessions.
+
+**Methods**:
+- `send_session_notification(session_id: str, notification: Dict[str, Any], sender_id: str) -> bool`: Send a notification to all participants in a session.
+- `get_session_notifications(session_id: str, limit: int) -> List[Dict[str, Any]]`: Get notifications for a session.
+- `clear_session_notifications(session_id: str, user_id: str) -> bool`: Clear notifications for a user in a session.
+
+### CollaborationAnalytics
+ Analytics and monitoring for collaboration sessions.
+
+**Methods**:
+- `record_session_activity(session_id: str, activity_type: str, user_id: str, details: Optional[Dict[str, Any]]) -> None`: Record an activity in a collaboration session.
+- `get_session_analytics(session_id: str) -> Dict[str, Any]`: Get analytics for a session.
+- `get_system_analytics() -> Dict[str, Any]`: Get system-wide collaboration analytics.
+
+### EventManager
+ Central event management system.
+
+**Methods**:
+- `start() -> None`: Start the event manager.
+- `stop() -> None`: Stop the event manager.
+- `publish_event(request: EventPublishRequest) -> EventPublishResponse`: Publish an event to the system.
+- `subscribe_to_events(subscriber_id: str, request: EventSubscriptionRequest, callback: Callable[[EventPublishResponse], None]) -> str`: Subscribe to events with filtering.
+- `unsubscribe_from_events(subscriber_id: str, subscription_id: str) -> bool`: Unsubscribe from events.
+- `register_event_processor(event_type: str, processor: EventProcessor) -> None`: Register an event processor for a specific event type.
+- `get_events(event_type: Optional[str], source: Optional[str], start_time: Optional[datetime], end_time: Optional[datetime], limit: int) -> List[EventPublishResponse]`: Get events with filtering.
+- `get_event_statistics() -> Dict[str, Any]`: Get event system statistics.
+
+### EventMetrics
+ Metrics for event system performance.
+
+**Methods**:
+- `to_dict() -> Dict[str, Any]`: Convert metrics to dictionary.
+- `reset() -> None`: Reset all metrics.
+
+### EventProcessor
+ Base class for event processors.
+
+**Methods**:
+- `process_event(event: EventPublishResponse) -> None`: Process an event.
+
+### DataUpdateProcessor
+ Processor for data update events.
+
+**Methods**:
+- `process_event(event: EventPublishResponse) -> None`: Process data update events.
+
+### SystemAlertProcessor
+ Processor for system alert events.
+
+**Methods**:
+- `process_event(event: EventPublishResponse) -> None`: Process system alert events.
+
+### UserActionProcessor
+ Processor for user action events.
+
+**Methods**:
+- `process_event(event: EventPublishResponse) -> None`: Process user action events.
+
+### SensorTriggerProcessor
+ Processor for sensor trigger events.
+
+**Methods**:
+- `process_event(event: EventPublishResponse) -> None`: Process sensor trigger events.
+
+### GeospatialChangeProcessor
+ Processor for geospatial change events.
+
+**Methods**:
+- `process_event(event: EventPublishResponse) -> None`: Process geospatial change events.
+
+### EventFilter
+ event filtering capabilities.
+
+**Methods**:
+- `register_filter(filter_name: str, filter_func: Callable) -> None`: Register a custom event filter.
+- `apply_filters(event: EventPublishResponse, filters: List[Dict[str, Any]]) -> bool`: Apply multiple filters to an event.
+
+### EventScheduler
+ event scheduling and timing system.
+
+**Methods**:
+- `start() -> None`: Start the event scheduler.
+- `stop() -> None`: Stop the event scheduler.
+- `schedule_event(event_request: EventPublishRequest, schedule_time: datetime, schedule_id: Optional[str]) -> str`: Schedule an event for future publication.
+- `schedule_recurring_event(event_request: EventPublishRequest, schedule_config: Dict[str, Any], recurring_id: Optional[str]) -> str`: Schedule a recurring event.
+- `cancel_scheduled_event(schedule_id: str) -> bool`: Cancel a scheduled event.
+- `cancel_recurring_event(recurring_id: str) -> bool`: Cancel a recurring event.
+
+### ScheduledEvent
+ Represents a scheduled event.
+
+### RecurringEvent
+ Represents a recurring event.
+
+### EventWebhookManager
+ Webhook management for external event delivery.
+
+**Methods**:
+- `register_webhook(webhook_id: str, config: WebhookConfig) -> bool`: Register a webhook for event delivery.
+- `unregister_webhook(webhook_id: str) -> bool`: Unregister a webhook.
+- `deliver_to_webhook(webhook_id: str, event: EventPublishResponse) -> bool`: Deliver event to a specific webhook.
+
+### WebhookConfig
+ Configuration for a webhook.
+
+### WebhookDelivery
+ Record of a webhook delivery attempt.
+
+### MessageBroker
+ Central message broker for routing and delivery.
+
+**Methods**:
+- `start() -> None`: Start the message broker processing.
+- `stop() -> None`: Stop the message broker processing.
+- `send_message(request: MessageRequest, sender_id: str) -> MessageResponse`: Send a message through the broker.
+- `broadcast_message(request: BroadcastRequest, sender_id: str) -> BroadcastResponse`: Broadcast a message to multiple recipients based on criteria.
+- `subscribe(subscriber_id: str, callback: Callable[[MessageResponse], None], spatial_filter: Optional[SpatialFilter]) -> str`: Subscribe to messages with optional spatial filtering.
+- `unsubscribe(subscriber_id: str, subscription_id: Optional[str]) -> bool`: Unsubscribe from messages.
+- `get_message(message_id: str) -> Optional[MessageResponse]`: Retrieve a specific message by ID.
+- `get_messages(sender_id: Optional[str], channel_id: Optional[str], start_time: Optional[datetime], end_time: Optional[datetime], limit: int) -> List[MessageResponse]`: Retrieve messages with filtering options.
+- `get_metrics() -> Dict[str, Any]`: Get current broker metrics.
+
+### MessageMetrics
+ Metrics for message broker performance.
+
+**Methods**:
+- `to_dict() -> Dict[str, Any]`: Convert metrics to dictionary.
+- `reset() -> None`: Reset all metrics.
+
+### MessageRouter
+ message routing with geospatial intelligence.
+
+**Methods**:
+- `add_routing_rule(rule: RoutingRule) -> None`: Add a routing rule for message filtering and distribution.
+- `route_message(message: MessageResponse) -> List[str]`: Route message based on configured rules.
+- `get_routing_statistics() -> Dict[str, Any]`: Get routing performance statistics.
+
+### RoutingRule
+ A rule for message routing and filtering.
+
+**Methods**:
+- `matches(message: MessageResponse) -> bool`: Check if message matches this routing rule.
+- `apply(message: MessageResponse) -> List[str]`: Apply routing rule to generate recipient list.
+- `set_broker(broker: 'MessageBroker') -> None`: Set the message broker reference for this rule.
+
+### MessageFormatter
+ Format messages for different delivery methods and contexts.
+
+**Methods**:
+- `format_for_sms(message: MessageResponse, max_length: int) -> str`: Format message for SMS delivery.
+- `format_for_email(message: MessageResponse) -> Dict[str, str]`: Format message for email delivery.
+- `format_for_push_notification(message: MessageResponse) -> Dict[str, str]`: Format message for push notification.
+- `format_for_geospatial_context(message: MessageResponse) -> Dict[str, Any]`: Format message with geospatial context information.
+
+### NotificationManager
+ Central notification management system.
+
+**Methods**:
+- `start() -> None`: Start the notification manager.
+- `stop() -> None`: Stop the notification manager.
+- `create_notification(request: NotificationRequest) -> NotificationResponse`: Create a notification.
+- `send_notification(notification_id: str) -> bool`: Send a specific notification immediately.
+- `schedule_notification(request: NotificationRequest, schedule_time: datetime) -> str`: Schedule a notification for future delivery.
+- `mark_as_read(notification_id: str, user_id: str) -> bool`: Mark a notification as read by a user.
+- `get_notifications(user_id: Optional[str], status: Optional[NotificationStatus], start_time: Optional[datetime], end_time: Optional[datetime], limit: int) -> List[NotificationResponse]`: Get notifications with filtering.
+- `add_spatial_filter(filter_id: str, spatial_filter: SpatialFilter) -> None`: Add a spatial filter for notification targeting.
+- `remove_spatial_filter(filter_id: str) -> bool`: Remove a spatial filter.
+- `register_delivery_handler(method: str, handler: Callable) -> None`: Register a custom delivery handler for a notification method.
+- `get_metrics() -> Dict[str, Any]`: Get notification system metrics.
+
+### NotificationMetrics
+ Metrics for notification system performance.
+
+**Methods**:
+- `to_dict() -> Dict[str, Any]`: Convert metrics to dictionary.
+- `reset() -> None`: Reset all metrics.
+
+### AlertSystem
+ alert system for critical notifications.
+
+**Methods**:
+- `create_alert_rule(rule: AlertRule) -> str`: Create a alert rule.
+- `trigger_alert(rule_id: str, trigger_data: Dict[str, Any], geospatial_context: Optional[GeospatialMetadata]) -> Optional[AlertResponse]`: Trigger an alert based on a rule.
+- `get_alert_history(rule_id: Optional[str], start_time: Optional[datetime], end_time: Optional[datetime], limit: int) -> List[AlertResponse]`: Get alert history with filtering.
+- `get_alert_statistics() -> Dict[str, Any]`: Get alert system statistics.
+
+### AlertRule
+ Rule for triggering alerts based on conditions.
+
+**Methods**:
+- `evaluate_conditions(trigger_data: Dict[str, Any]) -> bool`: Evaluate if alert conditions are met.
+- `update_last_triggered() -> None`: Update the last triggered timestamp.
+
+### AlertResponse
+ Response from alert triggering.
+
+**Methods**:
+- `to_dict() -> Dict[str, Any]`: Convert to dictionary.
+
+### NotificationFormatter
+ Format notifications for different delivery methods and contexts.
+
+**Methods**:
+- `format_for_sms(notification: NotificationResponse, max_length: int) -> str`: Format notification for SMS delivery.
+- `format_for_email(notification: NotificationResponse) -> Dict[str, str]`: Format notification for email delivery.
+- `format_for_push_notification(notification: NotificationResponse) -> Dict[str, str]`: Format notification for push notification.
+- `format_for_geospatial_context(notification: NotificationResponse) -> Dict[str, Any]`: Format notification with geospatial context information.
+
+### EmergencyAlertSystem
+ Specialized system for emergency alerts and critical notifications.
+
+**Methods**:
+- `register_emergency_contact(contact_id: str, contact_info: Dict[str, Any], priority: int) -> None`: Register an emergency contact.
+- `define_emergency_zone(zone_id: str, bounds: GeospatialBounds) -> None`: Define an emergency zone for spatial alerting.
+- `declare_emergency(emergency_type: str, location: GeospatialPoint, severity: str, description: str) -> str`: Declare a emergency situation.
+- `resolve_emergency(emergency_id: str) -> bool`: Resolve an active emergency.
+- `get_active_emergencies() -> List[EmergencyAlert]`: Get list of currently active emergencies.
+
+### EmergencyAlert
+ Represents an active emergency situation.
+
+**Methods**:
+- `to_dict() -> Dict[str, Any]`: Convert to dictionary.
+
+### AdvancedSpatialRouter
+ geospatial message router with routing algorithms.
+
+**Methods**:
+- `route_message(message: MessageResponse, target_nodes: List[str], routing_context: Optional[Dict[str, Any]]) -> Dict[str, List[str]]`: Route message using geospatial algorithms.
+- `update_network_topology(topology: Dict[str, Dict[str, float]]) -> None`: Update network topology information.
+- `update_node_loads(node_loads: Dict[str, float]) -> None`: Update current node load information.
+- `record_routing_result(message_id: str, route: List[str], success: bool, latency: Optional[float]) -> None`: Record routing result for performance analysis.
+- `get_routing_analytics() -> Dict[str, Any]`: Get routing performance analytics.
+
+### SpatialRoutingMetrics
+ Metrics for spatial routing performance.
+
+**Methods**:
+- `to_dict() -> Dict[str, Any]`: Convert metrics to dictionary.
+- `reset() -> None`: Reset all metrics.
+
+### GeospatialLoadBalancer
+ Geospatial load balancer for message distribution.
+
+**Methods**:
+- `register_node_location(node_id: str, location: GeospatialPoint) -> None`: Register a node's geospatial location.
+- `update_node_load(node_id: str, load: float) -> None`: Update load information for a node.
+- `select_optimal_node(message_location: GeospatialPoint, exclude_nodes: Optional[List[str]]) -> Optional[str]`: Select the optimal node for a message based on location and load.
+- `get_load_distribution() -> Dict[str, Any]`: Get current load distribution across nodes.
+
+### SpatialClusteringRouter
+ Spatial clustering-based message router.
+
+**Methods**:
+- `add_node_to_cluster(node_id: str, location: GeospatialPoint) -> str`: Add a node to an appropriate cluster.
+- `route_to_cluster(message_location: GeospatialPoint, cluster_strategy: str) -> Optional[str]`: Route message to appropriate cluster.
+- `get_cluster_info(cluster_id: str) -> Optional[Dict[str, Any]]`: Get information about a specific cluster.
+
+### SpatialCluster
+ Represents a spatial cluster of nodes.
+
+**Methods**:
+- `add_node(node_id: str, location: GeospatialPoint) -> None`: Add a node to this cluster.
+- `remove_node(node_id: str) -> None`: Remove a node from this cluster.
+- `contains_location(location: GeospatialPoint, radius_km: float) -> bool`: Check if location is within cluster radius.
+
+### AdaptiveRoutingEngine
+ Adaptive routing engine that learns and optimizes routing patterns.
+
+**Methods**:
+- `learn_from_routing_result(message: MessageResponse, route: List[str], performance: Dict[str, Any]) -> None`: Learn from a routing result to improve future routing.
+- `predict_optimal_route(message: MessageResponse, available_routes: Dict[str, List[str]]) -> Optional[str]`: Predict the optimal route for a message.
+- `get_routing_insights() -> Dict[str, Any]`: Get insights into routing performance and patterns.
+
+### GeospatialMessageQueue
+ Geospatial message queue with priority and spatial organization.
+
+**Methods**:
+- `enqueue_message(message: MessageResponse) -> bool`: Add message to geospatial queue.
+- `dequeue_message(spatial_filter: Optional[SpatialFilter]) -> Optional[MessageResponse]`: Dequeue highest priority message, optionally filtered by spatial criteria.
+- `get_messages_by_location(location: GeospatialPoint, radius_km: float, limit: int) -> List[MessageResponse]`: Get messages near a specific location.
+- `get_queue_stats() -> Dict[str, Any]`: Get queue statistics.
+
+### SpatialRoutingOptimizer
+ Optimizer for spatial routing algorithms.
+
+**Methods**:
+- `analyze_routing_performance() -> Dict[str, Any]`: Analyze routing performance and suggest optimizations.
+- `optimize_routing_strategy() -> None`: Optimize routing strategy based on performance analysis.
+
+### DataStream
+ Individual data stream with geospatial capabilities.
+
+**Methods**:
+- `add_data_point(data: Any, geospatial_context: Optional[GeospatialMetadata]) -> bool`: Add a data point to the stream.
+- `get_data_points(count: int, timeout: float) -> List[Dict[str, Any]]`: Get data points from the stream buffer.
+- `get_stats() -> Dict[str, Any]`: Get stream statistics.
+
+### StreamManager
+ Central stream management system.
+
+**Methods**:
+- `start() -> None`: Start the stream manager.
+- `stop() -> None`: Stop the stream manager.
+- `create_stream(request: StreamRequest, creator_id: str) -> StreamResponse`: Create a data stream.
+- `get_stream(stream_id: str) -> Optional[DataStream]`: Get a specific stream by ID.
+- `get_streams(stream_type: Optional[StreamType], limit: int) -> List[DataStream]`: Get streams with optional filtering.
+- `subscribe_to_stream(stream_id: str, subscriber_id: str) -> bool`: Subscribe to a stream.
+- `unsubscribe_from_stream(stream_id: str, subscriber_id: str) -> bool`: Unsubscribe from a stream.
+- `publish_to_stream(stream_id: str, data: Any, geospatial_context: Optional[GeospatialMetadata]) -> bool`: Publish data to a stream.
+- `get_streams_by_location(location: GeospatialPoint, radius_km: float) -> List[DataStream]`: Get streams near a specific location.
+- `get_stream_statistics() -> Dict[str, Any]`: Get stream statistics.
+
+### StreamMetrics
+ Metrics for streaming system performance.
+
+**Methods**:
+- `to_dict() -> Dict[str, Any]`: Convert metrics to dictionary.
+- `reset() -> None`: Reset all metrics.
+
+### GeospatialDataStream
+ Specialized stream for geospatial data with spatial features.
+
+**Methods**:
+- `add_geospatial_data(location: GeospatialPoint, data: Any, timestamp: Optional[datetime]) -> None`: Add geospatial data point to the stream.
+- `get_data_at_location(location: GeospatialPoint, radius_km: float) -> List[Dict[str, Any]]`: Get data points near a location.
+- `get_temporal_series(location: GeospatialPoint, time_window: Optional[timedelta]) -> List[Dict[str, Any]]`: Get temporal data series for a location.
+
+### StreamingProtocolManager
+ Protocol manager for different streaming protocols.
+
+**Methods**:
+- `get_protocol(protocol_name: str) -> Optional[StreamingProtocol]`: Get a streaming protocol implementation.
+- `list_available_protocols() -> List[str]`: List all available streaming protocols.
+- `register_protocol(name: str, protocol: StreamingProtocol) -> None`: Register a streaming protocol.
+
+### StreamingProtocol
+ Base class for streaming protocols.
+
+**Methods**:
+- `get_protocol_stats() -> Dict[str, Any]`: Get protocol-specific statistics.
+
+### WebSocketStreamingProtocol
+ WebSocket streaming protocol implementation.
+
+### MQTTStreamingProtocol
+ MQTT streaming protocol implementation.
+
+### ServerSentEventsProtocol
+ Server-Sent Events streaming protocol implementation.
+
+### StreamingAnalytics
+ Analytics and monitoring for streaming system.
+
+**Methods**:
+- `record_streaming_event(stream_id: str, event_type: str, details: Optional[Dict[str, Any]]) -> None`: Record a streaming event for analytics.
+- `get_streaming_analytics(stream_id: str) -> Dict[str, Any]`: Get analytics for a specific stream.
+- `get_system_streaming_analytics() -> Dict[str, Any]`: Get system-wide streaming analytics.
+
+### StreamingOrchestrator
+ High-level streaming orchestrator.
+
+**Methods**:
+- `create_geospatial_stream(stream_id: str, geospatial_config: Dict[str, Any]) -> GeospatialDataStream`: Create a specialized geospatial data stream.
+- `stream_geospatial_data(stream_id: str, location: GeospatialPoint, data: Any, protocol: str) -> bool`: Stream geospatial data through specified protocol.
+- `get_streaming_insights() -> Dict[str, Any]`: Get streaming insights.
+
+## Capabilities
+
+- **58 classes** for core functionality
+
+## Integration
+
+- **Location**: `GEO-INFER-COMMS/src/geo_infer_comms/core`
+- **Type**: Directory Node

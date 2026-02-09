@@ -14,7 +14,17 @@ import json
 from typing import List, Tuple
 from shapely.geometry import Polygon
 
-from geo_infer_space.utils.h3_utils import cell_to_latlngjson, latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
+import pandas as pd
+
+try:
+    from geo_infer_space.utils.h3_utils import cell_to_latlngjson, latlng_to_cell, cell_to_latlng, cell_to_latlng_boundary, polygon_to_cells
+except ImportError:
+    import h3
+    latlng_to_cell = h3.latlng_to_cell
+    cell_to_latlng = h3.cell_to_latlng
+    cell_to_latlng_boundary = h3.cell_to_boundary
+    polygon_to_cells = h3.polygon_to_cells
+    cell_to_latlngjson = None  # Not used in this module
 
 logger = logging.getLogger(__name__)
 

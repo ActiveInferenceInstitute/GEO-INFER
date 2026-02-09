@@ -131,13 +131,13 @@ except ImportError:
 # Try to import model modules
 # Note: These modules may not have __all__ defined, so we import the modules themselves
 try:
-    from geo_infer_math import models.regression as regression_module
+    from geo_infer_math.models import regression as regression_module
     _available_models.append("regression")
 except ImportError:
     regression_module = None
 
 try:
-    from geo_infer_math import models.clustering as clustering_module
+    from geo_infer_math.models import clustering as clustering_module
     _available_models.append("clustering")
 except ImportError:
     clustering_module = None

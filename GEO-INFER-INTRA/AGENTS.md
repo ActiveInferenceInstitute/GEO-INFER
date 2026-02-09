@@ -30,8 +30,7 @@ class ConfigAwareAgent:
     
     def reload_config(self):
         """Hot-reload configuration without restart."""
-        self.config = load_config("config/agent_settings.yaml")
-```
+        self.config = load_config("config/agent_settings.yaml")```
 
 ### Testing Infrastructure
 
@@ -51,8 +50,7 @@ class TestMyAgent(GeospatialTestCase):
     def test_agent_spatial_perception(self):
         """Test agent perceives spatial environment correctly."""
         observation = self.agent.perceive(self.test_region)
-        self.assertIsNotNone(observation)
-```
+        self.assertIsNotNone(observation)```
 
 ### Repository Assessment
 
@@ -73,8 +71,7 @@ class RepositoryMonitorAgent:
             "doc_coverage": report.doc_coverage,
             "test_coverage": report.test_coverage,
             "issues": report.issues
-        }
-```
+        }```
 
 ## Implementation Status
 
@@ -117,8 +114,7 @@ graph TD
     TEST --> AGENT
     TEST --> ACT
     TEST --> ANT
-    ASSESS --> AGENT
-```
+    ASSESS --> AGENT```
 
 ## Use Cases
 
@@ -138,8 +134,7 @@ agent = MyAgent(config=dev_config)
 class TestMyAgent(AgentTestCase):
     def test_agent_behavior(self):
         result = agent.act()
-        self.assertValidAction(result)
-```
+        self.assertValidAction(result)```
 
 ### 2. Continuous Integration
 
@@ -156,8 +151,7 @@ def ci_quality_check():
     if report.test_coverage < 70:
         raise CoverageError("Test coverage below threshold")
     
-    return report
-```
+    return report```
 
 ---
 

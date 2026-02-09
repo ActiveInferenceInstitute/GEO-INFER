@@ -27,12 +27,10 @@ simulation = simulator.create(
     environment=city_grid,
     agents=pedestrian_agents,
     rules=movement_rules,
-    steps=1000
-)
+    steps=1000)
 
 simulation.run()
-print(f"Final patterns: {simulation.emergent_patterns}")
-```
+print(f"Final patterns: {simulation.emergent_patterns}")```
 
 ### 2. Discrete Event Simulation
 
@@ -45,13 +43,11 @@ des = DiscreteEventSim()
 sim = des.create(
     model=logistics_model,
     events=["arrival", "processing", "departure"],
-    duration_hours=24
-)
+    duration_hours=24)
 
 results = sim.run()
 print(f"Throughput: {results.throughput}")
-print(f"Queue lengths: {results.queue_stats}")
-```
+print(f"Queue lengths: {results.queue_stats}")```
 
 ### 3. Scenario Analysis
 
@@ -64,11 +60,9 @@ analyzer = ScenarioAnalyzer()
 scenarios = analyzer.compare(
     base_scenario=current_state,
     alternatives=[scenario_a, scenario_b, scenario_c],
-    metrics=["cost", "coverage", "efficiency"]
-)
+    metrics=["cost", "coverage", "efficiency"])
 
-print(f"Best scenario: {scenarios.best.name}")
-```
+print(f"Best scenario: {scenarios.best.name}")```
 
 ### 4. Monte Carlo Simulation
 
@@ -81,12 +75,10 @@ mc = MonteCarloSim()
 analysis = mc.run(
     model=risk_model,
     iterations=10000,
-    uncertain_params=["demand", "cost", "duration"]
-)
+    uncertain_params=["demand", "cost", "duration"])
 
 print(f"Mean outcome: {analysis.mean}")
-print(f"95% confidence: {analysis.ci_95}")
-```
+print(f"95% confidence: {analysis.ci_95}")```
 
 ## Implementation Status
 

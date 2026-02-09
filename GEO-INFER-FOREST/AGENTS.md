@@ -25,12 +25,10 @@ inventory = ForestInventory()
 
 results = inventory.analyze(
     area=forest_boundary,
-    data_sources={"lidar": lidar_data, "imagery": satellite}
-)
+    data_sources={"lidar": lidar_data, "imagery": satellite})
 
 print(f"Biomass: {results.biomass_tonnes_ha} t/ha")
-print(f"Canopy height: {results.mean_height} m")
-```
+print(f"Canopy height: {results.mean_height} m")```
 
 ### 2. Change Detection
 
@@ -43,12 +41,10 @@ detector = ChangeDetector()
 changes = detector.detect(
     area=study_area,
     start_date="2020-01-01",
-    end_date="2025-12-31"
-)
+    end_date="2025-12-31")
 
 print(f"Forest loss: {changes.loss_hectares} ha")
-print(f"Forest gain: {changes.gain_hectares} ha")
-```
+print(f"Forest gain: {changes.gain_hectares} ha")```
 
 ### 3. Fire Risk
 
@@ -61,11 +57,9 @@ risk = FireRisk()
 assessment = risk.assess(
     area=wildland_area,
     weather=current_weather,
-    fuel_data=fuel_model
-)
+    fuel_data=fuel_model)
 
-print(f"Fire danger: {assessment.danger_rating}")
-```
+print(f"Fire danger: {assessment.danger_rating}")```
 
 ### 4. Carbon Accounting
 
@@ -77,11 +71,9 @@ carbon = CarbonAccounting()
 
 stocks = carbon.estimate(
     forest_area=forest_boundary,
-    pools=["above_ground", "below_ground", "soil"]
-)
+    pools=["above_ground", "below_ground", "soil"])
 
-print(f"Total carbon: {stocks.total_tonnes} tC")
-```
+print(f"Total carbon: {stocks.total_tonnes} tC")```
 
 ## Implementation Status
 

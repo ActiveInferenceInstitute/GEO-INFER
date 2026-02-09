@@ -1,6 +1,16 @@
 # Agent
-: tests ## Scope
- This directory contains tests components for the module. ## Classes
- and Functions No public classes or functions found in this directory. ## Capabilities
- - Core module functionality ## Integration
- - **Location**: `GEO-INFER-PLACE/locations/cascadia/tests` - **Type**: Directory Node 
+: tests
+
+## Scope
+ This directory contains tests components for the module.
+
+## Classes
+ and Functions No public classes or functions found in this directory.
+
+## Capabilities
+ - Core module functionality
+
+## Integration
+
+- **Location**: `GEO-INFER-PLACE/locations/cascadia/tests`
+- **Type**: Directory Node

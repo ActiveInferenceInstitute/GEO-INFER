@@ -13,7 +13,6 @@
 
 ## Overview
 
-
 This document describes the Active Inference agent implementations within the GEO-INFER-ACT module, which provides principled agent architectures based on the Free Energy Principle for intelligent geospatial decision-making.
 
 ## Implementation
@@ -56,11 +55,16 @@ This document describes the Active Inference agent implementations within the GE
 - **`ActiveInferenceModel`**: `ActiveInferenceModel(model_type: str = "categorical", **kwargs)`
   - Main class for active inference agents
   - Methods:
-    - `set_generative_model(model: GenerativeModel) -> None`
-    - `perceive(observation: np.ndarray) -> np.ndarray`
-    - `act(available_actions: Optional[List[Any]] = None) -> Any`
-    - `update_beliefs(observations: np.ndarray) -> np.ndarray`
-    - `select_action() -> Any`
+   
+- `set_generative_model(model: GenerativeModel) -> None`
+   
+- `perceive(observation: np.ndarray) -> np.ndarray`
+   
+- `act(available_actions: Optional[List[Any]] = None) -> Any`
+   
+- `update_beliefs(observations: np.ndarray) -> np.ndarray`
+   
+- `select_action() -> Any`
 
 - **`GenerativeModel`**: `GenerativeModel(**kwargs)`
   - Probabilistic generative model for active inference
@@ -85,8 +89,10 @@ This document describes the Active Inference agent implementations within the GE
 - **`FreeEnergyCalculator`**: `FreeEnergyCalculator(**kwargs)`
   - Calculates variational and expected free energy
   - Methods:
-    - `calculate_free_energy(beliefs, observations, generative_model) -> float`
-    - `calculate_expected_free_energy(policies, beliefs, generative_model) -> np.ndarray`
+   
+- `calculate_free_energy(beliefs, observations, generative_model) -> float`
+   
+- `calculate_expected_free_energy(policies, beliefs, generative_model) -> np.ndarray`
 
 #### Policy
 
@@ -95,8 +101,10 @@ This document describes the Active Inference agent implementations within the GE
 - **`PolicySelector`**: `PolicySelector(**kwargs)`
   - Policy selection via expected free energy minimization
   - Methods:
-    - `select_policy(policies, beliefs, generative_model) -> int`
-    - `calculate_expected_free_energy(policies, beliefs) -> np.ndarray`
+   
+- `select_policy(policies, beliefs, generative_model) -> int`
+   
+- `calculate_expected_free_energy(policies, beliefs) -> np.ndarray`
 
 #### Decision
 
@@ -146,7 +154,9 @@ climate_agent = ClimateModel(config={'prior_precision': 2.0})
 . Perceive environment (updates beliefs using free energy)
 # Observations
 : [Thermometer_Index, CO2_Sensor_Index]
-beliefs = climate_agent.perceive([0, 1]) # 0=Normal Temp, 1=Warning CO2
+beliefs = climate_agent.perceive([0, 1])
+
+# 0=Normal Temp, 1=Warning CO2
 
 # 3
 . Act on environment (selects policy via EFE)
@@ -154,8 +164,7 @@ action = climate_agent.act()
 # Returns
  action index (e.g., 1=ReduceEmissions)
 
-print(f"Agent chose action {action} to minimize expected free energy")
-```
+print(f"Agent chose action {action} to minimize expected free energy")```
 
 ### Custom
 
@@ -168,15 +177,22 @@ from geo_infer_act import ActiveInferenceModel
 
 # Define
  state-space matrices
-A = ... # Likelihood P(o|s)
-B = ... # Transition P(s'|s,u)
-C = ... # Preferences P(o)
-D = ... # Priors P(s)
+A = ...
+
+# Likelihood P(o|s)
+B = ...
+
+# Transition P(s'|s,u)
+C = ...
+
+# Preferences P(o)
+D = ...
+
+# Priors P(s)
 
 agent = ActiveInferenceModel(
     model_type='categorical',
-    A=A, B=B, C=C, D=D
-)
+    A=A, B=B, C=C, D=D)
 ```
 
 ### Structure of Core Agent
@@ -194,8 +210,7 @@ from geo_infer_act.core.generative_model import GenerativeModel
 model = ActiveInferenceModel(
     model_type='categorical',
     state_dim=10,
-    obs_dim=5
-)
+    obs_dim=5)
 
 # Set
  generative model
@@ -205,8 +220,7 @@ generative_model = GenerativeModel(
         'state_dim': 10,
         'obs_dim': 5,
         'prior_precision': 1.0
-    }
-)
+    })
 
 model.set_generative_model(generative_model)
 
@@ -217,8 +231,7 @@ model.update_beliefs(observations)
 
 # Select
  policy/action
-selected_policy = model.select_policy()
-```
+selected_policy = model.select_policy()```
 
 ### Generative Model Architecture
 
@@ -232,23 +245,31 @@ from geo_infer_act.core.generative_model import GenerativeModel
 # Define
  generative model for spatial-temporal dynamics
 generative_model = GenerativeModel(
-    model_type='categorical',  # or 'gaussian', 'mixed'
+    model_type='categorical', 
+
+# or 'gaussian', 'mixed'
     parameters={
-        'state_dim': 10,      # Dimensionality of state space
-        'obs_dim': 5,         # Dimensionality of observation space
+        'state_dim': 10,     
+
+# Dimensionality of state space
+        'obs_dim': 5,        
+
+# Dimensionality of observation space
         'prior_precision': 1.0,
-        'hierarchical': True,  # Enable hierarchical modeling
-        'spatial_mode': True   # Enable spatial extensions
-    }
-)
+        'hierarchical': True, 
+
+# Enable hierarchical modeling
+        'spatial_mode': True  
+
+# Enable spatial extensions
+    })
 
 # The
  generative model maintains:
 # - Beliefs about states
 # - Preferences (prior preferences over outcomes)
 # - Transition model (state evolution)
-# - Observation model (how states generate observations)
-```
+# - Observation model (how states generate observations)```
 
 ## Perception
 
@@ -267,22 +288,26 @@ from geo_infer_act.core.variational_inference import VariationalInference
  variational inference system
 variational = VariationalInference(
     max_iterations=100,
-    tolerance=1e-6
-)
+    tolerance=1e-6)
 
 # Perform
  mean-field variational update
 import numpy as np
 
-prior = {'concentration': np.array([1.0, 1.0, 1.0])}  # Dirichlet prior
-likelihood = {'probs': np.array([0.3, 0.4, 0.3])}    # Likelihood parameters
-observations = np.array([1, 0, 0])  # Observed category
+prior = {'concentration': np.array([1.0, 1.0, 1.0])} 
+
+# Dirichlet prior
+likelihood = {'probs': np.array([0.3, 0.4, 0.3])}   
+
+# Likelihood parameters
+observations = np.array([1, 0, 0]) 
+
+# Observed category
 
 posterior = variational.mean_field_update(
     prior=prior,
     likelihood=likelihood,
-    observations=observations
-)
+    observations=observations)
 
 # Use
  variational inference with an ActiveInferenceModel
@@ -296,8 +321,7 @@ obs = np.array([0.2, 0.3, 0.4, 0.1, 0.0])
 model.update_beliefs(obs)
 
 # The
- model's belief_updater uses VariationalInference internally
-```
+ model's belief_updater uses VariationalInference internally```
 
 ### Belief
 
@@ -321,16 +345,18 @@ generative_model = GenerativeModel(
     parameters={
         'state_dim': 10,
         'obs_dim': 5,
-        'spatial_mode': True,  # Enable spatial extensions
-        'hierarchical': True   # Enable hierarchical modeling
-    }
-)
+        'spatial_mode': True, 
+
+# Enable spatial extensions
+        'hierarchical': True  
+
+# Enable hierarchical modeling
+    })
 
 # Use
  the model's belief updating for spatial reasoning
 # See
- belief_updating.py for BayesianBeliefUpdate
-```
+ belief_updating.py for BayesianBeliefUpdate```
 
 ## Action
 
@@ -364,15 +390,15 @@ selected_policy = model.select_policy()
  use PolicySelector directly with policies
 import numpy as np
 
-beliefs = np.array([0.3, 0.4, 0.3])  # Current beliefs
+beliefs = np.array([0.3, 0.4, 0.3]) 
+
+# Current beliefs
 policies = [
     {'action': 'move_north', 'expected_outcome': np.array([0.2, 0.5, 0.3])},
     {'action': 'move_south', 'expected_outcome': np.array([0.4, 0.3, 0.3])},
-    {'action': 'stay', 'expected_outcome': np.array([0.3, 0.4, 0.3])}
-]
+    {'action': 'stay', 'expected_outcome': np.array([0.3, 0.4, 0.3])}]
 
-selected = policy_selector.select_policy(beliefs, policies)
-```
+selected = policy_selector.select_policy(beliefs, policies)```
 
 ### Spatial
 
@@ -398,11 +424,11 @@ generative_model = GenerativeModel(
     parameters={
         'state_dim': 10,
         'obs_dim': 5,
-        'spatial_mode': True  # Enable spatial extensions
-    }
-)
-model.set_generative_model(generative_model)
-```
+        'spatial_mode': True 
+
+# Enable spatial extensions
+    })
+model.set_generative_model(generative_model)```
 
 ## Learning
 
@@ -431,16 +457,14 @@ generative_model = GenerativeModel(
         'state_dim': 10,
         'obs_dim': 5,
         'prior_precision': 1.0
-    }
-)
+    })
 
 # Update
  model parameters based on experience
 # The
  model's transition_model and observation_model can be updated
 # based
- on collected experience data
-```
+ on collected experience data```
 
 ## Multi
 
@@ -460,16 +484,14 @@ from geo_infer_act.models.multi_agent import MultiAgentModel
 multi_agent_system = MultiAgentModel(
     model_type='categorical',
     num_agents=3,
-    shared_beliefs=True
-)
+    shared_beliefs=True)
 
 # Establish
  agent communication network
 communication_network = multi_agent_system.establish_communication(
     spatial_connectivity=communication_ranges,
     bandwidth_constraints=channel_capacity,
-    reliability_requirements=mission_critical
-)
+    reliability_requirements=mission_critical)
 
 # Coordinate
  beliefs across agents
@@ -477,8 +499,7 @@ consensus_beliefs = multi_agent_system.coordinate_beliefs(
     individual_beliefs=agent_posteriors,
     communication_graph=network_topology,
     consensus_algorithm='belief_propagation',
-    convergence_threshold=0.01
-)
+    convergence_threshold=0.01)
 
 # Plan
  coordinated actions
@@ -486,8 +507,7 @@ coordinated_actions = multi_agent_system.plan_coordinated_actions(
     shared_beliefs=consensus_beliefs,
     individual_goals=agent_objectives,
     resource_constraints=shared_resources,
-    conflict_resolution='pareto_optimal'
-)
+    conflict_resolution='pareto_optimal')
 ```
 
 ## Specialized
@@ -508,8 +528,7 @@ from geo_infer_act.models.ecological import EcologicalModel
 eco_model = EcologicalModel(config={
     'state_dim': 10,
     'obs_dim': 5,
-    'prior_precision': 1.0
-})
+    'prior_precision': 1.0})
 
 # Use
  the model for ecological monitoring
@@ -520,7 +539,9 @@ eco_model = EcologicalModel(config={
 
 # Step through model evolution
 # Needs observation: [Food_Signal, Threat_Signal]
-obs = [2, 0] # Abundant food, no threat
+obs = [2, 0]
+
+# Abundant food, no threat
 result = eco_model.step(observation=obs)
 
 # Use
@@ -529,8 +550,7 @@ from geo_infer_act.core.active_inference import ActiveInferenceModel
 
 model = ActiveInferenceModel(model_type='categorical')
 # Integrate
- ecological model for domain-specific reasoning
-```
+ ecological model for domain-specific reasoning```
 
 ### Urban
 
@@ -545,11 +565,18 @@ from geo_infer_act.models.urban import UrbanModel
  urban planning model
 urban_model = UrbanModel(
     config=None,
-    n_agents=3,      # Number of stakeholder agents
-    n_resources=4,   # Number of resource types
-    n_locations=5,   # Number of spatial locations
-    planning_horizon=10  # Planning horizon
-)
+    n_agents=3,     
+
+# Number of stakeholder agents
+    n_resources=4,  
+
+# Number of resource types
+    n_locations=5,  
+
+# Number of spatial locations
+    planning_horizon=10 
+
+# Planning horizon)
 
 # Step
  through urban planning process
@@ -560,8 +587,7 @@ result = urban_model.step(actions=None)
 # The
  model extends ActiveInferenceModel and provides
 # urban
--specific modeling capabilities
-```
+-specific modeling capabilities```
 
 ### Climate
 
@@ -577,8 +603,7 @@ from geo_infer_act.models.climate import ClimateModel
 climate_model = ClimateModel(config={
     'state_dim': 10,
     'obs_dim': 5,
-    'prior_precision': 1.0
-})
+    'prior_precision': 1.0})
 
 # Use
  the model for climate adaptation planning
@@ -589,7 +614,9 @@ climate_model = ClimateModel(config={
 
 # Step through climate model evolution
 # Needs observation: [Thermometer, CO2_Sensor]
-obs = [1, 1] # Elevated temp, Warning CO2
+obs = [1, 1]
+
+# Elevated temp, Warning CO2
 # Returns tuple (beliefs, action)
 beliefs, action = climate_model.step(observation=obs)
 
@@ -599,8 +626,7 @@ from geo_infer_act.core.active_inference import ActiveInferenceModel
 
 model = ActiveInferenceModel(model_type='categorical')
 # Integrate
- climate model for domain-specific reasoning
-```
+ climate model for domain-specific reasoning```
 
 ## Agent
 
@@ -616,9 +642,12 @@ from geo_infer_act.utils.analysis import ActiveInferenceAnalyzer
 # Initialize
  performance analysis
 analyzer = ActiveInferenceAnalyzer(
-    model=None,  # ActiveInferenceModel to analyze
-    history=None  # History of model states
-)
+    model=None, 
+
+# ActiveInferenceModel to analyze
+    history=None 
+
+# History of model states)
 
 # Analyze
  agent/model performance
@@ -641,8 +670,7 @@ analysis_results = analyzer.analyze()
 # The
  analyzer provides various analysis methods
 # See
- ActiveInferenceAnalyzer class for full API
-```
+ ActiveInferenceAnalyzer class for full API```
 
 ---
 

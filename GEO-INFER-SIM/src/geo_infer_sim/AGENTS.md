@@ -1,5 +1,3 @@
-
-
 # Agent
 : geo_infer_sim 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-SIM/src/geo_infer_sim` 
-- **Type**: Directory Node 
+- **Type**: Directory Node

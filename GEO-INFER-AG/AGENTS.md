@@ -26,12 +26,10 @@ monitor = CropMonitor()
 health = monitor.assess(
     field=field_boundary,
     imagery=satellite_data,
-    indices=["ndvi", "ndre", "evi"]
-)
+    indices=["ndvi", "ndre", "evi"])
 
 print(f"Crop health: {health.status}")
-print(f"Problem areas: {health.stress_zones}")
-```
+print(f"Problem areas: {health.stress_zones}")```
 
 ### 2. Yield Prediction
 
@@ -44,11 +42,9 @@ forecaster = YieldForecaster()
 prediction = forecaster.predict(
     field=field_boundary,
     crop="corn",
-    weather=forecast_data
-)
+    weather=forecast_data)
 
-print(f"Expected yield: {prediction.tonnes_ha} t/ha")
-```
+print(f"Expected yield: {prediction.tonnes_ha} t/ha")```
 
 ### 3. Soil Analysis
 
@@ -60,11 +56,9 @@ soil = SoilAnalyzer()
 
 analysis = soil.analyze(
     samples=soil_samples,
-    properties=["ph", "nitrogen", "organic_matter"]
-)
+    properties=["ph", "nitrogen", "organic_matter"])
 
-print(f"Soil health: {analysis.health_index}")
-```
+print(f"Soil health: {analysis.health_index}")```
 
 ### 4. Precision Irrigation
 
@@ -77,11 +71,9 @@ planner = IrrigationPlanner()
 schedule = planner.create(
     field=field_boundary,
     crop="wheat",
-    soil_moisture=sensor_data
-)
+    soil_moisture=sensor_data)
 
-print(f"Water needed: {schedule.volume_m3}")
-```
+print(f"Water needed: {schedule.volume_m3}")```
 
 ## Implementation Status
 

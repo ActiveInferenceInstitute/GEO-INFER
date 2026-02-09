@@ -26,14 +26,16 @@ analyzer = PlaceAnalyzer()
 # Get rich place information
 place_info = analyzer.analyze(
     location={"lat": 37.7749, "lon": -122.4194},
-    context_radius=500  # meters
-)
+    context_radius=500 
 
-print(f"Place type: {place_info.primary_type}")  # e.g., "urban_commercial"
+# meters)
+
+print(f"Place type: {place_info.primary_type}") 
+
+# e.g., "urban_commercial"
 print(f"Amenities: {place_info.nearby_amenities}")
 print(f"Character: {place_info.neighborhood_character}")
-print(f"Activity patterns: {place_info.temporal_activity}")
-```
+print(f"Activity patterns: {place_info.temporal_activity}")```
 
 ### 2. Place-Based Reasoning
 
@@ -50,12 +52,10 @@ suitable_places = reasoner.find_suitable(
         "foot_traffic": "high",
         "noise_level": "moderate",
         "weather_protection": True
-    }
-)
+    })
 
 for place in suitable_places:
-    print(f"{place.name}: Score {place.suitability_score}")
-```
+    print(f"{place.name}: Score {place.suitability_score}")```
 
 ### 3. Place Semantics
 
@@ -68,13 +68,11 @@ semantics = PlaceSemantics()
 # Get semantic representation of place
 meaning = semantics.interpret(
     place_name="Fisherman's Wharf",
-    city="San Francisco"
-)
+    city="San Francisco")
 
 print(f"Cultural significance: {meaning.cultural_significance}")
 print(f"Associated activities: {meaning.activities}")
-print(f"Visitor demographics: {meaning.visitor_types}")
-```
+print(f"Visitor demographics: {meaning.visitor_types}")```
 
 ### 4. Place Recommendation
 
@@ -92,12 +90,10 @@ recommendations = recommender.recommend(
         "budget": "moderate"
     },
     current_location=user_location,
-    time_of_day="afternoon"
-)
+    time_of_day="afternoon")
 
 for rec in recommendations:
-    print(f"{rec.name}: {rec.reason}")
-```
+    print(f"{rec.name}: {rec.reason}")```
 
 ## Implementation Status
 
@@ -139,8 +135,7 @@ graph TD
     ANALYZE --> SPACE_AGENT
     REASON --> PLAN_AGENT
     SEMANTIC --> NAV_AGENT
-    RECOMMEND --> NAV_AGENT
-```
+    RECOMMEND --> NAV_AGENT```
 
 ## Use Cases
 
@@ -156,17 +151,20 @@ class PlaceAwareAgent(BaseAgent):
         self.place_context = PlaceContext()
     
     def act_in_context(self, location):
-        # Understand current place context
+       
+
+# Understand current place context
         context = self.place_context.get(location)
         
-        # Adapt behavior to place
+       
+
+# Adapt behavior to place
         if context.is_quiet_zone:
             self.reduce_activity_level()
         elif context.is_commercial_area:
             self.enable_commercial_features()
         
-        return self.act()
-```
+        return self.act()```
 
 ### 2. Urban Planning Place Analysis
 
@@ -178,13 +176,11 @@ evaluator = PlaceEvaluator()
 # Evaluate neighborhood for development
 evaluation = evaluator.evaluate_for_development(
     neighborhood="mission_district",
-    development_type="affordable_housing"
-)
+    development_type="affordable_housing")
 
 print(f"Community fit: {evaluation.community_fit_score}")
 print(f"Infrastructure readiness: {evaluation.infrastructure_score}")
-print(f"Recommendations: {evaluation.recommendations}")
-```
+print(f"Recommendations: {evaluation.recommendations}")```
 
 ---
 

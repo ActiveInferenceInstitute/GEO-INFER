@@ -27,13 +27,11 @@ model = SpatialCognitionModel()
 behavior = model.analyze_wayfinding(
     route_data=gps_traces,
     environment=building_layout,
-    cognitive_factors=["attention", "memory", "decision_making"]
-)
+    cognitive_factors=["attention", "memory", "decision_making"])
 
 print(f"Decision points: {behavior.decision_points}")
 print(f"Hesitation zones: {behavior.hesitation_zones}")
-print(f"Cognitive load: {behavior.estimated_cognitive_load}")
-```
+print(f"Cognitive load: {behavior.estimated_cognitive_load}")```
 
 ### 2. Mental Map Analysis
 
@@ -46,13 +44,11 @@ analyzer = MentalMapAnalyzer()
 analysis = analyzer.analyze(
     sketch_maps=participant_sketches,
     actual_environment=ground_truth_map,
-    metrics=["distortion", "completeness", "landmarks"]
-)
+    metrics=["distortion", "completeness", "landmarks"])
 
 print(f"Distortion index: {analysis.distortion_score}")
 print(f"Key landmarks: {analysis.identified_landmarks}")
-print(f"Mental map accuracy: {analysis.accuracy_score}%")
-```
+print(f"Mental map accuracy: {analysis.accuracy_score}%")```
 
 ### 3. Attention Modeling
 
@@ -65,12 +61,10 @@ attention = AttentionModel()
 saliency = attention.compute_saliency(
     scene=urban_image,
     task="wayfinding",
-    viewer_properties={"familiarity": "low"}
-)
+    viewer_properties={"familiarity": "low"})
 
 print(f"Attention hotspots: {saliency.hotspots}")
-print(f"Likely fixation sequence: {saliency.fixation_order}")
-```
+print(f"Likely fixation sequence: {saliency.fixation_order}")```
 
 ### 4. Agent Cognitive Architecture
 
@@ -81,19 +75,16 @@ from geo_infer_cog import CognitiveAgent
 agent = CognitiveAgent(
     working_memory_capacity=7,
     attention_model="top_down",
-    learning_style="spatial"
-)
+    learning_style="spatial")
 
 # Agent navigates using cognitive principles
 route = agent.plan_route(
     origin=start_point,
     destination=end_point,
-    strategy="landmark_based"
-)
+    strategy="landmark_based")
 
 print(f"Route legs: {route.legs}")
-print(f"Landmark cues: {route.landmarks}")
-```
+print(f"Landmark cues: {route.landmarks}")```
 
 ## Implementation Status
 
@@ -134,8 +125,7 @@ graph TD
     SPATIAL --> NAV
     MENTAL --> NAV
     ATTENTION --> UX
-    MEMORY --> EDU
-```
+    MEMORY --> EDU```
 
 ## Use Cases
 
@@ -150,12 +140,10 @@ router = HumanCenteredRouter()
 directions = router.generate(
     route=calculated_route,
     user_profile={"familiarity": "visitor"},
-    output_format="verbal"
-)
+    output_format="verbal")
 
 print(f"Instructions: {directions.verbal_instructions}")
-# "Turn left at the tall church with the red door..."
-```
+# "Turn left at the tall church with the red door..."```
 
 ### 2. Spatial Learning Assessment
 
@@ -167,12 +155,10 @@ assessor = SpatialLearningAssessor()
 assessment = assessor.evaluate(
     learner=student_id,
     tasks=["mental_rotation", "perspective_taking", "map_reading"],
-    adaptive=True
-)
+    adaptive=True)
 
 print(f"Spatial ability score: {assessment.overall_score}")
-print(f"Recommendations: {assessment.learning_recommendations}")
-```
+print(f"Recommendations: {assessment.learning_recommendations}")```
 
 ---
 

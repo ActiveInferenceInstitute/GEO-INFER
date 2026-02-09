@@ -80,9 +80,9 @@ class TemporalInterpolator:
         data = timeseries.to_dataframe()
 
         if method == "forward_fill":
-            imputed = data.fillna(method="ffill")
+            imputed = data.ffill()
         elif method == "backward_fill":
-            imputed = data.fillna(method="bfill")
+            imputed = data.bfill()
         elif method == "mean":
             imputed = data.fillna(data.mean())
         elif method == "median":

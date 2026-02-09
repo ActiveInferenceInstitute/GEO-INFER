@@ -1,5 +1,3 @@
-
-
 # Agent
 : integration 
 
@@ -12,4 +10,4 @@
 ## Integration
  
 - **Location**: `GEO-INFER-TEST/tests/integration` 
-- **Type**: Directory Node 
+- **Type**: Directory Node

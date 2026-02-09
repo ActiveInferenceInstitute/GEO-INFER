@@ -26,7 +26,7 @@ import tempfile
 import os
 
 # Enhanced logging
-from .enhanced_logging import VisualizationLogger, DataSourceLogger
+from ..enhanced_logging import VisualizationLogger, DataSourceLogger
 
 logger = logging.getLogger(__name__)
 
