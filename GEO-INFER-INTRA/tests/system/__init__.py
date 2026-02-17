@@ -1,1 +1,0 @@
-"""System tests package for the GEO-INFER framework.""" 

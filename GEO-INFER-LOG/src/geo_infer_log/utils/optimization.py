@@ -7,9 +7,24 @@ logistics problems like TSP and VRP.
 
 import numpy as np
 from typing import List, Dict, Tuple, Optional, Any
-from ortools.constraint_solver import routing_enums_pb2
-from ortools.constraint_solver import pywrapcp
+
+try:
+    from ortools.constraint_solver import routing_enums_pb2
+    from ortools.constraint_solver import pywrapcp
+    _HAS_ORTOOLS = True
+except ImportError:
+    _HAS_ORTOOLS = False
+
 from geo_infer_log.utils.geo import haversine_distance
+
+
+def _require_ortools() -> None:
+    """Raise ImportError if ortools is not installed."""
+    if not _HAS_ORTOOLS:
+        raise ImportError(
+            "ortools is required for optimization functions. "
+            "Install with: pip install ortools"
+        )
 
 
 def solve_tsp(points: List[Tuple[float, float]], 
@@ -30,9 +45,11 @@ def solve_tsp(points: List[Tuple[float, float]],
     Returns:
         Dictionary with solution information
     """
+    _require_ortools()
+
     if not points:
         raise ValueError("Points list cannot be empty")
-        
+
     if start_index < 0 or start_index >= len(points):
         raise ValueError(f"Start index {start_index} out of range")
         
@@ -170,9 +187,11 @@ def solve_vrp(depots: List[Tuple[float, float]],
     Returns:
         Dictionary with solution information
     """
+    _require_ortools()
+
     if not depots:
         raise ValueError("Depots list cannot be empty")
-        
+
     if not deliveries:
         raise ValueError("Deliveries list cannot be empty")
         

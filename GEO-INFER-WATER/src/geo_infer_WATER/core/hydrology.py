@@ -41,7 +41,9 @@ class HydrologicalModeler:
         # Adjust for soil moisture if available
         if soil_moisture is not None:
             # Saturated soil increases runoff
-            saturation_factor = soil_moisture / soil_moisture.max()
+            # Soil moisture assumed 0-1 scale (fraction of saturation)
+            saturation_factor = xr.where(soil_moisture > 1.0, 1.0, soil_moisture)
+            saturation_factor = xr.where(saturation_factor < 0.0, 0.0, saturation_factor)
             runoff = runoff * (1 + saturation_factor * 0.5)
             infiltration = infiltration * (1 - saturation_factor * 0.3)
         

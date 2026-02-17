@@ -33,9 +33,14 @@ src/geo_infer_time/models/timeseries.py
 src/geo_infer_time/utils/AGENTS.md
 src/geo_infer_time/utils/README.md
 src/geo_infer_time/utils/__init__.py
+tests/test_advanced_forecasting.py
 tests/test_analysis_extended.py
 tests/test_event_detection.py
 tests/test_forecasting.py
+tests/test_interpolation.py
+tests/test_io_utils_db.py
+tests/test_statistics_extended.py
+tests/test_stream_processing.py
 tests/test_temporal_analysis.py
 tests/test_temporal_statistics.py
 tests/test_temporal_visualization.py

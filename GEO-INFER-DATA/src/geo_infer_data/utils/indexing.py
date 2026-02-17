@@ -89,7 +89,7 @@ class SpatialIndexer:
                 lat, lon = centroid.y, centroid.x
 
                 # Create H3 index at resolution 9 (city level)
-                h3_index = h3.geo_to_h3(lat, lon, 9)
+                h3_index = h3.latlng_to_cell(lat, lon, 9)
                 h3_indexes[str(idx)] = h3_index
 
         return {
@@ -168,17 +168,15 @@ class SpatialIndexer:
         # Get H3 cells that intersect with bbox
         min_lon, min_lat, max_lon, max_lat = bbox
 
-        # Get H3 cells for bbox corners
-        cells = h3.polyfill({
-            'type': 'Polygon',
-            'coordinates': [[
-                [min_lon, min_lat],
-                [min_lon, max_lat],
-                [max_lon, max_lat],
-                [max_lon, min_lat],
-                [min_lon, min_lat]
-            ]]
-        }, index_data['resolution'])
+        # Get H3 cells for bbox polygon (h3 v4 API)
+        polygon = Polygon([
+            (min_lon, min_lat),
+            (min_lon, max_lat),
+            (max_lon, max_lat),
+            (max_lon, min_lat),
+            (min_lon, min_lat),
+        ])
+        cells = h3.geo_to_cells(polygon, index_data['resolution'])
 
         # Filter data by H3 cells
         matching_indexes = [
@@ -215,7 +213,7 @@ class SpatialIndexer:
         """
         try:
             import h3
-            return h3.geo_to_h3(lat, lng, resolution)
+            return h3.latlng_to_cell(lat, lng, resolution)
         except ImportError:
             logger.warning("H3 not available for latlng_to_cell")
             return f"mock_h3_{lat}_{lng}_{resolution}"
@@ -232,7 +230,7 @@ class SpatialIndexer:
         """
         try:
             import h3
-            lat, lng = h3.h3_to_geo(cell)
+            lat, lng = h3.cell_to_latlng(cell)
             return lat, lng
         except ImportError:
             logger.warning("H3 not available for cell_to_latlng")

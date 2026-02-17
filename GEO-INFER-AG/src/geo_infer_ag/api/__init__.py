@@ -6,10 +6,15 @@ in the GEO-INFER framework.
 """
 
 from .agricultural_api import AgriculturalAPI, AgriculturalConfig, create_agricultural_api, get_crop_recommendations
+from .resources import FieldsResource, CropsResource, YieldResource, ResourceResponse
 
 __all__ = [
     'AgriculturalAPI',
-    'AgriculturalConfig', 
+    'AgriculturalConfig',
     'create_agricultural_api',
-    'get_crop_recommendations'
-] 
+    'get_crop_recommendations',
+    'FieldsResource',
+    'CropsResource',
+    'YieldResource',
+    'ResourceResponse',
+]

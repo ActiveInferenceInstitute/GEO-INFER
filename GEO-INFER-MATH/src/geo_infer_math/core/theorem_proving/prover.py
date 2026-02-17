@@ -249,8 +249,8 @@ class TheoremProver:
                     proof="Numpy backend has limited symbolic capabilities",
                     backend='numpy'
                 )
-            except:
-                pass
+            except Exception as eval_err:
+                logger.debug("Numeric evaluation failed for theorem: %s", eval_err)
         
         return ProofResult(
             status=ProofStatus.UNKNOWN,

@@ -432,9 +432,11 @@ class MultiObjectiveOptimizer(Optimizer):
                 else:
                     # Crowding distance selection
                     remaining = self.config.population_size - len(new_population)
-                    selected = self._crowding_distance_selection(combined_pop[front], combined_obj[front], remaining)
-                    new_population.extend(selected)
-                    new_objectives.extend(combined_obj[front][selected])
+                    front_pop = combined_pop[front]
+                    front_obj = combined_obj[front]
+                    selected_indices = self._crowding_distance_selection(front_pop, front_obj, remaining)
+                    new_population.extend(front_pop[selected_indices])
+                    new_objectives.extend(front_obj[selected_indices])
                     break
             
             population = np.array(new_population)

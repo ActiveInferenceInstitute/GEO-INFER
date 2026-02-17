@@ -22,7 +22,9 @@ class AIGradientHelpers:
     
     def __init__(self):
         """Initialize gradient helpers."""
-        pass
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self._cache: Dict[str, np.ndarray] = {}
+        self.logger.debug("AIGradientHelpers initialized")
     
     def compute_spatial_gradient(
         self,

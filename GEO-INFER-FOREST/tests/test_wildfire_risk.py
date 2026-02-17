@@ -6,7 +6,7 @@ import pytest
 import numpy as np
 import xarray as xr
 
-from geo_infer_FOREST.core.wildfire_risk import (
+from geo_infer_forest.core.wildfire_risk import (
     WildfireRiskAnalyzer,
     FireDangerRating,
     FuelType,

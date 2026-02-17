@@ -6,7 +6,7 @@ import pytest
 import numpy as np
 import xarray as xr
 
-from geo_infer_MARINE.core.marine_ecosystems import (
+from geo_infer_marine.core.marine_ecosystems import (
     MarineEcosystemModeler,
     MarineHabitatType,
     SpeciesData

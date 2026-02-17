@@ -136,8 +136,8 @@ def generate_quarterly_people_report(quarter: str, year: int) -> str:
     print(f"Generating quarterly people report for Q{quarter} {year}...")
     
     hr_metrics = get_hr_quarterly_metrics(quarter, year, _employees_db)
-    crm_metrics = get_crm_quarterly_metrics(quarter, year, _customers_db)
-    talent_metrics = get_talent_quarterly_metrics(quarter, year, _candidates_db)
+    crm_metrics = get_crm_quarterly_metrics(quarter, year)
+    talent_metrics = get_talent_quarterly_metrics(quarter, year)
     
     # Compile the quarterly overview report
     report_data = {

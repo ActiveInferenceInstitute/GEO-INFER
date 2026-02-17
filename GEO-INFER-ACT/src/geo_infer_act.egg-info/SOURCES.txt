@@ -4,9 +4,7 @@ setup.py
 src/geo_infer_act/AGENTS.md
 src/geo_infer_act/README.md
 src/geo_infer_act/__init__.py
-src/geo_infer_act.egg-info/AGENTS.md
 src/geo_infer_act.egg-info/PKG-INFO
-src/geo_infer_act.egg-info/README.md
 src/geo_infer_act.egg-info/SOURCES.txt
 src/geo_infer_act.egg-info/dependency_links.txt
 src/geo_infer_act.egg-info/requires.txt

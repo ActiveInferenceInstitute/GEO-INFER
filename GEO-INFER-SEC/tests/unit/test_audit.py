@@ -108,7 +108,6 @@ class TestAuditLogger:
     def test_generate_compliance_report(self, audit_logger: AuditLogger) -> None:
         """Test compliance report generation."""
         start_time = datetime.utcnow() - timedelta(days=1)
-        end_time = datetime.utcnow()
 
         # Log various events
         audit_logger.log_authentication(username="user1", result="success")
@@ -119,6 +118,9 @@ class TestAuditLogger:
         audit_logger.log_authorization(
             user_id="user2", resource="data2", action="write", result="denied"
         )
+
+        # Set end_time AFTER logging events so they fall within the range
+        end_time = datetime.utcnow() + timedelta(seconds=1)
 
         report = audit_logger.generate_compliance_report(
             start_time=start_time, end_time=end_time, report_type="compliance"

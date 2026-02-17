@@ -269,8 +269,10 @@ class DataIntegrationManager:
         if 'api_key' in auth:
             headers['Authorization'] = f"Bearer {auth['api_key']}"
         elif 'username' in auth and 'password' in auth:
-            # Basic auth would be implemented here
-            pass
+            import base64
+            credentials = f"{auth['username']}:{auth['password']}"
+            encoded = base64.b64encode(credentials.encode()).decode()
+            headers['Authorization'] = f"Basic {encoded}"
 
         return headers
 

@@ -2,7 +2,10 @@
 Unit tests for forest inventory.
 """
 
+import numpy as np
 import pytest
+import xarray as xr
+
 from geo_infer_forest.core.forest_inventory import ForestInventory
 
 
@@ -17,11 +20,12 @@ class TestForestInventory:
     def test_estimate_biomass(self):
         """Test biomass estimation."""
         inventory = ForestInventory()
-        result = inventory.estimate_biomass(
-            tree_density=100,  # trees per hectare
-            average_dbh=30.0,  # cm
-            height=20.0  # meters
+        forest_cover = xr.DataArray(
+            np.array([[80.0, 60.0], [40.0, 90.0]]),
+            dims=("y", "x"),
         )
+        result = inventory.estimate_biomass(forest_cover)
         assert result is not None
+        assert float(result.max()) > 0
 
 

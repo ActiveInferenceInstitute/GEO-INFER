@@ -18,6 +18,9 @@ from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.responses import JSONResponse, FileResponse
 from pydantic import BaseModel, Field, validator
 import logging
+import numpy as np
+import pandas as pd
+import geopandas as gpd
 import asyncio
 import time
 from datetime import datetime, timedelta
@@ -56,7 +59,7 @@ class HealthResponse(APIResponse):
 class ModelExecutionRequest(BaseModel):
     """Model execution request"""
     model_type: str = Field(..., description="Type of economic model")
-    model_config: Dict[str, Any] = Field(..., description="Model configuration")
+    model_configuration: Dict[str, Any] = Field(..., description="Model configuration")
     data_source: str = Field(..., description="Data source identifier")
     parameters: Dict[str, Any] = Field(default_factory=dict, description="Model parameters")
 

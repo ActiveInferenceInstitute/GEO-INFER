@@ -208,16 +208,6 @@ class AccountabilityFramework:
             }
         }
     
-    def _design_audit_mechanisms(self) -> List[str]:
-        """Design audit mechanisms."""
-        return [
-            'internal_audit',
-            'external_audit',
-            'participatory_audit',
-            'financial_audit',
-            'performance_audit'
-        ]
-    
     def implement_transparency(
         self,
         information_types: List[str],

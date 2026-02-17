@@ -756,10 +756,28 @@ class AlertManager:
                 logger.warning(f"Error in alert handler: {e}")
 
     def _alert_evaluation_worker(self) -> None:
-        """Background worker for alert evaluation."""
-        # This would be implemented to periodically evaluate alerts
-        # For now, it's a placeholder
-        pass
+        """Background worker for alert evaluation based on current metric values."""
+        for rule_name, rule in self.alert_rules.items():
+            metric_name = rule.get("metric")
+            threshold = rule.get("threshold", 0)
+            comparator = rule.get("comparator", "gt")
+
+            current_value = self.metrics.get(metric_name, {}).get("value", 0)
+
+            triggered = False
+            if comparator == "gt" and current_value > threshold:
+                triggered = True
+            elif comparator == "lt" and current_value < threshold:
+                triggered = True
+            elif comparator == "eq" and current_value == threshold:
+                triggered = True
+
+            if triggered:
+                self._trigger_alert(rule_name, {
+                    "metric": metric_name,
+                    "value": current_value,
+                    "threshold": threshold,
+                })
 
 class ObservabilityManager:
     """

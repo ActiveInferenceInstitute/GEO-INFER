@@ -12,7 +12,9 @@ class SpatialProcessor:
     """Spatial processing engine for geospatial operations."""
     
     def __init__(self):
-        pass
+        """Initialize the SpatialProcessor."""
+        self.logger = logger
+        self._operation_count: int = 0
     
     def buffer_analysis(self, gdf: gpd.GeoDataFrame, buffer_distance: float) -> gpd.GeoDataFrame:
         """Create buffers around geometries.

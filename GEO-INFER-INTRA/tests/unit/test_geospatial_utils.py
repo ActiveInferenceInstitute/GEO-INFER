@@ -8,7 +8,7 @@ from pathlib import Path
 
 # Add parent directory to the path to find our utilities
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from tests.utils.geospatial import (
+from tests.intra_utils.geospatial import (
     create_point, create_polygon, create_feature, create_feature_collection, 
     is_valid_geojson, haversine_distance
 )

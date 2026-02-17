@@ -8,7 +8,7 @@ from pathlib import Path
 
 # Add parent directory to the path to find our utilities
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-from tests.utils import find_modules_by_name, collect_test_modules
+from tests.intra_utils import find_modules_by_name, collect_test_modules
 
 @pytest.mark.unit
 class TestModuleUtils:

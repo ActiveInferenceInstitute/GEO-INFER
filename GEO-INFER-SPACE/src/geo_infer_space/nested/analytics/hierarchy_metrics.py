@@ -247,8 +247,8 @@ class H3HierarchyAnalyzer:
         if h3_index and H3_AVAILABLE:
             try:
                 h3_resolution = h3.get_resolution(h3_index)
-            except:
-                pass
+            except Exception:
+                h3_resolution = None
         
         node = HierarchyNode(
             node_id=node_id,

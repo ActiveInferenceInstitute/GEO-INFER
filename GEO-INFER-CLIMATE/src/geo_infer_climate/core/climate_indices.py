@@ -169,32 +169,32 @@ class ClimateIndicesCalculator:
             Dataset with extreme indices
         """
         indices = {}
-        
+
         # Hot days (days above 90th percentile)
-        temp_90th = temperature.quantile(0.9, dim='time')
+        temp_90th = float(temperature.quantile(0.9, dim='time'))
         hot_days = (temperature > temp_90th).sum(dim='time')
         indices['hot_days'] = hot_days
-        
+
         # Cold days (days below 10th percentile)
-        temp_10th = temperature.quantile(0.1, dim='time')
+        temp_10th = float(temperature.quantile(0.1, dim='time'))
         cold_days = (temperature < temp_10th).sum(dim='time')
         indices['cold_days'] = cold_days
-        
+
         # Maximum temperature
         indices['max_temp'] = temperature.max(dim='time')
-        
+
         # Minimum temperature
         indices['min_temp'] = temperature.min(dim='time')
-        
+
         if precipitation is not None:
             # Heavy precipitation days (above 95th percentile)
-            precip_95th = precipitation.quantile(0.95, dim='time')
+            precip_95th = float(precipitation.quantile(0.95, dim='time'))
             heavy_precip_days = (precipitation > precip_95th).sum(dim='time')
             indices['heavy_precip_days'] = heavy_precip_days
-            
+
             # Total precipitation
             indices['total_precip'] = precipitation.sum(dim='time')
-        
+
         return xr.Dataset(indices)
     
     def calculate_pdsi(

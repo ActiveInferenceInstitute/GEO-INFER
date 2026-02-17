@@ -152,7 +152,9 @@ class AIConvenience:
     
     def __init__(self):
         """Initialize AI convenience class."""
-        pass
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self._gradient_cache: Dict[str, np.ndarray] = {}
+        self.logger.debug("AIConvenience initialized")
     
     def compute_gradient(
         self,

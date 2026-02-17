@@ -30,7 +30,8 @@ class TemporalAnalyzer:
     
     def __init__(self):
         """Initialize the TemporalAnalyzer."""
-        pass
+        self.analysis_history: List[Dict[str, Any]] = []
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
 
     def analyze_temporal_patterns(self, data: List[Dict[str, Any]], 
                                 timestamp_column: str, 

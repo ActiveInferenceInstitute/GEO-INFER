@@ -865,9 +865,31 @@ class DigitalSecurityManager:
         ]
     
     def _update_threat_intelligence(self):
-        """Update threat intelligence feeds."""
-        # In a real implementation, this would fetch from external threat intelligence sources
-        pass
+        """Update threat intelligence feeds by refreshing known threat indicators."""
+        current_time = datetime.now()
+        # Update threat intelligence age tracker
+        if not hasattr(self, '_threat_intel_last_updated'):
+            self._threat_intel_last_updated = current_time
+
+        # Check if any recent security events suggest new threat patterns
+        recent_events = [
+            e for e in self.security_events
+            if (current_time - e.timestamp).total_seconds() < 3600
+        ]
+
+        # Aggregate threat indicators from recent events
+        threat_ips = set()
+        for event in recent_events:
+            ip = event.metadata.get("source_ip")
+            if ip and event.event_type in ("intrusion_attempt", "brute_force", "unauthorized_access"):
+                threat_ips.add(ip)
+
+        # Add newly identified threat IPs to blocked list
+        for ip in threat_ips:
+            if ip not in self.blocked_ips:
+                self.blocked_ips.add(ip)
+
+        self._threat_intel_last_updated = current_time
     
     def _monitor_network_traffic(self):
         """Monitor ongoing network traffic."""
@@ -882,9 +904,22 @@ class DigitalSecurityManager:
             del self.network_connections[conn_id]
     
     def _check_blocked_ips(self):
-        """Check if any blocked IPs should be unblocked."""
-        # In a real implementation, this would check unblock schedules
-        pass
+        """Check if any blocked IPs should be unblocked based on block duration."""
+        if not hasattr(self, '_ip_block_times'):
+            self._ip_block_times = {}
+
+        current_time = datetime.now()
+        block_duration_hours = getattr(self, 'block_duration_hours', 24)
+        ips_to_unblock = []
+
+        for ip in self.blocked_ips:
+            block_time = self._ip_block_times.get(ip)
+            if block_time and (current_time - block_time).total_seconds() > block_duration_hours * 3600:
+                ips_to_unblock.append(ip)
+
+        for ip in ips_to_unblock:
+            self.blocked_ips.discard(ip)
+            self._ip_block_times.pop(ip, None)
     
     # API and Event Management
     def log_security_event(self, event_type: SecurityEventType, metadata: Dict[str, Any]) -> SecurityEvent:

@@ -104,11 +104,11 @@ This document describes the multi-agent systems architecture within the GEO-INFE
 | Module | Framework Capabilities | Status | Links |
 |--------|----------------------|--------|-------|
 | **[SPACE](./GEO-INFER-SPACE/)** | Spatial perception, reasoning, and action for agents | ✅ Beta | [README](./GEO-INFER-SPACE/README.md) \| [AGENTS.md](./GEO-INFER-SPACE/AGENTS.md) |
-| **[TIME](./GEO-INFER-TIME/)** | Temporal perception and forecasting for agents | 🟡 Alpha | [README](./GEO-INFER-TIME/README.md) \| [AGENTS.md](./GEO-INFER-TIME/AGENTS.md) |
-| **[DATA](./GEO-INFER-DATA/)** | Data perception and integration for agents | 🟡 Alpha | [README](./GEO-INFER-DATA/README.md) \| [AGENTS.md](./GEO-INFER-DATA/AGENTS.md) |
+| **[TIME](./GEO-INFER-TIME/)** | Temporal perception and forecasting for agents | ✅ Beta | [README](./GEO-INFER-TIME/README.md) \| [AGENTS.md](./GEO-INFER-TIME/AGENTS.md) |
+| **[DATA](./GEO-INFER-DATA/)** | Data perception and integration for agents | ✅ Beta | [README](./GEO-INFER-DATA/README.md) \| [AGENTS.md](./GEO-INFER-DATA/AGENTS.md) |
 | **[MATH](./GEO-INFER-MATH/)** | Mathematical foundations for agent inference | ✅ Beta | [README](./GEO-INFER-MATH/README.md) \| [AGENTS.md](./GEO-INFER-MATH/AGENTS.md) |
-| **[BAYES](./GEO-INFER-BAYES/)** | Bayesian inference for agent belief updating | 🟡 Alpha | [README](./GEO-INFER-BAYES/README.md) \| [AGENTS.md](./GEO-INFER-BAYES/AGENTS.md) |
-| **[AI](./GEO-INFER-AI/)** | ML/AI capabilities for agent perception and learning | 🟡 Alpha | [README](./GEO-INFER-AI/README.md) \| [AGENTS.md](./GEO-INFER-AI/AGENTS.md) |
+| **[BAYES](./GEO-INFER-BAYES/)** | Bayesian inference for agent belief updating (GP, MCMC, model comparison) | ✅ Beta | [README](./GEO-INFER-BAYES/README.md) \| [AGENTS.md](./GEO-INFER-BAYES/AGENTS.md) |
+| **[AI](./GEO-INFER-AI/)** | ML/AI capabilities for agent perception and learning | ✅ Beta | [README](./GEO-INFER-AI/README.md) \| [AGENTS.md](./GEO-INFER-AI/AGENTS.md) |
 | **[API](./GEO-INFER-API/)** | Communication interfaces for agent messaging | ✅ Beta | [README](./GEO-INFER-API/README.md) \| [AGENTS.md](./GEO-INFER-API/AGENTS.md) |
 | **[APP](./GEO-INFER-APP/)** | Human-agent interaction interfaces | ✅ Beta | [README](./GEO-INFER-APP/README.md) \| [AGENTS.md](./GEO-INFER-APP/AGENTS.md) |
 | **[SEC](./GEO-INFER-SEC/)** | Security and authentication for agents | 🟡 Alpha | [README](./GEO-INFER-SEC/README.md) \| [AGENTS.md](./GEO-INFER-SEC/AGENTS.md) |
@@ -1185,4 +1185,16 @@ validator.assess_emergent_behavior()```
 
 **This document provides a framework for understanding and implementing multi-agent systems within the GEO-INFER ecosystem. The architecture emphasizes spatial intelligence, secure coordination, and scalable performance while maintaining integration with core GEO-INFER modules.**
 
-**Last Updated**: 2026-01-26
+### Testing Coverage
+
+All agent-related modules have test coverage:
+
+| Module | Test Files | Tests | Key Coverage |
+|--------|-----------|-------|--------------|
+| **AGENT** | 10+ | 140+ | BaseAgent, BDI, RL, ActiveInference, Hybrid, Registry, Messaging, Telemetry |
+| **ACT** | 19 | 111+ | Free energy, belief updating, generative models, ecological/urban/climate models |
+| **ANT** | 7+ | 50+ | Swarm algorithms, pheromone system, ABC/PSO/ACO optimization |
+| **SIM** | 4+ | 30+ | Simulation engine, ABM, system dynamics |
+| **COG** | 10 | 146 | Cognitive engine, spatial perception/reasoning/memory, decision support |
+
+**Last Updated**: 2026-02-17

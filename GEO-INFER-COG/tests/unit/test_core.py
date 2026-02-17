@@ -35,7 +35,10 @@ class TestCogModule:
         state = CognitiveState()
         focus_areas = {"area1": 0.8, "area2": 0.5}
         state.update_attention(focus_areas)
-        assert state.attention_focus == focus_areas
+        # update_attention normalizes weights so they sum to 1.0
+        total = sum(focus_areas.values())
+        expected = {k: v / total for k, v in focus_areas.items()}
+        assert state.attention_focus == expected
 
     def test_cognitive_engine_initialization(self) -> None:
         """Test CognitiveProcessingEngine initialization."""

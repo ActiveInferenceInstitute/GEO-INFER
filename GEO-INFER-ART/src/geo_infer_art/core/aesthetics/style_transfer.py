@@ -567,20 +567,63 @@ class StyleTransfer:
             self._enhance_edges()
 
     def _ensure_aspect_ratio(self, target_ratio: float) -> None:
-        """Ensure images have the target aspect ratio."""
-        # This would resize images to match the target aspect ratio
-        # Implementation depends on specific requirements
-        pass
+        """Ensure images have the target aspect ratio.
+
+        Crops or pads the content and style images so their width-to-height
+        ratio matches *target_ratio*.  The longer dimension is cropped
+        symmetrically from both sides so the center of the image is preserved.
+
+        Args:
+            target_ratio: Desired width / height ratio (e.g. 16/9).
+        """
+        for attr in ("content_image", "style_image"):
+            img = getattr(self, attr, None)
+            if img is None:
+                continue
+            w, h = img.size
+            current_ratio = w / h if h > 0 else 1.0
+            if abs(current_ratio - target_ratio) < 0.01:
+                continue
+            if current_ratio > target_ratio:
+                new_w = int(h * target_ratio)
+                offset = (w - new_w) // 2
+                img = img.crop((offset, 0, offset + new_w, h))
+            else:
+                new_h = int(w / target_ratio)
+                offset = (h - new_h) // 2
+                img = img.crop((0, offset, w, offset + new_h))
+            setattr(self, attr, img)
 
     def _add_preprocessing_noise(self) -> None:
-        """Add noise to content image for abstract style transfer."""
-        # Add controlled noise to help abstract style transfer
-        pass
+        """Add controlled Gaussian noise to the content image.
+
+        Small amounts of noise can help abstract style transfer converge to
+        more interesting solutions by breaking up uniform regions in the
+        content image.
+        """
+        if self.content_image is None:
+            return
+        arr = np.array(self.content_image, dtype=np.float32)
+        noise = np.random.normal(loc=0.0, scale=8.0, size=arr.shape)
+        arr = np.clip(arr + noise, 0, 255).astype(np.uint8)
+        self.content_image = Image.fromarray(arr)
 
     def _enhance_edges(self) -> None:
-        """Enhance edges in content image for urban style transfer."""
-        # Apply edge enhancement filter
-        pass
+        """Enhance edges in the content image for urban style transfer.
+
+        Uses a Laplacian-like kernel approximation to sharpen edges, which
+        helps preserve architectural lines during style transfer.
+        """
+        if self.content_image is None:
+            return
+        arr = np.array(self.content_image, dtype=np.float32)
+        # Simple sharpening: original + scaled high-pass component
+        # Approximate high-pass by subtracting a blurred version
+        from PIL import ImageFilter
+        blurred = self.content_image.filter(ImageFilter.GaussianBlur(radius=2))
+        blurred_arr = np.array(blurred, dtype=np.float32)
+        sharpened = np.clip(arr + 0.5 * (arr - blurred_arr), 0, 255).astype(np.uint8)
+        self.content_image = Image.fromarray(sharpened)
 
     def get_style_info(self, style_name: str) -> Dict:
         """

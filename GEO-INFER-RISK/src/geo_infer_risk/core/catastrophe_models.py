@@ -370,9 +370,14 @@ class EnhancedCatastropheModel:
         return slope
 
     def _fit_model_parameters(self) -> None:
-        """Fit model parameters from historical data."""
-        # This will be implemented by subclasses
-        pass
+        """Fit model parameters from historical data.
+
+        Base implementation sets default parameters. Subclasses should override
+        to provide hazard-specific parameter estimation from historical events.
+        """
+        self.model_parameters.setdefault("mean_intensity", 1.0)
+        self.model_parameters.setdefault("std_intensity", 0.5)
+        logger.info("Using default model parameters; override in subclass for specific hazard")
 
     def _initialize_climate_factors(self) -> None:
         """Initialize climate change adjustment factors."""
@@ -483,9 +488,35 @@ class EnhancedCatastropheModel:
     def _generate_single_event(self, region: Optional[Dict] = None,
                              time_period: Optional[Tuple[datetime, datetime]] = None,
                              climate_multiplier: float = 1.0) -> Dict[str, Any]:
-        """Generate a single catastrophe event."""
-        # This will be implemented by subclasses
-        pass
+        """Generate a single catastrophe event.
+
+        Base implementation generates a generic event with random location and intensity.
+        Subclasses should override for hazard-specific event generation.
+        """
+        import random
+
+        mean_intensity = self.model_parameters.get("mean_intensity", 1.0)
+        std_intensity = self.model_parameters.get("std_intensity", 0.5)
+        intensity = max(0.0, random.gauss(mean_intensity * climate_multiplier, std_intensity))
+
+        lat = random.uniform(-90, 90)
+        lon = random.uniform(-180, 180)
+        if region:
+            lat = random.uniform(region.get("min_lat", -90), region.get("max_lat", 90))
+            lon = random.uniform(region.get("min_lon", -180), region.get("max_lon", 180))
+
+        event_time = datetime.now()
+        if time_period:
+            start, end = time_period
+            delta = (end - start).total_seconds()
+            event_time = start + timedelta(seconds=random.uniform(0, delta))
+
+        return {
+            "intensity": intensity,
+            "location": {"latitude": lat, "longitude": lon},
+            "timestamp": event_time,
+            "metadata": {"climate_multiplier": climate_multiplier},
+        }
 
     def _apply_spatial_correlation(self, events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Apply spatial correlation to generated events."""
@@ -535,9 +566,23 @@ class EnhancedCatastropheModel:
             return events
 
     def calculate_loss(self, event: Dict[str, Any], exposure: Dict[str, Any]) -> float:
-        """Calculate loss for a given event and exposure."""
-        # This will be implemented by subclasses
-        pass
+        """Calculate loss for a given event and exposure.
+
+        Base implementation uses a simple intensity-based loss fraction.
+        Subclasses should override for hazard-specific loss calculations.
+
+        Args:
+            event: Catastrophe event with intensity and location.
+            exposure: Exposure data with total value.
+
+        Returns:
+            Estimated loss amount.
+        """
+        intensity = event.get("intensity", 0.0)
+        total_value = exposure.get("total_value", 0.0)
+        # Simple linear damage function capped at 100%
+        damage_fraction = min(1.0, max(0.0, intensity / 10.0))
+        return damage_fraction * total_value
 
     def get_model_status(self) -> Dict[str, Any]:
         """Get comprehensive model status information."""
@@ -1150,4 +1195,41 @@ EarthquakeModel = EnhancedEarthquakeModel
 HurricaneModel = EnhancedHurricaneModel
 FloodModel = EnhancedFloodModel
 
-class EarthquakeModel(CatastropheModel):
+
+class CatastropheModelManager:
+    """Manages a registry of catastrophe models for use in risk analysis.
+
+    Provides methods to register, retrieve, and run catastrophe models
+    across different hazard types.
+    """
+
+    def __init__(self, config: Optional[CatastropheConfig] = None) -> None:
+        self.config = config or CatastropheConfig()
+        self._models: Dict[str, EnhancedCatastropheModel] = {}
+
+    def register_model(self, name: str, model: EnhancedCatastropheModel) -> None:
+        """Register a catastrophe model under a given name."""
+        self._models[name] = model
+
+    def get_model(self, name: str) -> Optional[EnhancedCatastropheModel]:
+        """Retrieve a registered model by name."""
+        return self._models.get(name)
+
+    def list_models(self) -> List[str]:
+        """Return names of all registered models."""
+        return list(self._models.keys())
+
+    def run_all(self, input_data: Dict[str, Any]) -> Dict[str, Any]:
+        """Run all registered models against the given input data.
+
+        Args:
+            input_data: Input parameters for each model (keyed by model name).
+
+        Returns:
+            Results dictionary keyed by model name.
+        """
+        results: Dict[str, Any] = {}
+        for name, model in self._models.items():
+            model_input = input_data.get(name, {})
+            results[name] = model.run_analysis(model_input)
+        return results

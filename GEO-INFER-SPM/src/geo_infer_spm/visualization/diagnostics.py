@@ -136,7 +136,7 @@ def _plot_residuals_vs_fitted(spm_result: SPMResult, ax):
         smoothed = lowess(residuals, fitted, frac=0.3)
         ax.plot(smoothed[:, 0], smoothed[:, 1], color='blue', linewidth=2, alpha=0.8)
     except ImportError:
-        pass
+        warnings.warn("scipy not available; skipping optional diagnostic overlay", stacklevel=2)
 
 
 def _plot_scale_location(spm_result: SPMResult, ax):
@@ -157,7 +157,7 @@ def _plot_scale_location(spm_result: SPMResult, ax):
         smoothed = lowess(sqrt_abs_residuals, fitted, frac=0.3)
         ax.plot(smoothed[:, 0], smoothed[:, 1], color='blue', linewidth=2, alpha=0.8)
     except ImportError:
-        pass
+        warnings.warn("scipy not available; skipping optional diagnostic overlay", stacklevel=2)
 
 
 def _plot_residual_histogram(spm_result: SPMResult, ax):
@@ -187,7 +187,7 @@ def _plot_residual_histogram(spm_result: SPMResult, ax):
                 transform=ax.transAxes, verticalalignment='top',
                 bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
     except ImportError:
-        pass
+        warnings.warn("scipy not available; skipping optional diagnostic overlay", stacklevel=2)
 
 
 def _plot_cooks_distance(spm_result: SPMResult, ax):
@@ -280,7 +280,7 @@ def _compute_diagnostic_stats(spm_result: SPMResult) -> Dict[str, Any]:
         stats_dict['shapiro_normality_p'] = float(shapiro_p)
         stats_dict['dagostino_normality_p'] = float(normal_p)
     except ImportError:
-        pass
+        warnings.warn("scipy not available; skipping optional diagnostic overlay", stacklevel=2)
 
     # Leverage and influence
     hat_matrix = X @ np.linalg.pinv(X.T @ X) @ X.T

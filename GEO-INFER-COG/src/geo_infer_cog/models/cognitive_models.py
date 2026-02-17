@@ -707,10 +707,32 @@ class SpatialKnowledgeGraph:
                         'properties': edge_data.get('properties', {})
                     })
 
-        # For deeper queries, implement traversal logic here
+        # Multi-hop traversal for deeper queries
         if max_depth > 1:
-            # This would implement multi-hop relationship queries
-            pass
+            visited = {entity_id}
+            frontier = [r['target'] for r in relationships]
+            for depth in range(2, max_depth + 1):
+                next_frontier: List[str] = []
+                for node in frontier:
+                    if node in visited or node not in self.graph:
+                        continue
+                    visited.add(node)
+                    for neighbor in self.graph.neighbors(node):
+                        edge_data = self.graph.get_edge_data(node, neighbor)
+                        if edge_data:
+                            rel_type = edge_data.get('relation_type', 'unknown')
+                            if relation_types is None or rel_type in relation_types:
+                                relationships.append({
+                                    'source': node,
+                                    'target': neighbor,
+                                    'relation_type': rel_type,
+                                    'confidence': edge_data.get('confidence', 1.0),
+                                    'strength': edge_data.get('strength', 1.0),
+                                    'properties': edge_data.get('properties', {}),
+                                    'depth': depth,
+                                })
+                                next_frontier.append(neighbor)
+                frontier = next_frontier
 
         return relationships
 

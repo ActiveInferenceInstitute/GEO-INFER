@@ -133,12 +133,12 @@ class Policy:
     policyholder_id: str
     property_id: str
 
-    # Coverage information
-    coverages: List[Coverage] = field(default_factory=list)
-
-    # Policy terms
+    # Policy terms (required - must precede fields with defaults)
     effective_date: datetime
     expiration_date: datetime
+
+    # Coverage information
+    coverages: List[Coverage] = field(default_factory=list)
     term_months: int = 12
 
     # Financial information

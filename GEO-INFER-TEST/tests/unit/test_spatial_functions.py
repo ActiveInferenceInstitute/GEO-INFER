@@ -9,6 +9,7 @@ This module tests the core spatial processing capabilities including:
 """
 
 import pytest
+from hypothesis import given, strategies as st
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -491,6 +492,72 @@ class TestSpatialPerformance:
         assert creation_time < 5.0  # Should complete within 5 seconds
         assert len(h3_cells) == n_points
         assert all(isinstance(cell, int) for cell in h3_cells)
+
+
+# ---------------------------------------------------------------------------
+# Property-Based Tests (Hypothesis)
+# ---------------------------------------------------------------------------
+
+class TestHypothesisSpatial:
+    """Property-based tests for spatial functions using Hypothesis."""
+
+    @given(st.floats(min_value=-80, max_value=80), st.floats(min_value=-180, max_value=180))
+    def test_h3_indexing_roundtrip(self, lat, lon):
+        """Verify lat/lon -> h3 -> lat/lon consistency."""
+        try:
+            h3_index = h3.latlng_to_cell(lat, lon, 9)
+            lat_out, lon_out = h3.cell_to_latlng(h3_index)
+            
+            # H3 is lossy (hex center), so we check proximity, not equality
+            # ~0.001 degrees covers hex edge size at res 9 (approx 174m)
+            # Relax tolerance to 0.05 degrees near edges
+            
+            lat_diff = abs(lat - lat_out)
+            lon_diff = abs(lon - lon_out)
+            # Handle longitude wrapping at 180/-180
+            if lon_diff > 180:
+                lon_diff = 360 - lon_diff
+                
+            assert lat_diff < 0.05
+            assert lon_diff < 0.05
+        except Exception as e:
+            # Should handle edge cases (poles etc) gracefully or fail with helpful message
+            if "h3" in str(e).lower():
+                pass 
+            else:
+                pytest.fail(f"H3 roundtrip failed for {lat}, {lon}: {e}")
+
+    @given(st.lists(st.tuples(st.floats(min_value=0, max_value=10), st.floats(min_value=0, max_value=10)), min_size=3, max_size=10))
+    def test_convex_hull_invariants(self, points):
+        """Verify convex hull invariants on random point sets."""
+        if len(points) < 3:
+            return
+            
+        df = pd.DataFrame(points, columns=['latitude', 'longitude'])
+        gdf = gpd.GeoDataFrame(
+            df, 
+            geometry=gpd.points_from_xy(df.longitude, df.latitude),
+        )
+        
+        # Use union_all() if available, else unary_union
+        try:
+            geom_union = gdf.union_all()
+        except AttributeError:
+            geom_union = gdf.unary_union
+            
+        hull = geom_union.convex_hull
+        
+        if hull.is_empty:
+            return
+
+        # Invariant 1: Hull area >= 0
+        assert hull.area >= 0
+        
+        # Invariant 2: All original points must be within (or on boundary of) the hull
+        # Use a small buffer for float precision issues
+        buffered_hull = hull.buffer(1e-9)
+        for geom in gdf.geometry:
+            assert buffered_hull.contains(geom) or buffered_hull.touches(geom)
 
 if __name__ == "__main__":
     pytest.main([__file__]) 

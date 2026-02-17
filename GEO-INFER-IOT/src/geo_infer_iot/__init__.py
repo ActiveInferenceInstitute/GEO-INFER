@@ -17,6 +17,7 @@ Key components:
 # Import available modules
 import numpy as np
 from datetime import datetime, timedelta
+from typing import Dict, List, Any, Optional
 from geo_infer_iot.core.ingestion import IoTDataIngestion, RadiationMonitoringSystem, GlobalMonitoringSystem
 from geo_infer_iot.core.registry import SensorRegistry
 
@@ -823,9 +824,38 @@ class GlobalMonitoringSystem:
         self.update_frequency = update_frequency
         
     def get_current_global_distribution(self, confidence_level, spatial_resolution):
-        """Get current global distribution map."""
-        # Implementation would aggregate multiple networks
-        pass
+        """Get current global distribution map by aggregating network data.
+
+        Args:
+            confidence_level: Statistical confidence level (e.g., 0.95)
+            spatial_resolution: H3 resolution for the output grid
+
+        Returns:
+            Dictionary with distribution data including grid cells and values.
+        """
+        distribution = {
+            "variable": self.variable,
+            "confidence_level": confidence_level,
+            "spatial_resolution": spatial_resolution,
+            "networks_aggregated": len(self.sensor_networks),
+            "cells": {},
+        }
+
+        for network_name in self.sensor_networks:
+            network_data = self.sensor_networks[network_name]
+            if isinstance(network_data, dict):
+                for cell_id, value in network_data.get("cells", {}).items():
+                    if cell_id in distribution["cells"]:
+                        existing = distribution["cells"][cell_id]
+                        existing["values"].append(value)
+                        existing["mean"] = sum(existing["values"]) / len(existing["values"])
+                    else:
+                        distribution["cells"][cell_id] = {
+                            "values": [value],
+                            "mean": value,
+                        }
+
+        return distribution
 
 # Convenience imports for common workflows
 class MultiModalFusion:

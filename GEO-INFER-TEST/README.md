@@ -31,6 +31,7 @@ estimated_time: "40"
 - **Integration Testing**: Cross-module tests
 - **Spatial Validation**: Geometry validation
 - **Performance Testing**: Benchmarking
+- **Property-Based Testing**: Fuzzing with Hypothesis
 
 ## Features
 

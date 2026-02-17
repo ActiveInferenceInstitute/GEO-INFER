@@ -12,9 +12,6 @@ import re
 import math
 from datetime import datetime, timezone
 
-from geo_infer_comms.models.spatial import CoordinateSystem
-
-
 def validate_coordinates(longitude: float, latitude: float) -> bool:
     """
     Validate longitude and latitude coordinates.
@@ -53,11 +50,12 @@ def validate_crs(crs: str) -> bool:
     Returns:
         True if CRS is valid, False otherwise
     """
+    # Use string values directly to avoid circular import with spatial.py
     valid_crs = [
-        CoordinateSystem.WGS84,
-        CoordinateSystem.UTM,
-        CoordinateSystem.WEB_MERCATOR,
-        CoordinateSystem.LOCAL
+        "EPSG:4326",   # WGS84
+        "UTM",         # Universal Transverse Mercator
+        "EPSG:3857",   # Web Mercator
+        "LOCAL"        # Local coordinate system
     ]
 
     return crs in valid_crs

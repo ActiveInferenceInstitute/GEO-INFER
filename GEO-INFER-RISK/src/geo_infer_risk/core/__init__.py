@@ -23,9 +23,7 @@ from .catastrophe_models import (
     create_enhanced_earthquake_model,
     create_enhanced_hurricane_model,
     create_enhanced_flood_model,
-    CatastropheModel,  # Base class
-    EventGenerator,
-    ImpactCalculator,
+    CatastropheModel,  # Base class (alias for EnhancedCatastropheModel)
 )
 
 from .insurance_models import (
@@ -37,16 +35,8 @@ from .insurance_models import (
     InsuranceManager,
     create_insurance_manager,
     calculate_property_premium,
-    InsurancePricing,
-    ReinsuranceModel,
-    ClaimsPrediction,
 )
 
-from .portfolio_models import (
-    PortfolioAnalyzer,
-    DiversificationOptimizer,
-    ExposureAggregator,
-)
 from .risk_engine import EnhancedRiskEngine, RiskEngine, AnalysisJob, ModelIntegrationStatus
 from .hazard_model import (
     EnhancedHazardModel, HazardModel,
@@ -121,19 +111,15 @@ __all__ = [
     "create_enhanced_hurricane_cat_model",
     "create_enhanced_flood_cat_model",
 
-    # Legacy Catastrophe modeling
-    "EventGenerator",
-    "ImpactCalculator",
-
     # Insurance modeling
-    "InsurancePricing",
-    "ReinsuranceModel",
-    "ClaimsPrediction",
-
-    # Portfolio management
-    "PortfolioAnalyzer",
-    "DiversificationOptimizer",
-    "ExposureAggregator",
+    "InsuranceConfig",
+    "InsuranceModel",
+    "PropertyInsuranceModel",
+    "LiabilityInsuranceModel",
+    "CatastropheInsuranceModel",
+    "InsuranceManager",
+    "create_insurance_manager",
+    "calculate_property_premium",
 
     # Analysis job management
     "AnalysisJob",

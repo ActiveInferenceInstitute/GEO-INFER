@@ -785,8 +785,13 @@ class ChannelMessageFilter:
             # Check geospatial constraints
             geo_filter = filter_rule.get("spatial_filter")
             if geo_filter:
-                # In production, would create SpatialFilter and evaluate
-                pass
+                msg_loc = message.geospatial_data.location
+                bounds = geo_filter.get("bounds", {})
+                if bounds:
+                    lat_ok = bounds.get("min_lat", -90) <= msg_loc.latitude <= bounds.get("max_lat", 90)
+                    lon_ok = bounds.get("min_lon", -180) <= msg_loc.longitude <= bounds.get("max_lon", 180)
+                    if not (lat_ok and lon_ok):
+                        return False
 
         return True
 

@@ -156,9 +156,9 @@ class ActiveInferenceModel:
                     return action
                 except ImportError:
                      # Fallback to simple G calc if specific functions missing
-                     pass
-        except (ImportError, Exception):
-            pass # Pymdp not available or failed
+                     logger.debug("pymdp control functions not available, using fallback")
+        except (ImportError, Exception) as exc:
+            logger.debug("pymdp not available or failed: %s", exc)
 
         # Standard / Fallback Implementation
         
@@ -205,9 +205,25 @@ class ActiveInferenceModel:
         self.preferences = preferences
 
     def update_with_outcome(self, decision: Dict[str, Any], outcome: Dict[str, Any]) -> None:
-        """Update model based on decision and outcome."""
-        # Simplified update - in practice would update generative model
-        pass
+        """
+        Update model based on decision outcome for learning.
+
+        Stores the decision-outcome pair in history and updates beliefs
+        if outcome contains observation data, implementing the
+        perception-action loop closure in Active Inference.
+
+        Args:
+            decision: The decision/action taken
+            outcome: The observed outcome
+        """
+        self.history.append({
+            'decision': decision,
+            'outcome': outcome,
+            'beliefs_at_decision': self._clone_beliefs(self.current_beliefs)
+        })
+        if 'observation' in outcome:
+            obs = np.asarray(outcome['observation'], dtype=float).reshape(-1)
+            self.perceive(obs)
 
     def generate_policies(self, available_actions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """Generate policy options from available actions."""
@@ -538,7 +554,7 @@ class ActiveInferenceModel:
                 arrays = [self._safe_flatten(v) for v in data.values()]
                 return np.concatenate(arrays)
             except Exception:
-                pass # Fallback
+                logger.debug("Dict flattening failed, falling through to list/array handler")
                 
         if isinstance(data, (list, tuple)):
             try:
@@ -553,7 +569,7 @@ class ActiveInferenceModel:
                     arrays = [np.asarray(x, dtype=float).reshape(-1) for x in data.flat]
                     return np.concatenate(arrays)
                 except Exception:
-                    pass
+                    logger.debug("Object array element conversion failed, treating as flat float array")
             return np.asarray(data, dtype=float).reshape(-1)
             
         return np.array([float(data)])

@@ -10,6 +10,7 @@ import logging
 from pathlib import Path
 from dataclasses import dataclass
 from typing import Dict, List, Optional, Any, Generator, Union
+from geo_infer_intra.utils.config import load_default_config
 
 # Add each module to the Python path
 parent_dir = str(Path(__file__).parent.parent)
@@ -380,4 +381,17 @@ def reset_metrics():
         for collector in collectors:
             REGISTRY.unregister(collector)
     except (ImportError, AttributeError):
-        pass 
+        pass
+
+@pytest.fixture
+def test_config(test_log_dir):
+    """Create a default test configuration."""
+    config = load_default_config()
+    # Override common test settings
+    config["general"]["debug_mode"] = True
+    config["general"]["log_level"] = "DEBUG"
+    if "logging" in config["general"]:
+        config["general"]["log_file"] = str(test_log_dir / "test.log")
+        
+    return config
+ 

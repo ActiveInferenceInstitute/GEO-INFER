@@ -6,7 +6,7 @@ import pytest
 import numpy as np
 import xarray as xr
 
-from geo_infer_WATER.core.water_quality import (
+from geo_infer_water.core.water_quality import (
     WaterQualityAssessor,
     WaterSample,
     WaterBodyType,

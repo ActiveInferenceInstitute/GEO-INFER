@@ -2,13 +2,14 @@
 Core training and evaluation functionality for geospatial AI models.
 
 This module provides training loops, evaluation metrics, and model management
-for geospatial machine learning workflows.
+for geospatial machine learning workflows. Includes data splitting,
+cross-validation, and hyperparameter search capabilities.
 """
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -19,6 +20,7 @@ from sklearn.metrics import (
     mean_squared_error,
     r2_score,
 )
+from sklearn.model_selection import KFold, StratifiedKFold, train_test_split
 
 logger = logging.getLogger(__name__)
 
@@ -287,6 +289,244 @@ class ModelTrainer:
             raise ValueError(
                 f"Unknown task_type: {task_type}. Must be 'classification' or 'regression'"
             )
+
+    def cross_validate(
+        self,
+        model: Any,
+        X: np.ndarray,
+        y: np.ndarray,
+        n_splits: int = 5,
+        task_type: str = "classification",
+        stratified: bool = True,
+        random_state: int = 42,
+    ) -> Dict[str, Any]:
+        """
+        Perform k-fold cross-validation on a model.
+
+        Args:
+            model: Scikit-learn compatible estimator (will be cloned per fold)
+            X: Feature matrix
+            y: Target values
+            n_splits: Number of cross-validation folds
+            task_type: 'classification' or 'regression'
+            stratified: Whether to use stratified splits (classification only)
+            random_state: Random state for reproducibility
+
+        Returns:
+            Dictionary containing per-fold and aggregate metrics
+        """
+        from sklearn.base import clone
+
+        logger.info(
+            f"Running {n_splits}-fold cross-validation for {task_type} "
+            f"on {len(X)} samples"
+        )
+
+        if task_type == "classification" and stratified:
+            kf = StratifiedKFold(
+                n_splits=n_splits, shuffle=True, random_state=random_state
+            )
+            split_iterator = kf.split(X, y)
+        else:
+            kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
+            split_iterator = kf.split(X)
+
+        fold_results: List[Dict[str, float]] = []
+
+        for fold_idx, (train_idx, val_idx) in enumerate(split_iterator):
+            X_train_fold, X_val_fold = X[train_idx], X[val_idx]
+            y_train_fold, y_val_fold = y[train_idx], y[val_idx]
+
+            fold_model = clone(model)
+            fold_model.fit(X_train_fold, y_train_fold)
+            y_pred = fold_model.predict(X_val_fold)
+
+            if task_type == "classification":
+                fold_metrics = {
+                    "fold": fold_idx,
+                    "accuracy": float(accuracy_score(y_val_fold, y_pred)),
+                }
+            else:
+                mse = float(mean_squared_error(y_val_fold, y_pred))
+                fold_metrics = {
+                    "fold": fold_idx,
+                    "mse": mse,
+                    "rmse": float(np.sqrt(mse)),
+                    "mae": float(mean_absolute_error(y_val_fold, y_pred)),
+                    "r2": float(r2_score(y_val_fold, y_pred)),
+                }
+
+            fold_results.append(fold_metrics)
+
+        # Aggregate metrics
+        metric_keys = [k for k in fold_results[0].keys() if k != "fold"]
+        aggregate = {}
+        for key in metric_keys:
+            values = [f[key] for f in fold_results]
+            aggregate[f"{key}_mean"] = float(np.mean(values))
+            aggregate[f"{key}_std"] = float(np.std(values))
+
+        result = {
+            "n_splits": n_splits,
+            "task_type": task_type,
+            "fold_results": fold_results,
+            "aggregate": aggregate,
+        }
+
+        primary_metric = "accuracy_mean" if task_type == "classification" else "r2_mean"
+        logger.info(
+            f"Cross-validation complete. {primary_metric}: "
+            f"{aggregate.get(primary_metric, 0.0):.4f}"
+        )
+        return result
+
+    def hyperparameter_search(
+        self,
+        model_class: Any,
+        param_grid: Dict[str, List[Any]],
+        X: np.ndarray,
+        y: np.ndarray,
+        task_type: str = "classification",
+        n_splits: int = 3,
+        scoring: Optional[str] = None,
+        random_state: int = 42,
+    ) -> Dict[str, Any]:
+        """
+        Grid search over hyperparameters using cross-validation.
+
+        Args:
+            model_class: Scikit-learn model class (not instance)
+            param_grid: Dictionary mapping parameter names to lists of values
+            X: Feature matrix
+            y: Target values
+            task_type: 'classification' or 'regression'
+            n_splits: Number of CV folds per candidate
+            scoring: Scoring metric name (default: accuracy/r2)
+            random_state: Random state for reproducibility
+
+        Returns:
+            Dictionary containing best parameters, best score, and all results
+        """
+        import itertools
+
+        if scoring is None:
+            scoring = "accuracy" if task_type == "classification" else "r2"
+
+        logger.info(
+            f"Starting hyperparameter search over {len(param_grid)} parameters"
+        )
+
+        param_names = list(param_grid.keys())
+        param_values = list(param_grid.values())
+        all_combinations = list(itertools.product(*param_values))
+
+        logger.info(f"Evaluating {len(all_combinations)} parameter combinations")
+
+        search_results: List[Dict[str, Any]] = []
+        best_score = float("-inf")
+        best_params: Dict[str, Any] = {}
+
+        for combo in all_combinations:
+            params = dict(zip(param_names, combo))
+            model = model_class(random_state=random_state, **params)
+
+            cv_result = self.cross_validate(
+                model=model,
+                X=X,
+                y=y,
+                n_splits=n_splits,
+                task_type=task_type,
+                random_state=random_state,
+            )
+
+            score_key = f"{scoring}_mean"
+            score = cv_result["aggregate"].get(score_key, 0.0)
+
+            search_results.append(
+                {
+                    "params": params,
+                    "score": score,
+                    "score_std": cv_result["aggregate"].get(
+                        f"{scoring}_std", 0.0
+                    ),
+                }
+            )
+
+            if score > best_score:
+                best_score = score
+                best_params = params
+
+        # Sort results by score descending
+        search_results.sort(key=lambda x: x["score"], reverse=True)
+
+        result = {
+            "best_params": best_params,
+            "best_score": best_score,
+            "scoring": scoring,
+            "all_results": search_results,
+            "n_combinations": len(all_combinations),
+        }
+
+        logger.info(
+            f"Hyperparameter search complete. Best {scoring}: {best_score:.4f}"
+        )
+        return result
+
+    def split_data(
+        self,
+        X: np.ndarray,
+        y: np.ndarray,
+        test_size: float = 0.2,
+        val_size: float = 0.1,
+        stratify: bool = False,
+        random_state: int = 42,
+    ) -> Dict[str, np.ndarray]:
+        """
+        Split data into train, validation, and test sets.
+
+        Args:
+            X: Feature matrix
+            y: Target values
+            test_size: Fraction of data for test set
+            val_size: Fraction of data for validation set (from remaining)
+            stratify: Whether to stratify splits
+            random_state: Random state for reproducibility
+
+        Returns:
+            Dictionary with 'X_train', 'X_val', 'X_test', 'y_train', 'y_val', 'y_test'
+        """
+        stratify_y = y if stratify else None
+
+        X_trainval, X_test, y_trainval, y_test = train_test_split(
+            X, y, test_size=test_size, random_state=random_state,
+            stratify=stratify_y,
+        )
+
+        # Calculate validation fraction from remaining data
+        val_fraction = val_size / (1.0 - test_size) if val_size > 0 else 0.0
+
+        if val_fraction > 0:
+            stratify_trainval = y_trainval if stratify else None
+            X_train, X_val, y_train, y_val = train_test_split(
+                X_trainval, y_trainval, test_size=val_fraction,
+                random_state=random_state, stratify=stratify_trainval,
+            )
+        else:
+            X_train, X_val = X_trainval, np.array([])
+            y_train, y_val = y_trainval, np.array([])
+
+        logger.info(
+            f"Data split: train={len(X_train)}, val={len(X_val)}, test={len(X_test)}"
+        )
+
+        return {
+            "X_train": X_train,
+            "X_val": X_val,
+            "X_test": X_test,
+            "y_train": y_train,
+            "y_val": y_val,
+            "y_test": y_test,
+        }
 
     def _save_model(self, model: Any, path: Union[str, Path]) -> None:
         """

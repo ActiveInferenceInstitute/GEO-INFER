@@ -117,14 +117,26 @@ class CropYieldModel(AgricultureModel):
             self.feature_columns = feature_columns
             
         elif self.model_type == "statistical":
-            # Simple statistical model based on historical averages and trends
-            # For example, calculate yield averages by region, soil type, etc.
-            pass
-            
+            # Statistical model: compute historical averages and trend regression
+            if target_column in train_df.columns:
+                self._statistical_params = {
+                    "mean_yield": float(train_df[target_column].mean()),
+                    "std_yield": float(train_df[target_column].std()),
+                    "trend": None,
+                }
+                if "year" in train_df.columns and len(train_df) > 1:
+                    from numpy.polynomial.polynomial import polyfit
+                    coeffs = polyfit(train_df["year"].values, train_df[target_column].values, 1)
+                    self._statistical_params["trend"] = float(coeffs[1])
+
         elif self.model_type == "process_based":
-            # Process-based crop model would be implemented here
-            # These models simulate crop growth based on physiological processes
-            pass
+            # Simplified process-based model using growing-degree-day accumulation
+            self._process_params = {
+                "base_temperature": 10.0,
+                "optimal_temperature": 25.0,
+                "max_yield_potential": float(train_df[target_column].max()) if target_column in train_df.columns else 10.0,
+                "water_stress_coeff": 0.8,
+            }
         
         self.fitted = True
         

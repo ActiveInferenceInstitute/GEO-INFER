@@ -14,6 +14,18 @@ import ast
 import re
 
 
+# Canonical list of all GEO-INFER ecosystem modules
+ALL_MODULES = [
+    "ACT", "AG", "AGENT", "AI", "ANT", "API", "APP", "ART",
+    "BAYES", "BIO", "CIV", "CLIMATE", "COG", "COMMS", "DATA",
+    "ECON", "EDU", "EMERGENCY", "ENERGY", "EXAMPLES", "FOREST",
+    "GIT", "HEALTH", "INTRA", "IOT", "LOG", "MARINE", "MATH",
+    "METAGOV", "NORMS", "OPS", "ORG", "PEP", "PLACE", "REQ",
+    "RISK", "SEC", "SIM", "SPACE", "SPM", "TEST", "TIME",
+    "TRANSPORT", "WATER",
+]
+
+
 class TestDiscoverer:
     """
     Intelligent test discovery system for the GEO-INFER ecosystem.
@@ -148,8 +160,9 @@ class TestDiscoverer:
             
             # Extract module docstring
             if (tree.body and isinstance(tree.body[0], ast.Expr) and
-                isinstance(tree.body[0].value, ast.Str)):
-                metadata['docstring'] = tree.body[0].value.s
+                isinstance(tree.body[0].value, ast.Constant) and
+                isinstance(tree.body[0].value.value, str)):
+                metadata['docstring'] = tree.body[0].value.value
             
             # Analyze the AST
             for node in ast.walk(tree):

@@ -14,12 +14,11 @@ class TestReqModule:
         assert geo_infer_req is not None
 
     def test_module_structure(self) -> None:
-        """Test that module has expected structure."""
+        """Test that module has expected core classes."""
         import geo_infer_req
-        
-        # Check that submodules exist
-        assert hasattr(geo_infer_req, 'core')
-        assert hasattr(geo_infer_req, 'api')
-        assert hasattr(geo_infer_req, 'models')
-        assert hasattr(geo_infer_req, 'utils')
+
+        # Check that core classes are available
+        assert hasattr(geo_infer_req, 'RequirementsAnalyzer')
+        assert hasattr(geo_infer_req, 'TraceabilityManager')
+        assert hasattr(geo_infer_req, 'RequirementValidator')
 

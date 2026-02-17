@@ -289,7 +289,9 @@ class InformationGeometryCalculator:
     
     def __init__(self):
         """Initialize information geometry calculator."""
-        pass
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self._metric_cache: Dict[str, np.ndarray] = {}
+        self.logger.debug("InformationGeometryCalculator initialized")
     
     def fisher_information(
         self,

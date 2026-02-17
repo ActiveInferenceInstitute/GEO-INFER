@@ -276,8 +276,8 @@ class RouteOptimizer:
                     try:
                         t = nx.shortest_path_length(self.network, current_node, nearest_node, weight='time')
                         total_time += t
-                    except:
-                        pass
+                    except (nx.NetworkXNoPath, nx.NodeNotFound, KeyError):
+                        logger.debug(f"Could not compute time from {current_node} to {nearest_node}")
                         
                     current_node = nearest_node
                     unvisited.remove(nearest_node)

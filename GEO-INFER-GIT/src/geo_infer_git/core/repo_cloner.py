@@ -347,9 +347,11 @@ class RepoCloner:
         self.progress = CloneProgress()
 
     def close(self) -> None:
-        """Clean up resources."""
-        # Close any open connections or cleanup if needed
-        pass
+        """Clean up resources and reset internal state."""
+        self.reset_progress()
+        if hasattr(self, '_executor') and self._executor is not None:
+            self._executor.shutdown(wait=False)
+            self._executor = None
 
     def estimate_clone_time(self, repo_count: int, avg_repo_size: int = 50000) -> Dict[str, Any]:
         """

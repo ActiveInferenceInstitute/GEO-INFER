@@ -33,21 +33,21 @@ class FloodDroughtAnalyzer:
             Flood risk assessment
         """
         # Extreme precipitation
-        precip_threshold = precipitation.quantile(0.95, dim='time')
+        precip_threshold = precipitation.quantile(0.95, dim='time').drop_vars('quantile')
         extreme_precip = precipitation > precip_threshold
-        
+
         # Low elevation (flood-prone areas)
-        elevation_threshold = elevation.quantile(0.2)
+        elevation_threshold = elevation.quantile(0.2).drop_vars('quantile')
         low_elevation = elevation < elevation_threshold
-        
+
         # Combined risk
-        flood_risk = (extreme_precip.astype(int) + low_elevation.astype(int)) / 2
-        
+        flood_risk = (extreme_precip.astype(float).mean(dim='time') + low_elevation.astype(float)) / 2
+
         if soil_saturation is not None:
             # Saturated soil increases risk
             saturated = soil_saturation > 0.8
-            flood_risk = (flood_risk + saturated.astype(int)) / 2
-        
+            flood_risk = (flood_risk + saturated.astype(float)) / 2
+
         return xr.Dataset({
             'flood_risk': flood_risk,
             'extreme_precipitation': extreme_precip,

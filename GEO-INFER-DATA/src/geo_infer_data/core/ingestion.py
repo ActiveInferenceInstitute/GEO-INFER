@@ -696,19 +696,52 @@ class MultiSourceDataIngestion:
         # - Invalid geometries
         # - Temporal anomalies
 
-        cleaned_data = data.copy()
+        cleaned_data = data.copy() if isinstance(data, dict) else data
 
         for issue in issues:
             issue_type = issue.get('type')
             if issue_type == 'missing_values':
-                # Handle missing values
-                pass
+                # Fill missing values using forward-fill then backward-fill
+                if isinstance(cleaned_data, dict):
+                    for key, val in cleaned_data.items():
+                        if isinstance(val, pd.DataFrame):
+                            cleaned_data[key] = val.ffill().bfill()
+                elif isinstance(cleaned_data, pd.DataFrame):
+                    cleaned_data = cleaned_data.ffill().bfill()
+                logger.info("Cleaned missing values via forward/backward fill")
+
             elif issue_type == 'invalid_geometry':
-                # Fix geometry issues
-                pass
+                # Attempt to fix invalid geometries using buffer(0) trick
+                if isinstance(cleaned_data, dict):
+                    for key, val in cleaned_data.items():
+                        if hasattr(val, 'geometry'):
+                            try:
+                                invalid_mask = ~val.geometry.is_valid
+                                if invalid_mask.any():
+                                    val.loc[invalid_mask, 'geometry'] = (
+                                        val.loc[invalid_mask, 'geometry'].buffer(0)
+                                    )
+                                    cleaned_data[key] = val
+                            except Exception as geom_err:
+                                logger.warning("Could not fix geometries: %s", geom_err)
+                logger.info("Cleaned invalid geometries via buffer(0)")
+
             elif issue_type == 'temporal_anomaly':
-                # Handle temporal inconsistencies
-                pass
+                # Sort by timestamp and remove exact duplicate timestamps
+                if isinstance(cleaned_data, dict):
+                    for key, val in cleaned_data.items():
+                        if isinstance(val, pd.DataFrame) and hasattr(val, 'index'):
+                            if isinstance(val.index, pd.DatetimeIndex):
+                                val = val.sort_index()
+                                val = val[~val.index.duplicated(keep='first')]
+                                cleaned_data[key] = val
+                elif isinstance(cleaned_data, pd.DataFrame):
+                    if isinstance(cleaned_data.index, pd.DatetimeIndex):
+                        cleaned_data = cleaned_data.sort_index()
+                        cleaned_data = cleaned_data[
+                            ~cleaned_data.index.duplicated(keep='first')
+                        ]
+                logger.info("Cleaned temporal anomalies: sorted and deduplicated")
 
         return cleaned_data
 
@@ -806,19 +839,104 @@ class MultiSourceDataIngestion:
         }
 
     def _calculate_completeness(self, data: Any) -> float:
-        """Calculate data completeness score."""
-        # Implementation for completeness calculation
-        return 0.95  # Mock implementation
+        """Calculate data completeness score.
+
+        Measures the fraction of non-null values across all DataFrames
+        found in the data.  Falls back to 1.0 when completeness cannot
+        be determined (e.g. non-tabular data).
+        """
+        dataframes = self._extract_dataframes(data)
+        if not dataframes:
+            return 1.0
+
+        total_cells = 0
+        non_null_cells = 0
+        for df in dataframes:
+            total_cells += df.size
+            non_null_cells += int(df.notna().sum().sum())
+
+        if total_cells == 0:
+            return 1.0
+        return non_null_cells / total_cells
 
     def _calculate_accuracy(self, data: Any) -> float:
-        """Calculate data accuracy score."""
-        # Implementation for accuracy calculation
-        return 0.92  # Mock implementation
+        """Calculate data accuracy score.
+
+        Checks numeric columns for outliers using the IQR method.
+        The accuracy score is the fraction of values within 3x IQR
+        of the median across all numeric columns.
+        """
+        dataframes = self._extract_dataframes(data)
+        if not dataframes:
+            return 1.0
+
+        total_values = 0
+        accurate_values = 0
+        for df in dataframes:
+            numeric_cols = df.select_dtypes(include=[np.number]).columns
+            for col in numeric_cols:
+                series = df[col].dropna()
+                if len(series) < 4:
+                    total_values += len(series)
+                    accurate_values += len(series)
+                    continue
+                q1 = series.quantile(0.25)
+                q3 = series.quantile(0.75)
+                iqr = q3 - q1
+                lower = q1 - 3.0 * iqr
+                upper = q3 + 3.0 * iqr
+                in_range = ((series >= lower) & (series <= upper)).sum()
+                total_values += len(series)
+                accurate_values += int(in_range)
+
+        if total_values == 0:
+            return 1.0
+        return accurate_values / total_values
 
     def _calculate_consistency(self, data: Any) -> float:
-        """Calculate data consistency score."""
-        # Implementation for consistency calculation
-        return 0.90  # Mock implementation
+        """Calculate data consistency score.
+
+        Checks for duplicate rows and consistent data types within
+        each DataFrame.  Penalises duplicates and mixed-type columns.
+        """
+        dataframes = self._extract_dataframes(data)
+        if not dataframes:
+            return 1.0
+
+        scores: List[float] = []
+        for df in dataframes:
+            if len(df) == 0:
+                scores.append(1.0)
+                continue
+
+            # Duplicate penalty
+            dup_ratio = df.duplicated().sum() / len(df) if len(df) > 0 else 0.0
+            dup_score = 1.0 - dup_ratio
+
+            # Type consistency: penalise object columns with mixed Python types
+            type_penalties = 0
+            for col in df.columns:
+                if df[col].dtype == object:
+                    unique_types = df[col].dropna().apply(type).nunique()
+                    if unique_types > 1:
+                        type_penalties += 1
+            type_score = 1.0 - (type_penalties / max(len(df.columns), 1))
+
+            scores.append((dup_score + type_score) / 2.0)
+
+        return float(np.mean(scores)) if scores else 1.0
+
+    @staticmethod
+    def _extract_dataframes(data: Any) -> List[pd.DataFrame]:
+        """Extract DataFrames from various data structures."""
+        frames: List[pd.DataFrame] = []
+        if isinstance(data, pd.DataFrame):
+            frames.append(data)
+        elif isinstance(data, dict):
+            for val in data.values():
+                if isinstance(val, pd.DataFrame):
+                    frames.append(val)
+        return frames
 
     def _generate_recommendations(self, quality_scores: Dict[str, float]) -> List[str]:
         """Generate quality improvement recommendations."""

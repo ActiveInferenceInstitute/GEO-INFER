@@ -1,6 +1,8 @@
 README.md
 pyproject.toml
 setup.py
+src/geo_infer_git/AGENTS.md
+src/geo_infer_git/README.md
 src/geo_infer_git/__init__.py
 src/geo_infer_git/cli.py
 src/geo_infer_git/main.py
@@ -9,7 +11,11 @@ src/geo_infer_git.egg-info/SOURCES.txt
 src/geo_infer_git.egg-info/dependency_links.txt
 src/geo_infer_git.egg-info/requires.txt
 src/geo_infer_git.egg-info/top_level.txt
+src/geo_infer_git/api/AGENTS.md
+src/geo_infer_git/api/README.md
 src/geo_infer_git/api/rest_api.py
+src/geo_infer_git/core/AGENTS.md
+src/geo_infer_git/core/README.md
 src/geo_infer_git/core/__init__.py
 src/geo_infer_git/core/advanced_git.py
 src/geo_infer_git/core/distributed_coordinator.py
@@ -18,6 +24,8 @@ src/geo_infer_git/core/multi_platform_api.py
 src/geo_infer_git/core/repo_analyzer.py
 src/geo_infer_git/core/repo_cloner.py
 src/geo_infer_git/core/repo_manager.py
+src/geo_infer_git/utils/AGENTS.md
+src/geo_infer_git/utils/README.md
 src/geo_infer_git/utils/__init__.py
 src/geo_infer_git/utils/advanced_cache.py
 src/geo_infer_git/utils/config_loader.py
