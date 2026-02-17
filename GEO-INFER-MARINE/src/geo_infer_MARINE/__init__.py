@@ -1,8 +1,8 @@
-"""
-GEO-INFER-MARINE: Marine and Oceanographic Analysis Module
+"""GEO-INFER-MARINE: Marine and Oceanographic Analysis Module.
 
-This module provides comprehensive marine and oceanographic analysis capabilities
-including coastal management, marine ecosystem monitoring, and oceanographic data processing.
+Provides marine and oceanographic analysis capabilities including
+coastal management, marine ecosystem monitoring, ocean current modeling,
+water quality assessment, and coral reef health analysis.
 """
 
 __version__ = "0.1.0"
@@ -13,6 +13,9 @@ from .core.coastal_analysis import CoastalAnalyzer
 from .core.marine_ecosystems import MarineEcosystemModeler
 from .core.sea_level import SeaLevelAnalyzer
 from .core.marine_spatial_planning import MarineSpatialPlanner
+from .core.ocean_currents import OceanCurrentModeler
+from .core.water_quality import MarineWaterQuality
+from .core.coral_reef import CoralReefAssessor
 
 __all__ = [
     "OceanographicDataProcessor",
@@ -20,5 +23,7 @@ __all__ = [
     "MarineEcosystemModeler",
     "SeaLevelAnalyzer",
     "MarineSpatialPlanner",
+    "OceanCurrentModeler",
+    "MarineWaterQuality",
+    "CoralReefAssessor",
 ]
-

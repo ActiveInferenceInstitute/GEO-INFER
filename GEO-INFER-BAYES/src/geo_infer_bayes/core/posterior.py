@@ -50,12 +50,16 @@ class PosteriorAnalysis:
             self.arviz_data = samples
     
     def _convert_to_arviz(
-        self, 
+        self,
         samples: Union[Dict[str, np.ndarray], xr.Dataset]
     ) -> az.InferenceData:
         """Convert samples to ArviZ InferenceData format."""
         if isinstance(samples, dict):
-            return az.from_dict(posterior=samples, observed_data=self.data)
+            # ArviZ requires observed_data to be a dict; wrap raw arrays
+            obs_data = self.data
+            if obs_data is not None and not isinstance(obs_data, dict):
+                obs_data = {'observed': np.asarray(obs_data)}
+            return az.from_dict(posterior=samples, observed_data=obs_data)
         else:
             return az.from_xarray(posterior=samples)
     

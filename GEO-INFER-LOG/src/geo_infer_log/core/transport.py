@@ -59,9 +59,26 @@ class MultiModalPlanner:
         # Connect transfer point to mode networks
         for mode in modes:
             if mode in self.networks:
-                # Find nearest node in the mode network
-                # This is a simplified placeholder
-                pass
+                network = self.networks[mode]
+                if network.nodes:
+                    nearest_node = min(
+                        network.nodes,
+                        key=lambda n: (
+                            (network.nodes[n].get("x", 0) - location[0]) ** 2
+                            + (network.nodes[n].get("y", 0) - location[1]) ** 2
+                        ),
+                    )
+                    network.add_node(
+                        f"transfer_{transfer_id}_{mode}",
+                        x=location[0],
+                        y=location[1],
+                        transfer=True,
+                    )
+                    network.add_edge(
+                        nearest_node,
+                        f"transfer_{transfer_id}_{mode}",
+                        weight=transfer_time,
+                    )
     
     def plan_route(self,
                   origin: Tuple[float, float],
@@ -168,10 +185,16 @@ class MultiModalPlanner:
             for from_mode in modes:
                 for to_mode in modes:
                     if from_mode != to_mode:
-                        # Add edge between nearest nodes in the two mode networks
-                        # This is a simplified placeholder
                         transfer_time = transfer["transfer_time"].get((from_mode, to_mode), 15)
-                        pass
+                        transfer_node_from = f"transfer_{transfer['id']}_{from_mode}"
+                        transfer_node_to = f"transfer_{transfer['id']}_{to_mode}"
+                        if transfer_node_from in multimodal_graph and transfer_node_to in multimodal_graph:
+                            multimodal_graph.add_edge(
+                                transfer_node_from,
+                                transfer_node_to,
+                                weight=transfer_time,
+                                transfer=True,
+                            )
         
         return multimodal_graph
     
@@ -324,9 +347,11 @@ class TransportationNetworkAnalyzer:
                                   width=3, edge_color='red')
         
         if with_flow and self.flow_data is not None:
-            # Visualize flow data
-            # This is a simplified placeholder
-            pass
+            edge_widths = []
+            for u, v in self.network.edges():
+                flow = self.flow_data.get((u, v), 0)
+                edge_widths.append(max(0.5, flow / max(self.flow_data.values()) * 5) if self.flow_data.values() else 0.5)
+            nx.draw_networkx_edges(self.network, pos, width=edge_widths, alpha=0.6, edge_color='blue')
         
         plt.title("Transportation Network")
         plt.axis('off')

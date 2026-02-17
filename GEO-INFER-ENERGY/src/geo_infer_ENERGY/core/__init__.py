@@ -5,6 +5,8 @@ from .energy_grid import EnergyGridOptimizer
 from .energy_demand import EnergyDemandForecaster
 from .energy_infrastructure import EnergyInfrastructurePlanner
 from .carbon_footprint import CarbonFootprintAnalyzer
+from .solar_analysis import SolarAnalyzer
+from .wind_analysis import WindAnalyzer
 
 __all__ = [
     "RenewableResourceAssessor",
@@ -12,5 +14,6 @@ __all__ = [
     "EnergyDemandForecaster",
     "EnergyInfrastructurePlanner",
     "CarbonFootprintAnalyzer",
+    "SolarAnalyzer",
+    "WindAnalyzer",
 ]
-

@@ -313,7 +313,8 @@ class RepositoryValidator:
 
     def __init__(self):
         """Initialize the repository validator."""
-        pass
+        self.required_fields = ["name", "url"]
+        self.validation_errors: List[str] = []
 
     def validate_repository_data(self, repo_data: Dict[str, Any]) -> List[str]:
         """
@@ -384,7 +385,7 @@ class InputValidator:
 
     def __init__(self):
         """Initialize the input validator."""
-        pass
+        self.validation_errors: List[str] = []
 
     def validate_positive_integer(self, value: Any, field_name: str) -> List[str]:
         """

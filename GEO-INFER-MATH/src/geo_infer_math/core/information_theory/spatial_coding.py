@@ -350,7 +350,9 @@ class SpatialCodingCalculator:
     
     def __init__(self):
         """Initialize spatial coding calculator."""
-        pass
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self._codec_registry: Dict[str, Any] = {}
+        self.logger.debug("SpatialCodingCalculator initialized")
     
     def compress(
         self,

@@ -701,10 +701,14 @@ class H3ClusterAnalyzer:
                 continue
             
             cluster_values = []
-            # Find corresponding values (this is a simplified approach)
             for item in group:
-                # This would need to be matched properly with the original data
-                pass
+                if 'value' in item:
+                    cluster_values.append(item['value'])
+                elif 'properties' in item and isinstance(item['properties'], dict):
+                    for v in item['properties'].values():
+                        if isinstance(v, (int, float)):
+                            cluster_values.append(v)
+                            break
             
             stats[f'cluster_{cid}'] = {
                 'size': len(group),
@@ -1669,8 +1673,8 @@ class H3NetworkAnalyzer:
                                 if neighbor != cell.index and neighbor in adjacency:
                                     adjacency[cell.index].add(neighbor)
                                     adjacency[neighbor].add(cell.index)
-                        except:
-                            pass
+                        except Exception:
+                            continue
         
         # Simple community detection using connected components
         communities = []

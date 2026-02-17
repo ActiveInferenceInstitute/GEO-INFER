@@ -35,3 +35,7 @@ GEO-INFER-SPACE/repos
 GEO-INFER-SPACE/.DS_Store
 GEO-INFER-PLACE/locations/cascadia/data/improvements/CA.geojson
 GEO-INFER-PLACE/locations/cascadia/data/improvements/tl_2023_us_zcta520/tl_2023_us_zcta520.shp
+
+# Audit output
+scripts/audit_results.txt
+/.hypothesis

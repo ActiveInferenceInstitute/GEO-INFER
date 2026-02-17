@@ -1,6 +1,4 @@
-"""
-GEO-INFER-ENERGY: Energy Systems Analysis Module
-"""
+"""GEO-INFER-ENERGY: Energy Systems Analysis Module."""
 
 __version__ = "0.1.0"
 __author__ = "GEO-INFER Development Team"
@@ -10,6 +8,8 @@ from .core.energy_grid import EnergyGridOptimizer
 from .core.energy_demand import EnergyDemandForecaster
 from .core.energy_infrastructure import EnergyInfrastructurePlanner
 from .core.carbon_footprint import CarbonFootprintAnalyzer
+from .core.solar_analysis import SolarAnalyzer
+from .core.wind_analysis import WindAnalyzer
 
 __all__ = [
     "RenewableResourceAssessor",
@@ -17,5 +17,6 @@ __all__ = [
     "EnergyDemandForecaster",
     "EnergyInfrastructurePlanner",
     "CarbonFootprintAnalyzer",
+    "SolarAnalyzer",
+    "WindAnalyzer",
 ]
-

@@ -118,6 +118,147 @@ class GeospatialModelEvaluator:
         
         return spatial_metrics
     
+    def compute_confusion_matrix(
+        self,
+        y_true: np.ndarray,
+        y_pred: np.ndarray,
+        labels: Optional[List] = None,
+        normalize: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """
+        Compute confusion matrix and derived statistics.
+
+        Args:
+            y_true: True labels
+            y_pred: Predicted labels
+            labels: Optional ordered label list
+            normalize: Normalization mode ('true', 'pred', 'all', or None)
+
+        Returns:
+            Dictionary with raw matrix, per-class precision/recall, and summary
+        """
+        from sklearn.metrics import confusion_matrix as sk_confusion_matrix
+
+        cm = sk_confusion_matrix(y_true, y_pred, labels=labels)
+
+        if labels is None:
+            labels = sorted(list(set(np.concatenate([y_true, y_pred]))))
+
+        # Normalized version if requested
+        cm_normalized = None
+        if normalize == 'true':
+            row_sums = cm.sum(axis=1, keepdims=True)
+            cm_normalized = np.divide(
+                cm.astype(float), row_sums,
+                out=np.zeros_like(cm, dtype=float), where=row_sums != 0
+            )
+        elif normalize == 'pred':
+            col_sums = cm.sum(axis=0, keepdims=True)
+            cm_normalized = np.divide(
+                cm.astype(float), col_sums,
+                out=np.zeros_like(cm, dtype=float), where=col_sums != 0
+            )
+        elif normalize == 'all':
+            total = cm.sum()
+            cm_normalized = cm.astype(float) / total if total > 0 else cm.astype(float)
+
+        # Per-class statistics
+        per_class = {}
+        for i, label in enumerate(labels):
+            tp = cm[i, i]
+            fp = cm[:, i].sum() - tp
+            fn = cm[i, :].sum() - tp
+            tn = cm.sum() - tp - fp - fn
+            precision_val = tp / (tp + fp) if (tp + fp) > 0 else 0.0
+            recall_val = tp / (tp + fn) if (tp + fn) > 0 else 0.0
+            f1_val = (
+                2 * precision_val * recall_val / (precision_val + recall_val)
+                if (precision_val + recall_val) > 0 else 0.0
+            )
+            per_class[str(label)] = {
+                'true_positive': int(tp),
+                'false_positive': int(fp),
+                'false_negative': int(fn),
+                'true_negative': int(tn),
+                'precision': float(precision_val),
+                'recall': float(recall_val),
+                'f1_score': float(f1_val),
+            }
+
+        result: Dict[str, Any] = {
+            'confusion_matrix': cm.tolist(),
+            'labels': [str(l) for l in labels],
+            'per_class': per_class,
+        }
+        if cm_normalized is not None:
+            result['confusion_matrix_normalized'] = cm_normalized.tolist()
+
+        return result
+
+    def compute_roc_auc(
+        self,
+        y_true: np.ndarray,
+        y_score: np.ndarray,
+        multi_class: str = 'ovr',
+    ) -> Dict[str, Any]:
+        """
+        Compute ROC-AUC score.
+
+        For binary classification y_score should be probabilities for the positive
+        class. For multi-class, y_score should be shape (n_samples, n_classes).
+
+        Args:
+            y_true: True labels
+            y_score: Predicted probabilities or decision values
+            multi_class: Strategy for multi-class ('ovr' or 'ovo')
+
+        Returns:
+            Dictionary with AUC score and per-class AUC when applicable
+        """
+        from sklearn.metrics import roc_auc_score
+
+        unique_classes = np.unique(y_true)
+        n_classes = len(unique_classes)
+
+        result: Dict[str, Any] = {'n_classes': n_classes}
+
+        if n_classes == 2:
+            # Binary case
+            scores = y_score
+            if scores.ndim == 2:
+                scores = scores[:, 1]
+            auc = float(roc_auc_score(y_true, scores))
+            result['roc_auc'] = auc
+        elif n_classes > 2:
+            # Multi-class case
+            if y_score.ndim == 1:
+                raise ValueError(
+                    "For multi-class ROC-AUC, y_score must be 2D "
+                    "(n_samples, n_classes)"
+                )
+            auc = float(roc_auc_score(
+                y_true, y_score, multi_class=multi_class, average='weighted'
+            ))
+            result['roc_auc'] = auc
+            result['multi_class_strategy'] = multi_class
+
+            # Per-class AUC (one-vs-rest)
+            from sklearn.preprocessing import label_binarize
+            y_bin = label_binarize(y_true, classes=unique_classes)
+            per_class_auc = {}
+            for i, cls in enumerate(unique_classes):
+                try:
+                    cls_auc = float(roc_auc_score(y_bin[:, i], y_score[:, i]))
+                except ValueError:
+                    cls_auc = float('nan')
+                per_class_auc[str(cls)] = cls_auc
+            result['per_class_auc'] = per_class_auc
+        else:
+            result['roc_auc'] = float('nan')
+            result['error'] = 'Only one class present in y_true'
+
+        return result
+
     def cross_validate_spatial(
         self,
         model: Any,

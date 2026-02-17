@@ -358,10 +358,91 @@ class PolicyImpactAnalyzer:
         Returns:
             DataFrame summarizing social equity impacts.
         """
-        print("Analyzing social equity impact...")
-        # Placeholder implementation
-        pass
-        return pd.DataFrame()
+        results = []
+        demographic_data = self.context_data.get("demographic_data", {})
+
+        if not demographic_data:
+            return pd.DataFrame({
+                "equity_dimension": ["access", "displacement", "distribution"],
+                "impact_type": ["not_analyzed"] * 3,
+                "impact_score": [0.0] * 3,
+                "confidence": [0.0] * 3,
+                "notes": ["No demographic data provided"] * 3,
+            })
+
+        policy_type = getattr(self.policy, "policy_type", "unknown")
+
+        # Analyze access equity
+        access_data = demographic_data.get("access_metrics", {})
+        if access_data:
+            groups = access_data.get("groups", [])
+            if groups:
+                access_scores = [g.get("access_score", 0.5) for g in groups]
+                disparity = max(access_scores) - min(access_scores) if access_scores else 0.0
+                impact_score = -disparity if policy_type in ("zoning_change", "land_use") else disparity * 0.5
+            else:
+                impact_score = 0.0
+                disparity = 0.0
+            results.append({
+                "equity_dimension": "access",
+                "impact_type": "negative" if impact_score < -0.1 else "positive" if impact_score > 0.1 else "neutral",
+                "impact_score": impact_score,
+                "confidence": 0.6,
+                "notes": f"Access disparity: {disparity:.2f}",
+            })
+        else:
+            results.append({
+                "equity_dimension": "access",
+                "impact_type": "not_analyzed",
+                "impact_score": 0.0,
+                "confidence": 0.0,
+                "notes": "No access metrics available",
+            })
+
+        # Analyze displacement risk
+        housing_data = demographic_data.get("housing", {})
+        if housing_data:
+            avg_rent_burden = housing_data.get("avg_rent_burden", 0.3)
+            displacement_risk = min(1.0, avg_rent_burden * 1.5) if policy_type in ("zoning_change", "development") else avg_rent_burden
+            results.append({
+                "equity_dimension": "displacement",
+                "impact_type": "negative" if displacement_risk > 0.5 else "neutral",
+                "impact_score": -displacement_risk,
+                "confidence": 0.55,
+                "notes": f"Displacement risk score: {displacement_risk:.2f}",
+            })
+        else:
+            results.append({
+                "equity_dimension": "displacement",
+                "impact_type": "not_analyzed",
+                "impact_score": 0.0,
+                "confidence": 0.0,
+                "notes": "No housing data available",
+            })
+
+        # Analyze distributional effects
+        income_data = demographic_data.get("income_distribution", {})
+        if income_data:
+            gini = income_data.get("gini_coefficient", 0.4)
+            policy_gini_impact = -0.02 if policy_type == "economic_development" else 0.01
+            new_gini = min(1.0, max(0.0, gini + policy_gini_impact))
+            results.append({
+                "equity_dimension": "distribution",
+                "impact_type": "positive" if new_gini < gini else "negative",
+                "impact_score": gini - new_gini,
+                "confidence": 0.5,
+                "notes": f"Gini change: {gini:.3f} -> {new_gini:.3f}",
+            })
+        else:
+            results.append({
+                "equity_dimension": "distribution",
+                "impact_type": "not_analyzed",
+                "impact_score": 0.0,
+                "confidence": 0.0,
+                "notes": "No income distribution data available",
+            })
+
+        return pd.DataFrame(results)
 
     def analyze_environmental_impact(self) -> gpd.GeoDataFrame:
         """Evaluates the environmental consequences of the policy.
@@ -371,10 +452,91 @@ class PolicyImpactAnalyzer:
         Returns:
             GeoDataFrame visualizing or summarizing environmental impacts.
         """
-        print("Analyzing environmental impact...")
-        # Placeholder implementation
-        pass
-        return gpd.GeoDataFrame() # Return empty GeoDataFrame for now
+        env_data = self.context_data.get("environmental_data", {})
+        policy_type = getattr(self.policy, "policy_type", "unknown")
+
+        if not env_data:
+            return gpd.GeoDataFrame(
+                {
+                    "impact_category": ["land_cover", "air_quality", "water_quality"],
+                    "impact_score": [0.0, 0.0, 0.0],
+                    "confidence": [0.0, 0.0, 0.0],
+                    "notes": ["No environmental data provided"] * 3,
+                }
+            )
+
+        results = []
+
+        # Land cover impact
+        land_data = env_data.get("land_cover", {})
+        if land_data:
+            change_pct = land_data.get("projected_change_pct", 0.0)
+            if policy_type in ("zoning_change", "development", "land_use"):
+                change_pct = change_pct if change_pct != 0 else 5.0
+            impact_score = -change_pct / 100.0
+            results.append({
+                "impact_category": "land_cover",
+                "impact_score": impact_score,
+                "confidence": 0.65,
+                "notes": f"Projected land cover change: {change_pct:.1f}%",
+            })
+        else:
+            results.append({
+                "impact_category": "land_cover",
+                "impact_score": 0.0,
+                "confidence": 0.0,
+                "notes": "No land cover data",
+            })
+
+        # Air quality impact
+        air_data = env_data.get("air_quality", {})
+        if air_data:
+            baseline_aqi = air_data.get("baseline_aqi", 50)
+            if policy_type == "environmental":
+                projected_change = -5.0
+            elif policy_type in ("development", "infrastructure"):
+                projected_change = 3.0
+            else:
+                projected_change = 0.0
+            results.append({
+                "impact_category": "air_quality",
+                "impact_score": -projected_change / 100.0,
+                "confidence": 0.55,
+                "notes": f"AQI change: {projected_change:+.1f} from baseline {baseline_aqi}",
+            })
+        else:
+            results.append({
+                "impact_category": "air_quality",
+                "impact_score": 0.0,
+                "confidence": 0.0,
+                "notes": "No air quality data",
+            })
+
+        # Water quality impact
+        water_data = env_data.get("water_quality", {})
+        if water_data:
+            baseline_wqi = water_data.get("baseline_wqi", 70)
+            if policy_type == "environmental":
+                projected_change = 5.0
+            elif policy_type in ("development", "industrial"):
+                projected_change = -3.0
+            else:
+                projected_change = 0.0
+            results.append({
+                "impact_category": "water_quality",
+                "impact_score": projected_change / 100.0,
+                "confidence": 0.5,
+                "notes": f"WQI change: {projected_change:+.1f} from baseline {baseline_wqi}",
+            })
+        else:
+            results.append({
+                "impact_category": "water_quality",
+                "impact_score": 0.0,
+                "confidence": 0.0,
+                "notes": "No water quality data",
+            })
+
+        return gpd.GeoDataFrame(results)
 
     def generate_impact_report(self) -> Dict[str, Any]:
         """Compiles a comprehensive report of all analyzed impacts.
@@ -383,27 +545,56 @@ class PolicyImpactAnalyzer:
             Dictionary containing summaries of economic, social, and environmental
             impacts.
         """
-        print("Generating comprehensive impact report...")
+        economic_df = self.analyze_economic_impact()
+        social_df = self.analyze_social_equity_impact()
+        environmental_gdf = self.analyze_environmental_impact()
+
         report = {
-            "economic": self.analyze_economic_impact(),
-            "social_equity": self.analyze_social_equity_impact(),
-            "environmental": self.analyze_environmental_impact(),
-            # Add more sections as needed
+            "economic": economic_df,
+            "social_equity": social_df,
+            "environmental": environmental_gdf,
+            "summary": {
+                "policy": str(self.policy),
+                "spatial_extent": str(self.spatial_extent) if self.spatial_extent else "None",
+                "economic_categories_analyzed": len(economic_df) if not economic_df.empty else 0,
+                "social_dimensions_analyzed": len(social_df) if not social_df.empty else 0,
+                "environmental_categories_analyzed": len(environmental_gdf) if not environmental_gdf.empty else 0,
+            },
         }
-        # Placeholder implementation
-        pass
         return report
 
     def visualize_spatial_impact(self) -> Any:
         """Creates a map visualizing the spatial distribution of policy impacts.
 
         Returns:
-            A map object (e.g., matplotlib figure, Folium map). Type TBD.
+            A map object (e.g., matplotlib figure, Folium map). Returns None
+            if no spatial extent or environmental data is available.
         """
-        print("Visualizing spatial impact...")
-        # Placeholder implementation
-        pass
-        return None
+        if self.spatial_extent is None:
+            return None
+
+        environmental_gdf = self.analyze_environmental_impact()
+        if environmental_gdf.empty:
+            return None
+
+        try:
+            import matplotlib.pyplot as plt
+
+            fig, ax = plt.subplots(figsize=(10, 8))
+            if "impact_score" in environmental_gdf.columns:
+                bars = ax.barh(
+                    environmental_gdf["impact_category"],
+                    environmental_gdf["impact_score"],
+                )
+                ax.set_xlabel("Impact Score")
+                ax.set_title(f"Spatial Impact: {self.policy}")
+            else:
+                ax.text(0.5, 0.5, "No impact data to visualize", ha="center", va="center")
+
+            plt.tight_layout()
+            return fig
+        except ImportError:
+            return None
 
 
 class RegulatoryImpactAssessment:
@@ -445,10 +636,28 @@ class RegulatoryImpactAssessment:
         Returns:
             DataFrame detailing estimated compliance costs per entity or category.
         """
-        print("Estimating compliance costs...")
-        # Placeholder implementation
-        pass
-        return pd.DataFrame()
+        if self.affected_entities.empty:
+            return pd.DataFrame(columns=["entity_category", "estimated_cost", "confidence", "notes"])
+
+        cost_data = self.baseline_data.get("compliance_costs", {})
+        base_cost_per_entity = cost_data.get("base_cost_per_entity", 1000.0)
+        cost_multiplier = cost_data.get("complexity_multiplier", 1.0)
+
+        rows = []
+        categories = self.affected_entities.get("category", pd.Series(["unknown"] * len(self.affected_entities)))
+        for category in categories.unique():
+            count = int((categories == category).sum())
+            estimated_cost = base_cost_per_entity * cost_multiplier * count
+            rows.append({
+                "entity_category": category,
+                "entity_count": count,
+                "estimated_cost": estimated_cost,
+                "cost_per_entity": base_cost_per_entity * cost_multiplier,
+                "confidence": 0.6,
+                "notes": f"Based on base cost {base_cost_per_entity} * multiplier {cost_multiplier}",
+            })
+
+        return pd.DataFrame(rows)
 
     def assess_administrative_burden(self) -> Dict[str, Any]:
         """Evaluates the administrative effort required by the regulation.
@@ -458,10 +667,38 @@ class RegulatoryImpactAssessment:
         Returns:
             Dictionary summarizing administrative burden components.
         """
-        print("Assessing administrative burden...")
-        # Placeholder implementation
-        pass
-        return {}
+        admin_data = self.baseline_data.get("administrative", {})
+        entity_count = len(self.affected_entities) if not self.affected_entities.empty else 0
+
+        reporting_hours = admin_data.get("reporting_hours_per_entity", 20)
+        permitting_hours = admin_data.get("permitting_hours_per_entity", 10)
+        monitoring_hours = admin_data.get("monitoring_hours_per_entity", 5)
+        hourly_rate = admin_data.get("admin_hourly_rate", 50.0)
+
+        total_hours = (reporting_hours + permitting_hours + monitoring_hours) * entity_count
+        total_cost = total_hours * hourly_rate
+
+        return {
+            "entity_count": entity_count,
+            "reporting": {
+                "hours_per_entity": reporting_hours,
+                "total_hours": reporting_hours * entity_count,
+                "cost": reporting_hours * entity_count * hourly_rate,
+            },
+            "permitting": {
+                "hours_per_entity": permitting_hours,
+                "total_hours": permitting_hours * entity_count,
+                "cost": permitting_hours * entity_count * hourly_rate,
+            },
+            "monitoring": {
+                "hours_per_entity": monitoring_hours,
+                "total_hours": monitoring_hours * entity_count,
+                "cost": monitoring_hours * entity_count * hourly_rate,
+            },
+            "total_hours": total_hours,
+            "total_cost": total_cost,
+            "hourly_rate": hourly_rate,
+        }
 
     def analyze_market_effects(self) -> pd.DataFrame:
         """Analyzes the regulation's impact on market dynamics.
@@ -471,10 +708,66 @@ class RegulatoryImpactAssessment:
         Returns:
             DataFrame summarizing market effects.
         """
-        print("Analyzing market effects...")
-        # Placeholder implementation
-        pass
-        return pd.DataFrame()
+        market_data = self.baseline_data.get("market", {})
+
+        if not market_data:
+            return pd.DataFrame({
+                "market_dimension": ["competition", "innovation", "prices", "entry_exit"],
+                "impact_type": ["not_analyzed"] * 4,
+                "impact_score": [0.0] * 4,
+                "confidence": [0.0] * 4,
+                "notes": ["No market data available"] * 4,
+            })
+
+        results = []
+        num_entities = len(self.affected_entities) if not self.affected_entities.empty else 0
+        market_size = market_data.get("market_size", 1_000_000)
+
+        # Competition impact
+        num_competitors = market_data.get("num_competitors", 10)
+        barrier_increase = market_data.get("barrier_increase_pct", 5.0)
+        competition_score = -(barrier_increase / 100.0)
+        results.append({
+            "market_dimension": "competition",
+            "impact_type": "negative" if competition_score < -0.05 else "neutral",
+            "impact_score": competition_score,
+            "confidence": 0.6,
+            "notes": f"Barrier increase: {barrier_increase}%, competitors: {num_competitors}",
+        })
+
+        # Innovation impact
+        innovation_effect = market_data.get("innovation_effect", 0.0)
+        results.append({
+            "market_dimension": "innovation",
+            "impact_type": "positive" if innovation_effect > 0 else "negative" if innovation_effect < 0 else "neutral",
+            "impact_score": innovation_effect,
+            "confidence": 0.45,
+            "notes": f"Innovation effect score: {innovation_effect}",
+        })
+
+        # Price impact
+        price_change_pct = market_data.get("price_change_pct", 0.0)
+        if num_entities > 0 and price_change_pct == 0.0:
+            price_change_pct = barrier_increase * 0.3
+        results.append({
+            "market_dimension": "prices",
+            "impact_type": "negative" if price_change_pct > 0 else "positive" if price_change_pct < 0 else "neutral",
+            "impact_score": -price_change_pct / 100.0,
+            "confidence": 0.55,
+            "notes": f"Estimated price change: {price_change_pct:+.1f}%",
+        })
+
+        # Market entry/exit
+        exit_rate = market_data.get("projected_exit_rate", 0.0)
+        results.append({
+            "market_dimension": "entry_exit",
+            "impact_type": "negative" if exit_rate > 0.05 else "neutral",
+            "impact_score": -exit_rate,
+            "confidence": 0.5,
+            "notes": f"Projected exit rate: {exit_rate * 100:.1f}%",
+        })
+
+        return pd.DataFrame(results)
 
     def evaluate_goal_achievement(self) -> Dict[str, Any]:
         """Assesses the extent to which the regulation achieves its stated goals.
@@ -484,10 +777,53 @@ class RegulatoryImpactAssessment:
         Returns:
             Dictionary summarizing goal achievement metrics.
         """
-        print("Evaluating goal achievement...")
-        # Placeholder implementation
-        pass
-        return {}
+        goals = self.baseline_data.get("regulation_goals", [])
+
+        if not goals:
+            return {
+                "goals_evaluated": 0,
+                "overall_achievement": 0.0,
+                "goal_details": [],
+                "notes": "No regulation goals specified in baseline data",
+            }
+
+        goal_results = []
+        for goal in goals:
+            goal_name = goal.get("name", "unnamed")
+            target_value = goal.get("target_value", 1.0)
+            current_value = goal.get("current_value", 0.0)
+            metric_type = goal.get("metric_type", "ratio")
+
+            if metric_type == "ratio" and target_value != 0:
+                achievement = min(1.0, current_value / target_value)
+            elif metric_type == "boolean":
+                achievement = 1.0 if current_value else 0.0
+            elif metric_type == "reduction" and target_value != 0:
+                baseline_val = goal.get("baseline_value", current_value * 1.5)
+                actual_reduction = baseline_val - current_value
+                target_reduction = baseline_val - target_value
+                achievement = min(1.0, actual_reduction / target_reduction) if target_reduction != 0 else 0.0
+            else:
+                achievement = 0.5
+
+            goal_results.append({
+                "goal_name": goal_name,
+                "target_value": target_value,
+                "current_value": current_value,
+                "achievement_score": achievement,
+                "status": "achieved" if achievement >= 0.9 else "partial" if achievement >= 0.5 else "not_achieved",
+            })
+
+        avg_achievement = sum(g["achievement_score"] for g in goal_results) / len(goal_results) if goal_results else 0.0
+
+        return {
+            "goals_evaluated": len(goal_results),
+            "overall_achievement": avg_achievement,
+            "goals_achieved": sum(1 for g in goal_results if g["status"] == "achieved"),
+            "goals_partial": sum(1 for g in goal_results if g["status"] == "partial"),
+            "goals_not_achieved": sum(1 for g in goal_results if g["status"] == "not_achieved"),
+            "goal_details": goal_results,
+        }
 
     def generate_assessment_summary(self) -> str:
         """Generates a textual summary of the regulatory impact assessment.
@@ -497,12 +833,19 @@ class RegulatoryImpactAssessment:
         """
         print("Generating assessment summary...")
         # Placeholder implementation
-        summary = "Regulatory Impact Assessment Summary (Placeholder)\\n"
-        summary += f"- Regulation: {self.regulation}\\n"
-        summary += "- Compliance Costs: TBD\\n"
-        summary += "- Administrative Burden: TBD\\n"
-        summary += "- Market Effects: TBD\\n"
-        summary += "- Goal Achievement: TBD\\n"
-        pass
+        costs_df = self.estimate_compliance_costs()
+        admin = self.assess_administrative_burden()
+        goals = self.evaluate_goal_achievement()
+
+        summary = f"Regulatory Impact Assessment Summary\n"
+        summary += f"- Regulation: {self.regulation}\n"
+        summary += f"- Affected entities: {len(self.affected_entities)}\n"
+        summary += f"- Total compliance cost: ${admin.get('total_cost', 0):,.2f}\n"
+        summary += f"- Total admin hours: {admin.get('total_hours', 0)}\n"
+        summary += f"- Goals evaluated: {goals.get('goals_evaluated', 0)}\n"
+        summary += f"- Overall goal achievement: {goals.get('overall_achievement', 0):.1%}\n"
+        if not costs_df.empty and "estimated_cost" in costs_df.columns:
+            total_compliance = costs_df["estimated_cost"].sum()
+            summary += f"- Total compliance costs: ${total_compliance:,.2f}\n"
         return summary
 

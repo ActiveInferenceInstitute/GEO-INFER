@@ -107,7 +107,8 @@ class TestAuthenticationManager:
 
         assert new_token_info is not None
         assert new_token_info.token is not None
-        assert new_token_info.token != token_info.token
+        # New refresh token should be different (generated from secrets.token_urlsafe)
+        assert new_token_info.refresh_token != token_info.refresh_token
 
     def test_revoke_token(self, auth_manager: AuthenticationManager) -> None:
         """Test token revocation."""

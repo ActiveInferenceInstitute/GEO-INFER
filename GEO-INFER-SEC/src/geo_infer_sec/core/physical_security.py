@@ -440,13 +440,20 @@ class PhysicalSecurityManager:
         
         # Check surveillance devices
         for device in self.surveillance_devices.values():
-            # Implement device-specific health checks
-            pass
+            if hasattr(device, 'last_heartbeat') and device.last_heartbeat:
+                time_since_heartbeat = current_time - device.last_heartbeat
+                if time_since_heartbeat > timedelta(minutes=5):
+                    self.logger.warning(f"Surveillance device {device.device_id} may be offline")
     
     def _check_zone_integrity(self):
-        """Check integrity of security zones."""
-        # Implement zone integrity checks
-        pass
+        """Check integrity of security zones by verifying device coverage."""
+        for zone_id, zone in self.security_zones.items():
+            zone_devices = [
+                d for d in self.access_devices.values()
+                if getattr(d, 'zone_id', None) == zone_id
+            ]
+            if not zone_devices:
+                self.logger.warning(f"Security zone {zone_id} has no active access devices")
     
     def _process_alerts(self):
         """Process and manage active alerts."""

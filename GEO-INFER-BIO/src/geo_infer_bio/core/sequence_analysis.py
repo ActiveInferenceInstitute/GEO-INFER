@@ -10,9 +10,20 @@ from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 from Bio.Align import MultipleSeqAlignment
 from Bio.Data import CodonTable
-from Bio.SubsMat import MatrixInfo as matlist
-from Bio import pairwise2
-from Bio.pairwise2 import format_alignment
+
+try:
+    from Bio.SubsMat import MatrixInfo as matlist
+except ImportError:
+    # Bio.SubsMat was removed in Biopython >= 1.83
+    matlist = None
+
+try:
+    from Bio import pairwise2
+    from Bio.pairwise2 import format_alignment
+except ImportError:
+    # Bio.pairwise2 was removed in Biopython >= 1.83
+    pairwise2 = None
+    format_alignment = None
 
 from ..utils.validation import DataValidator
 from ..utils.visualization import BioVisualizer

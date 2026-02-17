@@ -809,7 +809,8 @@ class H3PerformanceOptimizer:
     
     def __init__(self):
         """Initialize performance optimizer."""
-        pass
+        self.benchmark_results: Dict[str, Any] = {}
+        self.optimization_history: List[Dict[str, Any]] = []
     
     def benchmark_h3_operations(self, test_coordinates: List[Tuple[float, float]],
                                resolutions: List[int] = None) -> Dict[str, Any]:

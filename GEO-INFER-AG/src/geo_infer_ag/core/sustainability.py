@@ -7,7 +7,10 @@ import pandas as pd
 import numpy as np
 import geopandas as gpd
 from datetime import datetime
+import logging
 import matplotlib.pyplot as plt
+
+logger = logging.getLogger(__name__)
 
 
 class SustainabilityAssessment:
@@ -220,8 +223,16 @@ class SustainabilityAssessment:
         
         # If actual water data is provided, use it
         if water_data is not None:
-            # TBD: Integrate water_data with fields
-            pass
+            if "field_id" in water_data.columns:
+                water_summary = water_data.groupby("field_id").mean(numeric_only=True)
+                for col in water_summary.columns:
+                    if col not in result_data.columns:
+                        result_data = result_data.merge(
+                            water_summary[[col]],
+                            left_on="field_id",
+                            right_index=True,
+                            how="left",
+                        )
         
         # If precipitation data is available, calculate water efficiency
         if precipitation_column in result_data.columns:
@@ -312,9 +323,15 @@ class SustainabilityAssessment:
                     how="left"
                 )
             else:
-                # Otherwise try spatial join
-                # Join points or average polygons to fields
-                pass
+                # Spatial join: overlay soil points/polygons onto field boundaries
+                try:
+                    joined = gpd.sjoin(result_data, soil_data, how="left", predicate="intersects")
+                    numeric_cols = joined.select_dtypes(include="number").columns
+                    result_data = joined.groupby(joined.index).agg(
+                        {c: "mean" for c in numeric_cols}
+                    ).combine_first(result_data)
+                except Exception:
+                    logger.warning("Spatial join of soil data failed; proceeding without soil overlay")
                 
         # Management practice modifiers for soil health
         practice_modifiers = {

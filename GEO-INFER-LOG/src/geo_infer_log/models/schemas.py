@@ -35,6 +35,7 @@ class FuelType(str, Enum):
     HYDROGEN = "hydrogen"
     LNG = "lng"  # Liquefied Natural Gas
     CNG = "cng"  # Compressed Natural Gas
+    JET_FUEL = "jet_fuel"
 
 
 class DeliveryStatus(str, Enum):

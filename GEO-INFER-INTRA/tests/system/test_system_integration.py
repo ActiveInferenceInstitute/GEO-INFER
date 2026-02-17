@@ -10,8 +10,8 @@ import tempfile
 import yaml
 import json
 from pathlib import Path
-from tests.utils import import_module_by_path, collect_test_modules
-from tests.utils.geospatial import create_point, create_feature, create_feature_collection
+from tests.intra_utils import import_module_by_path, collect_test_modules
+from tests.intra_utils.geospatial import create_point, create_feature, create_feature_collection
 
 @pytest.mark.system
 class TestSystemIntegration:

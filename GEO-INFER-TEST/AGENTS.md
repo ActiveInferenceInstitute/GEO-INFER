@@ -40,7 +40,21 @@ class TestMyAgent(AgentTestCase):
         action = self.agent.act()
         
         self.assertValidAction(action)
-        self.assertActionMinimizesFreeEnergy(self.agent, action)```
+        self.assertActionMinimizesFreeEnergy(self.agent, action)
+
+### 2. Property-Based Agent Fuzzing (New)
+
+```python
+from hypothesis import given, strategies as st
+
+class TestAgentRobustness(AgentTestCase):
+    @given(st.lists(st.floats(min_value=0, max_value=1.0), min_size=10))
+    def test_perception_stability(self, observations):
+        """Fuzz agent with random sensory inputs."""
+        for obs in observations:
+            self.agent.perceive(obs)
+        self.assertAgentAlive(self.agent)
+```
 
 ### 2. Spatial Testing Utilities
 

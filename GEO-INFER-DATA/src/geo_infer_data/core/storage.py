@@ -168,9 +168,52 @@ class PostgreSQLBackend:
             await self.spatial_indexer.create_spatial_index(table_name, self.connection_string)
 
     async def _store_generic(self, data: Any, data_id: str, metadata: DatasetMetadata):
-        """Store generic data."""
-        # Implementation for generic data storage
-        pass
+        """Store generic data by serialising to JSON in a metadata table.
+
+        For non-DataFrame data (dicts, lists, scalars) this method
+        serialises the value as JSON and stores it alongside its metadata
+        in a dedicated key-value table.
+        """
+        table_name = "generic_data_store"
+
+        # Ensure the table exists
+        create_stmt = (
+            f"CREATE TABLE IF NOT EXISTS {table_name} ("
+            "data_id TEXT PRIMARY KEY, "
+            "payload TEXT NOT NULL, "
+            "title TEXT, "
+            "created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP)"
+        )
+
+        try:
+            serialized = json.dumps(data, default=str)
+        except (TypeError, ValueError) as ser_err:
+            serialized = pickle.dumps(data).hex()
+            logger.warning("Fell back to pickle serialisation: %s", ser_err)
+
+        insert_stmt = (
+            f"INSERT INTO {table_name} (data_id, payload, title) "
+            f"VALUES (:data_id, :payload, :title)"
+        )
+        params = {
+            "data_id": data_id,
+            "payload": serialized,
+            "title": metadata.title,
+        }
+
+        try:
+            if hasattr(self, 'connection_string'):
+                from sqlalchemy import create_engine, text as sa_text
+                engine = create_engine(self.connection_string)
+                with engine.connect() as conn:
+                    conn.execute(sa_text(create_stmt))
+                    conn.execute(sa_text(insert_stmt), params)
+                    conn.commit()
+                engine.dispose()
+            logger.info("Stored generic data %s in %s", data_id, table_name)
+        except Exception as e:
+            logger.error("Failed to store generic data %s: %s", data_id, e)
+            raise
 
     async def retrieve(self, data_id: str, query: Dict[str, Any]) -> Any:
         """Retrieve data from PostgreSQL."""

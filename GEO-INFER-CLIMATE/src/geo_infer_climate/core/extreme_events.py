@@ -86,27 +86,59 @@ class ExtremeEventAnalyzer:
         temperature: xr.DataArray,
         threshold_percentile: float = 90.0,
         min_duration: int = 3
-    ) -> xr.Dataset:
+    ) -> Dict[str, Any]:
         """
         Detect heatwave events.
-        
+
         Args:
             temperature: Temperature data
             threshold_percentile: Percentile threshold for heatwave
             min_duration: Minimum duration in days
-            
+
         Returns:
-            Dataset with heatwave events
+            Dictionary with heatwave detection results.
         """
-        threshold = temperature.quantile(threshold_percentile / 100.0, dim='time')
-        
-        # Identify days above threshold
-        above_threshold = temperature > threshold
-        
-        # Find consecutive periods
-        heatwaves = self._find_consecutive_periods(above_threshold, min_duration)
-        
-        return heatwaves
+        threshold = float(temperature.quantile(threshold_percentile / 100.0))
+        values = temperature.values.flatten()
+        above_threshold = values > threshold
+
+        events = []
+        in_event = False
+        event_start = 0
+
+        for i, is_hot in enumerate(above_threshold):
+            if is_hot and not in_event:
+                in_event = True
+                event_start = i
+            elif not is_hot and in_event:
+                duration = i - event_start
+                if duration >= min_duration:
+                    events.append({
+                        'start_index': event_start,
+                        'end_index': i - 1,
+                        'duration_days': duration,
+                        'max_temp': float(max(values[event_start:i])),
+                        'mean_temp': float(np.mean(values[event_start:i]))
+                    })
+                in_event = False
+
+        if in_event and len(values) - event_start >= min_duration:
+            events.append({
+                'start_index': event_start,
+                'end_index': len(values) - 1,
+                'duration_days': len(values) - event_start,
+                'max_temp': float(max(values[event_start:])),
+                'mean_temp': float(np.mean(values[event_start:]))
+            })
+
+        return {
+            'threshold_temp': threshold,
+            'threshold_percentile': threshold_percentile,
+            'min_duration': min_duration,
+            'events_detected': len(events),
+            'events': events,
+            'total_hot_days': int(np.sum(above_threshold))
+        }
     
     def detect_droughts(
         self,
@@ -273,12 +305,13 @@ class ExtremeEventAnalyzer:
         if method == 'empirical':
             # Empirical return period using Weibull plotting position
             ranks = np.arange(1, n + 1)
-            exceedance_prob = ranks / (n + 1)
-            return_periods = 1 / exceedance_prob
-            
+            exc_probs = ranks / (n + 1)
+            return_periods = 1 / exc_probs
+
             # Find closest value
             idx = np.argmin(np.abs(values - value))
             estimated_rp = float(return_periods[idx])
+            exceedance_prob = float(exc_probs[idx])
             
         elif method == 'gumbel':
             # Gumbel distribution

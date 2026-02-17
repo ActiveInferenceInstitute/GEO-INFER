@@ -253,3 +253,159 @@ class GeospatialFeatureEngineer:
         """
         return self.feature_names_
 
+    def create_spatial_lag_features(
+        self,
+        values: np.ndarray,
+        coordinates: np.ndarray,
+        k_neighbors: int = 5,
+    ) -> pd.DataFrame:
+        """
+        Create spatial lag features based on k-nearest neighbors.
+
+        Spatial lag is the weighted average of a variable at neighboring
+        locations, capturing spatial autocorrelation.
+
+        Args:
+            values: Values to compute lags for (n_samples,) or (n_samples, n_vars)
+            coordinates: Spatial coordinates (n_samples, 2)
+            k_neighbors: Number of nearest neighbors
+
+        Returns:
+            DataFrame with spatial lag features
+        """
+        logger.info(
+            f"Creating spatial lag features with k={k_neighbors} "
+            f"for {len(coordinates)} samples"
+        )
+
+        n_samples = coordinates.shape[0]
+
+        if values.ndim == 1:
+            values = values.reshape(-1, 1)
+
+        n_vars = values.shape[1]
+
+        # Compute pairwise distance matrix
+        diff = coordinates[:, np.newaxis, :] - coordinates[np.newaxis, :, :]
+        dist_matrix = np.sqrt(np.sum(diff ** 2, axis=2))
+
+        lag_features: Dict[str, np.ndarray] = {}
+
+        for v in range(n_vars):
+            var_lags = np.zeros(n_samples)
+            var_lag_std = np.zeros(n_samples)
+
+            for i in range(n_samples):
+                distances = dist_matrix[i].copy()
+                distances[i] = np.inf  # Exclude self
+
+                # Find k nearest neighbors
+                k_actual = min(k_neighbors, n_samples - 1)
+                neighbor_idx = np.argsort(distances)[:k_actual]
+                neighbor_dists = distances[neighbor_idx]
+
+                # Inverse-distance weights
+                weights = 1.0 / (neighbor_dists + 1e-10)
+                weights /= weights.sum()
+
+                neighbor_vals = values[neighbor_idx, v]
+                var_lags[i] = np.sum(weights * neighbor_vals)
+                var_lag_std[i] = np.sqrt(
+                    np.sum(weights * (neighbor_vals - var_lags[i]) ** 2)
+                )
+
+            lag_features[f"spatial_lag_v{v}_mean"] = var_lags
+            lag_features[f"spatial_lag_v{v}_std"] = var_lag_std
+
+        return pd.DataFrame(lag_features)
+
+    def create_distance_features(
+        self,
+        coordinates: np.ndarray,
+        reference_points: np.ndarray,
+        reference_names: Optional[List[str]] = None,
+    ) -> pd.DataFrame:
+        """
+        Create distance features from each sample to a set of reference points.
+
+        Args:
+            coordinates: Sample coordinates (n_samples, 2)
+            reference_points: Reference coordinates (n_refs, 2)
+            reference_names: Optional names for reference points
+
+        Returns:
+            DataFrame with distance features
+        """
+        logger.info(
+            f"Creating distance features to {len(reference_points)} reference points"
+        )
+
+        n_refs = reference_points.shape[0]
+        if reference_names is None:
+            reference_names = [f"ref_{i}" for i in range(n_refs)]
+
+        features: Dict[str, np.ndarray] = {}
+
+        for j in range(n_refs):
+            diff = coordinates - reference_points[j]
+            dist = np.sqrt(np.sum(diff ** 2, axis=1))
+            features[f"dist_to_{reference_names[j]}"] = dist
+            # Log distance (useful for distance-decay relationships)
+            features[f"log_dist_to_{reference_names[j]}"] = np.log1p(dist)
+
+        return pd.DataFrame(features)
+
+    def create_temporal_aggregation_features(
+        self,
+        values: np.ndarray,
+        timestamps: Union[np.ndarray, pd.Series, List],
+        window_sizes: Optional[List[int]] = None,
+    ) -> pd.DataFrame:
+        """
+        Create rolling window aggregation features from time-series values.
+
+        Args:
+            values: Values to aggregate (n_samples,)
+            timestamps: Timestamps for ordering
+            window_sizes: List of rolling window sizes (default: [3, 7, 14])
+
+        Returns:
+            DataFrame with temporal aggregation features
+        """
+        if window_sizes is None:
+            window_sizes = [3, 7, 14]
+
+        logger.info(
+            f"Creating temporal aggregation features with windows {window_sizes}"
+        )
+
+        if not isinstance(timestamps, pd.Series):
+            timestamps = pd.Series(timestamps)
+
+        if not pd.api.types.is_datetime64_any_dtype(timestamps):
+            timestamps = pd.to_datetime(timestamps)
+
+        # Sort by time
+        sort_idx = timestamps.argsort()
+        sorted_values = values[sort_idx]
+
+        features: Dict[str, np.ndarray] = {}
+
+        for window in window_sizes:
+            series = pd.Series(sorted_values)
+            rolling = series.rolling(window=window, min_periods=1)
+
+            roll_mean = rolling.mean().values
+            roll_std = rolling.std().fillna(0.0).values
+            roll_min = rolling.min().values
+            roll_max = rolling.max().values
+
+            # Unsort back to original order
+            unsort_idx = np.argsort(sort_idx)
+            features[f"rolling_mean_{window}"] = roll_mean[unsort_idx]
+            features[f"rolling_std_{window}"] = roll_std[unsort_idx]
+            features[f"rolling_min_{window}"] = roll_min[unsort_idx]
+            features[f"rolling_max_{window}"] = roll_max[unsort_idx]
+
+        return pd.DataFrame(features)
+

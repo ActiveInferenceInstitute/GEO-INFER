@@ -85,7 +85,7 @@ class TestIngestionBenchmarks:
         assert throughput > 1000, f"Throughput too low: {throughput:.0f} records/second"
 
         print(f"📊 Ingestion throughput: {throughput:.0f} records/second")
-        print(f"⏱️  Processing time: {result['benchmark_time']:.2f".2f"
+        print(f"⏱️  Processing time: {result['benchmark_time']:.2f}s")
 
     def test_ingestion_validation_benchmark(self, benchmark_data, benchmark):
         """Benchmark data ingestion with validation."""
@@ -123,11 +123,11 @@ class TestIngestionBenchmarks:
         validation_time = result['validation_time']
         throughput_with_validation = result['throughput_with_validation']
 
-        assert validation_time < 30, f"Validation too slow: {validation_time:.2f".2f"
+        assert validation_time < 30, f"Validation too slow: {validation_time:.2f}s"
         assert throughput_with_validation > 500, f"Throughput with validation too low: {throughput_with_validation:.0f} records/second"
 
         print(f"📊 Validation throughput: {throughput_with_validation:.0f} records/second")
-        print(f"⏱️  Validation time: {validation_time:.2f".2f"
+        print(f"⏱️  Validation time: {validation_time:.2f}s")
 
     def test_multi_source_ingestion_benchmark(self, benchmark_data, benchmark):
         """Benchmark multi-source data ingestion."""
@@ -172,11 +172,11 @@ class TestIngestionBenchmarks:
         multi_source_time = result['multi_source_time']
         multi_source_throughput = result['multi_source_throughput']
 
-        assert multi_source_time < 45, f"Multi-source ingestion too slow: {multi_source_time:.2f".2f"
+        assert multi_source_time < 45, f"Multi-source ingestion too slow: {multi_source_time:.2f}s"
         assert multi_source_throughput > 2000, f"Multi-source throughput too low: {multi_source_throughput:.0f} records/second"
 
         print(f"📊 Multi-source throughput: {multi_source_throughput:.0f} records/second")
-        print(f"⏱️  Multi-source time: {multi_source_time:.2f".2f"
+        print(f"⏱️  Multi-source time: {multi_source_time:.2f}s")
 
 
 class TestStorageBenchmarks:
@@ -243,11 +243,11 @@ class TestStorageBenchmarks:
         latency = result['latency']
         throughput = result['throughput']
 
-        assert latency < 10, f"Storage latency too high: {latency:.2f".2f"
+        assert latency < 10, f"Storage latency too high: {latency:.2f}s"
         assert throughput > 5000, f"Storage throughput too low: {throughput:.0f} records/second"
 
         print(f"📊 Storage throughput: {throughput:.0f} records/second")
-        print(f"⏱️  Storage latency: {latency:.2f".2f"
+        print(f"⏱️  Storage latency: {latency:.2f}s")
 
     def test_query_performance_benchmark(self, benchmark_geodata, benchmark_metadata, benchmark):
         """Benchmark query performance."""
@@ -295,8 +295,8 @@ class TestStorageBenchmarks:
         avg_spatial_time = result['avg_spatial_query_time']
         avg_temporal_time = result['avg_temporal_query_time']
 
-        assert avg_spatial_time < 2.0, f"Spatial query too slow: {avg_spatial_time:.2f".2f"
-        assert avg_temporal_time < 2.0, f"Temporal query too slow: {avg_temporal_time:.2f".2f"
+        assert avg_spatial_time < 2.0, f"Spatial query too slow: {avg_spatial_time:.2f}s"
+        assert avg_temporal_time < 2.0, f"Temporal query too slow: {avg_temporal_time:.2f}s"
 
         print(f"📊 Average spatial query time: {avg_spatial_time:.3f}s")
         print(f"📊 Average temporal query time: {avg_temporal_time:.3f}s")
@@ -349,12 +349,12 @@ class TestValidationBenchmarks:
         validation_time = result['validation_time']
         throughput = result['throughput']
 
-        assert validation_time < 20, f"Validation too slow: {validation_time:.2f".2f"
+        assert validation_time < 20, f"Validation too slow: {validation_time:.2f}s"
         assert throughput > 1000, f"Validation throughput too low: {throughput:.0f} records/second"
 
         print(f"📊 Validation throughput: {throughput:.0f} records/second")
-        print(f"⏱️  Validation time: {validation_time:.2f".2f"
-        print(f"📊 Quality score: {result['overall_score']:.2".2f"
+        print(f"⏱️  Validation time: {validation_time:.2f}s")
+        print(f"📊 Quality score: {result['overall_score']:.2f}")
         print(f"📋 Checks performed: {result['checks_performed']}")
 
     def test_validation_rules_benchmark(self, benchmark_validation_data, benchmark):
@@ -390,10 +390,10 @@ class TestValidationBenchmarks:
 
         total_time = result['total_validation_time']
 
-        assert result['completeness_time'] < 5, f"Completeness check too slow: {result['completeness_time']:.2f".2f"
-        assert result['accuracy_time'] < 5, f"Accuracy check too slow: {result['accuracy_time']:.2f".2f"
-        assert result['consistency_time'] < 5, f"Consistency check too slow: {result['consistency_time']:.2f".2f"
-        assert total_time < 15, f"Total validation too slow: {total_time:.2f".2f"
+        assert result['completeness_time'] < 5, f"Completeness check too slow: {result['completeness_time']:.2f}s"
+        assert result['accuracy_time'] < 5, f"Accuracy check too slow: {result['accuracy_time']:.2f}s"
+        assert result['consistency_time'] < 5, f"Consistency check too slow: {result['consistency_time']:.2f}s"
+        assert total_time < 15, f"Total validation too slow: {total_time:.2f}s"
 
         print(f"📊 Completeness check: {result['completeness_time']:.2f}s")
         print(f"📊 Accuracy check: {result['accuracy_time']:.2f}s")

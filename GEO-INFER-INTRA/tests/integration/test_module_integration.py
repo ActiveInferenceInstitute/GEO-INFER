@@ -6,7 +6,7 @@ import sys
 import yaml
 import tempfile
 from pathlib import Path
-from tests.utils import import_module_by_path, collect_test_modules
+from tests.intra_utils import import_module_by_path, collect_test_modules
 
 @pytest.mark.integration
 class TestCrossModuleIntegration:
@@ -15,7 +15,7 @@ class TestCrossModuleIntegration:
     @pytest.fixture(scope="class")
     def geo_infer_modules(self):
         """Collect all GEO-INFER modules."""
-        root_dir = Path(__file__).parent.parent.parent
+        root_dir = Path(__file__).parent.parent.parent.parent
         return collect_test_modules(root_dir)
     
     @pytest.fixture(scope="class")

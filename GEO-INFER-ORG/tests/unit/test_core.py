@@ -14,12 +14,11 @@ class TestOrgModule:
         assert geo_infer_org is not None
 
     def test_module_structure(self) -> None:
-        """Test that module has expected structure."""
+        """Test that module has expected core classes."""
         import geo_infer_org
-        
-        # Check that submodules exist
-        assert hasattr(geo_infer_org, 'core')
-        assert hasattr(geo_infer_org, 'api')
-        assert hasattr(geo_infer_org, 'models')
-        assert hasattr(geo_infer_org, 'utils')
+
+        # Check that core classes are available
+        assert hasattr(geo_infer_org, 'OrganizationModel')
+        assert hasattr(geo_infer_org, 'VotingEngine')
+        assert hasattr(geo_infer_org, 'CollaborationNetwork')
 

@@ -273,7 +273,7 @@ class SPMAPI:
                 float(rows[0][col])
                 numeric_cols.append(col)
             except (ValueError, TypeError):
-                pass
+                continue  # Skip non-numeric columns
 
         coordinates = np.array([[float(r[lat_col]), float(r[lon_col])] for r in rows])
         data_values = np.array([[float(r.get(c, 0)) for c in numeric_cols] for r in rows])

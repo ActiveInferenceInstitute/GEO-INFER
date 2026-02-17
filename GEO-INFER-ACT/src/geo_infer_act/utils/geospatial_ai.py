@@ -1081,11 +1081,11 @@ class MultiScaleHierarchicalAnalyzer:
             if parent_level in self.hierarchical_graphs:
                 if parent_cell in self.hierarchical_graphs[parent_level].cells:
                     return parent_cell
-        except Exception:
-            pass
-        
+        except Exception as e:
+            logging.getLogger(__name__).debug("Parent cell lookup failed: %s", e)
+
         return None
-    
+
     def analyze_cross_scale_interactions(self) -> Dict[str, Any]:
         """
         Analyze interactions across different spatial scales.

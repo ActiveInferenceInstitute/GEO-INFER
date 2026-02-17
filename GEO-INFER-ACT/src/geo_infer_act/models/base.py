@@ -26,24 +26,24 @@ class ActiveInferenceModel:
     def step(self, actions: Optional[Any] = None) -> Any:
         """
         Advance the model by one step.
-        
+
         Args:
             actions: Optional actions to apply
-            
+
         Returns:
             Updated state or relevant information
         """
-        pass
-    
+        return self.config.copy()
+
     def reset(self) -> Any:
         """
         Reset the model to initial state.
-        
+
         Returns:
             Initial state
         """
-        # Default implementation - should be overridden by subclasses
-        pass
+        self.config = self.config if self.config is not None else {}
+        return self.config.copy()
     
     def __str__(self) -> str:
         """Return string representation of model."""

@@ -517,8 +517,14 @@ class GeoArt:
         elif filter_type == "visual":
             # Apply visual filter (e.g., opacity, brightness)
             if "opacity" in kwargs:
-                # This would modify the alpha channel
-                pass
+                opacity = float(kwargs["opacity"])
+                opacity = max(0.0, min(1.0, opacity))
+                self.metadata["opacity"] = opacity
+                if self._figure is not None:
+                    for ax in self._figure.get_axes():
+                        for child in ax.get_children():
+                            if hasattr(child, "set_alpha"):
+                                child.set_alpha(opacity)
 
         return self
 
@@ -1045,10 +1051,26 @@ class RealtimeVisualization:
         self.is_running = False
 
     def _update_visualization(self) -> None:
-        """Update the visualization with new data."""
-        # This would update the matplotlib figure or web interface
-        # Implementation depends on the specific visualization backend
-        pass
+        """Update the visualization with new data.
+
+        Re-renders the GeoArt object's figure using the latest data fetched
+        by the callback.  If the GeoArt instance already has a matplotlib
+        figure, the axes are cleared and redrawn; otherwise a new figure is
+        created via the default style.
+        """
+        if self.current_data is None:
+            return
+
+        self.geo_art.data = self.current_data
+
+        if self.geo_art._figure is not None:
+            for ax in self.geo_art._figure.get_axes():
+                ax.clear()
+                if isinstance(self.current_data, gpd.GeoDataFrame):
+                    self.current_data.plot(ax=ax)
+            self.geo_art._figure.canvas.draw_idle()
+        else:
+            self.geo_art.apply_style(self.style, **self.kwargs)
 
     def save_snapshot(self, filename: Optional[str] = None) -> str:
         """
@@ -1220,12 +1242,61 @@ class GeoArt3D:
         """
         Create an animated 3D visualization.
 
+        Rotates the camera around the 3D scene to produce a turntable-style
+        animation.  If Mayavi is not available, falls back to a matplotlib
+        3D scatter rotation using FuncAnimation.
+
         Args:
-            **kwargs: Parameters for 3D animation
+            **kwargs: Parameters for 3D animation.
+                frames (int): Number of animation frames (default 36).
+                interval (int): Milliseconds between frames (default 100).
+                elevation (float): Camera elevation angle (default 30).
+                output_file (str): Optional path to save the animation.
 
         Returns:
-            Animated 3D figure
+            Animation object (matplotlib FuncAnimation or Mayavi scene).
         """
-        # Implementation for 3D animation
-        # This would create rotating or morphing 3D visualizations
-        pass 
+        frames = kwargs.get("frames", 36)
+        interval = kwargs.get("interval", 100)
+        elevation = kwargs.get("elevation", 30.0)
+        output_file = kwargs.get("output_file", None)
+
+        if MAYAVI_AVAILABLE:
+            scene = self._create_mayavi_3d_surface(output_file=None, **kwargs)
+
+            @mlab.animate(delay=interval)
+            def _rotate():
+                for angle in np.linspace(0, 360, frames, endpoint=False):
+                    mlab.view(azimuth=angle, elevation=elevation)
+                    yield
+
+            anim = _rotate()
+            if output_file:
+                mlab.savefig(output_file)
+            return anim
+
+        # Fallback: matplotlib 3D rotation
+        from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+
+        fig = plt.figure(figsize=(8, 6))
+        ax = fig.add_subplot(111, projection="3d")
+
+        if isinstance(self.geo_art.data, gpd.GeoDataFrame):
+            x = self.geo_art.data.geometry.x.values
+            y = self.geo_art.data.geometry.y.values
+            z_col = self.z_column if self.z_column and self.z_column in self.geo_art.data.columns else None
+            z = self.geo_art.data[z_col].values if z_col else np.zeros(len(x))
+            ax.scatter(x, y, z, s=1)
+        else:
+            data = np.asarray(self.geo_art.data)
+            if data.ndim == 2:
+                xg, yg = np.meshgrid(range(data.shape[1]), range(data.shape[0]))
+                ax.plot_surface(xg, yg, data, cmap="terrain", alpha=0.8)
+
+        def _update(frame_idx):
+            ax.view_init(elev=elevation, azim=frame_idx * (360.0 / frames))
+
+        anim = FuncAnimation(fig, _update, frames=frames, interval=interval)
+        if output_file:
+            anim.save(output_file, writer="pillow")
+        return anim

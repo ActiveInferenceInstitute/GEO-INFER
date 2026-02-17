@@ -14,7 +14,13 @@ class BioVisualizer:
 
     def __init__(self):
         """Initialize the BioVisualizer."""
-        plt.style.use("seaborn")
+        try:
+            plt.style.use("seaborn-v0_8")
+        except OSError:
+            try:
+                plt.style.use("seaborn")
+            except OSError:
+                plt.style.use("ggplot")
         sns.set_palette("husl")
 
     def plot_spatial_distribution(

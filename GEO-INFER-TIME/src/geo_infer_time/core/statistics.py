@@ -22,9 +22,10 @@ class TemporalStatistics:
     selection criteria, and time series characteristics.
     """
 
-    def __init__(self):
+    def __init__(self) -> None:
         """Initialize temporal statistics."""
-        pass
+        self._logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self._logger.debug("TemporalStatistics initialized")
 
     def calculate_summary(
         self,

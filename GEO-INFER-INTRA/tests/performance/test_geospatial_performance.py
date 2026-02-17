@@ -4,7 +4,7 @@ import pytest
 import time
 import random
 from typing import List, Dict, Any
-from tests.utils.geospatial import (
+from tests.intra_utils.geospatial import (
     create_point, create_polygon, create_feature, create_feature_collection,
     haversine_distance
 )

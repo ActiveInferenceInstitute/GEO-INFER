@@ -290,16 +290,80 @@ class DatabaseConnector:
         table_name: str,
         metadata: DatasetMetadata
     ):
-        """Create database table schema."""
-        # Implementation for schema creation
-        # This would create appropriate SQL DDL based on the GeoDataFrame structure
-        pass
+        """Create database table schema from GeoDataFrame structure.
+
+        Generates and executes a CREATE TABLE statement that mirrors the
+        column names and dtypes of the provided GeoDataFrame.
+        """
+        dtype_map = {
+            "int64": "BIGINT",
+            "int32": "INTEGER",
+            "float64": "DOUBLE PRECISION",
+            "float32": "REAL",
+            "bool": "BOOLEAN",
+            "datetime64[ns]": "TIMESTAMP",
+            "object": "TEXT",
+            "geometry": "GEOMETRY",
+        }
+
+        columns_sql = []
+        for col in gdf.columns:
+            col_dtype = str(gdf[col].dtype)
+            sql_type = dtype_map.get(col_dtype, "TEXT")
+            # Sanitise column name: replace spaces and hyphens
+            safe_col = col.replace(" ", "_").replace("-", "_")
+            columns_sql.append(f'"{safe_col}" {sql_type}')
+
+        create_stmt = (
+            f"CREATE TABLE IF NOT EXISTS {table_name} "
+            f"({', '.join(columns_sql)})"
+        )
+
+        try:
+            if self.async_engine:
+                async with self.AsyncSessionLocal() as session_obj:
+                    await session_obj.execute(text(create_stmt))
+                    await session_obj.commit()
+            else:
+                with self.SessionLocal() as session_obj:
+                    session_obj.execute(text(create_stmt))
+                    session_obj.commit()
+            logger.info("Created table schema for %s with %d columns", table_name, len(columns_sql))
+        except Exception as e:
+            logger.error("Failed to create table schema for %s: %s", table_name, e)
+            raise
 
     async def _insert_data_manually(self, session, gdf: gpd.GeoDataFrame, table_name: str):
-        """Manually insert data row by row."""
-        # Implementation for manual data insertion
-        # Used when to_sql or to_postgis is not available
-        pass
+        """Manually insert data row by row.
+
+        Used when to_sql or to_postgis is not available.  Builds
+        parameterised INSERT statements from the GeoDataFrame rows.
+        """
+        if len(gdf) == 0:
+            logger.info("No rows to insert into %s", table_name)
+            return
+
+        columns = [c.replace(" ", "_").replace("-", "_") for c in gdf.columns]
+        col_list = ", ".join(f'"{c}"' for c in columns)
+        placeholders = ", ".join(f":{c}" for c in columns)
+        insert_stmt = text(f"INSERT INTO {table_name} ({col_list}) VALUES ({placeholders})")
+
+        rows_inserted = 0
+        for _, row in gdf.iterrows():
+            params = {}
+            for orig_col, safe_col in zip(gdf.columns, columns):
+                val = row[orig_col]
+                # Convert numpy types to Python builtins for DB driver compat
+                if hasattr(val, "item"):
+                    val = val.item()
+                elif hasattr(val, "wkt"):
+                    val = val.wkt
+                params[safe_col] = val
+
+            session.execute(insert_stmt, params)
+            rows_inserted += 1
+
+        logger.info("Manually inserted %d rows into %s", rows_inserted, table_name)
 
     async def _create_spatial_indexes(self, table_name: str, gdf: gpd.GeoDataFrame):
         """Create spatial indexes for geometry columns."""

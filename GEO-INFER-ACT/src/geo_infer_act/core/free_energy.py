@@ -21,9 +21,10 @@ class FreeEnergyCalculator:
     perception (belief updating) and action (policy selection).
     """
     
-    def __init__(self):
-        """Initialize the free energy calculator."""
-        pass
+    def __init__(self) -> None:
+        """Initialize the free energy calculator with default configuration."""
+        self.last_computed_energy: float = 0.0
+        self.computation_count: int = 0
     
     def compute_categorical_free_energy(self, 
                                        beliefs: np.ndarray,
@@ -188,15 +189,19 @@ class FreeEnergyCalculator:
         
         return float(expected_free_energy) 
 
-    def compute(self, beliefs: Union[np.ndarray, Dict], observations: np.ndarray = None, preferences: np.ndarray = None, model_type: str = 'categorical') -> float:
+    def compute(self, beliefs: Union[np.ndarray, Dict], observations: Optional[np.ndarray] = None, preferences: Optional[np.ndarray] = None, model_type: str = 'categorical') -> float:
         """General free energy compute dispatching."""
         if model_type == 'categorical':
             if isinstance(beliefs, dict):
                 beliefs = beliefs.get('states', beliefs.get('mean'))
-            return self.compute_categorical_free_energy(beliefs, observations or np.ones_like(beliefs)/len(beliefs), preferences)
+            obs = observations if observations is not None else np.ones_like(beliefs) / len(beliefs)
+            return self.compute_categorical_free_energy(beliefs, obs, preferences)
         elif model_type == 'gaussian':
             mean = beliefs.get('mean', beliefs)
             precision = beliefs.get('precision', np.eye(len(mean)))
-            return self.compute_gaussian_free_energy(mean, precision, observations or np.zeros_like(mean), preferences.get('mean') if preferences else None, preferences.get('precision') if preferences else None)
+            obs = observations if observations is not None else np.zeros_like(mean)
+            prior_mean = preferences.get('mean') if isinstance(preferences, dict) else None
+            prior_prec = preferences.get('precision') if isinstance(preferences, dict) else None
+            return self.compute_gaussian_free_energy(mean, precision, obs, prior_mean, prior_prec)
         else:
             raise ValueError(f"Unsupported model type: {model_type}") 

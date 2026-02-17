@@ -19,8 +19,7 @@ from geo_infer_pep.reporting import (
 
 def _make_candidate(candidate_id="cand123_workflow", status="offer_accepted"):
     """Create a real Candidate object and insert into the in-memory DB."""
-    from geo_infer_pep.models.talent_models import Candidate, CandidateStatus
-    from geo_infer_pep.models.hr_models import Offer
+    from geo_infer_pep.models.talent_models import Candidate, CandidateStatus, Offer
     from datetime import datetime
 
     status_map = {

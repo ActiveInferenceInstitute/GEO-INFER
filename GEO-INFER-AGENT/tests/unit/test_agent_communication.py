@@ -1,0 +1,107 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Tests for agent-to-agent communication via BaseAgent message queue.
+"""
+
+import asyncio
+import unittest
+import uuid
+from datetime import datetime
+
+from geo_infer_agent.core.agent_base import ExampleAgent
+
+
+class TestAgentMessagePassing(unittest.TestCase):
+    """Tests for message passing between BaseAgent instances."""
+
+    def _run(self, coro):
+        """Helper to run an async coroutine in the test event loop."""
+        return asyncio.get_event_loop().run_until_complete(coro)
+
+    def test_receive_message_enqueues(self) -> None:
+        """receive_message puts a message on the agent's internal queue."""
+        agent = ExampleAgent(agent_id="receiver")
+        msg = {
+            "from": "sender-1",
+            "to": "receiver",
+            "content": {"text": "hello"},
+            "timestamp": datetime.now().isoformat(),
+            "message_id": str(uuid.uuid4()),
+        }
+        self._run(agent.receive_message(msg))
+        self.assertFalse(agent.message_queue.empty())
+
+    def test_process_messages_drains_queue(self) -> None:
+        """process_messages consumes all queued messages."""
+        agent = ExampleAgent(agent_id="processor")
+        for i in range(3):
+            msg = {
+                "from": f"sender-{i}",
+                "to": "processor",
+                "content": {"index": i},
+                "timestamp": datetime.now().isoformat(),
+                "message_id": str(uuid.uuid4()),
+            }
+            self._run(agent.receive_message(msg))
+
+        self.assertEqual(agent.message_queue.qsize(), 3)
+        self._run(agent.process_messages())
+        self.assertTrue(agent.message_queue.empty())
+
+    def test_message_handling_records_in_memory(self) -> None:
+        """_handle_message records the message in agent state memory."""
+        agent = ExampleAgent(agent_id="mem-agent")
+        msg = {
+            "from": "alpha",
+            "to": "mem-agent",
+            "content": {"data": 42},
+            "timestamp": datetime.now().isoformat(),
+            "message_id": str(uuid.uuid4()),
+        }
+        self._run(agent.receive_message(msg))
+        self._run(agent.process_messages())
+
+        received_entries = [
+            m for m in agent.state.memory if m.get("type") == "message_received"
+        ]
+        self.assertEqual(len(received_entries), 1)
+        self.assertEqual(received_entries[0]["message"]["from"], "alpha")
+
+    def test_send_message_returns_true(self) -> None:
+        """send_message returns True for a well-formed message."""
+        agent = ExampleAgent(agent_id="sender")
+        result = self._run(
+            agent.send_message("target-agent", {"command": "start"})
+        )
+        self.assertTrue(result)
+
+    def test_multiple_agents_communicate(self) -> None:
+        """Two agents can exchange messages through their queues."""
+        agent_a = ExampleAgent(agent_id="agent-a")
+        agent_b = ExampleAgent(agent_id="agent-b")
+
+        # Agent A sends to Agent B by placing on B's queue
+        msg = {
+            "from": "agent-a",
+            "to": "agent-b",
+            "content": {"task": "analyze"},
+            "timestamp": datetime.now().isoformat(),
+            "message_id": str(uuid.uuid4()),
+        }
+        self._run(agent_b.receive_message(msg))
+
+        # Agent B processes messages
+        self._run(agent_b.process_messages())
+
+        # Verify B recorded the message
+        received = [
+            m for m in agent_b.state.memory if m.get("type") == "message_received"
+        ]
+        self.assertEqual(len(received), 1)
+        self.assertEqual(received[0]["message"]["content"]["task"], "analyze")
+
+
+if __name__ == "__main__":
+    unittest.main()

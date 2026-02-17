@@ -6,6 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 GEO-INFER is a 44-module geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. It is a Python monorepo using `uv` as the package manager, with Python 3.9+ required.
 
+### Current Stats (2026-02-17)
+
+- **44 modules** | **858 source files** (294,403 lines) | **416 test files** (86,793 lines) | **~3,000+ tests**
+- All packages use PEP 8 lowercase naming (FOREST/MARINE/ENERGY/WATER were renamed)
+- Zero illegitimate `pass` stubs (remaining `pass` is only in abstract methods, exception handlers, and import guards)
+- Every module has minimum 4 test files
+
 ## Build & Development Commands
 
 ```bash
@@ -107,6 +114,8 @@ Foundation modules (MATH) have no dependencies. Core modules (BAYES, ACT) depend
 - **H3 v4**: SPACE and PLACE modules are fully migrated to `h3>=4.0.0` (use `latlng_to_cell`, `cell_to_latlng`, not legacy API)
 - **Backend-agnostic pattern**: SPACE module uses a dispatcher/interface pattern for H3 vs SRAI backends
 - **Graceful degradation**: `__init__.py` files use `try/except` for optional dependency imports
+- **Lowercase packages**: All 44 modules use `geo_infer_module` (lowercase) naming. The environmental modules (FOREST, MARINE, ENERGY, WATER) were renamed from uppercase to lowercase in Feb 2026.
+- **Real implementations only**: BAYES GaussianProcess uses Cholesky decomposition (not stubs). Model comparison uses real LOO/WAIC/DIC/BIC/AIC. ACT free energy uses proper numpy array handling.
 
 ## Critical Development Rules
 
@@ -129,3 +138,5 @@ These rules are from `.cursorrules/` and apply to all modules:
 - `GEO-INFER-EXAMPLES/examples/` - Working examples including module orchestrators
 - `.cursorrules/` - Framework-wide development rules
 - `AGENTS.md` - Multi-agent systems architecture documentation
+- `PAI.md` - PAI Algorithm integration and development methodology
+- `CLAUDE.md` - This file (Claude Code guidance)

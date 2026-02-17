@@ -621,12 +621,12 @@ class SpatialDecisionSupport:
         avg_compatibility = sum(compatibilities) / len(compatibilities) if compatibilities else 0.5
 
         if avg_compatibility < 0.6:
-            considerations.append(f"Moderate stakeholder compatibility ({avg_compatibility".2f"})")
+            considerations.append(f"Moderate stakeholder compatibility ({avg_compatibility:.2f})")
 
         # Check cognitive load implications
         load_impact = alternative.cognitive_factors.get('cognitive_load', 0.5)
         if load_impact > 0.7:
-            considerations.append(f"High cognitive load impact ({load_impact".2f"})")
+            considerations.append(f"High cognitive load impact ({load_impact:.2f})")
 
         return considerations
 
@@ -816,7 +816,7 @@ class SpatialDecisionSupport:
         uncertainty_assessment = decision_analysis.get('uncertainty_assessment', {})
         if uncertainty_assessment:
             insights['uncertainty_insights'] = [
-                f"Average uncertainty: {uncertainty_assessment.get('mean_uncertainty', 0)".3f"}",
+                f"Average uncertainty: {uncertainty_assessment.get('mean_uncertainty', 0):.3f}",
                 f"High uncertainty alternatives: {uncertainty_assessment.get('high_uncertainty_alternatives', 0)}"
             ]
 
@@ -824,8 +824,8 @@ class SpatialDecisionSupport:
         stakeholder_analysis = decision_analysis.get('stakeholder_analysis', {})
         if stakeholder_analysis:
             insights['stakeholder_insights'] = [
-                f"Overall stakeholder compatibility: {stakeholder_analysis.get('overall_compatibility', 0)".3f"}",
-                f"Consensus potential: {stakeholder_analysis.get('consensus_potential', 0)".3f"}"
+                f"Overall stakeholder compatibility: {stakeholder_analysis.get('overall_compatibility', 0):.3f}",
+                f"Consensus potential: {stakeholder_analysis.get('consensus_potential', 0):.3f}"
             ]
 
         # Recommendation explanations

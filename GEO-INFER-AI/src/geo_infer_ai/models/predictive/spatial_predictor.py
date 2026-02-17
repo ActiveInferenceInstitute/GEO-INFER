@@ -7,7 +7,7 @@ and resource forecasting.
 """
 
 import logging
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 import pandas as pd
@@ -203,4 +203,306 @@ class SpatialPredictor(BaseEstimator, RegressorMixin):
             List of feature names or None
         """
         return self.feature_names_
+
+
+class IDWInterpolator:
+    """
+    Inverse Distance Weighting (IDW) spatial interpolation.
+
+    Predicts values at unsampled locations by computing a weighted average
+    of observed values, where weights decrease with distance according to
+    a power parameter.
+    """
+
+    def __init__(self, power: float = 2.0, min_points: int = 3,
+                 max_distance: Optional[float] = None) -> None:
+        """
+        Initialize IDW interpolator.
+
+        Args:
+            power: Power parameter controlling distance decay (higher = more local)
+            min_points: Minimum number of neighbors to use
+            max_distance: Maximum distance for neighbor search (None = unlimited)
+        """
+        if power <= 0:
+            raise ValueError("power must be positive")
+        if min_points < 1:
+            raise ValueError("min_points must be at least 1")
+
+        self.power = power
+        self.min_points = min_points
+        self.max_distance = max_distance
+        self.coordinates_: Optional[np.ndarray] = None
+        self.values_: Optional[np.ndarray] = None
+
+    def fit(self, coordinates: np.ndarray, values: np.ndarray) -> "IDWInterpolator":
+        """
+        Fit the interpolator with known sample locations and values.
+
+        Args:
+            coordinates: Sample coordinates (n_samples, 2)
+            values: Observed values at sample locations (n_samples,)
+
+        Returns:
+            Self for method chaining
+        """
+        if coordinates.shape[0] != values.shape[0]:
+            raise ValueError("coordinates and values must have same number of rows")
+        self.coordinates_ = coordinates.copy()
+        self.values_ = values.copy()
+        return self
+
+    def predict(self, target_coordinates: np.ndarray) -> np.ndarray:
+        """
+        Predict values at target locations using IDW.
+
+        Args:
+            target_coordinates: Target coordinates (n_targets, 2)
+
+        Returns:
+            Predicted values (n_targets,)
+        """
+        if self.coordinates_ is None or self.values_ is None:
+            raise ValueError("Must call fit before predict")
+
+        n_targets = target_coordinates.shape[0]
+        predictions = np.zeros(n_targets)
+
+        for i in range(n_targets):
+            target = target_coordinates[i]
+
+            # Compute distances from target to all known points
+            diffs = self.coordinates_ - target
+            distances = np.sqrt(np.sum(diffs ** 2, axis=1))
+
+            # Check for exact match (distance ~ 0)
+            exact_match = distances < 1e-12
+            if np.any(exact_match):
+                predictions[i] = np.mean(self.values_[exact_match])
+                continue
+
+            # Apply max distance filter
+            if self.max_distance is not None:
+                mask = distances <= self.max_distance
+                if np.sum(mask) < self.min_points:
+                    # Fall back to nearest min_points
+                    nearest_idx = np.argsort(distances)[:self.min_points]
+                    mask = np.zeros(len(distances), dtype=bool)
+                    mask[nearest_idx] = True
+            else:
+                mask = np.ones(len(distances), dtype=bool)
+
+            d = distances[mask]
+            v = self.values_[mask]
+
+            weights = 1.0 / (d ** self.power)
+            predictions[i] = np.sum(weights * v) / np.sum(weights)
+
+        return predictions
+
+
+class OrdinaryKriging:
+    """
+    Ordinary Kriging spatial interpolation.
+
+    Uses a variogram model to compute optimal weights for spatial
+    prediction, providing both predicted values and estimation variance.
+    Implements a simple spherical variogram model.
+    """
+
+    def __init__(
+        self,
+        variogram_model: str = "spherical",
+        n_lags: int = 15,
+        max_range: Optional[float] = None,
+    ) -> None:
+        """
+        Initialize Ordinary Kriging interpolator.
+
+        Args:
+            variogram_model: Variogram model type ('spherical', 'exponential', 'gaussian')
+            n_lags: Number of lag bins for variogram estimation
+            max_range: Maximum range for variogram (None = auto)
+        """
+        self.variogram_model = variogram_model
+        self.n_lags = n_lags
+        self.max_range = max_range
+        self.coordinates_: Optional[np.ndarray] = None
+        self.values_: Optional[np.ndarray] = None
+        self.nugget: float = 0.0
+        self.sill: float = 1.0
+        self.range_param: float = 1.0
+
+    def fit(self, coordinates: np.ndarray, values: np.ndarray) -> "OrdinaryKriging":
+        """
+        Fit the kriging model by estimating variogram parameters.
+
+        Args:
+            coordinates: Sample coordinates (n_samples, 2)
+            values: Observed values (n_samples,)
+
+        Returns:
+            Self for method chaining
+        """
+        if coordinates.shape[0] != values.shape[0]:
+            raise ValueError("coordinates and values must have same number of rows")
+        if coordinates.shape[0] < 3:
+            raise ValueError("Need at least 3 sample points for kriging")
+
+        self.coordinates_ = coordinates.copy()
+        self.values_ = values.copy()
+
+        # Estimate experimental variogram
+        self._estimate_variogram()
+
+        logger.info(
+            f"Kriging fitted: nugget={self.nugget:.4f}, sill={self.sill:.4f}, "
+            f"range={self.range_param:.4f}"
+        )
+        return self
+
+    def _estimate_variogram(self) -> None:
+        """Estimate experimental variogram and fit model parameters."""
+        n = len(self.values_)
+
+        # Compute pairwise distances and squared differences
+        distances_list: List[float] = []
+        semivariances_list: List[float] = []
+
+        for i in range(n):
+            for j in range(i + 1, n):
+                d = np.sqrt(np.sum((self.coordinates_[i] - self.coordinates_[j]) ** 2))
+                sv = 0.5 * (self.values_[i] - self.values_[j]) ** 2
+                distances_list.append(d)
+                semivariances_list.append(sv)
+
+        distances_arr = np.array(distances_list)
+        semivariances_arr = np.array(semivariances_list)
+
+        if self.max_range is None:
+            self.max_range = float(np.max(distances_arr) * 0.5)
+
+        # Bin into lags
+        lag_edges = np.linspace(0, self.max_range, self.n_lags + 1)
+        lag_centers = 0.5 * (lag_edges[:-1] + lag_edges[1:])
+        lag_semivariances = np.zeros(self.n_lags)
+        lag_counts = np.zeros(self.n_lags)
+
+        for k in range(self.n_lags):
+            mask = (distances_arr >= lag_edges[k]) & (distances_arr < lag_edges[k + 1])
+            if np.any(mask):
+                lag_semivariances[k] = np.mean(semivariances_arr[mask])
+                lag_counts[k] = np.sum(mask)
+
+        # Fit variogram parameters using method of moments
+        valid = lag_counts > 0
+        if np.sum(valid) < 2:
+            # Fallback to data variance
+            self.nugget = 0.0
+            self.sill = float(np.var(self.values_))
+            self.range_param = self.max_range
+            return
+
+        valid_centers = lag_centers[valid]
+        valid_sv = lag_semivariances[valid]
+
+        # Estimate sill as asymptotic semivariance
+        self.sill = float(np.max(valid_sv))
+        if self.sill < 1e-10:
+            self.sill = float(np.var(self.values_))
+
+        # Estimate nugget from near-origin semivariance
+        self.nugget = float(valid_sv[0]) * 0.5
+
+        # Estimate range where semivariance reaches ~95% of sill
+        threshold = self.nugget + 0.95 * (self.sill - self.nugget)
+        above_threshold = valid_centers[valid_sv >= threshold]
+        self.range_param = float(above_threshold[0]) if len(above_threshold) > 0 else self.max_range
+
+    def _variogram_value(self, h: float) -> float:
+        """Evaluate the variogram model at distance h."""
+        if h < 1e-12:
+            return 0.0
+
+        c0 = self.nugget
+        c = self.sill - self.nugget
+        a = self.range_param
+
+        if self.variogram_model == "spherical":
+            if h >= a:
+                return c0 + c
+            ratio = h / a
+            return c0 + c * (1.5 * ratio - 0.5 * ratio ** 3)
+        elif self.variogram_model == "exponential":
+            return c0 + c * (1.0 - np.exp(-3.0 * h / a))
+        elif self.variogram_model == "gaussian":
+            return c0 + c * (1.0 - np.exp(-3.0 * (h / a) ** 2))
+        else:
+            raise ValueError(f"Unknown variogram model: {self.variogram_model}")
+
+    def predict(self, target_coordinates: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
+        """
+        Predict values and estimation variance at target locations.
+
+        Args:
+            target_coordinates: Target coordinates (n_targets, 2)
+
+        Returns:
+            Tuple of (predictions, variances) each of shape (n_targets,)
+        """
+        if self.coordinates_ is None or self.values_ is None:
+            raise ValueError("Must call fit before predict")
+
+        n_known = len(self.values_)
+        n_targets = target_coordinates.shape[0]
+
+        predictions = np.zeros(n_targets)
+        variances = np.zeros(n_targets)
+
+        # Build kriging matrix (same for all targets)
+        # K is (n+1) x (n+1) with variogram values + Lagrange multiplier row/col
+        K = np.zeros((n_known + 1, n_known + 1))
+
+        for i in range(n_known):
+            for j in range(i + 1, n_known):
+                d = np.sqrt(np.sum((self.coordinates_[i] - self.coordinates_[j]) ** 2))
+                gamma = self._variogram_value(d)
+                K[i, j] = gamma
+                K[j, i] = gamma
+
+        # Lagrange multiplier row and column
+        K[n_known, :n_known] = 1.0
+        K[:n_known, n_known] = 1.0
+        K[n_known, n_known] = 0.0
+
+        # Add small regularization for numerical stability
+        K[:n_known, :n_known] += np.eye(n_known) * 1e-8
+
+        for t in range(n_targets):
+            target = target_coordinates[t]
+
+            # Build right-hand side vector
+            k_vec = np.zeros(n_known + 1)
+            for i in range(n_known):
+                d = np.sqrt(np.sum((self.coordinates_[i] - target) ** 2))
+                k_vec[i] = self._variogram_value(d)
+            k_vec[n_known] = 1.0  # Lagrange constraint
+
+            # Solve kriging system
+            try:
+                weights = np.linalg.solve(K, k_vec)
+            except np.linalg.LinAlgError:
+                # Fallback to least squares
+                weights, _, _, _ = np.linalg.lstsq(K, k_vec, rcond=None)
+
+            # Predicted value
+            predictions[t] = np.sum(weights[:n_known] * self.values_)
+
+            # Estimation variance
+            variances[t] = np.sum(weights[:n_known] * k_vec[:n_known]) + weights[n_known]
+
+        # Clamp negative variances to zero
+        variances = np.maximum(variances, 0.0)
+
+        return predictions, variances
 

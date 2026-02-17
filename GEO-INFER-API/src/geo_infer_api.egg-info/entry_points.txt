@@ -1,2 +1,0 @@
-[console_scripts]
-geo-infer-api = geo_infer_api.app:main

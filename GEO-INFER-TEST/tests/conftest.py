@@ -378,7 +378,7 @@ def sample_health_data():
 def sample_economic_data():
     """Sample economic data for modeling."""
     # Generate synthetic economic data
-    dates = pd.date_range('2020-01-01', periods=48, freq='M')
+    dates = pd.date_range('2020-01-01', periods=48, freq='ME')
     np.random.seed(42)
     
     regions = ['Metro_A', 'Metro_B', 'Metro_C']
@@ -388,6 +388,7 @@ def sample_economic_data():
         # Base economic indicators with trends
         base_gdp = 1000000 + np.cumsum(np.random.normal(10000, 5000, 48))
         base_unemployment = 5 + 2 * np.sin(2 * np.pi * np.arange(48) / 12) + np.random.normal(0, 0.5, 48)
+        housing_cumsum = 300000 + np.cumsum(np.random.normal(1000, 500, 48))
         
         for i, date in enumerate(dates):
             record = {
@@ -396,7 +397,7 @@ def sample_economic_data():
                 'gdp': max(0, base_gdp[i] + np.random.normal(0, 10000)),
                 'unemployment_rate': max(0, min(20, base_unemployment[i])),
                 'inflation_rate': 2 + np.random.normal(0, 0.5),
-                'housing_prices': 300000 + np.cumsum(np.random.normal(1000, 500))[i],
+                'housing_prices': housing_cumsum[i],
                 'consumer_confidence': 50 + 20 * np.sin(2 * np.pi * i / 12) + np.random.normal(0, 5),
                 'retail_sales': 1000000 + np.random.normal(0, 50000),
                 'population': 500000 + np.random.normal(0, 1000)
@@ -656,6 +657,12 @@ def pytest_configure(config):
     )
     config.addinivalue_line(
         "markers", "fast: Tests that run quickly"
+    )
+    config.addinivalue_line(
+        "markers", "temporal: Temporal data tests"
+    )
+    config.addinivalue_line(
+        "markers", "ml: Machine learning tests"
     )
 
 # Test collection hooks

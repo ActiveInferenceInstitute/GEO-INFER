@@ -6,7 +6,7 @@ import pytest
 import numpy as np
 import xarray as xr
 
-from geo_infer_ENERGY.core.renewable_resources import (
+from geo_infer_energy.core.renewable_resources import (
     RenewableResourceAssessor,
     RenewableType,
     SuitabilityClass,

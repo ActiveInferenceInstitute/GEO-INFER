@@ -16,8 +16,8 @@ from datetime import datetime, timezone, timedelta
 from dataclasses import dataclass, field
 import uuid
 import smtplib
-from email.mime.text import MimeText
-from email.mime.multipart import MimeMultipart
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 from geo_infer_comms.models.message import (
     NotificationRequest, NotificationResponse, NotificationStatus,

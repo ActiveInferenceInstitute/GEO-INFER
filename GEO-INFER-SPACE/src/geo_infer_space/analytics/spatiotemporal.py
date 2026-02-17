@@ -828,8 +828,8 @@ class SpatioTemporalAnalyzer:
         if isinstance(ts, (int, float)):
             try:
                 return datetime.fromtimestamp(ts)
-            except:
-                pass
+            except (ValueError, OSError, OverflowError):
+                return None
         
         timestamp_str = str(ts)
         formats = [

@@ -237,7 +237,7 @@ def validate_polygon_coordinates(coords: List[List[List[float]]]) -> Dict[str, A
 
     # Validate exterior ring (first ring)
     exterior_ring = coords[0]
-    exterior_validation = validate_linestring_coordinates([exterior_ring])
+    exterior_validation = validate_linestring_coordinates(exterior_ring)
     validation['ring_sizes'].append(len(exterior_ring))
 
     if not exterior_validation['valid']:
@@ -248,7 +248,7 @@ def validate_polygon_coordinates(coords: List[List[List[float]]]) -> Dict[str, A
 
     # Validate interior rings (holes)
     for i, interior_ring in enumerate(coords[1:], 1):
-        ring_validation = validate_linestring_coordinates([interior_ring])
+        ring_validation = validate_linestring_coordinates(interior_ring)
         validation['ring_sizes'].append(len(interior_ring))
 
         if not ring_validation['valid']:
@@ -497,6 +497,12 @@ def validate_cognitive_model(model_config: Dict[str, Any],
     elif model_type == 'memory':
         memory_validation = validate_memory_model(model_config)
         validation_result['parameter_checks'] = memory_validation
+
+    # Propagate parameter_checks validity to top-level result
+    param_checks = validation_result.get('parameter_checks', {})
+    if param_checks and not param_checks.get('valid', True):
+        validation_result['valid'] = False
+        validation_result['errors'].extend(param_checks.get('errors', []))
 
     # Consistency checks
     consistency_checks = check_model_consistency(model_config, model_type)

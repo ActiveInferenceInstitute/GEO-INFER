@@ -10,6 +10,7 @@ import tempfile
 import time
 from pathlib import Path
 from unittest.mock import patch
+from hypothesis import given, settings, strategies as st
 
 # Import the modules we're testing
 try:
@@ -347,4 +348,69 @@ def test_full_workflow_integration():
     assert report_data['summary']['success_rate'] == 75.0  # 3/4 passed
     assert len(analysis['module_reliability']) == 3  # 3 different modules
     
-    print("✅ Full workflow integration test completed successfully!") 
+    print("✅ Full workflow integration test completed successfully!")
+
+
+# ---------------------------------------------------------------------------
+# Property-Based Tests (Hypothesis)
+# ---------------------------------------------------------------------------
+
+class TestHypothesisLogIntegration:
+    """Property-based tests for LogIntegration."""
+
+    @given(st.text(min_size=1, max_size=50), st.text(min_size=1, max_size=20), st.sampled_from(["PASS", "FAIL", "ERROR", "SKIP"]))
+    @settings(max_examples=50, deadline=None)
+    def test_log_entry_creation_fuzz(self, message, test_id, status):
+        """Fuzz LogEntry creation with random text and statuses."""
+        log = LogIntegration({})
+        try:
+            # signature: test_context(test_id, module, test_name)
+            with log.test_context(test_id, "fuzz_module", "check") as entry:
+                entry.message = message
+                # Override status logic: force failure if needed to test recording
+                if status != "PASS":
+                     raise ValueError(message)
+        except ValueError:
+            pass
+        except Exception:
+            pass
+            
+        assert len(log.test_entries) == 1
+        recorded = log.test_entries[0]
+        assert recorded.test_id == test_id
+        if status != "PASS":
+            assert recorded.status in ("FAIL", "ERROR")
+            # Message check might fail due to exception string conversion if message is empty/weird
+            # So we check if the original message is contained or equal
+            assert message in recorded.message or recorded.message == message
+
+    @given(st.lists(st.tuples(st.text(min_size=1, alphabet=st.characters(whitelist_categories=('L', 'N'))), st.sampled_from(["PASS", "FAIL"])), min_size=1, max_size=20))
+    @settings(max_examples=50, deadline=None)
+    def test_analyzer_statistics_fuzz(self, results):
+        """Fuzz LogAnalyzer stats calculation."""
+        log = LogIntegration({})
+        
+        for i, (module, status) in enumerate(results):
+            try:
+                # signature: test_context(test_id, module, test_name)
+                with log.test_context(f"t{i}", module, "test_func") as _:
+                    if status == "FAIL":
+                        raise AssertionError("Fail")
+            except AssertionError:
+                pass
+                
+        analyzer = LogAnalyzer(log)
+        stats = analyzer.analyze_test_patterns()
+        
+        expected_total = len(results)
+        
+        # Check consistency
+        assert stats["total_tests_analyzed"] == expected_total
+        
+        failing_modules = {m for m, s in results if s == "FAIL"}
+        for m in failing_modules:
+            # stats["module_reliability"][m] is a dict, not a float
+            rel_data = stats["module_reliability"].get(m, {})
+            success_rate = rel_data.get("success_rate", 100.0)
+            assert success_rate < 100.0, f"Module {m} had failures (rate: {success_rate})"
+ 

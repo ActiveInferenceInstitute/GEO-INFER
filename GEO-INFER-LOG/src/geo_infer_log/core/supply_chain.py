@@ -273,10 +273,11 @@ class NetworkOptimizer:
 
 class FacilityLocator:
     """Optimizes facility locations in supply chains."""
-    
+
     def __init__(self):
         """Initialize a facility locator."""
-        pass
+        self.selected_facilities: List[Dict] = []
+        self.coverage_results: Dict = {}
     
     def locate_facilities(self,
                          candidates: List[Dict],
@@ -325,10 +326,11 @@ class FacilityLocator:
 
 class InventoryManager:
     """Manages inventory in supply chain networks."""
-    
+
     def __init__(self):
         """Initialize an inventory manager."""
-        pass
+        self.inventory_levels: Dict = {}
+        self.reorder_points: Dict = {}
     
     def optimize_inventory(self,
                           facilities: List[Dict],

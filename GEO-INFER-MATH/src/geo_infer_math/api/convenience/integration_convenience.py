@@ -80,7 +80,9 @@ class IntegrationConvenience:
     
     def __init__(self):
         """Initialize integration convenience class."""
-        pass
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self._module_registry: Dict[str, Any] = {}
+        self.logger.debug("IntegrationConvenience initialized")
     
     def execute_cross_module(
         self,

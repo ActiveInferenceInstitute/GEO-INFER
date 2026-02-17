@@ -154,9 +154,8 @@ class MultiAgentModel(ActiveInferenceModel):
                             neighbor_idx = self.h3_cells.index(neighbor_cell)
                             neighbors.append(neighbor_idx)
                     
-                except Exception:
-                    # Fallback to empty neighbors
-                    pass
+                except Exception as e:
+                    logger.debug("Failed to get H3 neighbors for cell %s: %s", cell, e)
                 
                 self.spatial_graph[i] = neighbors
                 

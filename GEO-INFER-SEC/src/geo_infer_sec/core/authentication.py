@@ -329,7 +329,7 @@ class AuthenticationManager:
 
         # Check expiration
         exp = refresh_payload.get("exp")
-        if exp and datetime.utcnow() > datetime.fromtimestamp(exp):
+        if exp and datetime.utcnow() > (exp if isinstance(exp, datetime) else datetime.fromtimestamp(exp)):
             del self.refresh_tokens[refresh_token]
             logger.warning("Refresh token validation failed: token expired")
             return None

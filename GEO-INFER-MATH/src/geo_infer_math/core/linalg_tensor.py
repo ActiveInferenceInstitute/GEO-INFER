@@ -389,12 +389,41 @@ class TensorOperations:
             B[:, r] /= np.linalg.norm(B[:, r])
             C[:, r] /= np.linalg.norm(C[:, r])
 
-        # ALS iterations (simplified - should use proper ALS algorithm)
+        # ALS iterations: alternating least squares for CP decomposition
         max_iter = 50
         for iteration in range(max_iter):
-            # This is a simplified implementation
-            # In practice, you'd use more sophisticated ALS with unfolding
-            pass
+            # Update factor A: unfold along mode 0
+            unfolded_0 = data.reshape(data.shape[0], -1)
+            khatri_rao_BC = np.zeros((data.shape[1] * data.shape[2], rank))
+            for r_idx in range(rank):
+                khatri_rao_BC[:, r_idx] = np.kron(C[:, r_idx], B[:, r_idx])
+            A = unfolded_0 @ khatri_rao_BC @ np.linalg.pinv(khatri_rao_BC.T @ khatri_rao_BC)
+
+            # Update factor B: unfold along mode 1
+            unfolded_1 = np.moveaxis(data, 1, 0).reshape(data.shape[1], -1)
+            khatri_rao_AC = np.zeros((data.shape[0] * data.shape[2], rank))
+            for r_idx in range(rank):
+                khatri_rao_AC[:, r_idx] = np.kron(C[:, r_idx], A[:, r_idx])
+            B = unfolded_1 @ khatri_rao_AC @ np.linalg.pinv(khatri_rao_AC.T @ khatri_rao_AC)
+
+            # Update factor C: unfold along mode 2
+            unfolded_2 = np.moveaxis(data, 2, 0).reshape(data.shape[2], -1)
+            khatri_rao_AB = np.zeros((data.shape[0] * data.shape[1], rank))
+            for r_idx in range(rank):
+                khatri_rao_AB[:, r_idx] = np.kron(B[:, r_idx], A[:, r_idx])
+            C = unfolded_2 @ khatri_rao_AB @ np.linalg.pinv(khatri_rao_AB.T @ khatri_rao_AB)
+
+            # Normalize columns
+            for r_idx in range(rank):
+                norm_a = np.linalg.norm(A[:, r_idx])
+                norm_b = np.linalg.norm(B[:, r_idx])
+                norm_c = np.linalg.norm(C[:, r_idx])
+                if norm_a > 1e-10:
+                    A[:, r_idx] /= norm_a
+                if norm_b > 1e-10:
+                    B[:, r_idx] /= norm_b
+                if norm_c > 1e-10:
+                    C[:, r_idx] /= norm_c
 
         return {
             'factor_matrices': [A, B, C],

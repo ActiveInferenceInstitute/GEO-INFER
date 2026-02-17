@@ -1,0 +1,476 @@
+"""
+Governance structures for GEO-INFER-ORG.
+
+Provides decision protocols, voting mechanisms,
+and consensus models for organizational governance.
+"""
+
+import math
+from typing import Dict, List, Optional, Tuple, Any
+from dataclasses import dataclass, field
+from enum import Enum
+
+
+class VotingMethod(Enum):
+    """Available voting methods."""
+    SIMPLE_MAJORITY = "simple_majority"
+    SUPERMAJORITY = "supermajority"
+    UNANIMOUS = "unanimous"
+    RANKED_CHOICE = "ranked_choice"
+    WEIGHTED = "weighted"
+    APPROVAL = "approval"
+
+
+class DecisionStatus(Enum):
+    """Status of a governance decision."""
+    PROPOSED = "proposed"
+    UNDER_REVIEW = "under_review"
+    VOTING = "voting"
+    APPROVED = "approved"
+    REJECTED = "rejected"
+    TABLED = "tabled"
+
+
+@dataclass
+class Vote:
+    """A single vote cast by a participant."""
+    voter_id: str
+    choice: str
+    weight: float = 1.0
+    rank: Optional[List[str]] = None  # For ranked choice
+    approvals: Optional[List[str]] = None  # For approval voting
+    timestamp: float = 0.0
+
+
+@dataclass
+class Proposal:
+    """A governance proposal to be decided upon."""
+    proposal_id: str
+    title: str
+    description: str
+    proposer_id: str
+    options: List[str]
+    status: DecisionStatus = DecisionStatus.PROPOSED
+    voting_method: VotingMethod = VotingMethod.SIMPLE_MAJORITY
+    quorum_fraction: float = 0.5
+    eligible_voters: int = 0
+    votes: List[Vote] = field(default_factory=list)
+
+
+@dataclass
+class VotingResult:
+    """Result of a voting process."""
+    proposal_id: str
+    winner: Optional[str]
+    vote_counts: Dict[str, float]
+    total_votes: int
+    quorum_met: bool
+    method: VotingMethod
+    rounds: Optional[List[Dict[str, float]]] = None
+
+
+class VotingEngine:
+    """
+    Implements multiple voting mechanisms for governance decisions.
+
+    Supports simple majority, supermajority, unanimous, ranked-choice,
+    weighted, and approval voting methods.
+    """
+
+    def __init__(self) -> None:
+        self._proposals: Dict[str, Proposal] = {}
+
+    def create_proposal(self, proposal: Proposal) -> None:
+        """
+        Register a new proposal for voting.
+
+        Args:
+            proposal: The governance proposal.
+
+        Raises:
+            ValueError: If proposal_id already exists or options are empty.
+        """
+        if proposal.proposal_id in self._proposals:
+            raise ValueError(f"Proposal {proposal.proposal_id} already exists")
+        if len(proposal.options) < 2:
+            raise ValueError("Proposal must have at least 2 options")
+        self._proposals[proposal.proposal_id] = proposal
+
+    def cast_vote(self, proposal_id: str, vote: Vote) -> None:
+        """
+        Cast a vote on a proposal.
+
+        Args:
+            proposal_id: The proposal to vote on.
+            vote: The vote to cast.
+
+        Raises:
+            KeyError: If the proposal doesn't exist.
+            ValueError: If voter already voted or choice is invalid.
+        """
+        if proposal_id not in self._proposals:
+            raise KeyError(f"Proposal {proposal_id} not found")
+
+        proposal = self._proposals[proposal_id]
+
+        # Check for duplicate voter
+        existing_voter_ids = {v.voter_id for v in proposal.votes}
+        if vote.voter_id in existing_voter_ids:
+            raise ValueError(f"Voter {vote.voter_id} has already voted")
+
+        # Validate choice based on method
+        if proposal.voting_method not in (VotingMethod.RANKED_CHOICE, VotingMethod.APPROVAL):
+            if vote.choice not in proposal.options:
+                raise ValueError(f"Invalid choice: {vote.choice}")
+
+        proposal.votes.append(vote)
+
+    def tally(self, proposal_id: str) -> VotingResult:
+        """
+        Tally votes for a proposal using its configured voting method.
+
+        Args:
+            proposal_id: The proposal to tally.
+
+        Returns:
+            VotingResult with the outcome.
+
+        Raises:
+            KeyError: If the proposal doesn't exist.
+        """
+        if proposal_id not in self._proposals:
+            raise KeyError(f"Proposal {proposal_id} not found")
+
+        proposal = self._proposals[proposal_id]
+        method = proposal.voting_method
+
+        quorum_met = True
+        if proposal.eligible_voters > 0:
+            participation = len(proposal.votes) / proposal.eligible_voters
+            quorum_met = participation >= proposal.quorum_fraction
+
+        if method == VotingMethod.SIMPLE_MAJORITY:
+            return self._tally_simple_majority(proposal, quorum_met)
+        elif method == VotingMethod.SUPERMAJORITY:
+            return self._tally_supermajority(proposal, quorum_met)
+        elif method == VotingMethod.UNANIMOUS:
+            return self._tally_unanimous(proposal, quorum_met)
+        elif method == VotingMethod.RANKED_CHOICE:
+            return self._tally_ranked_choice(proposal, quorum_met)
+        elif method == VotingMethod.WEIGHTED:
+            return self._tally_weighted(proposal, quorum_met)
+        elif method == VotingMethod.APPROVAL:
+            return self._tally_approval(proposal, quorum_met)
+        else:
+            raise ValueError(f"Unknown voting method: {method}")
+
+    def _tally_simple_majority(self, proposal: Proposal, quorum_met: bool) -> VotingResult:
+        counts: Dict[str, float] = {opt: 0 for opt in proposal.options}
+        for vote in proposal.votes:
+            if vote.choice in counts:
+                counts[vote.choice] += 1
+
+        total = len(proposal.votes)
+        winner = max(counts, key=counts.get) if total > 0 and quorum_met else None
+
+        if winner and counts[winner] <= total / 2.0:
+            # Need strict majority? No -- simple majority means plurality
+            # Actually simple majority = more than 50%
+            if counts[winner] <= total / 2.0:
+                winner = None  # No majority
+
+        # For simple majority, plurality wins (most votes)
+        winner = max(counts, key=counts.get) if total > 0 and quorum_met else None
+        if winner and counts[winner] == 0:
+            winner = None
+
+        return VotingResult(
+            proposal_id=proposal.proposal_id,
+            winner=winner,
+            vote_counts=counts,
+            total_votes=total,
+            quorum_met=quorum_met,
+            method=VotingMethod.SIMPLE_MAJORITY,
+        )
+
+    def _tally_supermajority(self, proposal: Proposal, quorum_met: bool, threshold: float = 2.0/3.0) -> VotingResult:
+        counts: Dict[str, float] = {opt: 0 for opt in proposal.options}
+        for vote in proposal.votes:
+            if vote.choice in counts:
+                counts[vote.choice] += 1
+
+        total = len(proposal.votes)
+        winner = None
+        if total > 0 and quorum_met:
+            best = max(counts, key=counts.get)
+            if counts[best] / total >= threshold:
+                winner = best
+
+        return VotingResult(
+            proposal_id=proposal.proposal_id,
+            winner=winner,
+            vote_counts=counts,
+            total_votes=total,
+            quorum_met=quorum_met,
+            method=VotingMethod.SUPERMAJORITY,
+        )
+
+    def _tally_unanimous(self, proposal: Proposal, quorum_met: bool) -> VotingResult:
+        counts: Dict[str, float] = {opt: 0 for opt in proposal.options}
+        for vote in proposal.votes:
+            if vote.choice in counts:
+                counts[vote.choice] += 1
+
+        total = len(proposal.votes)
+        winner = None
+        if total > 0 and quorum_met:
+            for opt, count in counts.items():
+                if count == total:
+                    winner = opt
+                    break
+
+        return VotingResult(
+            proposal_id=proposal.proposal_id,
+            winner=winner,
+            vote_counts=counts,
+            total_votes=total,
+            quorum_met=quorum_met,
+            method=VotingMethod.UNANIMOUS,
+        )
+
+    def _tally_ranked_choice(self, proposal: Proposal, quorum_met: bool) -> VotingResult:
+        """Instant-runoff ranked choice voting."""
+        if not quorum_met or not proposal.votes:
+            return VotingResult(
+                proposal_id=proposal.proposal_id,
+                winner=None,
+                vote_counts={opt: 0 for opt in proposal.options},
+                total_votes=len(proposal.votes),
+                quorum_met=quorum_met,
+                method=VotingMethod.RANKED_CHOICE,
+                rounds=[],
+            )
+
+        active_candidates = set(proposal.options)
+        ballots = []
+        for vote in proposal.votes:
+            if vote.rank:
+                ballots.append(list(vote.rank))
+            else:
+                ballots.append([vote.choice])
+
+        rounds: List[Dict[str, float]] = []
+        total = len(ballots)
+
+        while active_candidates:
+            round_counts: Dict[str, float] = {c: 0 for c in active_candidates}
+            for ballot in ballots:
+                for choice in ballot:
+                    if choice in active_candidates:
+                        round_counts[choice] += 1
+                        break
+
+            rounds.append(dict(round_counts))
+
+            # Check for majority
+            for candidate, count in round_counts.items():
+                if count > total / 2.0:
+                    return VotingResult(
+                        proposal_id=proposal.proposal_id,
+                        winner=candidate,
+                        vote_counts=round_counts,
+                        total_votes=total,
+                        quorum_met=quorum_met,
+                        method=VotingMethod.RANKED_CHOICE,
+                        rounds=rounds,
+                    )
+
+            # Eliminate lowest candidate
+            min_count = min(round_counts.values())
+            eliminated = [c for c, cnt in round_counts.items() if cnt == min_count]
+            for c in eliminated:
+                active_candidates.discard(c)
+
+            if not active_candidates:
+                break
+
+        last_round = rounds[-1] if rounds else {}
+        winner = max(last_round, key=last_round.get) if last_round else None
+
+        return VotingResult(
+            proposal_id=proposal.proposal_id,
+            winner=winner,
+            vote_counts=last_round,
+            total_votes=total,
+            quorum_met=quorum_met,
+            method=VotingMethod.RANKED_CHOICE,
+            rounds=rounds,
+        )
+
+    def _tally_weighted(self, proposal: Proposal, quorum_met: bool) -> VotingResult:
+        counts: Dict[str, float] = {opt: 0.0 for opt in proposal.options}
+        for vote in proposal.votes:
+            if vote.choice in counts:
+                counts[vote.choice] += vote.weight
+
+        total = len(proposal.votes)
+        winner = None
+        if total > 0 and quorum_met:
+            winner = max(counts, key=counts.get)
+            if counts[winner] == 0:
+                winner = None
+
+        return VotingResult(
+            proposal_id=proposal.proposal_id,
+            winner=winner,
+            vote_counts={k: round(v, 4) for k, v in counts.items()},
+            total_votes=total,
+            quorum_met=quorum_met,
+            method=VotingMethod.WEIGHTED,
+        )
+
+    def _tally_approval(self, proposal: Proposal, quorum_met: bool) -> VotingResult:
+        counts: Dict[str, float] = {opt: 0 for opt in proposal.options}
+        for vote in proposal.votes:
+            approvals = vote.approvals or [vote.choice]
+            for choice in approvals:
+                if choice in counts:
+                    counts[choice] += 1
+
+        total = len(proposal.votes)
+        winner = max(counts, key=counts.get) if total > 0 and quorum_met else None
+        if winner and counts[winner] == 0:
+            winner = None
+
+        return VotingResult(
+            proposal_id=proposal.proposal_id,
+            winner=winner,
+            vote_counts=counts,
+            total_votes=total,
+            quorum_met=quorum_met,
+            method=VotingMethod.APPROVAL,
+        )
+
+
+class ConsensusModel:
+    """
+    Models consensus-building processes for organizational decisions.
+
+    Implements iterative consensus scoring where participants rate
+    options and the process converges toward agreement.
+    """
+
+    def __init__(self, convergence_threshold: float = 0.05) -> None:
+        """
+        Initialize the consensus model.
+
+        Args:
+            convergence_threshold: Minimum change between rounds to continue.
+        """
+        self._convergence_threshold = convergence_threshold
+        self._options: List[str] = []
+        self._ratings: Dict[str, Dict[str, float]] = {}  # participant -> option -> rating
+
+    def set_options(self, options: List[str]) -> None:
+        """
+        Set the options to build consensus on.
+
+        Args:
+            options: List of option names.
+        """
+        self._options = list(options)
+
+    def submit_rating(self, participant_id: str, ratings: Dict[str, float]) -> None:
+        """
+        Submit participant ratings for each option (scale 0-10).
+
+        Args:
+            participant_id: The participant identifier.
+            ratings: Mapping of option name to rating (0-10).
+
+        Raises:
+            ValueError: If ratings don't cover all options or are out of range.
+        """
+        for opt in self._options:
+            if opt not in ratings:
+                raise ValueError(f"Missing rating for option: {opt}")
+        for opt, val in ratings.items():
+            if not (0.0 <= val <= 10.0):
+                raise ValueError(f"Rating for {opt} must be in [0, 10], got {val}")
+
+        self._ratings[participant_id] = ratings
+
+    def compute_consensus(self) -> Dict[str, Any]:
+        """
+        Compute the current consensus state.
+
+        Returns:
+            Dictionary with:
+            - option_scores: average rating per option
+            - consensus_level: 0 (no consensus) to 1 (full agreement)
+            - recommendation: the highest-scoring option
+            - spread: standard deviation of ratings per option
+
+        Raises:
+            ValueError: If no ratings have been submitted.
+        """
+        if not self._ratings:
+            raise ValueError("No ratings submitted")
+
+        n_participants = len(self._ratings)
+        option_totals: Dict[str, float] = {opt: 0.0 for opt in self._options}
+        option_values: Dict[str, List[float]] = {opt: [] for opt in self._options}
+
+        for participant_ratings in self._ratings.values():
+            for opt, val in participant_ratings.items():
+                if opt in option_totals:
+                    option_totals[opt] += val
+                    option_values[opt].append(val)
+
+        option_scores = {
+            opt: round(total / n_participants, 4)
+            for opt, total in option_totals.items()
+        }
+
+        # Spread (standard deviation) per option
+        spread: Dict[str, float] = {}
+        for opt, values in option_values.items():
+            if len(values) > 1:
+                mean = sum(values) / len(values)
+                variance = sum((v - mean) ** 2 for v in values) / len(values)
+                spread[opt] = round(math.sqrt(variance), 4)
+            else:
+                spread[opt] = 0.0
+
+        # Consensus level: inverse of average spread, normalized
+        avg_spread = sum(spread.values()) / len(spread) if spread else 0.0
+        # Max possible spread on 0-10 scale is 5.0 (half the range)
+        consensus_level = max(0.0, 1.0 - avg_spread / 5.0)
+
+        recommendation = max(option_scores, key=option_scores.get)
+
+        return {
+            "option_scores": option_scores,
+            "consensus_level": round(consensus_level, 4),
+            "recommendation": recommendation,
+            "spread": spread,
+            "participant_count": n_participants,
+        }
+
+    def check_convergence(self, previous_scores: Dict[str, float]) -> bool:
+        """
+        Check if consensus has converged compared to previous scores.
+
+        Args:
+            previous_scores: Option scores from the previous round.
+
+        Returns:
+            True if the change is below the convergence threshold.
+        """
+        current = self.compute_consensus()["option_scores"]
+        total_change = sum(
+            abs(current.get(opt, 0) - previous_scores.get(opt, 0))
+            for opt in self._options
+        )
+        avg_change = total_change / len(self._options) if self._options else 0.0
+        return avg_change < self._convergence_threshold

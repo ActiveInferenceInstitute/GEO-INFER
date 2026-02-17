@@ -1,6 +1,4 @@
-"""
-GEO-INFER-FOREST: Forest Management and Analysis Module
-"""
+"""GEO-INFER-FOREST: Forest Management and Analysis Module."""
 
 __version__ = "0.1.0"
 __author__ = "GEO-INFER Development Team"
@@ -9,11 +7,16 @@ from .core.forest_inventory import ForestInventory
 from .core.carbon_sequestration import CarbonSequestrationModeler
 from .core.wildfire_risk import WildfireRiskAnalyzer
 from .core.forest_health import ForestHealthMonitor
+from .core.canopy_analysis import CanopyAnalyzer
+from .core.deforestation import DeforestationDetector
+from .core.fire_risk import FireRiskAssessor
 
 __all__ = [
     "ForestInventory",
     "CarbonSequestrationModeler",
     "WildfireRiskAnalyzer",
     "ForestHealthMonitor",
+    "CanopyAnalyzer",
+    "DeforestationDetector",
+    "FireRiskAssessor",
 ]
-

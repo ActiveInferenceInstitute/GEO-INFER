@@ -18,7 +18,7 @@ import re
 import ast
 import json
 import subprocess
-from typing import Dict, List, Any, Optional, Tuple, Set
+from typing import Dict, List, Any, Optional, Tuple, Set, Union
 from pathlib import Path
 from dataclasses import dataclass, field
 from datetime import datetime
@@ -362,9 +362,31 @@ class DependencyAnalyzer:
                 logger.warning(f"Error parsing package.json: {e}")
 
     def _analyze_requirements_files(self) -> None:
-        """Analyze requirements files for additional dependencies."""
-        # This method is called by _analyze_python_dependencies
-        pass
+        """Analyze requirements files for additional dependencies from requirements*.txt."""
+        import re
+        req_files = list(self.repo_path.glob("requirements*.txt"))
+        for req_file in req_files:
+            try:
+                content = req_file.read_text(encoding="utf-8", errors="ignore")
+                for line in content.splitlines():
+                    line = line.strip()
+                    if not line or line.startswith("#") or line.startswith("-"):
+                        continue
+                    match = re.match(r"^([a-zA-Z0-9_.-]+)\s*([>=<!=~]+\s*[\d.*]+)?", line)
+                    if match:
+                        pkg_name = match.group(1)
+                        version_spec = (match.group(2) or "").strip()
+                        # Avoid duplicates
+                        existing = [d for d in self.dependencies if d.name == pkg_name]
+                        if not existing:
+                            dep = DependencyInfo(
+                                name=pkg_name,
+                                version=version_spec,
+                                source=str(req_file.name),
+                            )
+                            self.dependencies.append(dep)
+            except Exception as e:
+                logger.warning(f"Error analyzing {req_file}: {e}")
 
     def check_vulnerabilities(self, dependencies: List[DependencyInfo]) -> List[DependencyInfo]:
         """
@@ -392,7 +414,7 @@ class DependencyAnalyzer:
                     {
                         'severity': 'high',
                         'description': f'Known vulnerability in {dep.name} version {version}',
-                        'cve': f'CVE-2023-{hash(version) % 10000"04d"}'
+                        'cve': f'CVE-2023-{hash(version) % 10000:04d}'
                     }
                     for version in vulnerable_versions
                 ]
@@ -603,10 +625,36 @@ class SecurityAnalyzer:
         return self.analysis
 
     def _scan_dependencies(self) -> None:
-        """Scan dependencies for known vulnerabilities."""
-        # This would integrate with vulnerability databases like OSV, NVD, etc.
-        # For now, we'll use a simplified approach
-        pass
+        """Scan dependencies for known vulnerabilities using pattern matching."""
+        known_vulnerable = {
+            "pyyaml": {"versions": ["<5.4"], "severity": "high", "cve": "CVE-2020-14343"},
+            "requests": {"versions": ["<2.20.0"], "severity": "medium", "cve": "CVE-2018-18074"},
+            "django": {"versions": ["<3.2.4"], "severity": "high", "cve": "CVE-2021-33571"},
+            "flask": {"versions": ["<2.0"], "severity": "medium", "cve": "CVE-2018-1000656"},
+            "pillow": {"versions": ["<8.3.2"], "severity": "high", "cve": "CVE-2021-34552"},
+        }
+
+        if not hasattr(self, 'analysis'):
+            self.analysis = {}
+
+        dep_findings = []
+        # Check lock files and requirements for dependency names
+        req_files = list(self.repo_path.glob("requirements*.txt"))
+        for req_file in req_files:
+            try:
+                content = req_file.read_text(encoding="utf-8", errors="ignore")
+                for pkg_name, vuln_info in known_vulnerable.items():
+                    if pkg_name in content.lower():
+                        dep_findings.append({
+                            "package": pkg_name,
+                            "severity": vuln_info["severity"],
+                            "cve": vuln_info["cve"],
+                            "source": str(req_file.name),
+                        })
+            except Exception as e:
+                logger.warning(f"Error scanning {req_file}: {e}")
+
+        self.analysis["dependency_vulnerabilities"] = dep_findings
 
     def _detect_secrets(self) -> None:
         """Detect potential secrets in code."""

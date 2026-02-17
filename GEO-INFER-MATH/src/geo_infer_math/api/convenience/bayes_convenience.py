@@ -232,7 +232,9 @@ class BayesianConvenience:
     
     def __init__(self):
         """Initialize Bayesian convenience class."""
-        pass
+        self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self._posterior_cache: Dict[str, np.ndarray] = {}
+        self.logger.debug("BayesianConvenience initialized")
     
     def calculate_posterior(
         self,

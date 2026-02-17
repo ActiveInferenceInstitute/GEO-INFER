@@ -21,12 +21,11 @@ class TestCivicModule:
         assert isinstance(__version__, str)
 
     def test_module_structure(self) -> None:
-        """Test that module has expected structure."""
+        """Test that module has expected core classes."""
         import geo_infer_civ
-        
-        # Check that submodules exist
-        assert hasattr(geo_infer_civ, 'core')
-        assert hasattr(geo_infer_civ, 'api')
-        assert hasattr(geo_infer_civ, 'models')
-        assert hasattr(geo_infer_civ, 'utils')
+
+        # Check that core classes are available
+        assert hasattr(geo_infer_civ, 'ParticipationAnalyzer')
+        assert hasattr(geo_infer_civ, 'AttendanceTracker')
+        assert hasattr(geo_infer_civ, 'CostBenefitAnalyzer')
 

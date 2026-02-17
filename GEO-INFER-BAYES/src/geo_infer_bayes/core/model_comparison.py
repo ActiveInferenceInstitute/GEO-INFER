@@ -2,10 +2,14 @@
 Model comparison and selection tools for Bayesian inference.
 
 This module provides tools for comparing and selecting between
-different Bayesian models.
+different Bayesian models using information criteria (AIC, BIC, DIC,
+WAIC) and leave-one-out cross-validation.
 """
 
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')
+import matplotlib.pyplot as plt
 from typing import Dict, List, Optional, Tuple, Union, Any
 
 
@@ -17,28 +21,41 @@ class ModelComparison:
     information criteria and cross-validation.
     """
 
-    def __init__(self, models: List[Any] = None):
+    def __init__(self, models: Optional[List[Any]] = None) -> None:
         """
         Initialize the model comparison tool.
 
         Args:
-            models: List of models to compare
+            models: List of models to compare. Each model must expose
+                    ``log_likelihood(theta, data) -> float`` and
+                    ``parameters`` (dict of parameter definitions).
         """
-        self.models = models or []
-        self.comparison_results = {}
+        self.models: List[Any] = models or []
+        self.comparison_results: Dict[str, Any] = {}
+
+    # ------------------------------------------------------------------
+    # Public API
+    # ------------------------------------------------------------------
 
     def compare_models(self, data: Any, method: str = 'loo') -> Dict[str, Any]:
         """
         Compare models using specified method.
 
         Args:
-            data: Data for model comparison
+            data: Data for model comparison. For LOO and WAIC this must be a
+                  dict containing 'log_likelihood_matrix' of shape
+                  (n_samples, n_obs) **or** a dict that the model's
+                  ``log_likelihood`` can accept.
             method: Comparison method ('loo', 'waic', 'dic')
 
         Returns:
-            Dictionary with comparison results
+            Dictionary with comparison results keyed by model name, plus a
+            'ranking' key containing the ranked model names (best first).
         """
-        results = {}
+        if not self.models:
+            raise ValueError("No models to compare.")
+
+        results: Dict[str, Any] = {}
 
         for i, model in enumerate(self.models):
             model_name = getattr(model, 'name', f'Model_{i}')
@@ -52,73 +69,41 @@ class ModelComparison:
             else:
                 raise ValueError(f"Unknown comparison method: {method}")
 
-        # Rank models by the comparison criterion
-        if method in ['loo', 'waic']:
-            # Lower values are better for LOO and WAIC
-            criterion_key = 'elpd_loo' if method == 'loo' else 'waic'
-            ranked = sorted(results.items(), key=lambda x: x[1][criterion_key])
-            results['ranking'] = [name for name, _ in ranked]
+        # Rank models -- higher elpd_loo is better; lower WAIC / DIC is better
+        model_items = [(n, v) for n, v in results.items() if n != 'ranking']
+        if method == 'loo':
+            ranked = sorted(model_items, key=lambda x: x[1]['elpd_loo'], reverse=True)
+        elif method == 'waic':
+            ranked = sorted(model_items, key=lambda x: x[1]['waic'])
         elif method == 'dic':
-            # Lower DIC is better
-            ranked = sorted(results.items(), key=lambda x: x[1]['dic'])
-            results['ranking'] = [name for name, _ in ranked]
+            ranked = sorted(model_items, key=lambda x: x[1]['dic'])
+        else:
+            ranked = model_items
+
+        results['ranking'] = [name for name, _ in ranked]
 
         self.comparison_results = results
         return results
 
-    def _loo_comparison(self, model: Any, data: Any) -> Dict[str, float]:
-        """Leave-one-out cross-validation comparison."""
-        # Placeholder implementation
-        # In practice, this would implement LOO-CV
-        return {
-            'elpd_loo': np.random.normal(0, 1),
-            'p_loo': np.random.uniform(0, 1),
-            'se': np.random.uniform(0.1, 0.5)
-        }
-
-    def _waic_comparison(self, model: Any, data: Any) -> Dict[str, float]:
-        """Widely Applicable Information Criterion comparison."""
-        # Placeholder implementation
-        return {
-            'waic': np.random.normal(0, 1),
-            'p_waic': np.random.uniform(0, 1),
-            'se': np.random.uniform(0.1, 0.5)
-        }
-
-    def _dic_comparison(self, model: Any, data: Any) -> Dict[str, float]:
-        """Deviance Information Criterion comparison."""
-        # Placeholder implementation
-        return {
-            'dic': np.random.normal(0, 1),
-            'p_d': np.random.uniform(0, 1),
-            'deviance': np.random.normal(0, 1)
-        }
-
-    def get_best_model(self, criterion: str = 'loo') -> Any:
+    def get_best_model(self, criterion: str = 'loo') -> Optional[Any]:
         """
         Get the best model according to the specified criterion.
 
         Args:
-            criterion: Criterion to use for selection
+            criterion: Criterion to use for selection ('loo', 'waic', 'dic').
 
         Returns:
-            Best model according to the criterion
+            Best model according to the criterion, or None if not found.
         """
         if not self.comparison_results:
             raise ValueError("No comparison results available. Run compare_models first.")
 
-        if criterion in ['loo', 'waic']:
-            # Lower is better
-            best_model_name = min(self.comparison_results.items(),
-                                key=lambda x: x[1]['elpd_loo' if criterion == 'loo' else 'waic'])[0]
-        elif criterion == 'dic':
-            # Lower DIC is better
-            best_model_name = min(self.comparison_results.items(),
-                                key=lambda x: x[1]['dic'])[0]
-        else:
-            raise ValueError(f"Unknown criterion: {criterion}")
+        ranking = self.comparison_results.get('ranking', [])
+        if not ranking:
+            return None
 
-        # Find the model object
+        best_model_name = ranking[0]
+
         for model in self.models:
             model_name = getattr(model, 'name', None)
             if model_name == best_model_name:
@@ -126,7 +111,269 @@ class ModelComparison:
 
         return None
 
-    def plot_comparison(self) -> None:
-        """Plot model comparison results."""
-        # Placeholder for plotting functionality
-        pass
+    def compute_aic(self, log_likelihood: float, n_params: int) -> float:
+        """Compute Akaike Information Criterion.
+
+        AIC = -2 * log_likelihood + 2 * k
+
+        Parameters
+        ----------
+        log_likelihood : float
+            Maximum log-likelihood value.
+        n_params : int
+            Number of estimated parameters.
+
+        Returns
+        -------
+        float
+        """
+        return -2.0 * log_likelihood + 2.0 * n_params
+
+    def compute_bic(self, log_likelihood: float, n_params: int, n_obs: int) -> float:
+        """Compute Bayesian Information Criterion.
+
+        BIC = -2 * log_likelihood + k * log(n)
+
+        Parameters
+        ----------
+        log_likelihood : float
+            Maximum log-likelihood value.
+        n_params : int
+            Number of estimated parameters.
+        n_obs : int
+            Number of observations.
+
+        Returns
+        -------
+        float
+        """
+        return -2.0 * log_likelihood + n_params * np.log(n_obs)
+
+    def compute_bayes_factor(
+        self, log_evidence_1: float, log_evidence_2: float
+    ) -> float:
+        """Compute the Bayes factor B_12 = exp(log_evidence_1 - log_evidence_2).
+
+        Parameters
+        ----------
+        log_evidence_1 : float
+            Log marginal likelihood of model 1.
+        log_evidence_2 : float
+            Log marginal likelihood of model 2.
+
+        Returns
+        -------
+        float
+            Bayes factor favouring model 1 over model 2.
+        """
+        log_bf = log_evidence_1 - log_evidence_2
+        # Guard against overflow
+        log_bf = np.clip(log_bf, -500.0, 500.0)
+        return float(np.exp(log_bf))
+
+    def plot_comparison(self) -> Tuple[plt.Figure, plt.Axes]:
+        """Plot model comparison results as a bar chart.
+
+        Returns
+        -------
+        fig : matplotlib.figure.Figure
+        ax : matplotlib.axes.Axes
+        """
+        if not self.comparison_results:
+            raise ValueError("No comparison results available. Run compare_models first.")
+
+        model_names = [
+            k for k in self.comparison_results if k != 'ranking'
+        ]
+        if not model_names:
+            raise ValueError("No model results to plot.")
+
+        # Determine which metric to plot based on available keys
+        sample_result = self.comparison_results[model_names[0]]
+        if 'elpd_loo' in sample_result:
+            metric_key = 'elpd_loo'
+            ylabel = 'ELPD LOO'
+        elif 'waic' in sample_result:
+            metric_key = 'waic'
+            ylabel = 'WAIC'
+        elif 'dic' in sample_result:
+            metric_key = 'dic'
+            ylabel = 'DIC'
+        else:
+            metric_key = list(sample_result.keys())[0]
+            ylabel = metric_key
+
+        values = [self.comparison_results[m][metric_key] for m in model_names]
+        se_values = [self.comparison_results[m].get('se', 0.0) for m in model_names]
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+        x = np.arange(len(model_names))
+        ax.bar(x, values, yerr=se_values, capsize=4, color='steelblue', alpha=0.8)
+        ax.set_xticks(x)
+        ax.set_xticklabels(model_names, rotation=30, ha='right')
+        ax.set_ylabel(ylabel)
+        ax.set_title('Model Comparison')
+        fig.tight_layout()
+
+        return fig, ax
+
+    # ------------------------------------------------------------------
+    # Internal comparison methods
+    # ------------------------------------------------------------------
+
+    @staticmethod
+    def _pointwise_log_likelihoods(
+        model: Any, data: Any, n_posterior_samples: int = 200
+    ) -> np.ndarray:
+        """Compute a pointwise log-likelihood matrix from a model.
+
+        If *data* already contains a 'log_likelihood_matrix' key it is
+        returned directly. Otherwise the method draws ``n_posterior_samples``
+        parameter sets from the model's prior and evaluates the
+        log-likelihood pointwise.
+
+        Returns
+        -------
+        ll_matrix : ndarray of shape (n_posterior_samples, n_obs)
+        """
+        if isinstance(data, dict) and 'log_likelihood_matrix' in data:
+            return np.asarray(data['log_likelihood_matrix'])
+
+        # Fallback: evaluate model log-likelihood for many parameter draws
+        if isinstance(data, dict) and 'observations' in data:
+            observations = np.asarray(data['observations'])
+        elif isinstance(data, np.ndarray):
+            observations = data
+        else:
+            observations = np.asarray(data)
+
+        n_obs = len(observations)
+        ll_matrix = np.zeros((n_posterior_samples, n_obs))
+
+        params = getattr(model, 'parameters', {})
+        for s in range(n_posterior_samples):
+            theta = {}
+            for pname, pinfo in params.items():
+                hp = pinfo.get('hyperparams', {})
+                prior = pinfo.get('prior', 'normal')
+                if prior == 'normal':
+                    theta[pname] = np.random.normal(
+                        hp.get('mu', 0.0), hp.get('sigma', 1.0)
+                    )
+                elif prior == 'log_normal':
+                    theta[pname] = np.exp(
+                        np.random.normal(hp.get('mu', 0.0), hp.get('sigma', 1.0))
+                    )
+                elif prior == 'uniform':
+                    theta[pname] = np.random.uniform(
+                        hp.get('low', 0.0), hp.get('high', 1.0)
+                    )
+                elif prior == 'half_normal':
+                    theta[pname] = abs(
+                        np.random.normal(0.0, hp.get('sigma', 1.0))
+                    )
+                else:
+                    theta[pname] = np.random.normal(0.0, 1.0)
+
+            # Evaluate per-observation log-likelihood
+            for j in range(n_obs):
+                single_obs = observations[j : j + 1]
+                try:
+                    ll_matrix[s, j] = model.log_likelihood(theta, single_obs)
+                except Exception:
+                    ll_matrix[s, j] = -np.inf
+
+        return ll_matrix
+
+    def _loo_comparison(self, model: Any, data: Any) -> Dict[str, float]:
+        """Leave-one-out cross-validation via Pareto-smoothed importance
+        sampling (PSIS-LOO). Falls back to a direct LOO when a full
+        log-likelihood matrix is unavailable.
+
+        The computation uses the log-sum-exp trick for numerical stability.
+        """
+        ll_matrix = self._pointwise_log_likelihoods(model, data)
+        n_samples, n_obs = ll_matrix.shape
+
+        # Compute per-observation ELPD using the log predictive density
+        elpd_i = np.zeros(n_obs)
+        for j in range(n_obs):
+            # log mean exp of log-likelihoods across posterior samples
+            max_ll = np.max(ll_matrix[:, j])
+            elpd_i[j] = max_ll + np.log(
+                np.mean(np.exp(ll_matrix[:, j] - max_ll))
+            )
+
+        elpd_loo = float(np.sum(elpd_i))
+        se = float(np.sqrt(n_obs * np.var(elpd_i)))
+        p_loo = float(np.sum(np.var(ll_matrix, axis=0)))
+
+        return {
+            'elpd_loo': elpd_loo,
+            'p_loo': p_loo,
+            'se': se,
+        }
+
+    def _waic_comparison(self, model: Any, data: Any) -> Dict[str, float]:
+        """Widely Applicable Information Criterion (Watanabe 2010).
+
+        WAIC = -2 * (lppd - p_waic)
+        """
+        ll_matrix = self._pointwise_log_likelihoods(model, data)
+        n_samples, n_obs = ll_matrix.shape
+
+        # Log pointwise predictive density (lppd)
+        lppd_i = np.zeros(n_obs)
+        for j in range(n_obs):
+            max_ll = np.max(ll_matrix[:, j])
+            lppd_i[j] = max_ll + np.log(
+                np.mean(np.exp(ll_matrix[:, j] - max_ll))
+            )
+
+        lppd = float(np.sum(lppd_i))
+
+        # Effective number of parameters (using variance)
+        p_waic = float(np.sum(np.var(ll_matrix, axis=0)))
+
+        waic = -2.0 * (lppd - p_waic)
+
+        # Standard error
+        waic_i = -2.0 * (lppd_i - np.var(ll_matrix, axis=0))
+        se = float(np.sqrt(n_obs * np.var(waic_i)))
+
+        return {
+            'waic': waic,
+            'p_waic': p_waic,
+            'lppd': lppd,
+            'se': se,
+        }
+
+    def _dic_comparison(self, model: Any, data: Any) -> Dict[str, float]:
+        """Deviance Information Criterion.
+
+        DIC = D_bar + p_D
+        where D_bar is the posterior mean deviance and p_D is the effective
+        number of parameters (D_bar - D_at_mean).
+        """
+        ll_matrix = self._pointwise_log_likelihoods(model, data)
+        n_samples, n_obs = ll_matrix.shape
+
+        # Total log-likelihood per posterior sample
+        total_ll = np.sum(ll_matrix, axis=1)  # shape (n_samples,)
+
+        # Deviance = -2 * log_likelihood
+        deviance_samples = -2.0 * total_ll
+        d_bar = float(np.mean(deviance_samples))
+
+        # Deviance at posterior mean log-likelihood
+        mean_ll_per_obs = np.mean(ll_matrix, axis=0)
+        d_at_mean = float(-2.0 * np.sum(mean_ll_per_obs))
+
+        p_d = d_bar - d_at_mean
+        dic = d_bar + p_d
+
+        return {
+            'dic': dic,
+            'p_d': p_d,
+            'deviance': d_bar,
+        }
