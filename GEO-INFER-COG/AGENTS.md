@@ -164,4 +164,4 @@ print(f"Recommendations: {assessment.learning_recommendations}")```
 
 This AGENTS.md documents how GEO-INFER-COG provides cognitive capabilities for spatial agents.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

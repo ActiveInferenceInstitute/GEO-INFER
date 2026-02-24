@@ -4,7 +4,7 @@ description: "Bayesian inference framework with probabilistic modeling, uncertai
 purpose: "Enable inference and decision-making under uncertainty for geospatial applications"
 module_type: "Analytical Core"
 status: "Beta"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["MATH"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-ACT", "GEO-INFER-AI"]
 tags: ["bayesian", "inference", "uncertainty", "probabilistic", "mcmc", "hierarchical"]

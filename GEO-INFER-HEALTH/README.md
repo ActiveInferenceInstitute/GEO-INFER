@@ -4,7 +4,7 @@ description: "Disease mapping, health disparities, and epidemiological analysis"
 purpose: "Enable spatial health analysis and public health decision support"
 module_type: "Domain Application"
 status: "Alpha"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "TIME", "DATA"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-SPM"]
 tags: ["health", "epidemiology", "disease-mapping", "public-health"]
@@ -126,4 +126,4 @@ uv pip install -e "./GEO-INFER-HEALTH"
 
 **Status**: Alpha
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

@@ -4,7 +4,7 @@ description: "Governance frameworks, policy management, and institutional modeli
 purpose: "Enable governance modeling and multi-stakeholder coordination"
 module_type: "Governance"
 status: "Alpha"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["NORMS", "CIV"]
 compatibility: ["GEO-INFER-NORMS", "GEO-INFER-CIV", "GEO-INFER-ORG"]
 tags: ["governance", "policy", "institutions", "coordination", "rules"]
@@ -112,4 +112,4 @@ uv pip install -e "./GEO-INFER-METAGOV"
 
 **Status**: Alpha
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

@@ -4,7 +4,7 @@ description: "Rule-based behavior, ethical constraints, and regulatory complianc
 purpose: "Provide normative reasoning, rule engines, and compliance checking for agent behavior"
 module_type: "Core Infrastructure"
 status: "Beta"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["ACT", "AGENT"]
 compatibility: ["GEO-INFER-ACT", "GEO-INFER-AGENT", "GEO-INFER-SEC"]
 tags: ["norms", "rules", "compliance", "ethics", "regulations"]
@@ -204,4 +204,4 @@ print(f"Restrictions: {check.restrictions}")
 
 **Status**: Beta - Core functionality stable
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

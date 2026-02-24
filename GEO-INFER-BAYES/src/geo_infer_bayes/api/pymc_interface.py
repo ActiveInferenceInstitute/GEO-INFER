@@ -287,9 +287,56 @@ class PyMCInterface:
                     return mean_pred, std_pred
                 else:
                     return mean_pred
+        elif hasattr(self.pymc_model, 'alpha') and hasattr(self.pymc_model, 'beta'):
+            # This is the hierarchical model
+            post_samples = {
+                var_name: self.trace.posterior[var_name].values
+                for var_name in ['alpha', 'beta', 'sigma'] 
+                if var_name in self.trace.posterior
+            }
+            
+            n_chains, n_draws = post_samples['alpha'].shape[:2]
+            n_groups = post_samples['alpha'].shape[2]
+            
+            all_preds = []
+            
+            # Use provided groups or average over all groups
+            import inspect
+            frame = inspect.currentframe().f_back
+            groups_new = None
+            if frame and 'kwargs' in frame.f_locals and 'groups_new' in frame.f_locals['kwargs']:
+                groups_new = frame.f_locals['kwargs']['groups_new']
+                
+            for i in range(min(samples, n_draws * n_chains)):
+                chain = np.random.randint(n_chains)
+                idx = np.random.randint(n_draws)
+                
+                alpha = post_samples['alpha'][chain, idx]
+                beta = post_samples['beta'][chain, idx]
+                sigma = post_samples.get('sigma', np.ones((n_chains, n_draws)))[chain, idx]
+                
+                if groups_new is not None:
+                    # Use specific group effects
+                    valid_groups = np.clip(groups_new, 0, n_groups - 1)
+                    mu = alpha[valid_groups] + np.sum(X_new * beta[valid_groups], axis=1)
+                else:
+                    # Marginalize/average over all groups
+                    mu = np.mean(alpha) + np.dot(X_new, np.mean(beta, axis=0))
+                    
+                pred = np.random.normal(mu, sigma)
+                all_preds.append(pred)
+                
+            all_preds = np.stack(all_preds)
+            mean_pred = np.mean(all_preds, axis=0)
+            
+            if return_std:
+                std_pred = np.std(all_preds, axis=0)
+                return mean_pred, std_pred
+            else:
+                return mean_pred
         else:
-            # For other model types, implement as needed
-            raise NotImplementedError("Prediction not implemented for this model type yet.")
+            # Fallback for truly unknown models
+            raise NotImplementedError("Prediction not implemented for this specific custom PyMC model type yet.")
     
     def convert_to_geo_infer_format(
         self, 

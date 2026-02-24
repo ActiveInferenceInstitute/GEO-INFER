@@ -4,7 +4,7 @@ description: "Climate data integration, climate modeling, and climate change imp
 purpose: "Provide comprehensive climate analysis capabilities for geospatial applications"
 module_type: "Domain Application"
 status: "Beta"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "TIME", "DATA"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-DATA"]
 tags: ["climate", "weather", "climate-change", "modeling", "environmental"]
@@ -186,4 +186,4 @@ interventions = urban.plan_cooling(
 
 **Status**: Beta - Core functionality stable
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

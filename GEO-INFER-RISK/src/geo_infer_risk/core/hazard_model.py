@@ -763,26 +763,64 @@ class EnhancedHazardModel:
             return 5
 
     def _apply_spatial_correlation(self, events: List[Dict[str, Any]], region: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Apply spatial correlation to generated events."""
+        """Apply spatial correlation to generated events using proximity-based clustering.
+
+        Events that occur within a threshold distance of each other (cluster radius)
+        receive a positive intensity boost reflecting hazard co-location effects
+        (e.g. earthquake aftershock clusters, storm train sequences).
+
+        Uses a simplified distance matrix approach:
+        - cluster_radius: configured in ``params`` (default 100 km)
+        - intensity_boost_per_neighbour: 5% (capped at 20%)
+
+        Falls back to returning events unchanged if scipy is unavailable.
+        """
         if not self.spatial_interface:
             return events
 
-        try:
-            # Convert events to spatial format
-            event_points = []
-            for event in events:
-                loc = event['location']
-                point = Point(loc['longitude'], loc['latitude'])
-                event_points.append(point)
-
-            # Apply spatial clustering if available
-            # This is a placeholder - in real implementation, would use actual spatial statistics
-            self.logger.info("Spatial correlation applied (placeholder)")
+        if not events:
             return events
 
+        try:
+            from scipy.spatial import distance as sp_distance  # type: ignore
+
+            cluster_radius_km = float(self.params.get('spatial_cluster_radius_km', 100.0))
+            boost_per_neighbour = float(self.params.get('spatial_intensity_boost', 0.05))
+            max_boost = float(self.params.get('max_spatial_boost', 0.20))
+
+            # Build coordinate array [lat, lon] in degrees
+            coords = [(e['location']['latitude'], e['location']['longitude']) for e in events]
+
+            # Haversine-inspired degree-based proxy: 1 degree ≈ 111 km
+            km_per_degree = 111.0
+            coords_km = [(lat, lon * km_per_degree) for lat, lon in coords]
+
+            for i, event in enumerate(events):
+                neighbours = 0
+                lat_i, lon_i = coords_km[i]
+                for j, (lat_j, lon_j) in enumerate(coords_km):
+                    if i == j:
+                        continue
+                    d = ((lat_i - lat_j) ** 2 + (lon_i - lon_j) ** 2) ** 0.5
+                    if d <= cluster_radius_km:
+                        neighbours += 1
+
+                if neighbours > 0:
+                    boost = min(max_boost, neighbours * boost_per_neighbour)
+                    events[i]['intensity'] *= (1.0 + boost)
+                    events[i]['metadata']['spatial_cluster_neighbours'] = neighbours
+                    events[i]['metadata']['spatial_intensity_boost'] = boost
+
+            self.logger.info(f"Spatial correlation applied to {len(events)} events (radius={cluster_radius_km} km)")
+            return events
+
+        except ImportError:
+            self.logger.warning("scipy not available — spatial correlation skipped")
+            return events
         except Exception as e:
             self.logger.warning(f"Failed to apply spatial correlation: {e}")
             return events
+
 
     def _apply_temporal_patterns(self, events: List[Dict[str, Any]], time_period: Tuple[datetime, datetime]) -> List[Dict[str, Any]]:
         """Apply temporal patterns and seasonality to events."""

@@ -152,4 +152,4 @@ status = network.get_environmental_status()```
 
 This AGENTS.md documents how GEO-INFER-IOT provides IoT capabilities for agents.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

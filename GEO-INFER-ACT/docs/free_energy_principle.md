@@ -169,4 +169,4 @@ Friston, K. (2010). The free-energy principle: a unified brain theory? *Nature R
 
 ---
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

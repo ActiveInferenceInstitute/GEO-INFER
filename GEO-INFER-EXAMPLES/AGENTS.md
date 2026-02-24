@@ -178,4 +178,4 @@ notebook.render()```
 
 This AGENTS.md documents how GEO-INFER-EXAMPLES provides learning resources and reference implementations for agent development.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

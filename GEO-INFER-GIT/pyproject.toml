@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-git"
-version = "0.1.0"
+version = "0.2.0"
 description = "Version control and repository management tools specifically designed for geospatial data and code collaboration"
 readme = "README.md"
-license = {text = "CC BY-ND-SA 4.0"}
+license = {text = "CC BY-NC-SA 4.0"}
 requires-python = ">=3.9"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
@@ -31,10 +31,8 @@ dependencies = [
     "black>=23.3.0",
     "colorlog>=6.7.0",
     "fastapi>=0.104.0",
-    "flake8>=6.0.0",
-    "GitPython>=3.1.0",
-    "isort>=5.12.0",
-    "jsonschema>=4.17.0",
+        "GitPython>=3.1.0",
+        "jsonschema>=4.17.0",
     "mypy>=1.3.0",
     "psutil>=5.9.0",
     "pydantic>=2.5.0",
@@ -54,10 +52,8 @@ dev = [
     "pytest-cov>=2.12.0",
     "pytest-asyncio>=0.20.0",
     "black>=21.9.0",
-    "flake8>=3.9.0",
-    "mypy>=0.910",
-    "isort>=5.9.0",
-]
+        "mypy>=0.910",
+    ]
 docs = [
     "sphinx>=4.2.0",
     "sphinx-rtd-theme>=1.0.0",
@@ -67,10 +63,10 @@ docs = [
 
 
 [project.urls]
-Homepage = "https://github.com/geo-infer/geo-infer"
+Homepage = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
 Documentation = "https://geo-infer.readthedocs.io/"
-Repository = "https://github.com/geo-infer/geo-infer"
-"Bug Tracker" = "https://github.com/geo-infer/geo-infer/issues"
+Repository = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
+"Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO-INFER/issues"
 
 [project.scripts]
 

@@ -308,12 +308,34 @@ class SpatialFilter:
         return center.distance_to(location) <= radius
 
     def _matches_polygon(self, location: GeospatialPoint) -> bool:
-        """Check if location matches polygon filter."""
-        # Simplified point-in-polygon check
-        polygon = self.parameters.get("polygon", {})
-        # In production, would use proper point-in-polygon algorithm
-        # For now, return False as placeholder
-        return False
+        """Check if location matches polygon filter using point-in-polygon test.
+
+        Expects ``parameters["polygon"]`` to be either:
+        - A list of ``[longitude, latitude]`` pairs (GeoJSON ring order), or
+        - A dict with key ``"coordinates"`` holding such a list.
+
+        Falls back to a bounding-box pre-check when Shapely is unavailable.
+        """
+        polygon_data = self.parameters.get("polygon", {})
+        # Accept either a raw list or a GeoJSON-style dict
+        coords = polygon_data if isinstance(polygon_data, list) else polygon_data.get("coordinates", [])
+        if not coords or len(coords) < 3:
+            return False
+
+        try:
+            from shapely.geometry import Point, Polygon  # type: ignore
+            poly = Polygon([(c[0], c[1]) for c in coords])
+            point = Point(location.longitude, location.latitude)
+            return poly.contains(point)
+        except ImportError:
+            # Bounding-box fallback when Shapely is not installed
+            lons = [c[0] for c in coords]
+            lats = [c[1] for c in coords]
+            return (min(lons) <= location.longitude <= max(lons) and
+                    min(lats) <= location.latitude <= max(lats))
+        except Exception:
+            return False
+
 
     def _matches_proximity(self, location: GeospatialPoint) -> bool:
         """Check if location matches proximity filter."""

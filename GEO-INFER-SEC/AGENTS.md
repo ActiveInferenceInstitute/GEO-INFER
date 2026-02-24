@@ -186,4 +186,4 @@ class MySecureAgent(SecureAgent):
 
 This AGENTS.md documents how GEO-INFER-SEC provides security capabilities for agents.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

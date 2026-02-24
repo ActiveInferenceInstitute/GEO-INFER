@@ -299,11 +299,26 @@ class SubmoduleManager:
         return {'ahead': 0, 'behind': 0}
 
     def _get_submodule_dependencies(self, submodule_path: Path) -> List[str]:
-        """Get dependencies of a submodule (simplified implementation)."""
-        dependencies = []
+        """Get dependencies of a submodule by scanning its .gitmodules file.
 
-        # This would analyze the submodule for its own dependencies
-        # For now, return empty list as a placeholder
+        Returns the list of nested submodule paths declared in
+        ``<submodule_path>/.gitmodules``.
+        """
+        dependencies: List[str] = []
+        gitmodules = submodule_path / '.gitmodules'
+        if not gitmodules.exists():
+            return dependencies
+        try:
+            import configparser
+            config = configparser.ConfigParser()
+            config.read(gitmodules)
+            for section in config.sections():
+                if section.startswith('submodule '):
+                    sub_path = config.get(section, 'path', fallback=None)
+                    if sub_path:
+                        dependencies.append(sub_path)
+        except Exception as e:
+            logger.warning(f"Could not parse submodule dependencies from {gitmodules}: {e}")
         return dependencies
 
 class CherryPickManager:
@@ -627,9 +642,42 @@ class RebaseManager:
             return False
 
     def _detect_rebase_conflicts(self) -> List[MergeConflict]:
-        """Detect conflicts during rebase."""
-        # Similar to cherry-pick conflict detection
-        return []  # Placeholder implementation
+        """Detect conflicts during rebase by parsing git status --porcelain output."""
+        conflicts = []
+        try:
+            status_output = self.repo.git.status('--porcelain')
+            for line in status_output.split('\n'):
+                line = line.strip()
+                if not line:
+                    continue
+                status_code = line[:2]
+                file_path = line[3:]
+                # UU, AA, DD markers all indicate conflict
+                if any(status_code.startswith(code) for code in ('UU', 'AA', 'DD', 'AU', 'UA')):
+                    conflict = MergeConflict(
+                        file_path=file_path,
+                        conflict_type={
+                            'UU': 'both_modified', 'AA': 'both_added',
+                            'DD': 'both_deleted', 'AU': 'added_by_us',
+                            'UA': 'added_by_them',
+                        }.get(status_code[:2], 'unknown')
+                    )
+                    # Attempt to read conflict markers from the file
+                    try:
+                        conflict_file = self.repo_path / file_path
+                        if conflict_file.exists():
+                            content = conflict_file.read_text(errors='replace')
+                            import re as re_mod
+                            our_m = re_mod.search(r'<<<<<<< .+?\n(.*?)\n=======', content, re_mod.DOTALL)
+                            their_m = re_mod.search(r'=======\n(.*?)\n>>>>>>> ', content, re_mod.DOTALL)
+                            conflict.our_content = our_m.group(1) if our_m else ''
+                            conflict.their_content = their_m.group(1) if their_m else ''
+                    except Exception:
+                        pass
+                    conflicts.append(conflict)
+        except Exception as e:
+            logger.error(f"Error detecting rebase conflicts: {e}")
+        return conflicts
 
 class AdvancedGitOperations:
     """

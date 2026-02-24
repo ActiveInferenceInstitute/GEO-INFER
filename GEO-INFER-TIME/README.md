@@ -4,7 +4,7 @@ description: "Time series analysis, forecasting, and spatiotemporal modeling"
 purpose: "Provide temporal analysis capabilities for geospatial data"
 module_type: "Core Analysis"
 status: "Beta"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "DATA"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-DATA", "GEO-INFER-ACT"]
 tags: ["time-series", "forecasting", "temporal", "trends", "seasonality"]
@@ -129,4 +129,4 @@ uv pip install -e "./GEO-INFER-TIME"
 
 **Status**: Beta
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

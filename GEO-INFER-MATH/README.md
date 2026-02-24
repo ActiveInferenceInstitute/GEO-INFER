@@ -4,7 +4,7 @@ description: "Linear algebra, optimization, and computational geometry for geosp
 purpose: "Provide mathematical primitives and algorithms for spatial computation"
 module_type: "Core Infrastructure"
 status: "Stable"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: []
 compatibility: ["All GEO-INFER modules"]
 tags: ["math", "optimization", "geometry", "linear-algebra", "algorithms"]
@@ -170,4 +170,4 @@ result = optimizer.optimize(
 
 **Status**: Stable
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

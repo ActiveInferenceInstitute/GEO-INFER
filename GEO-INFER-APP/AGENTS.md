@@ -135,4 +135,4 @@ ops.launch()```
 
 This AGENTS.md documents how GEO-INFER-APP provides application capabilities for agents.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

@@ -4,7 +4,7 @@ description: "Spatial statistics, parametric mapping, and geostatistics"
 purpose: "Provide advanced statistical analysis for geospatial data"
 module_type: "Core Analysis"
 status: "Beta"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "MATH", "DATA"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-MATH", "GEO-INFER-DATA"]
 tags: ["statistics", "geostatistics", "analysis", "hypothesis-testing", "kriging"]
@@ -132,4 +132,4 @@ uv pip install -e "./GEO-INFER-SPM"
 
 **Status**: Beta
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

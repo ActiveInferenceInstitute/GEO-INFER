@@ -86,9 +86,49 @@ class SymbolicMath:
         return [self._numpy_symbol(name) for name in names]
 
     def _numpy_diff(self, expr, var):
-        """Numerical differentiation (simplified)."""
-        # This is a placeholder - real symbolic differentiation would require more complex implementation
-        return {'type': 'derivative', 'expression': expr, 'variable': var}
+        """Numerical differentiation via central finite differences.
+
+        If ``expr`` is callable, computes df/d(var) ≈ (f(x+h) - f(x-h)) / (2h)
+        evaluated at x=1.0 (a neutral evaluation point for most analytic functions).
+
+        If ``expr`` is a symbolic dict descriptor (as produced by ``_numpy_symbol``),
+        applies simple analytic rules:
+        - d/dx (x) = 1 when expr['name'] == var['name']
+        - d/dx (const) = 0 for any other symbol
+
+        For compound dict expressions (type='derivative', 'integral', 'solution'),
+        returns a nested derivative descriptor.
+        """
+        var_name = var.get('name', str(var)) if isinstance(var, dict) else str(var)
+
+        # Case 1: callable expression → numerical central difference
+        if callable(expr):
+            try:
+                h = 1e-5
+                x0 = 1.0  # evaluation point
+                return (expr(x0 + h) - expr(x0 - h)) / (2 * h)
+            except Exception:
+                pass  # fall through to descriptor
+
+        # Case 2: symbol dict → analytic identity / zero rule
+        if isinstance(expr, dict):
+            expr_type = expr.get('type', '')
+            if expr_type == 'symbol':
+                # d/dx x = 1, d/dx y = 0
+                return 1.0 if expr.get('name') == var_name else 0.0
+            # For compound sub-expressions, return a derivative descriptor
+            return {'type': 'derivative', 'expression': expr, 'variable': var, 'order': 1}
+
+        # Case 3: numeric constant → derivative is zero
+        try:
+            float(expr)  # numeric check
+            return 0.0
+        except (TypeError, ValueError):
+            pass
+
+        # Fallback descriptor
+        return {'type': 'derivative', 'expression': expr, 'variable': var, 'order': 1}
+
 
     def _numpy_integrate(self, expr, var):
         """Numerical integration (simplified)."""
@@ -247,31 +287,83 @@ class SymbolicMath:
             Optimization results
         """
         try:
-            # This is a simplified implementation
-            # Real symbolic optimization would use sophisticated algorithms
-
             if self.backend in ['sympy', 'symengine']:
-                # Use symbolic engine for optimization
+                # Parse the objective expression symbolically
                 objective_expr = self._engine.sympify(objective)
 
                 # Create parameter symbols
                 param_symbols = [self.Symbol(p) for p in parameters]
 
-                # This would require implementing a symbolic optimization algorithm
-                # For now, return a placeholder
-                return {
-                    'success': False,
-                    'message': 'Symbolic optimization not fully implemented',
-                    'backend': self.backend
-                }
+                # Compute symbolic gradient and lambdify for scipy
+                grad_exprs = [self._engine.diff(objective_expr, ps) for ps in param_symbols]
+
+                try:
+                    from scipy.optimize import minimize as sci_minimize  # type: ignore
+                    obj_fn = self._engine.lambdify(param_symbols, objective_expr, modules='numpy')
+                    jac_fn = self._engine.lambdify(
+                        param_symbols,
+                        self._engine.Matrix(grad_exprs),
+                        modules='numpy'
+                    )
+
+                    def _f(x):
+                        return float(obj_fn(*x))
+
+                    def _jac(x):
+                        g = jac_fn(*x)
+                        return np.array(g).flatten().astype(float)
+
+                    # Apply bounds if provided
+                    sci_bounds = [
+                        bounds.get(p, (None, None)) for p in parameters
+                    ] if bounds else None
+
+                    x0 = np.zeros(len(parameters))
+                    result = sci_minimize(_f, x0, jac=_jac, bounds=sci_bounds, method='L-BFGS-B')
+
+                    return {
+                        'success': bool(result.success),
+                        'parameters': dict(zip(parameters, result.x.tolist())),
+                        'objective_value': float(result.fun),
+                        'iterations': result.nit,
+                        'message': result.message,
+                        'backend': self.backend,
+                    }
+                except ImportError:
+                    return {
+                        'success': False,
+                        'message': 'scipy required for symbolic optimization (pip install scipy)',
+                        'backend': self.backend,
+                    }
 
             else:
-                # Numpy backend - use numerical optimization
-                return {
-                    'success': False,
-                    'message': 'Numerical optimization not implemented for symbolic models',
-                    'backend': self.backend
-                }
+                # Numpy backend: objective must be callable; use scipy numerically
+                try:
+                    from scipy.optimize import minimize as sci_minimize  # type: ignore
+                    if not callable(objective):
+                        raise TypeError("Numpy backend requires a callable objective")
+
+                    sci_bounds = [
+                        bounds.get(p, (None, None)) for p in parameters
+                    ] if bounds else None
+
+                    x0 = np.zeros(len(parameters))
+                    result = sci_minimize(lambda x: float(objective(*x)), x0,
+                                          bounds=sci_bounds, method='L-BFGS-B')
+                    return {
+                        'success': bool(result.success),
+                        'parameters': dict(zip(parameters, result.x.tolist())),
+                        'objective_value': float(result.fun),
+                        'iterations': result.nit,
+                        'message': result.message,
+                        'backend': self.backend,
+                    }
+                except ImportError:
+                    return {
+                        'success': False,
+                        'message': 'scipy required for numerical optimization (pip install scipy)',
+                        'backend': self.backend,
+                    }
 
         except Exception as e:
             logger.error(f"Error optimizing symbolic model: {e}")

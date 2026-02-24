@@ -346,16 +346,59 @@ class BayesianSPM:
         }
 
     def _compute_waic(self, models: List[SPMResult]) -> Dict[str, Any]:
-        """Compute Widely Applicable Information Criterion."""
-        # WAIC implementation would require full posterior samples
-        # This is a placeholder for the concept
-        warnings.warn("WAIC computation requires full posterior samples")
+        """Compute Widely Applicable Information Criterion (WAIC).
 
+        WAIC = -2 * (ELPD - p_WAIC) where:
+        - ELPD = sum_i log(mean_s p(y_i|theta_s))   (expected log pointwise predictive density)
+        - p_WAIC = sum_i var_s(log p(y_i|theta_s))  (effective number of parameters)
+
+        When posterior samples are not available, falls back to a BIC-approximated
+        WAIC using residuals as a proxy for pointwise log-likelihood.
+        """
+        waic_values = []
+        for model in models:
+            try:
+                y = (model.spm_data.data.flatten()
+                     if model.spm_data.data.ndim > 1
+                     else model.spm_data.data)
+                residuals = model.residuals
+                n = len(y)
+                k = model.design_matrix.n_regressors
+
+                if self.posterior_samples and 'beta' in self.posterior_samples:
+                    # Real WAIC using posterior samples
+                    beta_samples = self.posterior_samples['beta']  # shape (S, k)
+                    X = model.design_matrix.matrix
+                    sigma_est = float(np.std(residuals)) or 1.0
+                    # Pointwise log-likelihood for each sample: (S, n)
+                    mu_s = beta_samples @ X.T  # (S, n)
+                    diff = (y[np.newaxis, :] - mu_s) ** 2  # (S, n)
+                    lppd_i = np.log(np.mean(np.exp(-0.5 * diff / sigma_est**2), axis=0))
+                    var_i = np.var(-0.5 * diff / sigma_est**2, axis=0)
+                    elpd = float(np.sum(lppd_i))
+                    p_waic = float(np.sum(var_i))
+                else:
+                    # BIC-based approximation when no samples available
+                    rss = float(np.sum(residuals ** 2))
+                    sigma_sq = rss / max(n - k, 1)
+                    # Pointwise log-likelihood under Gaussian assumption
+                    lppd_approx = -0.5 * n * np.log(2 * np.pi * sigma_sq) - rss / (2 * sigma_sq)
+                    elpd = lppd_approx
+                    p_waic = k  # rough parameter count
+
+                waic = -2.0 * (elpd - p_waic)
+                waic_values.append(waic)
+            except Exception as e:
+                warnings.warn(f"WAIC computation failed for model: {e}")
+                waic_values.append(float('inf'))
+
+        best_idx = int(np.argmin(waic_values)) if waic_values else 0
         return {
             'method': 'WAIC',
-            'waic_values': [0] * len(models),  # Placeholder
-            'best_model_index': 0
+            'waic_values': waic_values,
+            'best_model_index': best_idx,
         }
+
 
     def spatial_hierarchical_model(self, data: SPMData, design_matrix: np.ndarray,
                                   spatial_structure: Dict[str, Any]) -> SPMResult:

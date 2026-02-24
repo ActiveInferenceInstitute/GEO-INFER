@@ -140,4 +140,4 @@ print(f"Decisions made: {review.decisions}")```
 
 This AGENTS.md documents how GEO-INFER-PEP provides governance capabilities for the framework.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

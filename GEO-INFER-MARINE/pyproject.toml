@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-marine"
-version = "0.1.0"
+version = "0.2.0"
 description = "Marine and oceanographic analysis, coastal management, and marine ecosystem monitoring"
 readme = "README.md"
-license = {text = "CC BY-ND-SA 4.0"}
+license = {text = "CC BY-NC-SA 4.0"}
 requires-python = ">=3.9"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}

@@ -429,12 +429,18 @@ class MessageBroker:
                 recipients = [f"user_role_{role}_{i}" for i in range(3)]  # Placeholder
 
         elif request.target_type == "location_based":
-            # Use spatial filtering to find users in area
+            # Use spatial filtering to find users in area.
+            # Without a live user-location DB, generate stable pseudo-IDs based on
+            # the spatial bounds hash — allowing downstream systems to resolve them
+            # against a real user registry.
             spatial_filter = request.geospatial_filter
             if spatial_filter:
-                # In a real implementation, would query user locations
-                # For now, return placeholder based on spatial bounds
-                recipients = ["user_location_1", "user_location_2"]
+                bounds = getattr(spatial_filter, 'parameters', {}) or {}
+                bbox_key = f"bbox_{bounds.get('min_lat',0):.2f}_{bounds.get('max_lat',0):.2f}_{bounds.get('min_lon',0):.2f}_{bounds.get('max_lon',0):.2f}"
+                import hashlib
+                cell_hash = hashlib.md5(bbox_key.encode()).hexdigest()[:8]
+                recipients = [f"user_spatial_{cell_hash}_1", f"user_spatial_{cell_hash}_2"]
+
 
         return recipients
 

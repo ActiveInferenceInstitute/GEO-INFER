@@ -4,7 +4,7 @@ description: "Organizational structures, team coordination, and resource allocat
 purpose: "Model organizational hierarchies and coordinate distributed teams"
 module_type: "Domain Application"
 status: "Alpha"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "DATA"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-DATA", "GEO-INFER-OPS"]
 tags: ["organization", "teams", "coordination", "resources", "hierarchy"]
@@ -123,4 +123,4 @@ uv pip install -e "./GEO-INFER-ORG"
 
 **Status**: Alpha
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

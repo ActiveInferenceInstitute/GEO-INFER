@@ -708,20 +708,95 @@ class AntColonyOptimization:
         """
         logger.info(f"Starting multi-objective ACO with objectives: {objectives}")
 
-        # This would implement multi-objective ACO variants
-        # For now, return placeholder structure
+        if not objectives:
+            raise ValueError("At least one objective must be specified")
+
+        # Weighted-sum scalarisation over multiple objectives.
+        # Each solution is evaluated independently per objective, then combined
+        # via normalised weights.  Pareto efficiency is assessed post-hoc.
+        n_objectives = len(objectives)
+        weights = [1.0 / n_objectives] * n_objectives  # Uniform weights by default
+
+        # Re-initialise with larger population
+        original_ants = self.parameters.number_of_ants
+        self.parameters.number_of_ants = max(original_ants, population_size)
+
+        pareto_solutions: list = []
+
+        for gen in range(generations):
+            # Construct ant solutions
+            solutions = self._construct_solutions()
+
+            # Multi-objective fitness: weighted sum of normalised per-objective fitnesses
+            obj_values_per_solution: list = []
+            for sol_info in solutions:
+                sol = sol_info["solution"]
+                obj_vals = []
+                for obj_name in objectives:
+                    if obj_name == "minimize_total_distance":
+                        obj_vals.append(self._evaluate_solution(sol))
+                    elif obj_name == "maximize_pheromone_coverage":
+                        covered = {(sol[i], sol[i+1]) for i in range(len(sol)-1)}
+                        max_edges = max(1, self.problem_size * (self.problem_size - 1))
+                        obj_vals.append(-len(covered) / max_edges)  # negate to minimise
+                    else:
+                        # Unknown objective: penalise path length as fallback
+                        obj_vals.append(self._evaluate_solution(sol))
+                obj_values_per_solution.append(obj_vals)
+
+            # Normalise objectives across solutions in this generation
+            obj_array = np.array(obj_values_per_solution, dtype=float)
+            obj_min = obj_array.min(axis=0)
+            obj_max = obj_array.max(axis=0)
+            obj_range = np.where(obj_max - obj_min > 0, obj_max - obj_min, 1.0)
+            obj_norm = (obj_array - obj_min) / obj_range
+
+            for idx, sol_info in enumerate(solutions):
+                scalar_fitness = float(np.dot(weights, obj_norm[idx]))
+                pareto_solutions.append({
+                    "solution": sol_info["solution"],
+                    "objectives": dict(zip(objectives, obj_values_per_solution[idx])),
+                    "scalar_fitness": scalar_fitness,
+                })
+
+            # Pareto dominance filter (keep non-dominated solutions)
+            if len(pareto_solutions) > population_size * 2:
+                pareto_solutions = self._non_dominated_sort(pareto_solutions, objectives)
+
+            # Update pheromones using best scalar solution of current gen
+            if solutions:
+                best_scalar = min(
+                    range(len(solutions)),
+                    key=lambda i: float(np.dot(weights, obj_norm[i]))
+                )
+                self._update_pheromones([solutions[best_scalar]])
+
+            # Apply spatial constraints by penalising solutions that violate them
+            if spatial_constraints:
+                for ps in pareto_solutions:
+                    penalty = self._calculate_constraint_penalty(ps["solution"])
+                    ps["scalar_fitness"] += penalty
+
+        # Restore original number of ants
+        self.parameters.number_of_ants = original_ants
+
+        # Final non-dominated sort
+        pareto_front_solutions = self._non_dominated_sort(pareto_solutions, objectives)
+
         pareto_front = {
-            'solutions': [],
+            'solutions': pareto_front_solutions[:population_size],
             'objectives': objectives,
             'constraints': spatial_constraints,
             'metadata': {
-                'algorithm': 'ACO',
+                'algorithm': 'Multi-Objective ACO (weighted-sum + Pareto)',
                 'population_size': population_size,
-                'generations': generations
+                'generations': generations,
+                'n_objectives': n_objectives,
+                'weights': weights,
             }
         }
 
-        logger.info("Multi-objective optimization completed")
+        logger.info(f"Multi-objective optimisation completed: {len(pareto_front_solutions)} Pareto solutions")
         return pareto_front
 
     def adapt_to_changes(
@@ -827,6 +902,33 @@ class AntColonyOptimization:
             }
 
         return stats
+
+    def _non_dominated_sort(self, solutions: list, objectives: list) -> list:
+        """Return non-dominated (Pareto front) solutions.
+
+        Uses a pairwise dominance check:  solution A dominates solution B if
+        A is not worse on any objective and strictly better on at least one.
+        Complexity: O(n^2 * |objectives|) — acceptable for typical MOACO sizes.
+        """
+        n = len(solutions)
+        dominated = [False] * n
+
+        for i in range(n):
+            if dominated[i]:
+                continue
+            for j in range(n):
+                if i == j or dominated[j]:
+                    continue
+                # Check if solution i dominates solution j
+                obj_i = [solutions[i]["objectives"].get(o, 0.0) for o in objectives]
+                obj_j = [solutions[j]["objectives"].get(o, 0.0) for o in objectives]
+                # i dominates j: not worse in all, strictly better in at least one
+                not_worse = all(vi <= vj for vi, vj in zip(obj_i, obj_j))
+                strictly_better = any(vi < vj for vi, vj in zip(obj_i, obj_j))
+                if not_worse and strictly_better:
+                    dominated[j] = True
+
+        return [s for s, dom in zip(solutions, dominated) if not dom]
 
     def save_optimization_state(self, filepath: str) -> bool:
         """Save optimization state to file."""

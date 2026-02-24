@@ -1,14 +1,14 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this GEO-INFER repository.
 
 ## Project Overview
 
 GEO-INFER is a 44-module geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. It is a Python monorepo using `uv` as the package manager, with Python 3.9+ required.
 
-### Current Stats (2026-02-17)
+### Current Stats (2026-02-24)
 
-- **44 modules** | **858 source files** (294,403 lines) | **416 test files** (86,793 lines) | **~3,000+ tests**
+- **44 modules** | **901 source files** (307,361 lines) | **466 test files** (89,179 lines) | **~3,000+ tests**
 - All packages use PEP 8 lowercase naming (FOREST/MARINE/ENERGY/WATER were renamed)
 - Zero illegitimate `pass` stubs (remaining `pass` is only in abstract methods, exception handlers, and import guards)
 - Every module has minimum 4 test files
@@ -73,7 +73,8 @@ Configuration: Black line-length 88, isort profile "black", mypy strict mode. Al
 ### Module Layout
 
 Every module follows this package structure:
-```
+
+```text
 GEO-INFER-MODULE/
 ├── src/geo_infer_module/
 │   ├── __init__.py      # Exports with graceful try/except imports
@@ -95,7 +96,7 @@ GEO-INFER-MODULE/
 - **Analytical Core**: MATH, ACT, BAYES, AI, COG, AGENT, SPM
 - **Spatial-Temporal**: SPACE, TIME, IOT
 - **Infrastructure**: DATA, API, SEC, OPS, METAGOV
-- **Domain-Specific**: AG, HEALTH, ECON, RISK, LOG, BIO, CLIMATE, ENERGY, FOREST, MARINE, EMERGENCY, EDU
+- **Domain-Specific**: AG, HEALTH, ECON, RISK, LOG, BIO, CLIMATE, ENERGY, FOREST, MARINE, EMERGENCY, EDU, TRANSPORT
 - **Agent & Simulation**: AGENT, ANT, SIM
 - **Community & Applications**: CIV, PEP, ORG, COMMS, APP, ART
 - **Governance**: NORMS, REQ
@@ -103,7 +104,7 @@ GEO-INFER-MODULE/
 
 ### Data Flow
 
-```
+```text
 Data Sources → DATA → SPACE/TIME → MATH/BAYES/ACT → AI/AGENT → Domain Modules → API/APP
 ```
 

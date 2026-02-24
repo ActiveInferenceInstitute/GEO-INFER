@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-forest"
-version = "0.1.0"
+version = "0.2.0"
 description = "Forest management, carbon sequestration, wildfire risk, and forest ecosystem analysis"
 readme = "README.md"
-license = {text = "CC BY-ND-SA 4.0"}
+license = {text = "CC BY-NC-SA 4.0"}
 requires-python = ">=3.9"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}

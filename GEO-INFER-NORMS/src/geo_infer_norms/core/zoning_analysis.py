@@ -745,37 +745,106 @@ class LandUseClassifier:
         result_gdf['land_use_category'] = 'unclassified'
         result_gdf['land_use_confidence'] = 0.0
         
-        # This is a placeholder for a more sophisticated classification algorithm
-        # In a real implementation, this could use machine learning or more complex rules
-        
-        # For demonstration, we'll use a very simple rule-based approach
+        # Multi-feature weighted scoring classifier.
+        # Each parcel receives a score for every land use category based on
+        # the available numeric features.  The category with the highest score wins.
+        result_gdf = features_gdf.copy()
+        result_gdf['land_use_category'] = 'unclassified'
+        result_gdf['land_use_confidence'] = 0.0
+
+        # Feature weight tables — weight matrix[category][feature] = weight (positive = supports, negative = inhibits)
+        RULES: dict = {
+            'residential': {
+                'building_count':      +0.5,
+                'population_density':  +0.8,
+                'business_count':      -0.3,
+                'farmland_percentage': -0.7,
+                'park_area':           -0.1,
+                'impervious_surface':  +0.2,
+            },
+            'commercial': {
+                'building_count':      +0.3,
+                'business_count':      +0.9,
+                'population_density':  +0.1,
+                'farmland_percentage': -0.8,
+                'park_area':           -0.2,
+                'impervious_surface':  +0.4,
+            },
+            'industrial': {
+                'industrial_area':     +0.9,
+                'impervious_surface':  +0.6,
+                'business_count':      +0.2,
+                'population_density':  -0.5,
+                'farmland_percentage': -0.8,
+                'park_area':           -0.6,
+            },
+            'agricultural': {
+                'farmland_percentage': +0.95,
+                'population_density':  -0.6,
+                'impervious_surface':  -0.7,
+                'business_count':      -0.5,
+                'building_count':      -0.3,
+            },
+            'recreational': {
+                'park_area':           +0.9,
+                'population_density':  +0.2,
+                'impervious_surface':  -0.4,
+                'industrial_area':     -0.8,
+                'farmland_percentage': -0.1,
+            },
+            'institutional': {
+                'building_count':      +0.4,
+                'population_density':  +0.3,
+                'business_count':      +0.2,
+                'park_area':           +0.1,
+                'farmland_percentage': -0.5,
+            },
+            'mixed_use': {
+                'building_count':      +0.4,
+                'business_count':      +0.4,
+                'population_density':  +0.4,
+                'impervious_surface':  +0.2,
+                'farmland_percentage': -0.4,
+            },
+            'open_space': {
+                'park_area':           +0.5,
+                'farmland_percentage': +0.3,
+                'impervious_surface':  -0.8,
+                'building_count':      -0.6,
+                'population_density':  -0.6,
+            },
+        }
+
+        # Normalisation bounds per feature for rough [0,1] scaling
+        NORM: dict = {
+            'building_count':      1000.0,
+            'population_density':  10000.0,
+            'business_count':      200.0,
+            'farmland_percentage': 100.0,
+            'park_area':           100000.0,
+            'impervious_surface':  100.0,
+            'industrial_area':     500000.0,
+        }
+
         for idx, parcel in result_gdf.iterrows():
-            # Extract features
-            features = {col: parcel[col] for col in feature_columns if col in parcel}
-            
-            # Apply simple rules (these would be much more sophisticated in practice)
-            category = 'unclassified'
-            confidence = 0.5
-            
-            # Example rules (these would be based on real-world knowledge in practice)
-            if 'building_count' in features and features['building_count'] > 10:
-                if 'population_density' in features and features['population_density'] > 5000:
-                    category = 'residential'
-                    confidence = 0.8
-                elif 'business_count' in features and features['business_count'] > 5:
-                    category = 'commercial'
-                    confidence = 0.7
-            elif 'farmland_percentage' in features and features['farmland_percentage'] > 70:
-                category = 'agricultural'
-                confidence = 0.9
-            elif 'park_area' in features and features['park_area'] > 10000:
-                category = 'recreational'
-                confidence = 0.85
-            
-            result_gdf.at[idx, 'land_use_category'] = category
-            result_gdf.at[idx, 'land_use_confidence'] = confidence
-        
-        return result_gdf
+            scores: dict = {cat: 0.0 for cat in RULES}
+            for cat, weights in RULES.items():
+                for feature, weight in weights.items():
+                    if feature in feature_columns and feature in parcel:
+                        norm = NORM.get(feature, 1.0)
+                        val = max(0.0, float(parcel[feature])) / norm
+                        val = min(1.0, val)  # clamp to [0, 1]
+                        scores[cat] += weight * val
+
+            best_cat = max(scores, key=lambda c: scores[c])
+            best_score = scores[best_cat]
+            # Map raw score to [0, 1] confidence: (score + n_features) / (2 * n_features)
+            n_feat = max(1, len(feature_columns))
+            confidence = max(0.0, min(1.0, (best_score + n_feat) / (2.0 * n_feat)))
+
+            result_gdf.at[idx, 'land_use_category'] = best_cat
+            result_gdf.at[idx, 'land_use_confidence'] = round(confidence, 3)
+
     
     def visualize_land_use(
         self,

@@ -123,4 +123,4 @@ plan = planner.develop_plan(
 
 This AGENTS.md documents how GEO-INFER-CLIMATE provides climate capabilities for agents.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

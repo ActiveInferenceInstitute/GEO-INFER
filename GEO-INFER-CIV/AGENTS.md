@@ -176,4 +176,4 @@ print(f"Winning projects: {results.funded_projects}")```
 
 This AGENTS.md documents how GEO-INFER-CIV provides civic engagement capabilities for the agent ecosystem.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

@@ -197,30 +197,67 @@ def bayesian_optimization_helper(
     Returns:
         Tuple of (optimal_parameters, optimal_value, metadata)
     """
-    # Simplified Bayesian optimization
-    # Real implementation would use Gaussian processes
-    
+    # Bayesian optimization via Upper Confidence Bound (UCB) acquisition
+    # Uses a running empirical GP proxy (mean + kappa*std) to balance
+    # exploitation vs. exploration without an external GP library.
+
     best_params = None
     best_value = -np.inf
-    
+    kappa = 2.0  # UCB exploration weight
+
+    # Track evaluated points and their values
+    evaluated_indices: list = []
+    evaluated_values: list = []
+
     for iteration in range(n_iterations):
-        # Sample from prior
-        params = np.random.choice(len(prior), p=prior)
-        value = objective(params)
-        
+        n_states = len(prior)
+
+        if not evaluated_values:
+            # First iteration: sample proportional to prior
+            idx = int(np.random.choice(n_states, p=prior / prior.sum()))
+        elif acquisition == 'expected_improvement':
+            # EI approximated via empirical distribution
+            mean_so_far = float(np.mean(evaluated_values))
+            std_so_far = float(np.std(evaluated_values)) or 1.0
+            # EI ∝ max(0, mu - best) ... use UCB as proxy when std available
+            scores = np.full(n_states, mean_so_far)
+            for i, vi in zip(evaluated_indices, evaluated_values):
+                scores[i] = vi
+            # Add uncertainty bonus for unexplored states
+            visit_counts = np.zeros(n_states)
+            for i in evaluated_indices:
+                visit_counts[i] += 1
+            exploration_bonus = kappa * std_so_far / (1.0 + visit_counts)
+            ucb = scores + exploration_bonus
+            idx = int(np.argmax(ucb * prior))
+        else:
+            # Default UCB
+            scores = np.full(n_states, float(np.mean(evaluated_values)) if evaluated_values else 0.0)
+            for i, vi in zip(evaluated_indices, evaluated_values):
+                scores[i] = vi
+            visit_counts = np.zeros(n_states)
+            for i in evaluated_indices:
+                visit_counts[i] += 1
+            ucb = scores + kappa / (1.0 + visit_counts)
+            idx = int(np.argmax(ucb * prior))
+
+        value = objective(idx)
+        evaluated_indices.append(idx)
+        evaluated_values.append(value)
+
         if value > best_value:
             best_value = value
-            best_params = params
-        
-        # Update prior (simplified - would use GP in real implementation)
-        # This is a placeholder
-    
+            best_params = idx
+
     metadata = {
         'n_iterations': n_iterations,
-        'acquisition': acquisition
+        'acquisition': acquisition,
+        'n_evaluated': len(evaluated_values),
+        'final_best': best_params,
     }
-    
+
     return np.array([best_params]), best_value, metadata
+
 
 
 class BayesianConvenience:

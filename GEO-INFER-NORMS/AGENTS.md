@@ -141,4 +141,4 @@ print(f"Restrictions: {check.restrictions}")```
 
 This AGENTS.md documents how GEO-INFER-NORMS provides normative reasoning for agents.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

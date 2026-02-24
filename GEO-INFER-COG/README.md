@@ -4,7 +4,7 @@ description: "Spatial cognition modeling, mental maps, and human-agent interacti
 purpose: "Provide cognitive science-based spatial reasoning for agents"
 module_type: "Core Intelligence"
 status: "Alpha"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "ACT"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-ACT", "GEO-INFER-EDU"]
 tags: ["cognition", "spatial-reasoning", "mental-maps", "wayfinding"]
@@ -135,4 +135,4 @@ uv pip install -e "./GEO-INFER-COG"
 
 **Status**: Alpha - Research implementation
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

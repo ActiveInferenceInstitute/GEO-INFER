@@ -186,4 +186,4 @@ print(f"Recommendations: {evaluation.recommendations}")```
 
 This AGENTS.md documents how GEO-INFER-PLACE provides place-based intelligence for agents.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

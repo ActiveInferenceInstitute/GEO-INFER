@@ -467,19 +467,130 @@ class IoTDataIngestion:
                 logger.error(f"Error in periodic spatial updates: {e}")
                 await asyncio.sleep(60)  # Wait before retrying
     
-    async def _handle_mqtt(self):
-        """Handle MQTT protocol (placeholder)."""
-        # This would implement MQTT message handling
-        logger.info("MQTT handler started (placeholder)")
-        while self.is_processing:
-            await asyncio.sleep(1)
-    
-    async def _handle_async_mqtt(self):
-        """Handle async MQTT protocol (placeholder)."""
-        # This would implement async MQTT message handling
-        logger.info("Async MQTT handler started (placeholder)")
-        while self.is_processing:
-            await asyncio.sleep(1)
+    async def _handle_mqtt(self) -> None:
+        """Handle synchronous MQTT protocol using paho-mqtt client.
+
+        Connects to the configured MQTT broker, subscribes to sensor topics,
+        and ingests incoming measurements into the spatial index.
+        Runs in a thread-executor to avoid blocking the event loop.
+        """
+        if not HAS_MQTT:
+            logger.warning("paho-mqtt not installed; MQTT handler disabled. Install with: pip install paho-mqtt")
+            return
+
+        broker_config = self.config.get("mqtt", {})
+        host = broker_config.get("host", "localhost")
+        port = broker_config.get("port", 1883)
+        username = broker_config.get("username")
+        password = broker_config.get("password")
+        topics = broker_config.get("topics", ["geo_infer/sensors/#"])
+        keepalive = broker_config.get("keepalive", 60)
+
+        client = mqtt.Client(client_id=f"geo_infer_iot_{id(self)}")
+
+        if username:
+            client.username_pw_set(username, password)
+
+        def on_connect(mqttc: mqtt.Client, userdata: object,
+                       flags: dict, rc: int) -> None:
+            if rc == 0:
+                logger.info("MQTT connected to %s:%d", host, port)
+                for topic in topics:
+                    mqttc.subscribe(topic)
+                    logger.debug("MQTT subscribed to topic: %s", topic)
+            else:
+                logger.error("MQTT connection failed with code %d", rc)
+
+        def on_message(mqttc: mqtt.Client, userdata: object,
+                       msg: mqtt.MQTTMessage) -> None:
+            try:
+                payload = json.loads(msg.payload.decode("utf-8"))
+                asyncio.run_coroutine_threadsafe(
+                    self.ingest_measurement(payload),
+                    asyncio.get_event_loop(),
+                )
+            except json.JSONDecodeError:
+                logger.warning("MQTT received non-JSON payload on topic %s", msg.topic)
+            except Exception as exc:
+                logger.error("MQTT on_message error: %s", exc)
+
+        def on_disconnect(mqttc: mqtt.Client, userdata: object, rc: int) -> None:
+            if rc != 0:
+                logger.warning("MQTT unexpected disconnect (rc=%d); will reconnect", rc)
+
+        client.on_connect = on_connect
+        client.on_message = on_message
+        client.on_disconnect = on_disconnect
+
+        loop = asyncio.get_event_loop()
+        try:
+            await loop.run_in_executor(
+                None,
+                lambda: client.connect(host, port, keepalive),
+            )
+            logger.info("MQTT client starting loop")
+            while self.is_processing:
+                await loop.run_in_executor(None, lambda: client.loop(timeout=1.0))
+        except ConnectionRefusedError:
+            logger.error("MQTT broker %s:%d refused connection", host, port)
+        except Exception as exc:
+            logger.error("MQTT handler error: %s", exc)
+        finally:
+            client.disconnect()
+            logger.info("MQTT client disconnected")
+
+    async def _handle_async_mqtt(self) -> None:
+        """Handle MQTT protocol using asyncio-mqtt (coroutine-native).
+
+        Connects with asyncio-mqtt for non-blocking message consumption.
+        Falls back gracefully if asyncio-mqtt is not installed.
+        """
+        if not HAS_ASYNC_MQTT:
+            logger.warning(
+                "asyncio-mqtt not installed; async MQTT handler disabled. "
+                "Install with: pip install asyncio-mqtt"
+            )
+            return
+
+        broker_config = self.config.get("mqtt", {})
+        host = broker_config.get("host", "localhost")
+        port = broker_config.get("port", 1883)
+        username = broker_config.get("username")
+        password = broker_config.get("password")
+        topics = broker_config.get("topics", ["geo_infer/sensors/#"])
+
+        credentials: dict = {}
+        if username:
+            credentials = {"username": username, "password": password or ""}
+
+        try:
+            async with asyncio_mqtt.Client(
+                hostname=host,
+                port=port,
+                **credentials,
+            ) as client:
+                logger.info("Async MQTT connected to %s:%d", host, port)
+                for topic in topics:
+                    await client.subscribe(topic)
+                    logger.debug("Async MQTT subscribed to topic: %s", topic)
+
+                async with client.unfiltered_messages() as messages:
+                    async for msg in messages:
+                        if not self.is_processing:
+                            break
+                        try:
+                            payload = json.loads(msg.payload.decode("utf-8"))
+                            await self.ingest_measurement(payload)
+                        except json.JSONDecodeError:
+                            logger.warning(
+                                "Async MQTT non-JSON payload on %s", msg.topic
+                            )
+                        except Exception as exc:
+                            logger.error("Async MQTT message error: %s", exc)
+        except asyncio_mqtt.MqttError as exc:
+            logger.error("Async MQTT connection error: %s", exc)
+        except Exception as exc:
+            logger.error("Async MQTT handler error: %s", exc)
     
     def get_spatial_distribution(self, variable: str, 
                                confidence_level: float = 0.95) -> Optional[Dict]:

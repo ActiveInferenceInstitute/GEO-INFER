@@ -4,7 +4,7 @@ description: "Active Inference implementation using Free Energy Principle for ge
 purpose: "Provide the core Active Inference framework for perception, action, and learning"
 module_type: "Core Framework"
 status: "Beta"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["BAYES", "SPACE", "TIME"]
 compatibility: ["GEO-INFER-BAYES", "GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-AGENT"]
 tags: ["active-inference", "free-energy", "perception", "action", "learning"]
@@ -242,4 +242,4 @@ resources = forager.forage(environment, time_steps=500)
 
 **Status**: Beta - Core functionality stable
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24
