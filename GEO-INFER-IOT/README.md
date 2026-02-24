@@ -4,7 +4,7 @@ description: "Sensor networks, real-time data streaming, and edge computing"
 purpose: "Enable IoT device integration and real-time geospatial data streams"
 module_type: "Data Infrastructure"
 status: "Beta"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "TIME", "DATA"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-DATA"]
 tags: ["iot", "sensors", "streaming", "real-time", "edge"]
@@ -122,4 +122,4 @@ uv pip install -e "./GEO-INFER-IOT"
 
 **Status**: Beta
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

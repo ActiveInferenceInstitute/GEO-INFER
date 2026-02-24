@@ -562,13 +562,47 @@ class EventFilter:
         return True
 
     def _apply_geospatial_filter(self, event: EventPublishResponse, filter_config: Dict[str, Any]) -> bool:
-        """Apply geospatial filters to events."""
-        if not event.geospatial_context:
-            return filter_config.get("require_location", False)
+        """Apply geospatial filters to events using bounding-box and radius checks.
 
-        # In a real implementation, would apply spatial filters
-        # For now, return True (placeholder)
+        Supported filter_config keys:
+        - ``require_location`` (bool): return False when event has no context
+        - ``bbox`` (dict): {min_lon, max_lon, min_lat, max_lat}
+        - ``radius_km`` + ``center`` (dict {lat, lon}): circular area filter
+        """
+        if not event.geospatial_context:
+            return not filter_config.get("require_location", False)
+
+        ctx = event.geospatial_context
+        lat = getattr(ctx, 'latitude', None) or ctx.get('latitude') if isinstance(ctx, dict) else None
+        lon = getattr(ctx, 'longitude', None) or ctx.get('longitude') if isinstance(ctx, dict) else None
+
+        if lat is None or lon is None:
+            return filter_config.get("pass_on_missing_coords", True)
+
+        # Bounding-box check
+        bbox = filter_config.get("bbox")
+        if bbox:
+            if not (bbox.get("min_lon", -180) <= lon <= bbox.get("max_lon", 180) and
+                    bbox.get("min_lat", -90) <= lat <= bbox.get("max_lat", 90)):
+                return False
+
+        # Circular radius check (haversine approximation)
+        radius_km = filter_config.get("radius_km")
+        center = filter_config.get("center")
+        if radius_km is not None and center:
+            import math
+            R = 6371.0
+            dlat = math.radians(lat - center["lat"])
+            dlon = math.radians(lon - center["lon"])
+            a = (math.sin(dlat / 2) ** 2 +
+                 math.cos(math.radians(center["lat"])) * math.cos(math.radians(lat)) *
+                 math.sin(dlon / 2) ** 2)
+            dist_km = R * 2 * math.asin(math.sqrt(a))
+            if dist_km > radius_km:
+                return False
+
         return True
+
 
     def _apply_temporal_filter(self, event: EventPublishResponse, filter_config: Dict[str, Any]) -> bool:
         """Apply temporal filters to events."""

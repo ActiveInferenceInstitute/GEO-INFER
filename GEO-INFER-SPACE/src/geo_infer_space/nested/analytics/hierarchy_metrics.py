@@ -641,13 +641,45 @@ class H3HierarchyAnalyzer:
         return dict(distribution)
     
     def _calculate_spatial_coherence(self, hierarchy: Dict[str, HierarchyNode]) -> float:
-        """Calculate spatial coherence metric."""
+        """Calculate spatial coherence as fraction of parent-child pairs with valid H3 nesting.
+
+        A hierarchy is spatially coherent when every parent node's H3 cell is a
+        direct ancestor (at the next coarser resolution) of its children's H3 cells.
+        The score is the fraction of parent-child edges that satisfy this criterion.
+
+        Nodes without H3 indices are skipped; if no H3 nodes are present, returns 0.0.
+        """
         if not H3_AVAILABLE:
             return 0.0
-        
-        # This would analyze how spatially coherent the hierarchy is
-        # For now, return a placeholder
-        return 0.5
+
+        coherent_edges = 0
+        total_edges = 0
+
+        for node in hierarchy.values():
+            if not node.h3_index or not node.h3_resolution:
+                continue
+            for child_id in node.children_ids:
+                child = hierarchy.get(child_id)
+                if child is None or not child.h3_index or not child.h3_resolution:
+                    continue
+                total_edges += 1
+                # A coherent edge: child is at finer resolution and parent contains it.
+                # h3.cell_to_parent(child_h3, parent_resolution) == parent_h3
+                try:
+                    expected_parent = h3.cell_to_parent(child.h3_index, node.h3_resolution)
+                    if expected_parent == node.h3_index:
+                        coherent_edges += 1
+                except Exception:
+                    pass  # Incompatible resolutions count as incoherent
+
+        if total_edges == 0:
+            # No H3-indexed edges — fall back to structural proxy:
+            # fraction of nodes that are leaves (perfectly nested implies many leaves)
+            leaf_count = sum(1 for n in hierarchy.values() if n.is_leaf())
+            return leaf_count / len(hierarchy) if hierarchy else 0.0
+
+        return coherent_edges / total_edges
+
     
     def _detect_hierarchy_structure(self, hierarchy: Dict[str, HierarchyNode]) -> Tuple[HierarchyStructure, float]:
         """Detect the type of hierarchy structure."""

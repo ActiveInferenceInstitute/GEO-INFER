@@ -27,7 +27,7 @@ We are committed to providing a welcoming and inclusive environment. Please be r
 
 ### Repository Structure
 
-```
+```text
 GEO-INFER/
 ├── GEO-INFER-ACT/       # Active Inference module
 ├── GEO-INFER-AGENT/     # Autonomous agents module
@@ -107,7 +107,7 @@ pytest
 
 - Follow [PEP 8](https://pep8.org/) style guidelines
 - Use type hints for function signatures
-- Maximum line length: 100 characters
+- Maximum line length: 88 characters (Black default)
 - Use docstrings for all public functions and classes
 
 ### Example
@@ -201,7 +201,7 @@ def function_name(param1: str, param2: int) -> bool:
 
 ### Test Structure
 
-```
+```text
 GEO-INFER-<MODULE>/
 ├── tests/
 │   ├── __init__.py
@@ -243,10 +243,11 @@ class TestActiveInferenceModel:
 
 ### Before Submitting
 
-1. Ensure all tests pass: `pytest`
-2. Check code style: `ruff check .`
-3. Update documentation if needed
-4. Add yourself to CONTRIBUTORS.md (if applicable)
+1. Ensure all tests pass: `uv run python -m pytest`
+2. Check code style: `ruff check .` and `black --check .`
+3. Check types: `mypy GEO-INFER-MODULE/src/`
+4. Update documentation if needed
+5. Add yourself to CONTRIBUTORS.md (if applicable)
 
 ### PR Description Template
 
@@ -283,6 +284,17 @@ Some modules have additional contribution guidelines:
 - **GEO-INFER-SPACE**: See `GEO-INFER-SPACE/docs/CONTRIBUTING_SPACE.md`
 - **GEO-INFER-PEP**: See `GEO-INFER-PEP/docs/CONTRIBUTING_PEP.md`
 
+### Environmental Modules (Feb 2026 Renames)
+
+The following modules were renamed from uppercase to lowercase package naming in Feb 2026:
+
+- **GEO-INFER-FOREST** → `geo_infer_forest`
+- **GEO-INFER-MARINE** → `geo_infer_marine`
+- **GEO-INFER-ENERGY** → `geo_infer_energy`
+- **GEO-INFER-WATER** → `geo_infer_water`
+
+Ensure all imports use the new lowercase package names.
+
 ## Getting Help
 
 - **Issues**: Open a GitHub issue for bugs or feature requests
@@ -297,4 +309,4 @@ By contributing, you agree that your contributions will be licensed under the CC
 
 **Thank you for contributing to GEO-INFER!**
 
-*Last Updated: 2026-01-26*
+*Last Updated: 2026-02-24*

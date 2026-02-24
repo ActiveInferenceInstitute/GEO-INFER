@@ -9,21 +9,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- Comprehensive documentation for all 44 modules
-- AGENTS.md files documenting agent capabilities for each module
-- Root-level CONTRIBUTING.md, CODE_OF_CONDUCT.md, and SECURITY.md
-- GitHub issue and PR templates
-- YAML frontmatter in all module README files
+- Unified test runner `GEO-INFER-TEST/run_unified_tests.py` with `--module`, `--category`, and `--h3-migration` flags
+- Cross-module integration tests covering SPACE↔TIME, AGENT↔ACT, and DATA↔API interactions
+- `WATER` module WQI calculation and 2D Gaussian pollution plume modeling
+- `MARINE` module ocean monitoring, Blue Carbon estimation, and Marine Protected Area analysis
+- `FOREST` module NDVI health monitoring, wildfire risk index (FWI), and carbon sequestration
+- `ENERGY` module renewable site suitability mapping and LCOE benchmarking
+- `CLIMATE` module climate change adaptation modeling with Bayesian uncertainty quantification
+
+---
+
+## [0.2.0] - 2026-02-17
+
+### Added
+
+- PAI Algorithm integration (`PAI.md`): 7-phase OBSERVE→LEARN methodology for GEO-INFER development
+- `GEO-INFER-SPM`: Statistical Parametric Mapping module (spatial GLM, random field theory)
+- `GEO-INFER-EXAMPLES`: Cross-module integration demonstrations and entry-point tutorials
+- Module-specific `.cursorrules` files extending root rules for all 44 modules
+- Root-level `.cursorrules/` directory with framework-wide development rules
+- Backend-agnostic spatial dispatch pattern (`SpatialIndexingInterface`) in SPACE module
 
 ### Changed
 
-- Enhanced README.md files with code examples and feature tables
-- Improved cross-module navigation with consistent headers
-- Standardized documentation format across all modules
+- **SPACE module**: Fully migrated to H3 v4 API (`latlng_to_cell`, `cell_to_latlng`, `geo_to_cells`)
+- **PLACE module**: Fully migrated to H3 v4 API (FULLY MIGRATED status)
+- **Environmental modules**: Package directories renamed to PEP 8 lowercase (`geo_infer_forest`, `geo_infer_marine`, `geo_infer_energy`, `geo_infer_water`)
+- **Zero-Mock Policy**: Enforced across all 44 modules — every function has real algorithmic logic
+- **BAYES module**: GaussianProcess upgraded to real Cholesky decomposition; model comparison uses LOO/WAIC/DIC/BIC/AIC
+- **ACT module**: Free energy calculation hardened with proper NumPy array handling
+- License standardized to CC BY-NC-SA 4.0 across all 44 modules
+- All 44 modules now maintain minimum 4 test files (unit, integration, performance, system)
 
 ### Fixed
 
-- Empty documentation placeholders filled with comprehensive content
+- Interpolation bug in `GEO-INFER-TIME` temporal analysis
+- F-string formatting issues in `GEO-INFER-AI` and `GEO-INFER-COG`
+- Import compatibility issues in `GEO-INFER-AGENT` and `GEO-INFER-ANT`
+- 13 source bugs across applied domain modules (HEALTH, ECON, RISK, AG, BIO)
+- 7 source bugs across governance modules (NORMS, METAGOV, SEC, COMMS)
+- Zero illegitimate `pass` stubs (remaining `pass` only in abstract methods, exception handlers, import guards)
 
 ---
 

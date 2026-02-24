@@ -4,16 +4,16 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-framework"
-version = "1.0.0"
+version = "0.2.0"
 description = "Comprehensive geospatial inference framework for ecological, civic, and commercial applications"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]
 readme = "README.md"
-license = {text = "CC BY-ND-SA 4.0"}
+license = {text = "CC BY-NC-SA 4.0"}
 requires-python = ">=3.9"
 classifiers = [
-    "Development Status :: 3 - Alpha",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: Creative Commons License",
@@ -135,9 +135,10 @@ quality = [
     "pytest-cov>=2.12.0",
     "pytest-asyncio>=0.20.0",
     "black>=21.9.0",
-    "flake8>=3.9.0",
+    "ruff>=0.3.0",
     "mypy>=0.910",
-    "isort>=5.9.0",
+        "hypothesis>=6.0.0",
+    "pydocstyle>=6.0.0",
 ]
 
 # Documentation
@@ -203,10 +204,8 @@ all = [
     "pytest-cov>=2.12.0",
     "pytest-asyncio>=0.20.0",
     "black>=21.9.0",
-    "flake8>=3.9.0",
-    "mypy>=0.910",
-    "isort>=5.9.0",
-    # docs
+        "mypy>=0.910",
+        # docs
     "sphinx>=4.2.0",
     "sphinx-rtd-theme>=1.0.0",
     "nbsphinx>=0.8.0",
@@ -225,10 +224,10 @@ all = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/geo-infer/geo-infer"
-Documentation = "https://geo-infer.readthedocs.io/"
-Repository = "https://github.com/geo-infer/geo-infer"
-"Bug Tracker" = "https://github.com/geo-infer/geo-infer/issues"
+Homepage = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
+Documentation = "https://github.com/ActiveInferenceInstitute/GEO-INFER/tree/main/GEO-INFER-INTRA/docs"
+Repository = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
+"Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO-INFER/issues"
 Discord = "https://discord.activeinference.institute/"
 
 [project.scripts]

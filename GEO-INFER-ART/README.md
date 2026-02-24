@@ -4,7 +4,7 @@ description: "Beautiful maps, data visualization, and generative art from geospa
 purpose: "Create stunning visualizations, cartographic designs, and artistic maps"
 module_type: "Visualization"
 status: "Alpha"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "DATA"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-DATA", "GEO-INFER-APP"]
 tags: ["cartography", "visualization", "design", "art", "maps"]
@@ -128,4 +128,4 @@ uv pip install -e "./GEO-INFER-ART"
 
 **Status**: Alpha
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

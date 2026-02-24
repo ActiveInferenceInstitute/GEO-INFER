@@ -134,4 +134,4 @@ print(f"CO2 saved: {plan.emissions_saved_kg} kg")```
 
 This AGENTS.md documents how GEO-INFER-LOG provides logistics capabilities for agents.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

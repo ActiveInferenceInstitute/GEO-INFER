@@ -4,7 +4,7 @@ description: "Species distribution, habitat analysis, and conservation planning"
 purpose: "Enable biodiversity monitoring and ecological analysis"
 module_type: "Domain Application"
 status: "Alpha"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "DATA", "TIME"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-DATA", "GEO-INFER-FOREST"]
 tags: ["biodiversity", "ecology", "species", "habitat", "conservation"]
@@ -111,4 +111,4 @@ uv pip install -e "./GEO-INFER-BIO"
 
 **Status**: Alpha
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

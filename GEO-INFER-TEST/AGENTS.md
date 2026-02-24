@@ -223,4 +223,4 @@ if regression.has_regressions:
 
 This AGENTS.md documents how GEO-INFER-TEST provides testing infrastructure for agents.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

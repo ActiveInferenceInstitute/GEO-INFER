@@ -233,21 +233,53 @@ class QualityController:
         return QualityCheckResult(len(issues) == 0, issues, 0.8 if len(issues) == 0 else 0.4)
 
     def _validate_spatial_consistency(self, measurement: Dict) -> QualityCheckResult:
-        """Validate spatial consistency using H3-based analysis."""
-        issues = []
+        """Validate spatial consistency by comparing against nearby sensor baselines.
+
+        Uses the in-memory ``sensor_baselines`` registry: the current reading is
+        compared against the mean ± threshold×std of all other sensors that have
+        established baselines.  A reading is flagged only if it deviates beyond
+        threshold standard deviations from the majority (>80%) of neighbours,
+        which suggests a sensor fault rather than a real environmental signal.
+
+        Falls back to passing when fewer than ``min_neighbors`` baselines exist.
+        """
+        issues: list = []
         sensor_id = measurement.get('sensor_id', 'unknown')
         value = measurement.get('value')
 
         if value is None:
             return QualityCheckResult(True, [], 1.0)
 
-        # This would integrate with spatial fusion for neighbor comparison
-        # For now, we'll use a simplified approach
+        spatial_cfg = self.config.get(
+            'spatial_consistency', self.default_params['spatial_consistency']
+        )
+        threshold = float(spatial_cfg.get('neighbor_threshold', 2.0))
+        min_neighbors = int(spatial_cfg.get('min_neighbors', 3))
 
-        # Check if value is reasonable compared to expected spatial patterns
-        # This is a placeholder for more sophisticated spatial validation
+        # Collect baselines from all other sensors with >= 5 measurements
+        neighbor_baselines = [
+            b for sid, b in self.sensor_baselines.items()
+            if sid != sensor_id and b.get('count', 0) >= 5
+        ]
 
-        return QualityCheckResult(True, [], 0.9)
+        if len(neighbor_baselines) < min_neighbors:
+            return QualityCheckResult(True, [], 0.9)
+
+        outlier_count = sum(
+            1 for b in neighbor_baselines
+            if abs(value - b['mean']) > threshold * max(b['std'], 0.01)
+        )
+        fraction_outlier = outlier_count / len(neighbor_baselines)
+
+        if fraction_outlier > 0.8:
+            issues.append(
+                f"Spatial outlier: value {value:.3f} deviates >{threshold}σ from "
+                f"{outlier_count}/{len(neighbor_baselines)} neighbour baselines"
+            )
+
+        quality_score = round(1.0 - fraction_outlier * 0.5, 3)
+        return QualityCheckResult(len(issues) == 0, issues, quality_score)
+
 
     def _get_recent_measurements(self, sensor_id: str, minutes: int = 60) -> List[Dict]:
         """Get recent measurements for a sensor."""

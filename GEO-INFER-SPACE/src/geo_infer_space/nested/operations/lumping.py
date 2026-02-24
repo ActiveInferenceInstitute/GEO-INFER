@@ -638,10 +638,44 @@ class H3LumpingEngine:
         return sum(compactness_scores) / len(compactness_scores) if compactness_scores else 0.0
     
     def _calculate_similarity_score(self, cells: List, lumps: Dict[str, List[str]]) -> float:
-        """Calculate similarity score within lumps."""
-        # This would calculate how similar cells are within each lump
-        # For now, return a placeholder
-        return 0.5
+        """Calculate intra-lump spatial similarity as mean pairwise H3 proximity.
+
+        For each lump, the average H3 grid distance between all cell pairs is
+        computed.  Similarity is then 1 / (1 + avg_distance), so that lump
+        members that are immediately adjacent (distance=1) yield 0.5, perfectly
+        co-located cells yield 1.0, and dispersed cells approach 0.0.
+
+        Falls back to 0.5 when H3 is unavailable or lumps are singletons.
+        """
+        try:
+            import h3  # type: ignore
+        except ImportError:
+            return 0.5
+
+        if not lumps:
+            return 0.5
+
+        lump_similarities: List[float] = []
+        for lump_id, cell_ids in lumps.items():
+            if len(cell_ids) < 2:
+                lump_similarities.append(1.0)  # A single-cell lump is perfectly similar
+                continue
+
+            distances: List[float] = []
+            for i in range(len(cell_ids)):
+                for j in range(i + 1, len(cell_ids)):
+                    try:
+                        # h3.grid_distance returns the number of H3 hops between cells
+                        d = h3.grid_distance(cell_ids[i], cell_ids[j])
+                        distances.append(float(d))
+                    except Exception:
+                        distances.append(5.0)  # Treat incomparable cells as distant
+
+            avg_dist = sum(distances) / len(distances) if distances else 0.0
+            lump_similarities.append(1.0 / (1.0 + avg_dist))
+
+        return sum(lump_similarities) / len(lump_similarities) if lump_similarities else 0.5
+
     
     def get_lumping_statistics(self) -> Dict[str, Any]:
         """Get lumping engine statistics."""

@@ -168,11 +168,11 @@ class VariationalInference:
             else:
                 var_params[param]['log_std'] = 0.0  # log(1.0)
             
-            # For full-rank approximation, initialize covariance matrix
-            if self.vi_method == 'fullrank':
-                # We would add covariance parameters here
-                # This is just a placeholder
-                var_params[param]['cov_factor'] = np.zeros((1, 1))
+            # Full-rank approximation: initialise a lower-triangular Cholesky
+            # factor L such that Sigma = L @ L.T approximates the prior covariance.
+            # Use a small near-identity initialisation for numerical stability.
+            sigma_init = param_info['hyperparams'].get('sigma', 1.0)
+            var_params[param]['cov_factor'] = np.eye(1) * sigma_init  # L in R^{1×1}
         
         return var_params
     

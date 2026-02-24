@@ -4,7 +4,7 @@ description: "Route optimization, fleet management, and warehouse operations"
 purpose: "Provide logistics optimization for geospatial supply chain management"
 module_type: "Domain Application"
 status: "Beta"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "TIME", "DATA"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-TRANSPORT"]
 tags: ["logistics", "supply-chain", "routing", "fleet", "warehouse"]
@@ -118,4 +118,4 @@ uv pip install -e "./GEO-INFER-LOG"
 
 **Status**: Beta
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

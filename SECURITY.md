@@ -14,11 +14,12 @@ We take security seriously. If you discover a security vulnerability, please rep
 ### How to Report
 
 1. **Do NOT** open a public GitHub issue for security vulnerabilities
-2. Email the security team with details of the vulnerability
+2. Use [GitHub Private Vulnerability Reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing/privately-reporting-a-security-vulnerability) or email the Active Inference Institute security team
 3. Include:
    - Description of the vulnerability
    - Steps to reproduce
    - Potential impact
+   - Affected GEO-INFER modules
    - Suggested fix (if any)
 
 ### Response Timeline
@@ -64,4 +65,4 @@ When working with geospatial data:
 
 ---
 
-*Last Updated: 2026-01-26*
+*Last Updated: 2026-02-24*

@@ -49,9 +49,15 @@ class SpatialPrior:
             raise ValueError(f"Unknown spatial prior type: {self.prior_type}")
 
     def _icar_prior(self, phi: np.ndarray, W: np.ndarray) -> float:
-        """Intrinsic Conditional Autoregressive (ICAR) prior."""
-        # ICAR prior: phi ~ ICAR(tau)
-        # This is a placeholder implementation
+        """Intrinsic Conditional Autoregressive (ICAR) prior.
+
+        Implements the pairwise difference ICAR prior:
+            phi ~ ICAR(tau)  =>  log p(phi) ∝ (n/2)ln(tau) - (tau/2) phi^T Q phi
+        where Q = tau * (D - W) is the graph Laplacian precision matrix,
+        D = diag(W 1) is the degree matrix.
+
+        Reference: Besag (1974), Rue & Held (2005) Gaussian Markov Random Fields.
+        """
         n = len(phi)
         tau = self.parameters.get('tau', 1.0)
 
@@ -64,9 +70,14 @@ class SpatialPrior:
         return log_prior
 
     def _bym_prior(self, phi: np.ndarray, W: np.ndarray) -> float:
-        """Besag-York-Mollié (BYM) prior."""
-        # BYM prior combines ICAR and IID components
-        # This is a placeholder implementation
+        """Besag-York-Mollié (BYM) prior.
+
+        Combines spatially-structured ICAR component with an unstructured
+        IID noise component via mixing weight alpha in [0, 1]:
+            Q = (1 - alpha) * tau * I  +  alpha * tau * (D - W)
+
+        Reference: Besag, York & Mollié (1991).
+        """
         alpha = self.parameters.get('alpha', 0.5)
         tau = self.parameters.get('tau', 1.0)
 
@@ -82,9 +93,13 @@ class SpatialPrior:
         return log_prior
 
     def _leroux_prior(self, phi: np.ndarray, W: np.ndarray) -> float:
-        """Leroux prior."""
-        # Leroux prior with spatial autocorrelation parameter
-        # This is a placeholder implementation
+        """Leroux prior with tunable spatial autocorrelation.
+
+        Interpolates between IID (rho=0) and ICAR (rho=1) via:
+            Q = tau * (D - rho * W)  where rho in [0, 1)
+
+        Reference: Leroux, Lei & Breslow (1999).
+        """
         rho = self.parameters.get('rho', 0.5)
         tau = self.parameters.get('tau', 1.0)
 

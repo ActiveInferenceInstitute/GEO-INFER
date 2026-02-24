@@ -4,7 +4,7 @@ description: "Civic engagement, participatory planning, and democratic decision-
 purpose: "Enable community participation and collaborative governance in geospatial contexts"
 module_type: "Domain Application"
 status: "Alpha"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "APP", "COMMS"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-APP", "GEO-INFER-COMMS"]
 tags: ["civic", "participation", "democracy", "community", "engagement"]
@@ -138,4 +138,4 @@ uv pip install -e "./GEO-INFER-CIV"
 
 **Status**: Alpha
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

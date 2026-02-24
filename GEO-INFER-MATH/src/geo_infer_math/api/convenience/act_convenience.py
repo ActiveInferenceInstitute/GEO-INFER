@@ -105,9 +105,20 @@ def variational_inference_helper(
             likelihood_vals = np.maximum(likelihood_vals, 1e-10)
             posterior = prior * likelihood_vals
         else:
-            # Simplified: update based on observations
-            # This is a placeholder - real implementation would use proper VI
-            posterior = prior * np.exp(-0.5 * np.sum((observations - np.mean(observations)) ** 2))
+            # Mean-field Variational Inference update (no likelihood provided).
+            # Standard VB update: q*(s_i) ∝ exp(E_q\i[log p(o, s)])
+            # Approximated here using a softmax over squared prediction errors:
+            #   log q(s_i) ≈ -0.5 * precision * (o_mean - i)^2 / n_states
+            n_states = len(prior)
+            obs_mean = float(np.mean(observations))  # scalar summary
+            log_q = np.array([
+                -0.5 * ((obs_mean - i) ** 2)  # negative squared distance to each state
+                for i in range(n_states)
+            ])
+            # Subtract max for numerical stability before normalisation
+            log_q -= np.max(log_q)
+            posterior = prior * np.exp(log_q)
+
         
         # Normalize
         posterior = posterior / np.sum(posterior) if np.sum(posterior) > 0 else posterior

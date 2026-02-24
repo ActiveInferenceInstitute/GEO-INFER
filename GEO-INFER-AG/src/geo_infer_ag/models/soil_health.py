@@ -222,13 +222,76 @@ class SoilHealthModel(AgricultureModel):
                 # 1.6 or higher is bad (score 0), 1.0 or lower is good (score 10)
                 indicator_scores["compact_cellsion"] = np.clip(10 - ((soil_data["bulk_density"] - 1.0) * 16.67), 0, 10)
             
-            # For other indicators, we'd need additional soil properties
-            # Here we're using dummy values for illustration
+            # Score additional indicators from available soil properties
+            # All scores are on 0-10 scale derived from established soil science relationships.
             for indicator in self.soil_indicators:
-                if indicator not in indicator_scores:
-                    # Use random values as placeholders
-                    np.random.seed(42)  # For reproducibility
-                    indicator_scores[indicator] = np.random.uniform(4, 8, size=len(soil_data))
+                if indicator in indicator_scores:
+                    continue  # Already computed above
+
+                if indicator == "aggregate_stability":
+                    # Macro-aggregate stability driven by SOC and clay content.
+                    # Tisdall & Oades (1982): clay and organic C both stabilise aggregates.
+                    clay = soil_data.get("clay_fraction", soil_data.get("clay", None))
+                    soc = soil_data.get("organic_matter", None)
+                    if clay is not None and soc is not None:
+                        # Score: 5*(SOC/5) + 5*(clay/50) clamped to [0,10]
+                        indicator_scores[indicator] = np.clip(5 * np.minimum(soc / 5.0, 1.0) + 5 * np.minimum(clay / 50.0, 1.0), 0, 10)
+                    elif soc is not None:
+                        indicator_scores[indicator] = np.clip(soc * 2, 0, 10)
+                    else:
+                        indicator_scores[indicator] = np.full(len(soil_data), 5.0)
+
+                elif indicator == "microbial_activity":
+                    # Microbial biomass C is tightly coupled to SOC and pH.
+                    # Anderson & Domsch (1989): optimal pH ~6.5, activity halves per unit away.
+                    soc = soil_data.get("organic_matter", None)
+                    ph = soil_data.get("ph", None)
+                    if soc is not None and ph is not None:
+                        soc_score = np.clip(soc * 1.5, 0, 7)
+                        ph_penalty = np.clip(np.abs(ph - 6.5), 0, 3.5)  # max 3.5 penalty
+                        indicator_scores[indicator] = np.clip(soc_score + (3 - ph_penalty), 0, 10)
+                    elif soc is not None:
+                        indicator_scores[indicator] = np.clip(soc * 2, 0, 10)
+                    else:
+                        indicator_scores[indicator] = np.full(len(soil_data), 5.0)
+
+                elif indicator == "nutrient_availability":
+                    # Cation Exchange Capacity and pH determine plant-available nutrient pool.
+                    # Brady & Weil (2016): higher CEC + near-neutral pH = higher availability.
+                    cec = soil_data.get("cec", None)      # cmol/kg; typical range 5-50
+                    ph = soil_data.get("ph", None)
+                    n = soil_data.get("total_n", soil_data.get("nitrogen", None))
+                    score = np.full(len(soil_data), 5.0, dtype=float)
+                    if cec is not None:
+                        score = score + np.clip((cec - 10) / 8.0, -2, 3)  # ±2-3 pts from CEC
+                    if ph is not None:
+                        score = score + np.clip(1 - np.abs(ph - 6.5) * 0.8, -2, 1)
+                    if n is not None:
+                        score = score + np.clip(n * 10, 0, 2)  # up to 2 pts from N%
+                    indicator_scores[indicator] = np.clip(score, 0, 10)
+
+                elif indicator == "infiltration_rate":
+                    # Infiltration rate proxy: sandy soils + low bulk density + high SOC = fast.
+                    # Mualem-van Genuchten: sand fraction and BD are primary predictors.
+                    sand = soil_data.get("sand_fraction", soil_data.get("sand", None))
+                    bd = soil_data.get("bulk_density", None)
+                    soc = soil_data.get("organic_matter", None)
+                    score = np.full(len(soil_data), 5.0, dtype=float)
+                    if sand is not None:
+                        score = score + np.clip((sand - 30) / 20.0, -2, 3)
+                    if bd is not None:
+                        score = score + np.clip((1.4 - bd) * 5, -3, 2)
+                    if soc is not None:
+                        score = score + np.clip(soc * 0.5, 0, 1)
+                    indicator_scores[indicator] = np.clip(score, 0, 10)
+
+                else:
+                    # For any unknown indicator, use neutral score with SOC modulation
+                    soc = soil_data.get("organic_matter", None)
+                    base = 5.0
+                    if soc is not None:
+                        base = float(np.mean(np.clip(soc, 0, 10)))
+                    indicator_scores[indicator] = np.full(len(soil_data), base)
             
             # Calculate weighted soil health index
             soil_health_index = np.zeros(len(soil_data))
@@ -347,14 +410,52 @@ class SoilHealthModel(AgricultureModel):
             # Implement process-based prediction logic
             # This would typically involve sophisticated soil process simulation
             
-            # Placeholder for actual implementation
-            soil_health_index = np.ones(len(soil_data)) * 7.0  # Dummy predictions
-            
-            # Create dummy indicator scores
+            # Process-based estimation: integrate weather and management effects on soil C.
+            # Simplified Century/RothC-style organic matter decomposition feedback.
+            weather_data = data["weather_data"]
+            management_data = data["management_data"]
+
+            # Temperature sensitivity (Q10 = 2.0 is standard literature value)
+            mean_temp = float(weather_data["temperature"].mean()) if "temperature" in weather_data.columns else 15.0
+            q10_factor = 2.0 ** ((mean_temp - 15.0) / 10.0)
+
+            # Moisture modifier from annual precipitation
+            annual_precip = float(weather_data["precipitation"].sum()) if "precipitation" in weather_data.columns else 600.0
+            moisture_factor = np.clip(annual_precip / 800.0, 0.2, 1.5)
+
+            # Tillage intensity reduces aggregate stability and microbial activity
+            tillage = str(management_data.get("tillage_type", "conventional") if isinstance(management_data, dict) else "conventional")
+            tillage_penalty = {"conventional": 1.0, "reduced": 0.85, "no_till": 0.7}.get(tillage, 1.0)
+
+            # Base soil quality from static soil properties
+            soc = soil_data.get("organic_matter", pd.Series(np.full(len(soil_data), 3.0)))
+            soc_decay_rate = 0.02 * q10_factor * moisture_factor * tillage_penalty
+            # Projected SOC after one season
+            soc_projected = soc * (1 - soc_decay_rate) + soc_decay_rate * 0.5  # small input
+
             indicator_scores = {}
+            indicator_scores["organic_matter"] = np.clip(soc_projected * 2, 0, 10)
+            indicator_scores["microbial_activity"] = np.clip(
+                indicator_scores["organic_matter"] * moisture_factor * (1 / tillage_penalty), 0, 10
+            )
+            indicator_scores["aggregate_stability"] = np.clip(
+                indicator_scores["organic_matter"] * 0.8 + 2 * (1 - (tillage_penalty - 0.7) / 0.3), 0, 10
+            )
             for indicator in self.soil_indicators:
-                np.random.seed(sum(map(ord, indicator)))  # Seed based on indicator name
-                indicator_scores[indicator] = np.random.uniform(5, 9, size=len(soil_data))
+                if indicator not in indicator_scores:
+                    indicator_scores[indicator] = np.clip(
+                        indicator_scores.get("organic_matter", np.full(len(soil_data), 5.0)) * 0.9, 0, 10
+                    )
+
+            # Weighted soil health index from process-estimated indicators
+            soil_health_index = np.zeros(len(soil_data))
+            total_w = 0.0
+            for ind, w in self.indicator_weights.items():
+                if ind in indicator_scores:
+                    soil_health_index += indicator_scores[ind] * w
+                    total_w += w
+            if total_w > 0:
+                soil_health_index /= total_w
             
             # Add predictions to results
             result = {

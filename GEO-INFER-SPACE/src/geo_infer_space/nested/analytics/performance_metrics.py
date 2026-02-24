@@ -598,10 +598,37 @@ class H3PerformanceAnalyzer:
         return sum(efficiency_scores) / len(efficiency_scores) if efficiency_scores else 0.5
     
     def _calculate_scalability_score(self, result: BenchmarkResult) -> float:
-        """Calculate scalability score."""
-        # This would analyze how performance scales with load
-        # For now, return a placeholder
-        return 0.5
+        """Calculate scalability score from execution time consistency.
+
+        Scalability is gauged by how *predictably* execution time grows across
+        the benchmark measurements.  A system that scales linearly will have
+        consistent per-operation latency; one that degrades will show increasing
+        variance.
+
+        Score = max(0, 1 - CV) where CV = std(times) / mean(times).
+        CV=0 (perfectly consistent) → score=1.0; CV≥1 (chaotic) → score≤0.
+        Falls back to the speed score when fewer than 2 measurements exist.
+        """
+        if not result.measurements:
+            return 0.5
+
+        execution_times = [
+            m.value for m in result.measurements
+            if m.metric_type == PerformanceMetric.EXECUTION_TIME and m.value > 0
+        ]
+
+        if len(execution_times) < 2:
+            # Only one data point — use inverse-time score as proxy
+            return self._calculate_speed_score(result)
+
+        mean_time = sum(execution_times) / len(execution_times)
+        variance = sum((t - mean_time) ** 2 for t in execution_times) / len(execution_times)
+        std_time = variance ** 0.5
+
+        # Coefficient of variation: lower = more predictable = better scalability
+        cv = std_time / mean_time if mean_time > 0 else 1.0
+        return max(0.0, min(1.0, 1.0 - cv))
+
     
     def _generate_performance_recommendations(self, profile: PerformanceProfile) -> List[str]:
         """Generate performance optimization recommendations."""

@@ -4,7 +4,7 @@ description: "Forest monitoring, vegetation analysis, and woodland management"
 purpose: "Provide forest inventory, change detection, and ecosystem analysis capabilities"
 module_type: "Domain Application"
 status: "Alpha"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "TIME", "DATA", "BIO"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-DATA", "GEO-INFER-BIO"]
 tags: ["forestry", "vegetation", "remote-sensing", "carbon", "biodiversity"]
@@ -185,4 +185,4 @@ print(f"Carbon credits: {report.credits}")
 
 **Status**: Alpha - Core functionality implemented
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-emergency"
-version = "0.1.0"
+version = "0.2.0"
 description = "Emergency management and disaster response capabilities for geospatial systems"
 readme = "README.md"
 license = {text = "CC BY-NC-SA 4.0"}
@@ -40,8 +40,7 @@ dev = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",
     "black>=21.9.0",
-    "flake8>=3.9.0",
-    "mypy>=0.910",
+        "mypy>=0.910",
 ]
 
 [tool.setuptools]

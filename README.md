@@ -50,30 +50,26 @@
 ### ⚡ Get Started in 3 Steps
 
 ```bash
-# 1
-. Clone and enter the repository
-git clone https://github.com/geo-infer/geo-infer.git
+# Step 1: Clone and enter the repository
+git clone https://github.com/ActiveInferenceInstitute/GEO-INFER.git
 cd GEO-INFER
 
-# 2
-. Install core modules (choose what you need)
+# Step 2: Install core modules (choose what you need)
 uv pip install -e ./GEO-INFER-MATH    # Mathematical foundations
 uv pip install -e ./GEO-INFER-SPACE   # Spatial analysis (H3 v4)
 uv pip install -e ./GEO-INFER-ACT     # Active inference
 
-# 3
-. Run your first analysis
+# Step 3: Run your first analysis
 python -c "
 from geo_infer_space import SpatialAnalyzer
 from geo_infer_act import ActiveInferenceModel
 
-# Create
- your first spatial analysis
+# Create your first spatial analysis
 analyzer = SpatialAnalyzer()
 model = ActiveInferenceModel()
 
-print('🎉 GEO-INFER is ready!')
-print('📚 Check GEO-INFER-INTRA/docs/ for documentation')
+print('\U0001f389 GEO-INFER is ready!')
+print('\U0001f4da Check GEO-INFER-INTRA/docs/ for documentation')
 "
 ```
 
@@ -963,35 +959,42 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 10 parallel agent groups systematically improved all 44 modules:
 
 **Foundation Modules (MATH, SPACE, TIME, DATA)**:
+
 - Fixed 3 MATH convenience API stubs, implemented ALS CP decomposition, fixed optimizer bug
 - Verified H3 v4 API consistency across SPACE (zero legacy v3 calls)
 - Added 340+ tests to TIME, 177+ tests to DATA, fixed interpolation bugs
 
 **Core Analytics (BAYES, ACT, SPM, AI, COG)**:
+
 - BAYES: Implemented real Gaussian Process (Cholesky-based, RBF/Matern/Exponential kernels), replaced random-number model comparison with LOO/WAIC/DIC/AIC/BIC
 - ACT: Fixed 8 stubs including numpy array truth-value bug in free_energy.py, implemented perception-action loop closure
 - AI: Fixed missing Tuple import that blocked all tests, added 79 tests
 - COG: Fixed 5 broken f-strings, 2 validation bugs, added 146 tests
 
 **Agent Architecture (AGENT, ANT, SIM)**:
+
 - AGENT: 10 new test files (140 tests), compatibility fixes
 - ANT: Verified swarm algorithms, added integration tests
 - SIM: Expanded simulation types, added tests
 
 **Environmental Domains (FOREST, MARINE, ENERGY, WATER, CLIMATE)**:
+
 - Renamed 4 uppercase packages to PEP 8 lowercase (geo_infer_FOREST → geo_infer_forest, etc.)
 - Added 14 new source files with real domain algorithms, 286 tests, fixed 8 bugs
 
 **Applied Domains (HEALTH, ECON, RISK, AG, BIO, EMERGENCY, TRANSPORT, EDU, LOG)**:
+
 - 740 tests across 72 test files in 9 modules
 - Fixed RISK broken EarthquakeModel, LOG ortools degradation, BIO deprecated imports
 - Created real AG API resources (FieldsResource, CropsResource, YieldResource)
 
 **Governance & Infrastructure (NORMS, METAGOV, SEC, COMMS, GIT, IOT, PEP)**:
+
 - 522 tests across 7 modules
 - Fixed circular imports (COMMS), datetime comparison (SEC), missing typing imports (IOT)
 
 **Application Layer (CIV, ORG, REQ, API, APP, OPS, EXAMPLES, INTRA, ART, PLACE)**:
+
 - CIV/ORG/REQ: Implemented from scratch — participation platform (Shannon entropy), organization model (directed graph + 6 voting methods), requirements analyzer (topological sort + critical path)
 - 527 tests across 10 modules
 

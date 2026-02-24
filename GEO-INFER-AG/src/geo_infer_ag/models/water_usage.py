@@ -232,10 +232,19 @@ class WaterUsageModel(AgricultureModel):
             rainfall_m3 = effective_rainfall_values * field_data["area_ha"] * 10
             
             # Calculate water efficiency metrics
-            water_productivity = 1.0  # Yield (t/ha) / water use (mm) - placeholder value
             if "yield" in field_data.columns:
                 # If yield data is available, calculate actual water productivity
                 water_productivity = field_data["yield"] / water_requirement
+            else:
+                # Use typical water productivity values (kg/m3 or t/ha per 100mm approx) based on crop
+                # A hardcoded 1.0 was a placeholder; now defaults are crop-specific
+                typical_wp = {
+                    "corn": 2.0, "wheat": 1.0, "rice": 0.8, "soybean": 0.6,
+                    "cotton": 0.5, "alfalfa": 1.2, "generic": 1.0
+                }
+                crop_lower = self.crop_type.lower() if self.crop_type else "generic"
+                default_wp = typical_wp.get(crop_lower, 1.0)
+                water_productivity = np.full(num_fields, default_wp)
             
             # Add predictions to results
             result = {
@@ -329,28 +338,97 @@ class WaterUsageModel(AgricultureModel):
                 
             soil_data = data["soil_data"]
             management_data = data["management_data"]
-            
-            # Implement process-based water balance model
-            # This would typically involve a sophisticated simulation of the soil-plant-atmosphere system
-            
-            # Placeholder for actual implementation
+
+            # Soil-Water-Atmosphere (SWA) balance model.
+            # Uses the FAO-56 dual crop coefficient framework (Allen et al. 1998):
+            #   ETc = (Kcb * Ks + Ke) * ETo
+            # where Ks is the water-stress coefficient and Ke is the evaporation coefficient.
+
             num_fields = len(field_data)
-            water_requirement = np.ones(num_fields) * 500.0  # Dummy values in mm per season
+
+            # Step 1: Compute reference ET using Penman-Monteith (reuse existing helper)
+            ref_et = self._calculate_reference_et(weather_data)  # mm/day series
+            season_days = len(weather_data)
+
+            # Step 2: Extract soil properties (defaults from FAO-56 typical loam)
+            theta_fc  = float(soil_data.get("field_capacity",  pd.Series([0.30])).mean())  # m³/m³
+            theta_pwp = float(soil_data.get("wilting_point",   pd.Series([0.14])).mean())  # m³/m³
+            root_depth = float(management_data.get("root_depth_m", 0.6) if isinstance(management_data, dict) else 0.6)
+            # Total available water (TAW) in mm
+            taw = 1000 * (theta_fc - theta_pwp) * root_depth
+
+            # Step 3: Crop coefficient for mid-season
+            crop_type = self.crop_type or "generic"
+            crop_coeffs = self.crop_coefficients.get(crop_type.lower(), self.crop_coefficients["generic"])
+            kcb = crop_coeffs["mid"]
+            ke = 0.05  # soil evaporation coefficient (simplified)
+
+            # Step 4: Daily water balance loop
+            daily_et = (kcb + ke) * ref_et  # mm/day
+            daily_precip = weather_data["precipitation"] if "precipitation" in weather_data.columns else pd.Series(np.zeros(season_days))
+
+            # Management irrigation threshold: irrigate when depletion exceeds 50% TAW (p = 0.5)
+            p_threshold = float(management_data.get("depletion_fraction", 0.5) if isinstance(management_data, dict) else 0.5)
+            rain_effectiveness = 0.75  # fraction of rainfall available to roots
+
+            soil_moisture = theta_fc  # start at field capacity
+            cumulative_et = 0.0
+            cumulative_irr = 0.0
+            cumulative_rain = 0.0
+
+            for day in range(season_days):
+                et_d = float(daily_et.iloc[day]) if hasattr(daily_et, 'iloc') else float(daily_et)
+                rain_d = float(daily_precip.iloc[day]) if hasattr(daily_precip, 'iloc') else 0.0
+
+                # Water stress coefficient (FAO-56 Eq. 84)
+                depletion = theta_fc - soil_moisture  # m³/m³
+                dr_mm = depletion * 1000 * root_depth   # root zone depletion in mm
+                ks = min(1.0, max(0.0, (taw - dr_mm) / ((1 - p_threshold) * taw))) if taw > 0 else 1.0
+
+                actual_et = ks * et_d
+                effective_rain = rain_d * rain_effectiveness
+
+                # Irrigation if depletion exceeds threshold
+                irr_d = 0.0
+                if (soil_moisture < theta_fc - p_threshold * (theta_fc - theta_pwp)):
+                    irr_d = (theta_fc - soil_moisture) * 1000 * root_depth  # mm
+
+                # Update soil moisture
+                soil_moisture = min(theta_fc, soil_moisture + (effective_rain + irr_d) / (1000 * root_depth) - actual_et / (1000 * root_depth))
+                soil_moisture = max(theta_pwp, soil_moisture)
+
+                cumulative_et += actual_et
+                cumulative_irr += irr_d
+                cumulative_rain += effective_rain
+
+            # Field-level aggregation
+            water_requirement = np.full(num_fields, cumulative_et)
+            irrigation_vals = np.full(num_fields, cumulative_irr)
+            rainfall_vals = np.full(num_fields, cumulative_rain)
+
             water_requirement_m3 = water_requirement * field_data["area_ha"] * 10
-            
-            # Create dummy water balance components
+            irrigation_m3 = irrigation_vals * field_data["area_ha"] * 10
+
             water_balance = {}
             for component in self.water_balance_components:
                 if component == "evapotranspiration":
                     water_balance[component] = water_requirement
                 elif component == "precipitation":
-                    water_balance[component] = np.ones(num_fields) * 300.0
+                    water_balance[component] = rainfall_vals
                 elif component == "irrigation":
-                    water_balance[component] = np.maximum(0, water_requirement - 300.0)
+                    water_balance[component] = irrigation_vals
                 elif component == "runoff":
-                    water_balance[component] = np.ones(num_fields) * 50.0
+                    # Simplified SCS Curve Number estimate (CN=75 for moderate conditions)
+                    cn = float(management_data.get("curve_number", 75) if isinstance(management_data, dict) else 75)
+                    s = 25400 / cn - 254  # mm
+                    total_rain = float(daily_precip.sum()) if hasattr(daily_precip, 'sum') else 0.0
+                    runoff_mm = max(0, (total_rain - 0.2*s)**2 / (total_rain + 0.8*s)) if total_rain > 0.2*s else 0.0
+                    water_balance[component] = np.full(num_fields, runoff_mm)
                 elif component == "drainage":
-                    water_balance[component] = np.ones(num_fields) * 70.0
+                    # Drainage = precipitation + irrigation - ET - runoff (simple balance)
+                    runoff_mm = float(water_balance.get("runoff", np.zeros(1))[0]) if "runoff" in water_balance else 0.0
+                    drainage = max(0, cumulative_rain + cumulative_irr - cumulative_et - runoff_mm)
+                    water_balance[component] = np.full(num_fields, drainage)
             
             # Add predictions to results
             result = {

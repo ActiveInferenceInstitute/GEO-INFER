@@ -4,7 +4,7 @@ description: "Crop monitoring, soil analysis, yield prediction, and farm managem
 purpose: "Enable precision agriculture through geospatial analytics and sensing"
 module_type: "Domain Application"
 status: "Alpha"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "TIME", "DATA", "IOT"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-IOT"]
 tags: ["agriculture", "precision-farming", "crops", "soil", "yield"]
@@ -153,4 +153,4 @@ schedule = planner.create(
 
 **Status**: Alpha
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

@@ -4,7 +4,7 @@ description: "Agent-based modeling, discrete event simulation, and scenario anal
 purpose: "Provide simulation capabilities for spatial systems and agent behavior"
 module_type: "Core Analysis"
 status: "Beta"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "TIME", "ACT"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-ACT"]
 tags: ["simulation", "abm", "modeling", "scenarios", "monte-carlo"]
@@ -121,4 +121,4 @@ uv pip install -e "./GEO-INFER-SIM"
 
 **Status**: Beta
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

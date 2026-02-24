@@ -4,7 +4,7 @@ description: "Example implementations, tutorials, and reference applications"
 purpose: "Provide learning resources and reference implementations for GEO-INFER"
 module_type: "Documentation"
 status: "Stable"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["All modules"]
 compatibility: ["All GEO-INFER modules"]
 tags: ["examples", "tutorials", "learning", "reference", "demos"]
@@ -132,4 +132,4 @@ python -m geo_infer_examples tutorial --topic basics
 
 **Status**: Stable - Continuously updated
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

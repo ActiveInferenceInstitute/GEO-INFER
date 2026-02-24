@@ -4,10 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "geo-infer-climate"
-version = "0.1.0"
+version = "0.2.0"
 description = "Climate modeling, weather analysis, and climate change impact assessment for geospatial systems"
 readme = "README.md"
-license = {text = "CC BY-ND-SA 4.0"}
+license = {text = "CC BY-NC-SA 4.0"}
 requires-python = ">=3.9"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
@@ -44,10 +44,8 @@ dev = [
     "pytest-cov>=2.12.0",
     "pytest-asyncio>=0.20.0",
     "black>=21.9.0",
-    "flake8>=3.9.0",
-    "mypy>=0.910",
-    "isort>=5.9.0",
-]
+        "mypy>=0.910",
+    ]
 
 [tool.setuptools]
 package-dir = {"" = "src"}

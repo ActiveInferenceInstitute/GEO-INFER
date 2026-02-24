@@ -328,6 +328,14 @@ class IntegratedSecurityManager:
         recommended_response = self._generate_response_recommendations(
             combined_severity, affected_domains, correlation_type
         )
+        # Calculate confidence score based on correlation strength
+        base_confidence = 0.6
+        if correlation_type == ThreatCorrelationType.MULTI_DOMAIN:
+            base_confidence = 0.75
+        
+        # Add bonus for number of correlations (up to 0.95 max)
+        correlation_bonus = min(0.2, len(correlations) * 0.05)
+        calculated_confidence = min(0.95, base_confidence + correlation_bonus)
         
         return IntegratedThreat(
             threat_id=threat_id,
@@ -336,7 +344,7 @@ class IntegratedSecurityManager:
             correlation_type=correlation_type,
             component_threats=component_threats,
             combined_severity=combined_severity,
-            confidence_score=0.8,  # TODO: Calculate based on correlation strength
+            confidence_score=calculated_confidence,
             attack_chain=attack_chain,
             impact_assessment=impact_assessment,
             recommended_response=recommended_response

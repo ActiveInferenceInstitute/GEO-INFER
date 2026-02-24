@@ -357,13 +357,71 @@ class GeoInferTestRunner:
             self.config.modules_to_test = original_modules
     
     def run_cross_module_tests(self) -> Dict[str, Any]:
-        """Run tests that verify cross-module integration."""
+        """Run integration tests that verify cross-module interactions.
+
+        Discovers and executes every test file located in a
+        ``tests/integration/`` directory across all available GEO-INFER modules,
+        then returns a consolidated report.
+        """
         if self.log_integration:
             self.log_integration.logger.info("Starting cross-module integration tests")
-        
-        # This would implement comprehensive cross-module testing
-        # For now, return a placeholder
+
+        import time as _time
+        start_time = _time.time()
+
+        cross_results: Dict[str, Any] = {}
+        total_tests = 0
+        total_passed = 0
+        total_failed = 0
+
+        for module in self.AVAILABLE_MODULES:
+            integration_dir = Path(f'GEO-INFER-{module}/tests/integration')
+            if not integration_dir.exists():
+                continue
+
+            test_files = sorted(integration_dir.glob('test_*.py'))
+            if not test_files:
+                continue
+
+            module_results = []
+            for test_file in test_files:
+                t0 = _time.time()
+                exit_code = pytest.main([
+                    str(test_file),
+                    '-v', '--tb=short', '--disable-warnings', '-q',
+                    '--no-header',
+                ])
+                elapsed = _time.time() - t0
+                passed = exit_code == 0
+                module_results.append({
+                    'test_file': str(test_file),
+                    'passed': passed,
+                    'duration_s': round(elapsed, 3),
+                })
+                total_tests += 1
+                if passed:
+                    total_passed += 1
+                else:
+                    total_failed += 1
+
+            cross_results[module] = module_results
+
+        elapsed_total = _time.time() - start_time
+
+        if self.log_integration:
+            self.log_integration.logger.info(
+                f"Cross-module integration tests completed: {total_passed}/{total_tests} passed "
+                f"in {elapsed_total:.2f}s"
+            )
+
         return {
-            'cross_module_tests': 'Not yet implemented',
-            'integration_status': 'Planned for future release'
-        } 
+            'cross_module_tests': cross_results,
+            'integration_status': 'completed',
+            'summary': {
+                'total_tests': total_tests,
+                'passed': total_passed,
+                'failed': total_failed,
+                'success_rate': (total_passed / total_tests * 100) if total_tests else 0.0,
+                'duration_s': round(elapsed_total, 3),
+            }
+        }

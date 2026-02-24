@@ -4,7 +4,7 @@ description: "Sense of place, placemaking, and location-based identity analysis"
 purpose: "Enable place-based reasoning and community identity analysis"
 module_type: "Domain Application"
 status: "Alpha"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["SPACE", "CIV", "COG"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-CIV", "GEO-INFER-COG"]
 tags: ["place", "community", "identity", "placemaking", "sense-of-place"]
@@ -115,4 +115,4 @@ uv pip install -e "./GEO-INFER-PLACE"
 
 **Status**: Alpha
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

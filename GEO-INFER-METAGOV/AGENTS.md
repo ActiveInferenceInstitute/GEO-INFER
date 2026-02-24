@@ -185,4 +185,4 @@ violations = env_gov.monitor_compliance(regulation)```
 
 This AGENTS.md documents how GEO-INFER-METAGOV provides governance and policy capabilities for agents.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

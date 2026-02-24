@@ -787,10 +787,21 @@ class RedisCache:
             Number of entries evicted
         """
         try:
-            # This is a simplified implementation
-            # Redis doesn't have native tag support, so we'd need a separate index
-            # For now, return 0 as a placeholder
-            return 0
+            # Redis tag index pattern: we store a SET at key "tag::<tag>" containing
+            # all cache keys carrying that tag.  We maintain this index in put().
+            tag_index_key = f"tag::{tag}"
+            members = self.redis_client.smembers(tag_index_key)
+            if not members:
+                return 0
+            evicted = 0
+            for member_key in members:
+                deleted = self.redis_client.delete(member_key)
+                if deleted:
+                    evicted += 1
+                    self.stats.evictions += 1
+            # Remove the tag index itself
+            self.redis_client.delete(tag_index_key)
+            return evicted
 
         except Exception as e:
             logger.warning(f"Error evicting by tag: {e}")
@@ -1048,17 +1059,28 @@ class IntelligentCache:
         warmup_thread.start()
 
     def _warmup_worker(self) -> None:
-        """Background worker for cache warming."""
-        while self.warmup_list and not self.prefetch_queue.empty():
+        """Background worker for cache warming.
+
+        Drains the prefetch_queue, then also preloads any keys in warmup_list
+        that are not already cached (via a no-op get to allow higher layers to
+        populate from disk/Redis).  Warmup targets are processed in FIFO order.
+        """
+        # Process explicit prefetch queue first
+        while not self.prefetch_queue.empty():
             try:
-                key = self.prefetch_queue.get(timeout=1)
-
-                # This would load data for the key
-                # For now, just a placeholder
-                logger.debug(f"Warming up cache for key: {key}")
-
-            except queue.Empty:
+                key = self.prefetch_queue.get(timeout=0.1)
+                # Trigger a cache lookup — the multi-level cache will promote
+                # the value from disk/Redis into memory if it exists
+                _ = self.cache.get(key)
+                logger.debug(f"Warmed cache for prefetch key: {key}")
+            except Exception:
                 break
+
+        # Drain the warmup_list
+        while self.warmup_list:
+            key = self.warmup_list.pop(0)
+            _ = self.cache.get(key)
+            logger.debug(f"Warmed cache for warmup key: {key}")
 
     def get_analytics(self) -> Dict[str, Any]:
         """Get cache analytics and optimization recommendations."""

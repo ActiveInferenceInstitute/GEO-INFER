@@ -123,4 +123,4 @@ program.deploy(platform="online")```
 
 This AGENTS.md documents how GEO-INFER-EDU provides educational capabilities for agents.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

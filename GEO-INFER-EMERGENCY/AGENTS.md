@@ -117,4 +117,4 @@ coordinator.establish_unified_command()```
 
 This AGENTS.md documents how GEO-INFER-EMERGENCY provides emergency capabilities for agents.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

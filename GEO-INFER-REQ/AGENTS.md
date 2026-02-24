@@ -188,4 +188,4 @@ print(f"Deployment order: {deployment.order}")```
 
 This AGENTS.md documents how GEO-INFER-REQ provides requirements management for agents.
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

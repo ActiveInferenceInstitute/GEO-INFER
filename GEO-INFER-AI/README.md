@@ -4,7 +4,7 @@ description: "ML models, deep learning, and AI capabilities for geospatial analy
 purpose: "Provide AI/ML tools for spatial pattern recognition and prediction"
 module_type: "Core Intelligence"
 status: "Beta"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["DATA", "SPACE"]
 compatibility: ["GEO-INFER-DATA", "GEO-INFER-SPACE", "GEO-INFER-ACT"]
 tags: ["ai", "machine-learning", "deep-learning", "prediction", "classification"]
@@ -133,4 +133,4 @@ uv pip install -e "./GEO-INFER-AI[gpu]"
 
 **Status**: Beta
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24

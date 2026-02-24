@@ -4,7 +4,7 @@ description: "Multi-agent coordination, lifecycle management, and agent communic
 purpose: "Provide infrastructure for deploying and managing multiple geospatial agents"
 module_type: "Core Framework"
 status: "Beta"
-last_updated: "2026-01-26"
+last_updated: "2026-02-24"
 dependencies: ["ACT", "COMMS"]
 compatibility: ["GEO-INFER-ACT", "GEO-INFER-COMMS", "GEO-INFER-OPS"]
 tags: ["agents", "orchestration", "multi-agent", "coordination", "lifecycle"]
@@ -137,4 +137,4 @@ uv pip install -e "./GEO-INFER-AGENT"
 
 **Status**: Beta
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-24
