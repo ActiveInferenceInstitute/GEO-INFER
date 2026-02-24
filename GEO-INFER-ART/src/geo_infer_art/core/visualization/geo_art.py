@@ -375,12 +375,28 @@ class GeoArt:
         if self._figure is None:
             raise ValueError("No visualization to enhance. Apply a style first.")
 
-        # This is a placeholder for interactive functionality
-        # In a real implementation, this would integrate with interactive backends
+        # Real implementation using matplotlib interactive features and mplcursors
         if interactive_type == "zoom":
-            self._ax.set_navigate(True)
+            if hasattr(self._figure.canvas, 'toolbar') and self._figure.canvas.toolbar is not None:
+                self._figure.canvas.toolbar.zoom()
+            else:
+                self._ax.set_navigate(True)
         elif interactive_type == "pan":
-            self._ax.set_navigate(True)
+            if hasattr(self._figure.canvas, 'toolbar') and self._figure.canvas.toolbar is not None:
+                self._figure.canvas.toolbar.pan()
+            else:
+                self._ax.set_navigate(True)
+        elif interactive_type in ["hover", "click"]:
+            try:
+                import mplcursors
+                hover = (interactive_type == "hover")
+                cursor = mplcursors.cursor(self._ax, hover=hover)
+                @cursor.connect("add")
+                def on_add(sel):
+                    sel.annotation.get_bbox_patch().set(boxstyle="round,pad=0.5", alpha=0.9, color="white")
+            except ImportError:
+                import logging
+                logging.getLogger(__name__).warning("mplcursors not installed. Cannot enable hover/click interactivity.")
 
         return self
 

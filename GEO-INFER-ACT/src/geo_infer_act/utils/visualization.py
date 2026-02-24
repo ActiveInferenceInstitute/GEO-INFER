@@ -1007,12 +1007,35 @@ def create_interpretability_dashboard(analyzer, output_dir: Path):
         else:
             decisiveness = 0.5
         
+        # Calculate Adaptability based on policy probability variance
+        if 'policy_probs' in locals() and policy_probs:
+            policy_vars = [np.var(probs) for probs in policy_probs]
+            adaptability = min(1.0, np.mean(policy_vars) * 4)  # Scaled for 0-1 radar chart
+        else:
+            adaptability = 0.5
+            
+        # Calculate Efficiency based on expected free energy improvements
+        efficiency = 0.5
+        expected_free_energies = []
+        if 'policies' in analyzer.traces:
+            for policy_data in analyzer.traces['policies']:
+                if 'all_free_energies' in policy_data:
+                    expected_free_energies.append(policy_data['all_free_energies'])
+        
+        if expected_free_energies:
+            efe_array = np.array(expected_free_energies)
+            if efe_array.ndim > 1:
+                min_efe_per_step = np.min(efe_array, axis=1)
+                if len(min_efe_per_step) > 1 and min_efe_per_step[0] != 0:
+                    efe_improvement = min_efe_per_step[0] - min_efe_per_step[-1]
+                    efficiency = max(0.0, min(1.0, efe_improvement / abs(min_efe_per_step[0])))
+
         action_metrics = ['Consistent', 'Decisive', 'Efficient', 'Adaptive']
         action_values = [
             max(0.0, consistency),
             decisiveness,
-            0.7,  # Placeholder for efficiency
-            0.6   # Placeholder for adaptability
+            efficiency,
+            adaptability
         ]
         
         # Radar chart for action quality
@@ -1130,10 +1153,86 @@ def plot_hierarchical_beliefs(beliefs: Dict[str, np.ndarray]) -> plt.Figure:
     return fig
 
 def plot_markov_blanket(blanket: Dict[str, List[int]]) -> plt.Figure:
-    """Plot Markov blanket structure."""
-    fig, ax = plt.subplots()
-    ax.plot([0], [0])  # Simple placeholder
-    ax.set_title('Markov Blanket')
+    """Plot Markov blanket structure.
+    
+    Args:
+        blanket: Dictionary of state indices organized by Markov blanket components
+                 (e.g., 'internal', 'active', 'sensory', 'external')
+    """
+    fig, ax = plt.subplots(figsize=(8, 8))
+    try:
+        import networkx as nx
+        G = nx.DiGraph()
+        
+        # Standard colors and radii for Markov Blanket components
+        layers = {'internal': 0, 'sensory': 1, 'active': 1, 'external': 2}
+        colors_map = {'internal': '#87CEFA', 'sensory': '#FFA500', 
+                      'active': '#98FB98', 'external': '#D3D3D3'}
+        
+        pos = {}
+        node_colors = []
+        labels = {}
+        
+        for group, nodes in blanket.items():
+            group_lower = group.lower()
+            radius = layers.get(group_lower, 1.5)
+            color = colors_map.get(group_lower, '#DDA0DD')
+            
+            n = len(nodes)
+            if n == 0:
+                continue
+                
+            angles = np.linspace(0, 2*np.pi, n, endpoint=False)
+            if group_lower == 'active':
+                angles += np.pi / max(n, 1)  # offset active from sensory on same radius
+                
+            for i, node_id in enumerate(nodes):
+                node_name = f"{group[0].upper()}{node_id}"
+                G.add_node(node_name)
+                labels[node_name] = str(node_id)
+                
+                if radius == 0:
+                    pos[node_name] = (0.0 + (i*0.1 if n > 1 else 0), 0.0)
+                else:
+                    pos[node_name] = (radius * np.cos(angles[i]), radius * np.sin(angles[i]))
+                node_colors.append(color)
+        
+        # Add implicit causal edges based on Markov Blanket definition
+        valid_edges = {
+            ('external', 'sensory'),
+            ('sensory', 'internal'),
+            ('internal', 'active'),
+            ('active', 'external')
+        }
+        for group1, nodes1 in blanket.items():
+            for group2, nodes2 in blanket.items():
+                if (group1.lower(), group2.lower()) in valid_edges:
+                    for n1 in nodes1:
+                        for n2 in nodes2:
+                            G.add_edge(f"{group1[0].upper()}{n1}", f"{group2[0].upper()}{n2}")
+        
+        nx.draw_networkx_nodes(G, pos, ax=ax, node_color=node_colors, node_size=1500, edgecolors='white', linewidths=2)
+        nx.draw_networkx_edges(G, pos, ax=ax, arrowsize=15, width=1.5, alpha=0.6, edge_color='gray')
+        nx.draw_networkx_labels(G, pos, labels, ax=ax, font_size=12, font_weight='bold')
+        
+        from matplotlib.lines import Line2D
+        legend_elements = [Line2D([0], [0], marker='o', color='w', label=k.capitalize(),
+                                  markerfacecolor=v, markersize=10) for k, v in colors_map.items() if any(g.lower() == k for g in blanket.keys())]
+        if legend_elements:
+            ax.legend(handles=legend_elements, loc='upper right', bbox_to_anchor=(1.1, 1.1))
+            
+        ax.axis('off')
+    except ImportError:
+        # Fallback if networkx is not installed
+        y = 0.8
+        for k, v in blanket.items():
+            ax.text(0.5, y, f"{k.capitalize()} States: {len(v)} nodes", 
+                   ha='center', va='center', size=14, 
+                   bbox=dict(boxstyle="round,pad=0.3", fc="lightgray", ec="gray"))
+            y -= 0.2
+        ax.axis('off')
+        
+    ax.set_title('Markov Blanket Topology', fontsize=16, fontweight='bold', pad=20)
     return fig 
 
 def plot_h3_grid_static(h3_data: Dict[str, Dict], metric: str = 'fe', title: str = 'H3 Grid') -> plt.Figure:

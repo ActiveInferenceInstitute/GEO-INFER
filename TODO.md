@@ -63,17 +63,17 @@ Every version release MUST satisfy ALL of the following criteria before tagging:
 
 #### Priority 1: Source Code Stub Elimination
 
-- [ ] **GEO-INFER-IOT**: Replace MQTT placeholder implementations with real `paho-mqtt` handlers
+- [x] **GEO-INFER-IOT**: Replace MQTT placeholder implementations with real `paho-mqtt` handlers
   - `core/ingestion.py`: `_handle_mqtt()` and `_handle_mqtt_async()` — implement real MQTT connection lifecycle
   - `core/quality_control.py`: Replace spatial validation comment with real geometry check
-- [ ] **GEO-INFER-AG**: Replace placeholder values in model implementations
+- [x] **GEO-INFER-AG**: Replace placeholder values in model implementations
   - `models/soil_health.py`: Replace `random values as placeholders` with USDA soil data integration
   - `models/carbon_sequestration.py`: Replace simplified placeholder with real IPCC Tier 1 methodology
   - `models/water_usage.py`: Replace hardcoded `water_productivity = 1.0` with FAO-56 calculation
-- [ ] **GEO-INFER-ACT**: Fix generative model placeholders
+- [x] **GEO-INFER-ACT**: Fix generative model placeholders
   - `core/generative_model.py`: Replace two `return a placeholder` blocks with proper Dirichlet/categorical sampling
   - `utils/visualization.py`: Replace `ax.plot([0], [0])` placeholder with real belief state trajectory plotting
-- [ ] **GEO-INFER-BAYES**: Eliminate remaining placeholder implementations
+- [x] **GEO-INFER-BAYES**: Eliminate remaining placeholder implementations
   - `core/variational.py`: Replace `# This is just a placeholder` with real ELBO computation
   - `utils/priors.py`: Three placeholder prior implementations — implement Jeffreys, reference, and unit-information priors
   - `models/multilevel.py`: Replace placeholder pooling with real partial-pooling via Cholesky LKJ decomposition
