@@ -394,13 +394,15 @@ class ActiveInferenceModel:
     def _extract_model_beliefs(self, model: GenerativeModel):
         beliefs = getattr(model, 'beliefs', None)
         if beliefs is None:
-            if self.model_type == 'categorical' and getattr(model, 'state_dim', 0) > 0:
-                s_dim = model.state_dim
+            s_dim = getattr(model, 'state_dim', None)
+            if s_dim is None:
+                s_dim = getattr(model, 'num_states', 0)
+                
+            if self.model_type == 'categorical' and (isinstance(s_dim, int) and s_dim > 0 or isinstance(s_dim, list) and len(s_dim) > 0):
                 if isinstance(s_dim, list):
                     return {'states': [normalize_distribution(np.ones(d)) for d in s_dim]}
                 return {'states': normalize_distribution(np.ones(s_dim))}
-            if self.model_type == 'gaussian' and getattr(model, 'state_dim', 0) > 0:
-                s_dim = model.state_dim
+            if self.model_type == 'gaussian' and (isinstance(s_dim, int) and s_dim > 0 or isinstance(s_dim, list) and len(s_dim) > 0):
                 if isinstance(s_dim, list): s_dim = s_dim[0] # Simplify for gaussian
                 precision = np.eye(s_dim) * getattr(model, 'prior_precision', 1.0)
                 return {'mean': np.zeros(s_dim), 'precision': precision}
