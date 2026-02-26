@@ -100,3 +100,5 @@
  Status | Agent Type | Status | Description | |------------|--------|-------------| | **DiseaseHotspotAnalyzer** | ✅ Implemented | Hotspot identification |
  | **HealthcareAccessibilityAnalyzer** | ✅ Implemented | Accessibility analysis |
  | **EnvironmentalHealthAssessor** | ✅ Implemented | Environmental factors | | **OutbreakDetectionAgent** | 🔮 Planned | Early warning systems | | **ResourceAllocationAgent** | 🔮 Planned | Resource optimization | | **ContactTracingAgent** | 🔮 Planned | Contact networks | --- This AGENTS.md documents the health intelligence agent implementations for public health surveillance and healthcare resource management.
+
+**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.

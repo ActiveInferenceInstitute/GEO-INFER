@@ -26,8 +26,8 @@ from typing import Any, Dict, List, Optional
 
 logger = logging.getLogger(__name__)
 
-# Location presets
-LOCATION_PRESETS = {
+# Hardcoded fallback presets (used if YAML is unavailable)
+_FALLBACK_PRESETS: Dict[str, Any] = {
     "del_norte": {
         "name": "Del Norte County, California",
         "bounds": {"west": -124.408, "south": 41.458, "east": -123.536, "north": 42.006},
@@ -36,13 +36,33 @@ LOCATION_PRESETS = {
         "data_sources": ["calfire", "noaa", "usgs"],
     },
     "cascadia": {
-        "name": "Cascadia Bioregion (CA + OR)",
-        "bounds": {"west": -124.6, "south": 40.0, "east": -121.0, "north": 46.3},
-        "h3_resolution": 8,
-        "analyzers": ["seismic_hazard", "cascadia_agricultural"],
-        "data_sources": ["usgs", "noaa", "calfire", "usda"],
+        "name": "Cascadia Bioregion (BC, WA, OR, CA)",
+        "bounds": {"west": -124.8, "south": 40.0, "east": -114.5, "north": 49.0},
+        "h3_resolution": 7,
+        "analyzers": [
+            "seismic_hazard", "forest_health", "salmon_habitat", "volcanic_hazard",
+        ],
+        "data_sources": ["usgs", "noaa", "calfire"],
     },
 }
+
+
+def _load_presets() -> Dict[str, Any]:
+    """Load location presets from YAML config; fall back to hardcoded dict."""
+    _cfg = Path(__file__).parent.parent / "config" / "location_presets.yaml"
+    if _cfg.exists():
+        try:
+            import yaml
+            with open(_cfg) as f:
+                data = yaml.safe_load(f)
+            if isinstance(data, dict) and data:
+                return data
+        except Exception as exc:
+            logger.warning("Failed to load location_presets.yaml: %s — using fallback", exc)
+    return _FALLBACK_PRESETS
+
+
+LOCATION_PRESETS = _load_presets()
 
 
 class PlaceInterface:
@@ -139,6 +159,9 @@ class PlaceInterface:
         - ``coastal_resilience``: CoastalResilienceAnalyzer
         - ``fire_risk``: FireRiskAssessor
         - ``seismic_hazard``: SeismicHazardAnalyzer
+
+        Returns:
+            Analyzer instance, or ``None`` if the analyzer is not implemented.
         """
         if name not in self._analyzers:
             self._analyzers[name] = self._create_analyzer(name)
@@ -178,7 +201,12 @@ class PlaceInterface:
                 output_dir=self.output_dir,
             )
         else:
-            raise ValueError(f"Unknown analyzer: {name}")
+            logger.warning(
+                "Analyzer '%s' is not implemented for location '%s' — skipping",
+                name,
+                self.location,
+            )
+            return None
 
     # ------------------------------------------------------------------
     # Full analysis pipeline
@@ -228,6 +256,9 @@ class PlaceInterface:
             logger.info("Running analyzer: %s", name)
             try:
                 analyzer = self.get_analyzer(name)
+                if analyzer is None:
+                    results["analyses"][name] = {"skipped": True, "reason": "not implemented"}
+                    continue
                 analysis_result = analyzer.run_analysis()
                 results["analyses"][name] = analysis_result
 

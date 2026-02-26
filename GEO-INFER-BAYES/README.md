@@ -4,7 +4,7 @@ description: "Bayesian inference framework with probabilistic modeling, uncertai
 purpose: "Enable inference and decision-making under uncertainty for geospatial applications"
 module_type: "Analytical Core"
 status: "Beta"
-last_updated: "2026-02-24"
+last_updated: "2026-02-25"
 dependencies: ["MATH"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-ACT", "GEO-INFER-AI"]
 tags: ["bayesian", "inference", "uncertainty", "probabilistic", "mcmc", "hierarchical"]
@@ -16,7 +16,8 @@ estimated_time: "60"
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a> •
+  <a href="./SKILL.md">🧠 Claude Skill</a>
 </div>
 
 ---
@@ -403,6 +404,18 @@ For full documentation, see the `docs/` directory or visit the [online documenta
 ## Contributing
 
 Please read the [Contributing Guidelines](../../README.md#-contributing) for details on contributing to this module.
+
+## Documentation Hub
+
+Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
+
+| Resource | Description |
+|----------|-------------|
+| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
+| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
+| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
+| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
+| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
 
 ## License
 

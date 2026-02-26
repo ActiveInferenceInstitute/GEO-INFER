@@ -1197,4 +1197,4 @@ All agent-related modules have test coverage:
 | **SIM** | 4+ | 30+ | Simulation engine, ABM, system dynamics |
 | **COG** | 10 | 146 | Cognitive engine, spatial perception/reasoning/memory, decision support |
 
-**Last Updated**: 2026-02-17
+**Last Updated**: 2026-02-25

@@ -1,1 +1,557 @@
-# GEO-INFER Examples Gallery This gallery showcases a variety of use cases and examples demonstrating the capabilities of the GEO-INFER framework. Each example includes description, code snippets, visualizations, and links to notebook implementations. ## 🌎 Spatial Analysis Examples ### H3 Grid Indexing and Analysis ![H3 Indexing](./images/examples/h3_indexing_example.png) This example demonstrates using the H3 spatial indexing system for efficient geospatial analysis. ```python from geo_infer_space import indexing import geopandas as gpd import matplotlib.pyplot as plt # Load sample data gdf = gpd.read_file("data/urban_areas.geojson") # Create H3 indexes for the geometries at resolution 8 h3_indexes = indexing.geometries_to_h3(gdf.geometry, resolution=8) # Visualize H3 cells indexing.plot_h3_cells(h3_indexes, figsize=(12, 8), title="Urban Areas Indexed with H3") ``` [Notebook](../examples/spatial/h3_indexing_example.ipynb) | [Interactive Demo](https://geo-infer.org/demos/h3-indexing) ### Spatial Clustering of Geographic Features ![Spatial Clustering](./images/examples/spatial_clustering_example.png) This example shows how to perform spatial clustering on geographic features to identify natural groupings. ```python from geo_infer_space import clustering import geopandas as gpd # Load point data points_gdf = gpd.read_file("data/poi_locations.geojson") # Perform DBSCAN clustering clustered_gdf = clustering.dbscan_cluster( points_gdf, eps=0.01, # Distance in degrees (approximately 1km at equator) min_samples=5, return_clusters=True ) # Visualize the clusters clustering.plot_spatial_clusters(clustered_gdf, figsize=(14, 10), cluster_column='cluster', title="Spatial Clustering of Points of Interest") ``` [Notebook](../examples/spatial/spatial_clustering_example.ipynb) ## ⏱️ Temporal Analysis Examples ### Time Series Forecasting with Geospatial Context ![Time Series Forecasting](./images/examples/geospatial_time_series_example.png) This example demonstrates time series forecasting for spatial data, incorporating geographic context to improve predictions. ```python from geo_infer_time import forecasting from geo_infer_space import features import pandas as pd import geopandas as gpd # Load time series data with spatial coordinates data = pd.read_csv("data/temperature_readings.csv", parse_dates=['timestamp']) geometry = gpd.points_from_xy(data.longitude, data.latitude) gdf = gpd.GeoDataFrame(data, geometry=geometry, crs="EPSG:4326") # Extract spatial features spatial_features = features.extract_topographic_features(gdf, dem_path="data/elevation.tif") # Create and train forecasting model model = forecasting.SpatioTemporalForecaster( time_column='timestamp', value_column='temperature', spatial_features=['elevation', 'slope', 'aspect'], temporal_features=['hour', 'dayofweek', 'month'], forecast_horizon=24 # 24 hour forecast ) model.fit(gdf) predictions = model.predict() # Visualize results forecasting.plot_spatiotemporal_forecast(gdf, predictions, locations=['Station1', 'Station2', 'Station3']) ``` [Notebook](../examples/temporal/geospatial_time_series_example.ipynb) ### Change Detection in Satellite Imagery ![Change Detection](./images/examples/change_detection_example.png) This example shows how to detect changes in land cover using multi-temporal satellite imagery. ```python from geo_infer_time import change_detection import rioxarray as rxr import matplotlib.pyplot as plt # Load imagery from two time periods img_t1 = rxr.open_rasterio("data/landsat_2010.tif") img_t2 = rxr.open_rasterio("data/landsat_2020.tif") # Perform change detection change_map = change_detection.detect_changes( img_t1, img_t2, method='cvaps', # Change Vector Analysis in Posterior Space threshold=0.8 ) # Visualize the detected changes fig, ax = plt.subplots(figsize=(12, 12)) change_detection.plot_change_map(change_map, ax=ax, title="Land Cover Changes 2010-2020", legend=True) ``` [Notebook](../examples/temporal/change_detection_example.ipynb) ## 🧠 Active Inference Examples ### Spatial Active Inference for Agent Movement ![Active Inference Agent](./images/examples/active_inference_agent_example.png) This example demonstrates how to build a spatial agent that navigates using active inference principles. ```python from geo_infer_agent import spatial_agent from geo_infer_space import environment import matplotlib.pyplot as plt # Create a spatial environment env = environment.GridEnvironment( width=20, height=20, obstacles=[(5, 5), (5, 6), (5, 7), (6, 7), (7, 7)], goal=(15, 15) ) # Create an active inference agent agent = spatial_agent.ActiveInferenceAgent( env=env, initial_position=(2, 2), precision=10.0, # Confidence in predictions planning_horizon=5 ) # Run simulation trajectories = agent.simulate(steps=30) # Visualize agent behavior spatial_agent.plot_agent_trajectory( env, trajectories, title="Active Inference Navigation in Spatial Environment" ) ``` [Notebook](../examples/active_inference/spatial_agent_example.ipynb) | [Interactive Demo](https://geo-infer.org/demos/active-inference-navigation) ### Bayesian Belief Updating with Spatial Observations ![Bayesian Belief Updating](./images/examples/bayesian_belief_updating_example.png) This example shows how to perform Bayesian belief updating in a spatial context, using active inference principles. ```python from geo_infer_bayes import spatial_inference from geo_infer_space import visualization import numpy as np import matplotlib.pyplot as plt # Create a spatial prior (initial belief) lat_range = np.linspace(34.0, 34.1, 100) lon_range = np.linspace(-118.4, -118.3, 100) spatial_prior = spatial_inference.create_gaussian_spatial_prior( lat_range=lat_range, lon_range=lon_range, center=(34.05, -118.35), sigma=0.02 ) # Simulated observations with location uncertainty observations = [ ((34.07, -118.36), 0.8), # (location, confidence) ((34.06, -118.33), 0.9), ((34.03, -118.37), 0.7), ] # Update beliefs with observations posterior = spatial_inference.update_spatial_beliefs( spatial_prior, observations, method='variational' ) # Visualize prior and posterior beliefs fig, axes = plt.subplots(1, 2, figsize=(15, 7)) visualization.plot_spatial_distribution(spatial_prior, ax=axes[0], title="Spatial Prior") visualization.plot_spatial_distribution(posterior, ax=axes[1], title="Posterior After Observations") ``` [Notebook](../examples/active_inference/bayesian_updating_example.ipynb) ## 🔄 Integrated Examples ### Cross-Module Urban Analysis Workflow ![Urban Analysis](./images/examples/urban_analysis_example.png) This example demonstrates an integrated workflow combining multiple GEO-INFER modules for urban analysis. ```python # Import from multiple modules from geo_infer_space import indexing, features from geo_infer_time import patterns from geo_infer_data import loader from geo_infer_civ import urban_metrics from geo_infer_act import generative_models import matplotlib.pyplot as plt # Load urban data urban_data = loader.load_geospatial_dataset("urban_analysis") # Create spatial indexes h3_indexes = indexing.geoseries_to_h3(urban_data.geometry, resolution=9) # Extract urban features urban_features = features.extract_urban_features( urban_data, include=["building_density", "road_density", "green_space_ratio"] ) # Analyze temporal patterns temporal_patterns = patterns.extract_temporal_patterns( urban_data["traffic_data"], temporal_resolution="1H" ) # Calculate urban metrics livability_scores = urban_metrics.calculate_livability_index( urban_features, weights={ "building_density": -0.3, "road_density": -0.2, "green_space_ratio": 0.5 } ) # Create active inference model of urban dynamics urban_model = generative_models.SpatioTemporalGenerativeModel( spatial_resolution=9, # H3 resolution temporal_resolution="1D", features=urban_features.columns ) urban_model.fit(urban_features, temporal_patterns) # Predict future urban development predictions = urban_model.predict(steps=30) # 30-day forecast # Visualize results in a dashboard fig = plt.figure(figsize=(16, 12)) # ... Complex visualization code ... ``` [Notebook](../examples/integrated/urban_analysis_example.ipynb) ### Environmental Monitoring and Prediction ![Environmental Monitoring](./images/examples/environmental_monitoring_example.png) This example shows an integrated approach to environmental monitoring and prediction using multiple GEO-INFER modules. ```python from geo_infer_space import raster from geo_infer_time import forecasting from geo_infer_data import remote_sensing from geo_infer_act import active_sampling import xarray as xr import matplotlib.pyplot as plt # Load multi-temporal satellite imagery imagery = remote_sensing.load_satellite_timeseries( "data/landsat_timeseries", start_date="2020-01-01", end_date="2021-12-31", frequency="16D" # Landsat revisit time ) # Calculate vegetation indices ndvi = remote_sensing.calculate_index(imagery, index="ndvi") ndmi = remote_sensing.calculate_index(imagery, index="ndmi") # Create environmental change model env_model = forecasting.EnvironmentalChangeModel( indices=["ndvi", "ndmi"], spatial_resolution="30m", temporal_resolution="16D" ) env_model.fit(xr.merge([ndvi, ndmi])) # Use active inference to determine optimal sampling locations optimal_locations = active_sampling.find_optimal_sampling_locations( env_model, n_locations=5, method="expected_information_gain" ) # Forecast environmental changes forecast = env_model.predict(steps=23) # One year forecast # Visualize environmental indicators and forecasts fig, axes = plt.subplots(2, 2, figsize=(16, 12)) # ... Complex visualization code ... ``` [Notebook](../examples/integrated/environmental_monitoring_example.ipynb) ## 🏙️ Domain-Specific Examples ### Agricultural Yield Prediction ![Agricultural Analysis](./images/examples/agricultural_yield_example.png) This example demonstrates agricultural yield prediction using satellite imagery, weather data, and active inference principles. ```python from geo_infer_ag import yield_prediction from geo_infer_data import weather from geo_infer_space import features import geopandas as gpd import pandas as pd # Load field boundaries and historical yield data fields = gpd.read_file("data/field_boundaries.geojson") yield_history = pd.read_csv("data/historical_yields.csv") # Get weather data for the region weather_data = weather.get_weather_data( bounds=fields.total_bounds, start_date="2021-01-01", end_date="2021-12-31", variables=["temperature", "precipitation", "solar_radiation"] ) # Extract satellite-derived vegetation indices veg_indices = features.extract_vegetation_indices( fields.geometry, start_date="2021-01-01", end_date="2021-12-31", frequency="5D", indices=["ndvi", "evi", "ndmi"] ) # Create yield prediction model model = yield_prediction.ActiveInferenceYieldModel( crop_type="corn", spatial_features=True, weather_features=True, vegetation_indices=True ) model.fit( field_geometries=fields.geometry, yield_data=yield_history, weather_data=weather_data, vegetation_data=veg_indices ) # Make yield predictions predicted_yield = model.predict( fields.geometry, current_weather=weather_data.loc["2021-05-01":"2021-07-31"], current_vegetation=veg_indices.loc["2021-05-01":"2021-07-31"] ) # Visualize yield predictions yield_prediction.plot_yield_forecast( fields, predicted_yield, title="Predicted Corn Yield for 2021", uncertainty=True ) ``` [Notebook](../examples/domains/agricultural_yield_example.ipynb) ### Urban Traffic Prediction ![Traffic Prediction](./images/examples/traffic_prediction_example.png) This example shows how to predict urban traffic patterns using spatiotemporal data and active inference models. ```python from geo_infer_civ import traffic from geo_infer_time import temporal_patterns from geo_infer_space import network_analysis import osmnx as ox import pandas as pd # Get road network G = ox.graph_from_place("San Francisco, CA", network_type="drive") # Load traffic data traffic_data = pd.read_csv("data/sf_traffic_data.csv", parse_dates=["timestamp"]) # Analyze road network network_metrics = network_analysis.calculate_network_metrics( G, metrics=["betweenness", "closeness", "degree"] ) # Extract temporal patterns temporal_features = temporal_patterns.extract_features( traffic_data, timestamp_column="timestamp", value_column="speed", freq="1H" ) # Create traffic prediction model model = traffic.SpatioTemporalTrafficModel( temporal_features=["hour", "dayofweek", "month"], spatial_features=["betweenness", "closeness", "degree"], prediction_horizon=24 # 24 hours ahead ) model.fit( traffic_data=traffic_data, network=G, network_metrics=network_metrics ) # Predict traffic for next 24 hours predictions = model.predict(horizon=24) # Visualize predictions traffic.visualize_traffic_prediction( G, predictions, title="24-Hour Traffic Speed Prediction", time_slider=True ) ``` [Notebook](../examples/domains/urban_traffic_example.ipynb) | [Interactive Demo](https://geo-infer.org/demos/traffic-prediction) ## 📊 Data Preparation and Visualization Examples ### GeoDataFrame Preprocessing Pipeline ![Data Preprocessing](./images/examples/data_preprocessing_example.png) This example demonstrates a geospatial data preprocessing pipeline. ```python from geo_infer_data import preprocessing from geo_infer_space import transformations import geopandas as gpd # Load raw data gdf = gpd.read_file("data/raw_points.geojson") # preprocessing pipeline processed_gdf = ( preprocessing.Pipeline() .add_step(preprocessing.CleanGeometries()) .add_step(preprocessing.RemoveOutliers(columns=["value"], method="iqr")) .add_step(preprocessing.NormalizeValues(columns=["value"])) .add_step(transformations.ReprojectCRS(target_crs="EPSG:3857")) .add_step(preprocessing.SpatialJoin( right=gpd.read_file("data/regions.geojson"), how="inner" )) .execute(gdf) ) # Validate results validation_results = preprocessing.validate_gdf( processed_gdf, rules={ "geometry_types": ["Point"], "crs": "EPSG:3857", "required_columns": ["value", "region_id"], "value_ranges": {"value": (-3, 3)} } ) print(f"Validation passed: {validation_results['passed']}") if not validation_results['passed']: print(validation_results['failed_checks']) ``` [Notebook](../examples/data/preprocessing_example.ipynb) ### Geospatial Visualization ![Visualization](./images/examples/advanced_visualization_example.png) This example shows how to create advanced, publication-quality geospatial visualizations. ```python from geo_infer_app import visualization from geo_infer_space import cartography import geopandas as gpd import matplotlib.pyplot as plt # Load datasets counties = gpd.read_file("data/counties.geojson") rivers = gpd.read_file("data/rivers.geojson") cities = gpd.read_file("data/cities.geojson") # Create visualization fig, ax = plt.subplots(figsize=(15, 10)) # Base layer with thematic coloring visualization.choropleth( counties, column="population", scheme="quantiles", k=5, cmap="Blues", legend=True, legend_title="Population", ax=ax ) # Add rivers with styled lines visualization.line_layer( rivers, color="skyblue", linewidth=rivers.apply(lambda x: 0.5 + x.flow_volume * 0.1), alpha=0.7, zorder=2, ax=ax ) # Add cities with sized points visualization.point_layer( cities, size=cities.apply(lambda x: 20 + x.population/50000), color="red", alpha=0.7, zorder=3, ax=ax ) # Add cartographic elements cartography.add_scale_bar(ax) cartography.add_north_arrow(ax) cartography.add_basemap(ax, source="contextily", crs=counties.crs) # Styling and layout visualization.style_map( ax, title="Population Distribution with Hydrography", title_fontsize=18, frame=True, grid=True ) ``` [Notebook](../examples/visualization/advanced_visualization_example.ipynb) ## Contributing Examples We welcome contributions to this example gallery! To submit your own example: 1. Follow the [Contribution Guidelines](./developer_guide/contributing.md) 2. Use the [Example Template](./templates/example_template.ipynb) 3. Submit a pull request with your example notebook and a short description ## Additional Resources - [Interactive Demos](https://geo-infer.org/demos) - [Video Tutorials](https://geo-infer.org/tutorials) - [Training Workshops](https://geo-infer.org/workshops) - [Community Examples](https://github.com/geo-infer/community-examples) 
+# GEO-INFER Examples Gallery
+
+This gallery indexes the example code and notebooks available in the GEO-INFER
+framework. Examples are organized by topic and difficulty level. Each entry lists
+the modules involved, estimated runtime, and a link to the source directory.
+
+## Quick Navigation
+
+| Category | Difficulty | Modules | Section |
+|----------|-----------|---------|---------|
+| Basic Usage | Beginner | Individual modules | [Basic Usage](#basic-usage) |
+| Spatial Analysis | Beginner-Intermediate | SPACE, MATH, PLACE | [Spatial Analysis](#spatial-analysis) |
+| Time Series | Intermediate | TIME, DATA | [Time Series](#time-series) |
+| Bayesian Inference | Intermediate | BAYES, MATH | [Bayesian Inference](#bayesian-inference) |
+| Active Inference | Advanced | ACT, AGENT, COG | [Active Inference](#active-inference) |
+| Agricultural Intelligence | Intermediate-Advanced | AG, SPACE, TIME, DATA | [Agriculture](#agricultural-intelligence) |
+| Climate Analysis | Intermediate-Advanced | CLIMATE, TIME, SPACE, DATA | [Climate](#climate-analysis) |
+| Risk Assessment | Advanced | RISK, BAYES, SPACE, ECON | [Risk](#risk-assessment) |
+| Multi-Module Integration | Advanced | 3+ modules | [Integration](#multi-module-integration) |
+| Real World Applications | Advanced | Various | [Applications](#real-world-applications) |
+
+## How to Run Examples
+
+### Prerequisites
+
+Install the required modules for the example you want to run:
+
+```bash
+# Install from the GEO-INFER root directory
+cd /path/to/GEO-INFER
+
+# Install core modules (needed for most examples)
+uv pip install -e ./GEO-INFER-MATH ./GEO-INFER-SPACE ./GEO-INFER-TIME ./GEO-INFER-DATA
+
+# Install domain modules as needed
+uv pip install -e ./GEO-INFER-ACT ./GEO-INFER-BAYES ./GEO-INFER-AG
+```
+
+### Running a Python Example
+
+```bash
+# Run directly
+uv run python GEO-INFER-EXAMPLES/examples/spatial/h3_grid_analysis.py
+
+# Or from within the examples directory
+cd GEO-INFER-EXAMPLES/examples
+uv run python spatial/h3_grid_analysis.py
+```
+
+### Running a Jupyter Notebook
+
+```bash
+uv pip install jupyter
+uv run jupyter notebook GEO-INFER-EXAMPLES/examples/spatial/h3_grid_analysis.ipynb
+```
+
+### Environment Variables
+
+Some examples require data paths or API keys:
+
+```bash
+export GEO_INFER_DATA_DIR="/path/to/sample/data"
+export GEO_INFER_CACHE_DIR="/tmp/geo_infer_cache"
+```
+
+---
+
+## Basic Usage
+
+Entry-level examples demonstrating individual module functionality. Each example
+focuses on a single module and requires no external data.
+
+### MATH Module: Spatial Statistics
+
+Compute Moran's I spatial autocorrelation on a synthetic dataset.
+
+- **Difficulty**: Beginner
+- **Modules**: GEO-INFER-MATH
+- **Estimated Runtime**: < 30 seconds
+- **Directory**: `GEO-INFER-EXAMPLES/examples/math/`
+
+```python
+from geo_infer_math.core.statistics import compute_morans_i
+import numpy as np
+
+values = np.random.randn(100)
+coordinates = np.random.rand(100, 2) * 10  # 100 random points in 10x10 space
+result = compute_morans_i(values, coordinates)
+print(f"Moran's I: {result['statistic']:.4f}, p-value: {result['p_value']:.4f}")
+```
+
+### SPACE Module: H3 Grid Creation
+
+Create an H3 hexagonal grid covering a bounding box.
+
+- **Difficulty**: Beginner
+- **Modules**: GEO-INFER-SPACE
+- **Estimated Runtime**: < 10 seconds
+- **Directory**: `GEO-INFER-EXAMPLES/examples/spatial/`
+
+```python
+import h3
+import geopandas as gpd
+from shapely.geometry import Polygon
+
+# Portland metro bounding box
+cells = set()
+for lat in [45.45, 45.50, 45.55, 45.60]:
+    for lng in [-122.75, -122.70, -122.65, -122.60]:
+        cells.add(h3.latlng_to_cell(lat, lng, 8))
+
+print(f"Generated {len(cells)} H3 cells at resolution 8")
+```
+
+### ACT Module: Free Energy Computation
+
+Compute variational free energy for a simple categorical model.
+
+- **Difficulty**: Beginner
+- **Modules**: GEO-INFER-ACT
+- **Estimated Runtime**: < 5 seconds
+- **Directory**: `GEO-INFER-EXAMPLES/examples/active_inference/`
+
+```python
+from geo_infer_act.core.free_energy import FreeEnergyCalculator
+import numpy as np
+
+calc = FreeEnergyCalculator()
+beliefs = np.array([0.25, 0.25, 0.25, 0.25])
+observations = np.array([0.8, 0.1, 0.05, 0.05])
+fe = calc.compute_categorical_free_energy(beliefs, observations)
+print(f"Free energy: {fe:.4f}")
+```
+
+---
+
+## Spatial Analysis
+
+Examples covering H3 grid operations, spatial statistics, geometric analysis,
+and map visualization.
+
+### H3 Multi-Resolution Analysis
+
+Compare spatial patterns at different H3 resolutions to identify scale-dependent
+phenomena.
+
+- **Difficulty**: Beginner-Intermediate
+- **Modules**: GEO-INFER-SPACE, GEO-INFER-MATH
+- **Estimated Runtime**: 30-60 seconds
+- **Directory**: `GEO-INFER-EXAMPLES/examples/spatial/multi_resolution/`
+
+### Spatial Clustering with DBSCAN
+
+Identify spatial clusters of points using density-based clustering with
+geographic distance metrics.
+
+- **Difficulty**: Intermediate
+- **Modules**: GEO-INFER-SPACE, GEO-INFER-MATH
+- **Estimated Runtime**: 1-2 minutes (depends on data size)
+- **Directory**: `GEO-INFER-EXAMPLES/examples/spatial/clustering/`
+
+### Voronoi Tessellation and Service Areas
+
+Generate Voronoi polygons from facility locations and analyze service area
+coverage.
+
+- **Difficulty**: Intermediate
+- **Modules**: GEO-INFER-SPACE, GEO-INFER-CIV
+- **Estimated Runtime**: 30-60 seconds
+- **Directory**: `GEO-INFER-EXAMPLES/examples/spatial/voronoi/`
+
+### Choropleth Map with GeoPandas
+
+Create thematic maps from census or survey data using standard GeoDataFrame
+styling.
+
+- **Difficulty**: Beginner
+- **Modules**: GEO-INFER-SPACE
+- **Estimated Runtime**: < 30 seconds
+- **Directory**: `GEO-INFER-EXAMPLES/examples/spatial/visualization/`
+
+---
+
+## Time Series
+
+Temporal analysis examples covering forecasting, anomaly detection, and
+seasonality decomposition.
+
+### Temporal Decomposition
+
+Decompose a geospatial time series into trend, seasonal, and residual
+components using STL decomposition.
+
+- **Difficulty**: Intermediate
+- **Modules**: GEO-INFER-TIME
+- **Estimated Runtime**: 30-60 seconds
+- **Directory**: `GEO-INFER-EXAMPLES/examples/temporal/decomposition/`
+
+### Change Point Detection
+
+Detect structural breaks in spatial time series data using Bayesian change
+point analysis.
+
+- **Difficulty**: Intermediate
+- **Modules**: GEO-INFER-TIME, GEO-INFER-BAYES
+- **Estimated Runtime**: 1-3 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/temporal/changepoint/`
+
+### Spatiotemporal Forecasting
+
+Forecast values at spatial locations using time series models that incorporate
+spatial correlation structure.
+
+- **Difficulty**: Intermediate
+- **Modules**: GEO-INFER-TIME, GEO-INFER-SPACE, GEO-INFER-MATH
+- **Estimated Runtime**: 2-5 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/temporal/forecasting/`
+
+---
+
+## Bayesian Inference
+
+Probabilistic modeling examples using the GEO-INFER-BAYES module.
+
+### Gaussian Process Regression
+
+Fit a Gaussian Process to spatial data and generate interpolated predictions
+with uncertainty bounds.
+
+- **Difficulty**: Intermediate
+- **Modules**: GEO-INFER-BAYES, GEO-INFER-MATH
+- **Estimated Runtime**: 1-3 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/bayesian/gp_regression/`
+
+```python
+from geo_infer_bayes.core.inference import GaussianProcess
+import numpy as np
+
+# Training data: spatial coordinates and observed values
+X_train = np.random.rand(50, 2) * 10  # 50 points in 2D space
+y_train = np.sin(X_train[:, 0]) + np.cos(X_train[:, 1]) + np.random.randn(50) * 0.1
+
+gp = GaussianProcess(kernel="rbf", length_scale=2.0)
+gp.fit(X_train, y_train)
+
+# Predict at new locations
+X_test = np.random.rand(20, 2) * 10
+mean, std = gp.predict(X_test, return_std=True)
+print(f"Predictions: mean range [{mean.min():.2f}, {mean.max():.2f}]")
+print(f"Uncertainty: std range [{std.min():.3f}, {std.max():.3f}]")
+```
+
+### Hierarchical Bayesian Model
+
+Build a hierarchical model for spatial data where parameters vary across
+regions but share common hyperpriors.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-BAYES, GEO-INFER-SPACE
+- **Estimated Runtime**: 5-15 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/bayesian/hierarchical/`
+
+### Model Comparison
+
+Compare competing models using LOO-CV, WAIC, DIC, BIC, and AIC information
+criteria.
+
+- **Difficulty**: Intermediate
+- **Modules**: GEO-INFER-BAYES
+- **Estimated Runtime**: 3-10 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/bayesian/model_comparison/`
+
+---
+
+## Active Inference
+
+Examples demonstrating Active Inference principles in geospatial contexts.
+
+### Free Energy Minimization
+
+Step-by-step demonstration of belief updating through free energy minimization
+over a sequence of spatial observations.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-ACT
+- **Estimated Runtime**: 30-60 seconds
+- **Directory**: `GEO-INFER-EXAMPLES/examples/active_inference/free_energy/`
+
+### Spatial Belief Updating on H3 Grid
+
+Update beliefs about land cover classification across an H3 grid as new
+satellite observations arrive.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-ACT, GEO-INFER-SPACE
+- **Estimated Runtime**: 1-3 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/active_inference/spatial_beliefs/`
+
+### Policy Selection for Environmental Monitoring
+
+Use expected free energy to select optimal sensor placement locations that
+balance information gain and goal achievement.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-ACT, GEO-INFER-AGENT, GEO-INFER-SPACE
+- **Estimated Runtime**: 2-5 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/active_inference/policy_selection/`
+
+### Multi-Agent Active Inference
+
+Coordinate multiple Active Inference agents performing collaborative spatial
+exploration.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-ACT, GEO-INFER-AGENT, GEO-INFER-COG
+- **Estimated Runtime**: 5-10 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/active_inference/multi_agent/`
+
+---
+
+## Agricultural Intelligence
+
+Domain examples for precision agriculture and crop monitoring.
+
+### Crop Yield Estimation
+
+Estimate crop yield using satellite-derived vegetation indices, soil data,
+and weather observations.
+
+- **Difficulty**: Intermediate-Advanced
+- **Modules**: GEO-INFER-AG, GEO-INFER-SPACE, GEO-INFER-TIME, GEO-INFER-DATA
+- **Estimated Runtime**: 3-10 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/agriculture/yield_estimation/`
+
+### Soil Moisture Prediction
+
+Predict soil moisture at unsampled locations using spatial interpolation and
+temporal modeling.
+
+- **Difficulty**: Intermediate
+- **Modules**: GEO-INFER-AG, GEO-INFER-BAYES, GEO-INFER-SPACE
+- **Estimated Runtime**: 2-5 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/agriculture/soil_moisture/`
+
+### Field Boundary Detection
+
+Detect agricultural field boundaries from satellite imagery using edge detection
+and polygon extraction.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-AG, GEO-INFER-SPACE, GEO-INFER-AI
+- **Estimated Runtime**: 5-15 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/agriculture/field_detection/`
+
+---
+
+## Climate Analysis
+
+Climate science examples for anomaly detection, trend analysis, and
+downscaling.
+
+### Temperature Anomaly Detection
+
+Detect statistically significant temperature anomalies relative to a
+climatological baseline using spatial statistics.
+
+- **Difficulty**: Intermediate-Advanced
+- **Modules**: GEO-INFER-CLIMATE, GEO-INFER-TIME, GEO-INFER-MATH
+- **Estimated Runtime**: 2-5 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/climate/anomaly_detection/`
+
+### Trend Extraction
+
+Extract long-term trends from multi-decadal climate records, separating
+secular change from natural variability.
+
+- **Difficulty**: Intermediate
+- **Modules**: GEO-INFER-CLIMATE, GEO-INFER-TIME
+- **Estimated Runtime**: 1-3 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/climate/trend_extraction/`
+
+### Statistical Downscaling
+
+Downscale coarse-resolution climate model output to fine spatial resolution
+using transfer functions trained on observational data.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-CLIMATE, GEO-INFER-SPACE, GEO-INFER-BAYES, GEO-INFER-AI
+- **Estimated Runtime**: 10-30 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/climate/downscaling/`
+
+---
+
+## Risk Assessment
+
+Examples for hazard modeling, vulnerability analysis, and catastrophe modeling.
+
+### Flood Hazard Mapping
+
+Generate flood hazard maps using elevation data, hydrological modeling, and
+return period analysis.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-RISK, GEO-INFER-SPACE, GEO-INFER-WATER
+- **Estimated Runtime**: 5-15 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/risk/flood_hazard/`
+
+### Vulnerability Assessment
+
+Assess building vulnerability to natural hazards using fragility curves and
+exposure databases.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-RISK, GEO-INFER-ECON, GEO-INFER-SPACE
+- **Estimated Runtime**: 3-10 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/risk/vulnerability/`
+
+### Catastrophe Model Pipeline
+
+Run a complete catastrophe model pipeline: hazard generation, vulnerability
+assessment, loss calculation, and financial impact analysis.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-RISK, GEO-INFER-BAYES, GEO-INFER-ECON, GEO-INFER-SPACE
+- **Estimated Runtime**: 15-30 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/risk/catastrophe_model/`
+
+---
+
+## Multi-Module Integration
+
+End-to-end pipelines combining three or more modules into complete workflows.
+
+### Module Orchestrator
+
+Use the GEO-INFER-EXAMPLES module orchestrator to chain operations across
+multiple modules in a declarative pipeline.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-EXAMPLES (orchestrator), 3+ domain modules
+- **Estimated Runtime**: 5-20 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/integration/orchestrator/`
+
+```python
+from geo_infer_examples.core.module_orchestrator import ModuleOrchestrator
+
+orchestrator = ModuleOrchestrator()
+
+# Define pipeline: load data -> spatial index -> temporal analysis -> prediction
+pipeline = orchestrator.create_pipeline([
+    {"module": "DATA", "operation": "load", "params": {"source": "sensor_network"}},
+    {"module": "SPACE", "operation": "h3_index", "params": {"resolution": 9}},
+    {"module": "TIME", "operation": "resample", "params": {"freq": "1H"}},
+    {"module": "BAYES", "operation": "gp_predict", "params": {"kernel": "rbf"}},
+])
+
+result = orchestrator.execute(pipeline)
+```
+
+### Spatial-Temporal-Bayesian Pipeline
+
+Combine spatial indexing, temporal aggregation, and Bayesian prediction for
+environmental monitoring.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-SPACE, GEO-INFER-TIME, GEO-INFER-BAYES, GEO-INFER-DATA
+- **Estimated Runtime**: 10-20 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/integration/stb_pipeline/`
+
+### Active Inference Urban Planning
+
+Use Active Inference agents to model urban development decisions, combining
+spatial analysis, economic modeling, and risk assessment.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-ACT, GEO-INFER-CIV, GEO-INFER-ECON, GEO-INFER-RISK, GEO-INFER-SPACE
+- **Estimated Runtime**: 15-30 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/integration/urban_planning/`
+
+---
+
+## Real World Applications
+
+Production-ready patterns demonstrating how GEO-INFER modules combine to solve
+real problems.
+
+### Conservation Area Prioritization
+
+Prioritize conservation areas using biodiversity data, connectivity analysis,
+and multi-criteria optimization.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-BIO, GEO-INFER-SPACE, GEO-INFER-FOREST, GEO-INFER-ACT
+- **Estimated Runtime**: 10-30 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/applications/conservation/`
+
+### Supply Chain Logistics
+
+Optimize supply chain routing using transport network analysis, risk modeling,
+and demand forecasting.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-LOG, GEO-INFER-TRANSPORT, GEO-INFER-RISK, GEO-INFER-ECON
+- **Estimated Runtime**: 10-20 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/applications/supply_chain/`
+
+### Emergency Response Planning
+
+Model emergency response scenarios including evacuation routing, resource
+allocation, and population exposure.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-EMERGENCY, GEO-INFER-TRANSPORT, GEO-INFER-RISK, GEO-INFER-SPACE
+- **Estimated Runtime**: 10-20 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/applications/emergency/`
+
+### Marine Ecosystem Monitoring
+
+Monitor marine ecosystem health using satellite ocean color data, species
+distribution models, and temporal trend analysis.
+
+- **Difficulty**: Advanced
+- **Modules**: GEO-INFER-MARINE, GEO-INFER-BIO, GEO-INFER-TIME, GEO-INFER-SPACE
+- **Estimated Runtime**: 10-30 minutes
+- **Directory**: `GEO-INFER-EXAMPLES/examples/applications/marine/`
+
+---
+
+## Contributing Examples
+
+To add an example to this gallery:
+
+1. Create your example in `GEO-INFER-EXAMPLES/examples/<category>/`.
+2. Include a README in the example directory explaining prerequisites,
+   data requirements, and expected outputs.
+3. Verify the example runs with a clean install of the required modules.
+4. Add an entry to this gallery with the required metadata (difficulty,
+   modules, runtime, directory path).
+5. Submit a pull request.
+
+### Example Directory Structure
+
+```text
+GEO-INFER-EXAMPLES/examples/<category>/<example_name>/
+    README.md           # Prerequisites and description
+    example.py          # Main script
+    example.ipynb       # Jupyter notebook (optional)
+    data/               # Sample data if needed (keep small)
+    expected_output/    # Reference output for validation
+```
+
+## Related Documentation
+
+- [Installation Guide](installation.md) -- setting up modules
+- [Active Inference Guide](active_inference_guide.md) -- mathematical foundations
+- [Data Dictionary](data_dictionary.md) -- data format conventions
+- [Overview](overview.md) -- module descriptions and architecture

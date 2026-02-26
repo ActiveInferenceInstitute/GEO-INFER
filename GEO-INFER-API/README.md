@@ -4,7 +4,7 @@ description: "API development and integration services enabling interoperability
 purpose: "Provide scalable API infrastructure for integration between GEO-INFER modules and external applications"
 module_type: "Infrastructure"
 status: "Beta"
-last_updated: "2026-02-24"
+last_updated: "2026-02-25"
 dependencies: ["All modules"]
 compatibility: ["All GEO-INFER modules", "External systems"]
 tags: ["api", "rest", "graphql", "integration", "interoperability", "microservices", "web-services"]
@@ -12,7 +12,7 @@ difficulty: "Intermediate"
 estimated_time: "50"
 --- 
 
-<div align="center"> <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3> <a href="../AGENTS.md">🤖 Agent Architecture</a> • <a href="../README.md#-module-overview">📦 Module Index</a> • <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a> </div>
+<div align="center"> <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3> <a href="../AGENTS.md">🤖 Agent Architecture</a> • <a href="../README.md#-module-overview">📦 Module Index</a> • <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a> • <a href="./SKILL.md">🧠 Claude Skill</a> </div>
 
  --- # GEO-INFER-API: Standardized Interfaces for Geospatial Interoperability ## Overview
  GEO-INFER-API provides communication and interoperability within the GEO-INFER framework and with external systems. This module designs, develops, and manages standardized, secure, and efficient Application Programming Interfaces (APIs). It serves as a unified gateway, abstracting module complexities and providing consistent access to functionalities and data. By adhering to geospatial and web API standards, GEO-INFER-API ensures components can communicate effectively and external developers can integrate with the GEO-INFER ecosystem. ## Core Objectives - **Interoperability:** Enable seamless data exchange and functional interaction between all GEO-INFER modules and with external systems using common standards. - **Standardization:** Implement and promote the use of OGC (Open Geospatial Consortium) and other relevant API standards (e.g., REST, GraphQL, STAC). - **Abstraction:** Provide a simplified and consistent interface to complex underlying functionalities of various GEO-INFER modules. - **Security:** Ensure all API interactions are secure through authentication, authorization, and data protection mechanisms. - **Discoverability & Usability:** Make APIs easily discoverable, well-documented, and straightforward for developers to use, providing client SDKs where appropriate. - **Scalability & Performance:** Design APIs that can handle a high volume of requests efficiently and scale with the growth of the GEO-INFER framework. ## Core Features - **OGC-Compliant API Development:** Implementation of key OGC API standards (e.g., OGC API Features, Processes, Maps, Tiles, EDR - Environmental Data Retrieval) to ensure interoperability with standard GIS tools and platforms. - **Versatile API Paradigms:** Support for multiple API styles including RESTful services (using frameworks like FastAPI) for resource-oriented interactions and GraphQL for flexible and efficient data querying, catering to different client needs. - **Webhook & Real-time Event Integration:** Mechanisms for real-time communication, allowing modules or external services to subscribe to events and receive updates via webhooks or WebSocket connections (e.g., for data updates, completed analyses). - **API Documentation & SDKs:** Auto-generated, interactive API documentation (e.g., Swagger/OpenAPI, ReDoc) and the provision of client Software Development Kits (SDKs) in popular languages (Python, JavaScript, R) to simplify integration. - **API Gateway Functionality:** Acts as a central entry point for API requests, handling routing, rate limiting, request/response transformation, and potentially aggregating services from multiple backend modules. - **Security & Access Control:** implementation of authentication (e.g., API keys, OAuth 2.0, JWT) and authorization (e.g., role-based access control - RBAC) mechanisms, integrated with GEO-INFER-SEC. - **Geospatial Data Streaming:** Capabilities for streaming large geospatial datasets or real-time sensor data efficiently over APIs. ## Data Flow ### Inputs
@@ -24,6 +24,8 @@ graph LR subgraph External_Clients as "External Clients & Users" WEB_APP[Web App
 ``` ## Directory Structure ``` GEO-INFER-API/ ├── config/ # Configuration for API server, rate limits, security providers ├── docs/ # Source for OpenAPI/Swagger specifications, usage guides for APIs ├── examples/ # Client-side example scripts for using the APIs (Python, JS, curl) ├── src/ # Source code │ └── geo_infer_api/ # Main Python package │ ├── core/ # Core API logic, request handling, security implementations │ ├── endpoints/ # Definitions of specific API routes and handlers (REST, GraphQL resolvers) │ ├── models/ # Pydantic models for API request/response schemas │ ├── standards/ # Implementations for OGC API standards, STAC, etc. │ └── utils/ # Utility functions, error handlers, response formatters └── tests/ # Unit and integration tests for API endpoints ``` ## 🚀 Quick Start (5 minutes) ### 1
 . Prerequisites Check ```bash
 # Verify Python version python --version # Should be 3.9+ # Check web framework dependencies python -c "import fastapi, uvicorn; print('✅ Web framework available')" # Check required GEO-INFER modules uv pip list | grep geo-infer
+
+> 📖 See [SKILL.md](./SKILL.md) for Claude Code quick-reference.
 ``` ### 2
 . Installation (uv) ```bash
 # Ensure uv is installed (macOS: brew install uv; generic: curl -LsSf https://astral.sh/uv/install.sh | sh) # Install GEO-INFER-API in editable mode via uv pip install -e ./GEO-INFER-API # Optional extras for REST/GraphQL servers uv pip install fastapi uvicorn strawberry-graphql # Verify import uv run python -c "import geo_infer_api; print('import ok')"
@@ -151,3 +153,15 @@ from geo_infer_api.monitoring import APIHealthMonitor monitor = APIHealthMonitor
 ``` ### Common
  Error Messages #### "Spatial index not found" **Cause**: Missing spatial index on geometry column **Fix**: Create appropriate spatial index for the table #### "Rate limit exceeded" **Cause**: Too many requests within time window **Fix**: Implement exponential backoff or upgrade API tier #### "WebSocket connection failed" **Cause**: Network issues or server overload **Fix**: Implement reconnection logic with proper error handling ### Getting
  Help - 📧 **Email**: api-support@geo-infer.org - 💬 **Discord**: [GEO-INFER Community](https://discord.gg/geo-infer) - 🐛 **Issues**: [GitHub Issues](https://github.com/geo-infer/GEO-INFER-API/issues) - 📖 **Documentation**: [API Documentation](https://docs.geo-infer.org/api/) --- *This documentation is maintained by the GEO-INFER development team and community contributors. Last updated: 2024* 
+
+## Documentation Hub
+
+Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
+
+| Resource | Description |
+|----------|-------------|
+| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
+| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
+| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
+| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
+| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |

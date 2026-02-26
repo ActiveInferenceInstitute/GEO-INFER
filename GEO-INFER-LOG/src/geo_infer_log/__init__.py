@@ -44,12 +44,59 @@ except ImportError:
 
 __version__ = "1.0.0"
 __all__ = [
+    # Observability API
     "EnhancedLogger",
     "PerformanceMetrics", 
     "LogAnalyzer",
     "SpatialLogContext",
-    "GeoInferLogger"
+    "GeoInferLogger",
+    "get_logger",
+    # Logistics API (lazy-loaded from core/)
+    "LastMileRouter",
+    "DeliveryScheduler",
+    "ServiceAreaAnalyzer",
+    "MultiModalPlanner",
+    "TransportationNetworkAnalyzer",
+    "EmissionsCalculator",
+    "TrafficSimulator",
+    "SupplyChainModel",
+    "ResilienceAnalyzer",
+    "NetworkOptimizer",
+    "FacilityLocator",
+    "InventoryManager",
+    "RouteOptimizer",
+    "FleetManager",
 ]
+
+
+def __getattr__(name: str):
+    """Lazy-load logistics classes from core/ subpackages."""
+    _logistics_map = {
+        "LastMileRouter": "geo_infer_log.core.delivery",
+        "DeliveryScheduler": "geo_infer_log.core.delivery",
+        "ServiceAreaAnalyzer": "geo_infer_log.core.delivery",
+        "MultiModalPlanner": "geo_infer_log.core.transport",
+        "TransportationNetworkAnalyzer": "geo_infer_log.core.transport",
+        "EmissionsCalculator": "geo_infer_log.core.transport",
+        "TrafficSimulator": "geo_infer_log.core.transport",
+        "SupplyChainModel": "geo_infer_log.core.supply_chain",
+        "ResilienceAnalyzer": "geo_infer_log.core.supply_chain",
+        "NetworkOptimizer": "geo_infer_log.core.supply_chain",
+        "FacilityLocator": "geo_infer_log.core.supply_chain",
+        "InventoryManager": "geo_infer_log.core.supply_chain",
+        "RouteOptimizer": "geo_infer_log.core.routing",
+        "FleetManager": "geo_infer_log.core.routing",
+    }
+    if name in _logistics_map:
+        import importlib
+        mod = importlib.import_module(_logistics_map[name])
+        return getattr(mod, name)
+    # Lazy-load submodules (api, core, models, utils) on attribute access
+    _submodules = {"api", "core", "models", "utils"}
+    if name in _submodules:
+        import importlib
+        return importlib.import_module(f"{__name__}.{name}")
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 @dataclass
 class LogEntry:
@@ -244,7 +291,7 @@ class EnhancedLogger:
             except queue.Empty:
                 continue
             except Exception as e:
-                print(f"Error processing log: {e}")
+                logging.getLogger(__name__).error("Error processing log entry: %s", e)
     
     def _write_log_entry(self, entry: LogEntry):
         """Write log entry to configured outputs."""
@@ -437,7 +484,7 @@ class LogAnalyzer:
                         except json.JSONDecodeError:
                             continue
         except Exception as e:
-            print(f"Error loading logs: {e}")
+            logging.getLogger(__name__).error("Error loading logs from %s: %s", self.log_file_path, e)
     
     def analyze_performance(self, operation: str = None) -> Dict[str, Any]:
         """Analyze performance metrics from logs."""

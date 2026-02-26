@@ -4,7 +4,7 @@ description: "Internal documentation, repository assessment, and project managem
 purpose: "Provide centralized documentation, configuration management, and repository health assessment tools"
 module_type: "Infrastructure"
 status: "Beta"
-last_updated: "2026-02-24"
+last_updated: "2026-02-25"
 dependencies: []
 compatibility: ["All GEO-INFER modules"]
 tags: ["documentation", "repository-management", "configuration", "testing", "internal"]
@@ -16,7 +16,8 @@ estimated_time: "30"
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a>
+  <a href="./docs/">📚 Documentation</a> •
+  <a href="./SKILL.md">🧠 Claude Skill</a>
 </div>
 
 ---
@@ -32,6 +33,16 @@ estimated_time: "30"
 - **Documentation Generation**: Auto-generated documentation from code
 - **Testing Infrastructure**: Shared test utilities and fixtures
 - **Template Management**: Project and module templates
+
+## Framework Stats (v0.2.0 — 2026-02-25)
+
+| Metric | Count |
+|--------|-------|
+| Modules | 44 |
+| Source Files | 858 |
+| Source Lines | 295,696 |
+| Test Files | 416 |
+| Tests | 3,000+ |
 
 ## Features
 
@@ -88,7 +99,7 @@ GEO-INFER-INTRA/
 ├── scripts/                # Utility scripts
 ├── src/                    # Source code
 │   └── geo_infer_intra/
-│       ├── config.py      # Configuration utilities
+│       ├── utils/config.py # Configuration utilities
 │       ├── testing/       # Testing utilities
 │       └── utils/         # General utilities
 ├── templates/              # Project templates
@@ -155,6 +166,22 @@ GEO-INFER-INTRA provides shared infrastructure for all GEO-INFER modules:
 - [GEO-INFER-OPS](../GEO-INFER-OPS/README.md): Operations and deployment
 - [GEO-INFER-GIT](../GEO-INFER-GIT/README.md): Version control
 
+## Development Methodology
+
+GEO-INFER-INTRA integrates with the PAI Algorithm development methodology. See [PAI.md](../PAI.md) for the active inference-guided development workflow used across all modules.
+
 ---
 
-**Last Updated**: 2026-02-24
+**Last Updated**: 2026-02-25
+
+## Documentation Hub
+
+Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
+
+| Resource | Description |
+|----------|-------------|
+| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
+| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
+| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
+| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
+| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |

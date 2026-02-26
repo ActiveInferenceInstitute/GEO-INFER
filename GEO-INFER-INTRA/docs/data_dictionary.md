@@ -1,1 +1,475 @@
-# GEO-INFER Data Dictionary This data dictionary defines the core data structures, formats, and models used across the GEO-INFER framework. It serves as a reference for developers working with multiple modules and ensures consistency in data representation. ## Core Data Structures ### GeospatialDataset The fundamental data structure for representing geospatial data across the GEO-INFER framework. ```python from geo_infer_data.core import GeospatialDataset # Creating a GeospatialDataset from various sources dataset = GeospatialDataset.from_geodataframe(gdf) dataset = GeospatialDataset.from_file("path/to/data.geojson") dataset = GeospatialDataset.from_raster("path/to/raster.tif") ``` | Property | Type | Description | |----------|------|-------------| | `data` | varies | The underlying data container (GeoDataFrame, xarray.Dataset, etc.) | | `crs` | str or pyproj.CRS | Coordinate reference system | | `bounds` | tuple | Geographic bounds as (minx, miny, maxx, maxy) | | `geometry_type` | str | Type of geometries (Point, LineString, Polygon, etc.) | | `attributes` | dict | Dictionary of dataset attributes | | `metadata` | dict | Dictionary of metadata information | | Method | Description | |--------|-------------| | `to_geodataframe()` | Convert to GeoDataFrame | | `to_xarray()` | Convert to xarray Dataset/DataArray | | `to_raster()` | Convert to raster representation | | `to_temporal_series()` | Convert to TemporalSeries if time dimension exists | | `reproject(target_crs)` | Reproject to a coordinate system | | `clip(geometry)` | Clip dataset to a geometry | | `aggregate(by)` | Aggregate by attribute or spatial unit | ### TemporalSeries Standard representation for time-series data across the framework. ```python from geo_infer_time.core import TemporalSeries # Creating a TemporalSeries series = TemporalSeries.from_dataframe(df, time_column="timestamp") series = TemporalSeries.from_file("path/to/timeseries.csv") ``` | Property | Type | Description | |----------|------|-------------| | `data` | pandas.DataFrame or xarray.Dataset | The underlying data container | | `time_column` | str | Name of the column containing time information | | `frequency` | str | Inferred or specified data frequency | | `start_time` | datetime | Start time of the series | | `end_time` | datetime | End time of the series | | `duration` | timedelta | Duration of the time series | | `metadata` | dict | Dictionary of metadata information | | Method | Description | |--------|-------------| | `to_dataframe()` | Convert to pandas DataFrame | | `to_xarray()` | Convert to xarray Dataset | | `resample(freq)` | Resample to a different frequency | | `slice(start_time, end_time)` | Extract a time slice | | `split(train_ratio)` | Split into training and validation sets | | `detect_frequency()` | Detect the time series frequency | | `to_geospatial_dataset()` | Convert to GeospatialDataset if spatial coordinates exist | ### SpatioTemporalCube For data with both spatial and temporal dimensions. ```python from geo_infer_data.core import SpatioTemporalCube # Creating a SpatioTemporalCube cube = SpatioTemporalCube.from_xarray(xr_dataset) cube = SpatioTemporalCube.from_raster_sequence("path/to/rasters/*.tif", time_format="%Y%m%d") ``` | Property | Type | Description | |----------|------|-------------| | `data` | xarray.Dataset | The underlying data container | | `spatial_dims` | list | Names of spatial dimensions | | `time_dim` | str | Name of time dimension | | `crs` | str or pyproj.CRS | Coordinate reference system | | `bounds` | tuple | Geographic bounds as (minx, miny, maxx, maxy) | | `time_range` | tuple | Time range as (start_time, end_time) | | `variables` | list | List of data variables | | `metadata` | dict | Dictionary of metadata information | | Method | Description | |--------|-------------| | `to_xarray()` | Convert to xarray Dataset | | `to_geodataframes()` | Convert to dictionary of GeoDataFrames by time | | `to_raster_sequence()` | Export as a sequence of raster files | | `slice_time(start_time, end_time)` | Extract a time slice | | `slice_space(bounds)` | Extract a spatial slice | | `aggregate_time(freq)` | Aggregate along time dimension | | `aggregate_space(scale)` | Aggregate along spatial dimensions | | `visualize()` | Generate interactive visualization | ### BeliefDistribution Probabilistic representation used in active inference components. ```python from geo_infer_act.core import BeliefDistribution # Creating a BeliefDistribution belief = BeliefDistribution(mean=mu, covariance=sigma) belief = BeliefDistribution.from_samples(samples) ``` | Property | Type | Description | |----------|------|-------------| | `mean` | numpy.ndarray | Distribution mean | | `covariance` | numpy.ndarray | Covariance matrix (for Gaussian) | | `samples` | numpy.ndarray | Samples from the distribution (for non-parametric) | | `log_precision` | numpy.ndarray | Log precision (for active inference) | | `parameters` | dict | Additional distribution parameters | | `distribution_type` | str | Type of distribution (Gaussian, Categorical, etc.) | | Method | Description | |--------|-------------| | `sample(n_samples)` | Draw samples from the distribution | | `log_probability(x)` | Compute log probability of x | | `entropy()` | Calculate distribution entropy | | `kl_divergence(other)` | Calculate KL divergence with another distribution | | `update(evidence)` | Update distribution with evidence | | `marginalize(dims)` | Marginalize over specified dimensions | | `to_xarray()` | Convert to xarray Dataset | ### SpatialBeliefMap Spatial representation of beliefs for active inference on geographic data. ```python from geo_infer_act.spatial import SpatialBeliefMap # Creating a SpatialBeliefMap belief_map = SpatialBeliefMap.from_h3_grid(h3_resolution=8, bbox=bbox) belief_map = SpatialBeliefMap.from_raster("path/to/belief_raster.tif") ``` | Property | Type | Description | |----------|------|-------------| | `beliefs` | dict | Mapping from spatial index to BeliefDistribution | | `geometry` | GeospatialDataset | Spatial representation of the grid | | `resolution` | int or float | Spatial resolution | | `crs` | str or pyproj.CRS | Coordinate reference system | | `attributes` | list | Names of attributes with beliefs | | `metadata` | dict | Dictionary of metadata information | | Method | Description | |--------|-------------| | `get_belief(location)` | Get belief at a specific location | | `update_belief(location, evidence)` | Update belief at a location | | `to_raster()` | Convert to raster format | | `to_geodataframe()` | Convert to GeoDataFrame | | `visualize()` | Generate visualization of belief map | | `sample()` | Generate a sample realization of the belief map | | `expected_information_gain(locations)` | Calculate expected information gain for locations | ## Standard File Formats ### Vector Data | Format | Description | Module Support | Usage | |--------|-------------|----------------|-------| | GeoJSON | JSON-based format for geospatial vector data | All spatial modules | Standard interchange format for web | | GeoPackage | SQLite-based format for vector and raster data | SPACE, DATA, most domains | Preferred for persistent storage | | Shapefile | Legacy ESRI format for vector data | All spatial modules | Backward compatibility | | GeoParquet | Columnar format for efficient geospatial data | SPACE, DATA | Big data processing | | TopoJSON | Topology-preserving extension of GeoJSON | SPACE | Web visualization with shared topology | ### Raster Data | Format | Description | Module Support | Usage | |--------|-------------|----------------|-------| | GeoTIFF | Georeferenced TIFF format | SPACE, DATA, domains | Standard raster storage | | Cloud Optimized GeoTIFF (COG) | Web-optimized GeoTIFF | SPACE, DATA | Remote access and visualization | | NetCDF | Self-describing, multidimensional data format | SPACE, TIME, domains | Climate and scientific data | | Zarr | Chunked, compressed N-D arrays | SPACE, DATA | Cloud-based big data analytics | ### Time Series Data | Format | Description | Module Support | Usage | |--------|-------------|----------------|-------| | CSV with ISO8601 timestamps | Simple tabular format | All temporal modules | Simple time series exchange | | NetCDF with time dimension | Multidimensional with time axis | TIME, SPACE, domains | Spatiotemporal scientific data | | Parquet with timestamp column | Columnar storage with timestamps | TIME, DATA | Efficient large time series | | JSON with temporal schema | Flexible JSON with time elements | TIME, API | Web-based time series exchange | ### Model Data | Format | Description | Module Support | Usage | |--------|-------------|----------------|-------| | HDF5 | Hierarchical Data Format | ACT, BAYES, ML-based domains | Storing trained models | | JSON Model Configuration | JSON descriptor of model settings | All modeling modules | Model configuration exchange | | ONNX | Open Neural Network Exchange | ACT, domains with ML | Cross-platform model deployment | | PMML | Predictive Model Markup Language | BAYES, risk models | Statistical model interchange | ## Data Models ### Geospatial Core Models #### Coordinate ```python class Coordinate: """A single coordinate point with optional z and m values.""" x: float # Longitude or x-coordinate y: float # Latitude or y-coordinate z: Optional[float] = None # Elevation or z-coordinate m: Optional[float] = None # Measure value crs: Optional[str] = "EPSG:4326" # Coordinate reference system ``` #### BoundingBox ```python class BoundingBox: """Geographic bounding box.""" min_x: float # Minimum longitude/x min_y: float # Minimum latitude/y max_x: float # Maximum longitude/x max_y: float # Maximum latitude/y crs: Optional[str] = "EPSG:4326" # Coordinate reference system ``` #### SpatialReference ```python class SpatialReference: """Spatial reference system definition.""" crs: str # CRS identifier (EPSG code or WKT) units: str # Units of measurement projected: bool # Whether the CRS is projected geodetic: bool # Whether the CRS is geodetic authority: str # Authority (EPSG, ESRI, etc.) ``` #### GeometryCollection ```python class GeometryCollection: """Collection of geometries with attributes.""" geometries: List[Any] # List of geometry objects attributes: Dict[str, List[Any]] # Attributes for each geometry crs: Optional[str] = "EPSG:4326" # Coordinate reference system ``` ### Temporal Core Models #### TimeInstant ```python class TimeInstant: """Single point in time with optional timezone.""" datetime: datetime # Datetime value timezone: Optional[str] = "UTC" # Timezone precision: Optional[str] = "second" # Time precision ``` #### TimeInterval ```python class TimeInterval: """Time interval between start and end times.""" start: TimeInstant # Start time end: TimeInstant # End time inclusive_start: bool = True # Whether start is inclusive inclusive_end: bool = False # Whether end is inclusive ``` #### TemporalReference ```python class TemporalReference: """Temporal reference system definition.""" calendar: str = "gregorian" # Calendar system time_scale: str = "utc" # Time scale (UTC, TAI, etc.) epoch: Optional[datetime] = None # Reference epoch units: str = "seconds" # Time units ``` ### Active Inference Core Models #### StateSpace ```python class StateSpace: """Definition of a state space for active inference.""" dimensions: List[str] # Names of state dimensions bounds: Optional[Dict[str, Tuple[float, float]]] # Bounds for each dimension discrete: bool # Whether the space is discrete cardinality: Optional[Dict[str, int]] # Cardinality of discrete dimensions ``` #### ObservationModel ```python class ObservationModel: """Mapping from hidden states to observations.""" state_space: StateSpace # Definition of state space observation_space: StateSpace # Definition of observation space mapping: Callable # Function mapping states to observations parameters: Dict[str, Any] # Model parameters ``` #### TransitionModel ```python class TransitionModel: """Model of state transitions under actions.""" state_space: StateSpace # Definition of state space action_space: Optional[StateSpace] # Definition of action space mapping: Callable # Function mapping state-action to next state parameters: Dict[str, Any] # Model parameters ``` #### Policy ```python class Policy: """Action selection policy.""" action_space: StateSpace # Definition of action space state_space: StateSpace # Definition of state space mapping: Callable # Function mapping state to action parameters: Dict[str, Any] # Policy parameters ``` ## Domain-Specific Models ### Agricultural Models #### Field ```python class Field: """Agricultural field with properties.""" geometry: Any # Field boundary geometry crop_type: str # Type of crop planting_date: Optional[datetime] # Planting date harvest_date: Optional[datetime] # Harvest date attributes: Dict[str, Any] # Additional field attributes ``` #### CropModel ```python class CropModel: """Model of crop growth and yield.""" crop_type: str # Type of crop growth_stages: List[str] # Growth stages parameters: Dict[str, Any] # Model parameters prediction_variables: List[str] # Output variables ``` ### Urban Models #### Building ```python class Building: """Building with properties.""" geometry: Any # Building footprint geometry height: Optional[float] # Building height stories: Optional[int] # Number of stories building_type: str # Building type attributes: Dict[str, Any] # Additional building attributes ``` #### TransportationNetwork ```python class TransportationNetwork: """Transportation network with properties.""" edges: GeometryCollection # Network edges nodes: GeometryCollection # Network nodes network_type: str # Type of network (road, rail, etc.) directed: bool # Whether the network is directed attributes: Dict[str, Any] # Additional network attributes ``` ### Risk Models #### Hazard ```python class Hazard: """Natural or anthropogenic hazard.""" hazard_type: str # Type of hazard intensity: Dict[str, Any] # Intensity measures probability: float # Probability of occurrence time_frame: TimeInterval # Time frame for the hazard geometry: Any # Spatial extent ``` #### Vulnerability ```python class Vulnerability: """Vulnerability assessment.""" asset_type: str # Type of vulnerable asset hazard_type: str # Type of hazard fragility_curves: Dict[str, Any] # Fragility curves exposure_value: float # Value of exposed assets geometry: Any # Spatial extent ``` ## Standard Metadata ### Dataset Metadata ```python class DatasetMetadata: """Standard metadata for geospatial datasets.""" title: str # Dataset title description: str # Dataset description keywords: List[str] # Keywords for discovery created: datetime # Creation date updated: datetime # Last update date creator: str # Creator name or organization license: str # License information spatial_coverage: BoundingBox # Spatial coverage temporal_coverage: Optional[TimeInterval] # Temporal coverage crs: str # Coordinate reference system format: str # Data format source: str # Data source lineage: Optional[Dict[str, Any]] # Processing history quality: Optional[Dict[str, Any]] # Quality information ``` ### Model Metadata ```python class ModelMetadata: """Standard metadata for models.""" name: str # Model name version: str # Model version description: str # Model description author: str # Model author created: datetime # Creation date parameters: Dict[str, Any] # Model parameters dependencies: Dict[str, str] # Software dependencies inputs: Dict[str, Dict[str, str]] # Input specifications outputs: Dict[str, Dict[str, str]] # Output specifications performance_metrics: Optional[Dict[str, float]] # Performance metrics training_data: Optional[str] # Reference to training data license: str # License information ``` ## Data Encoding Standards ### Coordinate Encoding - **Geographic coordinates**: [latitude, longitude] ordering in arrays and documentation - **Projected coordinates**: [easting, northing] ordering - **H3 indexes**: String representation of H3 cell address - **What3Words**: Three-word encoding for locations ### Time Encoding - **Timestamps**: ISO 8601 format (YYYY-MM-DDTHH:MM:SS.sssZ) - **Time intervals**: ISO 8601 interval format (start/end) - **Durations**: ISO 8601 duration format (PnYnMnDTnHnMnS) - **Recurring times**: iCalendar RRULE format ### Uncertainty Encoding - **Distributional parameters**: Mean and covariance for Gaussian - **Quantiles**: 0.025, 0.25, 0.5, 0.75, 0.975 quantiles - **Ensemble members**: Array of realizations - **Fuzzy membership**: Membership grades between 0 and 1 ## API Data Formats ### GeoJSON Feature Collection Standard format for vector data exchange via API: ```json { "type": "FeatureCollection", "features": [ { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-122.4194, 37.7749] }, "properties": { "name": "San Francisco", "population": 884363, "area_km2": 121.4 } } ], "bbox": [-122.5, 37.7, -122.3, 37.8], "crs": { "type": "name", "properties": { "name": "EPSG:4326" } }, "metadata": { "title": "Example Dataset", "created": "2023-01-01T00:00:00Z" } } ``` ### SpatioTemporal Grid Response Format for gridded spatiotemporal data: ```json { "type": "SpatioTemporalGrid", "dimensions": { "x": { "values": [-122.5, -122.4, -122.3], "units": "degrees_east" }, "y": { "values": [37.7, 37.8, 37.9], "units": "degrees_north" }, "time": { "values": ["2023-01-01T00:00:00Z", "2023-01-02T00:00:00Z"], "units": "ISO8601" } }, "variables": { "temperature": { "dimensions": ["time", "y", "x"], "units": "celsius", "data": [[[15.2, 15.5, 15.7], [15.0, 15.3, 15.5], [14.8, 15.1, 15.3]], [[16.2, 16.5, 16.7], [16.0, 16.3, 16.5], [15.8, 16.1, 16.3]]] } }, "crs": "EPSG:4326", "metadata": { "title": "Temperature Grid", "created": "2023-01-01T00:00:00Z" } } ``` ### Inference Result Format for active inference prediction results: ```json { "type": "InferenceResult", "predictions": [ { "location": {"type": "Point", "coordinates": [-122.4194, 37.7749]}, "time": "2023-01-01T00:00:00Z", "variables": { "temperature": { "mean": 15.5, "std": 0.8, "quantiles": { "0.025": 13.9, "0.5": 15.5, "0.975": 17.1 } } } } ], "model": { "name": "TemperatureModel", "version": "1.0.0" }, "metadata": { "created": "2023-01-01T00:00:00Z", "input_data": "temperature_observations_2022.nc" } } ``` ## Best Practices 1. **Coordinate Consistency**: Always specify the coordinate reference system (CRS) when creating or sharing geospatial data. 2. **Temporal Precision**: Use appropriate temporal precision for your use case (second, minute, day) and always specify the timezone or use UTC. 3. **Units Documentation**: Always include units of measurement in dataset attributes and documentation. 4. **Uncertainty Representation**: Include uncertainty information with predictions and measurements whenever possible. 5. **Metadata Completeness**: Provide metadata including provenance, quality information, and lineage. 6. **Schema Validation**: Validate data against schemas before processing or storing. 7. **Naming Conventions**: Use consistent naming conventions for variables, dimensions, and attributes across modules. 8. **Dimensionality**: For raster and gridded data, use the convention [time, y, x] for dimension ordering. 9. **Efficiency**: For large datasets, use appropriate formats (GeoParquet, Zarr, COG) and chunking strategies. 10. **Standards Compliance**: Follow OGC standards for geospatial data interchange when possible. ## Related Documentation - [GEO-INFER-SPACE Data Models](../space/data_models.md) - [GEO-INFER-TIME Data Models](../time/data_models.md) - [GEO-INFER-ACT Data Models](../act/data_models.md) - [GEO-INFER-API Data Exchange Formats](../api/data_formats.md) - [Data Model Validation Guide](../data/validation.md) 
+# GEO-INFER Data Dictionary
+
+This document defines the data structures, formats, naming conventions, and
+exchange protocols used across all 44 GEO-INFER modules. Adherence to these
+standards ensures interoperability between modules and predictable behavior
+for developers working across the framework.
+
+## GeoDataFrame Conventions
+
+All vector geospatial data in GEO-INFER is represented using GeoPandas
+GeoDataFrames. The following conventions apply universally.
+
+### Geometry Column
+
+- The geometry column must be named `geometry` (GeoPandas default).
+- Valid geometry types: `Point`, `LineString`, `Polygon`, `MultiPoint`,
+  `MultiLineString`, `MultiPolygon`, `GeometryCollection`.
+- All geometries in a single GeoDataFrame should be of the same type unless
+  the use case specifically requires mixed types.
+- Empty geometries (`GEOMETRYCOLLECTION EMPTY`) must be handled explicitly;
+  do not silently drop rows with null geometry.
+
+### Coordinate Reference System
+
+- Default CRS: **EPSG:4326** (WGS84 geographic coordinates, latitude/longitude
+  in degrees).
+- All GeoDataFrames must have a CRS set. Never create a GeoDataFrame without
+  calling `gdf.set_crs()` or passing `crs=` to the constructor.
+- When performing spatial operations between GeoDataFrames, verify CRS match
+  first. Use `gdf.to_crs()` to reproject if necessary.
+
+```python
+import geopandas as gpd
+from shapely.geometry import Point
+
+# Correct: always set CRS
+gdf = gpd.GeoDataFrame(
+    {"name": ["Portland"], "value": [42.0]},
+    geometry=[Point(-122.6765, 45.5231)],
+    crs="EPSG:4326"
+)
+
+# Reproject to Web Mercator for distance calculations in meters
+gdf_mercator = gdf.to_crs("EPSG:3857")
+```
+
+### Standard Column Names
+
+GEO-INFER modules use consistent column names for common fields:
+
+| Column Name | Type | Description | Required |
+|-------------|------|-------------|----------|
+| `geometry` | Shapely geometry | Spatial geometry object | Yes |
+| `lat` | float64 | Latitude in decimal degrees (WGS84) | No |
+| `lng` | float64 | Longitude in decimal degrees (WGS84) | No |
+| `h3_index` | str | H3 cell index (hex string) | No |
+| `h3_resolution` | int | H3 resolution level (0-15) | No |
+| `timestamp` | datetime64[ns, UTC] | Observation timestamp | No |
+| `value` | float64 | Primary measured value | No |
+| `category` | str or category | Classification label | No |
+| `confidence` | float64 | Confidence score [0.0, 1.0] | No |
+| `source` | str | Data source identifier | No |
+| `crs` | str | CRS identifier (when stored as attribute) | No |
+
+### Example: Creating a Standard GeoDataFrame
+
+```python
+import geopandas as gpd
+import pandas as pd
+import numpy as np
+from shapely.geometry import Point
+import h3
+
+# Sample sensor readings
+data = {
+    "lat": [45.5231, 45.5150, 45.5300],
+    "lng": [-122.6765, -122.6800, -122.6700],
+    "timestamp": pd.to_datetime([
+        "2025-06-15T10:00:00Z",
+        "2025-06-15T10:05:00Z",
+        "2025-06-15T10:10:00Z",
+    ]),
+    "value": [23.5, 24.1, 22.8],
+    "category": ["temperature", "temperature", "temperature"],
+    "confidence": [0.95, 0.92, 0.88],
+    "source": ["sensor_A", "sensor_B", "sensor_C"],
+}
+
+geometry = [Point(lng, lat) for lat, lng in zip(data["lat"], data["lng"])]
+
+gdf = gpd.GeoDataFrame(data, geometry=geometry, crs="EPSG:4326")
+
+# Add H3 indices
+gdf["h3_index"] = [
+    h3.latlng_to_cell(lat, lng, 9)
+    for lat, lng in zip(gdf["lat"], gdf["lng"])
+]
+gdf["h3_resolution"] = 9
+
+print(gdf[["h3_index", "value", "category", "confidence"]].to_string())
+```
+
+## H3 Cell Conventions
+
+GEO-INFER uses H3 v4 (h3 >= 4.0.0) as its primary spatial indexing system.
+The v3 API (geo_to_h3, h3_to_geo) is deprecated and must not be used.
+
+### Resolution Guide
+
+| Resolution | Avg Cell Area | Avg Edge Length | Typical Use Case |
+|------------|--------------|-----------------|------------------|
+| 0 | 4,357,449 km^2 | 1,108 km | Continental analysis |
+| 1 | 609,788 km^2 | 419 km | Sub-continental regions |
+| 2 | 86,802 km^2 | 158 km | Country-level analysis |
+| 3 | 12,393 km^2 | 60 km | State/province analysis |
+| 4 | 1,770 km^2 | 23 km | Regional planning |
+| 5 | 252.9 km^2 | 8.5 km | Metropolitan area analysis |
+| 6 | 36.13 km^2 | 3.2 km | City district analysis |
+| 7 | 5.161 km^2 | 1.2 km | Neighborhood analysis |
+| 8 | 0.7373 km^2 | 461 m | Urban block analysis |
+| 9 | 0.1053 km^2 | 174 m | Building cluster analysis |
+| 10 | 0.01505 km^2 | 66 m | Individual building scale |
+| 11 | 0.002149 km^2 | 25 m | Parcel-level analysis |
+| 12 | 0.0003071 km^2 | 9.4 m | Sub-parcel / room scale |
+| 13 | 0.00004388 km^2 | 3.6 m | Precision positioning |
+| 14 | 0.000006267 km^2 | 1.3 m | Sub-meter analysis |
+| 15 | 0.0000008953 km^2 | 0.51 m | Centimeter-scale |
+
+### Cell ID Format
+
+H3 cell IDs are 64-bit unsigned integers represented as 15-character hexadecimal
+strings (e.g., `"8928308280fffff"`). In Python, they are handled as `str` type.
+
+### H3 v4 API Summary
+
+| Function | Parameters | Return Type | Description |
+|----------|-----------|-------------|-------------|
+| `latlng_to_cell(lat, lng, res)` | float, float, int | str | Convert coordinates to H3 cell |
+| `cell_to_latlng(cell)` | str | tuple[float, float] | Get cell center as (lat, lng) |
+| `cell_to_boundary(cell)` | str | tuple[tuple[float, float], ...] | Get cell boundary vertices |
+| `get_resolution(cell)` | str | int | Get resolution of a cell |
+| `grid_disk(origin, k)` | str, int | frozenset[str] | Get cells within k rings |
+| `grid_ring(origin, k)` | str, int | frozenset[str] | Get cells at exactly k rings |
+| `grid_distance(a, b)` | str, str | int | Grid distance between cells |
+| `grid_path_cells(a, b)` | str, str | list[str] | Shortest path between cells |
+| `cell_to_parent(cell, res)` | str, int | str | Get parent cell at coarser resolution |
+| `cell_to_children(cell, res)` | str, int | frozenset[str] | Get children at finer resolution |
+| `are_neighbor_cells(a, b)` | str, str | bool | Check if cells are adjacent |
+| `cells_to_multi_polygon(cells)` | set[str] | ... | Convert cells to GeoJSON polygon |
+| `average_hexagon_area(res, unit)` | int, str | float | Average cell area at resolution |
+| `average_hexagon_edge_length(res, unit)` | int, str | float | Average edge length at resolution |
+
+```python
+import h3
+
+# Basic cell operations
+cell = h3.latlng_to_cell(45.5231, -122.6765, 9)
+print(f"Cell: {cell}")                          # e.g., "8928308280fffff"
+print(f"Resolution: {h3.get_resolution(cell)}") # 9
+
+center = h3.cell_to_latlng(cell)
+print(f"Center: lat={center[0]:.4f}, lng={center[1]:.4f}")
+
+boundary = h3.cell_to_boundary(cell)
+print(f"Boundary vertices: {len(boundary)}")    # 6 (hexagon)
+
+# Neighborhood operations
+neighbors = h3.grid_disk(cell, 1)
+print(f"1-ring neighborhood: {len(neighbors)} cells")  # 7
+
+ring_only = h3.grid_ring(cell, 2)
+print(f"2nd ring only: {len(ring_only)} cells")         # 12
+
+# Hierarchy
+parent = h3.cell_to_parent(cell, 7)
+children = h3.cell_to_children(cell, 10)
+print(f"Parent (res 7): {parent}")
+print(f"Children (res 10): {len(children)} cells")
+```
+
+## Temporal Series Formats
+
+### DatetimeIndex Standards
+
+- All timestamps must be timezone-aware with UTC as the default timezone.
+- Use `pd.Timestamp` or `datetime64[ns, UTC]` dtype.
+- Store timestamps as ISO 8601 strings in serialized formats:
+  `"2025-06-15T10:30:00Z"`.
+
+```python
+import pandas as pd
+
+# Correct: timezone-aware UTC DatetimeIndex
+index = pd.DatetimeIndex(
+    pd.date_range("2025-01-01", periods=365, freq="D", tz="UTC")
+)
+
+# Create a time series with proper index
+ts = pd.Series(
+    data=np.random.randn(365),
+    index=index,
+    name="temperature_anomaly"
+)
+
+# Resample to monthly means
+monthly = ts.resample("ME").mean()
+```
+
+### Period Conventions
+
+| Period Code | Meaning | Use Case |
+|-------------|---------|----------|
+| `T` or `min` | Minute | Sensor data, IoT |
+| `H` or `h` | Hour | Traffic, weather |
+| `D` | Day | Daily aggregates |
+| `W` | Week | Weekly reports |
+| `ME` | Month end | Monthly statistics |
+| `QE` | Quarter end | Seasonal analysis |
+| `YE` | Year end | Annual summaries |
+
+### Resampling Standards
+
+When resampling spatial time series, specify the aggregation method explicitly:
+
+```python
+# Spatial time series: aggregate temperature readings
+daily_mean = hourly_readings.resample("D").mean()
+daily_max = hourly_readings.resample("D").max()
+daily_count = hourly_readings.resample("D").count()
+
+# Preserve spatial information during resampling
+def resample_spatial_ts(gdf, time_col, value_col, freq, agg_func="mean"):
+    """Resample a spatial time series while preserving geometry."""
+    grouped = gdf.set_index(time_col).groupby("h3_index")
+    resampled = grouped[value_col].resample(freq).agg(agg_func).reset_index()
+    # Rejoin geometry
+    cell_geom = gdf[["h3_index", "geometry"]].drop_duplicates("h3_index")
+    result = resampled.merge(cell_geom, on="h3_index")
+    return gpd.GeoDataFrame(result, geometry="geometry", crs=gdf.crs)
+```
+
+## Active Inference State Vectors
+
+Active Inference models in GEO-INFER use a standardized parameterization
+following the notation in `GEO-INFER-ACT`.
+
+### State Space Components
+
+| Symbol | Name | Shape | Description | Variable Name |
+|--------|------|-------|-------------|---------------|
+| `o` | Observations | `(num_obs,)` or `(num_obs_modalities, ...)` | Sensory input vector | `observations` |
+| `s` | Hidden states | `(num_states,)` or `(num_state_factors, ...)` | Inferred hidden states | `states` or `beliefs` |
+| `a` | Actions | `(num_actions,)` | Selected actions | `actions` |
+| `D` | Prior beliefs | `(num_states,)` | Prior distribution over initial states | `state_prior` |
+| `A` | Likelihood | `(num_obs, num_states)` | Observation model P(o\|s) | `observation_model` or `likelihood` |
+| `B` | Transitions | `(num_states, num_states)` or `(num_states, num_states, num_actions)` | State transition model P(s'\|s,a) | `transition_model` |
+| `C` | Preferences | `(num_obs,)` | Log-preferences over observations | `preferences` |
+| `E` | Policy prior | `(num_policies,)` | Prior over policies | `policy_prior` |
+
+### Array Conventions
+
+- All probability distributions are stored as numpy arrays with dtype `float64`.
+- Probability vectors must sum to 1.0 (within floating-point tolerance of 1e-10).
+- Log-probabilities use natural logarithm (`np.log`, not `np.log2` or `np.log10`).
+- The likelihood matrix `A` has observations on rows and states on columns:
+  `A[o, s] = P(o | s)`.
+- The transition matrix `B` follows the convention `B[s', s] = P(s' | s)` for
+  the action-free case.
+
+```python
+import numpy as np
+
+# Standard Active Inference state vector setup
+num_states = 5
+num_obs = 4
+num_actions = 3
+
+# Likelihood matrix: P(observation | hidden_state)
+A = np.random.dirichlet(np.ones(num_obs), size=num_states).T
+assert A.shape == (num_obs, num_states)
+assert np.allclose(A.sum(axis=0), 1.0)
+
+# Transition matrix: P(next_state | current_state, action)
+B = np.zeros((num_states, num_states, num_actions))
+for a in range(num_actions):
+    B[:, :, a] = np.random.dirichlet(np.ones(num_states), size=num_states).T
+    assert np.allclose(B[:, :, a].sum(axis=0), 1.0)
+
+# Prior beliefs over initial states
+D = np.array([0.1, 0.2, 0.4, 0.2, 0.1])
+assert np.isclose(D.sum(), 1.0)
+
+# Preferences over observations (log-scale; higher = more preferred)
+C = np.array([0.0, 1.0, 2.0, 3.0])  # prefers observation index 3
+```
+
+## Cross-Module Exchange Formats
+
+### JSON Schema for Spatial Features
+
+When exchanging spatial features between modules via JSON, use GeoJSON format
+with GEO-INFER metadata extensions:
+
+```json
+{
+  "type": "FeatureCollection",
+  "crs": "EPSG:4326",
+  "geo_infer_metadata": {
+    "source_module": "GEO-INFER-SPACE",
+    "version": "0.1.0",
+    "created_at": "2025-06-15T10:30:00Z",
+    "h3_resolution": 9
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-122.6765, 45.5231]
+      },
+      "properties": {
+        "h3_index": "8928308280fffff",
+        "value": 23.5,
+        "category": "temperature",
+        "confidence": 0.95,
+        "timestamp": "2025-06-15T10:00:00Z"
+      }
+    }
+  ]
+}
+```
+
+Note: GeoJSON coordinates use **(longitude, latitude)** order, which is the
+opposite of H3's `(lat, lng)` convention. Always convert explicitly.
+
+### GeoParquet Column Metadata
+
+GeoParquet files must include the following metadata in the `geo` key of the
+Parquet file metadata:
+
+```python
+import geopandas as gpd
+
+# Write GeoParquet with standard metadata
+gdf.to_parquet(
+    "output.parquet",
+    engine="pyarrow",
+    index=False,
+)
+
+# Read GeoParquet
+gdf_loaded = gpd.read_parquet("output.parquet")
+assert gdf_loaded.crs is not None
+```
+
+### Inter-Module Data Transfer
+
+When passing data between GEO-INFER modules in-process, use these conventions:
+
+| Transfer Type | Format | Example |
+|---------------|--------|---------|
+| Vector spatial data | GeoDataFrame | `gdf = module_a.process(input_gdf)` |
+| Raster data | xarray.DataArray | `da = module_b.load_raster(path)` |
+| Time series | pandas.Series or DataFrame with DatetimeIndex | `ts = module_c.extract_series(gdf)` |
+| Active Inference states | numpy.ndarray | `beliefs = agent.perceive(observation)` |
+| Configuration | dict | `config = {"resolution": 9, "crs": "EPSG:4326"}` |
+| Model parameters | dict[str, numpy.ndarray] | `params = {"A": A, "B": B, "D": D}` |
+
+## Standard Type Annotations
+
+GEO-INFER uses strict type annotations throughout. These are the standard types
+used across modules:
+
+```python
+from typing import Dict, List, Optional, Tuple, Union, Any, Sequence
+import numpy as np
+import numpy.typing as npt
+import geopandas as gpd
+import pandas as pd
+from shapely.geometry import (
+    Point, LineString, Polygon, MultiPolygon, MultiPoint
+)
+from shapely.geometry.base import BaseGeometry
+
+# Standard type aliases used across GEO-INFER
+Coordinate = Tuple[float, float]              # (latitude, longitude)
+BoundingBox = Tuple[float, float, float, float]  # (min_lng, min_lat, max_lng, max_lat)
+H3CellId = str                                 # H3 hex string
+H3Resolution = int                              # 0-15
+CRSType = Union[str, int]                       # "EPSG:4326" or 4326
+TimestampType = Union[str, pd.Timestamp]        # ISO 8601 string or Timestamp
+ProbabilityVector = npt.NDArray[np.float64]      # sums to 1.0
+StateVector = npt.NDArray[np.float64]            # arbitrary float vector
+TransitionMatrix = npt.NDArray[np.float64]       # square stochastic matrix
+LikelihoodMatrix = npt.NDArray[np.float64]       # column-stochastic matrix
+
+# Function signature examples
+def analyze_region(
+    center: Coordinate,
+    radius_km: float,
+    resolution: H3Resolution = 9,
+    crs: CRSType = "EPSG:4326",
+    start_time: Optional[TimestampType] = None,
+    end_time: Optional[TimestampType] = None,
+) -> gpd.GeoDataFrame:
+    """Analyze a circular region around a center point."""
+    ...
+
+def update_beliefs(
+    prior: ProbabilityVector,
+    likelihood: LikelihoodMatrix,
+    observation: ProbabilityVector,
+) -> ProbabilityVector:
+    """Bayesian belief update."""
+    ...
+```
+
+## Data Validation Patterns
+
+All modules should validate incoming data using these patterns:
+
+```python
+import numpy as np
+import geopandas as gpd
+
+
+def validate_geodataframe(gdf: gpd.GeoDataFrame) -> None:
+    """Validate a GeoDataFrame meets GEO-INFER standards."""
+    if gdf.crs is None:
+        raise ValueError("GeoDataFrame must have a CRS set")
+
+    if gdf.geometry.isna().any():
+        null_count = gdf.geometry.isna().sum()
+        raise ValueError(f"GeoDataFrame contains {null_count} null geometries")
+
+    if not gdf.geometry.is_valid.all():
+        invalid_count = (~gdf.geometry.is_valid).sum()
+        raise ValueError(
+            f"GeoDataFrame contains {invalid_count} invalid geometries"
+        )
+
+
+def validate_probability_vector(vec: np.ndarray, name: str = "vector") -> None:
+    """Validate that an array is a proper probability distribution."""
+    if vec.ndim != 1:
+        raise ValueError(f"{name} must be 1-dimensional, got {vec.ndim}D")
+
+    if not np.all(vec >= 0):
+        raise ValueError(f"{name} contains negative values")
+
+    total = vec.sum()
+    if not np.isclose(total, 1.0, atol=1e-10):
+        raise ValueError(
+            f"{name} does not sum to 1.0 (sum={total:.10f})"
+        )
+
+
+def validate_transition_matrix(B: np.ndarray, name: str = "B") -> None:
+    """Validate a column-stochastic transition matrix."""
+    if B.ndim < 2:
+        raise ValueError(f"{name} must be at least 2-dimensional")
+
+    col_sums = B.sum(axis=0)
+    if not np.allclose(col_sums, 1.0, atol=1e-10):
+        raise ValueError(
+            f"{name} columns do not sum to 1.0: {col_sums}"
+        )
+```
+
+## Related Documentation
+
+- [Geospatial Standards](geospatial_standards.md) -- CRS, H3, and format details
+- [Active Inference Guide](active_inference_guide.md) -- mathematical foundations
+- [Terminology](terminology.md) -- definitions of all terms used here
+- [Installation](installation.md) -- dependency setup for data libraries

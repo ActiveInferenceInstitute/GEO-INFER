@@ -66,6 +66,23 @@ modules:
     - county
     - state
     enabled: true
+bioregion:
+  name: "Cascadia Bioregion"
+  definition: "watershed-based"
+  area_sq_mi: 330000
+  bounds:
+    west: -124.8
+    south: 40.0
+    east: -114.5
+    north: 49.0
+  boundary_file: "config/cascadia_bioregion_boundary.geojson"
+  volcanoes_file: "config/cascadia_volcanoes.geojson"
+  subduction_zone_file: "config/cascadia_subduction_zone.geojson"
+  watersheds_file: "config/cascadia_major_watersheds.geojson"
+  salmon_esu_file: "config/cascadia_salmon_esus.yaml"
+  indigenous_territories_file: "config/cascadia_indigenous_territories.yaml"
+  ecoregions_file: "config/cascadia_ecoregions.yaml"
+  climate_zones_file: "config/cascadia_climate_zones.yaml"
 timestamp: '2025-10-24T07:18:42.063986'
 visualization:
   color_schemes:
@@ -95,8 +112,8 @@ visualization:
   datashader_viz: false
   deepscatter_viz: false
   default_center:
-  - 41.7558
-  - -124.2016
+  - 45.5
+  - -122.5
   default_zoom: 10
   export_data: true
   generate_dashboard: false

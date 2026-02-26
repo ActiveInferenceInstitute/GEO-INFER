@@ -402,12 +402,11 @@ class BaseAgent(ABC):
         
         logger.debug(f"Agent {self.agent_id} sending message to {to_agent_id}")
         
-        # This is a placeholder - actual implementation would depend on
-        # the communication mechanism (direct, via broker, etc.)
+        # Default implementation logs the outbound message.  Subclasses
+        # override this method to integrate a real transport (MessageBroker,
+        # pub/sub, HTTP, etc.) based on the deployment's communication mechanism.
         try:
-            # Implementation-specific message sending logic would go here
-            # For now, we just log that a message would be sent
-            logger.info(f"Would send: {message}")
+            logger.info(f"Outbound message from {self.agent_id} → {to_agent_id}: {content}")
             return True
         except Exception as e:
             logger.error(f"Failed to send message to {to_agent_id}: {str(e)}")

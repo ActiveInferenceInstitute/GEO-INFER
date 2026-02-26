@@ -1,0 +1,36 @@
+del_norte:
+  name: "Del Norte County, California"
+  bounds:
+    west: -124.408
+    south: 41.458
+    east: -123.536
+    north: 42.006
+  h3_resolution: 8
+  analyzers:
+    - forest_health
+    - coastal_resilience
+    - fire_risk
+    - seismic_hazard
+  data_sources:
+    - calfire
+    - noaa
+    - usgs
+
+cascadia:
+  name: "Cascadia Bioregion (BC, WA, OR, CA)"
+  bounds:
+    west: -124.8
+    south: 40.0
+    east: -114.5
+    north: 49.0
+  h3_resolution: 7
+  analyzers:
+    - seismic_hazard
+    - forest_health
+    - salmon_habitat
+    - volcanic_hazard
+  data_sources:
+    - usgs
+    - noaa
+    - calfire
+  note: "Full agricultural pipeline available via cascadia_main.py"

@@ -1,55 +1,145 @@
 # Documentation Standards
 
-## Code Documentation
+## Docstring Format (Google-style)
 
-- Every public function/method must have a comprehensive docstring
-- Include parameter types, return types, and exceptions
-- Provide mathematical foundations where applicable
-- Include usage examples in docstrings
-- Document data requirements and formats
+```python
+def compute_risk(
+    region: dict[str, Any],
+    hazard_type: str,
+    return_period: int = 100,
+) -> dict[str, float]:
+    """Compute risk metrics for a geographic region.
 
-## Module Documentation Standards
+    Calculates expected annual loss (EAL), probable maximum loss (PML),
+    and tail value at risk (TVaR) using the region's exposure and
+    vulnerability data.
 
-- **Template Compliance**: All modules must follow the standardized YAML front matter template
-- **Comprehensive README**: Maintain detailed README files with module overview, API reference, and examples
-- **Integration Documentation**: Document cross-module integration patterns and dependencies
-- **Working Examples**: Provide runnable code examples that demonstrate real functionality
-- **API Documentation**: Document endpoints with OpenAPI specifications where applicable
-- **Troubleshooting Guides**: Include common issues and solutions
-- **Performance Guidelines**: Document optimization strategies and limitations
+    Args:
+        region: GeoJSON-like dict with 'features' containing exposure data.
+        hazard_type: One of 'earthquake', 'flood', 'hurricane', 'wildfire'.
+        return_period: Return period in years for PML calculation.
 
-## Documentation Structure
+    Returns:
+        Dictionary with keys 'eal', 'pml', 'tvar'.
 
-- **YAML Front Matter**: Required metadata for machine readability
-- **Standard Sections**: Overview, Core Features, API Reference, Use Cases, Integration, Troubleshooting
-- **Cross-Linking**: Reference related modules and documentation
-- **Version Tracking**: Maintain current version information and last updated dates
+    Raises:
+        ValueError: If hazard_type is not recognised.
+        DataValidationError: If region features are malformed.
+
+    Example:
+        >>> result = compute_risk(region_data, 'earthquake', 250)
+        >>> result['eal']
+        1250000.0
+    """
+```
+
+Every public function/method must include: `Args`, `Returns`, `Raises`, and `Example`.
+
+## YAML Front Matter
+
+All module READMEs must start with:
+
+```yaml
+---
+title: GEO-INFER-MODULE
+description: One-line module description
+purpose: What this module does and why
+module_type: core | domain | application | operations
+status: alpha | beta | stable
+version: 0.2.0
+last_updated: 2026-02-25
+dependencies:
+  - GEO-INFER-MATH
+  - GEO-INFER-SPACE
+tags:
+  - geospatial
+  - active-inference
+---
+```
+
+## README Sections (required)
+
+1. **Overview** — module purpose and scope
+2. **Core Features** — capabilities list (not "Key Features")
+3. **API Reference** — core classes with signatures
+4. **Integration** — how it connects to other modules
+5. **Getting Started** — installation and basic usage
+6. **Examples** — working code that actually runs
+7. **Troubleshooting** — common issues and solutions
+
+## AGENTS.md
+
+Every module must have an `AGENTS.md` file that helps AI agents navigate:
+
+```markdown
+# GEO-INFER-MODULE Agent Guide
+
+## Key Files
+- `src/geo_infer_module/core/engine.py` — Main engine class
+- `src/geo_infer_module/api/rest_api.py` — API endpoints
+
+## Common Tasks
+- Adding a new analysis type: extend `Engine.run_analysis()`
+- Adding an API endpoint: add route in `rest_api.py`
+
+## Gotchas
+- Always validate input data before processing
+- Use H3 v4 API methods (not v3)
+```
+
+## CHANGELOG.md
+
+Follow [Keep a Changelog](https://keepachangelog.com/) format:
+
+```markdown
+# Changelog
+
+## [0.2.0] - 2026-02-25
+### Added
+- Spatial statistics (Moran's I, Geary C)
+### Fixed
+- Placeholder implementations replaced with real logic
+### Changed
+- Updated H3 API to v4
+```
+
+## Cross-Reference Standards
+
+- Link to related modules: `See [GEO-INFER-SPACE](../GEO-INFER-SPACE/README.md)`
+- Link to specific files: `See [risk_engine.py](src/geo_infer_risk/core/risk_engine.py)`
+- Reference other cursorrules: `See principles.md for logging standards`
 
 ## Language Guidelines
 
 - Use precise, technical language over marketing terms
 - Prefer "provides" over "provides comprehensive and sophisticated"
 - Choose "implements" over "implements advanced and cutting-edge"
-- Use "supports" rather than "supports extensive and robust"
 - Eliminate redundant adjectives that don't add technical value
 - Focus on capabilities and functionality rather than superlatives
 
-## README Requirements
+## API Documentation
 
-All module READMEs must include:
-1. **YAML Front Matter** with metadata (title, description, purpose, module_type, status, dependencies, tags)
-2. **Overview** section explaining the module's purpose
-3. **Core Features** section (not "Key Features")
-4. **API Reference** section with core classes and examples
-5. **Integration** section showing how it works with other modules
-6. **Getting Started** guide with installation and basic usage
-7. **Examples** section with working code
-8. **Troubleshooting** section with common issues
+For modules with REST APIs, maintain OpenAPI specs:
+
+```yaml
+# docs/api_schema.yaml
+openapi: 3.0.0
+info:
+  title: GEO-INFER-MODULE API
+  version: 0.2.0
+paths:
+  /api/v1/analyse:
+    post:
+      summary: Run analysis
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AnalysisRequest'
+```
 
 ## Documentation Resources
 
-- **Standards Document**: `GEO-INFER-INTRA/docs/DOCUMENTATION_STANDARDS.md`
-- **Integration Guides**: `GEO-INFER-INTRA/docs/guides/`
-- **Module Templates**: `GEO-INFER-INTRA/docs/templates/`
+- **Standards**: `GEO-INFER-INTRA/docs/DOCUMENTATION_STANDARDS.md`
+- **Templates**: `GEO-INFER-INTRA/docs/templates/`
 - **Module Index**: `GEO-INFER-INTRA/docs/modules/index.md`
-

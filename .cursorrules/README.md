@@ -1,97 +1,75 @@
-# GEO
--INFER Cursor Rules
+# GEO-INFER Cursor Rules
 
-This directory contains modular cursor rules for the GEO-INFER framework development. Rules are organized by topic for maintainability and clarity.
+> **Version**: 0.2.0 · **Last Updated**: 2026-02-25 · **Modules**: 44
 
-## Structur
-e
+This directory contains modular cursor rules for the GEO-INFER framework. Rules are organised by topic for maintainability and clarity.
 
-- **`README.md`** (this file) - Overview and navigation
-- **`principles.md`** - Core development principles and philosophy
-- **`structure.md`** - Module structure standards and organization
-- **`implementation.md`** - Code implementation guidelines
-- **`workflow.md`** - Development workflow and environment management
-- **`testing.md`** - Testing requirements and standards
-- **`integration.md`** - Module integration patterns and guidelines
-- **`documentation.md`** - Documentation standards and requirements
-- **`requirements.md`** - Critical requirements (NEVER/ALWAYS rules)
-- **`standards.md`** - Excellence standards and code review checklist
-- **`navigation.md`** - Navigation guide and key resources
+## File Index
 
-## Quick
- Reference
+| File | Purpose |
+|------|---------|
+| `README.md` | Overview and navigation (this file) |
+| `principles.md` | Core development principles and philosophy |
+| `structure.md` | Module structure standards and organisation |
+| `implementation.md` | Code implementation guidelines and patterns |
+| `workflow.md` | Development workflow, CI/CD, and environment management |
+| `testing.md` | Testing requirements, coverage, and CI |
+| `integration.md` | Module integration patterns and dependency matrix |
+| `documentation.md` | Documentation standards and templates |
+| `requirements.md` | Critical NEVER/ALWAYS rules |
+| `standards.md` | Excellence standards and code review checklist |
+| `navigation.md` | Navigation guide and key resources |
 
-### Mos
-t
- Important Rules
-1. **NO MOCK METHODS** - See `principles.md`
-2. **Use `uv` for all package management** - See `workflow.md`
-3. **Follow module structure standards** - See `structure.md`
-4. **documentation required** - See `documentation.md`
-5. **Active Inference first** - See `principles.md`
+## Quick Reference — Most Important Rules
 
-## Framework
- Overview
+1. **NO MOCK METHODS** — Every function must be fully implemented (`principles.md`)
+2. **Use `uv` for all package management** — Never use bare `pip` (`workflow.md`)
+3. **Follow module structure standards** — 44 modules, one canonical layout (`structure.md`)
+4. **Documentation required** — YAML front matter, docstrings, AGENTS.md (`documentation.md`)
+5. **Active Inference first** — Ground implementations in free energy principles (`principles.md`)
+6. **Structured logging** — `logging.getLogger(__name__)` everywhere (`implementation.md`)
 
-GEO-INFER is a geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. The framework consists of 30+ specialized modules organized into distinct categories.
+## Framework Overview
 
-### Cor
-e
- Module Categories:
-- **🧠 Analytical Core**: ACT, BAYES, AI, MATH, COG, AGENT, SPM
-- **🗺️ Spatial-Temporal**: SPACE, TIME, IOT
-- **💾 Data Management**: DATA, API
-- **🔒 Security & Governance**: SEC, NORMS, REQ, METAGOV
-- **🧪 Simulation & Modeling**: SIM, ANT
-- **👥 People & Community**: CIV, PEP, ORG, COMMS
-- **🖥️ Applications**: APP, ART
-- **🏢 Domain-Specific**: AG, ECON, RISK, LOG, BIO, HEALTH, CLIMATE, ENERGY, WATER, TRANSPORT, FOREST, MARINE, EMERGENCY, EDU
-- **📍 Place-Based**: PLACE
-- **⚙️ Operations**: OPS, INTRA, GIT, TEST, EXAMPLES
+GEO-INFER is a geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. The framework consists of **44 specialised modules** organised into distinct categories.
 
-## Usag
-e
+### Module Categories (44 modules)
 
-Cursor will automatically load rules from this directory. For specific guidance, refer to the relevant module file.
+| Category | Modules |
+|----------|---------|
+| 🧠 **Analytical Core** | ACT, BAYES, AI, MATH, COG, AGENT, SPM |
+| 🗺️ **Spatial-Temporal** | SPACE, TIME, IOT |
+| 💾 **Data Management** | DATA, API |
+| 🔒 **Security & Governance** | SEC, NORMS, REQ, METAGOV |
+| 🧪 **Simulation & Modeling** | SIM, ANT |
+| 👥 **People & Community** | CIV, PEP, ORG, COMMS |
+| 🖥️ **Applications** | APP, ART |
+| 🏢 **Domain-Specific** | AG, ECON, RISK, LOG, BIO, HEALTH, CLIMATE, ENERGY, WATER, TRANSPORT, FOREST, MARINE, EMERGENCY, EDU |
+| 📍 **Place-Based** | PLACE |
+| ⚙️ **Operations** | OPS, INTRA, GIT, TEST, EXAMPLES |
 
-## Module
--Specific Rules
+## Module-Specific Rules
 
-Modules can extend these root framework rules with module-specific development guidelines by creating a `.cursorrules` file in their module directory.
+Modules extend these root rules with module-specific `.cursorrules` files:
 
-### Patte
-r
-n
-
-Each module can have its own `.cursorrules` file at:
 ```
 GEO-INFER-{MODULE}/.cursorrules
 ```
 
-### Ho
-w
- It Works
+- **Root rules** (this directory): Apply to all modules universally
+- **Module rules** (`GEO-INFER-{MODULE}/.cursorrules`): Extend root rules for that module
+- **Conflict resolution**: Module-specific rules take precedence for that module only
 
-- **Root Rules** (`.cursorrules/` directory): Apply to all modules universally
-- **Module Rules** (`GEO-INFER-{MODULE}/.cursorrules`): Extend root rules with module-specific requirements
-- **Relationship**: Module rules reference and extend root rules, not replace them
+### Examples
 
-### Exampl
-e
-s
+- `GEO-INFER-ACT/.cursorrules` — Active Inference implementation requirements
+- `GEO-INFER-SPACE/.cursorrules` — H3 v4 API requirements and spatial standards
+- `GEO-INFER-AGENT/.cursorrules` — Agent architecture and coordination patterns
 
-Many modules already have module-specific `.cursorrules` files:
-- `GEO-INFER-ACT/.cursorrules` - Active Inference implementation requirements
-- `GEO-INFER-SPACE/.cursorrules` - H3 v4 API requirements and spatial standards
-- `GEO-INFER-AGENT/.cursorrules` - Agent architecture and coordination patterns
+## Key Resources
 
-For details on the module-specific rules pattern, see `structure.md` in this directory.
-
-## Key
- Resources
-
-- **Main README**: `/README.md` - project overview
-- **Module Index**: `GEO-INFER-INTRA/docs/modules/index.md` - All modules overview
-- **Integration Guide**: `GEO-INFER-INTRA/docs/guides/MODULE_INTEGRATION_GUIDE.md` - Cross-module patterns
-- **Standards**: `GEO-INFER-INTRA/docs/DOCUMENTATION_STANDARDS.md` - Documentation guidelines
-
+- **Main README**: `/README.md`
+- **TODO & Roadmap**: `/TODO.md`
+- **Module Index**: `GEO-INFER-INTRA/docs/modules/index.md`
+- **Integration Guide**: `GEO-INFER-INTRA/docs/guides/MODULE_INTEGRATION_GUIDE.md`
+- **Documentation Standards**: `GEO-INFER-INTRA/docs/DOCUMENTATION_STANDARDS.md`

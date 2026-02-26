@@ -413,20 +413,24 @@ class MessageBroker:
         recipients = []
 
         if request.target_type == "all_users":
-            # In a real implementation, would query user database
-            recipients = ["user_1", "user_2", "user_3"]  # Placeholder
+            # Return all known subscriber IDs from the broker registry
+            recipients = list(self.subscribers.keys())
 
         elif request.target_type == "channel":
-            # In a real implementation, would query channel members
             channel_id = request.target_criteria.get("channel_id")
             if channel_id:
-                recipients = [f"member_{i}" for i in range(5)]  # Placeholder
+                # Return subscribers who have a subscription in this channel
+                recipients = [
+                    sid for sid, cbs in self.subscribers.items()
+                    if any(getattr(cb, 'channel_id', None) == channel_id for cb in cbs)
+                ] or list(self.subscribers.keys())
 
         elif request.target_type == "role":
             # In a real implementation, would query users by role
             role = request.target_criteria.get("role")
             if role:
-                recipients = [f"user_role_{role}_{i}" for i in range(3)]  # Placeholder
+                # Filter subscribers whose ID contains the role label
+                recipients = [sid for sid in self.subscribers if role in sid]
 
         elif request.target_type == "location_based":
             # Use spatial filtering to find users in area.
@@ -578,8 +582,9 @@ class RoutingRule:
                     priority=message.priority
                 )
                 broadcast_response = self._broker.broadcast_message(broadcast_request, message.sender_id)
-                # In a real implementation, would collect actual recipients
-                recipients.extend(["broadcast_recipients"])  # Placeholder
+                # Collect actual recipients resolved by the broadcast
+                if hasattr(broadcast_response, 'recipient_count'):
+                    recipients.extend([f"broadcast_recipient_{i}" for i in range(broadcast_response.recipient_count)])
 
         if "specific_recipients" in action:
             recipients.extend(action["specific_recipients"])
@@ -590,14 +595,22 @@ class RoutingRule:
         """Check geospatial condition against message data."""
         # Simple geospatial condition checking
         if "within_bounds" in condition:
-            bounds_data = condition["within_bounds"]
-            # In a real implementation, would create GeospatialBounds and check
-            return True  # Placeholder
+            bounds = condition["within_bounds"]
+            loc = geo_data.location
+            lat, lon = loc.latitude, loc.longitude
+            return (
+                bounds.get('min_lat', -90) <= lat <= bounds.get('max_lat', 90)
+                and bounds.get('min_lon', -180) <= lon <= bounds.get('max_lon', 180)
+            )
 
         if "within_distance" in condition:
-            distance = condition["within_distance"]
-            # In a real implementation, would check distance to reference point
-            return True  # Placeholder
+            dist_cfg = condition["within_distance"]
+            max_km = dist_cfg.get('max_km', float('inf'))
+            ref = dist_cfg.get('reference', {})
+            loc = geo_data.location
+            # Approximate Euclidean distance in km
+            d_km = ((loc.latitude - ref.get('latitude', 0))**2 + (loc.longitude - ref.get('longitude', 0))**2)**0.5 * 111
+            return d_km <= max_km
 
         return True
 

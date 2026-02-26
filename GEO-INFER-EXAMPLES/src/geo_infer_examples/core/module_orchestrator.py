@@ -629,20 +629,39 @@ class ModuleOrchestrator:
                         results[step.name] = {"error": str(e), "status": "failed"}
     
     def _check_convergence(self, results: Dict[str, Any], threshold: float) -> bool:
-        """Check if feedback loop has converged."""
-        iterations = [k for k in results.keys() if k.startswith("iteration_")]
+        """Check if feedback loop has converged by comparing last two iterations."""
+        iterations = sorted(k for k in results.keys() if k.startswith("iteration_"))
         if len(iterations) < 2:
             return False
-        
-        # Simple convergence check - extend based on specific needs
+
         try:
-            last_iteration = results[iterations[-1]]
-            prev_iteration = results[iterations[-2]]
-            
-            # Compare some metric (implement domain-specific logic)
-            # This is a placeholder implementation
-            return True  # Implement actual convergence checking
-            
+            last_iter = results[iterations[-1]]
+            prev_iter = results[iterations[-2]]
+
+            # Collect all numeric leaf values from both iterations
+            def _extract_nums(d, prefix=""):
+                vals = {}
+                if isinstance(d, dict):
+                    for k, v in d.items():
+                        vals.update(_extract_nums(v, f"{prefix}.{k}"))
+                elif isinstance(d, (int, float)):
+                    vals[prefix] = float(d)
+                return vals
+
+            last_nums = _extract_nums(last_iter)
+            prev_nums = _extract_nums(prev_iter)
+
+            common_keys = set(last_nums) & set(prev_nums)
+            if not common_keys:
+                return False
+
+            max_change = max(
+                abs(last_nums[k] - prev_nums[k]) / max(abs(prev_nums[k]), 1e-10)
+                for k in common_keys
+            )
+
+            return max_change < threshold
+
         except Exception:
             return False
     

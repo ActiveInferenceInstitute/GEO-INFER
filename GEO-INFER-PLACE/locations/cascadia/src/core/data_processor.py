@@ -43,7 +43,7 @@ def initialize_modules(active_modules: List[str], shared_backend, osc_repo_path:
     """Initialize all available modules using the shared backend"""
     logger = logging.getLogger(__name__)
     modules = {}
-    
+
     # Import all the specialized modules from the 'cascadia' location
     try:
         from src.data_modules.zoning.geo_infer_zoning import GeoInferZoning
@@ -52,6 +52,14 @@ def initialize_modules(active_modules: List[str], shared_backend, osc_repo_path:
         logger.warning(f"Zoning module not available: {e}")
         ZONING_AVAILABLE = False
         GeoInferZoning = None
+
+    try:
+        from src.data_modules.ecology.geo_infer_ecology import GeoInferEcology
+        ECOLOGY_AVAILABLE = True
+    except ImportError as e:
+        logger.warning(f"Ecology module not available: {e}")
+        ECOLOGY_AVAILABLE = False
+        GeoInferEcology = None
 
     try:
         from src.data_modules.current_use.geo_infer_current_use import GeoInferCurrentUse
@@ -107,14 +115,21 @@ def initialize_modules(active_modules: List[str], shared_backend, osc_repo_path:
         except Exception as e:
             logger.error(f"❌ Failed to initialize improvements module: {e}")
     
+    if 'ecology' in active_modules and ECOLOGY_AVAILABLE and GeoInferEcology:
+        try:
+            modules['ecology'] = GeoInferEcology()
+            logger.info("✅ Ecology module initialized")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize ecology module: {e}")
+
     if not modules:
         logger.error("❌ No modules could be initialized.")
         return {}
-    
+
     # Update the shared backend with initialized modules
     shared_backend.modules = modules
     logger.info(f"✅ Updated shared backend with {len(modules)} active modules")
-    
+
     return modules
 
 def create_shared_backend(resolution: int, target_counties: Dict, output_dir: Path, osc_repo_path: str) -> CascadianAgriculturalH3Backend:

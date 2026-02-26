@@ -218,17 +218,46 @@ class TestResourceModel(unittest.TestCase):
         self.assertEqual(self.model.n_resources, 2)
         self.assertEqual(self.model.n_locations, 3)
         self.assertEqual(self.model.planning_horizon, 2)
-        self.assertEqual(self.model.resource_distribution.shape, (2,3))
-        self.assertEqual(self.model.location_connectivity.shape, (3,3))
+        self.assertEqual(self.model.resource_distribution.shape, (2, 3))
+        self.assertEqual(self.model.location_connectivity.shape, (3, 3))
 
     def test_step(self):
-        """Test model step."""
+        """Test model step returns expected state keys."""
         state, done = self.model.step()
         self.assertIn('resource_distribution', state)
-        self.assertIn('agent_locations', state)
+        self.assertIn('total_resources', state)
+        self.assertIn('sustainability_score', state)
+        self.assertIn('free_energy', state)
+        self.assertIn('step', state)
         self.assertFalse(done)
+        # Verify resource distribution shape preserved
+        self.assertEqual(state['resource_distribution'].shape, (2, 3))
+        # Verify step counter incremented
+        self.assertEqual(state['step'], 1)
 
-    # Add more tests for private methods if needed
+    def test_step_with_actions(self):
+        """Test step with harvesting actions."""
+        actions = np.ones((2, 3)) * 0.5
+        state, done = self.model.step(actions=actions)
+        self.assertIn('harvest_yield', state)
+        # Harvest yield should be non-negative
+        self.assertTrue(np.all(state['harvest_yield'] >= 0))
+    
+    def test_reset(self):
+        """Test model reset."""
+        self.model.step()
+        state = self.model.reset()
+        self.assertEqual(self.model.step_count, 0)
+        self.assertIn('resource_distribution', state)
+        self.assertEqual(len(self.model.history), 0)
+    
+    def test_allocation_scores(self):
+        """Test free-energy-based allocation scoring."""
+        scores = self.model.get_allocation_scores()
+        self.assertEqual(scores.shape, (2, 3))
+        # Each row should sum to ~1 (normalized)
+        for r in range(2):
+            self.assertAlmostEqual(scores[r].sum(), 1.0, places=5)
 
 def test_multi_agent_h3(self):
     model = MultiAgentModel()

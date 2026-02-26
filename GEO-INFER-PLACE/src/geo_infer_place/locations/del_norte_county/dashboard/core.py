@@ -29,7 +29,7 @@ class AdvancedDashboard:
     for real-time analysis of climate, zoning, and agro-economic considerations.
     """
     
-    def __init__(self, output_dir: str = "./del_norte_dashboard", api_keys: Dict[str, str] = None):
+    def __init__(self, output_dir: str = "./del_norte_dashboard", api_keys: Dict[str, str] = None, layer_config: Dict[str, Any] = None):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
@@ -444,6 +444,10 @@ class AdvancedDashboard:
         </body>
         </html>
         """
+
+    def generate_dashboard(self, filename: str = None, fetch_data: bool = False) -> str:
+        """Alias for save_dashboard() — generates HTML without fetching live data by default."""
+        return self.save_dashboard(filename=filename, fetch_data=fetch_data)
 
     def save_dashboard(self, filename: str = None, fetch_data: bool = True) -> str:
         if filename is None:

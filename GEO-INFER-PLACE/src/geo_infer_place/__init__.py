@@ -52,6 +52,9 @@ except ImportError:
         "geo_infer_space not installed; PlaceAnalyzer/DataIntegrator unavailable"
     )
 
+# NOTE: PlaceAnalyzer/DataIntegrator/LocationConfigLoader are geo_infer_space classes
+# (imported above for internal use only). For geo_infer_place functionality use PlaceInterface.
+
 # --- Local Core Imports ---
 from .core.visualization_engine import InteractiveVisualizationEngine
 from .core import CascadianAgriculturalH3Backend, BaseAnalysisModule
@@ -76,9 +79,22 @@ from .utils.data_sources import CaliforniaDataSources
 from .utils.h3_operations import (
     latlng_to_cell,
     cell_to_latlng,
+    cell_to_latlng_boundary,
+    geo_to_cells,
     polygon_to_cells,
     grid_disk,
+    grid_distance,
+    grid_ring,
+    cell_area,
+    get_resolution,
     is_valid_cell,
+    are_neighbor_cells,
+    cells_to_geodataframe,
+    cell_to_parent,
+    cell_to_children,
+    compact_cells,
+    uncompact_cells,
+    estimate_cell_count,
 )
 
 # --- API Clients ---
@@ -100,11 +116,6 @@ __all__ = [
     'PlaceDataManager',
     'PlaceTemporalAnalyzer',
 
-    # Core components (from SPACE, may be None if not installed)
-    'PlaceAnalyzer',
-    'DataIntegrator',
-    'LocationConfigLoader',
-
     # Core components (local)
     'InteractiveVisualizationEngine',
     'CascadianAgriculturalH3Backend',
@@ -123,9 +134,22 @@ __all__ = [
     'CaliforniaDataSources',
     'latlng_to_cell',
     'cell_to_latlng',
+    'cell_to_latlng_boundary',
+    'geo_to_cells',
     'polygon_to_cells',
     'grid_disk',
+    'grid_distance',
+    'grid_ring',
+    'cell_area',
+    'get_resolution',
     'is_valid_cell',
+    'are_neighbor_cells',
+    'cells_to_geodataframe',
+    'cell_to_parent',
+    'cell_to_children',
+    'compact_cells',
+    'uncompact_cells',
+    'estimate_cell_count',
 
     # API clients
     'CaliforniaAPIManager',
@@ -139,33 +163,29 @@ __all__ = [
 
 def get_supported_locations() -> List[str]:
     """Get list of supported analysis locations."""
-    return ['del_norte_county', 'cascadia']
+    from .core.place_interface import LOCATION_PRESETS
+    return list(LOCATION_PRESETS.keys())
 
 
-def create_analyzer(location_code: str, config_path: Optional[str] = None) -> "PlaceAnalyzer":
-    """Create a PlaceAnalyzer instance for a specific location.
+def create_analyzer(location_code: str, config_path: Optional[str] = None) -> "PlaceInterface":
+    """Create a PlaceInterface for a specific location.
 
     Args:
-        location_code: Code for the location to analyze.
-        config_path: Optional path to custom configuration file.
+        location_code: Code for the location to analyze (``"del_norte"`` or ``"cascadia"``).
+        config_path: Ignored; reserved for future use.
 
     Returns:
-        Configured PlaceAnalyzer instance.
+        Configured PlaceInterface instance.
 
     Raises:
         ValueError: If location_code is not supported.
-        ImportError: If geo_infer_space is not installed.
     """
-    if not _HAS_SPACE:
-        raise ImportError(
-            "geo_infer_space is required for create_analyzer. "
-            "Install it with: pip install geo-infer-space"
+    supported = get_supported_locations()
+    if location_code not in supported:
+        raise ValueError(
+            f"Location '{location_code}' not supported. Available: {supported}"
         )
-    if location_code not in get_supported_locations():
-        raise ValueError(f"Location '{location_code}' not supported. "
-                        f"Available locations: {get_supported_locations()}")
-
-    return PlaceAnalyzer(location_code=location_code, config_path=config_path)
+    return PlaceInterface(location=location_code)
 
 
 def create_place_interface(

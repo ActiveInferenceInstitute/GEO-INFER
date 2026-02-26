@@ -47,6 +47,20 @@ viz = [
     "holoviews>=1.15.0",
     "bokeh>=2.4.0",
 ]
+bioregion = [
+    "geo-infer-math",
+    "geo-infer-bayes",
+    "geo-infer-risk",
+    "geo-infer-forest",
+    "geo-infer-marine",
+    "geo-infer-econ",
+    "geo-infer-climate",
+    "geo-infer-data",
+]
+server = [
+    "fastapi>=0.100.0",
+    "uvicorn>=0.22.0",
+]
 
 [build-system]
 requires = ["hatchling"]

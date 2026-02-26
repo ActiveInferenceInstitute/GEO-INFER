@@ -4,7 +4,7 @@ description: "Deployment, monitoring, scaling, and production management for age
 purpose: "Provide DevOps infrastructure for deploying and managing agents in production"
 module_type: "Infrastructure"
 status: "Beta"
-last_updated: "2026-02-24"
+last_updated: "2026-02-25"
 dependencies: ["SEC"]
 compatibility: ["All GEO-INFER modules"]
 tags: ["devops", "deployment", "monitoring", "kubernetes", "observability"]
@@ -16,7 +16,8 @@ estimated_time: "50"
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a>
+  <a href="./docs/">📚 Documentation</a> •
+  <a href="./SKILL.md">🧠 Claude Skill</a>
 </div>
 
 ---
@@ -103,7 +104,7 @@ obs.trace(agent_id="agent_001", operation="analysis")
 logs = obs.query_logs(
     agent_pattern="*",
     level="ERROR",
-    time_range=("2026-01-25", "2026-01-26")
+    time_range=("2026-02-24", "2026-02-25")
 )
 
 # Set alerts
@@ -167,4 +168,16 @@ manager.rolling_update(
 
 **Status**: Beta
 
-**Last Updated**: 2026-02-24
+**Last Updated**: 2026-02-25
+
+## Documentation Hub
+
+Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
+
+| Resource | Description |
+|----------|-------------|
+| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
+| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
+| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
+| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
+| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |

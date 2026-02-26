@@ -323,17 +323,42 @@ async def analyze_coverage(
 ):
     """Analyze coverage of demand points by service areas."""
     try:
-        # This is a simplified implementation - in reality, we would need to
-        # convert the GeoJSON service areas to Shapely polygons and the
-        # demand points to a GeoDataFrame
-        
-        # Placeholder response
+        # Convert service area GeoJSON to Shapely polygons and test
+        # which demand points fall inside each area
+        from shapely.geometry import shape, Point
+
+        depot_coverage: Dict = {}
+        covered_ids: set = set()
+
+        for depot_id, geojson in request.service_areas.items():
+            try:
+                poly = shape(geojson)
+            except Exception:
+                depot_coverage[depot_id] = {"covered": 0, "points": []}
+                continue
+
+            dep_covered: List[str] = []
+            for dp in request.demand_points:
+                loc = dp.get("location")
+                if loc is None:
+                    continue
+                pt = Point(loc[0], loc[1])
+                if poly.contains(pt):
+                    dep_covered.append(dp.get("id", ""))
+                    covered_ids.add(dp.get("id", ""))
+            depot_coverage[depot_id] = {
+                "covered": len(dep_covered),
+                "points": dep_covered,
+            }
+
+        total = len(request.demand_points)
+        covered = len(covered_ids)
         return {
-            "total_points": len(request.demand_points),
-            "covered_points": 0,
-            "uncovered_points": 0,
-            "coverage_ratio": 0.0,
-            "depot_coverage": {}
+            "total_points": total,
+            "covered_points": covered,
+            "uncovered_points": total - covered,
+            "coverage_ratio": covered / total if total > 0 else 0.0,
+            "depot_coverage": depot_coverage,
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e)) 

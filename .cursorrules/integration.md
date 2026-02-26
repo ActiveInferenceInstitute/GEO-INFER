@@ -2,171 +2,157 @@
 
 ## Data Flow Patterns
 
-- **Linear Pipeline**: Sequential processing (DATA → SPACE → TIME → ANALYSIS)
-- **Hub and Spoke**: Central coordination (API as central hub)
-- **Event-Driven**: Real-time responsive systems (IOT → processing → response)
-- **Feedback Loops**: Active inference cycles (observation → belief update → action)
-
-## Common Integration Points
-
-- **OPS**: Provides orchestration for all modules
-- **DATA**: Supplies data management for all analytical modules
-- **API**: Exposes functionality for external integration
-- **MATH**: Provides mathematical foundations for analytical modules
-- **SPACE/TIME**: Supply spatial-temporal capabilities to domain modules
+| Pattern | Description | Example |
+|---------|-------------|---------|
+| **Linear Pipeline** | Sequential processing | DATA → SPACE → TIME → ANALYSIS |
+| **Hub and Spoke** | Central coordination | API as central hub |
+| **Event-Driven** | Real-time responsive | IOT → processing → response |
+| **Feedback Loop** | Active inference cycle | observation → belief update → action |
 
 ## Module Dependency Matrix
 
-For the complete dependency matrix with all 30+ modules, see the main README.md at `/README.md` (section "Complete Module Dependencies Matrix").
+### Foundation Layer
 
-### Core Dependencies
+```
+MATH ──→ ACT ──→ AGENT
+  │        │        │
+  ├──→ BAYES    ├──→ SIM
+  ├──→ SPM      └──→ ANT
+  └──→ AI
+```
 
-- **MATH**: Foundation for all analytical modules (ACT, BAYES, AI, SPM)
-- **DATA**: Required by all modules that process data (SPACE, TIME, AI, domain modules)
-- **SPACE**: Provides spatial capabilities to domain modules (AG, HEALTH, ECON, RISK, LOG, BIO, PLACE)
-- **TIME**: Provides temporal capabilities to domain modules (AG, HEALTH, ECON, SIM, LOG, RISK, BIO)
-- **ACT**: Provides Active Inference to AGENT, SIM, and decision systems
-- **BAYES**: Provides Bayesian inference to ACT, AI, and statistical modules
+### Data Layer
 
-### H3 v4 Migration Status
+```
+DATA ──→ SPACE ──→ PLACE
+  │        │
+  └──→ TIME ──→ IOT
+```
 
-- ✅ **FULLY MIGRATED**: SPACE, PLACE modules use H3 v4 API exclusively
-- ✅ **Updated**: Most modules have been updated to work with H3 v4
-- ⏳ **Planned**: Some modules (SIM, AI) have H3 v4 migration planned
+### Domain Layer (all depend on SPACE, TIME, DATA)
 
-**Important**: When integrating with SPACE or PLACE modules, always use H3 v4 API methods:
-- `h3.latlng_to_cell()` (not `h3.geo_to_h3()`)
-- `h3.cell_to_latlng()` (not `h3.h3_to_geo()`)
-- `h3.geo_to_cells()` (not deprecated v3 methods)
+```
+AG, HEALTH, ECON, RISK, LOG, BIO,
+CLIMATE, ENERGY, WATER, TRANSPORT,
+FOREST, MARINE, EMERGENCY, EDU
+```
 
-## Cross-Module Communication
+### Governance Layer
 
-- Use standardized data models from the models package
-- Implement proper API versioning
-- Support both synchronous and asynchronous communication
-- Handle errors gracefully across module boundaries
-- Use consistent data formats and schemas
+```
+SEC, NORMS, REQ, METAGOV ──→ All modules
+```
+
+### Application Layer
+
+```
+APP, ART, CIV, PEP, ORG, COMMS ──→ Consume from all other layers
+```
+
+### Operations Layer
+
+```
+OPS, INTRA, GIT, TEST, EXAMPLES ──→ Support all modules
+```
+
+## H3 v4 API (Mandatory)
+
+All spatial operations must use H3 v4:
+
+| v4 Method | Deprecated v3 Method |
+|-----------|---------------------|
+| `h3.latlng_to_cell()` | ~~`h3.geo_to_h3()`~~ |
+| `h3.cell_to_latlng()` | ~~`h3.h3_to_geo()`~~ |
+| `h3.grid_disk()` | ~~`h3.k_ring()`~~ |
+| `h3.geo_to_cells()` | ~~`h3.polyfill()`~~ |
 
 ## Integration Examples
 
-### GEO-INFER-ACT Integration
+### ACT + AGENT
 
 ```python
-from geo_infer_agent.models.active_inference import ActiveInferenceAgent
 from geo_infer_act.core.active_inference import ActiveInferenceModel
+from geo_infer_agent.core.agent_base import BaseAgent
 
-# Create agent with active inference
-agent = ActiveInferenceAgent(
-    state_dim=10,
-    obs_dim=5,
-    action_dim=3
-)
+class InferenceAgent(BaseAgent):
+    async def initialize(self):
+        self.model = ActiveInferenceModel(state_dim=10, obs_dim=5, action_dim=3)
+
+    async def perceive(self) -> dict:
+        return {"observations": self._read_sensors()}
+
+    def update_beliefs(self, perception: dict):
+        self.model.update(perception["observations"])
 ```
 
-### GEO-INFER-SPACE Integration
+### SPACE + DATA
 
 ```python
 from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
-from geo_infer_space.core.analytics import SpatialAnalyticsInterface
-
-# Use H3 backend for spatial indexing
-spatial_indexer = SpatialIndexingInterface(backend='h3')
-cell = spatial_indexer.latlng_to_cell(37.7749, -122.4194, 9)
-```
-
-### GEO-INFER-DATA Integration
-
-```python
 from geo_infer_data import MultiSourceDataIngestion
 
-# Ingest data from multiple sources
+spatial = SpatialIndexingInterface(backend='h3')
+cell = spatial.latlng_to_cell(37.7749, -122.4194, 9)
+
 ingestion = MultiSourceDataIngestion()
 result = await ingestion.ingest_multi_source(
-    satellite={'bbox': [-122.5, 37.7, -122.3, 37.9]},
-    sensors={'time_range': '2023-01-01/2023-01-31'}
+    satellite={'bbox': [-122.5, 37.7, -122.3, 37.9]}
 )
 ```
 
-### GEO-INFER-TIME Integration
+### BAYES + RISK
 
 ```python
-from geo_infer_time import TemporalAnalyzer, TimeSeriesProcessor
+from geo_infer_bayes import BayesianInference
+from geo_infer_risk.core.risk_engine import RiskEngine
 
-# Temporal analysis for time-series data
-analyzer = TemporalAnalyzer()
-processor = TimeSeriesProcessor()
-
-# Process temporal data
-forecast = analyzer.forecast(
-    time_series_data,
-    horizon=30,
-    method='arima'
-)
-```
-
-### GEO-INFER-BAYES Integration
-
-```python
-from geo_infer_bayes import BayesianInference, SpatialBayesianModel
-
-# Bayesian inference for uncertainty quantification
 inference = BayesianInference()
-model = SpatialBayesianModel(
-    prior_distribution='gaussian',
-    likelihood='spatial_gaussian_process'
-)
+posterior = inference.update_beliefs(observations=loss_data, prior=prior_dist)
 
-# Perform Bayesian analysis
-posterior = inference.update_beliefs(
-    observations=obs_data,
-    prior=prior_distribution
-)
+engine = RiskEngine()
+risk = engine.run_analysis(region=region_data, analysis_type="catastrophe")
 ```
 
-### GEO-INFER-AGENT Integration
+### TIME + CLIMATE
 
 ```python
-from geo_infer_agent.core.agent_registry import AgentRegistry
-from geo_infer_agent.models.active_inference import ActiveInferenceAgent
-from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+from geo_infer_time import TemporalAnalyzer
+from geo_infer_climate.core.climate_engine import ClimateEngine
 
-# Multi-agent system with spatial awareness
-registry = AgentRegistry()
-spatial_indexer = SpatialIndexingInterface(backend='h3')
+analyzer = TemporalAnalyzer()
+forecast = analyzer.forecast(temperature_series, horizon=365, method='arima')
 
-# Create spatially-aware agent
-agent = ActiveInferenceAgent(
-    agent_id="spatial_agent_001",
-    spatial_context=spatial_indexer
-)
-registry.register_agent(agent)
+climate = ClimateEngine()
+projections = climate.project(scenario='rcp8.5', target_year=2050)
 ```
 
-## Module Categories and Integration Patterns
+## Cross-Module Communication
 
-### Analytical Core Modules
-- **ACT, BAYES, AI, MATH, COG, AGENT, SPM**: Integrate through shared mathematical foundations and data models
+- Use standardised data models (Pydantic) at module boundaries
+- Implement proper API versioning for REST endpoints
+- Support both sync and async communication patterns
+- Handle errors gracefully — never let one module crash another
+- Use consistent data formats: GeoJSON for spatial, ISO 8601 for temporal
 
-### Spatial-Temporal Modules
-- **SPACE, TIME, IOT**: Provide spatial-temporal capabilities to all domain modules
-- **SPACE** (H3 v4): Fully migrated, use H3 v4 API exclusively
-- **TIME**: Provides temporal analysis to domain modules
-- **IOT**: Real-time sensor data integration
+## Error Propagation
 
-### Domain-Specific Modules
-- **AG, HEALTH, ECON, RISK, LOG, BIO**: Depend on SPACE, TIME, DATA for spatial-temporal analysis
-- Integrate with analytical modules (ACT, BAYES, AI) for advanced modeling
+```python
+from geo_infer_math.core import GeoInferError
 
-### Application Modules
-- **APP, ART**: Consume services from all other modules
-- **PLACE**: Place-based analysis integrating all modules (H3 v4 migrated)
+try:
+    result = external_module.process(data)
+except GeoInferError:
+    raise  # Re-raise framework errors
+except Exception as e:
+    logger.error("Integration error with %s: %s", module_name, e)
+    raise IntegrationError(f"Failed to process via {module_name}") from e
+```
 
-## Integration Best Practices
+## Best Practices
 
-1. **Check Dependencies**: Always verify module dependencies before integration
-2. **Use Standard Interfaces**: Prefer standardized interfaces (SpatialIndexingInterface, etc.)
-3. **Handle Errors Gracefully**: Implement proper error handling across module boundaries
-4. **Respect Data Flow**: Follow established data flow patterns (see main README.md)
-5. **Version Compatibility**: Ensure module versions are compatible
-6. **H3 v4 Compliance**: When working with spatial data, use H3 v4 API methods
-
+1. **Check Dependencies**: Verify module availability before integration
+2. **Use Standard Interfaces**: Prefer established interface classes
+3. **Handle Errors Gracefully**: Catch and log across module boundaries
+4. **Respect Data Flow**: Follow the layered architecture above
+5. **Version Compatibility**: Check `pyproject.toml` version constraints
+6. **H3 v4 Compliance**: Always use H3 v4 API methods for spatial data

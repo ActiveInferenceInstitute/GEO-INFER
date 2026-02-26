@@ -98,4 +98,6 @@ print(f"95% confidence: {analysis.ci_95}")```
 
 This AGENTS.md documents how GEO-INFER-SIM provides simulation capabilities for agents.
 
-**Last Updated**: 2026-02-24
+**Last Updated**: 2026-02-25
+
+**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.

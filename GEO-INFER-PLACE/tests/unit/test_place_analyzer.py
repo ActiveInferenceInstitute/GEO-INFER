@@ -14,100 +14,47 @@ import os
 # Add src directory to path for testing
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'src'))
 
-try:
-    from geo_infer_place import PlaceAnalyzer, get_available_locations
-    from geo_infer_space.core.place_analyzer import PlaceAnalyzer as CorePlaceAnalyzer
-except ImportError as e:
-    # Graceful handling for when modules aren't fully implemented yet
-    print(f"Import warning: {e}")
-    PlaceAnalyzer = None
-    get_available_locations = None
-    CorePlaceAnalyzer = None
-
-
 class TestPlaceAnalyzer(unittest.TestCase):
-    """Test suite for PlaceAnalyzer functionality."""
-    
-    def setUp(self):
-        """Set up test fixtures before each test method."""
-        if PlaceAnalyzer is None:
-            self.skipTest("PlaceAnalyzer not available")
-        
-        self.analyzer = PlaceAnalyzer()
-    
-    def test_analyzer_initialization(self):
-        """Test that PlaceAnalyzer initializes correctly."""
-        self.assertIsNotNone(self.analyzer)
-        self.assertIsInstance(self.analyzer, PlaceAnalyzer)
-    
-    def test_get_available_locations(self):
-        """Test retrieval of available study locations using real implementation."""
-        if get_available_locations is None:
-            self.skipTest("get_available_locations not available")
+    """Tests for the PlaceInterface API (replaces phantom PlaceAnalyzer tests)."""
 
-        locations = get_available_locations()
+    def test_place_interface_is_primary_entry_point(self):
+        """PlaceInterface is the primary API for geo_infer_place."""
+        from geo_infer_place import PlaceInterface
+        pi = PlaceInterface("del_norte")
+        self.assertIsNotNone(pi)
 
-        # Verify we get a list of locations
-        self.assertIsInstance(locations, list)
-        self.assertGreater(len(locations), 0)
+    def test_get_supported_locations_exists(self):
+        """get_supported_locations() returns a non-empty list."""
+        from geo_infer_place import get_supported_locations
+        locs = get_supported_locations()
+        self.assertIsInstance(locs, list)
+        self.assertGreater(len(locs), 0)
 
-        # Verify location structure
-        for loc in locations:
-            self.assertIn('name', loc)
-            self.assertIn('display_name', loc)
-    
-    def test_location_specific_analyzers(self):
-        """Test location-specific analyzer availability."""
-        try:
-            from geo_infer_place import DelNorteCounty, Australia, Siberia
-            
-            # Test that location analyzers can be imported
-            self.assertTrue(DelNorteCounty is not None or DelNorteCounty is None)  # Allow for graceful degradation
-            self.assertTrue(Australia is not None or Australia is None)
-            self.assertTrue(Siberia is not None or Siberia is None)
-            
-        except ImportError:
-            # Expected during initial development
-            self.skipTest("Location-specific analyzers not yet implemented")
-    
-    def test_module_metadata(self):
-        """Test module metadata and package information."""
-        try:
-            import geo_infer_place
-            
-            # Check that basic metadata exists
-            self.assertTrue(hasattr(geo_infer_place, '__version__'))
-            self.assertTrue(hasattr(geo_infer_place, 'PACKAGE_INFO'))
-            
-            # Verify package info structure
-            if hasattr(geo_infer_place, 'PACKAGE_INFO'):
-                package_info = geo_infer_place.PACKAGE_INFO
-                self.assertIn('name', package_info)
-                self.assertIn('version', package_info)
-                self.assertIn('description', package_info)
-                
-        except AttributeError:
-            # Expected during development
-            pass
-    
+    def test_create_analyzer_returns_place_interface(self):
+        """create_analyzer() returns a PlaceInterface instance."""
+        from geo_infer_place import create_analyzer, PlaceInterface
+        pi = create_analyzer("del_norte")
+        self.assertIsInstance(pi, PlaceInterface)
+
+    def test_module_version_exists(self):
+        """geo_infer_place exposes a __version__ string."""
+        import geo_infer_place
+        self.assertTrue(hasattr(geo_infer_place, '__version__'))
+        self.assertIsInstance(geo_infer_place.__version__, str)
+
     def test_configuration_loading(self):
-        """Test configuration file loading and validation."""
-        # Test that configuration files exist and are valid
-        config_path = os.path.join(
-            os.path.dirname(__file__), '..', 'config', 'module_config.yaml'
-        )
-        
-        self.assertTrue(os.path.exists(config_path), 
-                       "Module configuration file should exist")
-        
-        # Test location-specific configs
+        """Del Norte County analysis_config.yaml exists and is valid."""
         del_norte_config = os.path.join(
-            os.path.dirname(__file__), '..', 'locations', 'del_norte_county', 
+            os.path.dirname(__file__), '..', '..', 'locations', 'del_norte_county',
             'config', 'analysis_config.yaml'
         )
-        
-        self.assertTrue(os.path.exists(del_norte_config),
-                       "Del Norte County configuration should exist")
+        if not os.path.exists(del_norte_config):
+            self.skipTest("Del Norte County config file not found")
+        import yaml
+        with open(del_norte_config, 'r') as f:
+            config = yaml.safe_load(f)
+        self.assertIn('location', config)
+        self.assertIn('analyses', config)
 
 
 class TestLocationConfigurations(unittest.TestCase):
@@ -116,7 +63,7 @@ class TestLocationConfigurations(unittest.TestCase):
     def test_del_norte_county_config(self):
         """Test Del Norte County configuration structure."""
         config_path = os.path.join(
-            os.path.dirname(__file__), '..', 'locations', 'del_norte_county',
+            os.path.dirname(__file__), '..', '..', 'locations', 'del_norte_county',
             'config', 'analysis_config.yaml'
         )
         

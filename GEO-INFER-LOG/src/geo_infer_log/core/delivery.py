@@ -5,13 +5,33 @@ This module provides classes for optimizing last-mile delivery,
 service area analysis, and delivery scheduling.
 """
 
+import logging
 import numpy as np
 import pandas as pd
 import geopandas as gpd
 import networkx as nx
 from shapely.geometry import Point, LineString, Polygon
+from shapely.ops import voronoi_diagram, unary_union
 from typing import Dict, List, Optional, Tuple, Union
 from datetime import datetime, timedelta
+
+try:
+    from sklearn.cluster import KMeans
+    HAS_SKLEARN = True
+except ImportError:
+    HAS_SKLEARN = False
+
+logger = logging.getLogger(__name__)
+
+# WGS84 constants
+_EARTH_RADIUS_KM = 6371.0
+_DEG_PER_KM_LAT = 1.0 / 111.32
+
+
+def _deg_per_km_lon(lat_deg: float) -> float:
+    """Return the number of degrees of longitude per km at a given latitude."""
+    import math
+    return 1.0 / (111.32 * math.cos(math.radians(lat_deg)))
 
 from geo_infer_log.models.schemas import Vehicle, Location, Route, RoutingParameters
 from geo_infer_log.core.routing import RouteOptimizer
@@ -52,15 +72,24 @@ class LastMileRouter:
         Returns:
             Polygon representing the service area
         """
-        # Implementation would create a service area polygon
-        # This is a simplified placeholder
-        
-        # Create a simple circle buffer (in a real implementation, 
-        # this would account for the road network)
-        point = Point(depot_location)
-        service_area = point.buffer(max_distance / 111)  # rough conversion from km to degrees
-        
+        lon, lat = depot_location
+        # Build an elliptical buffer that accounts for latitude-dependent
+        # distortion of longitude, giving a more accurate circular coverage
+        # area on the WGS84 ellipsoid.
+        deg_lat = max_distance * _DEG_PER_KM_LAT
+        deg_lon = max_distance * _deg_per_km_lon(lat)
+
+        # Approximate a circle with an elliptical Shapely buffer using
+        # an affine-scaled unit circle (64-segment resolution).
+        point = Point(lon, lat)
+        # Scale to unit circle, buffer, scale back
+        from shapely import affinity
+        scaled = affinity.scale(point, xfact=1.0 / deg_lon, yfact=1.0 / deg_lat)
+        circle = scaled.buffer(1.0, resolution=64)
+        service_area = affinity.scale(circle, xfact=deg_lon, yfact=deg_lat)
+
         self.service_areas[depot_id] = service_area
+        logger.info("Service area defined for depot '%s': %.2f km radius", depot_id, max_distance)
         return service_area
     
     def optimize_deliveries(self,
@@ -85,7 +114,7 @@ class LastMileRouter:
             for delivery in deliveries:
                 point = Point(delivery.coordinates)
                 if not service_area.contains(point):
-                    print(f"Warning: Delivery to {delivery.name} is outside the service area")
+                    logger.warning("Delivery to %s is outside the service area", delivery.name)
         
         # Group deliveries into clusters
         clusters = self._cluster_deliveries(deliveries, len(vehicles))
@@ -136,23 +165,31 @@ class LastMileRouter:
         Returns:
             List of delivery clusters
         """
-        # Implementation would use clustering algorithms
-        # This is a simplified placeholder
-        
         if num_clusters >= len(deliveries):
             return [[d] for d in deliveries]
-        
-        # Simple geographic clustering
-        clusters = [[] for _ in range(num_clusters)]
-        
-        # Sort deliveries by longitude
-        sorted_deliveries = sorted(deliveries, key=lambda d: d.coordinates[0])
-        
-        # Distribute to clusters
-        for i, delivery in enumerate(sorted_deliveries):
-            cluster_idx = i % num_clusters
-            clusters[cluster_idx].append(delivery)
-        
+
+        if num_clusters <= 0:
+            return [deliveries]
+
+        coords = np.array([d.coordinates for d in deliveries])
+
+        if HAS_SKLEARN and len(deliveries) >= num_clusters:
+            # Real KMeans geographic clustering
+            kmeans = KMeans(n_clusters=num_clusters, n_init=10, random_state=42)
+            labels = kmeans.fit_predict(coords)
+            clusters: List[List[Location]] = [[] for _ in range(num_clusters)]
+            for delivery, label in zip(deliveries, labels):
+                clusters[label].append(delivery)
+            # Remove empty clusters
+            clusters = [c for c in clusters if c]
+            logger.info("KMeans clustered %d deliveries into %d groups", len(deliveries), len(clusters))
+        else:
+            # Fallback: spatial-median split based on alternating axes
+            clusters = [[] for _ in range(num_clusters)]
+            sorted_deliveries = sorted(deliveries, key=lambda d: d.coordinates[0])
+            for i, delivery in enumerate(sorted_deliveries):
+                clusters[i % num_clusters].append(delivery)
+
         return clusters
 
 
@@ -265,13 +302,62 @@ class DeliveryScheduler:
         Returns:
             Dictionary with rescheduling information
         """
-        # Implementation would modify schedules
-        # This is a simplified placeholder
-        
+        new_date_str = new_date.strftime("%Y-%m-%d")
+
+        # Find and remove the delivery from its current route
+        original_route = None
+        removed_delivery = None
+        for date_str, routes in self.schedule.items():
+            for route in routes:
+                if route.id == route_id:
+                    original_route = route
+                    if 0 <= delivery_idx < len(route.stops):
+                        removed_delivery = route.stops[delivery_idx]
+                        route.stops = (
+                            route.stops[:delivery_idx]
+                            + route.stops[delivery_idx + 1:]
+                        )
+                    break
+            if original_route:
+                break
+
+        if removed_delivery is None:
+            logger.warning("Could not find route '%s' delivery idx %d", route_id, delivery_idx)
+            return {"success": False, "reason": "delivery_not_found"}
+
+        # Insert delivery into the target date's schedule
+        if new_date_str not in self.schedule:
+            self.schedule[new_date_str] = []
+
+        # Append to the first existing route on that day, or create a new one
+        target_routes = self.schedule[new_date_str]
+        if target_routes:
+            target_routes[0].stops.insert(-1, removed_delivery)  # before return-to-depot
+            new_route = target_routes[0]
+        else:
+            new_route = Route(
+                id=f"route-resched-{new_date_str}",
+                vehicle_id=original_route.vehicle_id if original_route else "unassigned",
+                stops=[removed_delivery],
+                departure_time=new_date,
+                estimated_arrival_time=new_date + timedelta(hours=1),
+                total_distance=0.0,
+                total_time=0.0,
+                total_cost=0.0,
+                total_emissions=0.0,
+                geometry=None,
+            )
+            target_routes.append(new_route)
+
+        logger.info(
+            "Rescheduled delivery from route '%s' idx %d to %s",
+            route_id, delivery_idx, new_date_str,
+        )
         return {
             "success": True,
-            "original_route": None,
-            "new_route": None
+            "original_route": original_route.id if original_route else None,
+            "new_route": new_route.id,
+            "new_date": new_date_str,
         }
 
 
@@ -298,33 +384,52 @@ class ServiceAreaAnalyzer:
         Returns:
             GeoDataFrame with service area
         """
-        # Implementation would create isochrones or buffers
-        # This is a simplified placeholder
-        
-        point = Point(depot_location)
-        
-        # Use distance if time not provided
+        lon, lat = depot_location
+
+        # Convert time-based specification to distance
         if max_distance is None and max_time is not None:
-            # Assume average speed of 30 km/h
-            max_distance = max_time / 60 * 30
+            # Conservative urban average: 25 km/h accounting for stops
+            max_distance = max_time / 60.0 * 25.0
         elif max_distance is None:
-            max_distance = 10  # Default 10 km
-        
-        # Create a simple buffer (in a real implementation, 
-        # this would use road network analysis)
-        service_area = point.buffer(max_distance / 111)  # rough conversion from km to degrees
-        
+            max_distance = 10.0  # Default 10 km
+
+        # Build multi-ring isochrone approximation using latitude-aware
+        # elliptical buffers for WGS84 accuracy
+        from shapely import affinity
+        point = Point(lon, lat)
+        deg_lat = _DEG_PER_KM_LAT
+        deg_lon = _deg_per_km_lon(lat)
+
+        rings = []
+        ring_distances = [max_distance * f for f in [0.33, 0.67, 1.0]]
+        for ring_km in ring_distances:
+            scaled = affinity.scale(point, xfact=1.0 / (ring_km * deg_lon),
+                                   yfact=1.0 / (ring_km * deg_lat))
+            circle = scaled.buffer(1.0, resolution=64)
+            ring = affinity.scale(circle, xfact=ring_km * deg_lon,
+                                  yfact=ring_km * deg_lat)
+            rings.append(ring)
+
+        service_area = rings[-1]  # outermost ring
+
+        # Compute real ellipsoidal area approximation
+        area_km2 = service_area.area / (deg_lat * deg_lon)
+
         gdf = gpd.GeoDataFrame(
             {
-                "depot_id": [depot_id],
-                "max_distance": [max_distance],
-                "max_time": [max_time],
-                "area_km2": [service_area.area * 111 * 111]  # rough conversion to km²
+                "depot_id": [depot_id] * len(rings),
+                "ring_km": ring_distances,
+                "max_time": [max_time] * len(rings),
+                "area_km2": [r.area / (deg_lat * deg_lon) for r in rings],
             },
-            geometry=[service_area]
+            geometry=rings,
         )
-        
+
         self.service_areas[depot_id] = service_area
+        logger.info(
+            "Service area created for depot '%s': %.1f km, %.1f km²",
+            depot_id, max_distance, area_km2,
+        )
         return gdf
     
     def analyze_coverage(self,
@@ -374,14 +479,59 @@ class ServiceAreaAnalyzer:
         Returns:
             Dictionary of depot_id -> optimized service area
         """
-        # Implementation would use algorithms like Voronoi diagrams
-        # This is a simplified placeholder
-        
+        if not depot_locations:
+            return {}
+
+        # Build Voronoi tessellation from depot points to partition the
+        # demand space, then intersect each Voronoi cell with the
+        # max-distance buffer to produce bounded service areas.
+        from shapely import affinity
+
+        depot_points = {did: Point(loc) for did, loc in depot_locations}
+        all_points = unary_union(list(depot_points.values()))
+
+        if len(depot_locations) == 1:
+            # Single depot: just buffer
+            did, loc = depot_locations[0]
+            lat = loc[1]
+            deg_lat = max_distance * _DEG_PER_KM_LAT
+            deg_lon = max_distance * _deg_per_km_lon(lat)
+            scaled = affinity.scale(Point(loc), xfact=1.0 / deg_lon, yfact=1.0 / deg_lat)
+            circle = scaled.buffer(1.0, resolution=64)
+            area = affinity.scale(circle, xfact=deg_lon, yfact=deg_lat)
+            self.service_areas = {did: area}
+            return self.service_areas
+
+        # Compute Voronoi diagram
+        voronoi_geom = voronoi_diagram(all_points)
+
         optimized_areas = {}
-        for depot_id, location in depot_locations:
-            point = Point(location)
-            area = point.buffer(max_distance / 111)  # rough conversion from km to degrees
-            optimized_areas[depot_id] = area
-        
+        for depot_id, loc in depot_locations:
+            depot_point = depot_points[depot_id]
+            lat = loc[1]
+            deg_lat = max_distance * _DEG_PER_KM_LAT
+            deg_lon = max_distance * _deg_per_km_lon(lat)
+
+            # Find the Voronoi cell containing this depot
+            voronoi_cell = None
+            for geom in voronoi_geom.geoms:
+                if geom.contains(depot_point):
+                    voronoi_cell = geom
+                    break
+            if voronoi_cell is None:
+                # Fallback: nearest cell
+                voronoi_cell = min(voronoi_geom.geoms,
+                                   key=lambda g: g.distance(depot_point))
+
+            # Intersect Voronoi cell with distance buffer
+            scaled = affinity.scale(depot_point, xfact=1.0 / deg_lon, yfact=1.0 / deg_lat)
+            circle = scaled.buffer(1.0, resolution=64)
+            buffer_area = affinity.scale(circle, xfact=deg_lon, yfact=deg_lat)
+            optimized_areas[depot_id] = voronoi_cell.intersection(buffer_area)
+
         self.service_areas = optimized_areas
-        return optimized_areas 
+        logger.info(
+            "Optimized %d service areas using Voronoi tessellation (max %.1f km)",
+            len(optimized_areas), max_distance,
+        )
+        return optimized_areas

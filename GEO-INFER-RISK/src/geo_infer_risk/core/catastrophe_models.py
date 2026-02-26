@@ -519,20 +519,46 @@ class EnhancedCatastropheModel:
         }
 
     def _apply_spatial_correlation(self, events: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-        """Apply spatial correlation to generated events."""
-        if not self.spatial_interface or not self.correlation_matrix:
+        """Apply spatial correlation to generated events using distance-decay model."""
+        if not self.spatial_interface or self.correlation_matrix is None:
             return events
 
         try:
-            # Convert events to spatial format
-            event_coords = []
-            for event in events:
-                loc = event['location']
-                event_coords.append([loc['longitude'], loc['latitude']])
+            n_events = len(events)
+            if n_events < 2:
+                return events
 
-            # Apply correlation (simplified)
-            # In practice, this would use more sophisticated spatial statistics
-            logger.info("Spatial correlation applied (placeholder)")
+            # Build pairwise distance matrix for the generated events
+            event_coords = np.array([
+                [e['location']['longitude'], e['location']['latitude']]
+                for e in events
+            ])
+            dist_matrix = spatial.distance.squareform(
+                spatial.distance.pdist(event_coords)
+            )
+
+            # Compute exponential-decay correlation from config range
+            corr_range = self.config.spatial_correlation_range
+            C = np.exp(-dist_matrix / corr_range)
+
+            # Ensure positive-definiteness then Cholesky-decompose
+            C += 1e-6 * np.eye(n_events)
+            L = np.linalg.cholesky(C)
+
+            # Draw correlated standard-normal perturbations
+            z = np.random.standard_normal(n_events)
+            correlated_z = L @ z
+
+            # Apply perturbation to intensities (multiplicative, bounded to ±30 %)
+            for i, event in enumerate(events):
+                factor = 1.0 + 0.3 * np.tanh(correlated_z[i])
+                event['intensity'] = event.get('intensity', 1.0) * factor
+                event.setdefault('metadata', {})['spatial_correlation_factor'] = float(factor)
+
+            logger.info(
+                "Spatial correlation applied to %d events (range=%.1f)",
+                n_events, corr_range,
+            )
             return events
 
         except Exception as e:

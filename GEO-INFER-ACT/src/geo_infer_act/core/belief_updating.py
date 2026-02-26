@@ -137,11 +137,35 @@ class BayesianBeliefUpdate:
             return 0.5 * ((observation - mean) ** 2 / var + np.log(2 * np.pi * var)) 
 
     def update_beliefs(self, prior_beliefs: np.ndarray, observation: np.ndarray, likelihood: np.ndarray) -> np.ndarray:
-        """General belief update dispatching to categorical or gaussian."""
+        """General belief update dispatching to categorical or gaussian.
+        
+        Dispatches based on likelihood shape:
+        - 2D likelihood matrix → categorical Bayes update
+        - 1D likelihood vector → Gaussian Kalman update (using identity matrices for precision)
+        
+        Args:
+            prior_beliefs: Prior belief distribution (1D array)
+            observation: Observed data (1D array)
+            likelihood: Likelihood matrix (2D for categorical) or vector (1D for gaussian)
+            
+        Returns:
+            Updated posterior beliefs
+        """
         if prior_beliefs.ndim == 1 and observation.ndim == 1 and likelihood.ndim == 2:
             return self.update_categorical(prior_beliefs, observation, likelihood)
-        elif prior_beliefs.ndim == 1 and observation.ndim == 1 and likelihood.ndim == 2:
-            # Assuming gaussian for now, adjust as needed
-            return self.update_gaussian(prior_beliefs, np.eye(len(prior_beliefs)), observation, likelihood, np.eye(len(observation)))['mean']
+        elif prior_beliefs.ndim == 1 and observation.ndim == 1 and likelihood.ndim == 1:
+            # Gaussian update: construct diagonal observation matrix from likelihood vector
+            obs_matrix = np.diag(likelihood)
+            result = self.update_gaussian(
+                prior_beliefs, 
+                np.eye(len(prior_beliefs)), 
+                observation, 
+                obs_matrix, 
+                np.eye(len(observation))
+            )
+            return result['mean']
         else:
-            raise ValueError("Unsupported input shapes for update_beliefs") 
+            raise ValueError(
+                f"Unsupported input shapes for update_beliefs: "
+                f"prior={prior_beliefs.shape}, obs={observation.shape}, likelihood={likelihood.shape}"
+            )

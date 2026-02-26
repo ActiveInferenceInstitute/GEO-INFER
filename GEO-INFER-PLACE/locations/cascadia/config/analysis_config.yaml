@@ -4,8 +4,28 @@
 analysis_settings:
   target_counties:
     CA:
-      - "Del Norte"  # Focus only on Del Norte county
-    OR: []  # Remove Oregon counties for now
+      - "Del Norte"
+      - "Humboldt"
+      - "Siskiyou"
+      - "Trinity"
+      - "Mendocino"
+    OR:
+      - "Josephine"
+      - "Jackson"
+      - "Curry"
+      - "Coos"
+      - "Lane"
+      - "Multnomah"
+      - "Clatsop"
+      - "Washington"
+    WA:
+      - "Pacific"
+      - "Grays Harbor"
+      - "Thurston"
+      - "Pierce"
+      - "King"
+      - "Snohomish"
+      - "Whatcom"
   
   active_modules:
     - zoning
@@ -17,6 +37,7 @@ analysis_settings:
     - surface_water
     - power_source
     - mortgage_debt
+    - ecology
   
   h3_resolution: 8
   enable_spatial_analysis: true
@@ -33,8 +54,8 @@ analysis_settings:
     detailed_module_logging: true
 
 visualization:
-  center: [41.5, -123.5]  # Del Norte county center
-  zoom: 10  # Closer zoom for county-level analysis
+  center: [45.5, -122.5]  # Cascadia bioregion center
+  zoom: 7  # Regional zoom for multi-state analysis
   layers:
     - redevelopment_potential
     - zoning_data
@@ -60,6 +81,15 @@ spatial_analysis:
   enable_correlation_analysis: true
   enable_hotspot_detection: true
   enable_spatial_relationships: true
+
+ecological_analysis:
+  enable_salmon_habitat: true
+  salmon_esu_data: "config/cascadia_salmon_esus.yaml"
+  ecoregion_data: "config/cascadia_ecoregions.yaml"
+  indigenous_territories_data: "config/cascadia_indigenous_territories.yaml"
+  climate_zones_data: "config/cascadia_climate_zones.yaml"
+  old_growth_analysis: true
+  spotted_owl_critical_habitat: true
   
   # Empirical data analysis settings
   empirical_analysis:

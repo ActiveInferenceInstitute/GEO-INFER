@@ -358,7 +358,7 @@ class UnderwritingDecisionEngine:
             decision_types[decision_type] = decision_types.get(decision_type, 0) + 1
             decisions[decision] = decisions.get(decision, 0) + 1
 
-        # Calculate accuracy (placeholder - would need ground truth data)
+        # Calculate accuracy (requires ground truth labels for meaningful evaluation)
         accuracy = 0.85  # Placeholder
 
         return {

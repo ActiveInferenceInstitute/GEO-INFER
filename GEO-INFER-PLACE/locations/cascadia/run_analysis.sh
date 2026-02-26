@@ -17,3 +17,13 @@ uv run python cascadia_main.py \
     --generate-dashboard \
     --spatial-analysis \
     "$@"
+
+# --- Bioregion mode (ecological overview, H3 res 7, ecology module, HTTP server) ---
+# Uncomment to run bioregion analysis:
+# uv run python cascadia_main.py \
+#     --bioregion \
+#     --modules ecology,zoning,ground_water,surface_water \
+#     --output-dir output/ \
+#     --generate-dashboard \
+#     --serve \
+#     --server-port 8765

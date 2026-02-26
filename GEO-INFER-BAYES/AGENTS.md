@@ -314,3 +314,5 @@ forecast, forecast_std = st_gp.predict(
 ---
 
 This AGENTS.md documents how GEO-INFER-BAYES provides Bayesian inference capabilities for intelligent agents within the GEO-INFER framework.
+
+**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.

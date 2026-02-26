@@ -14,6 +14,7 @@ DATA_MODULES = [
     "surface_water",
     "power_source",
     "mortgage_debt",
+    "ecology",
 ]
 
 __all__ = ["DATA_MODULES"]

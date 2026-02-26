@@ -1,156 +1,63 @@
-2026-02-17 05:34:35,758 - httpx - INFO - HTTP Request: GET http://testserver/test "HTTP/1.1 200 OK"
-2026-02-17 05:34:35,758 - httpx - INFO - HTTP Request: GET http://testserver/test "HTTP/1.1 200 OK"
-2026-02-17 05:34:35,758 - httpx - INFO - HTTP Request: GET http://testserver/test "HTTP/1.1 200 OK"
-2026-02-17 05:34:35,878 - geo_infer_ops.health.checks - INFO - Registered health check: custom
-2026-02-17 05:34:35,878 - geo_infer_ops.health.checks - INFO - Registered health check: custom
-2026-02-17 05:34:35,878 - geo_infer_ops.health.checks - INFO - Registered health check: custom
-2026-02-17 05:34:35,880 - geo_infer_ops.health.checks - INFO - Registered health check: test_check
-2026-02-17 05:34:35,880 - geo_infer_ops.health.checks - INFO - Registered health check: test_check
-2026-02-17 05:34:35,880 - geo_infer_ops.health.checks - INFO - Registered health check: test_check
-2026-02-17 05:34:35,881 - geo_infer_ops.health.checks - INFO - Running health checks
-2026-02-17 05:34:35,881 - geo_infer_ops.health.checks - INFO - Running health checks
-2026-02-17 05:34:35,881 - geo_infer_ops.health.checks - INFO - Running health checks
-2026-02-17 05:34:35,986 - geo_infer_ops.health.checks - INFO - Health checks completed: degraded (1 healthy, 0 unhealthy)
-2026-02-17 05:34:35,986 - geo_infer_ops.health.checks - INFO - Health checks completed: degraded (1 healthy, 0 unhealthy)
-2026-02-17 05:34:35,986 - geo_infer_ops.health.checks - INFO - Health checks completed: degraded (1 healthy, 0 unhealthy)
-2026-02-17 05:34:35,987 - geo_infer_ops.health.checks - INFO - Registered health check: test_check
-2026-02-17 05:34:35,987 - geo_infer_ops.health.checks - INFO - Registered health check: test_check
-2026-02-17 05:34:35,987 - geo_infer_ops.health.checks - INFO - Registered health check: test_check
-2026-02-17 05:34:35,988 - geo_infer_ops.health.checks - INFO - Running health checks
-2026-02-17 05:34:35,988 - geo_infer_ops.health.checks - INFO - Running health checks
-2026-02-17 05:34:35,988 - geo_infer_ops.health.checks - INFO - Running health checks
-2026-02-17 05:34:36,088 - geo_infer_ops.health.checks - INFO - Health checks completed: degraded (1 healthy, 0 unhealthy)
-2026-02-17 05:34:36,088 - geo_infer_ops.health.checks - INFO - Health checks completed: degraded (1 healthy, 0 unhealthy)
-2026-02-17 05:34:36,088 - geo_infer_ops.health.checks - INFO - Health checks completed: degraded (1 healthy, 0 unhealthy)
-2026-02-17 05:34:36,094 - geo_infer_ops.core.orchestrator - INFO - Added task: test_task (ID: ac92e373-6d30-44f6-b223-f810168e4c92)
-2026-02-17 05:34:36,094 - geo_infer_ops.core.orchestrator - INFO - Added task: test_task (ID: ac92e373-6d30-44f6-b223-f810168e4c92)
-2026-02-17 05:34:36,094 - geo_infer_ops.core.orchestrator - INFO - Added task: test_task (ID: ac92e373-6d30-44f6-b223-f810168e4c92)
-2026-02-17 05:34:36,095 - geo_infer_ops.core.orchestrator - INFO - Added task: task1 (ID: 0d6d6e0f-7f06-4a7e-929f-4659786fdf9a)
-2026-02-17 05:34:36,095 - geo_infer_ops.core.orchestrator - INFO - Added task: task1 (ID: 0d6d6e0f-7f06-4a7e-929f-4659786fdf9a)
-2026-02-17 05:34:36,095 - geo_infer_ops.core.orchestrator - INFO - Added task: task1 (ID: 0d6d6e0f-7f06-4a7e-929f-4659786fdf9a)
-2026-02-17 05:34:36,095 - geo_infer_ops.core.orchestrator - INFO - Added task: task2 (ID: d5a7038b-6cc6-4388-9709-8d31fe147696)
-2026-02-17 05:34:36,095 - geo_infer_ops.core.orchestrator - INFO - Added task: task2 (ID: d5a7038b-6cc6-4388-9709-8d31fe147696)
-2026-02-17 05:34:36,095 - geo_infer_ops.core.orchestrator - INFO - Added task: task2 (ID: d5a7038b-6cc6-4388-9709-8d31fe147696)
-2026-02-17 05:34:36,098 - geo_infer_ops.core.orchestrator - INFO - Added task: task1 (ID: 011b14a4-981c-4db4-bba2-986e09d873e5)
-2026-02-17 05:34:36,098 - geo_infer_ops.core.orchestrator - INFO - Added task: task1 (ID: 011b14a4-981c-4db4-bba2-986e09d873e5)
-2026-02-17 05:34:36,098 - geo_infer_ops.core.orchestrator - INFO - Added task: task1 (ID: 011b14a4-981c-4db4-bba2-986e09d873e5)
-2026-02-17 05:34:36,098 - geo_infer_ops.core.orchestrator - INFO - Added task: task2 (ID: 191394fb-0b66-4647-ada2-e3577c063a76)
-2026-02-17 05:34:36,098 - geo_infer_ops.core.orchestrator - INFO - Added task: task2 (ID: 191394fb-0b66-4647-ada2-e3577c063a76)
-2026-02-17 05:34:36,098 - geo_infer_ops.core.orchestrator - INFO - Added task: task2 (ID: 191394fb-0b66-4647-ada2-e3577c063a76)
-2026-02-17 05:34:36,098 - geo_infer_ops.core.orchestrator - INFO - Starting workflow execution
-2026-02-17 05:34:36,098 - geo_infer_ops.core.orchestrator - INFO - Starting workflow execution
-2026-02-17 05:34:36,098 - geo_infer_ops.core.orchestrator - INFO - Starting workflow execution
-2026-02-17 05:34:36,098 - geo_infer_ops.core.orchestrator - INFO - Executing task: task1 (ID: 011b14a4-981c-4db4-bba2-986e09d873e5)
-2026-02-17 05:34:36,098 - geo_infer_ops.core.orchestrator - INFO - Executing task: task1 (ID: 011b14a4-981c-4db4-bba2-986e09d873e5)
-2026-02-17 05:34:36,098 - geo_infer_ops.core.orchestrator - INFO - Executing task: task1 (ID: 011b14a4-981c-4db4-bba2-986e09d873e5)
-2026-02-17 05:34:36,099 - geo_infer_ops.core.orchestrator - INFO - Task completed: task1 (ID: 011b14a4-981c-4db4-bba2-986e09d873e5) in 0.00s
-2026-02-17 05:34:36,099 - geo_infer_ops.core.orchestrator - INFO - Task completed: task1 (ID: 011b14a4-981c-4db4-bba2-986e09d873e5) in 0.00s
-2026-02-17 05:34:36,099 - geo_infer_ops.core.orchestrator - INFO - Task completed: task1 (ID: 011b14a4-981c-4db4-bba2-986e09d873e5) in 0.00s
-2026-02-17 05:34:36,099 - geo_infer_ops.core.orchestrator - INFO - Executing task: task2 (ID: 191394fb-0b66-4647-ada2-e3577c063a76)
-2026-02-17 05:34:36,099 - geo_infer_ops.core.orchestrator - INFO - Executing task: task2 (ID: 191394fb-0b66-4647-ada2-e3577c063a76)
-2026-02-17 05:34:36,099 - geo_infer_ops.core.orchestrator - INFO - Executing task: task2 (ID: 191394fb-0b66-4647-ada2-e3577c063a76)
-2026-02-17 05:34:36,099 - geo_infer_ops.core.orchestrator - INFO - Task completed: task2 (ID: 191394fb-0b66-4647-ada2-e3577c063a76) in 0.00s
-2026-02-17 05:34:36,099 - geo_infer_ops.core.orchestrator - INFO - Task completed: task2 (ID: 191394fb-0b66-4647-ada2-e3577c063a76) in 0.00s
-2026-02-17 05:34:36,099 - geo_infer_ops.core.orchestrator - INFO - Task completed: task2 (ID: 191394fb-0b66-4647-ada2-e3577c063a76) in 0.00s
-2026-02-17 05:34:36,099 - geo_infer_ops.core.orchestrator - INFO - Workflow execution completed: 2 completed, 0 failed in 0.00s
-2026-02-17 05:34:36,099 - geo_infer_ops.core.orchestrator - INFO - Workflow execution completed: 2 completed, 0 failed in 0.00s
-2026-02-17 05:34:36,099 - geo_infer_ops.core.orchestrator - INFO - Workflow execution completed: 2 completed, 0 failed in 0.00s
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Added task: task1 (ID: 080123e7-e8de-4ebb-b7cc-a2b1a6e5596b)
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Added task: task1 (ID: 080123e7-e8de-4ebb-b7cc-a2b1a6e5596b)
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Added task: task1 (ID: 080123e7-e8de-4ebb-b7cc-a2b1a6e5596b)
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Added task: task2 (ID: 2a4a2829-5676-4c66-9ba3-0d0a4b3d6ef3)
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Added task: task2 (ID: 2a4a2829-5676-4c66-9ba3-0d0a4b3d6ef3)
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Added task: task2 (ID: 2a4a2829-5676-4c66-9ba3-0d0a4b3d6ef3)
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Starting workflow execution
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Starting workflow execution
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Starting workflow execution
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Executing task: task1 (ID: 080123e7-e8de-4ebb-b7cc-a2b1a6e5596b)
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Executing task: task1 (ID: 080123e7-e8de-4ebb-b7cc-a2b1a6e5596b)
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Executing task: task1 (ID: 080123e7-e8de-4ebb-b7cc-a2b1a6e5596b)
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Task completed: task1 (ID: 080123e7-e8de-4ebb-b7cc-a2b1a6e5596b) in 0.00s
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Task completed: task1 (ID: 080123e7-e8de-4ebb-b7cc-a2b1a6e5596b) in 0.00s
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Task completed: task1 (ID: 080123e7-e8de-4ebb-b7cc-a2b1a6e5596b) in 0.00s
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Executing task: task2 (ID: 2a4a2829-5676-4c66-9ba3-0d0a4b3d6ef3)
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Executing task: task2 (ID: 2a4a2829-5676-4c66-9ba3-0d0a4b3d6ef3)
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Executing task: task2 (ID: 2a4a2829-5676-4c66-9ba3-0d0a4b3d6ef3)
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Task completed: task2 (ID: 2a4a2829-5676-4c66-9ba3-0d0a4b3d6ef3) in 0.00s
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Task completed: task2 (ID: 2a4a2829-5676-4c66-9ba3-0d0a4b3d6ef3) in 0.00s
-2026-02-17 05:34:36,100 - geo_infer_ops.core.orchestrator - INFO - Task completed: task2 (ID: 2a4a2829-5676-4c66-9ba3-0d0a4b3d6ef3) in 0.00s
-2026-02-17 05:34:36,101 - geo_infer_ops.core.orchestrator - INFO - Workflow execution completed: 3 completed, 0 failed in 0.00s
-2026-02-17 05:34:36,101 - geo_infer_ops.core.orchestrator - INFO - Workflow execution completed: 3 completed, 0 failed in 0.00s
-2026-02-17 05:34:36,101 - geo_infer_ops.core.orchestrator - INFO - Workflow execution completed: 3 completed, 0 failed in 0.00s
-2026-02-17 05:34:36,101 - geo_infer_ops.core.orchestrator - INFO - Added task: test_task (ID: e6820cdf-3c04-40fe-b615-a7fcfd4bd62e)
-2026-02-17 05:34:36,101 - geo_infer_ops.core.orchestrator - INFO - Added task: test_task (ID: e6820cdf-3c04-40fe-b615-a7fcfd4bd62e)
-2026-02-17 05:34:36,101 - geo_infer_ops.core.orchestrator - INFO - Added task: test_task (ID: e6820cdf-3c04-40fe-b615-a7fcfd4bd62e)
-2026-02-17 05:34:36,102 - geo_infer_ops.core.orchestrator - INFO - Added task: task1 (ID: 30d5cf53-764a-4fa4-98ca-9b0aedb68dd7)
-2026-02-17 05:34:36,102 - geo_infer_ops.core.orchestrator - INFO - Added task: task1 (ID: 30d5cf53-764a-4fa4-98ca-9b0aedb68dd7)
-2026-02-17 05:34:36,102 - geo_infer_ops.core.orchestrator - INFO - Added task: task1 (ID: 30d5cf53-764a-4fa4-98ca-9b0aedb68dd7)
-2026-02-17 05:34:36,102 - geo_infer_ops.core.orchestrator - INFO - Added task: task2 (ID: bc39c03e-9dcb-41a5-be61-fe28f949ded7)
-2026-02-17 05:34:36,102 - geo_infer_ops.core.orchestrator - INFO - Added task: task2 (ID: bc39c03e-9dcb-41a5-be61-fe28f949ded7)
-2026-02-17 05:34:36,102 - geo_infer_ops.core.orchestrator - INFO - Added task: task2 (ID: bc39c03e-9dcb-41a5-be61-fe28f949ded7)
-2026-02-17 05:34:36,107 - test_modules - INFO - Testing H3 integration...
-2026-02-17 05:34:36,107 - test_modules - INFO - Testing H3 integration...
-2026-02-17 05:34:36,107 - test_modules - INFO - Testing H3 integration...
-2026-02-17 05:34:36,108 - test_modules - INFO - ✅ H3 cell for (40.5, -120.5): 882816a51dfffff
-2026-02-17 05:34:36,108 - test_modules - INFO - ✅ H3 cell for (40.5, -120.5): 882816a51dfffff
-2026-02-17 05:34:36,108 - test_modules - INFO - ✅ H3 cell for (40.5, -120.5): 882816a51dfffff
-2026-02-17 05:34:36,108 - test_modules - INFO - ✅ Reverse conversion: (40.500, -120.496)
-2026-02-17 05:34:36,108 - test_modules - INFO - ✅ Reverse conversion: (40.500, -120.496)
-2026-02-17 05:34:36,108 - test_modules - INFO - ✅ Reverse conversion: (40.500, -120.496)
-2026-02-17 05:34:36,111 - test_modules - INFO - ✅ Boundary has 6 points
-2026-02-17 05:34:36,111 - test_modules - INFO - ✅ Boundary has 6 points
-2026-02-17 05:34:36,111 - test_modules - INFO - ✅ Boundary has 6 points
-2026-02-17 05:34:36,112 - test_modules - INFO - Testing module initialization...
-2026-02-17 05:34:36,112 - test_modules - INFO - Testing module initialization...
-2026-02-17 05:34:36,112 - test_modules - INFO - Testing module initialization...
-2026-02-17 05:34:36,117 - test_modules - INFO - Testing module workflow...
-2026-02-17 05:34:36,117 - test_modules - INFO - Testing module workflow...
-2026-02-17 05:34:36,117 - test_modules - INFO - Testing module workflow...
-2026-02-17 05:34:36,119 - test_real_data_processing - INFO - Testing spatial analysis...
-2026-02-17 05:34:36,119 - test_real_data_processing - INFO - Testing spatial analysis...
-2026-02-17 05:34:36,119 - test_real_data_processing - INFO - Testing spatial analysis...
-2026-02-17 05:34:36,119 - test_real_data_processing - INFO - ✅ Spatial analysis working: 882816a51dfffff
-2026-02-17 05:34:36,119 - test_real_data_processing - INFO - ✅ Spatial analysis working: 882816a51dfffff
-2026-02-17 05:34:36,119 - test_real_data_processing - INFO - ✅ Spatial analysis working: 882816a51dfffff
-2026-02-17 05:34:36,120 - test_real_data_processing - INFO - Testing export functionality...
-2026-02-17 05:34:36,120 - test_real_data_processing - INFO - Testing export functionality...
-2026-02-17 05:34:36,120 - test_real_data_processing - INFO - Testing export functionality...
-2026-02-17 05:34:36,121 - test_real_data_processing - INFO - ✅ Export functionality working
-2026-02-17 05:34:36,121 - test_real_data_processing - INFO - ✅ Export functionality working
-2026-02-17 05:34:36,121 - test_real_data_processing - INFO - ✅ Export functionality working
-2026-02-17 05:34:36,169 - geo_infer_space.analytics.network - WARNING - OSMnx not available. Some network analysis features will be limited.
-2026-02-17 05:34:36,169 - geo_infer_space.analytics.network - WARNING - OSMnx not available. Some network analysis features will be limited.
-2026-02-17 05:34:36,169 - geo_infer_space.analytics.network - WARNING - OSMnx not available. Some network analysis features will be limited.
-2026-02-17 05:34:36,193 - geo_infer_space.analytics.point_cloud - WARNING - laspy not available. LAS/LAZ file support will be limited.
-2026-02-17 05:34:36,193 - geo_infer_space.analytics.point_cloud - WARNING - laspy not available. LAS/LAZ file support will be limited.
-2026-02-17 05:34:36,193 - geo_infer_space.analytics.point_cloud - WARNING - laspy not available. LAS/LAZ file support will be limited.
-2026-02-17 05:34:36,310 - geo_infer_space.backends.h3.h3_backend - INFO - Analyzing hotspots for 5 cells
-2026-02-17 05:34:36,310 - geo_infer_space.backends.h3.h3_backend - INFO - Analyzing hotspots for 5 cells
-2026-02-17 05:34:36,310 - geo_infer_space.backends.h3.h3_backend - INFO - Analyzing hotspots for 5 cells
-2026-02-17 05:34:36,310 - geo_infer_space.backends.h3.h3_backend - INFO - Found 2 hotspots (threshold: 15)
-2026-02-17 05:34:36,310 - geo_infer_space.backends.h3.h3_backend - INFO - Found 2 hotspots (threshold: 15)
-2026-02-17 05:34:36,310 - geo_infer_space.backends.h3.h3_backend - INFO - Found 2 hotspots (threshold: 15)
-2026-02-17 05:34:36,310 - geo_infer_space.backends.h3.h3_backend - INFO - Computing proximity for 3 points
-2026-02-17 05:34:36,310 - geo_infer_space.backends.h3.h3_backend - INFO - Computing proximity for 3 points
-2026-02-17 05:34:36,310 - geo_infer_space.backends.h3.h3_backend - INFO - Computing proximity for 3 points
-2026-02-17 05:34:36,310 - geo_infer_space.backends.h3.h3_backend - INFO - Analyzed 3 proximity pairs
-2026-02-17 05:34:36,310 - geo_infer_space.backends.h3.h3_backend - INFO - Analyzed 3 proximity pairs
-2026-02-17 05:34:36,310 - geo_infer_space.backends.h3.h3_backend - INFO - Analyzed 3 proximity pairs
-2026-02-17 05:34:36,313 - geo_infer_space.core.dispatcher - INFO - Backend configuration applied
-2026-02-17 05:34:36,313 - geo_infer_space.core.dispatcher - INFO - Backend configuration applied
-2026-02-17 05:34:36,313 - geo_infer_space.core.dispatcher - INFO - Backend configuration applied
-2026-02-17 05:34:36,315 - geo_infer_space.backends.h3.h3_backend - INFO - H3 library v4.3.0 loaded successfully
-2026-02-17 05:34:36,315 - geo_infer_space.backends.h3.h3_backend - INFO - H3 library v4.3.0 loaded successfully
-2026-02-17 05:34:36,315 - geo_infer_space.backends.h3.h3_backend - INFO - H3 library v4.3.0 loaded successfully
-2026-02-17 05:34:36,318 - geo_infer_space.backends.srai.srai_backend - WARNING - SRAI backend initialized but library is not available
-2026-02-17 05:34:36,318 - geo_infer_space.backends.srai.srai_backend - WARNING - SRAI backend initialized but library is not available
-2026-02-17 05:34:36,318 - geo_infer_space.backends.srai.srai_backend - WARNING - SRAI backend initialized but library is not available
-2026-02-17 05:34:36,319 - geo_infer_space.core.dispatcher - INFO - Backend configuration applied
-2026-02-17 05:34:36,319 - geo_infer_space.core.dispatcher - INFO - Backend configuration applied
-2026-02-17 05:34:36,319 - geo_infer_space.core.dispatcher - INFO - Backend configuration applied
-2026-02-17 05:34:36,320 - geo_infer_space.backends.h3.h3_backend - INFO - H3 library v4.3.0 loaded successfully
-2026-02-17 05:34:36,320 - geo_infer_space.backends.h3.h3_backend - INFO - H3 library v4.3.0 loaded successfully
-2026-02-17 05:34:36,320 - geo_infer_space.backends.h3.h3_backend - INFO - H3 library v4.3.0 loaded successfully
-2026-02-17 05:34:36,320 - geo_infer_space.backends.srai.srai_backend - WARNING - SRAI backend initialized but library is not available
-2026-02-17 05:34:36,320 - geo_infer_space.backends.srai.srai_backend - WARNING - SRAI backend initialized but library is not available
-2026-02-17 05:34:36,320 - geo_infer_space.backends.srai.srai_backend - WARNING - SRAI backend initialized but library is not available
+2026-02-25 09:05:07,923 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Path Manager ===
+2026-02-25 09:05:07,923 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Path Manager ===
+2026-02-25 09:05:07,923 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Path Manager ===
+2026-02-25 09:05:07,924 - GEO-INFER-OPS.tests.test_framework - ERROR - Path manager test failed: No module named 'GEO-INFER-OPS.tests.geo_infer_paths'
+2026-02-25 09:05:07,924 - GEO-INFER-OPS.tests.test_framework - ERROR - Path manager test failed: No module named 'GEO-INFER-OPS.tests.geo_infer_paths'
+2026-02-25 09:05:07,924 - GEO-INFER-OPS.tests.test_framework - ERROR - Path manager test failed: No module named 'GEO-INFER-OPS.tests.geo_infer_paths'
+2026-02-25 09:05:07,924 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Module Imports ===
+2026-02-25 09:05:07,924 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Module Imports ===
+2026-02-25 09:05:07,924 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Module Imports ===
+2026-02-25 09:05:07,925 - GEO-INFER-OPS.tests.test_framework - ERROR - Module import test failed: No module named 'GEO-INFER-OPS.tests.geo_infer_paths'
+2026-02-25 09:05:07,925 - GEO-INFER-OPS.tests.test_framework - ERROR - Module import test failed: No module named 'GEO-INFER-OPS.tests.geo_infer_paths'
+2026-02-25 09:05:07,925 - GEO-INFER-OPS.tests.test_framework - ERROR - Module import test failed: No module named 'GEO-INFER-OPS.tests.geo_infer_paths'
+2026-02-25 09:05:07,925 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Cross-Module Imports ===
+2026-02-25 09:05:07,925 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Cross-Module Imports ===
+2026-02-25 09:05:07,925 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Cross-Module Imports ===
+2026-02-25 09:05:07,925 - GEO-INFER-OPS.tests.test_framework - ERROR - Cross-module import test failed: No module named 'GEO-INFER-OPS.tests.geo_infer_paths'
+2026-02-25 09:05:07,925 - GEO-INFER-OPS.tests.test_framework - ERROR - Cross-module import test failed: No module named 'GEO-INFER-OPS.tests.geo_infer_paths'
+2026-02-25 09:05:07,925 - GEO-INFER-OPS.tests.test_framework - ERROR - Cross-module import test failed: No module named 'GEO-INFER-OPS.tests.geo_infer_paths'
+2026-02-25 09:05:07,926 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Framework Entry Point ===
+2026-02-25 09:05:07,926 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Framework Entry Point ===
+2026-02-25 09:05:07,926 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Framework Entry Point ===
+2026-02-25 09:05:07,926 - GEO-INFER-OPS.tests.test_framework - ERROR - Framework entry point test failed: cannot import name 'get_framework' from 'GEO-INFER-OPS.tests' (unknown location)
+2026-02-25 09:05:07,926 - GEO-INFER-OPS.tests.test_framework - ERROR - Framework entry point test failed: cannot import name 'get_framework' from 'GEO-INFER-OPS.tests' (unknown location)
+2026-02-25 09:05:07,926 - GEO-INFER-OPS.tests.test_framework - ERROR - Framework entry point test failed: cannot import name 'get_framework' from 'GEO-INFER-OPS.tests' (unknown location)
+2026-02-25 09:05:07,927 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Specific Functionality ===
+2026-02-25 09:05:07,927 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Specific Functionality ===
+2026-02-25 09:05:07,927 - GEO-INFER-OPS.tests.test_framework - INFO - === Testing Specific Functionality ===
+2026-02-25 09:05:07,927 - GEO-INFER-OPS.tests.test_framework - INFO - ✓ SPACE H3 functionality available
+2026-02-25 09:05:07,927 - GEO-INFER-OPS.tests.test_framework - INFO - ✓ SPACE H3 functionality available
+2026-02-25 09:05:07,927 - GEO-INFER-OPS.tests.test_framework - INFO - ✓ SPACE H3 functionality available
+2026-02-25 09:05:08,971 - GEO-INFER-OPS.tests.test_framework - INFO - ✓ PLACE analyzer available
+2026-02-25 09:05:08,971 - GEO-INFER-OPS.tests.test_framework - INFO - ✓ PLACE analyzer available
+2026-02-25 09:05:08,971 - GEO-INFER-OPS.tests.test_framework - INFO - ✓ PLACE analyzer available
+2026-02-25 09:05:08,973 - root - WARNING - GEO-INFER-SPACE not available, using basic H3 operations
+2026-02-25 09:05:08,973 - root - WARNING - GEO-INFER-SPACE not available, using basic H3 operations
+2026-02-25 09:05:08,973 - root - WARNING - GEO-INFER-SPACE not available, using basic H3 operations
+2026-02-25 09:05:10,294 - arviz.preview - INFO - arviz_base not installed
+2026-02-25 09:05:10,294 - arviz.preview - INFO - arviz_base not installed
+2026-02-25 09:05:10,294 - arviz.preview - INFO - arviz_base not installed
+2026-02-25 09:05:10,295 - arviz.preview - INFO - arviz_stats not installed
+2026-02-25 09:05:10,295 - arviz.preview - INFO - arviz_stats not installed
+2026-02-25 09:05:10,295 - arviz.preview - INFO - arviz_stats not installed
+2026-02-25 09:05:10,295 - arviz.preview - INFO - arviz_plots not installed
+2026-02-25 09:05:10,295 - arviz.preview - INFO - arviz_plots not installed
+2026-02-25 09:05:10,295 - arviz.preview - INFO - arviz_plots not installed
+2026-02-25 09:05:27,043 - root - WARNING - GEO-INFER-BAYES not available, spatial inference disabled
+2026-02-25 09:05:27,043 - root - WARNING - GEO-INFER-BAYES not available, spatial inference disabled
+2026-02-25 09:05:27,043 - root - WARNING - GEO-INFER-BAYES not available, spatial inference disabled
+2026-02-25 09:05:27,054 - mqtt - WARNING - We renamed asyncio-mqtt to aiomqtt and released a version 1.0.0 in the process. This is the last release under the asyncio-mqtt name. You can find the new repository at https://github.com/sbtinstruments/aiomqtt
+2026-02-25 09:05:27,054 - mqtt - WARNING - We renamed asyncio-mqtt to aiomqtt and released a version 1.0.0 in the process. This is the last release under the asyncio-mqtt name. You can find the new repository at https://github.com/sbtinstruments/aiomqtt
+2026-02-25 09:05:27,054 - mqtt - WARNING - We renamed asyncio-mqtt to aiomqtt and released a version 1.0.0 in the process. This is the last release under the asyncio-mqtt name. You can find the new repository at https://github.com/sbtinstruments/aiomqtt
+2026-02-25 09:05:27,058 - root - WARNING - GEO-INFER-SPACE not available, using basic spatial operations
+2026-02-25 09:05:27,058 - root - WARNING - GEO-INFER-SPACE not available, using basic spatial operations
+2026-02-25 09:05:27,058 - root - WARNING - GEO-INFER-SPACE not available, using basic spatial operations
+2026-02-25 09:05:27,112 - GEO-INFER-OPS.tests.test_framework - INFO - ✓ IOT data ingestion available
+2026-02-25 09:05:27,112 - GEO-INFER-OPS.tests.test_framework - INFO - ✓ IOT data ingestion available
+2026-02-25 09:05:27,112 - GEO-INFER-OPS.tests.test_framework - INFO - ✓ IOT data ingestion available
+2026-02-25 09:05:27,112 - GEO-INFER-OPS.tests.test_framework - INFO - ✓ BAYES Gaussian processes available
+2026-02-25 09:05:27,112 - GEO-INFER-OPS.tests.test_framework - INFO - ✓ BAYES Gaussian processes available
+2026-02-25 09:05:27,112 - GEO-INFER-OPS.tests.test_framework - INFO - ✓ BAYES Gaussian processes available
+2026-02-25 09:05:38,957 - httpx - INFO - HTTP Request: GET http://testserver/test "HTTP/1.1 200 OK"
+2026-02-25 09:05:38,957 - httpx - INFO - HTTP Request: GET http://testserver/test "HTTP/1.1 200 OK"
+2026-02-25 09:05:38,957 - httpx - INFO - HTTP Request: GET http://testserver/test "HTTP/1.1 200 OK"
