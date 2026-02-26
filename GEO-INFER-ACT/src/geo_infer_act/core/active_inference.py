@@ -236,8 +236,29 @@ class ActiveInferenceModel:
         return policies[0]  # Simplified selection
 
     def compute_expected_free_energy(self, policy: Dict[str, Any]) -> float:
-        """Compute expected free energy for a policy."""
-        return 0.5  # Simplified calculation
+        """Compute expected free energy for a given policy.
+        
+        Delegates to FreeEnergyCalculator.compute_expected_free_energy using
+        the model's current beliefs and preferences. EFE balances epistemic
+        value (information gain) and pragmatic value (preference satisfaction).
+        
+        Args:
+            policy: Policy dict, may contain 'exploration_bonus' and 'risk_preference'
+            
+        Returns:
+            Expected free energy (float). Lower means the policy is more preferred.
+        """
+        belief_vector = self._extract_belief_vector(self.current_beliefs)
+        if belief_vector is None:
+            return float('inf')
+        
+        preferences = self._get_preferences_vector(len(belief_vector))
+        
+        return self.free_energy_calculator.compute_expected_free_energy(
+            belief_vector,
+            policy,
+            preferences
+        )
 
     def step(self, observation: np.ndarray, available_actions: Optional[List[Any]] = None) -> Tuple[np.ndarray, Any]:
         """
