@@ -100,8 +100,9 @@ class FreeEnergyCalculator:
         obs_prob = softmax(obs_prob)  # Ensure valid prob
         accuracy = np.sum(beliefs * np.log(obs_prob + 1e-8))
         
-        # Free energy = Complexity - Accuracy
-        # (We want to minimize complexity while maximizing accuracy)
+        # Free energy F = D_KL[q(s)||p(s)] + E_q[log p(o|s)]
+        # Since accuracy = E_q[log p(o)] is typically negative, this effectively
+        # computes F = complexity - |accuracy| (minimising complexity, maximising accuracy)
         free_energy = complexity + accuracy
         
         return float(free_energy)

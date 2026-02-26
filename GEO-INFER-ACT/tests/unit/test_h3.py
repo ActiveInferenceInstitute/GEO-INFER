@@ -123,8 +123,10 @@ class TestH3Methods(unittest.TestCase):
             self.assertIn('free_energy', result)
             self.assertIn('precision', result)
             
-            # Verify belief properties
-            beliefs = result['beliefs']
+            # Verify belief properties — beliefs may be a dict {'states': array}
+            beliefs_raw = result['beliefs']
+            beliefs = beliefs_raw['states'] if isinstance(beliefs_raw, dict) else beliefs_raw
+            beliefs = np.asarray(beliefs, dtype=float).flatten()
             self.assertAlmostEqual(np.sum(beliefs), 1.0, places=6)
             self.assertTrue(np.all(beliefs >= 0))
             

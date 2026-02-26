@@ -47,7 +47,8 @@ class TestActiveInferenceModel(unittest.TestCase):
         gen_model = GenerativeModel("categorical", {"state_dim": 3})
         self.model.set_generative_model(gen_model)
         self.assertEqual(self.model.generative_model, gen_model)
-        self.assertTrue(np.allclose(self.model.current_beliefs, np.ones(3)/3))
+        beliefs_states = self.model.current_beliefs['states'] if isinstance(self.model.current_beliefs, dict) else self.model.current_beliefs
+        self.assertTrue(np.allclose(beliefs_states, np.ones(3)/3))
 
     def test_perceive(self):
         """Test belief updating via perceive."""
@@ -57,8 +58,10 @@ class TestActiveInferenceModel(unittest.TestCase):
         observation = np.array([1, 0])
         updated_beliefs = self.model.perceive(observation)
         self.assertIsNotNone(self.model.current_observations)
-        self.assertTrue(np.allclose(np.sum(updated_beliefs), 1.0))
-        self.assertFalse(np.allclose(updated_beliefs, np.ones(3)/3))  # Beliefs should change
+        # Extract states array from dict if needed
+        beliefs_arr = updated_beliefs['states'] if isinstance(updated_beliefs, dict) else updated_beliefs
+        self.assertTrue(np.allclose(np.sum(beliefs_arr), 1.0))
+        self.assertFalse(np.allclose(beliefs_arr, np.ones(3)/3))  # Beliefs should change
 
     def test_act(self):
         """Test action selection."""
@@ -92,7 +95,8 @@ class TestActiveInferenceModel(unittest.TestCase):
         self.model.set_generative_model(gen_model)
         self.model.current_beliefs = np.array([0.1, 0.2, 0.7])
         self.model.reset()
-        self.assertTrue(np.allclose(self.model.current_beliefs, np.ones(3)/3))
+        beliefs_states = self.model.current_beliefs['states'] if isinstance(self.model.current_beliefs, dict) else self.model.current_beliefs
+        self.assertTrue(np.allclose(beliefs_states, np.ones(3)/3))
         self.assertIsNone(self.model.current_observations)
         self.assertIsNone(self.model.current_actions)
         self.assertEqual(self.model.history, [])

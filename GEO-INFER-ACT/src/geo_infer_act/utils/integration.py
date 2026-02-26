@@ -725,7 +725,10 @@ def create_h3_spatial_model(config: Dict[str, Any],
     Args:
         config: Configuration dictionary
         h3_resolution: H3 hexagonal grid resolution
-        boundary: GeoJSON boundary specification
+        boundary: GeoJSON boundary specification. Accepts:
+            - {"coordinates": [[[lng, lat], ...]]}          (Polygon)
+            - {"coordinates": [[[[lng, lat], ...]]]}        (MultiPolygon)
+            - {"type": "Polygon", "coordinates": [[[lng, lat], ...]]}
         
     Returns:
         H3 spatial model configuration
@@ -734,25 +737,50 @@ def create_h3_spatial_model(config: Dict[str, Any],
         import h3
         boundary_cells = set()
         if 'coordinates' in boundary:
-            # Handle GeoJSON Polygon format: coordinates[0][0] contains the coordinate pairs
-            coordinate_ring = boundary['coordinates'][0][0] if boundary['coordinates'][0] else []
-            for coord in coordinate_ring:
-                if len(coord) >= 2:
-                    # coord is [lng, lat] in GeoJSON format
-                    cell = h3.latlng_to_cell(coord[1], coord[0], h3_resolution)  # lat, lng
-                    boundary_cells.add(cell)
-            
-            # If we have boundary cells, use h3.polygon_to_cells for complete coverage
-            if boundary_cells:
-                # Convert coordinate ring to proper format for h3.polygon_to_cells
-                polygon = []
+            # ---- Robust coordinate extraction ----
+            # Descend into nested lists until we find a list of [lng, lat] pairs.
+            # A coordinate pair is identified as a list/tuple of exactly 2 numbers.
+            raw = boundary['coordinates']
+
+            def _is_coord_pair(item):
+                """Check if item is a [number, number] coordinate pair."""
+                return (isinstance(item, (list, tuple))
+                        and len(item) >= 2
+                        and isinstance(item[0], (int, float))
+                        and isinstance(item[1], (int, float)))
+
+            def _extract_rings(data):
+                """Recursively find all coordinate rings (lists of coord pairs)."""
+                if not isinstance(data, (list, tuple)) or len(data) == 0:
+                    return []
+                # If data[0] is a coord pair, then data is a ring
+                if _is_coord_pair(data[0]):
+                    return [data]
+                # Otherwise recurse
+                rings = []
+                for sub in data:
+                    rings.extend(_extract_rings(sub))
+                return rings
+
+            coordinate_rings = _extract_rings(raw)
+
+            for coordinate_ring in coordinate_rings:
                 for coord in coordinate_ring:
-                    if len(coord) >= 2:
+                    if _is_coord_pair(coord):
+                        # coord is [lng, lat] in GeoJSON format
+                        cell = h3.latlng_to_cell(coord[1], coord[0], h3_resolution)
+                        boundary_cells.add(cell)
+            
+            # If we have boundary cells, try h3.polygon_to_cells for complete coverage
+            if boundary_cells and coordinate_rings:
+                # Use the first ring for polygon fill
+                polygon = []
+                for coord in coordinate_rings[0]:
+                    if _is_coord_pair(coord):
                         polygon.append([coord[1], coord[0]])  # Convert to [lat, lng]
                 
-                if len(polygon) >= 3:  # Valid polygon needs at least 3 points
+                if len(polygon) >= 3:
                     try:
-                        # Get all cells within the polygon boundary
                         all_cells = h3.polygon_to_cells(polygon, h3_resolution)
                         boundary_cells.update(all_cells)
                     except Exception as poly_e:
@@ -760,11 +788,9 @@ def create_h3_spatial_model(config: Dict[str, Any],
         
         # Fallback: if no boundary cells found, create a small grid
         if not boundary_cells:
-            # Create a small grid around San Francisco center
             center_lat, center_lng = 37.76, -122.43
             center_cell = h3.latlng_to_cell(center_lat, center_lng, h3_resolution)
             boundary_cells = set([center_cell])
-            # Add neighbors for a reasonable demo area
             neighbors = h3.grid_disk(center_cell, 2)
             boundary_cells.update(neighbors)
         

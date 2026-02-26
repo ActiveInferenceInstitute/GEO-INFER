@@ -165,30 +165,55 @@ class EnvironmentalActiveInferenceEngine:
             raise
     
     def _generate_h3_cells_from_boundary(self, boundary: Dict[str, Any]) -> List[str]:
-        """Generate H3 cells from boundary specification."""
+        """Generate H3 cells from boundary specification.
+        
+        Handles GeoJSON Polygon, MultiPolygon, and bare coordinate lists.
+        """
         cells = set()
         
         if 'coordinates' in boundary:
-            coord_list = boundary['coordinates'][0][0]
-            for coord in coord_list:
-                try:
-                    lng, lat = float(coord[0]), float(coord[1])
-                    cell = h3.latlng_to_cell(lat, lng, self.h3_resolution)
-                    cells.add(cell)
-                    
-                    # Add nearby cells for coverage
-                    for ring_distance in range(1, 3):
-                        try:
-                            neighbors = h3.grid_ring(cell, ring_distance)
-                            if isinstance(neighbors, list):
-                                cells.update(neighbors)
-                            else:
-                                cells.update(list(neighbors))
-                        except Exception:
+            raw = boundary['coordinates']
+            
+            def _is_coord_pair(item):
+                return (isinstance(item, (list, tuple))
+                        and len(item) >= 2
+                        and isinstance(item[0], (int, float))
+                        and isinstance(item[1], (int, float)))
+            
+            def _extract_rings(data):
+                if not isinstance(data, (list, tuple)) or len(data) == 0:
+                    return []
+                if _is_coord_pair(data[0]):
+                    return [data]
+                rings = []
+                for sub in data:
+                    rings.extend(_extract_rings(sub))
+                return rings
+            
+            coordinate_rings = _extract_rings(raw)
+            
+            for coordinate_ring in coordinate_rings:
+                for coord in coordinate_ring:
+                    try:
+                        if not _is_coord_pair(coord):
                             continue
-                            
-                except (ValueError, TypeError):
-                    continue
+                        lng, lat = float(coord[0]), float(coord[1])
+                        cell = h3.latlng_to_cell(lat, lng, self.h3_resolution)
+                        cells.add(cell)
+                        
+                        # Add nearby cells for coverage
+                        for ring_distance in range(1, 3):
+                            try:
+                                neighbors = h3.grid_ring(cell, ring_distance)
+                                if isinstance(neighbors, list):
+                                    cells.update(neighbors)
+                                else:
+                                    cells.update(list(neighbors))
+                            except Exception:
+                                continue
+                                
+                    except (ValueError, TypeError):
+                        continue
         
         return list(cells)
     
@@ -718,6 +743,84 @@ class EnvironmentalActiveInferenceEngine:
         
         return free_energy_metrics
     
+    def compute_spatial_priors(self, variable: str = 'vegetation_density', n_states: int = 4) -> Dict[str, np.ndarray]:
+        """
+        Compute Moran's I weighted spatial priors for Active Inference models.
+        
+        This generates Dirichlet-style prior parameters (or probability distributions)
+        for each cell, skewed by the local spatial autocorrelation (Local Moran's I)
+        of the specified environmental variable.
+        
+        Args:
+            variable: The environmental variable to compute priors from
+            n_states: Number of discrete states in the generative model
+            
+        Returns:
+            Dictionary mapping H3 cell to prior probability distribution
+        """
+        priors = {}
+        
+        # Extract values
+        values = []
+        cells = list(self.environmental_states.keys())
+        for cell in cells:
+            state = self.environmental_states[cell]
+            values.append(getattr(state, variable, 0.5))
+            
+        if not values or not self.spatial_graph:
+            # Fallback uniform priors
+            return {c: np.ones(n_states) / n_states for c in cells}
+            
+        values_arr = np.array(values)
+        mean_val = np.mean(values_arr)
+        std_val = np.std(values_arr) + 1e-8
+        z_scores = (values_arr - mean_val) / std_val
+        
+        # Compute Local Moran's I
+        local_morans = {}
+        for i, cell in enumerate(cells):
+            neighbors = self.spatial_graph.neighbors.get(cell, {}).get(1, set())
+            if not neighbors:
+                local_morans[cell] = 0.0
+                continue
+                
+            neighbor_z = []
+            for n in neighbors:
+                try:
+                    idx = cells.index(n)
+                    neighbor_z.append(z_scores[idx])
+                except ValueError:
+                    pass
+                    
+            if neighbor_z:
+                # Local Moran's I: z_i * sum(w_ij * z_j) where w_ij is row-normalized weight
+                w_ij = 1.0 / len(neighbor_z)
+                lag_z = np.sum(np.array(neighbor_z) * w_ij)
+                local_morans[cell] = z_scores[i] * lag_z
+            else:
+                local_morans[cell] = 0.0
+                
+        # Map Moran's I into categorical priors
+        for cell in cells:
+            I_i = local_morans[cell]
+            val = getattr(self.environmental_states[cell], variable, 0.5)
+            
+            # Base prior centered around value
+            # e.g., if val=0.8, skew towards higher states
+            idx = int(np.clip(val * n_states, 0, n_states - 1))
+            prior = np.ones(n_states) * 0.1
+            prior[idx] += 0.5
+            
+            # Use Local Moran's I as a precision weighting (confidence in spatial cluster)
+            # High I_i (positive clustering) -> sharper prior
+            # Low/Negative I_i (outlier/noise) -> flatter prior
+            precision_factor = np.clip(1.0 + I_i, 0.1, 5.0)
+            prior = prior ** precision_factor
+            
+            priors[cell] = prior / np.sum(prior)
+            
+        return priors
+
     def get_environmental_summary(self) -> Dict[str, Any]:
         """
         Get comprehensive summary of environmental state and analysis.
