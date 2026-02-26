@@ -316,7 +316,7 @@ class SeasonalAnalysis:
         self,
         time_series: Optional[pd.Series] = None,
         variable: str = "ndvi",
-        period: str = "annual",
+        period: str = "daily",
         detrend: bool = False,
         window_size: int = 7
     ) -> Dict[str, Any]:

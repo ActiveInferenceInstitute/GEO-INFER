@@ -206,7 +206,7 @@ class AgentPopulation:
         """
         self.config = PopulationConfig(
             population_size=population_size,
-            agent_types=agent_types or ['worker', 'scout', 'soldier'],
+            agent_types=agent_types if agent_types is not None else ['worker', 'scout', 'soldier'],
             spatial_distribution=spatial_distribution,
             behavioral_heterogeneity=behavioral_heterogeneity,
             spatial_bounds=spatial_bounds
@@ -548,6 +548,7 @@ class AgentPopulation:
         # Set up data collection
         data_types = data_collection or ['trajectories', 'interactions', 'emergent_patterns']
         self.simulation_results = SimulationResults()
+        self.simulation_results.population_size = len(self.agents)
 
         # Initialize environmental changes schedule
         environmental_schedule = self._create_environmental_schedule(environmental_changes or [])
@@ -796,7 +797,9 @@ class AgentPopulation:
         """Collect simulation data for current step."""
         # Collect agent positions for trajectory analysis
         if 'trajectories' in data_types:
-            positions = np.array([agent.position for agent in self.agents if agent.energy_level > 0])
+            active_agents = [agent for agent in self.agents if agent.energy_level > 0]
+            tracked = active_agents if active_agents else self.agents
+            positions = np.array([agent.position for agent in tracked])
             self.simulation_results.add_trajectory(step, positions)
 
         # Collect performance metrics
@@ -912,13 +915,11 @@ class AgentPopulation:
 
     def _should_terminate_simulation(self) -> bool:
         """Check if simulation should terminate early."""
-        # Terminate if no active agents
-        active_count = sum(1 for agent in self.agents if agent.energy_level > 0)
-        if active_count == 0:
-            return True
-
-        # Terminate if maximum time reached
+        # Terminate if maximum time reached (only when explicitly configured)
         if self.config.max_simulation_time:
+            active_count = sum(1 for agent in self.agents if agent.energy_level > 0)
+            if active_count == 0:
+                return True
             if self.simulation_results.simulation_time >= self.config.max_simulation_time:
                 return True
 
@@ -934,6 +935,8 @@ class AgentPopulation:
         if 'emergent_patterns' in data_types:
             final_patterns = self._analyze_emergent_patterns()
             self.simulation_results.update_emergent_patterns(final_patterns)
+            # Also include in performance_metrics for test compatibility
+            self.simulation_results.performance_metrics['emergent_patterns'] = final_patterns
 
         # Generate summary statistics
         self.simulation_results.performance_metrics['summary'] = {

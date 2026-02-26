@@ -7,6 +7,7 @@ coordination with geospatial context and filtering capabilities.
 """
 
 from __future__ import annotations
+from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Callable, Any, Set
 import asyncio
 import json
@@ -414,9 +415,10 @@ class EventMetrics:
         self.start_time = datetime.now(timezone.utc)
 
 
-class EventProcessor:
+class EventProcessor(ABC):
     """Base class for event processors."""
 
+    @abstractmethod
     def process_event(self, event: EventPublishResponse) -> None:
         """
         Process an event.

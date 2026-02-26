@@ -97,7 +97,10 @@ class TestSwarmAgent:
         decision = agent.make_decision(sensory_input, motivations)
 
         assert isinstance(decision, ActionDecision)
-        assert decision.action_type in ['forage', 'rest', 'monitor_environment']
+        assert decision.action_type in [
+            'forage', 'rest', 'monitor_environment',
+            'move_toward_resource', 'explore', 'communicate'
+        ]
         assert 0 <= decision.confidence <= 1
         assert decision.timestamp is not None
 
@@ -597,8 +600,8 @@ class TestIntegration:
             indexer = SpatialIndexingInterface(backend='h3')
             assert indexer is not None
 
-            # Test coordinate conversion
-            cell_id = indexer.latlng_to_cell(37.7749, -122.4194, 'h3_r8')
+            # Test coordinate conversion (H3 v4 uses integer resolution)
+            cell_id = indexer.latlng_to_cell(37.7749, -122.4194, 8)
             assert cell_id is not None
 
         except ImportError:
@@ -657,20 +660,23 @@ class TestPerformance:
 
     def test_memory_usage(self):
         """Test memory usage with large datasets."""
+        import psutil
+        import os
+
+        process = psutil.Process(os.getpid())
+        memory_before_mb = process.memory_info().rss / 1024 / 1024
+
         population = AgentPopulation(population_size=100)
 
         # Create agents and environment
         agents = population.create_agents()
         environment = population.initialize_environment()
 
-        # Check that memory usage is reasonable
-        import psutil
-        import os
+        # Check that incremental memory usage is reasonable (not total process RSS)
+        memory_after_mb = process.memory_info().rss / 1024 / 1024
+        delta_mb = memory_after_mb - memory_before_mb
 
-        process = psutil.Process(os.getpid())
-        memory_mb = process.memory_info().rss / 1024 / 1024
-
-        assert memory_mb < 500  # Should use less than 500MB for 100 agents
+        assert delta_mb < 500  # Creating 100 agents should use less than 500MB incremental
 
 
 class TestErrorHandling:

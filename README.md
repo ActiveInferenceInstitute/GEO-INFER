@@ -34,7 +34,7 @@
 - **🧠 Active Inference**: Mathematical foundations for perception-action loops (free energy minimization, Bayesian inference, perception-action loops)
 - **🔄 Data Processing Pipelines**: Validation, quality control, and ETL workflows
 - **🧩 Modular Architecture**: 44 specialized modules with clear dependencies
-- **🧪 Testing**: 422 test files with ~3,000+ tests across all modules
+- **🧪 Testing**: 434 test files with ~3,000+ tests across all modules
 - **📚 Documentation**: Standardized documentation with integration guides
 
 ### 📊 Codebase at a Glance
@@ -915,7 +915,7 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 | **Documentation Standards** | ✅ **ESTABLISHED** | Comprehensive standards and templates created |
 | **Integration Guides** | ✅ **PUBLISHED** | Cross-module tutorials and patterns documented |
 | **Module Templates** | ✅ **APPLIED** | YAML front matter applied to all 44 modules (100%) |
-| **Testing Framework** | ✅ **OPERATIONAL** | 422 test files, ~3,000+ tests across all 44 modules |
+| **Testing Framework** | ✅ **OPERATIONAL** | 434 test files, ~3,000+ tests across all 44 modules |
 | **Code Quality** | ✅ **PROFESSIONAL** | 860 source files, 297,360 lines of real implementations |
 | **Infrastructure** | ✅ **COMPLETE** | All modules have requirements.txt, pyproject.toml, PEP 8 naming |
 | **Examples** | ✅ **COMPLETE** | Working examples added to all modules |
@@ -942,7 +942,7 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 #### **Testing Compliance**
 
 - ✅ **Test Suites**: 100% (44/44 modules have tests, minimum 4 test files each)
-- ✅ **Test Coverage**: 422 test files, ~3,000+ tests
+- ✅ **Test Coverage**: 434 test files, ~3,000+ tests
 - ✅ **Integration Tests**: Cross-module test suites covering:
   - SPACE + TIME + DATA workflows
   - ACT + AGENT + ANT coordination

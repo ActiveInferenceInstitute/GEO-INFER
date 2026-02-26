@@ -498,6 +498,9 @@ class ActiveInferenceAgent(BaseAgent):
         """
         super().__init__(agent_id=agent_id, config=config or {})
 
+        # Convenience alias so internal code can use self.id consistently
+        self.id = self.agent_id
+
         # Action and perception handler registries (underscore prefix for convention)
         self._action_handlers: Dict[str, Any] = {}
         self._perception_handlers: Dict[str, Any] = {}
@@ -554,16 +557,18 @@ class ActiveInferenceAgent(BaseAgent):
         Update agent beliefs based on perception data.
 
         Uses active inference principles to update the generative model's
-        beliefs about hidden states given new observations.
+        beliefs about hidden states given new observations.  Handles empty
+        or None perception gracefully and is safe to call before
+        ``initialize()`` (no-op when state is not yet created).
 
         Args:
             perception: Dictionary of observation data from the perceive step
         """
-        if not perception:
+        if not perception or self.state is None:
             return
 
-        # Convert perception to observation vector for the generative model
-        obs_values = []
+        # Convert numeric perception values to an observation vector.
+        obs_values: List[float] = []
         for key in sorted(perception.keys()):
             val = perception[key]
             if isinstance(val, (int, float)):
@@ -574,12 +579,11 @@ class ActiveInferenceAgent(BaseAgent):
                     if isinstance(sub_val, (int, float)):
                         obs_values.append(float(sub_val))
 
-        if obs_values and self.state is not None:
+        if obs_values:
             obs_array = np.array(obs_values[:self.state.observation_dimensions])
-            # Update the active inference state with new observation
             self.state.update_with_observation(obs_array)
 
-        # Store perception keys as beliefs
+        # Store all perception keys as named beliefs.
         for key, value in perception.items():
             self.state.update_belief(key, value)
 
@@ -689,28 +693,41 @@ class ActiveInferenceAgent(BaseAgent):
     async def act(self, action: Dict[str, Any]) -> Dict[str, Any]:
         """
         Execute an action.
-        
+
+        Dispatches to the registered handler for the action's ``action_type``.
+        If no handler is registered, returns a default success result so that
+        the perception-decision-action loop can continue uninterrupted.
+
         Args:
             action: Action to execute
-            
+
         Returns:
             Result of the action
         """
         action_type = action.get("action_type", "")
         action_id = action.get("action_id", "")
-        
+
         logger.info(f"Agent {self.id} executing action: {action_type} - {action_id}")
-        
-        # Dispatch to appropriate handler
-        result = await super().act(action)
-        
+
+        handler = self._action_handlers.get(action_type)
+        if handler:
+            result = await handler(self, action)
+        else:
+            logger.debug(f"Agent {self.id}: no handler for action_type '{action_type}', using default")
+            result = {
+                "status": "success",
+                "action_id": action_id,
+                "message": f"No handler registered for action_type '{action_type}'",
+                "reward": 0.0,
+            }
+
         # Extract reward if available
         reward = result.get("reward", 0.0)
-        
+
         # Update model with action results if action contained index
         if "parameters" in action and "index" in action["parameters"]:
             self.state.record_action(action["parameters"]["index"], reward=reward)
-        
+
         return result
     
     async def shutdown(self) -> None:

@@ -14,6 +14,7 @@ Tests cover:
 - System-level emergent behaviors
 """
 
+import os
 import pytest
 import numpy as np
 import asyncio
@@ -215,13 +216,13 @@ class TestCrossModuleIntegration:
             indexer = SpatialIndexingInterface(backend='h3')
 
             # Test coordinate conversion
-            cell_id = indexer.latlng_to_cell(37.7749, -122.4194, 'h3_r8')
+            cell_id = indexer.latlng_to_cell(37.7749, -122.4194, 8)
             assert cell_id is not None
 
             # Test with swarm positions
             positions = np.random.uniform(-10, 10, (20, 2))
             for pos in positions:
-                cell = indexer.latlng_to_cell(pos[0], pos[1], 'h3_r8')
+                cell = indexer.latlng_to_cell(pos[0], pos[1], 8)
                 assert cell is not None
 
         except ImportError:

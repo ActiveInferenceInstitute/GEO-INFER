@@ -8,6 +8,7 @@ including hazard identification, vulnerability assessment, and exposure calculat
 import numpy as np
 import geopandas as gpd
 import logging
+from abc import ABC, abstractmethod
 from typing import Dict, List, Optional, Tuple, Union
 from dataclasses import dataclass
 
@@ -131,12 +132,12 @@ class RiskModel:
         return result
 
 
-class HazardModel:
+class HazardModel(ABC):
     """Base class for modeling hazard probability in geographic areas."""
-    
+
     def __init__(self, hazard_type: str, return_period: int = 100):
         """Initialize a hazard model.
-        
+
         Args:
             hazard_type: Type of hazard (flood, earthquake, wildfire, etc.)
             return_period: Return period in years for hazard probability
@@ -144,85 +145,91 @@ class HazardModel:
         self.hazard_type = hazard_type
         self.return_period = return_period
         logger.info("HazardModel initialized: type=%s, return_period=%d", hazard_type, return_period)
-    
+
+    @abstractmethod
     def calculate(self, geometry: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """Calculate hazard probability for given areas.
-        
+
         Args:
             geometry: Geographic areas to assess
-            
+
         Returns:
             GeoDataFrame with hazard probabilities
         """
         raise NotImplementedError("Subclasses must implement this method")
-    
+
+    @abstractmethod
     def sample(self) -> np.ndarray:
         """Generate a random sample from the hazard model for Monte Carlo simulation.
-        
+
         Returns:
             Array of sampled hazard values
         """
         raise NotImplementedError("Subclasses must implement this method")
 
 
-class VulnerabilityModel:
+class VulnerabilityModel(ABC):
     """Base class for modeling vulnerability of assets or populations."""
-    
+
     def __init__(self, vulnerability_factors: List[str]):
         """Initialize a vulnerability model.
-        
+
         Args:
             vulnerability_factors: List of factors that contribute to vulnerability
         """
         self.vulnerability_factors = vulnerability_factors
         logger.info("VulnerabilityModel initialized: %d factors", len(vulnerability_factors))
-    
+
+    @abstractmethod
     def calculate(self, geometry: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """Calculate vulnerability indices for given areas.
-        
+
         Args:
             geometry: Geographic areas to assess
-            
+
         Returns:
             GeoDataFrame with vulnerability indices
         """
         raise NotImplementedError("Subclasses must implement this method")
-    
+
+    @abstractmethod
     def sample(self) -> np.ndarray:
         """Generate a random sample from the vulnerability model for Monte Carlo simulation.
-        
+
         Returns:
             Array of sampled vulnerability values
         """
         raise NotImplementedError("Subclasses must implement this method")
 
 
-class ExposureModel:
+class ExposureModel(ABC):
     """Base class for modeling exposure (assets, population, etc.)."""
-    
+
     def __init__(self, exposure_type: str):
         """Initialize an exposure model.
-        
+
         Args:
             exposure_type: Type of exposure (buildings, population, infrastructure, etc.)
         """
         self.exposure_type = exposure_type
         logger.info("ExposureModel initialized: type=%s", exposure_type)
-    
+
+    @abstractmethod
     def calculate(self, geometry: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
         """Calculate exposure values for given areas.
-        
+
         Args:
             geometry: Geographic areas to assess
-            
+
         Returns:
             GeoDataFrame with exposure values
         """
         raise NotImplementedError("Subclasses must implement this method")
-    
+
+    @abstractmethod
     def sample(self) -> np.ndarray:
         """Generate a random sample from the exposure model for Monte Carlo simulation.
-        
+
         Returns:
             Array of sampled exposure values
         """

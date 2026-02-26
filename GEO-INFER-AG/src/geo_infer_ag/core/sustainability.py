@@ -332,7 +332,24 @@ class SustainabilityAssessment:
                     ).combine_first(result_data)
                 except Exception:
                     logger.warning("Spatial join of soil data failed; proceeding without soil overlay")
-                
+
+        # Auto-detect column names from merged data when not explicitly provided
+        if organic_matter_column is None:
+            for candidate in ["organic_matter", "om", "soc", "soil_organic_carbon"]:
+                if candidate in result_data.columns:
+                    organic_matter_column = candidate
+                    break
+        if ph_column is None:
+            for candidate in ["ph", "ph_value", "soil_ph"]:
+                if candidate in result_data.columns:
+                    ph_column = candidate
+                    break
+        if erosion_column is None:
+            for candidate in ["erosion", "erosion_rate", "soil_loss"]:
+                if candidate in result_data.columns:
+                    erosion_column = candidate
+                    break
+
         # Management practice modifiers for soil health
         practice_modifiers = {
             "no_till": 1.3,
@@ -645,6 +662,10 @@ class SustainabilityAssessment:
                     water_data["water_efficiency"] * 10, 0, 10
                 )
                 available_metrics.append("water_usage")
+            elif "water_requirement_mm" in water_data.columns:
+                # Fallback score when water efficiency data is unavailable
+                water_data["water_score"] = np.full(len(water_data), 5.0)
+                available_metrics.append("water_usage")
         
         if "soil_health" in self.metrics:
             soil_data = self.metrics["soil_health"]["field_data"]
@@ -707,7 +728,7 @@ class SustainabilityAssessment:
             
         if "biodiversity" in available_metrics:
             result_data["sustainability_index"] += (
-                result_data["biodiv_score"] * 
+                result_data["biodiversity_score"] *
                 final_weights["biodiversity"]
             )
         
@@ -778,9 +799,18 @@ class SustainabilityAssessment:
         """
         if metric_type == 'sustainability_index' and 'sustainability_index' not in self.metrics:
             raise ValueError("Sustainability index not calculated. Run calculate_sustainability_index first")
-            
-        if metric_type != 'sustainability_index' and metric_type not in self.metrics:
-            raise ValueError(f"Metric {metric_type} not found in calculated metrics")
+
+        # Map short metric_type names to actual self.metrics keys
+        _metric_key_map = {
+            'carbon': 'carbon_sequestration',
+            'water': 'water_usage',
+            'soil': 'soil_health',
+            'biodiversity': 'biodiversity',
+        }
+        if metric_type != 'sustainability_index':
+            full_key = _metric_key_map.get(metric_type, metric_type)
+            if full_key not in self.metrics:
+                raise ValueError(f"Metric {metric_type} not found in calculated metrics")
         
         # Get data for plotting
         if metric_type == 'sustainability_index':
@@ -826,5 +856,11 @@ class SustainabilityAssessment:
         
         ax.set_title(title)
         ax.set_axis_off()
-        
-        return ax 
+
+        # Ensure a matplotlib Legend object is present.
+        # geopandas plot(legend=True) with continuous data creates a colorbar
+        # (ScalarMappable), not a Legend; explicitly call legend() if needed.
+        if ax.get_legend() is None:
+            ax.legend()
+
+        return ax

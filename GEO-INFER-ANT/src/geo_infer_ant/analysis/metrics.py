@@ -123,6 +123,10 @@ class SwarmPerformanceMetrics:
         }
 
         try:
+            # Skip evaluation if no data provided
+            if not swarm_behavior and not task_objectives:
+                return assessment
+
             # Evaluate each performance criterion
             for criterion in self.config.evaluation_criteria:
                 if criterion == 'efficiency':
@@ -594,13 +598,13 @@ class SwarmPerformanceMetrics:
                 effectiveness['success_rate'] = np.mean(success_rates)
                 effectiveness['performance_restoration'] = np.mean(performance_restoration)
 
-                # Overall effectiveness combines factors
+                # Overall effectiveness combines factors (all terms capped at their weight)
                 weights = {'recovery_time': 0.3, 'success_rate': 0.4, 'performance_restoration': 0.3}
-                effectiveness['overall_effectiveness'] = (
-                    (60.0 / effectiveness['avg_recovery_time']) * weights['recovery_time'] +  # Faster is better
+                effectiveness['overall_effectiveness'] = min(1.0, (
+                    min(1.0, 60.0 / effectiveness['avg_recovery_time']) * weights['recovery_time'] +  # Faster is better
                     effectiveness['success_rate'] * weights['success_rate'] +
                     effectiveness['performance_restoration'] * weights['performance_restoration']
-                )
+                ))
 
         except Exception as e:
             logger.warning(f"Recovery mechanism evaluation failed: {e}")
@@ -720,7 +724,7 @@ class SwarmPerformanceMetrics:
         meets_memory = config_result['resource_utilization']['memory'] <= 1.0
         meets_performance = config_result['performance_score'] >= performance_requirements.get('min_performance', 0.7)
 
-        config_result['meets_requirements'] = meets_cpu and meets_memory and meets_performance
+        config_result['meets_requirements'] = bool(meets_cpu and meets_memory and meets_performance)
 
         # Identify bottlenecks
         if not meets_cpu:

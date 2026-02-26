@@ -289,129 +289,101 @@ class TestActiveInferenceState(unittest.TestCase):
         self.assertEqual(len(new_state.action_history), len(self.state.action_history))
 
 
-class TestActiveInferenceAgent(unittest.TestCase):
+class TestActiveInferenceAgent:
     """Test cases for the ActiveInferenceAgent class."""
-    
-    def setUp(self):
-        """Set up test fixtures."""
-        self.agent_id = "test_agent"
-        self.config = {
-            "state_dimensions": 3,
-            "observation_dimensions": 4,
-            "control_dimensions": 2,
-            "learning_rate": 0.1
-        }
-        self.agent = ActiveInferenceAgent(agent_id=self.agent_id, config=self.config)
-    
+
+    AGENT_ID = "test_agent"
+    CONFIG = {
+        "state_dimensions": 3,
+        "observation_dimensions": 4,
+        "control_dimensions": 2,
+        "learning_rate": 0.1,
+    }
+
+    def setup_method(self):
+        """Set up a fresh agent before each test."""
+        self.agent = ActiveInferenceAgent(agent_id=self.AGENT_ID, config=dict(self.CONFIG))
+
     def test_initialization(self):
-        """Test if the agent initializes with correct parameters."""
-        self.assertEqual(self.agent.agent_id, self.agent_id)
-        self.assertEqual(self.agent.config["state_dimensions"], self.config["state_dimensions"])
-        self.assertEqual(self.agent.config["observation_dimensions"], self.config["observation_dimensions"])
-        self.assertEqual(self.agent.config["control_dimensions"], self.config["control_dimensions"])
-        
-        # State should not be initialized until initialize() is called
-        self.assertIsNone(self.agent.state)
-    
+        """Agent initializes with correct parameters; state is None until initialize()."""
+        assert self.agent.agent_id == self.AGENT_ID
+        assert self.agent.config["state_dimensions"] == self.CONFIG["state_dimensions"]
+        assert self.agent.config["observation_dimensions"] == self.CONFIG["observation_dimensions"]
+        assert self.agent.config["control_dimensions"] == self.CONFIG["control_dimensions"]
+        assert self.agent.state is None
+
     async def test_initialize(self):
-        """Test agent initialization."""
+        """After initialize(), state is created and handlers are registered."""
         await self.agent.initialize()
-        
-        # State should be initialized
-        self.assertIsNotNone(self.agent.state)
-        self.assertIsInstance(self.agent.state, ActiveInferenceState)
-        
-        # Handlers should be registered
-        self.assertTrue(len(self.agent._action_handlers) > 0)
-        self.assertTrue(len(self.agent._perception_handlers) > 0)
-    
+
+        assert self.agent.state is not None
+        assert isinstance(self.agent.state, ActiveInferenceState)
+        assert len(self.agent._action_handlers) > 0
+        assert len(self.agent._perception_handlers) > 0
+
     async def test_perception_cycle(self):
-        """Test the perception cycle using real perceive method."""
-        # Initialize agent
+        """perceive() returns a dict (empty when no sensors registered)."""
         await self.agent.initialize()
-
-        # Real perceive call — returns empty dict when no sensors registered
         observations = await self.agent.perceive()
-
-        # Check observations is a dict (empty since no sensors)
-        self.assertIsInstance(observations, dict)
+        assert isinstance(observations, dict)
 
     async def test_decision_cycle(self):
-        """Test the decision cycle using real select_action."""
-        # Initialize agent
+        """decide() returns an action dict with an action_type key."""
         await self.agent.initialize()
-
-        # Feed an observation to set beliefs before deciding
         obs = np.array([0.1, 0.2, 0.3, 0.4])
         self.agent.state.update_with_observation(obs)
 
-        # Run real decision
         action = await self.agent.decide()
-
-        # Check action
-        self.assertIsNotNone(action)
-        self.assertIn('type', action)
+        assert action is not None
+        assert "action_type" in action
 
     async def test_action_cycle(self):
-        """Test the action cycle."""
-        # Initialize agent
+        """act() dispatches a wait action and returns a result with status."""
         await self.agent.initialize()
-
-        # Define test action
-        test_action = {"type": "wait", "duration": 1.0}
-
-        # Run action
+        # Use the action format produced by decide() / expected by act()
+        test_action = {
+            "action_type": "wait",
+            "action_id": "test_wait",
+            "parameters": {"duration": 0.01},
+        }
         result = await self.agent.act(test_action)
-
-        # Check result
-        self.assertIsNotNone(result)
-        self.assertIn('status', result)
+        assert result is not None
+        assert "status" in result
 
     async def test_full_cycle(self):
-        """Test a full perception-decision-action cycle with real methods."""
-        # Initialize agent
+        """Full perception→decision→action cycle completes without error."""
         await self.agent.initialize()
 
-        # Run real perception
         observations = await self.agent.perceive()
-        self.assertIsInstance(observations, dict)
+        assert isinstance(observations, dict)
 
-        # Feed an observation so the agent has beliefs for decisions
         obs = np.array([0.1, 0.2, 0.3, 0.4])
         self.agent.state.update_with_observation(obs)
 
-        # Run real decision
         action = await self.agent.decide()
-        self.assertIsNotNone(action)
-        self.assertIn('type', action)
+        assert action is not None
+        assert "action_type" in action
 
-        # Run real action
         result = await self.agent.act(action)
-        self.assertIsNotNone(result)
-        self.assertIn('status', result)
-    
+        assert result is not None
+        assert "status" in result
+
     async def test_action_handlers(self):
-        """Test action handlers."""
-        # Initialize agent
+        """_handle_wait_action returns status='success'."""
         await self.agent.initialize()
-        
-        # Test the wait action handler
-        wait_action = {"type": "wait", "duration": 0.1}
+        wait_action = {
+            "action_type": "wait",
+            "action_id": "test",
+            "parameters": {"duration": 0.01},
+        }
         result = await self.agent._handle_wait_action(self.agent, wait_action)
-        
-        # Check result
-        self.assertIn('status', result)
-        self.assertEqual(result['status'], 'success')
-    
+        assert "status" in result
+        assert result["status"] == "success"
+
     async def test_shutdown(self):
-        """Test agent shutdown."""
-        # Initialize agent
+        """shutdown() completes without error after initialization."""
         await self.agent.initialize()
-        
-        # Shutdown
         await self.agent.shutdown()
-        
-        # Additional assertions could be added if shutdown does more
 
 
 if __name__ == '__main__':
