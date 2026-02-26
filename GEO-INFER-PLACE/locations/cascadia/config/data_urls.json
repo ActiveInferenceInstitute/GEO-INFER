@@ -124,6 +124,48 @@
   "improvements": {
     "ms_footprints_url": "https://usbuildingfootprints.blob.core.windows.net/footprints/California.json"
   },
+  "wdfw_salmon": {
+    "name": "Washington Dept of Fish and Wildlife - Salmon Data",
+    "url": "https://geodataservices.wdfw.wa.gov/",
+    "description": "WDFW geospatial data services including salmon distribution",
+    "format": "REST/GeoJSON"
+  },
+  "odfw_salmon": {
+    "name": "Oregon Dept of Fish and Wildlife - Oregon Explorer",
+    "url": "https://www.oregonexplorer.info/",
+    "description": "ODFW salmon and wildlife habitat data",
+    "format": "REST/GeoJSON"
+  },
+  "noaa_nmfs_species": {
+    "name": "NOAA NMFS ESA Species",
+    "url": "https://www.fisheries.noaa.gov/species/",
+    "description": "NOAA Fisheries ESA-listed Pacific salmonids data",
+    "format": "HTML/JSON"
+  },
+  "usgs_streamstats": {
+    "name": "USGS StreamStats",
+    "url": "https://streamstats.usgs.gov/ss/",
+    "description": "USGS watershed statistics and flow data",
+    "format": "REST/JSON"
+  },
+  "wa_ecology_gis": {
+    "name": "Washington Ecology GIS",
+    "url": "https://ecology.wa.gov/",
+    "description": "Washington State Department of Ecology GIS data",
+    "format": "GeoJSON/Shapefile"
+  },
+  "or_dlcd": {
+    "name": "Oregon DLCD Statewide Zoning",
+    "url": "https://www.oregon.gov/lcd/pages/index.aspx",
+    "description": "Oregon Department of Land Conservation and Development zoning data",
+    "format": "Shapefile/GeoJSON"
+  },
+  "bc_databc": {
+    "name": "BC DataBC",
+    "url": "https://data.gov.bc.ca/",
+    "description": "British Columbia open data portal including environmental and land data",
+    "format": "REST/GeoJSON/Shapefile"
+  },
   "fallback_sources": {
     "parcelquest": {
       "name": "ParcelQuest API",

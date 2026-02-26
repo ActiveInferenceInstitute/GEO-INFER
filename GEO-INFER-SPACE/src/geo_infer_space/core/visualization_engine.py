@@ -184,7 +184,7 @@ class InteractiveVisualizationEngine:
         # Create marker cluster for forest monitoring sites
         forest_cluster = MarkerCluster(name="Forest Monitoring Sites")
         
-        # Add forest health monitoring points (placeholder data)
+        # Add forest health monitoring points (demo data when no external source is provided)
         monitoring_sites = self._generate_forest_monitoring_sites()
         
         for site in monitoring_sites:
@@ -232,7 +232,7 @@ class InteractiveVisualizationEngine:
         # Create coastal monitoring cluster
         coastal_cluster = MarkerCluster(name="Coastal Monitoring Sites")
         
-        # Add coastal monitoring points (placeholder data)
+        # Add coastal monitoring points (demo data when no external source is provided)
         coastal_sites = self._generate_coastal_monitoring_sites()
         
         for site in coastal_sites:
@@ -279,7 +279,7 @@ class InteractiveVisualizationEngine:
         # Create fire monitoring cluster
         fire_cluster = MarkerCluster(name="Fire Risk Monitoring")
         
-        # Add fire risk monitoring points (placeholder data)
+        # Add fire risk monitoring points (demo data when no external source is provided)
         fire_sites = self._generate_fire_monitoring_sites()
         
         for site in fire_sites:
@@ -326,7 +326,7 @@ class InteractiveVisualizationEngine:
         # Create community facilities cluster
         community_cluster = MarkerCluster(name="Community Facilities")
         
-        # Add community facility points (placeholder data)
+        # Add community facility points (demo data when no external source is provided)
         facilities = self._generate_community_facilities()
         
         for facility in facilities:

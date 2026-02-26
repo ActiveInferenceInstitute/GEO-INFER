@@ -4,7 +4,7 @@ description: "Active Inference implementation using Free Energy Principle for ge
 purpose: "Provide the core Active Inference framework for perception, action, and learning"
 module_type: "Core Framework"
 status: "Beta"
-last_updated: "2026-02-24"
+last_updated: "2026-02-25"
 dependencies: ["BAYES", "SPACE", "TIME"]
 compatibility: ["GEO-INFER-BAYES", "GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-AGENT"]
 tags: ["active-inference", "free-energy", "perception", "action", "learning"]
@@ -16,7 +16,8 @@ estimated_time: "60"
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a>
+  <a href="./docs/">📚 Documentation</a> •
+  <a href="./SKILL.md">🧠 Claude Skill</a>
 </div>
 
 ---
@@ -63,32 +64,29 @@ graph LR
 ```python
 from geo_infer_act import GenerativeModel
 
-# Define generative model
+# Define generative model with state/observation dimensions
 model = GenerativeModel(
-    hidden_states=["location", "weather", "activity"],
-    observations=["gps", "temperature", "movement"],
-    actions=["move_north", "move_south", "stay"]
+    model_type="categorical",
+    parameters={
+        "n_states": 3,
+        "n_observations": 3,
+        "n_actions": 3,
+    },
+    model_id="spatial_model"
 )
 
-# Set transition dynamics
-model.set_transition_matrix(A=likelihood_matrix)
-model.set_transition_matrix(B=transition_matrix)
-
-# Set prior preferences
-model.set_preferences(C=preference_vector)
+# Update beliefs from observations
+updated = model.update_beliefs({"obs": observation_data})
 ```
 
 ### Active Inference Agent
 
 ```python
-from geo_infer_act import ActiveInferenceAgent
+from geo_infer_act import ActiveInferenceModel
 
-# Create agent
-agent = ActiveInferenceAgent(
-    generative_model=model,
-    learning_rate=0.1,
-    planning_horizon=5
-)
+# Create an active inference agent
+agent = ActiveInferenceModel(model_type="categorical")
+agent.set_generative_model(model)
 
 # Perception: update beliefs from observation
 agent.perceive(observation)
@@ -96,8 +94,8 @@ agent.perceive(observation)
 # Action: select action minimizing expected free energy
 action = agent.act()
 
-# Learning: update model parameters
-agent.learn()
+# Complete perception-action step
+beliefs, action = agent.step(observation)
 ```
 
 ### Free Energy Computation
@@ -108,17 +106,17 @@ from geo_infer_act import FreeEnergyCalculator
 # Calculate variational free energy
 fe_calc = FreeEnergyCalculator()
 
-# Variational free energy (perception)
-vfe = fe_calc.variational_free_energy(
-    observation=obs,
+# Categorical free energy (perception)
+vfe = fe_calc.compute_categorical_free_energy(
     beliefs=posterior,
-    generative_model=model
+    observations=obs,
+    preferences=preferences
 )
 
-# Expected free energy (action selection)
-efe = fe_calc.expected_free_energy(
-    policy=candidate_policy,
+# Expected free energy (action/policy selection)
+efe = fe_calc.compute_expected_free_energy(
     beliefs=posterior,
+    policy=candidate_policy,
     preferences=preferences
 )
 ```
@@ -128,21 +126,20 @@ efe = fe_calc.expected_free_energy(
 ```python
 from geo_infer_act import SpatialActiveInferenceAgent
 
-# Agent with spatial awareness
+# Create agent on H3 hexagonal grid
 spatial_agent = SpatialActiveInferenceAgent(
-    spatial_model=h3_grid_model,
-    resolution=9,
-    planning_horizon=10
+    h3_resolution=9,
+    state_dim=4,
+    obs_dim=4,
+    diffusion_rate=0.1
 )
 
-# Navigate to goal
-spatial_agent.set_goal(destination_cell)
-
-while not spatial_agent.at_goal():
-    observation = environment.observe()
-    spatial_agent.perceive(observation)
-    action = spatial_agent.act()
-    environment.step(action)
+# Run perception-action loop
+for _ in range(100):
+    observations = get_spatial_observations()  # Dict[cell_id -> np.ndarray]
+    result = spatial_agent.step(observations)
+    print(f"Free energy: {result['free_energy']:.3f}")
+    print(f"Action: {result['action']['action']}")
 ```
 
 ## Core Components
@@ -200,36 +197,36 @@ uv pip install -e "./GEO-INFER-ACT[viz]"
 
 ## Use Cases
 
-### Environmental Monitoring Agent
+### Environmental Active Inference
 
 ```python
-from geo_infer_act import EnvironmentalMonitorAgent
+from geo_infer_act.utils.geospatial_ai import EnvironmentalActiveInferenceEngine
 
-# Agent that actively seeks information
-monitor = EnvironmentalMonitorAgent(
-    sensors=["air_quality", "temperature"],
-    coverage_goal=study_area
+# Engine for environmental modeling on H3 grid
+engine = EnvironmentalActiveInferenceEngine(
+    h3_resolution=8,
+    environmental_variables=["temperature", "humidity", "vegetation_density"],
+    prediction_horizon=10
 )
 
-# Agent autonomously navigates to reduce uncertainty
-monitor.run(max_steps=1000)
-print(f"Coverage: {monitor.coverage}%")
-print(f"Uncertainty reduced: {monitor.uncertainty_reduction}%")
+# Update beliefs from observations
+engine.observe_environment(observations, timestamp=1.0)
+predictions = engine.predict_environmental_dynamics(forecast_timesteps=5)
 ```
 
-### Resource Foraging Agent
+### Ecological Niche Modeling
 
 ```python
-from geo_infer_act import ForagingAgent
+from geo_infer_act.models.ecological import EcologicalModel
 
-# Agent that balances exploration and exploitation
-forager = ForagingAgent(
-    resource_model=resource_prior,
-    exploration_weight=0.3
-)
+# Organism adapting to ecological niche via Active Inference
+model = EcologicalModel()
 
-# Run foraging behavior
-resources = forager.forage(environment, time_steps=500)
+# Run simulation steps with observations [food_idx, threat_idx]
+for step in range(100):
+    result = model.step(observation=[food_obs, threat_obs])
+    print(f"Beliefs: {result['beliefs']}")
+    print(f"Action: {result['action']}")
 ```
 
 ## Related Documentation
@@ -242,4 +239,16 @@ resources = forager.forage(environment, time_steps=500)
 
 **Status**: Beta - Core functionality stable
 
-**Last Updated**: 2026-02-24
+**Last Updated**: 2026-02-25
+
+## Documentation Hub
+
+Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
+
+| Resource | Description |
+|----------|-------------|
+| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
+| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
+| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
+| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
+| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |

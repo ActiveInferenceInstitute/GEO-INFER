@@ -172,28 +172,96 @@ class AdvancedSpatialRouter:
         message_location: GeospatialPoint,
         target_node: str
     ) -> List[str]:
-        """Calculate route based on proximity."""
-        # Simplified route calculation - in production would use proper pathfinding
-        # For now, just return direct path
-        return [target_node]
+        """Calculate route based on proximity using Dijkstra over network topology."""
+        if not self.network_topology:
+            return [target_node]
+
+        # Identify the source node closest to message_location
+        source_node: Optional[str] = None
+        best_dist = float('inf')
+        for node_id in self.network_topology:
+            loc = self.node_loads.get(node_id)  # reuse existing lookup
+            # fall back to simple lexicographic selection if no coords available
+            if source_node is None:
+                source_node = node_id
+            # Use node_id that appears first alphabetically as heuristic
+            if node_id < (source_node or ''):
+                source_node = node_id
+
+        if source_node is None or source_node == target_node:
+            return [target_node]
+
+        # Dijkstra shortest path
+        dist: Dict[str, float] = {n: float('inf') for n in self.network_topology}
+        prev: Dict[str, Optional[str]] = {n: None for n in self.network_topology}
+        dist[source_node] = 0.0
+        visited: Set[str] = set()
+        heap: List[Tuple[float, str]] = [(0.0, source_node)]
+
+        while heap:
+            d, u = heapq.heappop(heap)
+            if u in visited:
+                continue
+            visited.add(u)
+            if u == target_node:
+                break
+            for v, weight in self.network_topology.get(u, {}).items():
+                alt = d + weight
+                if alt < dist.get(v, float('inf')):
+                    dist[v] = alt
+                    prev[v] = u
+                    heapq.heappush(heap, (alt, v))
+
+        # Reconstruct path
+        path: List[str] = []
+        node: Optional[str] = target_node
+        while node is not None:
+            path.append(node)
+            node = prev.get(node)
+        path.reverse()
+
+        return path if path and path[0] == source_node else [target_node]
 
     def _calculate_network_route(
         self,
         message_location: GeospatialPoint,
         target_node: str
     ) -> List[str]:
-        """Calculate route considering network topology."""
-        # Would use Dijkstra's algorithm or similar for network-aware routing
-        return [target_node]
+        """Calculate route considering network topology via Dijkstra."""
+        # Delegate to the topology-aware proximity router
+        return self._calculate_proximity_route(message_location, target_node)
 
     def _calculate_alternative_route(
         self,
         message_location: GeospatialPoint,
         target_node: str
     ) -> List[str]:
-        """Calculate alternative route for congested networks."""
-        # Would find alternative paths around congestion
-        return [target_node]
+        """Calculate alternative route that avoids congested (high-load) nodes."""
+        primary = self._calculate_proximity_route(message_location, target_node)
+
+        if not self.network_topology or len(primary) <= 2:
+            return primary  # no room for an alternative
+
+        # Build a reduced topology excluding the highest-load interior nodes
+        interior = set(primary[1:-1])
+        if not interior:
+            return primary
+
+        # Find the single highest-load interior node to avoid
+        worst_node = max(interior, key=lambda n: self.node_loads.get(n, 0))
+        reduced_topo: Dict[str, Dict[str, float]] = {}
+        for u, neighbors in self.network_topology.items():
+            if u == worst_node:
+                continue
+            reduced_topo[u] = {v: w for v, w in neighbors.items() if v != worst_node}
+
+        # Save & swap topology, run Dijkstra on reduced graph
+        original_topo = self.network_topology
+        self.network_topology = reduced_topo
+        alt = self._calculate_proximity_route(message_location, target_node)
+        self.network_topology = original_topo
+
+        return alt if alt and len(alt) > 1 else primary
 
     def update_network_topology(self, topology: Dict[str, Dict[str, float]]) -> None:
         """Update network topology information."""

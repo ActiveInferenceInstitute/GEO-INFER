@@ -2,25 +2,27 @@
   "type": "FeatureCollection",
   "name": "ca_del_norte_boundary",
   "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Del Norte County",
-        "state": "CA",
-        "fips_code": "06015",
-        "full_name": "Del Norte County, California"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [[
-          [-124.5, 41.4],
-          [-124.5, 42.0],
-          [-123.5, 42.0],
-          [-123.5, 41.4],
-          [-124.5, 41.4]
-        ]]
-      }
+  "features": [{
+    "type": "Feature",
+    "properties": {
+      "name": "Del Norte County",
+      "state": "CA",
+      "fips_code": "06015",
+      "full_name": "Del Norte County, California",
+      "area_sq_mi": 1008,
+      "population_2020": 27812,
+      "county_seat": "Crescent City",
+      "data_source": "US Census TIGER/Line 2022",
+      "notes": "Coastal county, western boundary follows Pacific Ocean shoreline"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [[
+        [-124.409, 41.464], [-124.409, 41.845], [-124.216, 41.998],
+        [-124.100, 42.009], [-123.883, 42.009], [-123.544, 42.009],
+        [-123.544, 41.784], [-123.636, 41.455], [-123.775, 41.455],
+        [-124.409, 41.464]
+      ]]
     }
-  ]
-} 
+  }]
+}

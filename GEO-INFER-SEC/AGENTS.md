@@ -97,7 +97,7 @@ audit.log(
 
 # Query audit logs
 logs = audit.query(
-    time_range=("2026-01-25", "2026-01-26"),
+    time_range=("2026-02-24", "2026-02-25"),
     subject="agent_001")
 ```
 
@@ -186,4 +186,6 @@ class MySecureAgent(SecureAgent):
 
 This AGENTS.md documents how GEO-INFER-SEC provides security capabilities for agents.
 
-**Last Updated**: 2026-02-24
+**Last Updated**: 2026-02-25
+
+**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.

@@ -14,6 +14,11 @@ try:
     from .core.active_inference import ActiveInferenceModel
     from .core.free_energy import FreeEnergyCalculator
     from .core.generative_model import GenerativeModel
+    from .core.belief_updating import BayesianBeliefUpdate
+    from .core.policy_selection import PolicySelector
+    from .core.variational_inference import VariationalInference
+    from .core.dynamic_causal_model import DynamicCausalModel
+    from .core.spatial_agent import SpatialActiveInferenceAgent
     from .models.climate import ClimateModel
     from .utils.integration import IntegrationUtils
     
@@ -21,8 +26,13 @@ try:
         'ActiveInferenceModel',
         'FreeEnergyCalculator', 
         'GenerativeModel',
+        'BayesianBeliefUpdate',
+        'PolicySelector',
+        'VariationalInference',
+        'DynamicCausalModel',
+        'SpatialActiveInferenceAgent',
         'ClimateModel',
-        'IntegrationUtils'
+        'IntegrationUtils',
     ]
 except ImportError as e:
     # If imports fail, provide a minimal interface

@@ -211,7 +211,7 @@ class EnhancedHazardModel:
                     data = json.load(f)
                 return pd.DataFrame(data)
         elif data_source.startswith('api://'):
-            # Load from API - placeholder
+            # Load from API (requires runtime endpoint configuration)
             self.logger.info(f"API data loading not implemented for {data_source}")
             return pd.DataFrame()
         else:

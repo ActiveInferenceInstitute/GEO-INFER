@@ -262,8 +262,8 @@ class InductionProofStrategy(ProofStrategy):
         
         assumptions = assumptions or []
         
-        # Try to identify induction variable
-        # This is a placeholder - real implementation would parse theorem
+        # Induction requires parsing the theorem string to extract a base case
+        # and inductive step; this needs an AST or formal-language front-end
         
         return ProofResult(
             status=ProofStatus.UNKNOWN,

@@ -4,7 +4,7 @@ description: "Foundational data backbone providing ETL pipelines, storage optimi
 purpose: "Ensure reliable, timely access to high-quality, analysis-ready geospatial data for all GEO-INFER components"
 module_type: "Data Management"
 status: "Beta"
-last_updated: "2026-02-24"
+last_updated: "2026-02-25"
 dependencies: ["OPS", "SEC"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-AI", "GEO-INFER-APP"]
 tags: ["data", "etl", "storage", "quality", "pipeline", "warehouse"]
@@ -16,7 +16,8 @@ estimated_time: "60"
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a>
+  <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a> •
+  <a href="./SKILL.md">🧠 Claude Skill</a>
 </div>
 
 ---
@@ -673,6 +674,18 @@ Contributions are highly valued. Areas include:
 -   Adding support for new geospatial data formats or standards.
 
 Follow the contribution guidelines in the main GEO-INFER documentation (`CONTRIBUTING.md`) and any specific guidelines in `GEO-INFER-DATA/docs/CONTRIBUTING_DATA.md` (to be created).
+
+## Documentation Hub
+
+Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
+
+| Resource | Description |
+|----------|-------------|
+| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
+| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
+| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
+| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
+| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |
 
 ## License
 

@@ -211,3 +211,5 @@ AI supports distributed learning across agent populations:
 ---
 
 This AGENTS.md file documents how the GEO-INFER-AI module provides AI/ML capabilities for intelligent agents across the GEO-INFER framework.
+
+**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.

@@ -92,6 +92,44 @@ class RepositoryMonitorAgent:
 | **TestGeneratorAgent** | 🔮 Medium | Automatic test generation |
 | **DocumentationAgent** | 🔮 High | Auto-documentation from code |
 
+## Framework v0.2.0 Capabilities
+
+| Capability | Status | Module |
+|-----------|--------|--------|
+| **44 Modules** | ✅ Complete | All |
+| **Zero-Mock Policy** | ✅ Enforced | All |
+| **H3 v4 Migration** | ✅ Complete | SPACE, PLACE |
+| **Statistical Parametric Mapping** | 🔄 Alpha | GEO-INFER-SPM |
+| **Cross-Module Examples** | ✅ Beta | GEO-INFER-EXAMPLES |
+
+### GEO-INFER-SPM Integration
+
+```python
+from geo_infer_spm import SpatialParametricMapper
+
+class SPMAgent:
+    def __init__(self):
+        self.mapper = SpatialParametricMapper()
+
+    def analyze_spatial_pattern(self, data):
+        """Apply statistical parametric mapping to spatial data."""
+        return self.mapper.fit_glm(data)
+```
+
+### GEO-INFER-EXAMPLES Integration
+
+```python
+from geo_infer_examples.core.module_orchestrator import ModuleOrchestrator
+
+class IntegrationAgent:
+    def __init__(self):
+        self.orchestrator = ModuleOrchestrator()
+
+    def run_cross_module_workflow(self, workflow_name):
+        """Coordinate cross-module analysis workflows."""
+        return self.orchestrator.execute(workflow_name)
+```
+
 ## Integration with Agent Framework
 
 ```mermaid
@@ -106,14 +144,18 @@ graph TD
         AGENT[GEO-INFER-AGENT]
         ACT[GEO-INFER-ACT]
         ANT[GEO-INFER-ANT]
+        SPM[GEO-INFER-SPM]
+        EXAMPLES[GEO-INFER-EXAMPLES]
     end
-    
+
     CONFIG --> AGENT
     CONFIG --> ACT
     CONFIG --> ANT
+    CONFIG --> SPM
     TEST --> AGENT
     TEST --> ACT
     TEST --> ANT
+    TEST --> EXAMPLES
     ASSESS --> AGENT```
 
 ## Use Cases
@@ -157,4 +199,6 @@ def ci_quality_check():
 
 This AGENTS.md documents how GEO-INFER-INTRA provides infrastructure support for all agent operations in the framework.
 
-**Last Updated**: 2026-02-24
+**Last Updated**: 2026-02-25
+
+**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.

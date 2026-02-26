@@ -206,8 +206,8 @@ class EconomicDataLoader:
         return data
 
     def _load_from_web_service(self, config: DataSourceConfig) -> pd.DataFrame:
-        """Load data from a web service (placeholder for more complex services)."""
-        # This could be extended for services like World Bank API, OECD, etc.
+        """Load data from a web service (World Bank, OECD, etc.) via HTTP API."""
+        # Delegates to _load_from_api; extend for service-specific response parsing
         return self._load_from_api(config)
 
     def _apply_filters(self, data: pd.DataFrame, filters: Dict[str, Any]) -> pd.DataFrame:
@@ -510,7 +510,8 @@ def example_data_loading():
     """
     Example usage of the EconomicDataLoader
     """
-    print("=== Economic Data Loading Example ===")
+    _log = logging.getLogger(__name__)
+    _log.info("=== Economic Data Loading Example ===")
 
     # Initialize loader
     loader = EconomicDataLoader()
@@ -537,10 +538,10 @@ def example_data_loading():
     # Load and validate data
     try:
         gdp_data = loader.load_economic_data("regional_gdp")
-        print(f"Loaded GDP data: {len(gdp_data)} rows, {len(gdp_data.columns)} columns")
+        _log.info("Loaded GDP data: %d rows, %d columns", len(gdp_data), len(gdp_data.columns))
 
         employment_data = loader.load_economic_data("employment_data")
-        print(f"Loaded employment data: {len(employment_data)} rows, {len(employment_data.columns)} columns")
+        _log.info("Loaded employment data: %d rows, %d columns", len(employment_data), len(employment_data.columns))
 
         # Merge datasets
         merged_data = loader.merge_economic_datasets(
@@ -548,10 +549,10 @@ def example_data_loading():
             merge_keys=['region_id', 'year']
         )
 
-        print(f"Merged data: {len(merged_data)} rows, {len(merged_data.columns)} columns")
+        _log.info("Merged data: %d rows, %d columns", len(merged_data), len(merged_data.columns))
 
     except Exception as e:
-        print(f"Data loading example failed: {e}")
+        _log.error("Data loading example failed: %s", e)
 
     return loader
 

@@ -76,12 +76,13 @@ class ModernToolsIntegration:
             tools['rxinfer'] = False
             logger.debug("RxInfer.jl not available")
         
-        # Check for Bayeux (JAX-based)
+        # Check for Bayeux (JAX-based) - catch broad exceptions due to
+        # jax/tensorflow_probability version incompatibilities that raise AttributeError
         try:
             import bayeux
             tools['bayeux'] = True
             logger.debug("Bayeux available")
-        except ImportError:
+        except Exception:
             tools['bayeux'] = False
             logger.debug("Bayeux not available")
         

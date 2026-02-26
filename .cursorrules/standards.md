@@ -3,80 +3,119 @@
 ## Code Review Checklist
 
 ### Functionality
+
 - [ ] No mock or placeholder methods
-- [ ] All functions fully implemented
-- [ ] Proper error handling throughout
-- [ ] Mathematical correctness validated
-- [ ] Data processing pipelines complete
+- [ ] All functions fully implemented with real logic
+- [ ] Proper error handling (specific exceptions, logging)
+- [ ] Mathematical correctness validated with tests
+- [ ] Data processing pipelines complete and tested
+- [ ] Graceful degradation for optional dependencies
 
 ### Documentation
-- [ ] Comprehensive docstrings for all public APIs
-- [ ] Type hints for all parameters and returns
-- [ ] README updated if needed
-- [ ] Examples provided and tested
-- [ ] Mathematical foundations documented
+
+- [ ] Google-style docstrings for all public APIs
+- [ ] Type hints for all parameters, returns, and attributes
+- [ ] README.md updated if module behaviour changed
+- [ ] AGENTS.md updated if key files or patterns changed
+- [ ] Examples provided and verified to run
+- [ ] Mathematical foundations documented with citations
 - [ ] Language is concise and professional
 
 ### Integration
-- [ ] Follows existing module patterns
-- [ ] Uses standardized data models
-- [ ] Properly handles dependencies
-- [ ] Supports cross-module communication
-- [ ] Respects data flow patterns
+
+- [ ] Follows established module patterns
+- [ ] Uses standardised data models (Pydantic at boundaries)
+- [ ] Properly handles cross-module dependencies
+- [ ] Uses H3 v4 API exclusively for spatial operations
+- [ ] Respects layered architecture (Foundation → Data → Domain → App)
 
 ### Quality
-- [ ] Code is clean, readable, and well-structured
-- [ ] Performance considerations addressed
-- [ ] Security implications considered
-- [ ] Tests provide adequate coverage
-- [ ] Data validation implemented
 
-## Excellence Standards
+- [ ] Code formatted with Black and isort
+- [ ] Passes ruff check with 0 errors
+- [ ] Test coverage ≥80% for modified files
+- [ ] Performance tested with realistic data volumes
+- [ ] Security: no hardcoded secrets, inputs validated
+- [ ] Structured logging (no `print()` statements)
 
-### Demonstrate Deep Understanding
-- Show mastery of Active Inference principles
-- Apply geospatial concepts correctly
-- Use appropriate mathematical methods
-- Consider real-world constraints and limitations
-- Understand data science and analytics workflows
+## Code Formatting
 
-### Exhibit Professional Craftsmanship
-- Write code that reads like literature
-- Create elegant solutions to complex problems
-- Optimize for maintainability and extensibility
-- Anticipate future needs and evolution
-- Build robust, production-ready systems
+```bash
+# Format code
+black .
+isort .
 
-### Maintain System Coherence
-- Ensure new code fits naturally into the existing architecture
-- Preserve the mathematical and conceptual foundations
-- Support the overall framework vision
-- Enhance rather than complicate the system
-- Maintain consistency across modules
+# Lint
+ruff check --fix .
 
-## Framework Status Overview
+# Type check (core modules)
+mypy --strict src/
+```
 
-- **Documentation Quality**: ✅ **COMPREHENSIVE** (Standards established, templates applied to core modules)
-- **Integration Patterns**: ✅ **ESTABLISHED** (Cross-module tutorials created)
-- **Testing Framework**: ✅ **COMPREHENSIVE** (Unified test suite operational)
-- **H3 v4 Migration**: ✅ **FULLY MIGRATED** (SPACE, PLACE modules complete)
-- **Module Maturity**: **MIXED** (Core modules: Beta, Domain modules: Alpha-Planning)
+## Commit Message Conventions
 
-## Current Development Priorities
+```
+<type>(<scope>): <description>
 
-### High Priority Tasks
-1. **Complete Module Template Application**: Apply YAML front matter and standard structure to remaining 30+ modules
-2. **Integration Testing**: Develop comprehensive cross-module integration tests
-3. **Performance Optimization**: Implement performance benchmarks and optimization guidelines
-4. **API Standardization**: Ensure consistent API patterns across all modules
+<body>
+```
 
-### Medium Priority Tasks
-1. **Advanced Integration Guides**: Create domain-specific integration tutorials
-2. **Automated Documentation**: Implement documentation generation and validation scripts
-3. **Quality Assurance**: Expand test coverage and establish CI/CD pipelines
-4. **User Experience**: Improve getting started guides and examples
+| Type | Usage |
+|------|-------|
+| `feat` | New feature |
+| `fix` | Bug fix |
+| `docs` | Documentation only |
+| `refactor` | Code change that neither fixes a bug nor adds a feature |
+| `test` | Adding or correcting tests |
+| `chore` | Build process, tooling, dependencies |
+
+Examples:
+
+- `feat(RISK): implement spatial autocorrelation (Moran's I)`
+- `fix(COMMS): resolve subscriber lookup returning empty list`
+- `docs(AGENT): update AGENTS.md with telemetry patterns`
+
+## Framework Status (2026-02-25)
+
+| Area | Status |
+|------|--------|
+| Documentation Quality | ✅ Standards established, YAML front matter applied |
+| Integration Patterns | ✅ Cross-module tutorials created |
+| Testing Framework | ✅ Unified test suite operational (416 files) |
+| H3 v4 Migration | ✅ Fully migrated (0 legacy calls) |
+| Module Maturity | Mixed — Core: Beta, Domain: Alpha-Beta |
+| Placeholder Count | ~50 remaining (down from 86) |
+
+## Current Priorities
+
+### High Priority
+
+1. Eliminate remaining LOG placeholders (19 across delivery/transport/supply_chain)
+2. Complete RISK exposure model data loaders (6 remaining)
+3. Replace BAYES tfp_interface placeholder
+4. Achieve ≥80% test coverage across all 44 modules
+
+### Medium Priority
+
+1. Mypy strict mode passing in all analytical core modules
+2. Automated documentation generation (Sphinx)
+3. Performance benchmarks for spatial operations
+4. Expand property-based (Hypothesis) tests
+
+## Release Checklist
+
+Before tagging any version release:
+
+- [ ] All tests pass: `uv run python GEO-INFER-TEST/run_unified_tests.py`
+- [ ] 0 placeholder/stub implementations in source code
+- [ ] 0 `pass` stubs (excluding `__init__.py`, `except`, abstract methods)
+- [ ] Black/isort/ruff clean
+- [ ] Coverage ≥80% per module
+- [ ] README.md + AGENTS.md up to date in all 44 modules
+- [ ] CHANGELOG.md entries for this version
+- [ ] `pyproject.toml` version updated
+- [ ] TODO.md progress metrics refreshed
 
 ---
 
-**Remember**: You are building a sophisticated, production-quality geospatial inference framework. Every line of code should reflect the highest standards of software engineering, mathematical rigor, and system thinking. The goal is to create something that advances the state of the art in geospatial analysis while being elegant, maintainable, and extensible. Focus on real data processing, comprehensive documentation, and robust integration patterns that enable the framework to handle complex, real-world geospatial challenges. Use precise, technical language that demonstrates capabilities without unnecessary embellishment.
-
+Every line of code should reflect production-quality engineering: mathematical rigour, functional completeness, structured logging, and precise documentation. Use technical accuracy over promotional language.

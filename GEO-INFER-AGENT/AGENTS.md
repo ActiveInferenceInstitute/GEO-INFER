@@ -247,3 +247,5 @@ from geo_infer_agent.core.agent_base import BaseAgent class CustomSpatialAgent(B
 
 # Benchmarking functionality is planned for future implementation
 ``` --- This AGENTS.md file provides documentation of the agent architectures, communication systems, lifecycle management, and applications within the GEO-INFER-AGENT module. The framework supports multiple agent types and enables geospatial intelligence through coordinated agent systems.
+
+**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.

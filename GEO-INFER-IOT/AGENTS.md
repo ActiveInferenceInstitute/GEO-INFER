@@ -152,4 +152,6 @@ status = network.get_environmental_status()```
 
 This AGENTS.md documents how GEO-INFER-IOT provides IoT capabilities for agents.
 
-**Last Updated**: 2026-02-24
+**Last Updated**: 2026-02-25
+
+**Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.

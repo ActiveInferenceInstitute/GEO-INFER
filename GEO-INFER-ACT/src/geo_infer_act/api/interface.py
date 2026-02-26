@@ -114,7 +114,6 @@ class ActiveInferenceInterface:
         updated_beliefs = agent.perceive(obs_data)
         
         # Return in expected format
-        # Return in expected format
         if agent.model_type == 'categorical':
              if isinstance(updated_beliefs, dict) and any(k.startswith('level_') for k in updated_beliefs.keys()):
                  return updated_beliefs
@@ -149,7 +148,7 @@ class ActiveInferenceInterface:
         # This preserves compatibility with urban_planning.py
         try:
             action_idx = int(action) if isinstance(action, (int, np.integer, float, np.floating)) else 0
-        except:
+        except (TypeError, ValueError):
             action_idx = 0
             
         # Get probability of selected action/policy if available

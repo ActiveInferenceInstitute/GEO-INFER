@@ -139,6 +139,13 @@ def initialize_analysis(args):
         for warning in validation_result['warnings']:
             logger.warning(f"   • {warning}")
 
+    # Bioregion mode: override resolution and include ecology module
+    if getattr(args, 'bioregion', False):
+        if args.h3_resolution == 8:  # only override default, not explicit user choice
+            args.h3_resolution = 7
+        if args.counties == "CA:Del Norte":  # only override default
+            args.counties = 'all'
+
     # Parse counties and modules with validation
     counties_dict = parse_counties(args.counties)
     # Resolve active modules from CLI or config. '--modules all' or missing -> config list
@@ -148,9 +155,14 @@ def initialize_analysis(args):
     else:
         active_modules = [m.strip() for m in args.modules.split(',') if m.strip()]
 
+    # Bioregion mode always includes ecology
+    if getattr(args, 'bioregion', False) and 'ecology' not in active_modules:
+        active_modules.append('ecology')
+
     # Validate parsed modules against available modules
     valid_modules = ['zoning', 'current_use', 'ownership', 'improvements',
-                    'water_rights', 'ground_water', 'surface_water', 'power_source', 'mortgage_debt']
+                    'water_rights', 'ground_water', 'surface_water', 'power_source', 'mortgage_debt',
+                    'ecology']
     invalid_modules = [m for m in active_modules if m not in valid_modules]
     if invalid_modules:
         logger.error(f"❌ Invalid modules specified: {invalid_modules}")
@@ -294,7 +306,15 @@ def initialize_modules_with_enhanced_data_management(active_modules, shared_back
         logger.warning(f"Mortgage debt module not available: {e}")
         MORTGAGE_DEBT_AVAILABLE = False
         GeoInferMortgageDebt = None
-    
+
+    try:
+        from src.data_modules.ecology.geo_infer_ecology import GeoInferEcology
+        ECOLOGY_AVAILABLE = True
+    except ImportError as e:
+        logger.warning(f"Ecology module not available: {e}")
+        ECOLOGY_AVAILABLE = False
+        GeoInferEcology = None
+
     # Initialize available modules using the shared backend with enhanced data management
     if 'zoning' in active_modules and ZONING_AVAILABLE:
         try:
@@ -380,15 +400,22 @@ def initialize_modules_with_enhanced_data_management(active_modules, shared_back
             logger.info("✅ Mortgage debt module initialized with enhanced data management")
         except Exception as e:
             logger.error(f"❌ Failed to initialize mortgage debt module: {e}")
-    
+
+    if 'ecology' in active_modules and ECOLOGY_AVAILABLE and GeoInferEcology:
+        try:
+            modules['ecology'] = GeoInferEcology()
+            logger.info("✅ Ecology module initialized")
+        except Exception as e:
+            logger.error(f"❌ Failed to initialize ecology module: {e}")
+
     if not modules:
         logger.error("❌ No modules could be initialized.")
         return {}
-    
+
     # Update the shared backend with initialized modules
     shared_backend.modules = modules
     logger.info(f"✅ Updated shared backend with {len(modules)} active modules")
-    
+
     return modules
 
 def generate_reports(summary, output_dir, spatial_analysis=False):
@@ -820,6 +847,25 @@ Examples:
         help='Run performance benchmarks and exit without running analysis'
     )
 
+    parser.add_argument(
+        '--bioregion',
+        action='store_true',
+        help='Run in bioregion mode: H3 resolution 7, full Cascadia extent, ecology module enabled'
+    )
+
+    parser.add_argument(
+        '--serve',
+        action='store_true',
+        help='Start HTTP server after pipeline completes and open browser'
+    )
+
+    parser.add_argument(
+        '--server-port',
+        type=int,
+        default=8765,
+        help='Port for --serve mode (default: 8765)'
+    )
+
     return parser.parse_args()
 
 def main():
@@ -1030,12 +1076,65 @@ def main():
         
         # Generate reports
         generate_reports(summary, args.output_dir, args.spatial_analysis)
-        
+
+        # Run GEO-INFER integration suite on fused data (before map so results can be passed)
+        integration_results: dict = {}
+        try:
+            from src.core.geo_infer_integrations import build_integration_suite, get_availability_report
+            availability = get_availability_report()
+            available_modules = [k for k, v in availability.items() if v]
+            if available_modules:
+                logger.info(f"🔗 GEO-INFER integrations available: {available_modules}")
+                suite = build_integration_suite()
+                config_dir = Path(__file__).resolve().parent / 'config'
+                integration_results['data_quality'] = suite['data_quality'].validate_module_outputs(
+                    {k: v for k, v in locals().get('module_data', {}).items()}
+                )
+                summary['geo_infer_integrations'] = integration_results
+            else:
+                logger.info("ℹ️  GEO-INFER integration modules not installed (optional enrichment)")
+        except Exception as e:
+            logger.debug(f"GEO-INFER integration suite skipped: {e}")
+
+        # Generate bioregion map if --bioregion flag set
+        if getattr(args, 'bioregion', False):
+            try:
+                from src.core.visualization.bioregion_visualization import create_bioregion_map
+                config_dir = Path(__file__).resolve().parent / 'config'
+                bioregion_map_path = Path(args.output_dir) / 'visualizations' / 'interactive' / 'cascadia_bioregion_map.html'
+                bioregion_map_path.parent.mkdir(parents=True, exist_ok=True)
+                create_bioregion_map(
+                    config_dir,
+                    redevelopment_scores,
+                    bioregion_map_path,
+                    integration_results=integration_results,
+                )
+                summary['bioregion_map_path'] = str(bioregion_map_path)
+                logger.info(f"🗺️ Bioregion map: {bioregion_map_path}")
+            except Exception as e:
+                logger.warning(f"Bioregion map generation failed: {e}")
+
         # Print summary
         print_analysis_summary(summary, export_paths, args)
-        
+
         logger.info("✅ Cascadia analysis completed successfully!")
-        
+
+        # Start server if --serve flag set
+        if getattr(args, 'serve', False):
+            try:
+                import subprocess
+                port = getattr(args, 'server_port', 8765)
+                logger.info(f"🌐 Starting Cascadia server at http://localhost:{port}")
+                server_script = Path(__file__).resolve().parent / 'cascadia_server.py'
+                subprocess.run([
+                    sys.executable, str(server_script),
+                    '--port', str(port),
+                    '--output-dir', str(args.output_dir),
+                    '--open-browser',
+                ], check=False)
+            except Exception as e:
+                logger.error(f"Failed to start server: {e}")
+
     except Exception as e:
         logger.error(f"❌ Analysis failed: {e}")
         if args.debug:
@@ -1061,6 +1160,21 @@ def run_comprehensive_analysis_with_enhanced_data(backend, modules, data_manager
     def _process_single_module(module_name: str, module) -> tuple[str, dict | None]:
         logger.info(f"📊 Processing module: {module_name}")
         try:
+            # Ecology module: loads YAML data and overlays H3 grid — no real_data_path pipeline
+            if module_name == 'ecology':
+                raw_summary = module.acquire_raw_data()
+                logger.info(f"🌿 Ecology raw data: {raw_summary}")
+                # Build minimal lat/lon h3_data for overlay
+                hex_with_coords = {}
+                for hex_id in list(backend.target_hexagons)[:5000]:
+                    try:
+                        lat, lon = cell_to_latlng(hex_id)
+                        hex_with_coords[hex_id] = {'lat': lat, 'lon': lon}
+                    except Exception:
+                        pass
+                h3_data = module.run_final_analysis(hex_with_coords)
+                return module_name, h3_data
+
             real_data_path = None
             if module_name == 'zoning':
                 real_data_path = real_data_acquisition.acquire_zoning_data()

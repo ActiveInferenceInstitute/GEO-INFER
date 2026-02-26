@@ -242,25 +242,70 @@ class TrafficAnalyzer:
             }
         }
         
-        # Simple microsimulation mock
+        # Extract demand from OD matrix
         matrix = demand_matrix.get("matrix", [[]])
         total_demand = sum(sum(row) for row in matrix)
         simulation["statistics"]["total_trips"] = int(total_demand)
         
-        # Generate simplified step results
-        for step in range(min(num_steps, 60)):  # Limit output
+        # Trip release rate per step (uniform release across simulation)
+        trips_per_step = total_demand / max(num_steps, 1)
+        
+        # Network capacity: extract from network or use defaults
+        default_capacity = 2000  # vehicles/hour per link
+        free_flow_speed = 60.0   # km/h
+        
+        # Track vehicles in the network and cumulative travel time
+        vehicles_in_network = 0.0
+        total_travel_time = 0.0
+        completed_trips = 0
+        
+        # Average trip length estimate (steps to traverse a route)
+        mean_trip_duration_steps = max(3, num_steps // 10)  # ~10% of sim duration
+        
+        for step in range(min(num_steps, 60)):  # Cap output detail
             step_time = step * time_step_seconds
+            
+            # Release new trips
+            vehicles_in_network += trips_per_step
+            
+            # BPR delay: effective speed = free_flow / (1 + 0.15*(V/C)^4)
+            vc_ratio = vehicles_in_network / max(default_capacity, 1)
+            bpr_factor = 1 + 0.15 * (vc_ratio ** 4)
+            effective_speed = free_flow_speed / bpr_factor
+            
+            # Complete trips that have been in the network long enough
+            if step >= mean_trip_duration_steps:
+                departing = trips_per_step  # Roughly FIFO
+                vehicles_in_network = max(0, vehicles_in_network - departing)
+                completed_trips += int(departing)
+                total_travel_time += departing * mean_trip_duration_steps * time_step_seconds
+            
+            # Classify congestion from V/C ratio
+            if vc_ratio < 0.35:
+                congestion = "free_flow"
+            elif vc_ratio < 0.55:
+                congestion = "light"
+            elif vc_ratio < 0.75:
+                congestion = "moderate"
+            elif vc_ratio < 0.95:
+                congestion = "heavy"
+            else:
+                congestion = "congested"
             
             simulation["results"].append({
                 "step": step,
                 "time_seconds": step_time,
-                "vehicles_in_network": int(total_demand * 0.3),  # 30% at any time
-                "average_speed_kmh": 45 - (step % 10),  # Varying speed
-                "congestion_level": "moderate" if step % 3 == 0 else "light"
+                "vehicles_in_network": int(vehicles_in_network),
+                "average_speed_kmh": round(effective_speed, 1),
+                "congestion_level": congestion,
+                "vc_ratio": round(vc_ratio, 3),
+                "bpr_delay_factor": round(bpr_factor, 3),
             })
         
-        simulation["statistics"]["completed_trips"] = int(total_demand * 0.95)
-        simulation["statistics"]["average_travel_time"] = 600  # 10 minutes average
+        simulation["statistics"]["completed_trips"] = completed_trips
+        simulation["statistics"]["average_travel_time"] = round(
+            total_travel_time / max(completed_trips, 1), 1
+        )
         
         logger.info(f"Traffic simulation completed: {num_steps} steps")
         return simulation
@@ -336,32 +381,57 @@ class TrafficAnalyzer:
         else:
             steps = 4
         
-        # Simple moving average forecast (placeholder for actual model)
-        if historical_data:
-            values = [d.get("volume", 0) for d in historical_data[-12:]]
-            avg_volume = sum(values) / len(values) if values else 0
+        # Exponentially Weighted Moving Average (EWMA) forecast
+        alpha = 0.3  # Smoothing factor
+        window = min(12, len(historical_data)) if historical_data else 0
+        
+        if historical_data and window > 0:
+            values = [d.get("volume", 0) for d in historical_data[-window:]]
+            
+            # Compute EWMA of historical values
+            ewma = values[0]
+            for v in values[1:]:
+                ewma = alpha * v + (1 - alpha) * ewma
+            
+            # Estimate trend from linear regression on window
+            if len(values) >= 3:
+                n = len(values)
+                x_mean = (n - 1) / 2.0
+                y_mean = sum(values) / n
+                numerator = sum((i - x_mean) * (v - y_mean) for i, v in enumerate(values))
+                denominator = sum((i - x_mean) ** 2 for i in range(n))
+                trend = numerator / denominator if denominator > 0 else 0
+            else:
+                trend = 0
+            
+            # Residual std for prediction intervals
+            residuals = [v - (ewma + trend * i) for i, v in enumerate(values)]
+            residual_std = (sum(r ** 2 for r in residuals) / max(len(residuals), 1)) ** 0.5
         else:
-            avg_volume = 1000
+            ewma = 1000
+            trend = 0
+            residual_std = 200  # default uncertainty
         
         forecast = {
             "model": model,
             "forecast_horizon": forecast_horizon,
             "generated_at": datetime.now().isoformat(),
+            "parameters": {"alpha": alpha, "window": window, "trend": round(trend, 3)},
             "forecasts": []
         }
         
-        # Generate forecast points
-        base_time = datetime.now()
+        # Generate forecast points with widening confidence intervals
         for i in range(steps):
-            # Add some variation
-            variation = (i % 4 - 2) * 50
+            predicted = ewma + trend * (i + 1)
+            # Prediction interval widens with horizon
+            interval_width = residual_std * (1 + 0.1 * i)
             
             forecast["forecasts"].append({
                 "time_offset_minutes": (i + 1) * 15,
-                "predicted_volume": int(avg_volume + variation),
-                "confidence_lower": int(avg_volume * 0.8),
-                "confidence_upper": int(avg_volume * 1.2)
+                "predicted_volume": max(0, int(round(predicted))),
+                "confidence_lower": max(0, int(round(predicted - 1.96 * interval_width))),
+                "confidence_upper": int(round(predicted + 1.96 * interval_width))
             })
         
-        logger.info(f"Generated {steps}-step traffic forecast")
+        logger.info(f"Generated {steps}-step traffic forecast (EWMA α={alpha})")
         return forecast

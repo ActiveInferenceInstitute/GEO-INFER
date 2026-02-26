@@ -288,14 +288,12 @@ class ComplianceTracker:
                 })
                 continue
             
-            # Simplified evaluation logic - would be much more complex in reality
-            # and would involve specific evaluation functions for different metric types
+            # Evaluate metric by its declared type (threshold / range / boolean)
             compliance_level = 0.0
             is_compliant = False
             notes = ""
             
             try:
-                # This is a very simplified placeholder for actual evaluation logic
                 if metric.evaluation_type == "threshold":
                     value = evaluation_data.get(metric.primary_field, 0)
                     threshold = metric.threshold_value

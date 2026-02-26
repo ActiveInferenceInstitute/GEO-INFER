@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [0.2.0] - 2026-02-17
+## [0.2.0] - 2026-02-25
 
 ### Added
 
@@ -113,9 +113,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Version | Date | Description |
 |---------|------|-------------|
+| 0.2.0 | 2026-02-25 | Second beta release |
 | 0.1.0 | 2026-01-26 | Initial release |
 
 ---
 
-[Unreleased]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.1.0...HEAD
+[Unreleased]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.2.0...HEAD
+[0.2.0]: https://github.com/ActiveInferenceInstitute/GEO-INFER/compare/v0.1.0...v0.2.0
 [0.1.0]: https://github.com/ActiveInferenceInstitute/GEO-INFER/releases/tag/v0.1.0

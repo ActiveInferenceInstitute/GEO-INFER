@@ -243,6 +243,27 @@ class TransportNetwork:
                 {"node_id": node, "centrality": round(cent, 4)}
                 for node, cent in sorted_nodes[:10]
             ]
+
+        elif method == "critical_links":
+            # Delegate to GEO-INFER-LOG if available for edge-betweenness analysis
+            try:
+                from geo_infer_log.core.transport import TransportationNetworkAnalyzer
+                analyzer = TransportationNetworkAnalyzer()
+                analyzer.network = self._graph  # Reuse our NetworkX graph
+                critical = analyzer.identify_critical_links(top_n=10)
+                result["critical_links"] = [
+                    {"from": u, "to": v} for u, v in critical
+                ]
+                result["source"] = "geo_infer_log"
+            except ImportError:
+                # Fallback: compute edge betweenness directly
+                edge_bc = nx.edge_betweenness_centrality(self._graph, weight="length")
+                sorted_edges = sorted(edge_bc.items(), key=lambda x: x[1], reverse=True)[:10]
+                result["critical_links"] = [
+                    {"from": u, "to": v, "centrality": round(c, 4)}
+                    for (u, v), c in sorted_edges
+                ]
+                result["source"] = "fallback"
         
         logger.info(f"Connectivity analysis ({method}) completed")
         return result

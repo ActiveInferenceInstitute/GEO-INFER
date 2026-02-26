@@ -11,6 +11,7 @@ This module provides data integration capabilities including:
 
 import logging
 import time
+import os
 from typing import Dict, List, Optional, Any, Callable
 from datetime import datetime, timedelta
 from dataclasses import dataclass, field
@@ -73,7 +74,7 @@ class DataIntegrationManager:
                 name='credit_bureau',
                 source_type='api',
                 endpoint='https://api.creditbureau.com/v1/credit-score',
-                authentication={'api_key': 'placeholder'},
+                authentication={'api_key': os.environ.get('CREDIT_BUREAU_API_KEY', '')},
                 update_frequency='real_time',
                 cache_duration=1800  # 30 minutes
             ),
@@ -81,7 +82,7 @@ class DataIntegrationManager:
                 name='property_database',
                 source_type='api',
                 endpoint='https://api.propertydb.com/v1/property-info',
-                authentication={'api_key': 'placeholder'},
+                authentication={'api_key': os.environ.get('PROPERTY_DB_API_KEY', '')},
                 update_frequency='hourly',
                 cache_duration=3600  # 1 hour
             ),
@@ -89,7 +90,7 @@ class DataIntegrationManager:
                 name='weather_data',
                 source_type='api',
                 endpoint='https://api.weather.com/v1/forecast',
-                authentication={'api_key': 'placeholder'},
+                authentication={'api_key': os.environ.get('WEATHER_API_KEY', '')},
                 update_frequency='real_time',
                 cache_duration=900  # 15 minutes
             ),
@@ -97,7 +98,10 @@ class DataIntegrationManager:
                 name='claims_history',
                 source_type='database',
                 endpoint='postgresql://claims_db:5432/claims',
-                authentication={'username': 'placeholder', 'password': 'placeholder'},
+                authentication={
+                    'username': os.environ.get('CLAIMS_DB_USER', ''),
+                    'password': os.environ.get('CLAIMS_DB_PASSWORD', ''),
+                },
                 update_frequency='daily',
                 cache_duration=86400  # 24 hours
             )
@@ -244,22 +248,90 @@ class DataIntegrationManager:
             return None
 
     def _fetch_from_database(self, source: ExternalDataSource, query_parameters: Dict[str, Any] = None) -> Optional[Dict[str, Any]]:
-        """Fetch data from database."""
-        # Placeholder for database connectivity
-        self.logger.info(f"Database fetch not implemented for {source.name}")
-        return None
+        """Fetch data from a database using SQLAlchemy or psycopg2."""
+        try:
+            import sqlalchemy
+            engine = sqlalchemy.create_engine(
+                source.endpoint,
+                connect_args={
+                    "user": source.authentication.get("username", ""),
+                    "password": source.authentication.get("password", ""),
+                },
+            )
+            query = (query_parameters or {}).get("query", f"SELECT * FROM {source.name} LIMIT 100")
+            with engine.connect() as conn:
+                result = conn.execute(sqlalchemy.text(query))
+                rows = [dict(row._mapping) for row in result]
+            self.logger.info(f"Database fetch for {source.name}: {len(rows)} rows")
+            return {"source": source.name, "rows": rows, "row_count": len(rows)}
+        except ImportError:
+            self.logger.warning(f"sqlalchemy not installed; cannot fetch from database {source.name}")
+            return None
+        except Exception as e:
+            self.logger.error(f"Database fetch failed for {source.name}: {e}")
+            return None
 
     def _fetch_from_file(self, source: ExternalDataSource, query_parameters: Dict[str, Any] = None) -> Optional[Dict[str, Any]]:
-        """Fetch data from file."""
-        # Placeholder for file data loading
-        self.logger.info(f"File fetch not implemented for {source.name}")
-        return None
+        """Fetch data from a local file (JSON, CSV, or GeoJSON)."""
+        import pathlib
+        file_path = pathlib.Path(source.endpoint)
+        if not file_path.exists():
+            self.logger.warning(f"File not found: {file_path}")
+            return None
+        try:
+            suffix = file_path.suffix.lower()
+            if suffix == ".json":
+                import json
+                with open(file_path, "r") as f:
+                    data = json.load(f)
+            elif suffix == ".csv":
+                import csv
+                with open(file_path, "r") as f:
+                    reader = csv.DictReader(f)
+                    data = list(reader)
+            elif suffix in (".geojson",):
+                import json
+                with open(file_path, "r") as f:
+                    data = json.load(f)
+            else:
+                self.logger.warning(f"Unsupported file format: {suffix}")
+                return None
+            self.logger.info(f"File fetch for {source.name}: loaded {file_path.name}")
+            return {"source": source.name, "file": str(file_path), "data": data}
+        except Exception as e:
+            self.logger.error(f"File fetch failed for {source.name}: {e}")
+            return None
 
     def _fetch_from_stream(self, source: ExternalDataSource, query_parameters: Dict[str, Any] = None) -> Optional[Dict[str, Any]]:
-        """Fetch data from streaming source."""
-        # Placeholder for streaming data
-        self.logger.info(f"Stream fetch not implemented for {source.name}")
-        return None
+        """Fetch data from a streaming source (HTTP SSE or WebSocket snapshot)."""
+        try:
+            import requests
+            timeout = (query_parameters or {}).get("timeout", 10)
+            headers = {"Accept": "text/event-stream"}
+            auth = source.authentication
+            if auth.get("api_key"):
+                headers["Authorization"] = f"Bearer {auth['api_key']}"
+
+            resp = requests.get(source.endpoint, headers=headers, stream=True, timeout=timeout)
+            resp.raise_for_status()
+
+            # Consume up to N events
+            max_events = (query_parameters or {}).get("max_events", 50)
+            events = []
+            for line in resp.iter_lines(decode_unicode=True):
+                if line and line.startswith("data:"):
+                    events.append(line[5:].strip())
+                    if len(events) >= max_events:
+                        break
+
+            self.logger.info(f"Stream fetch for {source.name}: {len(events)} events")
+            return {"source": source.name, "events": events, "event_count": len(events)}
+        except ImportError:
+            self.logger.warning(f"requests not installed; cannot fetch stream {source.name}")
+            return None
+        except Exception as e:
+            self.logger.error(f"Stream fetch failed for {source.name}: {e}")
+            return None
 
     def _prepare_auth_headers(self, source: ExternalDataSource) -> Dict[str, str]:
         """Prepare authentication headers for API requests."""

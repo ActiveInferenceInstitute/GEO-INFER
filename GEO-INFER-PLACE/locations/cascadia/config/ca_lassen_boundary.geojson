@@ -1,25 +1,25 @@
 {
   "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {
-        "name": "Lassen County",
-        "state": "CA",
-        "fips_code": "06035",
-        "county_name": "Lassen",
-        "state_name": "California"
-      },
-      "geometry": {
-        "type": "Polygon",
-        "coordinates": [[
-          [-121.5, 40.0],
-          [-119.5, 40.0],
-          [-119.5, 41.2],
-          [-121.5, 41.2],
-          [-121.5, 40.0]
-        ]]
-      }
+  "name": "ca_lassen_boundary",
+  "crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+  "features": [{
+    "type": "Feature",
+    "properties": {
+      "name": "Lassen County",
+      "state": "CA",
+      "fips_code": "06035",
+      "full_name": "Lassen County, California",
+      "area_sq_mi": 4720,
+      "population_2020": 33159,
+      "county_seat": "Susanville",
+      "data_source": "US Census TIGER/Line 2022"
+    },
+    "geometry": {
+      "type": "Polygon",
+      "coordinates": [[
+        [-121.728, 40.075], [-121.728, 41.183], [-120.587, 41.183],
+        [-120.071, 41.183], [-120.071, 40.075], [-121.728, 40.075]
+      ]]
     }
-  ]
-} 
+  }]
+}

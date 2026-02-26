@@ -267,3 +267,127 @@ python3 test/focused_framework_test.py
 *Status: Production Ready with Real Data Processing*
 *Test Coverage: 100%*
 *Last Updated: January 16, 2025*
+
+---
+
+## Bioregion Mode
+
+The Cascadia pipeline supports a full-bioregion ecological analysis mode (BC/WA/OR/CA, ~330,000 sq mi) in addition to the county-level agricultural mode.
+
+### Running Bioregion Analysis
+
+```bash
+# Quick bioregion run with ecology module
+uv run python cascadia_main.py --bioregion --modules ecology,zoning,ground_water,surface_water --output-dir output/
+
+# Full bioregion with HTTP server (opens browser automatically)
+uv run python cascadia_main.py --bioregion --modules ecology,zoning,ground_water,surface_water --generate-dashboard --serve
+
+# Or use the convenience script
+bash run_analysis.sh
+```
+
+### Bioregion Data Files
+
+All ecological data files live in `config/`:
+
+| File | Source | Contents |
+|------|--------|----------|
+| `cascadia_volcanoes.geojson` | USGS Volcano Hazards Program | 12 volcanoes with threat levels, lahar drainages |
+| `cascadia_subduction_zone.geojson` | USGS/PNSN | CSZ fault trace (~1,100 km) |
+| `cascadia_major_watersheds.geojson` | NHD/EPA | 5 major river basins with salmon ESU counts |
+| `cascadia_bioregion_boundary.geojson` | Cascadia Bioregion Project | Full bioregion polygon |
+| `cascadia_salmon_esus.yaml` | NOAA NMFS | 28 ESA-listed salmon/steelhead ESUs |
+| `cascadia_ecoregions.yaml` | EPA Level III | 8 ecoregions with codes and descriptions |
+| `cascadia_indigenous_territories.yaml` | BIA/Native Land Digital | Tribal nations with locations |
+| `cascadia_climate_zones.yaml` | NOAA | Climate zone classifications |
+
+### Bioregion Map
+
+The pipeline generates `output/visualizations/interactive/cascadia_bioregion_map.html` — a lightweight (<5 MB) interactive Folium map with:
+
+- **Volcano markers** — colored by threat level (red/orange/yellow/green), popups show elevation, last eruption, lahar drainages
+- **CSZ fault line** — dashed red line with M9 probability (37% in 50yr), last rupture 1700 CE
+- **Watershed polygons** — 5 major basins with salmon ESU info
+- **Tribal nation markers** — from BIA data
+- **Bioregion boundary** — thin grey outline
+- **ESA salmon sidebar** — lists all 28 listed species with status
+
+The agricultural detail map (`cascadia_interactive_map.html`) is preserved separately.
+
+### HTTP Server
+
+```bash
+# Start standalone server
+uv run python cascadia_server.py --port 8765 --output-dir output/ --open-browser
+```
+
+API endpoints:
+
+| Endpoint | Description |
+|----------|-------------|
+| `GET /` | Redirect to bioregion map |
+| `GET /map/bioregion` | Serve bioregion HTML map |
+| `GET /map/agricultural` | Serve agricultural HTML map |
+| `GET /api/status` | Pipeline status JSON |
+| `GET /api/layers/volcanoes` | Volcanoes GeoJSON |
+| `GET /api/layers/csz` | CSZ fault GeoJSON |
+| `GET /api/layers/watersheds` | Watersheds GeoJSON |
+| `GET /api/layers/bioregion` | Bioregion boundary GeoJSON |
+| `GET /api/salmon` | Salmon ESU data as JSON |
+| `GET /api/ecoregions` | Ecoregion data as JSON |
+| `GET /api/indigenous` | Indigenous territories as JSON |
+
+API docs available at `http://localhost:8765/docs` when server is running.
+
+### GEO-INFER Module Integration
+
+Optional enrichment via other GEO-INFER modules (graceful degradation if not installed):
+
+| Module | Integration Class | Analysis |
+|--------|-------------------|----------|
+| GEO-INFER-MATH | `CascadiaSpatialStats` | Moran's I autocorrelation, Kriging |
+| GEO-INFER-BAYES | `CascadiaBayesianAnalysis` | GP posterior uncertainty |
+| GEO-INFER-RISK | `CascadiaSeismicRisk` | CSZ hazard per hexagon |
+| GEO-INFER-FOREST | `CascadiaForestHealth` | Forest health assessment |
+| GEO-INFER-MARINE | `CascadiaCoastalAnalysis` | Coastal resilience |
+| GEO-INFER-ECON | `CascadiaEcosystemServices` | Natural capital valuation |
+| GEO-INFER-DATA | `CascadiaDataQuality` | Module output validation |
+| GEO-INFER-CLIMATE | `CascadiaClimateAnalysis` | Climate zone overlay |
+
+Install optional GEO-INFER modules:
+```bash
+uv pip install -e ".[bioregion]"
+```
+
+### Running Tests
+
+```bash
+# All bioregion tests
+uv run python -m pytest tests/integration/test_bioregion_pipeline.py -v
+
+# Unit tests for integration wrappers
+uv run python -m pytest tests/unit/test_geo_infer_integrations.py -v
+
+# All tests
+uv run python -m pytest tests/ -v
+```
+
+### Ecology Module
+
+The `ecology` data module (`src/data_modules/ecology/`) overlays ecological data onto H3 hexagons:
+
+- Salmon ESU presence per watershed bounding box
+- EPA Level III ecoregion classification
+- Old-growth forest probability (by ecoregion)
+- Northern Spotted Owl critical habitat
+- Indigenous territory proximity
+
+Activate via `--modules ecology` or `--bioregion` (automatically included).
+
+### Adding New Data Modules
+
+1. Create `src/data_modules/<name>/geo_infer_<name>.py` with `acquire_raw_data()` and `run_final_analysis(h3_data)` methods
+2. Add try/except import in `src/core/data_processor.py` following the existing pattern
+3. Add to `valid_modules` list in `cascadia_main.py`
+4. Add test in `tests/integration/test_bioregion_pipeline.py`

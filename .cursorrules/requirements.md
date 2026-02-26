@@ -2,48 +2,73 @@
 
 ## NEVER Do These Things
 
-- Create mock, stub, or placeholder implementations
-- Hardcode configuration values in source code
-- Ignore error conditions or fail silently
-- Add unnecessary comments, files, methods, adjectives, adverbs, etc.
-- Break established module interfaces
-- Duplicate functionality that exists elsewhere
-- Process data without proper validation
-- Ignore performance implications
-- Use excessive adjectives or marketing language in technical documentation
-- Use `uv pip install` or `python -m uv pip install` - always use `uv pip install`
-- Suggest `uv pip install` in error messages - always suggest `uv pip install`
+| Rule | Reason |
+|------|--------|
+| Create mock, stub, or placeholder implementations | Every function must have real logic |
+| Hardcode credentials, API keys, or secrets | Use `os.environ.get()` or config files |
+| Use bare `except:` or `except Exception:` without logging | Always catch specific exceptions |
+| Use `print()` in library code | Use `logging.getLogger(__name__)` |
+| Use `yaml.load()` without `Loader` | Use `yaml.safe_load()` |
+| Break established module interfaces | Extend, don't replace |
+| Duplicate functionality that exists in another module | Import and reuse |
+| Ignore error conditions or fail silently | Log and raise or handle gracefully |
+| Use excessive adjectives in documentation | Technical precision over marketing |
+| Use H3 v3 API methods | Use H3 v4 exclusively |
+| Use `pip install` directly | Always use `uv pip install` |
 
 ## ALWAYS Do These Things
 
-- Implement complete, working functionality
-- Use proper logging and error handling
-- Follow the established architectural patterns
-- Write comprehensive tests and documentation
-- Consider the broader system implications
-- "Show don't tell" - use accurate understated language
-- Validate and process real data
-- Optimize for performance and scalability
-- Use precise, technical language over promotional terms
-- Use `uv pip install` for all package installation commands
-- Use `uv run python` for running Python scripts in examples and documentation
-- Suggest `uv pip install` in all error messages requiring package installation
+| Rule | How |
+|------|-----|
+| Implement complete, working functionality | No placeholders, stubs, or TODOs in production |
+| Use structured logging | `logging.getLogger(__name__)` with appropriate levels |
+| Follow PEP 8 + Black + isort | `black . && isort . && ruff check .` |
+| Write comprehensive tests | ≥80% coverage, unit + integration |
+| Type-hint all function signatures | Parameters, returns, class attributes |
+| Validate input data | Pydantic models or explicit checks at boundaries |
+| Handle optional dependencies gracefully | `try/except ImportError` with warning |
+| Use `uv` for all package operations | `uv pip install`, `uv run python` |
+| Update docs with code changes | README.md, docstrings, AGENTS.md |
+| Use precise, technical language | "Show don't tell" |
 
-## Package Management Rules
+## Package Management
 
-### Installation Commands
-- ✅ `uv pip install -e ./GEO-INFER-MODULE`
-- ✅ `uv pip install package-name`
-- ✅ `uv pip install -r requirements.txt`
-- ❌ `uv pip install` (never use)
-- ❌ `python -m uv pip install` (never use)
+### Correct Usage
 
-### Running Scripts
-- ✅ `uv run python script.py`
-- ✅ `uv run pytest tests/`
-- ❌ `python script.py` (use `uv run python` instead)
+```bash
+# Install packages
+uv pip install package-name
+uv pip install -e ./GEO-INFER-MODULE
+uv pip install -r requirements.txt
 
-### Error Messages
-- ✅ "Install with: uv pip install package-name"
-- ❌ "Install with: uv pip install package-name" (never suggest pip)
+# Run scripts
+uv run python script.py
+uv run pytest tests/
 
+# In error messages
+raise ImportError("Install with: uv pip install package-name")
+```
+
+### Incorrect Usage (NEVER)
+
+```bash
+# ❌ pip install package-name
+# ❌ python -m pip install package-name
+# ❌ conda install package-name
+# ❌ python script.py  (use uv run python)
+```
+
+## Security Requirements
+
+- Store secrets in environment variables, never in source code
+- Use `os.environ.get("KEY")` with sensible defaults or explicit errors
+- Validate and sanitise all external inputs (API payloads, file uploads)
+- Monitor dependencies for CVEs (`uv pip audit` or safety checks)
+- Follow the principle of least privilege for file/network access
+
+## Licence Compliance
+
+- All modules are licensed under **CC BY-NC-SA 4.0**
+- Ensure all dependencies are compatible with this licence
+- Include licence headers in new source files if required by deps
+- Verify compliance in `pyproject.toml` metadata

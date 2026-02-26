@@ -6,9 +6,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 GEO-INFER is a 44-module geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. It is a Python monorepo using `uv` as the package manager, with Python 3.9+ required.
 
-### Current Stats (2026-02-24)
+### Current Stats (2026-02-25)
 
-- **44 modules** | **901 source files** (307,361 lines) | **466 test files** (89,179 lines) | **~3,000+ tests**
+- **44 modules** | **860 source files** (297,360 lines) | **421 test files** (~87,000+ lines) | **~3,000+ tests**
 - All packages use PEP 8 lowercase naming (FOREST/MARINE/ENERGY/WATER were renamed)
 - Zero illegitimate `pass` stubs (remaining `pass` is only in abstract methods, exception handlers, and import guards)
 - Every module has minimum 4 test files
@@ -87,6 +87,7 @@ GEO-INFER-MODULE/
 │   └── integration/
 ├── pyproject.toml
 ├── requirements.txt
+├── SKILL.md             # Claude Code skill (auto-discovered)
 ├── .cursorrules         # Module-specific dev rules (extends root)
 └── AGENTS.md            # Agent capabilities for this module
 ```
@@ -137,6 +138,8 @@ These rules are from `.cursorrules/` and apply to all modules:
 - `GEO-INFER-TEST/run_unified_tests.py` - Cross-module unified test runner
 - `GEO-INFER-INTRA/docs/` - Central documentation hub (guides, tutorials, integration docs)
 - `GEO-INFER-EXAMPLES/examples/` - Working examples including module orchestrators
+- `SKILL.md` - Root Claude Code skill (ecosystem overview)
+- `GEO-INFER-*/SKILL.md` - Module-level Claude Code skills (44 files)
 - `.cursorrules/` - Framework-wide development rules
 - `AGENTS.md` - Multi-agent systems architecture documentation
 - `PAI.md` - PAI Algorithm integration and development methodology

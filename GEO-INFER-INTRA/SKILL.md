@@ -1,0 +1,84 @@
+---
+name: geo-infer-intra
+description: Central documentation hub and cross-module integration guides for GEO-INFER. Use when navigating documentation, finding cross-module integration patterns, understanding data flow architecture, or locating tutorials and API references.
+prerequisites:
+  required: []
+  recommended: []
+difficulty: beginner
+estimated_time: 30min
+examples_dir: ../GEO-INFER-EXAMPLES/examples/
+---
+
+# GEO-INFER-INTRA
+
+## Instructions
+
+### Core Capabilities
+
+- **Documentation hub**: Central `docs/` directory with comprehensive guides
+- **Integration guides**: Cross-module data flow patterns and examples
+- **Architecture docs**: System design diagrams, module dependency graph
+- **API reference**: Consolidated API documentation for all 44 modules
+- **Tutorials**: Step-by-step workflows spanning multiple modules
+
+### Key Directories
+
+```text
+GEO-INFER-INTRA/docs/
+├── guides/          # How-to guides for common workflows
+├── tutorials/       # Step-by-step multi-module tutorials
+├── integration/     # Cross-module integration patterns
+├── architecture/    # System design and data flow diagrams
+└── api/             # Consolidated API reference
+```
+
+### Cross-Module Integration Pattern
+
+```python
+# Example: SPACE → MATH → BAYES pipeline
+from geo_infer_space.backends.h3 import H3Backend
+from geo_infer_math.core.spatial_statistics import MoranI
+from geo_infer_bayes.core.bayesian_inference import BayesianModel
+
+# 1. Index → 2. Analyze → 3. Model
+cells = H3Backend().tessellate(region, resolution=7)
+autocorrelation = MoranI(values, weights).compute()
+posterior = BayesianModel().fit(data)
+```
+
+## Examples
+
+```python
+# Multi-module data flow: DATA → SPACE → MATH → BAYES
+from geo_infer_data.formats.geojson import GeoJSONLoader
+from geo_infer_space.backends.h3 import H3Backend
+from geo_infer_math.core.spatial_statistics import MoranI
+from geo_infer_bayes.core.bayesian_inference import BayesianModel
+
+# 1. Load → 2. Index → 3. Analyze → 4. Model
+features = GeoJSONLoader().load("observations.geojson")
+cells = H3Backend().tessellate(features.bounds, resolution=7)
+autocorrelation = MoranI(values, weights).compute()
+posterior = BayesianModel().fit(data)
+```
+
+```python
+# Onboarding: discover module capabilities
+import importlib
+for module_name in ["math", "space", "bayes", "act", "risk"]:
+    mod = importlib.import_module(f"geo_infer_{module_name}")
+    print(f"geo_infer_{module_name}: {mod.__doc__ or 'No docstring'}")
+```
+
+## Guidelines
+
+- Start here when onboarding to GEO-INFER
+- Each module's README.md and AGENTS.md provide module-level detail
+- Each module's SKILL.md provides quick-reference for Claude Code
+- Test: `uv run python -m pytest GEO-INFER-INTRA/tests/ -v`
+
+### Integrations
+
+- **EXAMPLES** → Working code examples referenced from docs
+- **All modules** → Central hub linking all module documentation
+- **TEST** → Documentation-driven testing patterns

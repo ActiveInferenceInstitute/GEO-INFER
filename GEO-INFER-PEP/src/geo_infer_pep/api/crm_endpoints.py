@@ -138,12 +138,12 @@ async def get_status_distribution_plot():
     else:
         raise HTTPException(status_code=500, detail="Failed to generate plot.")
 
-# TODO: Add more endpoints:
-# - GET /customers/{customer_id}
-# - POST /customers
-# - PUT /customers/{customer_id}
-# - DELETE /customers/{customer_id}
-# - Endpoints for other reports and visualizations
+# Planned endpoints (see GEO-INFER-PEP roadmap):
+#   GET  /customers/{customer_id}
+#   POST /customers
+#   PUT  /customers/{customer_id}
+#   DELETE /customers/{customer_id}
+#   Additional report and visualisation endpoints
 
 # To run this (conceptual, assuming main.py wires this router):
 # uvicorn main:app --reload 

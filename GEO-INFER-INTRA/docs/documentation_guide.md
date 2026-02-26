@@ -1,1 +1,358 @@
-# GEO-INFER Documentation Guide This guide provides standards and best practices for creating and maintaining documentation across all GEO-INFER modules. ## Documentation Types The GEO-INFER framework includes several types of documentation: 1. **Code Documentation**: Docstrings, comments, and type hints within the code 2. **API Documentation**: Generated reference documentation for classes, methods, and functions 3. **User Guides**: Conceptual explanations and tutorials 4. **Examples**: Runnable code examples and Jupyter notebooks 5. **Architecture Documentation**: System design, data flow, and component relationships 6. **Geospatial Visualization**: Maps, spatial diagrams, and visual representations of geospatial concepts ## Documentation Standards ### General Principles - **Completeness**: Document all public APIs, classes, functions, and methods - **Clarity**: Use clear, concise language and avoid jargon when possible - **Consistency**: Follow the same format and style across all modules - **Contextualization**: Explain not just how, but why and when to use features - **Currency**: Keep documentation up-to-date with code changes ### Code Documentation #### Python Docstrings Use Google-style docstrings for all Python code: ```python def function_name(param1: Type1, param2: Type2 = default_value) -> ReturnType: """Short, imperative description of function. More explanation if needed. Explain any complex algorithms, design decisions, or contextual information that helps understand the function's purpose. Args: param1: Description of first parameter param2: Description of second parameter, including default behavior if applicable. For long descriptions, indent continuation lines. Returns: Description of the return value and its type Raises: ExceptionType: When and why this exception is raised Examples: ```python result = function_name('value1', 'value2') ``` """ # Implementation ``` #### Geospatial-Specific Documentation For functions that process geospatial data, include: 1. **Coordinate System Information**: ```python def spatial_function(geom: Geometry, crs: str = "EPSG:4326") -> Geometry: """Process the geometry. Args: geom: The input geometry crs: Coordinate reference system of the input geometry (default: EPSG:4326, WGS84 geographic coordinates) Returns: Processed geometry in the same CRS as input """ ``` 2. **Spatial Complexity**: ```python def spatial_index_query(points: List[Point], bbox: BoundingBox) -> List[Point]: """Find all points within the bounding box. This function uses an R-tree spatial index for efficient querying. Time complexity: O(log n + k) where n is total number of points and k is number of returned points. Args: points: List of Point objects bbox: Bounding box for the query Returns: Points that fall within the bounding box """ ``` 3. **Edge Cases**: ```python def calculate_distance(point1: Point, point2: Point) -> float: """Calculate the geodesic distance between two points. Uses Vincenty's formula for calculating distances on an ellipsoid. Note: This function handles the antimeridian (International Date Line) correctly. For points near the poles (above 89.5 degrees latitude), a specialized polar coordinate approach is used. Args: point1: First point as (latitude, longitude) point2: Second point as (latitude, longitude) Returns: Distance in meters """ ``` ### Module-Level Documentation Each module should include a top-level docstring: ```python """GEO-INFER-SPACE: spatial methods for the GEO-INFER framework. This module provides tools for working with spatial data, including: - Spatial indexing with H3, QuadTree, and R-Tree - Vector and raster data processing - Geospatial analysis and metrics - Spatial visualization tools The module integrates with GEO-INFER-DATA for data access and GEO-INFER-TIME for temporal analysis of spatial data. Examples: Basic spatial indexing: ```python from geo_infer_space import indexing # Create H3 index h3_index = indexing.create_h3_index(latitude, longitude, resolution=9) ``` """ ``` ### README Files All module README files should follow the template in `GEO-INFER-INTRA/docs/module_readme_template.md`. Key sections include: 1. **Module Overview**: Concise description of the module's purpose 2. **Key Features**: Bulleted list of major capabilities 3. **Installation**: Step-by-step installation instructions 4. **Usage Examples**: Code snippets showing common use cases 5. **Architecture**: Diagram and explanation of module components 6. **API Reference**: Summary of key classes and functions 7. **Integration**: How this module works with other GEO-INFER modules 8. **Use Cases**: Real-world applications of the module 9. **Tutorials**: Links to example notebooks ### Diagrams Use Mermaid diagrams for architectural and workflow documentation. Include these directly in Markdown files: ```markdown ## Data Flow ```mermaid flowchart TD A[Input Geometry] --> B[Validation] B --> C{Valid?} C -->|Yes| D[Processing] C -->|No| E[Error Handling] D --> F[Output] E --> G[Error Report] ``` ``` For geospatial concepts, include appropriate maps and visualizations generated with tools like: - GeoPandas/Matplotlib - Folium/Leaflet - Plotly - deck.gl ### Examples and Tutorials 1. **Basic Examples**: Short, focused examples for specific functionality 2. **Tutorials**: Step-by-step guides for more complex workflows 3. **Integration Examples**: Notebooks showing how to combine multiple modules Jupyter notebooks should: - Include clear markdown explanations - Show expected outputs, including visualizations - Provide complete, runnable code - Include metadata about dependencies and environment - Be structured in a logical progression ## Geospatial Documentation Best Practices ### Coordinate Systems - Always specify the coordinate reference system (CRS) in documentation - Use "latitude, longitude" ordering in parameter descriptions - Specify units (degrees, meters, etc.) for all spatial measurements - Document how projections may affect analyses ### Spatial Data - Document expected formats (GeoJSON, Shapefile, GeoPackage, etc.) - Specify topology requirements (e.g., valid polygons without self-intersections) - Include resolution information for raster data - Document memory requirements for large datasets ### Visualization - Include maps for spatial algorithms when possible - Use consistent styling for visualization examples - Document scale, orientation, and projection in maps - Consider color-blindness accessibility in visualizations ## Documentation Process ### Creating Documentation 1. Start with the appropriate template from `GEO-INFER-INTRA/docs/templates/` 2. Follow the format and structure of existing documentation 3. Include code examples that are tested and verified 4. Add diagrams for complex concepts 5. Cross-reference related documentation ### Updating Documentation 1. Review documentation during code changes 2. Update examples to reflect API changes 3. Add sections for functionality 4. Mark deprecated features clearly 5. Update version numbers and compatibility information ### Documentation Review Checklist - [ ] All public APIs are documented - [ ] Examples are and work as shown - [ ] Diagrams accurately represent the system - [ ] Geospatial concepts are clearly explained - [ ] Code samples follow project style guidelines - [ ] Correct cross-references to other modules - [ ] Documentation builds without errors - [ ] Spell-check completed ## Tools and Resources ### Documentation Generation - [Sphinx](https://www.sphinx-doc.org/) for generating API documentation - [sphinx-autodoc](https://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html) for extracting docstrings - [myst-parser](https://myst-parser.readthedocs.io/) for Markdown support - [sphinx-mermaid](https://github.com/mgaitan/sphinxcontrib-mermaid) for Mermaid diagrams ### Geospatial Resources - [OGC Standards](https://www.ogc.org/standards/) - [EPSG Registry](https://epsg.org/home.html) for coordinate reference systems - [STAC Specification](https://stacspec.org/) for Earth observation data - [GeoJSON Specification](https://geojson.org/) ### Writing Resources - [Google Style Guide](https://google.github.io/styleguide/pyguide.html) for Python docstrings - [Write the Docs](https://www.writethedocs.org/guide/) for general documentation guidance - [Geospatial Data Visualization Best Practices](https://www.esri.com/arcgis-blog/products/arcgis-pro/mapping/mapping-and-visualization/) ## Integration with GEO-INFER Framework The documentation system integrates with the broader GEO-INFER framework: - **GEO-INFER-INTRA**: Central storage for documentation templates and guides - **CI/CD Pipeline**: Automatic documentation building and testing - **Version Control**: Documentation versioned alongside code - **Cross-Referencing**: Inter-module documentation linking ## License and Attribution All documentation is licensed under Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License. When including external maps, data visualizations, or diagrams, provide proper attribution to the original sources. 
+# GEO-INFER Documentation Guide
+
+This guide defines the documentation standards for all 44 GEO-INFER modules.
+Every document, docstring, README, and code example in the framework must follow
+these conventions to maintain consistency and technical precision.
+
+## Documentation Philosophy
+
+### Technical Precision
+
+GEO-INFER documentation uses precise, technical language. Avoid unnecessary
+adjectives, superlatives, and marketing phrasing. Every sentence should either
+convey factual information, explain a concept, or demonstrate usage.
+
+**Do:**
+- "This function computes the Haversine distance between two points."
+- "The module provides Bayesian inference using MCMC and variational methods."
+- "H3 resolution 9 produces cells of approximately 0.1 km^2."
+
+**Do not:**
+- "This powerful function efficiently computes distances in a sophisticated way."
+- "Our cutting-edge module provides state-of-the-art Bayesian inference."
+- "The highly optimized H3 system delivers exceptional spatial resolution."
+
+### Active Inference Alignment
+
+Documentation should reference Active Inference concepts where they apply to the
+module's function. This does not mean forcing Active Inference terminology into
+every sentence, but rather explaining how a module's capabilities connect to the
+broader framework of perception, belief updating, and action selection.
+
+### Concise Professional Language
+
+- Use imperative mood for function descriptions: "Compute the free energy" not
+  "This function computes the free energy."
+- Use present tense: "Returns a GeoDataFrame" not "Will return a GeoDataFrame."
+- Define acronyms on first use within each document.
+- Keep paragraphs to 3-5 sentences. Break longer explanations into subsections.
+
+## README Structure
+
+Every GEO-INFER module must have a `README.md` at its root with the following
+sections in this order:
+
+### Required Sections
+
+1. **Title and Badge Line**
+   - Module name as H1 heading
+   - Python version badge, license badge, test status badge
+
+2. **Overview**
+   - 2-3 sentences describing the module's purpose
+   - How it relates to the GEO-INFER ecosystem
+   - What problems it solves
+
+3. **Key Capabilities**
+   - Bulleted list of 4-8 primary features
+   - Each item: bold feature name followed by 1-sentence description
+
+4. **Quick Start**
+   - Installation command: `uv pip install -e ./GEO-INFER-MODULE`
+   - Minimal working code example (under 15 lines)
+   - Expected output or result description
+
+5. **Core Components**
+   - Table with columns: Component, Module Path, Description
+   - List every subpackage in `src/geo_infer_module/`
+
+6. **Integration**
+   - Which upstream modules this module depends on
+   - Which downstream modules consume this module's output
+   - Code example showing a cross-module workflow
+
+7. **API Reference**
+   - Key classes with constructor signatures
+   - Key functions with parameter types and return types
+   - Link to full API docs if generated
+
+8. **Configuration**
+   - `pyproject.toml` settings relevant to this module
+   - Environment variables recognized by the module
+   - Default values and overrides
+
+9. **Testing**
+   - Command to run the module's tests: `uv run python -m pytest GEO-INFER-MODULE/tests/ -v`
+   - Test categories available (unit, integration, etc.)
+   - Coverage command
+
+10. **Documentation Hub**
+    - Link to GEO-INFER-INTRA documentation hub
+    - Links to relevant guides (active inference, geospatial standards, etc.)
+
+11. **License**
+    - "Apache 2.0" with link to LICENSE file
+
+## SKILL.md Structure
+
+Each module contains a `SKILL.md` file that Claude Code auto-discovers. This file
+teaches the AI assistant how to work with the module.
+
+### Required Format
+
+```markdown
+---
+name: GEO-INFER-MODULE Skill
+description: Brief description of what this skill enables
+prerequisites:
+  - Python 3.9+
+  - uv package manager
+  - List specific dependencies
+difficulty: beginner | intermediate | advanced
+estimated_time: 15 minutes | 30 minutes | 1 hour
+---
+
+# GEO-INFER-MODULE
+
+## Instructions
+
+[Detailed instructions for Claude Code on how to work with this module.
+Include import patterns, common operations, testing commands, and
+integration patterns with other modules.]
+
+## Examples
+
+[3-5 concrete examples showing common tasks. Each example should include
+the input, the code to run, and the expected output.]
+
+## Common Issues
+
+[List 3-5 common errors and their solutions.]
+```
+
+### SKILL.md Guidelines
+
+- Keep instructions action-oriented: "To create a spatial index, use..."
+- Include error recovery patterns: "If import fails, check that..."
+- Reference the module's actual class and function names from source code
+- Update SKILL.md whenever the module's public API changes
+
+## AGENTS.md Structure
+
+Each module has an `AGENTS.md` describing its capabilities for multi-agent
+orchestration.
+
+### Required Format
+
+```markdown
+# GEO-INFER-MODULE Agent Capabilities
+
+## Capabilities
+
+- **Capability 1**: What this module can do as an agent component
+- **Capability 2**: Another capability
+- ...
+
+## Integration Patterns
+
+### Input Formats
+[What data this module accepts and from which other modules]
+
+### Output Formats
+[What data this module produces and for which other modules]
+
+## Agent Communication
+
+[How this module participates in multi-agent workflows,
+including message formats and coordination patterns]
+```
+
+## Code Example Guidelines
+
+All code examples in documentation must follow these rules:
+
+### Must Be Functional
+
+Every code example must run without modification when the module is installed.
+No placeholder comments like `# Implementation here` or `# TODO: add logic`.
+
+```python
+# CORRECT: functional example
+import numpy as np
+from geo_infer_act.core.free_energy import FreeEnergyCalculator
+
+calculator = FreeEnergyCalculator()
+beliefs = np.array([0.25, 0.25, 0.25, 0.25])
+observations = np.array([0.7, 0.1, 0.1, 0.1])
+fe = calculator.compute_categorical_free_energy(beliefs, observations)
+print(f"Free energy: {fe:.4f}")
+```
+
+```python
+# INCORRECT: non-functional stub
+from geo_infer_act import SomeClass
+result = SomeClass().do_something()  # process the data
+# ... more processing ...
+```
+
+### Use Real Imports
+
+Import from actual module paths that exist in the codebase. Do not invent
+module paths or class names.
+
+### Use Realistic Data
+
+Examples should use data that makes domain sense. For geospatial examples, use
+real coordinates (Portland: 45.5231, -122.6765). For Active Inference, use
+probability vectors that sum to 1.0.
+
+### Include Expected Output
+
+Where practical, show what the code produces:
+
+```python
+cell = h3.latlng_to_cell(45.5231, -122.6765, 9)
+print(cell)
+# Output: 8928308280fffff
+```
+
+### Code Block Language Tags
+
+Always specify the language in fenced code blocks:
+- Python: ` ```python `
+- Bash: ` ```bash `
+- JSON: ` ```json `
+- YAML: ` ```yaml `
+- Plain text or output: ` ```text `
+
+## Link Conventions
+
+### Internal Links
+
+Use relative paths from the document's location:
+
+```markdown
+<!-- From GEO-INFER-INTRA/docs/overview.md -->
+[Installation Guide](installation.md)
+[ACT Module](../../GEO-INFER-ACT/README.md)
+```
+
+### External Links
+
+Use full URLs with descriptive link text:
+
+```markdown
+[H3 Documentation](https://h3geo.org/docs/)
+[GeoPandas User Guide](https://geopandas.org/en/stable/docs/user_guide.html)
+```
+
+### Cross-Module References
+
+When referencing another GEO-INFER module from documentation, use the format:
+
+```markdown
+See [GEO-INFER-BAYES](../../GEO-INFER-BAYES/README.md) for Bayesian inference.
+```
+
+## Docstring Standards
+
+All Python code uses Google-style docstrings with full type annotations:
+
+```python
+def compute_spatial_autocorrelation(
+    gdf: gpd.GeoDataFrame,
+    value_column: str,
+    method: str = "moran",
+    weights: Optional[str] = "queen",
+) -> Dict[str, float]:
+    """Compute spatial autocorrelation statistics for a GeoDataFrame.
+
+    Calculates the specified spatial autocorrelation statistic using the
+    given spatial weights matrix. Supports Moran's I and Geary's C.
+
+    Args:
+        gdf: GeoDataFrame with geometry and value columns. Must have a
+            valid CRS set.
+        value_column: Name of the column containing numeric values to
+            analyze.
+        method: Autocorrelation method. One of "moran" (Moran's I) or
+            "geary" (Geary's C). Default: "moran".
+        weights: Spatial weights type. One of "queen", "rook", or "knn".
+            Default: "queen".
+
+    Returns:
+        Dictionary with keys:
+        - "statistic": The computed autocorrelation value.
+        - "p_value": Statistical significance.
+        - "z_score": Standard normal deviate.
+        - "expected": Expected value under null hypothesis.
+
+    Raises:
+        ValueError: If value_column is not in gdf or contains non-numeric data.
+        ValueError: If gdf has no CRS set.
+    """
+```
+
+## Review Checklist
+
+Before submitting documentation, verify all items:
+
+1. [ ] All code examples run without errors when the module is installed
+2. [ ] All imports reference real module paths and class names
+3. [ ] No marketing language, superlatives, or unnecessary adjectives
+4. [ ] All acronyms defined on first use
+5. [ ] Type annotations present on all function signatures in examples
+6. [ ] Links tested and pointing to correct targets
+7. [ ] H3 v4 API used (latlng_to_cell, not geo_to_h3)
+8. [ ] CRS explicitly set on all GeoDataFrame examples
+9. [ ] Probability vectors sum to 1.0 in Active Inference examples
+10. [ ] SKILL.md YAML front matter complete with all required fields
+
+## Common Documentation Anti-Patterns
+
+### 1. Aspirational Documentation
+
+Writing documentation for features that do not exist yet. Every documented
+function, class, or workflow must have a working implementation in the codebase.
+
+### 2. Copy-Paste Syndrome
+
+Duplicating the same explanation across multiple documents. Instead, write it
+once in the canonical location and link to it from other documents.
+
+### 3. Screenshot-Only Explanations
+
+Relying on screenshots to explain code output. Always include text-based output
+alongside any visual. Screenshots break when code changes; text can be validated.
+
+### 4. Undocumented Parameters
+
+Listing parameters in a function signature but omitting them from the docstring.
+Every parameter must have a description, type, and default value (if applicable).
+
+### 5. Stale Examples
+
+Code examples that referenced an older API version. When the API changes, all
+examples referencing the changed functions must be updated in the same commit.
+
+### 6. Vague Error Descriptions
+
+Writing "Raises an error if input is invalid" without specifying which exception
+type or what constitutes invalid input.
+
+### 7. Missing CRS Context
+
+Geospatial examples that create geometries or coordinates without specifying the
+coordinate reference system.
+
+### 8. Mixing Coordinate Orders
+
+Using `(lat, lng)` in one example and `(lng, lat)` in another without flagging
+the difference. Always specify which convention is in use.
+
+## Related Documents
+
+- [Module README Template](module_readme_template.md) -- copy-paste template
+- [Terminology](terminology.md) -- standard terms and definitions
+- [Geospatial Standards](geospatial_standards.md) -- CRS and format conventions
+- [Data Dictionary](data_dictionary.md) -- data structure reference

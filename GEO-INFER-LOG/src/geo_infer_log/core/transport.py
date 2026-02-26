@@ -5,6 +5,7 @@ This module provides classes for multimodal transportation planning,
 transportation network analysis, and emissions calculation.
 """
 
+import logging
 import numpy as np
 import pandas as pd
 import geopandas as gpd
@@ -14,6 +15,18 @@ from shapely.geometry import Point, LineString
 import matplotlib.pyplot as plt
 
 from geo_infer_log.models.schemas import VehicleType, FuelType, Vehicle, Route
+
+logger = logging.getLogger(__name__)
+
+
+def _haversine_km(lon1: float, lat1: float, lon2: float, lat2: float) -> float:
+    """Haversine distance between two (lon, lat) points in km."""
+    import math
+    R = 6371.0
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+    return R * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 
 class MultiModalPlanner:
@@ -113,41 +126,98 @@ class MultiModalPlanner:
         
         for mode in allowed_modes:
             if mode in self.networks:
-                # Find nearest nodes in each mode network
-                # This is a simplified placeholder
-                origin_nodes[mode] = list(self.networks[mode].nodes())[0]
-                destination_nodes[mode] = list(self.networks[mode].nodes())[-1]
+                net = self.networks[mode]
+                # Nearest-node lookup via Haversine distance
+                def _nearest(net, lon, lat):
+                    best, best_d = None, float('inf')
+                    for n, d in net.nodes(data=True):
+                        nx_val = d.get('x', d.get('lon', 0))
+                        ny_val = d.get('y', d.get('lat', 0))
+                        dist = _haversine_km(lon, lat, nx_val, ny_val)
+                        if dist < best_d:
+                            best, best_d = n, dist
+                    return best
+                origin_nodes[mode] = _nearest(net, origin[0], origin[1])
+                destination_nodes[mode] = _nearest(net, destination[0], destination[1])
         
-        # Find optimal path in multimodal graph
-        # This is a simplified placeholder implementation
-        
-        # Prepare route segments
-        segments = [
-            {
-                "mode": "car",
+        # Build multimodal graph and find shortest path
+        multimodal_graph = self._build_multimodal_graph(allowed_modes)
+
+        # Map origin/destination into the prefixed multimodal graph
+        best_route = None
+        best_cost = float('inf')
+        cost_attr = 'weight'
+
+        for o_mode, o_node in origin_nodes.items():
+            for d_mode, d_node in destination_nodes.items():
+                src = f"{o_mode}_{o_node}"
+                dst = f"{d_mode}_{d_node}"
+                if src not in multimodal_graph or dst not in multimodal_graph:
+                    continue
+                try:
+                    path = nx.dijkstra_path(multimodal_graph, src, dst, weight=cost_attr)
+                    cost = nx.dijkstra_path_length(multimodal_graph, src, dst, weight=cost_attr)
+                    if cost < best_cost:
+                        best_cost = cost
+                        best_route = path
+                except nx.NetworkXNoPath:
+                    continue
+
+        # Build route segments from the discovered path
+        segments = []
+        if best_route:
+            current_mode = None
+            seg_start = None
+            seg_dist = 0.0
+            for i, node in enumerate(best_route):
+                node_data = multimodal_graph.nodes[node]
+                mode = node_data.get('mode', 'unknown')
+                if mode != current_mode:
+                    if current_mode is not None:
+                        segments.append({
+                            "mode": current_mode,
+                            "origin": seg_start,
+                            "destination": (node_data.get('x', 0), node_data.get('y', 0)),
+                            "distance": seg_dist,
+                            "time": seg_dist / 50.0 * 60,  # est. 50 km/h average
+                            "cost": seg_dist * 0.3,
+                            "emissions": seg_dist * 0.15,
+                        })
+                    current_mode = mode
+                    seg_start = (node_data.get('x', 0), node_data.get('y', 0))
+                    seg_dist = 0.0
+                if i > 0:
+                    edge_data = multimodal_graph.get_edge_data(best_route[i - 1], node) or {}
+                    seg_dist += edge_data.get('distance', edge_data.get('weight', 1))
+            # Final segment
+            if current_mode and seg_start:
+                last_data = multimodal_graph.nodes[best_route[-1]]
+                segments.append({
+                    "mode": current_mode,
+                    "origin": seg_start,
+                    "destination": (last_data.get('x', 0), last_data.get('y', 0)),
+                    "distance": seg_dist,
+                    "time": seg_dist / 50.0 * 60,
+                    "cost": seg_dist * 0.3,
+                    "emissions": seg_dist * 0.15,
+                })
+        else:
+            # Direct great-circle fallback
+            direct_dist = _haversine_km(origin[0], origin[1], destination[0], destination[1])
+            segments.append({
+                "mode": allowed_modes[0] if allowed_modes else "unknown",
                 "origin": origin,
-                "destination": (8.6821, 50.1109),  # Frankfurt
-                "distance": 150,
-                "time": 90,
-                "cost": 45,
-                "emissions": 24
-            },
-            {
-                "mode": "train",
-                "origin": (8.6821, 50.1109),  # Frankfurt
                 "destination": destination,
-                "distance": 200,
-                "time": 120,
-                "cost": 60,
-                "emissions": 10
-            }
-        ]
-        
-        # Calculate totals
-        total_distance = sum(segment["distance"] for segment in segments)
-        total_time = sum(segment["time"] for segment in segments)
-        total_cost = sum(segment["cost"] for segment in segments)
-        total_emissions = sum(segment["emissions"] for segment in segments)
+                "distance": direct_dist,
+                "time": direct_dist / 50.0 * 60,
+                "cost": direct_dist * 0.3,
+                "emissions": direct_dist * 0.15,
+            })
+
+        total_distance = sum(s["distance"] for s in segments)
+        total_time = sum(s["time"] for s in segments)
+        total_cost = sum(s["cost"] for s in segments)
+        total_emissions = sum(s["emissions"] for s in segments)
         
         return {
             "segments": segments,
@@ -251,9 +321,19 @@ class TransportationNetworkAnalyzer:
         Args:
             flow_file: Path to flow data file
         """
-        # Load flow data from file
-        # This is a simplified placeholder
-        self.flow_data = pd.DataFrame()
+        # Auto-detect format from extension
+        import os
+        ext = os.path.splitext(flow_file)[1].lower()
+        if ext == '.csv':
+            self.flow_data = pd.read_csv(flow_file)
+        elif ext in ('.json', '.geojson'):
+            self.flow_data = pd.read_json(flow_file)
+        elif ext in ('.parquet',):
+            self.flow_data = pd.read_parquet(flow_file)
+        else:
+            # Attempt CSV as default
+            self.flow_data = pd.read_csv(flow_file)
+        logger.info("Loaded flow data: %d records from %s", len(self.flow_data), flow_file)
     
     def calculate_network_metrics(self) -> Dict:
         """Calculate metrics for the transportation network.
@@ -311,13 +391,57 @@ class TransportationNetworkAnalyzer:
         if not self.network or not self.flow_data:
             raise ValueError("Network and flow data must be loaded before analysis")
             
-        # Analyze flow patterns
-        # This is a simplified placeholder
-        
+        # Analyze flow patterns using edge capacity and observed flow
+        if isinstance(self.flow_data, pd.DataFrame) and not self.flow_data.empty:
+            # Expect columns like 'origin', 'destination', 'flow'
+            origin_col = next((c for c in self.flow_data.columns if c in ('origin', 'source', 'from')), None)
+            dest_col = next((c for c in self.flow_data.columns if c in ('destination', 'target', 'to')), None)
+            flow_col = next((c for c in self.flow_data.columns if c in ('flow', 'volume', 'count')), None)
+
+            if origin_col and dest_col and flow_col:
+                edge_flows = {}
+                for _, row in self.flow_data.iterrows():
+                    key = (row[origin_col], row[dest_col])
+                    edge_flows[key] = edge_flows.get(key, 0) + row[flow_col]
+
+                total_flow = sum(edge_flows.values())
+                max_flow_edge = max(edge_flows, key=edge_flows.get) if edge_flows else None
+                max_flow_val = edge_flows[max_flow_edge] if max_flow_edge else 0
+
+                # Identify edges where flow > 80% of capacity
+                congestion_points = []
+                for (u, v), flow in edge_flows.items():
+                    if self.network.has_edge(u, v):
+                        capacity = self.network[u][v].get('capacity', float('inf'))
+                        if capacity > 0 and flow / capacity > 0.8:
+                            congestion_points.append({"edge": (u, v), "flow": flow, "capacity": capacity,
+                                                     "utilization": flow / capacity})
+
+                return {
+                    "total_flow": total_flow,
+                    "max_flow": max_flow_val,
+                    "max_flow_edge": max_flow_edge,
+                    "num_edges_with_flow": len(edge_flows),
+                    "congestion_points": congestion_points,
+                }
+
+        # Fallback: compute max-flow between first/last node if we have capacity data
+        nodes = list(self.network.nodes())
+        if len(nodes) >= 2:
+            try:
+                max_flow_val, flow_dict = nx.maximum_flow(self.network, nodes[0], nodes[-1], capacity='capacity')
+                return {
+                    "total_flow": max_flow_val,
+                    "max_flow": max_flow_val,
+                    "congestion_points": [],
+                }
+            except (nx.NetworkXError, nx.NetworkXUnbounded):
+                pass
+
         return {
             "total_flow": 0,
             "max_flow": 0,
-            "congestion_points": []
+            "congestion_points": [],
         }
     
     def visualize_network(self, 
@@ -479,11 +603,26 @@ class TrafficSimulator:
         
         congestion_results = {}
         for period in periods:
-            # Calculate congestion metrics
-            # This is a simplified placeholder
+            congested_edges = []
+            total_edges = 0
+            for u, v, data in self.network.edges(data=True):
+                total_edges += 1
+                free_flow = data.get('free_flow_speed', 60)
+                current_speed = self.edge_speeds.get((u, v), {}).get(period, free_flow)
+                if free_flow > 0:
+                    speed_ratio = current_speed / free_flow
+                    if speed_ratio <= congestion_threshold:
+                        congested_edges.append({
+                            "edge": (u, v),
+                            "free_flow_speed": free_flow,
+                            "current_speed": current_speed,
+                            "speed_ratio": speed_ratio,
+                        })
+            congestion_ratio = len(congested_edges) / total_edges if total_edges > 0 else 0.0
             congestion_results[period] = {
-                "congested_edges": [],
-                "congestion_ratio": 0.0
+                "congested_edges": congested_edges,
+                "congestion_ratio": congestion_ratio,
+                "total_edges": total_edges,
             }
         
         return congestion_results

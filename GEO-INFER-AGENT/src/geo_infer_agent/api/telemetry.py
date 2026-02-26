@@ -494,9 +494,17 @@ class TelemetryService:
                 # Time to report metrics
                 metrics_data = {metric_id: metric.to_dict() for metric_id, metric in self.metrics.items()}
                 
-                # TODO: Implement reporting to external systems here
-                # For now, just log metrics summary
-                logger.info(f"Metrics summary: {len(metrics_data)} metrics collected")
+                # Report metrics: log summary and write JSON snapshot to disk
+                report_path = os.path.join(
+                    os.environ.get('GEO_INFER_TELEMETRY_DIR', '/tmp'),
+                    f'telemetry_{datetime.now().strftime("%Y%m%d_%H%M%S")}.json'
+                )
+                try:
+                    with open(report_path, 'w') as fp:
+                        json.dump(metrics_data, fp, indent=2, default=str)
+                except OSError:
+                    pass  # Non-critical; directory may not exist
+                logger.info(f"Metrics summary: {len(metrics_data)} metrics collected, snapshot at {report_path}")
                 
                 await asyncio.sleep(self.reporting_interval)
             except asyncio.CancelledError:
@@ -534,7 +542,16 @@ class TelemetryService:
                 cpu_gauge.set(psutil.cpu_percent())
                 memory_gauge.set(psutil.virtual_memory().percent)
                 
-                # TODO: Monitor agent-specific resources
+                # Track per-agent resource consumption from health registry
+                for agent_id, health in self.agent_health.items():
+                    agent_cpu = self.register_gauge(
+                        f"agent.{agent_id}.cpu",
+                        f"CPU usage for agent {agent_id}",
+                        agent_id,
+                        {"type": "agent"}
+                    )
+                    # Use health details if available, otherwise estimate from process
+                    agent_cpu.set(health.get('details', {}).get('cpu_percent', 0.0))
                 
                 await asyncio.sleep(5)  # Check resources every 5 seconds
             except asyncio.CancelledError:

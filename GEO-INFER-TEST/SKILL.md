@@ -1,0 +1,94 @@
+---
+name: geo-infer-test
+description: Unified test runner and testing infrastructure for the GEO-INFER ecosystem. Use when running cross-module tests, configuring test categories, setting up test fixtures for spatial data, or analyzing test results.
+prerequisites:
+  required: []
+  recommended: []
+difficulty: beginner
+estimated_time: 30min
+examples_dir: ../GEO-INFER-EXAMPLES/examples/
+---
+
+# GEO-INFER-TEST
+
+## Instructions
+
+### Core Capabilities
+
+- **Unified test runner**: `run_unified_tests.py` for all 44 modules
+- **Category filtering**: unit, integration, system, performance
+- **Module filtering**: Test individual or groups of modules
+- **Result reporting**: JUnit XML + HTML reports per module
+- **Fixtures**: Shared spatial test data and coordinate generators
+
+### Usage
+
+```bash
+# Run all tests
+uv run python GEO-INFER-TEST/run_unified_tests.py
+
+# Run specific module
+uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH
+
+# Run by category
+uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
+
+# Direct pytest
+uv run python -m pytest GEO-INFER-MATH/tests/unit/ -v --tb=short
+```
+
+### Pytest Markers
+
+`unit`, `integration`, `system`, `performance`, `geospatial`, `api`, `slow`, `fast`
+
+## Examples
+
+```python
+# Spatial test fixture: generate realistic test coordinates
+import numpy as np
+
+def make_test_coordinates(n=100, center=(45.5, -122.6), spread=0.1):
+    """Generate n random lat/lng pairs around a center point."""
+    lats = np.random.normal(center[0], spread, n)
+    lngs = np.random.normal(center[1], spread, n)
+    return list(zip(lats.clip(-90, 90), lngs.clip(-180, 180)))
+
+coords = make_test_coordinates(200)
+```
+
+```python
+# Property-based test example with Hypothesis
+from hypothesis import given, strategies as st
+import numpy as np
+
+@given(
+    lat=st.floats(min_value=-90, max_value=90),
+    lng=st.floats(min_value=-180, max_value=180),
+    resolution=st.integers(min_value=0, max_value=15)
+)
+def test_h3_roundtrip(lat, lng, resolution):
+    """H3 cell encoding/decoding preserves approximate coordinates."""
+    import h3
+    cell = h3.latlng_to_cell(lat, lng, resolution)
+    rlat, rlng = h3.cell_to_latlng(cell)
+    assert abs(rlat - lat) < 1.0  # Within ~1 degree
+```
+
+```bash
+# Run specific test categories
+uv run python -m pytest GEO-INFER-MATH/tests/ -m "unit and not slow" -v
+uv run python -m pytest GEO-INFER-SPACE/tests/ -m "geospatial" -v
+uv run python -m pytest GEO-INFER-ACT/tests/ -m "integration" -v --tb=short
+```
+
+## Guidelines
+
+- Zero mock implementations in tests — use real objects
+- Property-based tests (Hypothesis) in ≥10 modules
+- Results saved to `test-results/{MODULE}_results.xml`
+
+### Integrations
+
+- **EXAMPLES** → Example code treated as integration tests
+- **OPS** → CI/CD test results feed monitoring
+- **All modules** → Unified test runner spans all 44 modules

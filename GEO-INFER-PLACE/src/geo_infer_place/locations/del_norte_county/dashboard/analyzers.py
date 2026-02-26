@@ -6,8 +6,8 @@ import numpy as np
 
 class ClimateAnalyzer:
     """Climate analysis and visualization tools."""
-    
-    def __init__(self):
+
+    def __init__(self, **kwargs):
         self.climate_scenarios = {
             'current': {'temp_increase': 0, 'precip_change': 0},
             'rcp45_2050': {'temp_increase': 2.0, 'precip_change': -5},
@@ -53,10 +53,17 @@ class ClimateAnalyzer:
             'ecosystem_stress_risk': 0.45   # Forest ecosystem stress
         }
 
+    def run_analysis(self) -> Dict[str, Any]:
+        """Alias for generate_climate_projections() with additional fields."""
+        result = self.generate_climate_projections()
+        result['climate_zones'] = list(self.climate_scenarios.keys())
+        return result
+
+
 class ZoningAnalyzer:
     """Zoning and land use analysis tools."""
-    
-    def __init__(self):
+
+    def __init__(self, **kwargs):
         self.zoning_categories = {
             'forest_conservation': {'color': '#228B22', 'acres': 450000},
             'agricultural': {'color': '#FFD700', 'acres': 85000},
@@ -106,10 +113,18 @@ class ZoningAnalyzer:
             'restoration_potential': 0.68
         }
 
+    def run_analysis(self) -> Dict[str, Any]:
+        """Alias for generate_zoning_analysis() with zone_breakdown at top level."""
+        result = self.generate_zoning_analysis()
+        if 'zone_breakdown' not in result:
+            result['zone_breakdown'] = result.get('zoning_breakdown', {})
+        return result
+
+
 class AgroEconomicAnalyzer:
     """Agricultural and economic analysis tools."""
-    
-    def __init__(self):
+
+    def __init__(self, **kwargs):
         self.economic_sectors = {
             'timber_forestry': {'employment': 1200, 'revenue': 180_000_000, 'trend': -0.05},
             'agricultural': {'employment': 450, 'revenue': 25_000_000, 'trend': 0.02},
@@ -187,3 +202,7 @@ class AgroEconomicAnalyzer:
             'infrastructure_quality': 0.58,
             'workforce_adaptability': 0.65
         }
+
+    def run_analysis(self) -> Dict[str, Any]:
+        """Alias for generate_economic_analysis()."""
+        return self.generate_economic_analysis()

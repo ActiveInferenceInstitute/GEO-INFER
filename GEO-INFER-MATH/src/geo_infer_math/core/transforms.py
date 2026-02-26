@@ -124,7 +124,7 @@ class CoordinateTransformer:
             if not from_supported or not to_supported:
                 raise ValueError(f"Unsupported coordinate transformation from {self.from_crs.name} to {self.to_crs.name}")
 
-            # Generic transformation (placeholder)
+            # Fallback: pass-through with warning for unsupported CRS pairs
             chain.append(self._generic_transformation)
 
         return chain
@@ -348,7 +348,7 @@ class CoordinateTransformer:
         return lon, lat, z
 
     def _generic_transformation(self, x: float, y: float, z: Optional[float] = None) -> Tuple[float, float, Optional[float]]:
-        """Generic transformation placeholder."""
+        """Pass-through fallback for unrecognised CRS pairs."""
         warnings.warn(f"Generic transformation from {self.from_crs.name} to {self.to_crs.name} not implemented. "
                      "Returning original coordinates.")
         return x, y, z

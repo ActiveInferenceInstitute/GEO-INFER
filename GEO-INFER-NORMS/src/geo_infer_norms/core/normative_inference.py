@@ -677,12 +677,15 @@ class SocialNormDiffusion:
                         avg_normalized_distance = sum(normalized_distances) / len(normalized_distances)
                         spatial_influence = 1 - avg_normalized_distance
         
-        # Content influence (placeholder)
+        # Content influence: Jaccard similarity between norm and entity attributes
         content_influence = 0.0
         if norm["content_factor"] > 0:
-            # In a real implementation, this would analyze content compatibility
-            # between norm attributes and entity attributes
-            content_influence = 0.5
+            norm_attrs = set(norm.get("attributes", {}).keys())
+            entity_attrs = set(self.entities[entity_id].get("attributes", {}).keys())
+            if norm_attrs or entity_attrs:
+                intersection = norm_attrs & entity_attrs
+                union = norm_attrs | entity_attrs
+                content_influence = len(intersection) / len(union) if union else 0.0
         
         # Combine influences
         total_influence = (

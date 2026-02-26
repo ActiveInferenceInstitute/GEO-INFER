@@ -74,6 +74,16 @@ class RoutingEngine:
         self.modes = modes or ["car"]
         self.real_time_traffic = real_time_traffic
         self._traffic_data: Dict[str, float] = {}
+
+        # Optional LOG integration for emissions calculation
+        self._emissions_calculator = None
+        try:
+            from geo_infer_log.core.transport import EmissionsCalculator
+            self._emissions_calculator = EmissionsCalculator()
+            logger.debug("GEO-INFER-LOG EmissionsCalculator integration active")
+        except ImportError:
+            logger.debug("GEO-INFER-LOG not available; emissions estimates disabled")
+
         logger.info(f"Initialized RoutingEngine with {algorithm} algorithm")
     
     def set_network(self, network: Any) -> None:

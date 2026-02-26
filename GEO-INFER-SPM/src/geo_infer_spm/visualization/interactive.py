@@ -267,16 +267,87 @@ def create_time_series_explorer(spm_result: SPMResult) -> Optional[Any]:
         warnings.warn("No temporal data available for time series explorer")
         return None
 
-    # This would create interactive time series plots
-    # Implementation depends on specific temporal data structure
-    # Placeholder for now
+    import numpy as np
 
-    fig = go.Figure()
+    data = spm_result.spm_data.data  # shape: (n_locations, n_timepoints) or (n_timepoints,)
+    time_labels = getattr(spm_result.spm_data, 'time_labels', None)
+
+    if data.ndim == 1:
+        # Single time series
+        n_time = len(data)
+        mean_ts = data
+        std_ts = np.zeros_like(data)
+    else:
+        # Multiple locations — show spatial mean ± 1 std
+        n_time = data.shape[1] if data.ndim == 2 else data.shape[0]
+        mean_ts = np.mean(data, axis=0)
+        std_ts = np.std(data, axis=0)
+
+    if time_labels is None:
+        time_labels = list(range(n_time))
+
+    fig = make_subplots(
+        rows=2, cols=1,
+        subplot_titles=["Spatial Mean ± 1 SD", "Residual Time Series"],
+        shared_xaxes=True,
+        vertical_spacing=0.15,
+    )
+
+    # Row 1: Mean ± confidence band
+    fig.add_trace(
+        go.Scatter(
+            x=time_labels, y=(mean_ts + std_ts).tolist(),
+            mode='lines', line=dict(width=0), showlegend=False,
+        ),
+        row=1, col=1,
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=time_labels, y=(mean_ts - std_ts).tolist(),
+            mode='lines', line=dict(width=0),
+            fill='tonexty', fillcolor='rgba(68,68,255,0.2)',
+            name='±1 SD',
+        ),
+        row=1, col=1,
+    )
+    fig.add_trace(
+        go.Scatter(
+            x=time_labels, y=mean_ts.tolist(),
+            mode='lines+markers', name='Spatial Mean',
+            line=dict(color='rgb(68,68,255)', width=2),
+            marker=dict(size=4),
+        ),
+        row=1, col=1,
+    )
+
+    # Row 2: Residual time series (if available)
+    residuals = spm_result.residuals
+    if residuals is not None and residuals.ndim >= 1:
+        if residuals.ndim == 1:
+            res_ts = residuals
+        else:
+            res_ts = np.mean(residuals, axis=0) if residuals.shape[1] == n_time else residuals[:n_time]
+
+        fig.add_trace(
+            go.Scatter(
+                x=time_labels[:len(res_ts)], y=res_ts.tolist(),
+                mode='lines+markers', name='Mean Residual',
+                line=dict(color='rgb(255,68,68)', width=1),
+                marker=dict(size=3),
+            ),
+            row=2, col=1,
+        )
+        # Zero reference line
+        fig.add_hline(y=0, line_dash="dash", line_color="gray", row=2, col=1)
 
     fig.update_layout(
-        title="Time Series Explorer (Under Development)",
-        xaxis_title="Time",
-        yaxis_title="Value"
+        title="SPM Time Series Explorer",
+        height=700,
+        xaxis2_title="Time",
+        yaxis_title="Value",
+        yaxis2_title="Residual",
+        showlegend=True,
     )
 
     return fig
+

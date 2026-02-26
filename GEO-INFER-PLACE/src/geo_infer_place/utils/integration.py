@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import h3
 import logging
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -334,8 +334,8 @@ class _NOAAWrapper(CachedAPIWrapper):
                 begin_date = datetime.strptime(start, "%Y-%m-%d").strftime("%Y%m%d")
                 end_date = datetime.strptime(end, "%Y-%m-%d").strftime("%Y%m%d")
             else:
-                end_date = datetime.utcnow().strftime("%Y%m%d")
-                begin_date = (datetime.utcnow() - timedelta(days=7)).strftime("%Y%m%d")
+                end_date = datetime.now(timezone.utc).strftime("%Y%m%d")
+                begin_date = (datetime.now(timezone.utc) - timedelta(days=7)).strftime("%Y%m%d")
 
             series: Dict[str, Any] = {}
             for station in stations:
@@ -389,7 +389,7 @@ class _NOAAWrapper(CachedAPIWrapper):
             "9414290": "Point Arena, California",
             "9418199": "Humboldt Bay North Spit, California",
         }
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         measurements = []
         for i in range(48):
             ts = now - timedelta(hours=48 - i)
@@ -423,14 +423,14 @@ class _NOAAWrapper(CachedAPIWrapper):
                 "current_speed_ms": float(np.random.uniform(0.1, 0.5)),
                 "current_direction_degrees": float(np.random.uniform(150, 210)),
                 "h3_cell": h3.latlng_to_cell(lat, lon, 8),
-                "timestamp": datetime.utcnow().isoformat() + "Z",
+                "timestamp": datetime.now(timezone.utc).isoformat(),
             })
         return {
             "data_source": "NOAA Current Measurements (synthetic fallback)",
             "bbox": bbox,
             "measurements": measurements,
             "region": "Del Norte County, California",
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "timestamp": datetime.now(timezone.utc).isoformat(),
             "data_quality": "synthetic",
         }
 
