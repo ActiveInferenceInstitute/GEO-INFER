@@ -124,6 +124,95 @@ class TestActiveInferenceModel(unittest.TestCase):
         self.assertEqual(state['actions'], "test_action")
         self.assertIn('free_energy', state)
 
+    def test_update_observations(self):
+        """Test updating observations directly."""
+        self.model.update_observations({'temp': 22.5, 'pressure': 101.3})
+        self.assertEqual(self.model.current_observations['temp'], 22.5)
+        self.assertEqual(self.model.current_observations['pressure'], 101.3)
+
+    def test_update_preferences(self):
+        """Test updating preferences directly."""
+        self.model.update_preferences({'accuracy': 0.9, 'speed': 0.7})
+        self.assertEqual(self.model.preferences['accuracy'], 0.9)
+        self.assertEqual(self.model.preferences['speed'], 0.7)
+
+    def test_update_with_outcome(self):
+        """Test decision-outcome learning loop."""
+        gen_model = GenerativeModel("categorical", self.gen_params)
+        gen_model.observation_model = np.array([[0.8, 0.1, 0.2], [0.2, 0.9, 0.8]])
+        self.model.set_generative_model(gen_model)
+        decision = {'action': 'move_north'}
+        outcome = {'observation': np.array([1.0, 0.0]), 'reward': 0.5}
+        self.model.update_with_outcome(decision, outcome)
+        # Should store in history
+        self.assertEqual(len(self.model.history), 1)
+        self.assertEqual(self.model.history[0]['decision'], decision)
+        # Should have updated beliefs from the observation
+        self.assertIsNotNone(self.model.current_beliefs)
+
+    def test_generate_policies(self):
+        """Test policy generation from available actions."""
+        actions = [{'action': 'north', 'cost': 1}, {'action': 'south', 'cost': 2}]
+        policies = self.model.generate_policies(actions)
+        self.assertEqual(len(policies), 2)
+        self.assertEqual(policies[0]['action'], 'north')
+
+    def test_compute_expected_free_energy_real(self):
+        """Test real EFE computation delegates to FreeEnergyCalculator."""
+        gen_model = GenerativeModel("categorical", self.gen_params)
+        self.model.set_generative_model(gen_model)
+        policy = {'exploration_bonus': 0.1, 'risk_preference': 0.0}
+        efe = self.model.compute_expected_free_energy(policy)
+        self.assertIsInstance(efe, float)
+        self.assertTrue(np.isfinite(efe))
+
+    def test_compute_expected_free_energy_no_beliefs(self):
+        """Test EFE returns inf when no beliefs are available."""
+        self.model.current_beliefs = None
+        efe = self.model.compute_expected_free_energy({})
+        self.assertEqual(efe, float('inf'))
+
+    def test_apply_to_h3(self):
+        """Test applying H3 spatial observations."""
+        gen_model = GenerativeModel("categorical", self.gen_params)
+        gen_model.enable_h3_spatial(8, {
+            'type': 'Polygon',
+            'coordinates': [[[-122.41, 37.77], [-122.41, 37.80], [-122.38, 37.80], [-122.38, 37.77], [-122.41, 37.77]]]
+        })
+        self.model.set_generative_model(gen_model)
+        # Create observations for first few cells — obs_dim is 2 per gen_params
+        h3_obs = {}
+        for cell in gen_model.h3_cells[:2]:
+            h3_obs[cell] = np.random.rand(2)
+        result = self.model.apply_to_h3(h3_obs)
+        self.assertIsNotNone(result)
+
+
+class TestGenerativeModelSummary(unittest.TestCase):
+    """Tests for GenerativeModel summary and diagnostic methods."""
+
+    def test_get_model_summary(self):
+        """Test comprehensive model summary generation."""
+        gen_model = GenerativeModel("categorical", {"state_dim": 4})
+        summary = gen_model.get_model_summary()
+        self.assertIsInstance(summary, dict)
+        self.assertEqual(summary['model_type'], 'categorical')
+        self.assertEqual(summary['state_dim'], 4)
+        self.assertIn('free_energy', summary)
+        self.assertIn('belief_entropy', summary)
+        self.assertIn('convergence_status', summary)
+
+    def test_get_model_summary_hierarchical(self):
+        """Test model summary includes hierarchical details."""
+        gen_model = GenerativeModel("categorical", {
+            "state_dims": [4, 3],
+            "obs_dims": [4, 3],
+            "hierarchical": True
+        })
+        summary = gen_model.get_model_summary()
+        self.assertTrue(summary['hierarchical'])
+        self.assertIn('levels', summary)
+        self.assertIn('level_details', summary)
 
 class TestBayesianBeliefUpdate(unittest.TestCase):
     """Tests for BayesianBeliefUpdate class."""
@@ -538,6 +627,64 @@ class TestPolicySelector(unittest.TestCase):
     def test_compute_expected_free_energy(self):
         efe = self.selector.compute_expected_free_energy(self.beliefs, {'action': 0, 'exploration_bonus': 0.1}, np.array([0.3,0.7]))
         self.assertIsInstance(efe, float)
+
+
+class TestMultiAgentMessages(unittest.TestCase):
+    """Tests for MultiAgentModel.get_agent_messages."""
+
+    def test_get_agent_messages_valid(self):
+        """Test getting messages from a valid agent."""
+        from geo_infer_act.models.multi_agent import MultiAgentModel
+        model = MultiAgentModel(n_agents=3)
+        msg = model.get_agent_messages(0)
+        self.assertIsInstance(msg, dict)
+        self.assertEqual(msg['agent_id'], 0)
+        self.assertIn('beliefs', msg)
+
+    def test_get_agent_messages_invalid(self):
+        """Test getting messages from an invalid agent ID."""
+        from geo_infer_act.models.multi_agent import MultiAgentModel
+        model = MultiAgentModel(n_agents=3)
+        msg = model.get_agent_messages(99)
+        self.assertEqual(msg, {})
+
+    def test_get_agent_messages_negative_id(self):
+        """Test getting messages from a negative agent ID."""
+        from geo_infer_act.models.multi_agent import MultiAgentModel
+        model = MultiAgentModel(n_agents=3)
+        msg = model.get_agent_messages(-1)
+        self.assertEqual(msg, {})
+
+
+class TestDiffuseAndAggregateBeliefs(unittest.TestCase):
+    """Tests for GenerativeModel spatial belief diffusion and aggregation."""
+
+    def test_diffuse_beliefs_non_spatial(self):
+        """Test that diffuse_beliefs returns beliefs unchanged when not spatial."""
+        gen_model = GenerativeModel("categorical", {"state_dim": 3})
+        beliefs = {'cell_a': np.array([0.5, 0.3, 0.2]), 'cell_b': np.array([0.1, 0.8, 0.1])}
+        result = gen_model.diffuse_beliefs(beliefs, diffusion_rate=0.1)
+        # Non-spatial mode should return input unchanged
+        self.assertEqual(set(result.keys()), set(beliefs.keys()))
+
+    def test_aggregate_beliefs_to_resolution(self):
+        """Test belief aggregation to coarser H3 resolution."""
+        import h3
+        gen_model = GenerativeModel("categorical", {"state_dim": 3})
+        gen_model.enable_h3_spatial(8, {
+            'type': 'Polygon',
+            'coordinates': [[[-122.41, 37.77], [-122.41, 37.80], [-122.38, 37.80], [-122.38, 37.77], [-122.41, 37.77]]]
+        })
+        # Create beliefs for each cell
+        beliefs = {cell: np.array([0.3, 0.3, 0.4]) for cell in gen_model.h3_cells[:5]}
+        # Aggregate to coarser resolution
+        aggregated = gen_model.aggregate_beliefs_to_resolution(beliefs, target_resolution=5)
+        self.assertIsInstance(aggregated, dict)
+        # Should have fewer cells at coarser resolution
+        self.assertLessEqual(len(aggregated), len(beliefs))
+        # All values should be valid distributions
+        for cell, b in aggregated.items():
+            self.assertAlmostEqual(np.sum(b), 1.0, places=5)
 
 
 if __name__ == '__main__':

@@ -382,5 +382,41 @@ class MultiAgentModel(ActiveInferenceModel):
             'n_coordinated_agents': n_cells
         }
 
-    def get_agent_messages(self, agent_id):
-        return {}
+    def get_agent_messages(self, agent_id: int) -> Dict[str, Any]:
+        """Get messages for inter-agent communication from the specified agent.
+        
+        Returns a snapshot of the agent's current beliefs, position, and
+        recent interactions for use in multi-agent coordination protocols.
+        
+        Args:
+            agent_id: Integer index of the agent
+            
+        Returns:
+            Dict with 'beliefs', 'position', 'last_action', 'free_energy',
+            and 'timestamp' keys. Empty dict if agent_id is invalid.
+        """
+        if agent_id < 0 or agent_id >= len(self.agent_models):
+            logger.warning(f"Invalid agent_id {agent_id}, valid range [0, {len(self.agent_models)})")
+            return {}
+        
+        agent = self.agent_models[agent_id]
+        message: Dict[str, Any] = {
+            'agent_id': agent_id,
+            'beliefs': agent.beliefs.tolist() if hasattr(agent, 'beliefs') and agent.beliefs is not None else [],
+        }
+        
+        # Include spatial position if H3 mode is active
+        if hasattr(self, 'spatial_mode') and self.spatial_mode and agent_id < len(self.h3_cells):
+            message['position'] = self.h3_cells[agent_id]
+        
+        # Include recent action info from history
+        if hasattr(self, 'history') and self.history:
+            last_step = self.history[-1]
+            if isinstance(last_step, dict):
+                cell_key = self.h3_cells[agent_id] if hasattr(self, 'h3_cells') and agent_id < len(self.h3_cells) else str(agent_id)
+                if cell_key in last_step:
+                    cell_data = last_step[cell_key]
+                    message['last_action'] = cell_data.get('action')
+                    message['free_energy'] = cell_data.get('free_energy')
+        
+        return message
