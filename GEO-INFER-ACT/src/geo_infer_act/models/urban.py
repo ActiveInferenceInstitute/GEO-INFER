@@ -36,6 +36,7 @@ class UrbanModel(ActiveInferenceModel):
         super().__init__(config)
         
         self.n_agents = n_agents
+        self.n_resources = n_resources
         self.n_locations = n_locations
         self.planning_horizon = planning_horizon
         
@@ -198,10 +199,11 @@ class UrbanModel(ActiveInferenceModel):
                 'beliefs': beliefs
             })
             
-        return {'states': states, 'resource_map': self.resource_levels.tolist()}
+        return {'states': states, 'resource_map': self.resource_levels.tolist()}, False
 
     def run_simulation(self, n_steps: int = 10):
         history = []
         for _ in range(n_steps):
-            history.append(self.step())
+            state, _ = self.step()
+            history.append(state)
         return history 
