@@ -7,6 +7,7 @@ and compatibility with SPM statistical methods.
 """
 
 import numpy as np
+from scipy import stats
 from typing import Dict, List, Optional, Tuple, Union, Any
 import warnings
 
@@ -38,6 +39,10 @@ def validate_spm_data(data: SPMData) -> SPMData:
             data.data = np.asarray(data.data)
         except Exception as e:
             raise ValueError(f"Cannot convert data to numpy array: {e}")
+
+    # Check for empty data
+    if data.data.size == 0:
+        raise ValueError("Data cannot be empty")
 
     # Check data dimensionality
     if data.data.ndim > 2:
@@ -83,14 +88,14 @@ def validate_spm_data(data: SPMData) -> SPMData:
         warnings.warn(f"Data contains {inf_count} infinite values")
 
     # Validate coordinate ranges for common CRS
-    if hasattr(data, 'crs') and data.crs:
+    if hasattr(data, 'crs') and data.crs and data.coordinates.shape[1] == 2:
         crs_str = str(data.crs).upper()
         if '4326' in crs_str or 'WGS84' in crs_str:
             lon, lat = data.coordinates[:, 0], data.coordinates[:, 1]
             if np.any((lon < -180) | (lon > 180)):
-                warnings.warn("Longitude values outside valid range [-180, 180]")
+                raise ValueError("Longitude values must be between -180 and 180 degrees")
             if np.any((lat < -90) | (lat > 90)):
-                warnings.warn("Latitude values outside valid range [-90, 90]")
+                raise ValueError("Latitude values must be between -90 and 90 degrees")
 
     # Update metadata with validation results
     if not hasattr(data, 'metadata'):
@@ -340,29 +345,42 @@ def _compute_gearys_c(data: np.ndarray, distance_matrix: np.ndarray) -> Dict[str
 def _compute_variogram(data: np.ndarray, distance_matrix: np.ndarray,
                       max_lag: int) -> Dict[str, Any]:
     """Compute empirical variogram."""
-    distances = distance_matrix.flatten()
+    dist_flat = distance_matrix.flatten()
     diffs = (data[:, np.newaxis] - data[np.newaxis, :])**2
-    diff_values = diffs.flatten()
+    diff_flat = diffs.flatten()
 
     # Remove self-comparisons
-    mask = distances > 0
-    distances = distances[mask]
-    diff_values = diff_values[mask]
+    nz = dist_flat > 0
+    dist_flat = dist_flat[nz]
+    diff_flat = diff_flat[nz]
 
-    # Bin distances
-    bins = np.linspace(0, np.max(distances), max_lag + 1)
-    variogram = []
+    # Bin distances into exactly max_lag bins
+    bins = np.linspace(0, np.max(dist_flat), max_lag + 1)
+    bin_centers = (bins[:-1] + bins[1:]) / 2
+    variogram = np.zeros(max_lag)
+    counts = np.zeros(max_lag, dtype=int)
 
     for i in range(max_lag):
-        mask = (distances >= bins[i]) & (distances < bins[i+1])
-        if np.sum(mask) > 0:
-            gamma = np.mean(diff_values[mask]) / 2
-            variogram.append(gamma)
+        mask = (dist_flat >= bins[i]) & (dist_flat < bins[i + 1])
+        counts[i] = int(np.sum(mask))
+        if counts[i] > 0:
+            variogram[i] = np.mean(diff_flat[mask]) / 2
+
+    # Simple variogram model parameters (nugget, sill, range)
+    nugget = float(variogram[0]) if variogram[0] > 0 else 0.0
+    sill = float(np.max(variogram))
+    # Range: lag where variogram first reaches 95% of sill
+    if sill > nugget:
+        above = np.where(variogram >= 0.95 * sill)[0]
+        range_val = float(bin_centers[above[0]]) if len(above) > 0 else float(bin_centers[-1])
+    else:
+        range_val = float(bin_centers[-1])
 
     return {
-        'lags': bins[:-1] + (bins[1] - bins[0]) / 2,
-        'variogram': variogram,
-        'n_pairs': [np.sum((distances >= bins[i]) & (distances < bins[i+1])) for i in range(max_lag)]
+        'distances': bin_centers.tolist(),
+        'variogram': variogram.tolist(),
+        'counts': counts.tolist(),
+        'model': {'nugget': nugget, 'sill': sill, 'range': range_val}
     }
 
 

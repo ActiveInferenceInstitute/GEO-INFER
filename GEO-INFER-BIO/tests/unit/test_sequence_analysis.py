@@ -54,7 +54,7 @@ def test_calculate_gc_content(sequence_analyzer):
     sequence = Seq("ATGCGTACGTAGCTAGCTAG")
     gc_content = sequence_analyzer.calculate_gc_content(sequence)
     assert 0 <= gc_content <= 100
-    assert gc_content == 45.0  # 9 G/C out of 20 bases
+    assert gc_content == 50.0  # 10 G/C out of 20 bases (6G + 4C)
 
 
 def test_find_motifs(sequence_analyzer):

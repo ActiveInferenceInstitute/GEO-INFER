@@ -25,7 +25,7 @@ class TestGeospatialDataFormats:
         """Test complete pipeline with JSON data."""
         # Create realistic JSON data
         n_points = 100
-        coordinates = np.random.rand(n_points, 2) * 180 - 90  # Global extent
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)]) - 90  # Global extent
         data = np.random.normal(25, 5, n_points)  # Temperature-like data
 
         json_data = {
@@ -122,7 +122,7 @@ class TestSpatialDataIntegration:
         """Test spatial autocorrelation analysis workflow."""
         # Create data with known spatial patterns
         n_points = 200
-        coordinates = np.random.rand(n_points, 2) * 200
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
 
         # Create spatially correlated data
         distances = np.linalg.norm(coordinates[:, np.newaxis] - coordinates[np.newaxis, :], axis=2)
@@ -155,7 +155,7 @@ class TestSpatialDataIntegration:
     def test_geographically_weighted_analysis(self):
         """Test GWR on spatially varying relationships."""
         n_points = 150
-        coordinates = np.random.rand(n_points, 2) * 300
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
 
         # Create spatially varying relationships
         x_coord = coordinates[:, 0]
@@ -194,7 +194,7 @@ class TestTemporalDataIntegration:
         time_points = np.arange(n_years)
 
         # Create spatial locations
-        coordinates = np.random.rand(n_stations, 2) * 500
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_stations), np.random.uniform(-89, 89, n_stations)])
 
         # Create spatio-temporal data
         spatiotemporal_data = np.zeros((n_years, n_stations))
@@ -355,7 +355,7 @@ class TestDataExportImportCycle:
         """Test exporting results to JSON and re-importing."""
         # Create analysis results
         n_points = 50
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         X = np.random.randn(n_points, 2)
         y = X @ np.array([1.5, -0.8]) + 0.1 * np.random.randn(n_points)
 
@@ -393,7 +393,7 @@ class TestDataExportImportCycle:
         """Test CSV export functionality."""
         # Create results with spatial coordinates
         n_points = 30
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         data = np.random.randn(n_points)
 
         spm_data = SPMData(data=data, coordinates=coordinates, crs='EPSG:4326')
@@ -431,7 +431,7 @@ class TestRealWorldScenarios:
         n_stations = 100
 
         # Realistic station locations (e.g., air quality monitors)
-        coordinates = np.random.rand(n_stations, 2) * 200 + np.array([-100, 30])  # Western US
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_stations), np.random.uniform(-89, 89, n_stations)]) + np.array([-100, 30])  # Western US
 
         # Environmental variables
         urban_proximity = np.random.exponential(50, n_stations)  # Distance to urban center
@@ -485,7 +485,7 @@ class TestRealWorldScenarios:
         n_fields = 150
 
         # Field locations
-        coordinates = np.random.rand(n_fields, 2) * 500
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_fields), np.random.uniform(-89, 89, n_fields)])
 
         # Agricultural variables
         soil_quality = np.random.beta(2, 2, n_fields) * 100  # Soil quality score

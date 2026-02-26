@@ -238,6 +238,8 @@ class GeographicallyWeightedRegression:
         Returns:
             Self for method chaining
         """
+        self.X = X
+        self.y = y
         self.coordinates = coordinates
 
         # Estimate bandwidth if not provided
@@ -332,7 +334,7 @@ class GeographicallyWeightedRegression:
         predictions = []
 
         for i, coord in enumerate(coordinates):
-            pred = self._local_regression(X, np.ones(len(X)),  # Dummy y for prediction
+            pred = self._local_regression(self.X, self.y,
                                         self.coordinates, coord, self.bandwidth)
             predictions.append(pred)
 
@@ -534,8 +536,8 @@ def spatial_regression_analysis(X: np.ndarray, y: np.ndarray,
         results['r_squared'] = model.score(X, y)
 
     elif model_type == 'sar':
-        # Create spatial weights matrix
-        from ..core.linalg_tensor import MatrixOperations
+        # Create spatial weights matrix (import used by sar, sem, sdm branches)
+        from ..core.linalg_tensor import MatrixOperations  # noqa: F811
         weights_matrix = MatrixOperations.spatial_weights_matrix(
             coordinates, method='inverse_distance', k=5
         )
@@ -553,6 +555,7 @@ def spatial_regression_analysis(X: np.ndarray, y: np.ndarray,
         results['bandwidth'] = model.bandwidth
 
     elif model_type == 'sem':
+        from ..core.linalg_tensor import MatrixOperations  # noqa: F811
         weights_matrix = MatrixOperations.spatial_weights_matrix(
             coordinates, method='inverse_distance', k=5
         )
@@ -564,6 +567,7 @@ def spatial_regression_analysis(X: np.ndarray, y: np.ndarray,
         results['coefficients'] = model.beta
 
     elif model_type == 'sdm':
+        from ..core.linalg_tensor import MatrixOperations  # noqa: F811
         weights_matrix = MatrixOperations.spatial_weights_matrix(
             coordinates, method='inverse_distance', k=5
         )

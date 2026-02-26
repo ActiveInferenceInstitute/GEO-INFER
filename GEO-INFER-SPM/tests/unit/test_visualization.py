@@ -311,7 +311,7 @@ class TestVisualizationDataStructures:
             from geo_infer_spm.visualization.maps import create_statistical_map
 
             # Create minimal SPM result
-            coordinates = np.random.rand(10, 2) * 100
+            coordinates = np.column_stack([np.random.uniform(-179, 179, 10), np.random.uniform(-89, 89, 10)])
             spm_data = SPMData(data=np.random.randn(10), coordinates=coordinates, crs='EPSG:4326')
 
             X = np.random.randn(10, 1)
@@ -342,7 +342,7 @@ class TestVisualizationDataStructures:
             from geo_infer_spm.visualization.maps import create_statistical_map
 
             # Test with invalid contrast index
-            coordinates = np.random.rand(5, 2) * 100
+            coordinates = np.column_stack([np.random.uniform(-179, 179, 5), np.random.uniform(-89, 89, 5)])
             spm_data = SPMData(data=np.random.randn(5), coordinates=coordinates, crs='EPSG:4326')
 
             X = np.random.randn(5, 1)
@@ -388,7 +388,7 @@ class TestVisualizationWithoutDependencies:
                 from geo_infer_spm.visualization.maps import create_statistical_map
                 # If we get here, the import worked but matplotlib is not available
                 # Create a dummy SPM result to test
-                coordinates = np.random.rand(5, 2) * 100
+                coordinates = np.column_stack([np.random.uniform(-179, 179, 5), np.random.uniform(-89, 89, 5)])
                 spm_data = SPMData(data=np.random.randn(5), coordinates=coordinates, crs='EPSG:4326')
                 X = np.random.randn(5, 1)
                 design_matrix = DesignMatrix(matrix=X, names=['intercept'])

@@ -28,7 +28,7 @@ class TestPerformanceScaling:
         np.random.seed(42)
 
         # Generate test data
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         X = np.random.randn(n_points, 3)
         y = X @ np.array([1.0, -0.5, 0.3]) + 0.1 * np.random.randn(n_points)
 
@@ -59,7 +59,7 @@ class TestPerformanceScaling:
         """Test spatial analysis performance scaling."""
         np.random.seed(42)
 
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         data = np.random.randn(n_points)
 
         analyzer = SpatialAnalyzer(coordinates)
@@ -138,7 +138,7 @@ class TestMemoryUsage:
         initial_memory = process.memory_info().rss / 1024 / 1024  # MB
 
         # Generate large dataset
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         X = np.random.randn(n_points, n_params)
         y = X @ np.random.randn(n_params) + 0.1 * np.random.randn(n_points)
 
@@ -161,7 +161,7 @@ class TestMemoryUsage:
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss / 1024 / 1024
 
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         analyzer = SpatialAnalyzer(coordinates)
 
         # Distance matrix should be created
@@ -193,7 +193,7 @@ class TestBenchmarkComparisons:
         beta_true = np.random.randn(n_params)
         y = X @ beta_true + 0.01 * np.random.randn(n_points)
 
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         spm_data = SPMData(data=y, coordinates=coordinates, crs='EPSG:4326')
         design_matrix = DesignMatrix(matrix=X, names=[f'p{i}' for i in range(n_params)])
 
@@ -222,7 +222,7 @@ class TestBenchmarkComparisons:
         process = psutil.Process(os.getpid())
         initial_memory = process.memory_info().rss / 1024 / 1024
 
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         X = np.random.randn(n_points, n_params)
         y = X @ np.random.randn(n_params) + 0.1 * np.random.randn(n_points)
 
@@ -245,7 +245,7 @@ class TestScalabilityLimits:
         """Test handling of relatively large datasets."""
         n_points = 5000  # Moderately large
 
-        coordinates = np.random.rand(n_points, 2) * 1000
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         X = np.random.randn(n_points, 2)
         y = X @ np.array([1.0, -0.5]) + 0.1 * np.random.randn(n_points)
 
@@ -265,7 +265,7 @@ class TestScalabilityLimits:
         """Test regression with many predictors."""
         n_points, n_params = 200, 20  # More parameters than typical
 
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         X = np.random.randn(n_points, n_params)
         beta_true = np.random.randn(n_params) * 0.1  # Small coefficients
         y = X @ beta_true + 0.01 * np.random.randn(n_points)
@@ -290,7 +290,7 @@ class TestParallelProcessing:
         """Test GLM fitting with different parallel settings."""
         n_points, n_datasets = 200, 5
 
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
 
         results = []
         for i in range(n_datasets):
@@ -320,7 +320,7 @@ class TestComputationalComplexity:
         times = []
 
         for n_points in sizes:
-            coordinates = np.random.rand(n_points, 2) * 100
+            coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
             X = np.random.randn(n_points, 3)
             y = X @ np.array([1.0, -0.5, 0.3]) + 0.1 * np.random.randn(n_points)
 
@@ -348,7 +348,7 @@ class TestComputationalComplexity:
         times = []
 
         for n_points in sizes:
-            coordinates = np.random.rand(n_points, 2) * 100
+            coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
             data = np.random.randn(n_points)
 
             start_time = time.time()

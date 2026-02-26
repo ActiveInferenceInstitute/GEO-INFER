@@ -513,3 +513,7 @@ class RegenerativeDesign:
             "principle_alignment": principle_alignment,
             "estimated_roi_years": max(3, timeline // 2),
         }
+
+
+# Alias for backward compatibility
+CircularEconomyModel = CircularEconomyModels

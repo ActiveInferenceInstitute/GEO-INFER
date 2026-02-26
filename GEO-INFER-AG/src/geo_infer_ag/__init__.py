@@ -44,7 +44,7 @@ __all__ = [
     "CarbonSequestrationModel",
     
     # API
-    "AgricultureAPI",
+    "AgriculturalAPI",
     "FieldsResource",
     "CropsResource", 
     "YieldResource",

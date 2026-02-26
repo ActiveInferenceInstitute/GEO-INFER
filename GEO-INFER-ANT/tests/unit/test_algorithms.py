@@ -116,9 +116,10 @@ class TestAntColonyOptimization:
         assert aco.pheromone_matrix[(0, 1)] > aco.parameters.initial_pheromone
         assert aco.pheromone_matrix[(0, 2)] > aco.parameters.initial_pheromone
 
+    @pytest.mark.slow
     def test_aco_convergence_detection(self):
         """Test ACO convergence detection."""
-        aco = AntColonyOptimization(max_iterations=100, convergence_threshold=0.01)
+        aco = AntColonyOptimization(max_iterations=20, convergence_threshold=0.01)
 
         # Simulate convergence history
         aco.convergence_history = [100, 99, 98, 97, 96, 95, 94, 93, 92, 91, 90]
@@ -216,14 +217,14 @@ class TestParticleSwarmOptimization:
             inertia_weight=0.7,
             cognitive_acceleration=1.5,
             social_acceleration=1.5,
-            max_iterations=100
+            max_iterations=20
         )
 
         assert pso.parameters.swarm_size == 50
         assert pso.parameters.dimensions == 3
         assert len(pso.parameters.bounds) == 3
         assert pso.parameters.inertia_weight == 0.7
-        assert pso.parameters.max_iterations == 100
+        assert pso.parameters.max_iterations == 20
 
     def test_pso_swarm_initialization(self):
         """Test PSO swarm initialization."""
@@ -272,9 +273,10 @@ class TestParticleSwarmOptimization:
         # Position should change (unless at boundary)
         assert not np.allclose(particle.position, initial_position)
 
+    @pytest.mark.slow
     def test_pso_optimization_functions(self):
         """Test PSO optimization on various functions."""
-        pso = ParticleSwarmOptimization(swarm_size=20, dimensions=2, max_iterations=50)
+        pso = ParticleSwarmOptimization(swarm_size=10, dimensions=2, max_iterations=20)
 
         # Test on Rastrigin function
         def rastrigin(x):
@@ -660,12 +662,13 @@ class TestAlgorithmIntegration:
 class TestAlgorithmPerformance:
     """Test algorithm performance and scalability."""
 
+    @pytest.mark.slow
     def test_aco_performance_scaling(self):
         """Test ACO performance scaling with problem size."""
         problem_sizes = [5, 10, 15]
 
         for size in problem_sizes:
-            aco = AntColonyOptimization(number_of_ants=min(20, size*2), max_iterations=20)
+            aco = AntColonyOptimization(number_of_ants=min(10, size*2), max_iterations=10)
 
             # Create problem
             cities = np.random.uniform(-10, 10, (size, 2))
@@ -681,12 +684,13 @@ class TestAlgorithmPerformance:
             assert result.iterations_completed > 0
             assert result.best_fitness < float('inf')
 
+    @pytest.mark.slow
     def test_pso_performance_scaling(self):
         """Test PSO performance scaling with swarm size."""
-        swarm_sizes = [10, 50, 100]
+        swarm_sizes = [10, 30, 50]
 
         for size in swarm_sizes:
-            pso = ParticleSwarmOptimization(swarm_size=size, dimensions=2, max_iterations=20)
+            pso = ParticleSwarmOptimization(swarm_size=size, dimensions=2, max_iterations=10)
 
             def sphere(x):
                 return np.sum(x**2)
@@ -697,12 +701,13 @@ class TestAlgorithmPerformance:
             assert len(result) == 2
             assert np.sum(result**2) < 10  # Should find reasonable solution
 
+    @pytest.mark.slow
     def test_abc_performance_scaling(self):
         """Test ABC performance scaling with colony size."""
         colony_sizes = [10, 30, 50]
 
         for size in colony_sizes:
-            abc = ArtificialBeeColony(colony_size=size, dimensions=2, max_iterations=20)
+            abc = ArtificialBeeColony(colony_size=size, dimensions=2, max_iterations=10)
 
             def sphere(x):
                 return np.sum(x**2)

@@ -454,26 +454,21 @@ def compute_power_analysis(effect_size: float, n_points: int, alpha: float = 0.0
     # Simplified power analysis for t-tests
     # In practice, this would account for spatial autocorrelation
 
-    # Degrees of freedom
-    df = n_points - 2  # Assuming simple regression
+    # Degrees of freedom for one-sample t-test
+    df = n_points - 1
 
     # Critical t-value
     t_critical = stats.t.ppf(1 - alpha/2, df)
 
-    # Power calculation using non-central t-distribution
+    # Power calculation: one-sample t-test for mean shift
     power_values = []
 
     for _ in range(n_simulations):
-        # Simulate data with effect
-        noise = np.random.normal(0, 1, n_points)
-        data_with_effect = effect_size + noise
+        # Simulate data with effect (mean = effect_size, std = 1)
+        data = np.random.normal(effect_size, 1.0, n_points)
 
-        # Simple regression
-        x = np.random.normal(0, 1, n_points)
-        slope = np.sum(x * data_with_effect) / np.sum(x**2)
-        se = np.sqrt(np.sum((data_with_effect - slope * x)**2) / (n_points - 2)) / np.sqrt(np.sum(x**2))
-
-        t_stat = slope / se
+        # One-sample t-test: t = mean(data) / (std(data) / sqrt(n))
+        t_stat = np.mean(data) / (np.std(data, ddof=1) / np.sqrt(n_points))
         power_values.append(abs(t_stat) > t_critical)
 
     power = np.mean(power_values)

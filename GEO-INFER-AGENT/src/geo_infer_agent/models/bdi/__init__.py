@@ -17,19 +17,17 @@ from geo_infer_agent.models.bdi.belief import Belief, BeliefBase
 from geo_infer_agent.models.bdi.desire import Desire, DesireSet
 from geo_infer_agent.models.bdi.intention import Intention, IntentionStructure
 from geo_infer_agent.models.bdi.plan import Plan, PlanLibrary
-# Note: BDIState and BDIAgent are in the parent bdi.py file (not in bdi/ subdirectory)
-# They should be imported from geo_infer_agent.models.bdi (the file) or from geo_infer_agent.models
-# Importing them here would cause circular import issues
+from geo_infer_agent.models.bdi.agent import BDIState, BDIAgent
 
 __all__ = [
-    "Belief", 
+    "Belief",
     "BeliefBase",
-    "Desire", 
+    "Desire",
     "DesireSet",
-    "Intention", 
+    "Intention",
     "IntentionStructure",
-    "Plan", 
+    "Plan",
     "PlanLibrary",
     "BDIState",
-    "BDIAgent"
+    "BDIAgent",
 ] 

@@ -1,14 +1,14 @@
 Metadata-Version: 2.4
 Name: geo-infer-ag
-Version: 0.1.0
+Version: 0.2.0
 Summary: Advanced agricultural analysis and precision farming applications using geospatial intelligence and active inference principles
 Author: GEO-INFER Team
 Author-email: GEO-INFER Development Team <geo-infer@activeinference.institute>
-License: CC BY-ND-SA 4.0
-Project-URL: Homepage, https://github.com/geo-infer/geo-infer
+License: CC BY-NC-SA 4.0
+Project-URL: Homepage, https://github.com/ActiveInferenceInstitute/GEO-INFER
 Project-URL: Documentation, https://geo-infer.readthedocs.io/
-Project-URL: Repository, https://github.com/geo-infer/geo-infer
-Project-URL: Bug Tracker, https://github.com/geo-infer/geo-infer/issues
+Project-URL: Repository, https://github.com/ActiveInferenceInstitute/GEO-INFER
+Project-URL: Bug Tracker, https://github.com/ActiveInferenceInstitute/GEO-INFER/issues
 Keywords: geospatial,active inference,geoinformatics,agriculture, precision-farming, crop-monitoring, yield-prediction, farming-optimization, agricultural-intelligence
 Classifier: Development Status :: 3 - Alpha
 Classifier: Intended Audience :: Developers
@@ -34,9 +34,7 @@ Requires-Dist: pytest>=6.2.0; extra == "dev"
 Requires-Dist: pytest-cov>=2.12.0; extra == "dev"
 Requires-Dist: pytest-asyncio>=0.20.0; extra == "dev"
 Requires-Dist: black>=21.9.0; extra == "dev"
-Requires-Dist: flake8>=3.9.0; extra == "dev"
 Requires-Dist: mypy>=0.910; extra == "dev"
-Requires-Dist: isort>=5.9.0; extra == "dev"
 Provides-Extra: docs
 Requires-Dist: sphinx>=4.2.0; extra == "docs"
 Requires-Dist: sphinx-rtd-theme>=1.0.0; extra == "docs"
@@ -51,7 +49,7 @@ description: "Crop monitoring, soil analysis, yield prediction, and farm managem
 purpose: "Enable precision agriculture through geospatial analytics and sensing"
 module_type: "Domain Application"
 status: "Alpha"
-last_updated: "2026-01-26"
+last_updated: "2026-02-25"
 dependencies: ["SPACE", "TIME", "DATA", "IOT"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-IOT"]
 tags: ["agriculture", "precision-farming", "crops", "soil", "yield"]
@@ -63,7 +61,8 @@ estimated_time: "45"
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a>
+  <a href="./docs/">📚 Documentation</a> •
+  <a href="./SKILL.md">🧠 Claude Skill</a>
 </div>
 
 ---
@@ -200,4 +199,16 @@ schedule = planner.create(
 
 **Status**: Alpha
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-25
+
+## Documentation Hub
+
+Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
+
+| Resource | Description |
+|----------|-------------|
+| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
+| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
+| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
+| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
+| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |

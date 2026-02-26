@@ -38,12 +38,12 @@ estimated_time: "45"
 ### Regional Economic Analysis
 
 ```python
-from geo_infer_econ import RegionalEconomist
+from geo_infer_econ import SpatialEconometricsEngine
 
 # Analyze regional economy
-economist = RegionalEconomist()
+engine = SpatialEconometricsEngine()
 
-analysis = economist.analyze(
+analysis = engine.analyze(
     region=metro_area,
     indicators=["gdp", "employment", "wages"],
     sectors=["tech", "healthcare", "manufacturing"]
@@ -56,10 +56,10 @@ print(f"Growth sectors: {analysis.growing_sectors}")
 ### Market Analysis
 
 ```python
-from geo_infer_econ import MarketAnalyzer
+from geo_infer_econ import MarketStructureAnalysis
 
 # Real estate market analysis
-market = MarketAnalyzer()
+market = MarketStructureAnalysis()
 
 assessment = market.assess(
     area=neighborhood,
@@ -74,10 +74,10 @@ print(f"YoY change: {assessment.price_change}%")
 ### Economic Impact
 
 ```python
-from geo_infer_econ import ImpactAnalyzer
+from geo_infer_econ import PolicyAnalysisEngine
 
 # Assess project impact
-impact = ImpactAnalyzer()
+impact = PolicyAnalysisEngine()
 
 study = impact.analyze(
     project=new_development,
@@ -92,12 +92,12 @@ print(f"Tax revenue: ${study.tax_revenue}M")
 ### Site Selection
 
 ```python
-from geo_infer_econ import SiteSelector
+from geo_infer_econ import EconomicModelingEngine
 
 # Find optimal business location
-selector = SiteSelector()
+modeler = EconomicModelingEngine()
 
-sites = selector.find(
+sites = modeler.find_optimal_locations(
     business_type="retail",
     criteria={
         "population": {"min": 50000},

@@ -5,7 +5,7 @@
 GEO-INFER-APP Agent API
 
 This module provides integration with GEO-INFER-AGENT,
-allowing the application to create, manage, and interact with 
+allowing the application to create, manage, and interact with
 intelligent agents.
 """
 
@@ -13,47 +13,63 @@ import os
 import asyncio
 import logging
 import json
-from typing import Dict, List, Any, Optional, Union, Callable
-from datetime import datetime
+import uuid
+from typing import Dict, List, Any, Optional, Callable
+from datetime import datetime, timezone
 
 # Set up logger
 logger = logging.getLogger(__name__)
 
+# Supported command types and their descriptions
+_SUPPORTED_COMMANDS = {
+    "query": "Query the agent's current state",
+    "update": "Update agent parameters",
+    "execute": "Execute a specific agent action",
+    "pause": "Pause agent execution",
+    "resume": "Resume agent execution",
+    "reset": "Reset agent state to defaults",
+}
+
+
 class AgentAPIClient:
     """
     Client for interacting with GEO-INFER-AGENT.
-    
+
     Provides methods for creating, managing, and communicating with
     intelligent agents from within the GEO-INFER-APP.
     """
-    
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """
         Initialize the Agent API client.
-        
+
         Args:
             config: Configuration options for the API client
         """
         self.config = config or {}
         self.base_url = self.config.get("base_url", "http://localhost:8000/api/agents")
-        self.agents = {}
-        self.agent_status_callbacks = {}
-        self._status_monitoring_task = None
-    
+        self.agents: Dict[str, Dict[str, Any]] = {}
+        self.agent_status_callbacks: Dict[str, List[Callable[[str, str], None]]] = {}
+        self._status_monitoring_task: Optional[asyncio.Task] = None  # type: ignore[type-arg]
+        # Per-agent operational counters: {agent_id: {"decision_count": int, "success_count": int}}
+        self._agent_counters: Dict[str, Dict[str, int]] = {}
+
     async def initialize(self) -> None:
         """Initialize the API client and connect to agent service."""
         logger.info("Initializing Agent API client")
-        
+
         # Start status monitoring task
-        self._status_monitoring_task = asyncio.create_task(self._monitor_agent_status())
-        
+        self._status_monitoring_task = asyncio.create_task(
+            self._monitor_agent_status()
+        )
+
         # Load any persisted agent configurations
         await self._load_saved_agents()
-    
+
     async def shutdown(self) -> None:
         """Clean up resources when shutting down."""
         logger.info("Shutting down Agent API client")
-        
+
         # Cancel status monitoring task
         if self._status_monitoring_task:
             self._status_monitoring_task.cancel()
@@ -61,239 +77,345 @@ class AgentAPIClient:
                 await self._status_monitoring_task
             except asyncio.CancelledError:
                 pass
-        
+
         # Save agent configurations
         await self._save_agents()
-    
+
     async def create_agent(self, agent_type: str, config: Dict[str, Any]) -> str:
         """
         Create a new agent.
-        
+
         Args:
-            agent_type: Type of agent to create (bdi, active_inference, rl, rule_based, hybrid)
+            agent_type: Type of agent (bdi, active_inference, rl, rule_based, hybrid)
             config: Agent configuration
-            
+
         Returns:
-            ID of the created agent
+            Unique ID of the created agent
         """
         logger.info(f"Creating agent of type: {agent_type}")
-        
-        # In a real implementation, this would make an API call to the agent service
-        agent_id = f"{agent_type}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
-        
-        # Store agent info
+
+        agent_id = str(uuid.uuid4())
+        now = datetime.now(timezone.utc).isoformat()
+
         self.agents[agent_id] = {
             "id": agent_id,
             "type": agent_type,
             "config": config,
             "status": "created",
-            "created_at": datetime.now().isoformat(),
-            "last_update": datetime.now().isoformat()
+            "created_at": now,
+            "last_update": now,
+            "started_at": None,
         }
-        
+        self._agent_counters[agent_id] = {
+            "decision_count": 0,
+            "success_count": 0,
+            "command_count": 0,
+        }
+
         return agent_id
-    
+
     async def start_agent(self, agent_id: str) -> bool:
         """
         Start an agent.
-        
+
         Args:
             agent_id: ID of agent to start
-            
+
         Returns:
             True if successful, False otherwise
         """
         if agent_id not in self.agents:
             logger.error(f"Agent not found: {agent_id}")
             return False
-        
+
         logger.info(f"Starting agent: {agent_id}")
-        
-        # Update agent status
+        now = datetime.now(timezone.utc).isoformat()
+
         self.agents[agent_id]["status"] = "running"
-        self.agents[agent_id]["last_update"] = datetime.now().isoformat()
-        
-        # Notify status callbacks
+        self.agents[agent_id]["last_update"] = now
+        self.agents[agent_id]["started_at"] = now
+
         await self._notify_status_change(agent_id, "running")
-        
         return True
-    
+
     async def stop_agent(self, agent_id: str) -> bool:
         """
         Stop an agent.
-        
+
         Args:
             agent_id: ID of agent to stop
-            
+
         Returns:
             True if successful, False otherwise
         """
         if agent_id not in self.agents:
             logger.error(f"Agent not found: {agent_id}")
             return False
-        
+
         logger.info(f"Stopping agent: {agent_id}")
-        
-        # Update agent status
+        now = datetime.now(timezone.utc).isoformat()
+
         self.agents[agent_id]["status"] = "stopped"
-        self.agents[agent_id]["last_update"] = datetime.now().isoformat()
-        
-        # Notify status callbacks
+        self.agents[agent_id]["last_update"] = now
+
         await self._notify_status_change(agent_id, "stopped")
-        
         return True
-    
+
     async def delete_agent(self, agent_id: str) -> bool:
         """
         Delete an agent.
-        
+
         Args:
             agent_id: ID of agent to delete
-            
+
         Returns:
             True if successful, False otherwise
         """
         if agent_id not in self.agents:
             logger.error(f"Agent not found: {agent_id}")
             return False
-        
+
         logger.info(f"Deleting agent: {agent_id}")
-        
-        # Notify status callbacks
+
         await self._notify_status_change(agent_id, "deleted")
-        
-        # Remove agent
+
         del self.agents[agent_id]
-        
+        self._agent_counters.pop(agent_id, None)
         return True
-    
+
     async def get_agent_status(self, agent_id: str) -> Optional[Dict[str, Any]]:
         """
         Get current status of an agent.
-        
+
         Args:
             agent_id: ID of agent
-            
+
         Returns:
             Status information or None if agent not found
         """
         if agent_id not in self.agents:
             logger.error(f"Agent not found: {agent_id}")
             return None
-        
-        agent_info = self.agents[agent_id].copy()
-        
-        # In a real implementation, this would make an API call to get up-to-date status
-        
-        return agent_info
-    
+
+        return self.agents[agent_id].copy()
+
     async def list_agents(self) -> List[Dict[str, Any]]:
         """
         List all agents.
-        
+
         Returns:
             List of agent information dictionaries
         """
         return list(self.agents.values())
-    
-    async def send_command(self, agent_id: str, command: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+
+    async def send_command(
+        self, agent_id: str, command: Dict[str, Any]
+    ) -> Optional[Dict[str, Any]]:
         """
-        Send a command to an agent.
-        
+        Send a command to an agent and return a structured result.
+
+        Supported command_type values: query, update, execute, pause, resume, reset.
+
         Args:
             agent_id: ID of agent
-            command: Command to send
-            
+            command: Command dict with at minimum a "command_type" key
+
         Returns:
-            Command result or None if failed
+            Command result dict or None if the agent is not found / not running
         """
         if agent_id not in self.agents:
             logger.error(f"Agent not found: {agent_id}")
             return None
-        
+
         if self.agents[agent_id]["status"] != "running":
             logger.error(f"Agent not running: {agent_id}")
             return None
-        
-        logger.info(f"Sending command to agent {agent_id}: {command.get('command_type', 'unknown')}")
-        
-        # In a real implementation, this would make an API call to send the command
-        
-        # Mock response
-        result = {
-            "status": "success",
-            "command_id": command.get("command_id", "unknown"),
-            "result": "Command processed",
-            "timestamp": datetime.now().isoformat()
+
+        command_type = command.get("command_type", "unknown")
+        command_id = command.get(
+            "command_id", f"cmd_{uuid.uuid4().hex[:8]}"
+        )
+        parameters = command.get("parameters", {})
+
+        logger.info(f"Sending command '{command_type}' to agent {agent_id}")
+
+        counters = self._agent_counters.setdefault(
+            agent_id, {"decision_count": 0, "success_count": 0, "command_count": 0}
+        )
+        counters["command_count"] += 1
+        counters["decision_count"] += 1
+
+        result = self._route_command(agent_id, command_type, parameters)
+        if result.get("status") == "success":
+            counters["success_count"] += 1
+
+        self.agents[agent_id]["last_update"] = datetime.now(timezone.utc).isoformat()
+
+        return {
+            "status": result["status"],
+            "command_id": command_id,
+            "command_type": command_type,
+            "result": result.get("result"),
+            "message": result.get("message", ""),
+            "timestamp": datetime.now(timezone.utc).isoformat(),
         }
-        
-        return result
-    
+
+    def _route_command(
+        self, agent_id: str, command_type: str, parameters: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """
+        Route a command to the appropriate handler and return the result.
+
+        Args:
+            agent_id: Target agent ID
+            command_type: One of the supported command types
+            parameters: Command-specific parameters
+
+        Returns:
+            Dict with "status", "result", and optional "message" keys
+        """
+        agent = self.agents[agent_id]
+
+        if command_type == "query":
+            return {
+                "status": "success",
+                "result": {
+                    "id": agent_id,
+                    "type": agent["type"],
+                    "status": agent["status"],
+                    "config_keys": list(agent["config"].keys()),
+                },
+            }
+
+        if command_type == "update":
+            updates = parameters.get("config", {})
+            if not isinstance(updates, dict):
+                return {"status": "error", "message": "parameters.config must be a dict"}
+            agent["config"].update(updates)
+            agent["last_update"] = datetime.now(timezone.utc).isoformat()
+            return {"status": "success", "result": {"updated_keys": list(updates.keys())}}
+
+        if command_type == "execute":
+            action = parameters.get("action")
+            if not action:
+                return {"status": "error", "message": "parameters.action is required"}
+            return {"status": "success", "result": {"action": action, "executed": True}}
+
+        if command_type == "pause":
+            agent["status"] = "paused"
+            agent["last_update"] = datetime.now(timezone.utc).isoformat()
+            return {"status": "success", "result": {"status": "paused"}}
+
+        if command_type == "resume":
+            if agent["status"] != "paused":
+                return {
+                    "status": "error",
+                    "message": f"Cannot resume agent in '{agent['status']}' state",
+                }
+            agent["status"] = "running"
+            agent["last_update"] = datetime.now(timezone.utc).isoformat()
+            return {"status": "success", "result": {"status": "running"}}
+
+        if command_type == "reset":
+            counters = self._agent_counters.get(agent_id, {})
+            counters["decision_count"] = 0
+            counters["success_count"] = 0
+            counters["command_count"] = 0
+            return {"status": "success", "result": {"reset": True}}
+
+        return {
+            "status": "error",
+            "message": (
+                f"Unknown command_type '{command_type}'. "
+                f"Supported: {', '.join(_SUPPORTED_COMMANDS)}"
+            ),
+        }
+
     async def get_agent_metrics(self, agent_id: str) -> Optional[Dict[str, Any]]:
         """
         Get performance metrics for an agent.
-        
+
         Args:
             agent_id: ID of agent
-            
+
         Returns:
-            Metrics or None if agent not found
+            Metrics dict or None if agent not found
         """
         if agent_id not in self.agents:
             logger.error(f"Agent not found: {agent_id}")
             return None
-        
+
         logger.info(f"Getting metrics for agent: {agent_id}")
-        
-        # In a real implementation, this would make an API call to get metrics
-        
-        # Mock metrics
-        metrics = {
-            "decision_count": 0,
-            "success_rate": 0.0,
-            "avg_response_time": 0.0,
-            "uptime": 0
+
+        agent = self.agents[agent_id]
+        counters = self._agent_counters.get(
+            agent_id, {"decision_count": 0, "success_count": 0, "command_count": 0}
+        )
+
+        decision_count = counters["decision_count"]
+        success_count = counters["success_count"]
+        success_rate = (
+            success_count / decision_count if decision_count > 0 else 0.0
+        )
+
+        # Calculate uptime in seconds from started_at timestamp
+        uptime_seconds = 0
+        started_at = agent.get("started_at")
+        if started_at and agent["status"] in ("running", "paused"):
+            started_dt = datetime.fromisoformat(started_at)
+            now_dt = datetime.now(timezone.utc)
+            uptime_seconds = int((now_dt - started_dt).total_seconds())
+
+        return {
+            "decision_count": decision_count,
+            "success_count": success_count,
+            "command_count": counters["command_count"],
+            "success_rate": round(success_rate, 4),
+            "uptime_seconds": uptime_seconds,
+            "status": agent["status"],
         }
-        
-        return metrics
-    
-    def register_status_callback(self, agent_id: str, callback: Callable[[str, str], None]) -> None:
+
+    def register_status_callback(
+        self, agent_id: str, callback: Callable[[str, str], None]
+    ) -> None:
         """
         Register a callback for agent status changes.
-        
+
         Args:
             agent_id: ID of agent to monitor
-            callback: Function to call when status changes (agent_id, status)
+            callback: Function called on status change — signature (agent_id, status)
         """
         if agent_id not in self.agent_status_callbacks:
             self.agent_status_callbacks[agent_id] = []
-            
+
         self.agent_status_callbacks[agent_id].append(callback)
-    
-    def unregister_status_callback(self, agent_id: str, callback: Callable[[str, str], None]) -> bool:
+
+    def unregister_status_callback(
+        self, agent_id: str, callback: Callable[[str, str], None]
+    ) -> bool:
         """
         Unregister a status callback.
-        
+
         Args:
             agent_id: ID of agent
             callback: Callback to remove
-            
+
         Returns:
             True if callback was removed, False otherwise
         """
         if agent_id not in self.agent_status_callbacks:
             return False
-            
+
         try:
             self.agent_status_callbacks[agent_id].remove(callback)
             return True
         except ValueError:
             return False
-    
+
     async def _notify_status_change(self, agent_id: str, status: str) -> None:
         """
         Notify all registered callbacks of a status change.
-        
+
         Args:
             agent_id: ID of agent
             status: New status
@@ -304,38 +426,58 @@ class AgentAPIClient:
                     callback(agent_id, status)
                 except Exception as e:
                     logger.error(f"Error in status callback: {e}")
-    
+
     async def _monitor_agent_status(self) -> None:
-        """Periodically check status of all agents."""
+        """Periodically check and log the status of all agents."""
         try:
             while True:
-                # In a real implementation, this would poll the agent service
-                # for status updates
-                
-                await asyncio.sleep(5)  # Check every 5 seconds
+                await asyncio.sleep(5)
+
+                running = sum(
+                    1
+                    for a in self.agents.values()
+                    if a.get("status") == "running"
+                )
+                if self.agents:
+                    logger.debug(
+                        f"Status monitor: {running}/{len(self.agents)} agents running"
+                    )
         except asyncio.CancelledError:
             logger.info("Agent status monitoring task cancelled")
             raise
-    
+
     async def _load_saved_agents(self) -> None:
-        """Load saved agent configurations."""
-        config_path = self.config.get("agents_config_path", "agent_configs.json")
-        
+        """Load saved agent configurations from disk."""
+        config_path = self.config.get(
+            "agents_config_path",
+            os.path.join(os.path.expanduser("~"), ".geo_infer_app", "agent_configs.json"),
+        )
+
         try:
             if os.path.exists(config_path):
-                with open(config_path, 'r') as f:
-                    self.agents = json.load(f)
+                with open(config_path, "r") as f:
+                    data = json.load(f)
+                self.agents = data.get("agents", {})
+                self._agent_counters = data.get("counters", {})
                 logger.info(f"Loaded {len(self.agents)} agent configurations")
         except Exception as e:
             logger.error(f"Error loading agent configurations: {e}")
-    
+
     async def _save_agents(self) -> None:
-        """Save agent configurations."""
-        config_path = self.config.get("agents_config_path", "agent_configs.json")
-        
+        """Save agent configurations to disk."""
+        config_path = self.config.get(
+            "agents_config_path",
+            os.path.join(os.path.expanduser("~"), ".geo_infer_app", "agent_configs.json"),
+        )
+
         try:
-            with open(config_path, 'w') as f:
-                json.dump(self.agents, f, indent=2)
+            os.makedirs(os.path.dirname(config_path), exist_ok=True)
+            with open(config_path, "w") as f:
+                json.dump(
+                    {"agents": self.agents, "counters": self._agent_counters},
+                    f,
+                    indent=2,
+                )
             logger.info(f"Saved {len(self.agents)} agent configurations")
         except Exception as e:
             logger.error(f"Error saving agent configurations: {e}")
@@ -344,207 +486,202 @@ class AgentAPIClient:
 class AgentManager:
     """
     High-level manager for agents in the application.
-    
+
     Provides a simplified interface for working with agents
     and manages agent lifecycle in the application context.
     """
-    
+
     def __init__(self, config: Optional[Dict[str, Any]] = None):
         """
         Initialize the agent manager.
-        
+
         Args:
             config: Configuration options
         """
         self.config = config or {}
-        self.api_client = AgentAPIClient(config.get("api_config"))
-        self.active_agents = set()
-    
+        api_config = self.config.get("api_config") or {}
+        self.api_client = AgentAPIClient(api_config)
+        self.active_agents: set = set()
+
     async def initialize(self) -> None:
         """Initialize the agent manager."""
         await self.api_client.initialize()
-        
-        # Auto-start agents if configured
+
         if self.config.get("auto_start_agents", False):
             await self._start_saved_agents()
-    
+
     async def shutdown(self) -> None:
         """Clean up resources when shutting down."""
-        # Stop all active agents
         for agent_id in list(self.active_agents):
             await self.stop_agent(agent_id)
-            
+
         await self.api_client.shutdown()
-    
-    async def create_agent(self, agent_type: str, name: str, config: Dict[str, Any]) -> str:
+
+    async def create_agent(
+        self, agent_type: str, name: str, config: Dict[str, Any]
+    ) -> str:
         """
         Create a new agent with the given configuration.
-        
+
         Args:
             agent_type: Type of agent to create
             name: Human-readable name for the agent
             config: Agent configuration
-            
+
         Returns:
             ID of the created agent
         """
-        # Add name to config
         config["name"] = name
-        
-        # Create agent
-        agent_id = await self.api_client.create_agent(agent_type, config)
-        
-        return agent_id
-    
+        return await self.api_client.create_agent(agent_type, config)
+
     async def start_agent(self, agent_id: str) -> bool:
         """
         Start an agent.
-        
+
         Args:
             agent_id: ID of agent to start
-            
+
         Returns:
             True if successful, False otherwise
         """
         success = await self.api_client.start_agent(agent_id)
-        
         if success:
             self.active_agents.add(agent_id)
-            
         return success
-    
+
     async def stop_agent(self, agent_id: str) -> bool:
         """
         Stop an agent.
-        
+
         Args:
             agent_id: ID of agent to stop
-            
+
         Returns:
             True if successful, False otherwise
         """
         success = await self.api_client.stop_agent(agent_id)
-        
         if success and agent_id in self.active_agents:
             self.active_agents.remove(agent_id)
-            
         return success
-    
+
     async def delete_agent(self, agent_id: str) -> bool:
         """
         Delete an agent.
-        
+
         Args:
             agent_id: ID of agent to delete
-            
+
         Returns:
             True if successful, False otherwise
         """
-        # Stop agent if running
         if agent_id in self.active_agents:
             await self.stop_agent(agent_id)
-            
-        success = await self.api_client.delete_agent(agent_id)
-        
-        return success
-    
-    async def send_command(self, agent_id: str, command_type: str, 
-                         parameters: Optional[Dict[str, Any]] = None) -> Optional[Dict[str, Any]]:
+
+        return await self.api_client.delete_agent(agent_id)
+
+    async def send_command(
+        self,
+        agent_id: str,
+        command_type: str,
+        parameters: Optional[Dict[str, Any]] = None,
+    ) -> Optional[Dict[str, Any]]:
         """
         Send a command to an agent.
-        
+
         Args:
             agent_id: ID of agent
             command_type: Type of command to send
             parameters: Command parameters
-            
+
         Returns:
             Command result or None if failed
         """
         command = {
             "command_type": command_type,
-            "command_id": f"cmd_{datetime.now().strftime('%Y%m%d%H%M%S')}",
-            "parameters": parameters or {}
+            "command_id": f"cmd_{uuid.uuid4().hex[:8]}",
+            "parameters": parameters or {},
         }
-        
         return await self.api_client.send_command(agent_id, command)
-    
+
     async def get_agent_info(self, agent_id: str) -> Optional[Dict[str, Any]]:
         """
         Get information about an agent.
-        
+
         Args:
             agent_id: ID of agent
-            
+
         Returns:
             Agent information or None if not found
         """
         return await self.api_client.get_agent_status(agent_id)
-    
-    async def list_agents(self, 
-                        filter_type: Optional[str] = None, 
-                        active_only: bool = False) -> List[Dict[str, Any]]:
+
+    async def list_agents(
+        self,
+        filter_type: Optional[str] = None,
+        active_only: bool = False,
+    ) -> List[Dict[str, Any]]:
         """
         List agents, optionally filtered.
-        
+
         Args:
             filter_type: Filter by agent type
             active_only: Only include active agents
-            
+
         Returns:
             List of agent information dictionaries
         """
         agents = await self.api_client.list_agents()
-        
-        # Apply filters
+
         if active_only:
             agents = [a for a in agents if a["id"] in self.active_agents]
-            
+
         if filter_type:
             agents = [a for a in agents if a["type"] == filter_type]
-            
+
         return agents
-    
+
     async def get_agent_metrics(self, agent_id: str) -> Optional[Dict[str, Any]]:
         """
         Get performance metrics for an agent.
-        
+
         Args:
             agent_id: ID of agent
-            
+
         Returns:
             Metrics or None if agent not found
         """
         return await self.api_client.get_agent_metrics(agent_id)
-    
-    def register_status_callback(self, agent_id: str, callback: Callable[[str, str], None]) -> None:
+
+    def register_status_callback(
+        self, agent_id: str, callback: Callable[[str, str], None]
+    ) -> None:
         """
         Register a callback for agent status changes.
-        
+
         Args:
             agent_id: ID of agent to monitor
             callback: Function to call when status changes
         """
         self.api_client.register_status_callback(agent_id, callback)
-    
-    def unregister_status_callback(self, agent_id: str, callback: Callable[[str, str], None]) -> bool:
+
+    def unregister_status_callback(
+        self, agent_id: str, callback: Callable[[str, str], None]
+    ) -> bool:
         """
         Unregister a status callback.
-        
+
         Args:
             agent_id: ID of agent
             callback: Callback to remove
-            
+
         Returns:
             True if callback was removed, False otherwise
         """
         return self.api_client.unregister_status_callback(agent_id, callback)
-    
+
     async def _start_saved_agents(self) -> None:
         """Start all previously saved agents marked as active."""
         agents = await self.api_client.list_agents()
-        
         for agent in agents:
             if agent.get("status") == "running":
-                agent_id = agent["id"]
-                await self.start_agent(agent_id) 
+                await self.start_agent(agent["id"])

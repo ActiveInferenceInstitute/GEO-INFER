@@ -15,7 +15,24 @@ try:
     from Bio.SubsMat import MatrixInfo as matlist
 except ImportError:
     # Bio.SubsMat was removed in Biopython >= 1.83
+    # Use Bio.Align.substitution_matrices as fallback
     matlist = None
+    try:
+        from Bio.Align import substitution_matrices as _sub_matrices
+        class _MatlistCompat:
+            """Compatibility shim for old Bio.SubsMat.MatrixInfo API."""
+            @property
+            def blosum62(self):
+                mat = _sub_matrices.load("BLOSUM62")
+                # Convert Array to dict of (a, b) -> score pairs
+                result = {}
+                for a in mat.alphabet:
+                    for b in mat.alphabet:
+                        result[(a, b)] = mat[a, b]
+                return result
+        matlist = _MatlistCompat()
+    except ImportError:
+        pass
 
 try:
     from Bio import pairwise2
@@ -148,16 +165,26 @@ class SequenceAnalyzer:
             Similarity score
         """
         matrix = matlist.blosum62
-        score = 0
-        for a, b in zip(seq1, seq2):
+
+        def _lookup(x, y):
             try:
-                score += matrix[(a, b)]
+                return matrix[(x, y)]
             except KeyError:
                 try:
-                    score += matrix[(b, a)]
+                    return matrix[(y, x)]
                 except KeyError:
-                    continue
-        return score / max(len(seq1), len(seq2))
+                    return 0.0
+
+        score = sum(_lookup(a, b) for a, b in zip(seq1, seq2))
+
+        # Compute maximum possible score (self-alignment) for normalization
+        max_score1 = sum(_lookup(a, a) for a in seq1)
+        max_score2 = sum(_lookup(b, b) for b in seq2)
+        max_score = max(max_score1, max_score2)
+
+        if max_score == 0:
+            return 0.0
+        return score / max_score
 
     def predict_coding_regions(
         self, sequence: Seq, min_length: int = 100

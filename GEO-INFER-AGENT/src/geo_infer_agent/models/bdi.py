@@ -163,12 +163,13 @@ class Desire:
         desire = Desire(
             name=data["name"],
             description=data["description"],
-            priority=data["priority"],
+            priority=data.get("priority", 0.5),
             deadline=datetime.fromisoformat(data["deadline"]) if data.get("deadline") else None,
-            conditions=data["conditions"]
+            conditions=data.get("conditions", {})
         )
-        desire.created_at = datetime.fromisoformat(data["created_at"])
-        desire.achieved = data["achieved"]
+        if data.get("created_at"):
+            desire.created_at = datetime.fromisoformat(data["created_at"])
+        desire.achieved = data.get("achieved", False)
         if data.get("achieved_at"):
             desire.achieved_at = datetime.fromisoformat(data["achieved_at"])
         return desire
@@ -297,6 +298,10 @@ class BDIState(AgentState):
         self.desires_dict = {}  # name -> Desire
         self.intentions = []    # List of Plan objects
         self.current_intention = None
+        # Override parent's beliefs dict so state.beliefs returns Belief objects
+        self.beliefs = self.beliefs_dict
+        # Override parent's desires so state.desires returns Desire objects by name
+        self.desires = self.desires_dict
         
     def add_belief(self, belief: Belief) -> None:
         """
@@ -340,10 +345,8 @@ class BDIState(AgentState):
                 "timestamp": datetime.now().isoformat()
             })
             
-        # Update general belief map for compatibility
-        self.beliefs[belief.name] = belief.value
         self.last_update = datetime.now()
-        
+
     def update_belief(self, name: str, value: Any, confidence: Optional[float] = None,
                     metadata: Optional[Dict[str, Any]] = None) -> None:
         """
@@ -390,10 +393,8 @@ class BDIState(AgentState):
                 "timestamp": datetime.now().isoformat()
             })
             
-        # Update general belief map for compatibility
-        self.beliefs[name] = value
         self.last_update = datetime.now()
-        
+
     def get_belief(self, name: str) -> Optional[Belief]:
         """
         Get a belief by name.
@@ -409,18 +410,11 @@ class BDIState(AgentState):
     def add_desire(self, desire: Desire) -> None:
         """
         Add a new desire.
-        
+
         Args:
             desire: Desire to add
         """
         self.desires_dict[desire.name] = desire
-        
-        # Add to general desires list for compatibility
-        super().add_desire({
-            "description": desire.description,
-            "priority": desire.priority,
-            "name": desire.name
-        })
         
         # Add to memory
         self.add_to_memory({
@@ -459,18 +453,11 @@ class BDIState(AgentState):
     def add_intention(self, plan: Plan) -> None:
         """
         Add a new intention (plan).
-        
+
         Args:
             plan: Plan to add
         """
         self.intentions.append(plan)
-        
-        # Add to general intentions list for compatibility
-        super().set_intention({
-            "plan_name": plan.name,
-            "desire_name": plan.desire_name,
-            "actions": plan.actions
-        })
         
         # Add to memory
         self.add_to_memory({
@@ -552,23 +539,35 @@ class BDIState(AgentState):
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'BDIState':
         """Create state from dictionary."""
-        state = super(BDIState, cls).from_dict(data)
-        
+        state = cls()
+
+        # Import package classes for deserialization
+        from geo_infer_agent.models.bdi.belief import Belief as PkgBelief
+        from geo_infer_agent.models.bdi.desire import Desire as PkgDesire
+        from geo_infer_agent.models.bdi.plan import Plan as PkgPlan
+
         # Restore BDI-specific state
         if "beliefs" in data:
             for name, belief_data in data["beliefs"].items():
-                state.beliefs_dict[name] = Belief.from_dict(belief_data)
-                
+                if isinstance(belief_data, dict):
+                    belief = PkgBelief.from_dict(belief_data)
+                    state.beliefs_dict[name] = belief
+                else:
+                    # Handle raw value format
+                    state.beliefs_dict[name] = PkgBelief(name=name, value=belief_data)
+
         if "desires" in data:
             for name, desire_data in data["desires"].items():
-                state.desires_dict[name] = Desire.from_dict(desire_data)
-                
+                if isinstance(desire_data, dict):
+                    desire = PkgDesire.from_dict(desire_data)
+                    state.desires_dict[name] = desire
+
         if "intentions" in data:
-            state.intentions = [Plan.from_dict(plan_data) for plan_data in data["intentions"]]
-                
+            state.intentions = [PkgPlan.from_dict(plan_data) for plan_data in data["intentions"]]
+
         if "current_intention" in data and data["current_intention"]:
-            state.current_intention = Plan.from_dict(data["current_intention"])
-            
+            state.current_intention = PkgPlan.from_dict(data["current_intention"])
+
         return state
 
 
@@ -583,7 +582,10 @@ class BDIAgent(BaseAgent):
     def __init__(self, agent_id: Optional[str] = None, config: Optional[Dict] = None):
         """Initialize the BDI agent."""
         super().__init__(agent_id, config)
-        
+
+        # Alias for convenience
+        self.id = self.agent_id
+
         # Initialize BDI state
         self.state = BDIState(capacity=self.config.get("memory_capacity", 1000))
         
@@ -601,7 +603,18 @@ class BDIAgent(BaseAgent):
         self.commitment_strategy = self.config.get("commitment_strategy", "single_minded")
         
         logger.info(f"BDI agent {self.agent_id} initialized")
-        
+
+    def register_action_handler(self, action_type: str, handler: Callable) -> None:
+        """
+        Register a handler function for a specific action type.
+
+        Args:
+            action_type: The action type string to match
+            handler: Callable that executes the action
+        """
+        self.action_handlers[action_type] = handler
+        logger.debug(f"Registered action handler for type: {action_type}")
+
     async def initialize(self) -> None:
         """Initialize the agent."""
         logger.info(f"Initializing BDI agent {self.agent_id}")
@@ -626,28 +639,32 @@ class BDIAgent(BaseAgent):
     async def perceive(self) -> Dict[str, Any]:
         """
         Perceive the environment.
-        
+
+        Returns a base perception dict. Subclasses should override this method
+        to integrate real sensors or data sources. Sensor readings can also be
+        provided via the ``sensor_readings`` key in the agent config.
+
         Returns:
             Dictionary of perceptions
         """
-        # Basic implementation - could be extended for specific agent types
-        perceptions = {
+        perceptions: Dict[str, Any] = {
             "timestamp": datetime.now().isoformat(),
             "agent_id": self.agent_id,
         }
-        
-        # Extend with geospatial perceptions if available
+
         if "region" in self.config:
             perceptions["region"] = self.config["region"]
-            
-        # Add random sensor data for demonstration
-        # (in a real implementation, this would come from actual sensors or data sources)
-        perceptions["sensors"] = {
-            "temperature": 20 + (hash(datetime.now().isoformat()) % 10),
-            "humidity": 50 + (hash(datetime.now().isoformat() + "humidity") % 30),
-            "wind_speed": 5 + (hash(datetime.now().isoformat() + "wind") % 10)
-        }
-        
+
+        # Use statically configured sensor readings when available (e.g. for
+        # testing or deterministic deployments) instead of fabricated values.
+        static_readings = self.config.get("sensor_readings")
+        if static_readings and isinstance(static_readings, dict):
+            perceptions["sensors"] = dict(static_readings)
+        else:
+            # No sensor interface configured – return an empty sensor dict so
+            # callers can rely on the key always being present.
+            perceptions["sensors"] = {}
+
         logger.debug(f"BDI agent {self.agent_id} perceptions: {perceptions}")
         return perceptions
         
@@ -728,11 +745,11 @@ class BDIAgent(BaseAgent):
         Returns:
             Result of the action
         """
-        if not action or "type" not in action:
+        if not action or ("type" not in action and "action_type" not in action):
             logger.warning(f"BDI agent {self.agent_id} received invalid action: {action}")
             return {"success": False, "error": "Invalid action"}
-            
-        action_type = action["type"]
+
+        action_type = action.get("type") or action.get("action_type")
         
         # Execute action using handler
         if action_type in self.action_handlers:
@@ -968,7 +985,7 @@ class BDIAgent(BaseAgent):
             if "deadline" in desire_data:
                 try:
                     deadline = datetime.fromisoformat(desire_data["deadline"])
-                except:
+                except (ValueError, TypeError):
                     logger.warning(f"BDI agent {self.agent_id} invalid deadline format: {desire_data['deadline']}")
                     
             conditions = desire_data.get("conditions", {})

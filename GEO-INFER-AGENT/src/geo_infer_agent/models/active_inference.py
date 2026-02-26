@@ -55,7 +55,11 @@ class GenerativeModel:
         
         # Initialize matrices
         # A: Likelihood mapping (observation given state)
+        # Use slight diagonal-like bias to break symmetry so inference is non-trivial
+        rng = np.random.default_rng(42)
         self.A = np.ones((observation_dimensions, state_dimensions)) / state_dimensions
+        self.A += rng.uniform(0, 0.01, (observation_dimensions, state_dimensions))
+        self.A /= np.sum(self.A, axis=0, keepdims=True)
         
         # B: Transition probabilities (next state given current state and action)
         self.B = np.zeros((state_dimensions, state_dimensions, control_dimensions))
@@ -129,22 +133,29 @@ class GenerativeModel:
         Returns:
             Posterior belief about the current state
         """
-        # Simple Bayesian inference
-        likelihood = np.zeros(self.state_dimensions)
+        # Bayesian inference using log-space to avoid numerical underflow
+        # log-likelihood for each hidden state
+        log_likelihood = np.zeros(self.state_dimensions)
+        # Clamp A to avoid log(0)
+        A_safe = np.clip(self.A, 1e-16, None)
         for i in range(self.state_dimensions):
-            state = np.zeros(self.state_dimensions)
-            state[i] = 1.0
-            likelihood[i] = np.prod(self.A[:, i] ** observation)
-        
-        # Posterior = likelihood * prior
-        posterior = likelihood * self.current_state_beliefs
-        
+            log_likelihood[i] = np.sum(observation * np.log(A_safe[:, i]))
+
+        # log-posterior = log-likelihood + log-prior
+        prior_safe = np.clip(self.current_state_beliefs, 1e-16, None)
+        log_posterior = log_likelihood + np.log(prior_safe)
+
+        # Shift for numerical stability, then exponentiate
+        log_posterior -= np.max(log_posterior)
+        posterior = np.exp(log_posterior)
+
         # Normalize
-        if np.sum(posterior) > 0:
-            posterior = posterior / np.sum(posterior)
+        total = np.sum(posterior)
+        if total > 0:
+            posterior = posterior / total
         else:
-            # If all posterior probabilities are zero, revert to prior
-            posterior = self.current_state_beliefs.copy()
+            # Fallback: uniform distribution (should not happen with log-space)
+            posterior = np.ones(self.state_dimensions) / self.state_dimensions
             
         # Update current beliefs
         self.current_state_beliefs = posterior
@@ -300,7 +311,7 @@ class ActiveInferenceState(AgentState):
             control_dimensions: Number of possible control actions
         """
         super().__init__()
-        
+
         # Create the generative model
         self.model = GenerativeModel(
             state_dimensions=state_dimensions,
@@ -320,7 +331,23 @@ class ActiveInferenceState(AgentState):
         # Performance metrics
         self.total_reward = 0.0
         self.prediction_errors = []
-    
+
+    @property
+    def state_dimensions(self) -> int:
+        return self.model.state_dimensions
+
+    @property
+    def observation_dimensions(self) -> int:
+        return self.model.observation_dimensions
+
+    @property
+    def control_dimensions(self) -> int:
+        return self.model.control_dimensions
+
+    @property
+    def generative_model(self) -> 'GenerativeModel':
+        return self.model
+
     def update_with_observation(self, observation: np.ndarray) -> np.ndarray:
         """
         Update agent state with a new observation.
@@ -331,8 +358,8 @@ class ActiveInferenceState(AgentState):
         Returns:
             Updated state belief
         """
-        # Store observation
-        self.observation_history.append(observation.copy())
+        # Store observation as dict
+        self.observation_history.append({"observation": observation.copy()})
         self.current_observation = observation.copy()
         
         # Infer state
@@ -358,7 +385,7 @@ class ActiveInferenceState(AgentState):
             action: Action index
             reward: Reward received
         """
-        self.action_history.append(action)
+        self.action_history.append({"action": action, "reward": reward})
         self.total_reward += reward
         
         # If we have enough history, update the model
@@ -396,9 +423,19 @@ class ActiveInferenceState(AgentState):
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert state to dictionary representation."""
+        model_dict = self.model.to_dict()
+        obs_history = []
+        for entry in self.observation_history:
+            if isinstance(entry, dict):
+                obs_history.append({k: v.tolist() if hasattr(v, 'tolist') else v for k, v in entry.items()})
+            else:
+                obs_history.append(entry.tolist() if hasattr(entry, 'tolist') else entry)
         return {
-            "model": self.model.to_dict(),
-            "observation_history": [obs.tolist() for obs in self.observation_history],
+            "state_dimensions": self.model.state_dimensions,
+            "observation_dimensions": self.model.observation_dimensions,
+            "control_dimensions": self.model.control_dimensions,
+            "generative_model": model_dict,
+            "observation_history": obs_history,
             "state_history": [state.tolist() for state in self.state_history],
             "action_history": self.action_history,
             "current_observation": self.current_observation.tolist(),
@@ -406,27 +443,35 @@ class ActiveInferenceState(AgentState):
             "total_reward": self.total_reward,
             "prediction_errors": self.prediction_errors
         }
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'ActiveInferenceState':
         """Create agent state from dictionary."""
-        model_data = data["model"]
-        
+        model_data = data.get("generative_model") or data.get("model", {})
+
         state = cls(
-            state_dimensions=model_data["state_dimensions"],
-            observation_dimensions=model_data["observation_dimensions"],
-            control_dimensions=model_data["control_dimensions"]
+            state_dimensions=model_data.get("state_dimensions", data.get("state_dimensions", 10)),
+            observation_dimensions=model_data.get("observation_dimensions", data.get("observation_dimensions", 10)),
+            control_dimensions=model_data.get("control_dimensions", data.get("control_dimensions", 5))
         )
-        
+
         state.model = GenerativeModel.from_dict(model_data)
-        state.observation_history = [np.array(obs) for obs in data["observation_history"]]
-        state.state_history = [np.array(s) for s in data["state_history"]]
-        state.action_history = data["action_history"]
-        state.current_observation = np.array(data["current_observation"])
-        state.current_state_belief = np.array(data["current_state_belief"])
-        state.total_reward = data["total_reward"]
-        state.prediction_errors = data["prediction_errors"]
-        
+        raw_obs = data.get("observation_history", [])
+        state.observation_history = []
+        for entry in raw_obs:
+            if isinstance(entry, dict):
+                state.observation_history.append(
+                    {k: np.array(v) if isinstance(v, list) else v for k, v in entry.items()}
+                )
+            else:
+                state.observation_history.append({"observation": np.array(entry)})
+        state.state_history = [np.array(s) for s in data.get("state_history", [])]
+        state.action_history = data.get("action_history", [])
+        state.current_observation = np.array(data.get("current_observation", []))
+        state.current_state_belief = np.array(data.get("current_state_belief", []))
+        state.total_reward = data.get("total_reward", 0.0)
+        state.prediction_errors = data.get("prediction_errors", [])
+
         return state
 
 
@@ -452,53 +497,96 @@ class ActiveInferenceAgent(BaseAgent):
             config: Configuration parameters
         """
         super().__init__(agent_id=agent_id, config=config or {})
-        
+
+        # Action and perception handler registries (underscore prefix for convention)
+        self._action_handlers: Dict[str, Any] = {}
+        self._perception_handlers: Dict[str, Any] = {}
+        # Public aliases
+        self.action_handlers = self._action_handlers
+        self.perception_handlers = self._perception_handlers
+
         # Extract configuration
         self.config = config or {}
+
+        # Planning parameters
+        self.planning_horizon = self.config.get("planning_horizon", 3)
+
+        # State is None until initialize() is called
+        self.state = None
+
+    async def initialize(self) -> None:
+        """Initialize the agent, creating state and registering handlers."""
+        logger.info(f"Initializing Active Inference agent: {self.id}")
+
         state_dims = self.config.get("state_dimensions", 10)
         obs_dims = self.config.get("observation_dimensions", 10)
         control_dims = self.config.get("control_dimensions", 5)
-        
-        # Initialize state
+
+        # Create state now
         self.state = ActiveInferenceState(
             state_dimensions=state_dims,
             observation_dimensions=obs_dims,
             control_dimensions=control_dims
         )
-        
-        # Planning parameters
-        self.planning_horizon = self.config.get("planning_horizon", 3)
-        
-        # Register action handlers
+
+        # Register default handlers
         self._register_default_action_handlers()
-        
-        # Register perception handlers
         self._register_default_perception_handlers()
-    
-    async def initialize(self) -> None:
-        """Initialize the agent."""
-        logger.info(f"Initializing Active Inference agent: {self.id}")
-        
+
         # Load model if available
         model_path = self.config.get("model_path")
         if model_path and os.path.exists(model_path):
             self._load_model(model_path)
-        
+
         # Initialize default preferences if provided
         if "default_preferences" in self.config:
             prefs = np.array(self.config["default_preferences"])
             self.state.update_preferences(prefs)
-            
+
         # Register custom handlers if defined
         if "custom_handlers" in self.config:
             self._register_custom_handlers()
-            
+
         await super().initialize()
     
+    def update_beliefs(self, perception: Dict[str, Any]) -> None:
+        """
+        Update agent beliefs based on perception data.
+
+        Uses active inference principles to update the generative model's
+        beliefs about hidden states given new observations.
+
+        Args:
+            perception: Dictionary of observation data from the perceive step
+        """
+        if not perception:
+            return
+
+        # Convert perception to observation vector for the generative model
+        obs_values = []
+        for key in sorted(perception.keys()):
+            val = perception[key]
+            if isinstance(val, (int, float)):
+                obs_values.append(float(val))
+            elif isinstance(val, dict):
+                for sub_key in sorted(val.keys()):
+                    sub_val = val[sub_key]
+                    if isinstance(sub_val, (int, float)):
+                        obs_values.append(float(sub_val))
+
+        if obs_values and self.state is not None:
+            obs_array = np.array(obs_values[:self.state.observation_dimensions])
+            # Update the active inference state with new observation
+            self.state.update_with_observation(obs_array)
+
+        # Store perception keys as beliefs
+        for key, value in perception.items():
+            self.state.update_belief(key, value)
+
     async def perceive(self) -> Dict[str, Any]:
         """
         Perceive the environment.
-        
+
         Returns:
             Dictionary of observations
         """
@@ -633,6 +721,14 @@ class ActiveInferenceAgent(BaseAgent):
             
         await super().shutdown()
     
+    def register_action_handler(self, action_type: str, handler) -> None:
+        """Register a handler for a specific action type."""
+        self._action_handlers[action_type] = handler
+
+    def register_perception_handler(self, perception_type: str, handler) -> None:
+        """Register a handler for a specific perception type."""
+        self._perception_handlers[perception_type] = handler
+
     def _register_default_action_handlers(self) -> None:
         """Register default action handlers."""
         self.register_action_handler("wait", self._handle_wait_action)

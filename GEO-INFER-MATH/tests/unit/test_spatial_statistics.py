@@ -136,17 +136,17 @@ def test_semivariogram():
     # Values with spatial trend (increasing from bottom-left to top-right)
     values = np.array([1, 2, 3, 4, 5, 2, 3, 4, 5, 6])
     
-    # Lag distances
-    lag_distances = [1, 2, 3, 4, 5]
-    
+    # Lag distances (max pairwise distance for this grid is ~4.1, use valid range)
+    lag_distances = [1, 2, 3, 4]
+
     # Calculate semivariogram
     result = semivariogram(coords, values, lag_distances)
-    
+
     # Check results
     assert 'lag_distances' in result
     assert 'semivariance' in result
     assert 'count' in result
-    
+
     # For this dataset, semivariance should generally increase with distance
     # (but might not be strictly increasing due to sampling variability)
     assert result['semivariance'][0] < result['semivariance'][-1]
@@ -177,18 +177,19 @@ def test_spatial_descriptive_statistics():
 
 def test_spatial_entropy():
     """Test spatial entropy calculation."""
-    # Test with uniform distribution
-    uniform = np.ones(100)
+    # Test with uniformly spread values (high entropy)
+    np.random.seed(42)
+    uniform = np.random.rand(100)
     entropy_uniform = spatial_entropy(uniform)
-    
-    # Test with concentrated distribution
+
+    # Test with concentrated distribution (low entropy - values cluster in few bins)
     concentrated = np.zeros(100)
     concentrated[45:55] = 1.0
     entropy_concentrated = spatial_entropy(concentrated)
-    
-    # Entropy should be higher for uniform distribution
+
+    # Entropy should be higher for uniformly spread distribution
     assert entropy_uniform > entropy_concentrated
-    
+
     # Test with different number of bins
     entropy_10_bins = spatial_entropy(uniform, bins=10)
     entropy_20_bins = spatial_entropy(uniform, bins=20)

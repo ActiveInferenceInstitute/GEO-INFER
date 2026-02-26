@@ -22,7 +22,7 @@ logger = logging.getLogger(__name__)
 class Belief:
     """
     A single belief representing a piece of information the agent holds about the world.
-    
+
     Attributes:
         name: Unique identifier for the belief
         value: The content/value of the belief
@@ -31,6 +31,7 @@ class Belief:
         confidence: Confidence level in this belief (0.0-1.0)
         spatial_reference: Optional geospatial reference (e.g., coordinates)
         metadata: Additional information about this belief
+        history: List of previous belief states (value, confidence, timestamp, metadata)
     """
     name: str
     value: Any
@@ -39,31 +40,48 @@ class Belief:
     confidence: float = 1.0
     spatial_reference: Optional[Dict[str, float]] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
-    
+    history: List[Dict[str, Any]] = field(default_factory=list)
+
     def __post_init__(self):
         """Validate belief after initialization."""
         if self.confidence < 0.0 or self.confidence > 1.0:
             raise ValueError(f"Confidence must be between 0.0 and 1.0, got {self.confidence}")
-    
-    def update(self, value: Any, source: Optional[str] = None, confidence: Optional[float] = None) -> None:
+
+    def update(self, value: Any, source: Optional[str] = None,
+               confidence: Optional[float] = None,
+               metadata: Optional[Dict[str, Any]] = None) -> None:
         """
         Update the value, source, and confidence of this belief.
-        
+
+        Stores the previous state in history before updating.
+
         Args:
             value: New value for the belief
             source: New source of the belief (if different)
             confidence: New confidence level (if different)
+            metadata: Updated metadata (if provided)
         """
+        # Store current state in history before updating
+        self.history.append({
+            "value": self.value,
+            "confidence": self.confidence,
+            "timestamp": self.timestamp,
+            "metadata": self.metadata.copy()
+        })
+
         self.value = value
         self.timestamp = datetime.datetime.now()
-        
+
         if source is not None:
             self.source = source
-            
+
         if confidence is not None:
             if confidence < 0.0 or confidence > 1.0:
                 raise ValueError(f"Confidence must be between 0.0 and 1.0, got {confidence}")
             self.confidence = confidence
+
+        if metadata is not None:
+            self.metadata = metadata
     
     def is_outdated(self, max_age_seconds: float) -> bool:
         """
@@ -459,24 +477,32 @@ class BeliefBase:
     def _is_in_radius(location: Dict[str, float], center: Dict[str, float], radius: float) -> bool:
         """
         Check if a location is within a radius of a center point.
-        
-        This is a simple Euclidean distance calculation. For a more accurate
-        calculation on the Earth's surface, use the haversine formula.
-        
+
+        Uses the haversine formula to compute great-circle distance on Earth.
+        ``radius`` is interpreted in the same units as the return value of the
+        haversine calculation – kilometres.
+
         Args:
-            location: Location to check
-            center: Center location
-            radius: Radius to check within
-            
+            location: Location to check (expects "lat" and "lng" keys, degrees)
+            center: Center location (expects "lat" and "lng" keys, degrees)
+            radius: Maximum distance from center in kilometres
+
         Returns:
             True if the location is within the radius, False otherwise
         """
+        import math
+
         if not location or not center:
             return False
-            
-        # Simple Euclidean distance
-        lat_diff = location.get("lat", 0) - center.get("lat", 0)
-        lng_diff = location.get("lng", 0) - center.get("lng", 0)
-        distance = (lat_diff ** 2 + lng_diff ** 2) ** 0.5
-        
-        return distance <= radius 
+
+        lat1 = math.radians(location.get("lat", 0))
+        lng1 = math.radians(location.get("lng", 0))
+        lat2 = math.radians(center.get("lat", 0))
+        lng2 = math.radians(center.get("lng", 0))
+
+        dlat = lat2 - lat1
+        dlng = lng2 - lng1
+        a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlng / 2) ** 2
+        distance_km = 2 * 6371.0 * math.asin(math.sqrt(a))
+
+        return distance_km <= radius 

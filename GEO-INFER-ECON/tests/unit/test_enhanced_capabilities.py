@@ -27,7 +27,7 @@ class TestDataLoading(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures"""
-        from ..utils.data_loader import EconomicDataLoader, DataSourceConfig
+        from geo_infer_econ.utils.data_loader import EconomicDataLoader, DataSourceConfig
 
         self.data_loader = EconomicDataLoader()
         self.test_data = pd.DataFrame({
@@ -93,8 +93,9 @@ class TestSpatialEconometrics(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures"""
-        from ..core.econometrics_engine import SpatialEconometricsEngine, SpatialWeightsConfig
+        from geo_infer_econ.core.econometrics_engine import SpatialEconometricsEngine, SpatialWeightsConfig
 
+        self.SpatialWeightsConfig = SpatialWeightsConfig
         self.engine = SpatialEconometricsEngine()
 
         # Create test data
@@ -119,7 +120,7 @@ class TestSpatialEconometrics(unittest.TestCase):
 
     def test_spatial_weights_construction(self):
         """Test spatial weights matrix construction"""
-        config = SpatialWeightsConfig('knn', {'k': 5})
+        config = self.SpatialWeightsConfig('knn', {'k': 5})
         W = self.engine.construct_spatial_weights(self.gdf, config)
 
         self.assertEqual(W.shape, (50, 50))
@@ -128,7 +129,7 @@ class TestSpatialEconometrics(unittest.TestCase):
     def test_sar_model_fitting(self):
         """Test SAR model fitting"""
         # Create spatial weights
-        config = SpatialWeightsConfig('knn', {'k': 5})
+        config = self.SpatialWeightsConfig('knn', {'k': 5})
         W = self.engine.construct_spatial_weights(self.gdf, config)
 
         # Fit SAR model
@@ -141,7 +142,7 @@ class TestSpatialEconometrics(unittest.TestCase):
     def test_model_prediction(self):
         """Test model prediction capabilities"""
         # Create and fit model
-        config = SpatialWeightsConfig('knn', {'k': 5})
+        config = self.SpatialWeightsConfig('knn', {'k': 5})
         W = self.engine.construct_spatial_weights(self.gdf, config)
         self.engine.fit(self.X, self.y, W, 'sar')
 
@@ -163,7 +164,7 @@ class TestSpatialEconometrics(unittest.TestCase):
         W = np.eye(len(self.y))
 
         # Get model residuals (from fitted model)
-        config = SpatialWeightsConfig('knn', {'k': 5})
+        config = self.SpatialWeightsConfig('knn', {'k': 5})
         W_full = self.engine.construct_spatial_weights(self.gdf, config)
         self.engine.fit(self.X, self.y, W_full, 'sar')
         residuals = self.engine.residuals
@@ -181,7 +182,7 @@ class TestEconomicIndicators(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures"""
-        from ..utils.indicators import EconomicIndicators
+        from geo_infer_econ.utils.indicators import EconomicIndicators
 
         self.indicators = EconomicIndicators()
 
@@ -247,7 +248,7 @@ class TestModelValidation(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures"""
-        from ..utils.validator import ModelValidator
+        from geo_infer_econ.utils.validator import ModelValidator
 
         self.validator = ModelValidator()
 
@@ -310,7 +311,7 @@ class TestVisualization(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures"""
-        from ..utils.visualizer import ResultsVisualizer
+        from geo_infer_econ.utils.visualizer import ResultsVisualizer
 
         self.visualizer = ResultsVisualizer()
 
@@ -362,7 +363,8 @@ class TestAPI(unittest.TestCase):
 
     def setUp(self):
         """Set up test fixtures"""
-        from ..api.economic_api import EconomicAnalysisAPI
+        from geo_infer_econ.api.economic_api import EconomicAnalysisAPI
+        from starlette.testclient import TestClient
 
         # Mock configuration
         config = {
@@ -371,10 +373,11 @@ class TestAPI(unittest.TestCase):
         }
 
         self.api = EconomicAnalysisAPI(config)
+        self.client = TestClient(self.api.app)
 
     def test_health_check(self):
         """Test API health check endpoint"""
-        response = self.api.app.test_client().get('/api/health')
+        response = self.client.get('/api/health')
         # In a real test, would check response status and content
 
     def test_model_execution_endpoint(self):
@@ -390,7 +393,7 @@ class TestAPI(unittest.TestCase):
         # Mock authentication
         headers = {'Authorization': 'Bearer test_key'}
 
-        response = self.api.app.test_client().post(
+        response = self.client.post(
             '/api/models/execute',
             json=request_data,
             headers=headers
@@ -407,7 +410,7 @@ class TestAPI(unittest.TestCase):
             'parameters': {}
         }
 
-        response = self.api.app.test_client().post('/api/spatial/analyze', json=request_data)
+        response = self.client.post('/api/spatial/analyze', json=request_data)
         # In a real test, would check response
 
 

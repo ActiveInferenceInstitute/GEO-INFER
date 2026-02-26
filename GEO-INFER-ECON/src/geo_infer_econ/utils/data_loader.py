@@ -350,7 +350,7 @@ class EconomicDataLoader:
             warnings.append(f"Found {summary['duplicate_rows']} duplicate rows")
 
         # Check for common economic data issues
-        if 'gdp' in data.columns.lower():
+        if 'gdp' in [str(c).lower() for c in data.columns]:
             negative_gdp = (data['gdp'] < 0).sum()
             if negative_gdp > 0:
                 errors.append(f"Found {negative_gdp} negative GDP values")

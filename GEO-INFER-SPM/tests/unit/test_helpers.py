@@ -199,7 +199,7 @@ class TestSyntheticDataGeneration:
         )
 
         assert spm_data.has_temporal
-        assert spm_data.data.shape == (10, 5)  # (time, space)
+        assert spm_data.data.shape == (5, 10)  # (space, time) — data stored as data.T
         assert len(spm_data.time) == 10
 
     def test_synthetic_data_covariates(self):
@@ -220,7 +220,7 @@ class TestSpatialBasisFunctions:
     def setup_method(self):
         """Set up coordinate data."""
         np.random.seed(42)
-        self.coordinates = np.random.rand(30, 2) * 100
+        self.coordinates = np.column_stack([np.random.uniform(-179, 179, 30), np.random.uniform(-89, 89, 30)])
 
     def test_gaussian_basis_functions(self):
         """Test Gaussian basis function generation."""
@@ -327,7 +327,7 @@ class TestHelperFunctionEdgeCases:
 
     def test_empty_covariates(self):
         """Test design matrix creation with no covariates."""
-        coordinates = np.random.rand(10, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, 10), np.random.uniform(-89, 89, 10)])
         data = np.random.randn(10)
         spm_data = SPMData(data=data, coordinates=coordinates, crs='EPSG:4326')
 
@@ -354,7 +354,7 @@ class TestHelperFunctionEdgeCases:
 
     def test_large_basis_function_request(self):
         """Test basis function generation with many functions."""
-        coordinates = np.random.rand(20, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)])
 
         # Request more basis functions than data points
         basis = create_spatial_basis_functions(coordinates, n_basis=15, method='gaussian')
@@ -364,7 +364,7 @@ class TestHelperFunctionEdgeCases:
 
     def test_design_matrix_with_nan_covariates(self):
         """Test design matrix creation with NaN covariates."""
-        coordinates = np.random.rand(10, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, 10), np.random.uniform(-89, 89, 10)])
         data = np.random.randn(10)
 
         covariates = {

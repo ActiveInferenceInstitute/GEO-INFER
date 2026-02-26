@@ -94,18 +94,17 @@ class SpatialAnalyzer:
         bin_edges = np.linspace(0, max_distance, n_bins + 1)
         bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 
-        variogram_values = []
-        variogram_counts = []
+        variogram_values = np.zeros(n_bins)
+        variogram_counts = np.zeros(n_bins, dtype=int)
 
         for i in range(n_bins):
             mask = (distances >= bin_edges[i]) & (distances < bin_edges[i+1])
-            if np.sum(mask) > 0:
-                gamma = np.mean(residual_diffs[mask] ** 2) / 2
-                variogram_values.append(gamma)
-                variogram_counts.append(np.sum(mask))
+            variogram_counts[i] = int(np.sum(mask))
+            if variogram_counts[i] > 0:
+                variogram_values[i] = np.mean(residual_diffs[mask] ** 2) / 2
 
         # Fit theoretical variogram model
-        model_params = self._fit_variogram_model(bin_centers, np.array(variogram_values))
+        model_params = self._fit_variogram_model(bin_centers, variogram_values)
 
         result = {
             'distances': bin_centers,

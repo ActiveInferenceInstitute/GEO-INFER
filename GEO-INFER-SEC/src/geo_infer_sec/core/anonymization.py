@@ -54,15 +54,17 @@ class GeospatialAnonymizer:
             # Generate random angle and distance
             angle = self.rng.uniform(0, 2 * np.pi)
             distance = self.rng.uniform(0, epsilon)
-            
-            # Calculate displacement in degrees (approximate)
-            # 111,000 meters ≈ 1 degree of latitude
-            lat_shift = distance * np.cos(angle) / 111000
-            # 111,000 * cos(latitude) meters ≈ 1 degree of longitude
-            lon_shift = distance * np.sin(angle) / (111000 * np.cos(np.radians(point.y)))
-            
+
+            # Convert displacement to degrees uniformly
+            # 111,000 meters ~= 1 degree at the equator
+            # Apply displacement in a coordinate space where both axes
+            # represent equal metric distances, then convert back to degrees
+            meters_per_deg = 111000.0
+            dx_deg = (distance * np.cos(angle)) / meters_per_deg
+            dy_deg = (distance * np.sin(angle)) / meters_per_deg
+
             # Create new point
-            new_point = Point(point.x + lon_shift, point.y + lat_shift)
+            new_point = Point(point.x + dx_deg, point.y + dy_deg)
             result.loc[idx, geometry_col] = new_point
             
         return result
@@ -90,39 +92,51 @@ class GeospatialAnonymizer:
             raise ValueError("All geometries must be Point objects")
         
         result = gdf.copy()
-        
-        # Add H3 cell IDs
-        result["h3_cell"] = result.apply(
-            lambda row: h3.latlng_to_cell(row[geometry_col].y, row[geometry_col].x, h3_resolution), 
-            axis=1
-        )
-        
-        # Count records per cell
-        cell_counts = result["h3_cell"].value_counts()
-        
-        # Identify cells with fewer than k points
-        small_cells = cell_counts[cell_counts < k].index.tolist()
-        
-        # For cells with fewer than k points, merge with neighboring cells
-        for small_cell in small_cells:
-            # Get neighboring cells
-            neighbors = h3.grid_disk(small_cell, 1)
-            
-            # Find a neighbor with enough points or that would have enough when combined
-            for neighbor in neighbors:
-                if neighbor in cell_counts and cell_counts[neighbor] >= k - cell_counts[small_cell]:
-                    # Reassign points from small cell to neighbor
-                    result.loc[result["h3_cell"] == small_cell, "h3_cell"] = neighbor
-                    break
-        
+        current_resolution = h3_resolution
+
+        # Iteratively reduce resolution until all cells meet the k threshold
+        # or we reach resolution 0
+        while current_resolution >= 0:
+            # Add H3 cell IDs at current resolution
+            result["h3_cell"] = result.apply(
+                lambda row: h3.latlng_to_cell(
+                    row[geometry_col].y, row[geometry_col].x, current_resolution
+                ),
+                axis=1,
+            )
+
+            # Count records per cell
+            cell_counts = result["h3_cell"].value_counts()
+
+            # Check if any cell is below k
+            small_cells = cell_counts[cell_counts < k].index.tolist()
+
+            if not small_cells:
+                # All cells meet the k threshold
+                break
+
+            if current_resolution == 0:
+                # Cannot reduce further - merge remaining small cells into the
+                # largest cell so we still group them
+                largest_cell = cell_counts.idxmax()
+                for sc in small_cells:
+                    result.loc[result["h3_cell"] == sc, "h3_cell"] = largest_cell
+                break
+
+            # Reduce resolution and retry
+            current_resolution -= 1
+            result = result.drop(columns=["h3_cell"])
+
         # Replace coordinates with cell centroids
         for cell_id in result["h3_cell"].unique():
             cell_center = h3.cell_to_latlng(cell_id)
-            result.loc[result["h3_cell"] == cell_id, geometry_col] = Point(cell_center[1], cell_center[0])
-            
+            result.loc[
+                result["h3_cell"] == cell_id, geometry_col
+            ] = Point(cell_center[1], cell_center[0])
+
         # Drop H3 cell column
         result = result.drop(columns=["h3_cell"])
-        
+
         return result
     
     def geographic_masking(
@@ -149,30 +163,33 @@ class GeospatialAnonymizer:
         if attribute_cols is None or admin_boundaries is None:
             raise ValueError("attribute_cols and admin_boundaries must be provided")
         
-        # Spatial join to determine which admin area each point belongs to
+        # Spatial join: assign each point to the admin boundary it falls within
         joined = gpd.sjoin(gdf, admin_boundaries, how="inner", predicate="within")
-        
-        # Aggregate data by admin area
+
+        # Aggregate data by admin area index
         aggregated = {}
-        
         for col in attribute_cols:
-            # Determine appropriate aggregation function
             if pd.api.types.is_numeric_dtype(gdf[col]):
-                aggregated[col] = joined.groupby(f"index_right")[col].mean()
+                aggregated[col] = joined.groupby("index_right")[col].mean()
             else:
-                aggregated[col] = joined.groupby(f"index_right")[col].agg(
+                aggregated[col] = joined.groupby("index_right")[col].agg(
                     lambda x: x.value_counts().index[0] if len(x) > 0 else None
                 )
-                
-        # Create aggregated GeoDataFrame
+
         agg_df = pd.DataFrame(aggregated)
-        agg_df = agg_df.reset_index()
-        
-        # Get admin area geometries
-        agg_gdf = admin_boundaries.loc[agg_df["index_right"]].copy()
-        
-        # Join aggregated attributes
+
+        # Build result from admin_boundaries so ALL boundaries appear,
+        # even those with no matching points (they will get NaN attributes).
+        # Only keep geometry and the requested attribute columns.
+        agg_gdf = gpd.GeoDataFrame(
+            {geometry_col: admin_boundaries[geometry_col]},
+            geometry=geometry_col,
+            crs=admin_boundaries.crs,
+        )
         for col in attribute_cols:
-            agg_gdf[col] = agg_df[col].values
-            
+            if col in agg_df.columns:
+                agg_gdf[col] = agg_df[col].reindex(admin_boundaries.index).values
+            else:
+                agg_gdf[col] = np.nan
+
         return agg_gdf 

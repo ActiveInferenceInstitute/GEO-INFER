@@ -220,6 +220,16 @@ class BayesianSPM:
         y_hat = X @ beta_map
         residuals = y - y_hat
 
+        # Generate approximate posterior samples for posterior probability mapping
+        try:
+            beta_samples = np.random.multivariate_normal(beta_map, cov_beta, 500)
+        except np.linalg.LinAlgError:
+            beta_samples = beta_map + np.random.randn(500, len(beta_map)) * np.sqrt(np.abs(np.diag(cov_beta)))
+        self.posterior_samples = {
+            'beta': beta_samples,
+            'sigma': np.full(500, float(np.std(residuals)) or 1.0)
+        }
+
         # Create SPMResult
         from ..models.data_models import DesignMatrix
         design = DesignMatrix(
@@ -262,13 +272,14 @@ class BayesianSPM:
         if beta_samples is None:
             raise ValueError("Beta posterior samples not available")
 
-        # Compute posterior probability for each voxel/coefficient
-        if statistical_map.ndim == 1:
-            # Single contrast
+        n_beta = beta_samples.shape[1] if beta_samples.ndim > 1 else len(beta_samples)
+
+        if len(statistical_map) == n_beta:
+            # stat_map aligns with beta dimensions — compute P(beta > 0) per coefficient
             posterior_prob = np.mean(beta_samples > 0, axis=0)
         else:
-            # Multiple contrasts - compute for each
-            posterior_prob = np.mean(beta_samples > 0, axis=0)
+            # stat_map is over spatial locations — use normal CDF approximation
+            posterior_prob = stats.norm.cdf(statistical_map)
 
         return posterior_prob
 

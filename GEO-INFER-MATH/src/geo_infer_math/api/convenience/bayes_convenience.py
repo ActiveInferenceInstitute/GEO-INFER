@@ -309,7 +309,8 @@ class BayesianConvenience:
         Returns:
             Prior distribution
         """
-        return prior_builder(distribution_type, kwargs)
+        size = kwargs.pop('size', 100)
+        return prior_builder(distribution_type, parameters=kwargs, size=size)
     
     def mcmc_sample(
         self,

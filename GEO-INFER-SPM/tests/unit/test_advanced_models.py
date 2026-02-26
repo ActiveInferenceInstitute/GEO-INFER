@@ -10,6 +10,7 @@ from geo_infer_spm.core.advanced.mixed_effects import MixedEffectsSPM, fit_mixed
 from geo_infer_spm.core.advanced.nonparametric import NonparametricSPM, fit_nonparametric
 from geo_infer_spm.core.advanced.model_validation import ModelValidator, validate_spm_model
 from geo_infer_spm.core.advanced.spatial_regression import SpatialRegression, fit_spatial_model
+from geo_infer_spm.core.glm import fit_glm
 
 
 class TestMixedEffectsSPM:
@@ -183,7 +184,7 @@ class TestNonparametricSPM:
 
         # Test different basis types
         for basis_type in ['fourier', 'polynomial', 'bspline']:
-            basis = analyzer._NonparametricSPM__class__()._NonparametricSPM__class__().temporal_basis_functions(
+            basis = analyzer.temporal_basis_functions(
                 time_points, n_basis=5, basis_type=basis_type
             )
 
@@ -403,9 +404,9 @@ class TestSpatialRegression:
         assert W.shape == (len(self.coordinates), len(self.coordinates))
         assert hasattr(W, 'toarray')  # Should be sparse matrix
 
-        # Check row normalization
+        # Check row normalization (isolated points with no neighbors within bandwidth remain 0)
         row_sums = np.array(W.sum(axis=1)).flatten()
-        assert np.allclose(row_sums, 1.0, atol=1e-10)
+        assert np.all((row_sums == 0) | np.isclose(row_sums, 1.0, atol=1e-10))
 
     def test_convenience_function(self):
         """Test fit_spatial_model convenience function."""

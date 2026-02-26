@@ -119,11 +119,12 @@ class SeasonalAnalysis:
                 # Filter out short seasons
                 season_length = (end - start).days
                 if season_length >= min_length_days:
-                    # Find peak within the season
+                    # Find peak within the season using raw (unsmoothed) series
                     season_data = time_series_smooth.loc[start:end]
-                    peak_value = season_data.max()
-                    peak_date = season_data.idxmax()
-                    
+                    raw_season_data = time_series.loc[start:end]
+                    peak_value = raw_season_data.max()
+                    peak_date = raw_season_data.idxmax()
+
                     seasons.append({
                         "start_date": start,
                         "peak_date": peak_date,
@@ -132,7 +133,7 @@ class SeasonalAnalysis:
                         "peak_value": peak_value,
                         "mean_value": season_data.mean()
                     })
-            
+
             self.growing_season = {
                 "variable": variable,
                 "method": method,
@@ -171,11 +172,12 @@ class SeasonalAnalysis:
                 # Filter out short seasons
                 season_length = (end - start).days
                 if season_length >= min_length_days:
-                    # Find peak within the season
+                    # Find peak within the season using raw (unsmoothed) series
                     season_data = time_series_smooth.loc[start:end]
-                    peak_value = season_data.max()
-                    peak_date = season_data.idxmax()
-                    
+                    raw_season_data = time_series.loc[start:end]
+                    peak_value = raw_season_data.max()
+                    peak_date = raw_season_data.idxmax()
+
                     seasons.append({
                         "start_date": start,
                         "peak_date": peak_date,
@@ -184,7 +186,7 @@ class SeasonalAnalysis:
                         "peak_value": peak_value,
                         "mean_value": season_data.mean()
                     })
-            
+
             self.growing_season = {
                 "variable": variable,
                 "method": method,
@@ -369,7 +371,7 @@ class SeasonalAnalysis:
             mask = ~np.isnan(resampled)
             if np.sum(mask) > 1:  # Need at least 2 points for regression
                 slope, intercept, r_value, p_value, std_err = stats.linregress(
-                    time_values[mask], resampled.iloc[mask]
+                    time_values[mask], resampled.values[mask]
                 )
                 
                 # Calculate trend line
@@ -403,7 +405,7 @@ class SeasonalAnalysis:
             mask = ~np.isnan(resampled)
             
             slope, intercept, r_value, p_value, std_err = stats.linregress(
-                time_values[mask], resampled.iloc[mask]
+                time_values[mask], resampled.values[mask]
             )
             
             trend_results["trend_analysis"] = {

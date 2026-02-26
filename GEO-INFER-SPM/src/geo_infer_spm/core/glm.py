@@ -86,6 +86,15 @@ class GeneralLinearModel:
         if y.shape[0] != self.design_matrix.matrix.shape[0]:
             raise ValueError("Data and design matrix have incompatible dimensions")
 
+        # Check for sufficient degrees of freedom
+        n_points = self.design_matrix.matrix.shape[0]
+        n_regressors = self.design_matrix.matrix.shape[1]
+        if n_points <= n_regressors + 1:
+            raise ValueError(
+                f"Insufficient data: {n_points} observations for {n_regressors} regressors. "
+                f"Need at least {n_regressors + 2} observations."
+            )
+
         # Fit GLM based on method
         if method == "OLS":
             beta, residuals, cov_beta = self._fit_ols(y)
@@ -111,6 +120,7 @@ class GeneralLinearModel:
             design_matrix=self.design_matrix,
             beta_coefficients=beta,
             residuals=residuals,
+            cov_beta=self.cov_beta,
             model_diagnostics=self.diagnostics.copy(),
             processing_metadata={
                 'fitting_method': method,
@@ -338,11 +348,10 @@ class GeneralLinearModel:
         if new_design is not None:
             X_pred = new_design
         elif new_data is not None:
-            # This would require design matrix construction from data
-            # For now, assume design matrix is provided
             raise ValueError("Design matrix must be provided for prediction")
         else:
-            raise ValueError("Either new_data or new_design must be provided")
+            # Default: predict on training data
+            X_pred = self.design_matrix.matrix
 
         return X_pred @ self.beta
 

@@ -38,68 +38,65 @@ estimated_time: "50"
 ### Hazard Assessment
 
 ```python
-from geo_infer_risk import HazardAssessor
+from geo_infer_risk import EnhancedHazardModel
 
-# Assess natural hazards
-assessor = HazardAssessor()
-
-hazards = assessor.assess(
-    area=study_region,
-    hazard_types=["flood", "earthquake", "wildfire"],
-    return_periods=[50, 100, 500]
+# Model natural hazards
+hazard = EnhancedHazardModel(
+    hazard_type="flood",
+    params={"return_periods": [50, 100, 500], "region": study_region}
 )
 
-print(f"Flood zones: {hazards.flood.zones}")
+results = hazard.calculate_hazard(locations=study_points)
+print(f"Hazard intensities: {results}")
 ```
 
 ### Vulnerability Analysis
 
 ```python
-from geo_infer_risk import VulnerabilityAnalyzer
+from geo_infer_risk import EnhancedVulnerabilityModel
 
 # Analyze vulnerability
-vuln = VulnerabilityAnalyzer()
-
-analysis = vuln.analyze(
-    assets=buildings,
-    hazards=hazard_layers
+vuln = EnhancedVulnerabilityModel(
+    vulnerability_type="structural",
+    params={"building_type": "residential", "construction": "masonry"}
 )
 
-print(f"High risk: {analysis.high_risk_count}")
-print(f"Expected loss: ${analysis.loss}M")
+damage_ratio = vuln.calculate_damage(hazard_intensity=0.3)
+print(f"Expected damage ratio: {damage_ratio:.2%}")
 ```
 
 ### Risk Modeling
 
 ```python
-from geo_infer_risk import RiskModeler
+from geo_infer_risk import RiskEngine
 
 # Model risk scenarios
-modeler = RiskModeler()
+engine = RiskEngine(config={"analysis_type": "probabilistic"})
 
-risk = modeler.model(
-    hazard=earthquake_scenario,
-    exposure=building_inventory,
-    vulnerability=fragility_curves
+risk = engine.run_analysis(
+    hazard_model=earthquake_model,
+    exposure_data=building_inventory,
+    vulnerability_model=fragility_model
 )
 
-print(f"Economic loss: ${risk.loss}B")
+print(f"Expected annual loss: ${risk['expected_loss']}M")
 ```
 
 ### Mitigation Planning
 
 ```python
-from geo_infer_risk import MitigationPlanner
+from geo_infer_risk import RiskEngine
 
-# Plan risk reduction
-planner = MitigationPlanner()
+# Evaluate risk reduction strategies
+engine = RiskEngine(config={"analysis_type": "cost_benefit"})
 
-plan = planner.create(
-    risks=identified_risks,
-    budget=100_000_000
-)
+baseline = engine.run_analysis(hazard_model=hazard, exposure_data=assets,
+                                vulnerability_model=current_vuln)
+mitigated = engine.run_analysis(hazard_model=hazard, exposure_data=assets,
+                                 vulnerability_model=retrofitted_vuln)
 
-print(f"Risk reduction: {plan.reduction}%")
+reduction = 1 - mitigated['expected_loss'] / baseline['expected_loss']
+print(f"Risk reduction: {reduction:.1%}")
 ```
 
 ## Hazards Supported

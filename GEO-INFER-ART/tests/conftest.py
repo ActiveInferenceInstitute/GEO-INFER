@@ -1,3 +1,6 @@
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend for CI/headless testing
+
 """
 Pytest fixtures for GEO-INFER-ART tests.
 

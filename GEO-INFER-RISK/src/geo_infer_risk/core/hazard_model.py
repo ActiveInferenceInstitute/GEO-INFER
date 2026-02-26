@@ -181,17 +181,19 @@ class EnhancedHazardModel:
             data_source = self.params.get("historical_data_source")
             if data_source:
                 self.historical_data = self._load_historical_data(data_source)
+
+                # Validate data quality
+                self._validate_historical_data()
+
+                # Fit model parameters
+                self._fit_model_parameters()
+
+                self.is_fitted = True
+                self.logger.info("Hazard model data loaded and validated successfully")
             else:
                 self.historical_data = self._generate_synthetic_historical_data()
-
-            # Validate data quality
-            self._validate_historical_data()
-
-            # Fit model parameters
-            self._fit_model_parameters()
-
-            self.is_fitted = True
-            self.logger.info("Hazard model data loaded and validated successfully")
+                self._fit_model_parameters()
+                self.logger.info("Hazard model initialized with synthetic data (not fitted)")
 
         except Exception as e:
             self.logger.error(f"Failed to load hazard data: {e}")

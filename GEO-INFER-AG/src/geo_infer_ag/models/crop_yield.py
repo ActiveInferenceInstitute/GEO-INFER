@@ -196,18 +196,33 @@ class CropYieldModel(AgricultureModel):
             }
         
         elif self.model_type == "statistical":
-            # Simple statistical prediction based on historical data
-            # For example, using regional averages and current conditions
+            # Statistical prediction from historical data and fitted parameters
             if "historical_yield_data" not in data:
                 raise ValueError("Historical yield data required for statistical prediction")
-                
+
             historical_data = data["historical_yield_data"]
-            # Implement statistical prediction logic
-            # For example, using regional averages adjusted for current conditions
-            
-            # Placeholder for actual implementation
-            predictions = np.ones(len(field_data)) * 5.0  # Dummy predictions
-            
+
+            # Compute baseline from fitted params if available, otherwise from historical data
+            if hasattr(self, "_statistical_params"):
+                baseline = self._statistical_params["mean_yield"]
+                trend = self._statistical_params.get("trend")
+            else:
+                # Derive baseline from any numeric column in historical data, excluding 'year'
+                numeric_cols = historical_data.select_dtypes(include="number").columns.tolist()
+                yield_cols = [c for c in numeric_cols if c != "year"]
+                baseline = float(historical_data[yield_cols].values.mean()) if yield_cols else 5.0
+                trend = None
+
+            predictions = np.full(len(field_data), baseline)
+
+            # Apply linear trend if year column available in field data
+            if trend is not None and "year" in field_data.columns:
+                ref_year = float(historical_data["year"].min()) if "year" in historical_data.columns else 2000.0
+                year_delta = field_data["year"].values.astype(float) - ref_year
+                predictions = predictions + trend * year_delta
+
+            predictions = np.maximum(predictions, 0.0)
+
             result = {
                 "predictions": predictions,
                 "spatial_results": {
@@ -219,7 +234,7 @@ class CropYieldModel(AgricultureModel):
                     "model_type": self.model_type
                 }
             }
-            
+
             # Calculate summary statistics
             result["summary"] = {
                 "mean_yield": float(np.mean(predictions)),
@@ -229,20 +244,70 @@ class CropYieldModel(AgricultureModel):
             }
         
         elif self.model_type == "process_based":
-            # Process-based prediction using crop growth simulation
-            # These models require detailed weather, soil, and management data
+            # Process-based prediction using Growing Degree Day accumulation and stress factors
             required_process_data = ["weather_data", "soil_data", "management_data"]
             missing_data = [d for d in required_process_data if d not in data]
-            
+
             if missing_data:
                 raise ValueError(f"Missing data for process-based model: {missing_data}")
-            
-            # Implement process-based prediction logic
-            # This would typically involve sophisticated crop growth simulation
-            
-            # Placeholder for actual implementation
-            predictions = np.ones(len(field_data)) * 6.0  # Dummy predictions
-            
+
+            params = self._process_params if hasattr(self, "_process_params") else {
+                "base_temperature": 10.0,
+                "optimal_temperature": 25.0,
+                "max_yield_potential": 10.0,
+                "water_stress_coeff": 0.8,
+            }
+
+            weather_data = data["weather_data"]
+            soil_data = data["soil_data"]
+            management_data = data["management_data"]
+
+            base_temp = params["base_temperature"]
+            optimal_temp = params["optimal_temperature"]
+            max_yield = params["max_yield_potential"]
+
+            # Growing Degree Days accumulation
+            if "temperature" in weather_data.columns:
+                gdd = float(np.maximum(weather_data["temperature"].values - base_temp, 0).sum())
+            else:
+                gdd = 1500.0  # Seasonal default
+
+            # Harvest index as sigmoid of GDD relative to ~1800 GDD threshold
+            harvest_index = 1.0 / (1 + np.exp(-(gdd - 1800.0) / 300.0))
+
+            # Water stress from total precipitation vs crop requirement
+            if "precipitation" in weather_data.columns:
+                total_precip = float(weather_data["precipitation"].sum())
+                water_satisfaction = float(np.clip(total_precip / 550.0, 0.3, 1.2))
+            else:
+                water_satisfaction = float(params["water_stress_coeff"])
+
+            # Temperature stress: penalty for deviation from optimal
+            if "temperature" in weather_data.columns:
+                mean_temp_dev = float(np.abs(weather_data["temperature"].values - optimal_temp).mean())
+                temp_stress = float(np.clip(1.0 - mean_temp_dev / optimal_temp, 0.6, 1.0))
+            else:
+                temp_stress = 1.0
+
+            # Soil quality modifier from organic matter
+            soil_modifier = 1.0
+            if "organic_matter" in soil_data.columns:
+                om_mean = float(soil_data["organic_matter"].mean())
+                soil_modifier = float(np.clip(0.7 + om_mean * 0.1, 0.7, 1.3))
+
+            # Management modifier from practice column if present
+            management_modifier = 1.0
+            if "practice" in management_data.columns:
+                practice_boosts = {"no_till": 1.05, "cover_crops": 1.07, "precision": 1.1}
+                for practice in management_data["practice"].values:
+                    management_modifier *= practice_boosts.get(str(practice), 1.0)
+
+            base_prediction = (
+                max_yield * harvest_index * water_satisfaction * soil_modifier * temp_stress
+                * management_modifier
+            )
+            predictions = np.maximum(np.full(len(field_data), float(base_prediction)), 0.0)
+
             result = {
                 "predictions": predictions,
                 "spatial_results": {
@@ -251,10 +316,13 @@ class CropYieldModel(AgricultureModel):
                 "metadata": {
                     "prediction_time": datetime.now().isoformat(),
                     "crop_type": self.crop_type,
-                    "model_type": self.model_type
+                    "model_type": self.model_type,
+                    "gdd": gdd,
+                    "harvest_index": float(harvest_index),
+                    "water_satisfaction": float(water_satisfaction),
                 }
             }
-            
+
             # Calculate summary statistics
             result["summary"] = {
                 "mean_yield": float(np.mean(predictions)),

@@ -390,3 +390,7 @@ class PlanetaryBoundaries:
             len(transgressed), n_total, region_id,
         )
         return result
+
+
+# Alias for backward compatibility
+SustainabilityMetrics = SustainabilityIndicators

@@ -28,12 +28,13 @@ class PlanStatus(Enum):
 class Plan:
     """
     A plan representing a way to achieve a goal.
-    
+
     Attributes:
         name: Unique identifier for the plan
         description: Human-readable description of the plan
-        goal: The name of the desire/goal this plan aims to achieve
+        goal: The name of the desire/goal this plan aims to achieve (also aliased as desire_name)
         context_condition: Condition that must be true for the plan to be applicable
+        context_conditions: Alias for context_condition (for backward compatibility)
         precondition: Condition that must be true for the plan to start
         postcondition: Condition that indicates the plan has succeeded
         failure_condition: Condition that indicates the plan has failed
@@ -41,11 +42,17 @@ class Plan:
         status: Current status of the plan
         priority: Priority level of the plan (higher values = higher priority)
         metadata: Additional information about this plan
+        current_action_index: Index of the current action being executed
+        complete: Whether this plan has finished executing
+        successful: Whether the plan succeeded (None if not complete)
+        action_results: Results from executed actions
     """
     name: str
-    description: str
-    goal: str
+    description: str = ""
+    goal: str = ""
+    desire_name: str = ""
     context_condition: Dict[str, Any] = field(default_factory=dict)
+    context_conditions: Dict[str, Any] = field(default_factory=dict)
     precondition: Dict[str, Any] = field(default_factory=dict)
     postcondition: Dict[str, Any] = field(default_factory=dict)
     failure_condition: Dict[str, Any] = field(default_factory=dict)
@@ -53,6 +60,23 @@ class Plan:
     status: PlanStatus = PlanStatus.PENDING
     priority: float = 1.0
     metadata: Dict[str, Any] = field(default_factory=dict)
+    current_action_index: int = 0
+    complete: bool = False
+    successful: Optional[bool] = None
+    action_results: List[Dict[str, Any]] = field(default_factory=list)
+
+    def __post_init__(self):
+        """Normalize goal/desire_name and context aliases."""
+        # Sync goal and desire_name: whichever is set, copy to the other
+        if self.desire_name and not self.goal:
+            self.goal = self.desire_name
+        elif self.goal and not self.desire_name:
+            self.desire_name = self.goal
+        # Sync context_conditions and context_condition
+        if self.context_conditions and not self.context_condition:
+            self.context_condition = self.context_conditions
+        elif self.context_condition and not self.context_conditions:
+            self.context_conditions = self.context_condition
     
     def is_applicable(self, belief_values: Dict[str, Any]) -> bool:
         """
@@ -163,12 +187,58 @@ class Plan:
     def reset(self) -> None:
         """Reset this plan to the PENDING status."""
         self.status = PlanStatus.PENDING
+        self.current_action_index = 0
+        self.complete = False
+        self.successful = None
+        self.action_results = []
         logger.debug(f"Reset plan: {self.name}")
-    
+
+    def next_action(self) -> Optional[Dict[str, Any]]:
+        """
+        Get the current action to execute without advancing.
+
+        Returns:
+            The current action dict, or None if all actions are done
+        """
+        if self.current_action_index >= len(self.actions):
+            return None
+        return self.actions[self.current_action_index]
+
+    def advance(self) -> None:
+        """Advance to the next action in the plan."""
+        self.current_action_index += 1
+
+    def mark_complete(self, successful: bool) -> None:
+        """
+        Mark this plan as complete with a success/failure status.
+
+        Args:
+            successful: Whether the plan completed successfully
+        """
+        self.complete = True
+        self.successful = successful
+        self.status = PlanStatus.SUCCEEDED if successful else PlanStatus.FAILED
+
+    def record_action_result(self, action_index: int, result: Dict[str, Any],
+                             success: bool) -> None:
+        """
+        Record the result of an executed action.
+
+        Args:
+            action_index: Index of the action that was executed
+            result: Result dictionary from the action execution
+            success: Whether the action succeeded
+        """
+        self.action_results.append({
+            "action_index": action_index,
+            "result": result,
+            "success": success,
+        })
+
     def to_dict(self) -> Dict[str, Any]:
         """
         Convert this plan to a dictionary representation.
-        
+
         Returns:
             Dictionary representation of this plan
         """
@@ -176,32 +246,50 @@ class Plan:
             "name": self.name,
             "description": self.description,
             "goal": self.goal,
+            "desire_name": self.desire_name,
             "context_condition": self.context_condition,
+            "context_conditions": self.context_conditions,
             "precondition": self.precondition,
             "postcondition": self.postcondition,
             "failure_condition": self.failure_condition,
             "actions": self.actions,
             "status": self.status.value,
             "priority": self.priority,
-            "metadata": self.metadata
+            "metadata": self.metadata,
+            "current_action_index": self.current_action_index,
+            "complete": self.complete,
+            "successful": self.successful,
+            "action_results": self.action_results,
         }
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Plan':
         """
         Create a Plan instance from a dictionary.
-        
+
         Args:
             data: Dictionary representation of a plan
-            
+
         Returns:
             Plan instance
         """
+        d = dict(data)
+
         # Handle status conversion from string
-        if "status" in data and isinstance(data["status"], str):
-            data["status"] = PlanStatus(data["status"])
-            
-        return cls(**data)
+        if "status" in d and isinstance(d["status"], str):
+            d["status"] = PlanStatus(d["status"])
+
+        # Drop extra keys not in the dataclass
+        known_fields = {
+            "name", "description", "goal", "desire_name",
+            "context_condition", "context_conditions",
+            "precondition", "postcondition", "failure_condition",
+            "actions", "status", "priority", "metadata",
+            "current_action_index", "complete", "successful", "action_results",
+        }
+        filtered = {k: v for k, v in d.items() if k in known_fields}
+
+        return cls(**filtered)
 
 
 class PlanLibrary:

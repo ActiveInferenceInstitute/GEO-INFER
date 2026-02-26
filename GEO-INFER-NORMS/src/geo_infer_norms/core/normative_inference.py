@@ -497,10 +497,24 @@ class NormativeInference:
                             except:
                                 pass
                 
+                # Build a human-readable recommendation string from identified behaviors
+                if relevant_behaviors:
+                    behavior_hints = [
+                        f"{b['change']} {b['behavior']} from {b['current_value']} to {b['suggested_value']:.4g}"
+                        for b in relevant_behaviors
+                    ]
+                    recommendation = "To improve compliance: " + "; ".join(behavior_hints)
+                else:
+                    recommendation = (
+                        f"Review norm '{norm['name']}' requirements and adjust "
+                        f"relevant behaviors to meet compliance conditions"
+                    )
+
                 suggestions.append({
                     "norm_id": norm_id,
                     "norm_name": norm["name"],
                     "current_compliance": compliance_prob,
+                    "recommendation": recommendation,
                     "relevant_behaviors": relevant_behaviors
                 })
         

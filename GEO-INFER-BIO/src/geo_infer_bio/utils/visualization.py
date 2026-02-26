@@ -25,7 +25,7 @@ class BioVisualizer:
 
     def plot_spatial_distribution(
         self,
-        data: pd.DataFrame,
+        data,
         output_path: Optional[str] = None,
         title: str = "Spatial Distribution",
     ) -> None:
@@ -33,10 +33,14 @@ class BioVisualizer:
         Plot spatial distribution of biological features.
 
         Args:
-            data: DataFrame containing spatial data
+            data: DataFrame or dict of DataFrames containing spatial data
             output_path: Optional path to save the plot
             title: Plot title
         """
+        # Handle dict of DataFrames (from analyze_spatial_distribution)
+        if isinstance(data, dict):
+            data = next(iter(data.values()))
+
         gdf = gpd.GeoDataFrame(
             data,
             geometry=gpd.points_from_xy(data.longitude, data.latitude),
