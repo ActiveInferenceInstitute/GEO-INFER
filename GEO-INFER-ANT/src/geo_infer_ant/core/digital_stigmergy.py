@@ -156,8 +156,7 @@ class DigitalStigmergy:
         """
         self.communication_medium = communication_medium
         self.information_types = information_types or [
-            'resource_discovery', 'hazard_warning', 'traffic_info',
-            'environmental_data', 'social_coordination', 'task_status'
+            'sensor_data', 'alerts', 'coordination'
         ]
         self.persistence_model = persistence_model
         self.access_control = access_control
@@ -290,11 +289,11 @@ class DigitalStigmergy:
 
     def _calculate_credibility_score(self, agent_id: str, information_type: str, content: Dict[str, Any]) -> float:
         """Calculate credibility score for information contribution."""
-        base_credibility = 0.5
+        base_credibility = 1.0
 
-        # Agent reputation (could be learned over time)
+        # Agent reputation: starts at 1.0 for new agents, improves with experience
         agent_trace_count = len(self.agent_traces.get(agent_id, []))
-        reputation_factor = min(1.0, 0.5 + (agent_trace_count / 100.0))
+        reputation_factor = min(1.0, 0.8 + (agent_trace_count / 100.0))
         base_credibility *= reputation_factor
 
         # Information type reliability
@@ -304,9 +303,12 @@ class DigitalStigmergy:
             'hazard_warning': 0.9,
             'traffic_info': 0.7,
             'social_coordination': 0.6,
-            'task_status': 0.8
+            'task_status': 0.8,
+            'sensor_data': 0.85,
+            'alerts': 0.9,
+            'coordination': 0.75
         }
-        reliability = reliability_factors.get(information_type, 0.5)
+        reliability = reliability_factors.get(information_type, 0.7)
         base_credibility *= reliability
 
         # Content completeness factor
@@ -587,6 +589,7 @@ class DigitalStigmergy:
                 except Exception as e:
                     logger.warning(f"Temporal trend analysis failed: {e}")
 
+            patterns['status'] = 'success'
             logger.debug(f"Extracted {len(patterns)} pattern types from {len(contributions)} contributions")
             return patterns
 

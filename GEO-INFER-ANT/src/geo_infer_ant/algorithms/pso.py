@@ -183,6 +183,10 @@ class ParticleSwarmOptimization:
         if bounds is None:
             bounds = [(-10, 10)] * dimensions
 
+        # Extract neighborhood parameters from kwargs before constructing PSOParameters
+        neighborhood_topology = kwargs.pop('neighborhood_topology', 'global')
+        neighborhood_size = kwargs.pop('neighborhood_size', 5)
+
         self.parameters = PSOParameters(
             swarm_size=swarm_size,
             dimensions=dimensions,
@@ -191,7 +195,9 @@ class ParticleSwarmOptimization:
             cognitive_acceleration=cognitive_acceleration,
             social_acceleration=social_acceleration,
             max_velocity=max_velocity,
-            max_iterations=max_iterations
+            max_iterations=max_iterations,
+            neighborhood_topology=neighborhood_topology,
+            neighborhood_size=neighborhood_size,
         )
 
         self.spatial_constraints = spatial_constraints or {}

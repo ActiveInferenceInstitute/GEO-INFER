@@ -3,28 +3,12 @@
 
 """
 Tests for task management: Plan creation, assignment, advancement, and completion.
-
-Note: The bdi.py Plan class (desire_name param) differs from bdi/plan.py Plan dataclass
-(goal param).  BDIState and BDIAgent rely on bdi.py, so we import it directly.
 """
 
-import importlib.util
-import os
 import unittest
 from datetime import datetime, timedelta
 
-# Load the Plan, Desire, Belief from the bdi.py *file* (not the bdi/ subpackage)
-_bdi_file = os.path.join(
-    os.path.dirname(__file__), os.pardir, os.pardir,
-    "src", "geo_infer_agent", "models", "bdi.py",
-)
-_spec = importlib.util.spec_from_file_location("_bdi_file", os.path.abspath(_bdi_file))
-_bdi_mod = importlib.util.module_from_spec(_spec)
-_spec.loader.exec_module(_bdi_mod)
-Plan = _bdi_mod.Plan
-Desire = _bdi_mod.Desire
-Belief = _bdi_mod.Belief
-
+from geo_infer_agent.models.bdi.agent import Plan, Desire, Belief
 from geo_infer_agent.models import BDIState
 
 

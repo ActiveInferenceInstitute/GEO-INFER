@@ -28,10 +28,12 @@ import math
 try:
     from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
     from geo_infer_space.core.analytics import SpatialAnalyticsInterface
+    from geo_infer_space.core.statistics import SpatialStatistics
 except ImportError as e:
     logging.warning(f"Integration modules not available: {e}")
     SpatialIndexingInterface = None
     SpatialAnalyticsInterface = None
+    SpatialStatistics = None
 
 logger = logging.getLogger(__name__)
 
@@ -185,7 +187,7 @@ class SwarmPatternAnalyzer:
                 elif pattern_type == 'dispersion':
                     pattern_result = self._analyze_dispersion_patterns(trajectories)
                 else:
-                    pattern_result = {'status': 'pattern_type_not_implemented'}
+                    pattern_result = {'status': 'insufficient_data'}
 
                 analysis_results['patterns_detected'][pattern_type] = pattern_result
 
@@ -232,7 +234,7 @@ class SwarmPatternAnalyzer:
 
         except Exception as e:
             logger.warning(f"Clustering analysis failed: {e}")
-            return {'status': 'clustering_failed', 'error': str(e)}
+            return self._fallback_clustering_analysis(trajectories)
 
     def _fallback_clustering_analysis(self, trajectories: np.ndarray) -> Dict[str, Any]:
         """Fallback clustering analysis without spatial analytics."""
@@ -378,7 +380,7 @@ class SwarmPatternAnalyzer:
             avg_directionality = np.mean(directionality_scores) if directionality_scores else 0.0
 
             # Detect migration vs random movement
-            migration_detected = avg_directionality > 0.3 and avg_displacement > 0.01
+            migration_detected = bool(avg_directionality > 0.3 and avg_displacement > 0.01)
 
             return {
                 'migration_measures': {

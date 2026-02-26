@@ -7,6 +7,7 @@ and others for reliable email notifications and communications.
 """
 
 from __future__ import annotations
+from abc import ABC, abstractmethod
 import asyncio
 import logging
 import smtplib
@@ -19,7 +20,7 @@ from geo_infer_comms.models.message import NotificationResponse
 from geo_infer_comms.models.spatial import GeospatialMetadata
 
 
-class EmailProvider:
+class EmailProvider(ABC):
     """
     Base class for email provider integrations.
 
@@ -46,6 +47,7 @@ class EmailProvider:
 
         self.logger = logging.getLogger(__name__)
 
+    @abstractmethod
     async def send_email(
         self,
         to_email: str,

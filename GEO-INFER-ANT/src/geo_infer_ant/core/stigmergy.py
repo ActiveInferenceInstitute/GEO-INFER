@@ -90,6 +90,10 @@ class PheromoneField:
     last_update: datetime = field(default_factory=datetime.now)
     update_count: int = 0
 
+    # Integration references set by PheromoneSystem after field creation
+    spatial_indexer: Any = field(default=None)
+    pheromone_types: List[Any] = field(default_factory=list)
+
     def get_concentration(self, location: np.ndarray) -> float:
         """Get pheromone concentration at specific location."""
         if not self.spatial_indexer:
@@ -165,7 +169,8 @@ class PheromoneSystem:
         pheromone_types: Optional[List[str]] = None,
         bounds: Optional[Dict[str, float]] = None,
         environmental_factors: Optional[Dict[str, Any]] = None,
-        spatial_backend: str = 'h3'
+        spatial_backend: str = 'h3',
+        evaporation_rate: Optional[float] = None
     ):
         """
         Initialize pheromone communication system.
@@ -180,6 +185,7 @@ class PheromoneSystem:
         self.spatial_resolution = spatial_resolution
         self.bounds = bounds or {'min_lat': -90, 'max_lat': 90, 'min_lng': -180, 'max_lng': 180}
         self.environmental_factors = environmental_factors or {}
+        self._evaporation_rate = evaporation_rate
 
         # Configure pheromone types
         self.pheromone_types = self._initialize_pheromone_types(pheromone_types or ['trail', 'food', 'alarm', 'nest'])
@@ -256,7 +262,9 @@ class PheromoneSystem:
         }
 
         for name in pheromone_type_names:
-            config = default_configs.get(name, default_configs['trail'])
+            config = default_configs.get(name, default_configs['trail']).copy()
+            if self._evaporation_rate is not None:
+                config['evaporation_rate'] = self._evaporation_rate
             types.append(PheromoneType(name=name, **config))
 
         return types
@@ -282,12 +290,15 @@ class PheromoneSystem:
     def _initialize_pheromone_fields(self) -> None:
         """Initialize pheromone fields for all types."""
         for pheromone_type in self.pheromone_types:
-            field = PheromoneField(
+            f = PheromoneField(
                 pheromone_type=pheromone_type.name,
                 spatial_resolution=self.spatial_resolution,
                 bounds=self.bounds
             )
-            self.pheromone_fields[pheromone_type.name] = field
+            # Provide references needed by PheromoneField methods
+            f.spatial_indexer = self.spatial_indexer
+            f.pheromone_types = self.pheromone_types
+            self.pheromone_fields[pheromone_type.name] = f
 
     async def deposit_pheromone(
         self,
@@ -806,7 +817,7 @@ class PheromoneSystem:
         stats = {
             'pheromone_type': pheromone_type,
             'total_deposits': len(field.deposits),
-            'active_cells': len(field.concentrations),
+            'active_cells': len(field.concentrations) or len(field.deposits),
             'last_update': field.last_update.isoformat(),
             'update_count': field.update_count
         }
@@ -818,6 +829,15 @@ class PheromoneSystem:
                 'min_concentration': np.min(concentrations),
                 'avg_concentration': np.mean(concentrations),
                 'std_concentration': np.std(concentrations)
+            })
+        elif field.deposits:
+            # No spatial indexing available — derive concentration stats from raw deposits
+            intensities = [d.intensity for d in field.deposits]
+            stats.update({
+                'max_concentration': np.max(intensities),
+                'min_concentration': np.min(intensities),
+                'avg_concentration': np.mean(intensities),
+                'std_concentration': np.std(intensities)
             })
 
         if field.deposits:

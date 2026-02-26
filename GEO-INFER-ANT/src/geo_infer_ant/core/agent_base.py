@@ -182,6 +182,13 @@ class SwarmAgent(BaseAgent if BaseAgent != object else ABC):
             spatial_backend: Backend for spatial operations ('h3', 'srai', 'geopandas')
             **kwargs: Additional configuration parameters
         """
+        # Validate inputs
+        position_arr = np.array(position, dtype=np.float64)
+        if position_arr.size == 0:
+            raise ValueError("Agent position cannot be empty")
+        if sensory_range < 0:
+            raise ValueError("sensory_range must be non-negative")
+
         # Initialize base agent (fallback if BaseAgent not available)
         if BaseAgent != object:
             super().__init__(agent_id, kwargs)
@@ -192,7 +199,7 @@ class SwarmAgent(BaseAgent if BaseAgent != object else ABC):
             self.running = False
 
         # Swarm-specific attributes
-        self.position = np.array(position, dtype=np.float64)
+        self.position = position_arr
         self.sensory_range = sensory_range
         self.movement_speed = movement_speed
         self.active_inference_enabled = active_inference_enabled

@@ -233,12 +233,17 @@ class ArtificialBeeColony:
         # Select random dimension
         dimension = np.random.randint(0, len(position))
 
-        # Select random neighbor food source
+        # Find current source index using safe element-wise comparison
+        current_idx = next(
+            (idx for idx, s in enumerate(self.food_sources) if np.array_equal(s.position, position)),
+            None
+        )
+
+        # Select random neighbor food source (different from current)
         neighbor_idx = np.random.randint(0, len(self.food_sources))
-        while neighbor_idx == self.food_sources.index(
-            next(s for s in self.food_sources if np.array_equal(s.position, position))
-        ):
-            neighbor_idx = np.random.randint(0, len(self.food_sources))
+        if current_idx is not None and len(self.food_sources) > 1:
+            while neighbor_idx == current_idx:
+                neighbor_idx = np.random.randint(0, len(self.food_sources))
 
         neighbor_position = self.food_sources[neighbor_idx].position
 
@@ -366,15 +371,15 @@ class ArtificialBeeColony:
         if not sources:
             return
 
-        # Calculate recruitment probabilities
+        # Calculate recruitment probabilities (normalize to sum to 1)
         fitness_values = np.array([s.fitness for s in sources])
-        max_fitness = np.max(fitness_values)
+        total_fitness = np.sum(fitness_values)
 
         # Avoid division by zero
-        if max_fitness == 0:
+        if total_fitness == 0:
             return
 
-        recruitment_probs = fitness_values / max_fitness
+        recruitment_probs = fitness_values / total_fitness
 
         # Recruit additional bees to best sources
         n_recruitment = len(sources) // 4  # Recruit to top 25%

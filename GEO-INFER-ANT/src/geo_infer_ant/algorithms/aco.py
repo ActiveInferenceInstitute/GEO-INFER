@@ -119,6 +119,7 @@ class AntColonyOptimization:
         max_iterations: int = 100,
         variant: str = 'AS',  # 'AS', 'ACS', 'MMAS'
         spatial_graph: Optional[Any] = None,
+        convergence_threshold: float = 0.001,
         **kwargs
     ):
         """
@@ -143,7 +144,8 @@ class AntColonyOptimization:
             alpha=alpha,
             beta=beta,
             initial_pheromone=initial_pheromone,
-            max_iterations=max_iterations
+            max_iterations=max_iterations,
+            convergence_threshold=convergence_threshold
         )
 
         self.variant = variant
@@ -247,10 +249,11 @@ class AntColonyOptimization:
             # Use inverse distance as heuristic
             for i in range(self.problem_size):
                 for j in range(self.problem_size):
-                    if i != j and distance_matrix[i, j] > 0:
-                        self.heuristic_matrix[(i, j)] = 1.0 / distance_matrix[i, j]
-                    else:
-                        self.heuristic_matrix[(i, j)] = 0.0
+                    if i != j:
+                        if distance_matrix[i, j] > 0:
+                            self.heuristic_matrix[(i, j)] = 1.0 / distance_matrix[i, j]
+                        else:
+                            self.heuristic_matrix[(i, j)] = 0.0
         else:
             # Default heuristic (random)
             for i in range(self.problem_size):
@@ -649,16 +652,12 @@ class AntColonyOptimization:
         if len(self.convergence_history) < 10:
             return False
 
-        # Check if fitness has stabilized
+        # Check if per-step improvement rate has dropped below threshold
         recent_fitness = self.convergence_history[-10:]
-        fitness_std = np.std(recent_fitness)
-        fitness_mean = np.mean(recent_fitness)
-
-        if fitness_mean > 0:
-            coefficient_of_variation = fitness_std / fitness_mean
-            return coefficient_of_variation < self.parameters.convergence_threshold
-
-        return False
+        total_improvement = recent_fitness[0] - recent_fitness[-1]
+        reference = max(abs(recent_fitness[0]), 1e-10)
+        per_step_improvement = total_improvement / reference / len(recent_fitness)
+        return bool(per_step_improvement < self.parameters.convergence_threshold)
 
     def _record_iteration_stats(self, iteration: int) -> None:
         """Record statistics for current iteration."""
@@ -936,6 +935,7 @@ class AntColonyOptimization:
             import json
 
             state = {
+                'variant': self.variant,
                 'parameters': {
                     'number_of_ants': self.parameters.number_of_ants,
                     'pheromone_evaporation_rate': self.parameters.pheromone_evaporation_rate,
@@ -944,7 +944,6 @@ class AntColonyOptimization:
                     'beta': self.parameters.beta,
                     'initial_pheromone': self.parameters.initial_pheromone,
                     'max_iterations': self.parameters.max_iterations,
-                    'variant': self.variant
                 },
                 'problem_state': {
                     'nodes': self.nodes,
@@ -987,6 +986,9 @@ class AntColonyOptimization:
 
             with open(filepath, 'r') as f:
                 state = json.load(f)
+
+            # Restore variant (stored at top level, not inside parameters)
+            self.variant = state.get('variant', 'AS')
 
             # Restore parameters
             params = state['parameters']

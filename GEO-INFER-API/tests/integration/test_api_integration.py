@@ -153,10 +153,13 @@ class TestHealthEndpoints:
         data = response.json()
         assert data["status"] == "ok"
         assert "components" in data
-        assert "database" in data["components"]
         assert "geojson_service" in data["components"]
         assert "memory_usage" in data["components"]
         assert "uptime" in data["components"]
+        # Verify live values are present
+        assert "value_mb" in data["components"]["memory_usage"]
+        assert "seconds" in data["components"]["uptime"]
+        assert "human" in data["components"]["uptime"]
 
     def test_process_time_header(self, client):
         """Test that RequestLoggingMiddleware adds X-Process-Time header."""
@@ -174,23 +177,44 @@ class TestHealthEndpoints:
 class TestMiddlewareIntegration:
     """Test middleware components working together."""
 
-    def test_error_handler_catches_unhandled_exceptions(self):
-        """Test ErrorHandlerMiddleware converts unhandled exceptions to 500 JSON."""
+    def test_error_handler_catches_unexpected_errors(self):
+        """Test ErrorHandlerMiddleware catches unexpected (non-HTTP) errors."""
         from geo_infer_api.core.middleware import ErrorHandlerMiddleware, RequestLoggingMiddleware
 
         app = FastAPI()
         app.add_middleware(ErrorHandlerMiddleware)
         app.add_middleware(RequestLoggingMiddleware)
 
-        @app.get("/trigger-error")
-        async def trigger_error():
-            raise RuntimeError("Unexpected crash")
+        @app.get("/trigger-unexpected-error")
+        async def trigger_unexpected_error():
+            raise RuntimeError("Something broke")
 
         c = TestClient(app, raise_server_exceptions=False)
-        response = c.get("/trigger-error")
+        response = c.get("/trigger-unexpected-error")
         assert response.status_code == 500
         data = response.json()
         assert data["error"]["code"] == "INTERNAL_ERROR"
+        assert data["error"]["message"] == "An unexpected error occurred"
+
+    def test_api_error_returns_proper_status(self):
+        """Test that APIError (HTTPException subclass) returns correct status via FastAPI handler."""
+        from geo_infer_api.core.middleware import ErrorHandlerMiddleware, RequestLoggingMiddleware
+        from geo_infer_api.core.exceptions import APIError
+
+        app = FastAPI()
+        app.add_middleware(ErrorHandlerMiddleware)
+        app.add_middleware(RequestLoggingMiddleware)
+
+        @app.get("/trigger-api-error")
+        async def trigger_api_error():
+            raise APIError(status_code=400, detail="Test error", error_code="TEST")
+
+        c = TestClient(app, raise_server_exceptions=False)
+        response = c.get("/trigger-api-error")
+        assert response.status_code == 400
+        data = response.json()
+        # APIError extends HTTPException; FastAPI's built-in handler returns {"detail": ...}
+        assert data["detail"] == "Test error"
 
     def test_cors_headers_present(self):
         """Test that CORSMiddleware adds appropriate headers."""

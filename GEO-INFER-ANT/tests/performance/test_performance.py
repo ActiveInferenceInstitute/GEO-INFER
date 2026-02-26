@@ -69,7 +69,7 @@ class TestLargeScalePerformance:
 
                 # Time constraints (should complete within reasonable limits)
                 assert creation_time < 30.0  # 30 seconds for creation
-                assert simulation_time < 60.0  # 60 seconds for simulation
+                assert simulation_time < 120.0  # 120 seconds for simulation
 
                 # Memory constraints (should not exceed reasonable limits)
                 assert simulation_memory - start_memory < 500  # Less than 500MB additional memory

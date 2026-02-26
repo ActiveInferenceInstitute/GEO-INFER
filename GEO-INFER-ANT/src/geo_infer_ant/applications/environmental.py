@@ -310,8 +310,11 @@ class EnvironmentalMonitoringSwarm:
             # Optimize positions
             optimal_positions = self.coverage_optimizer.optimize(coverage_objective, initial_positions)
 
-            # Convert back to list of arrays
-            return [optimal_positions[i] for i in range(len(optimal_positions))]
+            # Convert back to list of arrays, guarding against wrong optimizer output shape
+            optimal_positions = np.atleast_2d(optimal_positions)
+            if optimal_positions.shape != (self.swarm_size, 2):
+                return self._generate_grid_positions()
+            return [optimal_positions[i] for i in range(self.swarm_size)]
 
         except Exception as e:
             logger.warning(f"Position optimization failed: {e}")
@@ -576,7 +579,7 @@ class EnvironmentalMonitoringSwarm:
                 frequencies[objective] = '1_minute'
             elif priority > 0.5:
                 frequencies[objective] = '5_minutes'
-            elif priority > 0.2:
+            elif priority > 0.4:
                 frequencies[objective] = '15_minutes'
             else:
                 frequencies[objective] = '1_hour'
@@ -641,6 +644,7 @@ class EnvironmentalMonitoringSwarm:
 
         # Account for overlaps (simplified)
         overlap_factor = 0.7  # Assume 30% overlap
+        n_agents = len(positions) if hasattr(positions, '__len__') else 1
         effective_area = n_agents * area_per_agent * overlap_factor
 
         return effective_area
@@ -704,6 +708,23 @@ class EnvironmentalMonitoringSwarm:
             Comprehensive environmental assessment
         """
         logger.info(f"Processing collective intelligence from {len(individual_measurements)} measurements")
+
+        # Convert dict readings to SensorReading objects if needed
+        converted = []
+        for m in individual_measurements:
+            if isinstance(m, dict):
+                converted.append(SensorReading(
+                    agent_id=m.get('agent_id', 'unknown'),
+                    sensor_type=m.get('sensor_type', 'unknown'),
+                    value=float(m.get('value', 0.0)),
+                    location=np.array(m.get('location', [0, 0])),
+                    timestamp=m.get('timestamp', datetime.now()),
+                    quality_score=float(m.get('quality_score', 1.0)),
+                    metadata=m.get('metadata', {})
+                ))
+            else:
+                converted.append(m)
+        individual_measurements = converted
 
         assessment = {
             'assessment_time': datetime.now(),
@@ -1154,8 +1175,12 @@ class EnvironmentalMonitoringSwarm:
 
             # Overall uncertainty (weighted combination)
             weights = {'sensor': 0.5, 'spatial': 0.3, 'temporal': 0.2}
+            sensor_scores = [
+                v['uncertainty_score'] for v in uncertainty['sensor_uncertainties'].values()
+                if isinstance(v, dict) and 'uncertainty_score' in v
+            ]
             overall = (
-                np.mean(list(uncertainty['sensor_uncertainties'].values())) * weights['sensor'] +
+                (np.mean(sensor_scores) if sensor_scores else 0.0) * weights['sensor'] +
                 uncertainty['spatial_uncertainty'] * weights['spatial'] +
                 uncertainty['temporal_uncertainty'] * weights['temporal']
             )
@@ -1270,7 +1295,7 @@ class EnvironmentalMonitoringSwarm:
         # Calculate monitoring efficiency
         expected_measurements = len(self.monitoring_agents) * 10  # Expected per hour
         actual_measurements = len(measurements)
-        self.monitoring_efficiency = min(1.0, actual_measurements / expected_measurements)
+        self.monitoring_efficiency = min(1.0, actual_measurements / max(1, expected_measurements))
 
         # Calculate coverage quality
         spatial_analysis = assessment.get('spatial_analysis', {})
