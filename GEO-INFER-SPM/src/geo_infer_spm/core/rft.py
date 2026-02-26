@@ -102,26 +102,19 @@ class RandomFieldTheory:
 
         # Reshape residuals to field shape
         field_residuals = residuals.reshape(self.field_shape)
+        var_residuals = np.var(field_residuals)
 
-        # Estimate smoothness for each dimension
+        # Estimate smoothness for each dimension using finite differences
         fwhm = np.zeros(self.ndim)
 
         for dim in range(self.ndim):
-            # Create difference operator for this dimension
-            diff_kernel = np.zeros(self.ndim)
-            diff_kernel[dim] = 1
+            # Compute first differences along this dimension
+            diff_field = np.diff(field_residuals, axis=dim)
+            var_diff = np.var(diff_field)
 
-            # Compute first differences
-            diff_field = ndimage.correlate(field_residuals, diff_kernel[np.newaxis, :],
-                                         mode='nearest')
-
-            # Estimate variance of first differences
-            var_diff = np.var(diff_field[mask])
-
-            # Convert to FWHM using relationship: FWHM = sqrt(8*ln(2)) / lambda
-            # where lambda is the frequency at which power spectrum drops to half
-            if var_diff > 0:
-                lambda_param = np.sqrt(var_diff / (2 * np.var(field_residuals[mask])))
+            # Convert to FWHM: FWHM = sqrt(8*ln(2)) / lambda
+            if var_diff > 0 and var_residuals > 0:
+                lambda_param = np.sqrt(var_diff / (2 * var_residuals))
                 fwhm[dim] = np.sqrt(8 * np.log(2)) / lambda_param
             else:
                 fwhm[dim] = 1.0  # Default if estimation fails
@@ -352,7 +345,7 @@ def compute_spm(model_result: SPMResult, contrast: ContrastResult,
     """
     # Initialize RFT if needed
     if correction.upper() == "RFT":
-        field_shape = model_result.spm_data.spatial_dims
+        field_shape = (len(model_result.residuals),)
 
         # Estimate smoothness from residuals
         rft = RandomFieldTheory(field_shape, df=model_result.design_matrix.n_regressors)

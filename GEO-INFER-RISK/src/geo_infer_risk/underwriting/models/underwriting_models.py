@@ -24,6 +24,7 @@ class DecisionStatus(Enum):
 
 class GuidelineType(Enum):
     """Underwriting guideline type enumeration."""
+    MANDATORY = "mandatory"
     ELIGIBILITY = "eligibility"
     PRICING = "pricing"
     COVERAGE = "coverage"

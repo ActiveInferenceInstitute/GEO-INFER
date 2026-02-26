@@ -2,13 +2,13 @@
 Main application entry point for GEO-INFER-API.
 """
 import os
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.docs import get_swagger_ui_html, get_redoc_html
 from fastapi.staticfiles import StaticFiles
 
 from geo_infer_api.core.config import get_settings
-from geo_infer_api.core.middleware import ErrorHandlerMiddleware, RequestLoggingMiddleware, CORSHeadersMiddleware
+from geo_infer_api.core.middleware import ErrorHandlerMiddleware, RequestLoggingMiddleware
 from geo_infer_api.endpoints import geojson_router, health_router
 
 # Create FastAPI app
@@ -21,12 +21,11 @@ main_app = FastAPI(
     redoc_url=None,
 )
 
-# Add custom middleware
+# Add middleware (order matters — outermost first)
 main_app.add_middleware(ErrorHandlerMiddleware)
 main_app.add_middleware(RequestLoggingMiddleware)
-main_app.add_middleware(CORSHeadersMiddleware)
 
-# Configure CORS
+# Configure CORS via FastAPI's built-in middleware
 main_app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origins,
@@ -39,6 +38,7 @@ main_app.add_middleware(
 main_app.include_router(health_router.router, tags=["Health"])
 main_app.include_router(geojson_router.router, prefix="/api/v1", tags=["GeoJSON"])
 
+
 # Custom documentation endpoints
 @main_app.get("/docs", include_in_schema=False)
 async def custom_swagger_ui_html():
@@ -50,6 +50,7 @@ async def custom_swagger_ui_html():
         swagger_css_url="/static/swagger-ui.css",
     )
 
+
 @main_app.get("/redoc", include_in_schema=False)
 async def redoc_html():
     return get_redoc_html(
@@ -58,10 +59,11 @@ async def redoc_html():
         redoc_js_url="/static/redoc.standalone.js",
     )
 
+
 # For serving static files (docs, etc.)
 if os.path.exists("static"):
     main_app.mount("/static", StaticFiles(directory="static"), name="static")
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("geo_infer_api.app:main_app", host="0.0.0.0", port=8000, reload=True) 
+    uvicorn.run("geo_infer_api.app:main_app", host="0.0.0.0", port=8000, reload=True)

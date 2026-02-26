@@ -113,7 +113,8 @@ def _plot_qq_residuals(spm_result: SPMResult, ax):
     ax.set_title('Normal Q-Q Plot\n(Residuals)')
 
     # Add R² for normality
-    _, r_squared = stats.probplot(residuals, dist="norm", plot=None)
+    _, (slope, intercept, r_value) = stats.probplot(residuals, dist="norm", plot=None)
+    r_squared = r_value ** 2
     ax.text(0.05, 0.95, f'R² = {r_squared:.3f}',
             transform=ax.transAxes, verticalalignment='top',
             bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
@@ -258,6 +259,7 @@ def _plot_leverage(spm_result: SPMResult, ax):
 
 def _compute_diagnostic_stats(spm_result: SPMResult) -> Dict[str, Any]:
     """Compute comprehensive diagnostic statistics."""
+    from scipy import stats
     residuals = spm_result.residuals
     X = spm_result.design_matrix.matrix
     n, p = X.shape

@@ -24,7 +24,7 @@ class TestFullSPMPipeline:
         np.random.seed(42)
 
         # Generate synthetic geospatial data
-        self.coordinates = np.random.rand(200, 2) * 100  # 200 spatial points
+        self.coordinates = np.column_stack([np.random.uniform(-179, 179, 200), np.random.uniform(-89, 89, 200)])  # 200 spatial points
         self.spm_data = generate_synthetic_data(
             self.coordinates,
             effects={'trend': 'east_west', 'clusters': {'n_clusters': 3, 'effect_size': 2.0}},
@@ -122,7 +122,7 @@ class TestFullSPMPipeline:
         spatiotemporal_data = np.random.randn(n_timepoints, n_spatial)
 
         # Add spatial pattern that changes over time
-        coordinates = np.random.rand(n_spatial, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_spatial), np.random.uniform(-89, 89, n_spatial)])
         for t in range(n_timepoints):
             # East-west gradient that strengthens over time
             east_west_effect = (coordinates[:, 0] / 100) * (t / n_timepoints)
@@ -240,7 +240,7 @@ class TestFullSPMPipeline:
         """Test performance with larger datasets."""
         # Create larger synthetic dataset
         n_points_large = 1000
-        coordinates_large = np.random.rand(n_points_large, 2) * 1000
+        coordinates_large = np.column_stack([np.random.uniform(-179, 179, n_points_large), np.random.uniform(-89, 89, n_points_large)])
 
         large_spm_data = generate_synthetic_data(
             coordinates_large,

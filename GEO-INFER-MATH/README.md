@@ -38,84 +38,71 @@ estimated_time: "45"
 ### Spatial Optimization
 
 ```python
-from geo_infer_math import Optimizer
+from geo_infer_math import OptimizationManager, create_optimization_manager
 
-# Solve facility location problem
-optimizer = Optimizer()
+# Create optimization manager for facility location
+manager = create_optimization_manager()
 
-solution = optimizer.solve(
-    problem="p_median",
-    demand_points=population_centers,
-    candidate_sites=potential_locations,
-    num_facilities=5
+result = manager.optimize(
+    objective_function=facility_cost_function,
+    bounds=search_bounds,
+    method="scipy"
 )
 
-print(f"Optimal locations: {solution.facilities}")
-print(f"Total distance: {solution.objective}")
+print(f"Optimal parameters: {result['solution']}")
+print(f"Minimum cost: {result['value']}")
 ```
 
 ### Computational Geometry
 
 ```python
-from geo_infer_math import GeometryEngine
+from geo_infer_math import Point, Polygon, haversine_distance, point_in_polygon
 
-engine = GeometryEngine()
+# Create geometric primitives
+p1 = Point(x=-122.4194, y=37.7749)
+p2 = Point(x=-118.2437, y=34.0522)
 
-# Voronoi tessellation
-voronoi = engine.voronoi(points=facility_locations)
+# Calculate distances
+dist = haversine_distance(p1.y, p1.x, p2.y, p2.x)
+print(f"Distance: {dist:.1f} km")
 
-# Delaunay triangulation
-triangles = engine.delaunay(points=survey_points)
-
-# Convex hull
-hull = engine.convex_hull(points=sample_points)
-
-# Minimum bounding geometry
-mbb = engine.minimum_bounding_box(geometry=polygon)
+# Polygon operations
+poly = Polygon(exterior=[Point(0, 0), Point(1, 0), Point(1, 1), Point(0, 1)])
+area = poly.area()
+print(f"Area: {area}")
 ```
 
 ### Matrix Operations
 
 ```python
-from geo_infer_math import MatrixOps
+from geo_infer_math import MatrixOperations
+import numpy as np
 
-# Spatial weights matrix
-matrix = MatrixOps()
+# Matrix operations for spatial analysis
+matrix = np.array([[4, 2], [2, 3]])
 
-# Create spatial weights
-weights = matrix.spatial_weights(
-    geometries=polygons,
-    method="queen",  # or "rook", "knn", "distance"
-    k=4
-)
+# Check matrix properties
+cond = MatrixOperations.condition_number(matrix)
+is_pd = MatrixOperations.is_positive_definite(matrix)
 
-# Eigenvalue analysis
-eigens = matrix.eigendecompose(weights)
-print(f"Largest eigenvalue: {eigens.values[0]}")
+print(f"Condition number: {cond:.2f}")
+print(f"Positive definite: {is_pd}")
 ```
 
 ### Interpolation
 
 ```python
-from geo_infer_math import Interpolator
-
-# Spatial interpolation
-interp = Interpolator()
+from geo_infer_math import IDWInterpolator, KrigingInterpolator, InterpolationConfig
 
 # IDW interpolation
-surface_idw = interp.idw(
-    points=sample_points,
-    values=measurements,
-    power=2,
-    resolution=100
-)
+idw = IDWInterpolator(config=InterpolationConfig(power=2.0))
+idw.fit(coordinates=sample_coords, values=measurements)
+surface_idw = idw.predict(grid_coords)
 
-# Kriging
-surface_krig = interp.kriging(
-    points=sample_points,
-    values=measurements,
-    variogram="spherical"
-)
+# Kriging interpolation
+kriging = KrigingInterpolator(config=InterpolationConfig(variogram_model="spherical"))
+kriging.fit(coordinates=sample_coords, values=measurements)
+surface_krig = kriging.predict(grid_coords)
 ```
 
 ## Algorithms
@@ -155,15 +142,14 @@ uv pip install -e "./GEO-INFER-MATH"
 ### Optimal Facility Placement
 
 ```python
-from geo_infer_math import FacilityOptimizer
+from geo_infer_math import OptimizationManager, OptimizationConfig
 
-optimizer = FacilityOptimizer()
+manager = OptimizationManager(config=OptimizationConfig(max_iterations=500))
 
-result = optimizer.optimize(
-    demand=population_data,
-    candidates=site_options,
-    objective="minimize_distance",
-    constraints={"budget": 10_000_000}
+result = manager.optimize(
+    objective_function=facility_distance_cost,
+    bounds=candidate_bounds,
+    method="genetic"
 )
 ```
 

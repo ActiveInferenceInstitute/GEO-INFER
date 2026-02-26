@@ -18,9 +18,12 @@ def manager():
 class TestAgentAPIClient:
     @pytest.mark.asyncio
     async def test_create_agent(self, api_client):
+        import uuid
         agent_id = await api_client.create_agent("bdi", {"name": "Test"})
         assert agent_id is not None
-        assert "bdi" in agent_id
+        # IDs are UUIDs — validate format
+        parsed = uuid.UUID(agent_id)
+        assert str(parsed) == agent_id
 
     @pytest.mark.asyncio
     async def test_start_agent(self, api_client):
@@ -61,6 +64,35 @@ class TestAgentAPIClient:
         result = await api_client.send_command(agent_id, {"command_type": "query"})
         assert result is not None
         assert result["status"] == "success"
+        assert result["command_type"] == "query"
+        assert "result" in result
+        assert result["result"]["type"] == "bdi"
+
+    @pytest.mark.asyncio
+    async def test_send_update_command(self, api_client):
+        agent_id = await api_client.create_agent("bdi", {"name": "Test"})
+        await api_client.start_agent(agent_id)
+        result = await api_client.send_command(agent_id, {
+            "command_type": "update",
+            "parameters": {"config": {"priority": "high"}}
+        })
+        assert result is not None
+        assert result["status"] == "success"
+        status = await api_client.get_agent_status(agent_id)
+        assert status["config"]["priority"] == "high"
+
+    @pytest.mark.asyncio
+    async def test_get_agent_metrics(self, api_client):
+        agent_id = await api_client.create_agent("bdi", {"name": "Test"})
+        await api_client.start_agent(agent_id)
+        await api_client.send_command(agent_id, {"command_type": "query"})
+        await api_client.send_command(agent_id, {"command_type": "query"})
+        metrics = await api_client.get_agent_metrics(agent_id)
+        assert metrics is not None
+        assert metrics["decision_count"] == 2
+        assert metrics["command_count"] == 2
+        assert metrics["success_rate"] == 1.0
+        assert metrics["uptime_seconds"] >= 0
 
     @pytest.mark.asyncio
     async def test_send_command_not_running(self, api_client):

@@ -1,15 +1,15 @@
 Metadata-Version: 2.4
 Name: geo-infer-norms
-Version: 0.1.0
+Version: 0.2.0
 Summary: Social-technical compliance modeling with deterministic and probabilistic analysis of norms, regulations, and spatial governance
 Home-page: https://github.com/activeinferenceinstitute/geo-infer/geo-infer-norms
 Author: GEO-INFER Development Team
 Author-email: GEO-INFER Development Team <geo-infer@activeinference.institute>
-License: CC BY-ND-SA 4.0
-Project-URL: Homepage, https://github.com/geo-infer/geo-infer
+License: CC BY-NC-SA 4.0
+Project-URL: Homepage, https://github.com/ActiveInferenceInstitute/GEO-INFER
 Project-URL: Documentation, https://geo-infer.readthedocs.io/
-Project-URL: Repository, https://github.com/geo-infer/geo-infer
-Project-URL: Bug Tracker, https://github.com/geo-infer/geo-infer/issues
+Project-URL: Repository, https://github.com/ActiveInferenceInstitute/GEO-INFER
+Project-URL: Bug Tracker, https://github.com/ActiveInferenceInstitute/GEO-INFER/issues
 Keywords: geospatial,active inference,geoinformatics,compliance, regulatory, norms, governance, zoning, policy
 Classifier: Development Status :: 3 - Alpha
 Classifier: Intended Audience :: Developers
@@ -22,7 +22,7 @@ Classifier: Programming Language :: Python :: 3.11
 Classifier: Programming Language :: Python :: 3.12
 Classifier: Topic :: Scientific/Engineering :: GIS
 Classifier: Topic :: Scientific/Engineering :: Information Analysis
-Requires-Python: >=3.8
+Requires-Python: >=3.9
 Description-Content-Type: text/markdown
 Requires-Dist: geopandas>=0.10.0
 Requires-Dist: matplotlib>=3.4.0
@@ -35,9 +35,7 @@ Requires-Dist: pytest>=6.2.0; extra == "dev"
 Requires-Dist: pytest-cov>=2.12.0; extra == "dev"
 Requires-Dist: pytest-asyncio>=0.20.0; extra == "dev"
 Requires-Dist: black>=21.9.0; extra == "dev"
-Requires-Dist: flake8>=3.9.0; extra == "dev"
 Requires-Dist: mypy>=0.910; extra == "dev"
-Requires-Dist: isort>=5.9.0; extra == "dev"
 Provides-Extra: docs
 Requires-Dist: sphinx>=4.2.0; extra == "docs"
 Requires-Dist: sphinx-rtd-theme>=1.0.0; extra == "docs"
@@ -53,7 +51,7 @@ description: "Rule-based behavior, ethical constraints, and regulatory complianc
 purpose: "Provide normative reasoning, rule engines, and compliance checking for agent behavior"
 module_type: "Core Infrastructure"
 status: "Beta"
-last_updated: "2026-01-26"
+last_updated: "2026-02-25"
 dependencies: ["ACT", "AGENT"]
 compatibility: ["GEO-INFER-ACT", "GEO-INFER-AGENT", "GEO-INFER-SEC"]
 tags: ["norms", "rules", "compliance", "ethics", "regulations"]
@@ -65,7 +63,8 @@ estimated_time: "45"
   <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
   <a href="../AGENTS.md">🤖 Agent Architecture</a> •
   <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./docs/">📚 Documentation</a>
+  <a href="./docs/">📚 Documentation</a> •
+  <a href="./SKILL.md">🧠 Claude Skill</a>
 </div>
 
 ---
@@ -253,4 +252,16 @@ print(f"Restrictions: {check.restrictions}")
 
 **Status**: Beta - Core functionality stable
 
-**Last Updated**: 2026-01-26
+**Last Updated**: 2026-02-25
+
+## Documentation Hub
+
+Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
+
+| Resource | Description |
+|----------|-------------|
+| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
+| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
+| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
+| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
+| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |

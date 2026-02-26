@@ -499,6 +499,7 @@ class SpatialAnalysisAPI:
             return {
                 'mean': stats.mean,
                 'median': stats.median,
+                'std': stats.stdev,
                 'stdev': stats.stdev,
                 'variance': stats.variance,
                 'min_value': stats.min_value,
@@ -510,10 +511,12 @@ class SpatialAnalysisAPI:
             }
         else:
             # Calculate basic descriptive statistics
+            _std = np.std(values)
             return {
                 'mean': np.mean(values),
                 'median': np.median(values),
-                'stdev': np.std(values),
+                'std': _std,
+                'stdev': _std,
                 'variance': np.var(values),
                 'min_value': np.min(values),
                 'max_value': np.max(values),

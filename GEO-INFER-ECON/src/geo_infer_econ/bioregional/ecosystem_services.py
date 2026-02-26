@@ -119,6 +119,10 @@ class EcosystemServicesValuation:
         )
         return results
 
+    def estimate_value(self, services: List[Dict[str, Any]]) -> Dict[str, float]:
+        """Alias for value_services for API compatibility."""
+        return self.value_services(services)
+
     def _compute_npv(self, annual_value: float) -> float:
         """Compute net present value of an annual flow."""
         r = self.discount_rate

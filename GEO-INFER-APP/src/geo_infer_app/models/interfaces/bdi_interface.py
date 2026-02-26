@@ -275,27 +275,40 @@ class BDIAgentInterface(AgentInterface):
                     logger.error(f"Error in event handler for {event_type}: {e}")
     
     @staticmethod
-    def _is_location_in_radius(location, center, radius):
+    def _is_location_in_radius(
+        location: Optional[Dict[str, float]],
+        center: Optional[Dict[str, float]],
+        radius: float,
+    ) -> bool:
         """
-        Check if a location is within a radius of a center point.
-        
+        Check if a location is within a radius of a center point using haversine.
+
         Args:
-            location: Location to check
-            center: Center location
+            location: Location to check {"lat": ..., "lng": ...}
+            center: Center location {"lat": ..., "lng": ...}
             radius: Radius in kilometers
-            
+
         Returns:
             True if the location is within the radius, False otherwise
         """
+        import math
+
         if not location or not center or radius <= 0:
             return False
-            
-        # Simple Euclidean distance for demonstration
-        # In a real implementation, use haversine formula for geographic coordinates
-        lat_diff = location["lat"] - center["lat"]
-        lng_diff = location["lng"] - center["lng"]
-        distance = (lat_diff ** 2 + lng_diff ** 2) ** 0.5
-        
+
+        # Haversine formula for great-circle distance between two lat/lng points
+        r_earth = 6371.0  # Earth radius in kilometres
+        lat1 = math.radians(location["lat"])
+        lat2 = math.radians(center["lat"])
+        dlat = math.radians(center["lat"] - location["lat"])
+        dlng = math.radians(center["lng"] - location["lng"])
+
+        a = (
+            math.sin(dlat / 2) ** 2
+            + math.cos(lat1) * math.cos(lat2) * math.sin(dlng / 2) ** 2
+        )
+        distance = 2 * r_earth * math.asin(math.sqrt(a))
+
         return distance <= radius
 
 

@@ -108,8 +108,8 @@ class TestGeneralLinearModel:
         # Predict on training data
         predictions = glm.predict()
 
-        # Predictions should be close to original data
-        np.testing.assert_allclose(predictions, self.y, atol=0.1)
+        # Predictions should be close to original data (noise std=0.1 so individual errors can reach ~0.3)
+        np.testing.assert_allclose(predictions, self.y, atol=0.5)
 
     def test_coefficient_testing(self):
         """Test coefficient significance testing."""

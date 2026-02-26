@@ -45,42 +45,53 @@ def create_statistical_map(spm_result: SPMResult, contrast_idx: int = 0,
     Returns:
         Dictionary with visualization data
     """
-    if contrast_idx >= len(spm_result.contrasts):
-        raise ValueError(f"Contrast index {contrast_idx} out of range")
-
-    contrast = spm_result.contrasts[contrast_idx]
-
-    # Get statistical values
-    if hasattr(contrast, 't_statistic') and contrast.t_statistic.ndim == 1:
-        stat_values = contrast.t_statistic
-    else:
-        # For multi-dimensional data, use first component
-        stat_values = contrast.t_statistic.flatten()
-
     coordinates = spm_result.spm_data.coordinates
 
-    # Apply threshold
-    if threshold is None:
-        threshold = contrast.threshold if hasattr(contrast, 'threshold') else 0.05
+    if contrast_idx < len(spm_result.contrasts):
+        contrast = spm_result.contrasts[contrast_idx]
 
-    significant_mask = None
-    if hasattr(contrast, 'significance_mask') and contrast.significance_mask is not None:
-        significant_mask = contrast.significance_mask
+        # Get statistical values
+        if hasattr(contrast, 't_statistic') and contrast.t_statistic.ndim == 1:
+            stat_values = contrast.t_statistic
+        else:
+            stat_values = contrast.t_statistic.flatten()
+
+        # Apply threshold
+        if threshold is None:
+            threshold = contrast.threshold if hasattr(contrast, 'threshold') else 0.05
+
+        significant_mask = None
+        if hasattr(contrast, 'significance_mask') and contrast.significance_mask is not None:
+            significant_mask = contrast.significance_mask
+        else:
+            p_values = contrast.p_values if hasattr(contrast, 'p_values') else np.ones_like(stat_values)
+            significant_mask = p_values < threshold
+
+        contrast_name = getattr(contrast, 'name', f'Contrast {contrast_idx}')
+        correction_method = getattr(contrast, 'correction_method', 'uncorrected')
+    elif contrast_idx == 0 and len(spm_result.beta_coefficients) > 0:
+        # Fallback: use beta coefficients as stat_values when no contrasts and idx==0
+        beta = spm_result.beta_coefficients
+        stat_values = np.full(len(coordinates), float(beta[0])) if beta.ndim == 1 else beta[:, 0]
+        if threshold is None:
+            threshold = 0.05
+        significant_mask = None
+        contrast_name = f'Contrast {contrast_idx}'
+        correction_method = 'uncorrected'
     else:
-        # Compute based on threshold
-        p_values = contrast.p_values if hasattr(contrast, 'p_values') else np.ones_like(stat_values)
-        significant_mask = p_values < threshold
+        raise ValueError(f"Contrast index {contrast_idx} out of range")
 
     # Create visualization data
     viz_data = {
         'coordinates': coordinates.tolist(),
         'stat_values': stat_values.tolist(),
         'significant_mask': significant_mask.tolist() if significant_mask is not None else None,
+        'significance_mask': significant_mask.tolist() if significant_mask is not None else None,
         'threshold': threshold,
         'colormap': colormap,
         'title': title or f"SPM Contrast {contrast_idx}",
-        'contrast_name': getattr(contrast, 'name', f'Contrast {contrast_idx}'),
-        'correction_method': getattr(contrast, 'correction_method', 'uncorrected')
+        'contrast_name': contrast_name,
+        'correction_method': correction_method
     }
 
     # Create matplotlib figure if available
@@ -162,8 +173,13 @@ def _plot_beta_coefficients(spm_result: SPMResult, **kwargs) -> Dict[str, Any]:
     if beta.ndim == 1:
         # Single coefficient set
         fig, ax = plt.subplots(figsize=(8, 6))
+        # If beta has same length as coordinates, use as color values; else fill with mean
+        if len(beta) == len(coordinates):
+            c_vals = beta
+        else:
+            c_vals = np.full(len(coordinates), float(np.mean(beta)))
         sc = ax.scatter(coordinates[:, 0], coordinates[:, 1],
-                       c=beta, cmap='viridis', s=50, alpha=0.7)
+                       c=c_vals, cmap='viridis', s=50, alpha=0.7)
         cbar = plt.colorbar(sc, ax=ax)
         cbar.set_label('Coefficient Value')
         ax.set_title('Regression Coefficients')

@@ -14,68 +14,83 @@ import numpy as np
 import pandas as pd
 
 
-def calculate_aal(event_loss_table: pd.DataFrame) -> Dict[str, Any]:
+def calculate_aal(event_loss_table: Union[pd.DataFrame, np.ndarray]) -> Union[float, Dict[str, Any]]:
     """
-    Calculate the Average Annual Loss (AAL) from an event loss table.
-    
+    Calculate the Average Annual Loss (AAL) from an event loss table or loss array.
+
     The AAL represents the expected annual loss averaged over many years.
-    
+
     Args:
-        event_loss_table (pd.DataFrame): DataFrame containing event losses.
-            Must have columns 'event_id', 'hazard_type', and 'loss'.
-            
+        event_loss_table: Either a DataFrame containing event losses with columns
+            'event_id', 'hazard_type', and 'loss', or a numpy array of loss values.
+
     Returns:
-        Dict[str, Any]: Dictionary containing AAL results, including:
-            - total: Total AAL across all hazard types
-            - by_hazard: AAL broken down by hazard type
+        If input is a numpy array, returns float (mean loss).
+        If input is a DataFrame, returns Dict with 'total' and 'by_hazard' keys.
     """
-    # Validate input
+    # Handle numpy array input: compute mean loss directly
+    if isinstance(event_loss_table, np.ndarray):
+        losses = event_loss_table.astype(float)
+        if len(losses) == 0:
+            return 0.0
+        return float(np.mean(losses))
+
+    # DataFrame path: validate columns
     required_columns = ['event_id', 'hazard_type', 'loss']
     for col in required_columns:
         if col not in event_loss_table.columns:
             raise ValueError(f"event_loss_table must contain column '{col}'")
-    
+
     # Calculate total AAL
     total_loss = event_loss_table['loss'].sum()
     num_events = len(event_loss_table['event_id'].unique())
-    
+
     # Simple AAL calculation: total loss / number of events
-    # In a real model, this would be more sophisticated, accounting for event frequencies
     total_aal = total_loss / num_events if num_events > 0 else 0
-    
+
     # Calculate AAL by hazard type
     hazard_aal = {}
     for hazard_type, group in event_loss_table.groupby('hazard_type'):
         hazard_loss = group['loss'].sum()
         hazard_events = len(group['event_id'].unique())
         hazard_aal[hazard_type] = hazard_loss / hazard_events if hazard_events > 0 else 0
-    
+
     return {
         'total': total_aal,
         'by_hazard': hazard_aal
     }
 
 
-def calculate_ep_curve(event_loss_table: pd.DataFrame, 
+def calculate_ep_curve(event_loss_table: Union[pd.DataFrame, np.ndarray],
                        exceedance_probs: Optional[List[float]] = None) -> Dict[str, Any]:
     """
-    Calculate the Exceedance Probability (EP) curve from an event loss table.
-    
+    Calculate the Exceedance Probability (EP) curve from an event loss table or loss array.
+
     The EP curve shows the probability of exceeding different loss thresholds.
-    
+
     Args:
-        event_loss_table (pd.DataFrame): DataFrame containing event losses.
-            Must have columns 'event_id', 'hazard_type', and 'loss'.
-        exceedance_probs (List[float], optional): List of exceedance probabilities 
-            to calculate losses for. If None, default values are used.
-            
+        event_loss_table: Either a DataFrame with columns 'event_id', 'hazard_type',
+            'loss', or a numpy array of loss values.
+        exceedance_probs: List of exceedance probabilities to calculate losses for.
+
     Returns:
-        Dict[str, Any]: Dictionary containing EP curve results, including:
-            - exceedance_probability: List of exceedance probabilities
-            - loss: List of corresponding losses
-            - return_period: List of return periods (1/exceedance_probability)
+        Dict with 'exceedance_probability', 'loss', and 'return_period' lists.
     """
-    # Validate input
+    # Handle numpy array input
+    if isinstance(event_loss_table, np.ndarray):
+        losses = np.sort(event_loss_table.astype(float))[::-1]
+        n = len(losses)
+        if n == 0:
+            return {'exceedance_probability': [], 'loss': [], 'return_period': []}
+        ep = [(i + 1) / (n + 1) for i in range(n)]
+        rp = [1.0 / p if p > 0 else float('inf') for p in ep]
+        return {
+            'exceedance_probability': ep,
+            'loss': losses.tolist(),
+            'return_period': rp,
+        }
+
+    # DataFrame path: validate columns
     required_columns = ['event_id', 'hazard_type', 'loss']
     for col in required_columns:
         if col not in event_loss_table.columns:

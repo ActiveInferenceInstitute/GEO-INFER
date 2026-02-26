@@ -87,6 +87,7 @@ class SpatialRegression:
         else:
             raise ValueError(f"Unknown model type: {self.model_type}")
 
+        self.fitted_model = result.model_diagnostics
         return result
 
     def _extract_response(self, data: SPMData) -> np.ndarray:

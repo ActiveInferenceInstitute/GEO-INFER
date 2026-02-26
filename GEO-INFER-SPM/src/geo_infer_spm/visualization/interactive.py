@@ -6,6 +6,7 @@ web-based plotting libraries for exploratory data analysis and
 result presentation.
 """
 
+import numpy as np
 from typing import Dict, List, Optional, Any
 import warnings
 
@@ -38,29 +39,34 @@ def create_interactive_map(spm_result: SPMResult, contrast_idx: int = 0,
         warnings.warn("plotly not available for interactive visualization")
         return None
 
-    if contrast_idx >= len(spm_result.contrasts):
-        raise ValueError(f"Contrast index {contrast_idx} out of range")
-
-    contrast = spm_result.contrasts[contrast_idx]
     coordinates = spm_result.spm_data.coordinates
 
+    if contrast_idx < len(spm_result.contrasts):
+        contrast = spm_result.contrasts[contrast_idx]
+        stat_values = (contrast.t_statistic.flatten() if contrast.t_statistic.ndim > 1
+                      else contrast.t_statistic)
+    else:
+        # Fallback to beta coefficients when no contrasts available
+        contrast = None
+        beta = spm_result.beta_coefficients
+        stat_values = np.full(len(coordinates), float(beta[0])) if beta.ndim == 1 else beta[:, 0]
+
     # Prepare data
-    stat_values = (contrast.t_statistic.flatten() if contrast.t_statistic.ndim > 1
-                  else contrast.t_statistic)
 
     # Create hover information
     hover_text = []
     for i in range(len(coordinates)):
-        sig_status = "Significant" if (hasattr(contrast, 'significance_mask') and
+        sig_status = "Significant" if (contrast is not None and
+                                     hasattr(contrast, 'significance_mask') and
                                      contrast.significance_mask is not None and
                                      contrast.significance_mask[i]) else "Not significant"
-
+        p_val_str = f"{contrast.p_values[i]:.3f}" if contrast is not None else "N/A"
         hover_text.append(
             f"Point {i}<br>"
             f"Longitude: {coordinates[i, 0]:.4f}<br>"
             f"Latitude: {coordinates[i, 1]:.4f}<br>"
             f"T-statistic: {stat_values[i]:.3f}<br>"
-            f"P-value: {contrast.p_values[i]:.3f}<br>"
+            f"P-value: {p_val_str}<br>"
             f"Status: {sig_status}"
         )
 

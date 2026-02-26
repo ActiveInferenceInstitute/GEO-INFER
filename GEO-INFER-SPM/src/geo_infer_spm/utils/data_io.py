@@ -480,13 +480,16 @@ def load_json_data(file_path: str, data_key: str = 'data',
     data_values = np.array(json_data[data_key])
     coordinates = np.array(json_data[coords_key])
 
-    # Create metadata
-    metadata = {
+    # Create metadata — start with the file's own metadata if present
+    metadata = {}
+    if 'metadata' in json_data and isinstance(json_data['metadata'], dict):
+        metadata.update(json_data['metadata'])
+    metadata.update({
         'source_file': file_path,
         'data_key': data_key,
         'coords_key': coords_key,
         'data_type': 'json'
-    }
+    })
 
     return SPMData(
         data=data_values,

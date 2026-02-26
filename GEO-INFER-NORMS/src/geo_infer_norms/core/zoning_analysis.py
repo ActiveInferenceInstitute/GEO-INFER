@@ -845,7 +845,8 @@ class LandUseClassifier:
             result_gdf.at[idx, 'land_use_category'] = best_cat
             result_gdf.at[idx, 'land_use_confidence'] = round(confidence, 3)
 
-    
+        return result_gdf
+
     def visualize_land_use(
         self,
         land_use_gdf: gpd.GeoDataFrame,

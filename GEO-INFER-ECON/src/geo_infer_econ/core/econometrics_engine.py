@@ -128,15 +128,15 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             else:
                 raise ValueError(f"Unknown weights method: {config.method}")
 
-            # Apply standardization
-            weights = self._standardize_weights(weights, config.standardization)
+            # Ensure symmetry for undirected relationships (before standardization)
+            weights = (weights + weights.T) / 2
 
             # Apply threshold if specified
             if config.threshold is not None:
                 weights = np.where(weights < config.threshold, 0, weights)
 
-            # Ensure symmetry for undirected relationships
-            weights = (weights + weights.T) / 2
+            # Apply standardization
+            weights = self._standardize_weights(weights, config.standardization)
 
             # Store in cache
             cache_key = self._get_weights_cache_key(config)
@@ -356,8 +356,8 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
         def sar_log_likelihood(params):
             """SAR model log-likelihood function."""
             rho = params[0]
-            beta = params[1:k]
-            sigma2 = params[k]
+            beta = params[1:k+1]
+            sigma2 = params[k+1]
 
             # Avoid singular matrices
             if abs(rho) >= 1:
@@ -398,7 +398,7 @@ class SpatialEconometricsEngine(BaseEstimator, RegressorMixin):
             # Fall back to OLS
             rho, beta, sigma2 = 0.0, beta_ols, sigma2_ols
         else:
-            rho, beta, sigma2 = result.x[0], result.x[1:k], result.x[k]
+            rho, beta, sigma2 = result.x[0], result.x[1:k+1], result.x[k+1]
 
         # Calculate fitted values and residuals
         S = np.eye(n) - rho * W

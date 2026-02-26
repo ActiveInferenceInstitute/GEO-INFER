@@ -59,6 +59,10 @@ class MoranI:
         if len(values) != self.weights_matrix.shape[0]:
             raise ValueError(f"Values array length ({len(values)}) must match weights matrix size ({self.weights_matrix.shape[0]})")
 
+        # Require at least 2 points for Moran's I
+        if len(values) <= 1:
+            raise ValueError("Moran's I requires at least 2 data points")
+
         # Handle constant values case
         if np.std(values) == 0:
             return {
@@ -97,8 +101,10 @@ class MoranI:
         # Calculate z-score and p-value
         z_score = (I - expected_I) / np.sqrt(var_I) if var_I > 0 else 0.0
 
-        # More accurate p-value calculation using normal distribution approximation
-        p_value = 2 * (1 - 0.5 * (1 + np.sign(z_score) * np.sqrt(1 - np.exp(-2 * z_score**2 / np.pi))))
+        # Two-tailed p-value from z-score using the error function
+        # p = 2 * (1 - Phi(|z|)) = erfc(|z| / sqrt(2))
+        from math import erfc, sqrt
+        p_value = erfc(abs(z_score) / sqrt(2))
 
         return {
             "I": I,
@@ -203,10 +209,22 @@ def ripley_k(points: np.ndarray, distances: List[float],
     Returns:
         Dictionary with K function values and L function transform
     """
+    if points.ndim != 2 or points.shape[1] != 2:
+        raise ValueError("points must be an (n x 2) array of coordinates")
+    if area <= 0:
+        raise ValueError("area must be positive")
     n_points = points.shape[0]
+    if n_points < 2:
+        # Gracefully return zeros for single point (not meaningful but avoids crash)
+        return {
+            "distances": np.array(distances),
+            "k_function": np.zeros(len(distances)),
+            "l_function": np.zeros(len(distances)) - np.array(distances)
+        }
+
     k_values = np.zeros(len(distances))
     l_values = np.zeros(len(distances))
-    
+
     # Calculate all pairwise distances
     dist_matrix = np.zeros((n_points, n_points))
     for i in range(n_points):
@@ -344,15 +362,21 @@ def spatial_entropy(values: np.ndarray, bins: int = 10) -> float:
     Returns:
         Entropy value
     """
-    # Create histogram
-    hist, _ = np.histogram(values, bins=bins, density=True)
-    
+    # Create histogram of counts and convert to probabilities
+    counts, _ = np.histogram(values, bins=bins)
+    total = counts.sum()
+    if total == 0:
+        return 0.0
+
+    # Convert to probabilities
+    probs = counts / total
+
     # Filter out zeros
-    hist = hist[hist > 0]
-    
-    # Calculate entropy
-    entropy = -np.sum(hist * np.log(hist))
-    
+    probs = probs[probs > 0]
+
+    # Calculate Shannon entropy: -sum(p * log(p))
+    entropy = -np.sum(probs * np.log(probs))
+
     return entropy
 
 def local_indicators_spatial_association(

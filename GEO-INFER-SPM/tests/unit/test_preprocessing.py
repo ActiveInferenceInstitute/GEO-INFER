@@ -73,12 +73,14 @@ class TestDataPreprocessingPipeline:
 
     def test_invalid_preprocessing_step(self):
         """Test error handling for invalid preprocessing steps."""
-        with pytest.warns(None) as warnings:
+        import warnings as _warnings
+        with _warnings.catch_warnings(record=True) as caught:
+            _warnings.simplefilter("always")
             processed = preprocess_data(self.spm_data, steps=['invalid_step'])
 
         # Should warn about invalid step but continue
         assert processed is not None
-        assert len(warnings) >= 1
+        assert len(caught) >= 1
 
 
 class TestMissingDataHandling:
@@ -89,7 +91,7 @@ class TestMissingDataHandling:
         np.random.seed(42)
         n_points = 50
 
-        self.coordinates = np.random.rand(n_points, 2) * 100
+        self.coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         self.data = np.random.randn(n_points)
 
         # Introduce missing values
@@ -167,7 +169,7 @@ class TestDataNormalization:
         np.random.seed(42)
         n_points = 100
 
-        self.coordinates = np.random.rand(n_points, 2) * 100
+        self.coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         self.data = np.random.normal(50, 10, n_points)  # Mean 50, std 10
 
         self.spm_data = SPMData(
@@ -229,7 +231,7 @@ class TestOutlierRemoval:
         np.random.seed(42)
         n_points = 100
 
-        self.coordinates = np.random.rand(n_points, 2) * 100
+        self.coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         self.data = np.random.normal(0, 1, n_points)
 
         # Add outliers
@@ -278,7 +280,7 @@ class TestOutlierRemoval:
     def test_no_outliers(self):
         """Test outlier removal on data without outliers."""
         clean_data = np.random.normal(0, 1, 50)
-        coordinates = np.random.rand(50, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, 50), np.random.uniform(-89, 89, 50)])
 
         clean_spm_data = SPMData(data=clean_data, coordinates=coordinates, crs='EPSG:4326')
 
@@ -301,7 +303,7 @@ class TestSpatialFiltering:
         np.random.seed(42)
         n_points = 50
 
-        self.coordinates = np.random.rand(n_points, 2) * 100
+        self.coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         self.data = np.sin(self.coordinates[:, 0] / 10) + 0.1 * np.random.randn(n_points)
 
         self.spm_data = SPMData(
@@ -349,7 +351,7 @@ class TestTemporalFiltering:
             0.1 * np.random.randn(n_timepoints)         # Noise
         )
 
-        self.coordinates = np.random.rand(1, 2) * 100  # Single spatial point
+        self.coordinates = np.column_stack([np.random.uniform(-179, 179, 1), np.random.uniform(-89, 89, 1)])  # Single spatial point
         self.spm_data = SPMData(
             data=self.data,
             coordinates=self.coordinates,
@@ -401,7 +403,7 @@ class TestPreprocessingEdgeCases:
 
     def test_empty_preprocessing_steps(self):
         """Test preprocessing with empty steps list."""
-        coordinates = np.random.rand(10, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, 10), np.random.uniform(-89, 89, 10)])
         data = np.random.randn(10)
         spm_data = SPMData(data=data, coordinates=coordinates, crs='EPSG:4326')
 
@@ -423,7 +425,7 @@ class TestPreprocessingEdgeCases:
 
     def test_constant_data_normalization(self):
         """Test normalization of constant data."""
-        coordinates = np.random.rand(10, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, 10), np.random.uniform(-89, 89, 10)])
         data = np.full(10, 5.0)  # Constant value
         spm_data = SPMData(data=data, coordinates=coordinates, crs='EPSG:4326')
 
@@ -435,7 +437,7 @@ class TestPreprocessingEdgeCases:
 
     def test_extreme_outliers(self):
         """Test outlier removal with extreme values."""
-        coordinates = np.random.rand(20, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)])
         data = np.random.normal(0, 1, 20)
         data[10] = 1000  # Extreme outlier
 
@@ -448,7 +450,7 @@ class TestPreprocessingEdgeCases:
 
     def test_preprocessing_metadata_preservation(self):
         """Test that preprocessing preserves important metadata."""
-        coordinates = np.random.rand(10, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, 10), np.random.uniform(-89, 89, 10)])
         data = np.random.randn(10)
 
         original_metadata = {'source': 'test', 'quality_score': 0.95}

@@ -30,7 +30,7 @@ class TestGLMCorrectness:
         beta_true = np.array([2.5, -1.8, 0.9])
         y = X @ beta_true + 0.01 * np.random.randn(n_points)  # Low noise
 
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         spm_data = SPMData(data=y, coordinates=coordinates, crs='EPSG:4326')
         design_matrix = DesignMatrix(matrix=X, names=['b0', 'b1', 'b2'])
 
@@ -52,7 +52,7 @@ class TestGLMCorrectness:
         sigma_true = 2.0
         y = X @ beta_true + sigma_true * np.random.randn(n_points)
 
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         spm_data = SPMData(data=y, coordinates=coordinates, crs='EPSG:4326')
         design_matrix = DesignMatrix(matrix=X, names=['int', 'slope'])
 
@@ -82,7 +82,7 @@ class TestGLMCorrectness:
         beta_true = np.array([3.0, -2.0, 1.5])
         y_sig = X @ beta_true + 0.5 * np.random.randn(n_points)
 
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         spm_data_sig = SPMData(data=y_sig, coordinates=coordinates, crs='EPSG:4326')
         design_matrix = DesignMatrix(matrix=X, names=['b0', 'b1', 'b2'])
 
@@ -112,7 +112,7 @@ class TestGLMCorrectness:
         beta_true = np.array([1.5, -0.8])
         y = X @ beta_true + 0.1 * np.random.randn(n_points)
 
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         spm_data = SPMData(data=y, coordinates=coordinates, crs='EPSG:4326')
         design_matrix = DesignMatrix(matrix=X, names=['int', 'slope'])
 
@@ -147,7 +147,7 @@ class TestContrastCorrectness:
         X = np.random.randn(n_points, 2)
         y = 2.0 + 1.5 * X[:, 0] - 0.8 * X[:, 1] + 0.1 * np.random.randn(n_points)
 
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
         spm_data = SPMData(data=y, coordinates=coordinates, crs='EPSG:4326')
         design_matrix = DesignMatrix(matrix=X, names=['int', 'x1'])
 
@@ -178,7 +178,7 @@ class TestContrastCorrectness:
             X = np.random.randn(n_points, 2)
             y = 1.0 + true_effect * X[:, 1] + 0.5 * np.random.randn(n_points)
 
-            coordinates = np.random.rand(n_points, 2) * 100
+            coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
             spm_data = SPMData(data=y, coordinates=coordinates, crs='EPSG:4326')
             design_matrix = DesignMatrix(matrix=X, names=['int', 'effect'])
 
@@ -206,7 +206,7 @@ class TestContrastCorrectness:
         stat_map[significant_indices] = 3.5 + np.random.randn(n_significant_true)
 
         # Create mock SPM result
-        coordinates = np.random.rand(n_voxels, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_voxels), np.random.uniform(-89, 89, n_voxels)])
         spm_data = SPMData(data=np.random.randn(n_voxels), coordinates=coordinates, crs='EPSG:4326')
         X = np.random.randn(n_voxels, 1)
         design_matrix = DesignMatrix(matrix=X, names=['int'])
@@ -286,7 +286,7 @@ class TestRFTCorrectness:
         stat_field[7:9, 7:9] = 2.8  # Another cluster
 
         # Create mock result
-        coordinates = np.random.rand(100, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, 100), np.random.uniform(-89, 89, 100)])
         spm_data = SPMData(data=stat_field.flatten(), coordinates=coordinates, crs='EPSG:4326')
         X = np.random.randn(100, 1)
         design_matrix = DesignMatrix(matrix=X, names=['int'])
@@ -324,7 +324,7 @@ class TestSpatialStatisticsCorrectness:
 
         # Create data with known spatial autocorrelation
         n_points = 50
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
 
         # Generate spatially autocorrelated data
         distances = np.linalg.norm(coordinates[:, np.newaxis] - coordinates[np.newaxis, :], axis=2)
@@ -352,7 +352,7 @@ class TestSpatialStatisticsCorrectness:
 
         # Create data with known variogram structure
         n_points = 30
-        coordinates = np.random.rand(n_points, 2) * 50
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
 
         # Exponential variogram: γ(h) = sill * (1 - exp(-h/range))
         true_sill = 2.0
@@ -389,7 +389,7 @@ class TestModelComparisonCorrectness:
 
         # Create models with different numbers of parameters
         n_points = 100
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
 
         # True model: 2 parameters
         X2 = np.random.randn(n_points, 2)
@@ -423,7 +423,7 @@ class TestModelComparisonCorrectness:
         from geo_infer_spm.core.advanced.model_validation import ModelValidator
 
         n_points = 80
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
 
         # Generate data with true 2-parameter relationship
         X = np.random.randn(n_points, 2)
@@ -454,7 +454,7 @@ class TestDistributionalAssumptions:
         from geo_infer_spm.core.advanced.model_validation import ModelValidator
 
         n_points = 100
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
 
         # Normally distributed residuals
         X = np.random.randn(n_points, 1)
@@ -480,7 +480,7 @@ class TestDistributionalAssumptions:
         from geo_infer_spm.core.advanced.model_validation import ModelValidator
 
         n_points = 100
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
 
         # Create heteroscedastic data (variance increases with x)
         x = np.linspace(0, 10, n_points)
@@ -507,7 +507,7 @@ class TestDistributionalAssumptions:
 
         # Create data with temporal autocorrelation
         n_points = 80
-        coordinates = np.random.rand(n_points, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, n_points), np.random.uniform(-89, 89, n_points)])
 
         # Generate AR(1) process
         np.random.seed(42)

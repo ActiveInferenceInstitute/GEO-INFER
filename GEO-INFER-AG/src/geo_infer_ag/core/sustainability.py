@@ -315,7 +315,7 @@ class SustainabilityAssessment:
             # In a real implementation, you would do proper spatial aggregation
             if "field_id" in soil_data.columns:
                 # If field_id is in soil data, use it to join
-                soil_summary = soil_data.groupby("field_id").mean()
+                soil_summary = soil_data.groupby("field_id").mean(numeric_only=True)
                 result_data = result_data.merge(
                     soil_summary, 
                     left_on="field_id", 

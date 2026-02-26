@@ -11,14 +11,15 @@ from geo_infer_act.models.base import ActiveInferenceModel
 
 
 class MultiAgentModel(ActiveInferenceModel):
-    """Multi-agent coordination using active inference."""
+    """Multi-agent coordination using active inference and stigmergy."""
     
-    def __init__(self, n_agents: int = 3, n_resources: int = 4, n_locations: int = 5, planning_horizon: int = 10, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, n_agents: int = 3, n_resources: int = 4, n_locations: int = 5, planning_horizon: int = 10, config: Optional[Dict[str, Any]] = None, environmental_engine: Optional[Any] = None):
         super().__init__(config)
         self.n_agents = n_agents
         self.n_resources = n_resources
         self.n_locations = n_locations
         self.planning_horizon = planning_horizon
+        self.environmental_engine = environmental_engine
         
         # Initialize agent models with enhanced active inference capabilities
         self.agent_models = []
@@ -107,15 +108,27 @@ class MultiAgentModel(ActiveInferenceModel):
                     try:
                         import h3
                         lat, lng = h3.cell_to_latlng(cell)
-                        # Create location-dependent initial beliefs
-                        spatial_bias = np.array([0.1, 0.2, 0.4, 0.3])  # Slight bias toward good states
-                        # Add some spatial variation based on coordinates
-                        spatial_variation = 0.1 * np.sin(lat * 10) * np.cos(lng * 10)
-                        initial_beliefs = spatial_bias + spatial_variation
-                        initial_beliefs = initial_beliefs / np.sum(initial_beliefs)
+                        
+                        if self.environmental_engine is not None and hasattr(self.environmental_engine, 'compute_spatial_priors'):
+                            # Use true Moran's I weighted spatial priors from the environmental engine
+                            try:
+                                priors_map = self.environmental_engine.compute_spatial_priors('vegetation_density', 4)
+                                initial_beliefs = priors_map.get(cell, np.ones(4)/4)
+                            except Exception as e:
+                                logger.warning(f"Failed to fetch Moran prior: {e}")
+                                initial_beliefs = np.ones(4) / 4
+                        else:
+                            # Create location-dependent initial beliefs fallback
+                            spatial_bias = np.array([0.1, 0.2, 0.4, 0.3])  # Slight bias toward good states
+                            # Add some spatial variation based on coordinates
+                            spatial_variation = 0.1 * np.sin(lat * 10) * np.cos(lng * 10)
+                            initial_beliefs = spatial_bias + spatial_variation
+                            initial_beliefs = initial_beliefs / np.sum(initial_beliefs)
+                            
                         agent.beliefs = initial_beliefs
-                    except Exception:
+                    except Exception as e:
                         # Fallback to uniform beliefs
+                        logger.warning(f"Spatial belief initialization failed: {e}")
                         agent.beliefs = np.ones(4) / 4
                     
                     self.agent_models.append(agent)
@@ -234,10 +247,17 @@ class MultiAgentModel(ActiveInferenceModel):
         return history
     
     def _spatial_belief_coordination(self, step_data: Dict[str, Dict]):
-        """Implement spatial coordination between neighboring agents."""
+        """Implement true stigmergic coordination via environmental modifications when possible, or spatial belief sharing as a fallback."""
         if not self.spatial_graph:
             return
-        
+            
+        # True Stigmergic Communication: 
+        # Agents modify the shared environmental manifold directly (stigmergy).
+        if self.environmental_engine is not None:
+             self._apply_stigmergy(step_data)
+             # Beliefs will be naturally updated in the next perception cycle via `obs_gen`
+             return
+             
         coordination_strength = 0.1  # How much neighbors influence each other
         
         # Create a copy of current beliefs for simultaneous update
@@ -281,6 +301,30 @@ class MultiAgentModel(ActiveInferenceModel):
                 agent_idx = step_data[cell]['agent_index']
                 if agent_idx < len(self.agent_models):
                     self.agent_models[agent_idx].beliefs = new_beliefs
+                    
+    def _apply_stigmergy(self, step_data: Dict[str, Dict]):
+        """Apply stigmergic pheromone modification to the environmental engine."""
+        stigmergy_strength = 0.05
+        current_time = 0.0 # Could be synced with global time if needed
+        
+        observations_to_push = {}
+        for cell, data in step_data.items():
+            if cell in self.environmental_engine.environmental_states:
+                # Based on the agent's beliefs (e.g. they believe it's a good state), they modify the environment
+                # E.g. high belief in state index 3 (excellent)
+                belief_tensor = np.array(data['beliefs'])
+                positive_pull = belief_tensor[3] - belief_tensor[0]
+                
+                # We modify standard fields to reflect the presence/activity of agents
+                # Example: human_activity increases, which can subsequently influence observations
+                current_activity = getattr(self.environmental_engine.environmental_states[cell], 'human_activity', 0.0)
+                new_activity = np.clip(current_activity + (positive_pull * stigmergy_strength), 0.0, 1.0)
+                
+                observations_to_push[cell] = {'human_activity': new_activity}
+                
+        # Push all modifications back to the environmental engine as new observations
+        if observations_to_push:
+            self.environmental_engine.observe_environment(observations_to_push, timestamp=current_time)
     
     def coordinate_agents(self) -> Dict[str, Any]:
         """

@@ -25,7 +25,7 @@ class TestDataLoading:
         """Set up test data."""
         np.random.seed(42)
         self.n_points = 50
-        self.coordinates = np.random.rand(self.n_points, 2) * 100
+        self.coordinates = np.column_stack([np.random.uniform(-179, 179, self.n_points), np.random.uniform(-89, 89, self.n_points)])
         self.data = np.random.randn(self.n_points)
         self.covariates = {
             'elevation': np.random.normal(500, 100, self.n_points),
@@ -76,8 +76,8 @@ class TestDataLoading:
                 value_column='value'
             )
 
-            np.testing.assert_array_equal(spm_data.data, self.data)
-            np.testing.assert_array_equal(spm_data.coordinates, self.coordinates[:, [0, 1]])
+            np.testing.assert_allclose(spm_data.data, self.data, rtol=1e-5)
+            np.testing.assert_allclose(spm_data.coordinates, self.coordinates[:, [0, 1]], rtol=1e-5)
 
         finally:
             os.unlink(temp_path)
@@ -109,7 +109,7 @@ class TestDataLoading:
 
     def test_missing_file(self):
         """Test error handling for missing files."""
-        with pytest.raises(ValueError, match="file_path"):
+        with pytest.raises(ValueError, match="path cannot be empty"):
             load_data("")
 
 

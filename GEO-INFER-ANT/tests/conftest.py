@@ -6,6 +6,11 @@ ant colony configurations, and standard spatial fixtures.
 """
 import pytest
 import numpy as np
+
+
+def pytest_configure(config):
+    config.addinivalue_line("markers", "slow: marks tests as slow")
+
 import pandas as pd
 import geopandas as gpd
 from shapely.geometry import Point

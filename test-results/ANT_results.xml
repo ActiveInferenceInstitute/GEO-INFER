@@ -1,0 +1,635 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="63" skipped="1" tests="153" time="291.254" timestamp="2026-02-25T17:56:50.532253-08:00" hostname="timelock.local"><testcase classname="tests.integration.test_swarm_integration.TestEndToEndSimulation" name="test_basic_swarm_simulation" time="0.270"><failure message="AssertionError: assert 20 == 50&#10; +  where 20 = SimulationResults(trajectories=[array([[ 18.33035419,   6.99617047],\n       [ -5.91128102,  44.38216008],\n       [-44.92836144, -29.29798806],\n       [  0.64173939, -39.33588442],\n       [ 22.61017206,  34.83813961],\n       [-48.55272249, -12.07484216],\n       [  1.68392597, -17.31055139],\n       [ -7.5503264 ,  14.15558863],\n       [-17.92612806,   8.02496207],\n       [-29.72589664, -12.30613891],\n       [ 10.43121116,  -1.60271339],\n       [ -2.49880538,   1.43279582],\n       [ 19.22042799,   8.46373191],\n       [-23.3182983 , -10.56482542],\n       [ 13.25338504,  -3.23920105],\n       [ 41.87741603,  -1.57591888],\n       [ 18.13033465, -46.14001111],\n       [-30.43961882,  19.67752974],\n       [ 38.48166305,  10.24902255],\n       [ -6.07472922,  16.15644149]]), array([[ 18.33035419,   6.99617047],\n       [ -5.91128102,  44.38216008],\n       [-44.92836144, -29.29798806],\n       [  0.64173939, -39.33588442],\n       [ 22.61017206,  34.83813961],\n       [-48.55272249, -12.07484216],\n       [  1.68392597, -17.31055139],\n       [ -7.5503264 ,  14.15558863],\n       [-17.92612806,   8.02496207],\n       [-29.72589664, -12.30613891],\n       [ 10.43121116,  -1.60271339],\n       [ -2.49880...: {'action_type': 'deposit_pheromone', 'start_time': datetime.datetime(2026, 2, 25, 17, 56, 57, 81185), 'success': True, 'actual_outcome': {'pheromone_deposited': True}, 'energy_cost': 0.05, 'stigmergic_event': {'pheromone_type': 'trail', 'intensity': 1.0, 'location': array([38.48166305, 10.24902255]), 'timestamp': datetime.datetime(2026, 2, 25, 17, 56, 57, 81186)}, 'end_time': datetime.datetime(2026, 2, 25, 17, 56, 57, 81194), 'duration': 9e-06}, 'position': [38.48166304508741, 10.24902254671902]}], emergent_patterns={'status': 'insufficient_data'}, performance_metrics={'active_agents': 20, 'total_agents': 20, 'average_energy': 0.04999999999999969, 'energy_std': 6.938893903907228e-18, 'spatial_center': [-1.6132769120756236, -0.45357662142793964], 'spatial_spread': [24.70007952588917, 21.88457589201882], 'average_inter_agent_distance': 43.34037249589473, 'max_inter_agent_distance': 93.6603585267054, 'agent_type_distribution': {'worker': 7, 'scout': 7, 'soldier': 6}, 'population_status': 'extinct', 'summary': {'total_simulation_time': 20.0, 'total_time_steps': 20, 'final_population_size': 0, 'data_collection_complete': True}}, simulation_time=20.0, time_steps=20, population_size=0).time_steps">GEO-INFER-ANT/tests/integration/test_swarm_integration.py:73: in test_basic_swarm_simulation
+    asyncio.run(simulation_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/integration/test_swarm_integration.py:64: in simulation_test
+    assert results.time_steps == 50
+E   AssertionError: assert 20 == 50
+E    +  where 20 = SimulationResults(trajectories=[array([[ 18.33035419,   6.99617047],\n       [ -5.91128102,  44.38216008],\n       [-44.92836144, -29.29798806],\n       [  0.64173939, -39.33588442],\n       [ 22.61017206,  34.83813961],\n       [-48.55272249, -12.07484216],\n       [  1.68392597, -17.31055139],\n       [ -7.5503264 ,  14.15558863],\n       [-17.92612806,   8.02496207],\n       [-29.72589664, -12.30613891],\n       [ 10.43121116,  -1.60271339],\n       [ -2.49880538,   1.43279582],\n       [ 19.22042799,   8.46373191],\n       [-23.3182983 , -10.56482542],\n       [ 13.25338504,  -3.23920105],\n       [ 41.87741603,  -1.57591888],\n       [ 18.13033465, -46.14001111],\n       [-30.43961882,  19.67752974],\n       [ 38.48166305,  10.24902255],\n       [ -6.07472922,  16.15644149]]), array([[ 18.33035419,   6.99617047],\n       [ -5.91128102,  44.38216008],\n       [-44.92836144, -29.29798806],\n       [  0.64173939, -39.33588442],\n       [ 22.61017206,  34.83813961],\n       [-48.55272249, -12.07484216],\n       [  1.68392597, -17.31055139],\n       [ -7.5503264 ,  14.15558863],\n       [-17.92612806,   8.02496207],\n       [-29.72589664, -12.30613891],\n       [ 10.43121116,  -1.60271339],\n       [ -2.49880...: {'action_type': 'deposit_pheromone', 'start_time': datetime.datetime(2026, 2, 25, 17, 56, 57, 81185), 'success': True, 'actual_outcome': {'pheromone_deposited': True}, 'energy_cost': 0.05, 'stigmergic_event': {'pheromone_type': 'trail', 'intensity': 1.0, 'location': array([38.48166305, 10.24902255]), 'timestamp': datetime.datetime(2026, 2, 25, 17, 56, 57, 81186)}, 'end_time': datetime.datetime(2026, 2, 25, 17, 56, 57, 81194), 'duration': 9e-06}, 'position': [38.48166304508741, 10.24902254671902]}], emergent_patterns={'status': 'insufficient_data'}, performance_metrics={'active_agents': 20, 'total_agents': 20, 'average_energy': 0.04999999999999969, 'energy_std': 6.938893903907228e-18, 'spatial_center': [-1.6132769120756236, -0.45357662142793964], 'spatial_spread': [24.70007952588917, 21.88457589201882], 'average_inter_agent_distance': 43.34037249589473, 'max_inter_agent_distance': 93.6603585267054, 'agent_type_distribution': {'worker': 7, 'scout': 7, 'soldier': 6}, 'population_status': 'extinct', 'summary': {'total_simulation_time': 20.0, 'total_time_steps': 20, 'final_population_size': 0, 'data_collection_complete': True}}, simulation_time=20.0, time_steps=20, population_size=0).time_steps</failure></testcase><testcase classname="tests.integration.test_swarm_integration.TestEndToEndSimulation" name="test_pheromone_guided_behavior" time="0.002" /><testcase classname="tests.integration.test_swarm_integration.TestEndToEndSimulation" name="test_digital_stigmergy_coordination" time="0.001" /><testcase classname="tests.integration.test_swarm_integration.TestEndToEndSimulation" name="test_optimization_integration" time="0.018" /><testcase classname="tests.integration.test_swarm_integration.TestEndToEndSimulation" name="test_environmental_monitoring_integration" time="0.013"><failure message="ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (50,) + inhomogeneous part.">GEO-INFER-ANT/tests/integration/test_swarm_integration.py:203: in test_environmental_monitoring_integration
+    asyncio.run(monitoring_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/integration/test_swarm_integration.py:173: in monitoring_test
+    deployment = await monitoring_swarm.deploy_agents(
+GEO-INFER-ANT/src/geo_infer_ant/applications/environmental.py:256: in deploy_agents
+    deployment_plan['coverage_achieved'] = self._calculate_deployment_coverage(deployment_plan['agents'])
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/applications/environmental.py:416: in _calculate_deployment_coverage
+    positions = np.array([agent['position'] for agent in deployed_agents])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (50,) + inhomogeneous part.</failure></testcase><testcase classname="tests.integration.test_swarm_integration.TestCrossModuleIntegration" name="test_spatial_integration" time="0.000"><failure message="TypeError: an integer is required">GEO-INFER-ANT/tests/integration/test_swarm_integration.py:218: in test_spatial_integration
+    cell_id = indexer.latlng_to_cell(37.7749, -122.4194, 'h3_r8')
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-SPACE/src/geo_infer_space/core/spatial_indexing.py:40: in latlng_to_cell
+    return self.dispatcher.dispatch_indexing_operation(
+GEO-INFER-SPACE/src/geo_infer_space/core/dispatcher.py:191: in dispatch_indexing_operation
+    return method(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-SPACE/src/geo_infer_space/backends/h3/h3_backend.py:28: in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-SPACE/src/geo_infer_space/backends/h3/h3_backend.py:129: in latlng_to_cell
+    return self.h3.latlng_to_cell(lat, lng, resolution)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/site-packages/h3/api/basic_str/__init__.py:171: in latlng_to_cell
+    return _out_scalar(_cy.latlng_to_cell(lat, lng, res))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+h3/_cy/latlng.pyx:27: in h3._cy.latlng.latlng_to_cell
+    ???
+E   TypeError: an integer is required</failure></testcase><testcase classname="tests.integration.test_swarm_integration.TestCrossModuleIntegration" name="test_act_integration" time="0.000" /><testcase classname="tests.integration.test_swarm_integration.TestCrossModuleIntegration" name="test_math_integration" time="0.000"><skipped type="pytest.skip" message="GEO-INFER-MATH not available">/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ANT/tests/integration/test_swarm_integration.py:257: GEO-INFER-MATH not available</skipped></testcase><testcase classname="tests.integration.test_swarm_integration.TestPerformanceIntegration" name="test_large_scale_simulation" time="6.814"><failure message="AssertionError: assert 20 == 100&#10; +  where 20 = SimulationResults(trajectories=[array([[-0.33230457,  7.64485013],\n       [ 3.67294083, -4.16295503],\n       [ 0.6672143 , -2.19375548],\n       [ 9.9341773 ,  8.67206226],\n       [-6.47229923, -1.51781167],\n       [-0.43381717, -4.28903509],\n       [ 6.22314921, -9.28622731],\n       [-2.41169509, -6.50266751],\n       [-8.78505931, -9.28872975],\n       [-9.37858978,  3.10770162],\n       [-8.96857099,  8.9416122 ],\n       [-6.32959227,  1.75840122],\n       [ 7.29495794,  5.00328709],\n       [ 8.52771921,  6.7955379 ],\n       [-2.45504268,  1.6216565 ],\n       [ 2.61597981,  4.0260773 ],\n       [ 4.1514087 ,  4.4926562 ],\n       [-4.41954776, -5.73034077],\n       [-5.36114936, -8.44309959],\n       [ 4.31986392, -7.34212086],\n       [-0.67470278,  7.28212647],\n       [ 5.96519939,  6.77787094],\n       [ 9.89170633,  0.01186129],\n       [-0.25691566,  3.45219584],\n       [-5.20414216, -8.10777085],\n       [-3.94871376,  8.04654023],\n       [-5.74606771, -6.54330403],\n       [ 5.37293861,  4.14168264],\n       [-5.85891519,  3.69197359],\n       [-8.96670219,  9.11387276],\n       [-1.6646867 ,  9.31916181],\n       [ 5.73193696, -1.80740255],\n       [-0.27183551,  6.33918846],\n       [ 9....: True}, 'energy_cost': 0.05, 'stigmergic_event': {'pheromone_type': 'trail', 'intensity': 1.0, 'location': array([ 0.29871542, -7.9027616 ]), 'timestamp': datetime.datetime(2026, 2, 25, 17, 57, 4, 24191)}, 'end_time': datetime.datetime(2026, 2, 25, 17, 57, 4, 24201), 'duration': 1.1e-05}, 'position': [0.2987154223234061, -7.902761596853591]}, {'step': 19, 'agent_id': 'soldier_066', 'action_type': 'deposit_pheromone', 'result': {'action_type': 'deposit_pheromone', 'start_time': datetime.datetime(2026, 2, 25, 17, 57, 4, 24388), 'success': True, 'actual_outcome': {'pheromone_deposited': True}, 'energy_cost': 0.05, 'stigmergic_event': {'pheromone_type': 'trail', 'intensity': 1.0, 'location': array([-7.92290311, -3.33082821]), 'timestamp': datetime.datetime(2026, 2, 25, 17, 57, 4, 24389)}, 'end_time': datetime.datetime(2026, 2, 25, 17, 57, 4, 24400), 'duration': 1.2e-05}, 'position': [-7.922903108316916, -3.3308282053190723]}], emergent_patterns={}, performance_metrics={'population_status': 'extinct', 'summary': {'total_simulation_time': 20.0, 'total_time_steps': 20, 'final_population_size': 0, 'data_collection_complete': True}}, simulation_time=20.0, time_steps=20, population_size=0).time_steps">GEO-INFER-ANT/tests/integration/test_swarm_integration.py:293: in test_large_scale_simulation
+    asyncio.run(large_scale_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/integration/test_swarm_integration.py:290: in large_scale_test
+    assert results.time_steps == 100
+E   AssertionError: assert 20 == 100
+E    +  where 20 = SimulationResults(trajectories=[array([[-0.33230457,  7.64485013],\n       [ 3.67294083, -4.16295503],\n       [ 0.6672143 , -2.19375548],\n       [ 9.9341773 ,  8.67206226],\n       [-6.47229923, -1.51781167],\n       [-0.43381717, -4.28903509],\n       [ 6.22314921, -9.28622731],\n       [-2.41169509, -6.50266751],\n       [-8.78505931, -9.28872975],\n       [-9.37858978,  3.10770162],\n       [-8.96857099,  8.9416122 ],\n       [-6.32959227,  1.75840122],\n       [ 7.29495794,  5.00328709],\n       [ 8.52771921,  6.7955379 ],\n       [-2.45504268,  1.6216565 ],\n       [ 2.61597981,  4.0260773 ],\n       [ 4.1514087 ,  4.4926562 ],\n       [-4.41954776, -5.73034077],\n       [-5.36114936, -8.44309959],\n       [ 4.31986392, -7.34212086],\n       [-0.67470278,  7.28212647],\n       [ 5.96519939,  6.77787094],\n       [ 9.89170633,  0.01186129],\n       [-0.25691566,  3.45219584],\n       [-5.20414216, -8.10777085],\n       [-3.94871376,  8.04654023],\n       [-5.74606771, -6.54330403],\n       [ 5.37293861,  4.14168264],\n       [-5.85891519,  3.69197359],\n       [-8.96670219,  9.11387276],\n       [-1.6646867 ,  9.31916181],\n       [ 5.73193696, -1.80740255],\n       [-0.27183551,  6.33918846],\n       [ 9....: True}, 'energy_cost': 0.05, 'stigmergic_event': {'pheromone_type': 'trail', 'intensity': 1.0, 'location': array([ 0.29871542, -7.9027616 ]), 'timestamp': datetime.datetime(2026, 2, 25, 17, 57, 4, 24191)}, 'end_time': datetime.datetime(2026, 2, 25, 17, 57, 4, 24201), 'duration': 1.1e-05}, 'position': [0.2987154223234061, -7.902761596853591]}, {'step': 19, 'agent_id': 'soldier_066', 'action_type': 'deposit_pheromone', 'result': {'action_type': 'deposit_pheromone', 'start_time': datetime.datetime(2026, 2, 25, 17, 57, 4, 24388), 'success': True, 'actual_outcome': {'pheromone_deposited': True}, 'energy_cost': 0.05, 'stigmergic_event': {'pheromone_type': 'trail', 'intensity': 1.0, 'location': array([-7.92290311, -3.33082821]), 'timestamp': datetime.datetime(2026, 2, 25, 17, 57, 4, 24389)}, 'end_time': datetime.datetime(2026, 2, 25, 17, 57, 4, 24400), 'duration': 1.2e-05}, 'position': [-7.922903108316916, -3.3308282053190723]}], emergent_patterns={}, performance_metrics={'population_status': 'extinct', 'summary': {'total_simulation_time': 20.0, 'total_time_steps': 20, 'final_population_size': 0, 'data_collection_complete': True}}, simulation_time=20.0, time_steps=20, population_size=0).time_steps</failure></testcase><testcase classname="tests.integration.test_swarm_integration.TestPerformanceIntegration" name="test_memory_efficiency" time="0.017" /><testcase classname="tests.integration.test_swarm_integration.TestEmergentBehavior" name="test_emergence_detection" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/integration/test_swarm_integration.py:322: in test_emergence_detection
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.integration.test_swarm_integration.TestDataPersistence" name="test_simulation_results_serialization" time="0.155" /><testcase classname="tests.integration.test_swarm_integration.TestDataPersistence" name="test_pheromone_system_persistence" time="0.001"><failure message="NameError: name 'os' is not defined. Did you forget to import 'os'">GEO-INFER-ANT/tests/integration/test_swarm_integration.py:428: in test_pheromone_system_persistence
+    asyncio.run(persistence_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/integration/test_swarm_integration.py:426: in persistence_test
+    os.unlink(f.name)
+    ^^
+E   NameError: name 'os' is not defined. Did you forget to import 'os'</failure></testcase><testcase classname="tests.performance.test_performance.TestLargeScalePerformance" name="test_large_population_simulation" time="2.159"><failure message="AssertionError: assert 20 == 50&#10; +  where 20 = SimulationResults(trajectories=[array([[ 4.81954916,  5.49700004],\n       [ 9.19266717,  1.17441712],\n       [-5.46470796, -4.53906148],\n       [-3.1403818 , -9.19855869],\n       [ 3.68083195,  2.7990392 ],\n       [-1.85826465,  3.16496336],\n       [ 4.39634456,  2.96090305],\n       [ 5.49660318, -5.07387815],\n       [ 0.85158722, -3.94042499],\n       [ 4.43514021, -2.50484182],\n       [-5.27301219,  0.12957441],\n       [ 0.79174323, -3.02293572],\n       [ 6.99088908, -5.61203207],\n       [ 1.78184711,  1.9899394 ],\n       [ 6.33303196, -1.57552296],\n       [-4.24692567, -6.44825992],\n       [-9.21966571, -2.62721543],\n       [-8.8495675 ,  0.19518893],\n       [ 2.26522699, -8.35429243],\n       [-9.03131747,  1.02977935],\n       [-7.5039271 , -3.44074347],\n       [ 2.02605674,  9.30789849],\n       [ 2.23334015, -9.95069731],\n       [-0.01678501, -8.07000178],\n       [-9.12653267,  8.56944602],\n       [ 7.68067233,  5.02098601],\n       [ 5.96259767,  5.40239769],\n       [ 0.58739921, -2.04576999],\n       [ 6.73694   , -5.05396293],\n       [ 8.46929962,  7.69831524],\n       [-7.54823257, -8.39565429],\n       [ 2.3514308 , -9.69768659],\n       [-8.13086488, -1.70260191],\n       [ 2....ited': True}, 'energy_cost': 0.05, 'stigmergic_event': {'pheromone_type': 'trail', 'intensity': 1.0, 'location': array([5.1943442 , 1.50462703]), 'timestamp': datetime.datetime(2026, 2, 25, 17, 57, 6, 488082)}, 'end_time': datetime.datetime(2026, 2, 25, 17, 57, 6, 488091), 'duration': 9e-06}, 'position': [5.194344198643208, 1.504627027852635]}, {'step': 19, 'agent_id': 'soldier_033', 'action_type': 'deposit_pheromone', 'result': {'action_type': 'deposit_pheromone', 'start_time': datetime.datetime(2026, 2, 25, 17, 57, 6, 488409), 'success': True, 'actual_outcome': {'pheromone_deposited': True}, 'energy_cost': 0.05, 'stigmergic_event': {'pheromone_type': 'trail', 'intensity': 1.0, 'location': array([ 7.4866658 , -4.28539519]), 'timestamp': datetime.datetime(2026, 2, 25, 17, 57, 6, 488410)}, 'end_time': datetime.datetime(2026, 2, 25, 17, 57, 6, 488418), 'duration': 9e-06}, 'position': [7.486665796548884, -4.285395193865611]}], emergent_patterns={}, performance_metrics={'population_status': 'extinct', 'summary': {'total_simulation_time': 20.0, 'total_time_steps': 20, 'final_population_size': 0, 'data_collection_complete': True}}, simulation_time=20.0, time_steps=20, population_size=0).time_steps">GEO-INFER-ANT/tests/performance/test_performance.py:86: in test_large_population_simulation
+    performance_metrics = asyncio.run(simulation_test())
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/performance/test_performance.py:67: in simulation_test
+    assert results.time_steps == 50
+E   AssertionError: assert 20 == 50
+E    +  where 20 = SimulationResults(trajectories=[array([[ 4.81954916,  5.49700004],\n       [ 9.19266717,  1.17441712],\n       [-5.46470796, -4.53906148],\n       [-3.1403818 , -9.19855869],\n       [ 3.68083195,  2.7990392 ],\n       [-1.85826465,  3.16496336],\n       [ 4.39634456,  2.96090305],\n       [ 5.49660318, -5.07387815],\n       [ 0.85158722, -3.94042499],\n       [ 4.43514021, -2.50484182],\n       [-5.27301219,  0.12957441],\n       [ 0.79174323, -3.02293572],\n       [ 6.99088908, -5.61203207],\n       [ 1.78184711,  1.9899394 ],\n       [ 6.33303196, -1.57552296],\n       [-4.24692567, -6.44825992],\n       [-9.21966571, -2.62721543],\n       [-8.8495675 ,  0.19518893],\n       [ 2.26522699, -8.35429243],\n       [-9.03131747,  1.02977935],\n       [-7.5039271 , -3.44074347],\n       [ 2.02605674,  9.30789849],\n       [ 2.23334015, -9.95069731],\n       [-0.01678501, -8.07000178],\n       [-9.12653267,  8.56944602],\n       [ 7.68067233,  5.02098601],\n       [ 5.96259767,  5.40239769],\n       [ 0.58739921, -2.04576999],\n       [ 6.73694   , -5.05396293],\n       [ 8.46929962,  7.69831524],\n       [-7.54823257, -8.39565429],\n       [ 2.3514308 , -9.69768659],\n       [-8.13086488, -1.70260191],\n       [ 2....ited': True}, 'energy_cost': 0.05, 'stigmergic_event': {'pheromone_type': 'trail', 'intensity': 1.0, 'location': array([5.1943442 , 1.50462703]), 'timestamp': datetime.datetime(2026, 2, 25, 17, 57, 6, 488082)}, 'end_time': datetime.datetime(2026, 2, 25, 17, 57, 6, 488091), 'duration': 9e-06}, 'position': [5.194344198643208, 1.504627027852635]}, {'step': 19, 'agent_id': 'soldier_033', 'action_type': 'deposit_pheromone', 'result': {'action_type': 'deposit_pheromone', 'start_time': datetime.datetime(2026, 2, 25, 17, 57, 6, 488409), 'success': True, 'actual_outcome': {'pheromone_deposited': True}, 'energy_cost': 0.05, 'stigmergic_event': {'pheromone_type': 'trail', 'intensity': 1.0, 'location': array([ 7.4866658 , -4.28539519]), 'timestamp': datetime.datetime(2026, 2, 25, 17, 57, 6, 488410)}, 'end_time': datetime.datetime(2026, 2, 25, 17, 57, 6, 488418), 'duration': 9e-06}, 'position': [7.486665796548884, -4.285395193865611]}], emergent_patterns={}, performance_metrics={'population_status': 'extinct', 'summary': {'total_simulation_time': 20.0, 'total_time_steps': 20, 'final_population_size': 0, 'data_collection_complete': True}}, simulation_time=20.0, time_steps=20, population_size=0).time_steps</failure></testcase><testcase classname="tests.performance.test_performance.TestLargeScalePerformance" name="test_pheromone_system_performance" time="0.052" /><testcase classname="tests.performance.test_performance.TestLargeScalePerformance" name="test_algorithm_performance_benchmarking" time="0.812"><failure message="ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()">GEO-INFER-ANT/tests/performance/test_performance.py:192: in test_algorithm_performance_benchmarking
+    optimal = algorithm.optimize(objective_function)
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:144: in optimize
+    self._employed_bee_phase(objective_function)
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:184: in _employed_bee_phase
+    new_position = self._generate_neighbor(source.position)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:238: in _generate_neighbor
+    while neighbor_idx == self.food_sources.index(
+&lt;string&gt;:4: in __eq__
+    ???
+E   ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()</failure></testcase><testcase classname="tests.performance.test_performance.TestMemoryEfficiency" name="test_memory_usage_patterns" time="104.268" /><testcase classname="tests.performance.test_performance.TestMemoryEfficiency" name="test_memory_cleanup" time="30.680" /><testcase classname="tests.performance.test_performance.TestScalabilityLimits" name="test_maximum_swarm_size" time="107.747" /><testcase classname="tests.performance.test_performance.TestScalabilityLimits" name="test_algorithm_complexity_scaling" time="0.234" /><testcase classname="tests.performance.test_performance.TestRealTimePerformance" name="test_simulation_real_time_constraints" time="4.038" /><testcase classname="tests.performance.test_performance.TestStressTesting" name="test_concurrent_operations" time="4.695" /><testcase classname="tests.performance.test_performance.TestStressTesting" name="test_data_structure_limits" time="0.523" /><testcase classname="tests.unit.test_algorithms.TestAntColonyOptimization" name="test_aco_initialization" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestAntColonyOptimization" name="test_aco_problem_initialization" time="0.000"><failure message="assert 25 == (5 * (5 - 1))&#10; +  where 25 = len({(0, 0): 0.0, (0, 1): 0.1766969305094743, (0, 2): 0.12236668187978886, (0, 3): 0.21333525834774902, ...})&#10; +    where {(0, 0): 0.0, (0, 1): 0.1766969305094743, (0, 2): 0.12236668187978886, (0, 3): 0.21333525834774902, ...} = &lt;geo_infer_ant.algorithms.aco.AntColonyOptimization object at 0x17e09a8a0&gt;.heuristic_matrix">GEO-INFER-ANT/tests/unit/test_algorithms.py:72: in test_aco_problem_initialization
+    assert len(aco.heuristic_matrix) == n_cities * (n_cities - 1)
+E   assert 25 == (5 * (5 - 1))
+E    +  where 25 = len({(0, 0): 0.0, (0, 1): 0.1766969305094743, (0, 2): 0.12236668187978886, (0, 3): 0.21333525834774902, ...})
+E    +    where {(0, 0): 0.0, (0, 1): 0.1766969305094743, (0, 2): 0.12236668187978886, (0, 3): 0.21333525834774902, ...} = &lt;geo_infer_ant.algorithms.aco.AntColonyOptimization object at 0x17e09a8a0&gt;.heuristic_matrix</failure></testcase><testcase classname="tests.unit.test_algorithms.TestAntColonyOptimization" name="test_aco_solution_construction" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestAntColonyOptimization" name="test_aco_pheromone_updates" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestAntColonyOptimization" name="test_aco_convergence_detection" time="0.000"><failure message="assert False is True">GEO-INFER-ANT/tests/unit/test_algorithms.py:129: in test_aco_convergence_detection
+    assert is_converged is True
+E   assert False is True</failure></testcase><testcase classname="tests.unit.test_algorithms.TestAntColonyOptimization" name="test_aco_multi_objective_optimization" time="17.607" /><testcase classname="tests.unit.test_algorithms.TestAntColonyOptimization" name="test_aco_adaptation" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestAntColonyOptimization" name="test_aco_state_persistence" time="0.001"><failure message="assert False">GEO-INFER-ANT/tests/unit/test_algorithms.py:183: in test_aco_state_persistence
+    assert loaded_success
+E   assert False</failure></testcase><testcase classname="tests.unit.test_algorithms.TestAntColonyOptimization" name="test_aco_statistics" time="0.002" /><testcase classname="tests.unit.test_algorithms.TestParticleSwarmOptimization" name="test_pso_initialization" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestParticleSwarmOptimization" name="test_pso_swarm_initialization" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestParticleSwarmOptimization" name="test_pso_swarm_initialization_with_positions" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestParticleSwarmOptimization" name="test_particle_update_mechanics" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestParticleSwarmOptimization" name="test_pso_optimization_functions" time="0.011" /><testcase classname="tests.unit.test_algorithms.TestParticleSwarmOptimization" name="test_pso_adaptive_parameters" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestParticleSwarmOptimization" name="test_pso_neighborhood_topology" time="0.000"><failure message="AssertionError: assert 'global' == 'local'&#10;  &#10;  - local&#10;  + global">GEO-INFER-ANT/tests/unit/test_algorithms.py:332: in test_pso_neighborhood_topology
+    assert pso_local.parameters.neighborhood_topology == 'local'
+E   AssertionError: assert 'global' == 'local'
+E     
+E     - local
+E     + global</failure></testcase><testcase classname="tests.unit.test_algorithms.TestParticleSwarmOptimization" name="test_pso_multi_swarm_coordination" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestParticleSwarmOptimization" name="test_pso_state_persistence" time="0.001" /><testcase classname="tests.unit.test_algorithms.TestParticleSwarmOptimization" name="test_pso_statistics" time="0.002" /><testcase classname="tests.unit.test_algorithms.TestArtificialBeeColony" name="test_abc_initialization" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestArtificialBeeColony" name="test_abc_food_source_initialization" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestArtificialBeeColony" name="test_abc_neighbor_generation" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestArtificialBeeColony" name="test_abc_fitness_evaluation" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestArtificialBeeColony" name="test_abc_selection_probabilities" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestArtificialBeeColony" name="test_abc_employed_bee_phase" time="0.000"><failure message="ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()">GEO-INFER-ANT/tests/unit/test_algorithms.py:496: in test_abc_employed_bee_phase
+    abc._employed_bee_phase(test_function)
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:184: in _employed_bee_phase
+    new_position = self._generate_neighbor(source.position)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:238: in _generate_neighbor
+    while neighbor_idx == self.food_sources.index(
+&lt;string&gt;:4: in __eq__
+    ???
+E   ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()</failure></testcase><testcase classname="tests.unit.test_algorithms.TestArtificialBeeColony" name="test_abc_onlooker_bee_phase" time="0.000"><failure message="ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()">GEO-INFER-ANT/tests/unit/test_algorithms.py:515: in test_abc_onlooker_bee_phase
+    abc._onlooker_bee_phase(test_function)
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:208: in _onlooker_bee_phase
+    new_position = self._generate_neighbor(source.position)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:238: in _generate_neighbor
+    while neighbor_idx == self.food_sources.index(
+&lt;string&gt;:4: in __eq__
+    ???
+E   ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()</failure></testcase><testcase classname="tests.unit.test_algorithms.TestArtificialBeeColony" name="test_abc_scout_bee_phase" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestArtificialBeeColony" name="test_abc_optimization" time="0.000"><failure message="ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()">GEO-INFER-ANT/tests/unit/test_algorithms.py:543: in test_abc_optimization
+    optimal_solution = abc.optimize(sphere_function)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:144: in optimize
+    self._employed_bee_phase(objective_function)
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:184: in _employed_bee_phase
+    new_position = self._generate_neighbor(source.position)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:238: in _generate_neighbor
+    while neighbor_idx == self.food_sources.index(
+&lt;string&gt;:4: in __eq__
+    ???
+E   ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()</failure></testcase><testcase classname="tests.unit.test_algorithms.TestArtificialBeeColony" name="test_abc_food_source_management" time="0.000"><failure message="ValueError: probabilities do not sum to 1">GEO-INFER-ANT/tests/unit/test_algorithms.py:564: in test_abc_food_source_management
+    management = abc.manage_food_sources(
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:357: in manage_food_sources
+    self._apply_fitness_proportional_recruitment(current_sources)
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:384: in _apply_fitness_proportional_recruitment
+    selected_idx = np.random.choice(len(sources), p=recruitment_probs)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+numpy/random/mtrand.pyx:975: in numpy.random.mtrand.RandomState.choice
+    ???
+E   ValueError: probabilities do not sum to 1</failure></testcase><testcase classname="tests.unit.test_algorithms.TestArtificialBeeColony" name="test_abc_foraging_adaptation" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestArtificialBeeColony" name="test_abc_statistics" time="0.000"><failure message="ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()">GEO-INFER-ANT/tests/unit/test_algorithms.py:599: in test_abc_statistics
+    result = abc.optimize(dummy_function)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:144: in optimize
+    self._employed_bee_phase(objective_function)
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:184: in _employed_bee_phase
+    new_position = self._generate_neighbor(source.position)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:238: in _generate_neighbor
+    while neighbor_idx == self.food_sources.index(
+&lt;string&gt;:4: in __eq__
+    ???
+E   ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()</failure></testcase><testcase classname="tests.unit.test_algorithms.TestAlgorithmIntegration" name="test_aco_with_pheromone_system" time="0.000" /><testcase classname="tests.unit.test_algorithms.TestAlgorithmIntegration" name="test_pso_with_spatial_constraints" time="0.020" /><testcase classname="tests.unit.test_algorithms.TestAlgorithmPerformance" name="test_aco_performance_scaling" time="0.130" /><testcase classname="tests.unit.test_algorithms.TestAlgorithmPerformance" name="test_pso_performance_scaling" time="0.036" /><testcase classname="tests.unit.test_algorithms.TestAlgorithmPerformance" name="test_abc_performance_scaling" time="0.000"><failure message="ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()">GEO-INFER-ANT/tests/unit/test_algorithms.py:715: in test_abc_performance_scaling
+    result = abc.optimize(sphere)
+             ^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:144: in optimize
+    self._employed_bee_phase(objective_function)
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:184: in _employed_bee_phase
+    new_position = self._generate_neighbor(source.position)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/algorithms/abc.py:238: in _generate_neighbor
+    while neighbor_idx == self.food_sources.index(
+&lt;string&gt;:4: in __eq__
+    ???
+E   ValueError: The truth value of an array with more than one element is ambiguous. Use a.any() or a.all()</failure></testcase><testcase classname="tests.unit.test_analysis.TestSwarmPatternAnalyzer" name="test_analyzer_initialization" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:40: in test_analyzer_initialization
+    analyzer = SwarmPatternAnalyzer(
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestSwarmPatternAnalyzer" name="test_spatial_pattern_analysis" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:53: in test_spatial_pattern_analysis
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestSwarmPatternAnalyzer" name="test_flocking_pattern_detection" time="0.001"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:98: in test_flocking_pattern_detection
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestSwarmPatternAnalyzer" name="test_migration_pattern_detection" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:139: in test_migration_pattern_detection
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestSwarmPatternAnalyzer" name="test_interaction_network_analysis" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:179: in test_interaction_network_analysis
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestSwarmPatternAnalyzer" name="test_emergence_detection" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:218: in test_emergence_detection
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestSwarmPatternAnalyzer" name="test_mutual_information_calculation" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:256: in test_mutual_information_calculation
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestSwarmPatternAnalyzer" name="test_fractal_dimension_calculation" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:281: in test_fractal_dimension_calculation
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestSwarmPatternAnalyzer" name="test_lyapunov_exponent_calculation" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:300: in test_lyapunov_exponent_calculation
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestSwarmPatternAnalyzer" name="test_analysis_caching" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:322: in test_analysis_caching
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestSwarmPatternAnalyzer" name="test_analysis_summary" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:340: in test_analysis_summary
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestIntegrationWithCoreComponents" name="test_analyzer_with_pheromone_system" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:363: in test_analyzer_with_pheromone_system
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestIntegrationWithCoreComponents" name="test_analyzer_with_digital_stigmergy" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:389: in test_analyzer_with_digital_stigmergy
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestAnalysisPerformance" name="test_large_trajectory_analysis" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:419: in test_large_trajectory_analysis
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestAnalysisPerformance" name="test_emergence_analysis_performance" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:449: in test_emergence_analysis_performance
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestAnalysisErrorHandling" name="test_analysis_with_empty_data" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:488: in test_analysis_with_empty_data
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestAnalysisErrorHandling" name="test_emergence_with_insufficient_data" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:501: in test_emergence_with_insufficient_data
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestAnalysisErrorHandling" name="test_network_analysis_with_empty_data" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:521: in test_network_analysis_with_empty_data
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestAnalysisValidation" name="test_spatial_analysis_validation" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:536: in test_spatial_analysis_validation
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_analysis.TestAnalysisValidation" name="test_emergence_analysis_validation" time="0.000"><failure message="NameError: name 'SpatialStatistics' is not defined">GEO-INFER-ANT/tests/unit/test_analysis.py:557: in test_emergence_analysis_validation
+    analyzer = SwarmPatternAnalyzer()
+               ^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:109: in __init__
+    self._initialize_integrations(spatial_backend)
+GEO-INFER-ANT/src/geo_infer_ant/analysis/patterns.py:129: in _initialize_integrations
+    if SpatialStatistics:
+       ^^^^^^^^^^^^^^^^^
+E   NameError: name 'SpatialStatistics' is not defined</failure></testcase><testcase classname="tests.unit.test_applications.TestEnvironmentalMonitoringSwarm" name="test_monitoring_swarm_initialization" time="0.000" /><testcase classname="tests.unit.test_applications.TestEnvironmentalMonitoringSwarm" name="test_monitoring_agent_configuration" time="0.000" /><testcase classname="tests.unit.test_applications.TestEnvironmentalMonitoringSwarm" name="test_sensory_capabilities_generation" time="0.000" /><testcase classname="tests.unit.test_applications.TestEnvironmentalMonitoringSwarm" name="test_initial_position_optimization" time="0.081"><failure message="assert 2 == 20&#10; +  where 2 = len([40.0, -120.0])&#10; +  and   20 = &lt;geo_infer_ant.applications.environmental.EnvironmentalMonitoringSwarm object at 0x17fbfad20&gt;.swarm_size">GEO-INFER-ANT/tests/unit/test_applications.py:112: in test_initial_position_optimization
+    asyncio.run(position_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_applications.py:103: in position_test
+    assert len(positions) == swarm.swarm_size
+E   assert 2 == 20
+E    +  where 2 = len([40.0, -120.0])
+E    +  and   20 = &lt;geo_infer_ant.applications.environmental.EnvironmentalMonitoringSwarm object at 0x17fbfad20&gt;.swarm_size</failure></testcase><testcase classname="tests.unit.test_applications.TestEnvironmentalMonitoringSwarm" name="test_agent_deployment" time="0.061"><failure message="ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (10,) + inhomogeneous part.">GEO-INFER-ANT/tests/unit/test_applications.py:134: in test_agent_deployment
+    asyncio.run(deployment_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_applications.py:119: in deployment_test
+    deployment = await swarm.deploy_agents(
+GEO-INFER-ANT/src/geo_infer_ant/applications/environmental.py:256: in deploy_agents
+    deployment_plan['coverage_achieved'] = self._calculate_deployment_coverage(deployment_plan['agents'])
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/applications/environmental.py:416: in _calculate_deployment_coverage
+    positions = np.array([agent['position'] for agent in deployed_agents])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (10,) + inhomogeneous part.</failure></testcase><testcase classname="tests.unit.test_applications.TestEnvironmentalMonitoringSwarm" name="test_monitoring_coordination" time="0.031"><failure message="NameError: name 'n_agents' is not defined">GEO-INFER-ANT/tests/unit/test_applications.py:155: in test_monitoring_coordination
+    asyncio.run(coordination_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_applications.py:144: in coordination_test
+    coordination = await swarm.coordinate_monitoring(
+GEO-INFER-ANT/src/geo_infer_ant/applications/environmental.py:483: in coordinate_monitoring
+    coordination_plan['estimated_coverage'] = self._calculate_monitoring_coverage(agent_positions)
+                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/applications/environmental.py:628: in _calculate_monitoring_coverage
+    area_covered = self._estimate_covered_area(positions)
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/applications/environmental.py:644: in _estimate_covered_area
+    effective_area = n_agents * area_per_agent * overlap_factor
+                     ^^^^^^^^
+E   NameError: name 'n_agents' is not defined</failure></testcase><testcase classname="tests.unit.test_applications.TestEnvironmentalMonitoringSwarm" name="test_collective_intelligence_processing" time="0.052" /><testcase classname="tests.unit.test_applications.TestEnvironmentalMonitoringSwarm" name="test_anomaly_detection" time="0.001" /><testcase classname="tests.unit.test_applications.TestEnvironmentalMonitoringSwarm" name="test_uncertainty_quantification" time="0.003" /><testcase classname="tests.unit.test_applications.TestEnvironmentalMonitoringSwarm" name="test_monitoring_recommendations" time="0.000" /><testcase classname="tests.unit.test_applications.TestEnvironmentalMonitoringSwarm" name="test_monitoring_status" time="0.000" /><testcase classname="tests.unit.test_applications.TestEnvironmentalMonitoringSwarm" name="test_sampling_frequency_calculation" time="0.000"><failure message="AssertionError: assert '15_minutes' == '1_hour'&#10;  &#10;  - 1_hour&#10;  + 15_minutes">GEO-INFER-ANT/tests/unit/test_applications.py:287: in test_sampling_frequency_calculation
+    assert frequencies['water_quality'] == '1_hour'   # Low priority
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   AssertionError: assert '15_minutes' == '1_hour'
+E     
+E     - 1_hour
+E     + 15_minutes</failure></testcase><testcase classname="tests.unit.test_applications.TestApplicationIntegration" name="test_monitoring_with_pheromone_system" time="0.033"><failure message="ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (20,) + inhomogeneous part.">GEO-INFER-ANT/tests/unit/test_applications.py:324: in test_monitoring_with_pheromone_system
+    asyncio.run(integration_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_applications.py:302: in integration_test
+    deployment = await swarm.deploy_agents()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/applications/environmental.py:256: in deploy_agents
+    deployment_plan['coverage_achieved'] = self._calculate_deployment_coverage(deployment_plan['agents'])
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/applications/environmental.py:416: in _calculate_deployment_coverage
+    positions = np.array([agent['position'] for agent in deployed_agents])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (20,) + inhomogeneous part.</failure></testcase><testcase classname="tests.unit.test_applications.TestApplicationIntegration" name="test_monitoring_with_digital_stigmergy" time="0.022" /><testcase classname="tests.unit.test_applications.TestApplicationPerformance" name="test_large_scale_monitoring" time="0.043"><failure message="ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (50,) + inhomogeneous part.">GEO-INFER-ANT/tests/unit/test_applications.py:426: in test_large_scale_monitoring
+    asyncio.run(performance_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_applications.py:395: in performance_test
+    deployment = await monitoring_swarm.deploy_agents()
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/applications/environmental.py:256: in deploy_agents
+    deployment_plan['coverage_achieved'] = self._calculate_deployment_coverage(deployment_plan['agents'])
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/applications/environmental.py:416: in _calculate_deployment_coverage
+    positions = np.array([agent['position'] for agent in deployed_agents])
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   ValueError: setting an array element with a sequence. The requested array has an inhomogeneous shape after 1 dimensions. The detected shape was (50,) + inhomogeneous part.</failure></testcase><testcase classname="tests.unit.test_applications.TestApplicationErrorHandling" name="test_monitoring_with_empty_data" time="0.013" /><testcase classname="tests.unit.test_applications.TestApplicationErrorHandling" name="test_monitoring_with_invalid_data" time="0.003"><failure message="AssertionError: assert ('error' not in {'anomaly_detection': [], 'assessment_time': datetime.datetime(2026, 2, 25, 18, 1, 39, 599533), 'data_summary': {'measurement_types': ['invalid_sensor', 'temperature'], 'sensor_statistics': {'invalid_sensor': {'count': 1, 'max': inf, 'mean': inf, 'min': inf, ...}, 'temperature': {'count': 1, 'max': nan, 'mean': nan, 'min': nan, ...}}, 'spatial_range': {'max_lat': 0, 'max_lng': 0, 'min_lat': 0, 'min_lng': 0}, 'time_range': {'end': datetime.datetime(2026, 2, 25, 18, 1, 39, 599529), 'start': datetime.datetime(2026, 2, 25, 18, 1, 39, 599522)}, ...}, 'error': 'division by zero', ...} or 'division by zero' is None)">GEO-INFER-ANT/tests/unit/test_applications.py:467: in test_monitoring_with_invalid_data
+    asyncio.run(invalid_data_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_applications.py:465: in invalid_data_test
+    assert 'error' not in assessment or assessment['error'] is None
+E   AssertionError: assert ('error' not in {'anomaly_detection': [], 'assessment_time': datetime.datetime(2026, 2, 25, 18, 1, 39, 599533), 'data_summary': {'measurement_types': ['invalid_sensor', 'temperature'], 'sensor_statistics': {'invalid_sensor': {'count': 1, 'max': inf, 'mean': inf, 'min': inf, ...}, 'temperature': {'count': 1, 'max': nan, 'mean': nan, 'min': nan, ...}}, 'spatial_range': {'max_lat': 0, 'max_lng': 0, 'min_lat': 0, 'min_lng': 0}, 'time_range': {'end': datetime.datetime(2026, 2, 25, 18, 1, 39, 599529), 'start': datetime.datetime(2026, 2, 25, 18, 1, 39, 599522)}, ...}, 'error': 'division by zero', ...} or 'division by zero' is None)</failure></testcase><testcase classname="tests.unit.test_applications.TestApplicationDataPersistence" name="test_monitoring_results_serialization" time="0.037" /><testcase classname="tests.unit.test_core.TestSwarmAgent" name="test_agent_initialization" time="0.001" /><testcase classname="tests.unit.test_core.TestSwarmAgent" name="test_agent_sensory_processing" time="0.004" /><testcase classname="tests.unit.test_core.TestSwarmAgent" name="test_agent_decision_making" time="0.001"><failure message="AssertionError: assert 'move_toward_resource' in ['forage', 'rest', 'monitor_environment']&#10; +  where 'move_toward_resource' = ActionDecision(action_type='move_toward_resource', parameters={'target': 'nearest_resource'}, confidence=0.5, expected_outcome={'energy_gain': 0.3}, alternative_actions=[{'action_type': 'move_away_from_threat', 'parameters': {'target': 'safe_area'}, 'expected_outcome': {'safety_increase': 0.5}}, {'action_type': 'explore_unknown', 'parameters': {'target': 'high_uncertainty_area'}, 'expected_outcome': {'information_gain': 0.4}}, {'action_type': 'deposit_pheromone', 'parameters': {'pheromone_type': 'trail', 'intensity': 1.0}, 'expected_outcome': {'trail_strength': 0.8}}, {'action_type': 'follow_pheromone', 'parameters': {'pheromone_type': 'food'}, 'expected_outcome': {'resource_discovery': 0.6}}, {'action_type': 'forage', 'parameters': {'target_type': 'food'}, 'expected_outcome': {'energy_gain': 0.5}}, {'action_type': 'rest', 'parameters': {'duration': 10}, 'expected_outcome': {'energy_recovery': 0.2}}, {'action_type': 'monitor_environment', 'parameters': {'sensor_types': ['temperature', 'humidity']}, 'expected_outcome': {'information_gain': 0.3}}]).action_type">GEO-INFER-ANT/tests/unit/test_core.py:100: in test_agent_decision_making
+    assert decision.action_type in ['forage', 'rest', 'monitor_environment']
+E   AssertionError: assert 'move_toward_resource' in ['forage', 'rest', 'monitor_environment']
+E    +  where 'move_toward_resource' = ActionDecision(action_type='move_toward_resource', parameters={'target': 'nearest_resource'}, confidence=0.5, expected_outcome={'energy_gain': 0.3}, alternative_actions=[{'action_type': 'move_away_from_threat', 'parameters': {'target': 'safe_area'}, 'expected_outcome': {'safety_increase': 0.5}}, {'action_type': 'explore_unknown', 'parameters': {'target': 'high_uncertainty_area'}, 'expected_outcome': {'information_gain': 0.4}}, {'action_type': 'deposit_pheromone', 'parameters': {'pheromone_type': 'trail', 'intensity': 1.0}, 'expected_outcome': {'trail_strength': 0.8}}, {'action_type': 'follow_pheromone', 'parameters': {'pheromone_type': 'food'}, 'expected_outcome': {'resource_discovery': 0.6}}, {'action_type': 'forage', 'parameters': {'target_type': 'food'}, 'expected_outcome': {'energy_gain': 0.5}}, {'action_type': 'rest', 'parameters': {'duration': 10}, 'expected_outcome': {'energy_recovery': 0.2}}, {'action_type': 'monitor_environment', 'parameters': {'sensor_types': ['temperature', 'humidity']}, 'expected_outcome': {'information_gain': 0.3}}]).action_type</failure></testcase><testcase classname="tests.unit.test_core.TestSwarmAgent" name="test_agent_action_execution" time="0.001" /><testcase classname="tests.unit.test_core.TestSwarmAgent" name="test_agent_movement" time="0.001" /><testcase classname="tests.unit.test_core.TestSwarmAgent" name="test_agent_communication" time="0.001" /><testcase classname="tests.unit.test_core.TestAgentPopulation" name="test_population_initialization" time="0.010" /><testcase classname="tests.unit.test_core.TestAgentPopulation" name="test_agent_creation" time="0.003" /><testcase classname="tests.unit.test_core.TestAgentPopulation" name="test_environment_initialization" time="0.001" /><testcase classname="tests.unit.test_core.TestAgentPopulation" name="test_behavioral_rules_configuration" time="0.001" /><testcase classname="tests.unit.test_core.TestAgentPopulation" name="test_population_simulation" time="0.259"><failure message="AssertionError: assert 0 == 20&#10; +  where 0 = SimulationResults(trajectories=[array([[ 1.25177591, -0.60771246],\n       [-2.96219519, -2.4054827 ],\n       [ 8.70574507,  2.87522302],\n       [-2.98372362, -9.8632798 ],\n       [ 6.62630944,  5.57627433],\n       [-3.33776259,  2.23109147],\n       [ 2.8638797 , -2.22290075],\n       [ 8.55085153,  3.57254255],\n       [-2.52269627,  5.61871554],\n       [ 7.87901833,  2.83856356],\n       [-5.49784745, -2.15145459],\n       [-8.05675344,  1.77998436],\n       [ 7.59158701, -0.0855982 ],\n       [-6.10910692,  6.92217508],\n       [-6.18467012, -4.73981545],\n       [-5.28508864, -4.32502054],\n       [-8.31861724, -8.48928901],\n       [ 6.97937602, -3.22218428],\n       [ 3.12077069,  0.94575135],\n       [ 0.83256152, -5.71714825]]), array([[ 1.25177591, -0.60771246],\n       [-2.96219519, -2.4054827 ],\n       [ 8.70574507,  2.87522302],\n       [-2.98372362, -9.8632798 ],\n       [ 6.62630944,  5.57627433],\n       [-3.33776259,  2.23109147],\n       [ 2.8638797 , -2.22290075],\n       [ 8.55085153,  3.57254255],\n       [-2.52269627,  5.61871554],\n       [ 7.87901833,  2.83856356],\n       [-5.49784745, -2.15145459],\n       [-8.05675344,  1.77998436],\n       [ 7.59158701, -0.0855982 ],\n       [-...d': 'soldier_006', 'action_type': 'deposit_pheromone', 'result': {'action_type': 'deposit_pheromone', 'start_time': datetime.datetime(2026, 2, 25, 18, 1, 40, 4592), 'success': True, 'actual_outcome': {'pheromone_deposited': True}, 'energy_cost': 0.05, 'stigmergic_event': {'pheromone_type': 'trail', 'intensity': 1.0, 'location': array([ 0.83256152, -5.71714825]), 'timestamp': datetime.datetime(2026, 2, 25, 18, 1, 40, 4594)}, 'end_time': datetime.datetime(2026, 2, 25, 18, 1, 40, 4608), 'duration': 1.6e-05}, 'position': [0.8325615158142323, -5.717148251071274]}], emergent_patterns={}, performance_metrics={'active_agents': 20, 'total_agents': 20, 'average_energy': 0.49999999999999967, 'energy_std': 5.551115123125783e-17, 'spatial_center': [0.15717068626541564, -0.5734782393217066], 'spatial_spread': [5.847936670861235, 4.535730314952415], 'average_inter_agent_distance': 9.70883241372035, 'max_inter_agent_distance': 20.738050945724922, 'agent_type_distribution': {'worker': 7, 'scout': 7, 'soldier': 6}, 'summary': {'total_simulation_time': 10.0, 'total_time_steps': 10, 'final_population_size': 0, 'data_collection_complete': True}}, simulation_time=10.0, time_steps=10, population_size=0).population_size">GEO-INFER-ANT/tests/unit/test_core.py:254: in test_population_simulation
+    asyncio.run(simulation_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_core.py:250: in simulation_test
+    assert results.population_size == 20
+E   AssertionError: assert 0 == 20
+E    +  where 0 = SimulationResults(trajectories=[array([[ 1.25177591, -0.60771246],\n       [-2.96219519, -2.4054827 ],\n       [ 8.70574507,  2.87522302],\n       [-2.98372362, -9.8632798 ],\n       [ 6.62630944,  5.57627433],\n       [-3.33776259,  2.23109147],\n       [ 2.8638797 , -2.22290075],\n       [ 8.55085153,  3.57254255],\n       [-2.52269627,  5.61871554],\n       [ 7.87901833,  2.83856356],\n       [-5.49784745, -2.15145459],\n       [-8.05675344,  1.77998436],\n       [ 7.59158701, -0.0855982 ],\n       [-6.10910692,  6.92217508],\n       [-6.18467012, -4.73981545],\n       [-5.28508864, -4.32502054],\n       [-8.31861724, -8.48928901],\n       [ 6.97937602, -3.22218428],\n       [ 3.12077069,  0.94575135],\n       [ 0.83256152, -5.71714825]]), array([[ 1.25177591, -0.60771246],\n       [-2.96219519, -2.4054827 ],\n       [ 8.70574507,  2.87522302],\n       [-2.98372362, -9.8632798 ],\n       [ 6.62630944,  5.57627433],\n       [-3.33776259,  2.23109147],\n       [ 2.8638797 , -2.22290075],\n       [ 8.55085153,  3.57254255],\n       [-2.52269627,  5.61871554],\n       [ 7.87901833,  2.83856356],\n       [-5.49784745, -2.15145459],\n       [-8.05675344,  1.77998436],\n       [ 7.59158701, -0.0855982 ],\n       [-...d': 'soldier_006', 'action_type': 'deposit_pheromone', 'result': {'action_type': 'deposit_pheromone', 'start_time': datetime.datetime(2026, 2, 25, 18, 1, 40, 4592), 'success': True, 'actual_outcome': {'pheromone_deposited': True}, 'energy_cost': 0.05, 'stigmergic_event': {'pheromone_type': 'trail', 'intensity': 1.0, 'location': array([ 0.83256152, -5.71714825]), 'timestamp': datetime.datetime(2026, 2, 25, 18, 1, 40, 4594)}, 'end_time': datetime.datetime(2026, 2, 25, 18, 1, 40, 4608), 'duration': 1.6e-05}, 'position': [0.8325615158142323, -5.717148251071274]}], emergent_patterns={}, performance_metrics={'active_agents': 20, 'total_agents': 20, 'average_energy': 0.49999999999999967, 'energy_std': 5.551115123125783e-17, 'spatial_center': [0.15717068626541564, -0.5734782393217066], 'spatial_spread': [5.847936670861235, 4.535730314952415], 'average_inter_agent_distance': 9.70883241372035, 'max_inter_agent_distance': 20.738050945724922, 'agent_type_distribution': {'worker': 7, 'scout': 7, 'soldier': 6}, 'summary': {'total_simulation_time': 10.0, 'total_time_steps': 10, 'final_population_size': 0, 'data_collection_complete': True}}, simulation_time=10.0, time_steps=10, population_size=0).population_size</failure></testcase><testcase classname="tests.unit.test_core.TestAgentPopulation" name="test_population_metrics" time="0.003" /><testcase classname="tests.unit.test_core.TestAgentPopulation" name="test_agent_queries" time="0.002" /><testcase classname="tests.unit.test_core.TestPheromoneSystem" name="test_pheromone_system_initialization" time="0.000" /><testcase classname="tests.unit.test_core.TestPheromoneSystem" name="test_pheromone_deposition" time="0.002"><failure message="AttributeError: 'PheromoneField' object has no attribute 'spatial_indexer'">GEO-INFER-ANT/tests/unit/test_core.py:327: in test_pheromone_deposition
+    asyncio.run(deposition_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_core.py:324: in deposition_test
+    intensity = pheromone_system.get_pheromone_intensity(np.array([0, 0]), 'trail')
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/core/stigmergy.py:681: in get_pheromone_intensity
+    return field.get_concentration(location)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ANT/src/geo_infer_ant/core/stigmergy.py:95: in get_concentration
+    if not self.spatial_indexer:
+           ^^^^^^^^^^^^^^^^^^^^
+E   AttributeError: 'PheromoneField' object has no attribute 'spatial_indexer'</failure></testcase><testcase classname="tests.unit.test_core.TestPheromoneSystem" name="test_pheromone_sensing" time="0.001"><failure message="AssertionError: assert 'food' in {}">GEO-INFER-ANT/tests/unit/test_core.py:352: in test_pheromone_sensing
+    asyncio.run(sensing_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_core.py:349: in sensing_test
+    assert 'food' in sensed
+E   AssertionError: assert 'food' in {}</failure></testcase><testcase classname="tests.unit.test_core.TestPheromoneSystem" name="test_pheromone_diffusion" time="0.000"><failure message="TypeError: PheromoneSystem.__init__() got an unexpected keyword argument 'evaporation_rate'">GEO-INFER-ANT/tests/unit/test_core.py:356: in test_pheromone_diffusion
+    pheromone_system = PheromoneSystem(evaporation_rate=0.1)
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E   TypeError: PheromoneSystem.__init__() got an unexpected keyword argument 'evaporation_rate'</failure></testcase><testcase classname="tests.unit.test_core.TestPheromoneSystem" name="test_pheromone_gradient_calculation" time="0.031" /><testcase classname="tests.unit.test_core.TestPheromoneSystem" name="test_field_statistics" time="0.005"><failure message="assert 0 &gt; 0">GEO-INFER-ANT/tests/unit/test_core.py:432: in test_field_statistics
+    asyncio.run(stats_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_core.py:429: in stats_test
+    assert stats['active_cells'] &gt; 0
+E   assert 0 &gt; 0</failure></testcase><testcase classname="tests.unit.test_core.TestDigitalStigmergy" name="test_digital_stigmergy_initialization" time="0.000" /><testcase classname="tests.unit.test_core.TestDigitalStigmergy" name="test_information_contribution" time="0.010"><failure message="AssertionError: assert '' != ''">GEO-INFER-ANT/tests/unit/test_core.py:472: in test_information_contribution
+    asyncio.run(contribution_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_core.py:463: in contribution_test
+    assert trace_id != ""
+E   AssertionError: assert '' != ''</failure></testcase><testcase classname="tests.unit.test_core.TestDigitalStigmergy" name="test_information_query" time="0.043"><failure message="assert 0 &gt; 0&#10; +  where 0 = len([])">GEO-INFER-ANT/tests/unit/test_core.py:505: in test_information_query
+    asyncio.run(query_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_core.py:502: in query_test
+    assert len(results) &gt; 0
+E   assert 0 &gt; 0
+E    +  where 0 = len([])</failure></testcase><testcase classname="tests.unit.test_core.TestDigitalStigmergy" name="test_pattern_extraction" time="0.018"><failure message="AssertionError: assert 1 &gt; 1&#10; +  where 1 = len({'status': 'no_data'})">GEO-INFER-ANT/tests/unit/test_core.py:530: in test_pattern_extraction
+    asyncio.run(pattern_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_core.py:528: in pattern_test
+    assert len(patterns) &gt; 1
+E   AssertionError: assert 1 &gt; 1
+E    +  where 1 = len({'status': 'no_data'})</failure></testcase><testcase classname="tests.unit.test_core.TestDigitalStigmergy" name="test_system_statistics" time="0.002"><failure message="assert 0 == 5">GEO-INFER-ANT/tests/unit/test_core.py:551: in test_system_statistics
+    asyncio.run(stats_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_core.py:547: in stats_test
+    assert stats['total_traces'] == 5
+E   assert 0 == 5</failure></testcase><testcase classname="tests.unit.test_core.TestIntegration" name="test_agent_population_integration" time="0.001" /><testcase classname="tests.unit.test_core.TestIntegration" name="test_pheromone_agent_integration" time="0.003"><failure message="AssertionError: assert 'trail' in {}">GEO-INFER-ANT/tests/unit/test_core.py:589: in test_pheromone_agent_integration
+    asyncio.run(integration_test())
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:195: in run
+    return runner.run(main)
+           ^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/runners.py:118: in run
+    return self._loop.run_until_complete(task)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/asyncio/base_events.py:691: in run_until_complete
+    return future.result()
+           ^^^^^^^^^^^^^^^
+GEO-INFER-ANT/tests/unit/test_core.py:586: in integration_test
+    assert 'trail' in sensed
+E   AssertionError: assert 'trail' in {}</failure></testcase><testcase classname="tests.unit.test_core.TestIntegration" name="test_spatial_integration" time="0.000"><failure message="TypeError: an integer is required">GEO-INFER-ANT/tests/unit/test_core.py:601: in test_spatial_integration
+    cell_id = indexer.latlng_to_cell(37.7749, -122.4194, 'h3_r8')
+              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-SPACE/src/geo_infer_space/core/spatial_indexing.py:40: in latlng_to_cell
+    return self.dispatcher.dispatch_indexing_operation(
+GEO-INFER-SPACE/src/geo_infer_space/core/dispatcher.py:191: in dispatch_indexing_operation
+    return method(*args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-SPACE/src/geo_infer_space/backends/h3/h3_backend.py:28: in wrapper
+    return func(self, *args, **kwargs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-SPACE/src/geo_infer_space/backends/h3/h3_backend.py:129: in latlng_to_cell
+    return self.h3.latlng_to_cell(lat, lng, resolution)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+../../../.pyenv/versions/3.12.11/lib/python3.12/site-packages/h3/api/basic_str/__init__.py:171: in latlng_to_cell
+    return _out_scalar(_cy.latlng_to_cell(lat, lng, res))
+                       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+h3/_cy/latlng.pyx:27: in h3._cy.latlng.latlng_to_cell
+    ???
+E   TypeError: an integer is required</failure></testcase><testcase classname="tests.unit.test_core.TestPerformance" name="test_large_population_creation" time="0.780" /><testcase classname="tests.unit.test_core.TestPerformance" name="test_pheromone_system_performance" time="0.010" /><testcase classname="tests.unit.test_core.TestPerformance" name="test_memory_usage" time="0.148"><failure message="assert 871.265625 &lt; 500">GEO-INFER-ANT/tests/unit/test_core.py:673: in test_memory_usage
+    assert memory_mb &lt; 500  # Should use less than 500MB for 100 agents
+    ^^^^^^^^^^^^^^^^^^^^^^
+E   assert 871.265625 &lt; 500</failure></testcase><testcase classname="tests.unit.test_core.TestErrorHandling" name="test_invalid_agent_parameters" time="0.000"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">GEO-INFER-ANT/tests/unit/test_core.py:681: in test_invalid_agent_parameters
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE &lt;class 'ValueError'&gt;</failure></testcase><testcase classname="tests.unit.test_core.TestErrorHandling" name="test_invalid_population_parameters" time="0.016"><failure message="Failed: DID NOT RAISE &lt;class 'ValueError'&gt;">GEO-INFER-ANT/tests/unit/test_core.py:693: in test_invalid_population_parameters
+    with pytest.raises(ValueError):
+         ^^^^^^^^^^^^^^^^^^^^^^^^^
+E   Failed: DID NOT RAISE &lt;class 'ValueError'&gt;</failure></testcase><testcase classname="tests.unit.test_core.TestErrorHandling" name="test_pheromone_bounds_checking" time="0.002" /><testcase classname="tests.unit.test_core.TestErrorHandling" name="test_missing_integration_modules" time="0.001" /><testcase classname="tests.unit.test_metrics.TestPerformanceMetrics" name="test_metrics_initialization" time="0.000" /><testcase classname="tests.unit.test_metrics.TestPerformanceMetrics" name="test_efficiency_evaluation" time="0.000" /><testcase classname="tests.unit.test_metrics.TestPerformanceMetrics" name="test_robustness_evaluation" time="0.003" /><testcase classname="tests.unit.test_metrics.TestPerformanceMetrics" name="test_adaptability_evaluation" time="0.000" /><testcase classname="tests.unit.test_metrics.TestPerformanceMetrics" name="test_scalability_evaluation" time="0.000" /><testcase classname="tests.unit.test_metrics.TestPerformanceMetrics" name="test_comprehensive_performance_evaluation" time="0.000" /><testcase classname="tests.unit.test_metrics.TestRobustnessAnalysis" name="test_robustness_analysis" time="0.000" /><testcase classname="tests.unit.test_metrics.TestRobustnessAnalysis" name="test_single_failure_scenario_analysis" time="0.000" /><testcase classname="tests.unit.test_metrics.TestRobustnessAnalysis" name="test_recovery_mechanism_evaluation" time="0.000"><failure message="assert 2.035 &lt;= 1">GEO-INFER-ANT/tests/unit/test_metrics.py:227: in test_recovery_mechanism_evaluation
+    assert 0 &lt;= effectiveness['overall_effectiveness'] &lt;= 1
+E   assert 2.035 &lt;= 1</failure></testcase><testcase classname="tests.unit.test_metrics.TestScalabilityAssessment" name="test_scalability_assessment" time="0.000" /><testcase classname="tests.unit.test_metrics.TestScalabilityAssessment" name="test_scaling_configuration_testing" time="0.000"><failure message="assert False&#10; +  where False = isinstance(False, bool)">GEO-INFER-ANT/tests/unit/test_metrics.py:272: in test_scaling_configuration_testing
+    assert isinstance(config_result['meets_requirements'], bool)
+E   assert False
+E    +  where False = isinstance(False, bool)</failure></testcase><testcase classname="tests.unit.test_metrics.TestScalabilityAssessment" name="test_scaling_trend_analysis" time="0.000" /><testcase classname="tests.unit.test_metrics.TestScalabilityAssessment" name="test_bottleneck_identification" time="0.000" /><testcase classname="tests.unit.test_metrics.TestStatisticalAnalysis" name="test_statistical_analysis" time="0.000" /><testcase classname="tests.unit.test_metrics.TestStatisticalAnalysis" name="test_recommendation_generation" time="0.000" /><testcase classname="tests.unit.test_metrics.TestReportGeneration" name="test_performance_report_generation" time="0.000" /><testcase classname="tests.unit.test_metrics.TestReportGeneration" name="test_visualization_data_generation" time="0.000" /><testcase classname="tests.unit.test_metrics.TestPerformanceHistory" name="test_performance_history_tracking" time="0.000" /><testcase classname="tests.unit.test_metrics.TestPerformanceHistory" name="test_performance_summary_generation" time="0.000" /><testcase classname="tests.unit.test_metrics.TestEdgeCases" name="test_empty_performance_evaluation" time="0.000"><failure message="AssertionError: assert 3 == 0&#10; +  where 3 = len({'adaptability': 0.0, 'efficiency': 0.0, 'robustness': 0.0})">GEO-INFER-ANT/tests/unit/test_metrics.py:483: in test_empty_performance_evaluation
+    assert len(assessment['performance_scores']) == 0
+E   AssertionError: assert 3 == 0
+E    +  where 3 = len({'adaptability': 0.0, 'efficiency': 0.0, 'robustness': 0.0})</failure></testcase><testcase classname="tests.unit.test_metrics.TestEdgeCases" name="test_scalability_with_single_size" time="0.000" /><testcase classname="tests.unit.test_metrics.TestEdgeCases" name="test_robustness_with_no_failures" time="0.000" /></testsuite></testsuites>

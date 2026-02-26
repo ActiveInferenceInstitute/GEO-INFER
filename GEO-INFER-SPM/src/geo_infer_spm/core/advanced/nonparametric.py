@@ -410,6 +410,48 @@ class NonparametricSPM:
 
         return y_smooth
 
+    def temporal_basis_functions(self, time_points: np.ndarray, n_basis: int = 5,
+                                basis_type: str = 'fourier') -> np.ndarray:
+        """
+        Generate temporal basis functions for time series modeling.
+
+        Args:
+            time_points: Array of time points
+            n_basis: Number of basis functions
+            basis_type: Type of basis ('fourier', 'polynomial', 'bspline')
+
+        Returns:
+            Basis matrix of shape (n_timepoints, n_basis)
+        """
+        import numpy as np
+        n_points = len(time_points)
+        t_range = float(time_points.max() - time_points.min())
+        t_norm = (time_points - time_points.min()) / (t_range if t_range > 0 else 1.0)
+
+        if basis_type == 'fourier':
+            basis = np.zeros((n_points, n_basis))
+            basis[:, 0] = 1.0
+            for k in range(1, n_basis):
+                freq = (k + 1) // 2
+                if k % 2 == 1:
+                    basis[:, k] = np.sin(2 * np.pi * freq * t_norm)
+                else:
+                    basis[:, k] = np.cos(2 * np.pi * freq * t_norm)
+        elif basis_type == 'polynomial':
+            basis = np.zeros((n_points, n_basis))
+            for k in range(n_basis):
+                basis[:, k] = t_norm ** k
+        elif basis_type == 'bspline':
+            basis = np.zeros((n_points, n_basis))
+            knot_positions = np.linspace(0, 1, n_basis)
+            width = 1.0 / max(n_basis - 1, 1)
+            for k in range(n_basis):
+                basis[:, k] = np.exp(-0.5 * ((t_norm - knot_positions[k]) / width) ** 2)
+        else:
+            raise ValueError(f"Unknown basis type: {basis_type}. Must be 'fourier', 'polynomial', or 'bspline'")
+
+        return basis
+
     def predict(self, new_data: SPMData) -> np.ndarray:
         """
         Make predictions using fitted nonparametric model.

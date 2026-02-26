@@ -19,6 +19,7 @@ class EducationLevel(Enum):
     ELEMENTARY = "elementary"
     MIDDLE_SCHOOL = "middle_school"
     HIGH_SCHOOL = "high_school"
+    INTERMEDIATE = "intermediate"
     UNDERGRADUATE = "undergraduate"
     GRADUATE = "graduate"
     PROFESSIONAL = "professional"

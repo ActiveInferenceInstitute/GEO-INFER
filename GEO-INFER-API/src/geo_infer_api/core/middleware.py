@@ -1,6 +1,7 @@
 """
 Middleware for the GEO-INFER-API.
 """
+import logging
 import time
 from typing import Callable
 
@@ -9,6 +10,8 @@ from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 
 from .exceptions import APIError
+
+logger = logging.getLogger(__name__)
 
 
 class ErrorHandlerMiddleware(BaseHTTPMiddleware):
@@ -20,13 +23,12 @@ class ErrorHandlerMiddleware(BaseHTTPMiddleware):
             response = await call_next(request)
             return response
         except APIError as e:
-            # Convert APIError to JSON response
             return JSONResponse(
                 status_code=e.status_code,
                 content=e.to_dict()
             )
         except Exception as e:
-            # Handle unexpected errors
+            logger.exception("Unexpected error processing %s %s", request.method, request.url)
             return JSONResponse(
                 status_code=500,
                 content={
@@ -43,36 +45,23 @@ class RequestLoggingMiddleware(BaseHTTPMiddleware):
     """Middleware for logging API requests."""
 
     async def dispatch(self, request: Request, call_next: Callable) -> Response:
-        """Log API requests."""
+        """Log API requests with timing."""
         start_time = time.time()
 
-        # Log request
-        print(f"API Request: {request.method} {request.url}")
+        logger.info("API Request: %s %s", request.method, request.url)
 
         response = await call_next(request)
 
-        # Calculate processing time
         process_time = time.time() - start_time
 
-        # Log response
-        print(f"API Response: {response.status_code} in {process_time:.3f}s")
+        logger.info(
+            "API Response: %s for %s %s in %.3fs",
+            response.status_code,
+            request.method,
+            request.url,
+            process_time,
+        )
 
-        # Add processing time to response headers
         response.headers["X-Process-Time"] = str(process_time)
-
-        return response
-
-
-class CORSHeadersMiddleware(BaseHTTPMiddleware):
-    """Middleware for adding CORS headers to responses."""
-
-    async def dispatch(self, request: Request, call_next: Callable) -> Response:
-        """Add CORS headers to responses."""
-        response = await call_next(request)
-
-        # Add CORS headers
-        response.headers["Access-Control-Allow-Origin"] = "*"
-        response.headers["Access-Control-Allow-Methods"] = "GET, POST, PUT, DELETE, OPTIONS"
-        response.headers["Access-Control-Allow-Headers"] = "Content-Type, Authorization, X-API-Key"
 
         return response

@@ -9,8 +9,9 @@ intelligent agents in the application interface.
 """
 
 import asyncio
+import html
 import logging
-from typing import Dict, List, Any, Optional, Callable, Union
+from typing import Dict, List, Any, Optional, Callable
 from datetime import datetime
 
 from geo_infer_app.api.agent_api import AgentManager
@@ -318,20 +319,25 @@ class WebAgentWidget(AgentWidget):
         # This is a simplified example; in a real implementation,
         # this would use a template engine or front-end framework
         
-        agent_name = self.agent_info.get("config", {}).get("name", "Unknown Agent")
-        agent_type = self.agent_info.get("type", "unknown")
-        agent_status = self.agent_info.get("status", "unknown")
-        
-        html = f"""
-        <div id="{self.element_id}" class="{self.css_class}">
+        agent_name = html.escape(
+            self.agent_info.get("config", {}).get("name", "Unknown Agent")
+        )
+        agent_type = html.escape(self.agent_info.get("type", "unknown"))
+        agent_status = html.escape(self.agent_info.get("status", "unknown"))
+        element_id = html.escape(self.element_id)
+        css_class = html.escape(self.css_class)
+        agent_id_escaped = html.escape(self.agent_id or "")
+
+        markup = f"""
+        <div id="{element_id}" class="{css_class}">
             <div class="agent-header">
                 <h3>{agent_name}</h3>
                 <span class="agent-type">{agent_type}</span>
                 <span class="agent-status status-{agent_status}">{agent_status}</span>
             </div>
             <div class="agent-controls">
-                <button class="start-btn" onclick="startAgent('{self.agent_id}')">Start</button>
-                <button class="stop-btn" onclick="stopAgent('{self.agent_id}')">Stop</button>
+                <button class="start-btn" onclick="startAgent('{agent_id_escaped}')">Start</button>
+                <button class="stop-btn" onclick="stopAgent('{agent_id_escaped}')">Stop</button>
             </div>
             <div class="agent-metrics">
                 <div class="metric">
@@ -350,30 +356,33 @@ class WebAgentWidget(AgentWidget):
                     <option value="execute">Execute</option>
                 </select>
                 <input type="text" id="command-params" placeholder="Parameters (JSON)">
-                <button onclick="sendCommand('{self.agent_id}')">Send</button>
+                <button onclick="sendCommand('{agent_id_escaped}')">Send</button>
             </div>
             <div class="agent-history">
                 <h4>Command History</h4>
                 <ul>
         """
-        
-        # Add command history
+
+        # Add command history — escape all user-sourced strings
         for cmd in reversed(self.command_history[-5:]):
-            html += f"""
+            ts = html.escape(cmd["timestamp"].split("T")[1].split(".")[0])
+            cmd_type = html.escape(cmd["command_type"])
+            result_status = html.escape(cmd["result"].get("status", ""))
+            markup += f"""
                     <li>
-                        <span class="timestamp">{cmd['timestamp'].split('T')[1].split('.')[0]}</span>
-                        <span class="command">{cmd['command_type']}</span>
-                        <span class="result">{cmd['result'].get('status', '')}</span>
+                        <span class="timestamp">{ts}</span>
+                        <span class="command">{cmd_type}</span>
+                        <span class="result">{result_status}</span>
                     </li>
             """
-        
-        html += """
+
+        markup += """
                 </ul>
             </div>
         </div>
         """
-        
-        return html
+
+        return markup
     
     def get_javascript(self) -> str:
         """

@@ -52,6 +52,9 @@ class SpatialInterpolator:
         Args:
             method: Interpolation method ('kriging', 'spline', 'rbf')
         """
+        valid_methods = ('kriging', 'spline', 'rbf')
+        if method not in valid_methods:
+            raise ValueError(f"Unknown interpolation method: {method}. Must be one of {valid_methods}")
         self.method = method
         self.trained = False
         self.training_points = None
@@ -173,7 +176,7 @@ class SpatialInterpolator:
         for query_point in query_points:
             distances = np.sqrt(np.sum((self.training_points - query_point)**2, axis=1))
             nearest_idx = np.argmin(distances)
-            predictions.append(self.training_values[nearest_idx])
+            predictions.append(float(self.training_values[nearest_idx]))
 
         return np.array(predictions)
 
@@ -272,7 +275,8 @@ class SpatialOptimizer:
                          x0: np.ndarray,
                          max_iter: int = 1000,
                          learning_rate: float = 0.01,
-                         tolerance: float = 1e-6) -> OptimizationResult:
+                         tolerance: float = 1e-6,
+                         gradient_function: Optional[Callable] = None) -> OptimizationResult:
         """Gradient descent optimization."""
         x = x0.copy()
         n_evaluations = 0
@@ -280,8 +284,12 @@ class SpatialOptimizer:
         for iteration in range(max_iter):
             # Evaluate objective and gradient
             f_val = objective(x)
-            gradient = self._numerical_gradient(objective, x)
-            n_evaluations += len(x) + 1
+            if gradient_function is not None:
+                gradient = gradient_function(x)
+                n_evaluations += 1
+            else:
+                gradient = self._numerical_gradient(objective, x)
+                n_evaluations += len(x) + 1
 
             # Update parameters
             x_new = x - learning_rate * gradient
@@ -697,6 +705,9 @@ def minimize_scalar_function(func: Callable,
     """
     try:
         result = minimize_scalar(func, bounds=bounds, method=method, **kwargs)
+        # If the minimum value is not finite, the optimization effectively failed
+        if not np.isfinite(result.fun):
+            return np.nan
         return result.x
     except Exception as e:
         logger.error(f"Scalar minimization failed: {e}")

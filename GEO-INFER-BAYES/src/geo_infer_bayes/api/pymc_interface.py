@@ -26,6 +26,10 @@ class PyMCInterface:
         self.model_config = model_config or {}
         self.pymc_model = None
         self.trace = None
+        self._model_type: Optional[str] = None  # 'gp' or 'hierarchical'
+        self.gp: Optional[pm.gp.Marginal] = None
+        self.X_train: Optional[np.ndarray] = None
+        self.y_train: Optional[np.ndarray] = None
         
     def create_spatial_gp_model(
         self, 
@@ -97,8 +101,12 @@ class PyMCInterface:
             
             # Add observations
             y_obs = gp.marginal_likelihood('y_obs', X=X, y=y, noise=noise)
-        
+
         self.pymc_model = model
+        self.gp = gp
+        self.X_train = X
+        self.y_train = y
+        self._model_type = 'gp'
         return model
     
     def create_hierarchical_model(
@@ -153,8 +161,9 @@ class PyMCInterface:
             
             # Likelihood
             y_obs = pm.Normal('y_obs', mu=mu, sigma=sigma, observed=y)
-        
+
         self.pymc_model = model
+        self._model_type = 'hierarchical'
         return model
     
     def sample(
@@ -216,127 +225,130 @@ class PyMCInterface:
         return self.trace
     
     def predict(
-        self, 
+        self,
         X_new: np.ndarray,
         samples: int = 100,
-        return_std: bool = False
+        return_std: bool = False,
+        groups_new: Optional[np.ndarray] = None,
     ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
         """
-        Make predictions using the PyMC model.
-        
+        Make predictions using the fitted PyMC model.
+
         Parameters
         ----------
         X_new : array-like of shape (n_samples, n_features)
-            New data to predict on
+            New data to predict on.
         samples : int, default=100
-            Number of posterior samples to use
+            Number of posterior predictive samples to draw.
         return_std : bool, default=False
-            Whether to return standard deviations
-            
+            Whether to also return posterior standard deviations.
+        groups_new : array-like of shape (n_samples,), optional
+            Group indicators for hierarchical model predictions. When None,
+            predictions are marginalized over all groups.
+
         Returns
         -------
-        y_pred : ndarray
-            Predicted values
-        y_std : ndarray, optional
-            Standard deviations of predictions
+        y_pred : ndarray of shape (n_samples,)
+            Posterior predictive mean.
+        y_std : ndarray of shape (n_samples,), optional
+            Posterior predictive standard deviation (only when return_std=True).
         """
         if self.trace is None:
             raise ValueError("No samples available. Call sample() first.")
-        
-        # Implementation depends on the model type
-        if hasattr(self.pymc_model, 'y_obs') and isinstance(self.pymc_model.y_obs.owner.op, pm.gp.marginal.MarginalLikelihood):
-            # This is a GP model
-            with self.pymc_model:
-                gp = self.pymc_model.y_obs.owner.inputs[0]
-                cov_func = gp.cov_func
-                mean_func = gp.mean_func
-                
-                # Get posterior samples
-                post_samples = {
-                    var.name: self.trace.posterior[var.name].values
-                    for var in self.pymc_model.free_RVs
-                }
-                
-                # Predict for each sample
-                all_preds = []
-                n_chains = post_samples['lengthscale'].shape[0]
-                for i in range(min(samples, len(post_samples['lengthscale']))):
-                    idx = np.random.randint(len(post_samples['lengthscale']))
-                    chain = np.random.randint(n_chains)
-                    
-                    # Set parameters for this sample
-                    lengthscale = post_samples['lengthscale'][chain, idx]
-                    variance = post_samples['variance'][chain, idx]
-                    noise = post_samples['noise'][chain, idx]
-                    
-                    # Recreate kernel with these parameters
-                    if 'degree' in post_samples:
-                        degree = post_samples['degree'][chain, idx]
-                        # Implementation depends on kernel type
-                        
-                    # Compute mean prediction (simplified)
-                    pred = np.random.normal(0, np.sqrt(variance), size=len(X_new))
-                    all_preds.append(pred)
-                
-                # Compute statistics
-                all_preds = np.stack(all_preds)
-                mean_pred = np.mean(all_preds, axis=0)
-                
-                if return_std:
-                    std_pred = np.std(all_preds, axis=0)
-                    return mean_pred, std_pred
-                else:
-                    return mean_pred
-        elif hasattr(self.pymc_model, 'alpha') and hasattr(self.pymc_model, 'beta'):
-            # This is the hierarchical model
-            post_samples = {
-                var_name: self.trace.posterior[var_name].values
-                for var_name in ['alpha', 'beta', 'sigma'] 
-                if var_name in self.trace.posterior
-            }
-            
-            n_chains, n_draws = post_samples['alpha'].shape[:2]
-            n_groups = post_samples['alpha'].shape[2]
-            
-            all_preds = []
-            
-            # Use provided groups or average over all groups
-            import inspect
-            frame = inspect.currentframe().f_back
-            groups_new = None
-            if frame and 'kwargs' in frame.f_locals and 'groups_new' in frame.f_locals['kwargs']:
-                groups_new = frame.f_locals['kwargs']['groups_new']
-                
-            for i in range(min(samples, n_draws * n_chains)):
-                chain = np.random.randint(n_chains)
-                idx = np.random.randint(n_draws)
-                
-                alpha = post_samples['alpha'][chain, idx]
-                beta = post_samples['beta'][chain, idx]
-                sigma = post_samples.get('sigma', np.ones((n_chains, n_draws)))[chain, idx]
-                
-                if groups_new is not None:
-                    # Use specific group effects
-                    valid_groups = np.clip(groups_new, 0, n_groups - 1)
-                    mu = alpha[valid_groups] + np.sum(X_new * beta[valid_groups], axis=1)
-                else:
-                    # Marginalize/average over all groups
-                    mu = np.mean(alpha) + np.dot(X_new, np.mean(beta, axis=0))
-                    
-                pred = np.random.normal(mu, sigma)
-                all_preds.append(pred)
-                
-            all_preds = np.stack(all_preds)
-            mean_pred = np.mean(all_preds, axis=0)
-            
-            if return_std:
-                std_pred = np.std(all_preds, axis=0)
-                return mean_pred, std_pred
-            else:
-                return mean_pred
+        if self.pymc_model is None:
+            raise ValueError("No model defined. Call create_*_model first.")
+
+        if self._model_type == 'gp':
+            return self._predict_gp(X_new, samples=samples, return_std=return_std)
+        elif self._model_type == 'hierarchical':
+            return self._predict_hierarchical(
+                X_new, samples=samples, return_std=return_std, groups_new=groups_new
+            )
         else:
-            # Fallback for truly unknown models
-            raise NotImplementedError("Prediction not implemented for this specific custom PyMC model type yet.")
+            raise ValueError(
+                f"Unknown model type '{self._model_type}'. "
+                "Call create_spatial_gp_model() or create_hierarchical_model() first."
+            )
+
+    def _predict_gp(
+        self,
+        X_new: np.ndarray,
+        samples: int = 100,
+        return_std: bool = False,
+    ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+        """GP posterior predictive via gp.conditional + sample_posterior_predictive."""
+        if self.gp is None:
+            raise ValueError("GP object not stored. Re-create the model via create_spatial_gp_model().")
+
+        # Add the conditional variable for new locations inside the existing model.
+        # Use a unique name to avoid collisions on repeated calls.
+        pred_var = "f_pred_new"
+        with self.pymc_model:
+            _ = self.gp.conditional(pred_var, Xnew=X_new)
+            pred_idata = pm.sample_posterior_predictive(
+                self.trace,
+                var_names=[pred_var],
+                random_seed=self.model_config.get("random_seed", None),
+            )
+
+        # Shape: (chains, draws, n_new) → flatten to (total_draws, n_new)
+        f_samples = pred_idata.posterior_predictive[pred_var].values
+        f_flat = f_samples.reshape(-1, f_samples.shape[-1])
+
+        # Subsample to requested number
+        n_available = f_flat.shape[0]
+        if samples < n_available:
+            idx = np.random.choice(n_available, size=samples, replace=False)
+            f_flat = f_flat[idx]
+
+        mean_pred = f_flat.mean(axis=0)
+        if return_std:
+            return mean_pred, f_flat.std(axis=0)
+        return mean_pred
+
+    def _predict_hierarchical(
+        self,
+        X_new: np.ndarray,
+        samples: int = 100,
+        return_std: bool = False,
+        groups_new: Optional[np.ndarray] = None,
+    ) -> Union[np.ndarray, Tuple[np.ndarray, np.ndarray]]:
+        """Hierarchical model posterior predictive via linear combination of posterior draws."""
+        post = self.trace.posterior
+        alpha_samples = post["alpha"].values   # (chains, draws, n_groups)
+        beta_samples = post["beta"].values     # (chains, draws, n_groups, n_features)
+        sigma_samples = post["sigma"].values   # (chains, draws)
+
+        n_chains, n_draws, n_groups = alpha_samples.shape
+
+        # Flatten chains and draws
+        alpha_flat = alpha_samples.reshape(-1, n_groups)          # (total, n_groups)
+        beta_flat = beta_samples.reshape(-1, n_groups, X_new.shape[1])  # (total, n_groups, n_feat)
+        sigma_flat = sigma_samples.reshape(-1)                    # (total,)
+
+        total = alpha_flat.shape[0]
+        draw_idx = np.random.choice(total, size=min(samples, total), replace=False)
+
+        all_preds = []
+        for i in draw_idx:
+            alpha_i = alpha_flat[i]   # (n_groups,)
+            beta_i = beta_flat[i]     # (n_groups, n_features)
+            sigma_i = sigma_flat[i]   # scalar
+
+            if groups_new is not None:
+                valid_groups = np.clip(groups_new, 0, n_groups - 1)
+                mu = alpha_i[valid_groups] + np.einsum("ij,ij->i", X_new, beta_i[valid_groups])
+            else:
+                # Marginalize: use population-level mean coefficients
+                mu = np.mean(alpha_i) + X_new @ np.mean(beta_i, axis=0)
+
+            all_preds.append(np.random.normal(mu, sigma_i))
+
+        all_preds_arr = np.stack(all_preds)   # (samples, n_new)
+        mean_pred = all_preds_arr.mean(axis=0)
+        if return_std:
+            return mean_pred, all_preds_arr.std(axis=0)
+        return mean_pred
     
     def convert_to_geo_infer_format(
         self, 

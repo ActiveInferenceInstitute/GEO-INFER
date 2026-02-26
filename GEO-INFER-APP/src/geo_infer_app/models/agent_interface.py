@@ -30,11 +30,11 @@ class AgentState:
     agent_type: AgentType
     status: str
     location: Optional[Dict[str, float]] = None  # e.g., {"lat": 40.7, "lng": -74.0}
-    tasks: List[Dict[str, Any]] = None
-    beliefs: Dict[str, Any] = None
-    goals: List[str] = None
-    last_updated: str = None
-    metadata: Dict[str, Any] = None
+    tasks: Optional[List[Dict[str, Any]]] = None
+    beliefs: Optional[Dict[str, Any]] = None
+    goals: Optional[List[str]] = None
+    last_updated: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None
 
 
 class AgentInterface(ABC):

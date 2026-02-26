@@ -209,8 +209,14 @@ def normalize_data(data: SPMData, method: str = 'zscore',
 
     elif method == 'robust':
         # Robust normalization using median and MAD
-        median_val = np.median(normalized_data, axis=axis, keepdims=True)
-        mad_val = stats.median_abs_deviation(normalized_data, axis=axis, keepdims=True)
+        if axis is None:
+            median_val = np.median(normalized_data)
+            mad_val = stats.median_abs_deviation(normalized_data, axis=None)
+        else:
+            median_val = np.median(normalized_data, axis=axis, keepdims=True)
+            mad_val = np.expand_dims(
+                stats.median_abs_deviation(normalized_data, axis=axis), axis=axis
+            )
         mad_val = np.where(mad_val == 0, 1, mad_val)
         normalized_data = (normalized_data - median_val) / mad_val
 

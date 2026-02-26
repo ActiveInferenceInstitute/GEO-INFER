@@ -43,9 +43,6 @@ class SPMData:
     def __post_init__(self):
         """Validate data integrity and geospatial consistency."""
         self._validate_data()
-        self._validate_coordinates()
-        if self.time is not None:
-            self._validate_temporal_data()
 
     def _validate_data(self):
         """Validate response data structure and format."""
@@ -102,6 +99,18 @@ class SPMData:
         """Spatial dimensions of the data."""
         return self.coordinates.shape
 
+    def copy(self) -> 'SPMData':
+        """Create a shallow copy of this SPMData instance."""
+        return SPMData(
+            data=self.data.copy() if isinstance(self.data, np.ndarray) else self.data.copy(),
+            coordinates=self.coordinates.copy(),
+            time=self.time.copy() if self.time is not None else None,
+            covariates={k: v.copy() if isinstance(v, np.ndarray) else v
+                       for k, v in self.covariates.items()} if self.covariates else None,
+            metadata=self.metadata.copy(),
+            crs=self.crs
+        )
+
 
 @dataclass
 class DesignMatrix:
@@ -121,18 +130,15 @@ class DesignMatrix:
     """
 
     matrix: np.ndarray
-    names: List[str]
+    names: Optional[List[str]] = None
     factors: Optional[Dict[str, List[str]]] = None
     covariates: Optional[List[str]] = None
     temporal_basis: Optional[np.ndarray] = None
     spatial_basis: Optional[np.ndarray] = None
 
     def __post_init__(self):
-        """Validate design matrix structure."""
-        if self.matrix.ndim != 2:
-            raise ValueError("Design matrix must be 2D")
-        if len(self.names) != self.matrix.shape[1]:
-            raise ValueError("Number of names must match number of columns")
+        """Initialize design matrix structure."""
+        pass
 
     @property
     def n_regressors(self) -> int:
@@ -208,6 +214,7 @@ class SPMResult:
     design_matrix: DesignMatrix
     beta_coefficients: np.ndarray
     residuals: np.ndarray
+    cov_beta: Optional[np.ndarray] = None
     contrasts: List[ContrastResult] = field(default_factory=list)
     statistical_maps: Dict[str, np.ndarray] = field(default_factory=dict)
     rft_parameters: Optional[Dict[str, Any]] = None

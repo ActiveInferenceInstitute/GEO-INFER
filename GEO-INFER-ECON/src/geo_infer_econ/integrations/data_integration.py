@@ -4,7 +4,7 @@ GEO-INFER-DATA Integration Adapter
 Provides data loading wrapper for economic datasets.
 """
 
-from typing import Dict, List, Optional, Any, Union
+from typing import Dict, List, Optional, Any, Union, Tuple
 import numpy as np
 import pandas as pd
 import geopandas as gpd

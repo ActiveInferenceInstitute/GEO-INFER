@@ -42,9 +42,9 @@ class EconomicIndicators:
         """
         if isinstance(values, pd.Series):
             if method == 'simple':
-                return values.pct_change(periods=periods)
+                return values.pct_change(periods=periods).dropna()
             else:  # compound
-                return (values / values.shift(periods)) ** (1/periods) - 1
+                return ((values / values.shift(periods)) ** (1/periods) - 1).dropna()
         else:
             if method == 'simple':
                 return np.diff(values, n=periods) / values[:-periods]

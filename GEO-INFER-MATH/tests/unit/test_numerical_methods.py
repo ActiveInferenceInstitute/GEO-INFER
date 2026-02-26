@@ -173,10 +173,10 @@ class TestPDEsolver:
         initial_condition = np.zeros(n_points)
         initial_condition[n_points // 2] = 1
 
-        diffusion_coefficient = 0.1
-        time_steps = 10
+        diffusion_coefficient = 0.4
+        time_steps = 100
         dt = 0.01
-        dx = 1.0
+        dx = 0.1
 
         solution = solver.solve_diffusion(
             initial_condition, diffusion_coefficient,
@@ -189,9 +189,9 @@ class TestPDEsolver:
         total_mass = np.sum(solution, axis=1)
         assert abs(total_mass[0] - total_mass[-1]) < 0.1
 
-        # Check that solution spreads out over time
-        variance = np.var(solution, axis=1)
-        assert variance[-1] > variance[0]
+        # Check that solution spreads out over time (peak decreases as distribution flattens)
+        peak_values = np.max(solution, axis=1)
+        assert peak_values[-1] < peak_values[0]
 
     def test_wave_equation(self):
         """Test solving 1D wave equation."""

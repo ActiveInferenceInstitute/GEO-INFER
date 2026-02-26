@@ -244,7 +244,7 @@ class TestBayesianDiagnostics:
         """Test spatial basis function creation for hierarchical models."""
         bayesian_spm = BayesianSPM()
 
-        coordinates = np.random.rand(20, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)])
         spatial_structure = {'n_basis': 5, 'scale': 10.0}
 
         basis = bayesian_spm._create_spatial_basis(coordinates, spatial_structure)
@@ -274,7 +274,7 @@ class TestBayesianEdgeCases:
 
     def test_rank_deficient_design(self):
         """Test with rank deficient design matrix."""
-        coordinates = np.random.rand(10, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, 10), np.random.uniform(-89, 89, 10)])
         X = np.ones((10, 3))  # Rank deficient
         X[:, 1] = np.random.randn(10) * 0.01  # Nearly constant
         y = np.random.randn(10)
@@ -291,7 +291,7 @@ class TestBayesianEdgeCases:
 
     def test_extreme_parameter_values(self):
         """Test with extreme parameter values."""
-        coordinates = np.random.rand(20, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, 20), np.random.uniform(-89, 89, 20)])
         X = np.random.randn(20, 2) * 1000  # Very large values
         y = X @ np.array([0.001, -0.002]) + 0.0001 * np.random.randn(20)  # Very small coefficients
 
@@ -321,7 +321,7 @@ class TestBayesianEdgeCases:
         bayesian_spm = BayesianSPM()
 
         # Create a simple model
-        coordinates = np.random.rand(10, 2) * 100
+        coordinates = np.column_stack([np.random.uniform(-179, 179, 10), np.random.uniform(-89, 89, 10)])
         X = np.random.randn(10, 2)
         y = X @ np.array([1.0, -0.5]) + 0.1 * np.random.randn(10)
 

@@ -80,6 +80,9 @@ class Contrast:
             >>> names = ['intercept', 'condition_A', 'condition_B', 'covariate']
             >>> contrast = Contrast.from_string("condition_A > condition_B", names)
         """
+        # Save original string for name (before stripping spaces)
+        original_str = contrast_str
+
         # Parse contrast string
         contrast_str = contrast_str.replace(" ", "")
 
@@ -102,7 +105,13 @@ class Contrast:
             if name in weights:
                 vector[i] = weights[name]
 
-        return cls(vector, contrast_str, contrast_type, weights)
+        # Validate that at least one design column was matched
+        if not np.any(vector):
+            raise ValueError(
+                f"Contrast string '{original_str}' did not match any design matrix columns: {design_names}"
+            )
+
+        return cls(vector, original_str, contrast_type, weights)
 
     @staticmethod
     def _parse_condition_weights(condition: str, design_names: List[str],
@@ -216,10 +225,12 @@ def contrast(model_result: SPMResult, contrast_spec: Union[str, np.ndarray, Cont
         contrast_obj = Contrast.from_string(contrast_spec, design_names, contrast_type)
     elif isinstance(contrast_spec, np.ndarray):
         contrast_obj = Contrast(contrast_spec, contrast_type=contrast_type)
+    elif isinstance(contrast_spec, (list, tuple)):
+        contrast_obj = Contrast(np.array(contrast_spec, dtype=float), contrast_type=contrast_type)
     elif isinstance(contrast_spec, Contrast):
         contrast_obj = contrast_spec
     else:
-        raise TypeError("contrast_spec must be string, array, or Contrast object")
+        raise TypeError("contrast_spec must be string, array, list, or Contrast object")
 
     # Validate contrast dimensions
     n_regressors = model_result.design_matrix.n_regressors
@@ -254,10 +265,23 @@ def _compute_t_contrast(model_result: SPMResult, contrast_obj: Contrast) -> Cont
         effect_size = beta.T @ c
 
     # Standard error: sqrt(c^T Var(β) c)
-    if cov_beta.ndim == 2:
+    if cov_beta is not None and cov_beta.ndim == 2:
         var_contrast = c @ cov_beta @ c
-    else:
+    elif cov_beta is not None:
         var_contrast = np.sum(cov_beta * c[:, np.newaxis] * c[np.newaxis, :])
+    else:
+        # cov_beta not stored — compute from residuals and design matrix
+        X = model_result.design_matrix.matrix
+        n_points, n_regressors = X.shape
+        if (model_result.residuals is not None and
+                len(model_result.residuals) > n_regressors):
+            sigma2 = float(np.sum(model_result.residuals ** 2) /
+                           (n_points - n_regressors))
+            XtX_inv = np.linalg.pinv(X.T @ X)
+            cov_beta_computed = sigma2 * XtX_inv
+            var_contrast = c @ cov_beta_computed @ c
+        else:
+            var_contrast = float(np.sum(c ** 2))
 
     standard_error = np.sqrt(var_contrast)
 

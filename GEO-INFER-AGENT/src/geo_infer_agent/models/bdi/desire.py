@@ -30,32 +30,67 @@ class DesireState(Enum):
 class Desire:
     """
     A desire representing a goal the agent wants to achieve.
-    
+
     Attributes:
         name: Unique identifier for the desire
         description: Human-readable description of the desire
         priority: Priority level of the desire (higher values = higher priority)
         state: Current state of the desire
+        deadline: Optional deadline for the desire
+        conditions: General conditions for satisfaction
         preconditions: Dictionary of conditions that must be met for the desire to be adopted
         success_conditions: Dictionary of conditions that indicate the desire has been achieved
         failure_conditions: Dictionary of conditions that indicate the desire has failed
         spatial_reference: Optional geospatial reference for location-specific desires
         metadata: Additional information about this desire
+        achieved: Whether this desire has been achieved
+        achieved_at: Timestamp when the desire was achieved
     """
     name: str
     description: str
     priority: float = 1.0
     state: DesireState = DesireState.ACTIVE
+    deadline: Optional[datetime.datetime] = None
+    conditions: Dict[str, Any] = field(default_factory=dict)
     preconditions: Dict[str, Any] = field(default_factory=dict)
     success_conditions: Dict[str, Any] = field(default_factory=dict)
     failure_conditions: Dict[str, Any] = field(default_factory=dict)
     spatial_reference: Optional[Dict[str, float]] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
+    achieved: bool = False
+    achieved_at: Optional[datetime.datetime] = None
     
+    def set_achieved(self, achieved: bool) -> None:
+        """
+        Set the achieved status of this desire.
+
+        Args:
+            achieved: Whether the desire is achieved
+        """
+        self.achieved = achieved
+        if achieved:
+            self.achieved_at = datetime.datetime.now()
+            self.state = DesireState.ACHIEVED
+        else:
+            self.achieved_at = None
+            if self.state == DesireState.ACHIEVED:
+                self.state = DesireState.ACTIVE
+
+    def is_expired(self) -> bool:
+        """
+        Check if this desire has expired based on its deadline.
+
+        Returns:
+            True if the desire has a deadline that has passed, False otherwise
+        """
+        if self.deadline is None:
+            return False
+        return datetime.datetime.now() > self.deadline
+
     def is_active(self) -> bool:
         """
         Check if this desire is active.
-        
+
         Returns:
             True if the desire is active, False otherwise
         """
@@ -158,7 +193,7 @@ class Desire:
     def to_dict(self) -> Dict[str, Any]:
         """
         Convert this desire to a dictionary representation.
-        
+
         Returns:
             Dictionary representation of this desire
         """
@@ -167,29 +202,51 @@ class Desire:
             "description": self.description,
             "priority": self.priority,
             "state": self.state.value,
+            "deadline": self.deadline.isoformat() if self.deadline else None,
+            "conditions": self.conditions,
             "preconditions": self.preconditions,
             "success_conditions": self.success_conditions,
             "failure_conditions": self.failure_conditions,
             "spatial_reference": self.spatial_reference,
-            "metadata": self.metadata
+            "metadata": self.metadata,
+            "achieved": self.achieved,
+            "achieved_at": self.achieved_at.isoformat() if self.achieved_at else None,
         }
-    
+
     @classmethod
     def from_dict(cls, data: Dict[str, Any]) -> 'Desire':
         """
         Create a Desire instance from a dictionary.
-        
+
         Args:
             data: Dictionary representation of a desire
-            
+
         Returns:
             Desire instance
         """
+        # Work on a copy to avoid mutating input
+        d = dict(data)
+
         # Handle state conversion from string
-        if "state" in data and isinstance(data["state"], str):
-            data["state"] = DesireState(data["state"])
-            
-        return cls(**data)
+        if "state" in d and isinstance(d["state"], str):
+            d["state"] = DesireState(d["state"])
+
+        # Handle timestamp conversions
+        if "deadline" in d and isinstance(d["deadline"], str):
+            d["deadline"] = datetime.datetime.fromisoformat(d["deadline"])
+
+        if "achieved_at" in d and isinstance(d["achieved_at"], str):
+            d["achieved_at"] = datetime.datetime.fromisoformat(d["achieved_at"])
+
+        # Drop extra keys not in the dataclass
+        known_fields = {
+            "name", "description", "priority", "state", "deadline", "conditions",
+            "preconditions", "success_conditions", "failure_conditions",
+            "spatial_reference", "metadata", "achieved", "achieved_at",
+        }
+        filtered = {k: v for k, v in d.items() if k in known_fields}
+
+        return cls(**filtered)
 
 
 class DesireSet:
@@ -414,21 +471,31 @@ class DesireSet:
     def _is_in_radius(location: Dict[str, float], center: Dict[str, float], radius: float) -> bool:
         """
         Check if a location is within a radius of a center point.
-        
+
+        Uses the haversine formula to compute great-circle distance on Earth.
+        ``radius`` is interpreted in kilometres.
+
         Args:
-            location: Location to check
-            center: Center location
-            radius: Radius to check within
-            
+            location: Location to check (expects "lat" and "lng" keys, degrees)
+            center: Center location (expects "lat" and "lng" keys, degrees)
+            radius: Maximum distance from center in kilometres
+
         Returns:
             True if the location is within the radius, False otherwise
         """
+        import math
+
         if not location or not center:
             return False
-            
-        # Simple Euclidean distance
-        lat_diff = location.get("lat", 0) - center.get("lat", 0)
-        lng_diff = location.get("lng", 0) - center.get("lng", 0)
-        distance = (lat_diff ** 2 + lng_diff ** 2) ** 0.5
-        
-        return distance <= radius 
+
+        lat1 = math.radians(location.get("lat", 0))
+        lng1 = math.radians(location.get("lng", 0))
+        lat2 = math.radians(center.get("lat", 0))
+        lng2 = math.radians(center.get("lng", 0))
+
+        dlat = lat2 - lat1
+        dlng = lng2 - lng1
+        a = math.sin(dlat / 2) ** 2 + math.cos(lat1) * math.cos(lat2) * math.sin(dlng / 2) ** 2
+        distance_km = 2 * 6371.0 * math.asin(math.sqrt(a))
+
+        return distance_km <= radius 

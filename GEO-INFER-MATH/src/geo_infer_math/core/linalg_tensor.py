@@ -60,8 +60,8 @@ class MatrixOperations:
             True if matrix is positive definite
         """
         try:
-            eigenvalues = np.linalg.eigvals(matrix)
-            return np.all(eigenvalues > tolerance)
+            eigenvalues = np.linalg.eigvalsh(matrix)
+            return bool(np.all(eigenvalues > -tolerance))
         except np.linalg.LinAlgError:
             return False
 
@@ -138,18 +138,15 @@ class MatrixOperations:
                         weights[i, j] = np.exp(-distances[i, j]**2 / (2 * sigma**2))
 
         elif method == 'binary':
-            # Binary weights based on threshold
+            # Binary weights based on threshold (NOT row-standardized)
             if threshold is None:
                 threshold = np.mean(distances[distances > 0])
             weights = (distances <= threshold).astype(float)
             np.fill_diagonal(weights, 0)  # No self-weights
+            # Return binary weights directly (skip general row-standardization)
+            return weights
 
-            # Row-standardize binary weights
-            row_sums = weights.sum(axis=1)
-            row_sums[row_sums == 0] = 1  # Avoid division by zero
-            weights = weights / row_sums[:, np.newaxis]
-
-        # Row-standardize the weights
+        # Row-standardize the weights (inverse_distance, knn, gaussian)
         row_sums = weights.sum(axis=1)
         row_sums[row_sums == 0] = 1  # Avoid division by zero
         weights = weights / row_sums[:, np.newaxis]
@@ -188,9 +185,10 @@ class MatrixOperations:
         s2 = np.sum((np.sum(weights_matrix, axis=0) + np.sum(weights_matrix, axis=1))**2)
         var_I = (n**2 * s1 - n * s2 + 3 * np.sum(weights_matrix)**2) / ((n**2 - 1) * np.sum(weights_matrix)**2)
 
-        # Z-score and p-value
-        z_score = (I - expected_I) / np.sqrt(var_I)
-        p_value = 2 * (1 - min(1.0, abs(z_score) / 4))  # Approximate
+        # Z-score and p-value (two-tailed using erfc)
+        z_score = (I - expected_I) / np.sqrt(var_I) if var_I > 0 else 0.0
+        from math import erfc, sqrt
+        p_value = erfc(abs(z_score) / sqrt(2))
 
         return {
             'I': I,
