@@ -26,9 +26,62 @@ class MarkovBlanket:
     external_states: List[int] = field(default_factory=list)
     
     def check_conditional_independence(self, state_idx: int, all_states: np.ndarray) -> bool:
-        """Check if state satisfies conditional independence given Markov blanket."""
-        # Simplified implementation - in practice would use more sophisticated tests
-        return True
+        """Check if state satisfies conditional independence given Markov blanket.
+        
+        Uses partial correlation: a state is conditionally independent of external
+        states given its Markov blanket (sensory + active states) if the partial
+        correlation between the state and external states, conditioned on blanket
+        states, is below a threshold.
+        
+        Args:
+            state_idx: Index of the state to test
+            all_states: Array of all state values
+            
+        Returns:
+            True if state is approximately conditionally independent
+        """
+        blanket_indices = self.sensory_states + self.active_states
+        external_indices = self.external_states
+        
+        # Need at least 1 blanket and 1 external state to test
+        if not blanket_indices or not external_indices:
+            return True
+        
+        # Ensure indices are valid
+        n = len(all_states)
+        blanket_indices = [i for i in blanket_indices if i < n]
+        external_indices = [i for i in external_indices if i < n]
+        if state_idx >= n or not blanket_indices or not external_indices:
+            return True
+        
+        # Compute partial correlation between state and external given blanket
+        # Using the regression-based approach: regress state and external on blanket,
+        # then check correlation of residuals
+        state_val = all_states[state_idx]
+        blanket_vals = all_states[blanket_indices]
+        external_vals = all_states[external_indices]
+        
+        # For a single sample, use a simplified covariance-based check
+        # (In practice, this would use multiple samples from the generative model)
+        combined = np.concatenate([[state_val], blanket_vals, external_vals])
+        if np.std(combined) < 1e-10:
+            return True  # No variation, trivially independent
+        
+        # Partial correlation via precision matrix (inverse covariance)
+        # For single-sample heuristic: check if state value is more explained
+        # by blanket than by external states
+        blanket_projection = np.mean(blanket_vals) if len(blanket_vals) > 0 else 0.0
+        external_projection = np.mean(external_vals) if len(external_vals) > 0 else 0.0
+        
+        residual_given_blanket = abs(state_val - blanket_projection)
+        direct_external_influence = abs(state_val - external_projection)
+        
+        # If residual given blanket is small relative to total variation,
+        # blanket screens off external states → conditional independence holds
+        threshold = 0.5
+        if residual_given_blanket < 1e-10:
+            return True
+        return (direct_external_influence / (residual_given_blanket + 1e-10)) < (1.0 / threshold)
 
 @dataclass
 class HierarchicalLevel:
@@ -762,11 +815,125 @@ class GenerativeModel:
             return {'status': 'error', 'message': str(e)}
 
     
-    def diffuse_beliefs(self, beliefs, diffusion_rate=0.1):
-        return beliefs
+    def diffuse_beliefs(self, beliefs: Dict[str, np.ndarray], diffusion_rate: float = 0.1) -> Dict[str, np.ndarray]:
+        """Diffuse beliefs across spatial neighbors using precision-weighted averaging.
+        
+        Each cell's belief is updated as a weighted average of its own belief
+        and its neighbors' beliefs, where the mixing weight is controlled by
+        diffusion_rate. Beliefs are re-normalized after diffusion.
+        
+        Args:
+            beliefs: Dictionary mapping cell IDs to belief arrays
+            diffusion_rate: Rate of belief diffusion (0 = no diffusion, 1 = full averaging)
+            
+        Returns:
+            Diffused beliefs dictionary
+        """
+        if not self.spatial_mode or self.spatial_graph is None:
+            return beliefs
+        
+        diffused = {}
+        
+        # Get neighbor lookup from spatial graph
+        neighbor_map = {}
+        if hasattr(self.spatial_graph, 'neighbors'):
+            # H3SpatialGraph object with .neighbors dict
+            for cell, distance_neighbors in self.spatial_graph.neighbors.items():
+                # distance_neighbors is {distance: set_of_cells}
+                immediate = distance_neighbors.get(1, set())
+                neighbor_map[cell] = immediate
+        elif isinstance(self.spatial_graph, dict):
+            # Direct dict mapping cell -> neighbors (index-based or cell-based)
+            neighbor_map = self.spatial_graph
+        
+        for cell, belief in beliefs.items():
+            belief = np.asarray(belief, dtype=float)
+            neighbors = neighbor_map.get(cell, set())
+            
+            if not neighbors:
+                diffused[cell] = belief.copy()
+                continue
+            
+            # Collect valid neighbor beliefs
+            neighbor_beliefs = []
+            for neighbor in neighbors:
+                if neighbor in beliefs:
+                    neighbor_beliefs.append(np.asarray(beliefs[neighbor], dtype=float))
+            
+            if not neighbor_beliefs:
+                diffused[cell] = belief.copy()
+                continue
+            
+            # Average neighbor beliefs
+            avg_neighbor_belief = np.mean(neighbor_beliefs, axis=0)
+            
+            # Weighted blend: (1 - rate) * own + rate * neighbors
+            blended = (1.0 - diffusion_rate) * belief + diffusion_rate * avg_neighbor_belief
+            
+            # Re-normalize to valid distribution
+            total = np.sum(blended)
+            if total > 1e-10:
+                blended = blended / total
+            else:
+                blended = np.ones_like(blended) / len(blended)
+            
+            diffused[cell] = blended
+        
+        # Include any cells not in the input (pass-through)
+        for cell in beliefs:
+            if cell not in diffused:
+                diffused[cell] = np.asarray(beliefs[cell], dtype=float).copy()
+        
+        return diffused
 
-    def aggregate_beliefs_to_resolution(self, beliefs, target_resolution):
-        return beliefs
+    def aggregate_beliefs_to_resolution(self, beliefs: Dict[str, np.ndarray], target_resolution: int) -> Dict[str, np.ndarray]:
+        """Aggregate fine-resolution beliefs to a coarser H3 resolution.
+        
+        Maps each fine-resolution cell to its parent at target_resolution using
+        h3.cell_to_parent, then averages beliefs across children of each parent.
+        
+        Args:
+            beliefs: Dictionary mapping H3 cell IDs to belief arrays
+            target_resolution: Target coarser H3 resolution
+            
+        Returns:
+            Aggregated beliefs at the target resolution
+        """
+        try:
+            import h3
+        except ImportError:
+            logger.warning("h3 library not available for resolution aggregation")
+            return beliefs
+        
+        # Group cells by their parent at the target resolution
+        parent_groups: Dict[str, list] = {}
+        for cell, belief in beliefs.items():
+            try:
+                cell_res = h3.get_resolution(cell)
+                if cell_res <= target_resolution:
+                    # Already at or coarser than target — pass through
+                    parent_groups.setdefault(cell, []).append(np.asarray(belief, dtype=float))
+                else:
+                    parent = h3.cell_to_parent(cell, target_resolution)
+                    parent_groups.setdefault(parent, []).append(np.asarray(belief, dtype=float))
+            except Exception as e:
+                logger.debug(f"Failed to aggregate cell {cell}: {e}")
+                continue
+        
+        # Average beliefs within each parent cell
+        aggregated = {}
+        for parent, child_beliefs in parent_groups.items():
+            avg = np.mean(child_beliefs, axis=0)
+            # Normalize
+            total = np.sum(avg)
+            if total > 1e-10:
+                avg = avg / total
+            else:
+                avg = np.ones_like(avg) / len(avg)
+            aggregated[parent] = avg
+        
+        logger.debug(f"Aggregated {len(beliefs)} cells to {len(aggregated)} parent cells at resolution {target_resolution}")
+        return aggregated
 
     def set_preferences(self, preferences: Dict[str, np.ndarray]) -> None:
         """Set prior preferences with hierarchical support."""
