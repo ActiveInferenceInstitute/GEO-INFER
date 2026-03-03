@@ -171,7 +171,11 @@ exclude_lines = [
     "raise AssertionError",
     "raise NotImplementedError",
     "if __name__ == .__main__.:",
-    "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
 
+[tool.uv.sources]
+geo-infer-space = { workspace = true }
+geo-infer-data = { workspace = true }
+geo-infer-time = { workspace = true }
+geo-infer-ai = { workspace = true }

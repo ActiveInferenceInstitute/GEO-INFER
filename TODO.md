@@ -99,13 +99,13 @@ Every version release MUST satisfy ALL of the following before tagging:
 | **Infrastructure** (SPACE, TIME, DATA, API) | Unknown | ≥80% |
 | **Domain** (all others) | Unknown | ≥60% |
 
-#### Remaining Source Code Items (3 open)
+#### Remaining Source Code Items (0 open)
 
-| File | Issue | Priority |
-|------|-------|----------|
-| `NORMS/.../compliance_tracking.py` | Simplified evaluation logic | Medium |
-| `PLACE/.../unified_backend.py` | Fallback placeholder geometries | Low |
-| `SPACE/.../visualization_engine.py` | 4 placeholder monitoring data points | Low |
+| File | Issue | Priority | Status |
+|------|-------|----------|--------|
+| `NORMS/.../compliance_tracking.py` | Simplified evaluation logic | Medium | ✅ Resolved |
+| `PLACE/.../unified_backend.py` | Fallback placeholder geometries | Low | ✅ Resolved |
+| `SPACE/.../visualization_engine.py` | 4 placeholder monitoring data points | Low | ✅ Resolved |
 
 ---
 

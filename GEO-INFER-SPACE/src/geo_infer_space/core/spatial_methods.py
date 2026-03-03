@@ -63,7 +63,7 @@ class SpatialMethods:
             Buffer analysis results with zones
         """
         if not cells or not self.h3:
-            return {'error': 'No cells or H3 not available'}
+            raise ValueError('No cells or H3 not available')
         
         center_cells = set(cells)
         buffer_cells = set()
@@ -78,7 +78,8 @@ class SpatialMethods:
                     ring_neighbors = self.h3.get_cell_ring(cell, ring)
                     ring_cells[ring].update(ring_neighbors)
                     buffer_cells.update(ring_neighbors)
-                except:
+                except Exception as e:
+                    logger.debug(f"Could not get ring {ring} for H3 cell {cell}: {e}")
                     continue
         
         # Remove center cells from buffer
@@ -134,7 +135,7 @@ class SpatialMethods:
         elif operation == 'symmetric_difference':
             result = set_a ^ set_b
         else:
-            return {'error': f'Unknown operation: {operation}'}
+            raise ValueError(f'Unknown operation: {operation}')
         
         return {
             'operation': operation,
@@ -169,7 +170,7 @@ class SpatialMethods:
             Filtered cells and values
         """
         if len(cells) != len(values):
-            return {'error': 'Cells and values must have same length'}
+            raise ValueError('Cells and values must have same length')
         
         cell_values = list(zip(cells, values))
         
@@ -204,7 +205,7 @@ class SpatialMethods:
             filtered = [(c, v) for c, v in cell_values if v < lower or v > upper]
         
         else:
-            return {'error': f'Invalid filter configuration'}
+            raise ValueError(f'Invalid filter configuration')
         
         return {
             'filter_type': filter_type,
@@ -235,10 +236,10 @@ class SpatialMethods:
             Aggregated values at target resolution
         """
         if not self.h3:
-            return {'error': 'H3 backend not available'}
+            raise RuntimeError('H3 backend not available')
         
         if len(cells) != len(values):
-            return {'error': 'Cells and values must have same length'}
+            raise ValueError('Cells and values must have same length')
         
         # Group by parent cell
         parent_values = defaultdict(list)
@@ -251,7 +252,8 @@ class SpatialMethods:
                 else:
                     parent = self.h3.get_cell_parent(cell, target_resolution)
                 parent_values[parent].append(value)
-            except:
+            except Exception as e:
+                logger.debug(f"Failed to aggregate cell {cell}: {e}")
                 continue
         
         # Aggregate
@@ -304,10 +306,10 @@ class SpatialMethods:
             Disaggregated values at target resolution
         """
         if not self.h3:
-            return {'error': 'H3 backend not available'}
+            raise RuntimeError('H3 backend not available')
         
         if len(parent_cells) != len(values):
-            return {'error': 'Cells and values must have same length'}
+            raise ValueError('Cells and values must have same length')
         
         disaggregated = {}
         
@@ -323,7 +325,8 @@ class SpatialMethods:
                     # Each child gets same value (density-preserving)
                     for child in children:
                         disaggregated[child] = value
-            except:
+            except Exception as e:
+                logger.debug(f"Failed to disaggregate parent {parent}: {e}")
                 continue
         
         return {
@@ -351,7 +354,7 @@ class SpatialMethods:
             Coverage statistics including area
         """
         if not self.h3:
-            return {'error': 'H3 backend not available'}
+            raise RuntimeError('H3 backend not available')
         
         cells_set = set(cells)
         total_area = 0.0
@@ -363,7 +366,8 @@ class SpatialMethods:
                 total_area += area
                 res = self.h3.get_cell_resolution(cell)
                 resolution_counts[res] += 1
-            except:
+            except Exception as e:
+                logger.debug(f"Failed to calculate area for cell {cell}: {e}")
                 continue
         
         result = {
@@ -401,10 +405,10 @@ class SpatialMethods:
             Outlier classifications (HH, LL, HL, LH)
         """
         if not self.h3:
-            return {'error': 'H3 backend not available'}
+            raise RuntimeError('H3 backend not available')
         
         if len(cells) != len(values):
-            return {'error': 'Cells and values must have same length'}
+            raise ValueError('Cells and values must have same length')
         
         cell_values = dict(zip(cells, values))
         mean_val = sum(values) / len(values)
@@ -422,7 +426,8 @@ class SpatialMethods:
             try:
                 neighbors = self.h3.get_cell_neighbors(cell, k)
                 neighbor_vals = [cell_values[n] for n in neighbors if n in cell_values]
-            except:
+            except Exception as e:
+                logger.debug(f"Failed to get neighbors for cell {cell}: {e}")
                 neighbor_vals = []
             
             if not neighbor_vals:
@@ -487,7 +492,7 @@ class SpatialMethods:
             Accessibility scores for each origin
         """
         if not self.h3:
-            return {'error': 'H3 backend not available'}
+            raise RuntimeError('H3 backend not available')
         
         dest_set = set(destination_cells)
         accessibility = {}
@@ -504,7 +509,8 @@ class SpatialMethods:
                         reachable_count += 1
                         total_distance += dist
                         min_distance = min(min_distance, dist)
-                except:
+                except Exception as e:
+                    logger.debug(f"Failed to calc distance from {origin} to {dest}: {e}")
                     continue
             
             accessibility[origin] = {
@@ -547,7 +553,7 @@ class SpatialMethods:
             Spatial weights for each cell pair
         """
         if not self.h3:
-            return {'error': 'H3 backend not available'}
+            raise RuntimeError('H3 backend not available')
         
         cell_set = set(cells)
         weights = {}
@@ -565,7 +571,8 @@ class SpatialMethods:
                         cell_weights[neighbor] = 1.0
                     
                     neighbor_counts[cell] = len(valid_neighbors)
-                except:
+                except Exception as e:
+                    logger.debug(f"Failed to get weights for {cell}: {e}")
                     neighbor_counts[cell] = 0
             
             elif weight_type == 'distance':
@@ -576,7 +583,8 @@ class SpatialMethods:
                         dist = self.h3.get_cell_distance(cell, other)
                         if dist <= k:
                             cell_weights[other] = 1.0 / (dist + 1)
-                    except:
+                    except Exception as e:
+                        logger.debug(f"Failed distance weight for {cell} to {other}: {e}")
                         continue
                 neighbor_counts[cell] = len(cell_weights)
             

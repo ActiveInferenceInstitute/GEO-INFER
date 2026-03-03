@@ -69,11 +69,16 @@ class SpatialUtils:
             x, y = transformer.transform(coords[0], coords[1])
             return (x, y)
         else:
-            transformed = []
-            for coord in coords:
-                x, y = transformer.transform(coord[0], coord[1])
-                transformed.append((x, y))
-            return transformed
+            if not coords:
+                return []
+            
+            # PyProj transform is vectorized and accepts arrays/lists natively
+            lats = [c[0] for c in coords]
+            lons = [c[1] for c in coords]
+            x, y = transformer.transform(lats, lons)
+            
+            # Pack back into list of tuples
+            return list(zip(x, y))
     
     def calculate_distance(self, point1: Tuple[float, float], point2: Tuple[float, float], 
                           method: str = "haversine") -> float:
@@ -212,9 +217,24 @@ class SpatialUtils:
         Returns:
             Tuple of (index, distance_km)
         """
-        distances = [self.calculate_distance(target, candidate) for candidate in candidates]
-        min_idx = np.argmin(distances)
-        return min_idx, distances[min_idx]
+        if not candidates:
+            raise ValueError("Candidates list cannot be empty")
+            
+        # Vectorized Haversine distance
+        cands = np.radians(np.array(candidates))
+        cand_lats, cand_lons = cands[:, 0], cands[:, 1]
+        target_lat, target_lon = np.radians(target)
+        
+        dlat = cand_lats - target_lat
+        dlon = cand_lons - target_lon
+        
+        a = np.sin(dlat/2)**2 + np.cos(target_lat) * np.cos(cand_lats) * np.sin(dlon/2)**2
+        c = 2 * np.arcsin(np.sqrt(a))
+        
+        distances = c * 6371.0  # Earth radius in kilometers
+        
+        min_idx = int(np.argmin(distances))
+        return min_idx, float(distances[min_idx])
     
     def create_spatial_index(self, points: List[Tuple[float, float]], 
                            labels: List[str] = None) -> Dict[str, Any]:
@@ -230,15 +250,33 @@ class SpatialUtils:
         """
         if labels is None:
             labels = [f"point_{i}" for i in range(len(points))]
+            
+        import geopandas as gpd
+        gdf = gpd.GeoDataFrame(
+            {'label': labels},
+            geometry=[Point(p[1], p[0]) for p in points] # point expects (lon, lat)
+        )
         
-        index = {
+        rtree_index = None
+        try:
+            from rtree import index as rtree_ix
+            rtree_index = rtree_ix.Index()
+            for i, p in enumerate(points):
+                # (minx, miny, maxx, maxy) -> lon, lat
+                rtree_index.insert(i, (p[1], p[0], p[1], p[0]))
+        except ImportError:
+            logger.debug("rtree library not available, fallback to geopandas sindex.")
+        
+        index_data = {
             'points': points,
             'labels': labels,
             'bounds': self._calculate_bounds(points),
-            'centroid': self._calculate_centroid(points)
+            'centroid': self._calculate_centroid(points),
+            'sindex': gdf.sindex,
+            'rtree': rtree_index
         }
         
-        return index
+        return index_data
     
     def _calculate_bounds(self, points: List[Tuple[float, float]]) -> Tuple[float, float, float, float]:
         """Calculate bounding box for points."""
