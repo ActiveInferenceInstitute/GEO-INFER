@@ -1,13 +1,13 @@
 Metadata-Version: 2.4
 Name: geo-infer-space
-Version: 0.1.0
+Version: 0.2.0
 Summary: H3 v4 spatial indexing and comprehensive geospatial analysis framework with advanced spatial methods and coordinate transformations
 Author-email: GEO-INFER Development Team <geo-infer@activeinference.institute>
-License: CC BY-ND-SA 4.0
-Project-URL: Homepage, https://github.com/geo-infer/geo-infer
+License: CC BY-NC-SA 4.0
+Project-URL: Homepage, https://github.com/ActiveInferenceInstitute/GEO-INFER
 Project-URL: Documentation, https://geo-infer.readthedocs.io/
-Project-URL: Repository, https://github.com/geo-infer/geo-infer
-Project-URL: Bug Tracker, https://github.com/geo-infer/geo-infer/issues
+Project-URL: Repository, https://github.com/ActiveInferenceInstitute/GEO-INFER
+Project-URL: Bug Tracker, https://github.com/ActiveInferenceInstitute/GEO-INFER/issues
 Keywords: geospatial,active inference,geoinformatics,spatial-analysis, h3, geospatial, coordinate-systems, spatial-indexing, geometric-operations
 Classifier: Development Status :: 3 - Alpha
 Classifier: Intended Audience :: Developers
@@ -44,9 +44,7 @@ Requires-Dist: pytest>=6.2.0; extra == "dev"
 Requires-Dist: pytest-cov>=2.12.0; extra == "dev"
 Requires-Dist: pytest-asyncio>=0.20.0; extra == "dev"
 Requires-Dist: black>=21.9.0; extra == "dev"
-Requires-Dist: flake8>=3.9.0; extra == "dev"
 Requires-Dist: mypy>=0.910; extra == "dev"
-Requires-Dist: isort>=5.9.0; extra == "dev"
 Provides-Extra: docs
 Requires-Dist: sphinx>=4.2.0; extra == "docs"
 Requires-Dist: sphinx-rtd-theme>=1.0.0; extra == "docs"
@@ -88,7 +86,7 @@ description: "H3 v4 spatial indexing and geospatial analysis framework with spat
 purpose: "Provide spatial analysis capabilities including H3 v4 indexing, geometric operations, and spatial data processing"
 module_type: "Spatial-Temporal"
 status: "Beta"
-last_updated: "2026-01-26"
+last_updated: "2026-02-25"
 dependencies: ["DATA", "MATH"]
 compatibility: ["GEO-INFER-DATA", "GEO-INFER-MATH", "All domain modules"]
 tags: ["spatial-analysis", "h3", "geospatial", "coordinate-systems", "spatial-indexing", "geometric-operations"]
@@ -96,7 +94,7 @@ difficulty: "Intermediate"
 estimated_time: "55"
 --- 
 
-<div align="center"> <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3> <a href="../AGENTS.md">🤖 Agent Architecture</a> • <a href="../README.md#-module-overview">📦 Module Index</a> • <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a> </div>
+<div align="center"> <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3> <a href="../AGENTS.md">🤖 Agent Architecture</a> • <a href="../README.md#-module-overview">📦 Module Index</a> • <a href="../GEO-INFER-INTRA/README.md">📚 Documentation</a> • <a href="./SKILL.md">🧠 Claude Skill</a> </div>
 
  --- # GEO-INFER-SPACE: Backend-Agnostic Spatial Methods **Core Geospatial Engine with Multiple Backend Support (H3 & SRAI)** ## Overview
  GEO-INFER-SPACE is the **backend-agnostic geospatial processing and analysis engine** within the GEO-INFER framework. It provides a **unified API** that transparently dispatches spatial operations to multiple backends including **H3 hexagonal hierarchical indexing** and **SRAI multi-index geospatial AI library**. ### 🚀 Multiple Dispatch Architecture **Every spatial operation supports multiple dispatch to different backends:** ```python
@@ -112,6 +110,8 @@ from geo_infer_space.core.dispatcher import configure_backends # Configure defau
  Story: Cascadian Agricultural Land Analysis Framework **GEO-INFER-SPACE has powered the production-ready Cascadian Agricultural Land Analysis Framework**, demonstrating the effectiveness of centralized geospatial utilities. ### Integration Achievements **100% Test Coverage Success**: The Cascadian framework achieved test coverage (9/9 tests passing) through SPACE integration. **Production-Ready Features Enabled**: - **H3 Spatial Indexing**: H3 hexagonal grid processing across 30,021+ hexagons - **OSC Repository Integration**: Integration with OS-Climate tools for standardized operations - **Cross-Border Analysis**: California + Oregon data integration - **Real-Time Processing**: API integration with government data sources - **Interactive Visualization**: Multi-layer dashboards with spatial analysis ### Technical
  Implementation **Centralized Utilities Success**: ```python
 # All Cascadian modules use SPACE utilities from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, polygon_to_cells from geo_infer_space.core.spatial_processor import SpatialProcessor # OSC-GEO functionality now natively integrated into UnifiedH3Backend
+
+> 📖 See [SKILL.md](./SKILL.md) for Claude Code quick-reference.
 ``` **Key Performance Metrics**: - **30,021 H3 hexagons** processed efficiently - **4 production modules** (Zoning, Current Use, Ownership, Improvements) - **Multiple export formats** (GeoJSON, CSV, JSON, HTML) - **Real-time API integration** with fallback mechanisms - **Spatial analysis** including correlation and hotspot detection ### Framework
  Benefits 1. **Consistency**: Unified H3 operations across all modules 2. **Maintainability**: Centralized geospatial logic reduces duplication 3. **Scalability**: Efficient processing of large spatial datasets 4. **Interoperability**: Cross-module data integration 5. **Quality**: error handling and data validation **Location**: [`GEO-INFER-PLACE/locations/cascadia/`](../GEO-INFER-PLACE/locations/cascadia/) **Documentation**: Technical framework with API reference **Status**: Production ready with test coverage This demonstrates SPACE's capability to support real-world geospatial analysis frameworks with production-quality results. ## Data Flow ### Inputs
  - **Primary Data Sources**: - Vector data (GeoJSON, Shapefile, GeoPackage) from GEO-INFER-DATA - Raster data (GeoTIFF, NetCDF, COG) from Earth observation archives - Real-time sensor streams via GEO-INFER-TIME - Point cloud data (LAS/LAZ files) for 3D analysis - Network data (road networks, utilities) for connectivity analysis - **Configuration Requirements**: - `spatial_config.yaml`: CRS definitions, indexing parameters - Environment variables: GDAL_DATA, PROJ_LIB paths - Database connections: PostGIS connection strings - **Dependencies**: - **Required**: GEO-INFER-DATA (data storage), GEO-INFER-MATH (calculations) - **Optional**: GEO-INFER-TIME (temporal analysis), GEO-INFER-AI (ML features) ### Processes
@@ -218,3 +218,15 @@ import cProfile profiler = cProfile.Profile() profiler.enable() # Your spatial a
  Contributions to GEO-INFER-SPACE are valued. This can include implementing spatial algorithms, optimizing existing ones, improving support for data formats or CRSs, enhancing real-time capabilities, adding more examples, or improving documentation. Please follow the main `CONTRIBUTING.md` in the GEO-INFER root directory and any specific guidelines in `GEO-INFER-SPACE/docs/CONTRIBUTING_SPACE.md` (to be created). ## License
  This module, as part of the GEO-INFER framework, is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for details. ## Role
  in GEO-INFER Framework GEO-INFER-SPACE serves as the central repository for **all general spatial methods**, **H3 indexing operations**, **OSC (OS-Climate) integration methods**, and **core data integration aspects**. This module provides the foundational geospatial capabilities that other modules, such as GEO-INFER-PLACE, depend on. Place-specific modules like PLACE should focus exclusively on location-oriented logic and import general spatial functionality from SPACE to ensure modularity, reusability, and adherence to framework principles. Key Assertions: - **Spatial Methods**: All vector, raster, point cloud, and network operations are implemented here. - **H3 and Indexing**: H3 utilities, polygon_to_cells, boundary calculations, and other indexing systems. - **OSC Integration**: Cloning, management, and usage of OS-Climate repositories for standardized geospatial processing. - **Data Integration**: General data loading, transformation, and integration logic for geospatial data sources. Modules like GEO-INFER-PLACE must not duplicate these functionalities and should import from SPACE for all general spatial needs. 
+
+## Documentation Hub
+
+Full framework documentation, guides, and tutorials are available in the [GEO-INFER-INTRA documentation hub](../GEO-INFER-INTRA/docs/index.md).
+
+| Resource | Description |
+|----------|-------------|
+| [Getting Started](../GEO-INFER-INTRA/docs/getting_started/index.md) | Installation, first steps, quick start guides |
+| [Module Overview](../GEO-INFER-INTRA/docs/modules/index.md) | All 44 modules with descriptions and use cases |
+| [Integration Patterns](../GEO-INFER-INTRA/docs/integration/geo_infer_modules.md) | How modules work together |
+| [Testing Guide](../GEO-INFER-INTRA/docs/developer_guide/testing_guide.md) | Testing standards, fixtures, CI integration |
+| [API Standards](../GEO-INFER-INTRA/docs/developer_guide/index.md) | Code conventions and contribution guidelines |

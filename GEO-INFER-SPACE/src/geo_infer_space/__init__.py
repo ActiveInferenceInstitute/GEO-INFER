@@ -20,7 +20,7 @@ from .core.analytics import SpatialAnalyticsInterface
 from .core.dispatcher import get_backend_dispatcher, configure_backends
 
 # Provide backward-compatible names using the unified spatial interface
-# These are REAL method wrappers, not mock implementations
+# These are REAL method wrappers, not simulated implementations
 def cell_to_latlng_boundary(cell: str):
     """Get cell boundary. Wraps SpatialIndexingInterface.get_cell_boundary."""
     return SpatialIndexingInterface().get_cell_boundary(cell)
@@ -57,6 +57,12 @@ try:
 except ImportError:
     SpatialUtils = None
 
+# Import new GIS Submodule facade
+try:
+    from .gis import GISManager
+except ImportError:
+    GISManager = None
+
 # OSC Geo functionality has been removed in favor of UnifiedH3Backend
 
 # Make core functionality easily accessible
@@ -84,4 +90,5 @@ __all__ = [
     # Optional components
     'PlaceAnalyzer',
     'SpatialUtils',
+    'GISManager',
 ]

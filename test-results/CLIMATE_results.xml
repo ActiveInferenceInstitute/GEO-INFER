@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="1.021" timestamp="2026-02-25T17:54:31.508710-08:00" hostname="timelock.local"><testcase classname="" name="tests.unit.test_extreme_events" time="0.000"><error message="collection failure">import file mismatch:
-imported module 'test_extreme_events' has this __file__ attribute:
-  /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-CLIMATE/tests/test_extreme_events.py
-which is not the same as the test file we want to collect:
-  /Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-CLIMATE/tests/unit/test_extreme_events.py
-HINT: remove __pycache__ / .pyc files and/or use a unique basename for your test file modules</error></testcase></testsuite></testsuites>

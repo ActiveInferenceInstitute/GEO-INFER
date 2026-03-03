@@ -178,3 +178,7 @@ exclude_lines = [
     "@(abc\\.)?abstractmethod",
 ]
 
+[tool.uv.sources]
+geo-infer-space = { workspace = true }
+geo-infer-time = { workspace = true }
+geo-infer-ai = { workspace = true }

@@ -65,6 +65,8 @@ src/geo_infer_space/core/spatial_processor.py
 src/geo_infer_space/core/statistics.py
 src/geo_infer_space/core/unified_backend.py
 src/geo_infer_space/core/visualization_engine.py
+src/geo_infer_space/gis/__init__.py
+src/geo_infer_space/gis/gis_manager.py
 src/geo_infer_space/io/AGENTS.md
 src/geo_infer_space/io/README.md
 src/geo_infer_space/io/__init__.py

@@ -343,6 +343,7 @@ class ComplianceTracker:
                 "name": metric.name,
                 "is_compliant": is_compliant,
                 "compliance_level": compliance_level,
+                "weight": metric.weight,
                 "notes": notes
             })
         
@@ -350,8 +351,13 @@ class ComplianceTracker:
         compliant_metrics = [m for m in metric_results if m["is_compliant"]]
         overall_compliant = len(compliant_metrics) == len(metric_results)
         
-        # Weight the metrics (simple average in this case)
-        overall_compliance_level = sum(m["compliance_level"] for m in metric_results) / len(metric_results) if metric_results else 0.0
+        # Weight the metrics based on their configured weight
+        if metric_results:
+            total_weight = sum(m.get("weight", 1.0) for m in metric_results)
+            weighted_sum = sum(m["compliance_level"] * m.get("weight", 1.0) for m in metric_results)
+            overall_compliance_level = weighted_sum / total_weight if total_weight > 0 else 0.0
+        else:
+            overall_compliance_level = 0.0
         
         status = ComplianceStatus(
             id=str(uuid.uuid4()),

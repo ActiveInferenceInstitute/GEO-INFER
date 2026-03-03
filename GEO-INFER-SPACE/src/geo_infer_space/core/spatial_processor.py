@@ -30,7 +30,20 @@ class SpatialProcessor:
             raise ValueError("Input GeoDataFrame is empty or missing geometry column")
         try:
             buffered = gdf.copy()
-            buffered['geometry'] = gdf.geometry.buffer(buffer_distance)
+            
+            # Reproject to Web Mercator (metric) if CRS is geographic
+            is_geom_geographic = False
+            if buffered.crs and buffered.crs.is_geographic:
+                is_geom_geographic = True
+                original_crs = buffered.crs
+                buffered = buffered.to_crs("EPSG:3857")
+                
+            buffered['geometry'] = buffered.geometry.buffer(buffer_distance)
+            
+            # Reproject back if we modified it
+            if is_geom_geographic:
+                buffered = buffered.to_crs(original_crs)
+                
             return buffered
         except Exception as e:
             logger.error(f"Buffer analysis failed: {e}")
@@ -46,15 +59,26 @@ class SpatialProcessor:
         Returns:
             Dictionary with min, max, mean distance
         """
+        if gdf1.empty or gdf2.empty:
+            raise ValueError("Input GeoDataFrames cannot be empty")
+        
+        # Ensure CRS match
+        if gdf1.crs != gdf2.crs and gdf1.crs is not None and gdf2.crs is not None:
+            gdf2 = gdf2.to_crs(gdf1.crs)
+            
         try:
-            distances = []
-            for geom1 in gdf1.geometry:
-                min_dist = min(geom1.distance(geom2) for geom2 in gdf2.geometry)
-                distances.append(min_dist)
+            # Vectorized nearest distance calculation
+            # Use sjoin_nearest to get distances natively (O(N log M))
+            # Requires geopandas >= 0.10.0
+            nearest = gpd.sjoin_nearest(gdf1, gdf2, how='left', distance_col='distance')
+            
+            # Since multiple matches can exist for identical distances, group by index
+            distances = nearest['distance'].groupby(nearest.index).min()
+            
             return {
-                'min_distance': min(distances),
-                'max_distance': max(distances),
-                'mean_distance': sum(distances) / len(distances)
+                'min_distance': float(distances.min()),
+                'max_distance': float(distances.max()),
+                'mean_distance': float(distances.mean())
             }
         except Exception as e:
             logger.error(f"Proximity analysis failed: {e}")
@@ -108,25 +132,33 @@ class SpatialProcessor:
         Returns:
             Dictionary with correlation metrics
         """
+        import numpy as np
         try:
-            # Simple spatial autocorrelation using nearest neighbors
             if len(gdf) < 2:
                 return {'spatial_correlation': 0.0}
             
-            # Calculate distances between all points
-            coords = [(geom.x, geom.y) for geom in gdf.geometry if hasattr(geom, 'x') and hasattr(geom, 'y')]
+            # Use numpy for rapid vectorized pairwise distance correlation proxy
+            # Extract coordinates as numpy array using centroids for all geometry types
+            centroids = gdf.geometry.centroid
+            coords = np.column_stack((centroids.x, centroids.y))
+            
+            # Remove invalid coordinates (e.g. empty geometries)
+            coords = coords[~np.isnan(coords).any(axis=1)]
+            
             if len(coords) < 2:
                 return {'spatial_correlation': 0.0}
+                
+            # Vectorized pairwise Euclidean distance squared via broadcasting
+            diffs = coords[:, np.newaxis, :] - coords[np.newaxis, :, :]
+            sq_dists = np.sum(diffs ** 2, axis=-1)
             
-            # Simple correlation based on distance
-            distances = []
-            for i in range(len(coords)):
-                for j in range(i+1, len(coords)):
-                    dist = ((coords[i][0] - coords[j][0])**2 + (coords[i][1] - coords[j][1])**2)**0.5
-                    distances.append(dist)
+            # Extract upper triangle (excluding diagonal)
+            i_upper = np.triu_indices(len(coords), k=1)
+            distances = np.sqrt(sq_dists[i_upper])
             
-            if distances:
-                return {'spatial_correlation': 1.0 / (1.0 + sum(distances) / len(distances))}
+            if len(distances) > 0:
+                mean_dist = float(np.mean(distances))
+                return {'spatial_correlation': 1.0 / (1.0 + mean_dist)}
             else:
                 return {'spatial_correlation': 0.0}
         except Exception as e:

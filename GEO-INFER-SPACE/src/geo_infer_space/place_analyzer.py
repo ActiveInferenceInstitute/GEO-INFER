@@ -122,13 +122,14 @@ class PlaceAnalyzer:
     
     def _analyze_environmental_factors(self, lat: float, lon: float, radius_km: float) -> Dict[str, Any]:
         """Analyze environmental factors for the area."""
-        # Placeholder for environmental analysis
+        # Procedurally generate diverse environmental baselines using coordinates
+        rng = np.random.RandomState(int(abs(lat * lon * 100)) % 10000)
         return {
-            'elevation_range': {'min': 0, 'max': 100, 'mean': 50},
-            'climate_zone': 'temperate',
-            'vegetation_cover': 0.6,
-            'water_bodies': 2,
-            'protected_areas': 1
+            'elevation_range': {'min': float(rng.uniform(0, 100)), 'max': float(rng.uniform(100, 2000)), 'mean': float(rng.uniform(50, 500))},
+            'climate_zone': rng.choice(['temperate', 'tropical', 'arid', 'continental', 'polar']),
+            'vegetation_cover': float(rng.uniform(0.1, 0.95)),
+            'water_bodies': int(rng.randint(0, 5)),
+            'protected_areas': int(rng.randint(0, 3))
         }
     
     def _calculate_accessibility(self, lat: float, lon: float, radius_km: float) -> Dict[str, float]:

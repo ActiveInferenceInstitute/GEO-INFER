@@ -613,17 +613,17 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
             except Exception as e:
                 logger.warning(f"Error loading from specific file: {e}")
             
-            # If we still don't have geometries, fall back to placeholder geometries
+            # If we still don't have geometries, fall back to bounding box geometries
             if not county_geometries or not any(counties for counties in county_geometries.values()):
-                logger.warning("No county geometries loaded, falling back to placeholder geometries")
-                return self._create_placeholder_geometries(target_counties)
+                logger.warning("No county geometries loaded, falling back to bounding box geometries")
+                return self._create_bounding_box_geometries(target_counties)
             
             return county_geometries
             
         except Exception as e:
             logger.error(f"Failed to load county geometries: {e}")
-            logger.info("Falling back to placeholder geometries")
-            return self._create_placeholder_geometries(target_counties)
+            logger.info("Falling back to bounding box geometries")
+            return self._create_bounding_box_geometries(target_counties)
 
     # Known county bounding boxes from US Census TIGER/Line data.
     _COUNTY_BOUNDS: Dict[str, Dict[str, Tuple[float, float, float, float]]] = {
@@ -646,7 +646,7 @@ class CascadianAgriculturalH3Backend(UnifiedH3Backend):
         'WA': (-124.849, 45.544, -116.916, 49.002),
     }
 
-    def _create_placeholder_geometries(self, target_counties: Dict[str, List[str]]) -> Dict[str, Dict[str, Any]]:
+    def _create_bounding_box_geometries(self, target_counties: Dict[str, List[str]]) -> Dict[str, Dict[str, Any]]:
         """Create county boundary geometries from US Census TIGER bounding boxes.
 
         Uses precise bounding-box coordinates from the TIGER/Line

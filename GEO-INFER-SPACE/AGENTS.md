@@ -58,7 +58,21 @@ ops = GeometryOps()
 
 buffered = ops.buffer(geometry, distance=100)
 intersection = ops.intersect(layer_a, layer_b)
-union = ops.union(polygons)```
+union = ops.union(polygons)
+```
+
+### 3.1 Unified GIS Submodule Facade
+
+```python
+from geo_infer_space import GISManager
+
+# Access all integrated vector, raster, indexing and analytics capabilities
+gis = GISManager()
+
+# Run full proximity and distance calculations dynamically
+d = gis.calculate_distance((37.7, -122.4), (34.0, -118.2), method="haversine")
+buffered_df = gis.buffer_analysis(df, buffer_distance=5.0)
+```
 
 ### 4. Coordinate Transforms
 

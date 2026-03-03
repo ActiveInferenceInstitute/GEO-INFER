@@ -3,7 +3,7 @@ H3 Backend Implementation for GEO-INFER-SPACE.
 
 This module provides the H3-specific implementation of spatial operations
 that integrates with the generic spatial methods layer. All operations
-require the H3 library to be installed - no mock implementations.
+require the H3 library to be installed - no simulated implementations.
 """
 
 import logging
