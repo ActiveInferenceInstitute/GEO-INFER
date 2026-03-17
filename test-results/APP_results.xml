@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="0" failures="16" skipped="0" tests="59" time="0.244" timestamp="2026-03-17T08:11:52.583053-07:00" hostname="timelock.local"><testcase classname="tests.integration.test_agent_pipeline.TestConfigurationToInterface" name="test_default_config_drives_agent_creation" time="0.026" /><testcase classname="tests.integration.test_agent_pipeline.TestConfigurationToInterface" name="test_schema_validation_then_create" time="0.000" /><testcase classname="tests.integration.test_agent_pipeline.TestConfigurationToInterface" name="test_invalid_config_produces_errors" time="0.000" /><testcase classname="tests.integration.test_agent_pipeline.TestFactoryInterfaceLifecycle" name="test_factory_creates_bdi_interface" time="0.000" /><testcase classname="tests.integration.test_agent_pipeline.TestFactoryInterfaceLifecycle" name="test_full_bdi_lifecycle" time="0.000" /><testcase classname="tests.integration.test_agent_pipeline.TestFactoryInterfaceLifecycle" name="test_multiple_agents_independent" time="0.000" /><testcase classname="tests.integration.test_agent_pipeline.TestInterfaceToVisualization" name="test_bdi_state_to_map_feature" time="0.000" /><testcase classname="tests.integration.test_agent_pipeline.TestInterfaceToVisualization" name="test_bdi_state_to_dashboard" time="0.000" /><testcase classname="tests.integration.test_agent_pipeline.TestHaversineDistance" name="test_nearby_points_within_radius" time="0.000" /><testcase classname="tests.integration.test_agent_pipeline.TestHaversineDistance" name="test_distant_points_outside_radius" time="0.000" /><testcase classname="tests.integration.test_agent_pipeline.TestHaversineDistance" name="test_known_distance_threshold" time="0.000" /><testcase classname="tests.integration.test_agent_pipeline.TestHaversineDistance" name="test_zero_radius_always_false" time="0.000" /><testcase classname="tests.integration.test_agent_pipeline.TestHaversineDistance" name="test_none_inputs_return_false" time="0.000" /><testcase classname="tests.integration.test_agent_pipeline.TestAsyncAPIPipeline" name="test_complete_agent_lifecycle" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.integration.test_agent_pipeline.TestAsyncAPIPipeline" name="test_update_command_persists" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.integration.test_agent_pipeline.TestAsyncAPIPipeline" name="test_manager_full_lifecycle" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.unit.models.test_bdi_interface.TestBDIAgentInterface" name="test_create_agent" time="0.000" /><testcase classname="tests.unit.models.test_bdi_interface.TestBDIAgentInterface" name="test_event_handlers" time="0.000" /><testcase classname="tests.unit.models.test_bdi_interface.TestBDIAgentInterface" name="test_get_agent_state" time="0.000" /><testcase classname="tests.unit.models.test_bdi_interface.TestBDIAgentInterface" name="test_list_agents" time="0.000" /><testcase classname="tests.unit.models.test_bdi_interface.TestBDIAgentInterface" name="test_send_command" time="0.000" /><testcase classname="tests.unit.test_agent_api.TestAgentAPIClient" name="test_create_agent" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.unit.test_agent_api.TestAgentAPIClient" name="test_start_agent" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.unit.test_agent_api.TestAgentAPIClient" name="test_stop_agent" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.unit.test_agent_api.TestAgentAPIClient" name="test_delete_agent" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.unit.test_agent_api.TestAgentAPIClient" name="test_list_agents" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.unit.test_agent_api.TestAgentAPIClient" name="test_send_command" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.unit.test_agent_api.TestAgentAPIClient" name="test_send_update_command" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.unit.test_agent_api.TestAgentAPIClient" name="test_get_agent_metrics" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.unit.test_agent_api.TestAgentAPIClient" name="test_send_command_not_running" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.unit.test_agent_api.TestAgentAPIClient" name="test_status_callback" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.unit.test_agent_api.TestAgentManager" name="test_create_and_start" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.unit.test_agent_api.TestAgentManager" name="test_stop_removes_from_active" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.unit.test_agent_api.TestAgentManager" name="test_list_with_filter" time="0.000"><failure message="Failed: async def functions are not natively supported.&#10;You need to install a suitable plugin for your async framework, for example:&#10;  - anyio&#10;  - pytest-asyncio&#10;  - pytest-tornasync&#10;  - pytest-trio&#10;  - pytest-twisted">async def functions are not natively supported.
+You need to install a suitable plugin for your async framework, for example:
+  - anyio
+  - pytest-asyncio
+  - pytest-tornasync
+  - pytest-trio
+  - pytest-twisted</failure></testcase><testcase classname="tests.unit.test_agent_configuration.TestAgentConfiguration" name="test_get_default_schema" time="0.000" /><testcase classname="tests.unit.test_agent_configuration.TestAgentConfiguration" name="test_bdi_schema_has_beliefs_field" time="0.000" /><testcase classname="tests.unit.test_agent_configuration.TestAgentConfiguration" name="test_rl_schema_has_learning_rate" time="0.000" /><testcase classname="tests.unit.test_agent_configuration.TestAgentConfiguration" name="test_validate_valid_config" time="0.000" /><testcase classname="tests.unit.test_agent_configuration.TestAgentConfiguration" name="test_validate_missing_required" time="0.000" /><testcase classname="tests.unit.test_agent_configuration.TestAgentConfiguration" name="test_validate_wrong_type" time="0.000" /><testcase classname="tests.unit.test_agent_configuration.TestAgentConfiguration" name="test_validate_number_range" time="0.000" /><testcase classname="tests.unit.test_agent_configuration.TestAgentConfiguration" name="test_get_default_config" time="0.000" /><testcase classname="tests.unit.test_agent_configuration.TestConfigField" name="test_field_creation" time="0.000" /><testcase classname="tests.unit.test_agent_factory.TestAgentFactory" name="test_bdi_interface_registered" time="0.000" /><testcase classname="tests.unit.test_agent_factory.TestAgentFactory" name="test_create_bdi_interface" time="0.000" /><testcase classname="tests.unit.test_agent_factory.TestAgentFactory" name="test_create_unknown_type_raises" time="0.000" /><testcase classname="tests.unit.test_agent_factory.TestAgentFactory" name="test_register_invalid_class_raises" time="0.000" /><testcase classname="tests.unit.test_agent_interface.TestAgentType" name="test_enum_values" time="0.000" /><testcase classname="tests.unit.test_agent_interface.TestAgentType" name="test_all_types_present" time="0.000" /><testcase classname="tests.unit.test_agent_interface.TestAgentState" name="test_create_state" time="0.000" /><testcase classname="tests.unit.test_agent_interface.TestAgentState" name="test_state_defaults" time="0.000" /><testcase classname="tests.unit.test_agent_interface.TestAgentState" name="test_agent_interface_is_abstract" time="0.000" /><testcase classname="tests.unit.test_agent_visualization.TestAgentVisualization" name="test_default_configs" time="0.000" /><testcase classname="tests.unit.test_agent_visualization.TestAgentVisualization" name="test_bdi_color" time="0.000" /><testcase classname="tests.unit.test_agent_visualization.TestAgentVisualization" name="test_rl_color" time="0.000" /><testcase classname="tests.unit.test_agent_visualization.TestAgentVisualization" name="test_state_to_map_feature" time="0.000" /><testcase classname="tests.unit.test_agent_visualization.TestAgentVisualization" name="test_state_to_map_feature_no_location_raises" time="0.000" /><testcase classname="tests.unit.test_agent_visualization.TestAgentVisualization" name="test_state_to_dashboard" time="0.000" /><testcase classname="tests.unit.test_agent_visualization.TestAgentVisualization" name="test_dashboard_bdi_intentions" time="0.000" /></testsuite></testsuites>

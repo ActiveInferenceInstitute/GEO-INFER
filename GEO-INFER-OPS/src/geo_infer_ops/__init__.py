@@ -12,8 +12,13 @@ from geo_infer_ops.core.monitoring import setup_monitoring
 from geo_infer_ops.core.config import load_config, get_config
 from geo_infer_ops.core.testing import setup_testing
 from geo_infer_ops.core.orchestrator import Orchestrator, Task, TaskStatus
-from geo_infer_ops.core.deployment import DeploymentManager
 from geo_infer_ops.health.checks import HealthChecker, HealthStatus, HealthCheck
+
+# Optional dependency: kubernetes (used by DeploymentManager)
+try:
+    from geo_infer_ops.core.deployment import DeploymentManager
+except ImportError:
+    DeploymentManager = None  # type: ignore[misc,assignment]
 
 __all__ = [
     "setup_logging",

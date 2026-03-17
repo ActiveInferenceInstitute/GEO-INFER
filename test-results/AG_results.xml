@@ -1,0 +1,342 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="7" failures="0" skipped="0" tests="7" time="25.315" timestamp="2026-03-17T08:08:57.520635-07:00" hostname="timelock.local"><testcase classname="" name="tests.integration.integration_agricultural_workflow" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AG/tests/integration/integration_agricultural_workflow.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+.venv/lib/python3.12/site-packages/_pytest/python.py:507: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.12/site-packages/_pytest/pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
+    ???
+.venv/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+GEO-INFER-AG/tests/integration/integration_agricultural_workflow.py:12: in &lt;module&gt;
+    from geo_infer_ag.core.field_boundary import FieldBoundaryManager
+GEO-INFER-AG/src/geo_infer_ag/__init__.py:11: in &lt;module&gt;
+    from geo_infer_ag.core import (
+GEO-INFER-AG/src/geo_infer_ag/core/__init__.py:3: in &lt;module&gt;
+    from geo_infer_ag.core.agricultural_analysis import AgriculturalAnalysis
+GEO-INFER-AG/src/geo_infer_ag/core/agricultural_analysis.py:11: in &lt;module&gt;
+    from geo_infer_ag.models.base import AgricultureModel
+GEO-INFER-AG/src/geo_infer_ag/models/__init__.py:4: in &lt;module&gt;
+    from geo_infer_ag.models.crop_yield import CropYieldModel
+GEO-INFER-AG/src/geo_infer_ag/models/crop_yield.py:9: in &lt;module&gt;
+    from sklearn.ensemble import RandomForestRegressor
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:19: in &lt;module&gt;
+    from .utils._metadata_requests import _MetadataRequester, _routing_enabled
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.performance.perf_field_boundary" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AG/tests/performance/perf_field_boundary.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+.venv/lib/python3.12/site-packages/_pytest/python.py:507: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.12/site-packages/_pytest/pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
+    ???
+.venv/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+GEO-INFER-AG/tests/performance/perf_field_boundary.py:13: in &lt;module&gt;
+    from geo_infer_ag.core.field_boundary import FieldBoundaryManager
+GEO-INFER-AG/src/geo_infer_ag/__init__.py:18: in &lt;module&gt;
+    from geo_infer_ag.models import (
+GEO-INFER-AG/src/geo_infer_ag/models/__init__.py:4: in &lt;module&gt;
+    from geo_infer_ag.models.crop_yield import CropYieldModel
+GEO-INFER-AG/src/geo_infer_ag/models/crop_yield.py:9: in &lt;module&gt;
+    from sklearn.ensemble import RandomForestRegressor
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.core.test_agricultural_analysis" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AG/tests/unit/core/test_agricultural_analysis.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+.venv/lib/python3.12/site-packages/_pytest/python.py:507: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.12/site-packages/_pytest/pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
+    ???
+.venv/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+GEO-INFER-AG/tests/unit/core/test_agricultural_analysis.py:9: in &lt;module&gt;
+    from geo_infer_ag.models.crop_yield import CropYieldModel
+GEO-INFER-AG/src/geo_infer_ag/__init__.py:18: in &lt;module&gt;
+    from geo_infer_ag.models import (
+GEO-INFER-AG/src/geo_infer_ag/models/__init__.py:4: in &lt;module&gt;
+    from geo_infer_ag.models.crop_yield import CropYieldModel
+GEO-INFER-AG/src/geo_infer_ag/models/crop_yield.py:9: in &lt;module&gt;
+    from sklearn.ensemble import RandomForestRegressor
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.models.test_carbon_sequestration" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AG/tests/unit/models/test_carbon_sequestration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+.venv/lib/python3.12/site-packages/_pytest/python.py:507: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.12/site-packages/_pytest/pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
+    ???
+.venv/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+GEO-INFER-AG/tests/unit/models/test_carbon_sequestration.py:6: in &lt;module&gt;
+    from geo_infer_ag.models.carbon_sequestration import CarbonSequestrationModel
+GEO-INFER-AG/src/geo_infer_ag/__init__.py:18: in &lt;module&gt;
+    from geo_infer_ag.models import (
+GEO-INFER-AG/src/geo_infer_ag/models/__init__.py:4: in &lt;module&gt;
+    from geo_infer_ag.models.crop_yield import CropYieldModel
+GEO-INFER-AG/src/geo_infer_ag/models/crop_yield.py:9: in &lt;module&gt;
+    from sklearn.ensemble import RandomForestRegressor
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.models.test_crop_yield" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AG/tests/unit/models/test_crop_yield.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+.venv/lib/python3.12/site-packages/_pytest/python.py:507: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.12/site-packages/_pytest/pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
+    ???
+.venv/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+GEO-INFER-AG/tests/unit/models/test_crop_yield.py:10: in &lt;module&gt;
+    from sklearn.ensemble import RandomForestRegressor
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.models.test_soil_health" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AG/tests/unit/models/test_soil_health.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+.venv/lib/python3.12/site-packages/_pytest/python.py:507: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.12/site-packages/_pytest/pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
+    ???
+.venv/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+GEO-INFER-AG/tests/unit/models/test_soil_health.py:4: in &lt;module&gt;
+    from geo_infer_ag.models.soil_health import SoilHealthModel
+GEO-INFER-AG/src/geo_infer_ag/__init__.py:18: in &lt;module&gt;
+    from geo_infer_ag.models import (
+GEO-INFER-AG/src/geo_infer_ag/models/__init__.py:4: in &lt;module&gt;
+    from geo_infer_ag.models.crop_yield import CropYieldModel
+GEO-INFER-AG/src/geo_infer_ag/models/crop_yield.py:9: in &lt;module&gt;
+    from sklearn.ensemble import RandomForestRegressor
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.models.test_water_usage" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AG/tests/unit/models/test_water_usage.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+.venv/lib/python3.12/site-packages/_pytest/python.py:507: in importtestmodule
+    mod = import_path(
+.venv/lib/python3.12/site-packages/_pytest/pathlib.py:587: in import_path
+    importlib.import_module(module_name)
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+&lt;frozen importlib._bootstrap&gt;:1387: in _gcd_import
+    ???
+&lt;frozen importlib._bootstrap&gt;:1360: in _find_and_load
+    ???
+&lt;frozen importlib._bootstrap&gt;:1331: in _find_and_load_unlocked
+    ???
+&lt;frozen importlib._bootstrap&gt;:935: in _load_unlocked
+    ???
+.venv/lib/python3.12/site-packages/_pytest/assertion/rewrite.py:197: in exec_module
+    exec(co, module.__dict__)
+GEO-INFER-AG/tests/unit/models/test_water_usage.py:6: in &lt;module&gt;
+    from geo_infer_ag.models.water_usage import WaterUsageModel
+GEO-INFER-AG/src/geo_infer_ag/__init__.py:18: in &lt;module&gt;
+    from geo_infer_ag.models import (
+GEO-INFER-AG/src/geo_infer_ag/models/__init__.py:4: in &lt;module&gt;
+    from geo_infer_ag.models.crop_yield import CropYieldModel
+GEO-INFER-AG/src/geo_infer_ag/models/crop_yield.py:9: in &lt;module&gt;
+    from sklearn.ensemble import RandomForestRegressor
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase></testsuite></testsuites>

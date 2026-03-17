@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="5" failures="0" skipped="0" tests="5" time="5.643" timestamp="2026-03-17T08:10:15.693732-07:00" hostname="timelock.local"><testcase classname="" name="GEO-INFER-ENERGY.tests.test_renewable_resources" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ENERGY/tests/test_renewable_resources.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+GEO-INFER-ENERGY/tests/test_renewable_resources.py:9: in &lt;module&gt;
+    from geo_infer_energy.core.renewable_resources import (
+E   ModuleNotFoundError: No module named 'geo_infer_energy'</error></testcase><testcase classname="" name="GEO-INFER-ENERGY.tests.unit.test_carbon_footprint" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ENERGY/tests/unit/test_carbon_footprint.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+GEO-INFER-ENERGY/tests/unit/test_carbon_footprint.py:10: in &lt;module&gt;
+    from geo_infer_energy.core.carbon_footprint import CarbonFootprintAnalyzer
+GEO-INFER-ENERGY/src/geo_infer_energy/__init__.py:6: in &lt;module&gt;
+    from .core.renewable_resources import RenewableResourceAssessor
+GEO-INFER-ENERGY/src/geo_infer_energy/core/__init__.py:5: in &lt;module&gt;
+    from .energy_demand import EnergyDemandForecaster
+GEO-INFER-ENERGY/src/geo_infer_energy/core/energy_demand.py:8: in &lt;module&gt;
+    from sklearn.linear_model import LinearRegression
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:19: in &lt;module&gt;
+    from .utils._metadata_requests import _MetadataRequester, _routing_enabled
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="GEO-INFER-ENERGY.tests.unit.test_energy_demand" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ENERGY/tests/unit/test_energy_demand.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+GEO-INFER-ENERGY/tests/unit/test_energy_demand.py:10: in &lt;module&gt;
+    from geo_infer_energy.core.energy_demand import EnergyDemandForecaster
+GEO-INFER-ENERGY/src/geo_infer_energy/__init__.py:8: in &lt;module&gt;
+    from .core.energy_demand import EnergyDemandForecaster
+GEO-INFER-ENERGY/src/geo_infer_energy/core/__init__.py:5: in &lt;module&gt;
+    from .energy_demand import EnergyDemandForecaster
+GEO-INFER-ENERGY/src/geo_infer_energy/core/energy_demand.py:8: in &lt;module&gt;
+    from sklearn.linear_model import LinearRegression
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="GEO-INFER-ENERGY.tests.unit.test_solar_analysis" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ENERGY/tests/unit/test_solar_analysis.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+GEO-INFER-ENERGY/tests/unit/test_solar_analysis.py:9: in &lt;module&gt;
+    from geo_infer_energy.core.solar_analysis import SolarAnalyzer
+GEO-INFER-ENERGY/src/geo_infer_energy/__init__.py:8: in &lt;module&gt;
+    from .core.energy_demand import EnergyDemandForecaster
+GEO-INFER-ENERGY/src/geo_infer_energy/core/__init__.py:5: in &lt;module&gt;
+    from .energy_demand import EnergyDemandForecaster
+GEO-INFER-ENERGY/src/geo_infer_energy/core/energy_demand.py:8: in &lt;module&gt;
+    from sklearn.linear_model import LinearRegression
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="GEO-INFER-ENERGY.tests.unit.test_wind_analysis" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ENERGY/tests/unit/test_wind_analysis.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+GEO-INFER-ENERGY/tests/unit/test_wind_analysis.py:9: in &lt;module&gt;
+    from geo_infer_energy.core.wind_analysis import WindAnalyzer
+GEO-INFER-ENERGY/src/geo_infer_energy/__init__.py:8: in &lt;module&gt;
+    from .core.energy_demand import EnergyDemandForecaster
+GEO-INFER-ENERGY/src/geo_infer_energy/core/__init__.py:5: in &lt;module&gt;
+    from .energy_demand import EnergyDemandForecaster
+GEO-INFER-ENERGY/src/geo_infer_energy/core/energy_demand.py:8: in &lt;module&gt;
+    from sklearn.linear_model import LinearRegression
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase></testsuite></testsuites>

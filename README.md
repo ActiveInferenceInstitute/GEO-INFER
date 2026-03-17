@@ -4,7 +4,7 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/geo-infer/geo-infer/pulls)
 [![Discord](https://img.shields.io/badge/Discord-Join%20Community-7289DA.svg)](https://discord.activeinference.institute/)
 [![H3 Version](https://img.shields.io/badge/H3-v4.0+-blue.svg)](https://h3geo.org/)
-[![Python](https://img.shields.io/badge/Python-3.9+-green.svg)](https://python.org/)
+[![Python](https://img.shields.io/badge/Python-3.11+-green.svg)](https://python.org/)
 
 <div align="center">
   <h3>Geospatial Inference Framework</h3>
@@ -46,7 +46,7 @@
 | **Test Files** | 422 files, ~87,000+ lines |
 | **Tests** | ~3,000+ passing |
 | **Min Tests/Module** | 4 test files (every module) |
-| **Package Standard** | PEP 8 lowercase naming (100%) |
+| **Package Standard** | Mostly PEP 8 lowercase naming (environmental modules still include mixed-case package dirs) |
 
 ## 🚀 Quick Start
 
@@ -64,21 +64,23 @@ uv pip install -e ./GEO-INFER-ACT     # Active inference
 
 # Step 3: Run your first analysis
 python -c "
-from geo_infer_space import SpatialAnalyzer
+from geo_infer_space import SpatialIndexingInterface
 from geo_infer_act import ActiveInferenceModel
 
 # Create your first spatial analysis
-analyzer = SpatialAnalyzer()
-model = ActiveInferenceModel()
+indexer = SpatialIndexingInterface()
+cell = indexer.latlng_to_cell(37.7749, -122.4194, 9)
+model = ActiveInferenceModel(model_type='categorical')
 
 print('\U0001f389 GEO-INFER is ready!')
+print(f'H3 cell: {cell}')
 print('\U0001f4da Check GEO-INFER-INTRA/docs/ for documentation')
 "
 ```
 
 ### 📋 Prerequisites
 
-- **Python**: 3.9+ (3.11+ recommended)
+- **Python**: 3.11+
 - **Package Manager**: [uv](https://github.com/astral-sh/uv) (fast, reliable Python package installer)
 - **Git**: For cloning and version control
 - **Optional**: Docker for containerized deployment
@@ -224,68 +226,63 @@ See [AGENTS.md](./AGENTS.md) for the complete multi-agent systems architecture.
 
 ```mermaid
 graph TB
-    classDef coreNode fill:#ff9e80,stroke:#d50000,stroke-width:3px
-    classDef spatialNode fill:#80d8ff,stroke:#0091ea,stroke-width:2px
-    classDef dataNode fill:#b9f6ca,stroke:#00c853,stroke-width:2px
-    classDef domainNode fill:#e1bee7,stroke:#8e24aa,stroke-width:2px
-    classDef opsNode fill:#fff59d,stroke:#f57f17,stroke-width:2px
-    classDef appNode fill:#f8bbd9,stroke:#c2185b,stroke-width:2px
+    %% Note: no explicit styling; keep dark-mode compatible
 
     %% Core Analytical Layer
-    MATH["GEO-INFER-MATH<br/>Mathematical Foundations"]:::coreNode
-    BAYES["GEO-INFER-BAYES<br/>Bayesian Inference"]:::coreNode
-    ACT["GEO-INFER-ACT<br/>Active Inference"]:::coreNode
-    AI["GEO-INFER-AI<br/>Artificial Intelligence"]:::coreNode
-    COG["GEO-INFER-COG<br/>Cognitive Modeling"]:::coreNode
-    AGENT["GEO-INFER-AGENT<br/>Intelligent Agents"]:::coreNode
-    SPM["GEO-INFER-SPM<br/>Statistical Mapping"]:::coreNode
+    MATH["GEO-INFER-MATH<br/>Mathematical Foundations"]
+    BAYES["GEO-INFER-BAYES<br/>Bayesian Inference"]
+    ACT["GEO-INFER-ACT<br/>Active Inference"]
+    AI["GEO-INFER-AI<br/>Artificial Intelligence"]
+    COG["GEO-INFER-COG<br/>Cognitive Modeling"]
+    AGENT["GEO-INFER-AGENT<br/>Intelligent Agents"]
+    SPM["GEO-INFER-SPM<br/>Statistical Mapping"]
 
     %% Spatial-Temporal Layer
-    SPACE["GEO-INFER-SPACE<br/>Spatial Methods H3 v4"]:::spatialNode
-    TIME["GEO-INFER-TIME<br/>Temporal Methods"]:::spatialNode
-    IOT["GEO-INFER-IOT<br/>IoT Integration"]:::spatialNode
+    SPACE["GEO-INFER-SPACE<br/>Spatial Methods H3 v4"]
+    TIME["GEO-INFER-TIME<br/>Temporal Methods"]
+    IOT["GEO-INFER-IOT<br/>IoT Integration"]
 
     %% Data Management Layer
-    DATA["GEO-INFER-DATA<br/>Data Management"]:::dataNode
-    API["GEO-INFER-API<br/>API Services"]:::dataNode
+    DATA["GEO-INFER-DATA<br/>Data Management"]
+    API["GEO-INFER-API<br/>API Services"]
 
     %% Operations Layer
-    OPS["GEO-INFER-OPS<br/>Orchestration"]:::opsNode
-    SEC["GEO-INFER-SEC<br/>Security"]:::opsNode
-    INTRA["GEO-INFER-INTRA<br/>Documentation"]:::opsNode
-    GIT["GEO-INFER-GIT<br/>Version Control"]:::opsNode
-    TEST["GEO-INFER-TEST<br/>Quality Assurance"]:::opsNode
+    OPS["GEO-INFER-OPS<br/>Orchestration"]
+    SEC["GEO-INFER-SEC<br/>Security"]
+    INTRA["GEO-INFER-INTRA<br/>Documentation"]
+    GIT["GEO-INFER-GIT<br/>Version Control"]
+    TEST["GEO-INFER-TEST<br/>Quality Assurance"]
 
     %% Domain-Specific Layer
-    AG["GEO-INFER-AG<br/>Agriculture"]:::domainNode
-    HEALTH["GEO-INFER-HEALTH<br/>Health Applications"]:::domainNode
-    ECON["GEO-INFER-ECON<br/>Economics"]:::domainNode
-    RISK["GEO-INFER-RISK<br/>Risk Management"]:::domainNode
-    LOG["GEO-INFER-LOG<br/>Logistics"]:::domainNode
-    BIO["GEO-INFER-BIO<br/>Bioinformatics"]:::domainNode
+    AG["GEO-INFER-AG<br/>Agriculture"]
+    HEALTH["GEO-INFER-HEALTH<br/>Health Applications"]
+    ECON["GEO-INFER-ECON<br/>Economics"]
+    RISK["GEO-INFER-RISK<br/>Risk Management"]
+    LOG["GEO-INFER-LOG<br/>Logistics"]
+    BIO["GEO-INFER-BIO<br/>Bioinformatics"]
 
     %% Application Layer
-    APP["GEO-INFER-APP<br/>User Interfaces"]:::appNode
-    ART["GEO-INFER-ART<br/>Artistic Expression"]:::appNode
-    PLACE["GEO-INFER-PLACE<br/>Place-Based Analysis"]:::appNode
+    APP["GEO-INFER-APP<br/>User Interfaces"]
+    ART["GEO-INFER-ART<br/>Artistic Expression"]
+    PLACE["GEO-INFER-PLACE<br/>Place-Based Analysis"]
 
     %% Simulation Layer
-    SIM["GEO-INFER-SIM<br/>Simulation"]:::domainNode
-    ANT["GEO-INFER-ANT<br/>Complex Systems"]:::domainNode
+    SIM["GEO-INFER-SIM<br/>Simulation"]
+    ANT["GEO-INFER-ANT<br/>Complex Systems"]
 
     %% People & Community Layer
-    CIV["GEO-INFER-CIV<br/>Civic Engagement"]:::domainNode
-    PEP["GEO-INFER-PEP<br/>People Management"]:::domainNode
-    ORG["GEO-INFER-ORG<br/>Organizations"]:::domainNode
-    COMMS["GEO-INFER-COMMS<br/>Communications"]:::domainNode
+    CIV["GEO-INFER-CIV<br/>Civic Engagement"]
+    PEP["GEO-INFER-PEP<br/>People Management"]
+    ORG["GEO-INFER-ORG<br/>Organizations"]
+    COMMS["GEO-INFER-COMMS<br/>Communications"]
 
     %% Governance Layer
-    NORMS["GEO-INFER-NORMS<br/>Compliance"]:::opsNode
-    REQ["GEO-INFER-REQ<br/>Requirements"]:::opsNode
-    METAGOV["GEO-INFER-METAGOV<br/>Meta-Governance"]:::opsNode
+    NORMS["GEO-INFER-NORMS<br/>Compliance"]
+    REQ["GEO-INFER-REQ<br/>Requirements"]
+    METAGOV["GEO-INFER-METAGOV<br/>Meta-Governance"]
 
     %% Examples Layer
-    EXAMPLES["GEO-INFER-EXAMPLES<br/>Cross-Module Demos"]:::opsNode
+    EXAMPLES["GEO-INFER-EXAMPLES<br/>Cross-Module Demos"]
 
     %% Core Dependencies
     MATH --> BAYES
@@ -421,58 +418,54 @@ graph TB
 
 ```mermaid
 flowchart TD
-    classDef dataSource fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef processing fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    classDef analysis fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
-    classDef application fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    classDef output fill:#fce4ec,stroke:#c2185b,stroke-width:2px
+    %% Note: no explicit styling; keep dark-mode compatible
 
     %% Data Sources
-    RS["Remote Sensing Data"]:::dataSource
-    IOT["IoT Sensor Streams"]:::dataSource
-    CSV["Tabular Datasets"]:::dataSource
-    OSM["OpenStreetMap Data"]:::dataSource
-    CGD["Crowdsourced Geodata"]:::dataSource
-    API["External APIs"]:::dataSource
-    SENSOR["Environmental Sensors"]:::dataSource
+    RS["Remote Sensing Data"]
+    IOT["IoT Sensor Streams"]
+    CSV["Tabular Datasets"]
+    OSM["OpenStreetMap Data"]
+    CGD["Crowdsourced Geodata"]
+    API["External APIs"]
+    SENSOR["Environmental Sensors"]
     
     %% Data Processing Layer
-    DATA["GEO-INFER-DATA<br/>Data Management & ETL"]:::processing
-    SPACE["GEO-INFER-SPACE<br/>Spatial Processing H3 v4"]:::processing
-    TIME["GEO-INFER-TIME<br/>Temporal Processing"]:::processing
-    SEC["GEO-INFER-SEC<br/>Security & Privacy"]:::processing
+    DATA["GEO-INFER-DATA<br/>Data Management & ETL"]
+    SPACE["GEO-INFER-SPACE<br/>Spatial Processing H3 v4"]
+    TIME["GEO-INFER-TIME<br/>Temporal Processing"]
+    SEC["GEO-INFER-SEC<br/>Security & Privacy"]
 
     %% Analytical Layer
-    MATH["GEO-INFER-MATH<br/>Mathematical Foundations"]:::analysis
-    BAYES["GEO-INFER-BAYES<br/>Bayesian Inference"]:::analysis
-    ACT["GEO-INFER-ACT<br/>Active Inference"]:::analysis
-    AI["GEO-INFER-AI<br/>Machine Learning"]:::analysis
-    SPM["GEO-INFER-SPM<br/>Statistical Mapping"]:::analysis
+    MATH["GEO-INFER-MATH<br/>Mathematical Foundations"]
+    BAYES["GEO-INFER-BAYES<br/>Bayesian Inference"]
+    ACT["GEO-INFER-ACT<br/>Active Inference"]
+    AI["GEO-INFER-AI<br/>Machine Learning"]
+    SPM["GEO-INFER-SPM<br/>Statistical Mapping"]
 
     %% Domain-Specific Analysis
-    AG["GEO-INFER-AG<br/>Agricultural Analysis"]:::analysis
-    HEALTH["GEO-INFER-HEALTH<br/>Health Applications"]:::analysis
-    ECON["GEO-INFER-ECON<br/>Economic Modeling"]:::analysis
-    RISK["GEO-INFER-RISK<br/>Risk Assessment"]:::analysis
-    LOG["GEO-INFER-LOG<br/>Logistics Optimization"]:::analysis
-    BIO["GEO-INFER-BIO<br/>Bioinformatics"]:::analysis
+    AG["GEO-INFER-AG<br/>Agricultural Analysis"]
+    HEALTH["GEO-INFER-HEALTH<br/>Health Applications"]
+    ECON["GEO-INFER-ECON<br/>Economic Modeling"]
+    RISK["GEO-INFER-RISK<br/>Risk Assessment"]
+    LOG["GEO-INFER-LOG<br/>Logistics Optimization"]
+    BIO["GEO-INFER-BIO<br/>Bioinformatics"]
 
     %% Simulation & Modeling
-    SIM["GEO-INFER-SIM<br/>Simulation Engine"]:::analysis
-    ANT["GEO-INFER-ANT<br/>Complex Systems"]:::analysis
-    AGENT["GEO-INFER-AGENT<br/>Intelligent Agents"]:::analysis
+    SIM["GEO-INFER-SIM<br/>Simulation Engine"]
+    ANT["GEO-INFER-ANT<br/>Complex Systems"]
+    AGENT["GEO-INFER-AGENT<br/>Intelligent Agents"]
 
     %% Application Layer
-    APP["GEO-INFER-APP<br/>User Interfaces"]:::application
-    ART["GEO-INFER-ART<br/>Artistic Expression"]:::application
-    PLACE["GEO-INFER-PLACE<br/>Place-Based Analysis"]:::application
+    APP["GEO-INFER-APP<br/>User Interfaces"]
+    ART["GEO-INFER-ART<br/>Artistic Expression"]
+    PLACE["GEO-INFER-PLACE<br/>Place-Based Analysis"]
 
     %% Output Layer
-    API_OUT["API Services"]:::output
-    DASH["Dashboards & Reports"]:::output
-    MAPS["Interactive Maps"]:::output
-    MODELS["Trained Models"]:::output
-    INSIGHTS["Analytical Insights"]:::output
+    API_OUT["API Services"]
+    DASH["Dashboards & Reports"]
+    MAPS["Interactive Maps"]
+    MODELS["Trained Models"]
+    INSIGHTS["Analytical Insights"]
 
     %% Data Flow Connections
     RS --> DATA
@@ -599,45 +592,41 @@ flowchart TD
 
 ```mermaid
 graph TD
-    classDef mainNode fill:#ff9e80,stroke:#d50000,stroke-width:2px
-    classDef sourceNode fill:#80d8ff,stroke:#0091ea,stroke-width:1px
-    classDef applicationNode fill:#b9f6ca,stroke:#00c853,stroke-width:1px
-    classDef domainNode fill:#e1bee7,stroke:#8e24aa,stroke-width:1px
-    classDef integrationNode fill:#fff59d,stroke:#f57f17,stroke-width:1px
+    %% Note: no explicit styling; keep dark-mode compatible
 
-    GEOINFER["GEO-INFER Framework"]:::mainNode
+    GEOINFER["GEO-INFER Framework"]
     
     %% Data Sources
-    RS["Remote Sensing"]:::sourceNode
-    IOT["IoT Sensors"]:::sourceNode
-    CSV["Tabular Data"]:::sourceNode
-    OSM["OpenStreetMap"]:::sourceNode
-    CGD["Crowdsourced Geodata"]:::sourceNode
-    API["External APIs"]:::sourceNode
-    SENSOR["Environmental Sensors"]:::sourceNode
+    RS["Remote Sensing"]
+    IOT["IoT Sensors"]
+    CSV["Tabular Data"]
+    OSM["OpenStreetMap"]
+    CGD["Crowdsourced Geodata"]
+    API["External APIs"]
+    SENSOR["Environmental Sensors"]
     
     %% Applications
-    DT["Digital Twins"]:::applicationNode
-    CSD["Climate-Smart Decisions"]:::applicationNode
-    ES["Ecological Simulations"]:::applicationNode
-    CP["Civic Planning"]:::applicationNode
-    RM["Risk Management"]:::applicationNode
-    PA["Precision Agriculture"]:::applicationNode
-    UH["Urban Health"]:::applicationNode
+    DT["Digital Twins"]
+    CSD["Climate-Smart Decisions"]
+    ES["Ecological Simulations"]
+    CP["Civic Planning"]
+    RM["Risk Management"]
+    PA["Precision Agriculture"]
+    UH["Urban Health"]
     
     %% Domains
-    URB["Urban Systems"]:::domainNode
-    ECO["Ecosystems"]:::domainNode
-    AGR["Agriculture"]:::domainNode
-    HLT["Health Systems"]:::domainNode
-    FIN["Financial Systems"]:::domainNode
-    LOG["Logistics Networks"]:::domainNode
-    GOV["Governance Systems"]:::domainNode
+    URB["Urban Systems"]
+    ECO["Ecosystems"]
+    AGR["Agriculture"]
+    HLT["Health Systems"]
+    FIN["Financial Systems"]
+    LOG["Logistics Networks"]
+    GOV["Governance Systems"]
     
     %% Integration Points
-    AI_INT["AI/ML Integration"]:::integrationNode
-    ACT_INT["Active Inference"]:::integrationNode
-    H3_INT["H3 v4 Spatial Indexing"]:::integrationNode
+    AI_INT["AI/ML Integration"]
+    ACT_INT["Active Inference"]
+    H3_INT["H3 v4 Spatial Indexing"]
     
     %% Connections
     RS --> GEOINFER
@@ -917,11 +906,11 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 | **Module Templates** | ✅ **APPLIED** | YAML front matter applied to all 44 modules (100%) |
 | **Testing Framework** | ✅ **OPERATIONAL** | 434 test files, ~3,000+ tests across all 44 modules |
 | **Code Quality** | ✅ **PROFESSIONAL** | 860 source files, 297,360 lines of real implementations |
-| **Infrastructure** | ✅ **COMPLETE** | All modules have requirements.txt, pyproject.toml, PEP 8 naming |
+| **Infrastructure** | ✅ **COMPLETE** | All modules have requirements.txt and pyproject.toml; package dir casing is not fully normalized in all modules |
 | **Examples** | ✅ **COMPLETE** | Working examples added to all modules |
 | **Integration Tests** | ✅ **COMPLETE** | Cross-module integration test suites |
 | **Stub Elimination** | ✅ **COMPLETE** | Zero illegitimate pass stubs (only abstract methods/exception handlers) |
-| **PEP 8 Compliance** | ✅ **COMPLETE** | All 44 packages use lowercase naming (FOREST/MARINE/ENERGY/WATER fixed) |
+| **PEP 8 Compliance** | 🟡 **IN PROGRESS** | Most packages use lowercase naming; environmental modules still include mixed-case package dirs |
 
 ### 📊 **Current Compliance Status**
 
@@ -982,7 +971,7 @@ This project is licensed under the Creative Commons Attribution-NonCommercial-Sh
 
 **Environmental Domains (FOREST, MARINE, ENERGY, WATER, CLIMATE)**:
 
-- Renamed 4 uppercase packages to PEP 8 lowercase (geo_infer_FOREST → geo_infer_forest, etc.)
+- Package dir casing is not yet fully normalized (current: `geo_infer_FOREST`, `geo_infer_MARINE`, `geo_infer_ENERGY`, `geo_infer_WATER`); treat lowercase migration as a future task.
 - Added 14 new source files with real domain algorithms, 286 tests, fixed 8 bugs
 
 **Applied Domains (HEALTH, ECON, RISK, AG, BIO, EMERGENCY, TRANSPORT, EDU, LOG)**:

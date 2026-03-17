@@ -8,7 +8,7 @@ version = "0.2.0"
 description = "Comprehensive collection of working examples and tutorials demonstrating cross-module integration patterns and real-world applications"
 readme = "README.md"
 license = {text = "CC BY-NC-SA 4.0"}
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]

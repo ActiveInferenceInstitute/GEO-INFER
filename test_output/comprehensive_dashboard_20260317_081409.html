@@ -1,0 +1,1166 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_ed39d567affeafcbf1fa0c1a5e2210ea {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+
+            <style>html, body {
+                width: 100%;
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            </style>
+
+            <style>#map {
+                position:absolute;
+                top:0;
+                bottom:0;
+                right:0;
+                left:0;
+                }
+            </style>
+
+            <script>
+                L_NO_TOUCH = false;
+                L_DISABLE_3D = false;
+            </script>
+
+        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.1.0/MarkerCluster.Default.css"/>
+</head>
+<body>
+    
+    
+        <div style="position: fixed; 
+                    top: 10px; left: 50px; width: 400px; height: 80px; 
+                    background-color: white; border: 2px solid grey; z-index:9999; 
+                    font-size: 14px; color: black; font-weight: bold;
+                    padding: 10px; border-radius: 5px; box-shadow: 0 0 15px rgba(0,0,0,0.2);">
+            <div style="font-size: 18px; margin-bottom: 5px; color: #2E8B57;">
+                🗺️ GEO-INFER Place-Based Analysis
+            </div>
+            <div style="font-size: 14px; color: #4682B4;">
+                📍 Location
+            </div>
+            <div style="font-size: 11px; color: #666; margin-top: 5px;">
+                Interactive Geospatial Dashboard • 2026-03-17 08:14
+            </div>
+        </div>
+        
+    
+            <div class="folium-map" id="map_ed39d567affeafcbf1fa0c1a5e2210ea" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_ed39d567affeafcbf1fa0c1a5e2210ea = L.map(
+                "map_ed39d567affeafcbf1fa0c1a5e2210ea",
+                {
+                    center: [41.5, -124.0],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 10,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_c6485c6a1f67b699c6b3d4afe060c631 = L.tileLayer(
+                "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
+                {
+  "minZoom": 0,
+  "maxZoom": 20,
+  "maxNativeZoom": 20,
+  "noWrap": false,
+  "attribution": "\u00a9 CartoDB, \u00a9 OpenStreetMap contributors",
+  "subdomains": "abcd",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_c6485c6a1f67b699c6b3d4afe060c631.addTo(map_ed39d567affeafcbf1fa0c1a5e2210ea);
+        
+    
+            var feature_group_a3aa5fbe0b4f3b864750f81e336dd0bd = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_a3aa5fbe0b4f3b864750f81e336dd0bd.addTo(map_ed39d567affeafcbf1fa0c1a5e2210ea);
+        
+    
+            var feature_group_3d4c38aced9a63c020d32c8c6fa2e4e8 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0 = L.markerClusterGroup(
+                {
+}
+            );
+        
+    
+            var marker_6a03fd3c35a4fdff92e7481d15647d56 = L.marker(
+                [46.99632, -123.83532],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_ce93c14b29b3d0ca2570863f03d58a44 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "leaf",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_c7ef7371f098d38522f8dfe9979114dd = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_797fa453791c34a25808f83b02dc2c07 = $(`<div id="html_797fa453791c34a25808f83b02dc2c07" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-001</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.88</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.498</td></tr>                     <tr><td><b>Tree Density:</b></td><td>467/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.43</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-06-22</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_c7ef7371f098d38522f8dfe9979114dd.setContent(html_797fa453791c34a25808f83b02dc2c07);
+            
+        
+
+        marker_6a03fd3c35a4fdff92e7481d15647d56.bindPopup(popup_c7ef7371f098d38522f8dfe9979114dd)
+        ;
+
+        
+    
+    
+            marker_6a03fd3c35a4fdff92e7481d15647d56.bindTooltip(
+                `<div>
+                     Health Index: 0.88
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_6a03fd3c35a4fdff92e7481d15647d56.setIcon(icon_ce93c14b29b3d0ca2570863f03d58a44);
+            
+    
+            var marker_a49881e53ed72237f53c2c8c349c506b = L.marker(
+                [51.60571, -116.24072],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_938f8ea2029ce53db7fffa7716df25af = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "exclamation-triangle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_320ea62e5ab3c0d4cfcf4cc1f84c8186 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_ac267931095687646e6c9efc57a98855 = $(`<div id="html_ac267931095687646e6c9efc57a98855" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-002</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.43</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.886</td></tr>                     <tr><td><b>Tree Density:</b></td><td>349/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.75</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-08-14</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_320ea62e5ab3c0d4cfcf4cc1f84c8186.setContent(html_ac267931095687646e6c9efc57a98855);
+            
+        
+
+        marker_a49881e53ed72237f53c2c8c349c506b.bindPopup(popup_320ea62e5ab3c0d4cfcf4cc1f84c8186)
+        ;
+
+        
+    
+    
+            marker_a49881e53ed72237f53c2c8c349c506b.bindTooltip(
+                `<div>
+                     Health Index: 0.43
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_a49881e53ed72237f53c2c8c349c506b.setIcon(icon_938f8ea2029ce53db7fffa7716df25af);
+            
+    
+            var marker_f8fc0e34d85fa9cbe5b9c28d1955ed9b = L.marker(
+                [49.85595, -117.34046],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_8a61cded70c04bbe36bd77aeb032f46c = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "leaf",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_43c35f935a91d7cac5ad2f752fb8f548 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_0a6ae9c6f8b04a6560fb3ca152950fa1 = $(`<div id="html_0a6ae9c6f8b04a6560fb3ca152950fa1" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-003</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.90</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.553</td></tr>                     <tr><td><b>Tree Density:</b></td><td>267/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.61</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-09-15</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_43c35f935a91d7cac5ad2f752fb8f548.setContent(html_0a6ae9c6f8b04a6560fb3ca152950fa1);
+            
+        
+
+        marker_f8fc0e34d85fa9cbe5b9c28d1955ed9b.bindPopup(popup_43c35f935a91d7cac5ad2f752fb8f548)
+        ;
+
+        
+    
+    
+            marker_f8fc0e34d85fa9cbe5b9c28d1955ed9b.bindTooltip(
+                `<div>
+                     Health Index: 0.90
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_f8fc0e34d85fa9cbe5b9c28d1955ed9b.setIcon(icon_8a61cded70c04bbe36bd77aeb032f46c);
+            
+    
+            var marker_be11625563abfce38ed8e1f2d70681fb = L.marker(
+                [48.78927, -122.30129],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_5c1ad7cdba7bdf5101669548f3e4eb74 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "leaf",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_da8c4e4d980d8adf229a850a880ec52e = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_95c867c517275b9cdc43c220720582bf = $(`<div id="html_95c867c517275b9cdc43c220720582bf" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-004</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.74</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.463</td></tr>                     <tr><td><b>Tree Density:</b></td><td>471/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.75</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-01-27</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_da8c4e4d980d8adf229a850a880ec52e.setContent(html_95c867c517275b9cdc43c220720582bf);
+            
+        
+
+        marker_be11625563abfce38ed8e1f2d70681fb.bindPopup(popup_da8c4e4d980d8adf229a850a880ec52e)
+        ;
+
+        
+    
+    
+            marker_be11625563abfce38ed8e1f2d70681fb.bindTooltip(
+                `<div>
+                     Health Index: 0.74
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_be11625563abfce38ed8e1f2d70681fb.setIcon(icon_5c1ad7cdba7bdf5101669548f3e4eb74);
+            
+    
+            var marker_7f638e92d200c4c32a8f143b0b696b91 = L.marker(
+                [45.24815, -122.5454],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_ee7f54f8ebe11820989b4776982ac737 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "leaf",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_3c2a8e8ab74640bbe82e017fb5fdc7b6 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_5956639d4e640eb86d7acdce218f521e = $(`<div id="html_5956639d4e640eb86d7acdce218f521e" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-005</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.79</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.705</td></tr>                     <tr><td><b>Tree Density:</b></td><td>112/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.25</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-07-24</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_3c2a8e8ab74640bbe82e017fb5fdc7b6.setContent(html_5956639d4e640eb86d7acdce218f521e);
+            
+        
+
+        marker_7f638e92d200c4c32a8f143b0b696b91.bindPopup(popup_3c2a8e8ab74640bbe82e017fb5fdc7b6)
+        ;
+
+        
+    
+    
+            marker_7f638e92d200c4c32a8f143b0b696b91.bindTooltip(
+                `<div>
+                     Health Index: 0.79
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_7f638e92d200c4c32a8f143b0b696b91.setIcon(icon_ee7f54f8ebe11820989b4776982ac737);
+            
+    
+            var marker_54e8b2faabaf82fe68d2a2a46470c49a = L.marker(
+                [45.24796, -122.53276],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_66b1cca10c48d0af922f898f44795b55 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "exclamation-triangle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_c3bca85c05e266f8bef5c06da72a3eba = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_3540f545862de0f7f7d982615e42ea51 = $(`<div id="html_3540f545862de0f7f7d982615e42ea51" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-006</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.52</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.568</td></tr>                     <tr><td><b>Tree Density:</b></td><td>541/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.84</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-05-26</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_c3bca85c05e266f8bef5c06da72a3eba.setContent(html_3540f545862de0f7f7d982615e42ea51);
+            
+        
+
+        marker_54e8b2faabaf82fe68d2a2a46470c49a.bindPopup(popup_c3bca85c05e266f8bef5c06da72a3eba)
+        ;
+
+        
+    
+    
+            marker_54e8b2faabaf82fe68d2a2a46470c49a.bindTooltip(
+                `<div>
+                     Health Index: 0.52
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_54e8b2faabaf82fe68d2a2a46470c49a.setIcon(icon_66b1cca10c48d0af922f898f44795b55);
+            
+    
+            var marker_8d19a8c567efcb9d9a3bf8ef33258250 = L.marker(
+                [44.46467, -121.56606],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_ca3b5650d4c56656290dec47548bd9ee = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "leaf",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_c4ee375ab720e3ea5e2f713d783ee7ca = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_3f49c010ffc73d45ed67dafd32257eef = $(`<div id="html_3f49c010ffc73d45ed67dafd32257eef" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-007</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.77</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.413</td></tr>                     <tr><td><b>Tree Density:</b></td><td>540/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.35</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-07-17</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_c4ee375ab720e3ea5e2f713d783ee7ca.setContent(html_3f49c010ffc73d45ed67dafd32257eef);
+            
+        
+
+        marker_8d19a8c567efcb9d9a3bf8ef33258250.bindPopup(popup_c4ee375ab720e3ea5e2f713d783ee7ca)
+        ;
+
+        
+    
+    
+            marker_8d19a8c567efcb9d9a3bf8ef33258250.bindTooltip(
+                `<div>
+                     Health Index: 0.77
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_8d19a8c567efcb9d9a3bf8ef33258250.setIcon(icon_ca3b5650d4c56656290dec47548bd9ee);
+            
+    
+            var marker_6830ed0904c1642339eb20ee7fa788e5 = L.marker(
+                [50.92941, -119.80195],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_66952639fe15fc8b48118d2203c9e3bd = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "leaf",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_7fa1e9ee4068d564f468ee798f2bf555 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_15692c2fe14b623e2f91d8f5ae433683 = $(`<div id="html_15692c2fe14b623e2f91d8f5ae433683" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-008</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.98</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.584</td></tr>                     <tr><td><b>Tree Density:</b></td><td>250/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.35</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-07-27</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_7fa1e9ee4068d564f468ee798f2bf555.setContent(html_15692c2fe14b623e2f91d8f5ae433683);
+            
+        
+
+        marker_6830ed0904c1642339eb20ee7fa788e5.bindPopup(popup_7fa1e9ee4068d564f468ee798f2bf555)
+        ;
+
+        
+    
+    
+            marker_6830ed0904c1642339eb20ee7fa788e5.bindTooltip(
+                `<div>
+                     Health Index: 0.98
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_6830ed0904c1642339eb20ee7fa788e5.setIcon(icon_66952639fe15fc8b48118d2203c9e3bd);
+            
+    
+            var marker_2b012fadf2e613eb27c6eff7bbca09c5 = L.marker(
+                [48.80892, -120.54444],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_cdebb9038e86c80da3c55a940f7cf55a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "leaf",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_e1a6068b27a3507739076f24e3d9d4d6 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_5bb3f143f5c408aca58a9751be811276 = $(`<div id="html_5bb3f143f5c408aca58a9751be811276" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-009</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.71</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.410</td></tr>                     <tr><td><b>Tree Density:</b></td><td>107/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.36</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-04-11</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_e1a6068b27a3507739076f24e3d9d4d6.setContent(html_5bb3f143f5c408aca58a9751be811276);
+            
+        
+
+        marker_2b012fadf2e613eb27c6eff7bbca09c5.bindPopup(popup_e1a6068b27a3507739076f24e3d9d4d6)
+        ;
+
+        
+    
+    
+            marker_2b012fadf2e613eb27c6eff7bbca09c5.bindTooltip(
+                `<div>
+                     Health Index: 0.71
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_2b012fadf2e613eb27c6eff7bbca09c5.setIcon(icon_cdebb9038e86c80da3c55a940f7cf55a);
+            
+    
+            var marker_23aea0edb00a4cc3b4ed9b65d8413ea9 = L.marker(
+                [49.66458, -121.67017],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_0a61981d0541864b389976479f4eb036 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "exclamation-triangle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_281e2a2fa557f799aa41f76df1155412 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_474460bb04ab799afcbadfa8cd4d553b = $(`<div id="html_474460bb04ab799afcbadfa8cd4d553b" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-010</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.66</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.505</td></tr>                     <tr><td><b>Tree Density:</b></td><td>362/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.52</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-04-13</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_281e2a2fa557f799aa41f76df1155412.setContent(html_474460bb04ab799afcbadfa8cd4d553b);
+            
+        
+
+        marker_23aea0edb00a4cc3b4ed9b65d8413ea9.bindPopup(popup_281e2a2fa557f799aa41f76df1155412)
+        ;
+
+        
+    
+    
+            marker_23aea0edb00a4cc3b4ed9b65d8413ea9.bindTooltip(
+                `<div>
+                     Health Index: 0.66
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_23aea0edb00a4cc3b4ed9b65d8413ea9.setIcon(icon_0a61981d0541864b389976479f4eb036);
+            
+    
+            var marker_1b860c749d426ecf23cf14dae8eef960 = L.marker(
+                [2.23706, -67.8491],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_a4aed27cd20b2715b688ff92ea143539 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "red",
+  "iconColor": "white",
+  "icon": "warning",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1eac5b4e2869fa63f91777b7fcf176a8 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_e80f8f210e96cc1c8f290e96c1c42286 = $(`<div id="html_e80f8f210e96cc1c8f290e96c1c42286" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-011</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.14</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.542</td></tr>                     <tr><td><b>Tree Density:</b></td><td>453/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.36</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-08-09</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_1eac5b4e2869fa63f91777b7fcf176a8.setContent(html_e80f8f210e96cc1c8f290e96c1c42286);
+            
+        
+
+        marker_1b860c749d426ecf23cf14dae8eef960.bindPopup(popup_1eac5b4e2869fa63f91777b7fcf176a8)
+        ;
+
+        
+    
+    
+            marker_1b860c749d426ecf23cf14dae8eef960.bindTooltip(
+                `<div>
+                     Health Index: 0.14
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_1b860c749d426ecf23cf14dae8eef960.setIcon(icon_a4aed27cd20b2715b688ff92ea143539);
+            
+    
+            var marker_c05e2c2501ac9efbe4f7f0502afdb166 = L.marker(
+                [-7.21012, -76.58952],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_db3205bae7e9b9291a1be0f34affc16a = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "exclamation-triangle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_0eb24cfccacd8d50176e93f51cd7e3e9 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_6d29411786e3028399e39bb833d2ff01 = $(`<div id="html_6d29411786e3028399e39bb833d2ff01" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-012</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.63</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.747</td></tr>                     <tr><td><b>Tree Density:</b></td><td>466/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.43</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-01-24</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_0eb24cfccacd8d50176e93f51cd7e3e9.setContent(html_6d29411786e3028399e39bb833d2ff01);
+            
+        
+
+        marker_c05e2c2501ac9efbe4f7f0502afdb166.bindPopup(popup_0eb24cfccacd8d50176e93f51cd7e3e9)
+        ;
+
+        
+    
+    
+            marker_c05e2c2501ac9efbe4f7f0502afdb166.bindTooltip(
+                `<div>
+                     Health Index: 0.63
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_c05e2c2501ac9efbe4f7f0502afdb166.setIcon(icon_db3205bae7e9b9291a1be0f34affc16a);
+            
+    
+            var marker_c6c408d9c4f8510801e6a85726cb2ace = L.marker(
+                [-4.15711, -78.69897],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_3d0b9bc9d067fb3fc0dbd0c81863b89d = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "leaf",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_2db52470a0d34287806c6baf4cca9462 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_615aa6407fab04c2d1a67c618b9727ce = $(`<div id="html_615aa6407fab04c2d1a67c618b9727ce" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-013</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.79</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.509</td></tr>                     <tr><td><b>Tree Density:</b></td><td>304/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.68</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-02-21</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_2db52470a0d34287806c6baf4cca9462.setContent(html_615aa6407fab04c2d1a67c618b9727ce);
+            
+        
+
+        marker_c6c408d9c4f8510801e6a85726cb2ace.bindPopup(popup_2db52470a0d34287806c6baf4cca9462)
+        ;
+
+        
+    
+    
+            marker_c6c408d9c4f8510801e6a85726cb2ace.bindTooltip(
+                `<div>
+                     Health Index: 0.79
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_c6c408d9c4f8510801e6a85726cb2ace.setIcon(icon_3d0b9bc9d067fb3fc0dbd0c81863b89d);
+            
+    
+            var marker_1eb1b3d9622252540ba5fa206a50cecd = L.marker(
+                [-2.67276, -61.02229],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_697390ccda8828b7a9b520463772e0b4 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "leaf",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_0d39169c93311ca0e6f7095495208a1a = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_5e647d6342f6812a3a779c4b312f98af = $(`<div id="html_5e647d6342f6812a3a779c4b312f98af" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-014</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.74</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.784</td></tr>                     <tr><td><b>Tree Density:</b></td><td>202/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.38</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-06-24</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_0d39169c93311ca0e6f7095495208a1a.setContent(html_5e647d6342f6812a3a779c4b312f98af);
+            
+        
+
+        marker_1eb1b3d9622252540ba5fa206a50cecd.bindPopup(popup_0d39169c93311ca0e6f7095495208a1a)
+        ;
+
+        
+    
+    
+            marker_1eb1b3d9622252540ba5fa206a50cecd.bindTooltip(
+                `<div>
+                     Health Index: 0.74
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_1eb1b3d9622252540ba5fa206a50cecd.setIcon(icon_697390ccda8828b7a9b520463772e0b4);
+            
+    
+            var marker_198a9137ff10ea7b749eaf6b01458c03 = L.marker(
+                [-0.8786, -60.68736],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_4f0142cbb83d03fd9c7ff0b945756ee9 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "leaf",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_170a39d6b54a211855653f0976577206 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_d03fd7cb1fcc8c9b52e9d972cd77eba5 = $(`<div id="html_d03fd7cb1fcc8c9b52e9d972cd77eba5" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-015</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.74</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.805</td></tr>                     <tr><td><b>Tree Density:</b></td><td>280/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.44</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-06-16</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_170a39d6b54a211855653f0976577206.setContent(html_d03fd7cb1fcc8c9b52e9d972cd77eba5);
+            
+        
+
+        marker_198a9137ff10ea7b749eaf6b01458c03.bindPopup(popup_170a39d6b54a211855653f0976577206)
+        ;
+
+        
+    
+    
+            marker_198a9137ff10ea7b749eaf6b01458c03.bindTooltip(
+                `<div>
+                     Health Index: 0.74
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_198a9137ff10ea7b749eaf6b01458c03.setIcon(icon_4f0142cbb83d03fd9c7ff0b945756ee9);
+            
+    
+            var marker_c17f6da28834f2974261b33a3cb6ace1 = L.marker(
+                [5.70352, -63.83205],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_1ad66de3c8e7f7514f580a5662ed683b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "leaf",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_798a747cc3168a62429526f52472d27d = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_c801eeccc522cacead42edb6d298dd81 = $(`<div id="html_c801eeccc522cacead42edb6d298dd81" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-016</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.80</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.642</td></tr>                     <tr><td><b>Tree Density:</b></td><td>226/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.46</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-07-20</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_798a747cc3168a62429526f52472d27d.setContent(html_c801eeccc522cacead42edb6d298dd81);
+            
+        
+
+        marker_c17f6da28834f2974261b33a3cb6ace1.bindPopup(popup_798a747cc3168a62429526f52472d27d)
+        ;
+
+        
+    
+    
+            marker_c17f6da28834f2974261b33a3cb6ace1.bindTooltip(
+                `<div>
+                     Health Index: 0.80
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_c17f6da28834f2974261b33a3cb6ace1.setIcon(icon_1ad66de3c8e7f7514f580a5662ed683b);
+            
+    
+            var marker_a4cc0c14e3c51b8f523db9d0681abad0 = L.marker(
+                [-6.00652, -73.90772],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_e93765d59e4a6a140163a717cbd7b68b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "exclamation-triangle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_f1a96f04bd9f158d916d7f3f6c01101f = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_159787248e60a36694e53d50440b35ca = $(`<div id="html_159787248e60a36694e53d50440b35ca" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-017</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.55</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.735</td></tr>                     <tr><td><b>Tree Density:</b></td><td>552/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.36</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-10-03</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_f1a96f04bd9f158d916d7f3f6c01101f.setContent(html_159787248e60a36694e53d50440b35ca);
+            
+        
+
+        marker_a4cc0c14e3c51b8f523db9d0681abad0.bindPopup(popup_f1a96f04bd9f158d916d7f3f6c01101f)
+        ;
+
+        
+    
+    
+            marker_a4cc0c14e3c51b8f523db9d0681abad0.bindTooltip(
+                `<div>
+                     Health Index: 0.55
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_a4cc0c14e3c51b8f523db9d0681abad0.setIcon(icon_e93765d59e4a6a140163a717cbd7b68b);
+            
+    
+            var marker_713f80a5d21e5051d643fcab5af7dffa = L.marker(
+                [0.28469, -78.04656],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_4617d1976ddc4e143e22d45ef4ba6b77 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "green",
+  "iconColor": "white",
+  "icon": "leaf",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_1b05d5765537a80f82552fd2e3bc9af2 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_691fef52b71d8cb10c0ce1dcff5cbb2e = $(`<div id="html_691fef52b71d8cb10c0ce1dcff5cbb2e" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-018</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.72</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.499</td></tr>                     <tr><td><b>Tree Density:</b></td><td>383/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.92</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-05-05</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_1b05d5765537a80f82552fd2e3bc9af2.setContent(html_691fef52b71d8cb10c0ce1dcff5cbb2e);
+            
+        
+
+        marker_713f80a5d21e5051d643fcab5af7dffa.bindPopup(popup_1b05d5765537a80f82552fd2e3bc9af2)
+        ;
+
+        
+    
+    
+            marker_713f80a5d21e5051d643fcab5af7dffa.bindTooltip(
+                `<div>
+                     Health Index: 0.72
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_713f80a5d21e5051d643fcab5af7dffa.setIcon(icon_4617d1976ddc4e143e22d45ef4ba6b77);
+            
+    
+            var marker_2d73d6504a9dd33be163451757932463 = L.marker(
+                [1.84829, -66.31534],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_002489ea303b3d7c18d94a1235248d31 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "exclamation-triangle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_119f4728e118d28746f84d01ad8746d5 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_5cd7eec278d5179c9e1f1bfb6559c3b6 = $(`<div id="html_5cd7eec278d5179c9e1f1bfb6559c3b6" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-019</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.64</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.833</td></tr>                     <tr><td><b>Tree Density:</b></td><td>483/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.87</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-08-01</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_119f4728e118d28746f84d01ad8746d5.setContent(html_5cd7eec278d5179c9e1f1bfb6559c3b6);
+            
+        
+
+        marker_2d73d6504a9dd33be163451757932463.bindPopup(popup_119f4728e118d28746f84d01ad8746d5)
+        ;
+
+        
+    
+    
+            marker_2d73d6504a9dd33be163451757932463.bindTooltip(
+                `<div>
+                     Health Index: 0.64
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_2d73d6504a9dd33be163451757932463.setIcon(icon_002489ea303b3d7c18d94a1235248d31);
+            
+    
+            var marker_25e7a4d6afeb78cfaf80a0787301b008 = L.marker(
+                [-9.07099, -71.19695],
+                {
+}
+            ).addTo(marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0);
+        
+    
+            var icon_6adf0428c3be4fcbfe642f01d83f6e90 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "orange",
+  "iconColor": "white",
+  "icon": "exclamation-triangle",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_cdf936e082cfb70fe884c2be7350780d = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_f7f890772bf590035ffcdf159229621b = $(`<div id="html_f7f890772bf590035ffcdf159229621b" style="width: 100.0%; height: 100.0%;">             <div style="font-family: Arial; min-width: 200px;">                 <h4 style="color: #228B22; margin: 0 0 8px 0;">🌲 Forest Health Site</h4>                 <table style="font-size: 11px; width: 100%;">                     <tr><td><b>Site ID:</b></td><td>FOREST-020</td></tr>                     <tr><td><b>Health Index:</b></td><td>0.54</td></tr>                     <tr><td><b>NDVI:</b></td><td>0.696</td></tr>                     <tr><td><b>Tree Density:</b></td><td>306/ha</td></tr>                     <tr><td><b>Species Diversity:</b></td><td>0.48</td></tr>                     <tr><td><b>Last Survey:</b></td><td>2025-09-03</td></tr>                 </table>             </div>             </div>`)[0];
+                popup_cdf936e082cfb70fe884c2be7350780d.setContent(html_f7f890772bf590035ffcdf159229621b);
+            
+        
+
+        marker_25e7a4d6afeb78cfaf80a0787301b008.bindPopup(popup_cdf936e082cfb70fe884c2be7350780d)
+        ;
+
+        
+    
+    
+            marker_25e7a4d6afeb78cfaf80a0787301b008.bindTooltip(
+                `<div>
+                     Health Index: 0.54
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_25e7a4d6afeb78cfaf80a0787301b008.setIcon(icon_6adf0428c3be4fcbfe642f01d83f6e90);
+            
+    
+            marker_cluster_4ae0746a9e8cff05b4cb50b9d59116f0.addTo(feature_group_3d4c38aced9a63c020d32c8c6fa2e4e8);
+        
+    
+            feature_group_3d4c38aced9a63c020d32c8c6fa2e4e8.addTo(map_ed39d567affeafcbf1fa0c1a5e2210ea);
+        
+    
+            var feature_group_f07728452f6f185542e0315fd4ee2931 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_f07728452f6f185542e0315fd4ee2931.addTo(map_ed39d567affeafcbf1fa0c1a5e2210ea);
+        
+    
+            var feature_group_8e916136add5e35a88c8b2dca01b5d71 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_8e916136add5e35a88c8b2dca01b5d71.addTo(map_ed39d567affeafcbf1fa0c1a5e2210ea);
+        
+    
+            var feature_group_8f4c00642ebe50f6e3c915a69cd36e95 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            feature_group_8f4c00642ebe50f6e3c915a69cd36e95.addTo(map_ed39d567affeafcbf1fa0c1a5e2210ea);
+        
+    
+            var feature_group_d16a964573492d4d407c507827c8d067 = L.featureGroup(
+                {
+}
+            );
+        
+    
+            var layer_control_f5e1002fb656d345913f19b595f8740d_layers = {
+                base_layers : {
+                    "cartodbpositron" : tile_layer_c6485c6a1f67b699c6b3d4afe060c631,
+                },
+                overlays :  {
+                    "\ud83d\udd37 H3 Spatial Grid" : feature_group_a3aa5fbe0b4f3b864750f81e336dd0bd,
+                    "\ud83c\udf32 Forest Health" : feature_group_3d4c38aced9a63c020d32c8c6fa2e4e8,
+                    "\ud83c\udf0a Coastal Resilience" : feature_group_f07728452f6f185542e0315fd4ee2931,
+                    "\ud83d\udd25 Fire Risk" : feature_group_8e916136add5e35a88c8b2dca01b5d71,
+                    "\ud83c\udfd8\ufe0f Community Development" : feature_group_8f4c00642ebe50f6e3c915a69cd36e95,
+                    "\ud83d\udd17 Cross-Domain Integration" : feature_group_d16a964573492d4d407c507827c8d067,
+                },
+            };
+            let layer_control_f5e1002fb656d345913f19b595f8740d = L.control.layers(
+                layer_control_f5e1002fb656d345913f19b595f8740d_layers.base_layers,
+                layer_control_f5e1002fb656d345913f19b595f8740d_layers.overlays,
+                {
+  "position": "topright",
+  "collapsed": true,
+  "autoZIndex": true,
+}
+            ).addTo(map_ed39d567affeafcbf1fa0c1a5e2210ea);
+
+        
+</script>
+</html>

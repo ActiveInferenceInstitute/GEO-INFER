@@ -30,20 +30,8 @@ class SpatialProcessor:
             raise ValueError("Input GeoDataFrame is empty or missing geometry column")
         try:
             buffered = gdf.copy()
-            
-            # Reproject to Web Mercator (metric) if CRS is geographic
-            is_geom_geographic = False
-            if buffered.crs and buffered.crs.is_geographic:
-                is_geom_geographic = True
-                original_crs = buffered.crs
-                buffered = buffered.to_crs("EPSG:3857")
-                
+
             buffered['geometry'] = buffered.geometry.buffer(buffer_distance)
-            
-            # Reproject back if we modified it
-            if is_geom_geographic:
-                buffered = buffered.to_crs(original_crs)
-                
             return buffered
         except Exception as e:
             logger.error(f"Buffer analysis failed: {e}")

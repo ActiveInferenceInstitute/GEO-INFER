@@ -11,91 +11,45 @@
 
 ## Overview
 
-The **GEO-INFER-OPS** module provides DevOps and operational capabilities for agents, enabling deployment, monitoring, scaling, and management of agent systems in production environments.
+The **GEO-INFER-OPS** module provides operational capabilities for running GEO-INFER components, including orchestration, deployment management, configuration, logging/monitoring setup, and health checks.
 
 ## Agent Capabilities
 
 ### 1. Agent Deployment
 
 ```python
-from geo_infer_ops import AgentDeployer
+from geo_infer_ops import DeploymentManager
 
 # Deploy agents to production
-deployer = AgentDeployer()
+deployer = DeploymentManager()
 
-deployment = deployer.deploy(
-    agent_config=agent_spec,
-    target="kubernetes",
-    replicas=3,
-    resources={
-        "cpu": "1",
-        "memory": "4Gi",
-        "gpu": "0"
-    })
+result = deployer.deploy(
+    config={"agent_spec": agent_spec},
+    environment="kubernetes",
+)
 
-print(f"Deployment ID: {deployment.id}")
-print(f"Status: {deployment.status}")
-print(f"Endpoints: {deployment.endpoints}")```
+print(result)```
 
 ### 2. Health Monitoring
 
 ```python
-from geo_infer_ops import HealthMonitor
+import asyncio
+
+from geo_infer_ops import HealthChecker
 
 # Monitor agent health
-monitor = HealthMonitor()
+monitor = HealthChecker()
 
-# Get health status
-health = monitor.check(
-    agents=["agent_001", "agent_002", "agent_003"],
-    metrics=["latency", "error_rate", "memory", "cpu"])
+health = asyncio.run(monitor.run_all_checks())
+print(health)```
 
-for agent_id, status in health.items():
-    print(f"Agent {agent_id}:")
-    print(f"  Health: {status.health_score}%")
-    print(f"  Latency: {status.latency_ms}ms")```
-
-### 3. Auto-Scaling
+### 3. Orchestration
 
 ```python
-from geo_infer_ops import AutoScaler
+from geo_infer_ops import Orchestrator, Task
 
-# Configure auto-scaling
-scaler = AutoScaler()
-
-policy = scaler.configure(
-    agent_type="analysis_agent",
-    scaling_rules={
-        "cpu_threshold": 70, 
-
-# percent
-        "queue_depth": 100,
-        "min_replicas": 2,
-        "max_replicas": 10
-    })
-
-# Get scaling events
-events = scaler.get_events(last_hours=24)```
-
-### 4. Observability
-
-```python
-from geo_infer_ops import Observability
-
-# Full observability stack
-obs = Observability()
-
-# Collect traces
-obs.trace(
-    agent_id="agent_001",
-    operation="spatial_analysis",
-    span_data=operation_data)
-
-# Query logs
-logs = obs.query_logs(
-    agent_pattern="analysis_*",
-    level="ERROR",
-    time_range=("2026-02-24", "2026-02-25"))
+orchestrator = Orchestrator()
+orchestrator.submit(Task(name="example_task", payload={"step": "noop"}))
 ```
 
 ## Implementation Status
@@ -104,10 +58,9 @@ logs = obs.query_logs(
 
 | Feature | Status | Description |
 |---------|--------|-------------|
-| **Deployment** | ✅ Ready | K8s, Docker, cloud |
-| **Health Monitoring** | ✅ Ready | Real-time metrics |
-| **Auto-Scaling** | ✅ Ready | Policy-based scaling |
-| **Observability** | ✅ Ready | Logs, traces, metrics |
+| **Deployment** | ✅ Ready | Deployment manager facade |
+| **Health Monitoring** | ✅ Ready | Health checks and status reporting |
+| **Orchestration** | ✅ Ready | Task orchestration primitives |
 
 ### Aspirational/Planned Features
 

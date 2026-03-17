@@ -222,13 +222,7 @@ graph TD
     ONTO --> CACHE
     WORKFLOW --> CACHE
 
-    classDef ui fill:#bbf,stroke:#333,stroke-width:1px
-    classDef services fill:#dfd,stroke:#333,stroke-width:1px
-    classDef storage fill:#ffd,stroke:#333,stroke-width:1px
-
-    class WEB,CLI,API ui
-    class KB,ONTO,DOC,WORKFLOW services
-    class DB,FS,CACHE storage
+    %% Note: no explicit styling; keep dark-mode compatible
 ```
 
 ## Key Features

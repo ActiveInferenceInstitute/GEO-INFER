@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="6" failures="0" skipped="0" tests="6" time="0.305" timestamp="2026-03-17T08:17:13.896302-07:00" hostname="timelock.local"><testcase classname="" name="tests.test_accessibility" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-TRANSPORT/tests/test_accessibility.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-TRANSPORT/tests/test_accessibility.py:5: in &lt;module&gt;
+    from geo_infer_transport.core.accessibility import (
+E   ModuleNotFoundError: No module named 'geo_infer_transport'</error></testcase><testcase classname="" name="tests.test_network_routing" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-TRANSPORT/tests/test_network_routing.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-TRANSPORT/tests/test_network_routing.py:6: in &lt;module&gt;
+    from geo_infer_transport.core.network import (
+E   ModuleNotFoundError: No module named 'geo_infer_transport'</error></testcase><testcase classname="" name="tests.test_routing" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-TRANSPORT/tests/test_routing.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-TRANSPORT/tests/test_routing.py:4: in &lt;module&gt;
+    from geo_infer_transport.core.routing import (
+E   ModuleNotFoundError: No module named 'geo_infer_transport'</error></testcase><testcase classname="" name="tests.test_traffic" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-TRANSPORT/tests/test_traffic.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-TRANSPORT/tests/test_traffic.py:4: in &lt;module&gt;
+    from geo_infer_transport.core.traffic import TrafficAnalyzer
+E   ModuleNotFoundError: No module named 'geo_infer_transport'</error></testcase><testcase classname="" name="tests.test_traffic_transit" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-TRANSPORT/tests/test_traffic_transit.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-TRANSPORT/tests/test_traffic_transit.py:7: in &lt;module&gt;
+    from geo_infer_transport.core.traffic import (
+E   ModuleNotFoundError: No module named 'geo_infer_transport'</error></testcase><testcase classname="" name="tests.test_transit" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-TRANSPORT/tests/test_transit.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-TRANSPORT/tests/test_transit.py:4: in &lt;module&gt;
+    from geo_infer_transport.core.transit import (
+E   ModuleNotFoundError: No module named 'geo_infer_transport'</error></testcase></testsuite></testsuites>

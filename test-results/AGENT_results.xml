@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="13" failures="0" skipped="0" tests="13" time="0.472" timestamp="2026-03-17T08:11:44.994349-07:00" hostname="timelock.local"><testcase classname="" name="tests.integration.test_bdi_lifecycle" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AGENT/tests/integration/test_bdi_lifecycle.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-AGENT/tests/integration/test_bdi_lifecycle.py:13: in &lt;module&gt;
+    from geo_infer_agent.models.bdi.agent import BDIAgent, BDIState, Belief, Desire, Plan
+E   ModuleNotFoundError: No module named 'geo_infer_agent'</error></testcase><testcase classname="" name="tests.unit.models.test_active_inference" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AGENT/tests/unit/models/test_active_inference.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-AGENT/tests/unit/models/test_active_inference.py:22: in &lt;module&gt;
+    from geo_infer_agent.models.active_inference import (
+E   ModuleNotFoundError: No module named 'geo_infer_agent'</error></testcase><testcase classname="" name="tests.unit.models.test_bdi" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AGENT/tests/unit/models/test_bdi.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-AGENT/tests/unit/models/test_bdi.py:14: in &lt;module&gt;
+    from geo_infer_agent.models import BDIState, BDIAgent
+E   ModuleNotFoundError: No module named 'geo_infer_agent'</error></testcase><testcase classname="" name="tests.unit.test_agent_base" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AGENT/tests/unit/test_agent_base.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-AGENT/tests/unit/test_agent_base.py:15: in &lt;module&gt;
+    from geo_infer_agent.core.agent_base import AgentState, BaseAgent, ExampleAgent
+E   ModuleNotFoundError: No module named 'geo_infer_agent'</error></testcase><testcase classname="" name="tests.unit.test_agent_communication" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AGENT/tests/unit/test_agent_communication.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-AGENT/tests/unit/test_agent_communication.py:13: in &lt;module&gt;
+    from geo_infer_agent.core.agent_base import ExampleAgent
+E   ModuleNotFoundError: No module named 'geo_infer_agent'</error></testcase><testcase classname="" name="tests.unit.test_coordination" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AGENT/tests/unit/test_coordination.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-AGENT/tests/unit/test_coordination.py:11: in &lt;module&gt;
+    from geo_infer_agent.core.agent_registry import AgentRegistry
+E   ModuleNotFoundError: No module named 'geo_infer_agent'</error></testcase><testcase classname="" name="tests.unit.test_data_collector" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AGENT/tests/unit/test_data_collector.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-AGENT/tests/unit/test_data_collector.py:17: in &lt;module&gt;
+    from geo_infer_agent.models.bdi import Belief, Desire, Plan
+E   ModuleNotFoundError: No module named 'geo_infer_agent'</error></testcase><testcase classname="" name="tests.unit.test_hybrid" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AGENT/tests/unit/test_hybrid.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-AGENT/tests/unit/test_hybrid.py:14: in &lt;module&gt;
+    from geo_infer_agent.core.agent_base import ExampleAgent
+E   ModuleNotFoundError: No module named 'geo_infer_agent'</error></testcase><testcase classname="" name="tests.unit.test_messaging" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AGENT/tests/unit/test_messaging.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-AGENT/tests/unit/test_messaging.py:12: in &lt;module&gt;
+    from geo_infer_agent.api.messaging import Message, MessagingService
+E   ModuleNotFoundError: No module named 'geo_infer_agent'</error></testcase><testcase classname="" name="tests.unit.test_planning" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AGENT/tests/unit/test_planning.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-AGENT/tests/unit/test_planning.py:12: in &lt;module&gt;
+    from geo_infer_agent.models.bdi.agent import Plan, Belief, Desire
+E   ModuleNotFoundError: No module named 'geo_infer_agent'</error></testcase><testcase classname="" name="tests.unit.test_rule_based" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AGENT/tests/unit/test_rule_based.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-AGENT/tests/unit/test_rule_based.py:11: in &lt;module&gt;
+    from geo_infer_agent.models.rule_based import Rule, RuleBasedState, RuleSet
+E   ModuleNotFoundError: No module named 'geo_infer_agent'</error></testcase><testcase classname="" name="tests.unit.test_task_management" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AGENT/tests/unit/test_task_management.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-AGENT/tests/unit/test_task_management.py:11: in &lt;module&gt;
+    from geo_infer_agent.models.bdi.agent import Plan, Desire, Belief
+E   ModuleNotFoundError: No module named 'geo_infer_agent'</error></testcase><testcase classname="" name="tests.unit.test_telemetry" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-AGENT/tests/unit/test_telemetry.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-AGENT/tests/unit/test_telemetry.py:12: in &lt;module&gt;
+    from geo_infer_agent.api.telemetry import (
+E   ModuleNotFoundError: No module named 'geo_infer_agent'</error></testcase></testsuite></testsuites>

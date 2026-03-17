@@ -11,7 +11,7 @@ authors = [
 ]
 readme = "README.md"
 license = {text = "CC BY-NC-SA 4.0"}
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
@@ -231,9 +231,8 @@ Repository = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
 Discord = "https://discord.activeinference.institute/"
 
 [project.scripts]
-geo-infer-setup = "geo_infer_framework.setup:main"
-geo-infer-test = "geo_infer_framework.testing:main"
-geo-infer-docs = "geo_infer_framework.documentation:main"
+# NOTE: Intentionally omitted at root. Use module-provided CLIs and
+# `GEO-INFER-TEST/run_unified_tests.py` for testing.
 
 [tool.setuptools.packages.find]
 where = ["."]
@@ -267,7 +266,7 @@ line_length = 88
 known_first_party = ["geo_infer_framework"]
 
 [tool.mypy]
-python_version = "3.9"
+python_version = "3.11"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -301,7 +300,7 @@ ignore_missing_imports = true
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-ra -q --strict-markers --strict-config"
+addopts = "-ra -q --strict-markers --strict-config --import-mode=importlib"
 testpaths = [
     "GEO-INFER-*/tests",
     "tests",
@@ -314,6 +313,10 @@ markers = [
     "integration: marks tests as integration tests",
     "unit: marks tests as unit tests",
     "performance: marks tests as performance tests",
+    "system: marks tests as system/e2e tests",
+    "geospatial: marks tests involving spatial operations",
+    "api: marks tests related to API functionality",
+    "fast: marks tests intended to run quickly",
 ]
 
 [tool.coverage.run]

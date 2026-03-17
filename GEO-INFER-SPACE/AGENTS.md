@@ -11,54 +11,44 @@
 
 ## Overview
 
-The **GEO-INFER-SPACE** module provides core spatial analysis capabilities for agents, including H3 indexing, geometric operations, and spatial queries.
+The **GEO-INFER-SPACE** module provides core spatial capabilities for agents via backend-agnostic interfaces (indexing, geometry, analytics) and H3 v4 convenience wrappers.
 
 ## Agent Capabilities
 
 ### 1. H3 Spatial Indexing
 
 ```python
-from geo_infer_space import H3Indexer
+from geo_infer_space import SpatialIndexingInterface
 
-# Index spatial data with H3
-indexer = H3Indexer()
+indexer = SpatialIndexingInterface(backend="h3")
 
-cells = indexer.index(
-    geometry=city_boundary,
-    resolution=9)
+cell = indexer.latlng_to_cell(37.7749, -122.4194, 9)
+lat, lng = indexer.cell_to_latlng(cell)
 
-print(f"H3 cells: {len(cells)}")
-print(f"Coverage: {cells.coverage}%")```
+print(cell)
+print((lat, lng))```
 
-### 2. Spatial Queries
+### 2. Spatial analytics
 
 ```python
-from geo_infer_space import SpatialQuery
+from geo_infer_space import SpatialAnalyticsInterface
 
-# Perform spatial queries
-query = SpatialQuery()
-
-results = query.within(
-    features=buildings,
-    boundary=flood_zone)
-
-nearby = query.nearby(
-    point=location,
-    radius_m=1000,
-    features=amenities)
+analytics = SpatialAnalyticsInterface()
+result = analytics.analyze_hotspots(spatial_data)
+print(result)
 ```
 
 ### 3. Geometric Operations
 
 ```python
-from geo_infer_space import GeometryOps
+from geo_infer_space import GeometricOperationsInterface
 
 # Geometric operations
-ops = GeometryOps()
+ops = GeometricOperationsInterface()
 
 buffered = ops.buffer(geometry, distance=100)
-intersection = ops.intersect(layer_a, layer_b)
-union = ops.union(polygons)
+intersection = ops.intersection(layer_a, layer_b)
+union = ops.union([layer_a, layer_b])
 ```
 
 ### 3.1 Unified GIS Submodule Facade
@@ -77,15 +67,10 @@ buffered_df = gis.buffer_analysis(df, buffer_distance=5.0)
 ### 4. Coordinate Transforms
 
 ```python
-from geo_infer_space import Projector
+from geo_infer_space import GISManager
 
-# Coordinate transformations
-projector = Projector()
-
-transformed = projector.transform(
-    geometry=data,
-    from_crs="EPSG:4326",
-    to_crs="EPSG:3857")
+gis = GISManager()
+transformed = gis.transform_coordinates(data, from_crs="EPSG:4326", to_crs="EPSG:3857")
 ```
 
 ## Implementation Status
@@ -93,9 +78,9 @@ transformed = projector.transform(
 | Feature | Status | Description |
 |---------|--------|-------------|
 | **H3 Indexing** | ✅ Ready | Hexagonal grid |
-| **Queries** | ✅ Ready | Within, nearby, intersects |
-| **Geometry** | ✅ Ready | Buffer, union, intersect |
-| **Projections** | ✅ Ready | CRS transforms |
+| **Analytics** | ✅ Ready | Hotspots, clustering, interpolation (backend-dependent) |
+| **Geometry** | ✅ Ready | Buffer, union, intersection |
+| **Projections** | ✅ Ready | CRS transforms (via GIS facade / geometry ops) |
 
 ### Aspirational Features
 

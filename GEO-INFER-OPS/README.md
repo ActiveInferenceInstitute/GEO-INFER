@@ -38,81 +38,40 @@ estimated_time: "50"
 ### Agent Deployment
 
 ```python
-from geo_infer_ops import AgentDeployer
+from geo_infer_ops import DeploymentManager
 
 # Deploy agents to production
-deployer = AgentDeployer()
+deployer = DeploymentManager()
 
 deployment = deployer.deploy(
-    agent_config=agent_spec,
-    target="kubernetes",
-    replicas=3,
-    resources={"cpu": "1", "memory": "4Gi"}
+    config={"agent_spec": agent_spec},
+    environment="kubernetes",
 )
 
-print(f"Deployment: {deployment.id}")
-print(f"Endpoints: {deployment.endpoints}")
+print(deployment)
 ```
 
 ### Health Monitoring
 
 ```python
-from geo_infer_ops import HealthMonitor
+from geo_infer_ops import HealthChecker
 
 # Monitor agent health
-monitor = HealthMonitor()
+monitor = HealthChecker()
 
-health = monitor.check(
-    agents=["agent_001", "agent_002"],
-    metrics=["latency", "error_rate", "memory"]
-)
+health = monitor.run_all_checks()
 
-for agent, status in health.items():
-    print(f"{agent}: {status.health_score}%")
+print(health)
 ```
 
-### Auto-Scaling
+### Orchestration
 
 ```python
-from geo_infer_ops import AutoScaler
+from geo_infer_ops import Orchestrator, Task
 
-# Configure auto-scaling
-scaler = AutoScaler()
-
-policy = scaler.configure(
-    agent_type="analysis_agent",
-    rules={
-        "cpu_threshold": 70,
-        "min_replicas": 2,
-        "max_replicas": 10
-    }
-)
-```
-
-### Observability
-
-```python
-from geo_infer_ops import Observability
-
-# Full observability stack
-obs = Observability()
-
-# Distributed tracing
-obs.trace(agent_id="agent_001", operation="analysis")
-
-# Query logs
-logs = obs.query_logs(
-    agent_pattern="*",
-    level="ERROR",
-    time_range=("2026-02-24", "2026-02-25")
-)
-
-# Set alerts
-obs.create_alert(
-    name="high_latency",
-    condition="latency > 1000ms",
-    notify=["ops-team"]
-)
+orchestrator = Orchestrator()
+task = Task(name="example_task", payload={"step": "noop"})
+orchestrator.submit(task)
 ```
 
 ## Deployment Targets
@@ -152,16 +111,10 @@ uv pip install -e "./GEO-INFER-OPS"
 ### Production Deployment
 
 ```python
-from geo_infer_ops import ProductionManager
+from geo_infer_ops import Orchestrator, Task
 
-manager = ProductionManager(cluster="prod")
-
-# Rolling update
-manager.rolling_update(
-    agent_type="spatial_agent",
-    new_version="2.1.0",
-    strategy="blue_green"
-)
+orchestrator = Orchestrator()
+orchestrator.submit(Task(name="deploy", payload={"target": "prod"}))
 ```
 
 ---
