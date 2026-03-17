@@ -8,7 +8,7 @@ version = "0.2.0"
 description = "Core mathematical and statistical engine providing geometric operations, spatial statistics, and numerical methods for geospatial analysis"
 readme = "README.md"
 license = {text = "CC BY-NC-SA 4.0"}
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]

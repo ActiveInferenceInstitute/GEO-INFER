@@ -1,0 +1,778 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="19" failures="0" skipped="0" tests="19" time="18.056" timestamp="2026-03-17T08:09:50.522983-07:00" hostname="timelock.local"><testcase classname="" name="tests.integration.test_integration" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/integration/test_integration.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/integration/test_integration.py:3: in &lt;module&gt;
+    from geo_infer_act.utils.integration import ModernToolsIntegration, integrate_rxinfer, integrate_bayeux, integrate_pymdp
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.integration.test_stigmergy" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/integration/test_stigmergy.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/integration/test_stigmergy.py:3: in &lt;module&gt;
+    from geo_infer_act.models.multi_agent import MultiAgentModel
+GEO-INFER-ACT/src/geo_infer_act/models/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.models.ecological import EcologicalModel
+GEO-INFER-ACT/src/geo_infer_act/models/ecological.py:7: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.test_act_models_real" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/test_act_models_real.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/test_act_models_real.py:4: in &lt;module&gt;
+    from geo_infer_act.models.climate import ClimateModel
+GEO-INFER-ACT/src/geo_infer_act/models/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.models.ecological import EcologicalModel
+GEO-INFER-ACT/src/geo_infer_act/models/ecological.py:7: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_analysis" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_analysis.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_analysis.py:4: in &lt;module&gt;
+    from geo_infer_act.utils.analysis import ActiveInferenceAnalyzer, create_shared_visualizations
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_api" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_api.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_api.py:3: in &lt;module&gt;
+    from geo_infer_act.api.interface import ActiveInferenceInterface
+GEO-INFER-ACT/src/geo_infer_act/api/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.api.interface import ActiveInferenceInterface
+GEO-INFER-ACT/src/geo_infer_act/api/interface.py:12: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_climate_model" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_climate_model.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_climate_model.py:11: in &lt;module&gt;
+    from geo_infer_act.models.climate import ClimateModel
+GEO-INFER-ACT/src/geo_infer_act/models/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.models.ecological import EcologicalModel
+GEO-INFER-ACT/src/geo_infer_act/models/ecological.py:7: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_core" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_core.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_core.py:13: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_dynamic_causal_model" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_dynamic_causal_model.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_dynamic_causal_model.py:12: in &lt;module&gt;
+    from geo_infer_act.core.dynamic_causal_model import DynamicCausalModel
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_ecological_model" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_ecological_model.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_ecological_model.py:11: in &lt;module&gt;
+    from geo_infer_act.models.ecological import EcologicalModel
+GEO-INFER-ACT/src/geo_infer_act/models/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.models.ecological import EcologicalModel
+GEO-INFER-ACT/src/geo_infer_act/models/ecological.py:7: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_free_energy" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_free_energy.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_free_energy.py:13: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_geospatial_ai" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_geospatial_ai.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_geospatial_ai.py:27: in &lt;module&gt;
+    from geo_infer_act.utils.geospatial_ai import (
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_h3" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_h3.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_h3.py:20: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_h3_active_inference" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_h3_active_inference.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_h3_active_inference.py:26: in &lt;module&gt;
+    from h3_active_inference import (
+GEO-INFER-ACT/examples/h3_active_inference.py:66: in &lt;module&gt;
+    from geo_infer_act.models.multi_agent import MultiAgentModel
+GEO-INFER-ACT/src/geo_infer_act/models/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.models.ecological import EcologicalModel
+GEO-INFER-ACT/src/geo_infer_act/models/ecological.py:7: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_markov_decision_process" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_markov_decision_process.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_markov_decision_process.py:13: in &lt;module&gt;
+    from geo_infer_act.core.markov_decision_process import MarkovDecisionProcess
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_models" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_models.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_models.py:4: in &lt;module&gt;
+    from geo_infer_act.models.urban import UrbanModel
+GEO-INFER-ACT/src/geo_infer_act/models/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.models.ecological import EcologicalModel
+GEO-INFER-ACT/src/geo_infer_act/models/ecological.py:7: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_policy_selection" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_policy_selection.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_policy_selection.py:12: in &lt;module&gt;
+    from geo_infer_act.core.policy_selection import PolicySelector
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_spatial_agent" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_spatial_agent.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_spatial_agent.py:20: in &lt;module&gt;
+    from geo_infer_act.core.spatial_agent import SpatialActiveInferenceAgent
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_utils" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_utils.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_utils.py:6: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax, normalize_distribution, kl_divergence, entropy, precision_weighted_error, gaussian_log_likelihood, categorical_log_likelihood, dirichlet_kl_divergence, sample_categorical, compute_free_energy_categorical, compute_expected_free_energy, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase><testcase classname="" name="tests.unit.test_variational_inference" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-ACT/tests/unit/test_variational_inference.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-ACT/tests/unit/test_variational_inference.py:12: in &lt;module&gt;
+    from geo_infer_act.core.variational_inference import VariationalInference
+GEO-INFER-ACT/src/geo_infer_act/core/__init__.py:8: in &lt;module&gt;
+    from geo_infer_act.core.active_inference import ActiveInferenceModel
+GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py:13: in &lt;module&gt;
+    from geo_infer_act.core.generative_model import GenerativeModel
+GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py:15: in &lt;module&gt;
+    from geo_infer_act.core.free_energy import FreeEnergyCalculator
+GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py:11: in &lt;module&gt;
+    from geo_infer_act.utils.math import softmax
+GEO-INFER-ACT/src/geo_infer_act/utils/__init__.py:9: in &lt;module&gt;
+    from geo_infer_act.utils.math import kl_divergence, entropy, precision_weighted_error, sample_dirichlet
+GEO-INFER-ACT/src/geo_infer_act/utils/math.py:12: in &lt;module&gt;
+    from sklearn.metrics import mutual_info_score
+.venv/lib/python3.12/site-packages/sklearn/__init__.py:73: in &lt;module&gt;
+    from .base import clone  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^
+.venv/lib/python3.12/site-packages/sklearn/base.py:20: in &lt;module&gt;
+    from .utils._missing import is_scalar_nan
+.venv/lib/python3.12/site-packages/sklearn/utils/__init__.py:9: in &lt;module&gt;
+    from ._chunking import gen_batches, gen_even_slices
+.venv/lib/python3.12/site-packages/sklearn/utils/_chunking.py:11: in &lt;module&gt;
+    from ._param_validation import Interval, validate_params
+.venv/lib/python3.12/site-packages/sklearn/utils/_param_validation.py:17: in &lt;module&gt;
+    from .validation import _is_arraylike_not_scalar
+.venv/lib/python3.12/site-packages/sklearn/utils/validation.py:21: in &lt;module&gt;
+    from ..utils._array_api import _asarray_with_order, _is_numpy_namespace, get_namespace
+.venv/lib/python3.12/site-packages/sklearn/utils/_array_api.py:20: in &lt;module&gt;
+    from .fixes import parse_version
+.venv/lib/python3.12/site-packages/sklearn/utils/fixes.py:421: in &lt;module&gt;
+    import pyarrow
+.venv/lib/python3.12/site-packages/pyarrow/__init__.py:59: in &lt;module&gt;
+    from pyarrow.lib import (BuildInfo, CppBuildInfo, RuntimeInfo, set_timezone_db_path,
+E   ImportError: dlopen(/Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/lib.cpython-312-darwin.so, 0x0002): Symbol not found: __ZN4absl12lts_2025012712log_internal15kSignedCharNullE
+E     Referenced from: &lt;1491B701-20E5-348B-BB3C-769CC9AAB603&gt; /Users/4d/Documents/GitHub/GEO-INFER/.venv/lib/python3.12/site-packages/pyarrow/libarrow_substrait.2300.dylib
+E     Expected in:     &lt;49902AAF-FD77-3832-911E-7B20549165B8&gt; /opt/homebrew/Cellar/apache-arrow/23.0.1_3/lib/libarrow.2300.1.0.dylib</error></testcase></testsuite></testsuites>

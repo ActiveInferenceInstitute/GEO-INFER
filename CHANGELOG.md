@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **SPACE module**: Fully migrated to H3 v4 API (`latlng_to_cell`, `cell_to_latlng`, `geo_to_cells`)
 - **PLACE module**: Fully migrated to H3 v4 API (FULLY MIGRATED status)
-- **Environmental modules**: Package directories renamed to PEP 8 lowercase (`geo_infer_forest`, `geo_infer_marine`, `geo_infer_energy`, `geo_infer_water`)
+- **Environmental modules**: Package directory casing is not yet fully normalized (current: `geo_infer_FOREST`, `geo_infer_MARINE`, `geo_infer_ENERGY`, `geo_infer_WATER`); a future release will complete the PEP 8 lowercase migration.
 - **Zero-Mock Policy**: Enforced across all 44 modules — every function has real algorithmic logic
 - **BAYES module**: GaussianProcess upgraded to real Cholesky decomposition; model comparison uses LOO/WAIC/DIC/BIC/AIC
 - **ACT module**: Free energy calculation hardened with proper NumPy array handling

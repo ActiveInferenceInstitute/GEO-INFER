@@ -8,7 +8,7 @@ version = "0.2.0"
 description = "Communications infrastructure for geospatial systems enabling data exchange, messaging, networking, and outreach across distributed applications"
 readme = "README.md"
 license = {text = "CC BY-NC-SA 4.0"}
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]

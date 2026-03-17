@@ -204,15 +204,8 @@ graph TB
     Coordination_Layer --> Spatial_Intelligence
     Spatial_Intelligence --> Integration_Layer
     
-    classDef core fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef coord fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-    classDef spatial fill:#e8f5e8,stroke:#388e3c,stroke-width:2px
-    classDef integration fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    
-    class Core_Agent_Framework core
-    class Coordination_Layer coord
-    class Spatial_Intelligence spatial
-    class Integration_Layer integration```
+    %% Note: no explicit styling; keep dark-mode compatible
+```
 
 ## Core Agent Framework
 

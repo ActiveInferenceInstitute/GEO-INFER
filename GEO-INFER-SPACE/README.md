@@ -37,12 +37,77 @@ from geo_infer_space.core.dispatcher import configure_backends # Configure defau
  - **Core Spatial Operations**: - Geometric calculations (area, perimeter, distance) - Spatial relationships (intersects, contains, overlaps) - Coordinate reference system transformations - Spatial indexing (H3, QuadTree, R-Tree) for performance optimization - **Analytical Methods**: - Buffer analysis and proximity calculations - Overlay operations (union, intersection, difference) - Network analysis (shortest path, service areas) - Raster analysis (map algebra, terrain analysis, focal statistics) - **Transformation Steps**: 1. Data validation and CRS harmonization 2. Spatial indexing for query optimization 3. Geometric processing and analysis 4. Result aggregation and output formatting ### Outputs
  - **Data Products**: - Processed spatial datasets (vector/raster) - Spatial analysis results (statistics, measurements) - Derived spatial features (buffers, centroids, boundaries) - Spatial indices and optimized data structures - **Visualization**: - Interactive maps via GEO-INFER-APP - Spatial analysis visualizations (heat maps, choropleth maps) - 3D visualizations for elevation and point cloud data - **Integration Points**: - Spatial features for GEO-INFER-AI model training - Processed geometries for GEO-INFER-SIM simulations - Analysis results for GEO-INFER-HEALTH accessibility studies - Optimized spatial queries for all domain-specific modules ## Module
  Architecture (Updated) The refactored GEO-INFER-SPACE module now uses a **backend-agnostic architecture** that supports multiple spatial indexing systems through a unified API. ```mermaid
-graph TD subgraph SPACE_Core as "GEO-INFER-SPACE Core Layer" API_LAYER[API Layer (FastAPI, GeoServer Adapters)] SERVICE_LAYER[Service Layer (Orchestration, Workflow Management)] GENERIC_ANALYTICS[Generic Spatial Analytics Interface] GENERIC_INDEXING[Generic Spatial Indexing Interface] GENERIC_GEOMETRY[Generic Geometric Operations Interface] BACKEND_DISPATCHER[Backend Dispatcher] end subgraph Backend_Layer as "Spatial Backend Implementations" H3_BACKEND[H3 Backend (Hexagonal Grid)] SRAI_BACKEND[SRAI Backend (Multi-Index Support)] FUTURE_BACKEND[Future Backends (Extensible)] end subgraph Analytics_Components as "Analytical Algorithm Libraries" VECTOR_OPS[Vector Operations Library (Shapely, GEOS based)] RASTER_OPS[Raster Operations Library (Rasterio, GDAL based)] POINT_CLOUD_OPS[Point Cloud Processing Library (e.g., PDAL wrapper)] NETWORK_ANALYST[Network Analysis Tools (e.g., NetworkX, igraph based)] GEOSTAT_TOOLS[Geostatistics & Interpolation Tools] end subgraph Data_Access_Integration as "Data Access & External Integrations" DATA_MOD_GI[GEO-INFER-DATA (Primary Data Source)] STAC_CLIENT[STAC Client for EO Data] OSC_GEO_INT[OS-Climate H3 Tools Integration] REALTIME_INGEST[Real-time Data Ingestion Points (Kafka, MQTT)] DB_SPATIAL[(Spatial Databases - PostGIS, etc.)] end %% Core Layer Connections API_LAYER --> SERVICE_LAYER SERVICE_LAYER --> GENERIC_ANALYTICS; SERVICE_LAYER --> GENERIC_INDEXING; SERVICE_LAYER --> GENERIC_GEOMETRY GENERIC_ANALYTICS --> BACKEND_DISPATCHER GENERIC_INDEXING --> BACKEND_DISPATCHER GENERIC_GEOMETRY --> BACKEND_DISPATCHER %% Backend Dispatcher routes to specific backends BACKEND_DISPATCHER --> H3_BACKEND BACKEND_DISPATCHER --> SRAI_BACKEND BACKEND_DISPATCHER --> FUTURE_BACKEND %% Analytics Engine uses Algorithm Libraries GENERIC_ANALYTICS --> VECTOR_OPS; GENERIC_ANALYTICS --> RASTER_OPS; GENERIC_ANALYTICS --> POINT_CLOUD_OPS; GENERIC_ANALYTICS --> NETWORK_ANALYST; GENERIC_ANALYTICS --> GEOSTAT_TOOLS %% IO Handler interacts with Data Access/Integration components GENERIC_GEOMETRY --> DATA_MOD_GI; GENERIC_GEOMETRY --> STAC_CLIENT; GENERIC_GEOMETRY --> OSC_GEO_INT; GENERIC_GEOMETRY --> REALTIME_INGEST; GENERIC_GEOMETRY --> DB_SPATIAL %% Algorithms use Math VECTOR_OPS --> MATH_MOD_GI[GEO-INFER-MATH] RASTER_OPS --> MATH_MOD_GI GEOSTAT_TOOLS --> MATH_MOD_GI NETWORK_ANALYST --> MATH_MOD_GI classDef core fill:#e0f7fa,stroke:#00796b,stroke-width:2px; classDef backend fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px; classDef analytics fill:#e8f5e8,stroke:#388e3c,stroke-width:2px; class SPACE_Core core class Backend_Layer backend class Analytics_Components analytics
+graph TD
+    %% Note: no explicit styling; keep dark-mode compatible
+    subgraph SPACE_Core["GEO-INFER-SPACE Core Layer"]
+        API_LAYER["API Layer (FastAPI, GeoServer Adapters)"]
+        SERVICE_LAYER["Service Layer (Orchestration, Workflow Management)"]
+        GENERIC_ANALYTICS[GenericSpatialAnalyticsInterface]
+        GENERIC_INDEXING[GenericSpatialIndexingInterface]
+        GENERIC_GEOMETRY[GenericGeometricOperationsInterface]
+        BACKEND_DISPATCHER[BackendDispatcher]
+    end
+
+    subgraph Backend_Layer["Spatial Backend Implementations"]
+        H3_BACKEND["H3 Backend (Hexagonal Grid)"]
+        SRAI_BACKEND["SRAI Backend (Multi-Index Support)"]
+        FUTURE_BACKEND[FutureBackends]
+    end
+
+    subgraph Analytics_Components["Analytical Algorithm Libraries"]
+        VECTOR_OPS["Vector Operations Library (Shapely, GEOS)"]
+        RASTER_OPS["Raster Operations Library (Rasterio, GDAL)"]
+        POINT_CLOUD_OPS["Point Cloud Processing Library (PDAL wrapper)"]
+        NETWORK_ANALYST["Network Analysis Tools (NetworkX, igraph)"]
+        GEOSTAT_TOOLS[GeostatisticsTools]
+    end
+
+    subgraph Data_Access_Integration["Data Access and External Integrations"]
+        DATA_MOD_GI["GEO-INFER-DATA (Primary Data Source)"]
+        STAC_CLIENT[STACClient]
+        OSC_GEO_INT[OscGeoIntegration]
+        REALTIME_INGEST[RealtimeIngest]
+        DB_SPATIAL["Spatial Databases (PostGIS)"]
+    end
+
+    %% Core Layer Connections
+    API_LAYER --> SERVICE_LAYER
+    SERVICE_LAYER --> GENERIC_ANALYTICS
+    SERVICE_LAYER --> GENERIC_INDEXING
+    SERVICE_LAYER --> GENERIC_GEOMETRY
+    GENERIC_ANALYTICS --> BACKEND_DISPATCHER
+    GENERIC_INDEXING --> BACKEND_DISPATCHER
+    GENERIC_GEOMETRY --> BACKEND_DISPATCHER
+
+    %% Backend Dispatcher routes to specific backends
+    BACKEND_DISPATCHER --> H3_BACKEND
+    BACKEND_DISPATCHER --> SRAI_BACKEND
+    BACKEND_DISPATCHER --> FUTURE_BACKEND
+
+    %% Analytics engine uses algorithm libraries
+    GENERIC_ANALYTICS --> VECTOR_OPS
+    GENERIC_ANALYTICS --> RASTER_OPS
+    GENERIC_ANALYTICS --> POINT_CLOUD_OPS
+    GENERIC_ANALYTICS --> NETWORK_ANALYST
+    GENERIC_ANALYTICS --> GEOSTAT_TOOLS
+
+    %% IO handler interacts with data access/integration components
+    GENERIC_GEOMETRY --> DATA_MOD_GI
+    GENERIC_GEOMETRY --> STAC_CLIENT
+    GENERIC_GEOMETRY --> OSC_GEO_INT
+    GENERIC_GEOMETRY --> REALTIME_INGEST
+    GENERIC_GEOMETRY --> DB_SPATIAL
+
+    %% Algorithms use math
+    VECTOR_OPS --> MATH_MOD_GI["GEO-INFER-MATH"]
+    RASTER_OPS --> MATH_MOD_GI
+    GEOSTAT_TOOLS --> MATH_MOD_GI
+    NETWORK_ANALYST --> MATH_MOD_GI
 ``` - **Core Layer:** Provides generic spatial interfaces that dispatch to backend implementations. - **Backend Layer:** Contains specific implementations for different spatial indexing systems (H3, SRAI, etc.). - **Backend Dispatcher:** Routes operations to appropriate backends based on configuration. - **Analytical Algorithm Libraries:** Contains implementations of various vector, raster, point cloud, and network analysis algorithms, often leveraging `GEO-INFER-MATH`. - **Data Access & Integration:** Interfaces with `GEO-INFER-DATA`, external EO catalogs (STAC), OS-Climate tools, real-time data streams, and spatial databases. ## Backend
  System ### Supported
  Backends #### H3
- Backend (`backends/h3/`) - **Purpose**: Hexagonal hierarchical geospatial indexing system - **Features**: High-resolution spatial indexing, hierarchical operations, efficient spatial queries - **Use Cases**: Urban planning, environmental monitoring, logistics optimization - **Dependencies**: `h3` Python library (optional, falls back to mock implementation) #### SRAI
- Backend (`backends/srai/`) - **Purpose**: Multi-index geospatial AI library supporting H3, S2, administrative boundaries, etc. - **Features**: Multiple spatial indexing systems, embedders for machine learning, regionalization - **Use Cases**: Machine learning with geospatial data, multi-scale spatial analysis, AI applications - **Dependencies**: `srai` Python library (optional, falls back to mock implementation) ### 🔧 Backend Configuration & Selection **The system supports flexible backend configuration and selection:** ```python
+Backend (`backends/h3/`) - **Purpose**: Hexagonal hierarchical geospatial indexing system - **Features**: High-resolution spatial indexing, hierarchical operations, efficient spatial queries - **Use Cases**: Urban planning, logistics, environmental monitoring - **Dependencies**: `h3` Python library (optional) #### SRAI
+Backend (`backends/srai/`) - **Purpose**: Multi-index geospatial AI library supporting H3, S2, administrative boundaries, etc. - **Features**: Multiple spatial indexing systems, embedders for machine learning, regionalization - **Use Cases**: Multi-scale analysis and research - **Dependencies**: `srai` Python library (optional) ### 🔧 Backend Configuration & Selection **The system supports flexible backend configuration and selection:** ```python
 from geo_infer_space.core.dispatcher import configure_backends from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface # Configure default backends globally configure_backends({ 'default_backends': { 'indexing': 'h3', # Use H3 for spatial indexing operations 'analytics': 'srai', # Use SRAI for spatial analytics operations } }) # Use default backend (H3 for indexing operations) indexer = SpatialIndexingInterface() cell = indexer.latlng_to_cell(37.7749, -122.4194, 9) # Override backend for specific operations indexer_h3 = SpatialIndexingInterface(backend='h3') # Force H3 indexer_srai = SpatialIndexingInterface(backend='srai') # Force SRAI # All operations dispatch to the chosen backend automatically cell_h3 = indexer_h3.latlng_to_cell(37.7749, -122.4194, 9) cell_srai = indexer_srai.latlng_to_cell(37.7749, -122.4194, 9)
 ``` ### 🚀 Convenience Functions **Simple functions that work with any backend:** ```python
 from geo_infer_space.core.spatial_indexing import latlng_to_cell # Use default backend cell = latlng_to_cell(37.7749, -122.4194, 9) # Specify backend explicitly cell_h3 = latlng_to_cell(37.7749, -122.4194, 9, backend='h3') cell_srai = latlng_to_cell(37.7749, -122.4194, 9, backend='srai')
@@ -151,7 +216,7 @@ import cProfile profiler = cProfile.Profile() profiler.enable() # Your spatial a
  Spatial Queries **Check**: H3 resolution and indexing strategy **Solution**: Optimize H3 resolution and use spatial partitioning #### Network
  Timeouts **Check**: API response times for external spatial services **Solution**: Implement retry logic and increase timeout values ## Contributing
  Contributions to GEO-INFER-SPACE are valued. This can include implementing spatial algorithms, optimizing existing ones, improving support for data formats or CRSs, enhancing real-time capabilities, adding more examples, or improving documentation. Please follow the main `CONTRIBUTING.md` in the GEO-INFER root directory and any specific guidelines in `GEO-INFER-SPACE/docs/CONTRIBUTING_SPACE.md` (to be created). ## License
- This module, as part of the GEO-INFER framework, is licensed under the Creative Commons Attribution-NoDerivatives-ShareAlike 4.0 International License (CC BY-ND-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for details. ## Role
+This module, as part of the GEO-INFER framework, is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0). Please see the `LICENSE` file in the root of the GEO-INFER repository for details. ## Role
  in GEO-INFER Framework GEO-INFER-SPACE serves as the central repository for **all general spatial methods**, **H3 indexing operations**, **OSC (OS-Climate) integration methods**, and **core data integration aspects**. This module provides the foundational geospatial capabilities that other modules, such as GEO-INFER-PLACE, depend on. Place-specific modules like PLACE should focus exclusively on location-oriented logic and import general spatial functionality from SPACE to ensure modularity, reusability, and adherence to framework principles. Key Assertions: - **Spatial Methods**: All vector, raster, point cloud, and network operations are implemented here. - **H3 and Indexing**: H3 utilities, polygon_to_cells, boundary calculations, and other indexing systems. - **OSC Integration**: Cloning, management, and usage of OS-Climate repositories for standardized geospatial processing. - **Data Integration**: General data loading, transformation, and integration logic for geospatial data sources. Modules like GEO-INFER-PLACE must not duplicate these functionalities and should import from SPACE for all general spatial needs. 
 
 ## Documentation Hub

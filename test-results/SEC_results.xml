@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="7" failures="0" skipped="0" tests="7" time="0.468" timestamp="2026-03-17T08:10:59.945434-07:00" hostname="timelock.local"><testcase classname="" name="tests.test_anonymization" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SEC/tests/test_anonymization.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-SEC/tests/test_anonymization.py:12: in &lt;module&gt;
+    from geo_infer_sec.core.anonymization import GeospatialAnonymizer
+E   ModuleNotFoundError: No module named 'geo_infer_sec'</error></testcase><testcase classname="" name="tests.unit.test_access_control" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SEC/tests/unit/test_access_control.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-SEC/tests/unit/test_access_control.py:6: in &lt;module&gt;
+    from geo_infer_sec.core.access_control import (
+E   ModuleNotFoundError: No module named 'geo_infer_sec'</error></testcase><testcase classname="" name="tests.unit.test_audit" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SEC/tests/unit/test_audit.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-SEC/tests/unit/test_audit.py:10: in &lt;module&gt;
+    from geo_infer_sec.core.audit import (
+E   ModuleNotFoundError: No module named 'geo_infer_sec'</error></testcase><testcase classname="" name="tests.unit.test_audit_logging" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SEC/tests/unit/test_audit_logging.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-SEC/tests/unit/test_audit_logging.py:7: in &lt;module&gt;
+    from geo_infer_sec.core.audit import (
+E   ModuleNotFoundError: No module named 'geo_infer_sec'</error></testcase><testcase classname="" name="tests.unit.test_authentication" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SEC/tests/unit/test_authentication.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-SEC/tests/unit/test_authentication.py:8: in &lt;module&gt;
+    from geo_infer_sec.core.authentication import (
+E   ModuleNotFoundError: No module named 'geo_infer_sec'</error></testcase><testcase classname="" name="tests.unit.test_authorization" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SEC/tests/unit/test_authorization.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-SEC/tests/unit/test_authorization.py:5: in &lt;module&gt;
+    from geo_infer_sec.core.authorization import AuthorizationManager, PermissionType
+E   ModuleNotFoundError: No module named 'geo_infer_sec'</error></testcase><testcase classname="" name="tests.unit.test_encryption" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-SEC/tests/unit/test_encryption.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-SEC/tests/unit/test_encryption.py:4: in &lt;module&gt;
+    from geo_infer_sec.core.encryption import (
+E   ModuleNotFoundError: No module named 'geo_infer_sec'</error></testcase></testsuite></testsuites>

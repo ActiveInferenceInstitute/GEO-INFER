@@ -36,64 +36,43 @@ estimated_time: "40"
 
 ## Features
 
-### Spatial Test Fixtures
+### Validators and test runner
 
 ```python
-from geo_infer_test import SpatialFixtures
-
-# Generate test data
-fixtures = SpatialFixtures()
-
-points = fixtures.random_points(n=100, bbox=city)
-polygons = fixtures.random_polygons(n=50)
-grid = fixtures.hexagonal_grid(resolution=9)
-```
-
-### Geometry Validation
-
-```python
-from geo_infer_test import GeometryValidator
-
-# Validate geometries
-validator = GeometryValidator()
-
-result = validator.validate(
-    geometries=test_data,
-    checks=["valid", "simple", "topology"]
+from geo_infer_test import (
+    TestRunner,
+    DataQualityValidator,
+    SpatialValidator,
+    PerformanceValidator,
+    run_full_system_test,
 )
+from geo_infer_test.core.test_runner import TestConfiguration
 
-print(f"Valid: {result.valid_count}")
-print(f"Issues: {result.issues}")
-```
+# Run a minimal validation suite
+qc = DataQualityValidator()
+print(qc.validate({"name": "example_dataset", "records": []}))
 
-### Agent Testing
-
-```python
-from geo_infer_test import AgentTester
-
-# Test agent behavior
-tester = AgentTester()
-
-result = tester.test_agent(
-    agent=my_agent,
-    scenarios=test_scenarios,
-    metrics=["accuracy", "efficiency"]
+# Run tests through the test runner (programmatic wrapper around pytest)
+runner = TestRunner(
+    TestConfiguration(
+        modules_to_test=["TEST"],
+        test_types=["unit"],
+        parallel_execution=False,
+        coverage_enabled=False,
+        performance_benchmarks=False,
+        log_integration_enabled=False,
+    )
 )
+print(runner.run_all_tests())
+
+# Or run an end-to-end system test
+print(run_full_system_test())
 ```
 
-### Performance Benchmarks
+### Notes
 
-```python
-from geo_infer_test import Benchmarker
-
-# Benchmark operations
-bench = Benchmarker()
-
-results = bench.run(
-    operations=["buffer", "intersect", "h3_index"],
-    data_sizes=[1000, 10000, 100000]
-)
-```
+- This module focuses on **validators**, a **test runner**, and end-to-end system checks via `run_full_system_test`.
+- Agent-specific fixtures and mock environments should be documented in the modules that implement them.
 
 ## Test Types
 

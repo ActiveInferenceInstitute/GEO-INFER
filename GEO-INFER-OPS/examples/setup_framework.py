@@ -6,7 +6,7 @@ This script installs all GEO-INFER modules in development mode, making them
 discoverable by Python and enabling cross-module imports.
 
 Usage:
-    python -m geo_infer_framework.setup_framework [--install-deps] [--modules MODULE1,MODULE2]
+    python GEO-INFER-OPS/examples/setup_framework.py [--install-deps] [--modules MODULE1,MODULE2]
 """
 
 import os
@@ -85,7 +85,7 @@ class GEOINFERInstaller:
                 'pandas>=1.3.0',
                 'geopandas>=0.10.0',
                 'shapely>=1.8.0',
-                'h3>=3.7.0',
+                'h3>=4.0.0',
                 'pyproj>=3.3.0',
                 'requests>=2.26.0',
                 'pyyaml>=5.4.0',
@@ -182,8 +182,8 @@ def main():
     
     args = parser.parse_args()
     
-    # Get framework root
-    framework_root = Path(__file__).parent
+    # Get framework root (repo root)
+    framework_root = Path(__file__).resolve().parents[2]
     installer = GEOINFERInstaller(framework_root)
     
     logger.info("=== GEO-INFER Framework Installation ===")

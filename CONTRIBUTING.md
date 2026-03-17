@@ -21,7 +21,7 @@ We are committed to providing a welcoming and inclusive environment. Please be r
 
 ### Prerequisites
 
-- Python 3.9 or higher
+- Python 3.11 or higher
 - Git
 - uv (recommended) or pip for package management
 

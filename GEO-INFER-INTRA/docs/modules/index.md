@@ -181,20 +181,7 @@ graph TD
     %% Operations and tooling
     OPS[GEO-INFER-OPS<br/>Operations] --> ALL[All Modules]
 
-    classDef foundation fill:#e8f5e8,stroke:#2e7d32,stroke-width:2px
-    classDef core fill:#e3f2fd,stroke:#1976d2,stroke-width:2px
-    classDef fill:#fff3e0,stroke:#f57c00,stroke-width:2px
-    classDef domain fill:#fce4ec,stroke:#c2185b,stroke-width:2px
-    classDef infra fill:#f3e5f5,stroke:#7b1fa2,stroke-width:2px
-
-    class MATH foundation
-    class ACT,BAYES,SPACE,TIME core
-    class AI,AGENT,COG
-    class SIM domain
-    class APP,ART domain
-    class DATA,SEC infra
-    class AG,ECON,RISK domain
-    class OPS infra
+    %% Note: no explicit styling; keep dark-mode compatible
 ```
 
 ### Dependency Matrix

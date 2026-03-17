@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="1.419" timestamp="2026-03-17T08:09:38.702924-07:00" hostname="timelock.local"><testcase classname="" name="GEO-INFER-WATER.tests.test_water_quality" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-WATER/tests/test_water_quality.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+GEO-INFER-WATER/tests/test_water_quality.py:9: in &lt;module&gt;
+    from geo_infer_water.core.water_quality import (
+E   ModuleNotFoundError: No module named 'geo_infer_water'</error></testcase></testsuite></testsuites>

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="5" failures="0" skipped="0" tests="5" time="1.834" timestamp="2026-03-17T08:18:40.935270-07:00" hostname="timelock.local"><testcase classname="" name="tests.test_routing" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-LOG/tests/test_routing.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-LOG/tests/test_routing.py:9: in &lt;module&gt;
+    from geo_infer_log.core.routing import (
+GEO-INFER-LOG/src/geo_infer_log/core/__init__.py:19: in &lt;module&gt;
+    from .supply_chain import (
+GEO-INFER-LOG/src/geo_infer_log/core/supply_chain.py:14: in &lt;module&gt;
+    import pulp
+E   ModuleNotFoundError: No module named 'pulp'</error></testcase><testcase classname="" name="tests.unit.test_delivery" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-LOG/tests/unit/test_delivery.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-LOG/tests/unit/test_delivery.py:4: in &lt;module&gt;
+    from geo_infer_log.core.delivery import (
+GEO-INFER-LOG/src/geo_infer_log/core/__init__.py:19: in &lt;module&gt;
+    from .supply_chain import (
+GEO-INFER-LOG/src/geo_infer_log/core/supply_chain.py:14: in &lt;module&gt;
+    import pulp
+E   ModuleNotFoundError: No module named 'pulp'</error></testcase><testcase classname="" name="tests.unit.test_geo_utils" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-LOG/tests/unit/test_geo_utils.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-LOG/tests/unit/test_geo_utils.py:4: in &lt;module&gt;
+    from geo_infer_log.utils.geo import (
+GEO-INFER-LOG/src/geo_infer_log/utils/__init__.py:11: in &lt;module&gt;
+    from geo_infer_log.utils.visualization import plot_route, plot_network, plot_service_area
+GEO-INFER-LOG/src/geo_infer_log/utils/visualization.py:15: in &lt;module&gt;
+    import contextily as ctx
+E   ModuleNotFoundError: No module named 'contextily'</error></testcase><testcase classname="" name="tests.unit.test_supply_chain" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-LOG/tests/unit/test_supply_chain.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-LOG/tests/unit/test_supply_chain.py:4: in &lt;module&gt;
+    from geo_infer_log.core.supply_chain import (
+GEO-INFER-LOG/src/geo_infer_log/core/__init__.py:19: in &lt;module&gt;
+    from .supply_chain import (
+GEO-INFER-LOG/src/geo_infer_log/core/supply_chain.py:14: in &lt;module&gt;
+    import pulp
+E   ModuleNotFoundError: No module named 'pulp'</error></testcase><testcase classname="" name="tests.unit.test_transport" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-LOG/tests/unit/test_transport.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-LOG/tests/unit/test_transport.py:4: in &lt;module&gt;
+    from geo_infer_log.core.transport import (
+GEO-INFER-LOG/src/geo_infer_log/core/__init__.py:19: in &lt;module&gt;
+    from .supply_chain import (
+GEO-INFER-LOG/src/geo_infer_log/core/supply_chain.py:14: in &lt;module&gt;
+    import pulp
+E   ModuleNotFoundError: No module named 'pulp'</error></testcase></testsuite></testsuites>

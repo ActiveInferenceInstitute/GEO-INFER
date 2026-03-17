@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.220" timestamp="2026-03-17T08:12:04.480967-07:00" hostname="timelock.local"><testcase classname="" name="GEO-INFER-FOREST.tests.test_wildfire_risk" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-FOREST/tests/test_wildfire_risk.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+GEO-INFER-FOREST/tests/test_wildfire_risk.py:9: in &lt;module&gt;
+    from geo_infer_forest.core.wildfire_risk import (
+E   ModuleNotFoundError: No module named 'geo_infer_forest'</error></testcase></testsuite></testsuites>

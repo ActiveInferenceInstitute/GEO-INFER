@@ -50,7 +50,7 @@ The module provides data management capabilities including:
 
 ### 📊 Module Status
 - **Version**: 1.0.0 (Beta)
-- **Last Updated**: 2025-01-19
+- **Last Updated**: 2026-02-25
 - **Dependencies**: OPS, SEC
 - **Compatibility**: GEO-INFER-SPACE, GEO-INFER-TIME, GEO-INFER-AI, GEO-INFER-APP
 - **Tags**: data, etl, storage, quality, pipeline, warehouse
@@ -227,8 +227,7 @@ graph TD
 
     METADATA -- "Updates" --> DATA_API
 
-    classDef dataprocess fill:#ffe8cc,stroke:#d68400,stroke-width:2px;
-    class ETL_Pipeline,Data_Storage_Access dataprocess;
+    %% Note: no explicit styling; keep dark-mode compatible
 ```
 
 ## Directory Structure

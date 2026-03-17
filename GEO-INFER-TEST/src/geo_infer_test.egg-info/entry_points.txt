@@ -1,4 +1,0 @@
-[console_scripts]
-geo-test = geo_infer_test.cli:main
-geo-test-report = geo_infer_test.reporting.generator:main
-geo-test-runner = geo_infer_test.runners.main:main

@@ -8,7 +8,7 @@ version = "0.2.0"
 description = "Statistical parametric mapping methodology adapted for geospatial analysis to identify significant patterns in spatial-temporal data"
 readme = "README.md"
 license = {text = "CC BY-NC-SA 4.0"}
-requires-python = ">=3.9"
+requires-python = ">=3.11"
 authors = [
     {name = "GEO-INFER Development Team", email = "geo-infer@activeinference.institute"}
 ]

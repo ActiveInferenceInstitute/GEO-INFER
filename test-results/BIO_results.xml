@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="6" failures="0" skipped="0" tests="6" time="0.814" timestamp="2026-03-17T08:11:42.483558-07:00" hostname="timelock.local"><testcase classname="" name="tests.unit.test_climate" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-BIO/tests/unit/test_climate.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-BIO/tests/unit/test_climate.py:4: in &lt;module&gt;
+    from geo_infer_bio.climate import ClimateDataProcessor
+E   ModuleNotFoundError: No module named 'geo_infer_bio'</error></testcase><testcase classname="" name="tests.unit.test_microbiome" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-BIO/tests/unit/test_microbiome.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-BIO/tests/unit/test_microbiome.py:4: in &lt;module&gt;
+    from geo_infer_bio.microbiome import MicrobiomeDataLoader
+E   ModuleNotFoundError: No module named 'geo_infer_bio'</error></testcase><testcase classname="" name="tests.unit.test_sequence_analysis" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-BIO/tests/unit/test_sequence_analysis.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-BIO/tests/unit/test_sequence_analysis.py:6: in &lt;module&gt;
+    from Bio.Seq import Seq
+E   ModuleNotFoundError: No module named 'Bio'</error></testcase><testcase classname="" name="tests.unit.test_soil" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-BIO/tests/unit/test_soil.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-BIO/tests/unit/test_soil.py:4: in &lt;module&gt;
+    from geo_infer_bio.soil import SoilDataIntegrator
+E   ModuleNotFoundError: No module named 'geo_infer_bio'</error></testcase><testcase classname="" name="tests.unit.test_validation" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-BIO/tests/unit/test_validation.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-BIO/tests/unit/test_validation.py:4: in &lt;module&gt;
+    from geo_infer_bio.utils.validation import DataValidator
+E   ModuleNotFoundError: No module named 'geo_infer_bio'</error></testcase><testcase classname="" name="tests.unit.test_visualization" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-BIO/tests/unit/test_visualization.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-BIO/tests/unit/test_visualization.py:4: in &lt;module&gt;
+    from geo_infer_bio.utils.visualization import BioVisualizer
+E   ModuleNotFoundError: No module named 'geo_infer_bio'</error></testcase></testsuite></testsuites>
