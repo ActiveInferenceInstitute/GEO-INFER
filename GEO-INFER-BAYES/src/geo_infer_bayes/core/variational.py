@@ -57,6 +57,17 @@ class VariationalInference:
         if self.vi_method not in ['meanfield', 'fullrank']:
             raise ValueError(f"Unsupported VI method: {self.vi_method}. "
                            f"Choose from: 'meanfield', 'fullrank'")
+
+        # Full-rank VI covariance gradients are not yet implemented — the
+        # ELBO is still estimated but the covariance factors do not receive
+        # score-function gradients, which would silently bias results.
+        # Flip to meanfield until the reparameterized fullrank path is ready.
+        if self.vi_method == 'fullrank':
+            raise NotImplementedError(
+                "Full-rank variational inference requires covariance-factor "
+                "gradients that are not yet implemented. Use vi_method='meanfield' "
+                "or contribute a reparameterized fullrank path."
+            )
     
     def run(
         self,
@@ -221,10 +232,10 @@ class VariationalInference:
                 grads[param]['log_std'] += (log_prob_model - log_prob_q) * \
                                          self._compute_log_std_gradient(sample, var_params, param)
                 
-                # Additional gradients for full-rank approximation
-                if self.vi_method == 'fullrank':
-                    # We would compute covariance gradients here
-                    pass
+                # Full-rank covariance-factor gradients require the
+                # reparameterization trick with a Cholesky factor and are
+                # guarded at construction time (see __init__). The meanfield
+                # branch already handles mean and log-std gradients above.
         
         # Average over Monte Carlo samples
         elbo /= self.n_mc_samples

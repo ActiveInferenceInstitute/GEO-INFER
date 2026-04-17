@@ -1,94 +1,82 @@
 # GEO-INFER-PEP: Agent Capabilities
 
 <div align="center">
-  <h3><a href="../README.md">🌍 GEO-INFER Core</a></h3>
-  <a href="../AGENTS.md">🤖 Agent Architecture</a> •
-  <a href="../README.md#-module-overview">📦 Module Index</a> •
-  <a href="./README.md">📚 Module Documentation</a>
+  <h3><a href="../README.md">GEO-INFER Core</a></h3>
+  <a href="../AGENTS.md">Agent Architecture</a> •
+  <a href="../README.md#-module-overview">Module Index</a> •
+  <a href="./README.md">Module Documentation</a>
 </div>
 
 ---
 
 ## Overview
 
-The **GEO-INFER-PEP** (Project Enhancement Proposals) module provides governance for framework development, managing proposals, feature requests, and architectural decisions for the GEO-INFER ecosystem.
+**GEO-INFER-PEP** (People, Engagement, Performance) provides agent-accessible operations for HR, CRM, and talent management. Agents can ingest CSV data, validate records against Pydantic schemas, orchestrate multi-step workflows (onboarding, hiring, campaigns), and produce aggregated dashboards.
 
 ## Agent Capabilities
 
-### 1. Proposal Management
+### 1. Data Ingestion
 
 ```python
-from geo_infer_pep import ProposalManager
+from geo_infer_pep.core import PEPEngine
 
-# Manage enhancement proposals
-manager = ProposalManager()
+engine = PEPEngine()
+engine.initialize()
 
-# Submit new proposal
-proposal = manager.submit(
-    title="Add H3 v5 Support",
-    type="feature",
-    description="Upgrade spatial indexing to H3 version 5",
-    affected_modules=["SPACE", "DATA", "ACT"],
-    author="contributor_001")
+engine.import_hr_data("data/employees.csv")
+engine.import_crm_data("data/customers.csv")
+engine.import_talent_data(
+    candidates_file="data/candidates.csv",
+    requisitions_file="data/requisitions.csv",
+)
+```
 
-print(f"Proposal ID: {proposal.pep_id}")
-print(f"Status: {proposal.status}")```
-
-### 2. Review Process
+### 2. Workflow Orchestration
 
 ```python
-from geo_infer_pep import ReviewCoordinator
+from geo_infer_pep.core import PEPOrchestrator
 
-# Coordinate proposal reviews
-coordinator = ReviewCoordinator()
+orchestrator = PEPOrchestrator()
 
-# Assign reviewers
-review = coordinator.initiate_review(
-    proposal=pep_id,
-    reviewers=["maintainer_1", "maintainer_2", "expert_1"],
-    deadline_days=14)
+outcome = orchestrator.run_workflow(
+    name="employee_onboarding",
+    payload={
+        "employee_id": "E-2026-001",
+        "start_date": "2026-05-01",
+        "department": "Engineering",
+    },
+)
+print(f"Status: {outcome.status}")
+```
 
-# Get review status
-status = coordinator.get_review_status(pep_id)
-print(f"Reviews completed: {status.completed}/{status.total}")
-print(f"Consensus: {status.consensus_level}")```
-
-### 3. Decision Tracking
-
-```python
-from geo_infer_pep import DecisionTracker
-
-# Track architectural decisions
-tracker = DecisionTracker()
-
-# Record decision
-decision = tracker.record(
-    pep_id="PEP-2026-003",
-    decision="accepted",
-    rationale="Aligns with roadmap, community support",
-    implementation_plan=impl_details)
-
-# Query decisions
-active = tracker.query(status="accepted", year=2026)
-print(f"Accepted proposals in 2026: {len(active)}")```
-
-### 4. Implementation Tracking
+### 3. Data Validation
 
 ```python
-from geo_infer_pep import ImplementationTracker
+from geo_infer_pep.core import PEPValidator
 
-# Track proposal implementation
-impl = ImplementationTracker()
+validator = PEPValidator()
+result = validator.validate_employees(engine.data_manager._employees)
+if not result.is_valid:
+    for err in result.errors:
+        print(err)
+```
 
-# Update implementation status
-impl.update(
-    pep_id="PEP-2026-003",
-    milestone="core_implementation",
-    progress=75,
-    blockers=[])
+### 4. Reporting & Dashboards
 
-# Get implementation dashboard
-dashboard = impl.get_dashboard()```
+```python
+from geo_infer_pep.methods import (
+    generate_comprehensive_hr_dashboard,
+    generate_comprehensive_crm_dashboard,
+    generate_comprehensive_talent_dashboard,
+)
+
+hr_dash = generate_comprehensive_hr_dashboard(engine.data_manager._employees)
+crm_dash = generate_comprehensive_crm_dashboard(engine.data_manager._customers)
+talent_dash = generate_comprehensive_talent_dashboard(
+    engine.data_manager._candidates,
+    engine.data_manager._requisitions,
+)
+```
 
 ## Implementation Status
 
@@ -96,50 +84,54 @@ dashboard = impl.get_dashboard()```
 
 | Feature | Status | Description |
 |---------|--------|-------------|
-| **Proposal Management** | ✅ Ready | Submit and track PEPs |
-| **Review Coordination** | ✅ Ready | Multi-reviewer process |
-| **Decision Tracking** | ✅ Ready | Historical decisions |
-| **Implementation Status** | ✅ Ready | Progress tracking |
+| **HR Data Ingestion** | Ready | CSV import, Pydantic validation, in-memory store |
+| **CRM Data Ingestion** | Ready | Customer records with address and interaction logs |
+| **Talent Data Ingestion** | Ready | Candidates and job requisitions with status tracking |
+| **Workflow Orchestration** | Ready | `PEPOrchestrator` with step-level status tracking |
+| **Cross-Domain Validation** | Ready | `PEPValidator` for referential integrity |
+| **Reporting Dashboards** | Ready | Aggregated HR/CRM/Talent metrics |
 
-### Aspirational/Planned Features
+### Planned
 
 | Feature | Priority | Description |
 |---------|----------|-------------|
-| **ProposalAssistant** | 🔮 Medium | Help write proposals |
-| **ImpactAnalyzer** | 🔮 Medium | Analyze change impact |
-| **ConsensusAgent** | 🔮 Low | Facilitate decisions |
+| **Persistent Data Store** | High | Replace in-memory store with SQLAlchemy/Postgres backend |
+| **Spatial Aggregation** | Medium | H3-indexed employee/customer distributions via SPACE |
+| **Campaign Optimizer** | Medium | Budget-constrained outreach planning over segmented populations |
 
-## PEP Categories
+## Data Model Summary
 
-| Type | Description |
-|------|-------------|
-| **Feature** | New functionality proposals |
-| **Architecture** | Structural changes |
-| **Process** | Development process changes |
-| **Deprecation** | Remove/replace features |
-| **Informational** | Guidelines and standards |
+| Model | Domain | Purpose |
+|-------|--------|---------|
+| `Employee` | HR | Person record with compensation, job history, performance |
+| `Customer` | CRM | External contact with address and interaction log |
+| `Candidate` | Talent | Applicant tracking through the hiring funnel |
+| `JobRequisition` | Talent | Open role definition with hiring manager and status |
 
 ## Use Cases
 
-### Framework Governance
+### Integrated People Operations
 
 ```python
-from geo_infer_pep import GovernanceBoard
+from geo_infer_pep.core import PEPEngine
 
-board = GovernanceBoard()
+engine = PEPEngine()
+engine.initialize()
 
-# Conduct quarterly review
-review = board.quarterly_review(
-    quarter="2026-Q1",
-    include=["pending_peps", "roadmap", "community_feedback"])
+# Ingest data across domains
+engine.import_hr_data("data/employees.csv")
+engine.import_talent_data("data/candidates.csv", "data/requisitions.csv")
 
-print(f"PEPs reviewed: {review.peps_reviewed}")
-print(f"Decisions made: {review.decisions}")```
+# Run a full onboarding workflow
+engine.process_onboarding_workflow({
+    "candidate_id": "C-123",
+    "requisition_id": "R-45",
+    "start_date": "2026-05-01",
+})
+```
 
 ---
 
-This AGENTS.md documents how GEO-INFER-PEP provides governance capabilities for the framework.
-
-**Last Updated**: 2026-02-25
+**Last Updated**: 2026-04-16
 
 **Claude Skill**: See [SKILL.md](./SKILL.md) for quick-reference API examples and integration map.

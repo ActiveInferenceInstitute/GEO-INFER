@@ -17,6 +17,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `ENERGY` module renewable site suitability mapping and LCOE benchmarking
 - `CLIMATE` module climate change adaptation modeling with Bayesian uncertainty quantification
 
+### Changed
+
+- **PEP 8 package naming normalization completed** — all 44 modules now use lowercase `geo_infer_<module>` package directories (`geo_infer_forest`, `geo_infer_marine`, `geo_infer_energy`, `geo_infer_water` included). Stale docs referencing mixed-case paths corrected.
+- **TIME module**: `sklearn` now guarded with a `HAS_SKLEARN` flag and `LinearRegression` raises an actionable `RuntimeError` when unavailable; `requirements.txt` lists `scikit-learn>=1.6.1` to match `pyproject.toml`.
+- **BAYES module**: Full-rank variational inference now raises `NotImplementedError` at construction time instead of silently returning biased results — use `vi_method='meanfield'` until a reparameterized fullrank path lands.
+
+### Fixed
+
+- Documentation drift: README, CLAUDE.md, AGENTS.md and module-level docs updated to reflect completed lowercase normalization.
+
 ---
 
 ## [0.2.0] - 2026-02-25
@@ -34,7 +44,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - **SPACE module**: Fully migrated to H3 v4 API (`latlng_to_cell`, `cell_to_latlng`, `geo_to_cells`)
 - **PLACE module**: Fully migrated to H3 v4 API (FULLY MIGRATED status)
-- **Environmental modules**: Package directory casing is not yet fully normalized (current: `geo_infer_FOREST`, `geo_infer_MARINE`, `geo_infer_ENERGY`, `geo_infer_WATER`); a future release will complete the PEP 8 lowercase migration.
+- **Environmental modules**: Groundwork for lowercase package dir normalization landed (completed in Unreleased).
 - **Zero-Mock Policy**: Enforced across all 44 modules — every function has real algorithmic logic
 - **BAYES module**: GaussianProcess upgraded to real Cholesky decomposition; model comparison uses LOO/WAIC/DIC/BIC/AIC
 - **ACT module**: Free energy calculation hardened with proper NumPy array handling

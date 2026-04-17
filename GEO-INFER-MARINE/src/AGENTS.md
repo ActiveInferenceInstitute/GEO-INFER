@@ -5,7 +5,7 @@
  This agent is responsible for handling operations within the `src` scope.
 
 ## Capabilities
- Core capabilities include: - Management of **geo_infer_MARINE** processes - Management of **geo_infer_marine.egg-info** processes
+ Core capabilities include: - Management of **geo_infer_marine** processes - Management of **geo_infer_marine.egg-info** processes
 
 ## Integration
 

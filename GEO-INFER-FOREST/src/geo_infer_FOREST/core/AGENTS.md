@@ -17,7 +17,7 @@ This agent handles core forest intelligence components for GEO-INFER-FOREST impl
 ### 1. Forest Health Monitoring
 
 ```python
-from geo_infer_FOREST.core import ForestHealthMonitor
+from geo_infer_forest.core import ForestHealthMonitor
 
 monitor = ForestHealthMonitor()
 
@@ -36,7 +36,7 @@ deforestation = monitor.detect_deforestation(
 ### 2. Wildfire Risk Assessment
 
 ```python
-from geo_infer_FOREST.core import WildfireRiskAnalyzer, FireIncident
+from geo_infer_forest.core import WildfireRiskAnalyzer, FireIncident
 
 analyzer = WildfireRiskAnalyzer()
 
@@ -59,7 +59,7 @@ incident_id = analyzer.register_incident(FireIncident(...))```
 ### 3. Carbon Sequestration
 
 ```python
-from geo_infer_FOREST.core import CarbonSequestrationModeler
+from geo_infer_forest.core import CarbonSequestrationModeler
 
 modeler = CarbonSequestrationModeler()
 
@@ -81,7 +81,7 @@ credits = modeler.calculate_carbon_credits(
 ### 4. Forest Inventory
 
 ```python
-from geo_infer_FOREST.core import ForestInventory
+from geo_infer_forest.core import ForestInventory
 
 inventory = ForestInventory()
 
@@ -132,8 +132,8 @@ Forest inventory and biomass estimation.
 
 ## Integration
 
-- **Location**: `GEO-INFER-FOREST/src/geo_infer_FOREST/core`
-- **Dependencies**: `xarray`, `geopandas`, `geo_infer_FOREST.models`
+- **Location**: `GEO-INFER-FOREST/src/geo_infer_forest/core`
+- **Dependencies**: `xarray`, `geopandas`, `geo_infer_forest.models`
 - **Used By**: API layer, application modules
 - **Provides**: Core forest intelligence capabilities for health monitoring, wildfire risk, and carbon modeling
 
