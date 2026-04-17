@@ -65,5 +65,5 @@
 
 ## Integration
 
-- **Location**: `GEO-INFER-WATER/src/geo_infer_WATER/core`
+- **Location**: `GEO-INFER-WATER/src/geo_infer_water/core`
 - **Type**: Directory Node

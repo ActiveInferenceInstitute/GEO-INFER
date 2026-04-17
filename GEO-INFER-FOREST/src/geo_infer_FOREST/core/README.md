@@ -31,7 +31,7 @@ Wildfire risk assessment and fire behavior modeling.
 ## Usage
 
 ```python
-from geo_infer_FOREST.core import (
+from geo_infer_forest.core import (
     ForestHealthMonitor,
     WildfireRiskAnalyzer,
     CarbonSequestrationModeler,
@@ -53,8 +53,8 @@ carbon_stock = modeler.calculate_carbon_stock(biomass=biomass_data)
 
 ## Integration
 
-- **Location**: `GEO-INFER-FOREST/src/geo_infer_FOREST/core`
-- **Dependencies**: `xarray`, `geopandas`, `geo_infer_FOREST.models`
+- **Location**: `GEO-INFER-FOREST/src/geo_infer_forest/core`
+- **Dependencies**: `xarray`, `geopandas`, `geo_infer_forest.models`
 - **Used By**: API layer, application modules
 - **Provides**: Core forest intelligence capabilities
 

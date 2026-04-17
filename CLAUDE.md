@@ -6,12 +6,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 GEO-INFER is a 44-module geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. It is a Python monorepo using `uv` as the package manager, with Python 3.11+ required.
 
-### Current Stats (2026-02-25)
+### Current Stats (2026-04-16)
 
 - **44 modules** | **860 source files** (297,360 lines) | **434 test files** (~87,000+ lines) | **~3,000+ tests**
-- Most packages use PEP 8 lowercase naming; environmental modules currently use mixed-case package dirs (`geo_infer_FOREST`, `geo_infer_MARINE`, `geo_infer_ENERGY`, `geo_infer_WATER`) and are planned to be normalized in a future pass.
-- Zero illegitimate `pass` stubs (remaining `pass` is only in abstract methods, exception handlers, and import guards)
-- Every module has minimum 4 test files
+- All package directories follow PEP 8 lowercase naming: `geo_infer_<module>` (including `geo_infer_forest`, `geo_infer_marine`, `geo_infer_energy`, `geo_infer_water`). Mixed-case directory normalization is complete.
+- Remaining `pass` occurrences are only legitimate ones: abstract methods, exception handlers, and import guards.
+- Every module has a minimum of 4 test files.
 
 ## Build & Development Commands
 
@@ -85,11 +85,13 @@ GEO-INFER-MODULE/
 ├── tests/
 │   ├── unit/
 │   └── integration/
+├── examples/            # Working, runnable examples
 ├── pyproject.toml
 ├── requirements.txt
+├── README.md            # Module overview and usage
+├── AGENTS.md            # Agent capabilities and integration
 ├── SKILL.md             # Claude Code skill (auto-discovered)
-├── .cursorrules         # Module-specific dev rules (extends root)
-└── AGENTS.md            # Agent capabilities for this module
+└── .cursorrules         # Module-specific dev rules (extends root)
 ```
 
 ### Module Categories
@@ -97,7 +99,7 @@ GEO-INFER-MODULE/
 - **Analytical Core**: MATH, ACT, BAYES, AI, COG, AGENT, SPM
 - **Spatial-Temporal**: SPACE, TIME, IOT
 - **Infrastructure**: DATA, API, SEC, OPS, METAGOV
-- **Domain-Specific**: AG, HEALTH, ECON, RISK, LOG, BIO, CLIMATE, ENERGY, FOREST, MARINE, EMERGENCY, EDU, TRANSPORT
+- **Domain-Specific**: AG, HEALTH, ECON, RISK, LOG, BIO, CLIMATE, ENERGY, FOREST, MARINE, EMERGENCY, EDU, TRANSPORT, WATER
 - **Agent & Simulation**: AGENT, ANT, SIM
 - **Community & Applications**: CIV, PEP, ORG, COMMS, APP, ART
 - **Governance**: NORMS, REQ
@@ -113,11 +115,11 @@ Foundation modules (MATH) have no dependencies. Core modules (BAYES, ACT) depend
 
 ### Key Technical Decisions
 
-- **H3 v4**: SPACE and PLACE modules are fully migrated to `h3>=4.0.0` (use `latlng_to_cell`, `cell_to_latlng`, not legacy API)
-- **Backend-agnostic pattern**: SPACE module uses a dispatcher/interface pattern for H3 vs SRAI backends
-- **Graceful degradation**: `__init__.py` files use `try/except` for optional dependency imports
-- **Package directory casing**: Most modules use `geo_infer_module` (lowercase) naming; environmental modules currently use mixed-case dirs (`geo_infer_FOREST`, `geo_infer_MARINE`, `geo_infer_ENERGY`, `geo_infer_WATER`). Treat full normalization as a future migration task (docs-first: do not rename now).
-- **Real implementations only**: BAYES GaussianProcess uses Cholesky decomposition (not stubs). Model comparison uses real LOO/WAIC/DIC/BIC/AIC. ACT free energy uses proper numpy array handling.
+- **H3 v4**: SPACE and PLACE modules are fully migrated to `h3>=4.0.0` (use `latlng_to_cell`, `cell_to_latlng`, not legacy API).
+- **Backend-agnostic pattern**: SPACE module uses a dispatcher/interface pattern for H3 vs SRAI backends.
+- **Graceful degradation**: `__init__.py` files use `try/except` for optional dependency imports, with module-level `HAS_<DEP>` flags consumed by call sites.
+- **Package directory casing**: All 44 modules use `geo_infer_<module>` (lowercase) naming.
+- **Real implementations only**: BAYES GaussianProcess uses Cholesky decomposition. Model comparison uses real LOO/WAIC/DIC/BIC/AIC. ACT free energy uses proper numpy array handling.
 
 ## Critical Development Rules
 
@@ -132,6 +134,8 @@ These rules are from `.cursorrules/` and apply to all modules:
 4. **Type Hints Everywhere**: Full type annotations on all function parameters and return values.
 
 5. **Module-specific `.cursorrules`**: Individual modules may have their own `.cursorrules` file that extends the root rules. Check `GEO-INFER-MODULE/.cursorrules` before working on a module.
+
+6. **Docs track code**: Every code change must keep `README.md` (user-facing) and `AGENTS.md` (agent/integration-facing) in sync with the implementation.
 
 ## Key Files & Resources
 

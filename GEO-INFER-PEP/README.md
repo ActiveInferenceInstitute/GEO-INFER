@@ -1,13 +1,13 @@
 ---
-title: "GEO-INFER-PEP: People Engagement Platform"
-description: "Community engagement, constituent mapping, and outreach optimization"
-purpose: "Enable place-based community engagement and constituent relationship management"
+title: "GEO-INFER-PEP: People, Engagement, Performance"
+description: "HR, CRM, and talent management with spatial context for place-based organizations"
+purpose: "Unified data model and workflows for employee, customer, and candidate management"
 module_type: "Community & Applications"
 status: "Stable"
-last_updated: "2026-02-25"
-dependencies: ["SPACE", "CIV", "COMMS"]
-compatibility: ["GEO-INFER-SPACE", "GEO-INFER-CIV", "GEO-INFER-COMMS", "GEO-INFER-DATA"]
-tags: ["engagement", "crm", "outreach", "community", "constituent"]
+last_updated: "2026-04-16"
+dependencies: ["DATA", "COMMS"]
+compatibility: ["GEO-INFER-DATA", "GEO-INFER-COMMS", "GEO-INFER-CIV"]
+tags: ["hr", "crm", "talent", "people-operations", "engagement"]
 difficulty: "Intermediate"
 estimated_time: "30"
 ---
@@ -22,153 +22,108 @@ estimated_time: "30"
 
 ---
 
-# GEO-INFER-PEP: People Engagement Platform
+# GEO-INFER-PEP: People, Engagement, Performance
 
 ## Overview
 
-**GEO-INFER-PEP** provides a spatial constituent relationship management (CRM) platform for place-based communities. It maps constituent engagement across geographic space, optimizes outreach campaigns under budget constraints, and tracks the effectiveness of community engagement programs. The module is designed for civic organizations, municipal governments, and nonprofits that need to understand and improve how they reach their constituents across a spatial service area.
+**GEO-INFER-PEP** is a unified platform for people operations in place-based organizations. It combines HR (employees), CRM (customers), and talent (candidates, requisitions) into a single Pydantic-validated data model, with CSV importers, transformers, and dashboard reporting. The module targets civic organizations, municipalities, and mission-driven companies that need to manage staff, constituents, and hiring pipelines with a consistent data layer.
 
 ## Core Objectives
 
-- **Spatial Engagement Mapping**: Aggregate constituent engagement scores onto H3 hexagonal grids to visualize engagement hotspots and cold zones across a service area
-- **Budget-Constrained Outreach Optimization**: Maximize constituent reach across multiple channels (email, SMS, door-to-door) within a fixed budget using optimization algorithms
-- **Constituent Lifecycle Tracking**: Track constituent interactions over time with spatial context, identifying churn risk and re-engagement opportunities
-- **Multi-Channel Campaign Analytics**: Measure campaign effectiveness by channel, geography, and demographic segment
+- **Unified People Data Model**: Pydantic models for `Employee`, `Customer`, `Candidate`, and `JobRequisition` with shared address, contact, and interaction schemas
+- **Data Ingestion**: CSV importers for HR, CRM, and talent data sources with validation and error reporting
+- **Workflow Orchestration**: Onboarding, offboarding, and campaign workflows coordinated through the `PEPOrchestrator`
+- **Reporting & Dashboards**: Aggregated HR, CRM, and talent dashboards via `generate_comprehensive_*_dashboard` helpers
+- **Validation**: `PEPValidator` checks referential integrity and schema conformance across imported data
 
 ## Features
 
-### Proposal Submission
+### HR — Employee Management
 
 ```python
-from geo_infer_pep import ProposalManager
+from geo_infer_pep.core import PEPEngine
 
-# Submit enhancement proposal
-manager = ProposalManager()
+engine = PEPEngine()
+engine.initialize()
 
-proposal = manager.submit(
-    title="Add H3 v5 Support",
-    type="feature",
-    description="Upgrade to H3 version 5",
-    affected_modules=["SPACE", "DATA"]
-)
-
-print(f"PEP ID: {proposal.pep_id}")
+result = engine.import_hr_data("data/employees.csv")
+print(f"Imported {result['records_imported']} employees")
 ```
 
-### Review Coordination
+### CRM — Customer Management
 
 ```python
-from geo_infer_pep import ReviewCoordinator
-
-# Coordinate reviews
-coordinator = ReviewCoordinator()
-
-review = coordinator.initiate(
-    proposal=pep_id,
-    reviewers=["maintainer_1", "expert_1"]
-)
-
-print(f"Status: {review.status}")
+result = engine.import_crm_data("data/customers.csv")
+print(f"Imported {result['records_imported']} customers")
 ```
 
-### Decision Tracking
+### Talent — Candidate & Requisition Management
 
 ```python
-from geo_infer_pep import DecisionTracker
-
-# Record decisions
-tracker = DecisionTracker()
-
-tracker.record(
-    pep_id="PEP-2026-003",
-    decision="accepted",
-    rationale="Community support"
+result = engine.import_talent_data(
+    candidates_file="data/candidates.csv",
+    requisitions_file="data/requisitions.csv",
 )
+print(f"Candidates: {result['candidates_imported']}, Requisitions: {result['requisitions_imported']}")
+```
+
+### Onboarding Workflow
+
+```python
+outcome = engine.process_onboarding_workflow({
+    "employee_id": "E-2026-001",
+    "start_date": "2026-05-01",
+    "department": "Engineering",
+})
 ```
 
 ## API Reference
 
-| Class / Function | Description |
-|------------------|-------------|
-| `EngagementAnalyzer(config)` | Analyzes constituent engagement patterns across spatial and temporal dimensions |
-| `ConstituentMapper(h3_resolution)` | Maps constituent records to H3 cells and computes spatial engagement aggregates |
-| `OutreachOptimizer(budget_constraint)` | Optimizes multi-channel outreach campaigns within a budget constraint |
-| `ConstituentMapper.aggregate_to_h3(gdf)` | Aggregates a GeoDataFrame of constituents to H3-level engagement scores |
-| `OutreachOptimizer.optimize_coverage(target_population, channels, cost_per_contact)` | Returns an optimized outreach plan with channel allocation and estimated reach |
-| `EngagementAnalyzer.compute_churn_risk(constituents, window_days)` | Identifies constituents at risk of disengagement based on contact recency |
-| `EngagementAnalyzer.segment_by_engagement(constituents, n_segments)` | Clusters constituents into engagement tiers (high, medium, low, inactive) |
+| Class / Function | Purpose |
+|------------------|---------|
+| `PEPEngine(data_manager=None)` | High-level orchestrator across HR/CRM/Talent domains |
+| `PEPDataManager` | In-memory data store for employees, customers, candidates, requisitions |
+| `PEPOrchestrator` | Runs multi-step workflows (onboarding, campaign, hiring) with status tracking |
+| `PEPValidator` | Cross-model referential-integrity and schema validation |
+| `CSVHRImporter`, `CSVCRMImporter`, `CSVTalentImporter` | Typed CSV ingestion for each domain |
+| `Employee`, `Customer`, `Candidate`, `JobRequisition` | Pydantic models with validation |
+| `generate_comprehensive_hr_dashboard(employees)` | Aggregated HR metrics (headcount, tenure, performance) |
+| `generate_comprehensive_crm_dashboard(customers)` | Aggregated CRM metrics (segments, interaction frequency) |
+| `generate_comprehensive_talent_dashboard(candidates, requisitions)` | Hiring funnel, time-to-fill, offer rates |
 
-## PEP Types
+## Module Structure
 
-| Type | Description |
-|------|-------------|
-| **Feature** | New functionality |
-| **Architecture** | Structural changes |
-| **Process** | Process improvements |
-| **Deprecation** | Feature removal |
-
-## PEP Status
-
-| Status | Meaning |
-|--------|---------|
-| **Draft** | Under development |
-| **Review** | Under review |
-| **Accepted** | Approved |
-| **Implemented** | Complete |
-| **Rejected** | Not approved |
-
-## Working Code Examples
-
-### Example 1: Constituent Engagement Mapping
-
-```python
-from geo_infer_pep.core.constituent_mapper import ConstituentMapper
-import geopandas as gpd
-from shapely.geometry import Point
-
-# Map constituent locations with engagement scores
-constituents = gpd.GeoDataFrame(
-    {
-        "id": range(50),
-        "engagement_score": [float(i % 5) / 4 for i in range(50)],
-        "last_contact": ["2024-01-01"] * 50,
-        "geometry": [Point(-122.33 + i * 0.002, 47.61 + i * 0.002) for i in range(50)],
-    },
-    crs="EPSG:4326",
-)
-
-mapper = ConstituentMapper(h3_resolution=9)
-engagement_map = mapper.aggregate_to_h3(constituents)
-print(f"High-engagement cells: {(engagement_map['score'] > 0.7).sum()}")
+```text
+GEO-INFER-PEP/src/geo_infer_pep/
+├── core/          # PEPEngine, PEPOrchestrator, PEPValidator
+├── models/        # hr_models, crm_models, talent_models (Pydantic)
+├── hr/            # HR importers and transformers
+├── crm/           # CRM importers and transformers
+├── talent/        # Talent importers and transformers
+├── reporting/     # Dashboard generators
+├── visualizations/# Plotting utilities
+├── api/           # API endpoints
+└── methods.py     # Flat functional facade over engine capabilities
 ```
 
-### Example 2: Outreach Optimization
+## Data Models
 
-```python
-from geo_infer_pep.core.outreach_optimizer import OutreachOptimizer
-
-optimizer = OutreachOptimizer(budget_constraint=1000.0)
-outreach_plan = optimizer.optimize_coverage(
-    target_population=constituents,
-    channels=["email", "sms", "door_to_door"],
-    cost_per_contact={"email": 0.5, "sms": 1.0, "door_to_door": 15.0},
-)
-print(f"Estimated reach: {outreach_plan['estimated_reach']} constituents")
-```
+| Model | Domain | Key Fields |
+|-------|--------|------------|
+| `Employee` | HR | `employee_id`, `personal_info`, `compensation`, `job_history`, `performance_reviews` |
+| `Customer` | CRM | `customer_id`, `address`, `interactions`, `segment` |
+| `Candidate` | Talent | `candidate_id`, `requisition_id`, `status`, `interviews`, `offer` |
+| `JobRequisition` | Talent | `requisition_id`, `title`, `status`, `hiring_manager`, `opened_date` |
 
 ## Integration
 
-GEO-INFER-PEP integrates with the following modules:
-
 | Module | Direction | Purpose |
 |--------|-----------|---------|
-| **GEO-INFER-SPACE** | PEP <-- SPACE | H3 spatial aggregation for engagement mapping |
-| **GEO-INFER-CIV** | PEP <-- CIV | Civic participation data and community boundaries |
-| **GEO-INFER-COMMS** | PEP --> COMMS | Outreach plans trigger notifications and messaging |
-| **GEO-INFER-DATA** | PEP <-- DATA | Constituent records and demographic datasets |
-| **GEO-INFER-ECON** | PEP <-- ECON | Economic indicators for outreach prioritization |
+| **GEO-INFER-DATA** | PEP ← DATA | Source datasets (employee records, customer lists, applicant pools) |
+| **GEO-INFER-COMMS** | PEP → COMMS | Outreach and communication triggers from PEP workflows |
+| **GEO-INFER-CIV** | PEP ↔ CIV | Shared constituent / member concepts with civic participation data |
 
-Data flow: DATA and CIV provide constituent records and civic context. SPACE provides H3 spatial operations. PEP analyzes engagement patterns, optimizes outreach plans, and hands off campaign execution to COMMS.
+Data flow: DATA provides raw records. PEP ingests, validates, and models them. Downstream dashboards and COMMS-driven outreach consume the structured output.
 
 ## Installation
 
@@ -179,13 +134,8 @@ uv pip install -e "./GEO-INFER-PEP"
 ## Testing
 
 ```bash
-# Run all PEP tests
 uv run python -m pytest GEO-INFER-PEP/tests/ -v
-
-# Run unit tests only
 uv run python -m pytest GEO-INFER-PEP/tests/unit/ -v
-
-# Run with coverage
 uv run python -m pytest GEO-INFER-PEP/tests/ --cov=GEO-INFER-PEP/src --cov-report=html
 ```
 
@@ -205,4 +155,4 @@ Full framework documentation, guides, and tutorials are available in the [GEO-IN
 
 **Status**: Stable
 
-**Last Updated**: 2026-02-25
+**Last Updated**: 2026-04-16

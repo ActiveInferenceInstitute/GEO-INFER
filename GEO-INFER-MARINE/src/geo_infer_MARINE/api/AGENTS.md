@@ -12,5 +12,5 @@
 
 ## Integration
 
-- **Location**: `GEO-INFER-MARINE/src/geo_infer_MARINE/api`
+- **Location**: `GEO-INFER-MARINE/src/geo_infer_marine/api`
 - **Type**: Directory Node

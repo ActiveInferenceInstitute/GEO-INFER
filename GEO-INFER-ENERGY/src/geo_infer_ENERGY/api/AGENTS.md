@@ -12,5 +12,5 @@
 
 ## Integration
 
-- **Location**: `GEO-INFER-ENERGY/src/geo_infer_ENERGY/api`
+- **Location**: `GEO-INFER-ENERGY/src/geo_infer_energy/api`
 - **Type**: Directory Node

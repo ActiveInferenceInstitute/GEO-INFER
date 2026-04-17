@@ -9,8 +9,25 @@ import logging
 from typing import Dict, List, Optional, Any, Tuple
 import pandas as pd
 import numpy as np
-from sklearn.linear_model import LinearRegression
-from sklearn.metrics import mean_squared_error, mean_absolute_error
+
+logger = logging.getLogger(__name__)
+
+# scikit-learn is a declared dependency (see pyproject.toml), but we guard the
+# import so this module remains importable for tooling that inspects it before
+# the environment is fully installed.
+try:
+    from sklearn.linear_model import LinearRegression
+    from sklearn.metrics import mean_squared_error, mean_absolute_error
+    HAS_SKLEARN = True
+except ImportError:  # pragma: no cover - defensive fallback
+    LinearRegression = None  # type: ignore[assignment]
+    mean_squared_error = None  # type: ignore[assignment]
+    mean_absolute_error = None  # type: ignore[assignment]
+    HAS_SKLEARN = False
+    logger.warning(
+        "scikit-learn not available; linear-regression forecasting and "
+        "sklearn-based metrics are disabled."
+    )
 
 # Import TimeSeries from models
 try:
@@ -18,8 +35,6 @@ try:
 except ImportError:
     # Fallback if import fails
     TimeSeries = None
-
-logger = logging.getLogger(__name__)
 
 # Optional imports for advanced models
 try:
@@ -54,6 +69,12 @@ class ForecastingEngine:
         Returns:
             Dictionary with forecast results
         """
+        if not HAS_SKLEARN:
+            raise RuntimeError(
+                "Linear-regression forecasting requires scikit-learn. "
+                "Install with: uv pip install scikit-learn>=1.6.1"
+            )
+
         data = timeseries.to_dataframe()
         values = data.iloc[:, 0].dropna().values
         time_points = np.arange(len(values)).reshape(-1, 1)
@@ -301,11 +322,20 @@ class ForecastingEngine:
 
             val_forecast_values = np.array(val_forecast["forecast"])
 
-            # Calculate validation metrics
-            mse = mean_squared_error(test_values, val_forecast_values)
-            mae = mean_absolute_error(test_values, val_forecast_values)
-            rmse = np.sqrt(mse)
-            mape = np.mean(np.abs((test_values - val_forecast_values) / (test_values + 1e-10))) * 100
+            # Calculate validation metrics — prefer sklearn, fall back to numpy
+            if HAS_SKLEARN:
+                mse = float(mean_squared_error(test_values, val_forecast_values))
+                mae = float(mean_absolute_error(test_values, val_forecast_values))
+            else:
+                mse = float(np.mean((test_values - val_forecast_values) ** 2))
+                mae = float(np.mean(np.abs(test_values - val_forecast_values)))
+            rmse = float(np.sqrt(mse))
+            mape = float(
+                np.mean(
+                    np.abs((test_values - val_forecast_values) / (test_values + 1e-10))
+                )
+                * 100
+            )
 
             return {
                 "mse": float(mse),

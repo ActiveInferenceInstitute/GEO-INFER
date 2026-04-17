@@ -12,5 +12,5 @@
 
 ## Integration
 
-- **Location**: `GEO-INFER-WATER/src/geo_infer_WATER/utils`
+- **Location**: `GEO-INFER-WATER/src/geo_infer_water/utils`
 - **Type**: Directory Node

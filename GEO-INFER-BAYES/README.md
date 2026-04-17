@@ -4,7 +4,7 @@ description: "Bayesian inference framework with probabilistic modeling, uncertai
 purpose: "Enable inference and decision-making under uncertainty for geospatial applications"
 module_type: "Analytical Core"
 status: "Beta"
-last_updated: "2026-02-25"
+last_updated: "2026-04-16"
 dependencies: ["MATH"]
 compatibility: ["GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-ACT", "GEO-INFER-AI"]
 tags: ["bayesian", "inference", "uncertainty", "probabilistic", "mcmc", "hierarchical"]
@@ -186,10 +186,16 @@ posterior = inference.run(
 ### Variational Inference (VI)
 
 ```python
-inference = BayesianInference(model=model, method='vi')
+# Mean-field VI is supported; full-rank VI raises NotImplementedError
+# until reparameterized covariance-factor gradients land.
+inference = BayesianInference(
+    model=model,
+    method='vi',
+    vi_method='meanfield',
+)
 posterior = inference.run(
     data=data,
-    n_iterations=10000
+    n_iterations=10000,
 )
 ```
 

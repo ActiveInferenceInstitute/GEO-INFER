@@ -65,5 +65,5 @@
 
 ## Integration
 
-- **Location**: `GEO-INFER-ENERGY/src/geo_infer_ENERGY/core`
+- **Location**: `GEO-INFER-ENERGY/src/geo_infer_energy/core`
 - **Type**: Directory Node

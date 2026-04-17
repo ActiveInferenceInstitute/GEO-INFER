@@ -5,7 +5,7 @@
  This agent is responsible for handling operations within the `src` scope.
 
 ## Capabilities
- Core capabilities include: - Management of **geo_infer_ENERGY** processes - Management of **geo_infer_energy.egg-info** processes
+ Core capabilities include: - Management of **geo_infer_energy** processes - Management of **geo_infer_energy.egg-info** processes
 
 ## Integration
 

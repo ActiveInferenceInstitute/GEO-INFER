@@ -12,5 +12,5 @@
 
 ## Integration
 
-- **Location**: `GEO-INFER-FOREST/src/geo_infer_FOREST/api`
+- **Location**: `GEO-INFER-FOREST/src/geo_infer_forest/api`
 - **Type**: Directory Node

@@ -24,7 +24,7 @@ Every version release MUST satisfy ALL of the following before tagging:
 | **Testing** | All 44 modules have ≥4 test files | `find GEO-INFER-*/tests -name "test_*.py" \| wc -l` | ≥176 ✅ (416) |
 | **Testing** | Coverage ≥80% per module | `pytest --cov --cov-fail-under=80` | All pass |
 | **Testing** | Property-based tests ≥10 modules | Grep `@given\|hypothesis` | ≥10 ✅ (35) |
-| **Arch** | PEP 8 package names | No unexpected package dir casing in `src/` | 0 (except known legacy: `geo_infer_FOREST`, `geo_infer_MARINE`, `geo_infer_ENERGY`, `geo_infer_WATER`) |
+| **Arch** | PEP 8 package names | No unexpected package dir casing in `src/` | 0 ✅ (all 44 packages normalized to `geo_infer_<module>`) |
 | **Arch** | Graceful dependency degradation | `import geo_infer_act` without optional deps | No ImportError ✅ |
 | **Arch** | H3 v4 API only | No legacy `h3.geo_to_h3` calls | 0 ✅ |
 

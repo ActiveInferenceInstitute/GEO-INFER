@@ -62,5 +62,5 @@
 
 ## Integration
 
-- **Location**: `GEO-INFER-MARINE/src/geo_infer_MARINE/core`
+- **Location**: `GEO-INFER-MARINE/src/geo_infer_marine/core`
 - **Type**: Directory Node
