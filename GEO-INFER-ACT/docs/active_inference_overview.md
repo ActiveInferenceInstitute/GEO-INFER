@@ -56,7 +56,7 @@ Learning involves updating the parameters of the generative model based on exper
 graph LR
     subgraph Agent
         GM[Generative Model]
-        B[Beliefs q(s)]
+        B["Beliefs q(s)"]
         P[Policy Selection]
     end
     
