@@ -188,6 +188,8 @@ For the complete geospatial contract, see
 requires real H3 v4 cell identifiers, normalized nonnegative beliefs, finite
 free-energy and expected-free-energy values, manifest-referenced GIS outputs,
 and schema-validated visualizations for `h3` and `spatial` runner scenarios.
+For the complete public method surface and output/visualization artifact
+contract, see [Method, Output, and Visualization Inventory](docs/method_inventory.md).
 
 ## Core Components
 
