@@ -35,7 +35,8 @@ dependencies = [
     "pytest>=6.0.0",
     "pytest-cov>=2.12.0",
     "pytest-timeout>=2.0.0",
-    "structlog>=21.1.0"
+    "structlog>=21.1.0",
+    "kubernetes>=29.0.0"
 ]
 
 [project.optional-dependencies]
@@ -171,4 +172,3 @@ exclude_lines = [
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
-

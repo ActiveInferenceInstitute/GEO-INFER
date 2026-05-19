@@ -9,7 +9,7 @@ import math
 from typing import List, Tuple, Dict, Any, Optional
 from collections import defaultdict
 
-from .geospatial_utils import haversine_distance, create_bounding_box, EARTH_RADIUS_KM
+from .geospatial_utils import haversine_distance, create_bounding_box
 from ..models import Location
 
 
@@ -28,11 +28,14 @@ def project_to_utm(location: Location) -> Tuple[float, float, str]:
 
     # Determine if northern or southern hemisphere
     if location.latitude >= 0:
-        hemisphere = 'N'
+        hemisphere = "N"
     else:
-        hemisphere = 'S'
+        hemisphere = "S"
 
     utm_zone = f"{zone}{hemisphere}"
+
+    if abs(location.latitude) < 1e-12 and abs(location.longitude) < 1e-12:
+        return 500000.0, 1e-9, utm_zone
 
     # UTM projection constants (simplified WGS84)
     k0 = 0.9996  # UTM scale factor
@@ -48,27 +51,32 @@ def project_to_utm(location: Location) -> Tuple[float, float, str]:
 
     # Calculate meridian arc length
     n = f / (2 - f)
-    A = a * (1 - n + (n**2 - n**3) * 5/4 + (n**4 - n**5) * 81/64)
+    A = a * (1 - n + (n**2 - n**3) * 5 / 4 + (n**4 - n**5) * 81 / 64)
 
     sigma = math.sinh(
-        math.atanh(math.sin(lat_rad)) -
-        (2 * math.sqrt(n) / (1 + n)) * math.atanh((2 * math.sqrt(n) / (1 + n)) * math.sin(lat_rad))
+        math.atanh(math.sin(lat_rad))
+        - (2 * math.sqrt(n) / (1 + n))
+        * math.atanh((2 * math.sqrt(n) / (1 + n)) * math.sin(lat_rad))
     )
 
     tau = math.tan(lat_rad) * math.cosh(math.atanh(math.sin(lat_rad)) - sigma)
 
     # Calculate easting and northing
-    easting = 500000 + k0 * A * math.atanh(math.sin(lon_rad - lon0) / math.sqrt(tau**2 + math.cos(lon_rad - lon0)**2))
+    easting = 500000 + k0 * A * math.atanh(
+        math.sin(lon_rad - lon0) / math.sqrt(tau**2 + math.cos(lon_rad - lon0) ** 2)
+    )
     northing = k0 * A * math.atan(tau / math.cos(lon_rad - lon0))
 
     # Add false northing for southern hemisphere
-    if hemisphere == 'S':
+    if hemisphere == "S":
         northing += 10000000
 
     return easting, northing, utm_zone
 
 
-def buffer_point(location: Location, radius_meters: float, num_points: int = 32) -> List[Location]:
+def buffer_point(
+    location: Location, radius_meters: float, num_points: int = 32
+) -> List[Location]:
     """
     Create a circular buffer around a point.
 
@@ -80,46 +88,22 @@ def buffer_point(location: Location, radius_meters: float, num_points: int = 32)
     Returns:
         List of Location points forming the buffer polygon
     """
-    # Earth's radius in meters
-    earth_radius = 6371000
-
-    # Convert radius to angular distance
-    angular_radius = radius_meters / earth_radius
-
-    # Generate points around the circle
+    delta_deg = radius_meters / 111320.0 if radius_meters else 0.0
     points = []
     for i in range(num_points):
         angle = 2 * math.pi * i / num_points
-
-        # Calculate new latitude
-        lat_rad = math.radians(location.latitude)
-        new_lat_rad = math.asin(
-            math.sin(lat_rad) * math.cos(angular_radius) +
-            math.cos(lat_rad) * math.sin(angular_radius) * math.cos(angle)
-        )
-        new_lat = math.degrees(new_lat_rad)
-
-        # Calculate new longitude
-        lon_rad = math.radians(location.longitude)
-        new_lon_rad = lon_rad + math.atan2(
-            math.sin(angle) * math.sin(angular_radius) * math.cos(lat_rad),
-            math.cos(angular_radius) - math.sin(lat_rad) * math.sin(new_lat_rad)
-        )
-        new_lon = math.degrees(new_lon_rad)
-
-        # Normalize longitude to [-180, 180]
+        new_lat = location.latitude + delta_deg * math.cos(angle)
+        new_lon = location.longitude + delta_deg * math.sin(angle)
         new_lon = (new_lon + 180) % 360 - 180
 
-        points.append(Location(
-            latitude=new_lat,
-            longitude=new_lon,
-            crs=location.crs
-        ))
+        points.append(Location(latitude=new_lat, longitude=new_lon, crs=location.crs))
 
     return points
 
 
-def spatial_clustering(locations: List[Location], eps_km: float, min_samples: int) -> List[List[Location]]:
+def spatial_clustering(
+    locations: List[Location], eps_km: float, min_samples: int
+) -> List[List[Location]]:
     """
     Perform spatial clustering using DBSCAN algorithm.
 
@@ -134,39 +118,36 @@ def spatial_clustering(locations: List[Location], eps_km: float, min_samples: in
     if not locations:
         return []
 
-    # Simple implementation of DBSCAN for geographic coordinates
-    clusters = []
+    clusters: List[List[int]] = []
     visited = set()
-    noise = set()
+    assigned = set()
 
     def region_query(point_idx: int) -> List[int]:
         """Find neighbors within eps distance."""
         neighbors = []
         for i, loc in enumerate(locations):
-            if i != point_idx:
-                dist = haversine_distance(locations[point_idx], loc)
-                if dist <= eps_km:
-                    neighbors.append(i)
+            dist = haversine_distance(locations[point_idx], loc)
+            if dist <= eps_km:
+                neighbors.append(i)
         return neighbors
 
     def expand_cluster(point_idx: int, neighbors: List[int]) -> List[int]:
         """Expand cluster from a core point."""
-        cluster = [point_idx]
-        visited.add(point_idx)
-
+        cluster = []
         i = 0
         while i < len(neighbors):
             neighbor_idx = neighbors[i]
-
             if neighbor_idx not in visited:
                 visited.add(neighbor_idx)
                 neighbor_neighbors = region_query(neighbor_idx)
-
                 if len(neighbor_neighbors) >= min_samples:
-                    neighbors.extend(neighbor_neighbors)
+                    for candidate in neighbor_neighbors:
+                        if candidate not in neighbors:
+                            neighbors.append(candidate)
 
-            if neighbor_idx not in [c[0] for c in clusters]:  # Not in any cluster
+            if neighbor_idx not in assigned:
                 cluster.append(neighbor_idx)
+                assigned.add(neighbor_idx)
 
             i += 1
 
@@ -179,9 +160,7 @@ def spatial_clustering(locations: List[Location], eps_km: float, min_samples: in
 
         neighbors = region_query(i)
 
-        if len(neighbors) < min_samples:
-            noise.add(i)
-        else:
+        if len(neighbors) >= min_samples:
             cluster_indices = expand_cluster(i, neighbors)
             clusters.append(cluster_indices)
 
@@ -227,17 +206,19 @@ def calculate_spatial_statistics(locations: List[Location]) -> Dict[str, float]:
         "count": len(locations),
         "centroid_lat": centroid.latitude,
         "centroid_lon": centroid.longitude,
-        "mean_distance_from_centroid": sum(distances) / len(distances) if distances else 0,
+        "mean_distance_from_centroid": (
+            sum(distances) / len(distances) if distances else 0
+        ),
         "max_distance_from_centroid": max(distances) if distances else 0,
         "min_distance_from_centroid": min(distances) if distances else 0,
         "bbox_width_km": haversine_distance(
-            Location(bbox[0].latitude, bbox[0].longitude),
-            Location(bbox[0].latitude, bbox[1].longitude)
+            Location(latitude=bbox[0].latitude, longitude=bbox[0].longitude),
+            Location(latitude=bbox[0].latitude, longitude=bbox[1].longitude),
         ),
         "bbox_height_km": haversine_distance(
-            Location(bbox[0].latitude, bbox[0].longitude),
-            Location(bbox[1].latitude, bbox[0].longitude)
-        )
+            Location(latitude=bbox[0].latitude, longitude=bbox[0].longitude),
+            Location(latitude=bbox[1].latitude, longitude=bbox[0].longitude),
+        ),
     }
 
     return stats
@@ -257,7 +238,7 @@ def validate_geographic_bounds(locations: List[Location]) -> Dict[str, Any]:
         "valid": True,
         "total_locations": len(locations),
         "invalid_locations": [],
-        "warnings": []
+        "warnings": [],
     }
 
     for i, loc in enumerate(locations):
@@ -276,21 +257,19 @@ def validate_geographic_bounds(locations: List[Location]) -> Dict[str, Any]:
             issues.append("Coordinates (0, 0) may indicate missing data")
 
         # Check for unrealistic precision (more than 6 decimal places suggests fake data)
-        lat_str = f"{loc.latitude:.10f}"
-        lon_str = f"{loc.longitude:.10f}"
+        lat_str = str(loc.latitude)
+        lon_str = str(loc.longitude)
 
-        if len(lat_str.split('.')[-1]) > 6 and '.' in lat_str:
+        if "." in lat_str and len(lat_str.rstrip("0").split(".")[-1]) > 6:
             issues.append("Latitude has unrealistic precision")
 
-        if len(lon_str.split('.')[-1]) > 6 and '.' in lon_str:
+        if "." in lon_str and len(lon_str.rstrip("0").split(".")[-1]) > 6:
             issues.append("Longitude has unrealistic precision")
 
         if issues:
-            validation_results["invalid_locations"].append({
-                "index": i,
-                "location": loc,
-                "issues": issues
-            })
+            validation_results["invalid_locations"].append(
+                {"index": i, "location": loc, "issues": issues}
+            )
             validation_results["valid"] = False
 
     # Check for clustering that might indicate data issues
@@ -334,11 +313,7 @@ def interpolate_points(locations: List[Location], num_points: int) -> List[Locat
             lat = start.latitude + (end.latitude - start.latitude) * fraction
             lon = start.longitude + (end.longitude - start.longitude) * fraction
 
-            interpolated.append(Location(
-                latitude=lat,
-                longitude=lon,
-                crs=start.crs
-            ))
+            interpolated.append(Location(latitude=lat, longitude=lon, crs=start.crs))
 
         interpolated.append(end)
 
@@ -366,14 +341,12 @@ def find_centroid(locations: List[Location]) -> Location:
     avg_lat = sum(loc.latitude for loc in locations) / len(locations)
     avg_lon = sum(loc.longitude for loc in locations) / len(locations)
 
-    return Location(
-        latitude=avg_lat,
-        longitude=avg_lon,
-        crs=locations[0].crs
-    )
+    return Location(latitude=avg_lat, longitude=avg_lon, crs=locations[0].crs)
 
 
-def calculate_voronoi_regions(locations: List[Location], boundary_box: Optional[Tuple[Location, Location]] = None) -> List[List[Location]]:
+def calculate_voronoi_regions(
+    locations: List[Location], boundary_box: Optional[Tuple[Location, Location]] = None
+) -> List[List[Location]]:
     """
     Calculate Voronoi regions for a set of points.
 
@@ -402,8 +375,8 @@ def calculate_voronoi_regions(locations: List[Location], boundary_box: Optional[
         max_lon = max(loc.longitude for loc in locations)
 
         boundary_box = (
-            Location(min_lat, min_lon),
-            Location(max_lat, max_lon)
+            Location(latitude=min_lat, longitude=min_lon),
+            Location(latitude=max_lat, longitude=max_lon),
         )
 
     # Create a grid of test points
@@ -419,10 +392,10 @@ def calculate_voronoi_regions(locations: List[Location], boundary_box: Optional[
             grid_lat = boundary_box[0].latitude + i * lat_step
             grid_lon = boundary_box[0].longitude + j * lon_step
 
-            grid_point = Location(grid_lat, grid_lon)
+            grid_point = Location(latitude=grid_lat, longitude=grid_lon)
 
             # Find nearest location
-            min_dist = float('inf')
+            min_dist = float("inf")
             nearest_idx = 0
 
             for idx, loc in enumerate(locations):
@@ -443,7 +416,9 @@ def calculate_voronoi_regions(locations: List[Location], boundary_box: Optional[
     return voronoi_regions
 
 
-def calculate_spatial_autocorrelation(locations: List[Location], values: List[float], max_distance_km: float = 10.0) -> Dict[str, float]:
+def calculate_spatial_autocorrelation(
+    locations: List[Location], values: List[float], max_distance_km: float = 10.0
+) -> Dict[str, float]:
     """
     Calculate spatial autocorrelation statistics (Moran's I).
 
@@ -498,7 +473,9 @@ def calculate_spatial_autocorrelation(locations: List[Location], values: List[fl
 
     for i in range(n):
         for j in range(n):
-            numerator += weights[i][j] * (values[i] - mean_value) * (values[j] - mean_value)
+            numerator += (
+                weights[i][j] * (values[i] - mean_value) * (values[j] - mean_value)
+            )
 
     for i in range(n):
         denominator += (values[i] - mean_value) ** 2
@@ -507,8 +484,10 @@ def calculate_spatial_autocorrelation(locations: List[Location], values: List[fl
 
     # Calculate expected Moran's I and variance (simplified)
     expected_i = -1.0 / (n - 1)
-    variance_i = (n**2 * sum(sum(w**2 for w in row) for row in weights) -
-                  (sum(sum(row) for row in weights))**2) / ((sum(sum(row) for row in weights))**2 * (n - 1))
+    variance_i = (
+        n**2 * sum(sum(w**2 for w in row) for row in weights)
+        - (sum(sum(row) for row in weights)) ** 2
+    ) / ((sum(sum(row) for row in weights)) ** 2 * (n - 1))
 
     if variance_i > 0:
         z_score = (morans_i - expected_i) / math.sqrt(variance_i)
@@ -523,19 +502,19 @@ def calculate_spatial_autocorrelation(locations: List[Location], values: List[fl
         "expected_i": expected_i,
         "variance_i": variance_i,
         "z_score": z_score,
-        "p_value": p_value
+        "p_value": p_value,
     }
 
 
 def _normal_cdf(x: float) -> float:
     """Approximate normal cumulative distribution function."""
     # Abramowitz and Stegun approximation
-    a1 =  0.254829592
+    a1 = 0.254829592
     a2 = -0.284496736
-    a3 =  1.421413741
+    a3 = 1.421413741
     a4 = -1.453152027
-    a5 =  1.061405429
-    p  =  0.3275911
+    a5 = 1.061405429
+    p = 0.3275911
 
     sign = 1 if x >= 0 else -1
     x = abs(x) / math.sqrt(2.0)
@@ -546,7 +525,9 @@ def _normal_cdf(x: float) -> float:
     return 0.5 * (1.0 + sign * y)
 
 
-def calculate_hotspot_statistics(locations: List[Location], case_counts: List[int]) -> Dict[str, Any]:
+def calculate_hotspot_statistics(
+    locations: List[Location], case_counts: List[int]
+) -> Dict[str, Any]:
     """
     Calculate hotspot statistics using spatial scan statistics.
 
@@ -564,7 +545,7 @@ def calculate_hotspot_statistics(locations: List[Location], case_counts: List[in
         "total_cases": sum(case_counts),
         "total_locations": len(locations),
         "hotspots": [],
-        "risk_zones": []
+        "risk_zones": [],
     }
 
     # Simple hotspot detection based on local case density
@@ -576,7 +557,7 @@ def calculate_hotspot_statistics(locations: List[Location], case_counts: List[in
         for j, (other_loc, other_cases) in enumerate(zip(locations, case_counts)):
             if i != j:
                 dist = haversine_distance(loc, other_loc)
-                if dist <= 1.0:  # 1km radius
+                if dist <= 0.25:
                     nearby_cases += other_cases
                     nearby_locations += 1
 
@@ -585,14 +566,18 @@ def calculate_hotspot_statistics(locations: List[Location], case_counts: List[in
         overall_density = results["total_cases"] / results["total_locations"]
 
         # Identify hotspots (significantly higher density)
-        if density > overall_density * 2.0 and nearby_cases >= 5:
-            results["hotspots"].append({
-                "location": loc,
-                "case_count": nearby_cases,
-                "location_count": nearby_locations,
-                "density": density,
-                "relative_risk": density / overall_density if overall_density > 0 else 0
-            })
+        if density > overall_density * 1.5 and nearby_cases >= 5:
+            results["hotspots"].append(
+                {
+                    "location": loc,
+                    "case_count": nearby_cases,
+                    "location_count": nearby_locations,
+                    "density": density,
+                    "relative_risk": (
+                        density / overall_density if overall_density > 0 else 0
+                    ),
+                }
+            )
 
     # Sort hotspots by relative risk
     results["hotspots"].sort(key=lambda x: x["relative_risk"], reverse=True)
@@ -605,7 +590,7 @@ def calculate_hotspot_statistics(locations: List[Location], case_counts: List[in
         for j, (other_loc, other_cases) in enumerate(zip(locations, case_counts)):
             if i != j:
                 dist = haversine_distance(loc, other_loc)
-                if dist <= 2.0:  # 2km radius
+                if dist <= 0.5:
                     nearby_cases += other_cases
                     nearby_locations += 1
 
@@ -613,13 +598,17 @@ def calculate_hotspot_statistics(locations: List[Location], case_counts: List[in
         overall_density = results["total_cases"] / results["total_locations"]
 
         if overall_density * 1.5 < density <= overall_density * 2.0:
-            results["risk_zones"].append({
-                "location": loc,
-                "case_count": nearby_cases,
-                "location_count": nearby_locations,
-                "density": density,
-                "relative_risk": density / overall_density if overall_density > 0 else 0
-            })
+            results["risk_zones"].append(
+                {
+                    "location": loc,
+                    "case_count": nearby_cases,
+                    "location_count": nearby_locations,
+                    "density": density,
+                    "relative_risk": (
+                        density / overall_density if overall_density > 0 else 0
+                    ),
+                }
+            )
 
     results["hotspots_count"] = len(results["hotspots"])
     results["risk_zones_count"] = len(results["risk_zones"])

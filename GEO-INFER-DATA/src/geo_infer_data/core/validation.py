@@ -7,22 +7,23 @@ quality assessment.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any, Tuple
+from typing import Dict, List, Optional, Union, Any
 from datetime import datetime, timedelta
 from dataclasses import dataclass
 from enum import Enum
-import re
 
 import geopandas as gpd
 import pandas as pd
 import numpy as np
-import rasterio
-from shapely.geometry import Point, Polygon, LineString
-from shapely.validation import explain_validity
 
 from ..models.schemas import (
-    QualityCheck, QualityStatus, DataQualityReport,
-    DatasetMetadata, SpatialExtent, TemporalExtent, DataLineage
+    QualityCheck,
+    QualityStatus,
+    DataQualityReport,
+    DatasetMetadata,
+    SpatialExtent,
+    TemporalExtent,
+    DataLineage,
 )
 
 
@@ -31,6 +32,7 @@ logger = logging.getLogger(__name__)
 
 class ValidationLevel(str, Enum):
     """Validation strictness levels."""
+
     BASIC = "basic"
     STANDARD = "standard"
     COMPREHENSIVE = "comprehensive"
@@ -39,6 +41,7 @@ class ValidationLevel(str, Enum):
 
 class ValidationRule(str, Enum):
     """Available validation rules."""
+
     COMPLETENESS = "completeness"
     ACCURACY = "accuracy"
     CONSISTENCY = "consistency"
@@ -52,6 +55,7 @@ class ValidationRule(str, Enum):
 @dataclass
 class ValidationConfig:
     """Configuration for data validation."""
+
     validation_rules: List[str] = None
     quality_threshold: float = 0.8
     strict_mode: bool = False
@@ -69,17 +73,174 @@ class GeospatialValidator:
     def __init__(self, config: Optional[ValidationConfig] = None):
         self.config = config or ValidationConfig()
         self.validation_rules = {
-            'completeness': self._check_completeness,
-            'accuracy': self._check_accuracy,
-            'consistency': self._check_consistency,
-            'validity': self._check_validity,
-            'temporal': self._check_temporal,
-            'spatial': self._check_spatial,
-            'format': self._check_format,
-            'schema': self._check_schema
+            "completeness": self._check_completeness,
+            "accuracy": self._check_accuracy,
+            "consistency": self._check_consistency,
+            "validity": self._check_validity,
+            "temporal": self._check_temporal,
+            "spatial": self._check_spatial,
+            "format": self._check_format,
+            "schema": self._check_schema,
         }
 
-    async def validate_data(self, data: Any, metadata: Optional[DatasetMetadata] = None) -> DataQualityReport:
+    def validate_geometries(self, data: gpd.GeoDataFrame) -> QualityCheck:
+        """Validate geometry presence, validity, CRS, and WGS84 coordinate bounds."""
+        issues = []
+        score = 1.0
+
+        if not isinstance(data, gpd.GeoDataFrame) or "geometry" not in data.columns:
+            return QualityCheck(
+                score=0.0,
+                status=QualityStatus.FAIL,
+                issues=[
+                    {
+                        "type": "missing_geometry",
+                        "message": "GeoDataFrame geometry column is required",
+                    }
+                ],
+            )
+
+        total = max(len(data), 1)
+        invalid_geometries = 0
+        invalid_coordinates = 0
+        for geom in data.geometry:
+            if geom is None or not geom.is_valid:
+                invalid_geometries += 1
+                continue
+            min_lon, min_lat, max_lon, max_lat = geom.bounds
+            if min_lon < -180 or max_lon > 180 or min_lat < -90 or max_lat > 90:
+                invalid_coordinates += 1
+
+        if invalid_geometries:
+            ratio = invalid_geometries / total
+            issues.append(
+                {
+                    "type": "invalid_geometries",
+                    "message": f"Invalid or missing geometries: {ratio:.2%}",
+                    "severity": "high",
+                }
+            )
+            score -= min(0.9, ratio * 1.5)
+        if invalid_coordinates:
+            ratio = invalid_coordinates / total
+            issues.append(
+                {
+                    "type": "invalid_coordinates",
+                    "message": f"Coordinates outside WGS84 bounds: {ratio:.2%}",
+                    "severity": "high",
+                }
+            )
+            score -= min(0.9, ratio * 1.5)
+        if data.crs is None:
+            issues.append(
+                {
+                    "type": "missing_crs",
+                    "message": "Missing coordinate reference system",
+                }
+            )
+            score -= 0.2
+
+        score = max(0.0, score)
+        status = (
+            QualityStatus.PASS
+            if score >= 0.8
+            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        )
+        return QualityCheck(score=score, status=status, issues=issues)
+
+    def validate_coordinates(self, data: pd.DataFrame) -> QualityCheck:
+        """Validate latitude and longitude columns in tabular data."""
+        if "latitude" not in data.columns or "longitude" not in data.columns:
+            return QualityCheck(
+                score=0.0,
+                status=QualityStatus.FAIL,
+                issues=[
+                    {
+                        "type": "missing_coordinates",
+                        "message": "latitude and longitude columns are required",
+                    }
+                ],
+            )
+
+        valid_mask = (
+            data["latitude"].notna()
+            & data["longitude"].notna()
+            & data["latitude"].between(-90, 90)
+            & data["longitude"].between(-180, 180)
+        )
+        invalid_ratio = 1.0 - (valid_mask.sum() / max(len(data), 1))
+        issues = []
+        score = 1.0
+        if invalid_ratio:
+            issues.append(
+                {
+                    "type": "invalid_coordinates",
+                    "message": f"Invalid coordinates: {invalid_ratio:.2%}",
+                    "severity": "high",
+                }
+            )
+            score -= min(0.9, invalid_ratio * 4.0)
+
+        score = max(0.0, score)
+        status = (
+            QualityStatus.PASS
+            if score >= 0.8
+            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        )
+        return QualityCheck(score=score, status=status, issues=issues)
+
+    def validate_temporal_data(self, data: pd.DataFrame) -> QualityCheck:
+        """Validate datetime columns for plausible, ordered timestamps."""
+        datetime_cols = data.select_dtypes(include=["datetime", "datetimetz"]).columns
+        if len(datetime_cols) == 0:
+            return QualityCheck(
+                score=0.0,
+                status=QualityStatus.FAIL,
+                issues=[
+                    {
+                        "type": "missing_temporal_data",
+                        "message": "No datetime columns found",
+                    }
+                ],
+            )
+
+        issues = []
+        score = 1.0
+        for col in datetime_cols:
+            series = data[col].dropna()
+            if series.empty:
+                continue
+            future_mask = series > datetime.now()
+            if future_mask.any():
+                ratio = future_mask.sum() / len(series)
+                issues.append(
+                    {
+                        "type": "future_dates",
+                        "message": f"Future dates in {col}: {ratio:.2%}",
+                        "severity": "medium",
+                    }
+                )
+                score -= min(0.3, ratio * 0.3)
+            if not series.is_monotonic_increasing:
+                issues.append(
+                    {
+                        "type": "non_chronological",
+                        "message": f"Non-chronological order in {col}",
+                    }
+                )
+                score -= 0.1
+
+        score = max(0.0, score)
+        status = (
+            QualityStatus.PASS
+            if score >= 0.8
+            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        )
+        return QualityCheck(score=score, status=status, issues=issues)
+
+    async def validate_data(
+        self, data: Any, metadata: Optional[DatasetMetadata] = None
+    ) -> DataQualityReport:
         """
         Validate geospatial data comprehensively.
 
@@ -100,28 +261,37 @@ class GeospatialValidator:
         for rule_name in self.config.validation_rules:
             if rule_name in self.validation_rules:
                 try:
-                    check_result = await self.validation_rules[rule_name](data, metadata)
+                    check_result = await self.validation_rules[rule_name](
+                        data, metadata
+                    )
                     checks[rule_name] = check_result
 
                     # Update overall score
                     if check_result.status == QualityStatus.PASS:
                         overall_score += check_result.score
                     elif check_result.status == QualityStatus.WARNING:
-                        overall_score += check_result.score * 0.8  # Weight warnings lower
+                        overall_score += (
+                            check_result.score * 0.8
+                        )  # Weight warnings lower
                     else:
-                        overall_score += check_result.score * 0.5  # Weight failures lower
+                        overall_score += (
+                            check_result.score * 0.5
+                        )  # Weight failures lower
 
                 except Exception as e:
                     logger.error(f"Validation rule {rule_name} failed: {e}")
                     checks[rule_name] = QualityCheck(
                         score=0.0,
                         status=QualityStatus.FAIL,
-                        issues=[{'type': 'validation_error', 'message': str(e)}]
+                        issues=[{"type": "validation_error", "message": str(e)}],
                     )
 
         # Calculate overall score
         if checks:
             overall_score /= len(checks)
+            overall_score = min(
+                overall_score, min(check.score for check in checks.values())
+            )
 
         # Generate recommendations
         recommendations = self._generate_recommendations(checks, overall_score)
@@ -132,44 +302,55 @@ class GeospatialValidator:
             checks=checks,
             recommendations=recommendations,
             assessment_method=self.config.validation_rules,
-            validation_rules=list(self.config.validation_rules)
+            validation_rules=list(self.config.validation_rules),
         )
 
-        logger.info(f"Data validation completed with overall score: {overall_score:.2f}")
+        logger.info(
+            f"Data validation completed with overall score: {overall_score:.2f}"
+        )
         return quality_report
 
-    async def _check_completeness(self, data: Any, metadata: Optional[DatasetMetadata]) -> QualityCheck:
+    async def _check_completeness(
+        self, data: Any, metadata: Optional[DatasetMetadata]
+    ) -> QualityCheck:
         """Check data completeness."""
         issues = []
         score = 1.0
 
         if isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
+            if data.empty:
+                issues.append(
+                    {
+                        "type": "empty_dataset",
+                        "message": "Dataset is empty",
+                        "severity": "critical",
+                    }
+                )
+                return QualityCheck(score=0.0, status=QualityStatus.FAIL, issues=issues)
+
             # Check for missing values
-            missing_percent = data.isnull().sum().sum() / (data.shape[0] * data.shape[1])
+            missing_percent = data.isnull().sum().sum() / (
+                data.shape[0] * data.shape[1]
+            )
 
             if missing_percent > 0.1:  # More than 10% missing
-                issues.append({
-                    'type': 'high_missing_values',
-                    'message': f'High percentage of missing values: {missing_percent:.2%}',
-                    'severity': 'high'
-                })
-                score -= 0.3
+                issues.append(
+                    {
+                        "type": "high_missing_values",
+                        "message": f"High percentage of missing values: {missing_percent:.2%}",
+                        "severity": "high",
+                    }
+                )
+                score -= min(0.9, missing_percent * 1.5)
             elif missing_percent > 0.05:  # More than 5% missing
-                issues.append({
-                    'type': 'moderate_missing_values',
-                    'message': f'Moderate percentage of missing values: {missing_percent:.2%}',
-                    'severity': 'medium'
-                })
+                issues.append(
+                    {
+                        "type": "moderate_missing_values",
+                        "message": f"Moderate percentage of missing values: {missing_percent:.2%}",
+                        "severity": "medium",
+                    }
+                )
                 score -= 0.1
-
-            # Check for empty records
-            if data.empty:
-                issues.append({
-                    'type': 'empty_dataset',
-                    'message': 'Dataset is empty',
-                    'severity': 'critical'
-                })
-                score = 0.0
 
         elif isinstance(data, np.ndarray):
             # Check for NaN values in arrays
@@ -178,18 +359,26 @@ class GeospatialValidator:
 
             if nan_count > 0:
                 nan_percent = nan_count / total_count
-                issues.append({
-                    'type': 'array_nan_values',
-                    'message': f'Array contains NaN values: {nan_percent:.2%}',
-                    'severity': 'medium'
-                })
+                issues.append(
+                    {
+                        "type": "array_nan_values",
+                        "message": f"Array contains NaN values: {nan_percent:.2%}",
+                        "severity": "medium",
+                    }
+                )
                 score -= 0.2
 
-        status = QualityStatus.PASS if score >= 0.8 else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        status = (
+            QualityStatus.PASS
+            if score >= 0.8
+            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
 
-    async def _check_accuracy(self, data: Any, metadata: Optional[DatasetMetadata]) -> QualityCheck:
+    async def _check_accuracy(
+        self, data: Any, metadata: Optional[DatasetMetadata]
+    ) -> QualityCheck:
         """Check data accuracy."""
         issues = []
         score = 1.0
@@ -209,19 +398,23 @@ class GeospatialValidator:
                         lower_bound = Q1 - 1.5 * IQR
                         upper_bound = Q3 + 1.5 * IQR
 
-                        outliers = values[(values < lower_bound) | (values > upper_bound)]
+                        outliers = values[
+                            (values < lower_bound) | (values > upper_bound)
+                        ]
                         outlier_percent = len(outliers) / len(values)
 
                         if outlier_percent > 0.1:  # More than 10% outliers
-                            issues.append({
-                                'type': 'high_outliers',
-                                'message': f'High percentage of outliers in {col}: {outlier_percent:.2%}',
-                                'severity': 'medium'
-                            })
+                            issues.append(
+                                {
+                                    "type": "high_outliers",
+                                    "message": f"High percentage of outliers in {col}: {outlier_percent:.2%}",
+                                    "severity": "medium",
+                                }
+                            )
                             score -= 0.2
 
             # Check coordinate accuracy if geospatial
-            if isinstance(data, gpd.GeoDataFrame) and 'geometry' in data.columns:
+            if isinstance(data, gpd.GeoDataFrame) and "geometry" in data.columns:
                 # Check for invalid coordinates
                 invalid_coords = 0
                 for geom in data.geometry:
@@ -230,18 +423,26 @@ class GeospatialValidator:
 
                 if invalid_coords > 0:
                     invalid_percent = invalid_coords / len(data)
-                    issues.append({
-                        'type': 'invalid_geometries',
-                        'message': f'Invalid geometries found: {invalid_percent:.2%}',
-                        'severity': 'high'
-                    })
+                    issues.append(
+                        {
+                            "type": "invalid_geometries",
+                            "message": f"Invalid geometries found: {invalid_percent:.2%}",
+                            "severity": "high",
+                        }
+                    )
                     score -= 0.3
 
-        status = QualityStatus.PASS if score >= 0.8 else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        status = (
+            QualityStatus.PASS
+            if score >= 0.8
+            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
 
-    async def _check_consistency(self, data: Any, metadata: Optional[DatasetMetadata]) -> QualityCheck:
+    async def _check_consistency(
+        self, data: Any, metadata: Optional[DatasetMetadata]
+    ) -> QualityCheck:
         """Check data consistency."""
         issues = []
         score = 1.0
@@ -249,44 +450,61 @@ class GeospatialValidator:
         if isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
             # Check data types consistency
             for col in data.columns:
+                if col == "geometry":
+                    continue
                 unique_types = data[col].dropna().apply(type).unique()
                 if len(unique_types) > 1:
-                    issues.append({
-                        'type': 'mixed_data_types',
-                        'message': f'Mixed data types in column {col}',
-                        'severity': 'low'
-                    })
+                    issues.append(
+                        {
+                            "type": "mixed_data_types",
+                            "message": f"Mixed data types in column {col}",
+                            "severity": "low",
+                        }
+                    )
                     score -= 0.1
 
-            # Check for duplicate records
-            duplicates = data.duplicated().sum()
+            # Check for duplicate records. Geometry objects can expose pandas
+            # internals that are not duplicate-check friendly, so use scalar
+            # attributes for this consistency rule.
+            duplicate_data = data.drop(columns=["geometry"], errors="ignore")
+            duplicates = duplicate_data.duplicated().sum()
             if duplicates > 0:
                 duplicate_percent = duplicates / len(data)
-                issues.append({
-                    'type': 'duplicate_records',
-                    'message': f'Duplicate records found: {duplicate_percent:.2%}',
-                    'severity': 'medium'
-                })
+                issues.append(
+                    {
+                        "type": "duplicate_records",
+                        "message": f"Duplicate records found: {duplicate_percent:.2%}",
+                        "severity": "medium",
+                    }
+                )
                 score -= 0.2
 
             # Check temporal consistency if datetime columns exist
-            datetime_cols = data.select_dtypes(include=['datetime']).columns
+            datetime_cols = data.select_dtypes(include=["datetime"]).columns
             for col in datetime_cols:
                 if col in data.columns:
                     # Check for chronological order
                     if not data[col].is_monotonic_increasing:
-                        issues.append({
-                            'type': 'non_chronological',
-                            'message': f'Non-chronological order in {col}',
-                            'severity': 'low'
-                        })
+                        issues.append(
+                            {
+                                "type": "non_chronological",
+                                "message": f"Non-chronological order in {col}",
+                                "severity": "low",
+                            }
+                        )
                         score -= 0.1
 
-        status = QualityStatus.PASS if score >= 0.8 else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        status = (
+            QualityStatus.PASS
+            if score >= 0.8
+            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
 
-    async def _check_validity(self, data: Any, metadata: Optional[DatasetMetadata]) -> QualityCheck:
+    async def _check_validity(
+        self, data: Any, metadata: Optional[DatasetMetadata]
+    ) -> QualityCheck:
         """Check data validity."""
         issues = []
         score = 1.0
@@ -294,57 +512,76 @@ class GeospatialValidator:
         if isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
             # Check for valid values in each column
             for col in data.columns:
-                if data[col].dtype in ['object', 'string']:
+                if data[col].dtype in ["object", "string"]:
                     # Check for suspicious string values
-                    suspicious_values = data[col].dropna().astype(str).str.contains(r'[^\w\s\-.,()&]', regex=True)
+                    suspicious_values = (
+                        data[col]
+                        .dropna()
+                        .astype(str)
+                        .str.contains(r"[^\w\s\-.,()&]", regex=True)
+                    )
                     if suspicious_values.any():
-                        issues.append({
-                            'type': 'suspicious_characters',
-                            'message': f'Suspicious characters in column {col}',
-                            'severity': 'low'
-                        })
+                        issues.append(
+                            {
+                                "type": "suspicious_characters",
+                                "message": f"Suspicious characters in column {col}",
+                                "severity": "low",
+                            }
+                        )
                         score -= 0.1
 
-                elif data[col].dtype in [np.number]:
+                elif pd.api.types.is_numeric_dtype(data[col]):
                     # Check for infinite values
                     if np.isinf(data[col]).any():
-                        issues.append({
-                            'type': 'infinite_values',
-                            'message': f'Infinite values in column {col}',
-                            'severity': 'high'
-                        })
+                        issues.append(
+                            {
+                                "type": "infinite_values",
+                                "message": f"Infinite values in column {col}",
+                                "severity": "high",
+                            }
+                        )
                         score -= 0.3
 
         elif isinstance(data, np.ndarray):
             # Check for valid array values
             if np.isinf(data).any():
-                issues.append({
-                    'type': 'infinite_values',
-                    'message': 'Infinite values in array',
-                    'severity': 'high'
-                })
+                issues.append(
+                    {
+                        "type": "infinite_values",
+                        "message": "Infinite values in array",
+                        "severity": "high",
+                    }
+                )
                 score -= 0.3
 
             if np.isnan(data).any():
-                issues.append({
-                    'type': 'nan_values',
-                    'message': 'NaN values in array',
-                    'severity': 'medium'
-                })
+                issues.append(
+                    {
+                        "type": "nan_values",
+                        "message": "NaN values in array",
+                        "severity": "medium",
+                    }
+                )
                 score -= 0.2
 
-        status = QualityStatus.PASS if score >= 0.8 else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        status = (
+            QualityStatus.PASS
+            if score >= 0.8
+            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
 
-    async def _check_temporal(self, data: Any, metadata: Optional[DatasetMetadata]) -> QualityCheck:
+    async def _check_temporal(
+        self, data: Any, metadata: Optional[DatasetMetadata]
+    ) -> QualityCheck:
         """Check temporal validity."""
         issues = []
         score = 1.0
 
         if isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
             # Find datetime columns
-            datetime_cols = data.select_dtypes(include=['datetime']).columns
+            datetime_cols = data.select_dtypes(include=["datetime"]).columns
 
             for col in datetime_cols:
                 if col in data.columns:
@@ -352,72 +589,107 @@ class GeospatialValidator:
                     future_dates = data[col] > datetime.now()
                     if future_dates.any():
                         future_percent = future_dates.sum() / len(data)
-                        issues.append({
-                            'type': 'future_dates',
-                            'message': f'Future dates in {col}: {future_percent:.2%}',
-                            'severity': 'medium'
-                        })
+                        issues.append(
+                            {
+                                "type": "future_dates",
+                                "message": f"Future dates in {col}: {future_percent:.2%}",
+                                "severity": "medium",
+                            }
+                        )
                         score -= 0.2
 
                     # Check for unreasonable date ranges
                     date_range = data[col].max() - data[col].min()
-                    if date_range > timedelta(days=365*100):  # More than 100 years
-                        issues.append({
-                            'type': 'unreasonable_date_range',
-                            'message': f'Unreasonable date range in {col}: {date_range.days} days',
-                            'severity': 'low'
-                        })
+                    if date_range > timedelta(days=365 * 100):  # More than 100 years
+                        issues.append(
+                            {
+                                "type": "unreasonable_date_range",
+                                "message": f"Unreasonable date range in {col}: {date_range.days} days",
+                                "severity": "low",
+                            }
+                        )
                         score -= 0.1
 
         # Check temporal extent if metadata provided
         if metadata and metadata.temporal:
             # Validate temporal extent consistency
             if isinstance(data, (pd.DataFrame, gpd.GeoDataFrame)):
-                datetime_cols = data.select_dtypes(include=['datetime']).columns
-                if datetime_cols.any():
+                datetime_cols = data.select_dtypes(include=["datetime"]).columns
+                if len(datetime_cols) > 0:
                     data_min = data[datetime_cols[0]].min()
                     data_max = data[datetime_cols[0]].max()
 
-                    if data_min < metadata.temporal.start or data_max > metadata.temporal.end:
-                        issues.append({
-                            'type': 'temporal_extent_mismatch',
-                            'message': 'Data temporal extent exceeds metadata bounds',
-                            'severity': 'medium'
-                        })
+                    if (
+                        data_min < metadata.temporal.start
+                        or data_max > metadata.temporal.end
+                    ):
+                        issues.append(
+                            {
+                                "type": "temporal_extent_mismatch",
+                                "message": "Data temporal extent exceeds metadata bounds",
+                                "severity": "medium",
+                            }
+                        )
                         score -= 0.2
 
-        status = QualityStatus.PASS if score >= 0.8 else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        status = (
+            QualityStatus.PASS
+            if score >= 0.8
+            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
 
-    async def _check_spatial(self, data: Any, metadata: Optional[DatasetMetadata]) -> QualityCheck:
+    async def _check_spatial(
+        self, data: Any, metadata: Optional[DatasetMetadata]
+    ) -> QualityCheck:
         """Check spatial validity."""
         issues = []
         score = 1.0
 
-        if isinstance(data, gpd.GeoDataFrame) and 'geometry' in data.columns:
+        if isinstance(data, gpd.GeoDataFrame) and "geometry" in data.columns:
             # Check geometry validity
             invalid_geoms = 0
+            invalid_coords = 0
             for idx, geom in data.geometry.items():
                 if geom is None or not geom.is_valid:
                     invalid_geoms += 1
+                    continue
+                min_lon, min_lat, max_lon, max_lat = geom.bounds
+                if min_lon < -180 or max_lon > 180 or min_lat < -90 or max_lat > 90:
+                    invalid_coords += 1
 
             if invalid_geoms > 0:
                 invalid_percent = invalid_geoms / len(data)
-                issues.append({
-                    'type': 'invalid_geometries',
-                    'message': f'Invalid geometries: {invalid_percent:.2%}',
-                    'severity': 'high'
-                })
-                score -= 0.3
+                issues.append(
+                    {
+                        "type": "invalid_geometries",
+                        "message": f"Invalid geometries: {invalid_percent:.2%}",
+                        "severity": "high",
+                    }
+                )
+                score -= min(0.9, invalid_percent * 4.0)
+
+            if invalid_coords > 0:
+                invalid_percent = invalid_coords / len(data)
+                issues.append(
+                    {
+                        "type": "invalid_coordinates",
+                        "message": f"Invalid coordinates: {invalid_percent:.2%}",
+                        "severity": "high",
+                    }
+                )
+                score -= min(0.9, invalid_percent * 4.0)
 
             # Check coordinate system consistency
             if data.crs is None:
-                issues.append({
-                    'type': 'missing_crs',
-                    'message': 'Missing coordinate reference system',
-                    'severity': 'medium'
-                })
+                issues.append(
+                    {
+                        "type": "missing_crs",
+                        "message": "Missing coordinate reference system",
+                        "severity": "medium",
+                    }
+                )
                 score -= 0.2
 
             # Check for geometries outside expected bounds
@@ -430,27 +702,39 @@ class GeospatialValidator:
                     out_of_bounds = 0
                     for geom in data.geometry:
                         if geom and geom.bounds:
-                            geom_min_lon, geom_min_lat, geom_max_lon, geom_max_lat = geom.bounds
-                            if (geom_max_lon < min_lon or geom_min_lon > max_lon or
-                                geom_max_lat < min_lat or geom_min_lat > max_lat):
+                            geom_min_lon, geom_min_lat, geom_max_lon, geom_max_lat = (
+                                geom.bounds
+                            )
+                            if (
+                                geom_max_lon < min_lon
+                                or geom_min_lon > max_lon
+                                or geom_max_lat < min_lat
+                                or geom_min_lat > max_lat
+                            ):
                                 out_of_bounds += 1
 
                     if out_of_bounds > 0:
                         oob_percent = out_of_bounds / len(data)
-                        issues.append({
-                            'type': 'out_of_bounds',
-                            'message': f'Geometries outside bounds: {oob_percent:.2%}',
-                            'severity': 'medium'
-                        })
+                        issues.append(
+                            {
+                                "type": "out_of_bounds",
+                                "message": f"Geometries outside bounds: {oob_percent:.2%}",
+                                "severity": "medium",
+                            }
+                        )
                         score -= 0.2
 
-        elif isinstance(data, (pd.DataFrame,)) and 'latitude' in data.columns and 'longitude' in data.columns:
+        elif (
+            isinstance(data, (pd.DataFrame,))
+            and "latitude" in data.columns
+            and "longitude" in data.columns
+        ):
             # Check coordinate validity for lat/lon data
             invalid_coords = 0
 
             for idx, row in data.iterrows():
-                lat = row.get('latitude')
-                lon = row.get('longitude')
+                lat = row.get("latitude")
+                lon = row.get("longitude")
 
                 if lat is not None and lon is not None:
                     if not (-90 <= lat <= 90) or not (-180 <= lon <= 180):
@@ -460,42 +744,58 @@ class GeospatialValidator:
 
             if invalid_coords > 0:
                 invalid_percent = invalid_coords / len(data)
-                issues.append({
-                    'type': 'invalid_coordinates',
-                    'message': f'Invalid coordinates: {invalid_percent:.2%}',
-                    'severity': 'high'
-                })
-                score -= 0.3
+                issues.append(
+                    {
+                        "type": "invalid_coordinates",
+                        "message": f"Invalid coordinates: {invalid_percent:.2%}",
+                        "severity": "high",
+                    }
+                )
+                score -= min(0.9, invalid_percent * 4.0)
 
-        status = QualityStatus.PASS if score >= 0.8 else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        status = (
+            QualityStatus.PASS
+            if score >= 0.8
+            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
 
-    async def _check_format(self, data: Any, metadata: Optional[DatasetMetadata]) -> QualityCheck:
+    async def _check_format(
+        self, data: Any, metadata: Optional[DatasetMetadata]
+    ) -> QualityCheck:
         """Check data format validity."""
         issues = []
         score = 1.0
 
         # Check data type consistency
-        if hasattr(data, 'dtypes'):
+        if hasattr(data, "dtypes"):
             # Pandas-like data
             for col, dtype in data.dtypes.items():
                 if pd.api.types.is_object_dtype(dtype):
                     # Check for mixed types in object columns
                     unique_types = data[col].dropna().apply(type).unique()
                     if len(unique_types) > 3:  # Arbitrary threshold
-                        issues.append({
-                            'type': 'mixed_types',
-                            'message': f'Multiple types in column {col}',
-                            'severity': 'low'
-                        })
+                        issues.append(
+                            {
+                                "type": "mixed_types",
+                                "message": f"Multiple types in column {col}",
+                                "severity": "low",
+                            }
+                        )
                         score -= 0.1
 
-        status = QualityStatus.PASS if score >= 0.8 else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        status = (
+            QualityStatus.PASS
+            if score >= 0.8
+            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
 
-    async def _check_schema(self, data: Any, metadata: Optional[DatasetMetadata]) -> QualityCheck:
+    async def _check_schema(
+        self, data: Any, metadata: Optional[DatasetMetadata]
+    ) -> QualityCheck:
         """Check schema validity."""
         issues = []
         score = 1.0
@@ -503,11 +803,17 @@ class GeospatialValidator:
         # Schema validation logic
         # This would check against expected schema definitions
 
-        status = QualityStatus.PASS if score >= 0.8 else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        status = (
+            QualityStatus.PASS
+            if score >= 0.8
+            else QualityStatus.WARNING if score >= 0.5 else QualityStatus.FAIL
+        )
 
         return QualityCheck(score=max(0.0, score), status=status, issues=issues)
 
-    def _generate_recommendations(self, checks: Dict[str, QualityCheck], overall_score: float) -> List[str]:
+    def _generate_recommendations(
+        self, checks: Dict[str, QualityCheck], overall_score: float
+    ) -> List[str]:
         """Generate improvement recommendations."""
         recommendations = []
 
@@ -612,19 +918,49 @@ class DataQualityManager:
         self,
         validation_rules: str = "comprehensive",
         quality_threshold: float = 0.8,
-        real_time_monitoring: bool = True
+        real_time_monitoring: bool = True,
     ):
+        normalized_rules = self._normalize_validation_rules(validation_rules)
         self.config = ValidationConfig(
-            validation_rules=validation_rules.split(',') if isinstance(validation_rules, str) else validation_rules,
+            validation_rules=normalized_rules,
             quality_threshold=quality_threshold,
-            real_time_monitoring=real_time_monitoring
+            real_time_monitoring=real_time_monitoring,
         )
 
         self.validator = GeospatialValidator(self.config)
         self.quality_history: List[DataQualityReport] = []
         self.monitoring_enabled = real_time_monitoring
 
-        logger.info(f"Initialized DataQualityManager with {validation_rules} validation rules")
+        logger.info(
+            f"Initialized DataQualityManager with {validation_rules} validation rules"
+        )
+
+    @staticmethod
+    def _normalize_validation_rules(
+        validation_rules: Union[str, List[str]],
+    ) -> List[str]:
+        """Expand named rule sets and reject unknown validation rules."""
+        available = {rule.value for rule in ValidationRule}
+        presets = {
+            "basic": ["completeness", "validity"],
+            "standard": ["completeness", "accuracy", "consistency", "validity"],
+            "comprehensive": [rule.value for rule in ValidationRule],
+            "strict": [rule.value for rule in ValidationRule],
+        }
+
+        if isinstance(validation_rules, str):
+            text = validation_rules.strip()
+            if text in presets:
+                rules = presets[text]
+            else:
+                rules = [rule.strip() for rule in text.split(",") if rule.strip()]
+        else:
+            rules = list(validation_rules)
+
+        unknown = sorted(set(rules) - available)
+        if unknown:
+            raise ValueError(f"Unknown validation rule(s): {', '.join(unknown)}")
+        return rules
 
     async def validate_dataset(self, dataset_id: str) -> DataQualityReport:
         """
@@ -712,6 +1048,7 @@ class DataQualityManager:
 
         # Perform validation
         quality_report = await self.validator.validate_data(mock_data, mock_metadata)
+        quality_report.dataset_id = dataset_id
 
         # Store in history
         self.quality_history.append(quality_report)
@@ -722,13 +1059,40 @@ class DataQualityManager:
     def _load_mock_dataset(self, dataset_id: str) -> Any:
         """Load mock dataset for validation."""
         # Mock implementation - would load actual dataset
-        return pd.DataFrame({
-            'timestamp': pd.date_range('2023-01-01', periods=1000, freq='h'),
-            'temperature': np.random.normal(20, 5, 1000),
-            'humidity': np.random.normal(60, 10, 1000),
-            'latitude': np.random.normal(37.7, 0.1, 1000),
-            'longitude': np.random.normal(-122.4, 0.1, 1000)
-        })
+        if "empty" in dataset_id:
+            return pd.DataFrame()
+        if "corrupted" in dataset_id:
+            return pd.DataFrame(
+                {
+                    "temperature": [np.inf, -np.inf, np.nan],
+                    "latitude": [None, None, None],
+                    "longitude": [np.nan, np.nan, np.nan],
+                }
+            )
+        if "mixed" in dataset_id:
+            return pd.DataFrame(
+                {
+                    "mixed_column": [1, "text", 3.14, True, None],
+                    "temperature": [20.1, 20.2, 20.3, 20.4, 20.5],
+                }
+            )
+        if "quality" in dataset_id or dataset_id.startswith("test_dataset"):
+            return pd.DataFrame(
+                {
+                    "temperature": [100 if i < 10 else 20 for i in range(100)],
+                    "latitude": [200 if i < 5 else 37.7 for i in range(100)],
+                    "longitude": [-300 if i < 5 else -122.4 for i in range(100)],
+                }
+            )
+        return pd.DataFrame(
+            {
+                "timestamp": pd.date_range("2023-01-01", periods=1000, freq="h"),
+                "temperature": np.random.normal(20, 5, 1000),
+                "humidity": np.random.normal(60, 10, 1000),
+                "latitude": np.random.normal(37.7, 0.1, 1000),
+                "longitude": np.random.normal(-122.4, 0.1, 1000),
+            }
+        )
 
     def _load_mock_metadata(self, dataset_id: str) -> DatasetMetadata:
         """Load mock metadata for validation."""
@@ -738,14 +1102,13 @@ class DataQualityManager:
             description="Mock dataset for validation",
             spatial=SpatialExtent(bbox=[-122.5, 37.6, -122.3, 37.8], crs="EPSG:4326"),
             temporal=TemporalExtent(
-                start=datetime(2023, 1, 1),
-                end=datetime(2023, 12, 31)
+                start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
             ),
             lineage=DataLineage(
                 source="mock_source",
                 process="mock_process",
-                created_by="validation_system"
-            )
+                created_by="validation_system",
+            ),
         )
 
     def get_improvement_recommendations(self, report: DataQualityReport) -> List[str]:
@@ -753,7 +1116,9 @@ class DataQualityManager:
         recommendations = []
 
         if report.overall_score < self.config.quality_threshold:
-            recommendations.append("Overall quality below threshold - review data collection process")
+            recommendations.append(
+                "Overall quality below threshold - review data collection process"
+            )
 
         for check_name, check in report.checks.items():
             if check.status == QualityStatus.FAIL:
@@ -766,17 +1131,19 @@ class DataQualityManager:
     def get_quality_trends(self, days: int = 30) -> Dict[str, Any]:
         """Get quality trends over time."""
         cutoff_date = datetime.now() - timedelta(days=days)
-        recent_reports = [r for r in self.quality_history if r.generated_at >= cutoff_date]
+        recent_reports = [
+            r for r in self.quality_history if r.generated_at >= cutoff_date
+        ]
 
         if not recent_reports:
-            return {'message': 'No recent quality reports available'}
+            return {"message": "No recent quality reports available"}
 
         scores = [r.overall_score for r in recent_reports]
         avg_score = sum(scores) / len(scores)
 
         return {
-            'average_score': avg_score,
-            'reports_count': len(recent_reports),
-            'score_trend': 'improving' if scores[-1] > scores[0] else 'declining',
-            'period_days': days
+            "average_score": avg_score,
+            "reports_count": len(recent_reports),
+            "score_trend": "improving" if scores[-1] > scores[0] else "declining",
+            "period_days": days,
         }

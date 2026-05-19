@@ -8,7 +8,6 @@ imageio>=2.9.0
 imageio-ffmpeg>=0.4.0
 kaleido>=0.2.0
 matplotlib>=3.4.0
-mayavi>=4.7.0
 numpy>=1.21.0
 opencv-python>=4.5.0
 pillow>=8.3.0
@@ -19,6 +18,8 @@ scikit-image>=0.18.0
 scipy>=1.7.0
 seaborn>=0.11.0
 tensorflow>=2.6.0
+
+# Optional 3D backend: install package extra `geo-infer-art[viz3d]` for mayavi.
 
 # Added from comprehensive review
 colorsys>=0.0.0

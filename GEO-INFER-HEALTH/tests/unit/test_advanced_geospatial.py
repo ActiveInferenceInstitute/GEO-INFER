@@ -16,8 +16,15 @@ from geo_infer_health.utils.advanced_geospatial import (
     interpolate_points,
     find_centroid,
     calculate_spatial_autocorrelation,
-    calculate_hotspot_statistics
+    calculate_hotspot_statistics,
 )
+
+
+def invalid_location(latitude, longitude):
+    """Construct intentionally invalid coordinates for validation utility tests."""
+    return Location.model_construct(
+        latitude=latitude, longitude=longitude, crs="EPSG:4326"
+    )
 
 
 class TestUTMProjection:
@@ -59,7 +66,9 @@ class TestUTMProjection:
 
         easting, northing, zone = project_to_utm(location)
 
-        assert easting == pytest.approx(500000, abs=1000)  # Should be close to central meridian
+        assert easting == pytest.approx(
+            500000, abs=1000
+        )  # Should be close to central meridian
         assert northing > 0
         assert "N" in zone
 
@@ -80,8 +89,8 @@ class TestPointBuffering:
         # Check that all points are approximately the right distance from center
         for point in buffer_points:
             distance = math.sqrt(
-                (point.latitude - center.latitude)**2 +
-                (point.longitude - center.longitude)**2
+                (point.latitude - center.latitude) ** 2
+                + (point.longitude - center.longitude) ** 2
             )
             # Convert to approximate meters (rough approximation)
             distance_meters = distance * 111320  # ~111km per degree
@@ -99,10 +108,13 @@ class TestPointBuffering:
             distances = []
             for point in buffer_points:
                 # Rough distance calculation
-                distance_meters = math.sqrt(
-                    (point.latitude - center.latitude)**2 +
-                    (point.longitude - center.longitude)**2
-                ) * 111320
+                distance_meters = (
+                    math.sqrt(
+                        (point.latitude - center.latitude) ** 2
+                        + (point.longitude - center.longitude) ** 2
+                    )
+                    * 111320
+                )
                 distances.append(distance_meters)
 
             avg_distance = sum(distances) / len(distances)
@@ -116,10 +128,13 @@ class TestPointBuffering:
 
         # Should return points very close to center
         for point in buffer_points:
-            distance_meters = math.sqrt(
-                (point.latitude - center.latitude)**2 +
-                (point.longitude - center.longitude)**2
-            ) * 111320
+            distance_meters = (
+                math.sqrt(
+                    (point.latitude - center.latitude) ** 2
+                    + (point.longitude - center.longitude) ** 2
+                )
+                * 111320
+            )
             assert distance_meters < 1  # Less than 1 meter
 
 
@@ -133,10 +148,16 @@ class TestSpatialClustering:
 
         locations = [
             base_loc,
-            Location(latitude=base_loc.latitude + 0.001, longitude=base_loc.longitude + 0.001),
-            Location(latitude=base_loc.latitude + 0.002, longitude=base_loc.longitude + 0.002),
+            Location(
+                latitude=base_loc.latitude + 0.001, longitude=base_loc.longitude + 0.001
+            ),
+            Location(
+                latitude=base_loc.latitude + 0.002, longitude=base_loc.longitude + 0.002
+            ),
             # Far point
-            Location(latitude=base_loc.latitude + 0.1, longitude=base_loc.longitude + 0.1),
+            Location(
+                latitude=base_loc.latitude + 0.1, longitude=base_loc.longitude + 0.1
+            ),
         ]
 
         clusters = spatial_clustering(locations, eps_km=0.5, min_samples=2)
@@ -153,7 +174,7 @@ class TestSpatialClustering:
         locations = [
             Location(latitude=34.0522, longitude=-118.2437),
             Location(latitude=40.7128, longitude=-74.0060),  # ~4000km away
-            Location(latitude=41.8781, longitude=-87.6298),   # ~2800km away
+            Location(latitude=41.8781, longitude=-87.6298),  # ~2800km away
         ]
 
         clusters = spatial_clustering(locations, eps_km=100, min_samples=2)
@@ -239,20 +260,22 @@ class TestGeographicValidation:
         """Test validation with invalid latitude."""
         locations = [
             Location(latitude=34.0522, longitude=-118.2437),
-            Location(latitude=91.0, longitude=-74.0060),  # Invalid latitude
+            invalid_location(latitude=91.0, longitude=-74.0060),  # Invalid latitude
         ]
 
         result = validate_geographic_bounds(locations)
 
         assert result["valid"] is False
         assert len(result["invalid_locations"]) == 1
-        assert "Latitude 91.0 out of range" in result["invalid_locations"][0]["issues"][0]
+        assert (
+            "Latitude 91.0 out of range" in result["invalid_locations"][0]["issues"][0]
+        )
 
     def test_validate_invalid_longitude(self):
         """Test validation with invalid longitude."""
         locations = [
             Location(latitude=34.0522, longitude=-118.2437),
-            Location(latitude=40.7128, longitude=181.0),  # Invalid longitude
+            invalid_location(latitude=40.7128, longitude=181.0),  # Invalid longitude
         ]
 
         result = validate_geographic_bounds(locations)
@@ -372,7 +395,9 @@ class TestSpatialAutocorrelation:
         ]
         values = [i + np.random.normal(0, 1) for i in range(20)]  # Trending with noise
 
-        result = calculate_spatial_autocorrelation(locations, values, max_distance_km=1.0)
+        result = calculate_spatial_autocorrelation(
+            locations, values, max_distance_km=1.0
+        )
 
         assert isinstance(result, dict)
         assert "morans_i" in result
@@ -399,8 +424,10 @@ class TestSpatialAutocorrelation:
         """Test spatial autocorrelation with random data."""
         np.random.seed(42)
         locations = [
-            Location(latitude=34.0522 + np.random.uniform(-0.01, 0.01),
-                    longitude=-118.2437 + np.random.uniform(-0.01, 0.01))
+            Location(
+                latitude=34.0522 + np.random.uniform(-0.01, 0.01),
+                longitude=-118.2437 + np.random.uniform(-0.01, 0.01),
+            )
             for _ in range(30)
         ]
         values = np.random.normal(0, 1, 30)
@@ -424,18 +451,22 @@ class TestHotspotStatistics:
 
         # Create a hotspot
         for i in range(10):
-            locations.append(Location(
-                latitude=base_loc.latitude + np.random.uniform(-0.001, 0.001),
-                longitude=base_loc.longitude + np.random.uniform(-0.001, 0.001)
-            ))
+            locations.append(
+                Location(
+                    latitude=base_loc.latitude + np.random.uniform(-0.001, 0.001),
+                    longitude=base_loc.longitude + np.random.uniform(-0.001, 0.001),
+                )
+            )
             case_counts.append(5 + np.random.randint(0, 5))  # High case counts
 
         # Create some background points
         for i in range(20):
-            locations.append(Location(
-                latitude=base_loc.latitude + np.random.uniform(-0.01, 0.01),
-                longitude=base_loc.longitude + np.random.uniform(-0.01, 0.01)
-            ))
+            locations.append(
+                Location(
+                    latitude=base_loc.latitude + np.random.uniform(-0.01, 0.01),
+                    longitude=base_loc.longitude + np.random.uniform(-0.01, 0.01),
+                )
+            )
             case_counts.append(1 + np.random.randint(0, 2))  # Low case counts
 
         result = calculate_hotspot_statistics(locations, case_counts)
@@ -486,17 +517,19 @@ class TestIntegration:
         base_locs = [
             Location(latitude=34.0522, longitude=-118.2437),
             Location(latitude=34.0622, longitude=-118.2337),
-            Location(latitude=34.0722, longitude=-118.2237)
+            Location(latitude=34.0722, longitude=-118.2237),
         ]
 
         locations = []
         for base_loc in base_locs:
             # Create cluster around each base location
             for _ in range(5):
-                locations.append(Location(
-                    latitude=base_loc.latitude + np.random.uniform(-0.001, 0.001),
-                    longitude=base_loc.longitude + np.random.uniform(-0.001, 0.001)
-                ))
+                locations.append(
+                    Location(
+                        latitude=base_loc.latitude + np.random.uniform(-0.001, 0.001),
+                        longitude=base_loc.longitude + np.random.uniform(-0.001, 0.001),
+                    )
+                )
 
         # Perform clustering
         clusters = spatial_clustering(locations, eps_km=0.2, min_samples=3)
@@ -519,7 +552,7 @@ class TestIntegration:
         # Create data with some invalid points
         locations = [
             Location(latitude=34.0522, longitude=-118.2437),
-            Location(latitude=91.0, longitude=-74.0060),  # Invalid
+            invalid_location(latitude=91.0, longitude=-74.0060),  # Invalid
             Location(latitude=34.0523, longitude=-118.2438),
             Location(latitude=0.0, longitude=0.0),  # Suspicious
         ]
@@ -528,9 +561,15 @@ class TestIntegration:
         validation_result = validate_geographic_bounds(locations)
 
         # Extract valid locations
+        invalid_by_index = {
+            item["index"]: item for item in validation_result["invalid_locations"]
+        }
         valid_locations = []
         for i, loc in enumerate(locations):
-            if not any("out of range" in issue for issue in validation_result["invalid_locations"][i]["issues"] if i < len(validation_result["invalid_locations"])):
+            invalid_entry = invalid_by_index.get(i)
+            if invalid_entry is None or not any(
+                "out of range" in issue for issue in invalid_entry["issues"]
+            ):
                 valid_locations.append(loc)
 
         # Perform clustering on valid locations

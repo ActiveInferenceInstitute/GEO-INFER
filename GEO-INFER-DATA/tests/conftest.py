@@ -4,7 +4,9 @@ Pytest fixtures for GEO-INFER-DATA tests.
 Provides sample CSV files, GeoJSON files, data source configurations,
 and standard spatial fixtures.
 """
+
 import json
+import asyncio
 import pytest
 import numpy as np
 import pandas as pd
@@ -12,6 +14,16 @@ import geopandas as gpd
 from shapely.geometry import Point
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
+
+
+@pytest.fixture(autouse=True)
+def ensure_event_loop():
+    """Provide a default event loop for legacy sync wrappers under Python 3.12."""
+    try:
+        asyncio.get_event_loop()
+    except RuntimeError:
+        asyncio.set_event_loop(asyncio.new_event_loop())
+    yield
 
 
 @pytest.fixture(scope="session")
@@ -52,13 +64,15 @@ def sample_csv_path(tmp_path: Path) -> Path:
     and category columns, suitable for CSV ingestion tests.
     """
     rng = np.random.default_rng(seed=42)
-    df = pd.DataFrame({
-        "id": range(20),
-        "lat": 47.0 + rng.uniform(0, 1, 20),
-        "lng": -122.0 - rng.uniform(0, 1, 20),
-        "value": rng.uniform(0, 100, 20),
-        "category": [f"cat_{i % 4}" for i in range(20)],
-    })
+    df = pd.DataFrame(
+        {
+            "id": range(20),
+            "lat": 47.0 + rng.uniform(0, 1, 20),
+            "lng": -122.0 - rng.uniform(0, 1, 20),
+            "value": rng.uniform(0, 100, 20),
+            "category": [f"cat_{i % 4}" for i in range(20)],
+        }
+    )
     csv_path = tmp_path / "sample_data.csv"
     df.to_csv(csv_path, index=False)
     return csv_path
@@ -73,14 +87,16 @@ def sample_geojson_path(tmp_path: Path) -> Path:
     """
     features = []
     for i in range(5):
-        features.append({
-            "type": "Feature",
-            "properties": {"id": i, "value": float(i * 10)},
-            "geometry": {
-                "type": "Point",
-                "coordinates": [-122.33 + i * 0.01, 47.61 + i * 0.01],
-            },
-        })
+        features.append(
+            {
+                "type": "Feature",
+                "properties": {"id": i, "value": float(i * 10)},
+                "geometry": {
+                    "type": "Point",
+                    "coordinates": [-122.33 + i * 0.01, 47.61 + i * 0.01],
+                },
+            }
+        )
 
     geojson = {
         "type": "FeatureCollection",

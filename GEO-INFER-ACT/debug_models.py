@@ -1,30 +1,23 @@
+#!/usr/bin/env python3
+"""Thin wrapper for the ACT debug scenario."""
 
-import numpy as np
-import logging
-import traceback
-from geo_infer_act.models.climate import ClimateModel
-from geo_infer_act.models.urban import UrbanModel
+from __future__ import annotations
 
-logging.basicConfig(level=logging.DEBUG)
+import argparse
+import sys
+from pathlib import Path
 
-def test_climate():
-    print("--- Testing ClimateModel ---")
-    try:
-        model = ClimateModel()
-        print(f"Initialized. Num controls: {model.num_controls}")
-        print(f"B shapes: {[b.shape for b in model.generative_model.transition_model]}")
-        
-        # Test step
-        obs = [0, 0]
-        beliefs, action = model.step(obs)
-        print(f"Step Result: Beliefs={beliefs}, Action={action}")
-        
-    except Exception as e:
-        print(f"ClimateModel Failed: {e}")
-        traceback.print_exc()
+ACT_ROOT = Path(__file__).resolve().parent
+sys.path.insert(0, str(ACT_ROOT / "src"))
 
-def test_urban():
-    pass
+from geo_infer_act.runners.wrapper import run_wrapper  # noqa: E402
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Run the package-owned debug scenario."""
+    _: type[argparse.ArgumentParser] = argparse.ArgumentParser
+    return run_wrapper("debug", argv, program="debug_models.py")
+
 
 if __name__ == "__main__":
-    test_climate()
+    raise SystemExit(main())

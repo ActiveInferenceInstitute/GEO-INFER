@@ -21,13 +21,13 @@ Main class for active inference agents with support for nested models.
 - `generate_policies(available_actions: List[Dict[str, Any]]) -> List[Dict[str, Any]]`: Generate policy options from available actions.
 - `select_policy(policies: List[Dict[str, Any]]) -> Dict[str, Any]`: Select optimal policy from candidates.
 - `compute_expected_free_energy(policy: Dict[str, Any]) -> float`: Compute expected free energy for a policy.
-- `step(observation: np.ndarray, available_actions: Optional[List[Any]]) -> Tuple[np.ndarray, Any]`: Perform one complete active inference step.
+- `step(observation: np.ndarray, available_actions: Optional[List[Any]], return_result: bool = False) -> Tuple[np.ndarray, Any] | ActiveInferenceStepResult`: Perform one complete active inference step.
 - `compute_free_energy() -> float`: Compute current variational free energy.
 - `reset()`: Reset the model to initial state.
 - `get_history() -> List[Dict[str, Any]]`: Get the complete history of interactions.
 - `get_current_state() -> Dict[str, Any]`: Get current model state.
-- `apply_to_h3(h3_obs: Dict[str, np.ndarray])`: 
-- `infer_over_h3_grid(h3_grid: Dict[str, Any])`: 
+- `apply_to_h3(h3_obs: Dict[str, np.ndarray])`: Update a spatial generative model from H3-indexed observations.
+- `infer_over_h3_grid(h3_grid: Dict[str, Any])`: Run read-only one-step inference across an H3 observation grid.
 - `set_preferences(preferences: Union[np.ndarray, Dict[str, Any]])`: Override prior preferences used during inference.
 
 ### BayesianBeliefUpdate
@@ -93,11 +93,11 @@ Generative model implementation for active inference.
 - `enable_h3_spatial(h3_resolution: int, boundary: Dict[str, Any])`: Enable H3-based spatial modeling.
 - `integrate_rxinfer(model_specification: str, data: Dict[str, Any]) -> Dict[str, Any]`: Integrate with RxInfer for Factor Graph-based inference.
 - `integrate_bayeux(log_density_fn: Callable, test_point: Dict[str, np.ndarray]) -> Dict[str, Any]`: Integrate with JAX-based Bayeux for scalable inference.
-- `diffuse_beliefs(beliefs, diffusion_rate)`: 
-- `aggregate_beliefs_to_resolution(beliefs, target_resolution)`: 
+- `diffuse_beliefs(beliefs, diffusion_rate)`: Diffuse beliefs across spatial neighbors using precision-weighted averaging.
+- `aggregate_beliefs_to_resolution(beliefs, target_resolution)`: Aggregate fine-resolution H3 beliefs to a coarser resolution.
 - `set_preferences(preferences: Dict[str, np.ndarray]) -> None`: Set prior preferences with hierarchical support.
 - `get_model_summary() -> Dict[str, Any]`: Get model summary for monitoring and debugging.
-- `update_h3_beliefs(h3_observations: Dict[str, np.ndarray])`: 
+- `update_h3_beliefs(h3_observations: Dict[str, np.ndarray])`: Update H3-indexed beliefs and return spatial consistency diagnostics.
 
 ### MarkovDecisionProcess
 
@@ -135,8 +135,8 @@ Variational inference engine for active inference models.
 **Methods**:
 
 - `mean_field_update(prior: Dict[str, np.ndarray], likelihood: Dict[str, np.ndarray], observations: np.ndarray) -> Dict[str, np.ndarray]`: Perform mean-field variational inference update.
-- `mean_field_update_categorical(prior: np.ndarray, likelihood: np.ndarray, observations: np.ndarray) -> np.ndarray`: 
-- `mean_field_update_gaussian(mean: np.ndarray, cov: np.ndarray, obs: np.ndarray) -> np.ndarray`: 
+- `mean_field_update_categorical(prior: np.ndarray, likelihood: np.ndarray, observations: np.ndarray) -> np.ndarray`: Update categorical mean-field beliefs from a Dirichlet prior.
+- `mean_field_update_gaussian(mean: np.ndarray, cov: np.ndarray, obs: np.ndarray) -> np.ndarray`: Update Gaussian mean-field beliefs and return the posterior mean.
 - `structured_update(factor_graph: Dict[str, Any], observations: Dict[str, np.ndarray], method: str) -> Dict[str, np.ndarray]`: Perform structured variational inference with factor graphs.
 - `importance_sampling_update(prior: Dict[str, np.ndarray], likelihood_fn: callable, observations: np.ndarray, n_samples: int) -> Dict[str, np.ndarray]`: Perform importance sampling for posterior approximation.
 - `compute_elbo(posterior: Dict[str, np.ndarray], prior: Dict[str, np.ndarray], likelihood: Dict[str, np.ndarray], observations: np.ndarray) -> float`: Compute Evidence Lower BOund (ELBO).

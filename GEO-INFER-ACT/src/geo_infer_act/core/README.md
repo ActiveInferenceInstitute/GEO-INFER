@@ -2,7 +2,7 @@
 
 ## Overview
 
-This directory contains core Active Inference components implementing the mathematical foundations of the Free Energy Principle. It includes 8 Python modules providing essential classes for belief updating, policy selection, free energy calculation, and generative modeling.
+This directory contains core Active Inference components implementing the mathematical foundations of the Free Energy Principle. It provides the canonical GEO-INFER methods for belief updating, policy selection, free-energy calculation, generative modeling, spatial active inference, and typed diagnostics.
 
 ## Components
 
@@ -15,7 +15,7 @@ Main Active Inference model implementation. Provides the `ActiveInferenceModel` 
 **Key Methods**:
 - `perceive(observation)`: Update beliefs based on sensory input
 - `act(available_actions)`: Select action via expected free energy minimization
-- `step(observation, available_actions)`: Complete perception-action cycle
+- `step(observation, available_actions, return_result=True)`: Complete perception-action cycle with optional `ActiveInferenceStepResult`
 
 ### belief_updating.py
 
@@ -58,6 +58,23 @@ Policy selection for active inference models.
 
 **Classes**: `PolicySelector`
 
+**Key Methods**:
+- `compute_expected_free_energy()`: Evaluate one policy with policy-conditioned predictive beliefs
+- `evaluate_policy_set()`: Return `PolicyEvaluation` objects for every candidate
+- `select_policy()`: Select the lowest-EFE policy deterministically or sample from seeded probabilities
+
+### spatial_agent.py
+
+H3 and spatial active inference over cell-indexed observations.
+
+**Classes**: `SpatialActiveInferenceAgent`
+
+### types.py
+
+Stable typed result objects for diagnostics and downstream callers.
+
+**Classes**: `FreeEnergyBreakdown`, `PolicyEvaluation`, `ActiveInferenceStepResult`
+
 ### variational_inference.py
 
 Variational inference for active inference models.
@@ -69,6 +86,7 @@ Variational inference for active inference models.
 ## Usage
 
 ```python
+import numpy as np
 from geo_infer_act.core.active_inference import ActiveInferenceModel
 from geo_infer_act.core.generative_model import GenerativeModel
 from geo_infer_act.core.free_energy import FreeEnergyCalculator
@@ -89,6 +107,12 @@ updated_beliefs = model.perceive(observation)
 
 # Action: select policy
 action = model.act()
+```
+
+## Verification
+
+```bash
+uv run python GEO-INFER-TEST/validate_active_inference_contract.py
 ```
 
 ## Integration

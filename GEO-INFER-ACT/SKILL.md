@@ -1,6 +1,6 @@
 ---
 name: geo-infer-act
-description: Active Inference implementation for geospatial agents. Use when implementing free energy minimization, belief updating, perception-action loops, generative models, or expected free energy computation for spatial decision-making.
+description: Canonical GEO-INFER Active Inference implementation. Use when implementing or reviewing free-energy minimization, belief updating, generative models, policy selection, H3/spatial active inference, or typed ACT diagnostics.
 prerequisites:
   required:
     - geo-infer-bayes
@@ -9,57 +9,97 @@ prerequisites:
     - geo-infer-time
 difficulty: advanced
 estimated_time: 60min
-examples_dir: ../GEO-INFER-EXAMPLES/examples/
+examples_dir: ./examples/
 ---
 
 # GEO-INFER-ACT
 
 ## Instructions
 
-Core Active Inference module implementing the Free Energy Principle for geospatial agents.
-
-### Core Capabilities
-
-- **Free energy minimization**: Variational and expected free energy
-- **Generative models**: Dirichlet-categorical state-space models
-- **Belief updating**: Bayesian belief propagation with spatial priors
-- **Perception-action loops**: Sensory prediction and policy selection
-- **Precision dynamics**: Attention-weighted inference
-
-### Key Imports
+Use `GEO-INFER-ACT/src/geo_infer_act` as the canonical implementation for
+Active Inference inside GEO-INFER. Prefer these public exports:
 
 ```python
-from geo_infer_act.core.free_energy import FreeEnergyCalculator
-from geo_infer_act.core.generative_model import GenerativeModel
-from geo_infer_act.core.belief_updating import BeliefUpdater
-from geo_infer_act.core.active_inference import ActiveInferenceAgent
+from geo_infer_act import (
+    ActiveInferenceModel,
+    ActiveInferenceStepResult,
+    FreeEnergyBreakdown,
+    FreeEnergyCalculator,
+    GenerativeModel,
+    H3BeliefUpdateResult,
+    H3GridInferenceResult,
+    H3SpatialConsistency,
+    PolicyEvaluation,
+    PolicySelector,
+    SpatialActiveInferenceAgent,
+)
 ```
 
 ## Examples
 
 ```python
-from geo_infer_act.core.active_inference import ActiveInferenceAgent
 import numpy as np
+from geo_infer_act import ActiveInferenceModel, GenerativeModel
 
-agent = ActiveInferenceAgent(
-    n_states=4, n_observations=3, n_actions=2
+generative_model = GenerativeModel(
+    "categorical",
+    {"state_dim": 3, "obs_dim": 3},
 )
-observation = np.array([0.8, 0.1, 0.1])
-action = agent.act(observation)
+
+agent = ActiveInferenceModel(
+    model_type="categorical",
+    policy_selection_mode="deterministic",
+    random_seed=42,
+)
+agent.set_generative_model(generative_model)
+
+result = agent.step(
+    np.array([1.0, 0.0, 0.0]),
+    available_actions=["survey", "wait"],
+    return_result=True,
+)
+
+assert isinstance(result, ActiveInferenceStepResult)
 ```
 
 ## Guidelines
 
-- Generative models use real Dirichlet/categorical sampling (no placeholders)
-- Visualization uses real matplotlib belief trajectory plotting
-- Optional deps: `jax`, `tensorflow_probability` — graceful degradation if missing
-- Ground all implementations in FEP mathematical principles
-- Test: `uv run python -m pytest GEO-INFER-ACT/tests/ -v`
+### Method Contracts
+
+- `FreeEnergyCalculator.compute_categorical_free_energy(..., return_breakdown=True)`
+  returns `FreeEnergyBreakdown` with `free_energy = complexity - accuracy`.
+- `FreeEnergyCalculator.compute_expected_free_energy(..., return_breakdown=True)`
+  returns pragmatic, epistemic, risk, ambiguity, and entropy terms.
+- `PolicySelector.select_policy(...)` returns selected policy metadata and a
+  `PolicyEvaluation` object.
+- `ActiveInferenceModel.step(..., return_result=True)` returns an
+  `ActiveInferenceStepResult` without breaking the legacy `(beliefs, action)`
+  return shape.
+- `GenerativeModel.update_h3_beliefs(..., return_result=True)` returns an
+  `H3BeliefUpdateResult` with normalized per-cell beliefs, aggregate free
+  energy, and `H3SpatialConsistency`.
+- `ActiveInferenceModel.infer_over_h3_grid(..., return_result=True)` and
+  `SpatialActiveInferenceAgent.step(..., return_result=True)` return
+  `H3GridInferenceResult`; their default dictionary outputs remain compatible.
+- H3 methods must validate real H3 v4 cells. Synthetic cells are only for
+  explicit `cell_*` unit-test paths.
 
 ### Integrations
 
-- **BAYES** → Shared posterior inference, generative model fitting
-- **AGENT** → Active Inference perception-action loops
-- **SPACE** → Spatial state spaces for geographic agents
-- **COG** → Cognitive models grounded in free energy
-- **SIM** → Active Inference agent simulations
+- AGENT active-inference adapters should call or conform to ACT typed result
+  contracts.
+- MATH/BAYES convenience surfaces may expose helpers, but ACT remains the
+  canonical implementation for Active Inference policy and free-energy logic.
+- Optional external backends may be absent; use real local ACT methods or
+  explicit `not_available` results.
+
+## Verification
+
+```bash
+uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py
+uv run python GEO-INFER-TEST/validate_active_inference_contract.py
+uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests -q
+```
+
+Do not add inert placeholders, fake policy selection, first-policy defaults, or
+undocumented public methods.

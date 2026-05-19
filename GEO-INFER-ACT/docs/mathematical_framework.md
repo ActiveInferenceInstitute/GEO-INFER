@@ -160,20 +160,14 @@ Where:
 ### Action Selection
 
 ```python
-def select_action(qs, A, B, C, policies, gamma=1.0):
-    """
-    Select action by evaluating policies
-    """
-    G = [expected_free_energy(qs, A, B, C, pi) for pi in policies]
-    
-    # Softmax over negative EFE
-    policy_probs = softmax(-gamma * np.array(G))
-    
-    # Sample policy
-    policy_idx = np.random.choice(len(policies), p=policy_probs)
-    
-    # Return first action of selected policy
-    return policies[policy_idx][0]
+from geo_infer_act import PolicySelector
+
+
+def select_action(qs, preferences, policies):
+    """Select the lowest-EFE action with the canonical ACT selector."""
+    selector = PolicySelector(selection_mode="deterministic")
+    result = selector.select_policy(qs, policies, preferences)
+    return result["policy"]["action"]
 ```
 
 ## Belief Updating
@@ -204,8 +198,11 @@ def update_beliefs(qs, A, o):
 For geospatial agents, states often correspond to H3 cells:
 
 ```python
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+
 # State space = H3 cells at resolution 9
-states = h3.polyfill(boundary, res=9)
+indexer = SpatialIndexingInterface(backend="h3")
+states = indexer.polygon_to_cells(boundary, resolution=9)
 n_states = len(states)
 
 # Transition matrix encodes spatial adjacency
@@ -227,18 +224,18 @@ p(s) = p(s_fine | s_coarse) × p(s_coarse)
 The variational free energy formulas above are implemented in:
 
 - **[`core/free_energy.py`](../src/geo_infer_act/core/free_energy.py)**: `FreeEnergyCalculator` class
-  - `compute_categorical_free_energy()` (lines 67-93)
-  - `compute_gaussian_free_energy()` (lines 95-129)
-- **[`utils/math.py:297-323`](../src/geo_infer_act/utils/math.py)**: `compute_free_energy_categorical()` utility
-- **[`core/spatial_agent.py:347-382`](../src/geo_infer_act/core/spatial_agent.py)**: `_compute_spatial_free_energy()` for H3 grids
+  - `compute_categorical_free_energy()`
+  - `compute_gaussian_free_energy()`
+- **[`utils/math.py`](../src/geo_infer_act/utils/math.py)**: `compute_free_energy_categorical()` utility
+- **[`core/spatial_agent.py`](../src/geo_infer_act/core/spatial_agent.py)**: `_compute_spatial_free_energy()` for H3 grids
 
 ### EFE Implementation
 
 The expected free energy formulas are implemented in:
 
-- **[`core/free_energy.py:153-189`](../src/geo_infer_act/core/free_energy.py)**: `compute_expected_free_energy()`
-- **[`core/policy_selection.py:103-145`](../src/geo_infer_act/core/policy_selection.py)**: `PolicySelector.compute_expected_free_energy()`
-- **[`utils/math.py:327-353`](../src/geo_infer_act/utils/math.py)**: Standalone utility function
+- **[`core/free_energy.py`](../src/geo_infer_act/core/free_energy.py)**: `compute_expected_free_energy()`
+- **[`core/policy_selection.py`](../src/geo_infer_act/core/policy_selection.py)**: `PolicySelector.compute_expected_free_energy()`
+- **[`utils/math.py`](../src/geo_infer_act/utils/math.py)**: Standalone utility function
 
 ### Working Examples
 
@@ -256,4 +253,4 @@ The expected free energy formulas are implemented in:
 
 ---
 
-**Last Updated**: 2026-02-24
+**Last Updated**: 2026-05-18

@@ -6,11 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 GEO-INFER is a 44-module geospatial inference framework implementing Active Inference principles for ecological, civic, and commercial applications. It is a Python monorepo using `uv` as the package manager, with Python 3.11+ required.
 
-### Current Stats (2026-04-16)
+### Current Stats (2026-05-18)
 
 - **44 modules** | **860 source files** (297,360 lines) | **434 test files** (~87,000+ lines) | **~3,000+ tests**
 - All package directories follow PEP 8 lowercase naming: `geo_infer_<module>` (including `geo_infer_forest`, `geo_infer_marine`, `geo_infer_energy`, `geo_infer_water`). Mixed-case directory normalization is complete.
-- Remaining `pass` occurrences are only legitimate ones: abstract methods, exception handlers, and import guards.
+- Repo contract checks live in `GEO-INFER-TEST/validate_repo_contracts.py`; source-language debt is reported by default and can be made fatal with `--strict-source-language`.
 - Every module has a minimum of 4 test files.
 
 ## Build & Development Commands
@@ -46,6 +46,11 @@ uv run python -m pytest GEO-INFER-MATH/tests/unit/test_spatial_statistics.py -v
 
 # Run with coverage
 uv run python -m pytest GEO-INFER-MATH/tests/ --cov=GEO-INFER-MATH/src --cov-report=html
+
+# Validate repo-wide contracts and Active Inference API contracts
+uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+uv run python GEO-INFER-TEST/validate_repo_contracts.py
+uv run python GEO-INFER-TEST/validate_active_inference_contract.py
 ```
 
 Pytest markers: `unit`, `integration`, `system`, `performance`, `geospatial`, `api`, `slow`, `fast`.
@@ -62,8 +67,11 @@ isort GEO-INFER-MODULE/src/
 # Type check
 mypy GEO-INFER-MODULE/src/
 
-# Lint
-flake8 GEO-INFER-MODULE/src/
+# Lint changed files or a module
+uv run ruff check GEO-INFER-MODULE/src/
+
+# Format check
+uv run black --check GEO-INFER-MODULE/src/
 ```
 
 Configuration: Black line-length 88, isort profile "black", mypy strict mode. All configured in root `pyproject.toml`.
@@ -119,7 +127,8 @@ Foundation modules (MATH) have no dependencies. Core modules (BAYES, ACT) depend
 - **Backend-agnostic pattern**: SPACE module uses a dispatcher/interface pattern for H3 vs SRAI backends.
 - **Graceful degradation**: `__init__.py` files use `try/except` for optional dependency imports, with module-level `HAS_<DEP>` flags consumed by call sites.
 - **Package directory casing**: All 44 modules use `geo_infer_<module>` (lowercase) naming.
-- **Real implementations only**: BAYES GaussianProcess uses Cholesky decomposition. Model comparison uses real LOO/WAIC/DIC/BIC/AIC. ACT free energy uses proper numpy array handling.
+- **Real implementations only**: BAYES GaussianProcess uses Cholesky decomposition. Model comparison uses real LOO/WAIC/DIC/BIC/AIC. ACT free energy exposes typed breakdowns and uses `complexity - accuracy` for categorical variational free energy.
+- **Active Inference contract**: `GEO-INFER-ACT` exports `FreeEnergyBreakdown`, `PolicyEvaluation`, and `ActiveInferenceStepResult`. `PolicySelector(selection_mode="deterministic")` selects the lowest expected free energy; stochastic selection is seedable.
 
 ## Critical Development Rules
 
@@ -140,6 +149,8 @@ These rules are from `.cursorrules/` and apply to all modules:
 ## Key Files & Resources
 
 - `GEO-INFER-TEST/run_unified_tests.py` - Cross-module unified test runner
+- `GEO-INFER-TEST/validate_repo_contracts.py` - Module inventory, signposting, casing, setup syntax, and source-language debt report
+- `GEO-INFER-TEST/validate_active_inference_contract.py` - Executable ACT API contract check
 - `GEO-INFER-INTRA/docs/` - Central documentation hub (guides, tutorials, integration docs)
 - `GEO-INFER-EXAMPLES/examples/` - Working examples including module orchestrators
 - `SKILL.md` - Root Claude Code skill (ecosystem overview)
@@ -147,4 +158,5 @@ These rules are from `.cursorrules/` and apply to all modules:
 - `.cursorrules/` - Framework-wide development rules
 - `AGENTS.md` - Multi-agent systems architecture documentation
 - `PAI.md` - PAI Algorithm integration and development methodology
+- `ISA.md` - Current ideal-state criteria and verification targets
 - `CLAUDE.md` - This file (Claude Code guidance)

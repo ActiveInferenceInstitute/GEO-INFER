@@ -1,15 +1,16 @@
 """
 Tests for GEO-INFER-ACT core functionality.
 """
+
 import os
 import sys
 import unittest
 import numpy as np
-from numpy.testing import assert_allclose, assert_array_almost_equal
 
 # Add parent directory to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from geo_infer_act import ActiveInferenceStepResult, H3BeliefUpdateResult
 from geo_infer_act.core.active_inference import ActiveInferenceModel
 from geo_infer_act.core.belief_updating import BayesianBeliefUpdate
 from geo_infer_act.core.dynamic_causal_model import DynamicCausalModel
@@ -47,8 +48,12 @@ class TestActiveInferenceModel(unittest.TestCase):
         gen_model = GenerativeModel("categorical", {"state_dim": 3})
         self.model.set_generative_model(gen_model)
         self.assertEqual(self.model.generative_model, gen_model)
-        beliefs_states = self.model.current_beliefs['states'] if isinstance(self.model.current_beliefs, dict) else self.model.current_beliefs
-        self.assertTrue(np.allclose(beliefs_states, np.ones(3)/3))
+        beliefs_states = (
+            self.model.current_beliefs["states"]
+            if isinstance(self.model.current_beliefs, dict)
+            else self.model.current_beliefs
+        )
+        self.assertTrue(np.allclose(beliefs_states, np.ones(3) / 3))
 
     def test_perceive(self):
         """Test belief updating via perceive."""
@@ -59,15 +64,21 @@ class TestActiveInferenceModel(unittest.TestCase):
         updated_beliefs = self.model.perceive(observation)
         self.assertIsNotNone(self.model.current_observations)
         # Extract states array from dict if needed
-        beliefs_arr = updated_beliefs['states'] if isinstance(updated_beliefs, dict) else updated_beliefs
+        beliefs_arr = (
+            updated_beliefs["states"]
+            if isinstance(updated_beliefs, dict)
+            else updated_beliefs
+        )
         self.assertTrue(np.allclose(np.sum(beliefs_arr), 1.0))
-        self.assertFalse(np.allclose(beliefs_arr, np.ones(3)/3))  # Beliefs should change
+        self.assertFalse(
+            np.allclose(beliefs_arr, np.ones(3) / 3)
+        )  # Beliefs should change
 
     def test_act(self):
         """Test action selection."""
         gen_model = GenerativeModel("categorical", {"state_dim": 3})
         self.model.set_generative_model(gen_model)
-        self.model.current_beliefs = np.ones(3)/3
+        self.model.current_beliefs = np.ones(3) / 3
         action = self.model.act()
         self.assertIsNotNone(action)
         self.assertEqual(self.model.current_actions, action)
@@ -75,16 +86,26 @@ class TestActiveInferenceModel(unittest.TestCase):
     def test_step(self):
         gen_model = GenerativeModel("categorical", self.gen_params)
         self.model.set_generative_model(gen_model)
-        obs = np.array([1,0])
+        obs = np.array([1, 0])
         beliefs, action = self.model.step(obs)
         self.assertIsNotNone(beliefs)
         self.assertIsNotNone(action)
+
+    def test_step_can_return_typed_result(self):
+        gen_model = GenerativeModel("categorical", self.gen_params)
+        self.model.set_generative_model(gen_model)
+        obs = np.array([1, 0])
+        result = self.model.step(obs, return_result=True)
+        self.assertIsInstance(result, ActiveInferenceStepResult)
+        self.assertIsNotNone(result.beliefs)
+        self.assertIsNotNone(result.action)
+        self.assertTrue(np.isfinite(result.free_energy))
 
     def test_compute_free_energy(self):
         """Test free energy computation."""
         gen_model = GenerativeModel("categorical", {"state_dim": 3, "obs_dim": 2})
         self.model.set_generative_model(gen_model)
-        self.model.current_beliefs = np.ones(3)/3
+        self.model.current_beliefs = np.ones(3) / 3
         self.model.current_observations = np.array([1, 0])
         fe = self.model.compute_free_energy()
         self.assertIsInstance(fe, float)
@@ -95,20 +116,24 @@ class TestActiveInferenceModel(unittest.TestCase):
         self.model.set_generative_model(gen_model)
         self.model.current_beliefs = np.array([0.1, 0.2, 0.7])
         self.model.reset()
-        beliefs_states = self.model.current_beliefs['states'] if isinstance(self.model.current_beliefs, dict) else self.model.current_beliefs
-        self.assertTrue(np.allclose(beliefs_states, np.ones(3)/3))
+        beliefs_states = (
+            self.model.current_beliefs["states"]
+            if isinstance(self.model.current_beliefs, dict)
+            else self.model.current_beliefs
+        )
+        self.assertTrue(np.allclose(beliefs_states, np.ones(3) / 3))
         self.assertIsNone(self.model.current_observations)
         self.assertIsNone(self.model.current_actions)
         self.assertEqual(self.model.history, [])
 
     def test_get_history(self):
         """Test getting history."""
-        self.model.history = [{'test': 1}]
+        self.model.history = [{"test": 1}]
         history = self.model.get_history()
         self.assertEqual(len(history), 1)
-        self.assertEqual(history[0]['test'], 1)
+        self.assertEqual(history[0]["test"], 1)
         # Ensure it's a copy
-        self.model.history.append({'test': 2})
+        self.model.history.append({"test": 2})
         self.assertEqual(len(history), 1)
 
     def test_get_current_state(self):
@@ -118,50 +143,61 @@ class TestActiveInferenceModel(unittest.TestCase):
         self.model.current_observations = np.array([1, 0])
         self.model.current_actions = "test_action"
         state = self.model.get_current_state()
-        self.assertEqual(state['model_type'], "test")
-        self.assertTrue(np.allclose(state['beliefs'], [0.5, 0.5]))
-        self.assertTrue(np.allclose(state['observations'], [1, 0]))
-        self.assertEqual(state['actions'], "test_action")
-        self.assertIn('free_energy', state)
+        self.assertEqual(state["model_type"], "test")
+        self.assertTrue(np.allclose(state["beliefs"], [0.5, 0.5]))
+        self.assertTrue(np.allclose(state["observations"], [1, 0]))
+        self.assertEqual(state["actions"], "test_action")
+        self.assertIn("free_energy", state)
 
     def test_update_observations(self):
         """Test updating observations directly."""
-        self.model.update_observations({'temp': 22.5, 'pressure': 101.3})
-        self.assertEqual(self.model.current_observations['temp'], 22.5)
-        self.assertEqual(self.model.current_observations['pressure'], 101.3)
+        self.model.update_observations({"temp": 22.5, "pressure": 101.3})
+        self.assertEqual(self.model.current_observations["temp"], 22.5)
+        self.assertEqual(self.model.current_observations["pressure"], 101.3)
 
     def test_update_preferences(self):
         """Test updating preferences directly."""
-        self.model.update_preferences({'accuracy': 0.9, 'speed': 0.7})
-        self.assertEqual(self.model.preferences['accuracy'], 0.9)
-        self.assertEqual(self.model.preferences['speed'], 0.7)
+        self.model.update_preferences({"accuracy": 0.9, "speed": 0.7})
+        self.assertEqual(self.model.preferences["accuracy"], 0.9)
+        self.assertEqual(self.model.preferences["speed"], 0.7)
 
     def test_update_with_outcome(self):
         """Test decision-outcome learning loop."""
         gen_model = GenerativeModel("categorical", self.gen_params)
         gen_model.observation_model = np.array([[0.8, 0.1, 0.2], [0.2, 0.9, 0.8]])
         self.model.set_generative_model(gen_model)
-        decision = {'action': 'move_north'}
-        outcome = {'observation': np.array([1.0, 0.0]), 'reward': 0.5}
+        decision = {"action": "move_north"}
+        outcome = {"observation": np.array([1.0, 0.0]), "reward": 0.5}
         self.model.update_with_outcome(decision, outcome)
         # Should store in history
         self.assertEqual(len(self.model.history), 1)
-        self.assertEqual(self.model.history[0]['decision'], decision)
+        self.assertEqual(self.model.history[0]["decision"], decision)
         # Should have updated beliefs from the observation
         self.assertIsNotNone(self.model.current_beliefs)
 
     def test_generate_policies(self):
         """Test policy generation from available actions."""
-        actions = [{'action': 'north', 'cost': 1}, {'action': 'south', 'cost': 2}]
+        actions = [{"action": "north", "cost": 1}, {"action": "south", "cost": 2}]
         policies = self.model.generate_policies(actions)
         self.assertEqual(len(policies), 2)
-        self.assertEqual(policies[0]['action'], 'north')
+        self.assertEqual(policies[0]["action"], "north")
+
+    def test_select_policy_uses_expected_free_energy(self):
+        """Test policy selection does not just return the first candidate."""
+        self.model.current_beliefs = np.array([0.5, 0.3, 0.2])
+        self.model.policy_selector.selection_mode = "deterministic"
+        policies = [
+            {"action": "north", "expected_free_energy": 3.0},
+            {"action": "south", "expected_free_energy": -1.0},
+        ]
+        selected = self.model.select_policy(policies)
+        self.assertEqual(selected["action"], "south")
 
     def test_compute_expected_free_energy_real(self):
         """Test real EFE computation delegates to FreeEnergyCalculator."""
         gen_model = GenerativeModel("categorical", self.gen_params)
         self.model.set_generative_model(gen_model)
-        policy = {'exploration_bonus': 0.1, 'risk_preference': 0.0}
+        policy = {"exploration_bonus": 0.1, "risk_preference": 0.0}
         efe = self.model.compute_expected_free_energy(policy)
         self.assertIsInstance(efe, float)
         self.assertTrue(np.isfinite(efe))
@@ -170,15 +206,26 @@ class TestActiveInferenceModel(unittest.TestCase):
         """Test EFE returns inf when no beliefs are available."""
         self.model.current_beliefs = None
         efe = self.model.compute_expected_free_energy({})
-        self.assertEqual(efe, float('inf'))
+        self.assertEqual(efe, float("inf"))
 
     def test_apply_to_h3(self):
         """Test applying H3 spatial observations."""
         gen_model = GenerativeModel("categorical", self.gen_params)
-        gen_model.enable_h3_spatial(8, {
-            'type': 'Polygon',
-            'coordinates': [[[-122.41, 37.77], [-122.41, 37.80], [-122.38, 37.80], [-122.38, 37.77], [-122.41, 37.77]]]
-        })
+        gen_model.enable_h3_spatial(
+            8,
+            {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [-122.41, 37.77],
+                        [-122.41, 37.80],
+                        [-122.38, 37.80],
+                        [-122.38, 37.77],
+                        [-122.41, 37.77],
+                    ]
+                ],
+            },
+        )
         self.model.set_generative_model(gen_model)
         # Create observations for first few cells — obs_dim is 2 per gen_params
         h3_obs = {}
@@ -186,6 +233,9 @@ class TestActiveInferenceModel(unittest.TestCase):
             h3_obs[cell] = np.random.rand(2)
         result = self.model.apply_to_h3(h3_obs)
         self.assertIsNotNone(result)
+        self.assertIn("spatial_consistency", result)
+        self.assertIn("global_coherence", result["spatial_consistency"])
+        self.assertTrue(np.isfinite(result["spatial_consistency"]["global_coherence"]))
 
 
 class TestGenerativeModelSummary(unittest.TestCase):
@@ -196,23 +246,23 @@ class TestGenerativeModelSummary(unittest.TestCase):
         gen_model = GenerativeModel("categorical", {"state_dim": 4})
         summary = gen_model.get_model_summary()
         self.assertIsInstance(summary, dict)
-        self.assertEqual(summary['model_type'], 'categorical')
-        self.assertEqual(summary['state_dim'], 4)
-        self.assertIn('free_energy', summary)
-        self.assertIn('belief_entropy', summary)
-        self.assertIn('convergence_status', summary)
+        self.assertEqual(summary["model_type"], "categorical")
+        self.assertEqual(summary["state_dim"], 4)
+        self.assertIn("free_energy", summary)
+        self.assertIn("belief_entropy", summary)
+        self.assertIn("convergence_status", summary)
 
     def test_get_model_summary_hierarchical(self):
         """Test model summary includes hierarchical details."""
-        gen_model = GenerativeModel("categorical", {
-            "state_dims": [4, 3],
-            "obs_dims": [4, 3],
-            "hierarchical": True
-        })
+        gen_model = GenerativeModel(
+            "categorical",
+            {"state_dims": [4, 3], "obs_dims": [4, 3], "hierarchical": True},
+        )
         summary = gen_model.get_model_summary()
-        self.assertTrue(summary['hierarchical'])
-        self.assertIn('levels', summary)
-        self.assertIn('level_details', summary)
+        self.assertTrue(summary["hierarchical"])
+        self.assertIn("levels", summary)
+        self.assertIn("level_details", summary)
+
 
 class TestBayesianBeliefUpdate(unittest.TestCase):
     """Tests for BayesianBeliefUpdate class."""
@@ -226,7 +276,9 @@ class TestBayesianBeliefUpdate(unittest.TestCase):
         prior = np.array([0.2, 0.3, 0.5])
         observation = np.array([1, 0])
         likelihood_matrix = np.array([[0.8, 0.1, 0.2], [0.2, 0.9, 0.8]])
-        posterior = self.updater.update_categorical(prior, observation, likelihood_matrix)
+        posterior = self.updater.update_categorical(
+            prior, observation, likelihood_matrix
+        )
         self.assertTrue(np.allclose(np.sum(posterior), 1.0))
         self.assertFalse(np.allclose(posterior, prior))  # Should change
 
@@ -237,16 +289,24 @@ class TestBayesianBeliefUpdate(unittest.TestCase):
         observation = np.array([1, 1])
         observation_matrix = np.eye(2)
         observation_precision = np.eye(2) * 10
-        result = self.updater.update_gaussian(prior_mean, prior_precision, observation, observation_matrix, observation_precision)
-        self.assertIn('mean', result)
-        self.assertIn('precision', result)
-        self.assertFalse(np.allclose(result['mean'], prior_mean))
+        result = self.updater.update_gaussian(
+            prior_mean,
+            prior_precision,
+            observation,
+            observation_matrix,
+            observation_precision,
+        )
+        self.assertIn("mean", result)
+        self.assertIn("precision", result)
+        self.assertFalse(np.allclose(result["mean"], prior_mean))
 
     def test_compute_prediction_error(self):
         """Test precision-weighted prediction error."""
         prediction = np.array([0, 0])
         observation = np.array([1, 1])
-        error = self.updater.compute_prediction_error(prediction, observation, precision=2.0)
+        error = self.updater.compute_prediction_error(
+            prediction, observation, precision=2.0
+        )
         self.assertEqual(error, 4.0)  # 2 * (1^2 + 1^2) = 4
 
     def test_compute_surprise(self):
@@ -297,15 +357,15 @@ class TestDynamicCausalModel(unittest.TestCase):
         inputs = np.random.randn(4, 1)
         time_points = np.linspace(0, 0.1, 5)
         results = self.model.estimate_parameters(observations, inputs, time_points)
-        self.assertIn('A', results)
-        self.assertIn('B', results)
-        self.assertIn('C', results)
+        self.assertIn("A", results)
+        self.assertIn("B", results)
+        self.assertIn("C", results)
 
     def test_set_parameters(self):
         """Test setting model parameters."""
         A = np.eye(2) * 0.5
-        B = np.ones((2,1))
-        C = np.ones((1,2))
+        B = np.ones((2, 1))
+        C = np.ones((1, 2))
         self.model.set_parameters(A, B, C)
         self.assertTrue(np.allclose(self.model.A, A))
 
@@ -329,7 +389,9 @@ class TestFreeEnergyCalculator(unittest.TestCase):
         beliefs = np.array([0.4, 0.6])
         observations = np.array([0.7, 0.3])
         preferences = np.array([0.5, 0.5])
-        fe = self.calculator.compute_categorical_free_energy(beliefs, observations, preferences)
+        fe = self.calculator.compute_categorical_free_energy(
+            beliefs, observations, preferences
+        )
         self.assertIsInstance(fe, float)
 
     def test_compute_gaussian_free_energy(self):
@@ -339,21 +401,27 @@ class TestFreeEnergyCalculator(unittest.TestCase):
         observations = np.array([1, 1])
         prior_mean = np.zeros(2)
         prior_precision = np.eye(2)
-        fe = self.calculator.compute_gaussian_free_energy(mean, precision, observations, prior_mean, prior_precision)
+        fe = self.calculator.compute_gaussian_free_energy(
+            mean, precision, observations, prior_mean, prior_precision
+        )
         self.assertIsInstance(fe, float)
 
     def test_compute_expected_free_energy(self):
         """Test expected free energy computation."""
         beliefs = np.array([0.4, 0.6])
-        policy = {'exploration_bonus': 0.1, 'risk_preference': 0.0, 'temporal_discount': 0.9}
+        policy = {
+            "exploration_bonus": 0.1,
+            "risk_preference": 0.0,
+            "temporal_discount": 0.9,
+        }
         preferences = np.array([0.5, 0.5])
         efe = self.calculator.compute_expected_free_energy(beliefs, policy, preferences)
         self.assertIsInstance(efe, float)
 
     def test_compute_categorical(self):
-        beliefs = np.array([0.4,0.6])
-        obs = np.array([1,0])
-        prefs = np.array([0.3,0.7])
+        beliefs = np.array([0.4, 0.6])
+        obs = np.array([1, 0])
+        prefs = np.array([0.3, 0.7])
         fe = self.calculator.compute_categorical_free_energy(beliefs, obs, prefs)
         self.assertIsInstance(fe, float)
 
@@ -366,7 +434,9 @@ class TestGenerativeModel(unittest.TestCase):
         self.params = {"state_dim": 3, "obs_dim": 2, "prior_precision": 1.0}
         self.model = GenerativeModel("categorical", self.params)
         # Set non-uniform observation model for testing updates
-        self.model.observation_model = np.array([[0.8, 0.2], [0.1, 0.9], [0.2, 0.8]]).T  # shape (obs_dim, state_dim)
+        self.model.observation_model = np.array(
+            [[0.8, 0.2], [0.1, 0.9], [0.2, 0.8]]
+        ).T  # shape (obs_dim, state_dim)
 
     def test_initialization(self):
         """Test model initializes correctly."""
@@ -378,15 +448,15 @@ class TestGenerativeModel(unittest.TestCase):
         self.assertTrue(self.model.message_passing)
         self.assertFalse(self.model.spatial_mode)
         self.assertFalse(self.model.temporal_hierarchies)
-        self.assertIn('states', self.model.beliefs)
-        self.assertTrue(np.allclose(self.model.beliefs['states'], np.ones(3)/3))
+        self.assertIn("states", self.model.beliefs)
+        self.assertTrue(np.allclose(self.model.beliefs["states"], np.ones(3) / 3))
 
     def test_update_beliefs(self):
         """Test belief updating."""
         observations = {"observations": np.array([1, 0])}
         updated = self.model.update_beliefs(observations)
-        self.assertTrue(np.allclose(np.sum(updated['states']), 1.0))
-        self.assertFalse(np.allclose(updated['states'], np.ones(3)/3))
+        self.assertTrue(np.allclose(np.sum(updated["states"]), 1.0))
+        self.assertFalse(np.allclose(updated["states"], np.ones(3) / 3))
 
     def test_compute_free_energy(self):
         """Test free energy computation."""
@@ -410,29 +480,39 @@ class TestGenerativeModel(unittest.TestCase):
     # Add tests for hierarchical mode
     def test_hierarchical_initialization(self):
         """Test hierarchical model initialization."""
-        hier_params = {"hierarchical": True, "levels": 2, "state_dims": [3, 2], "obs_dims": [2, 1]}
+        hier_params = {
+            "hierarchical": True,
+            "levels": 2,
+            "state_dims": [3, 2],
+            "obs_dims": [2, 1],
+        }
         hier_model = GenerativeModel("categorical", hier_params)
         self.assertTrue(hier_model.hierarchical)
         self.assertEqual(len(hier_model.levels), 2)
-        self.assertIn('level_0', hier_model.beliefs)
-        self.assertIn('level_1', hier_model.beliefs)
+        self.assertIn("level_0", hier_model.beliefs)
+        self.assertIn("level_1", hier_model.beliefs)
 
     def test_hierarchical_update_beliefs(self):
         """Test belief updating in hierarchical model."""
-        hier_params = {"hierarchical": True, "levels": 2, "state_dims": [3, 2], "obs_dims": [2, 1]}
+        hier_params = {
+            "hierarchical": True,
+            "levels": 2,
+            "state_dims": [3, 2],
+            "obs_dims": [2, 1],
+        }
         hier_model = GenerativeModel("categorical", hier_params)
         observations = {"level_0": np.array([1, 0]), "level_1": np.array([1])}
         updated = hier_model.update_beliefs(observations)
-        self.assertIn('level_0', updated)
-        self.assertIn('level_1', updated)
-        self.assertTrue(np.allclose(np.sum(updated['level_0']['states']), 1.0))
+        self.assertIn("level_0", updated)
+        self.assertIn("level_1", updated)
+        self.assertTrue(np.allclose(np.sum(updated["level_0"]["states"]), 1.0))
 
     def test_add_nested_level(self):
         """Test adding nested level."""
         parent = GenerativeModel("categorical", {"state_dim": 3, "obs_dim": 2})
         child = GenerativeModel("categorical", {"state_dim": 2, "obs_dim": 1})
         parent.add_nested_level(child)
-        self.assertTrue(hasattr(parent, 'nested_models'))
+        self.assertTrue(hasattr(parent, "nested_models"))
         self.assertEqual(len(parent.nested_models), 1)
 
     def test_update_nested_beliefs(self):
@@ -442,21 +522,27 @@ class TestGenerativeModel(unittest.TestCase):
         parent.add_nested_level(child)
         observations = {"observations": np.array([1, 0])}
         parent.update_nested_beliefs(observations)
-        self.assertTrue(np.allclose(np.sum(parent.beliefs['states']), 1.0))
-        self.assertTrue(np.allclose(np.sum(child.beliefs['states']), 1.0))
+        self.assertTrue(np.allclose(np.sum(parent.beliefs["states"]), 1.0))
+        self.assertTrue(np.allclose(np.sum(child.beliefs["states"]), 1.0))
 
     # Add tests for integrate_rxinfer and integrate_bayeux
     # Since they require external libs, use skipIf not available
-    @unittest.skipUnless(ModernToolsIntegration().available_tools.get('rxinfer', False), "RxInfer not available")
+    @unittest.skipUnless(
+        ModernToolsIntegration().available_tools.get("rxinfer", False),
+        "RxInfer not available",
+    )
     def test_integrate_rxinfer(self):
         """Test RxInfer integration."""
         # This test will only run if rxinfer is available
         model_spec = """ # Julia code for model """
         data = {"observations": np.random.randn(10)}
         result = self.model.integrate_rxinfer(model_spec, data)
-        self.assertEqual(result['status'], 'success')
+        self.assertEqual(result["status"], "success")
 
-    @unittest.skipUnless(ModernToolsIntegration().available_tools.get('bayeux', False), "Bayeux not available")
+    @unittest.skipUnless(
+        ModernToolsIntegration().available_tools.get("bayeux", False),
+        "Bayeux not available",
+    )
     def test_integrate_bayeux(self):
         """Test Bayeux integration."""
         # This test will only run if bayeux is available
@@ -467,14 +553,13 @@ class TestGenerativeModel(unittest.TestCase):
 
     def test_markov_blanket_check(self):
         """Test Markov blanket independence check."""
-        model = GenerativeModel("categorical", {"state_dim": 4})
-        blanket = MarkovBlanket(sensory_states=[0,1], internal_states=[2,3])
+        blanket = MarkovBlanket(sensory_states=[0, 1], internal_states=[2, 3])
         states = np.random.randn(4)
         self.assertTrue(blanket.check_conditional_independence(2, states))
 
     def test_hierarchical_levels(self):
         """Test hierarchical level initialization."""
-        params = {"hierarchical": True, "levels": 3, "state_dims": [4,3,2]}
+        params = {"hierarchical": True, "levels": 3, "state_dims": [4, 3, 2]}
         model = GenerativeModel("categorical", params)
         self.assertEqual(len(model.levels), 3)
         self.assertEqual(model.levels[0].state_dim, 4)
@@ -488,21 +573,52 @@ class TestGenerativeModel(unittest.TestCase):
 
     def test_enable_h3_spatial(self):
         """Test H3 spatial enabling."""
-        model = GenerativeModel('categorical', {'state_dim': 1})
-        boundary = {'coordinates': [[[0,0], [0,1], [1,1], [1,0], [0,0]]] }
-        model.enable_h3_spatial(15, boundary)  # High res for small area
-        if hasattr(model, 'spatial_config'):
+        model = GenerativeModel("categorical", {"state_dim": 1})
+        boundary = {
+            "coordinates": [
+                [
+                    [-122.42, 37.77],
+                    [-122.42, 37.78],
+                    [-122.41, 37.78],
+                    [-122.41, 37.77],
+                    [-122.42, 37.77],
+                ]
+            ]
+        }
+        model.enable_h3_spatial(8, boundary)
+        if hasattr(model, "spatial_config"):
             self.assertTrue(model.spatial_mode)
             self.assertGreater(model.state_dim, 1)
 
     def test_update_h3_beliefs(self):
-        model = GenerativeModel('categorical', {'state_dim': 2})
-        model.enable_h3_spatial(8, {'coordinates': [[[0,0],[1,0],[1,1],[0,1]]] })
-        obs = {'cell1': np.array([1,0]), 'cell2': np.array([0,1])}
-        model.spatial_mode = True
+        model = GenerativeModel("categorical", {"state_dim": 2})
+        model.enable_h3_spatial(
+            8,
+            {
+                "coordinates": [
+                    [
+                        [-122.42, 37.77],
+                        [-122.42, 37.78],
+                        [-122.41, 37.78],
+                        [-122.41, 37.77],
+                        [-122.42, 37.77],
+                    ]
+                ]
+            },
+        )
+        obs = {
+            model.h3_cells[0]: np.array([1, 0]),
+            model.h3_cells[min(1, len(model.h3_cells) - 1)]: np.array([0, 1]),
+        }
         updated = model.update_h3_beliefs(obs)
-        self.assertIn('h3_beliefs', updated)
-        self.assertTrue(all(np.allclose(np.sum(b), 1.0) for b in updated['h3_beliefs'].values()))
+        self.assertIn("h3_beliefs", updated)
+        self.assertIn("aggregate_free_energy", updated)
+        self.assertTrue(
+            all(np.allclose(np.sum(b), 1.0) for b in updated["h3_beliefs"].values())
+        )
+        typed = model.update_h3_beliefs(obs, return_result=True)
+        self.assertIsInstance(typed, H3BeliefUpdateResult)
+        self.assertTrue(np.isfinite(typed.aggregate_free_energy))
 
 
 class TestMarkovDecisionProcess(unittest.TestCase):
@@ -517,9 +633,9 @@ class TestMarkovDecisionProcess(unittest.TestCase):
         self.assertEqual(self.mdp.n_states, 3)
         self.assertEqual(self.mdp.n_observations, 2)
         self.assertEqual(self.mdp.n_actions, 2)
-        self.assertEqual(self.mdp.transition_prob.shape, (3,3,2))
-        self.assertEqual(self.mdp.observation_prob.shape, (2,3))
-        self.assertTrue(hasattr(self.mdp, 'policies'))
+        self.assertEqual(self.mdp.transition_prob.shape, (3, 3, 2))
+        self.assertEqual(self.mdp.observation_prob.shape, (2, 3))
+        self.assertTrue(hasattr(self.mdp, "policies"))
 
     def test_get_transition_prob(self):
         """Test getting transition probabilities."""
@@ -552,19 +668,19 @@ class TestMarkovDecisionProcess(unittest.TestCase):
 
     def test_get_predictive_state(self):
         """Test predictive state distribution."""
-        belief = np.ones(3)/3
+        belief = np.ones(3) / 3
         pred = self.mdp.get_predictive_state(belief, 0)
         self.assertTrue(np.allclose(np.sum(pred), 1.0))
 
     def test_get_predictive_observation(self):
         """Test predictive observation distribution."""
-        state_dist = np.ones(3)/3
+        state_dist = np.ones(3) / 3
         pred = self.mdp.get_predictive_observation(state_dist)
         self.assertTrue(np.allclose(np.sum(pred), 1.0))
 
     def test_update_belief(self):
         """Test belief updating."""
-        prior = np.ones(3)/3
+        prior = np.ones(3) / 3
         observation = 0
         posterior = self.mdp.update_belief(prior, observation)
         self.assertTrue(np.allclose(np.sum(posterior), 1.0))
@@ -573,16 +689,21 @@ class TestMarkovDecisionProcess(unittest.TestCase):
         """Test setting transition matrix."""
         dist = np.array([0.1, 0.2, 0.7])
         self.mdp.set_transition_matrix(0, 0, dist)
-        self.assertTrue(np.allclose(self.mdp.transition_prob[0, :, 0], dist / np.sum(dist)))
+        self.assertTrue(
+            np.allclose(self.mdp.transition_prob[0, :, 0], dist / np.sum(dist))
+        )
 
     def test_set_observation_matrix(self):
         """Test setting observation matrix."""
         dist = np.array([0.4, 0.6])
         self.mdp.set_observation_matrix(0, dist)
-        self.assertTrue(np.allclose(self.mdp.observation_prob[:, 0], dist / np.sum(dist)))
+        self.assertTrue(
+            np.allclose(self.mdp.observation_prob[:, 0], dist / np.sum(dist))
+        )
 
 
 # Add similar TestCase for other classes like PolicySelector (existing), VariationalInference, etc.
+
 
 class TestVariationalInference(unittest.TestCase):
     """Tests for VariationalInference class."""
@@ -590,13 +711,15 @@ class TestVariationalInference(unittest.TestCase):
     def setUp(self):
         """Set up test fixtures."""
         self.vi = VariationalInference()
-        self.prior = np.array([0.5,0.5])
-        self.likelihood = np.array([[0.8,0.2],[0.2,0.8]])
-        self.observations = np.array([1,0])
+        self.prior = np.array([0.5, 0.5])
+        self.likelihood = np.array([[0.8, 0.2], [0.2, 0.8]])
+        self.observations = np.array([1, 0])
 
     def test_update_categorical(self):
         """Test mean-field update for categorical."""
-        posterior = self.vi.mean_field_update_categorical(self.prior, self.likelihood, self.observations)
+        posterior = self.vi.mean_field_update_categorical(
+            self.prior, self.likelihood, self.observations
+        )
         self.assertEqual(len(posterior), 2)
         self.assertAlmostEqual(sum(posterior), 1.0)
 
@@ -604,7 +727,7 @@ class TestVariationalInference(unittest.TestCase):
         """Test mean-field update for Gaussian."""
         mean = np.zeros(2)
         cov = np.eye(2)
-        obs = np.array([1,0])
+        obs = np.array([1, 0])
         posterior = self.vi.mean_field_update_gaussian(mean, cov, obs)
         self.assertEqual(len(posterior), 2)
 
@@ -617,15 +740,19 @@ class TestPolicySelector(unittest.TestCase):
     def setUp(self):
         self.selector = PolicySelector()
         self.beliefs = np.array([0.4, 0.6])
-        self.actions = [0,1]
-        self.model = GenerativeModel('categorical', {'state_dim':2, 'obs_dim':2})
+        self.actions = [0, 1]
+        self.model = GenerativeModel("categorical", {"state_dim": 2, "obs_dim": 2})
 
     def test_select_policy(self):
-        policy = self.selector.select_policy(self.beliefs, self.actions, self.model.preferences)
-        self.assertIn('policy', policy)
+        policy = self.selector.select_policy(
+            self.beliefs, self.actions, self.model.preferences
+        )
+        self.assertIn("policy", policy)
 
     def test_compute_expected_free_energy(self):
-        efe = self.selector.compute_expected_free_energy(self.beliefs, {'action': 0, 'exploration_bonus': 0.1}, np.array([0.3,0.7]))
+        efe = self.selector.compute_expected_free_energy(
+            self.beliefs, {"action": 0, "exploration_bonus": 0.1}, np.array([0.3, 0.7])
+        )
         self.assertIsInstance(efe, float)
 
 
@@ -635,15 +762,17 @@ class TestMultiAgentMessages(unittest.TestCase):
     def test_get_agent_messages_valid(self):
         """Test getting messages from a valid agent."""
         from geo_infer_act.models.multi_agent import MultiAgentModel
+
         model = MultiAgentModel(n_agents=3)
         msg = model.get_agent_messages(0)
         self.assertIsInstance(msg, dict)
-        self.assertEqual(msg['agent_id'], 0)
-        self.assertIn('beliefs', msg)
+        self.assertEqual(msg["agent_id"], 0)
+        self.assertIn("beliefs", msg)
 
     def test_get_agent_messages_invalid(self):
         """Test getting messages from an invalid agent ID."""
         from geo_infer_act.models.multi_agent import MultiAgentModel
+
         model = MultiAgentModel(n_agents=3)
         msg = model.get_agent_messages(99)
         self.assertEqual(msg, {})
@@ -651,6 +780,7 @@ class TestMultiAgentMessages(unittest.TestCase):
     def test_get_agent_messages_negative_id(self):
         """Test getting messages from a negative agent ID."""
         from geo_infer_act.models.multi_agent import MultiAgentModel
+
         model = MultiAgentModel(n_agents=3)
         msg = model.get_agent_messages(-1)
         self.assertEqual(msg, {})
@@ -662,23 +792,39 @@ class TestDiffuseAndAggregateBeliefs(unittest.TestCase):
     def test_diffuse_beliefs_non_spatial(self):
         """Test that diffuse_beliefs returns beliefs unchanged when not spatial."""
         gen_model = GenerativeModel("categorical", {"state_dim": 3})
-        beliefs = {'cell_a': np.array([0.5, 0.3, 0.2]), 'cell_b': np.array([0.1, 0.8, 0.1])}
+        beliefs = {
+            "cell_a": np.array([0.5, 0.3, 0.2]),
+            "cell_b": np.array([0.1, 0.8, 0.1]),
+        }
         result = gen_model.diffuse_beliefs(beliefs, diffusion_rate=0.1)
         # Non-spatial mode should return input unchanged
         self.assertEqual(set(result.keys()), set(beliefs.keys()))
 
     def test_aggregate_beliefs_to_resolution(self):
         """Test belief aggregation to coarser H3 resolution."""
-        import h3
+
         gen_model = GenerativeModel("categorical", {"state_dim": 3})
-        gen_model.enable_h3_spatial(8, {
-            'type': 'Polygon',
-            'coordinates': [[[-122.41, 37.77], [-122.41, 37.80], [-122.38, 37.80], [-122.38, 37.77], [-122.41, 37.77]]]
-        })
+        gen_model.enable_h3_spatial(
+            8,
+            {
+                "type": "Polygon",
+                "coordinates": [
+                    [
+                        [-122.41, 37.77],
+                        [-122.41, 37.80],
+                        [-122.38, 37.80],
+                        [-122.38, 37.77],
+                        [-122.41, 37.77],
+                    ]
+                ],
+            },
+        )
         # Create beliefs for each cell
         beliefs = {cell: np.array([0.3, 0.3, 0.4]) for cell in gen_model.h3_cells[:5]}
         # Aggregate to coarser resolution
-        aggregated = gen_model.aggregate_beliefs_to_resolution(beliefs, target_resolution=5)
+        aggregated = gen_model.aggregate_beliefs_to_resolution(
+            beliefs, target_resolution=5
+        )
         self.assertIsInstance(aggregated, dict)
         # Should have fewer cells at coarser resolution
         self.assertLessEqual(len(aggregated), len(beliefs))
@@ -687,5 +833,5 @@ class TestDiffuseAndAggregateBeliefs(unittest.TestCase):
             self.assertAlmostEqual(np.sum(b), 1.0, places=5)
 
 
-if __name__ == '__main__':
-    unittest.main() 
+if __name__ == "__main__":
+    unittest.main()

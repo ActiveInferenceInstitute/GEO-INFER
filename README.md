@@ -196,6 +196,10 @@ See [AGENTS.md](./AGENTS.md) for the complete multi-agent systems architecture.
 | **Module-Specific Tests** | Test individual modules | `uv run python GEO-INFER-TEST/run_unified_tests.py --module MATH` |
 | **Integration Tests** | Cross-module integration testing | `uv run python GEO-INFER-TEST/run_unified_tests.py --category integration` |
 | **Performance Benchmarks** | Performance validation | `uv run python GEO-INFER-TEST/run_unified_tests.py --category performance` |
+| **Skill Contracts** | Validate 45 root/module skills and cross-references | `uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs` |
+| **Repo Contracts** | Validate module inventory, signposting, package casing, packaging syntax | `uv run python GEO-INFER-TEST/validate_repo_contracts.py` |
+| **Active Inference Contract** | Validate ACT typed results and expected-free-energy policy selection | `uv run python GEO-INFER-TEST/validate_active_inference_contract.py` |
+| **ACT Geospatial Outputs** | Validate real H3 cells, spatial diagnostics, visualization sidecars, and manifest traceability | `uv run python GEO-INFER-TEST/validate_act_geospatial_contract.py` |
 
 ### 🔗 Key Resources
 
@@ -204,6 +208,20 @@ See [AGENTS.md](./AGENTS.md) for the complete multi-agent systems architecture.
 - **📚 API Documentation**: API references and schemas
 - **🔧 Development Standards**: Coding guidelines and best practices
 - **🧪 Quality Assurance**: Testing frameworks and validation procedures
+
+### 🧠 Active Inference API Contract
+
+`GEO-INFER-ACT` is the canonical Active Inference implementation. It exports
+`FreeEnergyBreakdown`, `PolicyEvaluation`, and `ActiveInferenceStepResult` for
+callers that need explicit mathematical diagnostics. Categorical free energy is
+reported as `complexity - accuracy`, policy selection evaluates expected free
+energy across all candidates, and deterministic mode selects the lowest expected
+free energy while stochastic mode remains seedable.
+
+For H3 and spatial runs, ACT writes schema-backed manifests, GIS-ready cell data,
+PNG/HTML visualizations, embedded figure metadata, and per-figure
+`*.metadata.json` plus plotted-data sidecars. The canonical output contract is
+[GEO-INFER-ACT/docs/geospatial_applications.md](./GEO-INFER-ACT/docs/geospatial_applications.md).
 
 ## 🏗️ Architecture Overview
 

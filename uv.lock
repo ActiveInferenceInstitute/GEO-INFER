@@ -2015,6 +2015,15 @@ wheels = [
 ]
 
 [[package]]
+name = "durationpy"
+version = "0.10"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/9d/a4/e44218c2b394e31a6dd0d6b095c4e1f32d0be54c2a4b250032d717647bab/durationpy-0.10.tar.gz", hash = "sha256:1fa6893409a6e739c9c72334fc65cca1f355dbdd93405d30f726deb5bde42fba", size = 3335, upload-time = "2025-05-17T13:52:37.26Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/b0/0d/9feae160378a3553fa9a339b0e9c1a048e147a4127210e286ef18b730f03/durationpy-0.10-py3-none-any.whl", hash = "sha256:3b41e1b601234296b4fb368338fdcd3e13e0b4fb5b67345948f4f2bf9868b286", size = 3922, upload-time = "2025-05-17T13:52:36.463Z" },
+]
+
+[[package]]
 name = "elastic-transport"
 version = "9.2.1"
 source = { registry = "https://pypi.org/simple" }
@@ -2632,7 +2641,7 @@ requires-dist = [
     { name = "arviz", specifier = ">=0.11.0" },
     { name = "bayeux-ml", specifier = ">=0.0.1" },
     { name = "black", marker = "extra == 'dev'", specifier = ">=21.9.0" },
-    { name = "h3", specifier = ">=3.7.0" },
+    { name = "h3", specifier = ">=4.0.0" },
     { name = "imageio", specifier = ">=2.9.0" },
     { name = "inferactively-pymdp", specifier = ">=0.0.5" },
     { name = "jax", specifier = ">=0.2.0" },
@@ -3009,7 +3018,6 @@ dependencies = [
     { name = "imageio-ffmpeg" },
     { name = "kaleido" },
     { name = "matplotlib" },
-    { name = "mayavi" },
     { name = "numpy" },
     { name = "opencv-python" },
     { name = "pillow" },
@@ -3037,6 +3045,9 @@ docs = [
     { name = "sphinx" },
     { name = "sphinx-rtd-theme" },
 ]
+viz3d = [
+    { name = "mayavi" },
+]
 
 [package.metadata]
 requires-dist = [
@@ -3050,7 +3061,7 @@ requires-dist = [
     { name = "imageio-ffmpeg", specifier = ">=0.4.0" },
     { name = "kaleido", specifier = ">=0.2.0" },
     { name = "matplotlib", specifier = ">=3.4.0" },
-    { name = "mayavi", specifier = ">=4.7.0" },
+    { name = "mayavi", marker = "extra == 'viz3d'", specifier = ">=4.7.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=0.15.0" },
     { name = "nbsphinx", marker = "extra == 'docs'", specifier = ">=0.8.0" },
@@ -3070,7 +3081,7 @@ requires-dist = [
     { name = "sphinx-rtd-theme", marker = "extra == 'docs'", specifier = ">=1.0.0" },
     { name = "tensorflow", specifier = ">=2.6.0" },
 ]
-provides-extras = ["dev", "docs"]
+provides-extras = ["viz3d", "dev", "docs"]
 
 [[package]]
 name = "geo-infer-bayes"
@@ -4487,10 +4498,15 @@ theorem-proving = [
     { name = "sympy" },
     { name = "z3-solver" },
 ]
+web = [
+    { name = "flask" },
+    { name = "werkzeug" },
+]
 
 [package.metadata]
 requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=21.9.0" },
+    { name = "flask", marker = "extra == 'web'", specifier = ">=2.3.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=0.15.0" },
     { name = "nbsphinx", marker = "extra == 'docs'", specifier = ">=0.8.0" },
@@ -4500,9 +4516,10 @@ requires-dist = [
     { name = "sphinx", marker = "extra == 'docs'", specifier = ">=4.2.0" },
     { name = "sphinx-rtd-theme", marker = "extra == 'docs'", specifier = ">=1.0.0" },
     { name = "sympy", marker = "extra == 'theorem-proving'", specifier = ">=1.9.0" },
+    { name = "werkzeug", marker = "extra == 'web'", specifier = ">=2.3.0" },
     { name = "z3-solver", marker = "extra == 'theorem-proving'", specifier = ">=4.12.0" },
 ]
-provides-extras = ["theorem-proving", "dev", "docs"]
+provides-extras = ["theorem-proving", "web", "dev", "docs"]
 
 [[package]]
 name = "geo-infer-metagov"
@@ -4602,6 +4619,7 @@ version = "0.2.0"
 source = { editable = "GEO-INFER-OPS" }
 dependencies = [
     { name = "fastapi" },
+    { name = "kubernetes" },
     { name = "prometheus-client" },
     { name = "prometheus-fastapi-instrumentator" },
     { name = "pydantic" },
@@ -4636,6 +4654,7 @@ test = [
 requires-dist = [
     { name = "black", marker = "extra == 'dev'", specifier = ">=21.9.0" },
     { name = "fastapi", specifier = ">=0.68.0" },
+    { name = "kubernetes", specifier = ">=29.0.0" },
     { name = "mypy", marker = "extra == 'dev'", specifier = ">=0.910" },
     { name = "myst-parser", marker = "extra == 'docs'", specifier = ">=0.15.0" },
     { name = "nbsphinx", marker = "extra == 'docs'", specifier = ">=0.8.0" },
@@ -6990,6 +7009,27 @@ wheels = [
 ]
 
 [[package]]
+name = "kubernetes"
+version = "35.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "certifi", version = "2025.8.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.13' or sys_platform != 'darwin'" },
+    { name = "certifi", version = "2026.2.25", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.13' and sys_platform == 'darwin'" },
+    { name = "durationpy" },
+    { name = "python-dateutil" },
+    { name = "pyyaml" },
+    { name = "requests" },
+    { name = "requests-oauthlib" },
+    { name = "six" },
+    { name = "urllib3" },
+    { name = "websocket-client" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/2c/8f/85bf51ad4150f64e8c665daf0d9dfe9787ae92005efb9a4d1cba592bd79d/kubernetes-35.0.0.tar.gz", hash = "sha256:3d00d344944239821458b9efd484d6df9f011da367ecb155dadf9513f05f09ee", size = 1094642, upload-time = "2026-01-16T01:05:27.76Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/0c/70/05b685ea2dffcb2adbf3cdcea5d8865b7bc66f67249084cf845012a0ff13/kubernetes-35.0.0-py2.py3-none-any.whl", hash = "sha256:39e2b33b46e5834ef6c3985ebfe2047ab39135d41de51ce7641a7ca5b372a13d", size = 2017602, upload-time = "2026-01-16T01:05:25.991Z" },
+]
+
+[[package]]
 name = "lark"
 version = "1.3.1"
 source = { registry = "https://pypi.org/simple" }
@@ -8369,7 +8409,7 @@ name = "nvidia-cudnn-cu12"
 version = "9.10.2.21"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-cublas-cu12" },
+    { name = "nvidia-cublas-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/ba/51/e123d997aa098c61d029f76663dedbfb9bc8dcf8c60cbd6adbe42f76d049/nvidia_cudnn_cu12-9.10.2.21-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:949452be657fa16687d0930933f032835951ef0892b37d2d53824d1a84dc97a8", size = 706758467, upload-time = "2025-06-06T21:54:08.597Z" },
@@ -8380,7 +8420,7 @@ name = "nvidia-cufft-cu12"
 version = "11.3.3.83"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12" },
+    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/1f/13/ee4e00f30e676b66ae65b4f08cb5bcbb8392c03f54f2d5413ea99a5d1c80/nvidia_cufft_cu12-11.3.3.83-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:4d2dd21ec0b88cf61b62e6b43564355e5222e4a3fb394cac0db101f2dd0d4f74", size = 193118695, upload-time = "2025-03-07T01:45:27.821Z" },
@@ -8407,9 +8447,9 @@ name = "nvidia-cusolver-cu12"
 version = "11.7.3.90"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-cublas-cu12" },
-    { name = "nvidia-cusparse-cu12" },
-    { name = "nvidia-nvjitlink-cu12" },
+    { name = "nvidia-cublas-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
+    { name = "nvidia-cusparse-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
+    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/85/48/9a13d2975803e8cf2777d5ed57b87a0b6ca2cc795f9a4f59796a910bfb80/nvidia_cusolver_cu12-11.7.3.90-py3-none-manylinux_2_27_x86_64.whl", hash = "sha256:4376c11ad263152bd50ea295c05370360776f8c3427b30991df774f9fb26c450", size = 267506905, upload-time = "2025-03-07T01:47:16.273Z" },
@@ -8420,7 +8460,7 @@ name = "nvidia-cusparse-cu12"
 version = "12.5.8.93"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "nvidia-nvjitlink-cu12" },
+    { name = "nvidia-nvjitlink-cu12", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/c2/f5/e1854cb2f2bcd4280c44736c93550cc300ff4b8c95ebe370d0aa7d2b473d/nvidia_cusparse_cu12-12.5.8.93-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:1ec05d76bbbd8b61b06a80e1eaf8cf4959c3d4ce8e711b65ebd0443bb0ebb13b", size = 288216466, upload-time = "2025-03-07T01:48:13.779Z" },
@@ -8457,6 +8497,15 @@ version = "12.8.90"
 source = { registry = "https://pypi.org/simple" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/a2/eb/86626c1bbc2edb86323022371c39aa48df6fd8b0a1647bc274577f72e90b/nvidia_nvtx_cu12-12.8.90-py3-none-manylinux2014_x86_64.manylinux_2_17_x86_64.whl", hash = "sha256:5b17e2001cc0d751a5bc2c6ec6d26ad95913324a4adb86788c944f8ce9ba441f", size = 89954, upload-time = "2025-03-07T01:42:44.131Z" },
+]
+
+[[package]]
+name = "oauthlib"
+version = "3.3.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/0b/5f/19930f824ffeb0ad4372da4812c50edbd1434f678c90c2733e1188edfc63/oauthlib-3.3.1.tar.gz", hash = "sha256:0f0f8aa759826a193cf66c12ea1af1637f87b9b4622d46e866952bb022e538c9", size = 185918, upload-time = "2025-06-19T22:48:08.269Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/be/9c/92789c596b8df838baa98fa71844d84283302f7604ed565dafe5a6b5041a/oauthlib-3.3.1-py3-none-any.whl", hash = "sha256:88119c938d2b8fb88561af5f6ee0eec8cc8d552b7bb1f712743136eb7523b7a1", size = 160065, upload-time = "2025-06-19T22:48:06.508Z" },
 ]
 
 [[package]]
@@ -10558,6 +10607,19 @@ wheels = [
 ]
 
 [[package]]
+name = "requests-oauthlib"
+version = "2.0.0"
+source = { registry = "https://pypi.org/simple" }
+dependencies = [
+    { name = "oauthlib" },
+    { name = "requests" },
+]
+sdist = { url = "https://files.pythonhosted.org/packages/42/f2/05f29bc3913aea15eb670be136045bf5c5bbf4b99ecb839da9b422bb2c85/requests-oauthlib-2.0.0.tar.gz", hash = "sha256:b3dffaebd884d8cd778494369603a9e7b58d29111bf6b41bdc2dcd87203af4e9", size = 55650, upload-time = "2024-03-22T20:32:29.939Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/3b/5d/63d4ae3b9daea098d5d6f5da83984853c1bbacd5dc826764b249fe119d24/requests_oauthlib-2.0.0-py2.py3-none-any.whl", hash = "sha256:7dd8a5c40426b779b0868c404bdef9768deccf22749cde15852df527e6269b36", size = 24179, upload-time = "2024-03-22T20:32:28.055Z" },
+]
+
+[[package]]
 name = "rfc3339-validator"
 version = "0.1.4"
 source = { registry = "https://pypi.org/simple" }
@@ -11176,6 +11238,7 @@ wheels = [
     { url = "https://files.pythonhosted.org/packages/62/45/0e35398ef8d4b07ecfa9f7f680e183b2b6af9215a56af34f9e621c29b495/sgp4-2.25-cp313-cp313-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:5789b7add136362684dfcbf0862919f8c3018f74ab11a05a9964edd5fdd4d2a7", size = 235584, upload-time = "2025-08-04T18:02:07.152Z" },
     { url = "https://files.pythonhosted.org/packages/47/b7/1b680b5514586b3860500109ef37fd1761f21e6787f20a2597baa44d91a0/sgp4-2.25-cp313-cp313-win32.whl", hash = "sha256:94219b486def29aa1246f42de8bea05ccb8e98a5458dd08ce42b9811c79ca814", size = 161896, upload-time = "2025-08-04T18:02:08.062Z" },
     { url = "https://files.pythonhosted.org/packages/67/c1/a22be2e7886db40d1512969f3b8cc3ce989167e69ea8f308f26afd1dfd31/sgp4-2.25-cp313-cp313-win_amd64.whl", hash = "sha256:dec2f6c842d9bf40c67d5764bd752980844f91f338020d2af7f85847364d0ff7", size = 164142, upload-time = "2025-08-04T18:02:09Z" },
+    { url = "https://files.pythonhosted.org/packages/3a/47/8231e3d4a88341316ec8d0eb98d3a8a972477d8b038555259522735a8371/sgp4-2.25-py3-none-any.whl", hash = "sha256:4f39ecf6c2663109fed04adfe9982815ac83893271b521d92d5b186820f8c78e", size = 137376, upload-time = "2026-04-27T18:29:23.71Z" },
 ]
 
 [[package]]
@@ -12328,7 +12391,7 @@ name = "triton"
 version = "3.4.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
-    { name = "setuptools" },
+    { name = "setuptools", marker = "(platform_machine != 'aarch64' and sys_platform == 'linux') or (sys_platform != 'darwin' and sys_platform != 'linux')" },
 ]
 wheels = [
     { url = "https://files.pythonhosted.org/packages/7d/39/43325b3b651d50187e591eefa22e236b2981afcebaefd4f2fc0ea99df191/triton-3.4.0-cp311-cp311-manylinux_2_27_x86_64.manylinux_2_28_x86_64.whl", hash = "sha256:7b70f5e6a41e52e48cfc087436c8a28c17ff98db369447bcaff3b887a3ab4467", size = 155531138, upload-time = "2025-07-30T19:58:29.908Z" },

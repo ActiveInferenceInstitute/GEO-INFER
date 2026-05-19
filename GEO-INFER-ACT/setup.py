@@ -18,7 +18,7 @@ setup(
         "pyyaml>=6.0",
         "scikit-learn>=1.0.0",
         "inferactively-pymdp>=0.0.5",
-        "h3>=3.7.0",
+        "h3>=4.0.0",
         "shapely>=1.7.0",
         "arviz>=0.11.0",
         "bayeux-ml>=0.0.1",
@@ -38,4 +38,4 @@ setup(
         ],
     },
     python_requires=">=3.8",
-) 
+)

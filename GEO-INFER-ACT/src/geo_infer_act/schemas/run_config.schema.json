@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://geo-infer.org/schemas/act/run_config.schema.json",
+  "title": "GEO-INFER-ACT Run Config",
+  "type": "object",
+  "required": ["schema_version", "scenario"],
+  "properties": {
+    "schema_version": {
+      "const": "geo-infer-act-run-config/v1"
+    },
+    "scenario": {
+      "type": "string"
+    },
+    "output_dir": {
+      "type": "string"
+    },
+    "seed": {
+      "type": "integer"
+    },
+    "deterministic": {
+      "type": "boolean"
+    },
+    "timesteps": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "visualizations": {
+      "type": "boolean"
+    },
+    "h3_resolution": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 15
+    },
+    "h3_ring_size": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "h3_cells": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "output_formats": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "parameters": {
+      "type": "object"
+    }
+  },
+  "additionalProperties": true
+}

@@ -17,30 +17,33 @@ All functions return standardized SPMData objects for consistent processing.
 
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Optional, Tuple, Union, Any
-import warnings
+from typing import Dict, Optional
 import json
 
 try:
     import rasterio
+
     RASTERIO_AVAILABLE = True
 except ImportError:
     RASTERIO_AVAILABLE = False
 
 try:
     import geopandas as gpd
+
     GEOPANDAS_AVAILABLE = True
 except ImportError:
     GEOPANDAS_AVAILABLE = False
 
 try:
     import xarray as xr
+
     XARRAY_AVAILABLE = True
 except ImportError:
     XARRAY_AVAILABLE = False
 
 try:
     import h5py
+
     HDF5_AVAILABLE = True
 except ImportError:
     HDF5_AVAILABLE = False
@@ -66,19 +69,19 @@ def load_data(file_path: str, **kwargs) -> SPMData:
         raise ValueError("File path cannot be empty")
 
     # Determine file format from extension
-    file_extension = file_path.lower().split('.')[-1]
+    file_extension = file_path.lower().split(".")[-1]
 
     format_loaders = {
-        'tif': load_geotiff,
-        'tiff': load_geotiff,
-        'nc': load_netcdf,
-        'netcdf': load_netcdf,
-        'h5': load_hdf5,
-        'hdf5': load_hdf5,
-        'geojson': load_geojson,
-        'gpkg': load_geopackage,
-        'csv': load_csv_with_coords,
-        'json': load_json_data
+        "tif": load_geotiff,
+        "tiff": load_geotiff,
+        "nc": load_netcdf,
+        "netcdf": load_netcdf,
+        "h5": load_hdf5,
+        "hdf5": load_hdf5,
+        "geojson": load_geojson,
+        "gpkg": load_geopackage,
+        "csv": load_csv_with_coords,
+        "json": load_json_data,
     }
 
     if file_extension not in format_loaders:
@@ -88,8 +91,9 @@ def load_data(file_path: str, **kwargs) -> SPMData:
     return loader_func(file_path, **kwargs)
 
 
-def load_geotiff(file_path: str, band: Optional[int] = None,
-                nodata_value: Optional[float] = None) -> SPMData:
+def load_geotiff(
+    file_path: str, band: Optional[int] = None, nodata_value: Optional[float] = None
+) -> SPMData:
     """
     Load GeoTIFF raster data.
 
@@ -134,27 +138,28 @@ def load_geotiff(file_path: str, band: Optional[int] = None,
 
         # Create metadata
         metadata = {
-            'source_file': file_path,
-            'crs': str(src.crs),
-            'transform': transform,
-            'band': band,
-            'width': width,
-            'height': height,
-            'bounds': src.bounds,
-            'data_type': 'raster'
+            "source_file": file_path,
+            "crs": str(src.crs),
+            "transform": transform,
+            "band": band,
+            "width": width,
+            "height": height,
+            "bounds": src.bounds,
+            "data_type": "raster",
         }
 
         return SPMData(
-            data=data_flat,
-            coordinates=coordinates,
-            metadata=metadata,
-            crs=str(src.crs)
+            data=data_flat, coordinates=coordinates, metadata=metadata, crs=str(src.crs)
         )
 
 
-def load_netcdf(file_path: str, variable: Optional[str] = None,
-               time_dim: Optional[str] = None, lat_dim: str = 'lat',
-               lon_dim: str = 'lon') -> SPMData:
+def load_netcdf(
+    file_path: str,
+    variable: Optional[str] = None,
+    time_dim: Optional[str] = None,
+    lat_dim: str = "lat",
+    lon_dim: str = "lon",
+) -> SPMData:
     """
     Load NetCDF data.
 
@@ -188,7 +193,7 @@ def load_netcdf(file_path: str, variable: Optional[str] = None,
     time_coords = None
     if time_dim and time_dim in data_array.dims:
         time_coords = data_array[time_dim].values
-        if hasattr(time_coords[0], 'calendar'):  # datetime objects
+        if hasattr(time_coords[0], "calendar"):  # datetime objects
             time_coords = np.arange(len(time_coords))  # Convert to indices
 
     # Get spatial coordinates
@@ -221,12 +226,12 @@ def load_netcdf(file_path: str, variable: Optional[str] = None,
 
     # Create metadata
     metadata = {
-        'source_file': file_path,
-        'variable': variable,
-        'dimensions': list(data_array.dims),
-        'data_type': 'netcdf',
-        'time_dimension': time_dim,
-        'spatial_dimensions': [lat_dim, lon_dim]
+        "source_file": file_path,
+        "variable": variable,
+        "dimensions": list(data_array.dims),
+        "data_type": "netcdf",
+        "time_dimension": time_dim,
+        "spatial_dimensions": [lat_dim, lon_dim],
     }
 
     return SPMData(
@@ -234,7 +239,7 @@ def load_netcdf(file_path: str, variable: Optional[str] = None,
         coordinates=coordinates,
         time=final_time,
         metadata=metadata,
-        crs='EPSG:4326'  # Assume WGS84 for NetCDF
+        crs="EPSG:4326",  # Assume WGS84 for NetCDF
     )
 
 
@@ -271,23 +276,21 @@ def load_geojson(file_path: str, value_column: Optional[str] = None) -> SPMData:
 
     # Create metadata
     metadata = {
-        'source_file': file_path,
-        'value_column': value_column,
-        'crs': str(gdf.crs),
-        'n_features': len(gdf),
-        'data_type': 'vector'
+        "source_file": file_path,
+        "value_column": value_column,
+        "crs": str(gdf.crs),
+        "n_features": len(gdf),
+        "data_type": "vector",
     }
 
     return SPMData(
-        data=data_values,
-        coordinates=coordinates,
-        metadata=metadata,
-        crs=str(gdf.crs)
+        data=data_values, coordinates=coordinates, metadata=metadata, crs=str(gdf.crs)
     )
 
 
-def load_geopackage(file_path: str, layer: Optional[str] = None,
-                   value_column: Optional[str] = None) -> SPMData:
+def load_geopackage(
+    file_path: str, layer: Optional[str] = None, value_column: Optional[str] = None
+) -> SPMData:
     """
     Load GeoPackage vector data.
 
@@ -303,15 +306,19 @@ def load_geopackage(file_path: str, layer: Optional[str] = None,
         raise ImportError("geopandas package required for GeoPackage loading")
 
     # Read GeoPackage
-    gdf = gpd.read_file(file_path, layer=layer)
+    gpd.read_file(file_path, layer=layer)
 
     # Use same logic as GeoJSON
     return load_geojson(file_path, value_column)
 
 
-def load_csv_with_coords(file_path: str, x_column: str = 'longitude',
-                        y_column: str = 'latitude', value_column: Optional[str] = None,
-                        **kwargs) -> SPMData:
+def load_csv_with_coords(
+    file_path: str,
+    x_column: str = "longitude",
+    y_column: str = "latitude",
+    value_column: Optional[str] = None,
+    **kwargs,
+) -> SPMData:
     """
     Load CSV data with coordinate columns.
 
@@ -346,34 +353,44 @@ def load_csv_with_coords(file_path: str, x_column: str = 'longitude',
         value_column = value_cols[0]
 
     data_values = df[value_column].values
+    covariate_columns = [
+        col
+        for col in df.select_dtypes(include=[np.number]).columns
+        if col not in {x_column, y_column, value_column}
+    ]
+    covariates = {col: df[col].values for col in covariate_columns}
 
     # Check for temporal data
-    time_column = kwargs.get('time_column')
+    time_column = kwargs.get("time_column")
     time_values = None
     if time_column and time_column in df.columns:
         time_values = df[time_column].values
 
     # Create metadata
     metadata = {
-        'source_file': file_path,
-        'x_column': x_column,
-        'y_column': y_column,
-        'value_column': value_column,
-        'n_points': len(df),
-        'data_type': 'csv'
+        "source_file": file_path,
+        "x_column": x_column,
+        "y_column": y_column,
+        "value_column": value_column,
+        "n_points": len(df),
+        "data_type": "csv",
     }
 
     return SPMData(
         data=data_values,
         coordinates=coordinates,
         time=time_values,
+        covariates=covariates or None,
         metadata=metadata,
-        crs='EPSG:4326'  # Assume WGS84
+        crs="EPSG:4326",  # Assume WGS84
     )
 
 
-def load_hdf5(file_path: str, dataset_path: str = '/',
-             coordinate_datasets: Optional[Dict[str, str]] = None) -> SPMData:
+def load_hdf5(
+    file_path: str,
+    dataset_path: str = "/",
+    coordinate_datasets: Optional[Dict[str, str]] = None,
+) -> SPMData:
     """
     Load HDF5 data.
 
@@ -388,7 +405,7 @@ def load_hdf5(file_path: str, dataset_path: str = '/',
     if not HDF5_AVAILABLE:
         raise ImportError("h5py package required for HDF5 loading")
 
-    with h5py.File(file_path, 'r') as f:
+    with h5py.File(file_path, "r") as f:
         # Load main dataset
         if dataset_path not in f:
             raise ValueError(f"Dataset {dataset_path} not found in HDF5 file")
@@ -398,17 +415,17 @@ def load_hdf5(file_path: str, dataset_path: str = '/',
         # Load coordinates
         if coordinate_datasets is None:
             # Try to find coordinate datasets automatically
-            coord_names = ['coordinates', 'coords', 'lon', 'lat', 'x', 'y']
+            coord_names = ["coordinates", "coords", "lon", "lat", "x", "y"]
             coordinate_datasets = {}
             for name in coord_names:
                 if name in f:
-                    if name in ['lon', 'lat']:
-                        coordinate_datasets['lon'] = f['lon'][()]
-                        coordinate_datasets['lat'] = f['lat'][()]
+                    if name in ["lon", "lat"]:
+                        coordinate_datasets["lon"] = f["lon"][()]
+                        coordinate_datasets["lat"] = f["lat"][()]
                         break
-                    elif name in ['x', 'y']:
-                        coordinate_datasets['x'] = f['x'][()]
-                        coordinate_datasets['y'] = f['y'][()]
+                    elif name in ["x", "y"]:
+                        coordinate_datasets["x"] = f["x"][()]
+                        coordinate_datasets["y"] = f["y"][()]
                         break
                     else:
                         coords = f[name][()]
@@ -417,15 +434,17 @@ def load_hdf5(file_path: str, dataset_path: str = '/',
                             break
 
         # Construct coordinates array
-        if 'coordinates' in locals():
+        if "coordinates" in locals():
             coordinates = coordinates
-        elif 'lon' in coordinate_datasets and 'lat' in coordinate_datasets:
-            lon_grid, lat_grid = np.meshgrid(coordinate_datasets['lon'],
-                                            coordinate_datasets['lat'])
+        elif "lon" in coordinate_datasets and "lat" in coordinate_datasets:
+            lon_grid, lat_grid = np.meshgrid(
+                coordinate_datasets["lon"], coordinate_datasets["lat"]
+            )
             coordinates = np.column_stack([lon_grid.ravel(), lat_grid.ravel()])
-        elif 'x' in coordinate_datasets and 'y' in coordinate_datasets:
-            x_grid, y_grid = np.meshgrid(coordinate_datasets['x'],
-                                        coordinate_datasets['y'])
+        elif "x" in coordinate_datasets and "y" in coordinate_datasets:
+            x_grid, y_grid = np.meshgrid(
+                coordinate_datasets["x"], coordinate_datasets["y"]
+            )
             coordinates = np.column_stack([x_grid.ravel(), y_grid.ravel()])
         else:
             raise ValueError("Could not determine coordinate system")
@@ -440,22 +459,19 @@ def load_hdf5(file_path: str, dataset_path: str = '/',
 
         # Create metadata
         metadata = {
-            'source_file': file_path,
-            'dataset_path': dataset_path,
-            'coordinate_datasets': coordinate_datasets,
-            'original_shape': data.shape if hasattr(data, 'shape') else None,
-            'data_type': 'hdf5'
+            "source_file": file_path,
+            "dataset_path": dataset_path,
+            "coordinate_datasets": coordinate_datasets,
+            "original_shape": data.shape if hasattr(data, "shape") else None,
+            "data_type": "hdf5",
         }
 
-        return SPMData(
-            data=data_flat,
-            coordinates=coordinates,
-            metadata=metadata
-        )
+        return SPMData(data=data_flat, coordinates=coordinates, metadata=metadata)
 
 
-def load_json_data(file_path: str, data_key: str = 'data',
-                  coords_key: str = 'coordinates') -> SPMData:
+def load_json_data(
+    file_path: str, data_key: str = "data", coords_key: str = "coordinates"
+) -> SPMData:
     """
     Load JSON data with custom structure.
 
@@ -467,7 +483,7 @@ def load_json_data(file_path: str, data_key: str = 'data',
     Returns:
         SPMData object with JSON data
     """
-    with open(file_path, 'r') as f:
+    with open(file_path, "r") as f:
         json_data = json.load(f)
 
     # Extract data and coordinates
@@ -479,27 +495,42 @@ def load_json_data(file_path: str, data_key: str = 'data',
 
     data_values = np.array(json_data[data_key])
     coordinates = np.array(json_data[coords_key])
+    covariates = {
+        key: np.asarray(value) for key, value in json_data.get("covariates", {}).items()
+    }
 
     # Create metadata — start with the file's own metadata if present
     metadata = {}
-    if 'metadata' in json_data and isinstance(json_data['metadata'], dict):
-        metadata.update(json_data['metadata'])
-    metadata.update({
-        'source_file': file_path,
-        'data_key': data_key,
-        'coords_key': coords_key,
-        'data_type': 'json'
-    })
+    if "metadata" in json_data and isinstance(json_data["metadata"], dict):
+        metadata.update(json_data["metadata"])
+    metadata.update(
+        {
+            "source_file": file_path,
+            "data_key": data_key,
+            "coords_key": coords_key,
+            "data_type": "json",
+        }
+    )
+
+    crs = metadata.get("crs", "EPSG:4326")
+    if str(crs).upper() == "EPSG:4326" and (
+        np.any((coordinates[:, 0] < -180) | (coordinates[:, 0] > 180))
+        or np.any((coordinates[:, 1] < -90) | (coordinates[:, 1] > 90))
+    ):
+        crs = "LOCAL"
 
     return SPMData(
         data=data_values,
         coordinates=coordinates,
-        metadata=metadata
+        covariates=covariates or None,
+        metadata=metadata,
+        crs=crs,
     )
 
 
-def save_spm(spm_result: SPMResult, file_path: str, format: str = 'json',
-            **kwargs) -> None:
+def save_spm(
+    spm_result: SPMResult, file_path: str, format: str = "json", **kwargs
+) -> None:
     """
     Save SPM results to file.
 
@@ -509,11 +540,11 @@ def save_spm(spm_result: SPMResult, file_path: str, format: str = 'json',
         format: Output format ('json', 'hdf5', 'csv')
         **kwargs: Format-specific saving parameters
     """
-    if format == 'json':
+    if format == "json":
         _save_spm_json(spm_result, file_path, **kwargs)
-    elif format == 'hdf5':
+    elif format == "hdf5":
         _save_spm_hdf5(spm_result, file_path, **kwargs)
-    elif format == 'csv':
+    elif format == "csv":
         _save_spm_csv(spm_result, file_path, **kwargs)
     else:
         raise ValueError(f"Unsupported save format: {format}")
@@ -523,33 +554,37 @@ def _save_spm_json(spm_result: SPMResult, file_path: str, **kwargs) -> None:
     """Save SPM results as JSON."""
     # Convert numpy arrays to lists for JSON serialization
     result_dict = {
-        'beta_coefficients': spm_result.beta_coefficients.tolist(),
-        'residuals': spm_result.residuals.tolist(),
-        'model_diagnostics': spm_result.model_diagnostics,
-        'processing_metadata': spm_result.processing_metadata,
-        'design_matrix_shape': spm_result.design_matrix.matrix.shape,
-        'data_shape': spm_result.spm_data.data.shape if hasattr(spm_result.spm_data.data, 'shape') else None,
-        'coordinates_shape': spm_result.spm_data.coordinates.shape,
-        'crs': spm_result.spm_data.crs,
-        'has_time': spm_result.spm_data.has_temporal,
-        'n_contrasts': len(spm_result.contrasts)
+        "beta_coefficients": spm_result.beta_coefficients.tolist(),
+        "residuals": spm_result.residuals.tolist(),
+        "model_diagnostics": spm_result.model_diagnostics,
+        "processing_metadata": spm_result.processing_metadata,
+        "design_matrix_shape": spm_result.design_matrix.matrix.shape,
+        "data_shape": (
+            spm_result.spm_data.data.shape
+            if hasattr(spm_result.spm_data.data, "shape")
+            else None
+        ),
+        "coordinates_shape": spm_result.spm_data.coordinates.shape,
+        "crs": spm_result.spm_data.crs,
+        "has_time": spm_result.spm_data.has_temporal,
+        "n_contrasts": len(spm_result.contrasts),
     }
 
     # Add contrast information
     if spm_result.contrasts:
-        result_dict['contrasts'] = []
+        result_dict["contrasts"] = []
         for i, contrast in enumerate(spm_result.contrasts):
             contrast_dict = {
-                'index': i,
-                'contrast_vector': contrast.contrast_vector.tolist(),
-                't_statistic_shape': contrast.t_statistic.shape,
-                'p_values_shape': contrast.p_values.shape,
-                'n_significant': contrast.n_significant,
-                'correction_method': contrast.correction_method
+                "index": i,
+                "contrast_vector": contrast.contrast_vector.tolist(),
+                "t_statistic_shape": contrast.t_statistic.shape,
+                "p_values_shape": contrast.p_values.shape,
+                "n_significant": contrast.n_significant,
+                "correction_method": contrast.correction_method,
             }
-            result_dict['contrasts'].append(contrast_dict)
+            result_dict["contrasts"].append(contrast_dict)
 
-    with open(file_path, 'w') as f:
+    with open(file_path, "w") as f:
         json.dump(result_dict, f, indent=2)
 
 
@@ -558,27 +593,27 @@ def _save_spm_hdf5(spm_result: SPMResult, file_path: str, **kwargs) -> None:
     if not HDF5_AVAILABLE:
         raise ImportError("h5py package required for HDF5 saving")
 
-    with h5py.File(file_path, 'w') as f:
+    with h5py.File(file_path, "w") as f:
         # Save main results
-        f.create_dataset('beta_coefficients', data=spm_result.beta_coefficients)
-        f.create_dataset('residuals', data=spm_result.residuals)
-        f.create_dataset('coordinates', data=spm_result.spm_data.coordinates)
+        f.create_dataset("beta_coefficients", data=spm_result.beta_coefficients)
+        f.create_dataset("residuals", data=spm_result.residuals)
+        f.create_dataset("coordinates", data=spm_result.spm_data.coordinates)
 
         # Save design matrix
-        f.create_dataset('design_matrix', data=spm_result.design_matrix.matrix)
+        f.create_dataset("design_matrix", data=spm_result.design_matrix.matrix)
 
         # Save contrasts
         if spm_result.contrasts:
-            contrast_group = f.create_group('contrasts')
+            contrast_group = f.create_group("contrasts")
             for i, contrast in enumerate(spm_result.contrasts):
-                c_group = contrast_group.create_group(f'contrast_{i}')
-                c_group.create_dataset('contrast_vector', data=contrast.contrast_vector)
-                c_group.create_dataset('t_statistic', data=contrast.t_statistic)
-                c_group.create_dataset('p_values', data=contrast.p_values)
-                c_group.attrs['correction_method'] = contrast.correction_method
+                c_group = contrast_group.create_group(f"contrast_{i}")
+                c_group.create_dataset("contrast_vector", data=contrast.contrast_vector)
+                c_group.create_dataset("t_statistic", data=contrast.t_statistic)
+                c_group.create_dataset("p_values", data=contrast.p_values)
+                c_group.attrs["correction_method"] = contrast.correction_method
 
         # Save metadata
-        metadata_group = f.create_group('metadata')
+        metadata_group = f.create_group("metadata")
         for key, value in spm_result.model_diagnostics.items():
             if isinstance(value, (int, float, str)):
                 metadata_group.attrs[key] = value
@@ -588,18 +623,18 @@ def _save_spm_csv(spm_result: SPMResult, file_path: str, **kwargs) -> None:
     """Save SPM results as CSV."""
     # Create DataFrame with coordinates and results
     df_data = {
-        'longitude': spm_result.spm_data.coordinates[:, 0],
-        'latitude': spm_result.spm_data.coordinates[:, 1],
-        'residuals': spm_result.residuals
+        "longitude": spm_result.spm_data.coordinates[:, 0],
+        "latitude": spm_result.spm_data.coordinates[:, 1],
+        "residuals": spm_result.residuals,
     }
 
     # Add beta coefficients if 1D
     if spm_result.beta_coefficients.ndim == 1:
         for i, beta in enumerate(spm_result.beta_coefficients):
-            df_data[f'beta_{i}'] = beta
+            df_data[f"beta_{i}"] = beta
     else:
         # For multi-dimensional beta, save first column
-        df_data['beta'] = spm_result.beta_coefficients[:, 0]
+        df_data["beta"] = spm_result.beta_coefficients[:, 0]
 
     df = pd.DataFrame(df_data)
     df.to_csv(file_path, index=False)

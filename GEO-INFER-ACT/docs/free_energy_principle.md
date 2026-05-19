@@ -128,11 +128,11 @@ VFE is calculated in GEO-INFER-ACT at the following locations:
 
 | Module | Function | Description |
 |--------|----------|-------------|
-| [`core/free_energy.py:67-93`](../src/geo_infer_act/core/free_energy.py) | `compute_categorical_free_energy()` | VFE for categorical models |
-| [`core/free_energy.py:95-129`](../src/geo_infer_act/core/free_energy.py) | `compute_gaussian_free_energy()` | VFE for Gaussian models |
-| [`core/active_inference.py:282-301`](../src/geo_infer_act/core/active_inference.py) | `compute_free_energy()` | Agent-level VFE computation |
-| [`core/spatial_agent.py:347-382`](../src/geo_infer_act/core/spatial_agent.py) | `_compute_spatial_free_energy()` | Spatial VFE across H3 cells |
-| [`utils/math.py:297-323`](../src/geo_infer_act/utils/math.py) | `compute_free_energy_categorical()` | Standalone utility function |
+| [`core/free_energy.py`](../src/geo_infer_act/core/free_energy.py) | `compute_categorical_free_energy()` | VFE for categorical models; returns `FreeEnergyBreakdown` when requested |
+| [`core/free_energy.py`](../src/geo_infer_act/core/free_energy.py) | `compute_gaussian_free_energy()` | VFE for Gaussian models |
+| [`core/active_inference.py`](../src/geo_infer_act/core/active_inference.py) | `compute_free_energy()` | Agent-level VFE computation |
+| [`core/spatial_agent.py`](../src/geo_infer_act/core/spatial_agent.py) | `_compute_spatial_free_energy()` | Spatial VFE across H3 cells |
+| [`utils/math.py`](../src/geo_infer_act/utils/math.py) | `compute_free_energy_categorical()` | Standalone utility function |
 
 ### Expected Free Energy (EFE)
 
@@ -140,11 +140,11 @@ EFE is calculated for policy selection at:
 
 | Module | Function | Description |
 |--------|----------|-------------|
-| [`core/free_energy.py:153-189`](../src/geo_infer_act/core/free_energy.py) | `compute_expected_free_energy()` | Core EFE with epistemic/pragmatic decomposition |
-| [`core/policy_selection.py:103-145`](../src/geo_infer_act/core/policy_selection.py) | `compute_expected_free_energy()` | Policy-level EFE for action selection |
-| [`core/active_inference.py:222-252`](../src/geo_infer_act/core/active_inference.py) | `compute_expected_free_energy()` | Agent EFE computation |
-| [`core/spatial_agent.py:398-431`](../src/geo_infer_act/core/spatial_agent.py) | `spatial_action()` | Spatial EFE across cells for spatial policy |
-| [`utils/math.py:327-353`](../src/geo_infer_act/utils/math.py) | `compute_expected_free_energy()` | Standalone utility function |
+| [`core/free_energy.py`](../src/geo_infer_act/core/free_energy.py) | `compute_expected_free_energy()` | Core EFE with epistemic/pragmatic/risk/ambiguity decomposition |
+| [`core/policy_selection.py`](../src/geo_infer_act/core/policy_selection.py) | `compute_expected_free_energy()` | Policy-level EFE for action selection; accepts policy-conditioned predictive beliefs |
+| [`core/active_inference.py`](../src/geo_infer_act/core/active_inference.py) | `compute_expected_free_energy()` | Agent EFE computation |
+| [`core/spatial_agent.py`](../src/geo_infer_act/core/spatial_agent.py) | `spatial_action()` | Spatial EFE across cells for spatial policy |
+| [`utils/math.py`](../src/geo_infer_act/utils/math.py) | `compute_expected_free_energy()` | Standalone utility function |
 
 ## Example Demonstrations
 
@@ -152,9 +152,9 @@ See VFE and EFE in practice:
 
 | Example | VFE Usage | EFE Usage |
 |---------|-----------|-----------|
-| [`spatial_inference_demo.py`](../examples/spatial_inference_demo.py) | Lines 248, 273, 288-290 | Via `agent.spatial_action()` |
-| [`modern_active_inference.py`](../examples/modern_active_inference.py) | Lines 234, 239, 360, 364 | Lines 46, 167 |
-| [`h3_active_inference.py`](../examples/h3_active_inference.py) | Lines 265, 290, 305-313 | Via policy selection |
+| [`spatial_inference_demo.py`](../examples/spatial_inference_demo.py) | Package runner records spatial free-energy metrics | Via `SpatialActiveInferenceAgent.spatial_action()` |
+| [`modern_active_inference.py`](../examples/modern_active_inference.py) | Package runner records analyzer free-energy traces | Via policy evaluation in `ActiveInferenceModel` |
+| [`h3_active_inference.py`](../examples/h3_active_inference.py) | H3 runner records aggregate and per-cell free energy | Via grid policy selection and EFE diagnostics |
 | [`simple_model.py`](../examples/simple_model.py) | Agent belief updates | Policy evaluation |
 | [`urban_planning.py`](../examples/urban_planning.py) | Planning optimization | Action selection |
 
@@ -169,4 +169,4 @@ Friston, K. (2010). The free-energy principle: a unified brain theory? *Nature R
 
 ---
 
-**Last Updated**: 2026-02-24
+**Last Updated**: 2026-05-18

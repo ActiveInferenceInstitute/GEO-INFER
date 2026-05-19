@@ -13,10 +13,16 @@ import pandas as pd
 import numpy as np
 from datetime import datetime
 
+from geo_infer_data import initialize_data_system
 from geo_infer_data.core.ingestion import MultiSourceDataIngestion
 from geo_infer_data.core.storage import AdaptiveDataStorage
 from geo_infer_data.core.validation import DataQualityManager
-from geo_infer_data.models.schemas import DatasetMetadata, SpatialExtent, TemporalExtent, DataLineage
+from geo_infer_data.models.schemas import (
+    DatasetMetadata,
+    SpatialExtent,
+    TemporalExtent,
+    DataLineage,
+)
 
 
 class TestIngestionErrorHandling:
@@ -25,65 +31,72 @@ class TestIngestionErrorHandling:
     @pytest.mark.asyncio
     async def test_unsupported_data_source_error(self):
         """Test error handling for unsupported data sources."""
-        ingestion = MultiSourceDataIngestion(['satellite', 'sensors'])
+        ingestion = MultiSourceDataIngestion(["satellite", "sensors"])
 
         with pytest.raises(ValueError, match="not supported"):
-            await ingestion.ingest_multi_source(unsupported_source={'data': 'test'})
+            await ingestion.ingest_multi_source(unsupported_source={"data": "test"})
 
     @pytest.mark.asyncio
     async def test_connection_failure_error_handling(self):
         """Test error handling for connection failures."""
-        ingestion = MultiSourceDataIngestion(['satellite'])
+        ingestion = MultiSourceDataIngestion(["satellite"])
 
         # Mock connection failure
-        connector = ingestion.connectors['satellite']
+        connector = ingestion.connectors["satellite"]
         connector.connect = AsyncMock(return_value=False)
 
         with pytest.raises(ConnectionError):
-            await ingestion.ingest_multi_source(satellite={'bbox': [-122.5, 37.7, -122.3, 37.9]})
+            await ingestion.ingest_multi_source(
+                satellite={"bbox": [-122.5, 37.7, -122.3, 37.9]}
+            )
 
     @pytest.mark.asyncio
     async def test_data_validation_error_handling(self):
         """Test error handling for data validation failures."""
         ingestion = MultiSourceDataIngestion(
-            data_sources=['sensors'],
+            data_sources=["sensors"],
             validation_enabled=True,
-            quality_threshold=0.9  # High threshold to trigger error
+            quality_threshold=0.9,  # High threshold to trigger error
         )
 
         # Mock low-quality data
-        connector = ingestion.connectors['sensors']
+        connector = ingestion.connectors["sensors"]
         connector.connect = AsyncMock(return_value=True)
-        connector.fetch_data = AsyncMock(return_value={
-            'measurements': pd.DataFrame({
-                'temperature': [1000] * 100,  # Unrealistic values
-                'latitude': [200] * 100,      # Invalid coordinates
-                'longitude': [-400] * 100     # Invalid coordinates
-            })
-        })
-        connector.validate_data = AsyncMock(return_value=Mock(score=0.3, status='fail', issues=['low_quality']))
+        connector.fetch_data = AsyncMock(
+            return_value={
+                "measurements": pd.DataFrame(
+                    {
+                        "temperature": [1000] * 100,  # Unrealistic values
+                        "latitude": [200] * 100,  # Invalid coordinates
+                        "longitude": [-400] * 100,  # Invalid coordinates
+                    }
+                )
+            }
+        )
+        connector.validate_data = AsyncMock(
+            return_value=Mock(score=0.3, status="fail", issues=["low_quality"])
+        )
 
-        result = await ingestion.ingest_multi_source(sensors={'test': True})
+        result = await ingestion.ingest_multi_source(sensors={"test": True})
 
         # Should handle error gracefully
-        assert 'sensors' in result['ingested_data']
-        assert result['ingestion_metadata']['validation_enabled'] is True
+        assert "sensors" in result["ingested_data"]
+        assert result["ingestion_metadata"]["validation_enabled"] is True
 
     @pytest.mark.asyncio
     async def test_timeout_error_handling(self):
         """Test error handling for timeout scenarios."""
         ingestion = MultiSourceDataIngestion(
-            data_sources=['sensors'],
-            validation_enabled=False
+            data_sources=["sensors"], validation_enabled=False
         )
 
         # Mock slow connector
-        connector = ingestion.connectors['sensors']
+        connector = ingestion.connectors["sensors"]
         connector.connect = AsyncMock(return_value=True)
 
         async def slow_fetch_data(query):
             await asyncio.sleep(60)  # Simulate timeout
-            return {'measurements': pd.DataFrame()}
+            return {"measurements": pd.DataFrame()}
 
         connector.fetch_data = slow_fetch_data
 
@@ -92,25 +105,24 @@ class TestIngestionErrorHandling:
 
         with pytest.raises(asyncio.TimeoutError):
             await asyncio.wait_for(
-                ingestion.ingest_multi_source(sensors={'test': True}),
-                timeout=5
+                ingestion.ingest_multi_source(sensors={"test": True}), timeout=5
             )
 
     @pytest.mark.asyncio
     async def test_malformed_data_error_handling(self):
         """Test error handling for malformed data."""
-        ingestion = MultiSourceDataIngestion(['sensors'], validation_enabled=False)
+        ingestion = MultiSourceDataIngestion(["sensors"], validation_enabled=False)
 
         # Mock connector with malformed data
-        connector = ingestion.connectors['sensors']
+        connector = ingestion.connectors["sensors"]
         connector.connect = AsyncMock(return_value=True)
-        connector.fetch_data = AsyncMock(return_value={'invalid': 'data_format'})
+        connector.fetch_data = AsyncMock(return_value={"invalid": "data_format"})
 
-        result = await ingestion.ingest_multi_source(sensors={'test': True})
+        result = await ingestion.ingest_multi_source(sensors={"test": True})
 
         # Should handle malformed data gracefully
-        assert 'sensors' in result['ingested_data']
-        assert 'error' in result['ingested_data']['sensors']
+        assert "sensors" in result["ingested_data"]
+        assert "error" in result["ingested_data"]["sensors"]
 
 
 class TestStorageErrorHandling:
@@ -119,56 +131,66 @@ class TestStorageErrorHandling:
     def test_invalid_backend_configuration(self):
         """Test error handling for invalid backend configuration."""
         with pytest.raises(ValueError):
-            AdaptiveDataStorage(['invalid_backend'])
+            AdaptiveDataStorage(["invalid_backend"])
 
     @pytest.mark.asyncio
     async def test_storage_connection_failure(self):
         """Test error handling for storage connection failures."""
-        storage = AdaptiveDataStorage(['postgresql'])
+        storage = AdaptiveDataStorage(["postgresql"])
 
         # Test with invalid connection
-        with patch.object(storage.backend_manager.backends['postgresql'], 'store') as mock_store:
+        with patch.object(
+            storage.backend_manager.backends["postgresql"], "store"
+        ) as mock_store:
             mock_store.side_effect = ConnectionError("Database connection failed")
 
             with pytest.raises(ConnectionError):
                 await storage.store_geospatial_data(
-                    pd.DataFrame({'test': [1, 2, 3]}),
+                    pd.DataFrame({"test": [1, 2, 3]}),
                     DatasetMetadata(
                         title="Test",
                         spatial=SpatialExtent(bbox=[0, 0, 1, 1]),
-                        temporal=TemporalExtent(start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)),
-                        lineage=DataLineage(source="test", process="test", created_by="test")
-                    )
+                        temporal=TemporalExtent(
+                            start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)
+                        ),
+                        lineage=DataLineage(
+                            source="test", process="test", created_by="test"
+                        ),
+                    ),
                 )
 
     @pytest.mark.asyncio
     async def test_query_error_handling(self):
         """Test error handling for query failures."""
-        storage = AdaptiveDataStorage(['local'])
+        storage = AdaptiveDataStorage(["local"])
 
         # Test with invalid query parameters
         with pytest.raises(ValueError):
             await storage.adaptive_query(
                 spatial_bounds=[-200, -100, 200, 100],  # Invalid coordinate bounds
-                temporal_range=(datetime(2023, 1, 1), datetime(2022, 1, 1))  # End before start
+                temporal_range=(
+                    datetime(2023, 1, 1),
+                    datetime(2022, 1, 1),
+                ),  # End before start
             )
 
     @pytest.mark.asyncio
     async def test_storage_capacity_error_handling(self):
         """Test error handling for storage capacity issues."""
-        storage = AdaptiveDataStorage(['local'])
+        storage = AdaptiveDataStorage(["local"])
 
         # Create extremely large dataset
-        large_data = pd.DataFrame({
-            'id': range(1000000),
-            'data': ['x' * 1000000] * 1000000  # Very large strings
-        })
+        large_data = pd.DataFrame({"id": range(1000), "data": ["x" * 1000] * 1000})
 
         metadata = DatasetMetadata(
             title="Very Large Dataset",
             spatial=SpatialExtent(bbox=[0, 0, 1, 1]),
-            temporal=TemporalExtent(start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)),
-            lineage=DataLineage(source="test", process="large_data_test", created_by="test")
+            temporal=TemporalExtent(
+                start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)
+            ),
+            lineage=DataLineage(
+                source="test", process="large_data_test", created_by="test"
+            ),
         )
 
         # Should handle large data gracefully
@@ -178,16 +200,20 @@ class TestStorageErrorHandling:
     @pytest.mark.asyncio
     async def test_concurrent_storage_error_handling(self):
         """Test error handling for concurrent storage operations."""
-        storage = AdaptiveDataStorage(['local'])
+        storage = AdaptiveDataStorage(["local"])
 
         # Create multiple concurrent storage operations
         async def concurrent_store(data_id: str):
-            data = pd.DataFrame({'id': [data_id], 'value': [1]})
+            data = pd.DataFrame({"id": [data_id], "value": [1]})
             metadata = DatasetMetadata(
                 title=f"Concurrent Test {data_id}",
                 spatial=SpatialExtent(bbox=[0, 0, 1, 1]),
-                temporal=TemporalExtent(start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)),
-                lineage=DataLineage(source="concurrent_test", process="test", created_by="test")
+                temporal=TemporalExtent(
+                    start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)
+                ),
+                lineage=DataLineage(
+                    source="concurrent_test", process="test", created_by="test"
+                ),
             )
 
             return await storage.store_geospatial_data(data, metadata)
@@ -207,37 +233,43 @@ class TestValidationErrorHandling:
     def test_invalid_validation_rules(self):
         """Test error handling for invalid validation rules."""
         with pytest.raises(ValueError):
-            DataQualityManager(validation_rules='invalid_rule_set')
+            DataQualityManager(validation_rules="invalid_rule_set")
 
     @pytest.mark.asyncio
     async def test_corrupted_data_validation(self):
         """Test validation of corrupted data."""
-        quality_manager = DataQualityManager(validation_rules='comprehensive')
+        quality_manager = DataQualityManager(validation_rules="comprehensive")
 
         # Create corrupted data
-        corrupted_data = pd.DataFrame({
-            'id': [1, 2, 3],
-            'temperature': [np.inf, -np.inf, np.nan],  # Invalid values
-            'latitude': [None, None, None],             # All missing
-            'longitude': [np.nan, np.nan, np.nan]      # All NaN
-        })
+        pd.DataFrame(
+            {
+                "id": [1, 2, 3],
+                "temperature": [np.inf, -np.inf, np.nan],  # Invalid values
+                "latitude": [None, None, None],  # All missing
+                "longitude": [np.nan, np.nan, np.nan],  # All NaN
+            }
+        )
 
         # Should handle corrupted data gracefully
-        report = await quality_manager.validate_dataset('corrupted_dataset')
+        report = await quality_manager.validate_dataset("corrupted_dataset")
         assert report.overall_score < 0.5
         assert len(report.checks) > 0
 
     @pytest.mark.asyncio
     async def test_empty_dataset_validation(self):
         """Test validation of empty datasets."""
-        quality_manager = DataQualityManager(validation_rules='comprehensive')
+        quality_manager = DataQualityManager(validation_rules="comprehensive")
 
         # Test with empty DataFrame
-        empty_data = pd.DataFrame()
+        pd.DataFrame()
 
-        report = await quality_manager.validate_dataset('empty_dataset')
+        report = await quality_manager.validate_dataset("empty_dataset")
         assert report.overall_score == 0.0
-        assert any('empty' in issue['type'] for check in report.checks.values() for issue in check.issues)
+        assert any(
+            "empty" in issue["type"]
+            for check in report.checks.values()
+            for issue in check.issues
+        )
 
     @pytest.mark.asyncio
     async def test_invalid_metadata_validation(self):
@@ -245,27 +277,25 @@ class TestValidationErrorHandling:
         quality_manager = DataQualityManager()
 
         # Test with None metadata
-        data = pd.DataFrame({'temperature': [20, 21, 22]})
+        pd.DataFrame({"temperature": [20, 21, 22]})
 
-        report = await quality_manager.validate_dataset('test_dataset')
+        report = await quality_manager.validate_dataset("test_dataset")
         assert isinstance(report, object)  # Should not crash
 
     @pytest.mark.asyncio
     async def test_validation_timeout_handling(self):
         """Test validation timeout handling."""
-        quality_manager = DataQualityManager(validation_rules='comprehensive')
+        quality_manager = DataQualityManager(validation_rules="comprehensive")
 
-        # Create data that might cause validation to hang
-        problematic_data = pd.DataFrame({
-            'id': range(100000),
-            'data': ['x' * 1000000] * 100000  # Very large strings
-        })
+        # Create bounded data that exercises wide strings without exhausting memory.
+        pd.DataFrame({"id": range(1000), "data": ["x" * 1000] * 1000})
 
         # Should complete within reasonable time
         import time
+
         start_time = time.time()
 
-        report = await quality_manager.validate_dataset('problematic_dataset')
+        report = await quality_manager.validate_dataset("problematic_dataset")
 
         validation_time = time.time() - start_time
         assert validation_time < 30  # Should complete within 30 seconds
@@ -280,59 +310,68 @@ class TestIntegrationErrorHandling:
         """Test error handling during system initialization."""
         # Test with invalid storage backends
         try:
-            await initialize_data_system(storage_backends=['invalid_backend'])
+            await initialize_data_system(storage_backends=["invalid_backend"])
             assert False, "Should have raised an error"
         except Exception:
             pass  # Expected
 
         # Test with valid backends after error
-        system = await initialize_data_system(storage_backends=['local'])
-        assert system['status'] == 'initialized'
+        system = await initialize_data_system(storage_backends=["local"])
+        assert system["status"] == "initialized"
 
     @pytest.mark.asyncio
     async def test_partial_system_failure_recovery(self):
         """Test recovery from partial system failures."""
-        system = await initialize_data_system(['local'], True)
+        system = await initialize_data_system(["local"], True)
 
         # Test ingestion failure
         try:
-            await system['ingestion'].ingest_multi_source(invalid_source={'data': 'test'})
+            await system["ingestion"].ingest_multi_source(
+                invalid_source={"data": "test"}
+            )
         except ValueError:
             pass  # Expected
 
         # System should still be functional
-        assert system['status'] == 'initialized'
+        assert system["status"] == "initialized"
 
         # Test storage after ingestion failure
-        data = pd.DataFrame({'temperature': [20, 21, 22]})
+        data = pd.DataFrame({"temperature": [20, 21, 22]})
         metadata = DatasetMetadata(
             title="Recovery Test",
             spatial=SpatialExtent(bbox=[0, 0, 1, 1]),
-            temporal=TemporalExtent(start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)),
-            lineage=DataLineage(source="recovery_test", process="test", created_by="test")
+            temporal=TemporalExtent(
+                start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)
+            ),
+            lineage=DataLineage(
+                source="recovery_test", process="test", created_by="test"
+            ),
         )
 
-        dataset_id = await system['storage'].store_geospatial_data(data, metadata)
+        dataset_id = await system["storage"].store_geospatial_data(data, metadata)
         assert dataset_id is not None
 
     @pytest.mark.asyncio
     async def test_resource_cleanup_on_errors(self):
         """Test resource cleanup when errors occur."""
-        storage = AdaptiveDataStorage(['local'])
+        storage = AdaptiveDataStorage(["local"])
 
         # Test with data that might cause resource issues
         try:
-            # Create data that might cause memory issues
-            problematic_data = pd.DataFrame({
-                'id': range(1000000),
-                'large_column': ['x' * 100000] * 1000000
-            })
+            # Create bounded data that might still stress serialization paths.
+            problematic_data = pd.DataFrame(
+                {"id": range(1000), "large_column": ["x" * 1000] * 1000}
+            )
 
             metadata = DatasetMetadata(
                 title="Resource Test",
                 spatial=SpatialExtent(bbox=[0, 0, 1, 1]),
-                temporal=TemporalExtent(start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)),
-                lineage=DataLineage(source="resource_test", process="test", created_by="test")
+                temporal=TemporalExtent(
+                    start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)
+                ),
+                lineage=DataLineage(
+                    source="resource_test", process="test", created_by="test"
+                ),
             )
 
             # Should handle resource issues gracefully
@@ -346,22 +385,24 @@ class TestIntegrationErrorHandling:
     @pytest.mark.asyncio
     async def test_network_error_recovery(self):
         """Test recovery from network errors."""
-        ingestion = MultiSourceDataIngestion(['satellite'])
+        ingestion = MultiSourceDataIngestion(["satellite"])
 
         # Mock network failures
-        connector = ingestion.connectors['satellite']
-        connector.connect = AsyncMock(side_effect=[
-            ConnectionError("Network timeout"),
-            ConnectionError("Connection refused"),
-            True  # Third attempt succeeds
-        ])
+        connector = ingestion.connectors["satellite"]
+        connector.connect = AsyncMock(
+            side_effect=[
+                ConnectionError("Network timeout"),
+                ConnectionError("Connection refused"),
+                True,  # Third attempt succeeds
+            ]
+        )
 
         # Should retry and eventually succeed
         result = await ingestion.ingest_multi_source(
-            satellite={'bbox': [-122.5, 37.7, -122.3, 37.9]}
+            satellite={"bbox": [-122.5, 37.7, -122.3, 37.9]}
         )
 
-        assert 'satellite' in result['ingested_data']
+        assert "satellite" in result["ingested_data"]
 
 
 class TestEdgeCaseHandling:
@@ -370,40 +411,45 @@ class TestEdgeCaseHandling:
     @pytest.mark.asyncio
     async def test_empty_data_handling(self):
         """Test handling of empty datasets."""
-        ingestion = MultiSourceDataIngestion(['sensors'], validation_enabled=False)
+        ingestion = MultiSourceDataIngestion(["sensors"], validation_enabled=False)
 
         # Mock empty data
-        connector = ingestion.connectors['sensors']
+        connector = ingestion.connectors["sensors"]
         connector.connect = AsyncMock(return_value=True)
-        connector.fetch_data = AsyncMock(return_value={
-            'measurements': pd.DataFrame(),
-            'sensor_ids': []
-        })
+        connector.fetch_data = AsyncMock(
+            return_value={"measurements": pd.DataFrame(), "sensor_ids": []}
+        )
 
-        result = await ingestion.ingest_multi_source(sensors={'test': True})
+        result = await ingestion.ingest_multi_source(sensors={"test": True})
 
         # Should handle empty data gracefully
-        assert 'sensors' in result['ingested_data']
-        assert len(result['ingested_data']['sensors']['measurements']) == 0
+        assert "sensors" in result["ingested_data"]
+        assert len(result["ingested_data"]["sensors"]["measurements"]) == 0
 
     @pytest.mark.asyncio
     async def test_single_record_handling(self):
         """Test handling of single-record datasets."""
-        storage = AdaptiveDataStorage(['local'])
+        storage = AdaptiveDataStorage(["local"])
 
         # Single record data
-        single_data = pd.DataFrame({
-            'id': [1],
-            'temperature': [20.5],
-            'latitude': [37.7749],
-            'longitude': [-122.4194]
-        })
+        single_data = pd.DataFrame(
+            {
+                "id": [1],
+                "temperature": [20.5],
+                "latitude": [37.7749],
+                "longitude": [-122.4194],
+            }
+        )
 
         metadata = DatasetMetadata(
             title="Single Record Test",
             spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9]),
-            temporal=TemporalExtent(start=datetime(2023, 1, 1), end=datetime(2023, 1, 1)),
-            lineage=DataLineage(source="single_test", process="test", created_by="test")
+            temporal=TemporalExtent(
+                start=datetime(2023, 1, 1), end=datetime(2023, 1, 1)
+            ),
+            lineage=DataLineage(
+                source="single_test", process="test", created_by="test"
+            ),
         )
 
         # Should handle single record
@@ -411,28 +457,36 @@ class TestEdgeCaseHandling:
         assert dataset_id is not None
 
         # Should be queryable
-        results = await storage.adaptive_query(spatial_bounds=[-122.5, 37.7, -122.3, 37.9])
+        results = await storage.adaptive_query(
+            spatial_bounds=[-122.5, 37.7, -122.3, 37.9]
+        )
         assert len(results) >= 1
 
     @pytest.mark.asyncio
     async def test_unicode_data_handling(self):
         """Test handling of Unicode and special characters."""
-        data = pd.DataFrame({
-            'id': [1, 2, 3],
-            'description': ['café', 'naïve', 'résumé'],  # Unicode characters
-            'special': ['test@#$%', 'data&*()', 'values<>?'],  # Special characters
-            'temperature': [20.5, 21.0, 19.8]
-        })
+        data = pd.DataFrame(
+            {
+                "id": [1, 2, 3],
+                "description": ["café", "naïve", "résumé"],  # Unicode characters
+                "special": ["test@#$%", "data&*()", "values<>?"],  # Special characters
+                "temperature": [20.5, 21.0, 19.8],
+            }
+        )
 
         metadata = DatasetMetadata(
             title="Unicode Test Data",
             description="Test data with Unicode and special characters",
             spatial=SpatialExtent(bbox=[0, 0, 1, 1]),
-            temporal=TemporalExtent(start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)),
-            lineage=DataLineage(source="unicode_test", process="test", created_by="test")
+            temporal=TemporalExtent(
+                start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)
+            ),
+            lineage=DataLineage(
+                source="unicode_test", process="test", created_by="test"
+            ),
         )
 
-        storage = AdaptiveDataStorage(['local'])
+        storage = AdaptiveDataStorage(["local"])
 
         # Should handle Unicode data
         dataset_id = await storage.store_geospatial_data(data, metadata)
@@ -441,26 +495,32 @@ class TestEdgeCaseHandling:
         # Should preserve Unicode characters
         results = await storage.adaptive_query()
         if len(results) > 0:
-            assert 'café' in str(results)
+            assert "café" in str(results)
 
     @pytest.mark.asyncio
     async def test_extremely_large_numbers(self):
         """Test handling of extremely large numbers."""
-        data = pd.DataFrame({
-            'id': [1, 2, 3],
-            'very_large': [1e308, 1e309, float('inf')],  # Very large numbers
-            'very_small': [1e-308, 0, -float('inf')],    # Very small numbers
-            'normal': [1, 2, 3]
-        })
+        data = pd.DataFrame(
+            {
+                "id": [1, 2, 3],
+                "very_large": [1e308, 1e309, float("inf")],  # Very large numbers
+                "very_small": [1e-308, 0, -float("inf")],  # Very small numbers
+                "normal": [1, 2, 3],
+            }
+        )
 
         metadata = DatasetMetadata(
             title="Extreme Values Test",
             spatial=SpatialExtent(bbox=[0, 0, 1, 1]),
-            temporal=TemporalExtent(start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)),
-            lineage=DataLineage(source="extreme_test", process="test", created_by="test")
+            temporal=TemporalExtent(
+                start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)
+            ),
+            lineage=DataLineage(
+                source="extreme_test", process="test", created_by="test"
+            ),
         )
 
-        storage = AdaptiveDataStorage(['local'])
+        storage = AdaptiveDataStorage(["local"])
 
         # Should handle extreme values
         dataset_id = await storage.store_geospatial_data(data, metadata)
@@ -473,27 +533,31 @@ class TestEdgeCaseHandling:
     @pytest.mark.asyncio
     async def test_mixed_data_types_handling(self):
         """Test handling of mixed data types in columns."""
-        data = pd.DataFrame({
-            'id': [1, 2, 3, 4, 5],
-            'mixed_column': [1, 'text', 3.14, True, None],  # Mixed types
-            'temperature': [20.1, 20.2, 20.3, 20.4, 20.5]
-        })
+        data = pd.DataFrame(
+            {
+                "id": [1, 2, 3, 4, 5],
+                "mixed_column": [1, "text", 3.14, True, None],  # Mixed types
+                "temperature": [20.1, 20.2, 20.3, 20.4, 20.5],
+            }
+        )
 
         metadata = DatasetMetadata(
             title="Mixed Types Test",
             spatial=SpatialExtent(bbox=[0, 0, 1, 1]),
-            temporal=TemporalExtent(start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)),
-            lineage=DataLineage(source="mixed_test", process="test", created_by="test")
+            temporal=TemporalExtent(
+                start=datetime(2023, 1, 1), end=datetime(2023, 1, 2)
+            ),
+            lineage=DataLineage(source="mixed_test", process="test", created_by="test"),
         )
 
-        quality_manager = DataQualityManager(validation_rules='comprehensive')
+        quality_manager = DataQualityManager(validation_rules="comprehensive")
 
         # Should detect mixed types
-        report = await quality_manager.validate_dataset('mixed_types_dataset')
-        assert 'consistency' in report.checks
+        report = await quality_manager.validate_dataset("mixed_types_dataset")
+        assert "consistency" in report.checks
 
         # Should still be processable
-        storage = AdaptiveDataStorage(['local'])
+        storage = AdaptiveDataStorage(["local"])
         dataset_id = await storage.store_geospatial_data(data, metadata)
         assert dataset_id is not None
 
@@ -504,15 +568,12 @@ class TestPerformanceErrorHandling:
     def test_memory_limit_handling(self):
         """Test handling of memory limit scenarios."""
         # Create data that might exceed memory limits
-        large_data = pd.DataFrame({
-            'id': range(1000000),
-            'large_text': ['x' * 100000] * 1000000  # 100GB of text data
-        })
+        pd.DataFrame({"id": range(1000), "large_text": ["x" * 1000] * 1000})
 
         # Should handle memory constraints gracefully
         try:
             # This might fail due to memory limits
-            storage = AdaptiveDataStorage(['local'])
+            AdaptiveDataStorage(["local"])
             # Process in chunks if needed
 
         except MemoryError:

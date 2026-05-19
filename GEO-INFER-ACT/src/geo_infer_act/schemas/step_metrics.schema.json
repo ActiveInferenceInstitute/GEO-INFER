@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://geo-infer.org/schemas/act/step_metrics.schema.json",
+  "title": "GEO-INFER-ACT Step Metrics Row",
+  "type": "object",
+  "required": ["timestep", "scenario", "free_energy"],
+  "properties": {
+    "timestep": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "scenario": {
+      "type": "string"
+    },
+    "action": {
+      "type": "string"
+    },
+    "free_energy": {
+      "type": "number"
+    },
+    "expected_free_energy": {
+      "type": ["number", "null"]
+    },
+    "belief_entropy": {
+      "type": "number"
+    },
+    "cell_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "edge_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "coherence": {
+      "type": "number"
+    },
+    "neighbor_correlation": {
+      "type": "number"
+    }
+  },
+  "additionalProperties": true
+}

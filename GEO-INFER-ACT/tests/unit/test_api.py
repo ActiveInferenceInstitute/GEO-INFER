@@ -4,6 +4,7 @@ from geo_infer_act.api.interface import ActiveInferenceInterface
 from geo_infer_act.api.client import Client
 from geo_infer_act.api.endpoints import create_endpoints
 
+
 class TestActiveInferenceInterface(unittest.TestCase):
     """Tests for ActiveInferenceInterface."""
 
@@ -19,7 +20,7 @@ class TestActiveInferenceInterface(unittest.TestCase):
         self.assertIn(model_id, self.interface.models)
         model = self.interface.models[model_id]
         self.assertEqual(model.generative_model.model_type, "categorical")
-        self.assertEqual(model.generative_model.parameters['state_dim'], 3)
+        self.assertEqual(model.generative_model.parameters["state_dim"], 3)
 
     def test_update_beliefs_categorical(self):
         """Test updating beliefs for categorical model."""
@@ -28,8 +29,8 @@ class TestActiveInferenceInterface(unittest.TestCase):
         self.interface.create_model(model_id, "categorical", params)
         observations = {"observations": np.array([1, 0])}
         updated = self.interface.update_beliefs(model_id, observations)
-        self.assertIn('states', updated)
-        self.assertTrue(np.allclose(np.sum(updated['states']), 1.0))
+        self.assertIn("states", updated)
+        self.assertTrue(np.allclose(np.sum(updated["states"]), 1.0))
 
     def test_select_policy(self):
         """Test policy selection."""
@@ -37,10 +38,10 @@ class TestActiveInferenceInterface(unittest.TestCase):
         params = {"state_dim": 3, "obs_dim": 2}
         self.interface.create_model(model_id, "categorical", params)
         result = self.interface.select_policy(model_id)
-        self.assertIn('policy', result)
-        self.assertIn('probability', result)
-        self.assertIn('expected_free_energy', result['policy'])
-        self.assertTrue(np.allclose(np.sum(result['all_probabilities']), 1.0))
+        self.assertIn("policy", result)
+        self.assertIn("probability", result)
+        self.assertIn("expected_free_energy", result["policy"])
+        self.assertTrue(np.allclose(np.sum(result["all_probabilities"]), 1.0))
 
     def test_set_preferences(self):
         """Test setting preferences."""
@@ -50,7 +51,7 @@ class TestActiveInferenceInterface(unittest.TestCase):
         prefs = {"observations": np.array([0.1, 0.9])}
         self.interface.set_preferences(model_id, prefs)
         model = self.interface.models[model_id]
-        self.assertTrue(np.allclose(model.preferences['observations'], [0.1, 0.9]))
+        self.assertTrue(np.allclose(model.preferences["observations"], [0.1, 0.9]))
 
     def test_get_free_energy(self):
         """Test getting free energy."""
@@ -61,17 +62,17 @@ class TestActiveInferenceInterface(unittest.TestCase):
         self.assertIsInstance(fe, float)
 
     def test_update_beliefs_gaussian(self):
-        model_id = 'test_gauss'
-        params = {'mean': np.zeros(2), 'cov': np.eye(2)}
-        self.interface.create_model(model_id, 'gaussian', params)
-        obs = {'observations': np.array([1,0])}
-        # Assuming gaussian update might not return full state dict in current interface
-        # We check the interface logic handling or just ensure it doesn't crash if it returns None
+        model_id = "test_gauss"
+        params = {"mean": np.zeros(2), "cov": np.eye(2)}
+        self.interface.create_model(model_id, "gaussian", params)
+        obs = {"observations": np.array([1, 0])}
         updated = self.interface.update_beliefs(model_id, obs)
-        if updated is not None:
-            self.assertIn('mean', updated)
+        self.assertIn("mean", updated)
+        self.assertIn("precision", updated)
+        self.assertTrue(np.all(np.isfinite(updated["mean"])))
 
     # Add tests for Gaussian and hierarchical
+
 
 class TestClient(unittest.TestCase):
     """Tests for API Client."""
@@ -86,6 +87,7 @@ class TestClient(unittest.TestCase):
         """Test client initializes."""
         self.assertEqual(self.client.base_url, "http://test")
 
+
 # Test endpoints function
 class TestEndpoints(unittest.TestCase):
     """Tests for API endpoints."""
@@ -97,5 +99,6 @@ class TestEndpoints(unittest.TestCase):
         self.assertIn("beliefs", endpoints)
         self.assertIn("policies", endpoints)
 
-if __name__ == '__main__':
-    unittest.main() 
+
+if __name__ == "__main__":
+    unittest.main()

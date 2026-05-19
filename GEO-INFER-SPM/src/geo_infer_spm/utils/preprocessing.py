@@ -9,16 +9,17 @@ Preprocessing steps ensure data quality and compatibility with SPM statistical m
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import List, Optional
 from scipy import stats
-from scipy.spatial.distance import pdist
 import warnings
 
 from ..models.data_models import SPMData
+from .validation import validate_spm_data
 
 
-def preprocess_data(data: SPMData, steps: Optional[List[str]] = None,
-                   **kwargs) -> SPMData:
+def preprocess_data(
+    data: SPMData, steps: Optional[List[str]] = None, **kwargs
+) -> SPMData:
     """
     Apply preprocessing pipeline to SPM data.
 
@@ -34,35 +35,46 @@ def preprocess_data(data: SPMData, steps: Optional[List[str]] = None,
         >>> processed = preprocess_data(data, steps=['normalize', 'remove_outliers'])
     """
     if steps is None:
-        steps = ['validate', 'handle_missing', 'normalize']
+        steps = ["validate", "handle_missing", "normalize"]
 
     processed_data = data
 
     for step in steps:
-        if step == 'validate':
+        if step == "validate":
             processed_data = validate_spm_data(processed_data)
-        elif step == 'handle_missing':
-            processed_data = handle_missing_data(processed_data, **kwargs.get('missing_params', {}))
-        elif step == 'normalize':
-            processed_data = normalize_data(processed_data, **kwargs.get('normalize_params', {}))
-        elif step == 'remove_outliers':
-            processed_data = remove_outliers(processed_data, **kwargs.get('outlier_params', {}))
-        elif step == 'spatial_filter':
-            processed_data = spatial_filter(processed_data, **kwargs.get('spatial_params', {}))
-        elif step == 'temporal_filter':
-            processed_data = temporal_filter(processed_data, **kwargs.get('temporal_params', {}))
+        elif step == "handle_missing":
+            processed_data = handle_missing_data(
+                processed_data, **kwargs.get("missing_params", {})
+            )
+        elif step == "normalize":
+            processed_data = normalize_data(
+                processed_data, **kwargs.get("normalize_params", {})
+            )
+        elif step == "remove_outliers":
+            processed_data = remove_outliers(
+                processed_data, **kwargs.get("outlier_params", {})
+            )
+        elif step == "spatial_filter":
+            processed_data = spatial_filter(
+                processed_data, **kwargs.get("spatial_params", {})
+            )
+        elif step == "temporal_filter":
+            processed_data = temporal_filter(
+                processed_data, **kwargs.get("temporal_params", {})
+            )
         else:
             warnings.warn(f"Unknown preprocessing step: {step}")
 
     # Update metadata
-    processed_data.metadata['preprocessing_steps'] = steps
-    processed_data.metadata['preprocessing_params'] = kwargs
+    processed_data.metadata["preprocessing_steps"] = steps
+    processed_data.metadata["preprocessing_params"] = kwargs
 
     return processed_data
 
 
-def handle_missing_data(data: SPMData, method: str = 'interpolate',
-                       max_missing_fraction: float = 0.1) -> SPMData:
+def handle_missing_data(
+    data: SPMData, method: str = "interpolate", max_missing_fraction: float = 0.1
+) -> SPMData:
     """
     Handle missing data in SPM dataset.
 
@@ -86,16 +98,20 @@ def handle_missing_data(data: SPMData, method: str = 'interpolate',
 
     # Check if too much data is missing
     if np.any(missing_fraction > max_missing_fraction):
-        raise ValueError(f"Too much missing data: {missing_fraction.max():.2%} > {max_missing_fraction:.2%}")
+        raise ValueError(
+            f"Too much missing data: {missing_fraction.max():.2%} > {max_missing_fraction:.2%}"
+        )
 
-    if method == 'drop':
+    if method == "drop":
         # Remove points with missing data
         if data.data.ndim == 1:
             valid_mask = ~missing_mask
         else:
             valid_mask = ~np.any(missing_mask, axis=tuple(range(1, data.data.ndim)))
 
-        new_data = data.data[valid_mask] if data.data.ndim == 1 else data.data[valid_mask]
+        new_data = (
+            data.data[valid_mask] if data.data.ndim == 1 else data.data[valid_mask]
+        )
         new_coordinates = data.coordinates[valid_mask]
 
         if data.time is not None:
@@ -103,21 +119,25 @@ def handle_missing_data(data: SPMData, method: str = 'interpolate',
         else:
             new_time = None
 
-    elif method == 'interpolate':
+    elif method == "interpolate":
         # Spatial interpolation of missing values
-        new_data = _spatial_interpolate_missing(data.data, data.coordinates, missing_mask)
+        new_data = _spatial_interpolate_missing(
+            data.data, data.coordinates, missing_mask
+        )
 
         new_coordinates = data.coordinates
         new_time = data.time
 
-    elif method == 'mean':
+    elif method == "mean":
         # Replace with mean value
         if data.data.ndim == 1:
             mean_val = np.nanmean(data.data)
             new_data = np.where(missing_mask, mean_val, data.data)
         else:
             # Mean along spatial dimensions for each variable
-            mean_vals = np.nanmean(data.data, axis=tuple(range(1, data.data.ndim)), keepdims=True)
+            mean_vals = np.nanmean(
+                data.data, axis=tuple(range(1, data.data.ndim)), keepdims=True
+            )
             new_data = np.where(missing_mask, mean_vals, data.data)
 
         new_coordinates = data.coordinates
@@ -128,10 +148,10 @@ def handle_missing_data(data: SPMData, method: str = 'interpolate',
 
     # Create new SPMData object
     new_metadata = data.metadata.copy()
-    new_metadata['missing_data_handled'] = {
-        'method': method,
-        'original_missing_fraction': float(missing_fraction),
-        'max_missing_fraction': max_missing_fraction
+    new_metadata["missing_data_handled"] = {
+        "method": method,
+        "original_missing_fraction": float(missing_fraction),
+        "max_missing_fraction": max_missing_fraction,
     }
 
     return SPMData(
@@ -140,12 +160,13 @@ def handle_missing_data(data: SPMData, method: str = 'interpolate',
         time=new_time,
         covariates=data.covariates,
         metadata=new_metadata,
-        crs=data.crs
+        crs=data.crs,
     )
 
 
-def _spatial_interpolate_missing(data: np.ndarray, coordinates: np.ndarray,
-                               missing_mask: np.ndarray) -> np.ndarray:
+def _spatial_interpolate_missing(
+    data: np.ndarray, coordinates: np.ndarray, missing_mask: np.ndarray
+) -> np.ndarray:
     """Interpolate missing values using spatial neighbors."""
     if data.ndim == 1:
         # 1D interpolation using inverse distance weighting
@@ -157,7 +178,8 @@ def _spatial_interpolate_missing(data: np.ndarray, coordinates: np.ndarray,
             distances = np.linalg.norm(coordinates - point, axis=1)
 
             # Use nearest 5 points for interpolation
-            nearest_indices = np.argsort(distances)[1:6]  # Exclude self
+            valid_indices = np.where(~missing_mask)[0]
+            nearest_indices = valid_indices[np.argsort(distances[valid_indices])[:5]]
             weights = 1 / (distances[nearest_indices] + 1e-10)  # Avoid division by zero
             weights /= np.sum(weights)
 
@@ -172,13 +194,16 @@ def _spatial_interpolate_missing(data: np.ndarray, coordinates: np.ndarray,
             col_data = data[:, col]
             col_missing = missing_mask[:, col]
             if np.any(col_missing):
-                filled_col = _spatial_interpolate_missing(col_data, coordinates, col_missing)
+                filled_col = _spatial_interpolate_missing(
+                    col_data, coordinates, col_missing
+                )
                 filled_data[:, col] = filled_col
         return filled_data
 
 
-def normalize_data(data: SPMData, method: str = 'zscore',
-                  axis: Optional[int] = None) -> SPMData:
+def normalize_data(
+    data: SPMData, method: str = "zscore", axis: Optional[int] = None
+) -> SPMData:
     """
     Normalize data values for SPM analysis.
 
@@ -192,14 +217,14 @@ def normalize_data(data: SPMData, method: str = 'zscore',
     """
     normalized_data = data.data.copy()
 
-    if method == 'zscore':
+    if method == "zscore":
         # Z-score normalization: (x - mean) / std
         mean_val = np.mean(normalized_data, axis=axis, keepdims=True)
         std_val = np.std(normalized_data, axis=axis, keepdims=True)
         std_val = np.where(std_val == 0, 1, std_val)  # Avoid division by zero
         normalized_data = (normalized_data - mean_val) / std_val
 
-    elif method == 'minmax':
+    elif method == "minmax":
         # Min-max normalization: (x - min) / (max - min)
         min_val = np.min(normalized_data, axis=axis, keepdims=True)
         max_val = np.max(normalized_data, axis=axis, keepdims=True)
@@ -207,7 +232,7 @@ def normalize_data(data: SPMData, method: str = 'zscore',
         denominator = np.where(denominator == 0, 1, denominator)
         normalized_data = (normalized_data - min_val) / denominator
 
-    elif method == 'robust':
+    elif method == "robust":
         # Robust normalization using median and MAD
         if axis is None:
             median_val = np.median(normalized_data)
@@ -225,11 +250,11 @@ def normalize_data(data: SPMData, method: str = 'zscore',
 
     # Update metadata
     new_metadata = data.metadata.copy()
-    new_metadata['normalization'] = {
-        'method': method,
-        'axis': axis,
-        'original_mean': float(np.mean(data.data)),
-        'original_std': float(np.std(data.data))
+    new_metadata["normalization"] = {
+        "method": method,
+        "axis": axis,
+        "original_mean": float(np.mean(data.data)),
+        "original_std": float(np.std(data.data)),
     }
 
     return SPMData(
@@ -238,12 +263,13 @@ def normalize_data(data: SPMData, method: str = 'zscore',
         time=data.time,
         covariates=data.covariates,
         metadata=new_metadata,
-        crs=data.crs
+        crs=data.crs,
     )
 
 
-def remove_outliers(data: SPMData, method: str = 'iqr',
-                   threshold: float = 1.5) -> SPMData:
+def remove_outliers(
+    data: SPMData, method: str = "iqr", threshold: float = 1.5
+) -> SPMData:
     """
     Remove outlier data points.
 
@@ -289,11 +315,11 @@ def remove_outliers(data: SPMData, method: str = 'iqr',
 
     # Update metadata
     new_metadata = data.metadata.copy()
-    new_metadata['outlier_removal'] = {
-        'method': method,
-        'threshold': threshold,
-        'n_outliers_removed': int(np.sum(outlier_mask)),
-        'n_points_remaining': int(np.sum(keep_mask))
+    new_metadata["outlier_removal"] = {
+        "method": method,
+        "threshold": threshold,
+        "n_outliers_removed": int(np.sum(outlier_mask)),
+        "n_points_remaining": int(np.sum(keep_mask)),
     }
 
     return SPMData(
@@ -302,13 +328,13 @@ def remove_outliers(data: SPMData, method: str = 'iqr',
         time=new_time,
         covariates=new_covariates,
         metadata=new_metadata,
-        crs=data.crs
+        crs=data.crs,
     )
 
 
 def _detect_outliers_1d(data: np.ndarray, method: str, threshold: float) -> np.ndarray:
     """Detect outliers in 1D data."""
-    if method == 'iqr':
+    if method == "iqr":
         # Interquartile range method
         q1, q3 = np.percentile(data, [25, 75])
         iqr = q3 - q1
@@ -316,20 +342,23 @@ def _detect_outliers_1d(data: np.ndarray, method: str, threshold: float) -> np.n
         upper_bound = q3 + threshold * iqr
         outliers = (data < lower_bound) | (data > upper_bound)
 
-    elif method == 'zscore':
+    elif method == "zscore":
         # Z-score method
         z_scores = np.abs(stats.zscore(data))
         outliers = z_scores > threshold
 
-    elif method == 'isolation_forest':
+    elif method == "isolation_forest":
         # Isolation Forest method
         try:
             from sklearn.ensemble import IsolationForest
+
             iso_forest = IsolationForest(contamination=0.1, random_state=42)
             outliers = iso_forest.fit_predict(data.reshape(-1, 1)) == -1
         except ImportError:
-            warnings.warn("scikit-learn required for isolation forest. Using IQR method.")
-            outliers = _detect_outliers_1d(data, 'iqr', threshold)
+            warnings.warn(
+                "scikit-learn required for isolation forest. Using IQR method."
+            )
+            outliers = _detect_outliers_1d(data, "iqr", threshold)
 
     else:
         raise ValueError(f"Unknown outlier detection method: {method}")
@@ -337,8 +366,9 @@ def _detect_outliers_1d(data: np.ndarray, method: str, threshold: float) -> np.n
     return outliers
 
 
-def spatial_filter(data: SPMData, method: str = 'gaussian',
-                  sigma: float = 1.0) -> SPMData:
+def spatial_filter(
+    data: SPMData, method: str = "gaussian", sigma: float = 1.0
+) -> SPMData:
     """
     Apply spatial filtering to smooth data.
 
@@ -350,7 +380,6 @@ def spatial_filter(data: SPMData, method: str = 'gaussian',
     Returns:
         Spatially filtered SPMData
     """
-    from scipy import ndimage
 
     # Convert point data to grid for filtering
     if data.data.ndim == 1:
@@ -367,16 +396,16 @@ def spatial_filter(data: SPMData, method: str = 'gaussian',
             nearby_values = data.data[nearby_mask]
 
             if len(nearby_values) > 1:
-                if method == 'gaussian':
+                if method == "gaussian":
                     # Gaussian weighted average
-                    weights = np.exp(-distances[nearby_mask]**2 / (2 * sigma**2))
+                    weights = np.exp(-distances[nearby_mask] ** 2 / (2 * sigma**2))
                     weights /= np.sum(weights)
                     filtered_data[i] = np.sum(nearby_values * weights)
 
-                elif method == 'median':
+                elif method == "median":
                     filtered_data[i] = np.median(nearby_values)
 
-                elif method == 'mean':
+                elif method == "mean":
                     filtered_data[i] = np.mean(nearby_values)
     else:
         # For gridded data, apply 2D filtering
@@ -388,10 +417,7 @@ def spatial_filter(data: SPMData, method: str = 'gaussian',
 
     # Update metadata
     new_metadata = data.metadata.copy()
-    new_metadata['spatial_filter'] = {
-        'method': method,
-        'sigma': sigma
-    }
+    new_metadata["spatial_filter"] = {"method": method, "sigma": sigma}
 
     return SPMData(
         data=filtered_data,
@@ -399,12 +425,13 @@ def spatial_filter(data: SPMData, method: str = 'gaussian',
         time=data.time,
         covariates=data.covariates,
         metadata=new_metadata,
-        crs=data.crs
+        crs=data.crs,
     )
 
 
-def temporal_filter(data: SPMData, method: str = 'moving_average',
-                   window_size: int = 5) -> SPMData:
+def temporal_filter(
+    data: SPMData, method: str = "moving_average", window_size: int = 5
+) -> SPMData:
     """
     Apply temporal filtering to time series data.
 
@@ -423,19 +450,22 @@ def temporal_filter(data: SPMData, method: str = 'moving_average',
 
     if data.data.ndim == 1:
         # 1D time series filtering
-        if method == 'moving_average':
+        if method == "moving_average":
             filtered_data = _moving_average_filter(data.data, window_size)
 
-        elif method == 'exponential':
+        elif method == "exponential":
             alpha = 2.0 / (window_size + 1)  # Exponential smoothing parameter
             filtered_data = _exponential_filter(data.data, alpha)
 
-        elif method == 'savitzky_golay':
+        elif method == "savitzky_golay":
             try:
                 from scipy.signal import savgol_filter
+
                 filtered_data = savgol_filter(data.data, window_size, 2)
             except ImportError:
-                warnings.warn("SciPy required for Savitzky-Golay filter. Using moving average.")
+                warnings.warn(
+                    "SciPy required for Savitzky-Golay filter. Using moving average."
+                )
                 filtered_data = _moving_average_filter(data.data, window_size)
 
     else:
@@ -443,9 +473,9 @@ def temporal_filter(data: SPMData, method: str = 'moving_average',
         for spatial_idx in range(data.data.shape[1]):
             time_series = data.data[:, spatial_idx]
 
-            if method == 'moving_average':
+            if method == "moving_average":
                 filtered_series = _moving_average_filter(time_series, window_size)
-            elif method == 'exponential':
+            elif method == "exponential":
                 alpha = 2.0 / (window_size + 1)
                 filtered_series = _exponential_filter(time_series, alpha)
             else:
@@ -455,10 +485,7 @@ def temporal_filter(data: SPMData, method: str = 'moving_average',
 
     # Update metadata
     new_metadata = data.metadata.copy()
-    new_metadata['temporal_filter'] = {
-        'method': method,
-        'window_size': window_size
-    }
+    new_metadata["temporal_filter"] = {"method": method, "window_size": window_size}
 
     return SPMData(
         data=filtered_data,
@@ -466,13 +493,14 @@ def temporal_filter(data: SPMData, method: str = 'moving_average',
         time=data.time,
         covariates=data.covariates,
         metadata=new_metadata,
-        crs=data.crs
+        crs=data.crs,
     )
 
 
 def _moving_average_filter(data: np.ndarray, window_size: int) -> np.ndarray:
     """Apply moving average filter."""
     from scipy.ndimage import uniform_filter1d
+
     return uniform_filter1d(data.astype(float), window_size)
 
 
@@ -480,9 +508,5 @@ def _exponential_filter(data: np.ndarray, alpha: float) -> np.ndarray:
     """Apply exponential smoothing filter."""
     filtered = data.copy().astype(float)
     for i in range(1, len(data)):
-        filtered[i] = alpha * data[i] + (1 - alpha) * filtered[i-1]
+        filtered[i] = alpha * data[i] + (1 - alpha) * filtered[i - 1]
     return filtered
-
-
-# Import validation function for use in preprocess_data
-from .validation import validate_spm_data

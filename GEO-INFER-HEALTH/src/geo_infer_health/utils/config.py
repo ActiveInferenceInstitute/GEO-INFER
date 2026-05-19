@@ -6,6 +6,7 @@ Provides functions for loading, validating, and managing configuration files.
 
 import os
 import json
+import re
 from pathlib import Path
 from typing import Dict, Any, Optional, Union
 from functools import lru_cache
@@ -78,7 +79,7 @@ def load_yaml_config(file_path: Union[str, Path]) -> Dict[str, Any]:
         raise FileNotFoundError(f"Configuration file not found: {file_path}")
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             config = yaml.safe_load(f)
 
         if config is None:
@@ -116,7 +117,7 @@ def load_json_config(file_path: Union[str, Path]) -> Dict[str, Any]:
         raise FileNotFoundError(f"Configuration file not found: {file_path}")
 
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        with open(file_path, "r", encoding="utf-8") as f:
             config = json.load(f)
 
         logger.info(f"Loaded configuration from {file_path}")
@@ -143,6 +144,20 @@ def validate_config(config: Dict[str, Any]) -> HealthConfig:
     Raises:
         ValidationError: If the configuration is invalid
     """
+    module = config.get("module", {})
+    version = module.get("version")
+    if version is not None and not re.fullmatch(r"\d+\.\d+\.\d+", str(version)):
+        raise ValueError(
+            "module.version must use semantic version format MAJOR.MINOR.PATCH"
+        )
+
+    api = config.get("api", {})
+    port = api.get("port")
+    if port is not None and not (
+        isinstance(port, int) or (isinstance(port, str) and port.isdigit())
+    ):
+        raise ValueError("api.port must be an integer or integer string")
+
     try:
         validated_config = HealthConfig(**config)
         logger.info("Configuration validation successful")
@@ -152,7 +167,9 @@ def validate_config(config: Dict[str, Any]) -> HealthConfig:
         raise
 
 
-def merge_configs(base_config: Dict[str, Any], override_config: Dict[str, Any]) -> Dict[str, Any]:
+def merge_configs(
+    base_config: Dict[str, Any], override_config: Dict[str, Any]
+) -> Dict[str, Any]:
     """
     Merge two configuration dictionaries, with override_config taking precedence.
 
@@ -186,11 +203,13 @@ def resolve_environment_variables(config: Dict[str, Any]) -> Dict[str, Any]:
     Returns:
         Configuration dictionary with environment variables resolved
     """
+
     def resolve_value(value: Any) -> Any:
         if isinstance(value, str):
             import re
+
             # Pattern to match ${VAR_NAME} or ${VAR_NAME:default}
-            pattern = r'\$\{([^:}]+)(?::([^}]*))?\}'
+            pattern = r"\$\{([^:}]+)(?::([^}]*))?\}"
 
             def replace_var(match):
                 var_name = match.group(1)
@@ -202,7 +221,9 @@ def resolve_environment_variables(config: Dict[str, Any]) -> Dict[str, Any]:
                 elif default_value is not None:
                     return default_value
                 else:
-                    logger.warning(f"Environment variable {var_name} not found and no default provided")
+                    logger.warning(
+                        f"Environment variable {var_name} not found and no default provided"
+                    )
                     return match.group(0)  # Return original if not found
 
             return re.sub(pattern, replace_var, value)
@@ -247,7 +268,6 @@ def get_default_config_path() -> Path:
     return Path.cwd() / "config" / "health_config.yaml"
 
 
-@lru_cache(maxsize=1)
 def load_config(config_path: Optional[Union[str, Path]] = None) -> HealthConfig:
     """
     Load and validate configuration from file.
@@ -268,9 +288,9 @@ def load_config(config_path: Optional[Union[str, Path]] = None) -> HealthConfig:
     config_path = Path(config_path)
 
     # Load configuration based on file extension
-    if config_path.suffix.lower() in ['.yaml', '.yml']:
+    if config_path.suffix.lower() in [".yaml", ".yml"]:
         config_data = load_yaml_config(config_path)
-    elif config_path.suffix.lower() == '.json':
+    elif config_path.suffix.lower() == ".json":
         config_data = load_json_config(config_path)
     else:
         raise ValueError(f"Unsupported configuration file format: {config_path.suffix}")
@@ -284,7 +304,9 @@ def load_config(config_path: Optional[Union[str, Path]] = None) -> HealthConfig:
     return validated_config
 
 
-def save_config(config: Union[HealthConfig, Dict[str, Any]], file_path: Union[str, Path]) -> None:
+def save_config(
+    config: Union[HealthConfig, Dict[str, Any]], file_path: Union[str, Path]
+) -> None:
     """
     Save configuration to file.
 
@@ -304,11 +326,11 @@ def save_config(config: Union[HealthConfig, Dict[str, Any]], file_path: Union[st
     file_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Save based on file extension
-    if file_path.suffix.lower() in ['.yaml', '.yml']:
-        with open(file_path, 'w', encoding='utf-8') as f:
+    if file_path.suffix.lower() in [".yaml", ".yml"]:
+        with open(file_path, "w", encoding="utf-8") as f:
             yaml.safe_dump(config_data, f, default_flow_style=False, sort_keys=False)
-    elif file_path.suffix.lower() == '.json':
-        with open(file_path, 'w', encoding='utf-8') as f:
+    elif file_path.suffix.lower() == ".json":
+        with open(file_path, "w", encoding="utf-8") as f:
             json.dump(config_data, f, indent=2, ensure_ascii=False)
     else:
         raise ValueError(f"Unsupported configuration file format: {file_path.suffix}")
@@ -328,7 +350,7 @@ def get_config_value(config: HealthConfig, key_path: str, default: Any = None) -
     Returns:
         Configuration value or default
     """
-    keys = key_path.split('.')
+    keys = key_path.split(".")
     value = config.model_dump()
 
     try:
@@ -352,32 +374,19 @@ def create_default_config(output_path: Union[str, Path]) -> None:
             "version": "1.0.0",
             "description": "Geospatial Applications for Public Health, Epidemiology, and Healthcare Accessibility",
             "author": "GEO-INFER Framework Team",
-            "contact": "health@geo-infer.org"
+            "contact": "health@geo-infer.org",
         },
-        "api": {
-            "host": "127.0.0.1",
-            "port": 8000,
-            "workers": 1,
-            "reload": False
-        },
-        "database": {
-            "type": "memory"
-        },
-        "logging": {
-            "level": "INFO"
-        },
+        "api": {"host": "127.0.0.1", "port": 8000, "workers": 1, "reload": False},
+        "database": {"type": "memory"},
+        "logging": {"level": "INFO"},
         "analysis": {
             "disease_surveillance": {
                 "default_scan_radius_km": 1.0,
-                "hotspot_threshold_cases": 5
+                "hotspot_threshold_cases": 5,
             },
-            "healthcare_accessibility": {
-                "default_method": "distance"
-            }
+            "healthcare_accessibility": {"default_method": "distance"},
         },
-        "development": {
-            "debug_mode": False
-        }
+        "development": {"debug_mode": False},
     }
 
     save_config(default_config, output_path)
