@@ -8,6 +8,7 @@ These documents describe the canonical Active Inference implementation in
 - [Active Inference Overview](./active_inference_overview.md): concepts and code map.
 - [Free Energy Principle](./free_energy_principle.md): VFE/EFE equations and implementation locations.
 - [Mathematical Framework](./mathematical_framework.md): deeper mathematical notes.
+- [Method, Output, and Visualization Inventory](./method_inventory.md): public ACT method surface, runner outputs, and visualization artifact contract.
 - [Geospatial Applications](./geospatial_applications.md): runnable geospatial examples using current ACT classes.
 - [World Systems Modeling](./world_systems_modeling.md): systems-level framing.
 - [References](./references.md): background citations.

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="1" failures="0" skipped="0" tests="1" time="0.231" timestamp="2026-03-17T08:11:51.229689-07:00" hostname="timelock.local"><testcase classname="" name="GEO-INFER-MARINE.tests.test_marine_ecosystems" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-MARINE/tests/test_marine_ecosystems.py'.
-Hint: make sure your test modules/packages have valid Python names.
-Traceback:
-GEO-INFER-MARINE/tests/test_marine_ecosystems.py:9: in &lt;module&gt;
-    from geo_infer_marine.core.marine_ecosystems import (
-E   ModuleNotFoundError: No module named 'geo_infer_marine'</error></testcase></testsuite></testsuites>
