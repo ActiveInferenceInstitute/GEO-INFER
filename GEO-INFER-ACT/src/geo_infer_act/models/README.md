@@ -12,6 +12,9 @@ Base models for active inference framework.
 
 **Classes**: `ActiveInferenceModel`, `CategoricalModel`, `GaussianModel`
 
+`CategoricalModel.compute_free_energy()` computes finite KL free energy against
+uniform preferences, including exact beliefs with zero-probability states.
+
 ### climate.py
 
 Climate Model for Active Inference.
@@ -75,3 +78,14 @@ This directory provides domain-specific Active Inference models used by:
 - Example demonstrations in `geo_infer_act.examples`
 - Domain modules (GEO-INFER-AG, GEO-INFER-FOREST, GEO-INFER-CLIMATE) for specialized applications
 - Multi-agent systems in `geo_infer_agent` for coordinated inference
+
+## Verification
+
+```bash
+uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests/unit/test_models.py -q
+uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
+  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
+```
+
+The comprehensive audit records domain-model evidence in
+`examples/output/comprehensive_act_audit/method_audit/domain_models/`.

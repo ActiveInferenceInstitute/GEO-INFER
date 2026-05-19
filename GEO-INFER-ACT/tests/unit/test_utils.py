@@ -29,6 +29,7 @@ from geo_infer_act.utils.visualization import (
     plot_hierarchical_beliefs,
     plot_markov_blanket,
 )
+from geo_infer_act.core.generative_model import MarkovBlanket
 
 # Add imports for integration if testable
 
@@ -214,9 +215,31 @@ class TestVisualizationUtils(unittest.TestCase):
         self.assertIsInstance(fig, plt.Figure)
         plt.close(fig)
 
+    def test_plot_hierarchical_beliefs_accepts_state_payloads(self):
+        """Hierarchical plots accept model-style belief dictionaries."""
+        beliefs = {
+            "level_0": {"states": np.array([0.25, 0.75])},
+            "level_1": {"states": np.array([0.2, 0.3, 0.5])},
+        }
+        fig = plot_hierarchical_beliefs(beliefs)
+        self.assertIsInstance(fig, plt.Figure)
+        plt.close(fig)
+
     def test_plot_markov_blanket(self):
         """Test Markov blanket visualization."""
         blanket = {"internal": [0, 1], "sensory": [2, 3]}
+        fig = plot_markov_blanket(blanket)
+        self.assertIsInstance(fig, plt.Figure)
+        plt.close(fig)
+
+    def test_plot_markov_blanket_accepts_core_dataclass(self):
+        """Markov blanket plots accept canonical core MarkovBlanket objects."""
+        blanket = MarkovBlanket(
+            internal_states=[0, 1],
+            active_states=[2],
+            sensory_states=[3],
+            external_states=[4, 5],
+        )
         fig = plot_markov_blanket(blanket)
         self.assertIsInstance(fig, plt.Figure)
         plt.close(fig)

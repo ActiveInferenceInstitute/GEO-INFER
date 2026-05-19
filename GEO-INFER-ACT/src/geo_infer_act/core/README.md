@@ -73,7 +73,9 @@ H3 and spatial active inference over cell-indexed observations.
 
 Stable typed result objects for diagnostics and downstream callers.
 
-**Classes**: `FreeEnergyBreakdown`, `PolicyEvaluation`, `ActiveInferenceStepResult`
+**Classes**: `FreeEnergyBreakdown`, `PolicyEvaluation`,
+`ActiveInferenceStepResult`, `H3SpatialConsistency`, `H3BeliefUpdateResult`,
+`H3GridInferenceResult`
 
 ### variational_inference.py
 
@@ -113,7 +115,14 @@ action = model.act()
 
 ```bash
 uv run python GEO-INFER-TEST/validate_active_inference_contract.py
+uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
+  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
 ```
+
+The comprehensive audit writes core method payloads under
+`examples/output/comprehensive_act_audit/method_audit/active_inference_model/`,
+`generative_model/`, `free_energy_and_policy/`, `inference_math/`, and
+`spatial_agent/`.
 
 ## Integration
 

@@ -91,6 +91,8 @@ Run the ACT method/API contract check from the repository root:
 ```bash
 uv run python GEO-INFER-TEST/validate_active_inference_contract.py
 uv run python GEO-INFER-TEST/validate_act_geospatial_contract.py
+uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
+  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
 ```
 
 Run ACT tests:

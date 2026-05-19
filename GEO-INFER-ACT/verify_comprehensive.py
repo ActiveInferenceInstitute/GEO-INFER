@@ -64,6 +64,13 @@ def _assert_finite(value: float, label: str) -> None:
 
 
 def _assert_distribution(values: Any, label: str) -> None:
+    if isinstance(values, dict):
+        if "states" in values:
+            values = values["states"]
+        elif "mean" in values:
+            values = values["mean"]
+        else:
+            values = next(iter(values.values()))
     vector = np.asarray(values, dtype=float).reshape(-1)
     if vector.size == 0:
         raise AssertionError(f"{label} is empty")
@@ -689,16 +696,15 @@ def audit_visualization_methods(output_dir: Path) -> dict[str, Any]:
     plt.close(fig)
     artifacts.append(path)
 
-    visualizer = BeliefVisualizer()
+    visualizer = BeliefVisualizer(figures_dir)
     path = figures_dir / "belief_visualizer_evolution.png"
     visualizer.plot_belief_evolution(
         [np.array([0.4, 0.4, 0.2]), np.array([0.7, 0.2, 0.1])],
-        [np.array([1.0, 0.0, 0.0]), np.array([1.0, 0.0, 0.0])],
-        path,
+        output_path=path.name,
     )
     artifacts.append(path)
     path = figures_dir / "belief_visualizer_free_energy.png"
-    visualizer.plot_free_energy_trace([2.0, 1.7, 1.4, 1.3], path)
+    visualizer.plot_free_energy_trace([2.0, 1.7, 1.4, 1.3], path.name)
     artifacts.append(path)
 
     for artifact in artifacts:

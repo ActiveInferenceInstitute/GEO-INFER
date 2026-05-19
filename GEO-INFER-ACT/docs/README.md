@@ -18,10 +18,18 @@ These documents describe the canonical Active Inference implementation in
 From the repository root:
 
 ```bash
+uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
+  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
 uv run python GEO-INFER-TEST/validate_act_script_orchestration.py
 uv run python GEO-INFER-TEST/validate_active_inference_contract.py
 uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests -q
 ```
+
+`verify_comprehensive.py` audits every ACT markdown file, every ACT README, all
+local markdown links, and every Mermaid block. When `mmdc` is installed, the
+Mermaid blocks are rendered to SVG under
+`../examples/output/comprehensive_act_audit/method_audit/docs_and_mermaid/mermaid/`
+and each render result is recorded in `docs_mermaid_audit.json`.
 
 ## Runner Contracts
 
@@ -49,3 +57,6 @@ figure is also a traceable artifact: the manifest records artifact type, MIME
 type, digest, sidecar paths, plotted metrics, data sources, description, and alt
 text; the figure itself embeds ACT metadata; and adjacent sidecars store
 `*.metadata.json` plus the exact plotted data as CSV or JSON.
+
+The canonical logged audit output for documentation and diagram verification is
+`../examples/output/comprehensive_act_audit/`.
