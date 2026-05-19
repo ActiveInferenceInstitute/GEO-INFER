@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?><testsuites name="pytest tests"><testsuite name="pytest" errors="9" failures="0" skipped="0" tests="9" time="0.278" timestamp="2026-03-17T08:19:36.367860-07:00" hostname="timelock.local"><testcase classname="" name="tests.unit.test_api_clients" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/tests/unit/test_api_clients.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-PLACE/tests/unit/test_api_clients.py:12: in &lt;module&gt;
+    from geo_infer_place.core.api_clients import (
+E   ModuleNotFoundError: No module named 'geo_infer_place'</error></testcase><testcase classname="" name="tests.unit.test_caching" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/tests/unit/test_caching.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-PLACE/tests/unit/test_caching.py:16: in &lt;module&gt;
+    from geo_infer_place.utils.caching import CachedAPIWrapper
+E   ModuleNotFoundError: No module named 'geo_infer_place'</error></testcase><testcase classname="" name="tests.unit.test_data_sources" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/tests/unit/test_data_sources.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-PLACE/tests/unit/test_data_sources.py:11: in &lt;module&gt;
+    from geo_infer_place.utils.data_sources import CaliforniaDataSources
+E   ModuleNotFoundError: No module named 'geo_infer_place'</error></testcase><testcase classname="" name="tests.unit.test_h3_operations" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/tests/unit/test_h3_operations.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-PLACE/tests/unit/test_h3_operations.py:12: in &lt;module&gt;
+    from geo_infer_place.utils.h3_operations import (
+E   ModuleNotFoundError: No module named 'geo_infer_place'</error></testcase><testcase classname="" name="tests.unit.test_integration_wrappers" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/tests/unit/test_integration_wrappers.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-PLACE/tests/unit/test_integration_wrappers.py:6: in &lt;module&gt;
+    from geo_infer_place.utils.integration import (
+E   ModuleNotFoundError: No module named 'geo_infer_place'</error></testcase><testcase classname="" name="tests.unit.test_module_bridge" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/tests/unit/test_module_bridge.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-PLACE/tests/unit/test_module_bridge.py:11: in &lt;module&gt;
+    from geo_infer_place.core.module_bridge import (
+E   ModuleNotFoundError: No module named 'geo_infer_place'</error></testcase><testcase classname="" name="tests.unit.test_place_interface" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/tests/unit/test_place_interface.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-PLACE/tests/unit/test_place_interface.py:6: in &lt;module&gt;
+    from geo_infer_place.core.place_interface import PlaceInterface, LOCATION_PRESETS
+E   ModuleNotFoundError: No module named 'geo_infer_place'</error></testcase><testcase classname="" name="tests.unit.test_unified_backend" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/tests/unit/test_unified_backend.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-PLACE/tests/unit/test_unified_backend.py:4: in &lt;module&gt;
+    from geo_infer_place.core.unified_backend import CascadianAgriculturalH3Backend
+E   ModuleNotFoundError: No module named 'geo_infer_place'</error></testcase><testcase classname="" name="tests.unit.test_visualization_engine" time="0.000"><error message="collection failure">ImportError while importing test module '/Users/4d/Documents/GitHub/GEO-INFER/GEO-INFER-PLACE/tests/unit/test_visualization_engine.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+../../../miniforge3/lib/python3.12/importlib/__init__.py:90: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+GEO-INFER-PLACE/tests/unit/test_visualization_engine.py:14: in &lt;module&gt;
+    from geo_infer_place.core.visualization_engine import InteractiveVisualizationEngine
+E   ModuleNotFoundError: No module named 'geo_infer_place'</error></testcase></testsuite></testsuites>
