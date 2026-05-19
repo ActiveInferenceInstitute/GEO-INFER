@@ -1143,22 +1143,62 @@ def create_interpretability_dashboard(analyzer, output_dir: Path):
     
     logger.info(f"Interpretability dashboard saved to {output_dir}") 
 
+def _belief_payload_to_vector(belief_payload: Any) -> np.ndarray:
+    """Convert supported belief payload shapes into a flat numeric vector."""
+    if isinstance(belief_payload, dict):
+        for key in ("states", "mean", "beliefs"):
+            if key in belief_payload:
+                belief_payload = belief_payload[key]
+                break
+        else:
+            belief_payload = next(iter(belief_payload.values()))
+
+    array = np.asarray(belief_payload, dtype=object)
+    if array.dtype == object:
+        parts = []
+        for item in array.reshape(-1):
+            item_array = np.asarray(item, dtype=float).reshape(-1)
+            parts.append(item_array)
+        if parts:
+            return np.concatenate(parts)
+    return np.asarray(belief_payload, dtype=float).reshape(-1)
+
+
 def plot_hierarchical_beliefs(beliefs: Dict[str, np.ndarray]) -> plt.Figure:
     """Plot beliefs across hierarchical levels."""
     fig, axs = plt.subplots(len(beliefs), 1, figsize=(8, 4*len(beliefs)))
+    axs = np.atleast_1d(axs)
     for i, (level, bel) in enumerate(beliefs.items()):
-        axs[i].bar(range(len(bel)), bel)
+        vector = _belief_payload_to_vector(bel)
+        axs[i].bar(range(len(vector)), vector)
         axs[i].set_title(f'Level {level}')
     plt.tight_layout()
     return fig
 
-def plot_markov_blanket(blanket: Dict[str, List[int]]) -> plt.Figure:
+def plot_markov_blanket(blanket: Any) -> plt.Figure:
     """Plot Markov blanket structure.
     
     Args:
-        blanket: Dictionary of state indices organized by Markov blanket components
-                 (e.g., 'internal', 'active', 'sensory', 'external')
+        blanket: Dictionary of state indices organized by Markov blanket
+            components (e.g., 'internal', 'active', 'sensory', 'external') or a
+            canonical MarkovBlanket-style object with component attributes.
     """
+    required_attrs = (
+        "internal_states",
+        "active_states",
+        "sensory_states",
+        "external_states",
+    )
+    if not isinstance(blanket, dict) and all(
+        hasattr(blanket, attr) for attr in required_attrs
+    ):
+        blanket = {
+            "internal": list(blanket.internal_states),
+            "active": list(blanket.active_states),
+            "sensory": list(blanket.sensory_states),
+            "external": list(blanket.external_states),
+        }
+
     fig, ax = plt.subplots(figsize=(8, 8))
     try:
         import networkx as nx

@@ -16,3 +16,11 @@ uv run --package geo-infer-act --extra dev geo-infer-act-run \
   --config GEO-INFER-ACT/config/active_inference_run.yaml \
   --output-dir /tmp/geo-infer-act-run
 ```
+
+The comprehensive audit uses the same package and dependency surface while
+writing retained evidence to the ACT output folder:
+
+```bash
+uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
+  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
+```

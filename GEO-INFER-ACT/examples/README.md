@@ -57,6 +57,10 @@ uv run --package geo-infer-act --extra dev geo-infer-act-run \
   --seed 42 \
   --timesteps 8
 
+# Run the full ACT audit and persist logged outputs in the checked examples tree
+uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
+  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
+
 # Individual examples
 uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/examples/simple_model.py --output-dir /tmp/act-simple
 uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/examples/modern_active_inference.py --output-dir /tmp/act-modern
@@ -87,6 +91,11 @@ Each scenario writes:
 The schema files live under `src/geo_infer_act/schemas/`:
 `run_config.schema.json`, `run_manifest.schema.json`,
 `step_metrics.schema.json`, and `h3_diagnostics.schema.json`.
+
+The canonical comprehensive audit output is stored in
+[`output/comprehensive_act_audit/`](output/comprehensive_act_audit/). It contains
+per-method JSON audits, scenario manifests, scenario data, generated figures,
+figure sidecars, logs, and Mermaid render results for ACT markdown.
 
 For `h3` and `spatial`, the examples are smoke tests for the package
 geospatial contract: real H3 v4 cells, normalized beliefs, finite VFE/EFE

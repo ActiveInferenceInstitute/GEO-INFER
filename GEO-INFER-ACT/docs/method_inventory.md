@@ -259,8 +259,10 @@ package layout, not an aspirational API list.
 - `plot_action_analysis(...)`: plot action diagnostics.
 - `create_interpretability_dashboard(...)`: build a combined interpretability
   dashboard.
-- `plot_hierarchical_beliefs(...)`: visualize hierarchical beliefs.
-- `plot_markov_blanket(...)`: visualize Markov blanket structure.
+- `plot_hierarchical_beliefs(...)`: visualize hierarchical beliefs from raw
+  arrays or model-style belief payloads.
+- `plot_markov_blanket(...)`: visualize dictionary or canonical
+  `MarkovBlanket` structures.
 - `plot_h3_grid_static(...)`: static H3 grid visualization.
 - `create_h3_gif(...)`: animated H3 evolution artifact.
 - `create_interactive_h3_slider(...)`: interactive H3 visualization.
@@ -303,10 +305,17 @@ changes:
 uv run python GEO-INFER-TEST/validate_active_inference_contract.py
 uv run python GEO-INFER-TEST/validate_act_script_orchestration.py
 uv run python GEO-INFER-TEST/validate_act_geospatial_contract.py
+uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
+  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
 uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests -q
 ```
 
-For output and visualization confirmation:
+The comprehensive audit writes a retained evidence bundle to
+`GEO-INFER-ACT/examples/output/comprehensive_act_audit/`. It runs the method
+families listed in this inventory, the scenario suite, visualization helpers,
+README/local-link checks, and Mermaid render checks.
+
+For ad hoc output and visualization confirmation:
 
 ```bash
 uv run --package geo-infer-act --extra dev geo-infer-act-examples \

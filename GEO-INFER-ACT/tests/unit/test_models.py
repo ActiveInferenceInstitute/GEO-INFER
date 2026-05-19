@@ -59,6 +59,13 @@ class TestCategoricalModel(unittest.TestCase):
         initial = self.model.reset()
         self.assertTrue(np.allclose(initial, np.ones(3)/3))
 
+    def test_compute_free_energy_handles_zero_beliefs(self):
+        """Free energy remains finite for exact categorical beliefs."""
+        self.model.beliefs = np.array([1.0, 0.0, 0.0])
+        free_energy = self.model.compute_free_energy()
+        self.assertTrue(np.isfinite(free_energy))
+        self.assertAlmostEqual(free_energy, np.log(3), places=6)
+
 class TestGaussianModel(unittest.TestCase):
     """Tests for GaussianModel."""
 
@@ -270,4 +277,4 @@ class TestResourceModel(unittest.TestCase):
         self.assertTrue(True)
 
 if __name__ == '__main__':
-    unittest.main() 
+    unittest.main()

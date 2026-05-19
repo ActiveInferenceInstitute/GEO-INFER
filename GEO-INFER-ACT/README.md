@@ -4,7 +4,7 @@ description: "Active Inference implementation using Free Energy Principle for ge
 purpose: "Provide the core Active Inference framework for perception, action, and learning"
 module_type: "Core Framework"
 status: "Beta"
-last_updated: "2026-05-18"
+last_updated: "2026-05-19"
 dependencies: ["BAYES", "SPACE", "TIME"]
 compatibility: ["GEO-INFER-BAYES", "GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-AGENT"]
 tags: ["active-inference", "free-energy", "perception", "action", "learning"]
@@ -269,6 +269,27 @@ sidecar paths, source data files, plotted metrics, description, alt text, and
 image dimensions when available. The full contract is documented in
 [Geospatial Applications](docs/geospatial_applications.md).
 
+## Comprehensive Method Audit
+
+Use the comprehensive verifier when changing ACT methods, runners,
+visualizations, READMEs, or Mermaid diagrams:
+
+```bash
+uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
+  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
+```
+
+The logged output folder contains `logs/comprehensive_audit.log`,
+`comprehensive_audit_summary.json`, per-method JSON audits under
+`method_audit/`, rendered visualization PNGs under
+`method_audit/visualization_methods/figures/`, full scenario data and
+visualizations under `method_audit/scenario_outputs/scenario_suite/`, and
+Mermaid source/rendered SVG checks under
+`method_audit/docs_and_mermaid/mermaid/`. The verifier exercises the core model,
+generative model, free-energy/policy selection, math utilities, H3 spatial
+agent, domain models, API facade, visualization methods, runner outputs, local
+links, and every Mermaid block in ACT markdown.
+
 ## Installation
 
 ```bash
@@ -286,6 +307,8 @@ uv run python GEO-INFER-TEST/validate_act_script_orchestration.py
 uv run python GEO-INFER-TEST/validate_act_geospatial_contract.py
 uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py
 uv run python GEO-INFER-TEST/validate_active_inference_contract.py
+uv run --package geo-infer-act --extra dev python GEO-INFER-ACT/verify_comprehensive.py \
+  --output-dir GEO-INFER-ACT/examples/output/comprehensive_act_audit
 uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests -q
 ```
 
@@ -333,7 +356,7 @@ for step in range(100):
 
 **Status**: Beta - Core functionality stable
 
-**Last Updated**: 2026-02-25
+**Last Updated**: 2026-05-19
 
 ## Documentation Hub
 

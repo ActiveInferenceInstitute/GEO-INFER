@@ -190,8 +190,11 @@ class CategoricalModel(ActiveInferenceModel):
         """Compute categorical KL free energy relative to uniform preferences."""
         if self.beliefs is None:
             return np.inf
-        preferences = np.ones_like(self.beliefs) / len(self.beliefs)
-        return np.sum(self.beliefs * np.log(self.beliefs / preferences))
+        beliefs = np.asarray(self.beliefs, dtype=float).reshape(-1)
+        beliefs = np.clip(beliefs, 1e-12, None)
+        beliefs = beliefs / np.sum(beliefs)
+        preferences = np.ones_like(beliefs) / len(beliefs)
+        return float(np.sum(beliefs * (np.log(beliefs) - np.log(preferences))))
 
 
 class GaussianModel(ActiveInferenceModel):
