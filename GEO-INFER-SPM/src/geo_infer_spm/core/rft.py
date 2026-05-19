@@ -24,11 +24,10 @@ where Λ is the covariance matrix of the field gradients.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Optional, Tuple
 from scipy import ndimage
-from scipy.stats import norm, t
+from scipy.stats import f, norm, t
 from scipy.special import gamma
-import warnings
 
 from ..models.data_models import SPMResult, ContrastResult
 
@@ -47,8 +46,13 @@ class RandomFieldTheory:
         df: Degrees of freedom for t/F statistics
     """
 
-    def __init__(self, field_shape: Tuple[int, ...], smoothness: Optional[np.ndarray] = None,
-                 search_volume: Optional[float] = None, df: Optional[int] = None):
+    def __init__(
+        self,
+        field_shape: Tuple[int, ...],
+        smoothness: Optional[np.ndarray] = None,
+        search_volume: Optional[float] = None,
+        df: Optional[int] = None,
+    ):
         """
         Initialize RFT calculator.
 
@@ -66,9 +70,9 @@ class RandomFieldTheory:
 
         # RFT constants for different field dimensions
         self._rft_constants = {
-            1: 1.0,      # 1D fields
-            2: 4*np.log(2),  # 2D fields
-            3: (4*np.log(2))**(3/2) * gamma(3/2)  # 3D fields
+            1: 1.0,  # 1D fields
+            2: 4 * np.log(2),  # 2D fields
+            3: (4 * np.log(2)) ** (3 / 2) * gamma(3 / 2),  # 3D fields
         }
 
         self._validate_parameters()
@@ -82,8 +86,9 @@ class RandomFieldTheory:
             if len(self.smoothness) != self.ndim:
                 raise ValueError(f"Smoothness must have {self.ndim} dimensions")
 
-    def estimate_smoothness(self, residuals: np.ndarray,
-                          mask: Optional[np.ndarray] = None) -> np.ndarray:
+    def estimate_smoothness(
+        self, residuals: np.ndarray, mask: Optional[np.ndarray] = None
+    ) -> np.ndarray:
         """
         Estimate field smoothness using residuals.
 
@@ -139,7 +144,9 @@ class RandomFieldTheory:
             raise ValueError(f"Voxel sizes must have {self.ndim} dimensions")
 
         if self.smoothness is None:
-            raise ValueError("Smoothness must be estimated before computing search volume")
+            raise ValueError(
+                "Smoothness must be estimated before computing search volume"
+            )
 
         # Search volume = product over dimensions of (field_size * smoothness / voxel_size)
         search_vol = 1.0
@@ -150,7 +157,7 @@ class RandomFieldTheory:
         self.search_volume = search_vol
         return search_vol
 
-    def expected_clusters(self, threshold: float, stat_type: str = 't') -> float:
+    def expected_clusters(self, threshold: float, stat_type: str = "t") -> float:
         """
         Compute expected number of clusters above threshold.
 
@@ -168,14 +175,14 @@ class RandomFieldTheory:
             raise ValueError("Smoothness must be estimated first")
 
         # Convert threshold to Z-score equivalent
-        if stat_type == 't':
-            if self.df is None:
-                raise ValueError("Degrees of freedom required for t-statistic")
-            z_threshold = t.ppf(1 - norm.cdf(threshold), self.df)
-        elif stat_type == 'F':
+        if stat_type == "t":
+            z_threshold = (
+                threshold if self.df is None else norm.ppf(t.cdf(threshold, self.df))
+            )
+        elif stat_type == "F":
             # Simplified F to Z conversion (approximation)
             z_threshold = np.sqrt(threshold)
-        elif stat_type == 'Z':
+        elif stat_type == "Z":
             z_threshold = threshold
         else:
             raise ValueError(f"Unknown statistic type: {stat_type}")
@@ -185,22 +192,31 @@ class RandomFieldTheory:
         # where R is search volume, D is dimensionality, Λ is smoothness product
 
         smoothness_product = np.prod(self.smoothness)
-        rft_const = self._rft_constants[self.ndim]
+        self._rft_constants[self.ndim]
 
         # Simplified version for computational efficiency
         if self.ndim == 2:
-            expected_k = (self.search_volume * np.sqrt(4 * np.log(2)) /
-                         smoothness_product * np.exp(-z_threshold**2 / 2))
+            expected_k = (
+                self.search_volume
+                * np.sqrt(4 * np.log(2))
+                / smoothness_product
+                * np.exp(-(z_threshold**2) / 2)
+            )
         elif self.ndim == 3:
-            expected_k = (self.search_volume * (4 * np.log(2))**(3/2) /
-                         smoothness_product * np.exp(-z_threshold**2 / 2))
+            expected_k = (
+                self.search_volume
+                * (4 * np.log(2)) ** (3 / 2)
+                / smoothness_product
+                * np.exp(-(z_threshold**2) / 2)
+            )
         else:  # 1D
-            expected_k = (self.search_volume / smoothness_product *
-                         np.exp(-z_threshold**2 / 2))
+            expected_k = (
+                self.search_volume / smoothness_product * np.exp(-(z_threshold**2) / 2)
+            )
 
         return expected_k
 
-    def cluster_threshold(self, alpha: float = 0.05, stat_type: str = 't') -> float:
+    def cluster_threshold(self, alpha: float = 0.05, stat_type: str = "t") -> float:
         """
         Compute cluster-forming threshold for given alpha level.
 
@@ -211,6 +227,7 @@ class RandomFieldTheory:
         Returns:
             Cluster-forming threshold
         """
+
         # Use bisection method to find threshold where E[K] = alpha
         def expected_clusters_func(u):
             return self.expected_clusters(u, stat_type)
@@ -232,7 +249,7 @@ class RandomFieldTheory:
 
         return (u_min + u_max) / 2
 
-    def peak_threshold(self, alpha: float = 0.05, stat_type: str = 't') -> float:
+    def peak_threshold(self, alpha: float = 0.05, stat_type: str = "t") -> float:
         """
         Compute peak-level threshold for given alpha level.
 
@@ -250,23 +267,24 @@ class RandomFieldTheory:
         # Solve for threshold where p_FWE = alpha
 
         # Approximation for high thresholds
-        if stat_type == 'Z':
+        if stat_type == "Z":
             # For Z-statistics, threshold ≈ sqrt(2 * log(R / alpha))
             threshold = np.sqrt(2 * np.log(self.search_volume / alpha))
-        elif stat_type == 't':
+        elif stat_type == "t":
             # Convert Z threshold to t threshold
-            if self.df is None:
-                raise ValueError("Degrees of freedom required for t-statistic")
             z_thresh = np.sqrt(2 * np.log(self.search_volume / alpha))
-            threshold = t.ppf(norm.cdf(z_thresh), self.df)
+            threshold = (
+                z_thresh if self.df is None else t.ppf(norm.cdf(z_thresh), self.df)
+            )
         else:
             # Simplified approximation
             threshold = np.sqrt(2 * np.log(self.search_volume / alpha))
 
         return threshold
 
-    def correct_p_values(self, statistical_map: np.ndarray,
-                        stat_type: str = 't', method: str = 'cluster') -> np.ndarray:
+    def correct_p_values(
+        self, statistical_map: np.ndarray, stat_type: str = "t", method: str = "cluster"
+    ) -> np.ndarray:
         """
         Apply RFT-based multiple comparison correction.
 
@@ -278,23 +296,25 @@ class RandomFieldTheory:
         Returns:
             Corrected p-values
         """
-        if method == 'cluster':
+        if method == "cluster":
             threshold = self.cluster_threshold(alpha=0.05, stat_type=stat_type)
-        elif method == 'peak':
+        elif method == "peak":
             threshold = self.peak_threshold(alpha=0.05, stat_type=stat_type)
         else:
             raise ValueError(f"Unknown correction method: {method}")
 
         # Compute uncorrected p-values
-        if stat_type == 't':
+        if stat_type == "t":
             if self.df is None:
                 raise ValueError("Degrees of freedom required for t-statistics")
             p_uncorr = 2 * t.sf(np.abs(statistical_map), self.df)
-        elif stat_type == 'Z':
+        elif stat_type == "Z":
             p_uncorr = 2 * norm.sf(np.abs(statistical_map))
-        elif stat_type == 'F':
+        elif stat_type == "F":
             # Simplified F p-values
-            p_uncorr = 1 - np.array([f.cdf(x, 1, self.df or 100) for x in statistical_map.flatten()])
+            p_uncorr = 1 - np.array(
+                [f.cdf(x, 1, self.df or 100) for x in statistical_map.flatten()]
+            )
             p_uncorr = p_uncorr.reshape(statistical_map.shape)
         else:
             raise ValueError(f"Unknown statistic type: {stat_type}")
@@ -316,7 +336,9 @@ class RandomFieldTheory:
 
             # Simplified cluster p-value based on size and expected clusters
             # This is an approximation; full RFT would use more complex formulas
-            expected_clusters_above_size = self.expected_clusters(threshold, stat_type) / cluster_size
+            expected_clusters_above_size = (
+                self.expected_clusters(threshold, stat_type) / cluster_size
+            )
             cluster_p = min(1.0, expected_clusters_above_size)
 
             p_corrected[cluster_mask] = cluster_p
@@ -324,8 +346,12 @@ class RandomFieldTheory:
         return p_corrected
 
 
-def compute_spm(model_result: SPMResult, contrast: ContrastResult,
-               correction: str = "RFT", alpha: float = 0.05) -> ContrastResult:
+def compute_spm(
+    model_result: SPMResult,
+    contrast: ContrastResult,
+    correction: str = "RFT",
+    alpha: float = 0.05,
+) -> ContrastResult:
     """
     Compute Statistical Parametric Map with multiple comparison correction.
 
@@ -349,13 +375,13 @@ def compute_spm(model_result: SPMResult, contrast: ContrastResult,
 
         # Estimate smoothness from residuals
         rft = RandomFieldTheory(field_shape, df=model_result.design_matrix.n_regressors)
-        smoothness = rft.estimate_smoothness(model_result.residuals)
+        rft.estimate_smoothness(model_result.residuals)
 
         # Compute search volume (assuming unit voxel size)
-        search_vol = rft.compute_search_volume()
+        rft.compute_search_volume()
 
         # Apply RFT correction
-        corrected_p = rft.correct_p_values(contrast.t_statistic, stat_type='t')
+        corrected_p = rft.correct_p_values(contrast.t_statistic, stat_type="t")
 
         # Update contrast result
         contrast.corrected_p_values = corrected_p
@@ -372,8 +398,9 @@ def compute_spm(model_result: SPMResult, contrast: ContrastResult,
 
         if len(significant_idx) > 0:
             fdr_threshold = p_sorted[significant_idx[-1]]
-            contrast.corrected_p_values = np.where(contrast.p_values <= fdr_threshold,
-                                                 contrast.p_values, 1.0)
+            contrast.corrected_p_values = np.where(
+                contrast.p_values <= fdr_threshold, contrast.p_values, 1.0
+            )
         else:
             contrast.corrected_p_values = np.ones_like(contrast.p_values)
 

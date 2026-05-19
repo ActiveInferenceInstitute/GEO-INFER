@@ -60,10 +60,11 @@ GEO-INFER enforces a strict no-mock policy aligned with PAI's verification princ
 
 Implementations are grounded in Active Inference mathematical principles:
 
-- **Free Energy Minimization**: `GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py`
+- **Free Energy Minimization**: `GEO-INFER-ACT/src/geo_infer_act/core/free_energy.py` exposes `FreeEnergyBreakdown` and categorical `F = complexity - accuracy`
 - **Bayesian Inference**: `GEO-INFER-BAYES/src/geo_infer_bayes/` (GP, MCMC, variational, model comparison)
-- **Perception-Action Loops**: `GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py`
-- **Generative Models**: `GEO-INFER-ACT/src/geo_infer_act/models/generative_model.py`
+- **Perception-Action Loops**: `GEO-INFER-ACT/src/geo_infer_act/core/active_inference.py` can return `ActiveInferenceStepResult`
+- **Generative Models**: `GEO-INFER-ACT/src/geo_infer_act/core/generative_model.py`
+- **Policy Selection**: `GEO-INFER-ACT/src/geo_infer_act/core/policy_selection.py` evaluates policies by expected free energy and returns `PolicyEvaluation`
 
 ### Testing Standards
 
@@ -97,6 +98,11 @@ uv run python -m pytest GEO-INFER-MATH/tests/ -v
 
 # By category
 uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
+
+# Contract checks
+uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+uv run python GEO-INFER-TEST/validate_repo_contracts.py
+uv run python GEO-INFER-TEST/validate_active_inference_contract.py
 ```
 
 ### Key Entry Points
@@ -107,22 +113,24 @@ uv run python GEO-INFER-TEST/run_unified_tests.py --category integration
 | **CLAUDE.md** | `CLAUDE.md` - Claude Code development guidance |
 | **AGENTS.md** | `AGENTS.md` - Multi-agent systems architecture |
 | **PAI.md** | This file - Development methodology |
+| **ISA.md** | `ISA.md` - Ideal state criteria and verification targets |
 | **Docs Hub** | `GEO-INFER-INTRA/docs/` - Central documentation |
 | **Examples** | `GEO-INFER-EXAMPLES/examples/` - Working code samples |
 | **Tests** | `GEO-INFER-TEST/run_unified_tests.py` - Unified test runner |
 
-## Current State (2026-02-25)
+## Current State (2026-05-18)
 
 | Metric | Value |
 |--------|-------|
 | Modules | 44 |
-| Source files | 860 (297,360 lines) |
-| Test files | 421 (~87,000+ lines) |
-| Tests passing | ~3,000+ |
-| Beta modules | 20 |
-| Alpha modules | 24 |
+| Skill files validated | 45/45 |
+| ACT focused tests | Passing |
+| AGENT focused tests | Passing |
+| BAYES focused tests | Passing after full-rank VI support |
+| MATH convenience tests | Passing without Flask installed |
+| SIM focused tests | Passing |
 | Uppercase packages | 0 (all fixed) |
-| Illegitimate stubs | 0 (all fixed) |
+| Source-language debt | Reported by `validate_repo_contracts.py`; strict mode is available |
 
 ---
 

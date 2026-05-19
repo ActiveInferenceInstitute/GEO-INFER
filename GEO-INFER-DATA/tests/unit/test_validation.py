@@ -6,26 +6,25 @@ for comprehensive data validation functionality.
 """
 
 import pytest
-import asyncio
 import pandas as pd
 import geopandas as gpd
 import numpy as np
 from datetime import datetime
-from shapely.geometry import Point, Polygon
+from shapely.geometry import Point
 
 from geo_infer_data.core.validation import (
     DataQualityManager,
     GeospatialValidator,
     ValidationConfig,
-    ValidationLevel
 )
 from geo_infer_data.models.schemas import (
     DatasetMetadata,
     SpatialExtent,
     TemporalExtent,
     DataLineage,
+    DataQualityReport,
     QualityCheck,
-    QualityStatus
+    QualityStatus,
 )
 
 
@@ -40,14 +39,17 @@ class TestGeospatialValidator:
     @pytest.fixture
     def valid_geodataframe(self):
         """Create valid GeoDataFrame for testing."""
-        return gpd.GeoDataFrame({
-            'id': range(100),
-            'temperature': np.random.normal(20, 5, 100),
-            'humidity': np.random.normal(60, 10, 100)
-        }, geometry=gpd.points_from_xy(
-            np.random.normal(-122.4, 0.1, 100),
-            np.random.normal(37.7, 0.1, 100)
-        ), crs="EPSG:4326")
+        return gpd.GeoDataFrame(
+            {
+                "id": range(100),
+                "temperature": np.random.normal(20, 5, 100),
+                "humidity": np.random.normal(60, 10, 100),
+            },
+            geometry=gpd.points_from_xy(
+                np.random.normal(-122.4, 0.1, 100), np.random.normal(37.7, 0.1, 100)
+            ),
+            crs="EPSG:4326",
+        )
 
     @pytest.fixture
     def invalid_geodataframe(self):
@@ -62,21 +64,24 @@ class TestGeospatialValidator:
             else:
                 geometries.append(Point(-122.4, 37.7))
 
-        return gpd.GeoDataFrame({
-            'id': range(50),
-            'temperature': np.random.normal(20, 5, 50)
-        }, geometry=geometries, crs="EPSG:4326")
+        return gpd.GeoDataFrame(
+            {"id": range(50), "temperature": np.random.normal(20, 5, 50)},
+            geometry=geometries,
+            crs="EPSG:4326",
+        )
 
     @pytest.fixture
     def valid_dataframe(self):
         """Create valid DataFrame for testing."""
-        return pd.DataFrame({
-            'timestamp': pd.date_range('2023-01-01', periods=1000, freq='H'),
-            'temperature': np.random.normal(20, 5, 1000),
-            'humidity': np.random.normal(60, 10, 1000),
-            'latitude': np.random.normal(37.7, 0.1, 1000),
-            'longitude': np.random.normal(-122.4, 0.1, 1000)
-        })
+        return pd.DataFrame(
+            {
+                "timestamp": pd.date_range("2023-01-01", periods=1000, freq="H"),
+                "temperature": np.random.normal(20, 5, 1000),
+                "humidity": np.random.normal(60, 10, 1000),
+                "latitude": np.random.normal(37.7, 0.1, 1000),
+                "longitude": np.random.normal(-122.4, 0.1, 1000),
+            }
+        )
 
     @pytest.mark.asyncio
     async def test_validate_complete_data(self, validator, valid_geodataframe):
@@ -90,16 +95,18 @@ class TestGeospatialValidator:
     @pytest.mark.asyncio
     async def test_validate_incomplete_data(self, validator):
         """Test validation of incomplete data."""
-        incomplete_data = pd.DataFrame({
-            'col1': [1, 2, None, 4, None] * 200,  # 40% missing
-            'col2': [None, 2, 3, None, 5] * 200   # 40% missing
-        })
+        incomplete_data = pd.DataFrame(
+            {
+                "col1": [1, 2, None, 4, None] * 200,  # 40% missing
+                "col2": [None, 2, 3, None, 5] * 200,  # 40% missing
+            }
+        )
 
         result = await validator.validate_data(incomplete_data)
 
         assert result.score < 0.8
         assert result.status in [QualityStatus.WARNING, QualityStatus.FAIL]
-        assert any('missing' in issue['type'] for issue in result.issues)
+        assert any("missing" in issue["type"] for issue in result.issues)
 
     @pytest.mark.asyncio
     async def test_validate_invalid_coordinates(self, validator, invalid_geodataframe):
@@ -108,9 +115,11 @@ class TestGeospatialValidator:
 
         assert result.score < 0.8
         assert result.status == QualityStatus.FAIL
-        assert any('invalid' in issue['type'] for issue in result.issues)
+        assert any("invalid" in issue["type"] for issue in result.issues)
 
-    def test_geometry_validation(self, validator, valid_geodataframe, invalid_geodataframe):
+    def test_geometry_validation(
+        self, validator, valid_geodataframe, invalid_geodataframe
+    ):
         """Test geometry-specific validation."""
         # Test valid geometries
         valid_result = validator.validate_geometries(valid_geodataframe)
@@ -132,7 +141,7 @@ class TestGeospatialValidator:
 
         # Test with invalid coordinates
         invalid_df = valid_dataframe.copy()
-        invalid_df['longitude'] = 200  # Invalid longitude
+        invalid_df["longitude"] = 200  # Invalid longitude
 
         invalid_result = validator.validate_coordinates(invalid_df)
         assert invalid_result.score < 0.8
@@ -148,7 +157,7 @@ class TestGeospatialValidator:
 
         # Test with future dates
         future_df = valid_dataframe.copy()
-        future_df['timestamp'] = datetime.now() + pd.Timedelta(days=365)
+        future_df["timestamp"] = datetime.now() + pd.Timedelta(days=365)
 
         future_result = validator.validate_temporal_data(future_df)
         assert future_result.score < 0.9  # Should have warnings about future dates
@@ -161,19 +170,19 @@ class TestDataQualityManager:
     def quality_config(self):
         """Create test quality configuration."""
         return ValidationConfig(
-            validation_rules=['completeness', 'accuracy', 'consistency'],
+            validation_rules=["completeness", "accuracy", "consistency"],
             quality_threshold=0.8,
             strict_mode=False,
-            real_time_monitoring=True
+            real_time_monitoring=True,
         )
 
     @pytest.fixture
     def quality_manager(self, quality_config):
         """Create test quality manager."""
         return DataQualityManager(
-            validation_rules=','.join(quality_config.validation_rules),
+            validation_rules=",".join(quality_config.validation_rules),
             quality_threshold=quality_config.quality_threshold,
-            real_time_monitoring=quality_config.real_time_monitoring
+            real_time_monitoring=quality_config.real_time_monitoring,
         )
 
     @pytest.fixture
@@ -184,14 +193,11 @@ class TestDataQualityManager:
             description="Test dataset for quality validation",
             spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9], crs="EPSG:4326"),
             temporal=TemporalExtent(
-                start=datetime(2023, 1, 1),
-                end=datetime(2023, 12, 31)
+                start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
             ),
             lineage=DataLineage(
-                source="test_source",
-                process="test_process",
-                created_by="test_system"
-            )
+                source="test_source", process="test_process", created_by="test_system"
+            ),
         )
 
     @pytest.mark.asyncio
@@ -200,23 +206,27 @@ class TestDataQualityManager:
         dataset_id = "test_dataset_123"
 
         # Mock the data loading methods
-        quality_manager._load_mock_dataset = lambda x: pd.DataFrame({
-            'temperature': np.random.normal(20, 5, 1000),
-            'humidity': np.random.normal(60, 10, 1000)
-        })
+        quality_manager._load_mock_dataset = lambda x: pd.DataFrame(
+            {
+                "temperature": np.random.normal(20, 5, 1000),
+                "humidity": np.random.normal(60, 10, 1000),
+            }
+        )
 
         quality_manager._load_mock_metadata = lambda x: DatasetMetadata(
             title=f"Dataset {x}",
             spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9]),
-            temporal=TemporalExtent(start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)),
-            lineage=DataLineage(source="mock", process="mock", created_by="test")
+            temporal=TemporalExtent(
+                start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
+            ),
+            lineage=DataLineage(source="mock", process="mock", created_by="test"),
         )
 
         report = await quality_manager.validate_dataset(dataset_id)
 
         assert report.dataset_id == dataset_id
         assert 0.0 <= report.overall_score <= 1.0
-        assert 'checks' in report.checks
+        assert report.checks
         assert len(report.checks) > 0
 
     def test_improvement_recommendations(self, quality_manager):
@@ -226,25 +236,27 @@ class TestDataQualityManager:
             dataset_id="test_dataset",
             overall_score=0.6,  # Below threshold
             checks={
-                'completeness': QualityCheck(
+                "completeness": QualityCheck(
                     score=0.7,
                     status=QualityStatus.WARNING,
-                    issues=[{'type': 'missing_values', 'message': 'Missing data found'}]
+                    issues=[
+                        {"type": "missing_values", "message": "Missing data found"}
+                    ],
                 ),
-                'accuracy': QualityCheck(
+                "accuracy": QualityCheck(
                     score=0.4,
                     status=QualityStatus.FAIL,
-                    issues=[{'type': 'outliers', 'message': 'Many outliers detected'}]
-                )
+                    issues=[{"type": "outliers", "message": "Many outliers detected"}],
+                ),
             },
-            recommendations=[]
+            recommendations=[],
         )
 
         recommendations = quality_manager.get_improvement_recommendations(report)
 
         assert len(recommendations) > 0
-        assert any('quality' in rec.lower() for rec in recommendations)
-        assert any('completeness' in rec.lower() for rec in recommendations)
+        assert any("quality" in rec.lower() for rec in recommendations)
+        assert any("completeness" in rec.lower() for rec in recommendations)
 
     def test_quality_trends(self, quality_manager):
         """Test quality trend analysis."""
@@ -254,15 +266,15 @@ class TestDataQualityManager:
                 dataset_id=f"dataset_{i}",
                 overall_score=0.7 + i * 0.05,  # Improving trend
                 checks={},
-                recommendations=[]
+                recommendations=[],
             )
             quality_manager.quality_history.append(report)
 
         trends = quality_manager.get_quality_trends(days=30)
 
-        assert 'average_score' in trends
-        assert trends['reports_count'] == 5
-        assert trends['score_trend'] == 'improving'
+        assert "average_score" in trends
+        assert trends["reports_count"] == 5
+        assert trends["score_trend"] == "improving"
 
 
 class TestValidationConfig:
@@ -271,12 +283,12 @@ class TestValidationConfig:
     def test_config_initialization(self):
         """Test configuration initialization."""
         config = ValidationConfig(
-            validation_rules=['completeness', 'accuracy'],
+            validation_rules=["completeness", "accuracy"],
             quality_threshold=0.85,
-            strict_mode=True
+            strict_mode=True,
         )
 
-        assert config.validation_rules == ['completeness', 'accuracy']
+        assert config.validation_rules == ["completeness", "accuracy"]
         assert config.quality_threshold == 0.85
         assert config.strict_mode is True
 

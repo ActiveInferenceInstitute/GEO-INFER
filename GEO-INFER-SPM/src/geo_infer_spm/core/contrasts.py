@@ -19,11 +19,11 @@ where β are the regression coefficients and Var(β) is their covariance matrix.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any, Callable
+from typing import Dict, List, Optional, Union
 from scipy.stats import t, f
 import re
 
-from ..models.data_models import SPMResult, ContrastResult
+from ..models.data_models import SPMResult, ContrastResult, DesignMatrix
 
 
 class Contrast:
@@ -40,8 +40,13 @@ class Contrast:
         weights: Optional dictionary of condition weights for interpretation
     """
 
-    def __init__(self, vector: np.ndarray, name: str = "",
-                 contrast_type: str = "t", weights: Optional[Dict[str, float]] = None):
+    def __init__(
+        self,
+        vector: np.ndarray,
+        name: str = "",
+        contrast_type: str = "t",
+        weights: Optional[Dict[str, float]] = None,
+    ):
         """
         Initialize contrast.
 
@@ -56,15 +61,16 @@ class Contrast:
         self.type = contrast_type.lower()
         self.weights = weights or {}
 
-        if self.type not in ['t', 'f']:
+        if self.type not in ["t", "f"]:
             raise ValueError("Contrast type must be 't' or 'F'")
 
-        if self.type == 'f' and self.vector.ndim != 2:
+        if self.type == "f" and self.vector.ndim != 2:
             raise ValueError("F-contrasts require 2D contrast matrix")
 
     @classmethod
-    def from_string(cls, contrast_str: str, design_names: List[str],
-                   contrast_type: str = "t") -> 'Contrast':
+    def from_string(
+        cls, contrast_str: str, design_names: List[str], contrast_type: str = "t"
+    ) -> "Contrast":
         """
         Create contrast from string specification.
 
@@ -114,29 +120,30 @@ class Contrast:
         return cls(vector, original_str, contrast_type, weights)
 
     @staticmethod
-    def _parse_condition_weights(condition: str, design_names: List[str],
-                               weight: float) -> Dict[str, float]:
+    def _parse_condition_weights(
+        condition: str, design_names: List[str], weight: float
+    ) -> Dict[str, float]:
         """Parse condition weights from contrast string component."""
         weights = {}
 
         # Handle intercept
-        if condition.lower() in ['intercept', 'const', '1']:
-            weights['intercept'] = weight
+        if condition.lower() in ["intercept", "const", "1"]:
+            weights["intercept"] = weight
             return weights
 
         # Split on + and -
-        parts = re.split(r'([+-])', condition)
+        parts = re.split(r"([+-])", condition)
         if not parts[0]:  # Starts with sign
             parts = parts[1:]
 
         current_weight = weight
         for part in parts:
             part = part.strip()
-            if part in ['+', '-']:
-                current_weight = weight if part == '+' else -weight
+            if part in ["+", "-"]:
+                current_weight = weight if part == "+" else -weight
             elif part:
                 # Check if coefficient is specified (e.g., "2*A")
-                coeff_match = re.match(r'(\d*\.?\d*)\*(\w+)', part)
+                coeff_match = re.match(r"(\d*\.?\d*)\*(\w+)", part)
                 if coeff_match:
                     coeff, var_name = coeff_match.groups()
                     coeff_val = float(coeff) if coeff else 1.0
@@ -149,26 +156,28 @@ class Contrast:
         return weights
 
     @staticmethod
-    def _parse_linear_combination(expr: str, design_names: List[str]) -> Dict[str, float]:
+    def _parse_linear_combination(
+        expr: str, design_names: List[str]
+    ) -> Dict[str, float]:
         """Parse general linear combination expression."""
         weights = {}
 
         # Split on + and - while keeping the operators
-        terms = re.split(r'([+-])', expr)
+        terms = re.split(r"([+-])", expr)
 
         if not terms[0]:  # Expression starts with operator
             terms = terms[1:]
 
         # Process terms
         for i in range(0, len(terms), 2):
-            operator = terms[i-1] if i > 0 else '+'
+            operator = terms[i - 1] if i > 0 else "+"
             term = terms[i].strip()
 
-            sign = 1 if operator == '+' else -1
+            sign = 1 if operator == "+" else -1
 
             # Parse coefficient and variable
-            if '*' in term:
-                coeff_str, var = term.split('*', 1)
+            if "*" in term:
+                coeff_str, var = term.split("*", 1)
                 try:
                     coeff = float(coeff_str)
                 except ValueError:
@@ -179,7 +188,7 @@ class Contrast:
                 var = term
 
             # Remove parentheses if present
-            var = var.strip('()')
+            var = var.strip("()")
 
             if var in design_names:
                 weights[var] = sign * coeff
@@ -195,8 +204,11 @@ class Contrast:
         return f"Contrast(vector={self.vector}, name='{self.name}', type='{self.type}')"
 
 
-def contrast(model_result: SPMResult, contrast_spec: Union[str, np.ndarray, Contrast],
-            contrast_type: str = "t") -> ContrastResult:
+def contrast(
+    model_result: SPMResult,
+    contrast_spec: Union[str, np.ndarray, Contrast],
+    contrast_type: str = "t",
+) -> ContrastResult:
     """
     Define and compute a contrast for SPM analysis.
 
@@ -226,7 +238,21 @@ def contrast(model_result: SPMResult, contrast_spec: Union[str, np.ndarray, Cont
     elif isinstance(contrast_spec, np.ndarray):
         contrast_obj = Contrast(contrast_spec, contrast_type=contrast_type)
     elif isinstance(contrast_spec, (list, tuple)):
-        contrast_obj = Contrast(np.array(contrast_spec, dtype=float), contrast_type=contrast_type)
+        if contrast_spec and all(isinstance(item, str) for item in contrast_spec):
+            vector = np.zeros(model_result.design_matrix.n_regressors)
+            for name in contrast_spec:
+                if name not in model_result.design_matrix.names:
+                    raise ValueError(
+                        f"Contrast regressor '{name}' not found in design matrix"
+                    )
+                vector[model_result.design_matrix.names.index(name)] = 1.0
+            contrast_obj = Contrast(
+                vector, name="+".join(contrast_spec), contrast_type=contrast_type
+            )
+        else:
+            contrast_obj = Contrast(
+                np.array(contrast_spec, dtype=float), contrast_type=contrast_type
+            )
     elif isinstance(contrast_spec, Contrast):
         contrast_obj = contrast_spec
     else:
@@ -234,17 +260,21 @@ def contrast(model_result: SPMResult, contrast_spec: Union[str, np.ndarray, Cont
 
     # Validate contrast dimensions
     n_regressors = model_result.design_matrix.n_regressors
-    if contrast_obj.type == 't':
+    if contrast_obj.type == "t":
         if len(contrast_obj.vector) != n_regressors:
-            raise ValueError(f"T-contrast vector length {len(contrast_obj.vector)} "
-                           f"does not match number of regressors {n_regressors}")
+            raise ValueError(
+                f"T-contrast vector length {len(contrast_obj.vector)} "
+                f"does not match number of regressors {n_regressors}"
+            )
     else:  # F-contrast
         if contrast_obj.vector.shape[1] != n_regressors:
-            raise ValueError(f"F-contrast matrix columns {contrast_obj.vector.shape[1]} "
-                           f"does not match number of regressors {n_regressors}")
+            raise ValueError(
+                f"F-contrast matrix columns {contrast_obj.vector.shape[1]} "
+                f"does not match number of regressors {n_regressors}"
+            )
 
     # Compute contrast statistics
-    if contrast_obj.type == 't':
+    if contrast_obj.type == "t":
         result = _compute_t_contrast(model_result, contrast_obj)
     else:
         result = _compute_f_contrast(model_result, contrast_obj)
@@ -252,7 +282,9 @@ def contrast(model_result: SPMResult, contrast_spec: Union[str, np.ndarray, Cont
     return result
 
 
-def _compute_t_contrast(model_result: SPMResult, contrast_obj: Contrast) -> ContrastResult:
+def _compute_t_contrast(
+    model_result: SPMResult, contrast_obj: Contrast
+) -> ContrastResult:
     """Compute t-contrast statistics."""
     c = contrast_obj.vector
     beta = model_result.beta_coefficients
@@ -262,7 +294,7 @@ def _compute_t_contrast(model_result: SPMResult, contrast_obj: Contrast) -> Cont
     if beta.ndim == 1:
         effect_size = c @ beta
     else:
-        effect_size = beta.T @ c
+        effect_size = np.mean(beta.T @ c)
 
     # Standard error: sqrt(c^T Var(β) c)
     if cov_beta is not None and cov_beta.ndim == 2:
@@ -273,17 +305,20 @@ def _compute_t_contrast(model_result: SPMResult, contrast_obj: Contrast) -> Cont
         # cov_beta not stored — compute from residuals and design matrix
         X = model_result.design_matrix.matrix
         n_points, n_regressors = X.shape
-        if (model_result.residuals is not None and
-                len(model_result.residuals) > n_regressors):
-            sigma2 = float(np.sum(model_result.residuals ** 2) /
-                           (n_points - n_regressors))
+        if (
+            model_result.residuals is not None
+            and len(model_result.residuals) > n_regressors
+        ):
+            sigma2 = float(
+                np.sum(model_result.residuals**2) / (n_points - n_regressors)
+            )
             XtX_inv = np.linalg.pinv(X.T @ X)
             cov_beta_computed = sigma2 * XtX_inv
             var_contrast = c @ cov_beta_computed @ c
         else:
-            var_contrast = float(np.sum(c ** 2))
+            var_contrast = float(np.sum(c**2))
 
-    standard_error = np.sqrt(var_contrast)
+    standard_error = np.sqrt(float(np.mean(var_contrast)))
 
     # T-statistic
     t_statistic = effect_size / standard_error
@@ -297,7 +332,7 @@ def _compute_t_contrast(model_result: SPMResult, contrast_obj: Contrast) -> Cont
     p_values = 2 * t.sf(np.abs(t_statistic), df)
 
     # Reshape to match data dimensions if needed
-    if model_result.spm_data.data.ndim > 1:
+    if model_result.spm_data.data.ndim > 1 and np.ndim(t_statistic) > 0:
         target_shape = model_result.spm_data.data.shape
         t_statistic = t_statistic.reshape(target_shape)
         effect_size = effect_size.reshape(target_shape)
@@ -309,11 +344,13 @@ def _compute_t_contrast(model_result: SPMResult, contrast_obj: Contrast) -> Cont
         t_statistic=t_statistic,
         effect_size=effect_size,
         standard_error=standard_error,
-        p_values=p_values
+        p_values=p_values,
     )
 
 
-def _compute_f_contrast(model_result: SPMResult, contrast_obj: Contrast) -> ContrastResult:
+def _compute_f_contrast(
+    model_result: SPMResult, contrast_obj: Contrast
+) -> ContrastResult:
     """Compute F-contrast statistics."""
     C = contrast_obj.vector  # F-contrast matrix (n_hypotheses x n_regressors)
     beta = model_result.beta_coefficients
@@ -359,12 +396,13 @@ def _compute_f_contrast(model_result: SPMResult, contrast_obj: Contrast) -> Cont
         t_statistic=f_statistic,  # Store F-statistic here for compatibility
         effect_size=C_beta.flatten(),
         standard_error=np.sqrt(np.diag(C @ cov_beta @ C.T)),
-        p_values=p_values
+        p_values=p_values,
     )
 
 
-def generate_common_contrasts(design_matrix: 'DesignMatrix',
-                            design_type: str = "categorical") -> List[Contrast]:
+def generate_common_contrasts(
+    design_matrix: "DesignMatrix", design_type: str = "categorical"
+) -> List[Contrast]:
     """
     Generate common contrasts for standard experimental designs.
 
@@ -385,12 +423,12 @@ def generate_common_contrasts(design_matrix: 'DesignMatrix',
 
     if design_type == "categorical":
         # Find categorical variables (assuming they don't include 'intercept')
-        cat_vars = [name for name in names if name != 'intercept']
+        cat_vars = [name for name in names if name != "intercept"]
 
         if len(cat_vars) >= 2:
             # Pairwise comparisons
             for i in range(len(cat_vars)):
-                for j in range(i+1, len(cat_vars)):
+                for j in range(i + 1, len(cat_vars)):
                     # A > B
                     vec = np.zeros(len(names))
                     vec[names.index(cat_vars[i])] = 1
@@ -412,9 +450,9 @@ def generate_common_contrasts(design_matrix: 'DesignMatrix',
 
             vec = np.zeros(len(names))
             for i, name in enumerate(names):
-                if name != 'intercept':
-                    condition_idx = int(name.split('_')[-1]) if '_' in name else 0
-                    vec[i] = coeffs[min(condition_idx, len(coeffs)-1)]
+                if name != "intercept":
+                    condition_idx = int(name.split("_")[-1]) if "_" in name else 0
+                    vec[i] = coeffs[min(condition_idx, len(coeffs) - 1)]
 
             contrasts.append(Contrast(vec, "linear_trend"))
 

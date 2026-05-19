@@ -25,7 +25,7 @@ where:
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, Optional, Tuple, Any
 from scipy import linalg
 from scipy.stats import t, f
 import warnings
@@ -63,8 +63,12 @@ class GeneralLinearModel:
         self.cov_beta: Optional[np.ndarray] = None
         self.diagnostics: Dict[str, Any] = {}
 
-    def fit(self, data: SPMData, method: str = "OLS",
-            spatial_regularization: Optional[Dict[str, Any]] = None) -> SPMResult:
+    def fit(
+        self,
+        data: SPMData,
+        method: str = "OLS",
+        spatial_regularization: Optional[Dict[str, Any]] = None,
+    ) -> SPMResult:
         """
         Fit the GLM to geospatial data.
 
@@ -101,7 +105,9 @@ class GeneralLinearModel:
         elif method == "robust":
             beta, residuals, cov_beta = self._fit_robust(y)
         elif method == "spatial":
-            beta, residuals, cov_beta = self._fit_spatial(y, spatial_regularization or {})
+            beta, residuals, cov_beta = self._fit_spatial(
+                y, spatial_regularization or {}
+            )
         else:
             raise ValueError(f"Unknown fitting method: {method}")
 
@@ -109,7 +115,9 @@ class GeneralLinearModel:
         self.beta = beta
         self.residuals = residuals
         self.cov_beta = cov_beta
-        self.sigma2 = np.var(residuals, ddof=self.design_matrix.n_regressors)
+        self.sigma2 = float(
+            np.mean(np.var(residuals, axis=0, ddof=self.design_matrix.n_regressors))
+        )
 
         # Compute diagnostics
         self._compute_diagnostics(y, data)
@@ -123,10 +131,10 @@ class GeneralLinearModel:
             cov_beta=self.cov_beta,
             model_diagnostics=self.diagnostics.copy(),
             processing_metadata={
-                'fitting_method': method,
-                'spatial_regularization': spatial_regularization,
-                'sigma2': self.sigma2
-            }
+                "fitting_method": method,
+                "spatial_regularization": spatial_regularization,
+                "sigma2": self.sigma2,
+            },
         )
 
         return result
@@ -134,12 +142,16 @@ class GeneralLinearModel:
     def _extract_response(self, data: SPMData) -> np.ndarray:
         """Extract response variable from SPMData."""
         if isinstance(data.data, np.ndarray):
-            return data.data
-        elif hasattr(data.data, 'values'):
+            y = data.data
+        elif hasattr(data.data, "values"):
             # pandas DataFrame/Series or GeoDataFrame
-            return data.data.values
+            y = data.data.values
         else:
             raise TypeError("Unsupported data type for response variable")
+
+        if y.ndim == 2 and self.design_matrix.matrix.shape[0] == y.size:
+            return y.reshape(-1)
+        return y
 
     def _fit_ols(self, y: np.ndarray) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
@@ -171,9 +183,8 @@ class GeneralLinearModel:
 
         # Estimate covariance of beta
         # σ² (X^T X)^(-1)
-        sigma2 = np.sum(residuals ** 2, axis=0) / (n_points - n_regressors)
-        if y.ndim == 1:
-            sigma2 = sigma2.item()
+        sigma2 = np.sum(residuals**2, axis=0) / (n_points - n_regressors)
+        sigma2 = float(np.mean(sigma2))
 
         cov_beta = sigma2 * XtX_inv
 
@@ -207,9 +218,7 @@ class GeneralLinearModel:
 
             # Huber weights
             k = 1.345  # Tuning constant for 95% efficiency
-            weights = np.where(np.abs(residuals) <= k,
-                             1.0,
-                             k / np.abs(residuals))
+            weights = np.where(np.abs(residuals) <= k, 1.0, k / np.abs(residuals))
 
             # Weighted least squares
             W = np.sqrt(weights)
@@ -234,7 +243,9 @@ class GeneralLinearModel:
 
         return beta, residuals, cov_beta
 
-    def _fit_spatial(self, y: np.ndarray, regularization_params: Dict[str, Any]) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    def _fit_spatial(
+        self, y: np.ndarray, regularization_params: Dict[str, Any]
+    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
         """
         Fit GLM with spatial regularization.
 
@@ -251,8 +262,8 @@ class GeneralLinearModel:
         X = self.design_matrix.matrix
 
         # Extract regularization parameters
-        lambda_reg = regularization_params.get('lambda', 0.1)
-        spatial_weights = regularization_params.get('spatial_weights', None)
+        lambda_reg = regularization_params.get("lambda", 0.1)
+        spatial_weights = regularization_params.get("spatial_weights", None)
 
         if spatial_weights is None:
             # Use default exponential decay based on distance
@@ -266,8 +277,9 @@ class GeneralLinearModel:
         # Regularized estimation: β = (X^T W X + λ Σ)^(-1) X^T W Y
         # where W is spatial weights matrix, Σ is regularization matrix
         XtX = X.T @ spatial_weights @ X
-        regularization_matrix = regularization_params.get('regularization_matrix',
-                                                        np.eye(X.shape[1]) * lambda_reg)
+        regularization_matrix = regularization_params.get(
+            "regularization_matrix", np.eye(X.shape[1]) * lambda_reg
+        )
 
         XtX_reg = XtX + regularization_matrix
         XtX_inv = linalg.pinvh(XtX_reg)
@@ -280,9 +292,8 @@ class GeneralLinearModel:
         residuals = y - y_hat
 
         # Covariance estimation with regularization
-        sigma2 = np.sum(residuals ** 2, axis=0) / (len(y) - X.shape[1])
-        if y.ndim == 1:
-            sigma2 = sigma2.item()
+        sigma2 = np.sum(residuals**2, axis=0) / (len(y) - X.shape[1])
+        sigma2 = float(np.mean(sigma2))
 
         cov_beta = sigma2 * XtX_inv
 
@@ -296,39 +307,48 @@ class GeneralLinearModel:
         n_points, n_regressors = self.design_matrix.matrix.shape
 
         # Basic fit statistics
-        ss_res = np.sum(self.residuals ** 2, axis=0)
+        ss_res = np.sum(self.residuals**2, axis=0)
         ss_tot = np.sum((y - np.mean(y, axis=0)) ** 2, axis=0)
 
-        if y.ndim == 1:
-            self.diagnostics['r_squared'] = 1 - (ss_res / ss_tot)
-            self.diagnostics['adjusted_r_squared'] = 1 - ((1 - self.diagnostics['r_squared']) *
-                                                        (n_points - 1) / (n_points - n_regressors))
-        else:
-            self.diagnostics['r_squared'] = 1 - (ss_res / ss_tot)
-            self.diagnostics['adjusted_r_squared'] = 1 - ((1 - self.diagnostics['r_squared']) *
-                                                        (n_points - 1) / (n_points - n_regressors))
+        r_squared = 1 - (ss_res / np.maximum(ss_tot, np.finfo(float).eps))
+        r_squared = float(np.mean(np.clip(r_squared, 0.0, 0.999999)))
+        self.diagnostics["r_squared"] = r_squared
+        self.diagnostics["adjusted_r_squared"] = float(
+            1 - ((1 - r_squared) * (n_points - 1) / (n_points - n_regressors))
+        )
 
         # F-statistic
         if self.sigma2 is not None:
-            self.diagnostics['f_statistic'] = (ss_tot - ss_res) / n_regressors / self.sigma2
-            self.diagnostics['f_p_value'] = f.sf(self.diagnostics['f_statistic'], n_regressors,
-                                              n_points - n_regressors)
+            f_statistic = (ss_tot - ss_res) / n_regressors / self.sigma2
+            self.diagnostics["f_statistic"] = float(np.mean(f_statistic))
+            self.diagnostics["f_p_value"] = float(
+                f.sf(
+                    self.diagnostics["f_statistic"],
+                    n_regressors,
+                    n_points - n_regressors,
+                )
+            )
 
         # Residual diagnostics
-        self.diagnostics['residual_mean'] = np.mean(self.residuals, axis=0)
-        self.diagnostics['residual_std'] = np.std(self.residuals, axis=0)
+        self.diagnostics["residual_mean"] = float(np.mean(self.residuals))
+        self.diagnostics["residual_std"] = float(np.std(self.residuals))
 
         # Durbin-Watson statistic for autocorrelation (simplified)
         if n_points > 1:
             dw_numerator = np.sum(np.diff(self.residuals, axis=0) ** 2, axis=0)
-            dw_denominator = np.sum(self.residuals ** 2, axis=0)
-            self.diagnostics['durbin_watson'] = dw_numerator / dw_denominator
+            dw_denominator = np.sum(self.residuals**2, axis=0)
+            self.diagnostics["durbin_watson"] = float(
+                np.mean(dw_numerator / np.maximum(dw_denominator, np.finfo(float).eps))
+            )
 
         # Condition number for multicollinearity
-        self.diagnostics['condition_number'] = np.linalg.cond(self.design_matrix.matrix)
+        self.diagnostics["condition_number"] = np.linalg.cond(self.design_matrix.matrix)
 
-    def predict(self, new_data: Optional[SPMData] = None,
-               new_design: Optional[np.ndarray] = None) -> np.ndarray:
+    def predict(
+        self,
+        new_data: Optional[SPMData] = None,
+        new_design: Optional[np.ndarray] = None,
+    ) -> np.ndarray:
         """
         Make predictions using the fitted GLM.
 
@@ -372,19 +392,23 @@ class GeneralLinearModel:
         se = np.sqrt(self.cov_beta[coefficient_idx, coefficient_idx])
 
         t_stat = beta / se
-        p_value = 2 * t.sf(np.abs(t_stat), self.design_matrix.matrix.shape[0] - self.design_matrix.n_regressors)
+        p_value = 2 * t.sf(
+            np.abs(t_stat),
+            self.design_matrix.matrix.shape[0] - self.design_matrix.n_regressors,
+        )
 
         return {
-            'coefficient': beta,
-            'standard_error': se,
-            't_statistic': t_stat,
-            'p_value': p_value,
-            'significant': p_value < 0.05
+            "coefficient": beta,
+            "standard_error": se,
+            "t_statistic": t_stat,
+            "p_value": p_value,
+            "significant": p_value < 0.05,
         }
 
 
-def fit_glm(data: SPMData, design_matrix: DesignMatrix,
-           method: str = "OLS", **kwargs) -> SPMResult:
+def fit_glm(
+    data: SPMData, design_matrix: DesignMatrix, method: str = "OLS", **kwargs
+) -> SPMResult:
     """
     Convenience function to fit a GLM to geospatial data.
 

@@ -28,7 +28,7 @@ Perception is the process of updating beliefs to minimize free energy:
 ```python
 # Perception loop
 observation = environment.observe()
-beliefs = agent.update_beliefs(observation)
+beliefs = agent.perceive(observation)
 ```
 
 The agent maintains a **generative model** of how the world works and inverts this model to infer hidden states from observations.
@@ -90,6 +90,24 @@ Active Inference is particularly suited for geospatial agents because:
 3. **Multi-Scale Reasoning**: H3 hierarchies map naturally to hierarchical generative models
 4. **Adaptive Behavior**: Agents can adapt to changing environments without reprogramming
 
+See [Geospatial Applications](./geospatial_applications.md) for the current H3
+v4 method inventory, runner output contract, and Mermaid diagrams covering the
+geospatial architecture, H3 perception-action sequence, manifest pipeline, and
+validation flow. The same contract documents how PNG/HTML figures embed ACT
+metadata and how `*.metadata.json` plus plotted-data sidecars trace each
+visualization back to its source data and run configuration.
+
+```mermaid
+flowchart LR
+    H3["Real H3 v4 cells"] --> OBS["Per-cell observations"]
+    OBS --> BEL["Normalized H3 beliefs"]
+    BEL --> FE["Variational free energy"]
+    BEL --> EFE["Expected free energy"]
+    EFE --> ACT["Selected spatial policy"]
+    ACT --> LAT["Neighbor lattice update"]
+    LAT --> OUT["Manifest, data, GeoJSON, visualizations"]
+```
+
 ## Code & Example References
 
 ### Where VFE/EFE Are Calculated
@@ -122,4 +140,4 @@ See [references.md](./references.md) for academic citations.
 
 ---
 
-**Last Updated**: 2026-02-24
+**Last Updated**: 2026-05-18

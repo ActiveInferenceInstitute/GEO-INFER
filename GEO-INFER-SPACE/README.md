@@ -31,7 +31,7 @@ from geo_infer_space.core.dispatcher import configure_backends # Configure defau
 # All Cascadian modules use SPACE utilities from geo_infer_space.utils.h3_utils import latlng_to_cell, cell_to_latlng, polygon_to_cells from geo_infer_space.core.spatial_processor import SpatialProcessor # OSC-GEO functionality now natively integrated into UnifiedH3Backend
 
 > 📖 See [SKILL.md](./SKILL.md) for Claude Code quick-reference.
-``` **Key Performance Metrics**: - **30,021 H3 hexagons** processed efficiently - **4 production modules** (Zoning, Current Use, Ownership, Improvements) - **Multiple export formats** (GeoJSON, CSV, JSON, HTML) - **Real-time API integration** with fallback mechanisms - **Spatial analysis** including correlation and hotspot detection ### Framework
+``` **Key Performance Metrics**: - **30,021 H3 hexagons** processed efficiently - **4 production modules** (Zoning, Current Use, Ownership, Improvements) - **Multiple export formats** (GeoJSON, CSV, JSON, HTML) - **Real-time API integration** with explicit availability checks - **Spatial analysis** including correlation and hotspot detection ### Framework
  Benefits 1. **Consistency**: Unified H3 operations across all modules 2. **Maintainability**: Centralized geospatial logic reduces duplication 3. **Scalability**: Efficient processing of large spatial datasets 4. **Interoperability**: Cross-module data integration 5. **Quality**: error handling and data validation **Location**: [`GEO-INFER-PLACE/locations/cascadia/`](../GEO-INFER-PLACE/locations/cascadia/) **Documentation**: Technical framework with API reference **Status**: Production ready with test coverage This demonstrates SPACE's capability to support real-world geospatial analysis frameworks with production-quality results. ## Data Flow ### Inputs
  - **Primary Data Sources**: - Vector data (GeoJSON, Shapefile, GeoPackage) from GEO-INFER-DATA - Raster data (GeoTIFF, NetCDF, COG) from Earth observation archives - Real-time sensor streams via GEO-INFER-TIME - Point cloud data (LAS/LAZ files) for 3D analysis - Network data (road networks, utilities) for connectivity analysis - **Configuration Requirements**: - `spatial_config.yaml`: CRS definitions, indexing parameters - Environment variables: GDAL_DATA, PROJ_LIB paths - Database connections: PostGIS connection strings - **Dependencies**: - **Required**: GEO-INFER-DATA (data storage), GEO-INFER-MATH (calculations) - **Optional**: GEO-INFER-TIME (temporal analysis), GEO-INFER-AI (ML features) ### Processes
  - **Core Spatial Operations**: - Geometric calculations (area, perimeter, distance) - Spatial relationships (intersects, contains, overlaps) - Coordinate reference system transformations - Spatial indexing (H3, QuadTree, R-Tree) for performance optimization - **Analytical Methods**: - Buffer analysis and proximity calculations - Overlay operations (union, intersection, difference) - Network analysis (shortest path, service areas) - Raster analysis (map algebra, terrain analysis, focal statistics) - **Transformation Steps**: 1. Data validation and CRS harmonization 2. Spatial indexing for query optimization 3. Geometric processing and analysis 4. Result aggregation and output formatting ### Outputs
@@ -106,7 +106,25 @@ graph TD
 ``` - **Core Layer:** Provides generic spatial interfaces that dispatch to backend implementations. - **Backend Layer:** Contains specific implementations for different spatial indexing systems (H3, SRAI, etc.). - **Backend Dispatcher:** Routes operations to appropriate backends based on configuration. - **Analytical Algorithm Libraries:** Contains implementations of various vector, raster, point cloud, and network analysis algorithms, often leveraging `GEO-INFER-MATH`. - **Data Access & Integration:** Interfaces with `GEO-INFER-DATA`, external EO catalogs (STAC), OS-Climate tools, real-time data streams, and spatial databases. ## Backend
  System ### Supported
  Backends #### H3
-Backend (`backends/h3/`) - **Purpose**: Hexagonal hierarchical geospatial indexing system - **Features**: High-resolution spatial indexing, hierarchical operations, efficient spatial queries - **Use Cases**: Urban planning, logistics, environmental monitoring - **Dependencies**: `h3` Python library (optional) #### SRAI
+Backend (`backends/h3/`) - **Purpose**: Hexagonal hierarchical geospatial indexing system - **Features**: High-resolution spatial indexing, hierarchical operations, efficient spatial queries - **Use Cases**: Urban planning, logistics, environmental monitoring - **Dependencies**: `h3` Python library (optional)
+
+The canonical H3 contract for Active Inference callers is
+`SpatialIndexingInterface(backend="h3")`. GEO-INFER-ACT uses that interface
+first and direct H3 v4 calls only for operations not exposed by SPACE. Validate
+the cross-module contract with:
+
+```bash
+uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py
+uv run --package geo-infer-space --extra dev python -m pytest GEO-INFER-SPACE/tests -q --tb=short
+```
+
+ACT owns the Active Inference run-output contract for H3/spatial scenarios:
+real H3 v4 cells from SPACE, normalized beliefs, finite FE/EFE diagnostics,
+GIS-ready CSV/GeoJSON data, manifest-linked PNG/HTML visualizations, embedded
+figure metadata, and `*.metadata.json` plus plotted-data sidecars. See
+[`GEO-INFER-ACT/docs/geospatial_applications.md`](../GEO-INFER-ACT/docs/geospatial_applications.md).
+
+#### SRAI
 Backend (`backends/srai/`) - **Purpose**: Multi-index geospatial AI library supporting H3, S2, administrative boundaries, etc. - **Features**: Multiple spatial indexing systems, embedders for machine learning, regionalization - **Use Cases**: Multi-scale analysis and research - **Dependencies**: `srai` Python library (optional) ### 🔧 Backend Configuration & Selection **The system supports flexible backend configuration and selection:** ```python
 from geo_infer_space.core.dispatcher import configure_backends from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface # Configure default backends globally configure_backends({ 'default_backends': { 'indexing': 'h3', # Use H3 for spatial indexing operations 'analytics': 'srai', # Use SRAI for spatial analytics operations } }) # Use default backend (H3 for indexing operations) indexer = SpatialIndexingInterface() cell = indexer.latlng_to_cell(37.7749, -122.4194, 9) # Override backend for specific operations indexer_h3 = SpatialIndexingInterface(backend='h3') # Force H3 indexer_srai = SpatialIndexingInterface(backend='srai') # Force SRAI # All operations dispatch to the chosen backend automatically cell_h3 = indexer_h3.latlng_to_cell(37.7749, -122.4194, 9) cell_srai = indexer_srai.latlng_to_cell(37.7749, -122.4194, 9)
 ``` ### 🚀 Convenience Functions **Simple functions that work with any backend:** ```python

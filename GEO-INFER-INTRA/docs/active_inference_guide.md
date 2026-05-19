@@ -101,12 +101,15 @@ the generative model for a geospatial agent consists of:
 from geo_infer_act.core.generative_model import GenerativeModel
 import numpy as np
 
-# Define a generative model for land-use classification
-model = GenerativeModel(model_type="categorical")
-
 # 4 hidden states: forest, agriculture, urban, water
 num_states = 4
 num_observations = 6  # spectral band categories
+
+# Define a generative model for land-use classification
+model = GenerativeModel(
+    "categorical",
+    {"state_dim": num_states, "obs_dim": num_observations},
+)
 
 # Likelihood: how each land type produces spectral observations
 A = np.array([
@@ -117,11 +120,11 @@ A = np.array([
     [0.05, 0.05, 0.1, 0.1],  # thermal signature
     [0.05, 0.05, 0.05, 0.05] # noise
 ])
-model.set_observation_model(A)
+model.observation_model = A
 
 # Prior: uniform belief over land types before observation
 D = np.array([0.25, 0.25, 0.25, 0.25])
-model.set_state_prior(D)
+model.beliefs["states"] = D
 ```
 
 ### Markov Blanket
@@ -330,6 +333,13 @@ def update_spatial_beliefs(prior: dict, observations: dict,
 ## GEO-INFER-ACT Integration
 
 The `GEO-INFER-ACT` module provides the core Active Inference implementation.
+For production H3 or spatial runs, prefer the package runner contract:
+`geo-infer-act-run --scenario h3` or `--scenario spatial`. Those scenarios use
+real H3 v4 cells, normalized beliefs, finite FE/EFE diagnostics, GIS-ready CSV
+and GeoJSON outputs, manifest-linked visualizations, embedded figure metadata,
+and per-figure metadata plus plotted-data sidecars. The canonical output and
+validation contract is
+[`GEO-INFER-ACT/docs/geospatial_applications.md`](../../GEO-INFER-ACT/docs/geospatial_applications.md).
 
 ### Creating an Active Inference Agent
 
@@ -340,12 +350,15 @@ from geo_infer_act.core.free_energy import FreeEnergyCalculator
 from geo_infer_act.core.policy_selection import PolicySelector
 import numpy as np
 
-# Step 1: Define the generative model
-model = GenerativeModel(model_type="categorical")
-
 # Configure state space: 5 habitat quality levels
 num_states = 5
 num_obs = 4  # NDVI categories: low, medium, high, very_high
+
+# Step 1: Define the generative model
+model = GenerativeModel(
+    "categorical",
+    {"state_dim": num_states, "obs_dim": num_obs},
+)
 
 # Likelihood matrix: P(observation | state)
 A = np.zeros((num_obs, num_states))
@@ -353,18 +366,18 @@ A[0, :] = [0.7, 0.2, 0.05, 0.03, 0.02]  # low NDVI
 A[1, :] = [0.2, 0.5, 0.2, 0.07, 0.03]    # medium NDVI
 A[2, :] = [0.07, 0.2, 0.5, 0.4, 0.2]     # high NDVI
 A[3, :] = [0.03, 0.1, 0.25, 0.5, 0.75]   # very high NDVI
-model.set_observation_model(A)
+model.observation_model = A
 
 # Transition matrix: P(s' | s, action=no_intervention)
 B = np.eye(num_states) * 0.7
 for i in range(num_states - 1):
     B[i + 1, i] = 0.2   # natural improvement
     B[i, i + 1] = 0.1   # natural degradation
-model.set_transition_model(B)
+model.transition_model = B
 
 # Prior beliefs: start with moderate habitat quality
 D = np.array([0.1, 0.2, 0.4, 0.2, 0.1])
-model.set_state_prior(D)
+model.beliefs["states"] = D
 
 # Step 2: Create the Active Inference agent
 agent = ActiveInferenceModel(model_type="categorical")
@@ -397,7 +410,10 @@ OBS_CATEGORIES = ["bare_soil", "sparse_vegetation", "moderate_canopy", "dense_ca
 NUM_OBS = len(OBS_CATEGORIES)
 
 # Build the generative model
-habitat_model = GenerativeModel(model_type="categorical")
+habitat_model = GenerativeModel(
+    "categorical",
+    {"state_dim": NUM_STATES, "obs_dim": NUM_OBS},
+)
 
 # Likelihood: how habitat quality produces remote sensing signatures
 A = np.array([
@@ -406,7 +422,7 @@ A = np.array([
     [0.07, 0.20, 0.40, 0.37, 0.20],  # moderate canopy
     [0.03, 0.10, 0.25, 0.50, 0.75],  # dense canopy
 ])
-habitat_model.set_observation_model(A)
+habitat_model.observation_model = A
 
 # Transition dynamics: seasonal improvement expected (spring)
 B_spring = np.array([
@@ -416,11 +432,11 @@ B_spring = np.array([
     [0.02, 0.08, 0.25, 0.60, 0.18],
     [0.00, 0.02, 0.10, 0.30, 0.80],
 ])
-habitat_model.set_transition_model(B_spring)
+habitat_model.transition_model = B_spring
 
 # Prior: start from uninformed position
 D = np.ones(NUM_STATES) / NUM_STATES
-habitat_model.set_state_prior(D)
+habitat_model.beliefs["states"] = D
 
 # Create the agent
 agent = ActiveInferenceModel(model_type="categorical")

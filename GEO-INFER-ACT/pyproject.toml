@@ -37,7 +37,7 @@ dependencies = [
     "scipy>=1.7.0",
     "torch>=1.9.0",
     "inferactively-pymdp>=0.0.5",
-    "h3>=3.7.0",
+    "h3>=4.0.0",
     "shapely>=1.7.0",
     "scikit-learn>=1.0.0",
     "arviz>=0.11.0",
@@ -73,6 +73,8 @@ Repository = "https://github.com/ActiveInferenceInstitute/GEO-INFER"
 "Bug Tracker" = "https://github.com/ActiveInferenceInstitute/GEO-INFER/issues"
 
 [project.scripts]
+geo-infer-act-run = "geo_infer_act.runners.cli:main"
+geo-infer-act-examples = "geo_infer_act.runners.cli:run_all_main"
 
 
 [tool.setuptools]
@@ -177,4 +179,3 @@ exclude_lines = [
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
-

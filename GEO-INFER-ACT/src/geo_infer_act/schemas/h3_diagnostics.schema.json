@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://geo-infer.org/schemas/act/h3_diagnostics.schema.json",
+  "title": "GEO-INFER-ACT H3 Diagnostics",
+  "type": "object",
+  "required": [
+    "timestep",
+    "spatial_consistency",
+    "aggregate_free_energy",
+    "h3_resolution"
+  ],
+  "properties": {
+    "timestep": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "aggregate_free_energy": {
+      "type": "number"
+    },
+    "h3_resolution": {
+      "type": "integer"
+    },
+    "spatial_consistency": {
+      "type": "object",
+      "required": [
+        "global_coherence",
+        "neighbor_correlations",
+        "cell_count",
+        "edge_count"
+      ],
+      "properties": {
+        "global_coherence": {
+          "type": "number"
+        },
+        "neighbor_correlations": {
+          "type": "number"
+        },
+        "cell_count": {
+          "type": "integer"
+        },
+        "edge_count": {
+          "type": "integer"
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

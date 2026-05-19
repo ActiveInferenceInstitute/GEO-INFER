@@ -6,18 +6,24 @@ and processing operations.
 """
 
 import logging
-from typing import Dict, List, Optional, Union, Any
+import inspect
+from typing import Dict, List, Optional, Any
 from datetime import datetime
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException, UploadFile, File, Query, Path as PathParam
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 import uvicorn
 
 from ..models.schemas import (
-    Dataset, DatasetMetadata, DatasetSummary, DataQualityReport,
-    Pagination, HealthStatus, ExecutionStatus
+    Dataset,
+    DatasetMetadata,
+    DatasetSummary,
+    DataQualityReport,
+    HealthStatus,
+    SpatialExtent,
+    TemporalExtent,
+    DataLineage,
 )
 from ..core.ingestion import MultiSourceDataIngestion
 from ..core.storage import AdaptiveDataStorage
@@ -26,6 +32,13 @@ from ..core.pipeline import IntelligentETLPipeline
 
 
 logger = logging.getLogger(__name__)
+
+
+async def _maybe_await(value: Any) -> Any:
+    """Return sync values and await coroutine-like service results."""
+    if inspect.isawaitable(value):
+        return await value
+    return value
 
 
 class DataAPI:
@@ -51,7 +64,7 @@ class DataAPI:
         config_path: Optional[Path] = None,
         host: str = "0.0.0.0",
         port: int = 8001,
-        enable_cors: bool = True
+        enable_cors: bool = True,
     ):
         self.config_path = config_path
         self.host = host
@@ -60,30 +73,27 @@ class DataAPI:
 
         # Initialize core services
         self.ingestion_service = MultiSourceDataIngestion(
-            data_sources=['satellite', 'sensors', 'crowdsourced'],
-            validation_enabled=True
+            data_sources=["satellite", "sensors", "crowdsourced"],
+            validation_enabled=True,
         )
 
         self.storage_service = AdaptiveDataStorage(
-            storage_backends=['postgresql', 'minio'],
-            optimization_strategy='access_pattern_based'
+            storage_backends=["local"], optimization_strategy="access_pattern_based"
         )
 
         self.quality_service = DataQualityManager(
-            validation_rules='comprehensive',
-            real_time_monitoring=True
+            validation_rules="comprehensive", real_time_monitoring=True
         )
 
         self.pipeline_service = IntelligentETLPipeline(
-            workflow_config=None,
-            error_recovery='intelligent_retry'
+            workflow_config=None, error_recovery="intelligent_retry"
         )
 
         # Initialize FastAPI app
         self.app = FastAPI(
             title="GEO-INFER-DATA API",
             description="Comprehensive Data Management and Storage for Geospatial Systems",
-            version="1.0.0"
+            version="1.0.0",
         )
 
         if self.enable_cors:
@@ -109,7 +119,7 @@ class DataAPI:
                 "name": "GEO-INFER-DATA API",
                 "version": "1.0.0",
                 "status": "running",
-                "timestamp": datetime.utcnow().isoformat()
+                "timestamp": datetime.utcnow().isoformat(),
             }
 
         @self.app.get("/health")
@@ -118,7 +128,7 @@ class DataAPI:
             return HealthStatus(
                 status="healthy",
                 message="Data API is running",
-                checked_at=datetime.utcnow()
+                checked_at=datetime.utcnow(),
             )
 
         @self.app.get("/datasets", response_model=List[DatasetSummary])
@@ -126,7 +136,7 @@ class DataAPI:
             page: int = Query(1, ge=1),
             limit: int = Query(50, ge=1, le=1000),
             data_type: Optional[str] = None,
-            bbox: Optional[List[float]] = Query(None)
+            bbox: Optional[str] = Query(None),
         ):
             """List available datasets."""
             # Mock implementation - would query actual datasets
@@ -143,13 +153,14 @@ class DataAPI:
                     title=f"Dataset {i}",
                     type="vector",
                     format="geojson",
-                    created_at=datetime.utcnow()
+                    bbox=[-122.5, 37.7, -122.3, 37.9],
+                    created_at=datetime.utcnow(),
                 )
                 datasets.append(dataset)
 
             return datasets
 
-        @self.app.post("/datasets", response_model=Dataset)
+        @self.app.post("/datasets", response_model=Dataset, status_code=201)
         async def create_dataset(dataset: Dataset):
             """Create a new dataset."""
             # Implementation for dataset creation
@@ -169,17 +180,19 @@ class DataAPI:
                     title=f"Dataset {dataset_id}",
                     spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9]),
                     temporal=TemporalExtent(
-                        start=datetime(2023, 1, 1),
-                        end=datetime(2023, 12, 31)
-                    )
-                )
+                        start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
+                    ),
+                    lineage=DataLineage(
+                        source="api", process="lookup", created_by="geo-infer-data"
+                    ),
+                ),
             )
 
         @self.app.get("/datasets/{dataset_id}/data")
         async def get_dataset_data(
             dataset_id: str = PathParam(...),
             format: str = Query("geojson", enum=["geojson", "geotiff", "csv"]),
-            bbox: Optional[List[float]] = Query(None)
+            bbox: Optional[List[float]] = Query(None),
         ):
             """Get dataset data."""
             # Implementation for data retrieval
@@ -189,7 +202,7 @@ class DataAPI:
         async def upload_dataset_data(
             dataset_id: str = PathParam(...),
             file: UploadFile = File(...),
-            overwrite: bool = False
+            overwrite: bool = False,
         ):
             """Upload data to dataset."""
             # Implementation for data upload
@@ -203,9 +216,11 @@ class DataAPI:
                 title=f"Dataset {dataset_id}",
                 spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9]),
                 temporal=TemporalExtent(
-                    start=datetime(2023, 1, 1),
-                    end=datetime(2023, 12, 31)
-                )
+                    start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
+                ),
+                lineage=DataLineage(
+                    source="api", process="metadata_lookup", created_by="geo-infer-data"
+                ),
             )
 
         @self.app.post("/data/ingest/multi-source")
@@ -222,9 +237,9 @@ class DataAPI:
             """Execute ETL pipeline."""
             try:
                 result = await self.pipeline_service.execute_workflow(
-                    source_data=request.get('source_data'),
-                    target_storage=request.get('target_storage'),
-                    transformation_rules=request.get('transformations')
+                    source_data=request.get("source_data"),
+                    target_storage=request.get("target_storage"),
+                    transformation_rules=request.get("transformations"),
                 )
                 return result
             except Exception as e:
@@ -233,7 +248,7 @@ class DataAPI:
         @self.app.post("/quality/validate/{dataset_id}")
         async def validate_dataset_quality(
             dataset_id: str = PathParam(...),
-            checks: List[str] = Query(['completeness', 'accuracy', 'consistency'])
+            checks: List[str] = Query(["completeness", "accuracy", "consistency"]),
         ):
             """Validate dataset quality."""
             try:
@@ -245,24 +260,20 @@ class DataAPI:
         @self.app.get("/search")
         async def search_datasets(
             q: Optional[str] = None,
-            bbox: Optional[List[float]] = Query(None),
+            bbox: Optional[str] = Query(None),
             temporal: Optional[str] = None,
             data_type: Optional[str] = None,
-            tags: List[str] = Query([])
+            tags: List[str] = Query([]),
         ):
             """Search datasets."""
             # Implementation for dataset search
-            return {
-                "query": q,
-                "results": [],
-                "total": 0
-            }
+            return {"query": q, "results": [], "total": 0}
 
         @self.app.get("/storage/backends")
         async def list_storage_backends():
             """List storage backends."""
             stats = self.storage_service.get_storage_stats()
-            return stats.get('backends', [])
+            return stats.get("backends", [])
 
         @self.app.get("/metrics")
         async def get_metrics():
@@ -271,7 +282,7 @@ class DataAPI:
                 "uptime": "1h 30m",
                 "requests_total": 1250,
                 "errors_total": 5,
-                "response_time_avg": 0.125
+                "response_time_avg": 0.125,
             }
 
     def start(self, reload: bool = False):
@@ -279,11 +290,7 @@ class DataAPI:
         logger.info(f"Starting DataAPI server on {self.host}:{self.port}")
 
         uvicorn.run(
-            self.app,
-            host=self.host,
-            port=self.port,
-            reload=reload,
-            log_level="info"
+            self.app, host=self.host, port=self.port, reload=reload, log_level="info"
         )
 
     def stop(self):
@@ -312,7 +319,9 @@ class DatasetAPI:
         >>> await dataset_api.delete_dataset(dataset_id)
     """
 
-    def __init__(self, storage_service: AdaptiveDataStorage, quality_service: DataQualityManager):
+    def __init__(
+        self, storage_service: AdaptiveDataStorage, quality_service: DataQualityManager
+    ):
         self.storage_service = storage_service
         self.quality_service = quality_service
 
@@ -332,7 +341,9 @@ class DatasetAPI:
         logger.info(f"Creating dataset: {metadata.title}")
 
         # Validate data
-        quality_report = await self.quality_service.validator.validate_data(data, metadata)
+        quality_report = await self.quality_service.validator.validate_data(
+            data, metadata
+        )
 
         if quality_report.overall_score < 0.5:  # Very low quality
             raise ValueError(f"Data quality too low: {quality_report.overall_score}")
@@ -358,7 +369,17 @@ class DatasetAPI:
             id=dataset_id,
             title=f"Dataset {dataset_id}",
             type="vector",
-            format="geojson"
+            format="geojson",
+            metadata=DatasetMetadata(
+                title=f"Dataset {dataset_id}",
+                spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9]),
+                temporal=TemporalExtent(
+                    start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
+                ),
+                lineage=DataLineage(
+                    source="api", process="lookup", created_by="geo-infer-data"
+                ),
+            ),
         )
 
     async def update_dataset(self, dataset_id: str, updates: Dict[str, Any]) -> bool:
@@ -402,4 +423,4 @@ class DatasetAPI:
         Returns:
             Quality report
         """
-        return await self.quality_service.validate_dataset(dataset_id)
+        return await _maybe_await(self.quality_service.validate_dataset(dataset_id))

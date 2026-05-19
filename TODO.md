@@ -1,7 +1,7 @@
 # GEO-INFER — TODO & Release Roadmap
 
-> **Last Updated**: 2026-02-25  
-> **Current Version**: 0.2.0 (Beta)  
+> **Last Updated**: 2026-05-18
+> **Current Version**: 0.2.0 (Beta)
 > **Repository**: [ActiveInferenceInstitute/GEO-INFER](https://github.com/ActiveInferenceInstitute/GEO-INFER)
 
 ---
@@ -13,7 +13,7 @@ Every version release MUST satisfy ALL of the following before tagging:
 | Category | Criterion | Verification | Required |
 |----------|-----------|-------------|----------|
 | **Quality** | All tests pass | `uv run python GEO-INFER-TEST/run_unified_tests.py` | 0 failures |
-| **Quality** | No stub/placeholder code | `grep -rn "placeholder\|NotImplementedError\|stub" --include="*.py" GEO-INFER-*/src/` | 0 results¹ |
+| **Quality** | No source-language debt | `uv run python GEO-INFER-TEST/validate_repo_contracts.py --strict-source-language` | 0 results¹ |
 | **Quality** | No illegitimate `pass` stubs | Grep `^    pass$` excluding `__init__`, `except`, abstract | 0 results |
 | **Quality** | Type hints complete | `mypy --strict` on core modules | 0 errors |
 | **Quality** | Formatting & lint | `black --check`, `isort --check`, `ruff check` | Clean |
@@ -27,8 +27,44 @@ Every version release MUST satisfy ALL of the following before tagging:
 | **Arch** | PEP 8 package names | No unexpected package dir casing in `src/` | 0 ✅ (all 44 packages normalized to `geo_infer_<module>`) |
 | **Arch** | Graceful dependency degradation | `import geo_infer_act` without optional deps | No ImportError ✅ |
 | **Arch** | H3 v4 API only | No legacy `h3.geo_to_h3` calls | 0 ✅ |
+| **Arch** | Active Inference API contract | `uv run python GEO-INFER-TEST/validate_active_inference_contract.py` | 0 failures |
 
 > ¹ Excludes legitimate uses: SQL parameter placeholders, HTML `placeholder=` attributes, fallback geometries, docstring references.
+
+---
+
+## 2026-05-18 Active Inference Hardening Pass
+
+Completed:
+
+- [x] Added `ISA.md` with Active Inference, packaging, docs, and verification ideal-state criteria.
+- [x] Added `GEO-INFER-TEST/validate_repo_contracts.py` for inventory, signposting, package casing, pyproject sanity, setup syntax, import-smoke warnings, and source-language debt reporting.
+- [x] Added `GEO-INFER-TEST/validate_active_inference_contract.py` for typed ACT result objects, categorical free-energy decomposition, deterministic policy selection, and typed step results.
+- [x] Normalized ENERGY, FOREST, MARINE, and WATER package directories to lowercase `geo_infer_<module>`.
+- [x] Fixed `GEO-INFER-INTRA/setup.py` syntax so workspace package scans are no longer blocked there.
+- [x] Implemented ACT typed result exports: `FreeEnergyBreakdown`, `PolicyEvaluation`, and `ActiveInferenceStepResult`.
+- [x] Corrected categorical free energy to report `complexity - accuracy` and stable normalized terms.
+- [x] Replaced first-policy selection fallback with expected-free-energy policy evaluation and seedable deterministic/stochastic selection.
+- [x] Implemented BAYES full-rank VI initialization and finite Cholesky-factor sampling path.
+- [x] Made MATH convenience imports independent of Flask; documented `geo-infer-math[web]` for Flask-backed APIs.
+- [x] Replaced the stale INTRA Active Inference getting-started tutorial with runnable current API examples.
+
+Remaining:
+
+- [ ] Drive `validate_repo_contracts.py --strict-source-language` to zero source-language debt across all modules.
+- [ ] Align AGENT and SIM Active Inference adapters more deeply with ACT typed result objects while preserving their current tests.
+- [ ] Regenerate historical INTRA/EXAMPLES assessment outputs so their casing and status snapshots are current instead of archival.
+
+Verification:
+
+```bash
+uv run python GEO-INFER-TEST/validate_skills.py --check-xrefs
+uv run python GEO-INFER-TEST/validate_repo_contracts.py
+uv run python GEO-INFER-TEST/validate_active_inference_contract.py
+uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests -q
+uv run --package geo-infer-bayes --extra dev python -m pytest GEO-INFER-BAYES/tests -q
+uv run --package geo-infer-math --extra dev python -m pytest GEO-INFER-MATH/tests -q
+```
 
 ---
 

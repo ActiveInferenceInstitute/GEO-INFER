@@ -148,6 +148,8 @@ markers = [
     "integration: marks tests as integration tests",
     "unit: marks tests as unit tests",
     "performance: marks tests as performance tests",
+    "geospatial: marks tests involving spatial operations",
+    "system: marks tests involving system-level integration",
 ]
 
 [tool.coverage.run]
@@ -168,4 +170,3 @@ exclude_lines = [
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
-

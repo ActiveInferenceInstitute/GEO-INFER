@@ -1,0 +1,13 @@
+schema_version: geo-infer-act-run-config/v1
+scenario: simple
+seed: 42
+deterministic: true
+timesteps: 8
+visualizations: true
+h3_resolution: 8
+h3_ring_size: 1
+output_formats:
+  - json
+  - csv
+  - png
+parameters: {}

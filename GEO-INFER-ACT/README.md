@@ -4,7 +4,7 @@ description: "Active Inference implementation using Free Energy Principle for ge
 purpose: "Provide the core Active Inference framework for perception, action, and learning"
 module_type: "Core Framework"
 status: "Beta"
-last_updated: "2026-02-25"
+last_updated: "2026-05-18"
 dependencies: ["BAYES", "SPACE", "TIME"]
 compatibility: ["GEO-INFER-BAYES", "GEO-INFER-SPACE", "GEO-INFER-TIME", "GEO-INFER-AGENT"]
 tags: ["active-inference", "free-energy", "perception", "action", "learning"]
@@ -68,15 +68,14 @@ from geo_infer_act import GenerativeModel
 model = GenerativeModel(
     model_type="categorical",
     parameters={
-        "n_states": 3,
-        "n_observations": 3,
-        "n_actions": 3,
+        "state_dim": 3,
+        "obs_dim": 3,
     },
     model_id="spatial_model"
 )
 
 # Update beliefs from observations
-updated = model.update_beliefs({"obs": observation_data})
+updated = model.update_beliefs({"observations": observation_data})
 ```
 
 ### Active Inference Agent
@@ -101,7 +100,7 @@ beliefs, action = agent.step(observation)
 ### Free Energy Computation
 
 ```python
-from geo_infer_act import FreeEnergyCalculator
+from geo_infer_act import FreeEnergyBreakdown, FreeEnergyCalculator
 
 # Calculate variational free energy
 fe_calc = FreeEnergyCalculator()
@@ -119,28 +118,76 @@ efe = fe_calc.compute_expected_free_energy(
     policy=candidate_policy,
     preferences=preferences
 )
+
+# Typed decomposition for diagnostics and tests
+breakdown = fe_calc.compute_categorical_free_energy(
+    beliefs=posterior,
+    observations=obs,
+    preferences=preferences,
+    return_breakdown=True,
+)
+assert isinstance(breakdown, FreeEnergyBreakdown)
+assert breakdown.free_energy == breakdown.complexity - breakdown.accuracy
 ```
 
-### Spatial Active Inference
+### Policy Selection
 
 ```python
-from geo_infer_act import SpatialActiveInferenceAgent
+from geo_infer_act import PolicyEvaluation, PolicySelector
+
+selector = PolicySelector(selection_mode="deterministic", random_seed=7)
+result = selector.select_policy(
+    beliefs=posterior,
+    policies=[
+        {"action": "survey", "expected_free_energy": -0.5},
+        {"action": "wait", "expected_free_energy": 0.2},
+    ],
+    preferences=preferences,
+)
+
+assert result["policy"]["action"] == "survey"
+assert isinstance(result["evaluation"], PolicyEvaluation)
+```
+
+### H3 Spatial Active Inference
+
+```python
+import numpy as np
+from geo_infer_act import H3GridInferenceResult, SpatialActiveInferenceAgent
+from geo_infer_space.core.spatial_indexing import SpatialIndexingInterface
+
+indexer = SpatialIndexingInterface(backend="h3")
+center = indexer.latlng_to_cell(37.7749, -122.4194, resolution=8)
+cells = [center, *indexer.get_cell_neighbors(center, k=1)[:3]]
 
 # Create agent on H3 hexagonal grid
 spatial_agent = SpatialActiveInferenceAgent(
-    h3_resolution=9,
+    initial_cells=cells,
+    h3_resolution=8,
     state_dim=4,
     obs_dim=4,
     diffusion_rate=0.1
 )
 
 # Run perception-action loop
-for _ in range(100):
-    observations = get_spatial_observations()  # Dict[cell_id -> np.ndarray]
-    result = spatial_agent.step(observations)
-    print(f"Free energy: {result['free_energy']:.3f}")
-    print(f"Action: {result['action']['action']}")
+observations = {cell: np.array([1.0, 0.0, 0.0, 0.0]) for cell in cells}
+result = spatial_agent.step(observations, return_result=True)
+assert isinstance(result, H3GridInferenceResult)
+assert result.spatial_consistency.cell_count == len(cells)
+print(f"Free energy: {result.aggregate_free_energy:.3f}")
 ```
+
+H3 callers keep the legacy dictionary return shapes by default. Pass
+`return_result=True` to receive typed diagnostics:
+`H3SpatialConsistency`, `H3BeliefUpdateResult`, or `H3GridInferenceResult`.
+Real H3 paths use H3 v4 cells through `GEO-INFER-SPACE` when available and
+direct `h3-py` v4 calls for operations SPACE does not expose.
+
+For the complete geospatial contract, see
+[Geospatial Applications](docs/geospatial_applications.md). The contract
+requires real H3 v4 cell identifiers, normalized nonnegative beliefs, finite
+free-energy and expected-free-energy values, manifest-referenced GIS outputs,
+and schema-validated visualizations for `h3` and `spatial` runner scenarios.
 
 ## Core Components
 
@@ -185,6 +232,41 @@ Which balances:
 | **GEO-INFER-TIME** | Temporal dynamics |
 | **GEO-INFER-AGENT** | Agent orchestration |
 
+## Scenario Runners and Outputs
+
+ACT scripts are thin wrappers around `geo_infer_act.runners`. Use the package
+CLI for repeatable configured runs:
+
+```bash
+uv run --package geo-infer-act --extra dev geo-infer-act-run \
+  --scenario h3 \
+  --config GEO-INFER-ACT/config/active_inference_run.yaml \
+  --output-dir /tmp/geo-infer-act-h3 \
+  --seed 42 \
+  --timesteps 8
+
+uv run --package geo-infer-act --extra dev geo-infer-act-examples \
+  --output-dir /tmp/geo-infer-act-suite
+```
+
+Every scenario writes a versioned `manifest.json`, `data/full_history.json`,
+`data/step_metrics.csv`, analyzer outputs under `analysis/`, logs under
+`logs/`, and at least one visualization under `visualizations/` unless
+`--no-visualizations` is set. JSON Schema contracts are packaged in
+`src/geo_infer_act/schemas/`.
+
+For `h3` and `spatial` scenarios, ACT also writes `data/h3_cells.csv`,
+`data/h3_cells.geojson`, `data/h3_diagnostics.json`, static H3 visualizations,
+and `visualizations/interactive_h3_map.html`.
+
+Every visualization is traceable to the data that rendered it. PNG figures embed
+ACT metadata in the image file, HTML maps embed structured JSON metadata, and
+each figure has `*.metadata.json` plus `*.data.csv` or `*.data.json` sidecars.
+`manifest.generated_files` records the artifact type, MIME type, SHA-256 digest,
+sidecar paths, source data files, plotted metrics, description, alt text, and
+image dimensions when available. The full contract is documented in
+[Geospatial Applications](docs/geospatial_applications.md).
+
 ## Installation
 
 ```bash
@@ -193,6 +275,16 @@ uv pip install -e "./GEO-INFER-ACT"
 
 # With visualization tools
 uv pip install -e "./GEO-INFER-ACT[viz]"
+```
+
+## Verification
+
+```bash
+uv run python GEO-INFER-TEST/validate_act_script_orchestration.py
+uv run python GEO-INFER-TEST/validate_act_geospatial_contract.py
+uv run python GEO-INFER-TEST/validate_h3_active_inference_contract.py
+uv run python GEO-INFER-TEST/validate_active_inference_contract.py
+uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests -q
 ```
 
 ## Use Cases

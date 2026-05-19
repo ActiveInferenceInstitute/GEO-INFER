@@ -39,16 +39,18 @@ setup(
         "opencv-python>=4.5.0",
         "cartopy>=0.20.0",  # For map projections
         "seaborn>=0.11.0",  # For enhanced color palettes
-        "plotly>=5.0.0",    # For interactive visualizations
-        "folium>=0.12.0",   # For web-based mapping
-        "bokeh>=2.4.0",     # For interactive plots
-        "mayavi>=4.7.0",    # For 3D visualizations
-        "psutil>=5.8.0",    # For system monitoring
-        "imageio>=2.9.0",   # For animation support
+        "plotly>=5.0.0",  # For interactive visualizations
+        "folium>=0.12.0",  # For web-based mapping
+        "bokeh>=2.4.0",  # For interactive plots
+        "psutil>=5.8.0",  # For system monitoring
+        "imageio>=2.9.0",  # For animation support
         "imageio-ffmpeg>=0.4.0",  # For video export
-        "kaleido>=0.2.0",   # For plotly image export
+        "kaleido>=0.2.0",  # For plotly image export
     ],
     extras_require={
+        "viz3d": [
+            "mayavi>=4.7.0",  # Optional 3D visualization backend
+        ],
         "dev": [
             "pytest>=6.2.5",
             "pytest-cov>=2.12.1",
@@ -57,4 +59,4 @@ setup(
             "isort>=5.9.2",
         ],
     },
-) 
+)

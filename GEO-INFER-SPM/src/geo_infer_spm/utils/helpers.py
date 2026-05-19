@@ -6,17 +6,20 @@ generating coordinates, and other common SPM analysis tasks.
 """
 
 import numpy as np
-from typing import Dict, List, Optional, Tuple, Union, Any
+from typing import Dict, List, Optional, Tuple, Any
 from scipy import stats
 import warnings
 
 from ..models.data_models import SPMData, DesignMatrix
 
 
-def create_design_matrix(data: SPMData, formula: Optional[str] = None,
-                        factors: Optional[Dict[str, List[str]]] = None,
-                        covariates: Optional[List[str]] = None,
-                        intercept: bool = True) -> DesignMatrix:
+def create_design_matrix(
+    data: SPMData,
+    formula: Optional[str] = None,
+    factors: Optional[Dict[str, List[str]]] = None,
+    covariates: Optional[List[str]] = None,
+    intercept: bool = True,
+) -> DesignMatrix:
     """
     Create design matrix from SPMData and specification.
 
@@ -50,14 +53,15 @@ def create_design_matrix(data: SPMData, formula: Optional[str] = None,
         # Intercept
         if intercept:
             design_components.append(np.ones(n_points))
-            names.append('intercept')
+            names.append("intercept")
 
         # Covariates
         if covariates:
+            data_covariates = data.covariates or {}
             for cov_name in covariates:
-                if cov_name not in data.covariates:
+                if cov_name not in data_covariates:
                     raise ValueError(f"Covariate '{cov_name}' not found in data")
-                design_components.append(data.covariates[cov_name])
+                design_components.append(data_covariates[cov_name])
                 names.append(cov_name)
 
         # Factors (categorical variables)
@@ -72,7 +76,9 @@ def create_design_matrix(data: SPMData, formula: Optional[str] = None,
                         names.append(f"{factor_name}_{level}")
                 else:
                     # Create default factor coding
-                    warnings.warn(f"Factor '{factor_name}' not found in covariates, using equal groups")
+                    warnings.warn(
+                        f"Factor '{factor_name}' not found in covariates, using equal groups"
+                    )
                     factor_values = np.random.choice(levels, n_points)
                     dummy_matrix = _create_dummy_variables(factor_values, levels)
                     for i, level in enumerate(levels[:-1]):
@@ -82,42 +88,41 @@ def create_design_matrix(data: SPMData, formula: Optional[str] = None,
         design_matrix = np.column_stack(design_components)
 
     return DesignMatrix(
-        matrix=design_matrix,
-        names=names,
-        factors=factors,
-        covariates=covariates
+        matrix=design_matrix, names=names, factors=factors, covariates=covariates
     )
 
 
-def _parse_formula(formula: str, data: SPMData, intercept: bool) -> Tuple[np.ndarray, List[str]]:
+def _parse_formula(
+    formula: str, data: SPMData, intercept: bool
+) -> Tuple[np.ndarray, List[str]]:
     """Parse formula string to create design matrix (simplified implementation)."""
     # This is a basic parser - full implementation would be more comprehensive
-    if '~' not in formula:
+    if "~" not in formula:
         raise ValueError("Formula must contain '~' separator")
 
-    response, predictors = formula.split('~', 1)
+    response, predictors = formula.split("~", 1)
 
     # Parse predictors
-    terms = [term.strip() for term in predictors.split('+')]
+    terms = [term.strip() for term in predictors.split("+")]
 
     design_components = []
     names = []
 
     # Intercept
-    if intercept and '0' not in terms:
+    if intercept and "0" not in terms:
         design_components.append(np.ones(data.n_points))
-        names.append('intercept')
+        names.append("intercept")
 
     for term in terms:
         term = term.strip()
-        if term == '0':
+        if term == "0":
             continue  # No intercept
         elif term in data.covariates:
             design_components.append(data.covariates[term])
             names.append(term)
-        elif '*' in term:
+        elif "*" in term:
             # Interaction term (simplified)
-            var1, var2 = term.split('*', 1)
+            var1, var2 = term.split("*", 1)
             var1, var2 = var1.strip(), var2.strip()
             if var1 in data.covariates and var2 in data.covariates:
                 interaction = data.covariates[var1] * data.covariates[var2]
@@ -149,9 +154,12 @@ def _create_dummy_variables(values: np.ndarray, levels: List[str]) -> np.ndarray
     return dummy_matrix
 
 
-def generate_coordinates(grid_type: str = 'regular', n_points: int = 100,
-                        bounds: Optional[Tuple[float, float, float, float]] = None,
-                        **kwargs) -> np.ndarray:
+def generate_coordinates(
+    grid_type: str = "regular",
+    n_points: int = 100,
+    bounds: Optional[Tuple[float, float, float, float]] = None,
+    **kwargs,
+) -> np.ndarray:
     """
     Generate synthetic coordinate arrays for testing and examples.
 
@@ -176,7 +184,7 @@ def generate_coordinates(grid_type: str = 'regular', n_points: int = 100,
 
     min_lon, max_lon, min_lat, max_lat = bounds
 
-    if grid_type == 'regular':
+    if grid_type == "regular":
         # Create regular grid
         n_cols = int(np.sqrt(n_points))
         n_rows = (n_points + n_cols - 1) // n_cols  # Ceiling division
@@ -187,16 +195,16 @@ def generate_coordinates(grid_type: str = 'regular', n_points: int = 100,
         lon_grid, lat_grid = np.meshgrid(lon_vals, lat_vals)
         coordinates = np.column_stack([lon_grid.ravel(), lat_grid.ravel()])[:n_points]
 
-    elif grid_type == 'random':
+    elif grid_type == "random":
         # Random coordinates within bounds
         lon_vals = np.random.uniform(min_lon, max_lon, n_points)
         lat_vals = np.random.uniform(min_lat, max_lat, n_points)
         coordinates = np.column_stack([lon_vals, lat_vals])
 
-    elif grid_type == 'clustered':
+    elif grid_type == "clustered":
         # Generate clustered coordinates
-        n_clusters = kwargs.get('n_clusters', 3)
-        cluster_std = kwargs.get('cluster_std', 5.0)
+        n_clusters = kwargs.get("n_clusters", 3)
+        cluster_std = kwargs.get("cluster_std", 5.0)
 
         coordinates = np.zeros((n_points, 2))
 
@@ -212,14 +220,20 @@ def generate_coordinates(grid_type: str = 'regular', n_points: int = 100,
             cluster_size = points_per_cluster + (1 if cluster < remaining_points else 0)
 
             # Generate points around cluster center
-            lon_points = np.random.normal(cluster_centers_lon[cluster], cluster_std, cluster_size)
-            lat_points = np.random.normal(cluster_centers_lat[cluster], cluster_std, cluster_size)
+            lon_points = np.random.normal(
+                cluster_centers_lon[cluster], cluster_std, cluster_size
+            )
+            lat_points = np.random.normal(
+                cluster_centers_lat[cluster], cluster_std, cluster_size
+            )
 
             # Clip to bounds
             lon_points = np.clip(lon_points, min_lon, max_lon)
             lat_points = np.clip(lat_points, min_lat, max_lat)
 
-            coordinates[idx:idx + cluster_size] = np.column_stack([lon_points, lat_points])
+            coordinates[idx : idx + cluster_size] = np.column_stack(
+                [lon_points, lat_points]
+            )
             idx += cluster_size
 
     else:
@@ -228,9 +242,13 @@ def generate_coordinates(grid_type: str = 'regular', n_points: int = 100,
     return coordinates
 
 
-def generate_synthetic_data(coordinates: np.ndarray, effects: Optional[Dict[str, Any]] = None,
-                          noise_level: float = 0.1, temporal: bool = False,
-                          n_timepoints: int = 10) -> SPMData:
+def generate_synthetic_data(
+    coordinates: np.ndarray,
+    effects: Optional[Dict[str, Any]] = None,
+    noise_level: float = 0.1,
+    temporal: bool = False,
+    n_timepoints: int = 10,
+) -> SPMData:
     """
     Generate synthetic SPM data for testing and examples.
 
@@ -251,32 +269,32 @@ def generate_synthetic_data(coordinates: np.ndarray, effects: Optional[Dict[str,
     n_points = len(coordinates)
 
     if effects is None:
-        effects = {'intercept': 10, 'trend': 'east_west'}
+        effects = {"intercept": 10, "trend": "east_west"}
 
     # Generate base signal
     signal = np.zeros(n_points)
 
     # Intercept
-    if 'intercept' in effects:
-        signal += effects['intercept']
+    if "intercept" in effects:
+        signal += effects["intercept"]
 
     # Spatial trends
-    if 'trend' in effects:
-        trend_type = effects['trend']
+    if "trend" in effects:
+        trend_type = effects["trend"]
 
-        if trend_type == 'east_west':
+        if trend_type == "east_west":
             # Linear trend from west to east
-            lon_norm = (coordinates[:, 0] - np.min(coordinates[:, 0])) / \
-                      (np.max(coordinates[:, 0]) - np.min(coordinates[:, 0]))
+            lon_range = np.ptp(coordinates[:, 0]) or 1.0
+            lon_norm = (coordinates[:, 0] - np.min(coordinates[:, 0])) / lon_range
             signal += 5 * lon_norm
 
-        elif trend_type == 'north_south':
+        elif trend_type == "north_south":
             # Linear trend from south to north
-            lat_norm = (coordinates[:, 1] - np.min(coordinates[:, 1])) / \
-                      (np.max(coordinates[:, 1]) - np.min(coordinates[:, 1]))
+            lat_range = np.ptp(coordinates[:, 1]) or 1.0
+            lat_norm = (coordinates[:, 1] - np.min(coordinates[:, 1])) / lat_range
             signal += 5 * lat_norm
 
-        elif trend_type == 'radial':
+        elif trend_type == "radial":
             # Radial pattern from center
             center = np.mean(coordinates, axis=0)
             distances = np.linalg.norm(coordinates - center, axis=1)
@@ -284,9 +302,9 @@ def generate_synthetic_data(coordinates: np.ndarray, effects: Optional[Dict[str,
             signal += 5 * (1 - dist_norm)  # Higher values near center
 
     # Spatial clusters
-    if 'clusters' in effects:
-        n_clusters = effects['clusters'].get('n_clusters', 3)
-        cluster_effect = effects['clusters'].get('effect_size', 3.0)
+    if "clusters" in effects:
+        n_clusters = effects["clusters"].get("n_clusters", 3)
+        cluster_effect = effects["clusters"].get("effect_size", 3.0)
 
         # Simple cluster generation
         for i in range(n_clusters):
@@ -326,20 +344,24 @@ def generate_synthetic_data(coordinates: np.ndarray, effects: Optional[Dict[str,
         data_flat = data
 
     # Generate covariates
+    signal_scale = np.std(signal) or 1.0
+    elevation = 500 + 100 * (signal - np.mean(signal)) / signal_scale
+    elevation += np.random.normal(0, max(noise_level, 0.05) * 10, n_points)
+    response_summary = data_flat.mean(axis=-1) if temporal else data_flat
     covariates = {
-        'elevation': np.random.normal(500, 100, n_points),  # Simulated elevation
-        'temperature': data_flat.mean(axis=-1) + np.random.normal(0, 2, n_points) if temporal
-                      else data_flat + np.random.normal(0, 2, n_points)
+        "elevation": elevation,
+        "temperature": response_summary
+        + np.random.normal(0, max(noise_level, 0.05), n_points),
     }
 
     # Create metadata
     metadata = {
-        'synthetic': True,
-        'effects': effects,
-        'noise_level': noise_level,
-        'temporal': temporal,
-        'n_timepoints': n_timepoints if temporal else None,
-        'generation_timestamp': str(np.datetime64('now'))
+        "synthetic": True,
+        "effects": effects,
+        "noise_level": noise_level,
+        "temporal": temporal,
+        "n_timepoints": n_timepoints if temporal else None,
+        "generation_timestamp": str(np.datetime64("now")),
     }
 
     return SPMData(
@@ -348,12 +370,13 @@ def generate_synthetic_data(coordinates: np.ndarray, effects: Optional[Dict[str,
         time=time_coords,
         covariates=covariates,
         metadata=metadata,
-        crs='EPSG:4326'
+        crs="EPSG:4326",
     )
 
 
-def create_spatial_basis_functions(coordinates: np.ndarray, n_basis: int = 10,
-                                 method: str = 'gaussian') -> np.ndarray:
+def create_spatial_basis_functions(
+    coordinates: np.ndarray, n_basis: int = 10, method: str = "gaussian"
+) -> np.ndarray:
     """
     Create spatial basis functions for modeling spatial variation.
 
@@ -367,25 +390,30 @@ def create_spatial_basis_functions(coordinates: np.ndarray, n_basis: int = 10,
     """
     n_points = len(coordinates)
 
-    if method == 'gaussian':
+    if method == "gaussian":
         # Gaussian radial basis functions
         # Random centers
         np.random.seed(42)  # For reproducibility
-        center_indices = np.random.choice(n_points, size=min(n_basis, n_points),
-                                        replace=False)
+        center_indices = np.random.choice(
+            n_points, size=min(n_basis, n_points), replace=False
+        )
         centers = coordinates[center_indices]
 
         # Width based on median distance
-        distances = np.linalg.norm(coordinates[:, np.newaxis] - centers[np.newaxis, :], axis=2)
+        distances = np.linalg.norm(
+            coordinates[:, np.newaxis] - centers[np.newaxis, :], axis=2
+        )
         median_dist = np.median(distances)
         width = median_dist / np.sqrt(n_basis)
 
         basis = np.zeros((n_points, n_basis))
         for i in range(n_basis):
-            distances_to_center = np.linalg.norm(coordinates - centers[i % len(centers)], axis=1)
-            basis[:, i] = np.exp(-distances_to_center**2 / (2 * width**2))
+            distances_to_center = np.linalg.norm(
+                coordinates - centers[i % len(centers)], axis=1
+            )
+            basis[:, i] = np.exp(-(distances_to_center**2) / (2 * width**2))
 
-    elif method == 'polynomial':
+    elif method == "polynomial":
         # Polynomial basis functions
         lon, lat = coordinates[:, 0], coordinates[:, 1]
 
@@ -406,7 +434,7 @@ def create_spatial_basis_functions(coordinates: np.ndarray, n_basis: int = 10,
 
         basis = np.column_stack(basis_list[:n_basis])
 
-    elif method == 'fourier':
+    elif method == "fourier":
         # Fourier basis functions
         lon_rad = np.radians(coordinates[:, 0])
         lat_rad = np.radians(coordinates[:, 1])
@@ -421,10 +449,12 @@ def create_spatial_basis_functions(coordinates: np.ndarray, n_basis: int = 10,
                 if freq_lon == 0 and freq_lat == 0:
                     continue  # Already added constant
 
-                basis_list.extend([
-                    np.cos(freq_lon * lon_rad) * np.cos(freq_lat * lat_rad),
-                    np.sin(freq_lon * lon_rad) * np.cos(freq_lat * lat_rad)
-                ])
+                basis_list.extend(
+                    [
+                        np.cos(freq_lon * lon_rad) * np.cos(freq_lat * lat_rad),
+                        np.sin(freq_lon * lon_rad) * np.cos(freq_lat * lat_rad),
+                    ]
+                )
 
             if len(basis_list) >= n_basis:
                 break
@@ -437,8 +467,9 @@ def create_spatial_basis_functions(coordinates: np.ndarray, n_basis: int = 10,
     return basis
 
 
-def compute_power_analysis(effect_size: float, n_points: int, alpha: float = 0.05,
-                          n_simulations: int = 1000) -> Dict[str, Any]:
+def compute_power_analysis(
+    effect_size: float, n_points: int, alpha: float = 0.05, n_simulations: int = 1000
+) -> Dict[str, Any]:
     """
     Perform power analysis for SPM statistical tests.
 
@@ -458,7 +489,7 @@ def compute_power_analysis(effect_size: float, n_points: int, alpha: float = 0.0
     df = n_points - 1
 
     # Critical t-value
-    t_critical = stats.t.ppf(1 - alpha/2, df)
+    t_critical = stats.t.ppf(1 - alpha / 2, df)
 
     # Power calculation: one-sample t-test for mean shift
     power_values = []
@@ -474,10 +505,10 @@ def compute_power_analysis(effect_size: float, n_points: int, alpha: float = 0.0
     power = np.mean(power_values)
 
     return {
-        'power': power,
-        'effect_size': effect_size,
-        'n_points': n_points,
-        'alpha': alpha,
-        't_critical': t_critical,
-        'n_simulations': n_simulations
+        "power": power,
+        "effect_size": effect_size,
+        "n_points": n_points,
+        "alpha": alpha,
+        "t_critical": t_critical,
+        "n_simulations": n_simulations,
     }

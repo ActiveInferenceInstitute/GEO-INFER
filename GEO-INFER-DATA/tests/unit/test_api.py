@@ -8,11 +8,16 @@ geospatial data management.
 import pytest
 from unittest.mock import Mock, AsyncMock
 from fastapi.testclient import TestClient
-import json
+from datetime import datetime
 
 from geo_infer_data.api.rest_api import DataAPI, DatasetAPI
 from geo_infer_data.api.service import DataService
-from geo_infer_data.models.schemas import DatasetMetadata, SpatialExtent, TemporalExtent, DataLineage
+from geo_infer_data.models.schemas import (
+    DatasetMetadata,
+    SpatialExtent,
+    TemporalExtent,
+    DataLineage,
+)
 
 
 class TestDataAPI:
@@ -21,25 +26,21 @@ class TestDataAPI:
     @pytest.fixture
     def api_config(self):
         """Create test API configuration."""
-        return {
-            'host': 'localhost',
-            'port': 8001,
-            'enable_cors': True
-        }
+        return {"host": "localhost", "port": 8001, "enable_cors": True}
 
     @pytest.fixture
     def data_api(self, api_config):
         """Create test DataAPI."""
         return DataAPI(
             config_path=None,
-            host=api_config['host'],
-            port=api_config['port'],
-            enable_cors=api_config['enable_cors']
+            host=api_config["host"],
+            port=api_config["port"],
+            enable_cors=api_config["enable_cors"],
         )
 
     def test_api_initialization(self, data_api):
         """Test API initialization."""
-        assert data_api.host == 'localhost'
+        assert data_api.host == "localhost"
         assert data_api.port == 8001
         assert data_api.enable_cors is True
         assert data_api.app is not None
@@ -52,9 +53,9 @@ class TestDataAPI:
         assert response.status_code == 200
 
         data = response.json()
-        assert 'name' in data
-        assert 'version' in data
-        assert data['status'] == 'running'
+        assert "name" in data
+        assert "version" in data
+        assert data["status"] == "running"
 
     def test_health_endpoint(self, data_api):
         """Test health check endpoint."""
@@ -63,9 +64,9 @@ class TestDataAPI:
         assert response.status_code == 200
 
         data = response.json()
-        assert data['status'] == 'healthy'
-        assert 'message' in data
-        assert 'checked_at' in data
+        assert data["status"] == "healthy"
+        assert "message" in data
+        assert "checked_at" in data
 
     def test_list_datasets_endpoint(self, data_api):
         """Test list datasets endpoint."""
@@ -88,34 +89,30 @@ class TestDataAPI:
         client = TestClient(data_api.app)
 
         dataset_data = {
-            'title': 'Test Dataset',
-            'description': 'Test dataset for API testing',
-            'type': 'vector',
-            'format': 'geojson',
-            'metadata': {
-                'title': 'Test Dataset',
-                'spatial': {
-                    'bbox': [-122.5, 37.7, -122.3, 37.9],
-                    'crs': {'epsg_code': 'EPSG:4326'}
+            "title": "Test Dataset",
+            "description": "Test dataset for API testing",
+            "type": "vector",
+            "format": "geojson",
+            "metadata": {
+                "title": "Test Dataset",
+                "spatial": {
+                    "bbox": [-122.5, 37.7, -122.3, 37.9],
+                    "crs": {"epsg_code": "EPSG:4326"},
                 },
-                'temporal': {
-                    'start': '2023-01-01T00:00:00',
-                    'end': '2023-12-31T23:59:59'
+                "temporal": {
+                    "start": "2023-01-01T00:00:00",
+                    "end": "2023-12-31T23:59:59",
                 },
-                'lineage': {
-                    'source': 'test',
-                    'process': 'test',
-                    'created_by': 'test'
-                }
-            }
+                "lineage": {"source": "test", "process": "test", "created_by": "test"},
+            },
         }
 
         response = client.post("/datasets", json=dataset_data)
         assert response.status_code == 201
 
         data = response.json()
-        assert data['title'] == 'Test Dataset'
-        assert data['type'] == 'vector'
+        assert data["title"] == "Test Dataset"
+        assert data["type"] == "vector"
 
     def test_get_dataset_endpoint(self, data_api):
         """Test get dataset endpoint."""
@@ -124,8 +121,8 @@ class TestDataAPI:
         assert response.status_code == 200
 
         data = response.json()
-        assert 'id' in data
-        assert 'title' in data
+        assert "id" in data
+        assert "title" in data
 
     def test_search_endpoint(self, data_api):
         """Test search datasets endpoint."""
@@ -136,11 +133,13 @@ class TestDataAPI:
         assert response.status_code == 200
 
         data = response.json()
-        assert 'results' in data
-        assert 'total' in data
+        assert "results" in data
+        assert "total" in data
 
         # Test search with filters
-        response = client.get("/search?bbox=-122.5,37.7,-122.3,37.9&temporal=2023-01-01/2023-12-31&tags=weather")
+        response = client.get(
+            "/search?bbox=-122.5,37.7,-122.3,37.9&temporal=2023-01-01/2023-12-31&tags=weather"
+        )
         assert response.status_code == 200
 
 
@@ -151,18 +150,16 @@ class TestDatasetAPI:
     def mock_storage(self):
         """Create mock storage service."""
         storage = Mock()
-        storage.store_geospatial_data = AsyncMock(return_value='dataset_123')
+        storage.store_geospatial_data = AsyncMock(return_value="dataset_123")
         return storage
 
     @pytest.fixture
     def mock_quality(self):
         """Create mock quality service."""
         quality = Mock()
-        quality.validator.validate_data = AsyncMock(return_value=Mock(
-            overall_score=0.9,
-            status='pass',
-            issues=[]
-        ))
+        quality.validator.validate_data = AsyncMock(
+            return_value=Mock(overall_score=0.9, status="pass", issues=[])
+        )
         return quality
 
     @pytest.fixture
@@ -178,14 +175,11 @@ class TestDatasetAPI:
             description="Test dataset for API testing",
             spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9], crs="EPSG:4326"),
             temporal=TemporalExtent(
-                start=datetime(2023, 1, 1),
-                end=datetime(2023, 12, 31)
+                start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
             ),
             lineage=DataLineage(
-                source="test_source",
-                process="test_process",
-                created_by="test_system"
-            )
+                source="test_source", process="test_process", created_by="test_system"
+            ),
         )
 
     @pytest.mark.asyncio
@@ -195,40 +189,40 @@ class TestDatasetAPI:
 
         dataset_id = await dataset_api.create_dataset(test_metadata, data)
 
-        assert dataset_id == 'dataset_123'
+        assert dataset_id == "dataset_123"
         dataset_api.storage_service.store_geospatial_data.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_get_dataset(self, dataset_api):
         """Test dataset retrieval."""
-        dataset = await dataset_api.get_dataset('dataset_123')
+        dataset = await dataset_api.get_dataset("dataset_123")
 
         assert dataset is not None
-        assert dataset.id == 'dataset_123'
+        assert dataset.id == "dataset_123"
 
     @pytest.mark.asyncio
     async def test_update_dataset(self, dataset_api):
         """Test dataset update."""
-        updates = {'title': 'Updated Dataset', 'description': 'Updated description'}
+        updates = {"title": "Updated Dataset", "description": "Updated description"}
 
-        result = await dataset_api.update_dataset('dataset_123', updates)
+        result = await dataset_api.update_dataset("dataset_123", updates)
 
         assert result is True
 
     @pytest.mark.asyncio
     async def test_delete_dataset(self, dataset_api):
         """Test dataset deletion."""
-        result = await dataset_api.delete_dataset('dataset_123')
+        result = await dataset_api.delete_dataset("dataset_123")
 
         assert result is True
 
     @pytest.mark.asyncio
     async def test_get_dataset_quality(self, dataset_api):
         """Test dataset quality retrieval."""
-        quality_report = await dataset_api.get_dataset_quality('dataset_123')
+        quality_report = await dataset_api.get_dataset_quality("dataset_123")
 
         assert quality_report is not None
-        assert hasattr(quality_report, 'overall_score')
+        assert hasattr(quality_report, "overall_score")
 
 
 class TestDataService:
@@ -238,35 +232,49 @@ class TestDataService:
     def mock_storage(self):
         """Create mock storage service."""
         storage = Mock()
-        storage.store_geospatial_data = AsyncMock(return_value='service_dataset_123')
-        storage.get_storage_stats = Mock(return_value={
-            'backends': ['postgresql'],
-            'total_size': 1000000,
-            'optimization_strategy': 'balanced'
-        })
+        storage.store_geospatial_data = AsyncMock(return_value="service_dataset_123")
+        storage.get_storage_stats = Mock(
+            return_value={
+                "backends": ["postgresql"],
+                "total_size": 1000000,
+                "optimization_strategy": "balanced",
+            }
+        )
         return storage
 
     @pytest.fixture
     def mock_quality(self):
         """Create mock quality service."""
         quality = Mock()
-        quality.validator.validate_data = AsyncMock(return_value=Mock(
-            overall_score=0.9,
-            status='pass',
-            issues=[]
-        ))
-        quality.validate_dataset = AsyncMock(return_value=Mock(
-            dataset_id='test',
-            overall_score=0.85,
-            checks={},
-            recommendations=[]
-        ))
+        quality.validator.validate_data = AsyncMock(
+            return_value=Mock(overall_score=0.9, status="pass", issues=[])
+        )
+        quality.validate_dataset = AsyncMock(
+            return_value=Mock(
+                dataset_id="test", overall_score=0.85, checks={}, recommendations=[]
+            )
+        )
         return quality
 
     @pytest.fixture
     def data_service(self, mock_storage, mock_quality):
         """Create test DataService."""
         return DataService(mock_storage, mock_quality)
+
+    @pytest.fixture
+    def test_metadata(self):
+        """Create test metadata."""
+        return DatasetMetadata(
+            title="Test Dataset",
+            description="Test dataset for service API testing",
+            spatial=SpatialExtent(bbox=[-122.5, 37.7, -122.3, 37.9], crs="EPSG:4326"),
+            temporal=TemporalExtent(
+                start=datetime(2023, 1, 1), end=datetime(2023, 12, 31)
+            ),
+            lineage=DataLineage(
+                source="test_source", process="test_process", created_by="test_system"
+            ),
+        )
 
     @pytest.mark.asyncio
     async def test_list_datasets(self, data_service):
@@ -279,10 +287,10 @@ class TestDataService:
     @pytest.mark.asyncio
     async def test_get_dataset(self, data_service):
         """Test getting dataset."""
-        dataset = await data_service.get_dataset('dataset_123')
+        dataset = await data_service.get_dataset("dataset_123")
 
         assert dataset is not None
-        assert dataset.id == 'dataset_123'
+        assert dataset.id == "dataset_123"
 
     @pytest.mark.asyncio
     async def test_create_dataset(self, data_service, test_metadata):
@@ -291,18 +299,19 @@ class TestDataService:
 
         dataset_id = await data_service.create_dataset(test_metadata, data)
 
-        assert dataset_id == 'service_dataset_123'
+        assert dataset_id == "service_dataset_123"
         data_service.storage_service.store_geospatial_data.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_get_dataset_data(self, data_service):
         """Test getting dataset data."""
         # Mock storage query
-        data_service.storage_service.adaptive_query = AsyncMock(return_value={'data': 'mock'})
+        data_service.storage_service.adaptive_query = AsyncMock(
+            return_value={"data": "mock"}
+        )
 
         data = await data_service.get_dataset_data(
-            'dataset_123',
-            spatial_bounds=[-122.5, 37.7, -122.3, 37.9]
+            "dataset_123", spatial_bounds=[-122.5, 37.7, -122.3, 37.9]
         )
 
         assert data is not None
@@ -327,40 +336,42 @@ class TestDataService:
         # Mock access log
         data_service.access_log = [
             {
-                'dataset_id': 'dataset_123',
-                'timestamp': datetime(2023, 1, 1, 10, 0),
-                'spatial_bounds': [-122.5, 37.7, -122.3, 37.9],
-                'format': 'geojson'
+                "dataset_id": "dataset_123",
+                "timestamp": datetime(2023, 1, 1, 10, 0),
+                "spatial_bounds": [-122.5, 37.7, -122.3, 37.9],
+                "format": "geojson",
             },
             {
-                'dataset_id': 'dataset_456',
-                'timestamp': datetime(2023, 1, 1, 14, 0),
-                'temporal_range': (datetime(2023, 1, 1), datetime(2023, 1, 31)),
-                'format': 'csv'
-            }
+                "dataset_id": "dataset_456",
+                "timestamp": datetime(2023, 1, 1, 14, 0),
+                "temporal_range": (datetime(2023, 1, 1), datetime(2023, 1, 31)),
+                "format": "csv",
+            },
         ]
 
         patterns = data_service.get_access_patterns()
 
-        assert 'total_accesses' in patterns
-        assert patterns['total_accesses'] == 2
-        assert 'spatial_queries' in patterns
-        assert 'formats_requested' in patterns
+        assert "total_accesses" in patterns
+        assert patterns["total_accesses"] == 2
+        assert "spatial_queries" in patterns
+        assert "formats_requested" in patterns
 
     def test_storage_stats(self, data_service):
         """Test storage statistics."""
         stats = data_service.get_storage_stats()
 
-        assert 'backends' in stats
-        assert 'total_size' in stats
-        assert stats['backends'] == ['postgresql']
+        assert "backends" in stats
+        assert "total_size" in stats
+        assert stats["backends"] == ["postgresql"]
 
     def test_performance_optimization(self, data_service):
         """Test performance optimization."""
         # Mock access patterns with high usage
-        data_service.access_log = [{'dataset_id': 'frequent', 'timestamp': datetime.now()}] * 150
+        data_service.access_log = [
+            {"dataset_id": "frequent", "timestamp": datetime.now()}
+        ] * 150
 
         optimizations = data_service.optimize_performance()
 
-        assert 'cache_optimization' in optimizations
-        assert 'storage_optimization' in optimizations
+        assert "cache_optimization" in optimizations
+        assert "storage_optimization" in optimizations

@@ -10,6 +10,11 @@ agents minimize through perception and action.
 import numpy as np
 import pytest
 
+from geo_infer_act import (
+    ActiveInferenceStepResult,
+    FreeEnergyBreakdown,
+    PolicyEvaluation,
+)
 from geo_infer_act.core.free_energy import FreeEnergyCalculator
 
 
@@ -80,6 +85,34 @@ class TestCategoricalFreeEnergy:
         fe = self.calc.compute_categorical_free_energy(beliefs, obs)
         assert np.isfinite(fe)
 
+    def test_breakdown_matches_complexity_minus_accuracy(self) -> None:
+        """Test that categorical free energy exposes its mathematical terms."""
+        beliefs = np.array([0.7, 0.2, 0.1])
+        observations = np.array([0.8, 0.15, 0.05])
+        preferences = np.array([0.6, 0.25, 0.15])
+
+        breakdown = self.calc.compute_categorical_free_energy(
+            beliefs,
+            observations,
+            preferences,
+            return_breakdown=True,
+        )
+
+        assert isinstance(breakdown, FreeEnergyBreakdown)
+        assert np.isfinite(breakdown.free_energy)
+        assert np.isfinite(breakdown.accuracy)
+        assert np.isfinite(breakdown.complexity)
+        assert np.isfinite(breakdown.entropy)
+        assert breakdown.free_energy == pytest.approx(
+            breakdown.complexity - breakdown.accuracy
+        )
+
+    def test_act_exports_typed_result_objects(self) -> None:
+        """Test that public ACT exports include typed inference result contracts."""
+        assert FreeEnergyBreakdown.__name__ == "FreeEnergyBreakdown"
+        assert PolicyEvaluation.__name__ == "PolicyEvaluation"
+        assert ActiveInferenceStepResult.__name__ == "ActiveInferenceStepResult"
+
 
 class TestGaussianFreeEnergy:
     """Test free energy computation for Gaussian (continuous) models."""
@@ -139,7 +172,7 @@ class TestExpectedFreeEnergy:
     def test_basic_computation(self) -> None:
         """Test that expected free energy computation returns finite value."""
         beliefs = np.array([0.4, 0.3, 0.2, 0.1])
-        policy = {'exploration_bonus': 0.2, 'risk_preference': 0.0}
+        policy = {"exploration_bonus": 0.2, "risk_preference": 0.0}
         preferences = np.array([0.1, 0.2, 0.3, 0.4])
 
         efe = self.calc.compute_expected_free_energy(beliefs, policy, preferences)
@@ -149,8 +182,8 @@ class TestExpectedFreeEnergy:
     def test_exploration_bonus_effect(self) -> None:
         """Test that higher exploration bonus increases epistemic value weight."""
         beliefs = np.array([0.25, 0.25, 0.25, 0.25])
-        low_explore = {'exploration_bonus': 0.01, 'risk_preference': 0.0}
-        high_explore = {'exploration_bonus': 1.0, 'risk_preference': 0.0}
+        low_explore = {"exploration_bonus": 0.01, "risk_preference": 0.0}
+        high_explore = {"exploration_bonus": 1.0, "risk_preference": 0.0}
         prefs = np.array([0.7, 0.1, 0.1, 0.1])
 
         efe_low = self.calc.compute_expected_free_energy(beliefs, low_explore, prefs)
@@ -160,9 +193,33 @@ class TestExpectedFreeEnergy:
     def test_no_preferences(self) -> None:
         """Test expected free energy without preferences."""
         beliefs = np.array([0.5, 0.3, 0.2])
-        policy = {'exploration_bonus': 0.1}
+        policy = {"exploration_bonus": 0.1}
         efe = self.calc.compute_expected_free_energy(beliefs, policy)
         assert np.isfinite(efe)
+
+    def test_policy_conditioned_expected_free_energy_breakdown(self) -> None:
+        """Test EFE uses policy-conditioned predictive beliefs."""
+        beliefs = np.array([0.6, 0.3, 0.1])
+        policy = {
+            "predicted_beliefs": np.array([0.1, 0.8, 0.1]),
+            "exploration_bonus": 0.2,
+            "ambiguity": 0.05,
+        }
+        preferences = np.array([0.1, 0.8, 0.1])
+
+        breakdown = self.calc.compute_expected_free_energy(
+            beliefs,
+            policy,
+            preferences,
+            return_breakdown=True,
+        )
+
+        assert isinstance(breakdown, FreeEnergyBreakdown)
+        assert breakdown.ambiguity == pytest.approx(0.05)
+        np.testing.assert_allclose(
+            breakdown.metadata["predictive_beliefs"],
+            np.array([0.1, 0.8, 0.1]),
+        )
 
 
 class TestComputeDispatch:
@@ -173,11 +230,11 @@ class TestComputeDispatch:
         calc = FreeEnergyCalculator()
         beliefs = np.array([0.5, 0.3, 0.2])
         obs = np.array([0.4, 0.4, 0.2])
-        fe = calc.compute(beliefs, obs, model_type='categorical')
+        fe = calc.compute(beliefs, obs, model_type="categorical")
         assert np.isfinite(fe)
 
     def test_unsupported_model_type(self) -> None:
         """Test that unsupported model type raises ValueError."""
         calc = FreeEnergyCalculator()
         with pytest.raises(ValueError, match="Unsupported model type"):
-            calc.compute(np.ones(3) / 3, model_type='unknown_type')
+            calc.compute(np.ones(3) / 3, model_type="unknown_type")

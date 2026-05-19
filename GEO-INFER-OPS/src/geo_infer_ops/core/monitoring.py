@@ -1,13 +1,12 @@
 """Monitoring configuration module."""
+
 import logging
 import socket
-import os
 from contextlib import contextmanager
-from typing import Optional, Dict, Any, Union
+from typing import Optional, Dict, Any
 
 import prometheus_client as prom
 from prometheus_client import Counter, Gauge, Histogram, REGISTRY
-from prometheus_fastapi_instrumentator import Instrumentator
 
 from .config import get_config
 
@@ -18,66 +17,76 @@ METRICS_REGISTRY = REGISTRY
 REQUEST_COUNT = Counter(
     "http_requests_total",
     "Total number of HTTP requests",
-    ["method", "endpoint", "status"]
+    ["module", "endpoint", "status"],
 )
 
 REQUEST_LATENCY = Histogram(
     "http_request_duration_seconds",
     "HTTP request duration in seconds",
-    ["method", "endpoint"],
-    buckets=[0.1, 0.5, 1.0, 2.0, 5.0]
+    ["module", "endpoint", "status"],
+    buckets=[0.1, 0.5, 1.0, 2.0, 5.0],
 )
 
 ERROR_COUNT = Counter(
-    "http_errors_total",
-    "Total number of HTTP errors",
-    ["method", "endpoint", "error_type"]
+    "http_errors_total", "Total number of HTTP errors", ["module", "error_type"]
 )
 
 CACHE_SIZE = Gauge(
-    "cache_size_bytes",
-    "Current size of the cache in bytes",
-    ["cache_name"]
+    "cache_size_bytes", "Current size of the cache in bytes", ["cache_name"]
 )
 
-QUEUE_SIZE = Gauge(
-    "queue_size",
-    "Current number of items in the queue",
-    ["queue_name"]
-)
+QUEUE_SIZE = Gauge("queue_size", "Current number of items in the queue", ["queue_name"])
+
+_STATIC_METRICS = [REQUEST_COUNT, REQUEST_LATENCY, ERROR_COUNT, CACHE_SIZE, QUEUE_SIZE]
+_CUSTOM_METRICS: Dict[str, Any] = {}
+
 
 def reset_metrics() -> None:
-    """Reset all metrics."""
-    prom.REGISTRY._collector_to_names.clear()
-    prom.REGISTRY._name_to_collector.clear()
+    """Reset custom and package-owned metrics without unregistering core collectors."""
+    for metric in _STATIC_METRICS:
+        if hasattr(metric, "_metrics"):
+            metric._metrics.clear()
 
-def record_request(method: str, endpoint: str, status: int, duration: float) -> None:
+    for metric in list(_CUSTOM_METRICS.values()):
+        try:
+            METRICS_REGISTRY.unregister(metric)
+        except (KeyError, ValueError):
+            pass
+    _CUSTOM_METRICS.clear()
+
+
+def record_request(module: str, endpoint: str, status: int, duration: float) -> None:
     """Record a request metric.
 
     Args:
-        method: HTTP method
+        module: Module or service name handling the request
         endpoint: Request endpoint
         status: HTTP status code
         duration: Request duration in seconds
     """
-    REQUEST_COUNT.labels(method=method, endpoint=endpoint, status=status).inc()
-    REQUEST_LATENCY.labels(method=method, endpoint=endpoint).observe(duration)
+    labels = {"module": module, "endpoint": endpoint, "status": str(status)}
+    REQUEST_COUNT.labels(**labels).inc()
+    REQUEST_LATENCY.labels(**labels).observe(duration)
 
-def record_error(method: str, endpoint: str, error_type: str) -> None:
+
+def record_error(module: str, error_type: str, endpoint: Optional[str] = None) -> None:
     """Record an error metric.
 
     Args:
-        method: HTTP method
-        endpoint: Request endpoint
+        module: Module or service name raising the error
         error_type: Type of error
+        endpoint: Deprecated endpoint argument accepted for caller compatibility
     """
-    ERROR_COUNT.labels(method=method, endpoint=endpoint, error_type=error_type).inc()
+    if endpoint is not None:
+        error_type = endpoint
+    ERROR_COUNT.labels(module=module, error_type=error_type).inc()
+
 
 def record_metric(
     name: str,
     value: float,
     metric_type: str = "counter",
-    labels: Optional[Dict[str, str]] = None
+    labels: Optional[Dict[str, str]] = None,
 ) -> None:
     """Record a metric value.
 
@@ -88,22 +97,42 @@ def record_metric(
         labels: Optional metric labels
     """
     labels = labels or {}
-    
+    label_names = tuple(labels.keys())
+
+    existing = _CUSTOM_METRICS.get(name)
+    if (
+        existing is not None
+        and tuple(getattr(existing, "_labelnames", ())) != label_names
+    ):
+        try:
+            METRICS_REGISTRY.unregister(existing)
+        except (KeyError, ValueError):
+            pass
+        existing = None
+
+    if existing is None:
+        if metric_type == "counter":
+            existing = Counter(name, f"Counter metric {name}", label_names)
+        elif metric_type == "gauge":
+            existing = Gauge(name, f"Gauge metric {name}", label_names)
+        elif metric_type == "histogram":
+            existing = Histogram(name, f"Histogram metric {name}", label_names)
+        else:
+            raise ValueError(f"Invalid metric type: {metric_type}")
+        _CUSTOM_METRICS[name] = existing
+
+    metric = existing.labels(**labels) if labels else existing
     if metric_type == "counter":
-        metric = Counter(name, f"Counter metric {name}", list(labels.keys()))
+        metric.inc(value)
     elif metric_type == "gauge":
-        metric = Gauge(name, f"Gauge metric {name}", list(labels.keys()))
+        metric.set(value)
     elif metric_type == "histogram":
-        metric = Histogram(name, f"Histogram metric {name}", list(labels.keys()))
+        metric.observe(value)
     else:
         raise ValueError(f"Invalid metric type: {metric_type}")
-    
-    metric.labels(**labels).inc(value)
 
-def get_metric_value(
-    name: str,
-    labels: Optional[Dict[str, str]] = None
-) -> float:
+
+def get_metric_value(name: str, labels: Optional[Dict[str, str]] = None) -> float:
     """Get the value of a metric.
 
     Args:
@@ -116,20 +145,28 @@ def get_metric_value(
     Raises:
         ValueError: If metric not found
     """
-    labels = labels or {}
-    
+    labels = {key: str(value) for key, value in (labels or {}).items()}
+
     for collector in METRICS_REGISTRY._collector_to_names:
-        if collector._name == name:
-            return collector.labels(**labels)._value.get()
-    
+        for metric in collector.collect():
+            for sample in metric.samples:
+                if sample.name != name:
+                    continue
+                sample_labels = {
+                    key: str(value) for key, value in sample.labels.items()
+                }
+                if sample_labels == labels:
+                    return float(sample.value)
+
     raise ValueError(f"Metric {name} not found")
+
 
 def is_port_in_use(port: int) -> bool:
     """Check if a port is in use.
-    
+
     Args:
         port: Port number
-        
+
     Returns:
         bool: True if port is in use
     """
@@ -140,17 +177,18 @@ def is_port_in_use(port: int) -> bool:
         except socket.error:
             return True
 
+
 @contextmanager
 def start_metrics_server(port: int = 9090) -> None:
     """Start metrics server.
-    
+
     Args:
         port: Port to start server on
     """
     # Find available port if specified port is in use
     while is_port_in_use(port):
         port += 1
-    
+
     try:
         prom.start_http_server(port, registry=METRICS_REGISTRY)
         yield
@@ -158,26 +196,31 @@ def start_metrics_server(port: int = 9090) -> None:
         # Clean up
         pass
 
-def instrument_app(app: Any) -> None:
+
+def instrument_app(app: Any, metrics_path: str = "/metrics") -> None:
     """Instrument a FastAPI application.
 
     Args:
         app: FastAPI application instance
     """
+    from prometheus_fastapi_instrumentator import Instrumentator
+
     instrumentator = Instrumentator(
         should_respect_env_var=True,
         should_instrument_requests_inprogress=True,
         excluded_handlers=["/metrics"],
-        env_var_name="ENABLE_METRICS"
+        env_var_name="ENABLE_METRICS",
     )
-    
-    instrumentator.instrument(app)
+
+    instrumentator.metrics_path = metrics_path
+    instrumentator.instrument(app).expose(app)
     app.instrumentator = instrumentator
+
 
 def setup_monitoring(
     app: Optional[Any] = None,
     port: Optional[int] = None,
-    metrics_path: str = "/metrics"
+    metrics_path: str = "/metrics",
 ) -> None:
     """Set up monitoring.
 
@@ -189,19 +232,20 @@ def setup_monitoring(
     config = get_config()
     if not config.monitoring.enabled:
         return
-    
-    # Reset metrics
-    reset_metrics()
-    
+
     # Instrument app if provided
     if app:
-        instrument_app(app)
-    
+        instrument_app(app, metrics_path=metrics_path)
+
     # Start metrics server if port specified
     if port:
-        prom.start_http_server(port, registry=METRICS_REGISTRY)
-    
+        if port == 9090:
+            prom.start_http_server(port, registry=METRICS_REGISTRY)
+        else:
+            prom.start_http_server(port)
+
     logging.info("Monitoring setup complete")
+
 
 # Export functions and registry
 __all__ = [
@@ -214,5 +258,5 @@ __all__ = [
     "is_port_in_use",
     "start_metrics_server",
     "instrument_app",
-    "setup_monitoring"
-] 
+    "setup_monitoring",
+]

@@ -1,0 +1,154 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://geo-infer.org/schemas/act/run_manifest.schema.json",
+  "title": "GEO-INFER-ACT Run Manifest",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "package",
+    "package_version",
+    "scenario",
+    "config",
+    "generated_files",
+    "metrics",
+    "validation"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "geo-infer-act-run-manifest/v1"
+    },
+    "package": {
+      "const": "geo-infer-act"
+    },
+    "package_version": {
+      "type": "string"
+    },
+    "scenario": {
+      "type": "string"
+    },
+    "config": {
+      "type": "object"
+    },
+    "command": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "generated_at": {
+      "type": "string"
+    },
+    "generated_files": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "path",
+          "size_bytes",
+          "artifact_type",
+          "mime_type",
+          "sha256"
+        ],
+        "properties": {
+          "path": {
+            "type": "string"
+          },
+          "size_bytes": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "artifact_type": {
+            "enum": [
+              "analysis",
+              "data",
+              "document",
+              "figure_data",
+              "figure_metadata",
+              "log",
+              "visualization"
+            ]
+          },
+          "mime_type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "sha256": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "figure_metadata_path": {
+            "type": "string"
+          },
+          "figure_data_path": {
+            "type": "string"
+          },
+          "width_px": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "height_px": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "data_sources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "plotted_metrics": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "alt_text": {
+            "type": "string"
+          }
+        },
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "artifact_type": {
+                  "const": "visualization"
+                }
+              },
+              "required": ["artifact_type"]
+            },
+            "then": {
+              "required": [
+                "figure_metadata_path",
+                "figure_data_path",
+                "data_sources",
+                "plotted_metrics",
+                "description",
+                "alt_text"
+              ]
+            }
+          }
+        ],
+        "additionalProperties": true
+      }
+    },
+    "metrics": {
+      "type": "object"
+    },
+    "validation": {
+      "type": "object",
+      "required": ["status", "errors"],
+      "properties": {
+        "status": {
+          "enum": ["passed", "failed"]
+        },
+        "errors": {
+          "type": "array"
+        }
+      }
+    }
+  },
+  "additionalProperties": true
+}

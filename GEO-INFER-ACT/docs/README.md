@@ -1,4 +1,50 @@
-# docs
- ## Overview
- **Path**: `GEO-INFER-ACT/docs` Documentation. ## Contents
- - **active_inference_overview.md**: File file - **api_schema.yaml**: File file - **free_energy_principle.md**: File file - **geospatial_applications.md**: File file - **mathematical_framework.md**: File file - **references.md**: File file - **world_systems_modeling.md**: File file --- 
+# GEO-INFER-ACT Documentation
+
+These documents describe the canonical Active Inference implementation in
+`GEO-INFER-ACT/src/geo_infer_act`.
+
+## Start Here
+
+- [Active Inference Overview](./active_inference_overview.md): concepts and code map.
+- [Free Energy Principle](./free_energy_principle.md): VFE/EFE equations and implementation locations.
+- [Mathematical Framework](./mathematical_framework.md): deeper mathematical notes.
+- [Geospatial Applications](./geospatial_applications.md): runnable geospatial examples using current ACT classes.
+- [World Systems Modeling](./world_systems_modeling.md): systems-level framing.
+- [References](./references.md): background citations.
+
+## Verification
+
+From the repository root:
+
+```bash
+uv run python GEO-INFER-TEST/validate_act_script_orchestration.py
+uv run python GEO-INFER-TEST/validate_active_inference_contract.py
+uv run --package geo-infer-act --extra dev python -m pytest GEO-INFER-ACT/tests -q
+```
+
+## Runner Contracts
+
+Scenario scripts in `GEO-INFER-ACT/examples/`, `debug_models.py`, and
+`verify_pipeline.py` are compatibility wrappers. The canonical runner API is:
+
+```python
+from geo_infer_act.runners import RunConfig, run_scenario
+
+result = run_scenario(
+    RunConfig(
+        scenario="h3",
+        output_dir="/tmp/geo-infer-act-h3",
+        seed=42,
+        timesteps=8,
+        visualizations=True,
+    )
+)
+print(result.manifest_path)
+```
+
+The external file contracts are versioned JSON Schema files in
+`src/geo_infer_act/schemas/`. When visualizations are enabled, every generated
+figure is also a traceable artifact: the manifest records artifact type, MIME
+type, digest, sidecar paths, plotted metrics, data sources, description, and alt
+text; the figure itself embeds ACT metadata; and adjacent sidecars store
+`*.metadata.json` plus the exact plotted data as CSV or JSON.

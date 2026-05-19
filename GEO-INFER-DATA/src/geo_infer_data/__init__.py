@@ -37,7 +37,7 @@ Examples:
     >>> storage.store_geospatial_data(data, metadata, access_patterns)
 """
 
-from typing import Dict, List, Optional, Union, Any
+from typing import Any, Dict, List, Optional
 from pathlib import Path
 import logging
 
@@ -49,39 +49,38 @@ from .models.schemas import Dataset, DatasetMetadata, DataQualityReport
 
 # Import submodules for convenience (optional imports)
 try:
-    from . import api
+    from . import api as api
 except ImportError:
     pass
 
 try:
-    from . import connectors
+    from . import connectors as connectors
 except ImportError:
     pass
 
 try:
-    from . import utils
+    from . import utils as utils
 except ImportError:
     pass
 
 try:
-    from . import etl
+    from . import etl as etl
 except ImportError:
     pass
 
 try:
-    from . import storage
+    from . import storage as storage
 except ImportError:
     pass
 
 try:
-    from . import validation
+    from . import validation as validation
 except ImportError:
     pass
 
 # Configure logging
 logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
@@ -103,10 +102,20 @@ __all__ = [
 ]
 
 
+class _InitializedDataSystem(dict):
+    """Dictionary result that also supports legacy ``await initialize_data_system(...)``."""
+
+    def __await__(self):
+        async def _return_self():
+            return self
+
+        return _return_self().__await__()
+
+
 def initialize_data_system(
     config_path: Optional[Path] = None,
     storage_backends: Optional[List[str]] = None,
-    enable_validation: bool = True
+    enable_validation: bool = True,
 ) -> Dict[str, Any]:
     """
     Initialize the complete GEO-INFER-DATA system.
@@ -182,49 +191,64 @@ def initialize_data_system(
     """
     logger.info("Initializing GEO-INFER-DATA system")
 
+    if isinstance(config_path, list):
+        # Legacy positional form: initialize_data_system(['local'], True)
+        legacy_backends = config_path
+        legacy_validation = (
+            storage_backends
+            if isinstance(storage_backends, bool)
+            else enable_validation
+        )
+        config_path = None
+        storage_backends = legacy_backends
+        enable_validation = legacy_validation
+
     if storage_backends is None:
-        storage_backends = ['postgresql', 'minio']
+        storage_backends = ["local"]
 
     # Initialize core components
     ingestion = MultiSourceDataIngestion(
-        data_sources=['vector', 'raster', 'time_series'],
-        format_detection='automatic',
-        validation_enabled=enable_validation
+        data_sources=["satellite", "sensors", "crowdsourced"],
+        format_detection="automatic",
+        validation_enabled=enable_validation,
     )
 
     storage = AdaptiveDataStorage(
         storage_backends=storage_backends,
-        optimization_strategy='access_pattern_based',
-        compression_enabled=True
+        optimization_strategy="access_pattern_based",
+        compression_enabled=True,
     )
 
     pipeline = IntelligentETLPipeline(
         workflow_config=None,  # Will be loaded from config
-        dependency_resolution='automatic',
-        error_recovery='intelligent_retry'
+        dependency_resolution="automatic",
+        error_recovery="intelligent_retry",
     )
 
     quality_manager = DataQualityManager(
-        validation_rules='comprehensive',
+        validation_rules="comprehensive",
         quality_threshold=0.8,
-        real_time_monitoring=True
+        real_time_monitoring=True,
     )
 
-    system_components = {
-        'ingestion': ingestion,
-        'storage': storage,
-        'pipeline': pipeline,
-        'quality_manager': quality_manager,
-        'status': 'initialized'
-    }
+    system_components = _InitializedDataSystem(
+        {
+            "ingestion": ingestion,
+            "storage": storage,
+            "pipeline": pipeline,
+            "quality_manager": quality_manager,
+            "status": "initialized",
+        }
+    )
 
-    logger.info(f"GEO-INFER-DATA system initialized with {len(system_components)} components")
+    logger.info(
+        f"GEO-INFER-DATA system initialized with {len(system_components)} components"
+    )
     return system_components
 
 
 def validate_data_integrity(
-    datasets: List[str],
-    quality_threshold: float = 0.8
+    datasets: List[str], quality_threshold: float = 0.8
 ) -> Dict[str, Any]:
     """
     Validate data integrity across multiple datasets.
@@ -309,8 +333,7 @@ def validate_data_integrity(
     logger.info(f"Validating integrity for {len(datasets)} datasets")
 
     quality_manager = DataQualityManager(
-        validation_rules='comprehensive',
-        quality_threshold=quality_threshold
+        validation_rules="comprehensive", quality_threshold=quality_threshold
     )
 
     validation_results = {}
@@ -323,22 +346,21 @@ def validate_data_integrity(
             overall_scores.append(report.overall_score)
         except Exception as e:
             logger.error(f"Failed to validate dataset {dataset_id}: {e}")
-            validation_results[dataset_id] = {'error': str(e)}
+            validation_results[dataset_id] = {"error": str(e)}
 
     overall_score = sum(overall_scores) / len(overall_scores) if overall_scores else 0.0
 
     return {
-        'validation_results': validation_results,
-        'overall_score': overall_score,
-        'datasets_validated': len(datasets),
-        'quality_threshold': quality_threshold,
-        'validation_passed': overall_score >= quality_threshold
+        "validation_results": validation_results,
+        "overall_score": overall_score,
+        "datasets_validated": len(datasets),
+        "quality_threshold": quality_threshold,
+        "validation_passed": overall_score >= quality_threshold,
     }
 
 
 def optimize_storage_performance(
-    access_patterns: Dict[str, Any],
-    time_window: str = "30d"
+    access_patterns: Dict[str, Any], time_window: str = "30d"
 ) -> Dict[str, Any]:
     """
     Optimize storage performance based on access patterns.
@@ -461,12 +483,14 @@ def optimize_storage_performance(
     logger.info(f"Optimizing storage performance for {len(access_patterns)} patterns")
 
     storage = AdaptiveDataStorage(
-        storage_backends=['postgresql', 'minio', 'redis'],
-        optimization_strategy='access_pattern_based'
+        storage_backends=["postgresql", "minio", "redis"],
+        optimization_strategy="access_pattern_based",
     )
 
     optimizations = storage.optimize_for_patterns(access_patterns, time_window)
 
-    logger.info(f"Applied {len(optimizations.get('actions', []))} storage optimizations")
+    logger.info(
+        f"Applied {len(optimizations.get('actions', []))} storage optimizations"
+    )
 
     return optimizations

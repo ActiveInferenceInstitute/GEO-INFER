@@ -16,16 +16,14 @@ Tests cover:
 
 import pytest
 import numpy as np
-import asyncio
-from datetime import datetime
 import tempfile
 import os
 
 # Import modules to test
 try:
-    from geo_infer_ant.algorithms.aco import AntColonyOptimization, ACOParameters, OptimizationResult
-    from geo_infer_ant.algorithms.pso import ParticleSwarmOptimization, PSOParameters, Particle
-    from geo_infer_ant.algorithms.abc import ArtificialBeeColony, ABCParameters, FoodSource
+    from geo_infer_ant.algorithms.aco import AntColonyOptimization
+    from geo_infer_ant.algorithms.pso import ParticleSwarmOptimization
+    from geo_infer_ant.algorithms.abc import ArtificialBeeColony, FoodSource
 except ImportError:
     pytest.skip("Algorithm modules not available", allow_module_level=True)
 
@@ -40,7 +38,7 @@ class TestAntColonyOptimization:
             pheromone_evaporation_rate=0.1,
             alpha=1.0,
             beta=2.0,
-            max_iterations=50
+            max_iterations=50,
         )
 
         assert aco.parameters.number_of_ants == 30
@@ -61,7 +59,9 @@ class TestAntColonyOptimization:
         distance_matrix = np.zeros((n_cities, n_cities))
         for i in range(n_cities):
             for j in range(n_cities):
-                distance_matrix[i, j] = np.linalg.norm(city_positions[i] - city_positions[j])
+                distance_matrix[i, j] = np.linalg.norm(
+                    city_positions[i] - city_positions[j]
+                )
 
         # Initialize problem
         aco.initialize_problem(city_positions.tolist(), distance_matrix)
@@ -77,12 +77,14 @@ class TestAntColonyOptimization:
 
         # Simple 4-city problem
         cities = [[0, 0], [1, 0], [1, 1], [0, 1]]
-        distance_matrix = np.array([
-            [0, 1, np.sqrt(2), 1],
-            [1, 0, 1, np.sqrt(2)],
-            [np.sqrt(2), 1, 0, 1],
-            [1, np.sqrt(2), 1, 0]
-        ])
+        distance_matrix = np.array(
+            [
+                [0, 1, np.sqrt(2), 1],
+                [1, 0, 1, np.sqrt(2)],
+                [np.sqrt(2), 1, 0, 1],
+                [1, np.sqrt(2), 1, 0],
+            ]
+        )
 
         aco.initialize_problem(cities, distance_matrix)
 
@@ -95,18 +97,24 @@ class TestAntColonyOptimization:
 
     def test_aco_pheromone_updates(self):
         """Test ACO pheromone update mechanisms."""
-        aco = AntColonyOptimization(number_of_ants=5, max_iterations=10, variant='AS')
+        aco = AntColonyOptimization(number_of_ants=5, max_iterations=10, variant="AS")
 
         # Initialize problem
         cities = [[0, 0], [1, 0], [1, 1], [0, 1]]
-        distances = np.array([[0, 1, np.sqrt(2), 1], [1, 0, 1, np.sqrt(2)],
-                             [np.sqrt(2), 1, 0, 1], [1, np.sqrt(2), 1, 0]])
+        distances = np.array(
+            [
+                [0, 1, np.sqrt(2), 1],
+                [1, 0, 1, np.sqrt(2)],
+                [np.sqrt(2), 1, 0, 1],
+                [1, np.sqrt(2), 1, 0],
+            ]
+        )
         aco.initialize_problem(cities, distances)
 
         # Create test solutions
         solutions = [
-            {'solution': [0, 1, 2, 3], 'fitness': 4.0, 'ant_id': 0},
-            {'solution': [0, 2, 1, 3], 'fitness': 4.5, 'ant_id': 1}
+            {"solution": [0, 1, 2, 3], "fitness": 4.0, "ant_id": 0},
+            {"solution": [0, 2, 1, 3], "fitness": 4.5, "ant_id": 1},
         ]
 
         # Update pheromones
@@ -137,32 +145,30 @@ class TestAntColonyOptimization:
         """Test ACO multi-objective optimization."""
         aco = AntColonyOptimization(number_of_ants=20, max_iterations=30)
 
-        objectives = ['minimize_cost', 'minimize_time', 'maximize_service']
+        objectives = ["minimize_cost", "minimize_time", "maximize_service"]
         result = aco.multi_objective_optimization(
-            objectives=objectives,
-            population_size=50,
-            generations=20
+            objectives=objectives, population_size=50, generations=20
         )
 
-        assert 'solutions' in result
-        assert 'objectives' in result
-        assert result['objectives'] == objectives
+        assert "solutions" in result
+        assert "objectives" in result
+        assert result["objectives"] == objectives
 
     def test_aco_adaptation(self):
         """Test ACO adaptation to environmental changes."""
         aco = AntColonyOptimization()
 
         environmental_changes = {
-            'volatility': 0.3,
-            'problem_complexity': 0.7,
-            'major_change': True
+            "volatility": 0.3,
+            "problem_complexity": 0.7,
+            "major_change": True,
         }
 
         adaptation = aco.adapt_to_changes(environmental_changes)
 
-        assert 'changes_applied' in adaptation
-        assert 'parameters_updated' in adaptation
-        assert len(adaptation['changes_applied']) > 0
+        assert "changes_applied" in adaptation
+        assert "parameters_updated" in adaptation
+        assert len(adaptation["changes_applied"]) > 0
 
     def test_aco_state_persistence(self):
         """Test ACO state save and load."""
@@ -174,7 +180,7 @@ class TestAntColonyOptimization:
         aco.initialize_problem(cities, distances)
 
         # Save state
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             success = aco.save_optimization_state(f.name)
             assert success
 
@@ -194,15 +200,15 @@ class TestAntColonyOptimization:
         distances = np.ones((4, 4)) - np.eye(4)
         aco.initialize_problem(cities, distances)
 
-        result = aco.solve()
+        aco.solve()
 
         # Get statistics
         stats = aco.get_optimization_statistics()
 
-        assert stats['algorithm'] == 'Ant Colony Optimization'
-        assert 'parameters' in stats
-        assert 'optimization_results' in stats
-        assert 'pheromone_statistics' in stats
+        assert stats["algorithm"] == "Ant Colony Optimization"
+        assert "parameters" in stats
+        assert "optimization_results" in stats
+        assert "pheromone_statistics" in stats
 
 
 class TestParticleSwarmOptimization:
@@ -217,7 +223,7 @@ class TestParticleSwarmOptimization:
             inertia_weight=0.7,
             cognitive_acceleration=1.5,
             social_acceleration=1.5,
-            max_iterations=20
+            max_iterations=20,
         )
 
         assert pso.parameters.swarm_size == 50
@@ -236,7 +242,9 @@ class TestParticleSwarmOptimization:
         assert len(pso.swarm) == 10
         assert all(particle.position.shape == (2,) for particle in pso.swarm)
         assert all(particle.velocity.shape == (2,) for particle in pso.swarm)
-        assert all(particle.personal_best_position.shape == (2,) for particle in pso.swarm)
+        assert all(
+            particle.personal_best_position.shape == (2,) for particle in pso.swarm
+        )
 
     def test_pso_swarm_initialization_with_positions(self):
         """Test PSO swarm initialization with provided positions."""
@@ -265,7 +273,7 @@ class TestParticleSwarmOptimization:
             global_best_position=global_best,
             inertia_weight=0.7,
             cognitive_acceleration=1.5,
-            social_acceleration=1.5
+            social_acceleration=1.5,
         )
 
         particle.update_position(pso.parameters.bounds)
@@ -296,40 +304,41 @@ class TestParticleSwarmOptimization:
     def test_pso_adaptive_parameters(self):
         """Test PSO adaptive parameter tuning."""
         pso = ParticleSwarmOptimization(
-            swarm_size=20,
-            dimensions=2,
-            adaptive_parameters=True,
-            max_iterations=30
+            swarm_size=20, dimensions=2, adaptive_parameters=True, max_iterations=30
         )
 
         # Create performance history
         performance_history = [
-            {'fitness': 100, 'iteration': 0},
-            {'fitness': 80, 'iteration': 5},
-            {'fitness': 60, 'iteration': 10},
-            {'fitness': 40, 'iteration': 15},
-            {'fitness': 20, 'iteration': 20}
+            {"fitness": 100, "iteration": 0},
+            {"fitness": 80, "iteration": 5},
+            {"fitness": 60, "iteration": 10},
+            {"fitness": 40, "iteration": 15},
+            {"fitness": 20, "iteration": 20},
         ]
 
-        environmental_changes = {'noise_level': 0.2}
+        environmental_changes = {"noise_level": 0.2}
         adaptation = pso.adapt_parameters(performance_history, environmental_changes)
 
-        assert 'changes_applied' in adaptation
-        assert len(adaptation['changes_applied']) >= 0  # May or may not adapt
+        assert "changes_applied" in adaptation
+        assert len(adaptation["changes_applied"]) >= 0  # May or may not adapt
 
     def test_pso_neighborhood_topology(self):
         """Test PSO neighborhood topology configurations."""
         # Test global topology (default)
-        pso_global = ParticleSwarmOptimization(swarm_size=10, neighborhood_topology='global')
+        pso_global = ParticleSwarmOptimization(
+            swarm_size=10, neighborhood_topology="global"
+        )
         pso_global.initialize_swarm()
 
-        assert pso_global.parameters.neighborhood_topology == 'global'
+        assert pso_global.parameters.neighborhood_topology == "global"
 
         # Test local topology
-        pso_local = ParticleSwarmOptimization(swarm_size=10, neighborhood_topology='local', neighborhood_size=3)
+        pso_local = ParticleSwarmOptimization(
+            swarm_size=10, neighborhood_topology="local", neighborhood_size=3
+        )
         pso_local.initialize_swarm()
 
-        assert pso_local.parameters.neighborhood_topology == 'local'
+        assert pso_local.parameters.neighborhood_topology == "local"
         assert len(pso_local.neighborhoods) == 10  # One neighborhood per particle
 
     def test_pso_multi_swarm_coordination(self):
@@ -339,19 +348,19 @@ class TestParticleSwarmOptimization:
         # Create sub-swarms
         sub_swarms = [
             ParticleSwarmOptimization(swarm_size=5, dimensions=2),
-            ParticleSwarmOptimization(swarm_size=5, dimensions=2)
+            ParticleSwarmOptimization(swarm_size=5, dimensions=2),
         ]
 
         # Test coordination
         coordination_result = pso.coordinate_swarms(
             sub_swarms=sub_swarms,
-            communication_topology='hierarchical',
-            information_sharing='best_positions'
+            communication_topology="hierarchical",
+            information_sharing="best_positions",
         )
 
-        assert 'topology' in coordination_result
-        assert 'combined_best_solution' in coordination_result
-        assert len(coordination_result['sub_swarm_results']) == 2
+        assert "topology" in coordination_result
+        assert "combined_best_solution" in coordination_result
+        assert len(coordination_result["sub_swarm_results"]) == 2
 
     def test_pso_state_persistence(self):
         """Test PSO state save and load."""
@@ -368,7 +377,7 @@ class TestParticleSwarmOptimization:
             pso._update_swarm()
 
         # Save state
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             success = pso.save_optimization_state(f.name)
             assert success
 
@@ -388,15 +397,15 @@ class TestParticleSwarmOptimization:
             return np.sum(x**2)
 
         # Run brief optimization
-        result = pso.optimize(dummy_objective)
+        pso.optimize(dummy_objective)
 
         # Get statistics
         stats = pso.get_optimization_statistics()
 
-        assert stats['algorithm'] == 'Particle Swarm Optimization'
-        assert 'parameters' in stats
-        assert 'optimization_results' in stats
-        assert 'swarm_statistics' in stats
+        assert stats["algorithm"] == "Particle Swarm Optimization"
+        assert "parameters" in stats
+        assert "optimization_results" in stats
+        assert "swarm_statistics" in stats
 
 
 class TestArtificialBeeColony:
@@ -409,7 +418,7 @@ class TestArtificialBeeColony:
             dimensions=3,
             bounds=[(-5, 5), (-5, 5), (-5, 5)],
             max_trials=30,
-            limit=100
+            limit=100,
         )
 
         assert abc.parameters.colony_size == 50
@@ -446,8 +455,10 @@ class TestArtificialBeeColony:
 
         assert neighbor.shape == original_position.shape
         assert not np.allclose(neighbor, original_position)  # Should be different
-        assert all(abc.parameters.bounds[i][0] <= neighbor[i] <= abc.parameters.bounds[i][1]
-                  for i in range(len(neighbor)))
+        assert all(
+            abc.parameters.bounds[i][0] <= neighbor[i] <= abc.parameters.bounds[i][1]
+            for i in range(len(neighbor))
+        )
 
     def test_abc_fitness_evaluation(self):
         """Test ABC fitness evaluation."""
@@ -478,10 +489,13 @@ class TestArtificialBeeColony:
         assert len(probabilities) == 3
         assert np.all(probabilities >= 0)
         assert abs(np.sum(probabilities) - 1.0) < 1e-6
-        assert probabilities[1] > probabilities[0] > probabilities[2]  # Higher fitness = higher probability
+        assert (
+            probabilities[1] > probabilities[0] > probabilities[2]
+        )  # Higher fitness = higher probability
 
     def test_abc_employed_bee_phase(self):
         """Test ABC employed bee phase."""
+        np.random.seed(1)
         abc = ArtificialBeeColony(colony_size=6, dimensions=2)
         abc._initialize_food_sources()
 
@@ -496,7 +510,9 @@ class TestArtificialBeeColony:
         abc._employed_bee_phase(test_function)
 
         # Check that some sources were updated
-        updated_sources = sum(1 for source in abc.food_sources if source.trial_count == 0)
+        updated_sources = sum(
+            1 for source in abc.food_sources if source.trial_count == 0
+        )
         assert updated_sources > 0
 
     def test_abc_onlooker_bee_phase(self):
@@ -557,36 +573,36 @@ class TestArtificialBeeColony:
         sources = [
             FoodSource(position=np.array([1, 1]), fitness=0.8, trial_count=2),
             FoodSource(position=np.array([2, 2]), fitness=0.6, trial_count=5),
-            FoodSource(position=np.array([3, 3]), fitness=0.9, trial_count=1)
+            FoodSource(position=np.array([3, 3]), fitness=0.9, trial_count=1),
         ]
 
         # Test management
         management = abc.manage_food_sources(
             current_sources=sources,
-            abandonment_criteria='trial_limit',
-            recruitment_strategy='fitness_proportional'
+            abandonment_criteria="trial_limit",
+            recruitment_strategy="fitness_proportional",
         )
 
-        assert 'sources_abandoned' in management
-        assert 'sources_updated' in management
-        assert management['sources_updated'] == len(sources)
+        assert "sources_abandoned" in management
+        assert "sources_updated" in management
+        assert management["sources_updated"] == len(sources)
 
     def test_abc_foraging_adaptation(self):
         """Test ABC foraging strategy adaptation."""
         abc = ArtificialBeeColony(colony_size=20, dimensions=2)
 
-        environmental_conditions = {'resource_density': 0.2}
-        colony_performance = {'success_rate': 0.25}
+        environmental_conditions = {"resource_density": 0.2}
+        colony_performance = {"success_rate": 0.25}
 
         adaptation = abc.adapt_foraging_strategy(
             environmental_conditions,
             colony_performance,
-            behavioral_adaptation='learning_automaton'
+            behavioral_adaptation="learning_automaton",
         )
 
-        assert 'adaptation_type' in adaptation
-        assert 'parameters_updated' in adaptation
-        assert 'strategy_changes' in adaptation
+        assert "adaptation_type" in adaptation
+        assert "parameters_updated" in adaptation
+        assert "strategy_changes" in adaptation
 
     def test_abc_statistics(self):
         """Test ABC statistics generation."""
@@ -596,14 +612,14 @@ class TestArtificialBeeColony:
             return np.sum(x**2)
 
         # Run brief optimization
-        result = abc.optimize(dummy_function)
+        abc.optimize(dummy_function)
 
         stats = abc.get_optimization_statistics()
 
-        assert stats['algorithm'] == 'Artificial Bee Colony'
-        assert 'parameters' in stats
-        assert 'optimization_results' in stats
-        assert 'food_source_statistics' in stats
+        assert stats["algorithm"] == "Artificial Bee Colony"
+        assert "parameters" in stats
+        assert "optimization_results" in stats
+        assert "food_source_statistics" in stats
 
 
 class TestAlgorithmIntegration:
@@ -615,9 +631,9 @@ class TestAlgorithmIntegration:
             from geo_infer_ant.core.stigmergy import PheromoneSystem
 
             # Create pheromone system
-            pheromone_system = PheromoneSystem(
-                pheromone_types=['trail'],
-                bounds={'min_lat': -10, 'max_lat': 10, 'min_lng': -10, 'max_lng': 10}
+            PheromoneSystem(
+                pheromone_types=["trail"],
+                bounds={"min_lat": -10, "max_lat": 10, "min_lng": -10, "max_lng": 10},
             )
 
             # Create ACO with pheromone integration
@@ -639,7 +655,7 @@ class TestAlgorithmIntegration:
         pso = ParticleSwarmOptimization(
             swarm_size=10,
             dimensions=2,
-            spatial_constraints={'spatial_bounds': [(-5, 5), (-5, 5)]}
+            spatial_constraints={"spatial_bounds": [(-5, 5), (-5, 5)]},
         )
 
         def constrained_objective(x):
@@ -655,8 +671,10 @@ class TestAlgorithmIntegration:
         optimal = pso.optimize(constrained_objective)
 
         # Should respect bounds
-        assert all(pso.parameters.bounds[i][0] <= val <= pso.parameters.bounds[i][1]
-                  for i, val in enumerate(optimal))
+        assert all(
+            pso.parameters.bounds[i][0] <= val <= pso.parameters.bounds[i][1]
+            for i, val in enumerate(optimal)
+        )
 
 
 class TestAlgorithmPerformance:
@@ -668,7 +686,9 @@ class TestAlgorithmPerformance:
         problem_sizes = [5, 10, 15]
 
         for size in problem_sizes:
-            aco = AntColonyOptimization(number_of_ants=min(10, size*2), max_iterations=10)
+            aco = AntColonyOptimization(
+                number_of_ants=min(10, size * 2), max_iterations=10
+            )
 
             # Create problem
             cities = np.random.uniform(-10, 10, (size, 2))
@@ -682,7 +702,7 @@ class TestAlgorithmPerformance:
 
             # Should complete successfully
             assert result.iterations_completed > 0
-            assert result.best_fitness < float('inf')
+            assert result.best_fitness < float("inf")
 
     @pytest.mark.slow
     def test_pso_performance_scaling(self):
@@ -690,7 +710,9 @@ class TestAlgorithmPerformance:
         swarm_sizes = [10, 30, 50]
 
         for size in swarm_sizes:
-            pso = ParticleSwarmOptimization(swarm_size=size, dimensions=2, max_iterations=10)
+            pso = ParticleSwarmOptimization(
+                swarm_size=size, dimensions=2, max_iterations=10
+            )
 
             def sphere(x):
                 return np.sum(x**2)

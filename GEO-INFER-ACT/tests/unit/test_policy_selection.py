@@ -9,6 +9,7 @@ and exploitation (pragmatic value) in the active inference framework.
 import numpy as np
 import pytest
 
+from geo_infer_act import PolicyEvaluation
 from geo_infer_act.core.policy_selection import PolicySelector
 
 
@@ -25,6 +26,16 @@ class TestPolicySelectorInit:
         selector = PolicySelector(temperature=0.5)
         assert selector.temperature == 0.5
 
+    def test_seeded_deterministic_mode(self) -> None:
+        """Test deterministic mode is explicit and seeded stochastic state exists."""
+        selector = PolicySelector(
+            temperature=0.5,
+            selection_mode="deterministic",
+            random_seed=7,
+        )
+        assert selector.temperature == 0.5
+        assert selector.selection_mode == "deterministic"
+
 
 class TestPolicySelection:
     """Test policy selection mechanics."""
@@ -37,39 +48,51 @@ class TestPolicySelection:
         """Test selecting from an explicit list of policies."""
         beliefs = np.array([0.4, 0.3, 0.2, 0.1])
         policies = [
-            {'action': 0, 'exploration_bonus': 0.1},
-            {'action': 1, 'exploration_bonus': 0.2},
-            {'action': 2, 'exploration_bonus': 0.3},
+            {"action": 0, "exploration_bonus": 0.1},
+            {"action": 1, "exploration_bonus": 0.2},
+            {"action": 2, "exploration_bonus": 0.3},
         ]
         preferences = np.array([0.1, 0.2, 0.3, 0.4])
 
         result = self.selector.select_policy(beliefs, policies, preferences)
-        assert 'policy' in result
-        assert 'probability' in result
-        assert 'expected_free_energy' in result
-        assert 'all_probabilities' in result
-        assert 'all_free_energies' in result
-        assert result['policy'] in policies
-        assert 0.0 <= result['probability'] <= 1.0
+        assert "policy" in result
+        assert "probability" in result
+        assert "expected_free_energy" in result
+        assert "all_probabilities" in result
+        assert "all_free_energies" in result
+        assert result["policy"] in policies
+        assert 0.0 <= result["probability"] <= 1.0
 
     def test_probabilities_sum_to_one(self) -> None:
         """Test that all policy probabilities sum to 1."""
         beliefs = np.array([0.5, 0.3, 0.2])
-        policies = [
-            {'action': i, 'exploration_bonus': 0.1 * i}
-            for i in range(5)
-        ]
+        policies = [{"action": i, "exploration_bonus": 0.1 * i} for i in range(5)]
         result = self.selector.select_policy(beliefs, policies)
-        np.testing.assert_allclose(
-            result['all_probabilities'].sum(), 1.0, atol=1e-6
-        )
+        np.testing.assert_allclose(result["all_probabilities"].sum(), 1.0, atol=1e-6)
 
     def test_default_policies_when_empty(self) -> None:
         """Test that default policies are created when none provided."""
         beliefs = np.array([0.5, 0.3, 0.2])
         result = self.selector.select_policy(beliefs, [])
-        assert 'policy' in result
-        assert len(result['all_probabilities']) == 5  # Default creates 5 policies
+        assert "policy" in result
+        assert len(result["all_probabilities"]) == 5  # Default creates 5 policies
+
+    def test_deterministic_mode_selects_lowest_expected_free_energy(self) -> None:
+        """Test deterministic selection minimizes expected free energy."""
+        selector = PolicySelector(selection_mode="deterministic", random_seed=11)
+        beliefs = np.array([0.5, 0.3, 0.2])
+        policies = [
+            {"action": "worse", "expected_free_energy": 2.0},
+            {"action": "best", "expected_free_energy": -0.25},
+            {"action": "middle", "expected_free_energy": 0.5},
+        ]
+
+        result = selector.select_policy(beliefs, policies)
+
+        assert result["selected_index"] == 1
+        assert result["policy"]["action"] == "best"
+        assert result["expected_free_energy"] == pytest.approx(-0.25)
+        assert isinstance(result["evaluation"], PolicyEvaluation)
 
 
 class TestExpectedFreeEnergyComputation:
@@ -82,7 +105,7 @@ class TestExpectedFreeEnergyComputation:
     def test_efe_returns_float(self) -> None:
         """Test that EFE computation returns a float."""
         beliefs = np.array([0.25, 0.25, 0.25, 0.25])
-        policy = {'exploration_bonus': 0.1, 'risk_preference': 0.0}
+        policy = {"exploration_bonus": 0.1, "risk_preference": 0.0}
         efe = self.selector.compute_expected_free_energy(beliefs, policy)
         assert isinstance(efe, float)
         assert np.isfinite(efe)
@@ -90,10 +113,28 @@ class TestExpectedFreeEnergyComputation:
     def test_efe_with_preferences(self) -> None:
         """Test EFE with explicit preferences."""
         beliefs = np.array([0.5, 0.3, 0.2])
-        policy = {'exploration_bonus': 0.1, 'temporal_discount': 0.9}
+        policy = {"exploration_bonus": 0.1, "temporal_discount": 0.9}
         preferences = np.array([0.1, 0.3, 0.6])
         efe = self.selector.compute_expected_free_energy(beliefs, policy, preferences)
         assert np.isfinite(efe)
+
+    def test_policy_conditioned_breakdown_matches_evaluation(self) -> None:
+        """Test policy-conditioned beliefs drive both EFE and diagnostics."""
+        selector = PolicySelector(selection_mode="deterministic")
+        beliefs = np.array([0.6, 0.3, 0.1])
+        preferences = np.array([0.1, 0.8, 0.1])
+        policies = [
+            {"action": "less_preferred", "predicted_beliefs": [0.8, 0.1, 0.1]},
+            {"action": "preferred", "predicted_beliefs": [0.1, 0.8, 0.1]},
+        ]
+
+        result = selector.select_policy(beliefs, policies, preferences)
+        evaluation = result["evaluation"]
+        breakdown = evaluation.metadata["breakdown"]
+
+        assert result["policy"]["action"] == "preferred"
+        assert evaluation.expected_free_energy == pytest.approx(breakdown.free_energy)
+        assert evaluation.pragmatic_value == pytest.approx(breakdown.pragmatic_value)
 
     def test_integer_policy_conversion(self) -> None:
         """Test that integer policies are handled gracefully."""
@@ -104,8 +145,8 @@ class TestExpectedFreeEnergyComputation:
     def test_risk_averse_vs_seeking(self) -> None:
         """Test that risk preference modulates expected free energy."""
         beliefs = np.array([0.6, 0.2, 0.1, 0.1])
-        risk_averse = {'exploration_bonus': 0.1, 'risk_preference': -0.5}
-        risk_seeking = {'exploration_bonus': 0.1, 'risk_preference': 0.5}
+        risk_averse = {"exploration_bonus": 0.1, "risk_preference": -0.5}
+        risk_seeking = {"exploration_bonus": 0.1, "risk_preference": 0.5}
 
         efe_averse = self.selector.compute_expected_free_energy(beliefs, risk_averse)
         efe_seeking = self.selector.compute_expected_free_energy(beliefs, risk_seeking)
@@ -133,29 +174,25 @@ class TestPolicySetEvaluation:
         """Test that evaluation returns all expected fields."""
         selector = PolicySelector()
         beliefs = np.array([0.4, 0.3, 0.2, 0.1])
-        policies = [
-            {'action': i, 'exploration_bonus': 0.1}
-            for i in range(3)
-        ]
+        policies = [{"action": i, "exploration_bonus": 0.1} for i in range(3)]
         result = selector.evaluate_policy_set(beliefs, policies)
-        assert 'policies' in result
-        assert 'expected_free_energies' in result
-        assert 'epistemic_values' in result
-        assert 'pragmatic_values' in result
-        assert 'probabilities' in result
-        assert 'best_policy_idx' in result
-        assert 'diversity' in result
+        assert "policies" in result
+        assert "expected_free_energies" in result
+        assert "epistemic_values" in result
+        assert "pragmatic_values" in result
+        assert "probabilities" in result
+        assert "best_policy_idx" in result
+        assert "diversity" in result
+        assert "evaluations" in result
+        assert all(isinstance(item, PolicyEvaluation) for item in result["evaluations"])
 
     def test_best_policy_index_valid(self) -> None:
         """Test that best policy index is within valid range."""
         selector = PolicySelector()
         beliefs = np.array([0.5, 0.3, 0.2])
-        policies = [
-            {'action': i, 'exploration_bonus': 0.1 * (i + 1)}
-            for i in range(4)
-        ]
+        policies = [{"action": i, "exploration_bonus": 0.1 * (i + 1)} for i in range(4)]
         result = selector.evaluate_policy_set(beliefs, policies)
-        assert 0 <= result['best_policy_idx'] < 4
+        assert 0 <= result["best_policy_idx"] < 4
 
 
 class TestActionSelection:

@@ -36,6 +36,10 @@ theorem-proving = [
     "z3-solver>=4.12.0",
     "sympy>=1.9.0",
 ]
+web = [
+    "flask>=2.3.0",
+    "werkzeug>=2.3.0",
+]
 dev = [
     "pytest>=6.2.0",
     "pytest-cov>=2.12.0",
@@ -162,4 +166,3 @@ exclude_lines = [
     "class .*\\bProtocol\\):",
     "@(abc\\.)?abstractmethod",
 ]
-
